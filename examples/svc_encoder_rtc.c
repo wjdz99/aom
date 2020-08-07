@@ -21,15 +21,439 @@
 #include "aom/aomcx.h"
 #include "av1/common/enums.h"
 #include "av1/encoder/encoder.h"
+#include "common/args.h"
 #include "common/tools_common.h"
 #include "common/video_writer.h"
 #include "aom_ports/aom_timer.h"
+
+#ifdef __MINGW32__
+#define strtok_r strtok_s
+#ifndef MINGW_HAS_SECURE_API
+// proto from /usr/x86_64-w64-mingw32/include/sec_api/string_s.h
+_CRTIMP char *__cdecl strtok_s(char *str, const char *delim, char **context);
+#endif /* MINGW_HAS_SECURE_API */
+#endif /* __MINGW32__ */
+
+#ifdef _MSC_VER
+#define strdup _strdup
+#define strtok_r strtok_s
+#endif
+
+#define OPTION_BUFFER_SIZE 1024
+
+typedef struct {
+  const char *output_filename;
+  uint32_t frames_to_skip;
+  char options[OPTION_BUFFER_SIZE];
+  struct AvxInputContext input_ctx;
+  int speed;
+  int aq_mode;
+  int layering_mode;
+} AppInput;
+
+typedef enum {
+  QUANTIZER = 0,
+  BITRATE,
+  SCALE_FACTOR,
+  AUTO_ALT_REF,
+  ALL_OPTION_TYPES
+} LAYER_OPTION_TYPE;
+
+static const arg_def_t outputfile =
+    ARG_DEF("o", "output", 1, "Output filename");
+static const arg_def_t skip_frames_arg =
+    ARG_DEF("s", "skip-frames", 1, "input frames to skip");
+static const arg_def_t frames_arg =
+    ARG_DEF("f", "frames", 1, "number of frames to encode");
+static const arg_def_t threads_arg =
+    ARG_DEF("th", "threads", 1, "number of threads to use");
+static const arg_def_t width_arg = ARG_DEF("w", "width", 1, "source width");
+static const arg_def_t height_arg = ARG_DEF("h", "height", 1, "source height");
+static const arg_def_t timebase_arg =
+    ARG_DEF("t", "timebase", 1, "timebase (num/den)");
+static const arg_def_t bitrate_arg = ARG_DEF(
+    "b", "target-bitrate", 1, "encoding bitrate, in kilobits per second");
+static const arg_def_t spatial_layers_arg =
+    ARG_DEF("sl", "spatial-layers", 1, "number of spatial SVC layers");
+static const arg_def_t temporal_layers_arg =
+    ARG_DEF("tl", "temporal-layers", 1, "number of temporal SVC layers");
+static const arg_def_t temporal_layering_mode_arg =
+    ARG_DEF("tlm", "temporal-layering-mode", 1, "temporal layering scheme.");
+static const arg_def_t kf_dist_arg =
+    ARG_DEF("k", "kf-dist", 1, "number of frames between keyframes");
+static const arg_def_t scale_factors_arg =
+    ARG_DEF("r", "scale-factors", 1, "scale factors (lowest to highest layer)");
+static const arg_def_t pass_arg =
+    ARG_DEF(NULL, "pass", 1, "Pass to execute (1/2)");
+static const arg_def_t fpf_name_arg =
+    ARG_DEF(NULL, "fpf", 1, "First pass statistics file name");
+static const arg_def_t min_q_arg =
+    ARG_DEF(NULL, "min-q", 1, "Minimum quantizer");
+static const arg_def_t max_q_arg =
+    ARG_DEF(NULL, "max-q", 1, "Maximum quantizer");
+static const arg_def_t min_bitrate_arg =
+    ARG_DEF(NULL, "min-bitrate", 1, "Minimum bitrate");
+static const arg_def_t max_bitrate_arg =
+    ARG_DEF(NULL, "max-bitrate", 1, "Maximum bitrate");
+static const arg_def_t lag_in_frame_arg =
+    ARG_DEF(NULL, "lag-in-frames", 1,
+            "Number of frame to input before "
+            "generating any outputs");
+static const arg_def_t rc_end_usage_arg =
+    ARG_DEF(NULL, "rc-end-usage", 1, "0 - 3: VBR, CBR, CQ, Q");
+static const arg_def_t speed_arg =
+    ARG_DEF("sp", "speed", 1, "speed configuration");
+static const arg_def_t aqmode_arg =
+    ARG_DEF("aq", "aqmode", 1, "aq-mode off/on");
+static const arg_def_t bitrates_arg =
+    ARG_DEF("bl", "bitrates", 1, "bitrates[sl * num_tl + tl]");
+static const arg_def_t dropframe_thresh_arg =
+    ARG_DEF(NULL, "drop-frame", 1, "Temporal resampling threshold (buf %)");
+static const arg_def_t error_resilient_arg =
+    ARG_DEF(NULL, "error-resilient", 0, "Error resilient flag");
+
+#if CONFIG_AV1_HIGHBITDEPTH
+static const struct arg_enum_list bitdepth_enum[] = {
+  { "8", AOM_BITS_8 }, { "10", AOM_BITS_10 }, { "12", AOM_BITS_12 }, { NULL, 0 }
+};
+
+static const arg_def_t bitdepth_arg = ARG_DEF_ENUM(
+    "d", "bit-depth", 1, "Bit depth for codec 8, 10 or 12. ", bitdepth_enum);
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+
+static const arg_def_t *svc_args[] = { &frames_arg,
+                                       &outputfile,
+                                       &width_arg,
+                                       &height_arg,
+                                       &timebase_arg,
+                                       &bitrate_arg,
+                                       &skip_frames_arg,
+                                       &spatial_layers_arg,
+                                       &kf_dist_arg,
+                                       &scale_factors_arg,
+                                       &pass_arg,
+                                       &fpf_name_arg,
+                                       &min_q_arg,
+                                       &max_q_arg,
+                                       &min_bitrate_arg,
+                                       &max_bitrate_arg,
+                                       &temporal_layers_arg,
+                                       &temporal_layering_mode_arg,
+                                       &lag_in_frame_arg,
+                                       &threads_arg,
+                                       &aqmode_arg,
+#if CONFIG_AV1_HIGHBITDEPTH
+                                       &bitdepth_arg,
+#endif
+                                       &speed_arg,
+                                       &rc_end_usage_arg,
+                                       &bitrates_arg,
+                                       &dropframe_thresh_arg,
+                                       &error_resilient_arg,
+                                       NULL };
 
 #define zero(Dest) memset(&(Dest), 0, sizeof(Dest));
 
 static const char *exec_name;
 
-void usage_exit(void) { exit(EXIT_FAILURE); }
+void usage_exit(void) {
+  fprintf(stderr, "Usage: %s <options> input_filename -o output_filename\n",
+          exec_name);
+  fprintf(stderr, "Options:\n");
+  arg_show_usage(stderr, svc_args);
+  exit(EXIT_FAILURE);
+}
+
+static int file_is_y4m(const char detect[4]) {
+  if (memcmp(detect, "YUV4", 4) == 0) {
+    return 1;
+  }
+  return 0;
+}
+
+static int fourcc_is_ivf(const char detect[4]) {
+  if (memcmp(detect, "DKIF", 4) == 0) {
+    return 1;
+  }
+  return 0;
+}
+
+static const int option_max_values[ALL_OPTION_TYPES] = { 63, INT_MAX, INT_MAX,
+                                                         1 };
+
+static const int option_min_values[ALL_OPTION_TYPES] = { 0, 0, 1, 0 };
+
+static void open_input_file(struct AvxInputContext *input,
+                            aom_chroma_sample_position_t csp) {
+  /* Parse certain options from the input file, if possible */
+  input->file = strcmp(input->filename, "-") ? fopen(input->filename, "rb")
+                                             : set_binary_mode(stdin);
+
+  if (!input->file) fatal("Failed to open input file");
+
+  if (!fseeko(input->file, 0, SEEK_END)) {
+    /* Input file is seekable. Figure out how long it is, so we can get
+     * progress info.
+     */
+    input->length = ftello(input->file);
+    rewind(input->file);
+  }
+
+  /* Default to 1:1 pixel aspect ratio. */
+  input->pixel_aspect_ratio.numerator = 1;
+  input->pixel_aspect_ratio.denominator = 1;
+
+  /* For RAW input sources, these bytes will applied on the first frame
+   *  in read_frame().
+   */
+  input->detect.buf_read = fread(input->detect.buf, 1, 4, input->file);
+  input->detect.position = 0;
+
+  if (input->detect.buf_read == 4 && file_is_y4m(input->detect.buf)) {
+    if (y4m_input_open(&input->y4m, input->file, input->detect.buf, 4, csp,
+                       input->only_i420) >= 0) {
+      input->file_type = FILE_TYPE_Y4M;
+      input->width = input->y4m.pic_w;
+      input->height = input->y4m.pic_h;
+      input->pixel_aspect_ratio.numerator = input->y4m.par_n;
+      input->pixel_aspect_ratio.denominator = input->y4m.par_d;
+      input->framerate.numerator = input->y4m.fps_n;
+      input->framerate.denominator = input->y4m.fps_d;
+      input->fmt = input->y4m.aom_fmt;
+      input->bit_depth = input->y4m.bit_depth;
+    } else {
+      fatal("Unsupported Y4M stream.");
+    }
+  } else if (input->detect.buf_read == 4 && fourcc_is_ivf(input->detect.buf)) {
+    fatal("IVF is not supported as input.");
+  } else {
+    input->file_type = FILE_TYPE_RAW;
+  }
+}
+
+static aom_codec_err_t extract_option(LAYER_OPTION_TYPE type, char *input,
+                                      int *value0, int *value1) {
+  if (type == SCALE_FACTOR) {
+    *value0 = (int)strtol(input, &input, 10);
+    if (*input++ != '/') return AOM_CODEC_INVALID_PARAM;
+    *value1 = (int)strtol(input, &input, 10);
+
+    if (*value0 < option_min_values[SCALE_FACTOR] ||
+        *value1 < option_min_values[SCALE_FACTOR] ||
+        *value0 > option_max_values[SCALE_FACTOR] ||
+        *value1 > option_max_values[SCALE_FACTOR] ||
+        *value0 > *value1)  // num shouldn't be greater than den
+      return AOM_CODEC_INVALID_PARAM;
+  } else {
+    *value0 = atoi(input);
+    if (*value0 < option_min_values[type] || *value0 > option_max_values[type])
+      return AOM_CODEC_INVALID_PARAM;
+  }
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t parse_layer_options_from_string(
+    aom_svc_params_t *svc_params, LAYER_OPTION_TYPE type, const char *input,
+    int *option0, int *option1) {
+  aom_codec_err_t res = AOM_CODEC_OK;
+  char *input_string;
+  char *token;
+  const char *delim = ",";
+  char *save_ptr;
+  int num_layers = svc_params->number_spatial_layers;
+  int i = 0;
+  if (type == BITRATE)
+    num_layers =
+        svc_params->number_spatial_layers * svc_params->number_temporal_layers;
+
+  if (input == NULL || option0 == NULL ||
+      (option1 == NULL && type == SCALE_FACTOR))
+    return AOM_CODEC_INVALID_PARAM;
+
+  input_string = strdup(input);
+  if (input_string == NULL) return AOM_CODEC_MEM_ERROR;
+  token = strtok_r(input_string, delim, &save_ptr);
+  for (i = 0; i < num_layers; ++i) {
+    if (token != NULL) {
+      res = extract_option(type, token, option0 + i, option1 + i);
+      if (res != AOM_CODEC_OK) break;
+      token = strtok_r(NULL, delim, &save_ptr);
+    } else {
+      break;
+    }
+  }
+  if (res == AOM_CODEC_OK && i != num_layers) {
+    res = AOM_CODEC_INVALID_PARAM;
+  }
+  free(input_string);
+  return res;
+}
+
+static void parse_command_line(int argc, char **argv_, AppInput *app_input,
+                               aom_svc_params_t *svc_params,
+                               aom_codec_enc_cfg_t *enc_cfg) {
+  struct arg arg;
+  char **argv = NULL;
+  char **argi = NULL;
+  char **argj = NULL;
+  aom_codec_err_t res;
+  unsigned int min_bitrate = 0;
+  unsigned int max_bitrate = 0;
+  char string_options[1024] = { 0 };
+
+  // Default settings
+  svc_params->number_spatial_layers = 1;
+  svc_params->number_temporal_layers = 1;
+  app_input->layering_mode = 0;
+  enc_cfg->g_threads = 1;
+
+  // start with default encoder configuration
+  res = aom_codec_enc_config_default(aom_codec_av1_cx(), enc_cfg, 0);
+  if (res) {
+    die("Failed to get config: %s\n", aom_codec_err_to_string(res));
+  }
+
+  enc_cfg->rc_end_usage = AOM_CBR;
+
+  // initialize AppInput with default values
+  app_input->frames_to_skip = 0;
+
+  // process command line options
+  argv = argv_dup(argc - 1, argv_ + 1);
+  for (argi = argj = argv; (*argj = *argi); argi += arg.argv_step) {
+    arg.argv_step = 1;
+
+    if (arg_match(&arg, &outputfile, argi)) {
+      app_input->output_filename = arg.val;
+    } else if (arg_match(&arg, &width_arg, argi)) {
+      enc_cfg->g_w = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &height_arg, argi)) {
+      enc_cfg->g_h = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &timebase_arg, argi)) {
+      enc_cfg->g_timebase = arg_parse_rational(&arg);
+    } else if (arg_match(&arg, &bitrate_arg, argi)) {
+      enc_cfg->rc_target_bitrate = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &skip_frames_arg, argi)) {
+      app_input->frames_to_skip = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &spatial_layers_arg, argi)) {
+      svc_params->number_spatial_layers = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &temporal_layers_arg, argi)) {
+      svc_params->number_temporal_layers = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &speed_arg, argi)) {
+      app_input->speed = arg_parse_uint(&arg);
+      if (app_input->speed > 9) {
+        warn("Mapping speed %d to speed 9.\n", app_input->speed);
+      }
+    } else if (arg_match(&arg, &aqmode_arg, argi)) {
+      app_input->aq_mode = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &threads_arg, argi)) {
+      enc_cfg->g_threads = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &temporal_layering_mode_arg, argi)) {
+      app_input->layering_mode = arg_parse_int(&arg);
+    } else if (arg_match(&arg, &kf_dist_arg, argi)) {
+      enc_cfg->kf_min_dist = arg_parse_uint(&arg);
+      enc_cfg->kf_max_dist = enc_cfg->kf_min_dist;
+    } else if (arg_match(&arg, &scale_factors_arg, argi)) {
+      parse_layer_options_from_string(svc_params, SCALE_FACTOR, arg.val,
+                                      svc_params->scaling_factor_num,
+                                      svc_params->scaling_factor_den);
+    } else if (arg_match(&arg, &bitrates_arg, argi)) {
+      parse_layer_options_from_string(svc_params, BITRATE, arg.val,
+                                      svc_params->layer_target_bitrate, NULL);
+    } else if (arg_match(&arg, &min_q_arg, argi)) {
+      parse_layer_options_from_string(svc_params, QUANTIZER, arg.val,
+                                      svc_params->min_quantizers, NULL);
+    } else if (arg_match(&arg, &max_q_arg, argi)) {
+      parse_layer_options_from_string(svc_params, QUANTIZER, arg.val,
+                                      svc_params->max_quantizers, NULL);
+    } else if (arg_match(&arg, &min_bitrate_arg, argi)) {
+      min_bitrate = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &max_bitrate_arg, argi)) {
+      max_bitrate = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &lag_in_frame_arg, argi)) {
+      enc_cfg->g_lag_in_frames = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &rc_end_usage_arg, argi)) {
+      enc_cfg->rc_end_usage = arg_parse_uint(&arg);
+#if CONFIG_AV1_HIGHBITDEPTH
+    } else if (arg_match(&arg, &bitdepth_arg, argi)) {
+      enc_cfg->g_bit_depth = arg_parse_enum_or_int(&arg);
+      switch (enc_cfg->g_bit_depth) {
+        case AOM_BITS_8:
+          enc_cfg->g_input_bit_depth = 8;
+          enc_cfg->g_profile = 0;
+          break;
+        case AOM_BITS_10:
+          enc_cfg->g_input_bit_depth = 10;
+          enc_cfg->g_profile = 2;
+          break;
+        case AOM_BITS_12:
+          enc_cfg->g_input_bit_depth = 12;
+          enc_cfg->g_profile = 2;
+          break;
+        default:
+          die("Error: Invalid bit depth selected (%d)\n", enc_cfg->g_bit_depth);
+          break;
+      }
+#endif  // CONFIG_VP9_HIGHBITDEPTH
+    } else if (arg_match(&arg, &dropframe_thresh_arg, argi)) {
+      enc_cfg->rc_dropframe_thresh = arg_parse_uint(&arg);
+    } else if (arg_match(&arg, &error_resilient_arg, argi)) {
+      enc_cfg->g_error_resilient = arg_parse_uint(&arg);
+      if (enc_cfg->g_error_resilient != 0 && enc_cfg->g_error_resilient != 1)
+        die("Invalid value for error resilient (0, 1): %d.",
+            enc_cfg->g_error_resilient);
+    } else {
+      ++argj;
+    }
+  }
+
+  // There will be a space in front of the string options
+  if (strlen(string_options) > 0)
+    strncpy(app_input->options, string_options, OPTION_BUFFER_SIZE);
+
+  if (enc_cfg->rc_target_bitrate > 0) {
+    if (min_bitrate > 0) {
+      enc_cfg->rc_2pass_vbr_minsection_pct =
+          min_bitrate * 100 / enc_cfg->rc_target_bitrate;
+    }
+    if (max_bitrate > 0) {
+      enc_cfg->rc_2pass_vbr_maxsection_pct =
+          max_bitrate * 100 / enc_cfg->rc_target_bitrate;
+    }
+  }
+
+  // Check for unrecognized options
+  for (argi = argv; *argi; ++argi)
+    if (argi[0][0] == '-' && strlen(argi[0]) > 1)
+      die("Error: Unrecognized option %s\n", *argi);
+
+  if (argv[0] == NULL) {
+    usage_exit();
+  }
+  app_input->input_ctx.filename = argv[0];
+  free(argv);
+
+  open_input_file(&app_input->input_ctx, 0);
+  if (app_input->input_ctx.file_type == FILE_TYPE_Y4M) {
+    enc_cfg->g_w = app_input->input_ctx.width;
+    enc_cfg->g_h = app_input->input_ctx.height;
+  }
+
+  if (enc_cfg->g_w < 16 || enc_cfg->g_w % 2 || enc_cfg->g_h < 16 ||
+      enc_cfg->g_h % 2)
+    die("Invalid resolution: %d x %d\n", enc_cfg->g_w, enc_cfg->g_h);
+
+  printf(
+      "Codec %s\n skip: %d\n"
+      "layers: %d\n"
+      "width %d, height: %d,\n"
+      "num: %d, den: %d, bitrate: %d,\n"
+      "gop size: %d\n",
+      aom_codec_iface_name(aom_codec_av1_cx()), app_input->frames_to_skip,
+      svc_params->number_spatial_layers, enc_cfg->g_w, enc_cfg->g_h,
+      enc_cfg->g_timebase.num, enc_cfg->g_timebase.den,
+      enc_cfg->rc_target_bitrate, enc_cfg->kf_max_dist);
+}
 
 static int mode_to_num_temporal_layers[10] = { 1, 2, 3, 3, 2, 1, 1, 3, 3, 3 };
 static int mode_to_num_spatial_layers[10] = { 1, 1, 1, 1, 1, 2, 3, 3, 3, 3 };
@@ -88,71 +512,9 @@ static int read_frame(struct AvxInputContext *input_ctx, aom_image_t *img) {
   return !shortread;
 }
 
-static int file_is_y4m(const char detect[4]) {
-  if (memcmp(detect, "YUV4", 4) == 0) {
-    return 1;
-  }
-  return 0;
-}
-
-static int fourcc_is_ivf(const char detect[4]) {
-  if (memcmp(detect, "DKIF", 4) == 0) {
-    return 1;
-  }
-  return 0;
-}
-
 static void close_input_file(struct AvxInputContext *input) {
   fclose(input->file);
   if (input->file_type == FILE_TYPE_Y4M) y4m_input_close(&input->y4m);
-}
-
-static void open_input_file(struct AvxInputContext *input,
-                            aom_chroma_sample_position_t csp) {
-  /* Parse certain options from the input file, if possible */
-  input->file = strcmp(input->filename, "-") ? fopen(input->filename, "rb")
-                                             : set_binary_mode(stdin);
-
-  if (!input->file) fatal("Failed to open input file");
-
-  if (!fseeko(input->file, 0, SEEK_END)) {
-    /* Input file is seekable. Figure out how long it is, so we can get
-     * progress info.
-     */
-    input->length = ftello(input->file);
-    rewind(input->file);
-  }
-
-  /* Default to 1:1 pixel aspect ratio. */
-  input->pixel_aspect_ratio.numerator = 1;
-  input->pixel_aspect_ratio.denominator = 1;
-
-  /* For RAW input sources, these bytes will applied on the first frame
-   *  in read_frame().
-   */
-  input->detect.buf_read = fread(input->detect.buf, 1, 4, input->file);
-  input->detect.position = 0;
-
-  if (input->detect.buf_read == 4 && file_is_y4m(input->detect.buf)) {
-    if (y4m_input_open(&input->y4m, input->file, input->detect.buf, 4, csp,
-                       input->only_i420) >= 0) {
-      input->file_type = FILE_TYPE_Y4M;
-      input->width = input->y4m.pic_w;
-      input->height = input->y4m.pic_h;
-      input->pixel_aspect_ratio.numerator = input->y4m.par_n;
-      input->pixel_aspect_ratio.denominator = input->y4m.par_d;
-      input->framerate.numerator = input->y4m.fps_n;
-      input->framerate.denominator = input->y4m.fps_d;
-      input->fmt = input->y4m.aom_fmt;
-      input->bit_depth = input->y4m.bit_depth;
-    } else {
-      fatal("Unsupported Y4M stream.");
-    }
-  } else if (input->detect.buf_read == 4 && fourcc_is_ivf(input->detect.buf)) {
-    fatal("IVF is not supported as input.");
-  } else {
-    input->file_type = FILE_TYPE_RAW;
-  }
 }
 
 // Note: these rate control metrics assume only 1 key frame in the
@@ -615,30 +977,24 @@ static void set_layer_pattern(int layering_mode, int superframe_cnt,
 }
 
 int main(int argc, char **argv) {
+  AppInput app_input;
   AvxVideoWriter *outfile[AOM_MAX_LAYERS] = { NULL };
   aom_codec_enc_cfg_t cfg;
   int frame_cnt = 0;
   aom_image_t raw;
   aom_codec_err_t res;
-  unsigned int width;
-  unsigned int height;
-  uint32_t error_resilient = 0;
-  int speed;
   int frame_avail;
   int got_data = 0;
   int flags = 0;
   unsigned i;
   int pts = 0;             // PTS starts at 0.
   int frame_duration = 1;  // 1 timebase tick per frame.
-  int layering_mode = 0;
   aom_svc_layer_id_t layer_id;
   aom_svc_params_t svc_params;
   aom_svc_ref_frame_config_t ref_frame_config;
-  struct AvxInputContext input_ctx;
+
   struct RateControlMetrics rc;
   int64_t cx_time = 0;
-  const int min_args_base = 13;
-  const int min_args = min_args_base;
   double sum_bitrate = 0.0;
   double sum_bitrate2 = 0.0;
   double framerate = 30.0;
@@ -646,7 +1002,7 @@ int main(int argc, char **argv) {
   int set_err_resil_frame = 0;
   zero(rc.layer_target_bitrate);
   memset(&layer_id, 0, sizeof(aom_svc_layer_id_t));
-  memset(&input_ctx, 0, sizeof(input_ctx));
+  memset(&app_input, 0, sizeof(AppInput));
   memset(&svc_params, 0, sizeof(svc_params));
 
   // Flag to test dynamic scaling of source frames for single
@@ -654,77 +1010,35 @@ int main(int argc, char **argv) {
   const int test_dynamic_scaling_single_layer = 0;
 
   /* Setup default input stream settings */
-  input_ctx.framerate.numerator = 30;
-  input_ctx.framerate.denominator = 1;
-  input_ctx.only_i420 = 1;
-  input_ctx.bit_depth = 0;
+  app_input.input_ctx.framerate.numerator = 30;
+  app_input.input_ctx.framerate.denominator = 1;
+  app_input.input_ctx.only_i420 = 1;
+  app_input.input_ctx.bit_depth = 0;
   unsigned int ts_number_layers = 1;
   unsigned int ss_number_layers = 1;
   exec_name = argv[0];
-  // Check usage and arguments.
-  if (argc < min_args) {
-    die("Usage: %s <infile> <outfile> <codec_type(av1)> <width> <height> "
-        "<rate_num> <rate_den> <speed> <frame_drop_threshold> "
-        "<error_resilient> <threads> <mode> "
-        "<Rate_0> ... <Rate_nlayers-1>\n",
-        argv[0]);
-  }
 
-  aom_codec_iface_t *encoder = get_aom_encoder_by_short_name(argv[3]);
+  parse_command_line(argc, argv, &app_input, &svc_params, &cfg);
 
-  width = (unsigned int)strtoul(argv[4], NULL, 0);
-  height = (unsigned int)strtoul(argv[5], NULL, 0);
-  if (width < 16 || width % 2 || height < 16 || height % 2) {
-    die("Invalid resolution: %d x %d", width, height);
-  }
+  unsigned int width = cfg.g_w;
+  unsigned int height = cfg.g_h;
 
-  layering_mode = (int)strtol(argv[12], NULL, 0);
-  if (layering_mode < 0 || layering_mode > 13) {
-    die("Invalid layering mode (0..12) %s", argv[12]);
-  }
+  ts_number_layers = mode_to_num_temporal_layers[app_input.layering_mode];
+  ss_number_layers = mode_to_num_spatial_layers[app_input.layering_mode];
 
-  if (argc != min_args + mode_to_num_layers[layering_mode]) {
-    die("Invalid number of arguments");
-  }
-
-  ts_number_layers = mode_to_num_temporal_layers[layering_mode];
-  ss_number_layers = mode_to_num_spatial_layers[layering_mode];
-
-  input_ctx.filename = argv[1];
-  open_input_file(&input_ctx, 0);
+  app_input.input_ctx.filename = argv[1];
 
   // Y4M reader has its own allocation.
-  if (input_ctx.file_type != FILE_TYPE_Y4M) {
+  if (app_input.input_ctx.file_type != FILE_TYPE_Y4M) {
     if (!aom_img_alloc(&raw, AOM_IMG_FMT_I420, width, height, 32)) {
       die("Failed to allocate image", width, height);
     }
   }
 
-  // Populate encoder configuration.
-  res = aom_codec_enc_config_default(encoder, &cfg, 0);
-  if (res) {
-    printf("Failed to get config: %s\n", aom_codec_err_to_string(res));
-    return EXIT_FAILURE;
-  }
+  aom_codec_iface_t *encoder = get_aom_encoder_by_short_name("av1");
 
-  // Update the default configuration with our settings.
-  cfg.g_w = width;
-  cfg.g_h = height;
-
-  // Timebase format e.g. 30fps: numerator=1, demoninator = 30.
-  cfg.g_timebase.num = (int)strtol(argv[6], NULL, 0);
-  cfg.g_timebase.den = (int)strtol(argv[7], NULL, 0);
-
-  speed = (int)strtol(argv[8], NULL, 0);
-  if (speed < 0 || speed > 8) {
-    die("Invalid speed setting: must be positive");
-  }
-
-  for (i = min_args_base;
-       (int)i < min_args_base + mode_to_num_layers[layering_mode]; ++i) {
-    rc.layer_target_bitrate[i - 13] = (int)strtol(argv[i], NULL, 0);
-    svc_params.layer_target_bitrate[i - 13] = rc.layer_target_bitrate[i - 13];
-  }
+  memcpy(&rc.layer_target_bitrate[0], &svc_params.layer_target_bitrate[0],
+         sizeof(svc_params.layer_target_bitrate));
 
   cfg.rc_target_bitrate =
       svc_params.layer_target_bitrate[ss_number_layers * ts_number_layers - 1];
@@ -742,7 +1056,6 @@ int main(int argc, char **argv) {
   // Real time parameters.
   cfg.g_usage = AOM_USAGE_REALTIME;
 
-  cfg.rc_dropframe_thresh = (unsigned int)strtoul(argv[9], NULL, 0);
   cfg.rc_end_usage = AOM_CBR;
   cfg.rc_min_quantizer = 2;
   cfg.rc_max_quantizer = 52;
@@ -753,30 +1066,19 @@ int main(int argc, char **argv) {
   cfg.rc_buf_sz = 1000;
   cfg.rc_resize_mode = 0;  // Set to RESIZE_DYNAMIC for dynamic resize.
 
-  // Use 1 thread as default.
-  cfg.g_threads = (unsigned int)strtoul(argv[11], NULL, 0);
-
-  error_resilient = (uint32_t)strtoul(argv[10], NULL, 0);
-  if (error_resilient != 0 && error_resilient != 1) {
-    die("Invalid value for error resilient (0, 1): %d.", error_resilient);
-  }
-  // Enable error resilient mode.
-  cfg.g_error_resilient = error_resilient;
   cfg.g_lag_in_frames = 0;
   cfg.kf_mode = AOM_KF_AUTO;
-
-  // Disable automatic keyframe placement.
-  cfg.kf_min_dist = cfg.kf_max_dist = 3000;
 
   framerate = cfg.g_timebase.den / cfg.g_timebase.num;
   set_rate_control_metrics(&rc, framerate, ss_number_layers, ts_number_layers);
 
-  if (input_ctx.file_type == FILE_TYPE_Y4M) {
-    if (input_ctx.width != cfg.g_w || input_ctx.height != cfg.g_h) {
+  if (app_input.input_ctx.file_type == FILE_TYPE_Y4M) {
+    if (app_input.input_ctx.width != cfg.g_w ||
+        app_input.input_ctx.height != cfg.g_h) {
       die("Incorrect width or height: %d x %d", cfg.g_w, cfg.g_h);
     }
-    if (input_ctx.framerate.numerator != cfg.g_timebase.den ||
-        input_ctx.framerate.denominator != cfg.g_timebase.num) {
+    if (app_input.input_ctx.framerate.numerator != cfg.g_timebase.den ||
+        app_input.input_ctx.framerate.denominator != cfg.g_timebase.num) {
       die("Incorrect framerate: numerator %d denominator %d",
           cfg.g_timebase.num, cfg.g_timebase.den);
     }
@@ -806,8 +1108,8 @@ int main(int argc, char **argv) {
   if (aom_codec_enc_init(&codec, encoder, &cfg, 0))
     die("Failed to initialize encoder");
 
-  aom_codec_control(&codec, AOME_SET_CPUUSED, speed);
-  aom_codec_control(&codec, AV1E_SET_AQ_MODE, 3);
+  aom_codec_control(&codec, AOME_SET_CPUUSED, app_input.speed);
+  aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode);
   aom_codec_control(&codec, AV1E_SET_GF_CBR_BOOST_PCT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_CDEF, 1);
   aom_codec_control(&codec, AV1E_SET_ENABLE_ORDER_HINT, 0);
@@ -851,7 +1153,7 @@ int main(int argc, char **argv) {
   frame_avail = 1;
   while (frame_avail || got_data) {
     struct aom_usec_timer timer;
-    frame_avail = read_frame(&input_ctx, &raw);
+    frame_avail = read_frame(&(app_input.input_ctx), &raw);
     int is_key_frame = (frame_cnt % cfg.kf_max_dist) == 0;
     // Loop over spatial layers.
     for (unsigned int slx = 0; slx < ss_number_layers; slx++) {
@@ -861,9 +1163,9 @@ int main(int argc, char **argv) {
 
       // Set the reference/update flags, layer_id, and reference_map
       // buffer index.
-      set_layer_pattern(layering_mode, frame_cnt, &layer_id, &ref_frame_config,
-                        &use_svc_control, slx, is_key_frame,
-                        (layering_mode == 9));
+      set_layer_pattern(app_input.layering_mode, frame_cnt, &layer_id,
+                        &ref_frame_config, &use_svc_control, slx, is_key_frame,
+                        (app_input.layering_mode == 9));
       aom_codec_control(&codec, AV1E_SET_SVC_LAYER_ID, &layer_id);
       if (use_svc_control)
         aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,
@@ -964,7 +1266,7 @@ int main(int argc, char **argv) {
     ++frame_cnt;
     pts += frame_duration;
   }
-  close_input_file(&input_ctx);
+  close_input_file(&(app_input.input_ctx));
   printout_rate_control_summary(&rc, frame_cnt, ss_number_layers,
                                 ts_number_layers);
   printf("\n");
@@ -978,7 +1280,7 @@ int main(int argc, char **argv) {
   for (i = 0; i < ss_number_layers * ts_number_layers; ++i)
     aom_video_writer_close(outfile[i]);
 
-  if (input_ctx.file_type != FILE_TYPE_Y4M) {
+  if (app_input.input_ctx.file_type != FILE_TYPE_Y4M) {
     aom_img_free(&raw);
   }
   return EXIT_SUCCESS;
