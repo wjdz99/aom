@@ -796,7 +796,21 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     cpi->oxcf.gf_cfg.lag_in_frames = lap_lag_in_frames;
   }
 
-  if (cpi->subgop_config_str == NULL ||
+  bool subgop_config_changed = false;
+  if ((cpi->subgop_config_path == NULL && oxcf->subgop_config_path != NULL) ||
+      (cpi->subgop_config_path != NULL && oxcf->subgop_config_path == NULL) ||
+      strcmp(cpi->subgop_config_path, oxcf->subgop_config_path)) {
+    aom_free(cpi->subgop_config_path);
+    if (oxcf->subgop_config_path != NULL) {
+      cpi->subgop_config_path =
+          (char *)aom_malloc((strlen(oxcf->subgop_config_path) + 1) *
+                             sizeof(*oxcf->subgop_config_path));
+      strcpy(cpi->subgop_config_path, oxcf->subgop_config_path);
+    }
+    subgop_config_changed = true;
+  }
+  if ((cpi->subgop_config_str == NULL && oxcf->subgop_config_str != NULL) ||
+      (cpi->subgop_config_str != NULL && oxcf->subgop_config_str == NULL) ||
       strcmp(cpi->subgop_config_str, oxcf->subgop_config_str)) {
     aom_free(cpi->subgop_config_str);
     if (oxcf->subgop_config_str != NULL) {
@@ -804,16 +818,22 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
           (char *)aom_malloc((strlen(oxcf->subgop_config_str) + 1) *
                              sizeof(*oxcf->subgop_config_str));
       strcpy(cpi->subgop_config_str, oxcf->subgop_config_str);
-      if (cpi->compressor_stage == ENCODE_STAGE) {
-        av1_init_subgop_config_set(&cpi->subgop_config_set);
-        av1_process_subgop_config_set(oxcf->subgop_config_str,
-                                      &cpi->subgop_config_set);
-        printf("Successfully processed %d subgop configs.\n",
-               cpi->subgop_config_set.num_configs);
-        // Uncomment to print out the configuration
-        // av1_print_subgop_config_set(&cpi->subgop_config_set);
-      }
     }
+    subgop_config_changed = true;
+  }
+  if (subgop_config_changed && cpi->compressor_stage == ENCODE_STAGE) {
+    av1_init_subgop_config_set(&cpi->subgop_config_set);
+    // Parse config file first
+    av1_process_subgop_config_set_fromfile(cpi->subgop_config_path,
+                                           &cpi->subgop_config_set);
+    // Parse config string next, which may override config file configs
+    // or append to it.
+    av1_process_subgop_config_set(cpi->subgop_config_str,
+                                  &cpi->subgop_config_set);
+    printf("Successfully processed %d subgop configs.\n",
+           cpi->subgop_config_set.num_configs);
+    // Uncomment to print out the configuration
+    // av1_print_subgop_config_set(&cpi->subgop_config_set);
   }
 }
 
@@ -1506,6 +1526,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   av1_free_ref_frame_buffers(cm->buffer_pool);
 
   aom_free(cpi->subgop_config_str);
+  aom_free(cpi->subgop_config_path);
   aom_free(cpi);
 
 #ifdef OUTPUT_YUV_REC
