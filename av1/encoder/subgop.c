@@ -21,9 +21,9 @@ static char *my_strtok_r(char *str, const char *delim, char **saveptr) {
   char *x = strstr(str, delim);
   if (x) {
     *x = 0;
-    *saveptr = x + strlen(delim);
+    if (saveptr) *saveptr = x + strlen(delim);
   } else {
-    *saveptr = NULL;
+    if (saveptr) *saveptr = NULL;
     return ptr;
   }
   return ptr;
@@ -38,10 +38,10 @@ static char *read_token_after(char *str, const char *delim, char **saveptr) {
     ptr = x + strlen(delim);
     while (*x != 0 && !isspace(*x)) x++;
     *x = 0;
-    *saveptr = x + 1;
+    if (saveptr) *saveptr = x + 1;
     return ptr;
   } else {
-    *saveptr = NULL;
+    if (saveptr) *saveptr = NULL;
     return NULL;
   }
 }
@@ -352,18 +352,9 @@ int av1_process_subgop_config_set_fromfile(const char *paramfile,
   if (!fp) return 0;
   char line[256];
   int linesize = 256;
-  char *tok, *str;
-  if (readline(line, linesize, fp)) {
-    tok = read_token_after(line, "[num_configs:", &str);
-    if (!tok) rewind(fp);
-  } else {
-    // Blank file
-    return 1;
-  }
   while (readline(line, linesize, fp)) {
-    str = line;
-    tok = read_token_after(str, "config:", &str);
-    if (tok) {
+    if (read_token_after(line, "[num_configs:", NULL)) continue;
+    if (read_token_after(line, "config:", NULL)) {
       int res = process_subgop_config_fromfile(
           fp, &config_set->config[config_set->num_configs]);
       if (res) {
