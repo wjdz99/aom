@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "658f0d45_4ad9f677",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-10T21:53:27Z",
+      "side": 1,
+      "message": "Can you rewrite the gains in a table-like way, so it\u0027s easier to read?",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 47
+      },
+      "revId": "f366b0f9f04de3d77376dfe4299d2a5f068a3a3c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
