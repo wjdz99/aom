@@ -16,6 +16,23 @@
       "revId": "87a5fd47ac0db0671760c7bd10cbba6df4bbc52c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d2f7d90f_319635be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-10T23:34:43Z",
+      "side": 1,
+      "message": "Thanks for modifying it. Printed the stats out.\nBitrate\tAVGPsnr\tGLBPsnr\tAVPsnrP\tGLPsnrP\tAOMSSIM\tVPSSIMP\tFASTSIM\tPSNRHVS\tWstPsnr\tWstSsim\tWstFast\tWstHVS\tAVPsrnY\tAPsnrCb\tAPsnrCr\t  Block\tWstBlck\tConsist\tWstCons\t    Time\tRcErr\tAbsErr\tAPsnr611\tAVPsnr_H\tGLPsnr_H\tAVPsnrP_H\tGLPsnrP_H\tAVPsnrY_H\tAPsnrCb_H\tAPsnrCr_H\n  74.74\t 47.504\t 47.498\t 47.504\t 47.498\t 94.411\t 94.411\t 18.640\t 46.912\t 46.709\t  0.992\t 18.306\t 45.113\t 46.926\t 48.251\t 49.838\t  0.000\t  0.000\t100.000\t100.000\t   14541\t -62.63\t  62.63\t 47.455\t 47.909\t 47.902\t 47.909\t 47.902\t 47.304\t 48.668\t 50.443\nNo mismatch detected in recon buffers\n\nCould you modify the format to make \"    Time\tRcErr\tAbsErr\tAPsnr611\tAVPsnr_H\tGLPsnr_H\tAVPsnrP_H\tGLPsnrP_H\tAVPsnrY_H\tAPsnrCb_H\tAPsnrCr_H\" more compact(1 space in-between could be fine)?\n\n",
+      "revId": "87a5fd47ac0db0671760c7bd10cbba6df4bbc52c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
