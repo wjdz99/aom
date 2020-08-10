@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8c9508c8_10d10884",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-10T14:27:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1bfa5232_634c64f9",
+      "range": {
+        "startLine": 61,
+        "startChar": 2,
+        "endLine": 61,
+        "endChar": 5
+      },
+      "revId": "b5bc0f4fe96a3000d7e5ca78edba9f587c0a3914",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc78cb74_7c5edf57",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "b5bc0f4fe96a3000d7e5ca78edba9f587c0a3914",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b6c95b2_dda54ae0",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-10T14:27:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc78cb74_7c5edf57",
+      "range": {
+        "startLine": 98,
+        "startChar": 2,
+        "endLine": 102,
+        "endChar": 3
+      },
+      "revId": "b5bc0f4fe96a3000d7e5ca78edba9f587c0a3914",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b5430f34_cfa0a668",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-10T14:27:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec075b3c_f2414bfa",
+      "range": {
+        "startLine": 179,
+        "startChar": 16,
+        "endLine": 179,
+        "endChar": 62
+      },
+      "revId": "b5bc0f4fe96a3000d7e5ca78edba9f587c0a3914",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30187b3f_38face03",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2020-08-07T21:28:54Z",
       "side": 1,
       "message": "Is this needed?",
+      "range": {
+        "startLine": 249,
+        "startChar": 1,
+        "endLine": 249,
+        "endChar": 15
+      },
+      "revId": "b5bc0f4fe96a3000d7e5ca78edba9f587c0a3914",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a359dd1_990a6b03",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-10T14:27:05Z",
+      "side": 1,
+      "message": "I could omit it, but I also think it makes it more apparent on first glance that the quadratic formula used is correct. This just happens to always be the value of the first coefficient in the quadratic equation when solving for the eigenvalue of a 2x2 matrix.",
+      "parentUuid": "30187b3f_38face03",
       "range": {
         "startLine": 249,
         "startChar": 1,
