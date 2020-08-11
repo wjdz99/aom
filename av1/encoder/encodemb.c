@@ -277,7 +277,50 @@ void av1_xform(MACROBLOCK *x, int plane, int block, int blk_row, int blk_col,
   const int src_offset = (blk_row * diff_stride + blk_col);
   const int16_t *src_diff = &p->src_diff[src_offset << MI_SIZE_LOG2];
 
+#if CONFIG_DSPL_RESIDUAL
+  const TX_SIZE tx_size = txfm_param->tx_size;
+  DSPL_TYPE dspl_type = x->e_mbd.mi[0]->dspl_type;
+
+  if (plane > 0 || dspl_type != DSPL_XY) {
+    av1_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);
+  } else {
+    const uint8_t txw = tx_size_wide[tx_size], txh = tx_size_high[tx_size];
+    const TX_SIZE new_tx_size = half_tx_size_map[tx_size];
+    const uint8_t dspl_txw = txw >> 1, dspl_txh = txh >> 1;
+    const TX_TYPE tx_type = txfm_param->tx_type;
+    assert(new_tx_size != TX_INVALID);
+    assert(tx_size_wide[new_tx_size] == (tx_size_wide[tx_size] >> 1) &&
+           tx_size_wide[new_tx_size] == (tx_size_wide[tx_size] >> 1));
+
+    // Buffers
+    DECLARE_ALIGNED(32, int16_t, dspl_src_diff[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, tran_low_t, scan_buf[MAX_SB_SQUARE]);
+
+    // Downsample
+    memset(dspl_src_diff, 0, MAX_SB_SQUARE * sizeof(int16_t));
+    av1_signed_down2(src_diff, txh, txw, diff_stride, dspl_src_diff, dspl_txw,
+                     1, 1, txfm_param->bd);
+
+    // Transform
+    memset(coeff, 0, txw * txh * sizeof(tran_low_t));
+    txfm_param->tx_size = new_tx_size;
+    av1_fwd_txfm(dspl_src_diff, coeff, dspl_txw, txfm_param);
+    txfm_param->tx_size = tx_size;
+
+    // Pack coeffcients
+    int size = av1_get_max_eob(tx_size),
+        dspl_size = av1_get_max_eob(new_tx_size);
+    assert(size <= txw * txh && dspl_size <= dspl_txw * dspl_txh);
+    const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type),
+                     *dspl_scan_order = get_scan(new_tx_size, tx_type);
+    memset(scan_buf, 0, size * sizeof(tran_low_t));
+    scan_array(coeff, scan_buf, dspl_size, dspl_scan_order);
+    memset(coeff, 0, txw * txh * sizeof(tran_low_t));
+    iscan_array(scan_buf, coeff, size, scan_order);
+  }
+#else
   av1_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);
+#endif
 }
 
 void av1_quant(MACROBLOCK *x, int plane, int block, TxfmParam *txfm_param,

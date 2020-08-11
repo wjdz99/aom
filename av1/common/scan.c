@@ -2046,3 +2046,17 @@ const SCAN_ORDER av1_scan_orders[TX_SIZES_ALL][TX_TYPES] = {
       { mcol_scan_32x16, av1_mcol_iscan_32x16 },
   },
 };
+
+#if CONFIG_DSPL_RESIDUAL
+void scan_array(const tran_low_t *src, tran_low_t *dst, int eob,
+                const SCAN_ORDER *scan_order) {
+  for (int scn_idx = 0; scn_idx < eob; ++scn_idx)
+    dst[scn_idx] = src[scan_order->scan[scn_idx]];
+}
+
+void iscan_array(const tran_low_t *src, tran_low_t *dst, int eob,
+                 const SCAN_ORDER *scan_order) {
+  for (int scn_idx = 0; scn_idx < eob; ++scn_idx)
+    dst[scan_order->scan[scn_idx]] = src[scn_idx];
+}
+#endif

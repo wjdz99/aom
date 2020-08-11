@@ -20,6 +20,10 @@
 #include "av1/common/blockd.h"
 #include "av1/common/enums.h"
 #include "av1/common/idct.h"
+#if CONFIG_DSPL_RESIDUAL
+#include "av1/common/resize.h"
+#include "av1/common/scan.h"
+#endif
 
 int av1_get_tx_scale(const TX_SIZE tx_size) {
   const int pels = tx_size_2d[tx_size];
@@ -310,6 +314,68 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   assert(eob <= av1_get_max_eob(tx_size));
 
   TxfmParam txfm_param;
+
+#if CONFIG_DSPL_RESIDUAL
+  DSPL_TYPE dspl_type = xd->mi[0]->dspl_type;
+  if (plane == 0 && dspl_type == DSPL_XY) {
+    const TX_SIZE new_tx_size = half_tx_size_map[tx_size];
+    const uint8_t txw = tx_size_wide[tx_size], txh = tx_size_high[tx_size];
+    const uint8_t dspl_txw = tx_size_wide[new_tx_size],
+                  dspl_txh = tx_size_high[new_tx_size];
+
+    int fn_stride = MAX_TX_SIZE;
+    assert(fn_stride >= dspl_txw);
+
+    // Buffers
+    DECLARE_ALIGNED(32, tran_low_t, scan_buf[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, tran_low_t, dqcoeff_buf[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, int16_t, buf_diff[MAX_SB_SQUARE]);
+    DECLARE_ALIGNED(32, int16_t, buf_up_diff[MAX_SB_SQUARE]);
+
+    int dspl_eob = eob;
+    init_txfm_param(xd, plane, tx_size, tx_type, dspl_eob, reduced_tx_set,
+                    &txfm_param);
+
+    // Unpack coefficients
+    const SCAN_ORDER *scan_order = get_scan(tx_size, tx_type),
+                     *dspl_scan_order = get_scan(new_tx_size, tx_type);
+    int size = av1_get_max_eob(tx_size);
+    memset(scan_buf, 0, size * sizeof(tran_low_t));
+    scan_array(dqcoeff, scan_buf, eob, scan_order);
+    memset(dqcoeff_buf, 0, txw * txh * sizeof(tran_low_t));
+    iscan_array(scan_buf, dqcoeff_buf, dspl_eob, dspl_scan_order);
+
+    // Invert and compute difference
+    av1_inverse_transform_block_diff(xd, dqcoeff_buf, plane, tx_type,
+                                     new_tx_size, buf_diff, fn_stride, dspl_eob,
+                                     reduced_tx_set);
+
+    // Upsample
+    av1_signed_up2(buf_diff, dspl_txh, dspl_txw, fn_stride, buf_up_diff,
+                   fn_stride, 1, 1, txfm_param.bd);
+
+    // Add to output
+    for (int r = 0; r < txh; ++r) {
+      for (int c = 0; c < txw; ++c) {
+        const tran_low_t residue = (tran_low_t)buf_up_diff[r * fn_stride + c];
+        const uint16_t out =
+            highbd_clip_pixel_add(dst[r * stride + c], residue, txfm_param.bd);
+        dst[r * stride + c] = (uint8_t)out;
+      }
+    }
+
+  } else {
+    init_txfm_param(xd, plane, tx_size, tx_type, eob, reduced_tx_set,
+                    &txfm_param);
+    assert(av1_ext_tx_used[txfm_param.tx_set_type][txfm_param.tx_type]);
+
+    if (txfm_param.is_hbd) {
+      av1_highbd_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+    } else {
+      av1_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
+    }
+  }
+#else
   init_txfm_param(xd, plane, tx_size, tx_type, eob, reduced_tx_set,
                   &txfm_param);
   assert(av1_ext_tx_used[txfm_param.tx_set_type][txfm_param.tx_type]);
@@ -319,4 +385,38 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
   } else {
     av1_inv_txfm_add(dqcoeff, dst, stride, &txfm_param);
   }
+#endif
 }
+
+#if CONFIG_DSPL_RESIDUAL
+void av1_inverse_transform_block_diff(const MACROBLOCKD *xd,
+                                      const tran_low_t *dqcoeff, int plane,
+                                      TX_TYPE tx_type, TX_SIZE tx_size,
+                                      int16_t *dst, int stride, int eob,
+                                      int reduced_tx_set) {
+  if (!eob) return;
+
+  // TODO(singhprakhar): extend this method to higher bitdepths
+  assert(xd->bd == 8);
+
+  const uint8_t txw = tx_size_wide[tx_size], txh = tx_size_high[tx_size];
+
+  DECLARE_ALIGNED(32, uint16_t, recon_diffu[MAX_SB_SQUARE]);
+  uint8_t *recon = CONVERT_TO_BYTEPTR(recon_diffu);
+
+  for (int r = 0; r < txh; ++r)
+    for (int c = 0; c < txw; ++c) recon_diffu[r * MAX_TX_SIZE + c] = 1023;
+
+  TxfmParam txfm_param;
+  init_txfm_param(xd, plane, tx_size, tx_type, eob, reduced_tx_set,
+                  &txfm_param);
+  txfm_param.bd = 12;
+  txfm_param.is_hbd = 1;
+
+  av1_highbd_inv_txfm_add(dqcoeff, recon, MAX_TX_SIZE, &txfm_param);
+
+  for (int r = 0; r < txh; ++r)
+    for (int c = 0; c < txw; ++c)
+      dst[r * stride + c] = (int16_t)recon_diffu[r * MAX_TX_SIZE + c] - 1023;
+}
+#endif
