@@ -913,6 +913,9 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE pred_mode,
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->num_proj_ref = 1;
   mbmi->interintra_mode = 0;
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_NONE;
+#endif
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 }
 

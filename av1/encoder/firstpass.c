@@ -337,6 +337,9 @@ static int firstpass_intra_prediction(
 
   aom_clear_system_state();
   set_mi_offsets(mi_params, xd, mb_row * mb_scale, mb_col * mb_scale);
+#if CONFIG_DSPL_RESIDUAL
+  xd->mi[0]->dspl_type = DSPL_NONE;
+#endif
   xd->plane[0].dst.buf = this_frame->y_buffer + y_offset;
   xd->plane[1].dst.buf = this_frame->u_buffer + uv_offset;
   xd->plane[2].dst.buf = this_frame->v_buffer + uv_offset;

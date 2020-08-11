@@ -766,6 +766,9 @@ static AOM_INLINE void pick_sb_modes(AV1_COMP *const cpi,
   mbmi = xd->mi[0];
   mbmi->sb_type = bsize;
   mbmi->partition = partition;
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_NONE;
+#endif
 
 #if CONFIG_RD_DEBUG
   mbmi->mi_row = mi_row;
