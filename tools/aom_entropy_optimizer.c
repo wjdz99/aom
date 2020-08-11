@@ -576,6 +576,13 @@ int main(int argc, const char **argv) {
                      "static const aom_cdf_prob "
                      "default_skip_txfm_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)]");
 
+#if CONFIG_DSPL_RESIDUAL
+  cts_each_dim[0] = DSPL_END;
+  optimize_cdf_table(&fc.dspl_type[0], probsfile, 1, cts_each_dim,
+                     "static const aom_cdf_prob "
+                     "default_dspl_type_cdf[CDF_SIZE(DSPL_END)]");
+#endif
+
   /* Skip mode flag */
   cts_each_dim[0] = SKIP_MODE_CONTEXTS;
   cts_each_dim[1] = 2;
