@@ -114,6 +114,9 @@ set_aom_config_var(CONFIG_SPEED_STATS 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_COLLECT_RD_STATS 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DIST_8X8 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_ENTROPY_STATS 0 "AV1 experiment flag.")
+set_aom_config_var(
+  CONFIG_DSPL_RESIDUAL 0
+  "AV1 experiment flag: allow encoder to downsample residual transform blocks")
 set_aom_config_var(CONFIG_INTER_STATS_ONLY 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_RD_DEBUG 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SHARP_SETTINGS 0 "AV1 experiment flag.")
