@@ -237,6 +237,9 @@ typedef struct MB_MODE_INFO {
   // Common for both INTER and INTRA blocks
   BLOCK_SIZE sb_type;
   PREDICTION_MODE mode;
+#if CONFIG_DSPL_RESIDUAL
+  DSPL_TYPE dspl_type;
+#endif
   // Only for INTRA blocks
   UV_PREDICTION_MODE uv_mode;
   // interintra members
