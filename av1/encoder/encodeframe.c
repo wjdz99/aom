@@ -1110,8 +1110,20 @@ static AOM_INLINE void update_stats(const AV1_COMMON *const cm,
     const int skip_ctx = av1_get_skip_txfm_context(xd);
 #if CONFIG_ENTROPY_STATS
     td->counts->skip_txfm[skip_ctx][mbmi->skip_txfm]++;
+#if CONFIG_DSPL_RESIDUAL
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      td->counts->dspl_type[mbmi->dspl_type]++;
+#endif
 #endif
     update_cdf(fc->skip_txfm_cdfs[skip_ctx], mbmi->skip_txfm, 2);
+#if CONFIG_DSPL_RESIDUAL
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      update_cdf(fc->dspl_type_cdf, mbmi->dspl_type, DSPL_END);
+#endif
   }
 
 #if CONFIG_ENTROPY_STATS
@@ -4641,6 +4653,9 @@ static AOM_INLINE void avg_cdf_symbols(FRAME_CONTEXT *ctx_left,
   AVERAGE_CDF(ctx_left->comp_group_idx_cdf, ctx_tr->comp_group_idx_cdf, 2);
   AVERAGE_CDF(ctx_left->skip_mode_cdfs, ctx_tr->skip_mode_cdfs, 2);
   AVERAGE_CDF(ctx_left->skip_txfm_cdfs, ctx_tr->skip_txfm_cdfs, 2);
+#if CONFIG_DSPL_RESIDUAL
+  AVERAGE_CDF(ctx_left->dspl_type_cdf, ctx_tr->dspl_type_cdf, DSPL_END);
+#endif
   AVERAGE_CDF(ctx_left->intra_inter_cdf, ctx_tr->intra_inter_cdf, 2);
   avg_nmv(&ctx_left->nmvc, &ctx_tr->nmvc, wt_left, wt_tr);
   avg_nmv(&ctx_left->ndvc, &ctx_tr->ndvc, wt_left, wt_tr);
