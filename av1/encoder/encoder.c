@@ -836,7 +836,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     printf("Successfully processed %d subgop configs.\n",
            cpi->subgop_config_set.num_configs);
     // Uncomment to print out the configuration
-    // av1_print_subgop_config_set(&cpi->subgop_config_set);
+    av1_print_subgop_config_set(&cpi->subgop_config_set);
   }
 }
 
