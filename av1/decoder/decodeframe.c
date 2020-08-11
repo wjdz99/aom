@@ -1205,6 +1205,39 @@ static AOM_INLINE void parse_decode_block(AV1Decoder *const pbi,
 #endif
 
   if (cm->delta_q_info.delta_q_present_flag) {
+#if CONFIG_DSPL_RESIDUAL
+    const CommonQuantParams *const quant_params = &cm->quant_params;
+
+    for (int i = 0; i < MAX_SEGMENTS; i++) {
+      for (int j = 0; j < num_planes; ++j) {
+        for (DSPL_TYPE dspl_type = DSPL_NONE; dspl_type < DSPL_END;
+             ++dspl_type) {
+          int current_qindex =
+              av1_get_qindex(&cm->seg, i, xd->current_base_qindex);
+
+          if (j == 0) {
+            int dspl_delta_q[DSPL_END];
+            get_dspl_delta_q(current_qindex, dspl_delta_q);
+            current_qindex =
+                AOMMAX(0, AOMMIN(QINDEX_RANGE - 1,
+                                 current_qindex + dspl_delta_q[dspl_type]));
+          }
+
+          const int dc_delta_q = j == 0 ? quant_params->y_dc_delta_q
+                                        : (j == 1 ? quant_params->u_dc_delta_q
+                                                  : quant_params->v_dc_delta_q);
+          const int ac_delta_q = j == 0 ? 0
+                                        : (j == 1 ? quant_params->u_ac_delta_q
+                                                  : quant_params->v_ac_delta_q);
+
+          xd->plane[j].seg_dequant_QTX[dspl_type][i][0] = av1_dc_quant_QTX(
+              current_qindex, dc_delta_q, cm->seq_params.bit_depth);
+          xd->plane[j].seg_dequant_QTX[dspl_type][i][1] = av1_ac_quant_QTX(
+              current_qindex, ac_delta_q, cm->seq_params.bit_depth);
+        }
+      }
+    }
+#else
     for (int i = 0; i < MAX_SEGMENTS; i++) {
       const int current_qindex =
           av1_get_qindex(&cm->seg, i, xd->current_base_qindex);
@@ -1222,6 +1255,7 @@ static AOM_INLINE void parse_decode_block(AV1Decoder *const pbi,
             current_qindex, ac_delta_q, cm->seq_params.bit_depth);
       }
     }
+#endif
   }
   if (mbmi->skip_txfm) av1_reset_entropy_context(xd, bsize, num_planes);
 
@@ -1845,11 +1879,26 @@ static AOM_INLINE void setup_segmentation_dequant(AV1_COMMON *const cm,
   // remaining are don't cares.
   const int max_segments = cm->seg.enabled ? MAX_SEGMENTS : 1;
   CommonQuantParams *const quant_params = &cm->quant_params;
+
   for (int i = 0; i < max_segments; ++i) {
     const int qindex = xd->qindex[i];
+#if CONFIG_DSPL_RESIDUAL
+    int dspl_delta_q[DSPL_END];
+    get_dspl_delta_q(xd->qindex[i], dspl_delta_q);
+
+    for (DSPL_TYPE dspl_type = DSPL_NONE; dspl_type < DSPL_END; ++dspl_type) {
+      int qindex_y = AOMMAX(
+          0, AOMMIN(QINDEX_RANGE - 1, xd->qindex[i] + dspl_delta_q[dspl_type]));
+      quant_params->y_dequant_QTX[dspl_type][i][0] =
+          av1_dc_quant_QTX(qindex_y, quant_params->y_dc_delta_q, bit_depth);
+      quant_params->y_dequant_QTX[dspl_type][i][1] =
+          av1_ac_quant_QTX(qindex_y, 0, bit_depth);
+    }
+#else
     quant_params->y_dequant_QTX[i][0] =
         av1_dc_quant_QTX(qindex, quant_params->y_dc_delta_q, bit_depth);
     quant_params->y_dequant_QTX[i][1] = av1_ac_quant_QTX(qindex, 0, bit_depth);
+#endif
     quant_params->u_dequant_QTX[i][0] =
         av1_dc_quant_QTX(qindex, quant_params->u_dc_delta_q, bit_depth);
     quant_params->u_dequant_QTX[i][1] =
