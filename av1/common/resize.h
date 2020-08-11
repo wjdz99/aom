@@ -108,6 +108,15 @@ extern const int16_t av1_resize_filter_normative[1 << RS_SUBPEL_BITS]
 
 int32_t av1_get_upscale_convolve_step(int in_length, int out_length);
 
+#if CONFIG_DSPL_RESIDUAL
+void av1_signed_down2(const int16_t *const input, int height, int width,
+                      int in_stride, int16_t *output, int out_stride,
+                      int stepsh, int stepsw, int bd);
+void av1_signed_up2(const int16_t *const input, int height, int width,
+                    int in_stride, int16_t *output, int out_stride, int stepsh,
+                    int stepsw, int bd);
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
