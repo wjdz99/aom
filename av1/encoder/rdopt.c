@@ -10567,6 +10567,7 @@ static int handle_smooth_inter_intra_mode(
 #endif  // CONFIG_DERIVED_INTRA_MODE
       av1_build_intra_predictors_for_interintra(
           cm, xd, bsize, 0, orig_dst, intrapred, intrapred_stride, border);
+
       av1_combine_interintra(xd, bsize, 0, tmp_buf, tmp_buf_stride, intrapred,
                              intrapred_stride, border);
       int tmp_skip_txfm_sb, rate_sum;
@@ -10681,8 +10682,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
 
-  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                AOM_PLANE_Y, AOM_PLANE_Y);
+  av1_enc_build_border_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
+                                       AOM_PLANE_Y, AOM_PLANE_Y);
 
   restore_dst_buf(xd, *orig_dst, num_planes);
   mbmi->ref_frame[1] = INTRA_FRAME;
