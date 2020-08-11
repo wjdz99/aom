@@ -2568,6 +2568,10 @@ static int64_t handle_inter_mode(
     mbmi->motion_mode = SIMPLE_TRANSLATION;
     mbmi->ref_mv_idx = ref_mv_idx;
 
+#if CONFIG_DSPL_RESIDUAL
+    mbmi->dspl_type = DSPL_NONE;
+#endif
+
     // Compute cost for signalling this DRL index
     rd_stats->rate = base_rate;
     const int drl_cost = get_drl_cost(
@@ -2996,6 +3000,10 @@ void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, struct macroblock *x,
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
   mbmi->skip_mode = 0;
+#if CONFIG_DSPL_RESIDUAL
+  // Don't downsample intra blocks
+  mbmi->dspl_type = DSPL_NONE;
+#endif
 
   const int64_t intra_yrd =
       av1_rd_pick_intra_sby_mode(cpi, x, &rate_y, &rate_y_tokenonly, &dist_y,
@@ -3122,6 +3130,9 @@ static AOM_INLINE void rd_pick_skip_mode(
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->ref_mv_idx = 0;
   mbmi->skip_mode = mbmi->skip_txfm = 1;
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_NONE;
+#endif
 
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 
@@ -3738,6 +3749,9 @@ static AOM_INLINE void init_inter_mode_search_state(
   search_state->best_skip_rd[1] = INT64_MAX;
 
   av1_zero(search_state->best_mbmode);
+#if CONFIG_DSPL_RESIDUAL
+  search_state->best_mbmode.dspl_type = DSPL_NONE;
+#endif
 
   search_state->best_rate_y = INT_MAX;
 
@@ -3973,6 +3987,9 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->mv[0].as_int = mbmi->mv[1].as_int = 0;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
+#if CONFIG_DSPL_RESIDUAL
+  mbmi->dspl_type = DSPL_NONE;
+#endif
   set_default_interp_filters(mbmi, cm->features.interp_filter);
 }
 
@@ -5199,6 +5216,9 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   RD_STATS this_rd_cost;
   int this_skippable = 0;
   if (try_palette) {
+#if CONFIG_DSPL_RESIDUAL
+    mbmi->dspl_type = DSPL_NONE;
+#endif
     this_skippable = av1_search_palette_mode(
         &search_state.intra_search_state, cpi, x, bsize, intra_ref_frame_cost,
         ctx, &this_rd_cost, search_state.best_rd);

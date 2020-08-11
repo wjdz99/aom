@@ -260,6 +260,10 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   xd->mi[0]->sb_type = bsize;
   xd->mi[0]->motion_mode = SIMPLE_TRANSLATION;
 
+#if CONFIG_DSPL_RESIDUAL
+  xd->mi[0]->dspl_type = DSPL_NONE;
+#endif
+
   // Intra prediction search
   xd->mi[0]->ref_frame[0] = INTRA_FRAME;
 
