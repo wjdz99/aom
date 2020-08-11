@@ -747,8 +747,20 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
     const int skip_ctx = av1_get_skip_txfm_context(xd);
 #if CONFIG_ENTROPY_STATS
     td->counts->skip_txfm[skip_ctx][mbmi->skip_txfm]++;
+#if CONFIG_DSPL_RESIDUAL
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      td->counts->dspl_type[mbmi->dspl_type]++;
+#endif
 #endif
     update_cdf(fc->skip_txfm_cdfs[skip_ctx], mbmi->skip_txfm, 2);
+#if CONFIG_DSPL_RESIDUAL
+    if (!mbmi->skip_txfm && is_inter_block(mbmi) &&
+        block_size_wide[bsize] >= DSPL_MIN_PARTITION_SIDE &&
+        block_size_high[bsize] >= DSPL_MIN_PARTITION_SIDE)
+      update_cdf(fc->dspl_type_cdf, mbmi->dspl_type, DSPL_END);
+#endif
   }
 
 #if CONFIG_ENTROPY_STATS

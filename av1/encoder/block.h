@@ -704,6 +704,10 @@ typedef struct {
   /**@{*/
   //! skip_txfm_cost
   int skip_txfm_cost[SKIP_CONTEXTS][2];
+#if CONFIG_DSPL_RESIDUAL
+  //! dspl_type_cost
+  int dspl_type_cost[DSPL_END];
+#endif
   //! tx_size_cost
   int tx_size_cost[TX_SIZES - 1][TX_SIZE_CONTEXTS][TX_SIZES];
   //! txfm_partition_cost
