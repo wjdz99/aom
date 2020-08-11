@@ -264,10 +264,20 @@ static INLINE void init_rd_record_tree(TXB_RD_INFO_NODE *tree,
 static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize,
                                    TXB_RD_INFO_NODE *dst_rd_info) {
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
+#if CONFIG_DSPL_RESIDUAL
+  DSPL_TYPE dspl_type = x->e_mbd.mi[0]->dspl_type;
+  TXB_RD_RECORD *rd_records_table[4] = {
+    txfm_info->txb_rd_record_8X8[dspl_type],
+    txfm_info->txb_rd_record_16X16[dspl_type],
+    txfm_info->txb_rd_record_32X32[dspl_type],
+    txfm_info->txb_rd_record_64X64[dspl_type]
+  };
+#else
   TXB_RD_RECORD *rd_records_table[4] = { txfm_info->txb_rd_record_8X8,
                                          txfm_info->txb_rd_record_16X16,
                                          txfm_info->txb_rd_record_32X32,
                                          txfm_info->txb_rd_record_64X64 };
+#endif
   const TX_SIZE max_square_tx_size = max_txsize_lookup[bsize];
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
