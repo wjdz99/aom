@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d25bf83_9b64d684",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-11T17:58:56Z",
+      "side": 1,
+      "message": "With this patch in (and CONFIG_INTERINTRA_BORDER\u003d1 and CONFIG_ILLUM_MCOMP\u003d1), I see 0.125 BDrate improvement on lowres 33 frames",
+      "revId": "7264e71b45663b5a120ff30f638a610f0a0f5379",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
