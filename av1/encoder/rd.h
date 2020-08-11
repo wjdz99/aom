@@ -316,6 +316,33 @@ static INLINE void reset_hash_records(TxfmSearchInfo *const txfm_info,
 
   // Reset the state for use_inter_txb_hash
   if (use_inter_txb_hash) {
+#if CONFIG_DSPL_RESIDUAL
+    for (DSPL_TYPE dspl_type = DSPL_NONE; dspl_type < DSPL_END; ++dspl_type) {
+      for (record_idx = 0;
+           record_idx < ((MAX_MIB_SIZE >> 1) * (MAX_MIB_SIZE >> 1));
+           record_idx++)
+        txfm_info->txb_rd_record_8X8[dspl_type][record_idx].num =
+            txfm_info->txb_rd_record_8X8[dspl_type][record_idx].index_start = 0;
+      for (record_idx = 0;
+           record_idx < ((MAX_MIB_SIZE >> 2) * (MAX_MIB_SIZE >> 2));
+           record_idx++)
+        txfm_info->txb_rd_record_16X16[dspl_type][record_idx].num =
+            txfm_info->txb_rd_record_16X16[dspl_type][record_idx].index_start =
+                0;
+      for (record_idx = 0;
+           record_idx < ((MAX_MIB_SIZE >> 3) * (MAX_MIB_SIZE >> 3));
+           record_idx++)
+        txfm_info->txb_rd_record_32X32[dspl_type][record_idx].num =
+            txfm_info->txb_rd_record_32X32[dspl_type][record_idx].index_start =
+                0;
+      for (record_idx = 0;
+           record_idx < ((MAX_MIB_SIZE >> 4) * (MAX_MIB_SIZE >> 4));
+           record_idx++)
+        txfm_info->txb_rd_record_64X64[dspl_type][record_idx].num =
+            txfm_info->txb_rd_record_64X64[dspl_type][record_idx].index_start =
+                0;
+    }
+#else
     for (record_idx = 0;
          record_idx < ((MAX_MIB_SIZE >> 1) * (MAX_MIB_SIZE >> 1)); record_idx++)
       txfm_info->txb_rd_record_8X8[record_idx].num =
@@ -332,6 +359,7 @@ static INLINE void reset_hash_records(TxfmSearchInfo *const txfm_info,
          record_idx < ((MAX_MIB_SIZE >> 4) * (MAX_MIB_SIZE >> 4)); record_idx++)
       txfm_info->txb_rd_record_64X64[record_idx].num =
           txfm_info->txb_rd_record_64X64[record_idx].index_start = 0;
+#endif
   }
 
   // Reset the state for use_intra_txb_hash

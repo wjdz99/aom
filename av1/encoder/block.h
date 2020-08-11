@@ -544,6 +544,18 @@ typedef struct {
   //! Txfm hash record for the whole coding block.
   MB_RD_RECORD mb_rd_record;
 
+#if CONFIG_DSPL_RESIDUAL
+  /*!\brief Inter mode txfm hash record for TX_8X8 blocks. */
+  TXB_RD_RECORD txb_rd_record_8X8[DSPL_END][MAX_NUM_8X8_TXBS];
+  /*!\brief Inter mode txfm hash record for TX_16X16 blocks. */
+  TXB_RD_RECORD txb_rd_record_16X16[DSPL_END][MAX_NUM_16X16_TXBS];
+  /*!\brief Inter mode txfm hash record for TX_32X32 blocks. */
+  TXB_RD_RECORD txb_rd_record_32X32[DSPL_END][MAX_NUM_32X32_TXBS];
+  /*!\brief Inter mode txfm hash record for TX_64X64 blocks. */
+  TXB_RD_RECORD txb_rd_record_64X64[DSPL_END][MAX_NUM_64X64_TXBS];
+  /*!\brief Intra mode txfm hash record for square tx blocks. */
+  TXB_RD_RECORD txb_rd_record_intra;
+#else
   //! Inter mode txfm hash record for TX_8X8 blocks.
   TXB_RD_RECORD txb_rd_record_8X8[MAX_NUM_8X8_TXBS];
   //! Inter mode txfm hash record for TX_16X16 blocks.
@@ -554,6 +566,7 @@ typedef struct {
   TXB_RD_RECORD txb_rd_record_64X64[MAX_NUM_64X64_TXBS];
   //! Intra mode txfm hash record for square tx blocks.
   TXB_RD_RECORD txb_rd_record_intra;
+#endif
   /**@}*/
 
   /*! \brief Number of txb splits.
