@@ -797,6 +797,13 @@ static const aom_cdf_prob default_skip_txfm_cdfs[SKIP_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(31671) }, { AOM_CDF2(16515) }, { AOM_CDF2(4576) }
 };
 
+#if CONFIG_DSPL_RESIDUAL
+// TODO(singhprakhar): initialize these to better defaults
+static const aom_cdf_prob default_dspl_type_cdf[CDF_SIZE(DSPL_END)] = {
+  AOM_CDF4(1, 1, 29183)
+};
+#endif
+
 static const aom_cdf_prob default_skip_mode_cdfs[SKIP_MODE_CONTEXTS][CDF_SIZE(
     2)] = { { AOM_CDF2(32621) }, { AOM_CDF2(20708) }, { AOM_CDF2(8127) } };
 
@@ -1128,6 +1135,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
   av1_copy(fc->skip_mode_cdfs, default_skip_mode_cdfs);
   av1_copy(fc->skip_txfm_cdfs, default_skip_txfm_cdfs);
+#if CONFIG_DSPL_RESIDUAL
+  av1_copy(fc->dspl_type_cdf, default_dspl_type_cdf);
+#endif
   av1_copy(fc->intra_inter_cdf, default_intra_inter_cdf);
   for (int i = 0; i < SPATIAL_PREDICTION_PROBS; i++)
     av1_copy(fc->seg.spatial_pred_seg_cdf[i],

@@ -128,6 +128,8 @@ typedef enum ATTRIBUTE_PACKED {
   DSPL_XY,        // Downsample before transforming
   DSPL_END
 } DSPL_TYPE;
+
+#define DSPL_MIN_PARTITION_SIDE 8
 #endif
 
 // 4X4, 8X8, 16X16, 32X32, 64X64, 128X128
