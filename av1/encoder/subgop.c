@@ -41,7 +41,7 @@ static char *read_token_after(char *str, const char *delim, char **saveptr) {
     if (saveptr) *saveptr = x + 1;
     return ptr;
   } else {
-    if (saveptr) *saveptr = NULL;
+    if (saveptr) *saveptr = str;
     return NULL;
   }
 }
@@ -107,20 +107,34 @@ static int process_subgop_step(char *str, SubGOPStepCfg *step) {
   // Check if no numeric disp idx exist
   if (ptr == str) return 0;
 
-  // Check for unspecified references
-  if (*ptr == 0) {
+  // Check for character P preceding the references.
+  if (*ptr == 'P') {
+    str = ++ptr;
+    char delim[] = "^";
+    char *token, *next = NULL;
+    while ((token = my_strtok_r(str, delim, &str)) != NULL) {
+      if (strlen(token) == 0) return 0;
+      if (step->num_references >= INTER_REFS_PER_FRAME) return 0;
+      step->references[step->num_references] = (int8_t)strtol(token, &next, 10);
+      if (step->references[step->num_references] == 0)
+        return 0;  // 0 is invalid
+      step->num_references++;
+    }
+    ptr = next;
+  } else {
+    // Unspecified references
     step->num_references = -1;
-    return 1;
   }
-  // Check for character P preceding the references
-  if (*ptr != 'P') return 0;
-  str = ++ptr;
-  char delim[] = "^";
-  char *token;
-  while ((token = my_strtok_r(str, delim, &str)) != NULL) {
-    if (step->num_references >= INTER_REFS_PER_FRAME) return 0;
-    step->references[step->num_references] = (int8_t)strtol(token, NULL, 10);
-    step->num_references++;
+
+  if (*ptr == 'X') {
+    ptr++;
+    step->refresh = (int8_t)strtol(ptr, NULL, 10);
+    if (step->refresh <= 0) return 0;
+  } else if (*ptr == 0) {
+    // no refresh data preceded by X provided
+    return 1;
+  } else {
+    return 0;
   }
   return 1;
 }
@@ -130,6 +144,7 @@ static int process_subgop_steps(char *str, SubGOPCfg *config) {
   config->num_steps = 0;
   char *token;
   while ((token = my_strtok_r(str, delim, &str)) != NULL) {
+    if (strlen(token) == 0) return 0;
     int res = process_subgop_step(token, &config->step[config->num_steps]);
     if (!res) return 0;
     // Populate pyr level for show existing frame
@@ -152,12 +167,15 @@ static int process_subgop_steps(char *str, SubGOPCfg *config) {
 }
 
 static int process_subgop_config(char *str, SubGOPCfg *config) {
+  if (strlen(str) == 0) return 0;
   char delim[] = ":";
   char *token = my_strtok_r(str, delim, &str);
   if (!token) return 0;
+  if (strlen(token) == 0) return 0;
   config->num_frames = atoi(token);
   token = my_strtok_r(str, delim, &str);
   if (!token) return 0;
+  if (strlen(token) == 0) return 0;
   int subgop_in_gop_code = atoi(token);
   // check for invalid subgop_in_gop_code
   if (subgop_in_gop_code < 0 || subgop_in_gop_code >= SUBGOP_IN_GOP_CODES)
@@ -165,6 +183,7 @@ static int process_subgop_config(char *str, SubGOPCfg *config) {
   config->subgop_in_gop_code = (SUBGOP_IN_GOP_CODE)subgop_in_gop_code;
   token = my_strtok_r(str, delim, &str);
   if (!token) return 0;
+  if (strlen(token) == 0) return 0;
   return process_subgop_steps(token, config);
 }
 
@@ -330,17 +349,23 @@ static int process_subgop_config_fromfile(FILE *fp, SubGOPCfg *config) {
     token = read_token_after(str, "references:", &str);
     if (!token) {  // no references specified
       step->num_references = -1;
-      continue;
+    } else if (strlen(token) > 0) {
+      char delim[] = "^";
+      char *ptr = token;
+      while ((token = my_strtok_r(ptr, delim, &ptr)) != NULL) {
+        if (strlen(token) == 0) return 0;
+        if (step->num_references >= INTER_REFS_PER_FRAME) return 0;
+        step->references[step->num_references] =
+            (int8_t)strtol(token, NULL, 10);
+        step->num_references++;
+      }
     }
-    if (strlen(token) == 0) continue;  // no references
-
-    char delim[] = "^";
-    str = token;
-    while ((token = my_strtok_r(str, delim, &str)) != NULL) {
-      if (step->num_references >= INTER_REFS_PER_FRAME) return 0;
-      step->references[step->num_references] = (int8_t)strtol(token, NULL, 10);
-      step->num_references++;
-    }
+    token = read_token_after(str, "refresh:", &str);
+    if (!token) continue;
+    if (strlen(token) == 0) continue;
+    const int refresh = atoi(token);
+    if (refresh == 0) return 0;
+    step->refresh = refresh;
   }
   return 1;
 }
@@ -408,6 +433,8 @@ void av1_print_subgop_config_set(SubGOPSetCfg *config_set) {
           printf("%d", config->step[j].references[r]);
         }
       }
+      if (config->step[j].refresh)
+        printf(" refresh:%d", config->step[j].refresh);
       printf("\n");
     }
   }
