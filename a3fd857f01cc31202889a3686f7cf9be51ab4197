@@ -22,6 +22,30 @@
       "revId": "a3fd857f01cc31202889a3686f7cf9be51ab4197",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3a098c4_da22500c",
+        "filename": "av1/common/onyxc_int.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 18222
+      },
+      "writtenOn": "2020-08-12T20:31:22Z",
+      "side": 1,
+      "message": "For some reason, my local clang formatter made this change out of the blue. Removed this file now.",
+      "parentUuid": "293d7982_db4aef7b",
+      "range": {
+        "startLine": 1224,
+        "startChar": 0,
+        "endLine": 1224,
+        "endChar": 37
+      },
+      "revId": "a3fd857f01cc31202889a3686f7cf9be51ab4197",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
