@@ -50,6 +50,42 @@
       "revId": "87a5fd47ac0db0671760c7bd10cbba6df4bbc52c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8890d107_6743c19e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-08-12T15:25:35Z",
+      "side": 1,
+      "message": "We have modified the formatting in internal stat file from tab to space for the above mentioned metrics. We also verified that with the changes, the borg setup remains unaffected and performs as before.",
+      "parentUuid": "d2f7d90f_319635be",
+      "revId": "87a5fd47ac0db0671760c7bd10cbba6df4bbc52c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b0644643_5bb2057d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-08-12T15:25:35Z",
+      "side": 1,
+      "message": "We have added support to take arguments for –psnr option. It can now take values as 0/1/2. The variable ‘show_psnr’ in AvxEncoderConfig structure is set based on the --psnr argument.\n\n--psnr\u003d1 is default option, which displays psnr value based on input bit-depth\n--psnr\u003d2 displays the psnr value based on stream bit-depth\n--psnr\u003d0 disables the psnr value display\n\nIn order to support back compatibility, --psnr without any argument is still maintained as a valid option and is set to the default option (based on input bit-depth). For supporting this, we have extended the valid values for the variable “has_val” in arg_def_t structure to include “-1”. When has_val \u003d -1, the function arg_match() will return with 1 irrespective of the presence or absence of the argument. This backward compatibility also avoids Jenkins libaom_encode_multijob test build failure, where the --psnr argument is used internally. Hope this is fine. \n\nThe changes affect only the psnr status line displayed in the console log. Internal stats compute both sets of PSNR - PSNR based on input bit-depth as default and PSNR based on codec bit-depth when input bit-depth is less than stream bit bit-depth.",
+      "parentUuid": "0467e382_c05bd28e",
+      "revId": "87a5fd47ac0db0671760c7bd10cbba6df4bbc52c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
