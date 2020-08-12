@@ -1126,6 +1126,7 @@ uint8_t *wienerns_copy_luma(const uint8_t *dgd, int height_y, int width_y,
 
 #if CONFIG_LOOP_RESTORE_CNN
 #if CONFIG_TENSORFLOW_LITE
+
 static void cnn_filter_stripe(const RestorationUnitInfo *rui, int stripe_width,
                               int stripe_height, int procunit_width,
                               const uint8_t *src, int src_stride, uint8_t *dst,
@@ -1138,7 +1139,8 @@ static void cnn_filter_stripe(const RestorationUnitInfo *rui, int stripe_width,
     int w = AOMMIN(procunit_width, stripe_width - j);
     av1_restore_cnn_img_tflite(rui->cnn_info.base_qindex, src + j, w,
                                stripe_height, src_stride, dst + j, dst_stride,
-                               1 /* num_threads */);
+                               1 /* num_threads */,
+                               is_frame_intra_only(rui->cnn_info.frame_type));
   }
 }
 
@@ -1154,7 +1156,8 @@ static void cnn_filter_stripe_highbd(const RestorationUnitInfo *rui,
     av1_restore_cnn_img_tflite_highbd(
         rui->cnn_info.base_qindex, (const uint16_t *)(src + j), w,
         stripe_height, src_stride, (uint16_t *)(dst + j), dst_stride,
-        1 /* num_threads */, bit_depth);
+        1 /* num_threads */, bit_depth,
+        is_frame_intra_only(rui->cnn_info.frame_type));
   }
 }
 

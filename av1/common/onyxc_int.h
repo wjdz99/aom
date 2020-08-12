@@ -710,6 +710,10 @@ static INLINE int frame_is_intra_only(const AV1_COMMON *const cm) {
          cm->current_frame.frame_type == INTRA_ONLY_FRAME;
 }
 
+static INLINE int is_frame_intra_only(const FRAME_TYPE frame_type) {
+  return frame_type == KEY_FRAME || frame_type == INTRA_ONLY_FRAME;
+}
+
 static INLINE int frame_is_sframe(const AV1_COMMON *cm) {
   return cm->current_frame.frame_type == S_FRAME;
 }
@@ -1221,7 +1225,7 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
 static INLINE int partition_cdf_length(BLOCK_SIZE bsize) {
 #if CONFIG_EXT_RECUR_PARTITIONS
   if (bsize <= BLOCK_8X8 || bsize == BLOCK_128X128) return PARTITION_TYPES;
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_EXT_RECUR_PARTITIONS
   if (bsize <= BLOCK_8X8)
     return PARTITION_TYPES;
   else if (bsize == BLOCK_128X128)
