@@ -2674,6 +2674,14 @@ static AOM_INLINE void select_tx_block(
   const int try_no_split =
       cpi->oxcf.txfm_cfg.enable_tx64 || txsize_sqr_up_map[tx_size] != TX_64X64;
   int try_split = tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH;
+
+#if CONFIG_DSPL_RESIDUAL
+  DSPL_TYPE dspl_type = mbmi->dspl_type;
+  if (dspl_type > DSPL_NONE && (tx_size_wide[sub_tx_size_map[tx_size]] < 8 ||
+                                tx_size_high[sub_tx_size_map[tx_size]] < 8))
+    try_split = 0;
+#endif
+
   TxCandidateInfo no_split = { INT64_MAX, 0, TX_TYPES };
 
   // Try using current block as a single transform block without split.
@@ -3221,7 +3229,18 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
   const int bw = tx_size_wide_unit[max_tx_size];
   const int step = bw * bh;
   const int skip_ctx = av1_get_skip_txfm_context(xd);
+#if CONFIG_DSPL_RESIDUAL
+  const int dspl_type_cost =
+      (block_size_wide[bsize] < DSPL_MIN_PARTITION_SIDE ||
+       block_size_high[bsize] < DSPL_MIN_PARTITION_SIDE)
+          ? 0
+          : x->mode_costs.dspl_type_cost[xd->mi[0]->dspl_type];
+
+  const int no_skip_txfm_cost =
+      x->mode_costs.skip_txfm_cost[skip_ctx][0] + dspl_type_cost;
+#else
   const int no_skip_txfm_cost = x->mode_costs.skip_txfm_cost[skip_ctx][0];
+#endif
   const int skip_txfm_cost = x->mode_costs.skip_txfm_cost[skip_ctx][1];
   int64_t skip_txfm_rd = RDCOST(x->rdmult, skip_txfm_cost, 0);
   int64_t no_skip_txfm_rd = RDCOST(x->rdmult, no_skip_txfm_cost, 0);
@@ -3277,6 +3296,10 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
+#if CONFIG_DSPL_RESIDUAL
+  rd_stats->rate += dspl_type_cost;
+#endif
+
   return final_rd;
 }
 
@@ -3308,6 +3331,9 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                          RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                          int64_t ref_best_rd) {
   MACROBLOCKD *const xd = &x->e_mbd;
+#if CONFIG_DSPL_RESIDUAL
+  MB_MODE_INFO *mbmi = xd->mi[0];
+#endif
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
   assert(is_inter_block(xd->mi[0]));
 
@@ -3360,6 +3386,51 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   ++x->txfm_search_info.tx_search_count;
 #endif  // CONFIG_SPEED_STATS
 
+#if CONFIG_DSPL_RESIDUAL
+  int64_t best_rd = INT64_MAX;
+  DSPL_TYPE best_dspl_type = DSPL_NONE;
+  TXB_RD_INFO_NODE matched_rd_info[DSPL_END][4 + 16 + 64];
+  int found_rd_info[DSPL_END];
+  memset(found_rd_info, 0, DSPL_END * sizeof(int));
+
+  for (DSPL_TYPE dspl_type = DSPL_NONE; dspl_type < DSPL_END; ++dspl_type) {
+    if (dspl_type > DSPL_NONE &&
+        (block_size_wide[bsize] < DSPL_MIN_PARTITION_SIDE ||
+         block_size_high[bsize] < DSPL_MIN_PARTITION_SIDE))
+      continue;
+
+    mbmi->dspl_type = dspl_type;
+
+    // Pre-compute residue hashes (transform block level) and find existing or
+    // add new RD records to store and reuse rate and distortion values to speed
+    // up TX size/type search.
+    if (ref_best_rd != INT64_MAX && within_border &&
+        cpi->sf.tx_sf.use_inter_txb_hash) {
+      found_rd_info[dspl_type] =
+          find_tx_size_rd_records(x, bsize, matched_rd_info[dspl_type]);
+    }
+
+    RD_STATS dummy_rd_stats;
+    const int64_t dspl_rd = select_tx_size_and_type(
+        cpi, x, &dummy_rd_stats, bsize, ref_best_rd,
+        found_rd_info[dspl_type] ? matched_rd_info[dspl_type] : NULL);
+
+    if (dspl_rd < best_rd) {
+      best_rd = dspl_rd;
+      *rd_stats = dummy_rd_stats;
+      best_dspl_type = dspl_type;
+    }
+  }
+
+  int64_t rd = INT64_MAX;
+  if (best_rd != INT64_MAX) {
+    mbmi->dspl_type = best_dspl_type;
+    rd = select_tx_size_and_type(
+        cpi, x, rd_stats, bsize, ref_best_rd,
+        found_rd_info[best_dspl_type] ? matched_rd_info[best_dspl_type] : NULL);
+  }
+
+#else
   // Pre-compute residue hashes (transform block level) and find existing or
   // add new RD records to store and reuse rate and distortion values to speed
   // up TX size/type search.
@@ -3373,6 +3444,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   const int64_t rd =
       select_tx_size_and_type(cpi, x, rd_stats, bsize, ref_best_rd,
                               found_rd_info ? matched_rd_info : NULL);
+#endif
 
   if (rd == INT64_MAX) {
     // We should always find at least one candidate unless ref_best_rd is less
@@ -3659,6 +3731,12 @@ int av1_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     rd_stats_y->dist = rd_stats_y->sse;
     rd_stats_uv->dist = rd_stats_uv->sse;
     mbmi->skip_txfm = 1;
+#if CONFIG_DSPL_RESIDUAL
+    // if we are skipping txfm, by convention we must have mbmi->dspl_type =
+    // DSPL_NONE
+    mbmi->dspl_type = DSPL_NONE;
+#endif
+
     if (rd_stats->skip_txfm) {
       const int64_t tmprd = RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
       if (tmprd > ref_best_rd) return 0;
