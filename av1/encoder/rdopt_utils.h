@@ -337,18 +337,19 @@ static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
   const int scale[5] = { INT_MAX, 4, 3, 3, 2 };
   const int qslope = 2 * (!is_luma_only);
   int aggr_factor = 1;
-  if (!is_luma_only) {
+  const int pred_qindex_thresh = (level >= 4) ? 100 : 0;
+  if (!is_luma_only && level < 4) {
     aggr_factor = AOMMAX(
         1, ((MAXQ - x->qindex) * qslope + QINDEX_RANGE / 2) >> QINDEX_BITS);
   }
-  if (best_skip_rd >
-      (x->source_variance << (num_pels_log2_lookup[bsize] + RDDIV_BITS)))
+  if ((best_skip_rd >
+       (x->source_variance << (num_pels_log2_lookup[bsize] + RDDIV_BITS))) &&
+      (x->qindex >= pred_qindex_thresh))
     aggr_factor *= scale[level];
   // For level setting 1, be more conservative for luma only case even when
   // prediction is good
   else if ((level <= 1) && !is_luma_only)
     aggr_factor *= 2;
-
   // Be more conservative for luma only cases (called from compound type rd)
   // since best_skip_rd is computed after and skip_rd is computed (with 8-bit
   // prediction signals blended for WEDGE/DIFFWTD rather than 16-bit) before
