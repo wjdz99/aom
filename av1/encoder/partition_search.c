@@ -2488,6 +2488,7 @@ static AOM_INLINE int is_rect_part_allowed(
 }
 
 // Rectangular partition types search function.
+//look here, looking for smallest rdcost, disable by returning int64_max
 static void rectangular_partition_search(
     AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data,
     TokenExtra **tp, MACROBLOCK *x, PC_TREE *pc_tree,
@@ -2910,7 +2911,7 @@ static void prune_4_partition_using_split_info(
           part4_search_allowed[cur_part[i]]))
       continue;
     // Loop over split partitions.
-    // Get reactnagular partitions winner info of split partitions.
+    // Get rectangular partitions winner info of split partitions.
     for (int idx = 0; idx < SUB_PARTITIONS_SPLIT; idx++)
       num_child_rect_win[i] +=
           (part_search_state->split_part_rect_win[idx].rect_part_win[i]) ? 1
@@ -3386,6 +3387,8 @@ partitions
 * The rd_cost struct is also updated with the RD stats corresponding to the
 * best partition found.
 */
+//look here
+//checks each of 10 partitions
 bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                            TileDataEnc *tile_data, TokenExtra **tp, int mi_row,
                            int mi_col, BLOCK_SIZE bsize, RD_STATS *rd_cost,
@@ -3492,6 +3495,7 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
       partition_vert_allowed, &part_search_state.do_square_split);
 
   // Partition search
+//look here
 BEGIN_PARTITION_SEARCH:
   // If a valid partition is required, usually when the first round cannot find
   // a valid one under the cost limit after pruning, reset the limitations on

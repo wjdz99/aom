@@ -2822,6 +2822,14 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
         txsize_sqr_up_map[tx_size] == TX_64X64) {
       continue;
     }
+    if (!cpi->oxcf.txfm_cfg.enable_rect_tx &&
+        txsize_to_bsize[tx_size] != TX_4X4 &&
+        txsize_to_bsize[tx_size] != TX_8X8 &&
+        txsize_to_bsize[tx_size] != TX_16X16 &&
+        txsize_to_bsize[tx_size] != TX_32X32 &&
+        txsize_to_bsize[tx_size] != TX_64X64) {
+      continue;
+    }
 
     RD_STATS this_rd_stats;
     rd[depth] = av1_uniform_txfm_yrd(cpi, x, &this_rd_stats, ref_best_rd, bs,
