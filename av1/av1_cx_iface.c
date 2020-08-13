@@ -209,13 +209,23 @@ const char subgop_config_str_16_ts[] =
 // An asymmetrical config where the hierarchical frames are not exactly
 // dyadic, but slightly skewed.
 const char subgop_config_str_16_asym[] =
+    "16:2:16F1/9F2/5U3/3U4/1V5/2V5/3S/"
+    "4V5/5S/7U4/6V5/7S/8V5/9R2/13U3/11U4/"
+    "10V5/11S/12V5/13S/14V5/15V5/16R1,"
+    /*
     "16:2:16F1/10F2/5U3/3U4/1V4/2V5/3S/"
     "4V5/5S/8U4/6V5/7V5/8S/9V4/10R2/"
     "13U3/11V4/12V5/13S/14V4/15V5/16R1/,"
+    */
 
+    "16:0:16F1/9F2/5U3/3U4/1V5/2V5/3S/"
+    "4V5/5S/7U4/6V5/7S/8V5/9R2/13U3/11U4/"
+    "10V5/11S/12V5/13S/14V5/15V5/16R1,"
+    /*
     "16:0:16F1/10F2/5U3/3U4/1V5/2V5/3S/"
     "4V5/5S/8U4/6V5/7V5/8S/9V4/10R2/"
     "13U3/11V4/12V5/13S/14V4/15V5/16R1,"
+    */
 
     "16:1:14F1/7F2/4U3/2U4/1V5/2S/3V5/4S/"
     "5V4/6V5/7R2/11U3/9U4/8V5/9S/10V5/11S/"
@@ -249,7 +259,7 @@ static struct av1_extracfg default_extra_cfg = {
   5,              // gf_max_pyr_height
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
-  NULL,                                      // subgop_config_str
+  subgop_config_str_16_enh,                  // subgop_config_str
   NULL,                                      // subgop_config_path
   40,                                        // qp
   0,                                         // rc_max_intra_bitrate_pct
