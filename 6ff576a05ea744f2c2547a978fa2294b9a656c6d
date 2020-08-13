@@ -22,6 +22,30 @@
       "revId": "6ff576a05ea744f2c2547a978fa2294b9a656c6d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac594ac0_4cb84040",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 18262
+      },
+      "writtenOn": "2020-08-13T16:15:09Z",
+      "side": 1,
+      "message": "It doesn\u0027t really need to be kept, since it doesn\u0027t affect the results, unless in some case there\u0027s some overflow in the linsolve, but I don\u0027t have any reason to expect this... I removed it.",
+      "parentUuid": "ec7e7a16_6361758b",
+      "range": {
+        "startLine": 528,
+        "startChar": 4,
+        "endLine": 531,
+        "endChar": 5
+      },
+      "revId": "6ff576a05ea744f2c2547a978fa2294b9a656c6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
