@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "cdd36823_d3ab18d9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-08-13T18:50:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "050a980b_455c95e1",
+      "revId": "afac8b0ddb4e87d9c6611a331dd438842f3f2127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a24fd03_58a9e35a",
         "filename": "examples/subgopcfgs/subgop_cfg_16_ld.cfg",
         "patchSetId": 3
@@ -30,6 +48,30 @@
       "writtenOn": "2020-08-13T17:02:20Z",
       "side": 1,
       "message": "Is the pyramid level of overlay frame used anywhere? If not, maybe best to use the same level for config#0 and #1 to avoid confusion.",
+      "range": {
+        "startLine": 37,
+        "startChar": 52,
+        "endLine": 37,
+        "endChar": 53
+      },
+      "revId": "afac8b0ddb4e87d9c6611a331dd438842f3f2127",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f2d6a6f_d6f34707",
+        "filename": "examples/subgopcfgs/subgop_cfg_16_ld.cfg",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-08-13T18:50:48Z",
+      "side": 1,
+      "message": "In low delay there are no overlay frames. The main difference between the first and last models is that the last subgop moves up the last level 1 frame a bit. In the last subgop, giving high quality to the last frame is useless since it is not used to code any other frame.",
+      "parentUuid": "3a24fd03_58a9e35a",
       "range": {
         "startLine": 37,
         "startChar": 52,
