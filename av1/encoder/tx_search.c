@@ -2640,8 +2640,10 @@ static AOM_INLINE void select_tx_block(
                                          mbmi->sb_type, tx_size);
   struct macroblock_plane *const p = &x->plane[0];
 
-  const int try_no_split =
-      cpi->oxcf.txfm_cfg.enable_tx64 || txsize_sqr_up_map[tx_size] != TX_64X64;
+  const int try_no_split = cpi->oxcf.txfm_cfg.enable_tx64 ||
+                           txsize_sqr_up_map[tx_size] != TX_64X64 &&
+                               cpi->oxcf.txfm_cfg.enable_rect_tx ||
+                           tx_size_wide[tx_size] != tx_size_high[tx_size];
   int try_split = tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH;
   TxCandidateInfo no_split = { INT64_MAX, 0, TX_TYPES };
 
@@ -2697,9 +2699,11 @@ static AOM_INLINE void select_tx_block(
                           tx_size);
     for (int idy = 0; idy < tx_size_high_unit[tx_size]; ++idy) {
       for (int idx = 0; idx < tx_size_wide_unit[tx_size]; ++idx) {
-        const int index =
-            av1_get_txb_size_index(plane_bsize, blk_row + idy, blk_col + idx);
-        mbmi->inter_tx_size[index] = tx_size;
+        if (cpi->oxcf.txfm_cfg.enable_rect_tx || idy != idx) {
+          const int index =
+              av1_get_txb_size_index(plane_bsize, blk_row + idy, blk_col + idx);
+          mbmi->inter_tx_size[index] = tx_size;
+        }
       }
     }
     mbmi->tx_size = tx_size;
@@ -2723,7 +2727,7 @@ static AOM_INLINE void choose_largest_tx_size(const AV1_COMP *const cpi,
   mbmi->tx_size = tx_size_from_tx_mode(bs, txfm_params->tx_mode_search_type);
 
   // If tx64 is not enabled, we need to go down to the next available size
-  if (!cpi->oxcf.txfm_cfg.enable_tx64) {
+  if (!cpi->oxcf.txfm_cfg.enable_tx64 && cpi->oxcf.txfm_cfg.enable_rect_tx) {
     static const TX_SIZE tx_size_max_32[TX_SIZES_ALL] = {
       TX_4X4,    // 4x4 transform
       TX_8X8,    // 8x8 transform
@@ -2745,10 +2749,54 @@ static AOM_INLINE void choose_largest_tx_size(const AV1_COMP *const cpi,
       TX_16X32,  // 16x64 transform
       TX_32X16,  // 64x16 transform
     };
-
+  }
+  if (cpi->oxcf.txfm_cfg.enable_tx64 && !cpi->oxcf.txfm_cfg.enable_rect_tx) {
+    static const TX_SIZE tx_size_max_32[TX_SIZES_ALL] = {
+      TX_4X4,    // 4x4 transform
+      TX_8X8,    // 8x8 transform
+      TX_16X16,  // 16x16 transform
+      TX_32X32,  // 32x32 transform
+      TX_64X64,  // 64x64 transform
+      TX_4X4,    // 4x8 transform
+      TX_4X4,    // 8x4 transform
+      TX_8X8,    // 8x16 transform
+      TX_8X8,    // 16x8 transform
+      TX_16X16,  // 16x32 transform
+      TX_16X16,  // 32x16 transform
+      TX_32X32,  // 32x64 transform
+      TX_32X32,  // 64x32 transform
+      TX_4X4,    // 4x16 transform
+      TX_4X4,    // 16x4 transform
+      TX_8X8,    // 8x32 transform
+      TX_8X8,    // 32x8 transform
+      TX_16X16,  // 16x64 transform
+      TX_16X16,  // 64x16 transform
+    };
+  }
+  if (!cpi->oxcf.txfm_cfg.enable_tx64 && !cpi->oxcf.txfm_cfg.enable_rect_tx) {
+    static const TX_SIZE tx_size_max_32[TX_SIZES_ALL] = {
+      TX_4X4,    // 4x4 transform
+      TX_8X8,    // 8x8 transform
+      TX_16X16,  // 16x16 transform
+      TX_32X32,  // 32x32 transform
+      TX_32X32,  // 64x64 transform
+      TX_4X4,    // 4x8 transform
+      TX_4X4,    // 8x4 transform
+      TX_8X8,    // 8x16 transform
+      TX_8X8,    // 16x8 transform
+      TX_16X16,  // 16x32 transform
+      TX_16X16,  // 32x16 transform
+      TX_32X32,  // 32x64 transform
+      TX_32X32,  // 64x32 transform
+      TX_4X4,    // 4x16 transform
+      TX_4X4,    // 16x4 transform
+      TX_8X8,    // 8x32 transform
+      TX_8X8,    // 32x8 transform
+      TX_16X16,  // 16x64 transform
+      TX_16X16,  // 64x16 transform
+    };
     mbmi->tx_size = tx_size_max_32[mbmi->tx_size];
   }
-
   const int skip_ctx = av1_get_skip_txfm_context(xd);
   const int no_skip_txfm_rate = x->mode_costs.skip_txfm_cost[skip_ctx][0];
   const int skip_txfm_rate = x->mode_costs.skip_txfm_cost[skip_ctx][1];
@@ -2788,7 +2836,9 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[bs];
+  const TX_SIZE max_rect_tx_size = (cpi->oxcf.txfm_cfg.enable_rect_tx)
+                                       ? max_txsize_rect_lookup[bs]
+                                       : max_txsize_lookup[bs];
   const int tx_select = txfm_params->tx_mode_search_type == TX_MODE_SELECT;
   int start_tx;
   // The split depth can be at most MAX_TX_DEPTH, so the init_depth controls
@@ -2820,6 +2870,10 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
        depth++, tx_size = sub_tx_size_map[tx_size]) {
     if (!cpi->oxcf.txfm_cfg.enable_tx64 &&
         txsize_sqr_up_map[tx_size] == TX_64X64) {
+      continue;
+    }
+    if (!cpi->oxcf.txfm_cfg.enable_rect_tx &&
+        tx_size_wide[tx_size] != tx_size_high[tx_size]) {
       continue;
     }
 
@@ -3485,6 +3539,11 @@ void av1_txfm_rd_in_plane(MACROBLOCK *x, const AV1_COMP *cpi,
                           TX_SIZE tx_size, FAST_TX_SEARCH_MODE ftxs_mode,
                           int skip_trellis) {
   assert(IMPLIES(plane == 0, x->e_mbd.mi[0]->tx_size == tx_size));
+
+  if (!cpi->oxcf.txfm_cfg.enable_rect_tx &&
+      tx_size_wide[tx_size] != tx_size_high[tx_size]) {
+    return;
+  }
 
   if (!cpi->oxcf.txfm_cfg.enable_tx64 &&
       txsize_sqr_up_map[tx_size] == TX_64X64) {
