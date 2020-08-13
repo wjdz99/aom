@@ -851,6 +851,12 @@ typedef struct macroblockd {
    * 'cpi->tile_thr_data[t].td->mb.tmp_pred_bufs'.
    */
   uint8_t *tmp_obmc_bufs[2];
+#if CONFIG_DSPL_RESIDUAL
+  /*!
+   * Flag indicating whether downsampling is allowed for a superblock.
+   */
+  int8_t allow_dspl_residual;
+#endif
 } MACROBLOCKD;
 
 /*!\cond */
