@@ -28,6 +28,8 @@ typedef struct {
 
   // Stores the filter strength of the last frame.
   double last_frame_unsharp_amount;
+
+  int original_qindex;
 } TuneVMAFInfo;
 
 void aom_calc_vmaf(const char *model_path, const YV12_BUFFER_CONFIG *source,

@@ -1033,6 +1033,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
                     aom_calloc(num_rows * num_cols,
                                sizeof(*cpi->vmaf_info.rdmult_scaling_factors)));
     cpi->vmaf_info.last_frame_unsharp_amount = 0.0;
+    cpi->vmaf_info.original_qindex = -1;
   }
 #endif
 
@@ -2274,18 +2275,16 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       }
       av1_scale_references(cpi, EIGHTTAP_REGULAR, 0, 0);
     }
+    av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
+                      q_cfg->enable_chroma_deltaq);
 #if CONFIG_TUNE_VMAF
     if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING ||
         oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
         oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_MAX_GAIN) {
+      cpi->vmaf_info.original_qindex = cpi->common.quant_params.base_qindex;
       av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel,
                         av1_get_vmaf_base_qindex(cpi, q),
                         q_cfg->enable_chroma_deltaq);
-    } else {
-#endif
-      av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
-                        q_cfg->enable_chroma_deltaq);
-#if CONFIG_TUNE_VMAF
     }
 #endif
     av1_set_speed_features_qindex_dependent(cpi, oxcf->speed);
