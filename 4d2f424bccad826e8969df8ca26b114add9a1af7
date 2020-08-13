@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4265dfcf_af87ca5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-08-13T13:10:38Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nDuring our recent analysis of inter mode related statistics in speed presets 5 and 6, we found that more modes can be pruned to bypass transform search at lower quantizers. This patch takes care of the same by making the existing approach to bypass the transform search of a mode based on skip rd more aggressive at lower quantizers in speed presets 5 and 6. \n\nThough we observed ~1% BD rate drop for crew_cif in both speed 5 and 6, the respective speed gains are 9% and 6.5%, which are very near the trade-off of 0.1% and 0.2% for speed 5 and 6.\n\nThis is a bit exact change for speed presets \u003c\u003d 4 (verified locally) and we will plan to extend the same optimization to speed presets 3 and 4.\n\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr  ovr.psnr   ssim\n   5       LOW RES        5.147        0.3746    0.3726    0.2919\n   5       MID RES        2.193        0.2094    0.2116    0.1680\n   5        HD RES        5.075        0.1716    0.1685    0.1609\n   5       Average        4.408        0.2644    0.2633    0.2157\n   \n   6       LOW RES        3.899        0.3631    0.3683    0.2927\n   6       MID RES        1.745        0.2535    0.2570    0.2048\n   6        HD RES        3.829        0.1773    0.1719    0.1688\n   6       Average        3.356        0.2744    0.2759    0.2292\n\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "4d2f424bccad826e8969df8ca26b114add9a1af7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
