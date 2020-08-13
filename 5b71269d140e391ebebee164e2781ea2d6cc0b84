@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0aaf29d_cb12af73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T02:51:38Z",
+      "side": 1,
+      "message": "Just some quick comments, nothing to block this change landing.",
+      "revId": "5b71269d140e391ebebee164e2781ea2d6cc0b84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4803df35_6f99eaf3",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T02:51:38Z",
+      "side": 1,
+      "message": "allocations should be checked and generally we prefer sizeof(variable) to sizeof(type):\n\nhttps://google.github.io/styleguide/cppguide.html#sizeof",
+      "revId": "5b71269d140e391ebebee164e2781ea2d6cc0b84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f45593c5_d3df1d9d",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-13T02:51:38Z",
+      "side": 1,
+      "message": "this is unrelated to the change, but will new_x/y be in the precision you want when comparing against the frame_width/height?",
+      "revId": "5b71269d140e391ebebee164e2781ea2d6cc0b84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
