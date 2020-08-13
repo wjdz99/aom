@@ -6437,10 +6437,17 @@ static AOM_INLINE void encode_superblock(const AV1_COMP *const cpi,
 #else
     (void)num_planes;
 #endif
-
+#if CONFIG_DSPL_RESIDUAL
+    // Set quantizer
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, mbmi->dspl_type);
+#endif
     av1_encode_sb(cpi, x, bsize, dry_run);
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
+#if CONFIG_DSPL_RESIDUAL
+    // Restore quantizer
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, DSPL_NONE);
+#endif
   }
 
   if (!dry_run) {

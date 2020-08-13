@@ -734,6 +734,39 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   av1_set_sad_per_bit(cpi, mv_costs, qindex);
 }
 
+#if CONFIG_DSPL_RESIDUAL
+void av1_setup_dspl_quantizer(const AV1_COMP *cpi, MACROBLOCK *x,
+                              int segment_id, DSPL_TYPE dspl_type) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const CommonQuantParams *const quant_params = &cm->quant_params;
+  const QUANTS *const quants = &cpi->enc_quant_dequant_params.quants;
+  const Dequants *const dequants = &cpi->enc_quant_dequant_params.dequants;
+
+  int current_qindex =
+      AOMMAX(0, AOMMIN(QINDEX_RANGE - 1,
+                       (cm->delta_q_info.delta_q_present_flag
+                            ? quant_params->base_qindex + x->delta_qindex
+                            : quant_params->base_qindex)));
+
+  int qindex = av1_get_qindex(&cm->seg, segment_id, current_qindex);
+
+  int dspl_delta_q[DSPL_END];
+  get_dspl_delta_q(qindex, dspl_delta_q);
+
+  qindex =
+      AOMMAX(0, AOMMIN(QINDEX_RANGE - 1, qindex + dspl_delta_q[dspl_type]));
+
+  // Y
+  x->plane[0].quant_QTX = quants->y_quant[qindex];
+  x->plane[0].quant_fp_QTX = quants->y_quant_fp[qindex];
+  x->plane[0].round_fp_QTX = quants->y_round_fp[qindex];
+  x->plane[0].quant_shift_QTX = quants->y_quant_shift[qindex];
+  x->plane[0].zbin_QTX = quants->y_zbin[qindex];
+  x->plane[0].round_QTX = quants->y_round[qindex];
+  x->plane[0].dequant_QTX = dequants->y_dequant_QTX[qindex];
+}
+#endif
+
 void av1_frame_init_quantizer(AV1_COMP *cpi) {
   MACROBLOCK *const x = &cpi->td.mb;
   MACROBLOCKD *const xd = &x->e_mbd;
