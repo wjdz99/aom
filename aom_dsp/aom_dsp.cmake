@@ -334,6 +334,7 @@ function(setup_aom_dsp_targets)
     if(BUILD_SHARED_LIBS)
       target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_dsp_encoder>)
     endif()
+    target_include_directories(aom_dsp_encoder PRIVATE ${VMAF_INCLUDE_DIRS})
   endif()
 
   if(HAVE_SSE2)
