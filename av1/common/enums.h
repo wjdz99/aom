@@ -156,7 +156,8 @@ typedef enum {
 
 #if CONFIG_EXT_RECUR_PARTITIONS
 #define KEEP_PARTITION_SPLIT 0
-#define ENABLE_FAST_RECUR_PARTITION 0
+#define ENABLE_FAST_RECUR_PARTITION 1
+#define USE_EST_TXFM 0
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 
 //  Block partition types.  R: Recursive

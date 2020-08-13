@@ -237,8 +237,8 @@ typedef struct SimpleMotionData {
   MV submv;
   unsigned int sse;
   unsigned int var;
-  unsigned int dist;
-  int64_t rate;
+  int64_t dist;
+  int rate;
   int64_t rdcost;
   int valid;
 
