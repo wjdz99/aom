@@ -2640,8 +2640,10 @@ static AOM_INLINE void select_tx_block(
                                          mbmi->sb_type, tx_size);
   struct macroblock_plane *const p = &x->plane[0];
 
-  const int try_no_split =
-      cpi->oxcf.txfm_cfg.enable_tx64 || txsize_sqr_up_map[tx_size] != TX_64X64;
+  const int try_no_split = (cpi->oxcf.txfm_cfg.enable_tx64 ||
+                            txsize_sqr_up_map[tx_size] != TX_64X64) &&
+                           (cpi->oxcf.txfm_cfg.enable_rect_tx ||
+                            tx_size_wide[tx_size] == tx_size_high[tx_size]);
   int try_split = tx_size > TX_4X4 && depth < MAX_VARTX_DEPTH;
   TxCandidateInfo no_split = { INT64_MAX, 0, TX_TYPES };
 
