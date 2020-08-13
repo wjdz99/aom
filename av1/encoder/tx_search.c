@@ -3399,6 +3399,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
          block_size_high[bsize] < DSPL_MIN_PARTITION_SIDE))
       continue;
 
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, dspl_type);
     mbmi->dspl_type = dspl_type;
 
     // Pre-compute residue hashes (transform block level) and find existing or
@@ -3424,12 +3425,16 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   int64_t rd = INT64_MAX;
   if (best_rd != INT64_MAX) {
+    av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, best_dspl_type);
     mbmi->dspl_type = best_dspl_type;
+
     rd = select_tx_size_and_type(
         cpi, x, rd_stats, bsize, ref_best_rd,
         found_rd_info[best_dspl_type] ? matched_rd_info[best_dspl_type] : NULL);
   }
 
+  // Restore original quantizer
+  av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, DSPL_NONE);
 #else
   // Pre-compute residue hashes (transform block level) and find existing or
   // add new RD records to store and reuse rate and distortion values to speed

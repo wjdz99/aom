@@ -617,7 +617,11 @@ struct CommonQuantParams {
    * shift/scale as TX.
    */
   /**@{*/
+#if CONFIG_DSPL_RESIDUAL
+  int16_t y_dequant_QTX[DSPL_END][MAX_SEGMENTS][2]; /*!< Dequant for Y plane */
+#else
   int16_t y_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for Y plane */
+#endif
   int16_t u_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for U plane */
   int16_t v_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for V plane */
   /**@}*/
@@ -1251,6 +1255,34 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd) {
   const int num_planes = av1_num_planes(cm);
   const CommonQuantParams *const quant_params = &cm->quant_params;
 
+#if CONFIG_DSPL_RESIDUAL
+  for (DSPL_TYPE dspl_type = DSPL_NONE; dspl_type < DSPL_END; ++dspl_type) {
+    for (int i = 0; i < num_planes; ++i) {
+      if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
+        memcpy(xd->plane[i].seg_dequant_QTX[dspl_type],
+               quant_params->y_dequant_QTX[dspl_type],
+               sizeof(quant_params->y_dequant_QTX[dspl_type]));
+        memcpy(xd->plane[i].seg_iqmatrix, quant_params->y_iqmatrix,
+               sizeof(quant_params->y_iqmatrix));
+
+      } else {
+        if (i == AOM_PLANE_U) {
+          memcpy(xd->plane[i].seg_dequant_QTX[dspl_type],
+                 quant_params->u_dequant_QTX,
+                 sizeof(quant_params->u_dequant_QTX));
+          memcpy(xd->plane[i].seg_iqmatrix, quant_params->u_iqmatrix,
+                 sizeof(quant_params->u_iqmatrix));
+        } else {
+          memcpy(xd->plane[i].seg_dequant_QTX[dspl_type],
+                 quant_params->v_dequant_QTX,
+                 sizeof(quant_params->v_dequant_QTX));
+          memcpy(xd->plane[i].seg_iqmatrix, quant_params->v_iqmatrix,
+                 sizeof(quant_params->v_iqmatrix));
+        }
+      }
+    }
+  }
+#else
   for (int i = 0; i < num_planes; ++i) {
     if (xd->plane[i].plane_type == PLANE_TYPE_Y) {
       memcpy(xd->plane[i].seg_dequant_QTX, quant_params->y_dequant_QTX,
@@ -1272,6 +1304,7 @@ static INLINE void av1_init_macroblockd(AV1_COMMON *cm, MACROBLOCKD *xd) {
       }
     }
   }
+#endif
   xd->mi_stride = cm->mi_params.mi_stride;
   xd->error_info = &cm->error;
   cfl_init(&xd->cfl, &cm->seq_params);

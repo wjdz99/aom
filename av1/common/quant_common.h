@@ -76,6 +76,10 @@ const qm_val_t *av1_get_qmatrix(const struct CommonQuantParams *quant_params,
                                 const struct macroblockd *xd, int plane,
                                 TX_SIZE tx_size, TX_TYPE tx_type);
 
+#if CONFIG_DSPL_RESIDUAL
+void get_dspl_delta_q(int base_qindex, int *dspl_delta_q);
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
