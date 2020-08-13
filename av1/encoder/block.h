@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 //! Linear dimension of a tpl block
-#define MC_FLOW_BSIZE_1D 16
+#define MC_FLOW_BSIZE_1D 32
 //! Number of pixels in a tpl block
 #define MC_FLOW_NUM_PELS (MC_FLOW_BSIZE_1D * MC_FLOW_BSIZE_1D)
 //! Number of tpl block in a super block

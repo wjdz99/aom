@@ -694,8 +694,8 @@ static AOM_INLINE void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row,
                                        int mi_col, BLOCK_SIZE bsize, int stride,
                                        const TplDepStats *src_stats,
                                        uint8_t block_mis_log2) {
-  const int mi_height = mi_size_high[bsize];
-  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize] >> block_mis_log2;
+  const int mi_width = mi_size_wide[bsize] >> block_mis_log2;
   const int step = 1 << block_mis_log2;
 
   int64_t intra_cost = src_stats->intra_cost / (mi_height * mi_width);
