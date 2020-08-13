@@ -5208,6 +5208,57 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     // the general concept of 1-pass/2-pass encoders.
     const int num_passes = cpi->oxcf.sb_multipass_unit_test ? 2 : 1;
 
+#if CONFIG_DSPL_RESIDUAL
+    MACROBLOCKD *const xd = &x->e_mbd;
+    xd->allow_dspl_residual = 0;
+    if (!frame_is_intra_only(cm)) {
+      // Save state
+      SB_FIRST_PASS_STATS sb_fp_stats;
+      backup_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+
+      PC_TREE *pc_root_dspl[2];
+      RD_STATS rd_stats_dspl[2];
+
+      // Try dry pass with downsampling disabled
+      xd->allow_dspl_residual = 0;
+      pc_root_dspl[0] = av1_alloc_pc_tree_node(sb_size);
+      init_encode_rd_sb(cpi, td, tile_data, sms_root, &rd_stats_dspl[0], mi_row,
+                        mi_col, 0);
+      reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
+      reset_simple_motion_tree_partition(sms_root, sb_size);
+      restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+      rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                        &rd_stats_dspl[0], rd_stats_dspl[0], pc_root_dspl[0],
+                        sms_root, NULL, SB_DRY_PASS, NULL);
+
+      // Try dry pass with downsampling enabled
+      xd->allow_dspl_residual = 1;
+      pc_root_dspl[1] = av1_alloc_pc_tree_node(sb_size);
+      init_encode_rd_sb(cpi, td, tile_data, sms_root, &rd_stats_dspl[1], mi_row,
+                        mi_col, 0);
+      reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
+      reset_simple_motion_tree_partition(sms_root, sb_size);
+      restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+      rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                        &rd_stats_dspl[1], rd_stats_dspl[1], pc_root_dspl[1],
+                        sms_root, NULL, SB_DRY_PASS, NULL);
+
+      // Select best downsampling option
+      if (rd_stats_dspl[0].rdcost <= rd_stats_dspl[1].rdcost)
+        xd->allow_dspl_residual = 0;
+      else
+        xd->allow_dspl_residual = 1;
+
+      // Restore state
+      init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row,
+                        mi_col, 0);
+      reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
+      reset_simple_motion_tree_partition(sms_root, sb_size);
+
+      restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+    }
+#endif
+
     if (num_passes == 1) {
       PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
       rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,

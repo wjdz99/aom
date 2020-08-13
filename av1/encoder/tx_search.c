@@ -3399,6 +3399,8 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
          block_size_high[bsize] < DSPL_MIN_PARTITION_SIDE))
       continue;
 
+    if (dspl_type > DSPL_NONE && xd->allow_dspl_residual == 0) continue;
+    
     av1_setup_dspl_quantizer(cpi, x, mbmi->segment_id, dspl_type);
     mbmi->dspl_type = dspl_type;
 
