@@ -546,6 +546,171 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
   aom_free(i_x);
   aom_free(i_y);
 }
+// calculate the average MV within a neighborhood
+double mv_mean(LOCALMV *mvs, const int frame_width, const int frame_height,
+               const int x_coord, const int y_coord, const int window_size,
+               const int direction, const int expand_mult) {
+  const int x_start = AOMMAX(1, x_coord - window_size * expand_mult / 2);
+  const int y_start = AOMMAX(1, y_coord - window_size * expand_mult / 2);
+  const int x_end =
+      AOMMIN(x_start + window_size * expand_mult, frame_width - 1);
+  const int y_end =
+      AOMMIN(y_start + window_size * expand_mult, frame_height - 1);
+  double mean = 0;
+  double num_pixels = 0;
+  double weight;
+  double sigma = 1;
+  double distance;
+  for (int j = y_start; j < y_end; j += expand_mult) {
+    for (int i = x_start; i < x_end; i += expand_mult) {
+      LOCALMV mv = mvs[j * frame_width + i];
+      mv.row = mv.row / expand_mult;
+      mv.col = mv.col / expand_mult;
+      distance = sqrt(pow(x_coord - i, 2) + pow(y_coord - j, 2));
+      // TODO(any): not sure which weighting is best for HS
+      weight = exp(-1 / 2 * pow(distance / sigma, 2));
+      if (direction == 0) {
+        mean += weight * mv.row;
+      } else {
+        mean += weight * mv.col;
+      }
+      num_pixels += weight;
+    }
+  }
+  // num_pixels = (y_end-y_start)*(x_end-x_start);
+  return mean / num_pixels;
+}
+// calculate only temporal gradient for every pixel in frame
+void update_dt(const YV12_BUFFER_CONFIG *frame,
+               const YV12_BUFFER_CONFIG *ref_frame, LOCALMV *mvs,
+               const int expand_mult, const int highres_frame_width,
+               const int bit_depth, double *it) {
+  int height = frame->y_crop_height;
+  int width = frame->y_crop_width;
+  double deriv_t;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      const int highres_x = i * expand_mult;
+      const int highres_y = j * expand_mult;
+      LOCALMV mv = mvs[highres_y * highres_frame_width + highres_x];
+      mv.row = mv.row / expand_mult;
+      mv.col = mv.col / expand_mult;
+      temporal_gradient(frame, ref_frame, i, j, bit_depth, &deriv_t, &mv);
+      it[j * width + i] = deriv_t;
+    }
+  }
+}
+// calculate gradients for every pixel in frame
+// and store in ix, iy, and it
+void initialize_gradients(const YV12_BUFFER_CONFIG *frame,
+                          const YV12_BUFFER_CONFIG *ref_frame,
+                          const int bit_depth, double *ix, double *iy,
+                          double *it) {
+  int height = frame->y_crop_height;
+  int width = frame->y_crop_width;
+  LOCALMV mv = { .row = 0, .col = 0 };
+  double deriv_x;
+  double deriv_y;
+  double deriv_t;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      temporal_gradient(frame, ref_frame, i, j, bit_depth, &deriv_t, &mv);
+      spatial_gradient(frame, i, j, 0, &deriv_x);
+      spatial_gradient(frame, i, j, 1, &deriv_y);
+      ix[j * width + i] = deriv_x;
+      iy[j * width + i] = deriv_y;
+      it[j * width + i] = deriv_t;
+    }
+  }
+}
+// Horn-Schunck optical flow algorithm
+// TODO(any): needs to be tested for correctness
+void horn_schunck(const YV12_BUFFER_CONFIG *frame_to_filter,
+                  const YV12_BUFFER_CONFIG *ref_frame, const int level,
+                  const HS_PARAMS *hs_params, const int highres_frame_width,
+                  const int bit_depth, LOCALMV *localmvs) {
+  // Recommendations on alpha:
+  // in [5, 20], where 5 is for many occlusions, 20 for very smooth flow,
+  // default 15 alpha represents expected error in image gradient (varies by
+  // image) Note, that 15 = sqrt(255) for greyscale level which is why it's
+  // squared -> max=255 (max grey)
+  double alpha = hs_params->alpha;
+  int iterations = hs_params->iterations;
+  int num_warps = hs_params->warp_iterations;
+  int avg_win_size = hs_params->window_size;
+  const int frame_height = frame_to_filter->y_crop_height;
+  const int frame_width = frame_to_filter->y_crop_width;
+  const int frame_size = frame_height * frame_width;
+  LOCALMV *temp_localmvs = aom_malloc(frame_size * sizeof(LOCALMV));
+  // spatial and temporal gradients at every pixel
+  double *i_x = (double *)aom_malloc(frame_size * sizeof(double));
+  double *i_y = (double *)aom_malloc(frame_size * sizeof(double));
+  double *i_t = (double *)aom_malloc(frame_size * sizeof(double));
+  initialize_gradients(frame_to_filter, ref_frame, bit_depth, i_x, i_y, i_t);
+  double mean_diff;
+  double epsilon = 0.0001;
+  const int expand_mult = (int)pow(2, level);
+  for (int k = 0; k < num_warps; k++) {
+    // initialize to be greater than epsilon^2 so loop executes
+    mean_diff = 1;
+    update_dt(frame_to_filter, ref_frame, localmvs, expand_mult,
+              highres_frame_width, bit_depth, i_t);
+    for (int j = 0; j < iterations && mean_diff > pow(epsilon, 2); j++) {
+      mean_diff = 0;
+      for (int y_coord = 0; y_coord < frame_height; y_coord++) {
+        for (int x_coord = 0; x_coord < frame_width; x_coord++) {
+          const int highres_x_coord = x_coord * expand_mult;
+          const int highres_y_coord = y_coord * expand_mult;
+          const int highres_idx =
+              highres_y_coord * highres_frame_width + highres_x_coord;
+          const int idx = y_coord * frame_width + x_coord;
+          LOCALMV mv = localmvs[highres_idx];
+          // either all the means need to be computed before updating mvs,
+          // or mvs need to be updated after calculating for all corners
+          double u_mean = mv_mean(localmvs, frame_width, frame_height, x_coord,
+                                  y_coord, avg_win_size, 0, expand_mult);
+          double v_mean = mv_mean(localmvs, frame_width, frame_height, x_coord,
+                                  y_coord, avg_win_size, 1, expand_mult);
+          // this formulation for denom isn't consistent across references.
+          // but as long as alpha is changed to fit the specification,
+          // it shouldn't matter
+          double denom = pow(alpha, 2) + pow(i_x[idx], 2) + pow(i_y[idx], 2);
+          double num_mult = i_x[idx] * u_mean + i_y[idx] * v_mean + i_t[idx];
+
+          mv.row = u_mean - i_x[idx] * num_mult / denom;
+          mv.col = v_mean - i_y[idx] * num_mult / denom;
+
+          mv.row = mv.row * expand_mult;
+          mv.col = mv.col * expand_mult;
+          temp_localmvs[idx] = mv;
+          mean_diff += pow(mv.row - localmvs[highres_idx].row, 2) +
+                       pow(mv.col - localmvs[highres_idx].col, 2);
+        }
+      }
+      mean_diff = mean_diff / frame_size;
+      // update localmvs array
+      for (int y_coord = 0; y_coord < frame_height; y_coord++) {
+        for (int x_coord = 0; x_coord < frame_width; x_coord++) {
+          int idx = y_coord * frame_width + x_coord;
+          const int highres_x_coord = x_coord * expand_mult;
+          const int highres_y_coord = y_coord * expand_mult;
+          for (int expand_y = highres_y_coord;
+               expand_y < highres_y_coord + expand_mult; expand_y++) {
+            for (int expand_x = highres_x_coord;
+                 expand_x < highres_x_coord + expand_mult; expand_x++) {
+              const int highres_idx = expand_y * highres_frame_width + expand_x;
+              localmvs[highres_idx] = temp_localmvs[idx];
+            }
+          }
+        }
+      }
+    }
+  }
+  aom_free(i_x);
+  aom_free(i_y);
+  aom_free(i_t);
+  aom_free(temp_localmvs);
+}
 
 // Apply optical flow iteratively at each pyramid level
 void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
@@ -611,6 +776,9 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
       lucas_kanade(&buffers1[i], &buffers2[i], i, opfl_params->lk_params,
                    num_ref_corners, ref_corners, buffers1[0].y_crop_width,
                    bit_depth, mvs);
+    } else if (method == HORN_SCHUNCK) {
+      horn_schunck(&buffers1[i], &buffers2[i], i, opfl_params->hs_params,
+                   buffers1[0].y_crop_width, bit_depth, mvs);
     }
   }
   for (int i = 1; i < levels; i++) {

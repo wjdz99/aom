@@ -20,7 +20,7 @@ extern "C" {
 
 #if CONFIG_OPTICAL_FLOW_API
 
-typedef enum { LUCAS_KANADE } OPTFLOW_METHOD;
+typedef enum { LUCAS_KANADE, HORN_SCHUNCK } OPTFLOW_METHOD;
 
 typedef enum {
   MV_FILTER_NONE,
@@ -32,17 +32,27 @@ typedef enum {
 // default options for optical flow
 #define OPFL_WINDOW_SIZE 15
 #define OPFL_PYRAMID_LEVELS 3  // total levels
+#define HS_ALPHA 15
 
 // parameters specific to Lucas-Kanade
 typedef struct lk_params {
   int window_size;
 } LK_PARAMS;
 
+// parameters specific to Horn-Schunck
+typedef struct hs_params {
+  double alpha;
+  int iterations;
+  int warp_iterations;
+  int window_size;
+} HS_PARAMS;
+
 // generic structure to contain parameters for all
 // optical flow algorithms
 typedef struct opfl_params {
   int pyramid_levels;
   LK_PARAMS *lk_params;
+  HS_PARAMS *hs_params;
   int flags;
 } OPFL_PARAMS;
 
@@ -51,10 +61,19 @@ typedef struct opfl_params {
 void init_opfl_params(OPFL_PARAMS *opfl_params) {
   opfl_params->pyramid_levels = OPFL_PYRAMID_LEVELS;
   opfl_params->lk_params = NULL;
+  opfl_params->hs_params = NULL;
 }
 
 void init_lk_params(LK_PARAMS *lk_params) {
   lk_params->window_size = OPFL_WINDOW_SIZE;
+}
+
+void init_hs_params(HS_PARAMS *hs_params) {
+  hs_params->alpha = HS_ALPHA;
+  // TODO(any): which parameter values are best for defaults?
+  hs_params->iterations = 50;
+  hs_params->warp_iterations = 5;
+  hs_params->window_size = OPFL_WINDOW_SIZE;
 }
 
 void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
