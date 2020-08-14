@@ -136,6 +136,8 @@ typedef enum ATTRIBUTE_PACKED {
   DSPL_XY,        // Downsample before transforming
   DSPL_END
 } DSPL_TYPE;
+
+#define DSPL_MIN_PARTITION_SIDE 8
 #endif  // CONFIG_DSPL_RESIDUAL
 
 #if CONFIG_EXT_IBC_MODES
