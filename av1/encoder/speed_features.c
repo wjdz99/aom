@@ -364,7 +364,7 @@ static void set_good_speed_features_framesize_independent(
   sf->rt_sf.use_real_time_ref_set = 0;
 
   if (cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION ||
-      cpi->is_screen_content_type) {
+      cpi->use_screen_content_tools) {
     sf->mv_sf.exhaustive_searches_thresh = (1 << 20);
   } else {
     sf->mv_sf.exhaustive_searches_thresh = (1 << 25);
@@ -517,10 +517,9 @@ static void set_good_speed_features_framesize_independent(
         frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->winner_mode_sf.enable_winner_mode_for_use_tx_domain_dist = 1;
     sf->winner_mode_sf.motion_mode_for_winner_cand =
-        boosted
-            ? 0
-            : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
-                                                                         : 2;
+        boosted                                                      ? 0
+        : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
+                                                                     : 2;
 
     // TODO(any): evaluate if these lpf features can be moved to speed 2.
     // For screen content, "prune_sgr_based_on_wiener = 2" cause large quality

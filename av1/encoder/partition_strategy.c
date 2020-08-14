@@ -1301,7 +1301,7 @@ void av1_prune_partitions_before_search(
   // A CNN-based speed feature pruning out either split or all non-split
   // partition in INTRA frame coding.
   const int try_intra_cnn_split =
-      !cpi->is_screen_content_type && frame_is_intra_only(cm) &&
+      !cpi->use_screen_content_tools && frame_is_intra_only(cm) &&
       cpi->sf.part_sf.intra_cnn_split &&
       cm->seq_params.sb_size >= BLOCK_64X64 && bsize <= BLOCK_64X64 &&
       bsize >= BLOCK_8X8 &&
@@ -1319,7 +1319,7 @@ void av1_prune_partitions_before_search(
   // must be done prior to PARTITION_SPLIT to propagate the initial mvs to a
   // smaller blocksize.
   const int try_split_only =
-      !cpi->is_screen_content_type &&
+      !cpi->use_screen_content_tools &&
       cpi->sf.part_sf.simple_motion_search_split && *do_square_split &&
       bsize >= BLOCK_8X8 &&
       mi_row + mi_size_high[bsize] <= mi_params->mi_rows &&
@@ -1337,7 +1337,7 @@ void av1_prune_partitions_before_search(
   // direction. The results are stored in prune_horz and prune_vert in order to
   // bypass future related pruning checks if a pruning decision has been made.
   const int try_prune_rect =
-      !cpi->is_screen_content_type &&
+      !cpi->use_screen_content_tools &&
       cpi->sf.part_sf.simple_motion_search_prune_rect &&
       !frame_is_intra_only(cm) && *do_rectangular_split &&
       (*do_square_split || *partition_none_allowed ||
@@ -1400,11 +1400,10 @@ int evaluate_ab_partition_based_on_split(
   // Threshold for number of winners
   // Conservative pruning for high quantizers
   const int num_win_thresh = AOMMIN(3 * (2 * (MAXQ - qindex) / MAXQ), 3);
-  int sub_part_win = (rect_part_win_info == NULL)
-                         ? (pc_tree->partitioning == rect_part)
-                         : (rect_part == PARTITION_HORZ)
-                               ? rect_part_win_info->rect_part_win[HORZ]
-                               : rect_part_win_info->rect_part_win[VERT];
+  int sub_part_win =
+      (rect_part_win_info == NULL)    ? (pc_tree->partitioning == rect_part)
+      : (rect_part == PARTITION_HORZ) ? rect_part_win_info->rect_part_win[HORZ]
+                                      : rect_part_win_info->rect_part_win[VERT];
   num_win += (sub_part_win) ? 1 : 0;
   if (pc_tree->split[split_idx1]) {
     num_win +=
