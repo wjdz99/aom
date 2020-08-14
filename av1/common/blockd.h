@@ -724,6 +724,9 @@ typedef struct MB_MODE_INFO {
   int use_derived_mv;
   MV derived_mv;
 #endif  // CONFIG_DERIVED_MV
+#if CONFIG_DSPL_RESIDUAL
+  DSPL_TYPE dspl_type;
+#endif // CONFIG_DSPL_RESIDUAL
 } MB_MODE_INFO;
 
 typedef struct PARTITION_TREE {
