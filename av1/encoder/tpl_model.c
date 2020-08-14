@@ -679,13 +679,13 @@ static AOM_INLINE void tpl_model_update(TplParams *const tpl_data, int mi_row,
   const int mi_height = mi_size_high[bsize];
   const int mi_width = mi_size_wide[bsize];
   const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
-  const BLOCK_SIZE tpl_block_size =
+  const BLOCK_SIZE tpl_stats_block_size =
       convert_length_to_bsize(MI_SIZE << tpl_data->tpl_stats_block_mis_log2);
 
   for (int idy = 0; idy < mi_height; idy += step) {
     for (int idx = 0; idx < mi_width; idx += step) {
-      tpl_model_update_b(tpl_data, mi_row + idy, mi_col + idx, tpl_block_size,
-                         frame_idx);
+      tpl_model_update_b(tpl_data, mi_row + idy, mi_col + idx,
+                         tpl_stats_block_size, frame_idx);
     }
   }
 }
@@ -855,12 +855,15 @@ void av1_mc_flow_dispenser_row(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   TplParams *const tpl_data = &cpi->tpl_data;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_data->frame_idx];
   MACROBLOCKD *xd = &x->e_mbd;
-  const int mb_cols_in_tile = mi_params->mb_cols;
-  const int mb_row = (mi_row + 2) >> 2;
-  for (int mi_col = 0, mb_col_in_tile = 0; mi_col < mi_params->mi_cols;
-       mi_col += mi_width, mb_col_in_tile++) {
-    (*tpl_row_mt->sync_read_ptr)(&tpl_data->tpl_mt_sync, mb_row,
-                                 mb_col_in_tile);
+
+  const int tplb_cols_in_tile =
+      ROUND_POWER_OF_TWO(mi_params->mi_cols, mi_size_wide_log2[bsize]);
+  const int tplb_row = ROUND_POWER_OF_TWO(mi_row, mi_size_high_log2[bsize]);
+
+  for (int mi_col = 0, tplb_col_in_tile = 0; mi_col < mi_params->mi_cols;
+       mi_col += mi_width, tplb_col_in_tile++) {
+    (*tpl_row_mt->sync_read_ptr)(&tpl_data->tpl_mt_sync, tplb_row,
+                                 tplb_col_in_tile);
     TplDepStats tpl_stats;
 
     // Motion estimation column boundary
@@ -875,8 +878,8 @@ void av1_mc_flow_dispenser_row(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     tpl_model_store(tpl_frame->tpl_stats_ptr, mi_row, mi_col, bsize,
                     tpl_frame->stride, &tpl_stats,
                     tpl_data->tpl_stats_block_mis_log2);
-    (*tpl_row_mt->sync_write_ptr)(&tpl_data->tpl_mt_sync, mb_row,
-                                  mb_col_in_tile, mb_cols_in_tile);
+    (*tpl_row_mt->sync_write_ptr)(&tpl_data->tpl_mt_sync, tplb_row,
+                                  tplb_col_in_tile, tplb_cols_in_tile);
   }
 }
 

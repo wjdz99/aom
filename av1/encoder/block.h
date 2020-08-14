@@ -1139,16 +1139,6 @@ typedef struct macroblock {
 #undef SINGLE_REF_MODES
 
 /*!\cond */
-
-static INLINE int tpl_blocks_in_sb(BLOCK_SIZE bsize) {
-  switch (bsize) {
-    case BLOCK_64X64: return 16;
-    case BLOCK_128X128: return 64;
-    default: assert(0);
-  }
-  return -1;
-}
-
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT[BLOCK_SIZES_ALL] = {
     0,  // BLOCK_4X4
