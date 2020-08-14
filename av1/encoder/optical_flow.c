@@ -547,6 +547,314 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
   aom_free(i_y);
 }
 
+void get_window(const YV12_BUFFER_CONFIG *frame, const double x_coord,
+                const double y_coord, const int n, const int bit_depth,
+                double *pred, LOCALMV *mv) {
+  // TODO(any): contains redundancies from temporal_gradient
+  const int w = n;
+  const int h = n;
+  const int y = y_coord - n / 2;
+  const int x = x_coord - n / 2;
+  double ydec = (y_coord - n / 2) - y;
+  double xdec = (x_coord - n / 2) - x;
+  const int is_intrabc = 0;  // Is intra-copied?
+  const int is_high_bitdepth = is_frame_high_bitdepth(frame);
+  const int subsampling_x = 0, subsampling_y = 0;
+  const int_interpfilters interp_filters =
+      av1_broadcast_interp_filter(MULTITAP_SHARP);
+  const int plane = 0;
+  const int is_y_plane = (plane == 0);  // Is Y-plane?
+  const struct buf_2d ref_buf2 = { NULL, frame->y_buffer, frame->y_crop_width,
+                                   frame->y_crop_height, frame->y_stride };
+  struct scale_factors scale;
+  av1_setup_scale_factors_for_frame(&scale, frame->y_crop_width,
+                                    frame->y_crop_height, frame->y_crop_width,
+                                    frame->y_crop_height);
+  InterPredParams inter_pred_params;
+  av1_init_inter_params(&inter_pred_params, w, h, y, x, subsampling_x,
+                        subsampling_y, bit_depth, is_high_bitdepth, is_intrabc,
+                        &scale, &ref_buf2, interp_filters);
+  inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
+  MV newmv = { .row = (int16_t)round((mv->row + xdec) * 8),
+               .col = (int16_t)round((mv->col + ydec) * 8) };
+  uint8_t *pred2 = (uint8_t *)malloc(n * n * sizeof(uint8_t));
+  av1_enc_build_one_inter_predictor(pred2, w, &newmv, &inter_pred_params);
+  for (int i = 0; i < n * n; i++) pred[i] = pred2[i];
+}
+// only works with 6 basis functions of the form:
+// 1, x, y, x^2, y^2, xy
+void form_basis(const int n, const int total_basis_fcns, double *basis) {
+  assert(total_basis_fcns == 6);
+  for (int y = -n / 2; y <= n / 2; y++) {
+    for (int x = -n / 2; x <= n / 2; x++) {
+      int idx = ((y + n / 2) * n + (x + n / 2)) * total_basis_fcns;
+      basis[idx + 0] = 1;
+      basis[idx + 1] = x;
+      basis[idx + 2] = y;
+      basis[idx + 3] = pow(x, 2);
+      basis[idx + 4] = pow(y, 2);
+      basis[idx + 5] = x * y;
+    }
+  }
+}
+// TODO(any): this implementation seems to have a problem
+// Full implementation details as described in (paper 1)
+// "Polynomial Expansion for Orientation and Motion Estimation" -  Gunnar
+// Farneback Broad level details in (paper 2) "Two-Frame Motion Estimation Based
+// on Polynomial Expansion" - Gunnar Farneback
+void farneback(const YV12_BUFFER_CONFIG *frame_to_filter,
+               const YV12_BUFFER_CONFIG *ref_frame, const int level,
+               const FARNEBACK_PARAMS *f_params, const int highres_frame_width,
+               const int bit_depth, LOCALMV *localmvs) {
+  // TODO(any): possible improvements to the algorithm:
+  // 1. research estimates for certainty
+  // 2. assume d can be modeled by affine transform (section 3.3 of paper 2)
+  // 3. faster implementation (found in Section 4.3 of paper 1)
+  // 4. could be broken into more functions (e.g. poly expansion for A,b,c)
+  const int n = f_params->window_size;
+  const int window_size = n * n;
+  const int avg_win_size = f_params->avg_window_size;
+  const int iterations = f_params->iterations;
+  const int frame_height = frame_to_filter->y_crop_height;
+  const int frame_width = frame_to_filter->y_crop_width;
+  const int frame_size = frame_height * frame_width;
+  const int stride = frame_to_filter->y_stride;
+  const uint8_t *buf1 = frame_to_filter->y_buffer;
+  const uint8_t *buf2 = ref_frame->y_buffer;
+
+  // TODO(any): check for any NULL returns from allocs
+  // A.T * A computed for each point
+  double *aa00 = (double *)aom_calloc(frame_size, sizeof(double));
+  double *aa01 = (double *)aom_calloc(frame_size, sizeof(double));
+  double *aa10 = (double *)aom_calloc(frame_size, sizeof(double));
+  double *aa11 = (double *)aom_calloc(frame_size, sizeof(double));
+  // A.T * b_grad computed for each point
+  double *ab0 = (double *)aom_calloc(frame_size, sizeof(double));
+  double *ab1 = (double *)aom_calloc(frame_size, sizeof(double));
+  // b_grad.T * b_grad computed for each point
+  double *bb = (double *)aom_calloc(frame_size, sizeof(double));
+
+  // TODO(any): research best sigma for weights, applicability
+  double sigma = avg_win_size * 0.2;
+  double *weights =
+      (double *)aom_malloc(avg_win_size * avg_win_size * sizeof(double));
+  gaussian(sigma, avg_win_size, 1, weights);
+  sigma = n * 0.2;
+  double *applicability = (double *)aom_malloc(n * n * sizeof(double));
+  gaussian(sigma, n, 0, applicability);
+  double *certainty = (double *)aom_malloc(n * n * sizeof(double));
+  for (int i = 0; i < n * n; i++) certainty[i] = 1;
+  // memset only works if certainty is int array
+
+  // most of these arrays don't need to be doubles,
+  // but using double arrays allows easy use of multiply_mat in mathutils
+  double *f1 = (double *)aom_malloc(n * n * sizeof(double));
+  double *f2 = (double *)aom_malloc(n * n * sizeof(double));
+  int total_basis_fcns = 6;
+  double *Wa = (double *)aom_calloc(n * n * n * n, sizeof(double));
+  double *Wc = (double *)aom_calloc(n * n * n * n, sizeof(double));
+  for (int i = 0; i < n * n; i++) {
+    int diag_idx = i * n * n + i;
+    Wa[diag_idx] = applicability[i];
+    Wc[diag_idx] = certainty[i];
+  }
+  double *basis =
+      (double *)aom_malloc(total_basis_fcns * n * n * sizeof(double));
+  form_basis(n, total_basis_fcns, basis);
+  // since buffer values are real, B* (conjugate transpose) is equivalent
+  // to B.T (transpose)
+  double *basis_transpose =
+      (double *)aom_malloc(n * n * total_basis_fcns * sizeof(double));
+  int height = n * n;
+  for (int row = 0; row < height; row++) {
+    for (int col = 0; col < total_basis_fcns; col++) {
+      int transpose_idx = col * height + row;
+      int idx = row * total_basis_fcns + col;
+      basis_transpose[col * height + row] = basis[row * total_basis_fcns + col];
+    }
+  }
+  double *result1 =
+      (double *)aom_malloc(n * n * total_basis_fcns * sizeof(double));
+  double *result2 =
+      (double *)aom_malloc(n * n * total_basis_fcns * sizeof(double));
+  // matrix1 = B* W_a W_c B as described in section 3.2 of paper 1
+  double *matrix1 = (double *)aom_malloc(total_basis_fcns * total_basis_fcns *
+                                         sizeof(double));
+  // TODO(any): since Wa, Wc are diagonal matrices, the computation of
+  // of B* W_a W_c B could be more efficient than using multiply_mat
+  multiply_mat(basis_transpose, Wa, result1, total_basis_fcns, n * n, n * n);
+  multiply_mat(result1, Wc, result2, total_basis_fcns, n * n, n * n);
+
+  // multiply_mat(result2, basis, matrix1, total_basis_fcns, n*n,
+  // total_basis_fcns);
+  double *vector = (double *)aom_malloc(total_basis_fcns * sizeof(double));
+  double r[6];
+  // double signal[9];
+  const int expand_mult = (int)pow(2, level);
+  // if we keep certainty equal to 1 everywhere,
+  // then above calculations don't need to be repeated.
+  for (int iter = 0; iter < iterations; iter++) {
+    printf("iteration %d\n", iter);
+    for (int y = 0 + n / 2; y < frame_height - n / 2; y++) {
+      for (int x = 0 + n / 2; x < frame_width - n / 2; x++) {
+        for (int yy = y - n / 2; yy <= y + n / 2; yy++) {
+          for (int xx = x - n / 2; xx <= x + n / 2; xx++) {
+            int idx = (yy - (y - n / 2)) * n + (xx - (x - n / 2));
+            f1[idx] = (double)buf1[yy * stride + xx];
+            f2[idx] = (double)buf2[yy * stride + xx];
+          }
+        }
+        // TODO(any): matrix1 could be computed only once outside of the loop,
+        // but linsolve modifies both A (matrix1) and b.
+        // instead, could create copies of matrix1 to avoid this computation
+        multiply_mat(result2, basis, matrix1, total_basis_fcns, n * n,
+                     total_basis_fcns);
+        const int highres_y = y * expand_mult;
+        const int highres_x = x * expand_mult;
+        const int mv_idx = highres_y * highres_frame_width + highres_x;
+        LOCALMV old_mv = localmvs[mv_idx];
+        // find f2 using prior displacement
+        if (old_mv.row != 0 || old_mv.col != 0)
+          get_window(ref_frame, x, y, n, bit_depth, f2, &old_mv);
+        // vector = B* W_a W_c f as described in section 3.2 of paper 1
+        multiply_mat(result2, f1, vector, total_basis_fcns, n * n, 1);
+        for (int i = 0; i < 6; i++) {
+          r[i] = 0;
+        }
+        // for an example of computation of r, see section 3.4 of paper 1
+        // except this code takes points rowwise (instead of columnwise)
+        // and basis functions order is slightly different (to be consistent
+        // with section 4.2 of paper 1)
+        linsolve(total_basis_fcns, matrix1, total_basis_fcns, vector, r);
+        // for the example only:
+        // multiply_mat(basis, r, signal, n*n, total_basis_fcns, 1);
+
+        // polynomial coefficients as in section 4.2 of paper 1:
+        double c1 = r[0];
+        double b1[2] = { r[1], r[2] };
+        double A1[4] = { r[3], r[5] / 2.0, r[5] / 2.0, r[4] };
+        multiply_mat(result2, basis, matrix1, total_basis_fcns, n * n,
+                     total_basis_fcns);
+        multiply_mat(result2, f2, vector, total_basis_fcns, n * n, 1);
+        for (int i = 0; i < 6; i++) {
+          r[i] = 0;
+        }
+        linsolve(total_basis_fcns, matrix1, total_basis_fcns, vector, r);
+        double c2 = r[0];
+        double b2[2] = { r[1], r[2] };
+        double A2[4] = { r[3], r[5] / 2.0, r[5] / 2.0, r[4] };
+
+        // section 3.4 of paper 2:
+        double A[4];
+        double b_grad[2];
+        double A_times_disp[2];
+        for (int i = 0; i < 4; i++) {
+          A[i] = (A1[i] + A2[i]) / 2.0;
+        }
+        double old_disp[2] = { (int)round(old_mv.row), (int)round(old_mv.col) };
+        multiply_mat(A, old_disp, A_times_disp, 2, 2, 1);
+        for (int i = 0; i < 2; i++) {
+          b_grad[i] = -0.5 * (b2[i] - b1[i]) + A_times_disp[i];
+        }
+        double A_transpose[4] = { A[0], A[2], A[1], A[3] };
+        double res1[4];
+        multiply_mat(A_transpose, A, res1, 2, 2, 2);
+        double res2[2];
+        multiply_mat(A_transpose, b_grad, res2, 2, 2, 1);
+        const int img_idx = y * frame_width + x;
+        aa00[img_idx] = res1[0];
+        aa01[img_idx] = res1[1];
+        aa10[img_idx] = res1[2];
+        aa11[img_idx] = res1[3];
+        ab0[img_idx] = res2[0];
+        ab1[img_idx] = res2[1];
+        bb[img_idx] = b_grad[0] * b_grad[0] + b_grad[1] * b_grad[1];
+      }
+    }
+    for (int y = 0 + n / 2; y < frame_height - n / 2; y++) {
+      for (int x = 0 + n / 2; x < frame_width - n / 2; x++) {
+        int y_start = y - avg_win_size / 2;
+        int x_start = x - avg_win_size / 2;
+        int y_end = y + avg_win_size / 2;
+        int x_end = x + avg_win_size / 2;
+        double a00_avg = 0, a01_avg = 0, a10_avg = 0, a11_avg = 0;
+        double b0_avg = 0, b1_avg = 0;
+        double bb_avg = 0;
+        // compute pointwise weighted average of matrices
+        // A.T * A, A.T * b_grad, b_grad.T * b_grad
+        for (int yy = AOMMAX(0, y_start); yy <= AOMMIN(frame_height - 1, y_end);
+             yy++) {
+          for (int xx = AOMMAX(0, x_start);
+               xx <= AOMMIN(frame_width - 1, x_end); xx++) {
+            int weight_idx = (yy - y_start) * avg_win_size + (xx - x_start);
+            int img_idx = yy * frame_width + xx;
+            a00_avg += weights[weight_idx] * aa00[img_idx];
+            a01_avg += weights[weight_idx] * aa01[img_idx];
+            a10_avg += weights[weight_idx] * aa10[img_idx];
+            a11_avg += weights[weight_idx] * aa11[img_idx];
+            b0_avg += weights[weight_idx] * ab0[img_idx];
+            b1_avg += weights[weight_idx] * ab1[img_idx];
+            bb_avg += weights[weight_idx] * bb[img_idx];
+          }
+        }
+
+        // res1 = w_i A.T . A
+        // res2 = w_i A.T . b
+        double res1[4] = { a00_avg, a01_avg, a10_avg, a11_avg };
+        double res2[2] = { b0_avg, b1_avg };
+        // res1 is modified by linsolve, so this is a copy of the original
+        double res1_copy[4] = { a00_avg, a01_avg, a10_avg, a11_avg };
+        int highres_y = y * expand_mult;
+        int highres_x = x * expand_mult;
+        const int mv_idx = highres_y * highres_frame_width + highres_x;
+        LOCALMV old_mv = localmvs[mv_idx];
+        double d[2] = { 0, 0 };  // displacement
+        // TODO(any): linsolve defaults to initialization if err == 0
+        // alternatively, the inverse of a 2x2 matrix can be easily computed.
+        // use 1 / (epsilon + determinant) to handle cases where
+        // the inverse doesn't exist.
+        int err = linsolve(2, res1, 2, res2, d);
+        double e_2[1] = { 0 };
+        multiply_mat(d, res1_copy, e_2, 1, 2, 2);
+        // reverse confidence value (eqn 14 in paper 2):
+        // small numbers indicate high confidence
+        double reverse_conf_val = bb_avg - e_2[0];
+        if (fabs(reverse_conf_val) < 0.05) {
+          LOCALMV new_mv = { .row = old_mv.row + d[0],
+                             .col = old_mv.col + d[1] };
+          // upsample mv for pyramid approach
+          // TODO(any): it might be better to (approx.) center upsample at the
+          // point can't be exactly centered since downsample is at a factor of
+          // 1/2
+          for (int expand_y = highres_y; expand_y < highres_y + expand_mult;
+               expand_y++) {
+            for (int expand_x = highres_x; expand_x < highres_x + expand_mult;
+                 expand_x++) {
+              int new_mv_idx = expand_y * (highres_frame_width) + expand_x;
+              localmvs[new_mv_idx] = new_mv;
+            }
+          }
+        }
+      }
+    }
+  }
+  aom_free(result1);
+  aom_free(result2);
+  aom_free(matrix1);
+  aom_free(vector);
+  aom_free(basis_transpose);
+  aom_free(f1);
+  aom_free(f2);
+  aom_free(aa00);
+  aom_free(aa01);
+  aom_free(aa10);
+  aom_free(aa11);
+  aom_free(ab0);
+  aom_free(ab1);
+  aom_free(weights);
+  aom_free(certainty);
+}
+
 // Apply optical flow iteratively at each pyramid level
 void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
                           const YV12_BUFFER_CONFIG *to_frame,
@@ -611,6 +919,9 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
       lucas_kanade(&buffers1[i], &buffers2[i], i, opfl_params->lk_params,
                    num_ref_corners, ref_corners, buffers1[0].y_crop_width,
                    bit_depth, mvs);
+    } else if (method == FARNEBACK) {
+      farneback(&buffers1[i], &buffers2[i], i, opfl_params->f_params,
+                buffers1[0].y_crop_width, bit_depth, mvs);
     }
   }
   for (int i = 1; i < levels; i++) {

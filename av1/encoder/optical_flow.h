@@ -20,7 +20,7 @@ extern "C" {
 
 #if CONFIG_OPTICAL_FLOW_API
 
-typedef enum { LUCAS_KANADE } OPTFLOW_METHOD;
+typedef enum { LUCAS_KANADE, FARNEBACK } OPTFLOW_METHOD;
 
 typedef enum {
   MV_FILTER_NONE,
@@ -32,17 +32,28 @@ typedef enum {
 // default options for optical flow
 #define OPFL_WINDOW_SIZE 15
 #define OPFL_PYRAMID_LEVELS 3  // total levels
+#define FARNE_WINDOW_SIZE 5
+#define FARNE_AVG_WINDOW_SIZE 15
+#define FARNE_ITERATIONS 1
 
 // parameters specific to Lucas-Kanade
 typedef struct lk_params {
   int window_size;
 } LK_PARAMS;
 
+// parameters specific to Farneback
+typedef struct farneback_params {
+  int window_size;
+  int avg_window_size;
+  int iterations;
+} FARNEBACK_PARAMS;
+
 // generic structure to contain parameters for all
 // optical flow algorithms
 typedef struct opfl_params {
   int pyramid_levels;
   LK_PARAMS *lk_params;
+  FARNEBACK_PARAMS *f_params;
   int flags;
 } OPFL_PARAMS;
 
@@ -51,10 +62,17 @@ typedef struct opfl_params {
 void init_opfl_params(OPFL_PARAMS *opfl_params) {
   opfl_params->pyramid_levels = OPFL_PYRAMID_LEVELS;
   opfl_params->lk_params = NULL;
+  opfl_params->f_params = NULL;
 }
 
 void init_lk_params(LK_PARAMS *lk_params) {
   lk_params->window_size = OPFL_WINDOW_SIZE;
+}
+
+void init_f_params(FARNEBACK_PARAMS *f_params) {
+  f_params->window_size = FARNE_WINDOW_SIZE;
+  f_params->avg_window_size = FARNE_AVG_WINDOW_SIZE;
+  f_params->iterations = FARNE_ITERATIONS;
 }
 
 void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
