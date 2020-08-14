@@ -51,6 +51,24 @@
       "revId": "ecf8e0d1dd7e1b5620d44931d0910b9f3e59f348",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60cde485_0129455d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-14T00:13:30Z",
+      "side": 1,
+      "message": "Thanks for fixing issues.\n\nThe options you mentioned above are not consistent with what is in the code:\n(0: Disable PSNR status line display 1: PSNR calculated using codec \"\n    \"bit-depth (default) 2: PSNR calculated using input bit-depth)\")\nActually, what in the code is what we want to have(i.e show HBD psnr in this case).\n\nAlso, extra 8 headings were added in the stats, but actually 9 stats values were added. Could you check that? Will share my script by email.\n\nThis change is not trivial. We want to test it thoroughly.\n\nIf you want to separate this CL into smaller ones for easy handling, I am fine with it.",
+      "parentUuid": "e9694b89_d9ac078a",
+      "revId": "ecf8e0d1dd7e1b5620d44931d0910b9f3e59f348",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
