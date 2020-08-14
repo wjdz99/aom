@@ -33,8 +33,6 @@ extern "C" {
 
 //! Linear dimension of a tpl block
 #define MC_FLOW_BSIZE_1D 16
-//! Number of pixels in a tpl block
-#define MC_FLOW_NUM_PELS (MC_FLOW_BSIZE_1D * MC_FLOW_BSIZE_1D)
 //! Number of tpl block in a super block
 #define MAX_MC_FLOW_BLK_IN_SB (MAX_SB_SIZE / MC_FLOW_BSIZE_1D)
 //! Number of intra winner modes kept
@@ -1139,16 +1137,6 @@ typedef struct macroblock {
 #undef SINGLE_REF_MODES
 
 /*!\cond */
-
-static INLINE int tpl_blocks_in_sb(BLOCK_SIZE bsize) {
-  switch (bsize) {
-    case BLOCK_64X64: return 16;
-    case BLOCK_128X128: return 64;
-    default: assert(0);
-  }
-  return -1;
-}
-
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
   static const char LUT[BLOCK_SIZES_ALL] = {
     0,  // BLOCK_4X4
