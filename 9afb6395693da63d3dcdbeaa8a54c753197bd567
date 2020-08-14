@@ -34,6 +34,24 @@
       "revId": "9afb6395693da63d3dcdbeaa8a54c753197bd567",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9345757b_241e912d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2020-08-14T03:33:01Z",
+      "side": 1,
+      "message": "Seems it ran fine for me\n\n```\n./aomenc --tune\u003dvmaf --vmaf-model-path\u003d../../vmafinstall/share/model/vmaf_v0.6.1.pkl -o video.webm vidyo4_720p_60fps.y4m\nPass 1/2 frame  601/602   125216B    1666b/f   99960b/s   28187 ms (21.32 fps)←[K\nPass 2/2 frame  601/601   308120B    4101b/f  246060b/s 8481626 ms (0.07 fps)←[KK\n```\n\nusing this patch set on top of 142c04a2a79098fa0dea8fcc46d83ed77f4aad2d and vmaf commit of af97ea8b95d42a7f369b400f1f2617b1f45f3ea4 (current master branch)\n\nCan you possibly tell me what version of vmaf you used?",
+      "parentUuid": "75c3e4eb_5613f14b",
+      "revId": "9afb6395693da63d3dcdbeaa8a54c753197bd567",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
