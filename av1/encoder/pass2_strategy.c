@@ -2770,9 +2770,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       if (cpi->sf.part_sf.allow_partition_search_skip && oxcf->pass == 2) {
         cpi->partition_search_skippable_frame = is_skippable_frame(cpi);
       }
-
       return;
     }
+
+    if (update_type != KF_UPDATE) frame_params->frame_type = INTER_FRAME;
   }
 
   aom_clear_system_state();
@@ -2803,7 +2804,6 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     find_next_key_frame(cpi, &this_frame);
     this_frame = this_frame_copy;
   } else {
-    frame_params->frame_type = INTER_FRAME;
     const int altref_enabled = is_altref_enabled(oxcf->gf_cfg.lag_in_frames,
                                                  oxcf->gf_cfg.enable_auto_arf);
     const int sframe_dist = oxcf->kf_cfg.sframe_dist;
