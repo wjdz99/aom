@@ -175,7 +175,6 @@ static double calc_correction_factor(double err_per_mb, int q) {
   const double power_term =
       q_pow_term[index] +
       (((q_pow_term[index + 1] - q_pow_term[index]) * (q % 32)) / 32.0);
-  assert(error_term >= 0.0);
   return fclamp(pow(error_term, power_term), 0.05, 5.0);
 }
 
@@ -2672,7 +2671,7 @@ static void process_first_pass_stats(AV1_COMP *cpi,
     // Special case code for first frame.
     const int section_target_bandwidth = get_section_target_bandwidth(cpi);
     const double section_length =
-        twopass->stats_buf_ctx->total_left_stats->count;
+        AOMMAX(twopass->stats_buf_ctx->total_left_stats->count, 1.0);
     const double section_error =
         twopass->stats_buf_ctx->total_left_stats->coded_error / section_length;
     const double section_intra_skip =
@@ -2796,7 +2795,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   }
 
   // Keyframe and section processing.
-  if (rc->frames_to_key <= 0 || (frame_flags & FRAMEFLAGS_KEY)) {
+  if (rc->frames_to_key <= 0) {
     assert(rc->frames_to_key >= -1);
     FIRSTPASS_STATS this_frame_copy;
     this_frame_copy = this_frame;
