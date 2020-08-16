@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34623094_bca2154a",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2753,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-08-16T00:51:38Z",
+      "side": 1,
+      "message": "In the case of KF_UPDATE, would it be included in the current frame? The current GF group has not been defined yet here, and the last GF group may not have the current frame (the new KF).",
+      "range": {
+        "startLine": 2753,
+        "startChar": 6,
+        "endLine": 2753,
+        "endChar": 30
+      },
+      "revId": "1757ff0e9560f3e25c6e95e5679dd23dd99c0c1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
