@@ -1021,6 +1021,13 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   int skip_loopfilter_non_reference;
 } REAL_TIME_SPEED_FEATURES;
 
+typedef struct HIGH_BD_SPEED_FEATURES {
+  // Level used to adjust threshold for av1_ml_predict_breakout(). At lower
+  // levels, more conservative threshold is used. Value of 2 corresponds to
+  // default case with no adjustment to lbd thresholds.
+  int ml_predict_breakout_level;
+} HIGH_BD_SPEED_FEATURES;
+
 /*!\endcond */
 
 /*!
@@ -1091,6 +1098,11 @@ typedef struct SPEED_FEATURES {
    * Real-time mode speed features:
    */
   REAL_TIME_SPEED_FEATURES rt_sf;
+
+  /*!
+   * High bit-depth encoding speed features:
+   */
+  HIGH_BD_SPEED_FEATURES hbd_sf;
 } SPEED_FEATURES;
 /*!\cond */
 

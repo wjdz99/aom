@@ -325,6 +325,7 @@ static void set_good_speed_features_framesize_independent(
       boosted || gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE;
   const int allow_screen_content_tools =
       cm->features.allow_screen_content_tools;
+  const int use_hbd = cpi->oxcf.use_highbitdepth;
   if (!cpi->oxcf.tile_cfg.enable_large_scale_tile) {
     sf->hl_sf.high_precision_mv_usage = LAST_MV_DATA;
   }
@@ -378,6 +379,8 @@ static void set_good_speed_features_framesize_independent(
 
   sf->rd_sf.perform_coeff_opt = 1;
 
+  sf->hbd_sf.ml_predict_breakout_level = use_hbd ? 0 : 2;
+
   if (speed >= 1) {
     sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->gm_sf.prune_ref_frame_for_gm_search = boosted ? 0 : 1;
@@ -430,6 +433,8 @@ static void set_good_speed_features_framesize_independent(
 
     // TODO(any, yunqing): move this feature to speed 0.
     sf->tpl_sf.skip_alike_starting_mv = 1;
+
+    sf->hbd_sf.ml_predict_breakout_level = use_hbd ? 1 : 2;
   }
 
   if (speed >= 2) {
@@ -599,6 +604,8 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL3;
 
     sf->mv_sf.reduce_search_range = 1;
+
+    sf->hbd_sf.ml_predict_breakout_level = 2;
   }
 
   if (speed >= 5) {
@@ -1191,6 +1198,10 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->skip_intra_pred_if_tx_skip = 0;
 }
 
+static AOM_INLINE void init_hbd_sf(HIGH_BD_SPEED_FEATURES *hbd_sf) {
+  hbd_sf->ml_predict_breakout_level = 2;
+}
+
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
   SPEED_FEATURES *const sf = &cpi->sf;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
@@ -1227,6 +1238,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   init_winner_mode_sf(&sf->winner_mode_sf);
   init_lpf_sf(&sf->lpf_sf);
   init_rt_sf(&sf->rt_sf);
+  init_hbd_sf(&sf->hbd_sf);
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
