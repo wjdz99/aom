@@ -22,6 +22,30 @@
       "revId": "0ee9955c219bb2469f64b775da469a6360efd858",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94f017b6_752cbede",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-08-16T04:50:17Z",
+      "side": 1,
+      "message": "The frame type should be decided after define_gf_group is called. The key frame position is decided prior to GOP structure. Eventually the next condition on INTRA_ONLY_FRAME will be removed too.\n\nFor the key frames, this condition works too, since define_gf_group is called per GOP and this will be used to decide if the first frame in GOP needs to be intra coded.",
+      "parentUuid": "a3b0a432_570f4db4",
+      "range": {
+        "startLine": 1584,
+        "startChar": 6,
+        "endLine": 1584,
+        "endChar": 31
+      },
+      "revId": "0ee9955c219bb2469f64b775da469a6360efd858",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
