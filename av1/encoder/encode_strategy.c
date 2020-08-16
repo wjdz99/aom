@@ -397,7 +397,7 @@ static struct lookahead_entry *choose_frame_source(
   // If this is a key frame and keyframe filtering is enabled with overlay,
   // then do not pop.
   if (pop_lookahead && cpi->oxcf.kf_cfg.enable_keyframe_filtering > 1 &&
-      cpi->rc.frames_to_key == 0 && cpi->rc.frames_till_gf_update_due == 0 &&
+      gf_group->update_type[gf_group->index] == ARF_UPDATE &&
       !is_stat_generation_stage(cpi) && cpi->lookahead) {
     if (cpi->lookahead->read_ctxs[cpi->compressor_stage].sz &&
         (*flush ||
@@ -1101,6 +1101,19 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
         AOMMIN(gf_cfg->gf_min_pyr_height, gf_cfg->gf_max_pyr_height);
   }
 
+#if CONFIG_REALTIME_ONLY
+  av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
+#else
+  const int use_one_pass_rt_params = has_no_stats_stage(cpi) &&
+                                     oxcf->mode == REALTIME &&
+                                     gf_cfg->lag_in_frames == 0;
+  if (use_one_pass_rt_params) {
+    av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
+  } else if (!is_stat_generation_stage(cpi)) {
+    av1_get_second_pass_params(cpi, &frame_params, &frame_input, *frame_flags);
+  }
+#endif
+
   if (!is_stat_generation_stage(cpi)) {
     // If this is a forward keyframe, mark as a show_existing_frame
     // TODO(bohanli): find a consistent condition for fwd keyframes
@@ -1179,18 +1192,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     cm->frame_presentation_time = (uint32_t)pts64;
   }
 
-#if CONFIG_REALTIME_ONLY
-  av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
-#else
-  const int use_one_pass_rt_params = has_no_stats_stage(cpi) &&
-                                     oxcf->mode == REALTIME &&
-                                     gf_cfg->lag_in_frames == 0;
-  if (use_one_pass_rt_params) {
-    av1_get_one_pass_rt_params(cpi, &frame_params, *frame_flags);
-  } else if (!is_stat_generation_stage(cpi)) {
-    av1_get_second_pass_params(cpi, &frame_params, &frame_input, *frame_flags);
-  }
-#endif
   FRAME_UPDATE_TYPE frame_update_type = get_frame_update_type(gf_group);
 
   if (frame_params.show_existing_frame &&
