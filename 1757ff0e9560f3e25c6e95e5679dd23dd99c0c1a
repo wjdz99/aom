@@ -22,6 +22,30 @@
       "revId": "1757ff0e9560f3e25c6e95e5679dd23dd99c0c1a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebde684f_15a70896",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2753,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-08-16T04:53:48Z",
+      "side": 1,
+      "message": "In this case, the flag rc-\u003eframes_to_key would be 0. Even though frame_type will be set as Inter here, it will be overwritten at line 2803.",
+      "parentUuid": "34623094_bca2154a",
+      "range": {
+        "startLine": 2753,
+        "startChar": 6,
+        "endLine": 2753,
+        "endChar": 30
+      },
+      "revId": "1757ff0e9560f3e25c6e95e5679dd23dd99c0c1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
