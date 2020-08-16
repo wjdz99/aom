@@ -2169,7 +2169,7 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
  * (for each of 7 references) and refresh flags (for each of the 8 slots)
  * are set in \c cpi->svc.ref_idx[] and \c cpi->svc.refresh[].
  */
-static void set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
+void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   AV1_COMMON *const cm = &cpi->common;
   ExternalFlags *const ext_flags = &cpi->ext_flags;
   ExtRefreshFrameFlagsInfo *const ext_refresh_frame_flags =
@@ -2642,10 +2642,6 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
   }
   av1_rc_set_frame_target(cpi, target, cm->width, cm->height);
   rc->base_frame_target = target;
-  // Set reference strucutre for 1 layer.
-  if (set_reference_structure && cpi->oxcf.speed >= 6 &&
-      cm->number_spatial_layers == 1 && cm->number_temporal_layers == 1)
-    set_reference_structure_one_pass_rt(cpi, gf_update);
   cm->current_frame.frame_type = frame_params->frame_type;
 }
 
