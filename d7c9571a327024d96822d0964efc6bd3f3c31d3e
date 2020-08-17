@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "efc1eb0d_59c9fde1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-17T05:15:48Z",
+      "side": 1,
+      "message": "Thanks for updating the TF and TF-lite version in experimental branch!",
+      "revId": "d7c9571a327024d96822d0964efc6bd3f3c31d3e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
