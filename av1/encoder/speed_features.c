@@ -967,7 +967,7 @@ static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
   tpl_sf->skip_alike_starting_mv = 0;
   tpl_sf->subpel_force_stop = EIGHTH_PEL;
   tpl_sf->search_method = NSTEP;
-  tpl_sf->disable_filtered_key_tpl = 0;
+  tpl_sf->disable_filtered_key_tpl = 1;
   tpl_sf->prune_ref_frames_in_tpl = 0;
 }
 

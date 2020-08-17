@@ -107,7 +107,7 @@ static AOM_INLINE void set_tpl_stats_block_size(int width, int height,
   // 0: 4x4, 1: 8x8, 2: 16x16
   *block_mis_log2 = is_720p_or_larger ? 2 : 1;
   // Block size used in tpl motion estimation
-  *tpl_bsize_1d = 16;
+  *tpl_bsize_1d = 32;
   assert(*tpl_bsize_1d >= 16);
 }
 
