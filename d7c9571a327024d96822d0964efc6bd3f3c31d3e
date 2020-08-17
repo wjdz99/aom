@@ -16,6 +16,23 @@
       "revId": "d7c9571a327024d96822d0964efc6bd3f3c31d3e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0db0f252_31aa7ca4",
+        "filename": "common/tf_lite_includes.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-17T19:17:25Z",
+      "side": 1,
+      "message": "I see warnings from third_party/tensorflow as well, like below, so we need some way to suppress those as well?\n\nIn file included from /usr/local/google/home/urvang/work/3rd_aomedia/aom/third_party/tensorflow/tensorflo\nw/lite/interpreter.h:30,                                                                                 \n                 from /usr/local/google/home/urvang/work/3rd_aomedia/aom/av1/common/cnn_tflite.cc:27:    \n/usr/local/google/home/urvang/work/3rd_aomedia/aom/third_party/tensorflow/tensorflow/lite/core/api/profil\ner.h: In member function ‘virtual void tflite::Profiler::EndEvent(uint32_t, int64_t, int64_t)’:          \n/usr/local/google/home/urvang/work/3rd_aomedia/aom/third_party/tensorflow/tensorflow/lite/core/api/profil\ner.h:73:34: warning: unused parameter ‘event_handle’ [-Wunused-parameter]                                \n   73 |   virtual void EndEvent(uint32_t event_handle, int64_t event_metadata1,                          \n      |                         ~~~~~~~~~^~~~~~~~~~~~                                                    \n/usr/local/google/home/urvang/work/3rd_aomedia/aom/third_party/tensorflow/tensorflow/lite/core/api/profil\ner.h:73:56: warning: unused parameter ‘event_metadata1’ [-Wunused-parameter]                             \n   73 |   virtual void EndEvent(uint32_t event_handle, int64_t event_metadata1,                          \n      |                                                ~~~~~~~~^~~~~~~~~~~~~~~                           \n/usr/local/google/home/urvang/work/3rd_aomedia/aom/third_party/tensorflow/tensorflow/lite/core/api/profil\ner.h:74:33: warning: unused parameter ‘event_metadata2’ [-Wunused-parameter]                             \n   74 |                         int64_t event_metadata2) {}                                              \n      |                         ~~~~~~~~^~~~~~~~~~~~~~~",
+      "revId": "d7c9571a327024d96822d0964efc6bd3f3c31d3e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
