@@ -321,6 +321,11 @@ typedef struct candidate_mv {
   int_mv comp_mv;
 } CANDIDATE_MV;
 
+typedef struct location_info {
+  float x;
+  float y;
+} LOCATION_INFO;
+
 static INLINE int is_zero_mv(const MV *mv) {
   return *((const uint32_t *)mv) == 0;
 }
