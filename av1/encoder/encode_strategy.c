@@ -1324,7 +1324,198 @@ static INLINE int find_unused_ref_frame(const int *used_ref_frames,
   return INVALID_IDX;
 }
 
+typedef struct {
+  int map_idx;
+  int disp_order;
+} MapIdxPair;
+
+static int compare_map_idx_pair_asc(const void *a, const void *b) {
+  if (((MapIdxPair *)a)->disp_order == ((MapIdxPair *)b)->disp_order) {
+    return 0;
+  } else if (((const MapIdxPair *)a)->disp_order > ((const MapIdxPair *)b)->disp_order) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+static int compare_map_idx_pair_desc(const void *a, const void *b) {
+  if (((MapIdxPair *)a)->disp_order == ((MapIdxPair *)b)->disp_order) {
+    return 0;
+  } else if (((const MapIdxPair *)a)->disp_order > ((const MapIdxPair *)b)->disp_order) {
+    return -1;
+  } else {
+    return 1;
+  }
+}
+
+static int is_in_ref_map(MapIdxPair *map, int disp_order, int n_frames) {
+  for (int i = 0; i < n_frames; i++) {
+    if (disp_order == map[i].disp_order) return 1;
+  }
+  return 0;
+}
+
+static void get_ref_frames_subgop(AV1_COMP *const cpi) {
+  AV1_COMMON *cm = &cpi->common;
+  GF_GROUP gf_group = cpi->gf_group;
+  int *const remapped_ref_idx = cm->remapped_ref_idx;
+  // The current display index stored has not yet been updated. We must add
+  // The order offset to get the correct value here.
+  const int order_offset = gf_group.arf_src_offset[gf_group.index];
+  const int cur_frame_disp =
+      cpi->common.current_frame.frame_number + order_offset;
+
+  MapIdxPair future_map_idx[MAX_ARF_LAYERS][REF_FRAMES];
+  memset(future_map_idx, 0, MAX_ARF_LAYERS * REF_FRAMES * sizeof(future_map_idx[0][0]));
+  int n_future_idx[MAX_ARF_LAYERS] = { 0 };
+  int total_future = 0;
+  MapIdxPair past_map_idx[MAX_ARF_LAYERS][REF_FRAMES];
+  memset(past_map_idx, 0, MAX_ARF_LAYERS * REF_FRAMES * sizeof(past_map_idx[0][0]));
+  int n_past_idx[MAX_ARF_LAYERS] = { 0 };
+  int total_past = 0;
+
+  // Organize frames by pyramid level and mark as future or past
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = cpi->common.ref_frame_map[map_idx];
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int reference_frame_level = get_true_pyr_level(
+        buf->pyramid_level, frame_order, cpi->gf_group.max_layer_depth);
+    if (frame_order >= cur_frame_disp) {
+      const int idx = n_future_idx[reference_frame_level]; 
+      // Avoid adding duplicates
+      if (is_in_ref_map(future_map_idx[reference_frame_level], frame_order, idx)) continue;
+      future_map_idx[reference_frame_level][idx].map_idx = map_idx;
+      future_map_idx[reference_frame_level][idx].disp_order = frame_order;
+      n_future_idx[reference_frame_level]++; 
+      total_future++;
+    } else { 
+      const int idx = n_past_idx[reference_frame_level]; 
+      if (is_in_ref_map(past_map_idx[reference_frame_level], frame_order, idx)) continue;
+      past_map_idx[reference_frame_level][idx].map_idx = map_idx;
+      past_map_idx[reference_frame_level][idx].disp_order = frame_order;
+      n_past_idx[reference_frame_level]++; 
+      total_past++;
+    }
+  }
+
+  // Sort future frames by display order (ascending)
+  for (int i = 0; i < MAX_ARF_LAYERS; i++) {
+    if (n_future_idx[i] > 1) {
+      qsort(future_map_idx[i], n_future_idx[i], sizeof(future_map_idx[0][0]),
+            compare_map_idx_pair_asc);
+    }
+  }
+
+  // Sort past frames by display order (descending)
+  for (int i = 0; i < MAX_ARF_LAYERS; i++) {
+    if (n_past_idx[i] > 1) {
+      qsort(past_map_idx[i], n_past_idx[i], sizeof(past_map_idx[0][0]),
+            compare_map_idx_pair_desc);
+    }
+  }
+
+  const int future_quality_order[REF_FRAMES - 1] = { ALTREF_FRAME, ALTREF2_FRAME, BWDREF_FRAME, GOLDEN_FRAME, LAST3_FRAME, LAST2_FRAME, LAST_FRAME }; 
+  const int past_quality_order[REF_FRAMES - 1] = { GOLDEN_FRAME, LAST3_FRAME, LAST2_FRAME, LAST_FRAME, ALTREF_FRAME, ALTREF2_FRAME, BWDREF_FRAME }; 
+  int future_idx = 0;
+  int past_idx = 0;
+  int total_refs = 0;
+
+  // Initialization
+  for (int i = 0; i < REF_FRAMES; ++i) remapped_ref_idx[i] = INVALID_IDX;
+
+  for (int i = 0; i < MAX_ARF_LAYERS; i++) {
+    int idx_pair_fut = 0;
+    int idx_pair_pst = 0;
+    while ((idx_pair_fut < n_future_idx[i] || idx_pair_pst < n_past_idx[i]) && total_refs < REF_FRAMES - 1) {
+      MapIdxPair *fut = idx_pair_fut < n_future_idx[i] ? &future_map_idx[i][idx_pair_fut] : NULL; 
+      MapIdxPair *pst = idx_pair_pst < n_past_idx[i] ? &past_map_idx[i][idx_pair_pst] : NULL; 
+
+      // Case where we have a future and past reference that are meant to be mapped to the same 
+      // reference frame slot. In this case, give the closest frame in display order to the current
+      // frame priority. 
+      if ((fut != NULL && pst != NULL) && 
+          future_quality_order[future_idx] == past_quality_order[past_idx]) {
+          if ((cur_frame_disp - fut->disp_order) < (cur_frame_disp - pst->disp_order)) {
+            past_idx++; 
+          } else {
+            future_idx++;
+          }
+        //assert(0);
+      } else {
+        // Map current frame if there is one at this level
+        if (fut && total_refs < REF_FRAMES - 1) {
+          const int fut_ref_frame_slot = future_quality_order[future_idx] - LAST_FRAME;
+       // printf("fut %d, slot %d, slot todo %d\n", fut->disp_order, remapped_ref_idx[fut_ref_frame_slot], fut->map_idx);
+          if (remapped_ref_idx[fut_ref_frame_slot] != INVALID_IDX) {
+            future_idx++;
+          } else {
+       // if (remapped_ref_idx[fut_ref_frame_slot] != INVALID_IDX) continue; 
+          remapped_ref_idx[fut_ref_frame_slot] = fut->map_idx;
+          future_idx++;
+          idx_pair_fut++;
+          total_refs++;
+          }
+        }
+
+        // Map past frame if there is one at this level
+        if (pst && total_refs < REF_FRAMES - 1) {
+          int pst_ref_frame_slot = past_quality_order[past_idx] - LAST_FRAME;
+       // printf("pst %d, slot %d slot todo %d\n", pst->disp_order, remapped_ref_idx[pst_ref_frame_slot], pst->map_idx);
+          if (remapped_ref_idx[pst_ref_frame_slot] != INVALID_IDX) {
+            past_idx++;
+          } else {
+          remapped_ref_idx[pst_ref_frame_slot] = pst->map_idx;
+          past_idx++;
+          idx_pair_pst++;
+          total_refs++;
+          }
+        }
+      }
+    }
+  }
+  for (int i = 0; i < REF_FRAMES; ++i) 
+    if (remapped_ref_idx[i] == INVALID_IDX) remapped_ref_idx[i] = 0;;
+  printf("TOTAL REFS %d\n", total_refs);
+
+
+
+
+
+
+/*
+  char *str_frames[7] = { 
+ "LAST_FRAME",
+ "LAST2_FRAME",
+ "LAST3_FRAME",
+ "GOLDEN_FRAME",
+ "BWDREF_FRAME",
+ "ALTREF2_FRAME",
+ "ALTREF_FRAME"
+  };
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    char *frm_str = str_frames[frame - 1];
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int frame_level = buf->pyramid_level;
+    printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+  }
+  printf("\n\n");
+*/
+  
+}
+
+//sarahparker
 void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
+//if (use_subgop_cfg(&cpi->gf_group, cpi->gf_group.index)) {
+    get_ref_frames_subgop(cpi); 
+    return;
+//}
+    
   AV1_COMMON *cm = &cpi->common;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
   int *const arf_stack = ref_buffer_stack->arf_stack;
@@ -1626,7 +1817,53 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                    ? get_ref_frame_map_idx(cm, BWDREF_FRAME)
                    : get_ref_frame_map_idx(cm, ALTREF_FRAME))
             : INVALID_IDX;
+  const int cur_frame_disp =
+      cpi->common.current_frame.frame_number + frame_params.order_offset;
+    if (frame_params.show_existing_frame)
+    printf("IS INTERNAL OVLY %d, cur %d\n", frame_update_type == INTNL_OVERLAY_UPDATE, cur_frame_disp);
+  frame_params.existing_fb_idx_to_show = INVALID_IDX;
+    if (frame_params.show_existing_frame) {
+      for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+        // Get reference frame buffer
+        const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+        if (buf == NULL) continue;
+        const int frame_order = (int)buf->display_order_hint;
+        if (frame_order == cur_frame_disp) {
+          frame_params.existing_fb_idx_to_show = get_ref_frame_map_idx(cm, frame);
+        }
+      }
+    }
   }
+
+  char *str_frames[7] = { 
+ "LAST_FRAME",
+ "LAST2_FRAME",
+ "LAST3_FRAME",
+ "GOLDEN_FRAME",
+ "BWDREF_FRAME",
+ "ALTREF2_FRAME",
+ "ALTREF_FRAME"
+  };
+  char *ud_str[7] = {
+ "KF_UPDATE",
+ "LF_UPDATE",
+ "GF_UPDATE",
+ "ARF_UPDATE",
+ "OVERLAY_UPDATE",
+ "INTNL_OVERLAY_UPDATE",
+ "INTNL_ARF_UPDATE"
+  };
+  printf("~~~~~~~~ %s ~~~~~~~~\n", ud_str[gf_group->update_type[gf_group->index]]);
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    char *frm_str = str_frames[frame - 1];
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int frame_level = buf->pyramid_level;
+    printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+  }
+  printf("\n\n");
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
   // Currently, reference buffer assignment is done by update_ref_frame_map()
@@ -1728,4 +1965,5 @@ int av1_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
   return gf_group->update_type[gf_index - 1] == ARF_UPDATE &&
          gf_group->update_type[gf_index] == OVERLAY_UPDATE &&
          frame_since_key == 0;
+
 }
