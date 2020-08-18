@@ -867,7 +867,12 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
     switch (obu_header.type) {
       case OBU_TEMPORAL_DELIMITER:
         decoded_payload_size = read_temporal_delimiter_obu();
-        pbi->seen_frame_header = 0;
+        if (pbi->seen_frame_header) {
+          // A new temporal unit has started, but the frame in the previous
+          // temporal unit is incomplete.
+          cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+          return -1;
+        }
         break;
       case OBU_SEQUENCE_HEADER:
         decoded_payload_size = read_sequence_header_obu(pbi, &rb);
