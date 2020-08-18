@@ -106,6 +106,7 @@ TEST_P(InvalidFileTest, ReturnCode) { RunTest(); }
 
 const DecodeParam kAV1InvalidFileTests[] = {
   { 1, "invalid-bug-1814.ivf" },
+  { 1, "invalid-oss-fuzz-24706.ivf" },
 };
 
 AV1_INSTANTIATE_TEST_CASE(InvalidFileTest,
