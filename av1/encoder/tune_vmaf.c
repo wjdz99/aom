@@ -237,6 +237,34 @@ static double find_best_frame_unsharp_amount(const AV1_COMP *const cpi,
   return unsharp_amount;
 }
 
+void av1_vmaf_neg_preprocessing(AV1_COMP *const cpi,
+                                YV12_BUFFER_CONFIG *const source) {
+  aom_clear_system_state();
+  const AV1_COMMON *const cm = &cpi->common;
+  const int bit_depth = cpi->td.mb.e_mbd.bd;
+  const int width = source->y_width;
+  const int height = source->y_height;
+
+  YV12_BUFFER_CONFIG source_extended, blurred;
+  memset(&source_extended, 0, sizeof(source_extended));
+  memset(&blurred, 0, sizeof(blurred));
+  aom_alloc_frame_buffer(
+      &source_extended, width, height, 1, 1, cm->seq_params.use_highbitdepth,
+      cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
+  aom_alloc_frame_buffer(
+      &blurred, width, height, 1, 1, cm->seq_params.use_highbitdepth,
+      cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
+
+  av1_copy_and_extend_frame(source, &source_extended);
+  gaussian_blur(bit_depth, &source_extended, &blurred);
+  aom_free_frame_buffer(&source_extended);
+
+  const double best_frame_unsharp_amount = 0.05;
+  unsharp(cpi, source, &blurred, source, best_frame_unsharp_amount);
+  aom_free_frame_buffer(&blurred);
+  aom_clear_system_state();
+}
+
 void av1_vmaf_frame_preprocessing(AV1_COMP *const cpi,
                                   YV12_BUFFER_CONFIG *const source) {
   aom_clear_system_state();

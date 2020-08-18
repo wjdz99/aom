@@ -516,9 +516,8 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
         "VBR mode.");
 
 #if !CONFIG_TUNE_VMAF
-  if (extra_cfg->tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING ||
-      extra_cfg->tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
-      extra_cfg->tuning == AOM_TUNE_VMAF_MAX_GAIN) {
+  if (extra_cfg->tuning >= AOM_TUNE_VMAF_WITH_PREPROCESSING &&
+      extra_cfg->tuning <= AOM_TUNE_VMAF_NEG_MAX_GAIN) {
     ERROR(
         "This error may be related to the wrong configuration options: try to "
         "set -DCONFIG_TUNE_VMAF=1 at the time CMake is run.");
@@ -526,7 +525,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 #endif
 
 #if CONFIG_TUNE_VMAF
-  RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_VMAF_MAX_GAIN);
+  RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_VMAF_NEG_MAX_GAIN);
 #else
   RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_SSIM);
 #endif
