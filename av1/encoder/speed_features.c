@@ -325,7 +325,7 @@ static void set_good_speed_features_framesize_independent(
 
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->gm_sf.gm_disable_recode = 1;
-  sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
+  sf->gm_sf.gm_search_type = GM_FULL_SEARCH;//GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
 
   sf->part_sf.less_rectangular_check_level = 1;
   sf->part_sf.ml_prune_4_partition = 1;
@@ -651,7 +651,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   // Speed 0 for all speed features that give neutral coding performance change.
   sf->gm_sf.gm_disable_recode = 1;
-  sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
+  sf->gm_sf.gm_search_type = GM_FULL_SEARCH;//GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
 
   sf->part_sf.less_rectangular_check_level = 1;
   sf->part_sf.ml_prune_4_partition = 1;
@@ -669,7 +669,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->inter_sf.prune_ref_frame_for_rect_partitions = !boosted;
   sf->inter_sf.prune_wedge_pred_diff_based = 1;
   sf->inter_sf.reduce_inter_modes = 1;
-  sf->inter_sf.selective_ref_frame = 1;
+  sf->inter_sf.selective_ref_frame = 0;
   sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
 
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
