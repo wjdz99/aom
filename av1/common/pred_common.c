@@ -302,7 +302,7 @@ int av1_get_pred_context_uni_comp_ref_p1(const MACROBLOCKD *xd) {
 
   assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
   return pred_context;
-}
+} //sarahparker investigate this context
 
 // Returns a context number for the given MB prediction signal
 //

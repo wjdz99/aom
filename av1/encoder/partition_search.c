@@ -191,7 +191,7 @@ static void update_zeromv_cnt(const AV1_COMP *const cpi,
     for (int x = 0; x < xmis; x++) {
       // consec_zero_mv is in the scale of 8x8 blocks
       const int map_offset = block_index + y * (cm->mi_params.mi_cols >> 1) + x;
-      if (mi->ref_frame[0] == LAST_FRAME && is_inter_block(mi) &&
+      if (mi->ref_frame[0] == LAST_FRAME && is_inter_block(mi) && //sarahparker??
           mi->segment_id <= CR_SEGMENT_ID_BOOST2) {
         if (abs(mv.row) < 10 && abs(mv.col) < 10) {
           if (cpi->consec_zero_mv[map_offset] < 255)
@@ -991,7 +991,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
               ? motion_mode_allowed(xd->global_motion, xd, mbmi,
                                     cm->features.allow_warped_motion)
               : SIMPLE_TRANSLATION;
-      if (mbmi->ref_frame[1] != INTRA_FRAME) {
+      if (mbmi->ref_frame[1] != INTRA_FRAME) { //sarahparker when is INTRA_FRAME used?
         if (motion_allowed == WARPED_CAUSAL) {
 #if CONFIG_ENTROPY_STATS
           counts->motion_mode[bsize][mbmi->motion_mode]++;

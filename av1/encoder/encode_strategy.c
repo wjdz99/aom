@@ -1324,7 +1324,165 @@ static INLINE int find_unused_ref_frame(const int *used_ref_frames,
   return INVALID_IDX;
 }
 
+typedef struct {
+  int map_idx;
+  int disp_order;
+  int pyr_level;
+  int used;
+} MapIdxPair;
+
+static int compare_map_idx_pair_asc(const void *a, const void *b) {
+  if (((MapIdxPair *)a)->disp_order == ((MapIdxPair *)b)->disp_order) {
+    return 0;
+  } else if (((const MapIdxPair *)a)->disp_order > ((const MapIdxPair *)b)->disp_order) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+static int compare_map_idx_pair_desc(const void *a, const void *b) {
+  if (((MapIdxPair *)a)->disp_order == ((MapIdxPair *)b)->disp_order) {
+    return 0;
+  } else if (((const MapIdxPair *)a)->disp_order > ((const MapIdxPair *)b)->disp_order) {
+    return -1;
+  } else {
+    return 1;
+  }
+}
+
+static int is_in_ref_map(MapIdxPair *map, int disp_order, int n_frames) {
+  for (int i = 0; i < n_frames; i++) {
+    if (disp_order == map[i].disp_order) return 1;
+  }
+  return 0;
+}
+
+static void get_ref_frames_subgop(AV1_COMP *const cpi) {
+  AV1_COMMON *cm = &cpi->common;
+  GF_GROUP gf_group = cpi->gf_group;
+  int *const remapped_ref_idx = cm->remapped_ref_idx;
+  // The current display index stored has not yet been updated. We must add
+  // The order offset to get the correct value here.
+  const int order_offset = gf_group.arf_src_offset[gf_group.index];
+  const int cur_frame_disp =
+      cpi->common.current_frame.frame_number + order_offset;
+  for (int i = 0; i < REF_FRAMES; ++i) remapped_ref_idx[i] = INVALID_IDX;
+
+  MapIdxPair buffer_map[REF_FRAMES];
+  int n_bufs = 0;
+  memset(buffer_map, 0, REF_FRAMES * sizeof(buffer_map[0]));
+  int min_level = MAX_ARF_LAYERS;
+  int max_level = 0;
+
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = cpi->common.ref_frame_map[map_idx];
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    // Avoid duplicates
+    if (is_in_ref_map(buffer_map, frame_order, n_bufs)) continue;
+    const int reference_frame_level = get_true_pyr_level(
+        buf->pyramid_level, frame_order, cpi->gf_group.max_layer_depth);
+    printf("(%d %d) ", reference_frame_level, frame_order);
+    if (reference_frame_level < min_level) min_level = reference_frame_level;
+    if (reference_frame_level > max_level) max_level = reference_frame_level;
+    
+    buffer_map[n_bufs].map_idx = map_idx;
+    buffer_map[n_bufs].disp_order = frame_order;
+    buffer_map[n_bufs].pyr_level = reference_frame_level;
+    buffer_map[n_bufs].used = 0;
+    n_bufs++;
+  }
+
+  qsort(buffer_map, n_bufs, sizeof(buffer_map[0]),
+        compare_map_idx_pair_asc);
+
+  int min_level_ref_idxs[REF_FRAMES] = { 0 };
+  int n_min_level_refs = 0;
+  int max_level_diff = 0;
+  int max_level_ind = 0;
+  int golden_frame = -1;
+  printf("\n\n");
+  for (int i = n_bufs - 1; i >= 0; i--) {
+    printf("disp %d\n", buffer_map[i].disp_order);
+    if (buffer_map[i].pyr_level == min_level) {
+      min_level_ref_idxs[n_min_level_refs] = i;
+      n_min_level_refs++;
+      if (buffer_map[i].disp_order < cur_frame_disp && golden_frame < 0)
+        golden_frame = i; 
+    }
+    if (buffer_map[i].pyr_level == max_level) { 
+      int diff = abs(buffer_map[i].disp_order - cur_frame_disp);
+      if (diff > max_level_diff) {
+        max_level_diff = diff;
+        max_level_ind = i;
+      }
+    }
+  }
+  if (n_bufs > ALTREF_FRAME) buffer_map[max_level_ind].used = 1;
+  if (golden_frame < 0) {
+    // TODO(sarahparker)
+  } else {
+    remapped_ref_idx[GOLDEN_FRAME] = buffer_map[golden_frame].map_idx;
+    buffer_map[golden_frame].used = 1;
+  }
+
+  // Assign low level frames first
+  int cur_frame_assign = ALTREF_FRAME;
+  for (int i = 0; i < n_min_level_refs; i++) {
+    int buf_idx = min_level_ref_idxs[i]; 
+    MapIdxPair *cur_buf = &buffer_map[buf_idx];
+    if (cur_buf->used) continue;
+    if (cur_frame_assign == GOLDEN_FRAME) cur_frame_assign--;
+    remapped_ref_idx[cur_frame_assign] = cur_buf->map_idx;
+    cur_buf->used = 1;
+    cur_frame_assign--;
+  }
+
+  int buf_map_idx = 0;
+  for (int i = 0; i < REF_FRAMES; i++) {
+    if (remapped_ref_idx[i] != INVALID_IDX) continue;
+    for (int idx = buf_map_idx; idx < REF_FRAMES; idx++,buf_map_idx++) {
+      if (!buffer_map[buf_map_idx].used) break;
+    }
+    remapped_ref_idx[i] = buffer_map[buf_map_idx].map_idx;
+    buffer_map[buf_map_idx].used = 1;
+  }
+
+  for (int i = 0; i < REF_FRAMES; ++i) 
+    if (remapped_ref_idx[i] == INVALID_IDX) remapped_ref_idx[i] = 0;
+
+/*
+  char *str_frames[7] = { 
+ "LAST_FRAME",
+ "LAST2_FRAME",
+ "LAST3_FRAME",
+ "GOLDEN_FRAME",
+ "BWDREF_FRAME",
+ "ALTREF2_FRAME",
+ "ALTREF_FRAME"
+  };
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    char *frm_str = str_frames[frame - 1];
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int frame_level = buf->pyramid_level;
+    printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+  }
+  printf("\n\n");
+*/
+}
+
+//sarahparker
 void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
+//if (use_subgop_cfg(&cpi->gf_group, cpi->gf_group.index)) {
+    get_ref_frames_subgop(cpi); 
+    return;
+//}
+    
   AV1_COMMON *cm = &cpi->common;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
   int *const arf_stack = ref_buffer_stack->arf_stack;
@@ -1626,7 +1784,53 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                    ? get_ref_frame_map_idx(cm, BWDREF_FRAME)
                    : get_ref_frame_map_idx(cm, ALTREF_FRAME))
             : INVALID_IDX;
+  const int cur_frame_disp =
+      cpi->common.current_frame.frame_number + frame_params.order_offset;
+    if (frame_params.show_existing_frame)
+    printf("IS INTERNAL OVLY %d, cur %d\n", frame_update_type == INTNL_OVERLAY_UPDATE, cur_frame_disp);
+  frame_params.existing_fb_idx_to_show = INVALID_IDX;
+    if (frame_params.show_existing_frame) {
+      for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+        // Get reference frame buffer
+        const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+        if (buf == NULL) continue;
+        const int frame_order = (int)buf->display_order_hint;
+        if (frame_order == cur_frame_disp) {
+          frame_params.existing_fb_idx_to_show = get_ref_frame_map_idx(cm, frame);
+        }
+      }
+    }
   }
+
+  char *str_frames[7] = { 
+ "LAST_FRAME",
+ "LAST2_FRAME",
+ "LAST3_FRAME",
+ "GOLDEN_FRAME",
+ "BWDREF_FRAME",
+ "ALTREF2_FRAME",
+ "ALTREF_FRAME"
+  };
+  char *ud_str[7] = {
+ "KF_UPDATE",
+ "LF_UPDATE",
+ "GF_UPDATE",
+ "ARF_UPDATE",
+ "OVERLAY_UPDATE",
+ "INTNL_OVERLAY_UPDATE",
+ "INTNL_ARF_UPDATE"
+  };
+  printf("~~~~~~~~ %s ~~~~~~~~\n", ud_str[gf_group->update_type[gf_group->index]]);
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    char *frm_str = str_frames[frame - 1];
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int frame_level = buf->pyramid_level;
+    printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+  }
+  printf("\n\n");
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
   // Currently, reference buffer assignment is done by update_ref_frame_map()
@@ -1728,4 +1932,5 @@ int av1_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
   return gf_group->update_type[gf_index - 1] == ARF_UPDATE &&
          gf_group->update_type[gf_index] == OVERLAY_UPDATE &&
          frame_since_key == 0;
+
 }
