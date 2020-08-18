@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0657a6c3_f80d2274",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-08-18T13:32:36Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have fixed the MSVS build warnings that\noccured due to the comparison between unsigned int and \naom_bit_depth_t enum variables.\n\nPlease review.\n\nThanks.",
+      "revId": "553bc8f4f30563274de9b59a73c98d65a881b28e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
