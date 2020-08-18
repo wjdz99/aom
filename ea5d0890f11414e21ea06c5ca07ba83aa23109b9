@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22d9485c_fa3101e1",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-08-18T00:48:22Z",
+      "side": 1,
+      "message": "Here is an example of the memory leak:\n\n$ aomdec aom-test-data/av1-1-b8-00-quantizer-00.ivf\nNot dumping raw video to your terminal. Use \u0027-o -\u0027 to override.\n\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\u003d\u003d2758771\u003d\u003dERROR: LeakSanitizer: detected memory leaks\n\nDirect leak of 16 byte(s) in 1 object(s) allocated from:\n    #0 0x4ebe1f in __interceptor_malloc /var/jenkins/llvm/llvm-7.0.1/llvm-7.0.1.src/projects/compiler-rt/lib/asan/asan_malloc_linux.cc:146\n    #1 0x5369ec in argv_dup (/usr/local/google/home/wtc/aom.5/build/aomdec+0x5369ec)\n    #2 0x5304f7 in main (/usr/local/google/home/wtc/aom.5/build/aomdec+0x5304f7)\n    #3 0x7faf987d6e0a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x26e0a)\n\nSUMMARY: AddressSanitizer: 16 byte(s) leaked in 1 allocation(s).",
+      "revId": "ea5d0890f11414e21ea06c5ca07ba83aa23109b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
