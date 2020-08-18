@@ -83,6 +83,7 @@ void av1_configure_buffer_updates(
       break;
 
     case ARF_UPDATE:
+    case KFFLT_UPDATE:
       // NOTE: BWDREF does not get updated along with ALTREF_FRAME.
       if (frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
         // TODO(bohanli): consider moving this to force_refresh_all?
@@ -827,6 +828,7 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
                  ref_map_index);
       break;
     case ARF_UPDATE:
+    case KFFLT_UPDATE:
     case INTNL_ARF_UPDATE:
       if (frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
         stack_reset(ref_buffer_stack->lst_stack,
@@ -1132,6 +1134,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
       }
       break;
     case ARF_UPDATE:
+    case KFFLT_UPDATE:
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
@@ -1157,6 +1160,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
       }
       break;
     case OVERLAY_UPDATE: break;
+    case KFFLT_OVERLAY_UPDATE: break;
     case INTNL_OVERLAY_UPDATE: break;
     default: assert(0); break;
   }
@@ -1238,6 +1242,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       }
     }
   } else if (get_frame_update_type(&cpi->gf_group) == ARF_UPDATE ||
+             get_frame_update_type(&cpi->gf_group) == KFFLT_UPDATE ||
              get_frame_update_type(&cpi->gf_group) == INTNL_ARF_UPDATE) {
     // ARF
     apply_filtering = oxcf->algo_cfg.arnr_max_frames > 0;
@@ -1263,7 +1268,8 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       aom_copy_metadata_to_frame_buffer(frame_input->source,
                                         source_buffer->metadata);
     }
-    if (get_frame_update_type(&cpi->gf_group) == ARF_UPDATE) {
+    if (get_frame_update_type(&cpi->gf_group) == ARF_UPDATE ||
+        get_frame_update_type(&cpi->gf_group) == KFFLT_UPDATE) {
       cpi->show_existing_alt_ref = show_existing_alt_ref;
     }
   }
@@ -1432,19 +1438,22 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     // If this is a forward keyframe, mark as a show_existing_frame
     // TODO(bohanli): find a consistent condition for fwd keyframes
     if (oxcf->kf_cfg.fwd_kf_enabled && (gf_group->index == gf_group->size) &&
-        gf_group->update_type[gf_group->index] == OVERLAY_UPDATE &&
+        (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE ||
+         gf_group->update_type[gf_group->index] == KFFLT_OVERLAY_UPDATE) &&
         gf_group->arf_index >= 0 && cpi->rc.frames_to_key == 0) {
       frame_params.show_existing_frame = 1;
     } else {
       frame_params.show_existing_frame =
           ((oxcf->algo_cfg.enable_overlay == 0 || cpi->show_existing_alt_ref) &&
-           gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) ||
+           (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE ||
+            gf_group->update_type[gf_group->index] == KFFLT_OVERLAY_UPDATE)) ||
           gf_group->update_type[gf_group->index] == INTNL_OVERLAY_UPDATE;
     }
     frame_params.show_existing_frame &= allow_show_existing(cpi, *frame_flags);
 
     // Reset show_existing_alt_ref decision to 0 after it is used.
-    if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE) {
+    if (gf_group->update_type[gf_group->index] == OVERLAY_UPDATE ||
+        gf_group->update_type[gf_group->index] == KFFLT_OVERLAY_UPDATE) {
       cpi->show_existing_alt_ref = 0;
     }
   } else {
@@ -1549,6 +1558,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     const int kf_requested = (cm->current_frame.frame_number == 0 ||
                               (*frame_flags & FRAMEFLAGS_KEY));
     if (kf_requested && frame_update_type != OVERLAY_UPDATE &&
+        frame_update_type != KFFLT_OVERLAY_UPDATE &&
         frame_update_type != INTNL_OVERLAY_UPDATE) {
       frame_params.frame_type = KEY_FRAME;
     } else {
@@ -1715,9 +1725,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 int av1_check_keyframe_arf(int gf_index, GF_GROUP *gf_group,
                            int frame_since_key) {
   if (gf_index >= gf_group->size) return 0;
+  (void)frame_since_key;
+  return gf_group->update_type[gf_index] == KFFLT_UPDATE;
+  /*
   return gf_group->update_type[gf_index] == ARF_UPDATE &&
          gf_group->update_type[gf_index + 1] == OVERLAY_UPDATE &&
          frame_since_key == 0;
+         */
 }
 
 // Determine whether a frame is a keyframe overlay (will also return 0 for fwd
@@ -1725,7 +1739,11 @@ int av1_check_keyframe_arf(int gf_index, GF_GROUP *gf_group,
 int av1_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
                                int frame_since_key) {
   if (gf_index < 1) return 0;
+  (void)frame_since_key;
+  return gf_group->update_type[gf_index] == KFFLT_OVERLAY_UPDATE;
+  /*
   return gf_group->update_type[gf_index - 1] == ARF_UPDATE &&
          gf_group->update_type[gf_index] == OVERLAY_UPDATE &&
          frame_since_key == 0;
+         */
 }
