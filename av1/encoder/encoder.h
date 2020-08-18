@@ -3294,6 +3294,7 @@ static INLINE void end_timing(AV1_COMP *cpi, int component) {
   cpi->frame_component_time[component] +=
       aom_usec_timer_elapsed(&cpi->component_timer[component]);
 }
+
 static INLINE char const *get_frame_type_enum(int type) {
   switch (type) {
     case 0: return "KEY_FRAME";

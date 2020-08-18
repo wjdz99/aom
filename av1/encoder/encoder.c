@@ -3131,6 +3131,22 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   return AOM_CODEC_OK;
 }
 
+static INLINE int get_true_pyr_level(int frame_level, int frame_order,
+                                     int max_layer_depth) {
+  printf("\nOG LEVEL disp %d lev %d\n", frame_order, frame_level);
+  if (frame_order == 0) {
+    // Keyframe case
+    return 1;
+  } else if (frame_level == MAX_ARF_LAYERS) {
+    // Leaves
+    return max_layer_depth;
+  } else if (frame_level == (MAX_ARF_LAYERS + 1)) {
+    // Altrefs
+    return 1;
+  }
+  return frame_level;
+}
+
 int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
                const EncodeFrameInput *const frame_input,
                const EncodeFrameParams *const frame_params,
@@ -3166,7 +3182,10 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   current_frame->order_hint =
       current_frame->frame_number + frame_params->order_offset;
   current_frame->display_order_hint = current_frame->order_hint;
-  current_frame->pyramid_level = cpi->gf_group.layer_depth[cpi->gf_group.index];
+   current_frame->pyramid_level = 
+        get_true_pyr_level(cpi->gf_group.layer_depth[cpi->gf_group.index], 
+                           current_frame->display_order_hint, 
+                           cpi->gf_group.max_layer_depth);
 
   current_frame->absolute_poc =
       current_frame->key_frame_number + current_frame->display_order_hint;
