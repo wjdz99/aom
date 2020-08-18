@@ -102,12 +102,11 @@ static AOM_INLINE void realloc_segmentation_maps(AV1_COMP *cpi) {
 static AOM_INLINE void set_tpl_stats_block_size(int width, int height,
                                                 uint8_t *block_mis_log2,
                                                 uint8_t *tpl_bsize_1d) {
-  const int is_720p_or_larger = AOMMIN(width, height) >= 720;
-
-  // 0: 4x4, 1: 8x8, 2: 16x16
-  *block_mis_log2 = is_720p_or_larger ? 2 : 1;
+  // tpl stats bsize: 2 means 16x16
+  *block_mis_log2 = 2;
   // Block size used in tpl motion estimation
   *tpl_bsize_1d = 16;
+  // MIN_TPL_BSIZE_1D = 16;
   assert(*tpl_bsize_1d >= 16);
 }
 
