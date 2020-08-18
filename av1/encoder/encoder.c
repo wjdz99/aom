@@ -2153,7 +2153,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
       // 4:3 scaling.
       // TODO(jianj): Neon optimization for 4:3 scaling for EIGHTTAP has issues.
       // See aomedia:2766.
-      filter_scaler = BILINEAR;
+      filter_scaler = EIGHTTAP_REGULAR;
     }
   }
 
