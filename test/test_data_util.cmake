@@ -12,8 +12,6 @@
 list(APPEND AOM_TEST_DATA_FILE_NAMES
             "hantro_collage_w352h288.yuv"
             "hantro_odd.yuv"
-            "invalid-bug-1814.ivf"
-            "invalid-bug-1814.ivf.res"
             "park_joy_90p_10_420.y4m"
             "park_joy_90p_10_422.y4m"
             "park_joy_90p_10_444.y4m"
@@ -364,7 +362,11 @@ if(CONFIG_AV1_DECODER)
               "av1-1-b8-01-size-66x64.ivf"
               "av1-1-b8-01-size-66x64.ivf.md5"
               "av1-1-b8-01-size-66x66.ivf"
-              "av1-1-b8-01-size-66x66.ivf.md5")
+              "av1-1-b8-01-size-66x66.ivf.md5"
+              "invalid-bug-1814.ivf"
+              "invalid-bug-1814.ivf.res"
+              "invalid-oss-fuzz-24706.ivf"
+              "invalid-oss-fuzz-24706.ivf.res")
 endif()
 
 if(ENABLE_ENCODE_PERF_TESTS AND CONFIG_AV1_ENCODER)
