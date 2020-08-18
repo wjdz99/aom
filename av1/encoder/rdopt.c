@@ -725,6 +725,7 @@ static INLINE PREDICTION_MODE get_single_mode(PREDICTION_MODE this_mode,
                  : compound_ref0_mode(this_mode);
 }
 
+//sarahparker
 static AOM_INLINE void estimate_ref_frame_costs(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, const ModeCosts *mode_costs,
     int segment_id, unsigned int *ref_costs_single,
@@ -753,6 +754,7 @@ static AOM_INLINE void estimate_ref_frame_costs(
     const int ctx_p5 = av1_get_pred_context_single_ref_p5(xd);
     const int ctx_p6 = av1_get_pred_context_single_ref_p6(xd);
 
+    // TODO(sarahparker) should we change this? 
     // Determine cost of a single ref frame, where frame types are represented
     // by a tree:
     // Level 0: add cost whether this ref is a forward or backward ref
@@ -3328,6 +3330,7 @@ static AOM_INLINE MB_MODE_INFO *get_winner_mode_stats(
   return winner_mbmi;
 }
 
+//smp
 // speed feature: fast intra/inter transform type search
 // Used for speed >= 2
 // When this speed feature is on, in rd mode search, only DCT is used.
@@ -3490,6 +3493,7 @@ static AOM_INLINE void disable_inter_references_except_altref(
   disable_reference(ALTREF2_FRAME, ref_combo);
 }
 
+//smp
 static const MV_REFERENCE_FRAME reduced_ref_combos[][2] = {
   { LAST_FRAME, NONE_FRAME },     { ALTREF_FRAME, NONE_FRAME },
   { LAST_FRAME, ALTREF_FRAME },   { GOLDEN_FRAME, NONE_FRAME },
@@ -3501,6 +3505,7 @@ static const MV_REFERENCE_FRAME reduced_ref_combos[][2] = {
   { ALTREF_FRAME, INTRA_FRAME },  { BWDREF_FRAME, INTRA_FRAME },
 };
 
+//smp
 static const MV_REFERENCE_FRAME real_time_ref_combos[][2] = {
   { LAST_FRAME, NONE_FRAME },
   { ALTREF_FRAME, NONE_FRAME },

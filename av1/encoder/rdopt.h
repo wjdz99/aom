@@ -266,6 +266,7 @@ static INLINE int prune_ref(const MV_REFERENCE_FRAME *const ref_frame,
   return 0;
 }
 
+//TODO(sarahparker) modify this with new ref framework
 static INLINE int prune_ref_by_selective_ref_frame(
     const AV1_COMP *const cpi, const MACROBLOCK *const x,
     const MV_REFERENCE_FRAME *const ref_frame,

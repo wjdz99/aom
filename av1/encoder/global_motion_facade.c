@@ -268,6 +268,7 @@ static int compare_distance(const void *a, const void *b) {
 // Function to decide if we can skip the global motion parameter computation
 // for a particular ref frame.
 static AOM_INLINE int skip_gm_frame(AV1_COMMON *const cm, int ref_frame) {
+  return 0; //sarahparker look at this speed feature
   if ((ref_frame == LAST3_FRAME || ref_frame == LAST2_FRAME) &&
       cm->global_motion[GOLDEN_FRAME].wmtype != IDENTITY) {
     return get_relative_dist(
