@@ -1152,15 +1152,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     source = choose_frame_source(cpi, &flush, &last_source, &frame_params);
   }
 
-  if (source == NULL) {  // If no source was found, we can't encode a frame.
-#if !CONFIG_REALTIME_ONLY
-    if (flush && oxcf->pass == 1 && !cpi->twopass.first_pass_done) {
-      av1_end_first_pass(cpi); /* get last stats packet */
-      cpi->twopass.first_pass_done = 1;
-    }
-#endif
-    return -1;
-  }
   // Source may be changed if temporal filtered later.
   frame_input.source = &source->img;
   frame_input.last_source = last_source != NULL ? &last_source->img : NULL;
