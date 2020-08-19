@@ -322,8 +322,10 @@ typedef struct candidate_mv {
 } CANDIDATE_MV;
 
 typedef struct location_info {
-  float x;
-  float y;
+  int32_t x;
+  int32_t y;
+  int_mv this_mv;  // Only used for single frame prediction
+
 } LOCATION_INFO;
 
 static INLINE int is_zero_mv(const MV *mv) {
