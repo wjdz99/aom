@@ -331,23 +331,19 @@ static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
                                   int64_t best_skip_rd, int64_t skip_rd,
                                   int level, int is_luma_only) {
   int eval_txfm = 1;
-  // Derive aggressiveness factor for gating the transform search
+  // Derive aggressiveness factor for gating the transform search.
   // Lower value indicates more aggressiveness. Be more conservative (high
-  // value) for (i) low quantizers (ii) regions where prediction is poor
+  // value) for regions where prediction is poor.
   const int scale[6] = { INT_MAX, 4, 3, 3, 2, 2 };
-  const int qslope = 2 * (!is_luma_only);
+  const int level_to_qindex_map[6] = { 0, 0, 0, 0, 80, 100 };
   int aggr_factor = 1;
-  const int pred_qindex_thresh = (level >= 5) ? 100 : 0;
-  if (!is_luma_only && level <= 4) {
-    aggr_factor = AOMMAX(
-        1, ((MAXQ - x->qindex) * qslope + QINDEX_RANGE / 2) >> QINDEX_BITS);
-  }
+  const int pred_qindex_thresh = level_to_qindex_map[level];
   if ((best_skip_rd >
        (x->source_variance << (num_pels_log2_lookup[bsize] + RDDIV_BITS))) &&
       (x->qindex >= pred_qindex_thresh))
     aggr_factor *= scale[level];
-  // For level setting 1, be more conservative for luma only case even when
-  // prediction is good
+  // For level setting 1, be more conservative for non-luma-only case even when
+  // prediction is good.
   else if ((level <= 1) && !is_luma_only)
     aggr_factor *= 2;
 
