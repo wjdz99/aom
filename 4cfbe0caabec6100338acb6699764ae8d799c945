@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7efc82e5_a1948308",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-08-20T00:05:18Z",
+      "side": 1,
+      "message": "Thanks, Chi Yo!",
+      "revId": "4cfbe0caabec6100338acb6699764ae8d799c945",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
