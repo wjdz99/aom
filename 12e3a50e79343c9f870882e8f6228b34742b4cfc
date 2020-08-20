@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b9cb3f2_9226277f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-08-20T14:59:46Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have simplified the operations in av1_apply_temporal_filter()\nby replacing floating-point divisions in double precision with multiplication\noperations. The C, SSE2 (low-bd, high-bd) and AVX2 (low-bd) variants have been\nmodified accordingly.\n\nAn incorrect variable usage (block_width instead of block_height) in the low-bd\nAVX2 variant has also been fixed in this patch.\n\nThough this change is expected to have a minimal quality impact, we are observing\na bit-exact behaviour in our tests.\n\nAWCY Link for 8-bit encoding (cpu-used\u003d1, 60 frames, bit-exact)\nhttps://beta.arewecompressedyet.com/?job\u003d190820_tf_opt_cpu1_ref8b_master%402020-08-19T10%3A51%3A01.532Z\u0026job\u003d190820_tf_opt_patch1_8b_%402020-08-19T12%3A04%3A22.106Z\n\nAWCY Link for 10-bit encoding (cpu-used\u003d1, 60 frames, bit-exact)\nhttps://beta.arewecompressedyet.com/?job\u003d190820_tf_opt_cpu1_ref10b_master%402020-08-19T05%3A50%3A39.667Z\u0026job\u003d190820_tf_opt_patch1_10b_%402020-08-19T06%3A00%3A56.664Z\n\nThe above AWCY links are for patchset 2. Patchset 4 has a commit message update\nw.r.t. patchset 2.\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "12e3a50e79343c9f870882e8f6228b34742b4cfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
