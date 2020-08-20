@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "43e6c7f4_5327bb36",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1223,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-08-20T21:14:25Z",
+      "side": 1,
+      "message": "If ssse3/neon optimizations are available, aom_resize_and_extend_frame_neon/ssse3 will be called instead of this one. Then for scaling factors without specialized optimization, it\u0027ll go thru this and call aom_scaled_2d_ssse3/neon.\nIf those optimizations are not available, aom_scaled_2d will be C only function too. So there is no problem calling this in C code.",
+      "parentUuid": "aa2c5098_10c514f4",
+      "revId": "f2485afe45cde7c116ab15b6b23ba4d2dc3e2aee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "740bc270_6b306453",
         "filename": "av1/common/x86/resize_ssse3.c",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "e89fb8a9_ae364e2e",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 928,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-08-20T21:14:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "740bc270_6b306453",
+      "revId": "f2485afe45cde7c116ab15b6b23ba4d2dc3e2aee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fe91075a_122a94e1",
         "filename": "av1/common/x86/resize_ssse3.c",
         "patchSetId": 2
@@ -50,6 +86,24 @@
       "revId": "f2485afe45cde7c116ab15b6b23ba4d2dc3e2aee",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e1f94f9_cb9dec25",
+        "filename": "av1/common/x86/resize_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-08-20T21:14:25Z",
+      "side": 1,
+      "message": "I think there will be some redundant code (i.e. _opt() and _c() functions)",
+      "parentUuid": "fe91075a_122a94e1",
+      "revId": "f2485afe45cde7c116ab15b6b23ba4d2dc3e2aee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
