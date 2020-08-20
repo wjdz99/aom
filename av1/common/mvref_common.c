@@ -879,6 +879,19 @@ static int64_t min_row_val = INT64_MAX;
 static int64_t max_col_val = INT64_MIN;
 static int64_t min_col_val = INT64_MAX;
 
+static float **new_2d_array(uint32_t xdim, uint32_t ydim) {
+  float **array_ptr = (float **)malloc(xdim * sizeof(float *));
+  for (uint32_t i = 0; i < xdim; i++) {
+    array_ptr[i] = (float *)malloc(ydim * sizeof(float));
+  }
+  return array_ptr;
+}
+static void delete_2d_array(float **array_ptr, uint32_t xdim) {
+  for (uint32_t i = 0; i < xdim; i++) {
+    free(array_ptr[i]);
+  }
+}
+
 static float calc_determinant_3X3(float **remain_values) {
   float determinant =
       remain_values[0][0] * (remain_values[1][1] * remain_values[2][2] -
@@ -887,6 +900,7 @@ static float calc_determinant_3X3(float **remain_values) {
                              remain_values[1][2] * remain_values[2][0]) +
       remain_values[0][2] * (remain_values[1][0] * remain_values[2][1] -
                              remain_values[1][1] * remain_values[2][0]);
+
   return determinant;
 }
 static void calc_inverse_matrix(float **original, float **ans, int dim) {
@@ -896,7 +910,7 @@ static void calc_inverse_matrix(float **original, float **ans, int dim) {
   }
   if (dim == 4) {
     float minor_mtx[4][4];
-    float remain_values[3][3];
+    float **remain_values = new_2d_array(3, 3);
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
         int row_cnt = 0;
@@ -914,9 +928,16 @@ static void calc_inverse_matrix(float **original, float **ans, int dim) {
           }
           row_cnt++;
         }
+        // for (int di = 0; di < 3; di++) {
+        //   for (int dj = 0; dj < 3; dj++) {
+        //     fprintf(stderr, "%f ", remain_values[di][dj]);
+        //   }
+        //   fprintf(stderr, "\n");
+        // }
         minor_mtx[i][j] = calc_determinant_3X3(remain_values);
       }
     }
+    delete_2d_array(remain_values, 3);
     float determinant_4X4 =
         original[0][0] * minor_mtx[0][0] - original[0][1] * minor_mtx[0][1] +
         original[0][2] * minor_mtx[0][2] - original[0][3] * minor_mtx[0][3];
@@ -959,20 +980,10 @@ static int_mv calculate_translation_tranformation(
   int_mv ans;
   ans.as_mv.row = projected_points[0].x - current_points[0].x;
   ans.as_mv.col = projected_points[0].y - current_points[0].y;
+  fprintf(stderr, "ansmv %d  %d\n", ans.as_mv.row, ans.as_mv.col);
   return ans;
 }
-static float **new_2d_array(uint32_t xdim, uint32_t ydim) {
-  float **array_ptr = (float **)malloc(xdim * sizeof(float *));
-  for (uint32_t i = 0; i < xdim; i++) {
-    array_ptr[i] = (float *)malloc(ydim * sizeof(float));
-  }
-  return array_ptr;
-}
-static void delete_2d_array(float **array_ptr, uint32_t xdim) {
-  for (uint32_t i = 0; i < xdim; i++) {
-    free(array_ptr[i]);
-  }
-}
+
 static int_mv calculate_rotzoom_tranformation(LOCATION_INFO *current_points,
                                               LOCATION_INFO *projected_points,
                                               LOCATION_INFO mypoint) {
@@ -1080,11 +1091,13 @@ static int calc_inlier_num(int_mv this_mv, LOCATION_INFO *current_points,
   for (int i = 0; i < points_num; i++) {
     predicted_point.x = current_points[i].x + this_mv.as_mv.col;
     predicted_point.y = current_points[i].y + this_mv.as_mv.row;
-    if ((predicted_point.x - projected_points[i].x) *
-                (predicted_point.x - projected_points[i].x) +
-            (predicted_point.y - projected_points[i].y) *
-                (predicted_point.y - projected_points[i].y) <
-        threshold) {
+    int dist = (predicted_point.x - projected_points[i].x) *
+                   (predicted_point.x - projected_points[i].x) +
+               (predicted_point.y - projected_points[i].y) *
+                   (predicted_point.y - projected_points[i].y);
+    // fprintf(stderr, "i=%d dist = %d col=%d row=%d\n", i, dist,
+    //         this_mv.as_mv.col, this_mv.as_mv.row);
+    if (dist < threshold) {
       inlier_num++;
     }
   }
@@ -1104,9 +1117,11 @@ static int_mv ransac_fit(const int niterations, const int threshold,
       for (int i = 0; i < niterations; i++) {
         sample_points(random_indexes, points_num, 1);
         sampled_current_points[0] = current_points[random_indexes[0]];
-        sampled_projected_points[0] = current_points[random_indexes[0]];
+        sampled_projected_points[0] = projected_points[random_indexes[0]];
         int_mv this_mv = calculate_translation_tranformation(
             sampled_current_points, sampled_projected_points, mypoint);
+        // fprintf(stderr, "randomidx = %d thismv %d %d\n", random_indexes[0],
+        //         this_mv.as_mv.row, this_mv.as_mv.col);
         int inlier_num = calc_inlier_num(
             this_mv, current_points, projected_points, points_num, threshold);
         if (inlier_num > best_inlier_num) {
@@ -1119,9 +1134,17 @@ static int_mv ransac_fit(const int niterations, const int threshold,
       for (int i = 0; i < niterations; i++) {
         sample_points(random_indexes, points_num, 2);
         sampled_current_points[0] = current_points[random_indexes[0]];
-        sampled_projected_points[0] = current_points[random_indexes[0]];
+        sampled_projected_points[0] = projected_points[random_indexes[0]];
         sampled_current_points[1] = current_points[random_indexes[1]];
-        sampled_projected_points[1] = current_points[random_indexes[1]];
+        sampled_projected_points[1] = projected_points[random_indexes[1]];
+        // fprintf(stderr, "%d %d %d %d %d %d\n", i, random_indexes[0],
+        //         sampled_current_points[0].x, sampled_current_points[0].y,
+        //         sampled_projected_points[0].x,
+        //         sampled_projected_points[0].y);
+        // fprintf(stderr, "%d %d %d %d %d %d\n", i, random_indexes[1],
+        //         sampled_current_points[1].x, sampled_current_points[1].y,
+        //         sampled_projected_points[1].x,
+        //         sampled_projected_points[1].y);
         int_mv this_mv = calculate_rotzoom_tranformation(
             sampled_current_points, sampled_projected_points, mypoint);
         int inlier_num = calc_inlier_num(
@@ -1315,7 +1338,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // Warp Transformation (Curently only consider for Single Frame Prediction)
     ////////////////////////
     const int niterations = 5;
-    const int threshold = 100;
+    const int threshold = 10;
     // ref_location_stack
     LOCATION_INFO projected_points[MAX_REF_MV_STACK_SIZE];
     for (uint8_t i = 0; i < location_count; i++) {
@@ -1327,20 +1350,64 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     LOCATION_INFO mypoint;
     mypoint.x = 0;
     mypoint.y = 0;
-
-    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE) {
-      int_mv translate_mv =
-          ransac_fit(niterations, threshold, ref_location_stack,
-                     projected_points, mypoint, location_count, TRANSLATION);
-      ref_mv_stack[(*refmv_count)].this_mv = translate_mv;
-      (*refmv_count)++;
-    }
-    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+    // fprintf(stderr, "location_count = %d \n", location_count);
+    // if ((*refmv_count) < MAX_REF_MV_STACK_SIZE && location_count >= 1) {
+    //   for (int i = 0; i < location_count; i++) {
+    //     fprintf(stderr, "%d %d %d %d %d %d  %d \n", i,
+    //     ref_location_stack[i].x,
+    //             ref_location_stack[i].y,
+    //             ref_location_stack[i].this_mv.as_mv.row,
+    //             ref_location_stack[i].this_mv.as_mv.col,
+    //             ref_mv_stack[0].this_mv.as_mv.row,
+    //             ref_mv_stack[0].this_mv.as_mv.col);
+    //   }
+    //   int_mv translate_mv =
+    //       ransac_fit(niterations, threshold, ref_location_stack,
+    //                  projected_points, mypoint, location_count, TRANSLATION);
+    //   ref_mv_stack[(*refmv_count)].this_mv = translate_mv;
+    //   ref_mv_weight[(*refmv_count)] = 1;
+    //   (*refmv_count)++;
+    // }
+    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE && location_count >= 2) {
       int_mv rotzoom_mv =
           ransac_fit(niterations, threshold, ref_location_stack,
                      projected_points, mypoint, location_count, ROTZOOM);
-      ref_mv_stack[(*refmv_count)].this_mv = rotzoom_mv;
-      (*refmv_count)++;
+      // if (abs(rotzoom_mv.as_mv.row) <= 16 && abs(rotzoom_mv.as_mv.col) <= 16
+      // &&
+      //     abs(rotzoom_mv.as_mv.row) > 0 && abs(rotzoom_mv.as_mv.col) > 0) {
+      {
+        bool exist = false;
+        for (int ii = 0; ii < (*refmv_count); ii++) {
+          if (ref_mv_stack[ii].this_mv.as_int == rotzoom_mv.as_int) {
+            exist = true;
+          }
+        }
+        if (!exist) {
+          ref_mv_stack[(*refmv_count)].this_mv = rotzoom_mv;
+          ref_mv_weight[(*refmv_count)] = 1;
+
+          fprintf(stderr, "rotzoom_mv %d %d \n", rotzoom_mv.as_mv.row,
+                  rotzoom_mv.as_mv.col);
+          for (int i = 0; i < (*refmv_count); i++) {
+            fprintf(stderr, "%d-%d %d %d\n", (*refmv_count), i,
+                    ref_mv_stack[i].this_mv.as_mv.row,
+                    ref_mv_stack[i].this_mv.as_mv.col);
+          }
+          for (int i = 0; i < location_count; i++) {
+            fprintf(stderr, "Loc: %d-%d %d %d  %d %d  %d %d\n",
+                    (location_count), i,
+                    ref_location_stack[i].this_mv.as_mv.row,
+                    ref_location_stack[i].this_mv.as_mv.col,
+                    ref_location_stack[i].x, ref_location_stack[i].y, xd->n4_w,
+                    xd->n4_h);
+          }
+          (*refmv_count)++;
+        }
+      }
+      // ref_mv_stack[(*refmv_count)].this_mv.as_mv.row = 0;
+      // ref_mv_stack[(*refmv_count)].this_mv.as_mv.col = 0;
+      // ref_mv_weight[(*refmv_count)] = 1;
+      // (*refmv_count)++;
     }
   }
 
