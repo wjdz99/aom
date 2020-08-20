@@ -1,0 +1,214 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99124fef_b7093f4a",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "It would be better if this is a static variable of get_or_init_interpreter(). C++11 or later handles threading issues related to initializing static variables.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bbf1c6f6_160e32b7",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Just curious. Are we manually adding ops to not register unused ops and save some resources?\n\nOtherwise we could use tflite::ops::builtin::BuiltinOpResolver.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f9cbcdf_5e67fb99",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Currently input mode argument is the last one: 4th. So input index would be 3.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e25a4dfe_072dde8b",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Except for the mode argument, all argument types are floats.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0400148c_5b1bebcb",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Not sure if it\u0027s worth it, but we can change the inner loop to memcpy. Would it make the code look less complicated?",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c6e057d_f7ed4f12",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Would it be easier if TF Lite models take 20x20 input for intra prediction and just use the border regions?",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0f6594a_9f4eb525",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "This is a separate input to the model. So need to write into interpreter-\u003etyped_input_tensor\u003cfloat\u003e(3).  (Actually the index is 2. Please see mode argument comment.)",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f429ecfc_725a5782",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "A nit, but rather than changing intra_pred, initializing j to INTERINTRA_ML_BORDER will be easier to read the code.",
+      "range": {
+        "startLine": 141,
+        "startChar": 15,
+        "endLine": 141,
+        "endChar": 16
+      },
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa9ae084_17e10650",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Output type is also float.\n\nAnd typed_output_tensor() may have some checks, etc. It would be better to save the pointer as we did for inputs.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad12324b_3c52312e",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we test for equality? Otherwise some adjustments are necessary to inter_pred, intra_pred, as they are passed to load_inputs() which assumes the border size is exactly INTERINTRA_ML_BORDER. If the border sizes do not match, then we\u0027re copy the wrong regions.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60ea2d23_c0e2594d",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2609,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "Please see below.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19bd6b5e_e6d2e7bb",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2901,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-20T19:16:46Z",
+      "side": 1,
+      "message": "I believe this is where we try all modes.\n\nCurrently mode 0 in our models is the pass-through, i.e., do not modify inter-predictor. mode 1-10 are ML models.\n\nIf no change mode is already included as one of the modes, we should try ML_PRED1 to ML_PRED10. If not, from ML_PRED0 to ML_PRED10.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
