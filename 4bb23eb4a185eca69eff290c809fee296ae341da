@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "13cc954a_a3242fc2",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99124fef_b7093f4a",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bbf1c6f6_160e32b7",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2020-08-20T19:16:46Z",
       "side": 1,
       "message": "Just curious. Are we manually adding ops to not register unused ops and save some resources?\n\nOtherwise we could use tflite::ops::builtin::BuiltinOpResolver.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f85bd1a_62ae22a9",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Yes, it cuts down on binary size.",
+      "parentUuid": "bbf1c6f6_160e32b7",
       "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "675bab7c_b5d08383",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f9cbcdf_5e67fb99",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e25a4dfe_072dde8b",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 3
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "7aeffe19_4bc719b6",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e25a4dfe_072dde8b",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0400148c_5b1bebcb",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 3
@@ -81,6 +153,24 @@
       "writtenOn": "2020-08-20T19:16:46Z",
       "side": 1,
       "message": "Not sure if it\u0027s worth it, but we can change the inner loop to memcpy. Would it make the code look less complicated?",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "404f7fb5_03e61def",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "memcpy is not possible between uint8 and float, right?",
+      "parentUuid": "0400148c_5b1bebcb",
       "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "9f71b0f6_f2c66692",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Either way is fine. Just taking in border region is slightly more efficient.",
+      "parentUuid": "1c6e057d_f7ed4f12",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e0f6594a_9f4eb525",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 3
@@ -118,6 +226,24 @@
       "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6dc77654_9fbb4576",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0f6594a_9f4eb525",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
@@ -144,6 +270,30 @@
     },
     {
       "key": {
+        "uuid": "168fb5a2_e773a2c0",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f429ecfc_725a5782",
+      "range": {
+        "startLine": 141,
+        "startChar": 15,
+        "endLine": 141,
+        "endChar": 16
+      },
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa9ae084_17e10650",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 3
@@ -161,6 +311,24 @@
     },
     {
       "key": {
+        "uuid": "71419562_6c3bda0b",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa9ae084_17e10650",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad12324b_3c52312e",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 3
@@ -172,6 +340,24 @@
       "writtenOn": "2020-08-20T19:16:46Z",
       "side": 1,
       "message": "Shouldn\u0027t we test for equality? Otherwise some adjustments are necessary to inter_pred, intra_pred, as they are passed to load_inputs() which assumes the border size is exactly INTERINTRA_ML_BORDER. If the border sizes do not match, then we\u0027re copy the wrong regions.",
+      "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5878dd33_d321a289",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-20T21:55:44Z",
+      "side": 1,
+      "message": "In this case, border represents the amount of addressable border, not how much border to use. I will add a comment. In particular, the current code builds a border of 16-pixels (due to some backwards compatibility with some SIMD stuff), but this code only needs a 4-pixel border.",
+      "parentUuid": "ad12324b_3c52312e",
       "revId": "4bb23eb4a185eca69eff290c809fee296ae341da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
