@@ -34,6 +34,24 @@
       "revId": "8f15af5ae1e0fd6ef74b89d03bc0bdb26a1d204b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5935be8d_c8d3a1ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-08-20T15:07:16Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nRegarding the performance on 12-bit encode, we had run lowres speed 2, which showed 3.2792% instruction count reduction for 0.0694% BD rate loss (avg psnr), corresponding to trade-off of 0.021%. Please let us know if this is fine.\n\nRegards,\nVishesh",
+      "parentUuid": "899f047e_3aa4123e",
+      "revId": "8f15af5ae1e0fd6ef74b89d03bc0bdb26a1d204b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
