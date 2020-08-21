@@ -1328,6 +1328,9 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   // Figure out which ref frames can be skipped at frame level.
   setup_prune_ref_frame_mask(cpi);
 
+  fprintf(stderr, "gf index = %d, base qp = %d\n",
+    cpi->gf_group.index, cm->quant_params.base_qindex);
+
   x->txfm_search_info.txb_split_count = 0;
 #if CONFIG_SPEED_STATS
   x->txfm_search_info.tx_search_count = 0;
