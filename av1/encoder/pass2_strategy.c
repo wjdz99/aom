@@ -1376,7 +1376,7 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
   // save intervals
   rc->intervals_till_gf_calculate_due = count_cuts - 1;
   for (int n = 1; n < count_cuts; n++) {
-    rc->gf_intervals[n - 1] = cut_pos[n] + 1 - cut_pos[n - 1];
+    rc->gf_intervals[n - 1] = cut_pos[n] - cut_pos[n - 1];
   }
   rc->cur_gf_index = 0;
   twopass->stats_in = start_pos;
@@ -1640,7 +1640,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   i = 0;
   // get the determined gf group length from rc->gf_intervals
-  while (i < rc->gf_intervals[rc->cur_gf_index]) {
+  while (i < rc->gf_intervals[rc->cur_gf_index] + is_intra_only) {
     ++i;
     // Accumulate error score of frames in this gf group.
     mod_frame_err =
@@ -1759,7 +1759,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Should we use the alternate reference frame.
   if (use_alt_ref) {
-    rc->source_alt_ref_pending = 1;
+    rc->source_alt_ref_pending = 0;
     gf_group->max_layer_depth_allowed = gf_cfg->gf_max_pyr_height;
     set_baseline_gf_interval(cpi, i, active_max_gf_interval, use_alt_ref,
                              is_final_pass);
@@ -2752,7 +2752,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   const int update_type = gf_group->update_type[gf_group->index];
   frame_params->frame_type = gf_group->frame_type[gf_group->index];
 
-  if (rc->frames_till_gf_update_due > 0 && !(frame_flags & FRAMEFLAGS_KEY)) {
+  if (gf_group->index < gf_group->size && !(frame_flags & FRAMEFLAGS_KEY)) {
     assert(gf_group->index < gf_group->size);
 
     setup_target_rate(cpi);
@@ -2775,13 +2775,15 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     rc->active_worst_quality = oxcf->rc_cfg.cq_level;
   FIRSTPASS_STATS this_frame;
   av1_zero(this_frame);
-  // call above fn
+  // call above fn 
   if (is_stat_consumption_stage(cpi)) {
-    // Do not read if it is overlay for kf arf, since kf already
-    // advanced the first pass stats pointer
-    if (!av1_check_keyframe_overlay(gf_group->index, gf_group,
-                                    rc->frames_since_key)) {
-      process_first_pass_stats(cpi, &this_frame);
+    if (gf_group->index < gf_group->size || gf_group->size == 0) {
+      // Do not read if it is overlay for kf arf, since kf already
+      // advanced the first pass stats pointer
+      if (!av1_check_keyframe_overlay(gf_group->index, gf_group,
+                                      rc->frames_since_key)) {
+        process_first_pass_stats(cpi, &this_frame);
+      }
     }
   } else {
     rc->active_worst_quality = oxcf->rc_cfg.cq_level;
@@ -2832,7 +2834,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   }
 
   // Define a new GF/ARF group. (Should always enter here for key frames).
-  if (rc->frames_till_gf_update_due == 0) {
+  if (gf_group->index == gf_group->size) {
     assert(cpi->common.current_frame.frame_number == 0 ||
            gf_group->index == gf_group->size);
     const FIRSTPASS_STATS *const start_position = twopass->stats_in;
