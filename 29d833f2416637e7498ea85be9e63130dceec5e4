@@ -16,6 +16,40 @@
       "revId": "29d833f2416637e7498ea85be9e63130dceec5e4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b387920_89d91619",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-21T21:15:06Z",
+      "side": 1,
+      "message": "It would be better to write a function init_interpreter() which returns interpreter pointer or equivalent lambda, and initialize like\n\nstatic tflite::Interpreter *interpreter \u003d init_interpreter();\nreturn interpreter;\n\nThis is the correct way for C++11 compiler to handle concurrent initialization attempts.",
+      "revId": "29d833f2416637e7498ea85be9e63130dceec5e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0cbe1ce8_900acf48",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-08-21T21:15:06Z",
+      "side": 1,
+      "message": "Let\u0027s check the return status like\n\nTF_LITE_ENSURE_OK(builder(\u0026interpreter));\n\nAnd let\u0027s check the input/outputs too.\n\ninterpreter-\u003einputs().size() \u003d\u003d 4\ninterpreter-\u003eoutputs().size() \u003d\u003d 1",
+      "revId": "29d833f2416637e7498ea85be9e63130dceec5e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
