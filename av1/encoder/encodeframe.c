@@ -1164,6 +1164,9 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
 
   set_mi_offsets(mi_params, xd, 0, 0);
 
+  fprintf(stderr, "gf index = %d, update type = %d\n",
+    cpi->gf_group.index, cpi->gf_group.update_type[cpi->gf_group.index]);
+
   av1_zero(*td->counts);
   av1_zero(rdc->comp_pred_diff);
   av1_zero(rdc->tx_type_used);
