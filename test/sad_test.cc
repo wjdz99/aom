@@ -1780,6 +1780,33 @@ const SadMxNx4Param x4d_neon_tests[] = {
   make_tuple(16, 16, &aom_sad16x16x4d_neon, -1),
 };
 INSTANTIATE_TEST_SUITE_P(NEON, SADx4Test, ::testing::ValuesIn(x4d_neon_tests));
+const SadSkipMxNParam skip_neon_tests[] = {
+  make_tuple(128, 128, &aom_sad_skip_128x128_neon, -1),
+  make_tuple(128, 64, &aom_sad_skip_128x64_neon, -1),
+  make_tuple(64, 128, &aom_sad_skip_64x128_neon, -1),
+  make_tuple(64, 64, &aom_sad_skip_64x64_neon, -1),
+  make_tuple(64, 32, &aom_sad_skip_64x32_neon, -1),
+  make_tuple(32, 64, &aom_sad_skip_32x64_neon, -1),
+  make_tuple(32, 32, &aom_sad_skip_32x32_neon, -1),
+  make_tuple(32, 16, &aom_sad_skip_32x16_neon, -1),
+};
+INSTANTIATE_TEST_SUITE_P(NEON, SADSkipTest,
+                         ::testing::ValuesIn(skip_neon_tests));
+
+const SadSkipMxNx4Param skip_x4d_neon_tests[] = {
+  make_tuple(128, 128, &aom_sad_skip_128x128x4d_neon, -1),
+  make_tuple(128, 64, &aom_sad_skip_128x64x4d_neon, -1),
+  make_tuple(64, 128, &aom_sad_skip_64x128x4d_neon, -1),
+  make_tuple(64, 64, &aom_sad_skip_64x64x4d_neon, -1),
+  make_tuple(64, 32, &aom_sad_skip_64x32x4d_neon, -1),
+  make_tuple(64, 16, &aom_sad_skip_64x16x4d_neon, -1),
+  make_tuple(32, 64, &aom_sad_skip_32x64x4d_neon, -1),
+  make_tuple(32, 32, &aom_sad_skip_32x32x4d_neon, -1),
+  make_tuple(32, 16, &aom_sad_skip_32x16x4d_neon, -1),
+  make_tuple(32, 8, &aom_sad_skip_32x8x4d_neon, -1),
+};
+INSTANTIATE_TEST_SUITE_P(NEON, SADSkipx4Test,
+                         ::testing::ValuesIn(skip_x4d_neon_tests));
 #endif  // HAVE_NEON
 
 //------------------------------------------------------------------------------
