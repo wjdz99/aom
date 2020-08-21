@@ -195,6 +195,12 @@ typedef struct {
 } GF_GROUP;
 /*!\cond */
 
+
+typedef struct {
+  // Track if the last frame in a GOP has higher quality.
+  int arf_gf_boost_lst;
+} GF_STATE;
+
 typedef struct {
   FIRSTPASS_STATS *stats_in_start;
   FIRSTPASS_STATS *stats_in_end;
