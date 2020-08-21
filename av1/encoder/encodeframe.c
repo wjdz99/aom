@@ -1305,6 +1305,12 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   av1_initialize_rd_consts(cpi);
   av1_set_sad_per_bit(cpi, &x->mv_costs, quant_params->base_qindex);
 
+  fprintf(stderr, "gf index = %d, update type = %d, base qp = %d\n",
+    cpi->gf_group.index, cpi->gf_group.update_type[cpi->gf_group.index],
+    cm->quant_params.base_qindex);
+
+  fprintf(stderr, "gfu boost = %d\n", cpi->rc.gfu_boost);
+
   init_encode_frame_mb_context(cpi);
   set_default_interp_skip_flags(cm, &cpi->interp_search_flags);
   if (cm->prev_frame && cm->prev_frame->seg.enabled)
