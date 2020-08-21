@@ -275,7 +275,8 @@ if(CONFIG_AV1_ENCODER)
                      "${AOM_ROOT}/aom_dsp/x86/highbd_variance_sse4.c")
   endif()
 
-  list(APPEND AOM_DSP_ENCODER_INTRIN_NEON "${AOM_ROOT}/aom_dsp/arm/sad4d_neon.c"
+  list(APPEND AOM_DSP_ENCODER_INTRIN_NEON 
+  	      "${AOM_ROOT}/aom_dsp/arm/sad4d_neon.c"
               "${AOM_ROOT}/aom_dsp/arm/sad_neon.c"
               "${AOM_ROOT}/aom_dsp/arm/subpel_variance_neon.c"
               "${AOM_ROOT}/aom_dsp/arm/variance_neon.c"
@@ -333,9 +334,6 @@ function(setup_aom_dsp_targets)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_dsp_encoder>)
     if(BUILD_SHARED_LIBS)
       target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_dsp_encoder>)
-    endif()
-    if(CONFIG_TUNE_VMAF)
-      target_include_directories(aom_dsp_encoder PRIVATE ${VMAF_INCLUDE_DIRS})
     endif()
   endif()
 
