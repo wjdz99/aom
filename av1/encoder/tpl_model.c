@@ -752,8 +752,7 @@ static AOM_INLINE void tpl_reset_src_ref_frames(TplParams *tpl_data) {
 }
 
 static AOM_INLINE int get_gop_length(const GF_GROUP *gf_group) {
-  int use_arf = gf_group->arf_index >= 0;
-  int gop_length = AOMMIN(gf_group->size - 1 + use_arf, MAX_TPL_FRAME_IDX - 1);
+  int gop_length = AOMMIN(gf_group->size, MAX_TPL_FRAME_IDX - 1);
   return gop_length;
 }
 
@@ -918,7 +917,7 @@ static void mc_flow_synthesizer(AV1_COMP *cpi, int frame_idx) {
   AV1_COMMON *cm = &cpi->common;
 
   const GF_GROUP *gf_group = &cpi->gf_group;
-  if (frame_idx == gf_group->size) return;
+  // if (frame_idx == gf_group->size) return;
 
   TplParams *const tpl_data = &cpi->tpl_data;
 
@@ -967,17 +966,21 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   *tpl_group_frames = cur_frame_idx;
 
   int gf_index;
-  int anc_frame_offset = gf_group->cur_frame_idx[cur_frame_idx];
+  int anc_frame_offset =
+    gop_eval ? 0 : gf_group->cur_frame_idx[cur_frame_idx];
   int process_frame_count = 0;
   const int gop_length = get_gop_length(gf_group);
 
-  for (gf_index = cur_frame_idx; gf_index <= gop_length; ++gf_index) {
+  for (gf_index = cur_frame_idx; gf_index < gop_length; ++gf_index) {
     TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_index];
     FRAME_UPDATE_TYPE frame_update_type = gf_group->update_type[gf_index];
     int frame_display_index = gf_index == gf_group->size
                                   ? cpi->rc.baseline_gf_interval
                                   : gf_group->cur_frame_idx[gf_index] +
                                         gf_group->arf_src_offset[gf_index];
+
+    int lookahead_index =
+      frame_display_index - anc_frame_offset;
 
     frame_params.show_frame = frame_update_type != ARF_UPDATE &&
                               frame_update_type != INTNL_ARF_UPDATE;
@@ -995,13 +998,15 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
     if (gf_index == cur_frame_idx) {
       struct lookahead_entry *buf =
-          av1_lookahead_peek(cpi->lookahead, 1, cpi->compressor_stage);
+          av1_lookahead_peek(cpi->lookahead, lookahead_index,
+            cpi->compressor_stage);
       if (buf == NULL) break;
       tpl_frame->gf_picture = gop_eval ? &buf->img : frame_input->source;
     } else {
       struct lookahead_entry *buf = av1_lookahead_peek(
-          cpi->lookahead, frame_display_index - anc_frame_offset,
+          cpi->lookahead, lookahead_index,
           cpi->compressor_stage);
+
       if (buf == NULL) break;
       tpl_frame->gf_picture = &buf->img;
     }
@@ -1041,12 +1046,16 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     ++*tpl_group_frames;
   }
 
-  if (cur_frame_idx == 0) return;
+  if (gop_eval || cpi->rc.frames_since_key == 0) return;
 
   int extend_frame_count = 0;
   int extend_frame_length = AOMMIN(
       MAX_TPL_EXTEND, cpi->rc.frames_to_key - cpi->rc.baseline_gf_interval);
-  int frame_display_index = cpi->rc.baseline_gf_interval + 1;
+  int frame_display_index =
+    gf_group->cur_frame_idx[gop_length - 1] +
+    gf_group->arf_src_offset[gop_length - 1] + 1;
+
+  int lookahead_index = frame_display_index - anc_frame_offset + (!!gop_eval);
 
   for (;
        gf_index < MAX_TPL_FRAME_IDX && extend_frame_count < extend_frame_length;
@@ -1060,7 +1069,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     frame_params.frame_type = INTER_FRAME;
 
     struct lookahead_entry *buf = av1_lookahead_peek(
-        cpi->lookahead, frame_display_index - anc_frame_offset,
+        cpi->lookahead, lookahead_index,
         cpi->compressor_stage);
 
     if (buf == NULL) break;
@@ -1172,7 +1181,6 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
         gf_group->update_type[frame_idx] == OVERLAY_UPDATE)
       continue;
 
-    if (gf_group->size == frame_idx) continue;
     init_mc_flow_dispenser(cpi, frame_idx, pframe_qindex);
     if (mt_info->num_workers > 1) {
       tpl_row_mt->sync_read_ptr = av1_tpl_row_mt_sync_read;
@@ -1232,7 +1240,6 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
     beta[frame_idx - gf_group->arf_index] =
         (double)mc_dep_cost_base / intra_cost_base;
   }
-
   // Allow larger GOP size if the base layer ARF has higher dependency factor
   // than the intermediate ARF and both ARFs have reasonably high dependency
   // factors.
