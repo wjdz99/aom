@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b74ea97e_d440dff6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-22T01:17:52Z",
+      "side": 1,
+      "message": "Can give a description about what is done in this CL, but shouldn\u0027t keep update info for each patch set in final commit message.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 20
+      },
+      "revId": "888f20e84f9f600c16ec0f148d264adcbe81c732",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b8225fc_a3cf3106",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 7
@@ -16,6 +39,52 @@
       "revId": "888f20e84f9f600c16ec0f148d264adcbe81c732",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f19cba99_b0ba5156",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 7
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-22T01:17:52Z",
+      "side": 1,
+      "message": "All sad_skip functions need neon simd. Please add.",
+      "range": {
+        "startLine": 675,
+        "startChar": 2,
+        "endLine": 686,
+        "endChar": 60
+      },
+      "revId": "888f20e84f9f600c16ec0f148d264adcbe81c732",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "baec7a7d_ff148dee",
+        "filename": "aom_dsp/aom_dsp_rtcd_defs.pl",
+        "patchSetId": 7
+      },
+      "lineNbr": 931,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-22T01:17:52Z",
+      "side": 1,
+      "message": "add neon simd",
+      "range": {
+        "startLine": 918,
+        "startChar": 2,
+        "endLine": 931,
+        "endChar": 0
+      },
+      "revId": "888f20e84f9f600c16ec0f148d264adcbe81c732",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
