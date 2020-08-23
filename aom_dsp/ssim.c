@@ -176,7 +176,7 @@ double aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
   }
 
   *weight = 1;
-  return abc[0] * .8 + .1 * (abc[1] + abc[2]);
+  return abc[0];  // * .8 + .1 * (abc[1] + abc[2]);
 }
 
 // traditional ssim as per: http://en.wikipedia.org/wiki/Structural_similarity
@@ -437,5 +437,5 @@ double aom_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
   }
 
   *weight = 1;
-  return abc[0] * .8 + .1 * (abc[1] + abc[2]);
+  return abc[0];  // * .8 + .1 * (abc[1] + abc[2]);
 }

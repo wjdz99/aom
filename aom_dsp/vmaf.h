@@ -29,6 +29,8 @@ typedef struct {
   // Stores the filter strength of the last frame.
   double last_frame_unsharp_amount;
 
+  double best_unsharp_amount;
+
   int original_qindex;
 } TuneVMAFInfo;
 

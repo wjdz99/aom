@@ -1037,6 +1037,7 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
                     aom_calloc(num_rows * num_cols,
                                sizeof(*cpi->vmaf_info.rdmult_scaling_factors)));
     cpi->vmaf_info.last_frame_unsharp_amount = 0.0;
+    cpi->vmaf_info.best_unsharp_amount = 0.0;
     cpi->vmaf_info.original_qindex = -1;
   }
 #endif
@@ -2352,6 +2353,12 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   // Determine whether to use screen content tools using two fast encoding.
   av1_determine_sc_tools_with_encoding(cpi, q);
 
+#if CONFIG_TUNE_VMAF
+  if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
+    av1_vmaf_neg_preprocessing(cpi, cpi->unscaled_source);
+  }
+#endif
+
   // Loop variables
   int loop = 0;
   int loop_count = 0;
@@ -3267,7 +3274,7 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   }
   if (!is_stat_generation_stage(cpi) &&
       cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
-    av1_vmaf_neg_preprocessing(cpi, sd);
+    // av1_vmaf_neg_preprocessing(cpi, sd);
   }
 #endif
 
