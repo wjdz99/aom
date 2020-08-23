@@ -241,9 +241,12 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->tpl_sb_rdmult_scaling_factors);
   cpi->tpl_sb_rdmult_scaling_factors = NULL;
 
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
   aom_free(cpi->vmaf_info.rdmult_scaling_factors);
   cpi->vmaf_info.rdmult_scaling_factors = NULL;
+#if CONFIG_TUNE_VMAF_NEG
+  //aom_close_vmaf_rc(cpi->vmaf_info.vmaf_context, cpi->vmaf_info.vmaf_model);
+#endif
 #endif
 
   release_obmc_buffers(&cpi->td.mb.obmc_buffer);

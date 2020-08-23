@@ -515,16 +515,17 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
         "VBR corpus complexity is supported only in the case of single pass "
         "VBR mode.");
 
-#if !CONFIG_TUNE_VMAF
+#if !CONFIG_TUNE_VMAF && !CONFIG_TUNE_VMAF_NEG
   if (extra_cfg->tuning >= AOM_TUNE_VMAF_WITH_PREPROCESSING &&
       extra_cfg->tuning <= AOM_TUNE_VMAF_NEG_MAX_GAIN) {
     ERROR(
         "This error may be related to the wrong configuration options: try to "
-        "set -DCONFIG_TUNE_VMAF=1 at the time CMake is run.");
+        "set -DCONFIG_TUNE_VMAF=1 or -DCONFIG_TUNE_VMAF_NEG=1 at the time "
+        "CMake is run.");
   }
 #endif
 
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
   RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_VMAF_NEG_MAX_GAIN);
 #else
   RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_SSIM);

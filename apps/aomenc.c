@@ -617,7 +617,7 @@ static const arg_def_t timing_info =
                  "Signal timing info in the bitstream (model unly works for no "
                  "hidden frames, no super-res yet):",
                  timing_info_enum);
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
 static const arg_def_t vmaf_model_path =
     ARG_DEF(NULL, "vmaf-model-path", 1, "Path to the VMAF model file");
 #endif
@@ -932,7 +932,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &sframe_dist,
                                        &sframe_mode,
                                        &save_as_annexb,
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
                                        &vmaf_model_path,
 #endif
                                        NULL };
@@ -1032,7 +1032,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_TIER_MASK,
                                         AV1E_SET_MIN_CR,
                                         AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP,
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
                                         AV1E_SET_VMAF_MODEL_PATH,
 #endif
                                         0 };
@@ -1107,7 +1107,7 @@ struct stream_config {
   int write_ivf;
   // whether to use 16bit internal buffers
   int use_16bit_internal;
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
   const char *vmaf_model_path;
 #endif
 };
@@ -1608,7 +1608,7 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else if (arg_match(&arg, &tile_height, argi)) {
       config->cfg.tile_height_count =
           arg_parse_list(&arg, config->cfg.tile_heights, MAX_TILE_HEIGHTS);
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
     } else if (arg_match(&arg, &vmaf_model_path, argi)) {
       config->vmaf_model_path = arg.val;
 #endif
@@ -1935,7 +1935,7 @@ static void initialize_encoder(struct stream_state *stream,
     ctx_exit_on_error(&stream->encoder, "Failed to control codec");
   }
 
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
   if (stream->config.vmaf_model_path) {
     AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder, AV1E_SET_VMAF_MODEL_PATH,
                                   stream->config.vmaf_model_path);
@@ -2300,7 +2300,77 @@ static void print_time(const char *label, int64_t etl) {
   }
 }
 
-int main(int argc, const char **argv_) {
+#include <libvmaf/libvmaf.rc.h>
+static void vmaf_fatal_error(const char *message) {
+  fprintf(stderr, "Fatal error: %s\n", message);
+  exit(EXIT_FAILURE);
+}
+
+int main(int argc, char *argv[])
+{
+  printf("main2\n");
+  VmafContext *vmaf_context;
+  VmafModel *vmaf_model;
+  VmafConfiguration cfg;
+  cfg.log_level = VMAF_LOG_LEVEL_NONE;
+  cfg.n_threads = 0;
+  cfg.n_subsample = 0;
+  cfg.cpumask = 1;
+
+  VmafModelConfig model_cfg;
+  model_cfg.flags = VMAF_MODEL_FLAG_DISABLE_CLIP;
+  model_cfg.name = "vmaf";
+  model_cfg.path = "/usr/local/share/model/vmaf_v0.6.1neg.pkl";
+
+  if (vmaf_init(&vmaf_context, cfg)) {
+    vmaf_fatal_error("Failed to init VMAF context.");
+  }
+  printf("after vmaf init\n");
+
+  if (vmaf_model_load_from_path(&vmaf_model, &model_cfg)) {
+    vmaf_fatal_error("Failed to load VMAF model.");
+  }
+  printf("after vmaf load\n");
+
+  if (vmaf_use_features_from_model(vmaf_context, vmaf_model)) {
+    vmaf_fatal_error("Failed to load feature extractors from VMAF model.");
+  }
+  printf("after vmaf use features\n");
+
+  for(int index = 0; index < 1; ++index) {
+    VmafPicture ref, dist;
+    if (vmaf_picture_alloc(&ref, VMAF_PIX_FMT_YUV420P, /*bit depth=*/8,
+                           800, 480) ||
+        vmaf_picture_alloc(&dist, VMAF_PIX_FMT_YUV420P, /*bit depth=*/8,
+                           800, 480)) {
+      vmaf_fatal_error("Failed to alloc VMAF pictures.");
+    }
+
+    //const size_t y_sz = ref.stride[0] * ref.h[0];
+    //const size_t uv_sz = ref.stride[1] * ref.h[1];
+    //const size_t pic_size = y_sz + 2 * uv_sz;
+    //memset(ref.data[0], 0, pic_size);
+    //memset(dist.data[0], 0, pic_size);
+    printf("after picture alloc %p, %p\n", ref.data[0], dist.data[0]);
+    if (vmaf_read_pictures(vmaf_context, &ref, &dist, /*picture index=*/index)) {
+      vmaf_fatal_error("Failed to read VMAF pictures.");
+    }
+  }
+  printf("after picture read\n");
+
+  for(int index=0;index<2;++index) {
+    double score;
+    vmaf_score_at_index(vmaf_context, vmaf_model, &score, index);
+    printf("score: %f\n", score);
+  }
+
+  vmaf_model_destroy(vmaf_model);
+  if (vmaf_close(vmaf_context)) {
+    vmaf_fatal_error("Failed to close VMAF context.");
+  }
+}
+
+int main2(int argc, const char **argv_) {
   int pass;
   aom_image_t raw;
   aom_image_t raw_shift;

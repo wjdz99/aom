@@ -58,6 +58,9 @@
 #if CONFIG_TUNE_VMAF
 #include "aom_dsp/vmaf.h"
 #endif
+#if CONFIG_TUNE_VMAF_NEG
+#include "aom_dsp/vmaf_neg.h"
+#endif
 
 #include "aom/internal/aom_codec_internal.h"
 #include "aom_util/aom_thread.h"
@@ -2450,7 +2453,7 @@ typedef struct AV1_COMP {
    */
   double *ssim_rdmult_scaling_factors;
 
-#if CONFIG_TUNE_VMAF
+#if CONFIG_TUNE_VMAF || CONFIG_TUNE_VMAF_NEG
   /*!
    * Parameters for VMAF tuning.
    */

@@ -255,6 +255,11 @@ if(CONFIG_TUNE_VMAF)
               "${AOM_ROOT}/av1/encoder/tune_vmaf.h")
 endif()
 
+if(CONFIG_TUNE_VMAF_NEG)
+  list(APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/tune_vmaf_neg.c"
+              "${AOM_ROOT}/av1/encoder/tune_vmaf_neg.h")
+endif()
+
 if(CONFIG_OPTICAL_FLOW_API)
   list(APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/optical_flow.c"
               "${AOM_ROOT}/av1/encoder/optical_flow.h")

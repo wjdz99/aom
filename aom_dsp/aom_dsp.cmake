@@ -299,6 +299,11 @@ if(CONFIG_AV1_ENCODER)
     list(APPEND AOM_DSP_ENCODER_SOURCES "${AOM_ROOT}/aom_dsp/vmaf.c"
                 "${AOM_ROOT}/aom_dsp/vmaf.h")
   endif()
+
+  if(CONFIG_TUNE_VMAF_NEG)
+    list(APPEND AOM_DSP_ENCODER_SOURCES "${AOM_ROOT}/aom_dsp/vmaf_neg.c"
+                "${AOM_ROOT}/aom_dsp/vmaf_neg.h")
+  endif()
 endif()
 
 # Creates aom_dsp build targets. Must not be called until after libaom target
@@ -336,6 +341,9 @@ function(setup_aom_dsp_targets)
     endif()
     if(CONFIG_TUNE_VMAF)
       target_include_directories(aom_dsp_encoder PRIVATE ${VMAF_INCLUDE_DIRS})
+    endif()
+    if(CONFIG_TUNE_VMAF_NEG)
+      target_include_directories(aom_dsp_encoder PRIVATE ${VMAF_RC_INCLUDE_DIRS})
     endif()
   endif()
 
