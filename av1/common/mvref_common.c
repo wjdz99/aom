@@ -1069,6 +1069,7 @@ static int_mv calculate_affine_transformation(LOCATION_INFO *current_points,
 }
 
 static sample_points(int random_indexs[], int points_num, int sample_num) {
+  srand(0);
   bool used[MAX_REF_MV_STACK_SIZE];
   for (int i = 0; i < MAX_REF_MV_STACK_SIZE; i++) {
     used[i] = false;
@@ -1161,6 +1162,100 @@ static int_mv ransac_fit(const int niterations, const int threshold,
   return best_mv;
 }
 
+static int calc_minor_value(int32_t mat[3][3], int row1, int row2, int col1,
+                            int col2) {
+  return mat[row1][col1] * mat[row2][col2] - mat[row1][col2] * mat[row2][col1];
+}
+static int calc_inverse_3X3(int32_t XTX_3X3[3][3],
+                            float inverse_XTX_3X3[3][3]) {
+  int32_t minor_mat_3X3[3][3];
+  minor_mat_3X3[0][0] = calc_minor_value(XTX_3X3, 1, 2, 1, 2);
+  minor_mat_3X3[0][1] = calc_minor_value(XTX_3X3, 1, 2, 0, 2) * (-1);
+  minor_mat_3X3[0][2] = calc_minor_value(XTX_3X3, 1, 2, 0, 1);
+  minor_mat_3X3[1][0] = calc_minor_value(XTX_3X3, 0, 2, 1, 2) * (-1);
+  minor_mat_3X3[1][1] = calc_minor_value(XTX_3X3, 0, 2, 0, 2);
+  minor_mat_3X3[1][2] = calc_minor_value(XTX_3X3, 0, 2, 0, 1) * (-1);
+  minor_mat_3X3[2][0] = calc_minor_value(XTX_3X3, 0, 1, 1, 2);
+  minor_mat_3X3[2][1] = calc_minor_value(XTX_3X3, 0, 1, 0, 2) * (-1);
+  minor_mat_3X3[2][2] = calc_minor_value(XTX_3X3, 0, 1, 0, 1);
+  int32_t determinant = XTX_3X3[0][0] * minor_mat_3X3[0][0] +
+                        XTX_3X3[0][1] * minor_mat_3X3[0][1] +
+                        XTX_3X3[0][2] * minor_mat_3X3[0][2];
+  if (determinant > 0) {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        inverse_XTX_3X3[i][j] = minor_mat_3X3[j][i] / (1.0f * determinant);
+      }
+    }
+    return 1;
+  } else {
+    return 0;
+  }
+}
+static int_mv calc_affine_mv(LOCATION_INFO *source_points,
+                             LOCATION_INFO *destination_points,
+                             int32_t point_number, LOCATION_INFO mypoint) {
+  int_mv ans_mv;
+  int32_t sum_x = 0;
+  int32_t sum_y = 0;
+  int32_t sum_xx = 0;
+  int32_t sum_xy = 0;
+  int32_t sum_yy = 0;
+  for (int i = 0; i < point_number; i++) {
+    sum_x += source_points[i].x;
+    sum_y += source_points[i].y;
+    sum_xx += source_points[i].x * source_points[i].x;
+    sum_xy += source_points[i].x * source_points[i].y;
+    sum_yy += source_points[i].y * source_points[i].y;
+  }
+  int32_t XTX_3X3[3][3] = { { sum_xx, sum_xy, sum_x },
+                            { sum_xy, sum_yy, sum_y },
+                            { sum_x, sum_y, point_number } };
+  float inverse_XTX_3X3[3][3];
+  int ret = calc_inverse_3X3(XTX_3X3, inverse_XTX_3X3);
+  if (ret == 0) {
+    // Fail to Calc inverse
+    ans_mv.as_mv.row = 0;
+    ans_mv.as_mv.col = 0;
+    return ans_mv;
+  }
+  int32_t mat[3][point_number];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < point_number; j++) {
+      mat[i][j] = inverse_XTX_3X3[i][0] * source_points[j].x +
+                  inverse_XTX_3X3[i][1] * source_points[j].y +
+                  inverse_XTX_3X3[i][2];
+    }
+  }
+  int32_t h11 = 0;
+  int32_t h12 = 0;
+  int32_t h13 = 0;
+  int32_t h21 = 0;
+  int32_t h22 = 0;
+  int32_t h23 = 0;
+  for (int i = 0; i < point_number; i++) {
+    // h11 += mat[0][i] * destination_points[i].x;
+    // h12 += mat[1][i] * destination_points[i].x;
+    h13 += mat[2][i] * destination_points[i].x;
+    // h21 += mat[0][i] * destination_points[i].y;
+    // h22 += mat[1][i] * destination_points[i].y;
+    h23 += mat[2][i] * destination_points[i].y;
+  }
+
+  ans_mv.as_mv.col = h13;
+  ans_mv.as_mv.row = h23;
+  return ans_mv;
+}
+bool is_duplicated(int_mv mv_to_check,
+                   CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
+                   int mv_count) {
+  for (int i = 0; i < mv_count; i++) {
+    if (mv_to_check.as_int == ref_mv_stack[i].this_mv.as_int) {
+      return true;
+    }
+  }
+  return false;
+}
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
                               uint8_t *const refmv_count,
@@ -1334,7 +1429,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       break;
   }
 
-  if (rf[1] == NONE_FRAME) {
+  if (rf[1] == NONE_FRAME && (*refmv_count) < MAX_REF_MV_STACK_SIZE) {
     // Warp Transformation (Curently only consider for Single Frame Prediction)
     ////////////////////////
     const int niterations = 5;
@@ -1350,6 +1445,24 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     LOCATION_INFO mypoint;
     mypoint.x = 0;
     mypoint.y = 0;
+    int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
+                                      location_count, mypoint);
+    if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
+        (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
+      ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
+      ref_mv_weight[(*refmv_count)] = 1;
+      // fprintf(stderr, "-------------------------------------------------\n");
+      // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
+      //         affine_mv.as_mv.col);
+      // for (int j = 0; j < (*refmv_count); j++) {
+      //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.row,
+      //           ref_mv_stack[j].this_mv.as_mv.col);
+      // }
+      // fprintf(stderr, "\n");
+      // fprintf(stderr, "-------------------------------------------------\n");
+      (*refmv_count)++;
+    }
+
     // fprintf(stderr, "location_count = %d \n", location_count);
     // if ((*refmv_count) < MAX_REF_MV_STACK_SIZE && location_count >= 1) {
     //   for (int i = 0; i < location_count; i++) {
@@ -1368,7 +1481,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     //   ref_mv_weight[(*refmv_count)] = 1;
     //   (*refmv_count)++;
     // }
-    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE && location_count >= 2) {
+    if (false && (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
+        location_count >= 2) {
       int_mv rotzoom_mv =
           ransac_fit(niterations, threshold, ref_location_stack,
                      projected_points, mypoint, location_count, ROTZOOM);
