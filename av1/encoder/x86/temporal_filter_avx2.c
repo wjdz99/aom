@@ -134,10 +134,7 @@ static void apply_temporal_filter(
     uint16_t *frame_sse, uint32_t *luma_sse_sum,
     const double inv_num_ref_pixels, const double decay_factor,
     const double inv_factor, const double weight_factor, double *d_factor) {
-  assert(((block_width == 32) && (block_height == 32)) ||
-         ((block_width == 16) && (block_height == 16)));
-
-  uint32_t acc_5x5_sse[BH][BW];
+  uint32_t acc_5x5_sse[BH * BW] = { 0 };
 
   if (block_width == 32) {
     get_squared_error_32x32_avx2(frame1, stride, frame2, stride2, block_width,
@@ -187,7 +184,7 @@ static void apply_temporal_filter(
 
       // Accumulate the sum horizontally
       for (int i = 0; i < 4; i++) {
-        acc_5x5_sse[row][col + i] = xx_mask_and_hadd(vsum, i);
+        acc_5x5_sse[row * BW + col + i] = xx_mask_and_hadd(vsum, i);
       }
     }
   }
@@ -195,7 +192,7 @@ static void apply_temporal_filter(
   for (int i = 0, k = 0; i < block_height; i++) {
     for (int j = 0; j < block_width; j++, k++) {
       const int pixel_value = frame2[i * stride2 + j];
-      uint32_t diff_sse = acc_5x5_sse[i][j] + luma_sse_sum[i * BW + j];
+      uint32_t diff_sse = acc_5x5_sse[i * BW + j] + luma_sse_sum[i * BW + j];
 
       const double window_error = diff_sse * inv_num_ref_pixels;
       const int subblock_idx =
