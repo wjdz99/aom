@@ -16,6 +16,261 @@
       "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da4c28b5_f3b50b4f",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "it would be better to move the (width\u003c\u003c1) outside of the inner loop for better performance.",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d931a07b_28184ea1",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "it would be better to change multiplication to addition in the inner loop to update the starting address of each row.",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db5bd807_3eb5f468",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "similar comment as above. use addition instead of multiplication inside the inner loop.",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cb8096f_8fc2cd4d",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba3d9762_d56cddd9",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21fc34b6_78a39b9b",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14d573b0_47035400",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7a11e95_3a97cd27",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea2cef70_d6680022",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90408b2c_bf0a1c5f",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "remove extra blank line",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9651b197_e5c2192a",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "remove extra blank line",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdb124c9_e6fbab0d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3373,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "can this allocation be done only once?",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "129da2f2_6b81ebad",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 6337,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "can this be done only once?",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "340919f5_78ef2cec",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 13017,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "what\u0027s the reason for the comment out code? why not use memcpy?",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c86b36cf_27e55ec3",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 13428,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-25T22:11:27Z",
+      "side": 1,
+      "message": "as we discussed, can you add a constant threshold, e.g, 32, and then compare against the block width and height?",
+      "revId": "2f5de23f0332e8db2e3a8d95d033d777e32a9a29",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
