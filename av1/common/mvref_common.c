@@ -1455,8 +1455,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                       location_count, mypoint);
     if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
         (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
-      ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
-      ref_mv_weight[(*refmv_count)] = 1;
+      // ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
+      // ref_mv_weight[(*refmv_count)] = 1;
       // fprintf(stderr, "-------------------------------------------------\n");
       // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
       //         affine_mv.as_mv.col);
