@@ -4030,6 +4030,17 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
   twopass->rolling_arf_group_target_bits += rc->this_frame_target;
   twopass->rolling_arf_group_actual_bits += rc->projected_frame_size;
 
+  if (cpi->gf_group.update_type[cpi->gf_group.index] != OVERLAY_UPDATE &&
+      cpi->gf_group.update_type[cpi->gf_group.index] != INTNL_OVERLAY_UPDATE) {
+    const double coefficient_ratio =
+        (double)rc->coefficient_size / (double)rc->projected_frame_size;
+    printf("order %d, update type %d, actual %d, coef %d, ratio %.2f---\n",
+           cpi->common.current_frame.order_hint,
+           cpi->gf_group.update_type[cpi->gf_group.index],
+           rc->projected_frame_size, rc->coefficient_size,
+           coefficient_ratio);
+  }
+
   // Calculate the pct rc error.
   if (rc->total_actual_bits) {
     rc->rate_error_estimate =
