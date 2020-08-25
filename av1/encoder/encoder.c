@@ -2514,6 +2514,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (do_dummy_pack) {
       av1_finalize_encoded_frame(cpi);
       int largest_tile_id = 0;  // Output from bitstream: unused here
+      cpi->is_final_packing = 0;
+      rc->coefficient_size = 0;
       if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) !=
           AOM_CODEC_OK) {
         return AOM_CODEC_ERROR;
@@ -2670,6 +2672,8 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_pack_bitstream_final_time);
 #endif
+  cpi->is_final_packing = 1;
+  cpi->rc.coefficient_size = 0;
   if (av1_pack_bitstream(cpi, dest, size, largest_tile_id) != AOM_CODEC_OK)
     return AOM_CODEC_ERROR;
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -2893,6 +2897,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     av1_finalize_encoded_frame(cpi);
     // Build the bitstream
     int largest_tile_id = 0;  // Output from bitstream: unused here
+    cpi->is_final_packing = 1;
+    cpi->rc.coefficient_size = 0;
     if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) != AOM_CODEC_OK)
       return AOM_CODEC_ERROR;
 
