@@ -13012,14 +13012,15 @@ static void rd_intrabc_extract_source_sb(MACROBLOCK *x, uint16_t *InputBlock,
                                          BLOCK_SIZE bsize) {
   uint16_t width = block_size_wide[bsize];
   uint16_t height = block_size_high[bsize];
-  uint16_t stride = x->plane[0].src.stride;
+  uint16_t src_stride = x->plane[0].src.stride;
+
+  uint16_t *pixelStartAddr = CONVERT_TO_SHORTPTR(x->plane[0].src.buf);
+  uint16_t size = (width << 1);
 
   for (int rows = 0; rows < height; ++rows) {
-    for (int cols = 0; cols < width; ++cols) {
-      uint16_t *pixelAddr =
-          CONVERT_TO_SHORTPTR(x->plane[0].src.buf + rows * stride + cols);
-      InputBlock[rows * width + cols] = *(pixelAddr);
-    }
+    memcpy(InputBlock, pixelStartAddr, size);
+    InputBlock += width;
+    pixelStartAddr += src_stride;
   }
 }
 
@@ -13027,12 +13028,13 @@ static void rd_intrabc_copy_sb(uint16_t *DstBlock, uint16_t *SrcBlock,
                                BLOCK_SIZE bsize) {
   uint16_t width = block_size_wide[bsize];
   uint16_t height = block_size_high[bsize];
+  uint16_t size = (width << 1);
 
   // Copy block
   for (int rows = 0; rows < height; ++rows) {
-    for (int cols = 0; cols < width; ++cols) {
-      DstBlock[rows * 128 + cols] = SrcBlock[rows * width + cols];
-    }
+    memcpy(DstBlock, SrcBlock, size);
+    DstBlock += 128;
+    SrcBlock += width;
   }
 }
 
@@ -13202,53 +13204,46 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
 #if CONFIG_EXT_IBC_MODES
   uint16_t *src_block = NULL;
-  uint16_t *ibc_src_block = NULL;
 
   // Iterate through all IBC & IBC+ Modes
   // Allocate & Store Source block
   rd_intrabc_allocate_sb(&src_block, bsize);
   rd_intrabc_extract_source_sb(x, src_block, bsize);
 
-  // Allocate the IBC Source Buffer : Always 128x128, with valid data inset
-  rd_intrabc_allocate_sb(&ibc_src_block, BLOCK_128X128);
-
-  // Assign Macroblock pointer to IBC+ Translated Source
-  x->plane[0].ibc_src = ibc_src_block;
-
   for (IBC_MODE ibcMode = ROTATION_0; ibcMode <= ROTATION_270 /*ROTATION_90*/;
        ++ibcMode) {
     // Translate Source Block & Update Source Pointer for search
     switch (ibcMode) {
-      case ROTATION_0:
-        rd_intrabc_copy_sb(ibc_src_block, src_block, bsize);
-        break;
+      case ROTATION_0: 
+		rd_intrabc_copy_sb(x->ibc_src, src_block, bsize); 
+		break;
 
       case MIRROR_90:
-        rd_intrabc_mirror90_sb(ibc_src_block, src_block, bsize);
+        rd_intrabc_mirror90_sb(x->ibc_src, src_block, bsize);
         break;
 
-      case MIRROR_0:
-        rd_intrabc_mirror0_sb(ibc_src_block, src_block, bsize);
-        break;
+      case MIRROR_0: 
+		rd_intrabc_mirror0_sb(x->ibc_src, src_block, bsize); 
+		break;
 
       case ROTATION_180:
-        rd_intrabc_rotate180_sb(ibc_src_block, src_block, bsize);
+        rd_intrabc_rotate180_sb(x->ibc_src, src_block, bsize);
         break;
 
       case ROTATION_90:
-        rd_intrabc_rotate90_sb(ibc_src_block, src_block, bsize);
+        rd_intrabc_rotate90_sb(x->ibc_src, src_block, bsize);
         break;
 
       case MIRROR_135:
-        rd_intrabc_mirror135_sb(ibc_src_block, src_block, bsize);
+        rd_intrabc_mirror135_sb(x->ibc_src, src_block, bsize);
         break;
 
       case MIRROR_45:
-        rd_intrabc_mirror45_sb(ibc_src_block, src_block, bsize);
+        rd_intrabc_mirror45_sb(x->ibc_src, src_block, bsize);
         break;
 
       case ROTATION_270:
-        rd_intrabc_rotate270_sb(ibc_src_block, src_block, bsize);
+        rd_intrabc_rotate270_sb(x->ibc_src, src_block, bsize);
         break;
 
       default: break;
@@ -13422,12 +13417,17 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                sizeof(x->blk_skip[0]) * xd->n4_h * xd->n4_w);
       }
     }
+
+    // Disable IBC+ Mode Search for all Shapes bigger than 32x32
+    /*
+    if (ibcMode == ROTATION_0 && (w > MAX_BLK_SIZE || h > MAX_BLK_SIZE))
+      break;
+    */
 #if CONFIG_EXT_IBC_MODES
   }
 
-  // DeAllocate source & IBC source blocks
+  // DeAllocate source block
   aom_free(src_block);
-  aom_free(ibc_src_block);
 #endif  // CONFIG_EXT_IBC_MODES
 
   *mbmi = best_mbmi;
