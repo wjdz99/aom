@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "b328407b_dab559ed",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-25T05:35:51Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "0b387920_89d91619",
+      "revId": "29d833f2416637e7498ea85be9e63130dceec5e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0cbe1ce8_900acf48",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 16
@@ -50,6 +68,24 @@
       "revId": "29d833f2416637e7498ea85be9e63130dceec5e4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "656e72ea_ff812b62",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 16
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-25T05:35:51Z",
+      "side": 1,
+      "message": "TF_LITE_ENSURE_OK will return the status code on failure, which is not the same as the return value here. I\u0027ll add a check similar to the AllocateTensors() below. Also will return nullptr so the error manifests immediately.",
+      "parentUuid": "0cbe1ce8_900acf48",
+      "revId": "29d833f2416637e7498ea85be9e63130dceec5e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
