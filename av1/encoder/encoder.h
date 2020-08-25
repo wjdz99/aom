@@ -2576,6 +2576,12 @@ typedef struct AV1_COMP {
    * Number of frames left to be encoded, is 0 if limit is not set.
    */
   int frames_left;
+
+  /*!
+   * Indicate whether the bit stream packing is for the actual encoding, or
+   * just a trial.
+   */
+  int is_final_packing;
 } AV1_COMP;
 
 /*!

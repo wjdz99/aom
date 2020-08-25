@@ -1562,7 +1562,15 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   }
 
   if (!mbmi->skip_txfm) {
+    int start = 0;
+    if (cpi->is_final_packing) start = aom_tell_size(w);
+
     write_tokens_b(cpi, w, tok, tok_end);
+
+    if (cpi->is_final_packing) {
+      const int end = aom_tell_size(w);
+      cpi->rc.coefficient_size += end - start;
+    }
   }
 }
 
