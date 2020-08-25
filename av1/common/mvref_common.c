@@ -1181,7 +1181,7 @@ static int calc_inverse_3X3(int32_t XTX_3X3[3][3],
   int32_t determinant = XTX_3X3[0][0] * minor_mat_3X3[0][0] +
                         XTX_3X3[0][1] * minor_mat_3X3[0][1] +
                         XTX_3X3[0][2] * minor_mat_3X3[0][2];
-  if (determinant > 0) {
+  if (determinant != 0) {
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 3; j++) {
         inverse_XTX_3X3[i][j] = minor_mat_3X3[j][i] / (1.0f * determinant);
@@ -1241,7 +1241,13 @@ static int_mv calc_affine_mv(LOCATION_INFO *source_points,
     // h22 += mat[1][i] * destination_points[i].y;
     h23 += mat[2][i] * destination_points[i].y;
   }
-
+  if (h13 > INT16_MAX || h23 > INT16_MAX || h13 < INT16_MIN ||
+      h23 < INT16_MIN) {
+    // Invalid mv
+    ans_mv.as_mv.col = 0;
+    ans_mv.as_mv.row = 0;
+    return ans_mv;
+  }
   ans_mv.as_mv.col = h13;
   ans_mv.as_mv.row = h23;
   return ans_mv;
