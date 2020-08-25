@@ -1212,7 +1212,8 @@ static int_mv calc_affine_mv(LOCATION_INFO *source_points,
                             { sum_xy, sum_yy, sum_y },
                             { sum_x, sum_y, point_number } };
   float inverse_XTX_3X3[3][3];
-  int ret = calc_inverse_3X3(XTX_3X3, inverse_XTX_3X3);
+  // int ret = calc_inverse_3X3(XTX_3X3, inverse_XTX_3X3);
+  int ret = 0;
   if (ret == 0) {
     // Fail to Calc inverse
     ans_mv.as_mv.row = 0;
@@ -1451,8 +1452,8 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     LOCATION_INFO mypoint;
     mypoint.x = 0;
     mypoint.y = 0;
-    // int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
-    //                                   location_count, mypoint);
+    int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
+                                      location_count, mypoint);
     // if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
     //     (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
     //   // ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
