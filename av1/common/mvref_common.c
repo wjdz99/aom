@@ -1451,23 +1451,25 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     LOCATION_INFO mypoint;
     mypoint.x = 0;
     mypoint.y = 0;
-    int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
-                                      location_count, mypoint);
-    if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
-        (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
-      // ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
-      // ref_mv_weight[(*refmv_count)] = 1;
-      // fprintf(stderr, "-------------------------------------------------\n");
-      // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
-      //         affine_mv.as_mv.col);
-      // for (int j = 0; j < (*refmv_count); j++) {
-      //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.row,
-      //           ref_mv_stack[j].this_mv.as_mv.col);
-      // }
-      // fprintf(stderr, "\n");
-      // fprintf(stderr, "-------------------------------------------------\n");
-      //(*refmv_count)++;
-    }
+    // int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
+    //                                   location_count, mypoint);
+    // if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
+    //     (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
+    //   // ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
+    //   // ref_mv_weight[(*refmv_count)] = 1;
+    //   // fprintf(stderr,
+    //   "-------------------------------------------------\n");
+    //   // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
+    //   //         affine_mv.as_mv.col);
+    //   // for (int j = 0; j < (*refmv_count); j++) {
+    //   //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.row,
+    //   //           ref_mv_stack[j].this_mv.as_mv.col);
+    //   // }
+    //   // fprintf(stderr, "\n");
+    //   // fprintf(stderr,
+    //   "-------------------------------------------------\n");
+    //   //(*refmv_count)++;
+    // }
 
     // fprintf(stderr, "location_count = %d \n", location_count);
     // if ((*refmv_count) < MAX_REF_MV_STACK_SIZE && location_count >= 1) {
