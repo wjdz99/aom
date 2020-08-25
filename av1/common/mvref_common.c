@@ -1466,7 +1466,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       // }
       // fprintf(stderr, "\n");
       // fprintf(stderr, "-------------------------------------------------\n");
-      (*refmv_count)++;
+      //(*refmv_count)++;
     }
 
     // fprintf(stderr, "location_count = %d \n", location_count);
