@@ -249,7 +249,8 @@ static struct av1_extracfg default_extra_cfg = {
   5,              // gf_max_pyr_height
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
-  NULL,                                      // subgop_config_str
+//NULL,                                      // subgop_config_str
+  subgop_config_str_16_def,
   NULL,                                      // subgop_config_path
   40,                                        // qp
   0,                                         // rc_max_intra_bitrate_pct

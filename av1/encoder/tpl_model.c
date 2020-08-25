@@ -920,6 +920,38 @@ static void mc_flow_synthesizer(AV1_COMP *cpi, int frame_idx) {
   }
 }
 
+/*
+static int alloc_ref_frame_map(AV1_COMP *cpi, int *idxs) { 
+  printf("ALLOC\n");
+  int n_allocated = 0;
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    if (cpi->common.ref_frame_map[map_idx] == NULL) {
+      RefCntBuffer *buf = aom_malloc(sizeof(*buf));
+      memset(buf, 0, sizeof(*buf));
+      cpi->common.ref_frame_map[map_idx] = buf; 
+      idxs[n_allocated] = map_idx;
+      n_allocated++;
+    } else {
+      for (int map_idx2 = map_idx + 1; map_idx2 < REF_FRAMES; map_idx2++) {
+        if (cpi->common.ref_frame_map[map_idx] == 
+            cpi->common.ref_frame_map[map_idx2])
+      }
+  }
+  return n_allocated;
+}
+
+static void free_ref_frame_map(AV1_COMP *cpi, int n_allocated, int *idxs) {
+  printf("FREE\n");
+  for (int i = 0; i < n_allocated; i++) {
+    int map_idx = idxs[i];
+    aom_free(cpi->common.ref_frame_map[map_idx]);
+    //aom_free(buf);
+    cpi->common.ref_frame_map[map_idx] = NULL;
+  }
+}
+
+*/
+
 static AOM_INLINE void init_gop_frames_for_tpl(
     AV1_COMP *cpi, const EncodeFrameParams *const init_frame_params,
     GF_GROUP *gf_group, int gop_eval, int *tpl_group_frames,
@@ -927,12 +959,28 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   AV1_COMMON *cm = &cpi->common;
   int cur_frame_idx = gf_group->index;
   *pframe_qindex = 0;
+  RefFrameMapPair ref_frame_map_pairs[REF_FRAMES];
+  memset(ref_frame_map_pairs, -1, sizeof(*ref_frame_map_pairs) * REF_FRAMES);
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf =
+        (map_idx != INVALID_IDX) ? cpi->common.ref_frame_map[map_idx] : NULL;
+    if (buf == NULL) continue;
+    ref_frame_map_pairs[map_idx].disp_order = (int)buf->display_order_hint;
+    const int reference_frame_level = get_true_pyr_level(
+        buf->pyramid_level, ref_frame_map_pairs[map_idx].disp_order, 
+        cpi->gf_group.max_layer_depth);
+    ref_frame_map_pairs[map_idx].pyr_level = reference_frame_level;
+  }
 
   RefBufferStack ref_buffer_stack = cpi->ref_buffer_stack;
   EncodeFrameParams frame_params = *init_frame_params;
   TplParams *const tpl_data = &cpi->tpl_data;
 
   int ref_picture_map[REF_FRAMES];
+  int allocd_idxs[REF_FRAMES] = { -1 };
+//int n_allocated = alloc_ref_frame_map(cpi, allocd_idxs);
+  printf("TPL\n");
 
   for (int i = 0; i < REF_FRAMES; ++i) {
     if (frame_params.frame_type == KEY_FRAME || gop_eval) {
@@ -1006,13 +1054,20 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     }
 
     av1_get_ref_frames(cpi, &ref_buffer_stack);
+    const int true_disp = tpl_frame->frame_display_index - frame_params.show_frame;
     int refresh_mask = av1_get_refresh_frame_flags(
-        cpi, &frame_params, frame_update_type, gf_index, &ref_buffer_stack);
+        cpi, &frame_params, frame_update_type, gf_index, true_disp, ref_frame_map_pairs, &ref_buffer_stack);
 
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
     av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
                              gf_index, frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
+
+    printf("disp %d lev %d, idx %d\n", AOMMAX(0, true_disp), gf_group->layer_depth[gf_index], refresh_frame_map_index);
+    if (refresh_frame_map_index < REF_FRAMES) {
+      ref_frame_map_pairs[refresh_frame_map_index].disp_order = AOMMAX(0, true_disp);
+      ref_frame_map_pairs[refresh_frame_map_index].pyr_level = gf_group->layer_depth[gf_index];
+    }
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       tpl_frame->ref_map_index[i - LAST_FRAME] =
@@ -1023,7 +1078,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     ++*tpl_group_frames;
   }
 
-  if (cur_frame_idx == 0) return;
+  if (cur_frame_idx == 0) {
+//  free_ref_frame_map(cpi, n_allocated, allocd_idxs);
+    return;
+  }
 
   int extend_frame_count = 0;
   int extend_frame_length = AOMMIN(
@@ -1071,12 +1129,14 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     // av1_update_ref_frame_map() will execute default behavior even when
     // subgop cfg is enabled. This should be addressed if we ever remove the
     // frame_update_type.
+    const int true_disp = tpl_frame->frame_display_index - frame_params.show_frame;
     int refresh_mask = av1_get_refresh_frame_flags(
-        cpi, &frame_params, frame_update_type, -1, &ref_buffer_stack);
+        cpi, &frame_params, frame_update_type, -1, true_disp, ref_frame_map_pairs, &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
     av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
                              -1, frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
+    printf("EXTENSION\n");
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       tpl_frame->ref_map_index[i - LAST_FRAME] =
@@ -1095,6 +1155,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   }
 
   av1_get_ref_frames(cpi, &cpi->ref_buffer_stack);
+//free_ref_frame_map(cpi, n_allocated, allocd_idxs);
 }
 
 static AOM_INLINE void init_tpl_stats(TplParams *const tpl_data) {

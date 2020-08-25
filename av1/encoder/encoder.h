@@ -98,6 +98,27 @@ enum {
   ONETWO = 6
 } UENUM1BYTE(AOM_SCALING);
 
+typedef struct {
+  int pyr_level;
+  int disp_order;
+} RefFrameMapPair;
+
+static INLINE int get_true_pyr_level(int frame_level, int frame_order,
+                                     int max_layer_depth) {
+  if (frame_order == 0) {
+    // Keyframe case
+    return 1;
+  } else if (frame_level == MAX_ARF_LAYERS) {
+    // Leaves
+    return max_layer_depth;
+  } else if (frame_level == (MAX_ARF_LAYERS + 1)) {
+    // Altrefs
+    return 1;
+  }
+  return frame_level;
+}
+
+
 enum {
   // Good Quality Fast Encoding. The encoder balances quality with the amount of
   // time it takes to encode the output. Speed setting controls how fast.
