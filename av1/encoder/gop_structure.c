@@ -229,27 +229,12 @@ static int construct_multi_layer_gf_structure(
 
   // Rest of the frames.
   SubGOPSetCfg *subgop_cfg_set = &cpi->subgop_config_set;
-  const SubGOPCfg *subgop_cfg0;
-  if (first_frame_update_type == KF_UPDATE) {
-    const SubGOPCfg *subgop_cfg_first =
-        av1_find_subgop_config(subgop_cfg_set, gf_interval, 0, 1);
-    if (subgop_cfg_first == NULL)
-      subgop_cfg0 = av1_find_subgop_config(subgop_cfg_set, gf_interval, 0, 0);
-    else
-      subgop_cfg0 = subgop_cfg_first;
-  } else {
-    subgop_cfg0 = av1_find_subgop_config(subgop_cfg_set, gf_interval, 0, 0);
-  }
   gf_group->subgop_cfg = NULL;
-  if (subgop_cfg0) {
-    const SubGOPCfg *subgop_cfg = subgop_cfg0;
-    // Check if it is the last GOP
-    if ((rc->frames_to_key - 1) == gf_interval) {
-      const SubGOPCfg *subgop_cfg1 =
-          av1_find_subgop_config(subgop_cfg_set, gf_interval, 1, 0);
-      if (subgop_cfg1) subgop_cfg = subgop_cfg1;
-    }
-
+  const SubGOPCfg *subgop_cfg;
+  subgop_cfg = av1_find_subgop_config(subgop_cfg_set, gf_interval,
+                                      rc->frames_to_key - 1 <= gf_interval + 2,
+                                      first_frame_update_type == KF_UPDATE);
+  if (subgop_cfg) {
     gf_group->subgop_cfg = subgop_cfg;
     gf_group->is_user_specified = 1;
     set_multi_layer_params_from_subgop_cfg(twopass, gf_group, subgop_cfg, rc,

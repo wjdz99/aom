@@ -179,9 +179,21 @@ const char subgop_config_str_16_def[] =
 
 // An enhanced config where the last subgop uses a shorter dist to arf
 const char subgop_config_str_16_enh[] =
-    "16:2:16F1/8F2/4U3/2U4/1V5/2S/3V5/4S/"
+    "14:0:14F1/8F2/4U3/2U4/1V5/2S/3V5/4S/"
+    "6U4/5V5/6S/7V5/8R2/11U3/9V4/10V5/11S/"
+    "12V4/13V5/14R1,"
+
+    "14:1:12F1/8F2/4U3/2U4/1V5/2S/3V5/4S/"
+    "6U4/5V5/6S/7V5/8R2/10U4/9V5/10S/11V5/"
+    "12R1/13V4/14V5,"
+
+    "15:0:15F1/8F2/4U3/2U4/1V5/2S/3V5/4S/"
     "6U4/5V5/6S/7V5/8R2/12U3/10U4/9V5/10S/"
-    "11V5/12S/14U4/13V5/14S/15V5/16R1,"
+    "11V5/12S/13V4/14V5/15R1,"
+
+    "15:1:13F1/7F2/4U3/2U4/1V5/2S/3V5/4S/"
+    "5V4/6V5/7R2/10U3/8V4/9V5/10S/"
+    "11V4/12V5/13R1/15U4/14V5/15S,"
 
     "16:0:16F1/8F2/4U3/2U4/1V5/2S/3V5/4S/"
     "6U4/5V5/6S/7V5/8R2/12U3/10U4/9V5/10S/"
@@ -209,17 +221,13 @@ const char subgop_config_str_16_ts[] =
 // An asymmetrical config where the hierarchical frames are not exactly
 // dyadic, but slightly skewed.
 const char subgop_config_str_16_asym[] =
-    "16:2:16F1/10F2/5U3/3U4/1V5/2V5/3S/"
-    "4V5/5S/8U4/6V5/7V5/8S/9V5/10R2/"
-    "13U3/11V5/12V5/13S/14V5/15V5/16R1/,"
-
     "16:0:16F1/10F2/5U3/3U4/1V5/2V5/3S/"
     "4V5/5S/8U4/6V5/7V5/8S/9V5/10R2/"
     "13U3/11V5/12V5/13S/14V5/15V5/16R1,"
 
-    "16:1:14F1/7F2/4U3/2U4/1V5/2S/3V5/4S/"
-    "5V4/6V5/7R2/11U3/9U4/8V5/9S/10V5/11S/"
-    "13U4/12V5/13S/14R1/16U4/15V5/16S";
+    "16:1:13F1/7F2/4U3/2U4/1V5/2S/3V5/4S/"
+    "5V4/6V5/7R2/10U3/8V4/9V5/10S/11V4/12V5/"
+    "13R1/16U4/14V4/15V5/16S";
 
 // low delay config without references
 const char subgop_config_str_16_ld[] =
