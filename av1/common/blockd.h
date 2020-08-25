@@ -941,6 +941,10 @@ typedef struct macroblockd_plane {
   ENTROPY_CONTEXT *above_context;
   ENTROPY_CONTEXT *left_context;
 
+#if CONFIG_EXT_IBC_MODES
+  uint16_t *ibc_pred;
+#endif  // CONFIG_EXT_IBC_MODES
+
   // The dequantizers below are true dequantizers used only in the
   // dequantization process.  They have the same coefficient
   // shift/scale as TX.
