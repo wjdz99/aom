@@ -305,8 +305,8 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset + i,
                          len * weight);
-    if ((*refmv_count) - orignal_refmv_count == 1 && rf[1] == NONE_FRAME &&
-        abs(row_offset) == 1) {
+    if (false && (*refmv_count) - orignal_refmv_count == 1 &&
+        rf[1] == NONE_FRAME && abs(row_offset) == 1) {
       // The candidate MV may be the same with the existing MV. In that case,
       // (*refmv_count) will not change after calling add_ref_mv_candidate.
       // Otherwise, this If condition is true, and we need to record the local
@@ -401,8 +401,8 @@ static void scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset,
                          len * weight);
-    if ((*refmv_count) - orignal_refmv_count == 1 && abs(col_offset) == 1 &&
-        rf[1] == NONE_FRAME) {
+    if (false && (*refmv_count) - orignal_refmv_count == 1 &&
+        abs(col_offset) == 1 && rf[1] == NONE_FRAME) {
       // The candidate MV may be the same with the existing MV. In that case,
       // (*refmv_count) will not change after calling add_ref_mv_candidate.
       // Otherwise, this If condition is true, and we need to record the local
@@ -448,8 +448,8 @@ static void scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, mi_pos.col,
                          2 * len);
-    if ((*refmv_count) - orignal_refmv_count == 1 && abs(row_offset) == 1 &&
-        abs(col_offset) == 1 && rf[1] == NONE_FRAME) {
+    if (false && (*refmv_count) - orignal_refmv_count == 1 &&
+        abs(row_offset) == 1 && abs(col_offset) == 1 && rf[1] == NONE_FRAME) {
       // The candidate MV may be the same with the existing MV. In that case,
       // (*refmv_count) will not change after calling add_ref_mv_candidate.
       // Otherwise, this If condition is true, and we need to record the local
@@ -1454,23 +1454,21 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     mypoint.y = 0;
     int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
                                       location_count, mypoint);
-    // if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
-    //     (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
-    //   // ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
-    //   // ref_mv_weight[(*refmv_count)] = 1;
-    //   // fprintf(stderr,
-    //   "-------------------------------------------------\n");
-    //   // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
-    //   //         affine_mv.as_mv.col);
-    //   // for (int j = 0; j < (*refmv_count); j++) {
-    //   //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.row,
-    //   //           ref_mv_stack[j].this_mv.as_mv.col);
-    //   // }
-    //   // fprintf(stderr, "\n");
-    //   // fprintf(stderr,
-    //   "-------------------------------------------------\n");
-    //   //(*refmv_count)++;
-    // }
+    if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
+        (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
+      ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
+      ref_mv_weight[(*refmv_count)] = 1;
+      // fprintf(stderr,"-------------------------------------------------\n");
+      // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
+      //         affine_mv.as_mv.col);
+      // for (int j = 0; j < (*refmv_count); j++) {
+      //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.row,
+      //           ref_mv_stack[j].this_mv.as_mv.col);
+      // }
+      // fprintf(stderr, "\n");
+      // fprintf(stderr,"-------------------------------------------------\n");
+      (*refmv_count)++;
+    }
 
     // fprintf(stderr, "location_count = %d \n", location_count);
     // if ((*refmv_count) < MAX_REF_MV_STACK_SIZE && location_count >= 1) {
