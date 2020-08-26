@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cc49df9_816a5b42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-08-26T19:24:46Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe observed that in TPL av1_get_rdmult_delta( ) function, analysis_type \u003d 1 and 2 are not used. Hence, we have removed the variables ‘mc_count’ and ‘mc_saved’ from TplDepStats structure and ‘mc_count_base’ and ‘mc_saved_base’ from RD_OPT structure. We have also cleaned up the function and its interface.\n\nThis CL is verified to be bit-exact with no impact on encode time.\n\n    Resolution    Tile    Memory reduction\n                          Single   Multi\n                          thread   thread\n    640x360       2x1     0.42%    0.47% (2 threads)\n    832x480       2x1     0.65%    0.58% (2 threads)\n    1280x720      2x2     0.77%    0.67% (4 threads)\n    1920x1080     4x2     0.90%    0.77% (8 threads)\n\nAWCY Link for cpu-used 1 (bit-exact, 60 frames)\nhttps://beta.arewecompressedyet.com/?job\u003d250820_mem_opt_cpu1_ref8b_master%402020-08-25T09%3A04%3A27.778Z\u0026job\u003d260820_mem_opt_cpu1_mod8b_master%402020-08-26T15%3A14%3A41.471Z\n\nAWCY Link for cpu-used 6 (bit-exact, 60 frames)\nhttps://beta.arewecompressedyet.com/?job\u003d250820_mem_opt_cpu6_ref8b_master%402020-08-26T15%3A18%3A09.395Z\u0026job\u003d260820_mem_opt_cpu6_mod8b_master%402020-08-26T15%3A19%3A00.898Z\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "d6ae2db61b71e2804031af6a813147a7057461d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
