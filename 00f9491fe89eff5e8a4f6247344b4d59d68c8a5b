@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "5af1dce7_a050cccd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-26T19:47:28Z",
+      "side": 1,
+      "message": "Change description to describe what patch is doing instead.\n\n(Use \"git commit --amend\" locally)",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 16
+      },
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a75ea20e_34d70ba4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-26T19:47:28Z",
+      "side": 1,
+      "message": "You can apply the diff from style check error output, to fix this.\n\n\u003e Patch Set 1: Code-Review-1\n\u003e \n\u003e Rebase first if necessary, otherwise:\n\u003e if the files are in your patchset, run clang-format on them or\n\u003e apply the diff in the console output:\n\u003e \n\u003e https://build.aomedia.org/jenkins/job/style-check/49428/\n\u003e https://build.aomedia.org/jenkins/job/style-check/49428/consoleText\n\u003e \n\u003e aom/aomcx.h\n\u003e av1/av1_cx_iface.c\n\n",
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2cfd06a2_00362ae8",
         "filename": "aom/aomcx.h",
         "patchSetId": 1
@@ -18,6 +58,92 @@
         "startChar": 5,
         "endLine": 861,
         "endChar": 64
+      },
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dc970e1_623c48fd",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2643,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-26T19:47:28Z",
+      "side": 1,
+      "message": "Use brackets: (cond_a || cond_b) \u0026\u0026 (cond_c || cond_d)",
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fcc5305_61cab6d0",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2645,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-26T19:47:28Z",
+      "side": 1,
+      "message": "You want: \"!cpi-\u003eoxcf.txfm_cfg.enable_rect_tx || ...\" as mentioned offline",
+      "range": {
+        "startLine": 2645,
+        "startChar": 31,
+        "endLine": 2645,
+        "endChar": 64
+      },
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78fc43ea_6b66818d",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2702,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-26T19:47:28Z",
+      "side": 1,
+      "message": "Revert this change back",
+      "range": {
+        "startLine": 2702,
+        "startChar": 0,
+        "endLine": 2702,
+        "endChar": 62
+      },
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a3f1249_0cb04c2f",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2730,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-26T19:47:28Z",
+      "side": 1,
+      "message": "Special tables not required for enable/disable rect tx, as mentioned offline",
+      "range": {
+        "startLine": 2730,
+        "startChar": 60,
+        "endLine": 2730,
+        "endChar": 74
       },
       "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
