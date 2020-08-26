@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2cfd06a2_00362ae8",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 5575
+      },
+      "writtenOn": "2020-08-26T03:36:59Z",
+      "side": 1,
+      "message": "Please also mention that the decision is affected by the partition type.",
+      "range": {
+        "startLine": 861,
+        "startChar": 5,
+        "endLine": 861,
+        "endChar": 64
+      },
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba6f9a95_128bd242",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2760,
+      "author": {
+        "id": 5575
+      },
+      "writtenOn": "2020-08-26T03:36:59Z",
+      "side": 1,
+      "message": "Are these comments correct ?",
+      "range": {
+        "startLine": 2760,
+        "startChar": 19,
+        "endLine": 2760,
+        "endChar": 33
+      },
+      "revId": "00f9491fe89eff5e8a4f6247344b4d59d68c8a5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
