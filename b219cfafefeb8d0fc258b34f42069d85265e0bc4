@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7efd3c55_a1b75b7e",
+        "filename": "av1/common/obu_util.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-08-26T01:15:48Z",
+      "side": 1,
+      "message": "One (indirect) caller of read_obu_header() does not memset the ObuHeader struct to 0 before every call, so the temporal_layer_id and spatial_layer_id fields may contain stale values from the previous OBU. This CL fixes that issue:\n\n  int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,\n                                 const uint8_t *data_end,\n                                 const uint8_t **p_data_end) {\n    ...\n    ObuHeader obu_header;\n    memset(\u0026obu_header, 0, sizeof(obu_header));\n    ...\n\n    // decode frame as a series of OBUs\n    while (!frame_decoding_finished \u0026\u0026 cm-\u003eerror.error_code \u003d\u003d AOM_CODEC_OK) {\n      ...\n\n      aom_codec_err_t status \u003d\n          aom_read_obu_header_and_size(data, bytes_available, pbi-\u003eis_annexb,\n                                       \u0026obu_header, \u0026payload_size, \u0026bytes_read);",
+      "revId": "b219cfafefeb8d0fc258b34f42069d85265e0bc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
