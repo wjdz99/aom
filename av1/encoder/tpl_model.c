@@ -582,10 +582,10 @@ int av1_tpl_ptr_pos(int mi_row, int mi_col, int stride, uint8_t right_shift) {
   return (mi_row >> right_shift) * stride + (mi_col >> right_shift);
 }
 
-static int64_t delta_rate_cost(int64_t delta_rate, int64_t recrf_dist,
+static int32_t delta_rate_cost(int32_t delta_rate, int64_t recrf_dist,
                                int64_t srcrf_dist, int pix_num) {
   double beta = (double)srcrf_dist / recrf_dist;
-  int64_t rate_cost = delta_rate;
+  int32_t rate_cost = delta_rate;
 
   if (srcrf_dist <= 128) return rate_cost;
 
@@ -596,7 +596,7 @@ static int64_t delta_rate_cost(int64_t delta_rate, int64_t recrf_dist,
   double log_den = log(beta) / log(2.0) + 2.0 * dr;
 
   if (log_den > log(10.0) / log(2.0)) {
-    rate_cost = (int64_t)((log(1.0 / beta) * pix_num) / log(2.0) / 2.0);
+    rate_cost = (int32_t)((log(1.0 / beta) * pix_num) / log(2.0) / 2.0);
     rate_cost <<= (TPL_DEP_COST_SCALE_LOG2 + AV1_PROB_COST_SHIFT);
     return rate_cost;
   }
@@ -604,7 +604,7 @@ static int64_t delta_rate_cost(int64_t delta_rate, int64_t recrf_dist,
   double num = pow(2.0, log_den);
   double den = num * beta + (1 - beta) * beta;
 
-  rate_cost = (int64_t)((pix_num * log(num / den)) / log(2.0) / 2.0);
+  rate_cost = (int32_t)((pix_num * log(num / den)) / log(2.0) / 2.0);
 
   rate_cost <<= (TPL_DEP_COST_SCALE_LOG2 + AV1_PROB_COST_SHIFT);
 
@@ -651,7 +651,7 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
       ((double)(tpl_stats_ptr->recrf_dist - tpl_stats_ptr->srcrf_dist) /
        tpl_stats_ptr->recrf_dist));
   int64_t delta_rate = tpl_stats_ptr->recrf_rate - tpl_stats_ptr->srcrf_rate;
-  int64_t mc_dep_rate =
+  int32_t mc_dep_rate =
       delta_rate_cost(tpl_stats_ptr->mc_dep_rate, tpl_stats_ptr->recrf_dist,
                       tpl_stats_ptr->srcrf_dist, pix_num);
 
@@ -675,7 +675,7 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
           des_stats->mc_dep_dist +=
               ((cur_dep_dist + mc_dep_dist) * overlap_area) / pix_num;
           des_stats->mc_dep_rate +=
-              ((delta_rate + mc_dep_rate) * overlap_area) / pix_num;
+              (int32_t)(((delta_rate + mc_dep_rate) * overlap_area) / pix_num);
 
           assert(overlap_area >= 0);
         }
@@ -714,8 +714,8 @@ static AOM_INLINE void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row,
   int64_t inter_cost = src_stats->inter_cost / div;
   int64_t srcrf_dist = src_stats->srcrf_dist / div;
   int64_t recrf_dist = src_stats->recrf_dist / div;
-  int64_t srcrf_rate = src_stats->srcrf_rate / div;
-  int64_t recrf_rate = src_stats->recrf_rate / div;
+  int32_t srcrf_rate = src_stats->srcrf_rate / div;
+  int32_t recrf_rate = src_stats->recrf_rate / div;
 
   intra_cost = AOMMAX(1, intra_cost);
   inter_cost = AOMMAX(1, inter_cost);
