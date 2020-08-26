@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "750239df_67c322bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-08-26T00:49:05Z",
+      "side": 1,
+      "message": "bitexact\n\n3x faster than C code.",
+      "revId": "80da4c08cea17e7cd976c243befbd474a78e4847",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
