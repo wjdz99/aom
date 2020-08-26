@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7443796_87c5c368",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "this multiplication can be moved outside the inner loop.",
+      "range": {
+        "startLine": 191,
+        "startChar": 24,
+        "endLine": 191,
+        "endChar": 28
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c320213_1498be7a",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "this multiplication can be moved outside the inner loop",
+      "range": {
+        "startLine": 204,
+        "startChar": 24,
+        "endLine": 204,
+        "endChar": 25
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "920f6b0c_687a7452",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "range": {
+        "startLine": 217,
+        "startChar": 24,
+        "endLine": 217,
+        "endChar": 25
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b0edeb9_e540c6ec",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "range": {
+        "startLine": 230,
+        "startChar": 24,
+        "endLine": 230,
+        "endChar": 25
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3e929186_0209bff9",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "range": {
+        "startLine": 243,
+        "startChar": 23,
+        "endLine": 243,
+        "endChar": 25
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2f3b716_07e2eb9e",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "range": {
+        "startLine": 256,
+        "startChar": 24,
+        "endLine": 256,
+        "endChar": 25
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "134f0f2e_49ad08bf",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "similar comment as above",
+      "range": {
+        "startLine": 268,
+        "startChar": 50,
+        "endLine": 268,
+        "endChar": 51
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a081210_7a4bd9f0",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3372,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "sorry for not being clear. what I mean is that this buffer is allocated/de-allocated for every frame/tile group. can we do it for the entire decode session only once?",
+      "range": {
+        "startLine": 3372,
+        "startChar": 2,
+        "endLine": 3372,
+        "endChar": 3
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da8aeebd_2a8b1a80",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 13418,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-08-26T15:25:36Z",
+      "side": 1,
+      "message": "I would enable the commented code. if you don\u0027t want to disable IBC+ mode for all shapes bigger than 32x32, you can change the MAX_BLK_SIZE to 128. also, suggest to change the MAX_BLK_SIZE to MAX_IBC_BLK_SIZE to be precise.",
+      "range": {
+        "startLine": 13418,
+        "startChar": 4,
+        "endLine": 13418,
+        "endChar": 5
+      },
+      "revId": "735d7e961286f0df92eeed499c19d43142c74573",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
