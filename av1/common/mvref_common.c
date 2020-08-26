@@ -247,9 +247,9 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   (void)mi_row;
 
   // We want to record the "relative location" of candidate blocks in
-  // ref_location_stack We consider the centriod of current block as (0, 0), and
-  // calculate the coordinates of candidate block centriods, then store them in
-  // ref_location_stack, the uint is 1/8 pixel (consistent with mv units)
+  // ref_location_stack. We consider the centriod of current block as (0, 0),
+  // and calculate the coordinates of candidate block centriods, then store them
+  // in ref_location_stack, the uint is 1/8 pixel (consistent with mv units)
   int32_t xbase = xd->n4_w;
   xbase = -((xbase >> 1) << 5);
   int32_t ybase = xd->n4_h;
@@ -258,7 +258,7 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   if (row_offset == -1) {
     ybase = ((ybase >> 1) << 5);
   } else if (row_offset == 1) {
-    ybase = ((-(ybase >> 1)) << 5);
+    ybase = -((ybase >> 1) << 5);
   }
 
   for (i = 0; i < end_mi;) {
@@ -305,8 +305,8 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset + i,
                          len * weight);
-    if (false && (*refmv_count) - orignal_refmv_count == 1 &&
-        rf[1] == NONE_FRAME && abs(row_offset) == 1) {
+    if ((*refmv_count) - orignal_refmv_count == 1 && rf[1] == NONE_FRAME &&
+        abs(row_offset) == 1) {
       // The candidate MV may be the same with the existing MV. In that case,
       // (*refmv_count) will not change after calling add_ref_mv_candidate.
       // Otherwise, this If condition is true, and we need to record the local
@@ -315,7 +315,9 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       // Only check the neighbors
 
       ref_location_stack[(*location_count)].x = xbase + ((n4_w >> 1) << 5);
-      if (row_offset == 1) {
+      if (row_offset == -1) {
+        // row_offset = -1 means the block is at the above side of the current
+        // block. so its y coordinate is positive (ybase+)
         ref_location_stack[(*location_count)].y = ybase + ((n4_h >> 1) << 5);
       } else {
         ref_location_stack[(*location_count)].y = ybase - ((n4_h >> 1) << 5);
