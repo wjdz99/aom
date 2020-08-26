@@ -87,15 +87,13 @@ typedef struct TplDepStats {
   int64_t inter_cost;
   int64_t srcrf_dist;
   int64_t recrf_dist;
-  int64_t srcrf_rate;
-  int64_t recrf_rate;
-  int64_t mc_dep_rate;
+  int32_t srcrf_rate;
+  int32_t recrf_rate;
+  int32_t mc_dep_rate;
   int64_t mc_dep_dist;
   int_mv mv[INTER_REFS_PER_FRAME];
   int ref_frame_index;
   int64_t pred_error[INTER_REFS_PER_FRAME];
-  int64_t mc_count;
-  int64_t mc_saved;
 } TplDepStats;
 
 typedef struct TplDepFrame {
