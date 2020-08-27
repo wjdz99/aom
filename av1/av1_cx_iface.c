@@ -102,7 +102,7 @@ struct av1_extracfg {
   int enable_1to3_partitions;  // enable 3-way partitions for sequence
 #else
   int enable_1to4_partitions;  // enable 1:4 and 4:1 partitions for sequence
-#endif                           // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
   int min_partition_size;        // min partition size [4,8,16,32,64,128]
   int max_partition_size;        // max partition size [4,8,16,32,64,128]
   int enable_intra_edge_filter;  // enable intra-edge filter for sequence
@@ -649,11 +649,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
                                           struct av1_extracfg *extra_cfg) {
   extra_cfg->enable_cdef = (cfg->disable_cdef == 0);
   extra_cfg->enable_restoration = (cfg->disable_lr == 0);
-  extra_cfg->superblock_size = (cfg->super_block_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->super_block_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->super_block_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->super_block_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                       : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = (cfg->disable_warp_motion == 0);
   extra_cfg->enable_dist_wtd_comp = (cfg->disable_dist_wtd_comp == 0);
   extra_cfg->enable_diff_wtd_comp = (cfg->disable_diff_wtd_comp == 0);
@@ -2056,7 +2055,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   volatile aom_codec_pts_t ptsvol = pts;
   // LAP context
   AV1_COMP *cpi_lap = ctx->cpi_lap;
-
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
 
   if (cpi->lap_enabled && cpi_lap == NULL && cpi->oxcf.pass == 0)

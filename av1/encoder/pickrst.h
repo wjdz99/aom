@@ -21,6 +21,23 @@ extern "C" {
 struct yv12_buffer_config;
 struct AV1_COMP;
 
+typedef struct y_buffer_config {
+  uint8_t *buffer;
+  int stride;
+  int height;
+  int width;
+} Y_BUFFER_CONFIG;
+
+typedef struct mv_mfqe {
+  MV mv;
+  int subpel_x_qn;
+  int subpel_y_qn;
+  uint8_t ref_index;
+  uint8_t valid;
+} MV_MFQE;
+
+static const MV_MFQE kZeroMvMFQE = { { 0, 0 }, 0, 0, 0, 0 };
+
 static const uint8_t g_shuffle_stats_data[16] = {
   0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8,
 };

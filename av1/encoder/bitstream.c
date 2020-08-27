@@ -1591,7 +1591,7 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       av1_encode_mv(cpi, w, &mbmi->mv[0].as_mv, &ref_mv.as_mv, nmvc,
                     mbmi->pb_mv_precision);
     }
-#else   // !CONFIG_EXT_COMPOUND
+#else  // !CONFIG_EXT_COMPOUND
     } else if (mode == NEAR_NEWMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = av1_get_ref_mv(x, 1);
@@ -2077,29 +2077,29 @@ static void write_partition(const AV1_COMMON *const cm,
       aom_cdf_prob cdf[2] = { 16384, AOM_ICDF(CDF_PROB_TOP) };
       aom_write_cdf(w, p == PARTITION_VERT, cdf, 2);
     }
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
-  if (!has_rows && !has_cols) {
-    assert(p == PARTITION_SPLIT);
-    return;
-  }
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+    if (!has_rows && !has_cols) {
+      assert(p == PARTITION_SPLIT);
+      return;
+    }
 
-  if (has_rows && has_cols) {
-    aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx],
-                     partition_cdf_length(bsize));
-  } else if (!has_rows && has_cols) {
-    assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
-    assert(bsize > BLOCK_8X8);
-    aom_cdf_prob cdf[2];
-    partition_gather_vert_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
-    aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
-  } else {
-    assert(has_rows && !has_cols);
-    assert(p == PARTITION_SPLIT || p == PARTITION_VERT);
-    assert(bsize > BLOCK_8X8);
-    aom_cdf_prob cdf[2];
-    partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
-    aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
-  }
+    if (has_rows && has_cols) {
+      aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx],
+                       partition_cdf_length(bsize));
+    } else if (!has_rows && has_cols) {
+      assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
+      assert(bsize > BLOCK_8X8);
+      aom_cdf_prob cdf[2];
+      partition_gather_vert_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
+      aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
+    } else {
+      assert(has_rows && !has_cols);
+      assert(p == PARTITION_SPLIT || p == PARTITION_VERT);
+      assert(bsize > BLOCK_8X8);
+      aom_cdf_prob cdf[2];
+      partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
+      aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
+    }
 #endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_SPLIT_PARTITION
 #if CONFIG_EXT_RECUR_PARTITIONS
   } else {  // 1:2 or 2:1 rectangular blocks
@@ -2174,7 +2174,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         write_modes_sb(cpi, tile, w, tok, tok_end, ptree->sub_tree[1],
                        mi_row + hbs_h, mi_col, subsize);
       }
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_EXT_RECUR_PARTITIONS
       write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
       if (mi_row + hbs_h < cm->mi_rows)
         write_modes_b(cpi, tile, w, tok, tok_end, mi_row + hbs_h, mi_col);
@@ -2640,6 +2640,12 @@ static void encode_cnn(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   }
 }
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
+
+#if CONFIG_MFQE_RESTORATION
+static void encode_mfqe(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
+  aom_wb_write_bit(wb, cm->use_mfqe);
+}
+#endif  // CONFIG_MFQE_RESTORATION
 
 static void encode_loopfilter(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   assert(!cm->coded_lossless);
@@ -3536,7 +3542,7 @@ static int check_frame_refs_short_signaling(AV1_COMMON *const cm) {
     }
   }
 
-#if 0   // For debug
+#if 0  // For debug
   printf("\nFrame=%d: \n", cm->current_frame.frame_number);
   printf("***frame_refs_short_signaling=%d\n", frame_refs_short_signaling);
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
@@ -3841,12 +3847,18 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       encode_cnn(cm, wb);
       encode_cdef(cm, wb);
     }
+#if CONFIG_MFQE_RESTORATION
+    encode_mfqe(cm, wb);
+#endif  // CONFIG_MFQE_RESTORATION
     encode_restoration_mode(cm, wb);
 #else
     if (!cm->coded_lossless) {
       encode_loopfilter(cm, wb);
       encode_cdef(cm, wb);
     }
+#if CONFIG_MFQE_RESTORATION
+    encode_mfqe(cm, wb);
+#endif  // CONFIG_MFQE_RESTORATION
     encode_restoration_mode(cm, wb);
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
   }

@@ -1552,7 +1552,7 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
       return aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_VERT
                                                : PARTITION_HORZ;
     }
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
   if (!has_rows && !has_cols) return PARTITION_SPLIT;
 
   assert(ctx >= 0);
@@ -1934,6 +1934,12 @@ static void decode_cnn(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   }
 }
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
+
+#if CONFIG_MFQE_RESTORATION
+static void decode_mfqe(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
+  cm->use_mfqe = aom_rb_read_bit(rb);
+}
+#endif  // CONFIG_MFQE_RESTORATION
 
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
@@ -5655,6 +5661,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (!cm->coded_lossless && seq_params->enable_cdef) {
     setup_cdef(cm, rb);
   }
+#if CONFIG_MFQE_RESTORATION
+  if (!cm->all_lossless) decode_mfqe(cm, rb);
+#endif  // CONFIG_MFQE_RESTORATION
   if (!cm->all_lossless && seq_params->enable_restoration) {
     decode_restoration_mode(cm, rb);
   }
@@ -5887,6 +5896,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #endif  // CONFIG_TENSORFLOW_LITE
     }
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
+    // TODO(hjihun): Implement the MFQE decoding function here.
 
     const int do_loop_restoration =
         cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||

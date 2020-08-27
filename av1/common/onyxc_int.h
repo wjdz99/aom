@@ -612,6 +612,9 @@ typedef struct AV1Common {
 #if CONFIG_CNN_RESTORATION
   int use_cnn;
 #endif  // CONFIG_CNN_RESTORATION
+#if CONFIG_MFQE_RESTORATION
+  int use_mfqe;
+#endif  // CONFIG_MFQE_RESTORATION
 #if CONFIG_MISC_CHANGES
   int only_one_ref_available;
 #endif  // CONFIG_MISC_CHANGES
@@ -1265,7 +1268,7 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
 static INLINE int partition_cdf_length(BLOCK_SIZE bsize) {
 #if CONFIG_EXT_RECUR_PARTITIONS
   if (bsize <= BLOCK_8X8 || bsize == BLOCK_128X128) return PARTITION_TYPES;
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_EXT_RECUR_PARTITIONS
   if (bsize <= BLOCK_8X8)
     return PARTITION_TYPES;
   else if (bsize == BLOCK_128X128)
