@@ -16,6 +16,24 @@
       "revId": "b27e1abdd272d93f18daf105e3e71a26192247a4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1cfbb0fc_c4a1d6da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-08-27T20:44:59Z",
+      "side": 1,
+      "message": "Thanks for adding this support. It would make sense to handle SSIM the same way like you did for PSNR in previous CL when input bit-depth \u003c stream bit-depth. Want to confirm this is what is done in this CL?",
+      "parentUuid": "e3c1c80c_c755e84a",
+      "revId": "b27e1abdd272d93f18daf105e3e71a26192247a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
