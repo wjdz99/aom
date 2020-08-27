@@ -403,8 +403,8 @@ static void scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset,
                          len * weight);
-    if (false && (*refmv_count) - orignal_refmv_count == 1 &&
-        abs(col_offset) == 1 && rf[1] == NONE_FRAME) {
+    if ((*refmv_count) - orignal_refmv_count == 1 && abs(col_offset) == 1 &&
+        rf[1] == NONE_FRAME) {
       // The candidate MV may be the same with the existing MV. In that case,
       // (*refmv_count) will not change after calling add_ref_mv_candidate.
       // Otherwise, this If condition is true, and we need to record the local
@@ -450,8 +450,8 @@ static void scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, mi_pos.col,
                          2 * len);
-    if (false && (*refmv_count) - orignal_refmv_count == 1 &&
-        abs(row_offset) == 1 && abs(col_offset) == 1 && rf[1] == NONE_FRAME) {
+    if ((*refmv_count) - orignal_refmv_count == 1 && abs(row_offset) == 1 &&
+        abs(col_offset) == 1 && rf[1] == NONE_FRAME) {
       // The candidate MV may be the same with the existing MV. In that case,
       // (*refmv_count) will not change after calling add_ref_mv_candidate.
       // Otherwise, this If condition is true, and we need to record the local
@@ -756,12 +756,16 @@ static void mv_dbscan1(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
   // }
   // fprintf(stderr, "\n");
 }
-// This function does not delete any candidate points, it just add a new
-// weighted/arithmetic average MV based on the label (cluster_idx_to_merge)
+
 void merge_mv(CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
               uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
               int cluster_label[MAX_REF_MV_STACK_SIZE], int start, int end,
               int cluster_idx_to_merge, int *new_slot) {
+  // fprintf(stderr, "Label: ");
+  // for (int i = start; i < end; i++) {
+  //   fprintf(stderr, "%d ", cluster_label[i]);
+  // }
+  // fprintf(stderr, "\n");
   // centriod
   int64_t this_mv_row, this_mv_col, comp_mv_row, comp_mv_col, temp;
   uint64_t this_weight = 0U;
@@ -1030,6 +1034,227 @@ static int_mv calculate_rotzoom_tranformation(LOCATION_INFO *current_points,
   return ans_mv;
 }
 
+static sample_points(int random_indexs[], int points_num, int sample_num) {
+  srand(0);
+  bool used[MAX_REF_MV_STACK_SIZE];
+  for (int i = 0; i < MAX_REF_MV_STACK_SIZE; i++) {
+    used[i] = false;
+  }
+  for (int i = 0; i < sample_num; i++) {
+    int sampled_idx = rand() % points_num;
+    if (!used[sampled_idx]) {
+      random_indexs[i] = sampled_idx;
+      used[sampled_idx] = true;
+    } else {
+      i--;
+    }
+  }
+}
+static int calc_inlier_num(int_mv this_mv, LOCATION_INFO *current_points,
+                           LOCATION_INFO *projected_points,
+                           const int points_num, const int threshold) {
+  LOCATION_INFO predicted_point;
+  int inlier_num = 0;
+  for (int i = 0; i < points_num; i++) {
+    predicted_point.x = current_points[i].x + this_mv.as_mv.col;
+    predicted_point.y = current_points[i].y + this_mv.as_mv.row;
+    int dist = (predicted_point.x - projected_points[i].x) *
+                   (predicted_point.x - projected_points[i].x) +
+               (predicted_point.y - projected_points[i].y) *
+                   (predicted_point.y - projected_points[i].y);
+    // fprintf(stderr, "i=%d dist = %d col=%d row=%d\n", i, dist,
+    //         this_mv.as_mv.col, this_mv.as_mv.row);
+    if (dist < threshold) {
+      inlier_num++;
+    }
+  }
+  return inlier_num;
+}
+static int_mv ransac_fit(const int niterations, const int threshold,
+                         LOCATION_INFO *current_points,
+                         LOCATION_INFO *projected_points, LOCATION_INFO mypoint,
+                         const int points_num, TransformationType ttype) {
+  int random_indexes[3];
+  LOCATION_INFO sampled_current_points[3];
+  LOCATION_INFO sampled_projected_points[3];
+  int best_inlier_num = -1;
+  int_mv best_mv;
+  switch (ttype) {
+    case TRANSLATION:
+      for (int i = 0; i < niterations; i++) {
+        sample_points(random_indexes, points_num, 1);
+        sampled_current_points[0] = current_points[random_indexes[0]];
+        sampled_projected_points[0] = projected_points[random_indexes[0]];
+        int_mv this_mv = calculate_translation_tranformation(
+            sampled_current_points, sampled_projected_points, mypoint);
+        // fprintf(stderr, "randomidx = %d thismv %d %d\n", random_indexes[0],
+        //         this_mv.as_mv.row, this_mv.as_mv.col);
+        int inlier_num = calc_inlier_num(
+            this_mv, current_points, projected_points, points_num, threshold);
+        if (inlier_num > best_inlier_num) {
+          best_inlier_num = inlier_num;
+          best_mv = this_mv;
+        }
+      }
+      break;
+    case ROTZOOM:
+      for (int i = 0; i < niterations; i++) {
+        sample_points(random_indexes, points_num, 2);
+        sampled_current_points[0] = current_points[random_indexes[0]];
+        sampled_projected_points[0] = projected_points[random_indexes[0]];
+        sampled_current_points[1] = current_points[random_indexes[1]];
+        sampled_projected_points[1] = projected_points[random_indexes[1]];
+        // fprintf(stderr, "%d %d %d %d %d %d\n", i, random_indexes[0],
+        //         sampled_current_points[0].x, sampled_current_points[0].y,
+        //         sampled_projected_points[0].x,
+        //         sampled_projected_points[0].y);
+        // fprintf(stderr, "%d %d %d %d %d %d\n", i, random_indexes[1],
+        //         sampled_current_points[1].x, sampled_current_points[1].y,
+        //         sampled_projected_points[1].x,
+        //         sampled_projected_points[1].y);
+        int_mv this_mv = calculate_rotzoom_tranformation(
+            sampled_current_points, sampled_projected_points, mypoint);
+        int inlier_num = calc_inlier_num(
+            this_mv, current_points, projected_points, points_num, threshold);
+        if (inlier_num > best_inlier_num) {
+          best_inlier_num = inlier_num;
+          best_mv = this_mv;
+        }
+      }
+      break;
+
+    default: break;
+  }
+  return best_mv;
+}
+
+static int calc_minor_value(int32_t mat[3][3], int row1, int row2, int col1,
+                            int col2) {
+  return mat[row1][col1] * mat[row2][col2] - mat[row1][col2] * mat[row2][col1];
+}
+static int calc_inverse_3X3(int32_t XTX_3X3[3][3],
+                            float inverse_XTX_3X3[3][3]) {
+  int32_t minor_mat_3X3[3][3];
+  minor_mat_3X3[0][0] = calc_minor_value(XTX_3X3, 1, 2, 1, 2);
+  minor_mat_3X3[0][1] = calc_minor_value(XTX_3X3, 1, 2, 0, 2) * (-1);
+  minor_mat_3X3[0][2] = calc_minor_value(XTX_3X3, 1, 2, 0, 1);
+  minor_mat_3X3[1][0] = calc_minor_value(XTX_3X3, 0, 2, 1, 2) * (-1);
+  minor_mat_3X3[1][1] = calc_minor_value(XTX_3X3, 0, 2, 0, 2);
+  minor_mat_3X3[1][2] = calc_minor_value(XTX_3X3, 0, 2, 0, 1) * (-1);
+  minor_mat_3X3[2][0] = calc_minor_value(XTX_3X3, 0, 1, 1, 2);
+  minor_mat_3X3[2][1] = calc_minor_value(XTX_3X3, 0, 1, 0, 2) * (-1);
+  minor_mat_3X3[2][2] = calc_minor_value(XTX_3X3, 0, 1, 0, 1);
+  int32_t determinant = XTX_3X3[0][0] * minor_mat_3X3[0][0] +
+                        XTX_3X3[0][1] * minor_mat_3X3[0][1] +
+                        XTX_3X3[0][2] * minor_mat_3X3[0][2];
+  if (determinant != 0) {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        inverse_XTX_3X3[i][j] = minor_mat_3X3[j][i] / (1.0f * determinant);
+      }
+    }
+    return 1;
+  } else {
+    return 0;
+  }
+}
+/**
+ * |x'|   |h11 h12 h13|    |x|
+ * |y'| = |h21 h22 h23| X  |y|
+ * |1 |   |0    0   1 |    |1|
+ *
+ * The above can be decoupled into two different estimation problem
+ *
+ * |x1 y1 1|      |h11|   |x1'|
+ * |x2 y2 1|  X   |h12| = |x2'|
+ * | ...   |      |h13|   |...|
+ * |xn yn 1|              |xn'|
+ *
+ *
+ * |x1 y1 1|      |h21|   |y1'|
+ * |x2 y2 1|  X   |h22| = |y2'|
+ * | ...   |      |h23|   |...|
+ * |xn yn 1|              |yn'|
+ *
+ *
+ * With n sources points (x1, y1), (x2, y2), ... (xn, yn),
+ * and calculated (based on MVs) n destination points
+ * (x1', y1'), ..., (xn', yn')
+ * Then we can use least squares method to estimate the 6 parameters
+ * Actually, with (x, y) as (0,0)
+ * to caculate (x', y'), we only need to get h13 and h23
+ * (h13, h23) is also the mvs we need
+ ***/
+static int_mv calc_affine_mv(LOCATION_INFO *source_points,
+                             LOCATION_INFO *destination_points,
+                             int32_t point_number, LOCATION_INFO mypoint) {
+  int_mv ans_mv;
+  int32_t sum_x = 0;
+  int32_t sum_y = 0;
+  int32_t sum_xx = 0;
+  int32_t sum_xy = 0;
+  int32_t sum_yy = 0;
+  for (int i = 0; i < point_number; i++) {
+    sum_x += source_points[i].x;
+    sum_y += source_points[i].y;
+    sum_xx += source_points[i].x * source_points[i].x;
+    sum_xy += source_points[i].x * source_points[i].y;
+    sum_yy += source_points[i].y * source_points[i].y;
+  }
+  int32_t XTX_3X3[3][3] = { { sum_xx, sum_xy, sum_x },
+                            { sum_xy, sum_yy, sum_y },
+                            { sum_x, sum_y, point_number } };
+  float inverse_XTX_3X3[3][3];
+  int ret = calc_inverse_3X3(XTX_3X3, inverse_XTX_3X3);
+  if (ret == 0) {
+    // Fail to Calc inverse
+    ans_mv.as_mv.row = 0;
+    ans_mv.as_mv.col = 0;
+    return ans_mv;
+  }
+  int32_t mat[3][point_number];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < point_number; j++) {
+      mat[i][j] = inverse_XTX_3X3[i][0] * source_points[j].x +
+                  inverse_XTX_3X3[i][1] * source_points[j].y +
+                  inverse_XTX_3X3[i][2];
+    }
+  }
+  int32_t h11 = 0;
+  int32_t h12 = 0;
+  int32_t h13 = 0;
+  int32_t h21 = 0;
+  int32_t h22 = 0;
+  int32_t h23 = 0;
+  for (int i = 0; i < point_number; i++) {
+    // h11 += mat[0][i] * destination_points[i].x;
+    // h12 += mat[1][i] * destination_points[i].x;
+    h13 += mat[2][i] * destination_points[i].x;
+    // h21 += mat[0][i] * destination_points[i].y;
+    // h22 += mat[1][i] * destination_points[i].y;
+    h23 += mat[2][i] * destination_points[i].y;
+  }
+  if (h13 > INT16_MAX || h23 > INT16_MAX || h13 < INT16_MIN ||
+      h23 < INT16_MIN) {
+    // Invalid mv
+    ans_mv.as_mv.col = 0;
+    ans_mv.as_mv.row = 0;
+    return ans_mv;
+  }
+  ans_mv.as_mv.col = h13;
+  ans_mv.as_mv.row = h23;
+  return ans_mv;
+}
+bool is_duplicated(int_mv mv_to_check,
+                   CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
+                   int mv_count) {
+  for (int i = 0; i < mv_count; i++) {
+    if (mv_to_check.as_int == ref_mv_stack[i].this_mv.as_int) {
+      return true;
+    }
+  }
+  return false;
+}
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
                               uint8_t *const refmv_count,
@@ -1203,136 +1428,36 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       break;
   }
 
-  bool two_parts_dbscan = false;
-  // Two Parts
-  if (two_parts_dbscan) {
-    // DBSCAN Parameters
-    const int min_points = 2;
-    const int dist_threshold = 1;
-    int cluster_num1 = 0;
-    int cluster_num2 = 0;
-    int cluster_label[MAX_REF_MV_STACK_SIZE];
-    for (int i = 0; i < (*refmv_count); i++) {
-      cluster_label[i] = -1;
+  if (rf[1] == NONE_FRAME && (*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+    // Warp Transformation (Curently only consider for Single Frame Prediction)
+    // ref_location_stack
+    LOCATION_INFO projected_points[MAX_REF_MV_STACK_SIZE];
+    for (uint8_t i = 0; i < location_count; i++) {
+      projected_points[i].x =
+          ref_location_stack[i].x + ref_location_stack[i].this_mv.as_mv.col;
+      projected_points[i].y =
+          ref_location_stack[i].y + ref_location_stack[i].this_mv.as_mv.row;
     }
-    int new_slot = (*refmv_count);
-    // If the spatial mvs can not even fill the MAX_MV_REF_CANDIDATES, we will
-    // not cluster them
-    if (nearest_refmv_count > MAX_MV_REF_CANDIDATES) {
-      mv_dbscan1(ref_mv_stack, 0, nearest_refmv_count, min_points,
-                 dist_threshold, (&cluster_num1), cluster_label,
-                 (rf[1] == NONE_FRAME));
-      // Merge MVs
-      for (int i = 0; i < nearest_refmv_count; i++) {
-        if (cluster_label[i] == -1) {
-          // outlier
-          continue;
-        } else if (cluster_label[i] == i) {
-          // centriod update (no merge any more, only add new mvs)
-          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
-                   nearest_refmv_count, i, &new_slot);
-        }
-      }
-    }
-    // If there are too few mv candidates remaining, do not cluster them
-    if ((*refmv_count) - nearest_refmv_count > 2) {
-      mv_dbscan1(ref_mv_stack, nearest_refmv_count, (*refmv_count), min_points,
-                 dist_threshold, (&cluster_num2), cluster_label,
-                 (rf[1] == NONE_FRAME));
-      // Merge MVs
-      for (int i = nearest_refmv_count; i < (*refmv_count); i++) {
-        if (cluster_label[i] == -1) {
-          // outlier
-          continue;
-        } else if (cluster_label[i] == i) {
-          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label,
-                   nearest_refmv_count, (*refmv_count), i, &new_slot);
-        }
-      }
-    }
-
-    (*refmv_count) =
-        (new_slot < MAX_REF_MV_STACK_SIZE ? new_slot : MAX_REF_MV_STACK_SIZE);
-
-    // Shrink MV list
-    {
-      CANDIDATE_MV tmp[MAX_REF_MV_STACK_SIZE];
-      uint16_t tmp_weight[MAX_REF_MV_STACK_SIZE];
-      int count = 0;
-      uint8_t old_nearest_refmv_count = nearest_refmv_count;
-      for (int i = 0; i < old_nearest_refmv_count; i++) {
-        if (cluster_label[i] == -1 || cluster_label[i] == i) {
-          // Only keep outliers and cluster centriods
-          tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
-          tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
-          tmp_weight[count] = ref_mv_weight[i];
-          count++;
-        }
-      }
-      nearest_refmv_count = count;
-      bool has_removed_one = false;
-      for (int i = old_nearest_refmv_count; i < (*refmv_count); i++) {
-        // if (cluster_label[i] == -1 && ref_mv_weight[i] == 2 &&
-        //     (!has_removed_one)) {
-        //   has_removed_one = true;
-        //   continue;
-        // }
-        if (cluster_label[i] == -1 || cluster_label[i] == i) {
-          // Only keep outliers and cluster centriods
-          tmp[count].this_mv.as_int = ref_mv_stack[i].this_mv.as_int;
-          tmp[count].comp_mv.as_int = ref_mv_stack[i].comp_mv.as_int;
-          tmp_weight[count] = ref_mv_weight[i];
-          count++;
-        }
-      }
-      (*refmv_count) = count;
-      for (int i = 0; i < count; i++) {
-        ref_mv_stack[i].this_mv.as_int = tmp[i].this_mv.as_int;
-        ref_mv_stack[i].comp_mv.as_int = tmp[i].comp_mv.as_int;
-        ref_mv_weight[i] = tmp_weight[i];
-      }
-
-      // int noise_cnt = 0;
-      // for (int i = 0; i < (*refmv_count); i++) {
-      //   if (cluster_label[i] < 0) {
-      //     noise_cnt++;
-      //     // fprintf(stderr, "%u ", ref_mv_weight[i]);
-      //   }
+    LOCATION_INFO mypoint;
+    mypoint.x = 0;
+    mypoint.y = 0;
+    int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
+                                      location_count, mypoint);
+    if (!(affine_mv.as_mv.row == 0 && affine_mv.as_mv.col == 0) &&
+        (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
+      ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
+      ref_mv_weight[(*refmv_count)] = 1;
+      // fprintf(stderr,"-------------------------------------------------\n");
+      // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
+      //         affine_mv.as_mv.col);
+      // for (int j = 0; j < (*refmv_count); j++) {
+      //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.row,
+      //           ref_mv_stack[j].this_mv.as_mv.col);
       // }
+      // fprintf(stderr, "\n");
+      // fprintf(stderr,"-------------------------------------------------\n");
+      (*refmv_count)++;
     }
-  }
-
-  else {
-    // DBSCAN Parameters (One Part)
-    const int min_points = 2;
-    // dist=2
-    const int dist_threshold = 2;
-    int cluster_num1 = 0;
-    int cluster_label[MAX_REF_MV_STACK_SIZE];
-    for (int i = 0; i < (*refmv_count); i++) {
-      cluster_label[i] = -1;
-    }
-    int new_slot = (*refmv_count);
-    // If the spatial mvs can not even fill the MAX_MV_REF_CANDIDATES, we will
-    // not cluster them
-    if ((*refmv_count) > MAX_MV_REF_CANDIDATES) {
-      mv_dbscan1(ref_mv_stack, 0, (*refmv_count), min_points, dist_threshold,
-                 (&cluster_num1), cluster_label, (rf[1] == NONE_FRAME));
-      // Add New MVs
-      for (int i = 0; i < (*refmv_count); i++) {
-        if (cluster_label[i] == -1) {
-          // outlier
-          continue;
-        } else if (cluster_label[i] == i) {
-          // centriod update
-          merge_mv(ref_mv_stack, ref_mv_weight, cluster_label, 0,
-                   (*refmv_count), i, &new_slot);
-        }
-      }
-    }
-
-    (*refmv_count) =
-        (new_slot < MAX_REF_MV_STACK_SIZE ? new_slot : MAX_REF_MV_STACK_SIZE);
   }
 
   // Rank the likelihood and assign nearest and near mvs.
