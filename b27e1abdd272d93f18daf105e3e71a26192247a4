@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3c1c80c_c755e84a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-08-27T15:46:49Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nThis patch adds support to calculate HBD SSIM for internal stats when input bit-depth is \nlower than the stream bit-depth. The metrics are added in internal stat file.\n\nThis is a bit-exact change with no speed impact when internal stats are disabled. When internal stats are enabled, there is some speed impact, as given in the below table.\n\n                    Instruction Count\n   cpu-used            Increase (%)\n      0                   0.021\n      1                   0.067\n      2                   0.106\n      3                   0.314\n      4                   0.532\n      5                   0.904\n      6                   1.135\n\nAWCY link:\ncpu-used \u003d 5, limit\u003d60 \nhttps://beta.arewecompressedyet.com/?job\u003dRef_run_input-8bit_codec-10bit_ssim_patch_60frames\u0026job\u003dtest_run_input-8bit_codec-10bit_ssim_patch_60frames_1\n\nKindly review the patch.\n\nThanks\n\n",
+      "revId": "b27e1abdd272d93f18daf105e3e71a26192247a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
