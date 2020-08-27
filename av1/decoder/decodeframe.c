@@ -1944,6 +1944,12 @@ static void decode_cnn(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
 }
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 
+#if CONFIG_MFQE_RESTORATION
+static void decode_mfqe(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
+  cm->use_mfqe = aom_rb_read_bit(rb);
+}
+#endif  // CONFIG_MFQE_RESTORATION
+
 static void decode_restoration_mode(AV1_COMMON *cm,
                                     struct aom_read_bit_buffer *rb) {
   assert(!cm->all_lossless);
@@ -5684,6 +5690,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (!cm->coded_lossless && seq_params->enable_cdef) {
     setup_cdef(cm, rb);
   }
+#if CONFIG_MFQE_RESTORATION
+  if (!cm->all_lossless) decode_mfqe(cm, rb);
+#endif  // CONFIG_MFQE_RESTORATION
   if (!cm->all_lossless && seq_params->enable_restoration) {
     decode_restoration_mode(cm, rb);
   }
