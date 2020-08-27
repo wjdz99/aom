@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "869ed044_ce07748c",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2752,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-08-27T22:55:05Z",
+      "side": 1,
+      "message": "Hi Hui, Josh did have some separate tables before (in patchset 1), but I asked him to remove them.\nI thought the \u0027try_no_split\u0027 condition should take care of that. Is that not the case?",
+      "parentUuid": "868911d1_185befbb",
+      "range": {
+        "startLine": 2728,
+        "startChar": 2,
+        "endLine": 2752,
+        "endChar": 3
+      },
+      "revId": "1be35a5f9e59fea17039a94d288a53081f21ea1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "76c34e94_5a8d7539",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 5
