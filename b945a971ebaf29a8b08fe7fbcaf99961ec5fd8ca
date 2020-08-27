@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4e7a539_8fe847a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-08-27T15:41:02Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWhile adding support for stream bit-depth based SSIM computation in libaom \nAV1 encoder, we found an integer overflow issue in the similarity computation \nfunction when input bit-depth is 12. This patch fixes the issue by making the \ncomputations in similarity() function to be similar to that in libvpx VP9 encoder (https://chromium.googlesource.com/webm/libvpx/+/master/vpx_dsp/ssim.c, \nfunction similarity()).\n\nWe have verified locally that this is a bit-exact change with no speed impact.\n\nThanks.\n",
+      "revId": "b945a971ebaf29a8b08fe7fbcaf99961ec5fd8ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
