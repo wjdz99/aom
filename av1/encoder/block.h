@@ -113,6 +113,9 @@ typedef struct {
   uint16_t weight_adj[MAX_REF_MV_STACK_SIZE];
   uint8_t ref_mv_count_adj;
 #endif  // CONFIG_FLEX_MVRES
+#if CONFIG_ENHANCED_WARPED_MOTION
+  int_mv ref_mv_loc[MODE_CTX_REF_FRAMES][MAX_REF_MV_STACK_SIZE];
+#endif
 } MB_MODE_INFO_EXT;
 
 typedef struct {

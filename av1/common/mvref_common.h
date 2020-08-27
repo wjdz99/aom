@@ -274,6 +274,9 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       CANDIDATE_MV ref_mv_stack[][MAX_REF_MV_STACK_SIZE],
                       uint16_t ref_mv_weight[][MAX_REF_MV_STACK_SIZE],
                       int_mv mv_ref_list[][MAX_MV_REF_CANDIDATES],
+#if CONFIG_ENHANCED_WARPED_MOTION
+                      int_mv ref_mv_loc[][MAX_REF_MV_STACK_SIZE],
+#endif
                       int_mv *global_mvs, int16_t *mode_context);
 
 // check a list of motion vectors by sad score using a number rows of pixels

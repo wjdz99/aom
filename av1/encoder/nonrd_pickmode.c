@@ -338,6 +338,9 @@ static INLINE void find_predictors(
     av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, sf, sf, num_planes);
     av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                      mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+#if CONFIG_ENHANCED_WARPED_MOTION
+                     mbmi_ext->ref_mv_loc,
+#endif
                      mbmi_ext->global_mvs, mbmi_ext->mode_context);
 #if CONFIG_NEW_INTER_MODES
     frame_mv[NEARMV][ref_frame] = av1_find_best_ref_mv_from_stack(

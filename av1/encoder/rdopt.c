@@ -8284,6 +8284,9 @@ static void setup_buffer_ref_mvs_inter(
   // Gets an initial list of candidate vectors from neighbours and orders them
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                    mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+#if CONFIG_ENHANCED_WARPED_MOTION
+                   mbmi_ext->ref_mv_loc,
+#endif
                    mbmi_ext->global_mvs, mbmi_ext->mode_context);
 
   // Further refinement that is encode side only to test the top few candidates
@@ -11217,6 +11220,12 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
 
   if (last_motion_mode_allowed == WARPED_CAUSAL) {
+#if CONFIG_ENHANCED_WARPED_MOTION
+    const MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
+    av1_copy(xd->ref_mv_stack[ref_frame], x->mbmi_ext->ref_mv_stack[ref_frame]);
+    av1_copy(xd->ref_mv_loc[ref_frame], x->mbmi_ext->ref_mv_loc[ref_frame]);
+    xd->ref_mv_count[ref_frame] = x->mbmi_ext->ref_mv_count[ref_frame];
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
     mbmi->num_proj_ref = av1_findSamples(cm, xd, pts0, pts_inref0);
   }
   const int total_samples = mbmi->num_proj_ref;
@@ -13133,6 +13142,9 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   MV_REFERENCE_FRAME ref_frame = INTRA_FRAME;
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                    mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+ #if CONFIG_ENHANCED_WARPED_MOTION
+                   mbmi_ext->ref_mv_loc,
+#endif
                    mbmi_ext->global_mvs, mbmi_ext->mode_context);
 
 #if CONFIG_NEW_INTER_MODES
@@ -13605,6 +13617,9 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
     MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
     av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, mbmi_ext->ref_mv_count,
                      mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+#if CONFIG_ENHANCED_WARPED_MOTION
+                     mbmi_ext->ref_mv_loc,
+#endif
                      mbmi_ext->global_mvs, mbmi_ext->mode_context);
   }
 
@@ -14145,6 +14160,9 @@ static void set_params_rd_pick_inter_mode(
     }
     av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                      mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+#if CONFIG_ENHANCED_WARPED_MOTION
+                     mbmi_ext->ref_mv_loc,
+#endif
                      mbmi_ext->global_mvs, mbmi_ext->mode_context);
   }
 
