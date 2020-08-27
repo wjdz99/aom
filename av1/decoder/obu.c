@@ -432,12 +432,11 @@ static void alloc_tile_list_buffer(AV1Decoder *pbi) {
   // Allocate the tile list output buffer.
   // Note: if cm->seq_params.use_highbitdepth is 1 and cm->seq_params.bit_depth
   // is 8, we could allocate less memory, namely, 8 bits/pixel.
-  if (aom_alloc_frame_buffer(&pbi->tile_list_outbuf, output_frame_width,
-                             output_frame_height, cm->subsampling_x,
-                             cm->subsampling_y,
-                             (cm->use_highbitdepth &&
-                              (cm->bit_depth > AOM_BITS_8)),
-                             0, cm->byte_alignment))
+  if (aom_alloc_frame_buffer(
+          &pbi->tile_list_outbuf, output_frame_width, output_frame_height,
+          cm->subsampling_x, cm->subsampling_y,
+          (cm->use_highbitdepth && (cm->bit_depth > AOM_BITS_8)), 0,
+          cm->byte_alignment))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate the tile list output buffer");
 }
@@ -497,8 +496,7 @@ static void copy_decoded_tile_to_tile_list_buffer(AV1Decoder *pbi,
     int vstart2 = tr * h;
     int hstart2 = tc * w;
 
-    if (cm->use_highbitdepth &&
-        cm->bit_depth == AOM_BITS_8) {
+    if (cm->use_highbitdepth && cm->bit_depth == AOM_BITS_8) {
       yv12_tile_copy(cur_frame, hstart1, hend1, vstart1, vend1,
                      &pbi->tile_list_outbuf, hstart2, vstart2, plane);
     } else {
@@ -799,7 +797,17 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
   AV1_COMMON *const cm = &pbi->common;
   int frame_decoding_finished = 0;
   int is_first_tg_obu_received = 1;
-  int frame_header_size = 0;
+  // Whenever pbi->seen_frame_header is set to 1, frame_header is set to the
+  // beginning of the frame_header_obu and frame_header_size is set to its
+  // size. This allows us to check if a redundant frame_header_obu is a copy
+  // of the previous frame_header_obu.
+  //
+  // Initialize frame_header to a dummy nonnull pointer, otherwise the Clang
+  // Static Analyzer in clang 7.0.1 will falsely warn that a null pointer is
+  // passed as an argument to a 'nonnull' parameter of memcmp(). The initial
+  // value will not be used.
+  const uint8_t *frame_header = data;
+  uint32_t frame_header_size = 0;
   ObuHeader obu_header;
   memset(&obu_header, 0, sizeof(obu_header));
   pbi->seen_frame_header = 0;
@@ -894,10 +902,22 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           pbi->seen_frame_header = 1;
           frame_header_size = read_frame_header_obu(
               pbi, &rb, data, p_data_end, obu_header.type != OBU_FRAME);
+          frame_header = data;
           if (cm->large_scale_tile) pbi->camera_frame_header_ready = 1;
+        } else {
+          // Verify that the frame_header_obu is identical to the original
+          // frame_header_obu.
+          if (frame_header_size > payload_size ||
+              memcmp(data, frame_header, frame_header_size) != 0) {
+            cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+            return -1;
+          }
+          assert(rb.bit_offset == 0);
+          rb.bit_offset = 8 * frame_header_size;
         }
+
         decoded_payload_size = frame_header_size;
-        pbi->frame_header_size = (size_t)frame_header_size;
+        pbi->frame_header_size = frame_header_size;
 
         if (cm->show_existing_frame) {
           if (obu_header.type == OBU_FRAME) {
