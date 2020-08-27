@@ -53,6 +53,8 @@ list(APPEND AOM_AV1_COMMON_SOURCES
             "${AOM_ROOT}/av1/common/frame_buffers.h"
             "${AOM_ROOT}/av1/common/idct.c"
             "${AOM_ROOT}/av1/common/idct.h"
+            "${AOM_ROOT}/av1/common/mfqe.c"
+            "${AOM_ROOT}/av1/common/mfqe.h"
             "${AOM_ROOT}/av1/common/mv.h"
             "${AOM_ROOT}/av1/common/mvref_common.c"
             "${AOM_ROOT}/av1/common/mvref_common.h"
