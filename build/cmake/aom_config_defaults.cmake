@@ -225,6 +225,10 @@ set_aom_config_var(CONFIG_NN_RECON 0 NUMBER
                    "AV2 nn-base txfm reconstruction experiment flag")
 set_aom_config_var(CONFIG_INTERINTRA_ML 0 NUMBER
                    "AV2 ML-based interintra reconstruction experiment flag")
+set_aom_config_var(CONFIG_MFQE_RESTORATION 0 NUMBER
+                   "AV2 multi-frame quality enhancement experiment flag")
+set_aom_config_var(CONFIG_OPTICAL_FLOW_API 0 NUMBER
+                   "AV2 optical flow API implementation experiment flag")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
