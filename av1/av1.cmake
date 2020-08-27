@@ -470,6 +470,7 @@ list(APPEND AOM_AV1_COMMON_INTRIN_NEON
 
 if(CONFIG_REALTIME_ONLY)
   list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_NEON
+                   "${AOM_ROOT}/av1/common/arm/highbd_inv_txfm_neon.c"
                    "${AOM_ROOT}/av1/common/arm/selfguided_neon.c"
                    "${AOM_ROOT}/av1/common/arm/warp_plane_neon.c")
 endif()
