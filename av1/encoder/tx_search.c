@@ -2637,7 +2637,7 @@ static AOM_INLINE void select_tx_block(
          blk_col < max_block_wide(xd, plane_bsize, 0));
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
-                                         mbmi->sb_type, tx_size);
+                                         mbmi->bsize, tx_size);
   struct macroblock_plane *const p = &x->plane[0];
 
   const int try_no_split =
@@ -2932,11 +2932,11 @@ int64_t av1_uniform_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   const ModeCosts *mode_costs = &x->mode_costs;
   const int is_inter = is_inter_block(mbmi);
   const int tx_select = txfm_params->tx_mode_search_type == TX_MODE_SELECT &&
-                        block_signals_txsize(mbmi->sb_type);
+                        block_signals_txsize(mbmi->bsize);
   int tx_size_rate = 0;
   if (tx_select) {
     const int ctx = txfm_partition_context(
-        xd->above_txfm_context, xd->left_txfm_context, mbmi->sb_type, tx_size);
+        xd->above_txfm_context, xd->left_txfm_context, mbmi->bsize, tx_size);
     tx_size_rate = is_inter ? mode_costs->txfm_partition_cost[ctx][0]
                             : tx_size_cost(x, bs, tx_size);
   }
@@ -3003,7 +3003,7 @@ static AOM_INLINE void tx_block_yrd(
   const TX_SIZE plane_tx_size = mbmi->inter_tx_size[av1_get_txb_size_index(
       plane_bsize, blk_row, blk_col)];
   const int ctx = txfm_partition_context(tx_above + blk_col, tx_left + blk_row,
-                                         mbmi->sb_type, tx_size);
+                                         mbmi->bsize, tx_size);
 
   av1_init_rd_stats(rd_stats);
   if (tx_size == plane_tx_size) {

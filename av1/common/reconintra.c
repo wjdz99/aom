@@ -1610,7 +1610,7 @@ void av1_predict_intra_block(
 
   const PARTITION_TYPE partition = mbmi->partition;
 
-  BLOCK_SIZE bsize = mbmi->sb_type;
+  BLOCK_SIZE bsize = mbmi->bsize;
   // force 4x4 chroma component block size.
   if (ss_x || ss_y) {
     bsize = scale_chroma_bsize(bsize, ss_x, ss_y);
