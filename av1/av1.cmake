@@ -474,6 +474,11 @@ if(CONFIG_REALTIME_ONLY)
                    "${AOM_ROOT}/av1/common/arm/warp_plane_neon.c")
 endif()
 
+if(NOT CONFIG_AV1_HIGHBITDEPTH)
+  list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_NEON
+                   "${AOM_ROOT}/av1/common/arm/highbd_inv_txfm_neon.c")
+endif()
+
 list(APPEND AOM_AV1_ENCODER_INTRIN_SSE4_2
             "${AOM_ROOT}/av1/encoder/x86/hash_sse42.c")
 
