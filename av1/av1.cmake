@@ -424,6 +424,11 @@ if(CONFIG_CNN_RESTORATION OR CONFIG_LOOP_RESTORE_CNN)
   endif()
 endif()
 
+if(CONFIG_MFQE_RESOTRATION)
+  list(APPEND AOM_AV1_COMMON_SOURCES "${AOM_ROOT}/av1/common/mfqe.c"
+              "${AOM_ROOT}/av1/common/mfqe.h")
+endif()
+
 if(CONFIG_NN_RECON)
   list(APPEND AOM_AV1_COMMON_SOURCES "${AOM_ROOT}/av1/common/cnn_tflite.cc"
               "${AOM_ROOT}/av1/common/cnn_tflite.h"
