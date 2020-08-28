@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "89f0dcfa_7121292d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 2172,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-08-28T01:36:25Z",
+      "side": 1,
+      "message": "Looks like this one only change ext_flags, and using current_frame.\nSo it could be good to change the interface to\nav1_set_reference_structure_one_pass_rt(current_frame, gf_update, ext_flags)",
+      "range": {
+        "startLine": 2172,
+        "startChar": 45,
+        "endLine": 2172,
+        "endChar": 73
+      },
+      "revId": "3f3318f3d8463d95607caf9a364e4b444c5e786a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
