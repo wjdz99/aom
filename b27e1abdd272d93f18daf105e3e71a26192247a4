@@ -34,6 +34,24 @@
       "revId": "b27e1abdd272d93f18daf105e3e71a26192247a4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05b40b16_817e158e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-08-28T06:07:20Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nYes, we have calculated SSIM for HBD only when input-bit-depth \u003c stream-bit-depth, similar to PSNR HBD calculation.\n\nThanks.",
+      "parentUuid": "1cfbb0fc_c4a1d6da",
+      "revId": "b27e1abdd272d93f18daf105e3e71a26192247a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
