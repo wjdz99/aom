@@ -259,6 +259,23 @@ static AV1_QUANT_FACADE quant_func_list[AV1_XFORM_QUANT_TYPES] = {
 };
 #endif
 
+const uint16_t scale_factor_q12[TX_SIZES_ALL] = { 1024, 2048, 4096, 4096, 0,
+                                                  1448, 1448, 2896, 2896, 2896,
+                                                  2896, 0,    0,    2048, 2048,
+                                                  4096, 4096, 0,    0 };
+
+void av1_xform_dc_only(MACROBLOCK *x, int plane, int block,
+                       TxfmParam *txfm_param, int64_t per_px_mean) {
+  assert(per_px_mean != INT64_MAX);
+  const struct macroblock_plane *const p = &x->plane[plane];
+  const int block_offset = BLOCK_OFFSET(block);
+  tran_low_t *const coeff = p->coeff + block_offset;
+  const int n_coeffs = av1_get_max_eob(txfm_param->tx_size);
+  memset(coeff, 0, sizeof(*coeff) * n_coeffs);
+  coeff[0] =
+      (tran_low_t)((per_px_mean * scale_factor_q12[txfm_param->tx_size]) >> 12);
+}
+
 void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
                      int blk_col, BLOCK_SIZE plane_bsize, TxfmParam *txfm_param,
                      QUANT_PARAM *qparam) {
