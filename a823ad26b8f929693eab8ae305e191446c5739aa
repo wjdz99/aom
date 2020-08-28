@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37bc3f38_07d19059",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1930,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "This is fine. Just FYI you can also do inline initialization:\n\nY_BUFFER_CONFIG dst \u003d { .stride \u003d stride, .height \u003d h, ... }",
+      "range": {
+        "startLine": 1926,
+        "startChar": 21,
+        "endLine": 1930,
+        "endChar": 73
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a1cdf97_91b8487a",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1935,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "These can be moved inside the for loop and initialized at the same point of declaration, right?",
+      "range": {
+        "startLine": 1932,
+        "startChar": 2,
+        "endLine": 1935,
+        "endChar": 19
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d9f7f62_a92e7e7b",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "FYI usually loops are written with the height iterator on the outside, so the double-loop iterates in scan order. This is fine, though.",
+      "range": {
+        "startLine": 1936,
+        "startChar": 1,
+        "endLine": 1937,
+        "endChar": 43
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0d4a8f3_53cfb580",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1950,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "Is resizing happening? I thought it was not for this use case.",
+      "range": {
+        "startLine": 1949,
+        "startChar": 0,
+        "endLine": 1950,
+        "endChar": 73
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2deee7c_4375394b",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1959,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "In general, prefer not to cast the results of memory allocation in C (the code is not consistent but it is slightly better to not): http://www.c-faq.com/malloc/cast.html",
+      "range": {
+        "startLine": 1959,
+        "startChar": 15,
+        "endLine": 1959,
+        "endChar": 38
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b21c72e_a7c6364a",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1967,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "I believe you can get the sum-of-square-errors by calling aom_sse(...). I think you can just divide by block size to get mse?",
+      "range": {
+        "startLine": 1965,
+        "startChar": 0,
+        "endLine": 1967,
+        "endChar": 71
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd3d0bd6_25d00796",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2001,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "Same comment",
+      "range": {
+        "startLine": 2001,
+        "startChar": 1,
+        "endLine": 2001,
+        "endChar": 78
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "035b2064_fe0207fb",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2171,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "Why 3 here? Please used a named constant via #define",
+      "range": {
+        "startLine": 2171,
+        "startChar": 27,
+        "endLine": 2171,
+        "endChar": 28
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9599b530_80498fab",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2232,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "Would [ALTREF_FRAME - LAST_FRAME] be more explicit?",
+      "range": {
+        "startLine": 2232,
+        "startChar": 27,
+        "endLine": 2232,
+        "endChar": 28
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c77b6e_99d39745",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2239,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "Please avoid goto. Either replicate the logic here to free memory, or use the pattern:\n\nsearch_rest_mfqe(...) {\n  alloc_memory(...)\n  search_rest_mfqe_aux(...)  // pass in allocated memory\n  dealloc_memory(...)\n}",
+      "range": {
+        "startLine": 2239,
+        "startChar": 23,
+        "endLine": 2239,
+        "endChar": 24
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35907bd3_b21aff0a",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "These should be guarded by #if CONFIG_....",
+      "range": {
+        "startLine": 23,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 0
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f2f7692a_176e4ad6",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "Is this only used for the luma plane?",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 18
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ab669f0_d3b03d97",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-08-28T18:32:10Z",
+      "side": 1,
+      "message": "What do these represent? Please comment.",
+      "range": {
+        "startLine": 41,
+        "startChar": 38,
+        "endLine": 41,
+        "endChar": 40
+      },
+      "revId": "a823ad26b8f929693eab8ae305e191446c5739aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
