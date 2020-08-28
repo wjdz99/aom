@@ -28,10 +28,11 @@ extern "C" {
 #if CONFIG_MULTITHREAD
 
 #if defined(_WIN32) && !HAVE_PTHREAD_H
-#include <errno.h>    // NOLINT
+#include <errno.h>  // NOLINT
 #include <process.h>  // NOLINT
 #include <windows.h>  // NOLINT
 typedef HANDLE pthread_t;
+typedef int pthread_attr_t;
 typedef CRITICAL_SECTION pthread_mutex_t;
 
 #if _WIN32_WINNT < 0x0600
@@ -142,11 +143,12 @@ static INLINE int pthread_cond_wait(pthread_cond_t *const condition,
 #define INCL_DOS
 #include <os2.h>  // NOLINT
 
-#include <errno.h>        // NOLINT
-#include <stdlib.h>       // NOLINT
+#include <errno.h>  // NOLINT
+#include <stdlib.h>  // NOLINT
 #include <sys/builtin.h>  // NOLINT
 
 #define pthread_t TID
+#define pthread_attr_t int
 #define pthread_mutex_t HMTX
 
 typedef struct {
@@ -283,7 +285,7 @@ static INLINE int pthread_cond_wait(pthread_cond_t *const condition,
 
   return !ok;
 }
-#else                 // _WIN32
+#else  // _WIN32
 #include <pthread.h>  // NOLINT
 #define THREADFN void *
 #define THREAD_RETURN(val) val
