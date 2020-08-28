@@ -133,16 +133,39 @@ static int reset(AVxWorker *const worker) {
       goto Error;
     }
     if (pthread_cond_init(&worker->impl_->condition_, NULL)) {
-      pthread_mutex_destroy(&worker->impl_->mutex_);
-      goto Error;
+      goto Error1;
     }
+    pthread_attr_t *attr = NULL;
+#if HAVE_PTHREAD_H
+    pthread_attr_t thread_attributes;
+    attr = &thread_attributes;
+    if (pthread_attr_init(attr)) {
+      goto Error2;
+    }
+    size_t stack_size;
+    if (pthread_attr_getstacksize(attr, &stack_size)) {
+      pthread_attr_destroy(attr);
+      goto Error2;
+    }
+    const size_t kMinStackSize = 256 * 1024;
+    if (stack_size < kMinStackSize &&
+        pthread_attr_setstacksize(attr, kMinStackSize)) {
+      pthread_attr_destroy(attr);
+      goto Error2;
+    }
+#endif  // HAVE_PTHREAD_H
     pthread_mutex_lock(&worker->impl_->mutex_);
-    ok = !pthread_create(&worker->impl_->thread_, NULL, thread_loop, worker);
+    ok = !pthread_create(&worker->impl_->thread_, attr, thread_loop, worker);
     if (ok) worker->status_ = OK;
     pthread_mutex_unlock(&worker->impl_->mutex_);
+#if HAVE_PTHREAD_H
+    pthread_attr_destroy(attr);
+#endif
     if (!ok) {
-      pthread_mutex_destroy(&worker->impl_->mutex_);
+    Error2:
       pthread_cond_destroy(&worker->impl_->condition_);
+    Error1:
+      pthread_mutex_destroy(&worker->impl_->mutex_);
     Error:
       aom_free(worker->impl_);
       worker->impl_ = NULL;
