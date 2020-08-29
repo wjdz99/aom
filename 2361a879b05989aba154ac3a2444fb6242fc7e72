@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8a43f94_8f171645",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-29T02:27:43Z",
+      "side": 1,
+      "message": "another cleanup for later would be to make these static_cast\u003c\u003e since we\u0027re casting from void*. this is in agreement with #10 [1].\n\n[1] https://en.cppreference.com/w/cpp/language/static_cast\nA prvalue of type pointer to void (possibly cv-qualified) can be\nconverted to pointer to any object type. ...",
+      "range": {
+        "startLine": 93,
+        "startChar": 13,
+        "endLine": 93,
+        "endChar": 29
+      },
+      "revId": "2361a879b05989aba154ac3a2444fb6242fc7e72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9145a74b_7a81a8b2",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-29T02:27:43Z",
+      "side": 1,
+      "message": "this matches QuantizeRun, but RunQuantizeFunc might be a little better since functions are usually verbs, like Init/Compare/Fill... and most of the others",
+      "range": {
+        "startLine": 110,
+        "startChar": 15,
+        "endLine": 110,
+        "endChar": 30
+      },
+      "revId": "2361a879b05989aba154ac3a2444fb6242fc7e72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01bcc6e1_468a827e",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-08-29T02:27:43Z",
+      "side": 1,
+      "message": "you can use override now since this is building as c++11",
+      "range": {
+        "startLine": 261,
+        "startChar": 2,
+        "endLine": 261,
+        "endChar": 9
+      },
+      "revId": "2361a879b05989aba154ac3a2444fb6242fc7e72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
