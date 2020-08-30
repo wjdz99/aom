@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8857548f_f3eaac50",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2020-08-30T03:30:10Z",
+      "side": 1,
+      "message": "Thank you, it is corrected now.",
+      "parentUuid": "f77ae86e_fe8162b8",
+      "range": {
+        "startLine": 9,
+        "startChar": 44,
+        "endLine": 9,
+        "endChar": 50
+      },
+      "revId": "f1bdd3ce41169bd4af40638f6bd7bbc7151067f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "582d260a_e6b87a85",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -60,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "e719d1bf_ad6902c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2020-08-30T03:30:10Z",
+      "side": 1,
+      "message": "2 HD RES* 4.547 0.0657 0.0669 0.2475**\nThe above results include life_1080p30 (it considers all the hd res contents in the suite). If life_1080p30 is excluded, the SSIM BD rate loss in HD res is 0.1466%.\n\nAnd, sure, we will hold off plans on speed 0 optimization for now.",
+      "parentUuid": "e8d9a739_c9f29841",
+      "revId": "f1bdd3ce41169bd4af40638f6bd7bbc7151067f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e134154d_2530e227",
         "filename": "av1/encoder/mcomp.c",
         "patchSetId": 2
@@ -71,6 +113,30 @@
       "writtenOn": "2020-08-28T18:20:42Z",
       "side": 1,
       "message": "This is quite similar to ds. Possible to combine/share code between these 2?\nThe same applies to nstep8pt change below.",
+      "range": {
+        "startLine": 349,
+        "startChar": 5,
+        "endLine": 349,
+        "endChar": 37
+      },
+      "revId": "f1bdd3ce41169bd4af40638f6bd7bbc7151067f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1b140b0_7f4ae9aa",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2020-08-30T03:30:10Z",
+      "side": 1,
+      "message": "The code is modified to have a single function doing the initialization of DIAMOND and CLAMPED_DIAMOND. Similarly, init of NSTEP and NSTEP_8PT are combined to a single function. An additional level parameter is introduced in the search method init api to facilitate the same.",
+      "parentUuid": "e134154d_2530e227",
       "range": {
         "startLine": 349,
         "startChar": 5,
@@ -106,6 +172,30 @@
     },
     {
       "key": {
+        "uuid": "e213ac92_4d2048c9",
+        "filename": "av1/encoder/mcomp.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2020-08-30T03:30:10Z",
+      "side": 1,
+      "message": "Yes, Yunqing, this has been removed accordingly.",
+      "parentUuid": "9ad078af_eb8b44c1",
+      "range": {
+        "startLine": 160,
+        "startChar": 2,
+        "endLine": 160,
+        "endChar": 16
+      },
+      "revId": "f1bdd3ce41169bd4af40638f6bd7bbc7151067f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "023ea67c_c4632c5d",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 2
@@ -117,6 +207,30 @@
       "writtenOn": "2020-08-28T18:20:42Z",
       "side": 1,
       "message": "Possible to move threshold related code outside this function?",
+      "range": {
+        "startLine": 1435,
+        "startChar": 6,
+        "endLine": 1445,
+        "endChar": 7
+      },
+      "revId": "f1bdd3ce41169bd4af40638f6bd7bbc7151067f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8044d29c_35c33f87",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1445,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2020-08-30T03:30:10Z",
+      "side": 1,
+      "message": "The thresholds are now kept in tables, which are accessed based on the speed setting and resolution. The code for speed 1 and 2 are also combined into one block.",
+      "parentUuid": "023ea67c_c4632c5d",
       "range": {
         "startLine": 1435,
         "startChar": 6,
