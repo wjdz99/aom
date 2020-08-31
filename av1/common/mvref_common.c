@@ -213,7 +213,9 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                           CANDIDATE_MV *ref_mv_stack, uint16_t *ref_mv_weight,
                           uint8_t *refmv_count, uint8_t *ref_match_count,
                           uint8_t *newmv_count, int_mv *gm_mv_candidates,
-                          int max_row_offset, int *processed_rows) {
+                          int max_row_offset, int *processed_rows,
+                          LOCATION_INFO *ref_location_stack,
+                          uint8_t *location_count) {
   int end_mi = AOMMIN(xd->n4_w, cm->mi_cols - mi_col);
   end_mi = AOMMIN(end_mi, mi_size_wide[BLOCK_64X64]);
   const int n8_w_8 = mi_size_wide[BLOCK_8X8];
@@ -225,9 +227,29 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     col_offset = 1;
     if ((mi_col & 0x01) && xd->n4_w < n8_w_8) --col_offset;
   }
+
   const int use_step_16 = (xd->n4_w >= 16);
   MB_MODE_INFO **const candidate_mi0 = xd->mi + row_offset * xd->mi_stride;
   (void)mi_row;
+
+  // We want to record the "relative location" of candidate blocks in
+  // ref_location_stack. We consider the centriod of current block as (0, 0),
+  // and calculate the coordinates of candidate block centriods, then storethem
+  // in ref_location_stack, the uint is 1/8 pixel (consistent with mv units)
+  // (xbase, ybase) is the coodinates of the top-left point of the current block
+  int32_t xbase = xd->n4_w;
+  // xbase = -((xbase >> 1) << 5);
+  // ((x>>1)<<5) may lead to inaccurate results (e.g. when x==1),compared with
+  // (x<<4) For all the similar operations, directly use (x<<4) rather than
+  // ((x>>1)<<5), though ((x>>1)<<5) is better to explain the reason for the
+  // operation
+  xbase = -(xbase << 4);
+  int32_t ybase = xd->n4_h;
+  // n4_w and n4_h are counted in the unit of 4X4 block, but MV is measured in
+  // 1/8 pixels so there is a 32x proportion (i.e. left shift 5)
+  // Only consider row_offset = -1 (top row)
+  // ybase = ((ybase >> 1) << 5);
+  ybase = (ybase << 4);
 
   for (i = 0; i < end_mi;) {
 #if CONFIG_EXT_RECUR_PARTITIONS
@@ -247,6 +269,7 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     const MB_MODE_INFO *const candidate = candidate_mi0[col_offset + i];
     const int candidate_bsize = candidate->sb_type;
     const int n4_w = mi_size_wide[candidate_bsize];
+    const int n4_h = mi_size_high[candidate_bsize];
     int len = AOMMIN(xd->n4_w, n4_w);
     if (use_step_16)
       len = AOMMAX(n8_w_16, len);
@@ -262,11 +285,34 @@ static void scan_row_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       // Update processed rows.
       *processed_rows = inc - row_offset - 1;
     }
-
+    uint8_t orignal_refmv_count = (*refmv_count);
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset + i,
                          len * weight);
+
+    // Only consider row_offset = -1 (top row)
+    if ((*refmv_count) - orignal_refmv_count == 1 && rf[1] == NONE_FRAME &&
+        row_offset == -1) {
+      // The candidate MV may be the same with the existing MV. In that case,
+      // (*refmv_count) will not change after calling add_ref_mv_candidate.
+      // Otherwise, this If condition is true, and we need to record the local
+      // inforamtion for the corresponding block
+      // Only consider single-referencen frame now
+      // Only check the neighbors
+
+      ref_location_stack[(*location_count)].x = xbase + (n4_w << 4);
+
+      // row_offset = -1 means the block is at the above side of the current
+      // block. so its y coordinate is positive (ybase+)
+      // ref_location_stack[(*location_count)].y = ybase + ((n4_h >> 1) <<5);
+      ref_location_stack[(*location_count)].y = ybase + (n4_h << 4);
+
+      ref_location_stack[(*location_count)].this_mv =
+          ref_mv_stack[orignal_refmv_count].this_mv;
+      (*location_count)++;
+    }
+    xbase += (len << 5);
 
     i += len;
   }
@@ -278,7 +324,9 @@ static void scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                           CANDIDATE_MV *ref_mv_stack, uint16_t *ref_mv_weight,
                           uint8_t *refmv_count, uint8_t *ref_match_count,
                           uint8_t *newmv_count, int_mv *gm_mv_candidates,
-                          int max_col_offset, int *processed_cols) {
+                          int max_col_offset, int *processed_cols,
+                          LOCATION_INFO *ref_location_stack,
+                          uint8_t *location_count) {
   int end_mi = AOMMIN(xd->n4_h, cm->mi_rows - mi_row);
   end_mi = AOMMIN(end_mi, mi_size_high[BLOCK_64X64]);
   const int n8_h_8 = mi_size_high[BLOCK_8X8];
@@ -291,6 +339,13 @@ static void scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
   const int use_step_16 = (xd->n4_h >= 16);
   (void)mi_col;
+
+  // (xbase, ybase) is the coodinates of the top-left point of the current block
+  int32_t ybase = xd->n4_h;
+  // ybase = ((ybase >> 1) << 5);
+  ybase = (ybase << 4);
+  int32_t xbase = xd->n4_w;
+  xbase = -(xbase << 4);
 
   for (i = 0; i < end_mi;) {
 #if CONFIG_EXT_RECUR_PARTITIONS
@@ -310,6 +365,7 @@ static void scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         xd->mi[(row_offset + i) * xd->mi_stride + col_offset];
     const int candidate_bsize = candidate->sb_type;
     const int n4_h = mi_size_high[candidate_bsize];
+    const int n4_w = mi_size_wide[candidate_bsize];
     int len = AOMMIN(xd->n4_h, n4_h);
     if (use_step_16)
       len = AOMMAX(n8_h_16, len);
@@ -325,11 +381,27 @@ static void scan_col_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       // Update processed cols.
       *processed_cols = inc - col_offset - 1;
     }
-
+    uint8_t orignal_refmv_count = (*refmv_count);
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, col_offset,
                          len * weight);
+
+    // Only consider col_offset = -1 (left row)
+    if ((*refmv_count) - orignal_refmv_count == 1 && col_offset == -1 &&
+        rf[1] == NONE_FRAME) {
+      // The candidate MV may be the same with the existing MV. In that case,
+      // (*refmv_count) will not change after calling add_ref_mv_candidate.
+      // Otherwise, this If condition is true, and we need to record the local
+      // inforamtion for the corresponding block
+      ref_location_stack[(*location_count)].x = xbase - (n4_w << 4);
+
+      ref_location_stack[(*location_count)].y = ybase - (n4_h << 4);
+      ref_location_stack[(*location_count)].this_mv =
+          ref_mv_stack[orignal_refmv_count].this_mv;
+      (*location_count)++;
+    }
+    ybase -= (len << 5);
 
     i += len;
   }
@@ -341,7 +413,9 @@ static void scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                           int col_offset, CANDIDATE_MV *ref_mv_stack,
                           uint16_t *ref_mv_weight, uint8_t *ref_match_count,
                           uint8_t *newmv_count, int_mv *gm_mv_candidates,
-                          uint8_t *refmv_count) {
+                          uint8_t *refmv_count,
+                          LOCATION_INFO *ref_location_stack,
+                          uint8_t *location_count) {
   const TileInfo *const tile = &xd->tile;
   POSITION mi_pos;
 
@@ -352,11 +426,31 @@ static void scan_blk_mbmi(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     const MB_MODE_INFO *const candidate =
         xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
     const int len = mi_size_wide[BLOCK_8X8];
-
+    uint8_t orignal_refmv_count = (*refmv_count);
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, mi_pos.col,
                          2 * len);
+
+    if ((*refmv_count) - orignal_refmv_count == 1 && row_offset == -1 &&
+        col_offset == -1 && rf[1] == NONE_FRAME) {
+      // The candidate MV may be the same with the existing MV. In that case,
+      // (*refmv_count) will not change after calling add_ref_mv_candidate.
+      // Otherwise, this If condition is true, and we need to record the local
+      // inforamtion for the corresponding block
+      int32_t xbase = xd->n4_w;
+      int32_t ybase = xd->n4_h;
+      xbase = (xbase << 4);
+      ybase = (ybase << 4);
+      xbase += (len << 4);
+      ybase += (len << 4);
+      ref_location_stack[(*location_count)].x = -xbase;
+      ref_location_stack[(*location_count)].y = ybase;
+      ref_location_stack[(*location_count)].this_mv =
+          ref_mv_stack[orignal_refmv_count].this_mv;
+      (*location_count)++;
+    }
+
   }  // Analyze a single 8x8 block motion information.
 }
 
@@ -546,6 +640,132 @@ static void process_single_ref_mv_candidate(
   }
 }
 
+static int calc_minor_value(int32_t mat[3][3], int row1, int row2, int col1,
+                            int col2) {
+  return mat[row1][col1] * mat[row2][col2] - mat[row1][col2] * mat[row2][col1];
+}
+static int calc_inverse_3X3(int32_t XTX_3X3[3][3],
+                            float inverse_XTX_3X3[3][3]) {
+  int32_t minor_mat_3X3[3][3];
+  minor_mat_3X3[0][0] = calc_minor_value(XTX_3X3, 1, 2, 1, 2);
+  minor_mat_3X3[0][1] = calc_minor_value(XTX_3X3, 1, 2, 0, 2) * (-1);
+  minor_mat_3X3[0][2] = calc_minor_value(XTX_3X3, 1, 2, 0, 1);
+  minor_mat_3X3[1][0] = calc_minor_value(XTX_3X3, 0, 2, 1, 2) * (-1);
+  minor_mat_3X3[1][1] = calc_minor_value(XTX_3X3, 0, 2, 0, 2);
+  minor_mat_3X3[1][2] = calc_minor_value(XTX_3X3, 0, 2, 0, 1) * (-1);
+  minor_mat_3X3[2][0] = calc_minor_value(XTX_3X3, 0, 1, 1, 2);
+  minor_mat_3X3[2][1] = calc_minor_value(XTX_3X3, 0, 1, 0, 2) * (-1);
+  minor_mat_3X3[2][2] = calc_minor_value(XTX_3X3, 0, 1, 0, 1);
+  int32_t determinant = XTX_3X3[0][0] * minor_mat_3X3[0][0] +
+                        XTX_3X3[0][1] * minor_mat_3X3[0][1] +
+                        XTX_3X3[0][2] * minor_mat_3X3[0][2];
+  if (determinant != 0) {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        inverse_XTX_3X3[i][j] = minor_mat_3X3[j][i] / (1.0f * determinant);
+      }
+    }
+    return 1;
+  } else {
+    return 0;
+  }
+}
+/**
+ * |x'|   |h11 h12 h13|    |x|
+ * |y'| = |h21 h22 h23| X  |y|
+ * |1 |   |0    0   1 |    |1|
+ *
+ * The above can be decoupled into two different estimation problem
+ *
+ * |x1 y1 1|      |h11|   |x1'|
+ * |x2 y2 1|  X   |h12| = |x2'|
+ * | ...   |      |h13|   |...|
+ * |xn yn 1|              |xn'|
+ *
+ *
+ * |x1 y1 1|      |h21|   |y1'|
+ * |x2 y2 1|  X   |h22| = |y2'|
+ * | ...   |      |h23|   |...|
+ * |xn yn 1|              |yn'|
+ *
+ *
+ * With n sources points (x1, y1), (x2, y2), ... (xn, yn),
+ * and calculated (based on MVs) n destination points
+ * (x1', y1'), ..., (xn', yn')
+ * Then we can use least squares method to estimate the 6 parameters
+ * Actually, with (x, y) as (0,0)
+ * to caculate (x', y'), we only need to get h13 and h23
+ * (h13, h23) is also the mvs we need
+ ***/
+static int_mv calc_affine_mv(LOCATION_INFO *source_points,
+                             LOCATION_INFO *destination_points,
+                             int32_t point_number) {
+  int_mv ans_mv;
+  int32_t sum_x = 0;
+  int32_t sum_y = 0;
+  int32_t sum_xx = 0;
+  int32_t sum_xy = 0;
+  int32_t sum_yy = 0;
+  for (int i = 0; i < point_number; i++) {
+    sum_x += source_points[i].x;
+    sum_y += source_points[i].y;
+    sum_xx += source_points[i].x * source_points[i].x;
+    sum_xy += source_points[i].x * source_points[i].y;
+    sum_yy += source_points[i].y * source_points[i].y;
+  }
+  int32_t XTX_3X3[3][3] = { { sum_xx, sum_xy, sum_x },
+                            { sum_xy, sum_yy, sum_y },
+                            { sum_x, sum_y, point_number } };
+  float inverse_XTX_3X3[3][3];
+  int ret = calc_inverse_3X3(XTX_3X3, inverse_XTX_3X3);
+  if (ret == 0) {
+    // Fail to Calc inverse
+    ans_mv.as_int = INVALID_MV;
+    return ans_mv;
+  }
+  int32_t mat[3][point_number];
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < point_number; j++) {
+      mat[i][j] = inverse_XTX_3X3[i][0] * source_points[j].x +
+                  inverse_XTX_3X3[i][1] * source_points[j].y +
+                  inverse_XTX_3X3[i][2];
+    }
+  }
+  int32_t h11 = 0;
+  int32_t h12 = 0;
+  int32_t h13 = 0;
+  int32_t h21 = 0;
+  int32_t h22 = 0;
+  int32_t h23 = 0;
+  for (int i = 0; i < point_number; i++) {
+    // h11 += mat[0][i] * destination_points[i].x;
+    // h12 += mat[1][i] * destination_points[i].x;
+    h13 += mat[2][i] * destination_points[i].x;
+    // h21 += mat[0][i] * destination_points[i].y;
+    // h22 += mat[1][i] * destination_points[i].y;
+    h23 += mat[2][i] * destination_points[i].y;
+  }
+  if (h13 > INT16_MAX || h23 > INT16_MAX || h13 < INT16_MIN ||
+      h23 < INT16_MIN) {
+    // Invalid mv
+    ans_mv.as_int = INVALID_MV;
+    return ans_mv;
+  }
+  ans_mv.as_mv.col = h13;
+  ans_mv.as_mv.row = h23;
+  return ans_mv;
+}
+bool is_duplicated(int_mv mv_to_check,
+                   CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
+                   int mv_count) {
+  for (int i = 0; i < mv_count; i++) {
+    if (mv_to_check.as_int == ref_mv_stack[i].this_mv.as_int) {
+      return true;
+    }
+  }
+  return false;
+}
+
 static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                               MV_REFERENCE_FRAME ref_frame,
                               uint8_t *const refmv_count,
@@ -591,22 +811,26 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   uint8_t col_match_count = 0;
   uint8_t row_match_count = 0;
   uint8_t newmv_count = 0;
-
+  LOCATION_INFO ref_location_stack[MAX_REF_MV_STACK_SIZE];
+  uint8_t location_count = 0;
   // Scan the first above row mode info. row_offset = -1;
   if (abs(max_row_offset) >= 1)
     scan_row_mbmi(cm, xd, mi_row, mi_col, rf, -1, ref_mv_stack, ref_mv_weight,
                   refmv_count, &row_match_count, &newmv_count, gm_mv_candidates,
-                  max_row_offset, &processed_rows);
+                  max_row_offset, &processed_rows, ref_location_stack,
+                  &location_count);
   // Scan the first left column mode info. col_offset = -1;
   if (abs(max_col_offset) >= 1)
     scan_col_mbmi(cm, xd, mi_row, mi_col, rf, -1, ref_mv_stack, ref_mv_weight,
                   refmv_count, &col_match_count, &newmv_count, gm_mv_candidates,
-                  max_col_offset, &processed_cols);
+                  max_col_offset, &processed_cols, ref_location_stack,
+                  &location_count);
   // Check top-right boundary
   if (has_tr)
     scan_blk_mbmi(cm, xd, mi_row, mi_col, rf, -1, xd->n4_w, ref_mv_stack,
                   ref_mv_weight, &row_match_count, &newmv_count,
-                  gm_mv_candidates, refmv_count);
+                  gm_mv_candidates, refmv_count, ref_location_stack,
+                  &location_count);
 
   const uint8_t nearest_match = (row_match_count > 0) + (col_match_count > 0);
   const uint8_t nearest_refmv_count = *refmv_count;
@@ -666,7 +890,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   // Scan the second outer area.
   scan_blk_mbmi(cm, xd, mi_row, mi_col, rf, -1, -1, ref_mv_stack, ref_mv_weight,
                 &row_match_count, &dummy_newmv_count, gm_mv_candidates,
-                refmv_count);
+                refmv_count, ref_location_stack, &location_count);
 
   for (int idx = 2; idx <= MVREF_ROW_COLS; ++idx) {
     const int row_offset = -(idx << 1) + 1 + row_adj;
@@ -677,14 +901,14 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       scan_row_mbmi(cm, xd, mi_row, mi_col, rf, row_offset, ref_mv_stack,
                     ref_mv_weight, refmv_count, &row_match_count,
                     &dummy_newmv_count, gm_mv_candidates, max_row_offset,
-                    &processed_rows);
+                    &processed_rows, ref_location_stack, &location_count);
 
     if (abs(col_offset) <= abs(max_col_offset) &&
         abs(col_offset) > processed_cols)
       scan_col_mbmi(cm, xd, mi_row, mi_col, rf, col_offset, ref_mv_stack,
                     ref_mv_weight, refmv_count, &col_match_count,
                     &dummy_newmv_count, gm_mv_candidates, max_col_offset,
-                    &processed_cols);
+                    &processed_cols, ref_location_stack, &location_count);
   }
 
   const uint8_t ref_match_count = (row_match_count > 0) + (col_match_count > 0);
@@ -714,6 +938,35 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
+  }
+
+  if (rf[1] == NONE_FRAME && (*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+    // Warp Transformation (Curently only consider for Single Frame Prediction)
+    // ref_location_stack
+    LOCATION_INFO projected_points[MAX_REF_MV_STACK_SIZE];
+    for (uint8_t i = 0; i < location_count; i++) {
+      projected_points[i].x =
+          ref_location_stack[i].x + ref_location_stack[i].this_mv.as_mv.col;
+      projected_points[i].y =
+          ref_location_stack[i].y + ref_location_stack[i].this_mv.as_mv.row;
+    }
+    int_mv affine_mv =
+        calc_affine_mv(ref_location_stack, projected_points, location_count);
+    if (affine_mv.as_int != INVALID_MV &&
+        (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
+      ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
+      ref_mv_weight[(*refmv_count)] = 1;
+      // fprintf(stderr,"-------------------------------------------------\n");
+      // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
+      //         affine_mv.as_mv.col);
+      // for (int j = 0; j < (*refmv_count); j++) {
+      //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.row,
+      //           ref_mv_stack[j].this_mv.as_mv.col);
+      // }
+      // fprintf(stderr, "\n");
+      // fprintf(stderr,"-------------------------------------------------\n");
+      (*refmv_count)++;
+    }
   }
 
   // Rank the likelihood and assign nearest and near mvs.
@@ -857,8 +1110,9 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       }
     }
 #if CONFIG_NEW_INTER_MODES
-    // If there is extra space in the stack, copy the GLOBALMV vector into it.
-    // This also guarantees the existence of at least one vector to search.
+    // If there is extra space in the stack, copy the GLOBALMV vector into
+    // it. This also guarantees the existence of at least one vector to
+    // search.
     if (*refmv_count < MAX_REF_MV_STACK_SIZE) {
       int stack_idx;
       for (stack_idx = 0; stack_idx < *refmv_count; ++stack_idx) {
@@ -1503,8 +1757,8 @@ typedef struct {
   int sort_idx;       // index based on the offset to be used for sorting
 } REF_FRAME_INFO;
 
-// Compares the sort_idx fields. If they are equal, then compares the map_idx
-// fields to break the tie. This ensures a stable sort.
+// Compares the sort_idx fields. If they are equal, then compares the
+// map_idx fields to break the tie. This ensures a stable sort.
 static int compare_ref_frame_info(const void *arg_a, const void *arg_b) {
   const REF_FRAME_INFO *info_a = (REF_FRAME_INFO *)arg_a;
   const REF_FRAME_INFO *info_b = (REF_FRAME_INFO *)arg_b;
