@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b19810fd_b7b045dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-08-31T13:02:46Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n \nIn this patch, we have re-enabled temporal filter intrinsic modules for YUV 4:2:2 format. This intrinsic was disabled before because of an assertion failure. We have corrected the assert appropriately for YUV 4:2:2 format. This change is bit-exact with speed improvement for 4:2:2 encoding.\n \nThe bit-exactness has been verified locally for 4:2:2 format.\n \nAWCY Link for 4:2:0 encoding (bit-exact, cpu-used 1, 60 frames)\nhttps://beta.arewecompressedyet.com/?job\u003d250820_mem_opt_cpu1_ref8b_master%402020-08-25T09%3A04%3A27.778Z\u0026job\u003d280820_tf_intrin_422_cpu1_8b%402020-08-28T06%3A51%3A49.263Z\n \nAWCY Link for 4:2:0 encoding (bit-exact, cpu-used 6, 60 frames)\nhttps://beta.arewecompressedyet.com/?job\u003d250820_mem_opt_cpu6_ref8b_master%402020-08-26T15%3A18%3A09.395Z\u0026job\u003d280820_tf_intrin_422_cpu6_8b%402020-08-28T06%3A32%3A43.631Z\n \nPlease review the patch.\n \nRegards,\nJayasanker.",
+      "revId": "a5445f182858907ca8e8f904f6eb6b7e5e0a321b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
