@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "624117eb_66ab9997",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-01T02:50:17Z",
+      "side": 1,
+      "message": "I think you\u0027ll want to mimic the block above and check PKG_CONFIG_FOUND",
+      "revId": "dd49095507601723419293868e0550ac8a7c6bea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c6ac87f_a4129d1c",
+        "filename": "aom_dsp/vmaf.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-01T02:50:17Z",
+      "side": 1,
+      "message": "it likely would be ok to call this picture_copy now that it\u0027s static, but you could also go with copy_picture() since that\u0027s more in agreement with functions being named as actions (verbs).",
+      "range": {
+        "startLine": 194,
+        "startChar": 12,
+        "endLine": 194,
+        "endChar": 20
+      },
+      "revId": "dd49095507601723419293868e0550ac8a7c6bea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
