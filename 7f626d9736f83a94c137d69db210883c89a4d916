@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "471388da_78c54199",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 19837
+      },
+      "writtenOn": "2020-09-01T20:47:00Z",
+      "side": 1,
+      "message": "Hi, Hui. I have updated the implementation of location trace and also updated the affine calculation with float precision. ",
+      "revId": "7f626d9736f83a94c137d69db210883c89a4d916",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
