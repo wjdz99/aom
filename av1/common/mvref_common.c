@@ -14,8 +14,15 @@
 #include "av1/common/mvref_common.h"
 #include "av1/common/warped_motion.h"
 
+#define MAX_REF_LOC_STACK_SIZE (MAX_REF_MV_STACK_SIZE << 1)
 #define SCALE_BITS (16)
+// If we want to disable float compututation (and want to use scaling method),
+// just comment the following line
 #define USE_FLOAT (1)
+// If we want to disable Extend Search for neighbors and MVs, just comment the
+// following line
+#define EXTEND_CANDIDATE (1)
+
 // Although we assign 32 bit integers, all the values are strictly under 14
 // bits.
 static int div_mult[32] = { 0,    16384, 8192, 5461, 4096, 3276, 2730, 2340,
@@ -163,7 +170,48 @@ static void add_ref_mv_candidate(
         const int_mv this_refmv = is_gm_block
                                       ? gm_mv_candidates[0]
                                       : get_sub_block_mv(candidate, ref, col);
+#ifdef EXTEND_CANDIDATE
+        // Record the location of the mv
+        int32_t current_block_mi_row = xd->mi_row;
+        int32_t current_block_mi_col = xd->mi_col;
 
+        int32_t candidate_mi_row = current_block_mi_row + candidate_row_offset;
+        int32_t candidate_mi_col = current_block_mi_col + candidate_col_offset;
+        // Here the superblock_mi_row and superblock_mi_col are the
+        // row_index/col_index of the upper/left edge of the superblock
+        int32_t superblock_high = mi_size_high[candidate->sb_type];
+        int32_t superblock_wide = mi_size_wide[candidate->sb_type];
+        int32_t superblock_mi_row =
+            candidate_mi_row - candidate_mi_row % superblock_high;
+        int32_t superblock_mi_col =
+            candidate_mi_col - candidate_mi_col % superblock_wide;
+        // Measured in 1/8 pixel ( The *4 at the end means (*8/2) )
+        int32_t superblock_center_y =
+            ((superblock_mi_row - current_block_mi_row) * MI_SIZE +
+             superblock_high * MI_SIZE / 2 - 1) *
+            8;
+        int32_t superblock_center_x =
+            ((superblock_mi_col - current_block_mi_col) * MI_SIZE +
+             superblock_wide * MI_SIZE / 2 - 1) *
+            8;
+        // Check whether the superblock location has been duplicated
+        int loc_index = 0;
+        for (loc_index = 0; loc_index < (*location_count); loc_index++) {
+          if (ref_location_stack[loc_index].x == superblock_center_x &&
+              ref_location_stack[loc_index].y == superblock_center_y) {
+            break;
+          }
+        }
+
+        if (loc_index == (*location_count) &&
+            loc_index < MAX_REF_LOC_STACK_SIZE) {
+          ref_location_stack[(*location_count)].x = superblock_center_x;
+          ref_location_stack[(*location_count)].y = superblock_center_y;
+          ref_location_stack[(*location_count)].this_mv = this_refmv;
+          (*location_count)++;
+        }
+
+#endif
         for (index = 0; index < *refmv_count; ++index) {
           if (ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) {
             ref_mv_weight[index] += weight;
@@ -177,6 +225,7 @@ static void add_ref_mv_candidate(
           ref_mv_weight[index] = weight;
           ++(*refmv_count);
 
+#ifndef EXTEND_CANDIDATE
           // Record the location of the mv
           int32_t current_block_mi_row = xd->mi_row;
           int32_t current_block_mi_col = xd->mi_col;
@@ -206,6 +255,7 @@ static void add_ref_mv_candidate(
           ref_location_stack[(*location_count)].y = superblock_center_y;
           ref_location_stack[(*location_count)].this_mv = this_refmv;
           (*location_count)++;
+#endif
         }
         if (have_newmv_in_inter_mode(candidate->mode)) ++*newmv_count;
         ++*ref_match_count;
@@ -720,6 +770,7 @@ static int_mv calc_affine_mv(LOCATION_INFO *source_points,
     ans_mv.as_int = INVALID_MV;
     return ans_mv;
   }
+  // fprintf(stderr, "point_num = %d \n", point_number);
 #ifdef USE_FLOAT
   {
     int64_t sum_x = 0;
@@ -930,7 +981,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   uint8_t col_match_count = 0;
   uint8_t row_match_count = 0;
   uint8_t newmv_count = 0;
-  LOCATION_INFO ref_location_stack[MAX_REF_MV_STACK_SIZE];
+  LOCATION_INFO ref_location_stack[MAX_REF_LOC_STACK_SIZE];
   uint8_t location_count = 0;
   // Scan the first above row mode info. row_offset = -1;
   if (abs(max_row_offset) >= 1)
