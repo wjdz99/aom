@@ -192,9 +192,12 @@ const char subgop_config_str_enh[] =
     "5S/6V5/7R2/10U3/8V5/9V5/10S/12U4/"
     "11V5/12S/13V5/14R1,"
 
-    "14:1:12F1/6F2/3U3/1V5/2V5/3S/5U5/4V5/5S/"
-    "6R2/9U3/8U5/7V5/8S/9S/11U5/10V5/11S/"
-    "12R1/14U4/13V5/14S,"
+    "14:1:11F1/7F2/3U3/1V5/2V5/3S/5U4/4V5/5S/"
+    "6V5/7R2/9U4/8V5/9S/10V5/11R1/13U4/12V5/"
+    "13S/14V5,"
+  //"14:1:12F1/6F2/3U3/1V5/2V5/3S/5U5/4V5/5S/"
+  //"6R2/9U3/8U5/7V5/8S/9S/11U5/10V5/11S/"
+  //"12R1/14U4/13V5/14S,"
 
     "15:0:15F1/7F2/3U3/1V5/2V5/3S/5U4/4V5/"
     "5S/6V5/7R2/11U3/9U4/8V5/9S/10V5/11S/"
@@ -277,7 +280,8 @@ static struct av1_extracfg default_extra_cfg = {
   5,              // gf_max_pyr_height
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
-  NULL,                                      // subgop_config_str
+//NULL,                                      // subgop_config_str
+  subgop_config_str_enh,
   NULL,                                      // subgop_config_path
   40,                                        // qp
   0,                                         // rc_max_intra_bitrate_pct
