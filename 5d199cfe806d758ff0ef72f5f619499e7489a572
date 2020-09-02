@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e4b2ca4_e8b86964",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2020-09-02T18:25:25Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have increased the aggressiveness of the speed feature \u0027prune_inter_modes_based_on_tpl\u0027. \n\nIn the patch (https://aomedia-review.googlesource.com/c/aom/+/116045) the speed feature was changed to take only three values (0, 1, 3 and 2 was unused). Thus, we have cleaned-up the code in that direction i.e., the sf takes the value of 2 for speed 4 and 5 and value of 3 for speed 6. \n\nThe change is bit-exact for speed 5 and below. \n\n                      Instruction Count       BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr    ssim  \n   6       LOW RES       1.995           0.2360    0.2392    0.2210 \n   6       MID RES       2.217           0.2179    0.2375    0.1768\n   6        HD RES       2.226           0.2751    0.2829    0.2736\n   6       Average       2.108           0.2426    0.2520    0.2241\n\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n \nPlease review the patch.\nThank you.",
+      "revId": "5d199cfe806d758ff0ef72f5f619499e7489a572",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
