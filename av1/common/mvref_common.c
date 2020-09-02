@@ -15,7 +15,7 @@
 #include "av1/common/warped_motion.h"
 
 #define SCALE_BITS (16)
-//#define USE_FLOAT (1)
+#define USE_FLOAT (1)
 // Although we assign 32 bit integers, all the values are strictly under 14
 // bits.
 static int div_mult[32] = { 0,    16384, 8192, 5461, 4096, 3276, 2730, 2340,
@@ -746,7 +746,7 @@ static int_mv calc_affine_mv(LOCATION_INFO *source_points,
       return ans_mv;
     }
     aom_clear_system_state();
-    int64_t mat[3][point_number];
+    float mat[3][point_number];
     // point_number = AOMMIN(point_number, MAX_REF_MV_STACK_SIZE);
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < point_number; j++) {
