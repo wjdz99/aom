@@ -15,7 +15,7 @@
 #include "av1/common/warped_motion.h"
 
 #define SCALE_BITS (16)
-
+//#define USE_FLOAT (1)
 // Although we assign 32 bit integers, all the values are strictly under 14
 // bits.
 static int div_mult[32] = { 0,    16384, 8192, 5461, 4096, 3276, 2730, 2340,
@@ -139,7 +139,9 @@ void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
   clamp_ext_compound_mv(cm, scaled_mv, mi_row, mi_col, bsize);
 }
 #endif  // CONFIG_EXT_COMPOUND
-
+// float
+// why determinant ==0 when <3
+// add more samples even when mv are the same but loc are not same
 static void add_ref_mv_candidate(
     const MB_MODE_INFO *const candidate, const MV_REFERENCE_FRAME rf[2],
     uint8_t *refmv_count, uint8_t *ref_match_count, uint8_t *newmv_count,
@@ -161,6 +163,7 @@ static void add_ref_mv_candidate(
         const int_mv this_refmv = is_gm_block
                                       ? gm_mv_candidates[0]
                                       : get_sub_block_mv(candidate, ref, col);
+
         for (index = 0; index < *refmv_count; ++index) {
           if (ref_mv_stack[index].this_mv.as_int == this_refmv.as_int) {
             ref_mv_weight[index] += weight;
@@ -177,6 +180,7 @@ static void add_ref_mv_candidate(
           // Record the location of the mv
           int32_t current_block_mi_row = xd->mi_row;
           int32_t current_block_mi_col = xd->mi_col;
+
           int32_t candidate_mi_row =
               current_block_mi_row + candidate_row_offset;
           int32_t candidate_mi_col =
@@ -600,6 +604,10 @@ static int64_t calc_minor_value(int64_t mat[3][3], int row1, int row2, int col1,
                                 int col2) {
   return mat[row1][col1] * mat[row2][col2] - mat[row1][col2] * mat[row2][col1];
 }
+static float calc_minor_value_float(float mat[3][3], int row1, int row2,
+                                    int col1, int col2) {
+  return mat[row1][col1] * mat[row2][col2] - mat[row1][col2] * mat[row2][col1];
+}
 static int calc_inverse_3X3_with_scaling(int64_t XTX_3X3[3][3],
                                          int64_t inverse_XTX_3X3[3][3]) {
   int64_t minor_mat_3X3[3][3];
@@ -644,6 +652,36 @@ static int calc_inverse_3X3_with_scaling(int64_t XTX_3X3[3][3],
     return 0;
   }
 }
+static int calc_inverse_3X3_float(float XTX_3X3[3][3],
+                                  float inverse_XTX_3X3[3][3]) {
+  float minor_mat_3X3[3][3];
+  minor_mat_3X3[0][0] = calc_minor_value_float(XTX_3X3, 1, 2, 1, 2);
+  minor_mat_3X3[0][1] = calc_minor_value_float(XTX_3X3, 1, 2, 0, 2) * (-1);
+  minor_mat_3X3[0][2] = calc_minor_value_float(XTX_3X3, 1, 2, 0, 1);
+  minor_mat_3X3[1][0] = calc_minor_value_float(XTX_3X3, 0, 2, 1, 2) * (-1);
+  minor_mat_3X3[1][1] = calc_minor_value_float(XTX_3X3, 0, 2, 0, 2);
+  minor_mat_3X3[1][2] = calc_minor_value_float(XTX_3X3, 0, 2, 0, 1) * (-1);
+  minor_mat_3X3[2][0] = calc_minor_value_float(XTX_3X3, 0, 1, 1, 2);
+  minor_mat_3X3[2][1] = calc_minor_value_float(XTX_3X3, 0, 1, 0, 2) * (-1);
+  minor_mat_3X3[2][2] = calc_minor_value_float(XTX_3X3, 0, 1, 0, 1);
+  float determinant = XTX_3X3[0][0] * minor_mat_3X3[0][0] +
+                      XTX_3X3[0][1] * minor_mat_3X3[0][1] +
+                      XTX_3X3[0][2] * minor_mat_3X3[0][2];
+  aom_clear_system_state();
+  if (determinant != 0) {
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+        // Transpose and divided by determinant
+        // Since the division may lose precision, we first scale the value
+        inverse_XTX_3X3[i][j] = (minor_mat_3X3[j][i]) / (determinant);
+      }
+    }
+
+    return 1;
+  } else {
+    return 0;
+  }
+}
 /**
  * |x'|   |h11 h12 h13|    |x|
  * |y'| = |h21 h22 h23| X  |y|
@@ -678,89 +716,163 @@ static int_mv calc_affine_mv(LOCATION_INFO *source_points,
                              LOCATION_INFO *destination_points,
                              int32_t point_number, LOCATION_INFO my_point) {
   int_mv ans_mv;
-  int64_t sum_x = 0;
-  int64_t sum_y = 0;
-  int64_t sum_xx = 0;
-  int64_t sum_xy = 0;
-  int64_t sum_yy = 0;
-  for (int i = 0; i < point_number; i++) {
-    sum_x += source_points[i].x;
-    sum_y += source_points[i].y;
-    sum_xx += source_points[i].x * source_points[i].x;
-    sum_xy += source_points[i].x * source_points[i].y;
-    sum_yy += source_points[i].y * source_points[i].y;
-  }
-  int64_t XTX_3X3[3][3] = { { sum_xx, sum_xy, sum_x },
-                            { sum_xy, sum_yy, sum_y },
-                            { sum_x, sum_y, point_number } };
-  int64_t inverse_XTX_3X3[3][3];
-  int ret = calc_inverse_3X3_with_scaling(XTX_3X3, inverse_XTX_3X3);
-  if (ret == 0) {
-    // fprintf(stderr, "ret = 0\n");
-    // Fail to Calc inverse
+  if (point_number == 0) {
     ans_mv.as_int = INVALID_MV;
     return ans_mv;
   }
-  aom_clear_system_state();
-  int64_t mat[3][point_number];
-  // point_number = AOMMIN(point_number, MAX_REF_MV_STACK_SIZE);
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < point_number; j++) {
-      mat[i][j] = inverse_XTX_3X3[i][0] * source_points[j].x +
-                  inverse_XTX_3X3[i][1] * source_points[j].y +
-                  inverse_XTX_3X3[i][2];
-      // fprintf(stderr, "%ld\t", mat[i][j]);
+#ifdef USE_FLOAT
+  {
+    int64_t sum_x = 0;
+    int64_t sum_y = 0;
+    int64_t sum_xx = 0;
+    int64_t sum_xy = 0;
+    int64_t sum_yy = 0;
+    for (int i = 0; i < point_number; i++) {
+      sum_x += source_points[i].x;
+      sum_y += source_points[i].y;
+      sum_xx += source_points[i].x * source_points[i].x;
+      sum_xy += source_points[i].x * source_points[i].y;
+      sum_yy += source_points[i].y * source_points[i].y;
     }
-    // fprintf(stderr, "\n");
-  }
-  int64_t h11 = 0;
-  int64_t h12 = 0;
-  int64_t h13 = 0;
-  int64_t h21 = 0;
-  int64_t h22 = 0;
-  int64_t h23 = 0;
-  for (int i = 0; i < point_number; i++) {
-    h11 += mat[0][i] * destination_points[i].x;
-    h12 += mat[1][i] * destination_points[i].x;
-    h13 += mat[2][i] * destination_points[i].x;
-    h21 += mat[0][i] * destination_points[i].y;
-    h22 += mat[1][i] * destination_points[i].y;
-    h23 += mat[2][i] * destination_points[i].y;
-  }
-  for (int i = 0; i < point_number; i++) {
-    int64_t projected_x =
-        (h11 * source_points[i].x + h12 * source_points[i].y + h13);
-    int64_t projected_y =
-        (h21 * source_points[i].x + h22 * source_points[i].y + h23);
-    projected_y = (projected_y >> SCALE_BITS);
-    projected_x = (projected_x >> SCALE_BITS);
-    // fprintf(stderr, "(%d %d)->(%d %d)---(%ld %ld)\t", source_points[i].x,
-    //         source_points[i].y, destination_points[i].x,
-    //         destination_points[i].y, projected_x, projected_y);
-    // fprintf(stderr, "\n");
-  }
+    float XTX_3X3[3][3] = { { sum_xx, sum_xy, sum_x },
+                            { sum_xy, sum_yy, sum_y },
+                            { sum_x, sum_y, point_number } };
+    float inverse_XTX_3X3[3][3];
+    int ret = calc_inverse_3X3_float(XTX_3X3, inverse_XTX_3X3);
+    if (ret == 0) {
+      // fprintf(stderr, "ret = 0\n");
+      // Fail to Calc inverse
+      ans_mv.as_int = INVALID_MV;
+      return ans_mv;
+    }
+    aom_clear_system_state();
+    int64_t mat[3][point_number];
+    // point_number = AOMMIN(point_number, MAX_REF_MV_STACK_SIZE);
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < point_number; j++) {
+        mat[i][j] = inverse_XTX_3X3[i][0] * source_points[j].x +
+                    inverse_XTX_3X3[i][1] * source_points[j].y +
+                    inverse_XTX_3X3[i][2];
+        // fprintf(stderr, "%ld\t", mat[i][j]);
+      }
+    }
+    float h11 = 0;
+    float h12 = 0;
+    float h13 = 0;
+    float h21 = 0;
+    float h22 = 0;
+    float h23 = 0;
+    for (int i = 0; i < point_number; i++) {
+      h11 += mat[0][i] * destination_points[i].x;
+      h12 += mat[1][i] * destination_points[i].x;
+      h13 += mat[2][i] * destination_points[i].x;
+      h21 += mat[0][i] * destination_points[i].y;
+      h22 += mat[1][i] * destination_points[i].y;
+      h23 += mat[2][i] * destination_points[i].y;
+    }
+    float my_projected_x = (h11 * my_point.x + h12 * my_point.y + h13);
+    float my_projected_y = (h21 * my_point.x + h22 * my_point.y + h23);
 
-  // fprintf(stderr, "+++++++++++++++++++++++++++++\n");
+    int64_t mv_col = roundf(my_projected_x - my_point.x);
+    int64_t mv_row = roundf(my_projected_y - my_point.y);
 
-  int64_t my_projected_x = (h11 * my_point.x + h12 * my_point.y + h13);
-  int64_t my_projected_y = (h21 * my_point.x + h22 * my_point.y + h23);
-  // Scale Back
-  my_projected_x = (my_projected_x >> SCALE_BITS);
-  my_projected_y = (my_projected_y >> SCALE_BITS);
-
-  int64_t mv_col = my_projected_x - my_point.x;
-  int64_t mv_row = my_projected_y - my_point.y;
-
-  // fprintf(stderr, "(%d %d)->(%ld %ld)\t", my_point.x, my_point.y,
-  //         my_projected_x, my_projected_y);
-  if (mv_col > INT16_MAX || mv_col < INT16_MIN || mv_row > INT16_MAX ||
-      mv_row < INT16_MIN) {
-    ans_mv.as_int = INVALID_MV;
-  } else {
-    ans_mv.as_mv.row = mv_row;
-    ans_mv.as_mv.col = mv_col;
+    if (mv_col > INT16_MAX || mv_col < INT16_MIN || mv_row > INT16_MAX ||
+        mv_row < INT16_MIN) {
+      ans_mv.as_int = INVALID_MV;
+    } else {
+      ans_mv.as_mv.row = mv_row;
+      ans_mv.as_mv.col = mv_col;
+    }
+    return ans_mv;
   }
-  return ans_mv;
+#else
+  {
+    int64_t sum_x = 0;
+    int64_t sum_y = 0;
+    int64_t sum_xx = 0;
+    int64_t sum_xy = 0;
+    int64_t sum_yy = 0;
+    for (int i = 0; i < point_number; i++) {
+      sum_x += source_points[i].x;
+      sum_y += source_points[i].y;
+      sum_xx += source_points[i].x * source_points[i].x;
+      sum_xy += source_points[i].x * source_points[i].y;
+      sum_yy += source_points[i].y * source_points[i].y;
+    }
+    int64_t XTX_3X3[3][3] = { { sum_xx, sum_xy, sum_x },
+                              { sum_xy, sum_yy, sum_y },
+                              { sum_x, sum_y, point_number } };
+    int64_t inverse_XTX_3X3[3][3];
+    int ret = calc_inverse_3X3_with_scaling(XTX_3X3, inverse_XTX_3X3);
+    if (ret == 0) {
+      // fprintf(stderr, "ret = 0\n");
+      // Fail to Calc inverse
+      ans_mv.as_int = INVALID_MV;
+      return ans_mv;
+    }
+    aom_clear_system_state();
+    int64_t mat[3][point_number];
+    // point_number = AOMMIN(point_number, MAX_REF_MV_STACK_SIZE);
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < point_number; j++) {
+        mat[i][j] = inverse_XTX_3X3[i][0] * source_points[j].x +
+                    inverse_XTX_3X3[i][1] * source_points[j].y +
+                    inverse_XTX_3X3[i][2];
+        // fprintf(stderr, "%ld\t", mat[i][j]);
+      }
+      // fprintf(stderr, "\n");
+    }
+    int64_t h11 = 0;
+    int64_t h12 = 0;
+    int64_t h13 = 0;
+    int64_t h21 = 0;
+    int64_t h22 = 0;
+    int64_t h23 = 0;
+    for (int i = 0; i < point_number; i++) {
+      h11 += mat[0][i] * destination_points[i].x;
+      h12 += mat[1][i] * destination_points[i].x;
+      h13 += mat[2][i] * destination_points[i].x;
+      h21 += mat[0][i] * destination_points[i].y;
+      h22 += mat[1][i] * destination_points[i].y;
+      h23 += mat[2][i] * destination_points[i].y;
+    }
+    // for (int i = 0; i < point_number; i++) {
+    //   int64_t projected_x =
+    //       (h11 * source_points[i].x + h12 * source_points[i].y + h13);
+    //   int64_t projected_y =
+    //       (h21 * source_points[i].x + h22 * source_points[i].y + h23);
+    //   projected_y = (projected_y >> SCALE_BITS);
+    //   projected_x = (projected_x >> SCALE_BITS);
+    //   // fprintf(stderr, "(%d %d)->(%d %d)---(%ld %ld)\t",
+    //   source_points[i].x,
+    //   //         source_points[i].y, destination_points[i].x,
+    //   //         destination_points[i].y, projected_x, projected_y);
+    //   // fprintf(stderr, "\n");
+    // }
+
+    // fprintf(stderr, "+++++++++++++++++++++++++++++\n");
+
+    int64_t my_projected_x = (h11 * my_point.x + h12 * my_point.y + h13);
+    int64_t my_projected_y = (h21 * my_point.x + h22 * my_point.y + h23);
+    // Scale Back
+    my_projected_x = (my_projected_x >> SCALE_BITS);
+    my_projected_y = (my_projected_y >> SCALE_BITS);
+
+    int64_t mv_col = my_projected_x - my_point.x;
+    int64_t mv_row = my_projected_y - my_point.y;
+
+    // fprintf(stderr, "(%d %d)->(%ld %ld)\t", my_point.x, my_point.y,
+    //         my_projected_x, my_projected_y);
+    if (mv_col > INT16_MAX || mv_col < INT16_MIN || mv_row > INT16_MAX ||
+        mv_row < INT16_MIN) {
+      ans_mv.as_int = INVALID_MV;
+    } else {
+      ans_mv.as_mv.row = mv_row;
+      ans_mv.as_mv.col = mv_col;
+    }
+    return ans_mv;
+  }
+#endif
 }
 bool is_duplicated(int_mv mv_to_check,
                    CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
@@ -989,6 +1101,7 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       projected_points[i].y =
           ref_location_stack[i].y + ref_location_stack[i].this_mv.as_mv.row;
     }
+
     LOCATION_INFO my_point;
     int32_t my_w = xd->n4_w;
     int32_t my_h = xd->n4_h;
@@ -1000,6 +1113,12 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
                                       location_count, my_point);
 
+    if (affine_mv.as_int != INVALID_MV &&
+        cm->fr_mv_precision != MV_SUBPEL_EIGHTH_PRECISION) {
+      const int shift = MV_SUBPEL_EIGHTH_PRECISION - cm->fr_mv_precision;
+      affine_mv.as_mv.row = (affine_mv.as_mv.row >> shift) << shift;
+      affine_mv.as_mv.col = (affine_mv.as_mv.col >> shift) << shift;
+    }
     if (affine_mv.as_int != INVALID_MV &&
         (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
       ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
@@ -1024,7 +1143,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       (*refmv_count)++;
     }
   }
-  // exit(0);
 
   // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
