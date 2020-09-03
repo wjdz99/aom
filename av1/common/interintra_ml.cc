@@ -116,6 +116,19 @@ void copy_blank_square(uint8_t *dst, int stride, BLOCK_SIZE bsize,
   }
 }
 
+void superscale_pred(uint8_t dst[400], const uint8_t *pred, int stride) {
+  for (int j = 0; j < 20; ++j) {
+    for (int i = 0; i < 20; ++i) {
+      int scaled_i = i / 2;
+      int scaled_j = j / 2;
+      dst[i + j * 20] = pred[scaled_i + scaled_j * stride];
+      dst[i + j * 20 + 1] = pred[scaled_i + scaled_j * stride];
+      dst[i + j * 20 + j] = pred[scaled_i + scaled_j * stride];
+      dst[i + j * 20 + 1 + j] = pred[scaled_i + scaled_j * stride];
+    }
+  }
+}
+
 // Load the inputs (inter-predictor + border, intra-predictor border)
 // into the interpreter.
 void load_inputs(tflite::Interpreter *interpreter, INTERINTRA_MODE mode,
@@ -168,6 +181,47 @@ void copy_to_output(tflite::Interpreter *interpreter, BLOCK_SIZE bsize,
   }
 }
 
+void scale_load_inputs(tflite::Interpreter *interpreter, INTERINTRA_MODE mode,
+                       const uint8_t *inter_pred, int inter_stride,
+                       const uint8_t *intra_pred, int intra_stride) {
+  uint8_t scaled_inter_pred[400];
+  const int scaled_inter_stride = 20;
+  superscale_pred(scaled_inter_pred,
+                  inter_pred - INTERINTRA_ML_BORDER * inter_stride / 2 -
+                      INTERINTRA_ML_BORDER / 2,
+                  inter_stride);
+
+  uint8_t scaled_intra_pred[400];
+  const int scaled_intra_stride = 20;
+  superscale_pred(scaled_intra_pred,
+                  intra_pred - INTERINTRA_ML_BORDER * intra_stride / 2 -
+                      INTERINTRA_ML_BORDER / 2,
+                  intra_stride);
+  load_inputs(interpreter, mode, BLOCK_16X16,
+              scaled_inter_pred + INTERINTRA_ML_BORDER * scaled_inter_stride +
+                  INTERINTRA_ML_BORDER,
+              scaled_inter_stride,
+              scaled_intra_pred + INTERINTRA_ML_BORDER * scaled_intra_stride +
+                  INTERINTRA_ML_BORDER,
+              scaled_intra_stride);
+}
+
+void scale_copy_to_output(tflite::Interpreter *interpreter, uint8_t *comp_pred,
+                          int comp_stride) {
+  uint8_t buffer[256];
+  copy_to_output(interpreter, BLOCK_16X16, buffer, 16);
+  for (int j = 0; j < 8; ++j) {
+    for (int i = 0; i < 8; ++i) {
+      // Weighted average.
+      comp_pred[j * comp_stride + i] =
+          (2 + buffer[2 * i + 16 * 2 * j] + buffer[1 + 2 * i + 16 * 2 * j] +
+           buffer[2 * i + 16 * 2 * j + j] +
+           buffer[1 + 2 * i + 16 * 2 * j + j]) /
+          4;
+    }
+  }
+}
+
 }  // namespace
 
 void av1_combine_interintra_ml(INTERINTRA_MODE mode, BLOCK_SIZE plane_bsize,
@@ -177,21 +231,33 @@ void av1_combine_interintra_ml(INTERINTRA_MODE mode, BLOCK_SIZE plane_bsize,
                                int border) {
   (void)border;
   assert(border >= INTERINTRA_ML_BORDER);
-  if (plane_bsize != BLOCK_16X16) {
+  if (plane_bsize != BLOCK_16X16 && plane_bsize != BLOCK_8X8) {
     // Not yet implemented. Just copy a blank square into the predictor.
     copy_blank_square(comp_pred, comp_stride, plane_bsize, false);
     return;
   }
   tflite::Interpreter *interpreter = get_interpreter();
-  load_inputs(interpreter, mode, plane_bsize, inter_pred, inter_stride,
-              intra_pred, intra_stride);
+  if (plane_bsize == BLOCK_16X16) {
+    load_inputs(interpreter, mode, plane_bsize, inter_pred, inter_stride,
+                intra_pred, intra_stride);
+  } else {
+    assert(plane_bsize == BLOCK_8X8);
+    scale_load_inputs(interpreter, mode, inter_pred, inter_stride, intra_pred,
+                      intra_stride);
+  }
   auto status = interpreter->Invoke();
   if (status != kTfLiteOk) {
     tflite::ErrorReporter *reporter = get_reporter();
     reporter->Report("Failed to run inference");
     assert(false);
   }
-  copy_to_output(interpreter, plane_bsize, comp_pred, comp_stride);
+
+  if (plane_bsize == BLOCK_16X16) {
+    copy_to_output(interpreter, plane_bsize, comp_pred, comp_stride);
+  } else {
+    assert(plane_bsize == BLOCK_8X8);
+    scale_copy_to_output(interpreter, comp_pred, comp_stride);
+  }
 }
 
 void av1_combine_interintra_ml_highbd(
