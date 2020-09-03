@@ -10747,8 +10747,15 @@ static int handle_smooth_inter_intra_mode(
   MACROBLOCKD *xd = &x->e_mbd;
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
+#if CONFIG_INTERINTRA_ML
+  const int *const interintra_mode_cost =
+      bsize == BLOCK_16X16
+          ? x->interintra_ml_mode_cost[size_group_lookup[bsize]]
+          : x->interintra_mode_cost[size_group_lookup[bsize]];
+#else
   const int *const interintra_mode_cost =
       x->interintra_mode_cost[size_group_lookup[bsize]];
+#endif  // CONFIG_INTERINTRA_ML
   mbmi->use_wedge_interintra = 0;
   int j = 0;
   if (cpi->sf.reuse_inter_intra_mode == 0 ||
