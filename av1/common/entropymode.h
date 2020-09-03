@@ -147,8 +147,17 @@ typedef struct frame_contexts {
   aom_cdf_prob wedge_idx_cdf[BLOCK_SIZES_ALL][CDF_SIZE(16)];
   aom_cdf_prob interintra_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(2)];
   aom_cdf_prob wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
+#if CONFIG_INTERINTRA_ML
+  // [1] because it is only valid for 16x16 blocks, and RESET_CDF_COUNTER
+  // assumes the cdf is a fixed size array.
+  aom_cdf_prob interintra_ml_mode_cdf[1][CDF_SIZE(INTERINTRA_MODES)];
+  // For all other block sizes, the CDF only encompasses up to
+  // the first ML mode.
+  aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(II_ML_PRED0)];
+#else
   aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
                                   [CDF_SIZE(INTERINTRA_MODES)];
+#endif  // CONFIG_INTERINTRA_ML
   aom_cdf_prob motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)];
   aom_cdf_prob obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_cdf_prob palette_y_size_cdf[PALATTE_BSIZE_CTXS][CDF_SIZE(PALETTE_SIZES)];

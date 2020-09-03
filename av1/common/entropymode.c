@@ -1076,19 +1076,6 @@ static const aom_cdf_prob
                                { AOM_CDF5(1875, 11082, 27332, 31000) },
                                { AOM_CDF5(2473, 9996, 26388, 31000) },
                                { AOM_CDF5(4238, 11537, 25926, 31000) } };
-#elif CONFIG_INTERINTRA_ML
-static const aom_cdf_prob
-    default_interintra_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(
-        INTERINTRA_MODES)] = {
-      { AOM_CDF14(4096, 8192, 12288, 16384, 18024, 19664, 21304, 22944, 24584,
-                  26224, 27864, 29504, 31144) },
-      { AOM_CDF14(938, 5541, 13666, 16384, 18024, 19664, 21304, 22944, 24584,
-                  26224, 27864, 29504, 31144) },
-      { AOM_CDF14(1237, 4998, 13194, 16384, 18024, 19664, 21304, 22944, 24584,
-                  26224, 27864, 29504, 31144) },
-      { AOM_CDF14(2119, 5768, 12963, 16384, 18024, 19664, 21304, 22944, 24584,
-                  26224, 27864, 29504, 31144) }
-    };
 #else
 static const aom_cdf_prob
     default_interintra_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(
@@ -1097,6 +1084,14 @@ static const aom_cdf_prob
                                { AOM_CDF4(2473, 9996, 26388) },
                                { AOM_CDF4(4238, 11537, 25926) } };
 #endif  // CONFIG_ILLUM_MCOMP
+
+#if CONFIG_INTERINTRA_ML
+static const aom_cdf_prob
+    default_interintra_ml_mode_cdf[1][CDF_SIZE(INTERINTRA_MODES)] = {
+      { AOM_CDF14(1237, 4998, 13194, 16384, 18024, 19664, 21304, 22944, 24584,
+                  26224, 27864, 29504, 31144) },
+    };
+#endif  // CONFIG_INTERINTRA_ML
 
 static const aom_cdf_prob
     default_wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
@@ -1930,6 +1925,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->interintra_cdf, default_interintra_cdf);
   av1_copy(fc->wedge_interintra_cdf, default_wedge_interintra_cdf);
   av1_copy(fc->interintra_mode_cdf, default_interintra_mode_cdf);
+#if CONFIG_INTERINTRA_ML
+  av1_copy(fc->interintra_ml_mode_cdf, default_interintra_ml_mode_cdf);
+#endif
   av1_copy(fc->seg.pred_cdf, default_segment_pred_cdf);
   av1_copy(fc->seg.tree_cdf, default_seg_tree_cdf);
   av1_copy(fc->filter_intra_cdfs, default_filter_intra_cdfs);
