@@ -8342,43 +8342,6 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     step_param = cpi->mv_step_param;
   }
 
-  if (cpi->sf.adaptive_motion_search && bsize < cm->seq_params.sb_size) {
-    int boffset =
-        2 * (mi_size_wide_log2[cm->seq_params.sb_size] -
-             AOMMIN(mi_size_high_log2[bsize], mi_size_wide_log2[bsize]));
-    step_param = AOMMAX(step_param, boffset);
-  }
-
-  if (cpi->sf.adaptive_motion_search) {
-    int bwl = mi_size_wide_log2[bsize];
-    int bhl = mi_size_high_log2[bsize];
-    int tlevel = x->pred_mv_sad[ref] >> (bwl + bhl + 4);
-
-    if (tlevel < 5) {
-      step_param += 2;
-      step_param = AOMMIN(step_param, MAX_MVSEARCH_STEPS - 1);
-    }
-
-    // prev_mv_sad is not setup for dynamically scaled frames.
-    if (cpi->oxcf.resize_mode != RESIZE_RANDOM) {
-      int i;
-      for (i = LAST_FRAME; i <= ALTREF_FRAME && cm->show_frame; ++i) {
-        if ((x->pred_mv_sad[ref] >> 3) > x->pred_mv_sad[i]) {
-          x->pred_mv[ref].row = 0;
-          x->pred_mv[ref].col = 0;
-          x->best_mv.as_int = INVALID_MV;
-
-          if (scaled_ref_frame) {
-            // Swap back the original buffers before returning.
-            for (int j = 0; j < num_planes; ++j)
-              xd->plane[j].pre[ref_idx] = backup_yv12[j];
-          }
-          return;
-        }
-      }
-    }
-  }
-
   const MV ref_mv = av1_get_ref_mv(x, ref_idx).as_mv;
   // Note: MV limits are modified here. Always restore the original values
   // after full-pixel motion search.
@@ -8530,9 +8493,6 @@ static void single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                                  mv_precision_cost,
 #endif  // CONFIG_FLEX_MVRES
                                  MV_COST_WEIGHT);
-
-  if (cpi->sf.adaptive_motion_search && mbmi->motion_mode == SIMPLE_TRANSLATION)
-    x->pred_mv[ref] = x->best_mv.as_mv;
 }
 
 static INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
@@ -11369,7 +11329,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
           // Keep the refined MV and WM parameters.
           if (mv0.as_int != mbmi->mv[0].as_int) {
-            const int ref = refs[0];
             const int_mv ref_mv = av1_get_ref_mv(x, 0);
             tmp_rate_mv = av1_mv_bit_cost_gen(&mbmi->mv[0].as_mv, &ref_mv.as_mv,
                                               max_mv_precision, x->nmv_vec_cost,
@@ -11378,9 +11337,6 @@ static int64_t motion_mode_rd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                                               mv_precision_cost,
 #endif  // CONFIG_FLEX_MVRES
                                               MV_COST_WEIGHT);
-
-            if (cpi->sf.adaptive_motion_search)
-              x->pred_mv[ref] = mbmi->mv[0].as_mv;
 
 #if USE_DISCOUNT_NEWMV_TEST
             if (discount_newmv_test(cpi, x, this_mode, mbmi->mv[0])) {
