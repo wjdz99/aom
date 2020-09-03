@@ -153,6 +153,9 @@ typedef struct {
   uint16_t y;
 } EdgeInfo;
 
+EdgeInfo av1_get_edge_info(const struct buf_2d *ref, const BLOCK_SIZE bsize,
+                           const bool high_bd, const int bd);
+
 /** Returns an integer indicating the strength of the edge.
  * 0 means no edge found, 556 is the strength of a solid black/white edge,
  * and the number may range higher if the signal is even stronger (e.g., on a
