@@ -489,7 +489,12 @@ struct macroblock {
   int wedge_idx_cost[BLOCK_SIZES_ALL][16];
   int interintra_cost[BLOCK_SIZE_GROUPS][2];
   int wedge_interintra_cost[BLOCK_SIZES_ALL][2];
-  int interintra_mode_cost[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
+#if CONFIG_INTERINTRA_ML
+  int interintra_mode_cost_[BLOCK_SIZE_GROUPS][II_ML_PRED0];
+  int interintra_ml_mode_cost_[1][INTERINTRA_MODES];
+#else
+  int interintra_mode_cost_[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
+#endif
   int motion_mode_cost[BLOCK_SIZES_ALL][MOTION_MODES];
   int motion_mode_cost1[BLOCK_SIZES_ALL][2];
 #if !CONFIG_INTRA_ENTROPY
