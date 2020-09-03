@@ -8,7 +8,7 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
-
+// original-baseline@2020-07-30T01:53:49.506Z
 #include <stdlib.h>
 #include "aom_ports/system_state.h"
 #include "av1/common/mvref_common.h"
@@ -22,6 +22,11 @@
 // If we want to disable Extend Search for neighbors and MVs, just comment the
 // following line
 #define EXTEND_CANDIDATE (1)
+
+//#define ADD_AFFINE_MV (1)
+//#define ADD_ROTZOOM_MV (1)
+//#define ADD_ARITHMETIC_AVG (1)
+#define ADD_WEIGHTED_AVG (1)
 
 // Although we assign 32 bit integers, all the values are strictly under 14
 // bits.
@@ -1111,6 +1116,66 @@ static int_mv calc_rotzoom_mv(LOCATION_INFO *source_points,
   }
 #endif
 }
+
+static int_mv calc_weighted_mv(LOCATION_INFO *source_points,
+                               LOCATION_INFO *destination_points,
+                               int32_t point_number, LOCATION_INFO my_point) {
+  int_mv ans_mv;
+  ans_mv.as_int = INVALID_MV;
+  if (point_number == 0) {
+    return ans_mv;
+  }
+  int64_t col, row;
+  col = row = 0;
+  int64_t total_weight = 0;
+  for (int i = 0; i < point_number; i++) {
+    int64_t x_dist = source_points[i].x - my_point.x;
+    int64_t y_dist = source_points[i].y - my_point.y;
+    int64_t dist = x_dist * x_dist + y_dist * y_dist;
+    int64_t this_weight = 10000000 / dist;
+    total_weight += this_weight;
+    // We use the 1/dist as the weight (i.e. those MVs which are farther away
+    // from the current block have less effect on determining the averaged MV
+    // for the current block)
+    col += (destination_points[i].x - destination_points[i].x) * this_weight;
+    row += (destination_points[i].y - destination_points[i].y) * this_weight;
+  }
+  col = (col + (total_weight >> 1)) / total_weight;
+  row = (row + (total_weight >> 1)) / total_weight;
+  if (col > INT16_MAX || row > INT16_MAX || col < INT16_MIN ||
+      row < INT16_MIN) {
+    return ans_mv;
+  } else {
+    ans_mv.as_mv.col = col;
+    ans_mv.as_mv.row = row;
+    return ans_mv;
+  }
+}
+static int_mv calc_arithmetic_mv(LOCATION_INFO *source_points,
+                                 LOCATION_INFO *destination_points,
+                                 int32_t point_number, LOCATION_INFO my_point) {
+  int_mv ans_mv;
+  ans_mv.as_int = INVALID_MV;
+  if (point_number == 0) {
+    return ans_mv;
+  }
+  int64_t col, row;
+  col = row = 0;
+  for (int i = 0; i < point_number; i++) {
+    col += (destination_points[i].x - source_points[i].x);
+    row += (destination_points[i].y - destination_points[i].y);
+  }
+  col = (col + (point_number >> 1)) / point_number;
+  row = (row + (point_number >> 1)) / point_number;
+  if (col > INT16_MAX || row > INT16_MAX || col < INT16_MIN ||
+      row < INT16_MIN) {
+    return ans_mv;
+  } else {
+    ans_mv.as_mv.col = col;
+    ans_mv.as_mv.row = row;
+    return ans_mv;
+  }
+}
 bool is_duplicated(int_mv mv_to_check,
                    CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
                    int mv_count) {
@@ -1295,41 +1360,9 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       break;
   }
 
-  if (rf[1] == NONE_FRAME && (*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+  if (rf[1] == NONE_FRAME) {
     // Warp Transformation (Curently only consider for Single Frame Prediction)
     // ref_location_stack
-    /** For Debug
-       * xd  (64 64)
-  added mv -64 -64
-  (24 -48)	(90 -48)	(98 -48)	(128 -50)	(110 -32)
-  (24  -40)->(24 -48)	(-40  24)->(90 -48)	(-40  88)->(98 -48) (-88
-  104)->(128 -50)	(104  -200)->(110 -32)
-
-    ref_location_stack[0].x = 24;
-    ref_location_stack[0].y = -40;
-    ref_location_stack[0].this_mv.as_mv.row = 24;
-    ref_location_stack[0].this_mv.as_mv.col = -48;
-    ref_location_stack[1].x = -40;
-    ref_location_stack[1].y = 24;
-    ref_location_stack[1].this_mv.as_mv.row = 90;
-    ref_location_stack[1].this_mv.as_mv.col = -48;
-    ref_location_stack[2].x = -40;
-    ref_location_stack[2].y = 88;
-    ref_location_stack[2].this_mv.as_mv.row = 98;
-    ref_location_stack[2].this_mv.as_mv.col = -48;
-    ref_location_stack[3].x = -88;
-    ref_location_stack[3].y = 104;
-    ref_location_stack[3].this_mv.as_mv.row = 128;
-    ref_location_stack[3].this_mv.as_mv.col = -50;
-    ref_location_stack[4].x = 104;
-    ref_location_stack[4].y = -200;
-    ref_location_stack[4].this_mv.as_mv.row = 110;
-    ref_location_stack[4].this_mv.as_mv.col = -32;
-    location_count = 5;
-        my_point.x = 64;
-    my_point.y = 64;
-    **/
-
     LOCATION_INFO projected_points[MAX_REF_MV_STACK_SIZE];
     for (uint8_t i = 0; i < location_count; i++) {
       projected_points[i].x =
@@ -1345,54 +1378,104 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     // and we need the centriod of the current block
     my_point.x = (my_w * MI_SIZE) * 4;
     my_point.y = (my_h * MI_SIZE) * 4;
-
-    int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
-                                      location_count, my_point);
-
-    if (affine_mv.as_int != INVALID_MV &&
-        cm->fr_mv_precision != MV_SUBPEL_EIGHTH_PRECISION) {
-      const int shift = MV_SUBPEL_EIGHTH_PRECISION - cm->fr_mv_precision;
-      affine_mv.as_mv.row = (affine_mv.as_mv.row >> shift) << shift;
-      affine_mv.as_mv.col = (affine_mv.as_mv.col >> shift) << shift;
-    }
-    if (affine_mv.as_int != INVALID_MV &&
-        (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
-      ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
-      ref_mv_weight[(*refmv_count)] = 1;
-      // fprintf(stderr, "-------------------------------------------------\n");
-      // fprintf(stderr, "xd  (%d %d)\n", my_point.x, my_point.y);
-      // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
-      //         affine_mv.as_mv.col);
-      // for (int j = 0; j < (*refmv_count); j++) {
-      //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.col,
-      //           ref_mv_stack[j].this_mv.as_mv.row);
-      // }
-      // fprintf(stderr, "\n");
-      // for (int j = 0; j < (location_count); j++) {
-      //   fprintf(stderr, "(%d  %d)->(%d %d)\t", ref_location_stack[j].x,
-      //           ref_location_stack[j].y,
-      //           ref_location_stack[j].this_mv.as_mv.col,
-      //           ref_location_stack[j].this_mv.as_mv.row);
-      // }
-      // fprintf(stderr, "\n");
-      // fprintf(stderr, "-------------------------------------------------\n");
-      (*refmv_count)++;
-    }
-    int_mv rotzoom_mv = calc_rotzoom_mv(ref_location_stack, projected_points,
+#ifdef ADD_AFFINE_MV
+    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+      int_mv affine_mv = calc_affine_mv(ref_location_stack, projected_points,
                                         location_count, my_point);
-    if (rotzoom_mv.as_int != INVALID_MV &&
-        cm->fr_mv_precision != MV_SUBPEL_EIGHTH_PRECISION) {
-      const int shift = MV_SUBPEL_EIGHTH_PRECISION - cm->fr_mv_precision;
-      rotzoom_mv.as_mv.row = (rotzoom_mv.as_mv.row >> shift) << shift;
-      rotzoom_mv.as_mv.col = (rotzoom_mv.as_mv.col >> shift) << shift;
+
+      if (affine_mv.as_int != INVALID_MV &&
+          cm->fr_mv_precision != MV_SUBPEL_EIGHTH_PRECISION) {
+        const int shift = MV_SUBPEL_EIGHTH_PRECISION - cm->fr_mv_precision;
+        affine_mv.as_mv.row = (affine_mv.as_mv.row >> shift) << shift;
+        affine_mv.as_mv.col = (affine_mv.as_mv.col >> shift) << shift;
+      }
+      if (affine_mv.as_int != INVALID_MV &&
+          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
+          (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
+        ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
+        ref_mv_weight[(*refmv_count)] = 1;
+        // fprintf(stderr,
+        // "-------------------------------------------------\n");
+        // fprintf(stderr, "xd  (%d %d)\n", my_point.x, my_point.y);
+        // fprintf(stderr, "added mv %d %d\n", affine_mv.as_mv.row,
+        //         affine_mv.as_mv.col);
+        // for (int j = 0; j < (*refmv_count); j++) {
+        //   fprintf(stderr, "(%d %d)\t", ref_mv_stack[j].this_mv.as_mv.col,
+        //           ref_mv_stack[j].this_mv.as_mv.row);
+        // }
+        // fprintf(stderr, "\n");
+        // for (int j = 0; j < (location_count); j++) {
+        //   fprintf(stderr, "(%d  %d)->(%d %d)\t", ref_location_stack[j].x,
+        //           ref_location_stack[j].y,
+        //           ref_location_stack[j].this_mv.as_mv.col,
+        //           ref_location_stack[j].this_mv.as_mv.row);
+        // }
+        // fprintf(stderr, "\n");
+        // fprintf(stderr,
+        // "-------------------------------------------------\n");
+        (*refmv_count)++;
+      }
     }
-    if (rotzoom_mv.as_int != INVALID_MV &&
-        (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
-        (!is_duplicated(rotzoom_mv, ref_mv_stack, (*refmv_count)))) {
-      ref_mv_stack[(*refmv_count)].this_mv = rotzoom_mv;
-      ref_mv_weight[(*refmv_count)] = 1;
-      (*refmv_count)++;
+#endif
+#ifdef ADD_ROTZOOM_MV
+    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+      int_mv rotzoom_mv = calc_rotzoom_mv(ref_location_stack, projected_points,
+                                          location_count, my_point);
+      if (rotzoom_mv.as_int != INVALID_MV &&
+          cm->fr_mv_precision != MV_SUBPEL_EIGHTH_PRECISION) {
+        const int shift = MV_SUBPEL_EIGHTH_PRECISION - cm->fr_mv_precision;
+        rotzoom_mv.as_mv.row = (rotzoom_mv.as_mv.row >> shift) << shift;
+        rotzoom_mv.as_mv.col = (rotzoom_mv.as_mv.col >> shift) << shift;
+      }
+      if (rotzoom_mv.as_int != INVALID_MV &&
+          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
+          (!is_duplicated(rotzoom_mv, ref_mv_stack, (*refmv_count)))) {
+        ref_mv_stack[(*refmv_count)].this_mv = rotzoom_mv;
+        ref_mv_weight[(*refmv_count)] = 1;
+        (*refmv_count)++;
+      }
     }
+#endif
+#ifdef ADD_ARITHMETIC_AVG
+    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+      int_mv arithmetic_mv = calc_arithmetic_mv(
+          ref_location_stack, projected_points, location_count, my_point);
+      if (arithmetic_mv.as_int != INVALID_MV &&
+          cm->fr_mv_precision != MV_SUBPEL_EIGHTH_PRECISION) {
+        const int shift = MV_SUBPEL_EIGHTH_PRECISION - cm->fr_mv_precision;
+        arithmetic_mv.as_mv.row = (arithmetic_mv.as_mv.row >> shift) << shift;
+        arithmetic_mv.as_mv.col = (arithmetic_mv.as_mv.col >> shift) << shift;
+      }
+      if (arithmetic_mv.as_int != INVALID_MV &&
+          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
+          (!is_duplicated(arithmetic_mv, ref_mv_stack, (*refmv_count)))) {
+        ref_mv_stack[(*refmv_count)].this_mv = arithmetic_mv;
+        ref_mv_weight[(*refmv_count)] = 1;
+        (*refmv_count)++;
+      }
+    }
+#endif
+#ifdef ADD_WEIGHTED_AVG
+    if ((*refmv_count) < MAX_REF_MV_STACK_SIZE) {
+      int_mv weighted_avg_mv = calc_weighted_mv(
+          ref_location_stack, projected_points, location_count, my_point);
+      if (weighted_avg_mv.as_int != INVALID_MV &&
+          cm->fr_mv_precision != MV_SUBPEL_EIGHTH_PRECISION) {
+        const int shift = MV_SUBPEL_EIGHTH_PRECISION - cm->fr_mv_precision;
+        weighted_avg_mv.as_mv.row = (weighted_avg_mv.as_mv.row >> shift)
+                                    << shift;
+        weighted_avg_mv.as_mv.col = (weighted_avg_mv.as_mv.col >> shift)
+                                    << shift;
+      }
+      if (weighted_avg_mv.as_int != INVALID_MV &&
+          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
+          (!is_duplicated(weighted_avg_mv, ref_mv_stack, (*refmv_count)))) {
+        ref_mv_stack[(*refmv_count)].this_mv = weighted_avg_mv;
+        ref_mv_weight[(*refmv_count)] = 1;
+        (*refmv_count)++;
+      }
+    }
+#endif
   }
 
   // Rank the likelihood and assign nearest and near mvs.
