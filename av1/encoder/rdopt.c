@@ -11139,15 +11139,12 @@ static int check_identical_obmc_mv_field(const AV1_COMMON *cm,
 
 // TODO(afergs): Refactor the MBMI references in here - there's four
 // TODO(afergs): Refactor optional args - add them to a struct or remove
-static int64_t motion_mode_rd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
-                              MACROBLOCK *const x, BLOCK_SIZE bsize,
-                              RD_STATS *rd_stats, RD_STATS *rd_stats_y,
-                              RD_STATS *rd_stats_uv, int *disable_skip,
-                              HandleInterModeArgs *const args,
-                              int64_t ref_best_rd, const int *refs,
-                              int *rate_mv, const BUFFER_SET *orig_dst,
-                              int64_t *best_est_rd, int do_tx_search,
-                              InterModesInfo *inter_modes_info) {
+static int64_t motion_mode_rd(
+    const AV1_COMP *const cpi, TileDataEnc *tile_data, MACROBLOCK *const x,
+    BLOCK_SIZE bsize, RD_STATS *rd_stats, RD_STATS *rd_stats_y,
+    RD_STATS *rd_stats_uv, int *disable_skip, HandleInterModeArgs *const args,
+    int64_t ref_best_rd, int *rate_mv, const BUFFER_SET *orig_dst,
+    int64_t *best_est_rd, int do_tx_search, InterModesInfo *inter_modes_info) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *xd = &x->e_mbd;
@@ -12899,8 +12896,8 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 
       ret_val = motion_mode_rd(cpi, tile_data, x, bsize, rd_stats, rd_stats_y,
                                rd_stats_uv, disable_skip, args, ref_best_rd,
-                               refs, &rate_mv, &orig_dst, best_est_rd,
-                               do_tx_search, inter_modes_info);
+                               &rate_mv, &orig_dst, best_est_rd, do_tx_search,
+                               inter_modes_info);
       assert(
           IMPLIES(!av1_check_newmv_joint_nonzero(cm, x), ret_val == INT64_MAX));
 
