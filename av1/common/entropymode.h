@@ -149,6 +149,10 @@ typedef struct frame_contexts {
   aom_cdf_prob wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
                                   [CDF_SIZE(INTERINTRA_MODES)];
+#if CONFIG_INTERINTRA_ML
+  aom_cdf_prob interintra_ml_mode_cdf[BLOCK_SIZE_GROUPS]
+                                     [CDF_SIZE(INTERINTRA_MODES)];
+#endif
   aom_cdf_prob motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(MOTION_MODES)];
   aom_cdf_prob obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
   aom_cdf_prob palette_y_size_cdf[PALATTE_BSIZE_CTXS][CDF_SIZE(PALETTE_SIZES)];

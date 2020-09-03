@@ -472,8 +472,20 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     for (i = 0; i < BLOCK_SIZE_GROUPS; ++i) {
       av1_cost_tokens_from_cdf(x->interintra_cost[i], fc->interintra_cdf[i],
                                NULL);
+#if CONFIG_INTERINTRA_ML
+      MACROBLOCKD *xd = &x->e_mbd;
+      const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+      if (bsize == BLOCK_16X16) {
+        av1_cost_tokens_from_cdf(x->interintra_ml_mode_cost[i],
+                                 fc->interintra_ml_mode_cdf[i], NULL);
+      } else {
+        av1_cost_tokens_from_cdf(x->interintra_mode_cost[i],
+                                 fc->interintra_mode_cdf[i], NULL);
+      }
+#else
       av1_cost_tokens_from_cdf(x->interintra_mode_cost[i],
                                fc->interintra_mode_cdf[i], NULL);
+#endif  // CONFIG_INTERINTRA_ML
     }
     for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
       av1_cost_tokens_from_cdf(x->wedge_interintra_cost[i],

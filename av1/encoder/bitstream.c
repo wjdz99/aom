@@ -1648,9 +1648,21 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         if (!mbmi->use_derived_intra_mode[0])
 #endif  // CONFIG_DERIVED_INTRA_MODE
         {
+#if CONFIG_INTERINTRA_ML
+          if (bsize == BLOCK_16X16) {
+            aom_write_symbol(w, mbmi->interintra_mode,
+                             ec_ctx->interintra_ml_mode_cdf[bsize_group],
+                             INTERINTRA_MODES);
+          } else {
+            aom_write_symbol(w, mbmi->interintra_mode,
+                             ec_ctx->interintra_mode_cdf[bsize_group],
+                             INTERINTRA_MODES);
+          }
+#else
           aom_write_symbol(w, mbmi->interintra_mode,
                            ec_ctx->interintra_mode_cdf[bsize_group],
                            INTERINTRA_MODES);
+#endif  // CONFIG_INTERINTRA_ML
         }
         if (is_interintra_wedge_used(bsize)) {
           aom_write_symbol(w, mbmi->use_wedge_interintra,
