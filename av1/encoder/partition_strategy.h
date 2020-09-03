@@ -79,6 +79,11 @@ void av1_get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
                                         int mi_row, int mi_col,
                                         float *features);
 
+void av1_get_max_min_partition_size(AV1_COMP *cpi, ThreadData *td,
+                                    BLOCK_SIZE *max_sq_size,
+                                    BLOCK_SIZE *min_sq_size, int mi_row,
+                                    int mi_col);
+
 // Predict the maximum BLOCK_SIZE to be used to encoder the current superblock.
 BLOCK_SIZE av1_predict_max_partition(AV1_COMP *const cpi, MACROBLOCK *const x,
                                      const float *features);
