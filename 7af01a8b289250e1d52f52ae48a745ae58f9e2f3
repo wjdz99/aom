@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59247e49_d41139dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-03T20:27:40Z",
+      "side": 1,
+      "message": "Please fix these style warnings.\n\n\u003e Patch Set 14: Code-Review-1\n\u003e \n\u003e Code Style Warnings (non-blocking):\n\u003e \n\u003e    av1/common/mfqe.c:372:  Using sizeof(type).  Use sizeof(varname) instead if possible  [runtime/sizeof] [1]\n\u003e    av1/encoder/pickrst.c:1962:  Using sizeof(type).  Use sizeof(varname) instead if possible  [runtime/sizeof] [1]\n\u003e    av1/decoder/decodeframe.c:5945:  Line contains only semicolon. If this should be an empty statement, use {} instead.  [whitespace/semicolon] [5]\n\n",
+      "revId": "7af01a8b289250e1d52f52ae48a745ae58f9e2f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7aa66d4_c589e015",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 14
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-03T20:27:40Z",
+      "side": 1,
+      "message": "These files should be added within #if CONFIG_MFQE_RESTORATION block.\nSee some examples from line#96 below",
+      "revId": "7af01a8b289250e1d52f52ae48a745ae58f9e2f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eef8d528_dc97a707",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 5943,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-03T20:27:40Z",
+      "side": 1,
+      "message": "Should be \u0026\u0026 !cm-\u003euse_mfqe",
+      "range": {
+        "startLine": 5943,
+        "startChar": 0,
+        "endLine": 5943,
+        "endChar": 58
+      },
+      "revId": "7af01a8b289250e1d52f52ae48a745ae58f9e2f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aef2821b_6453372f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 5945,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-03T20:27:40Z",
+      "side": 1,
+      "message": "Style check may complain about this lone semicolon.\nYou can write as follows to avoid that:\n\nconst int optimized_loop_restoration \u003d !do_cdef \n#if CONFIG_MFQE_RESTORATION\n                                           \u0026\u0026 !cm-\u003euse_mfqe\n#endif  // CONFIG_MFQE_RESTORATION\n        \u0026\u0026 !do_superres;",
+      "revId": "7af01a8b289250e1d52f52ae48a745ae58f9e2f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
