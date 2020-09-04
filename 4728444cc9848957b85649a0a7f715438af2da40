@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "b460da8e_4eb7fd66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-09-04T00:03:18Z",
+      "side": 1,
+      "message": "I tried to build with arm and also -DENABLE_NEON\u003d0. It is reporting errors for all functions of NEON.",
+      "parentUuid": "e75184c3_863757f4",
+      "revId": "4728444cc9848957b85649a0a7f715438af2da40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ce9282b4_d2d14d70",
         "filename": "aom_dsp/arm/sad_neon.c",
         "patchSetId": 11
@@ -77,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "e7ba07fa_4286c2c3",
+        "filename": "aom_dsp/arm/sad_neon.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-09-04T00:03:18Z",
+      "side": 1,
+      "message": "Can also be done with config/aom_dsp_rtcd.h, which I used for memcpy in sad4d_neon.c. It is clashing with definitions of some functions developed earlier here for sad. So I am using string.h instead.",
+      "parentUuid": "ce9282b4_d2d14d70",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "4728444cc9848957b85649a0a7f715438af2da40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d87c0bcb_3970f146",
         "filename": "aom_dsp/arm/sad_neon.c",
         "patchSetId": 11
@@ -97,6 +139,30 @@
       "revId": "4728444cc9848957b85649a0a7f715438af2da40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "388681f9_33c30a1e",
+        "filename": "aom_dsp/arm/sad_neon.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-09-04T00:03:18Z",
+      "side": 1,
+      "message": "Sure. Will remove it.",
+      "parentUuid": "d87c0bcb_3970f146",
+      "range": {
+        "startLine": 296,
+        "startChar": 0,
+        "endLine": 300,
+        "endChar": 0
+      },
+      "revId": "4728444cc9848957b85649a0a7f715438af2da40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
