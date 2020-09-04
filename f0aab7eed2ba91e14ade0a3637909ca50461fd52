@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b126cbd7_505409c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-09-04T23:18:22Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nPlease review and submit the CL for HBD AVX2 Temporal Filter. The AVX2 version is giving 8.96x compared to SSE2 version whose gain is 7.79x. \n\nI have to do some patches to confirm to clang spaces. It also bit exact between SIMD/CPU for both 10 and 12 bits.\n\nThanks,\nKrishna ",
+      "revId": "f0aab7eed2ba91e14ade0a3637909ca50461fd52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
