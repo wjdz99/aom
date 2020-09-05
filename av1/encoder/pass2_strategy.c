@@ -1602,7 +1602,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   int64_t gf_group_bits;
   const int is_intra_only = frame_params->frame_type == KEY_FRAME ||
                             frame_params->frame_type == INTRA_ONLY_FRAME;
-  const int arf_active_or_kf = is_intra_only || rc->source_alt_ref_active;
 
   cpi->internal_altref_allowed = (gf_cfg->gf_max_pyr_height > 1);
 
@@ -1615,7 +1614,13 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                            : NULL;
     av1_zero(cpi->gf_group);
     gf_group->last_step_prev = last_step_prev;
+    if (last_step_prev) {
+      if (last_step_prev->type_code != FRAME_TYPE_INO_REPEAT &&
+          last_step_prev->type_code != FRAME_TYPE_INO_SHOWEXISTING)
+        rc->source_alt_ref_active = 0;
+    }
   }
+  const int arf_active_or_kf = is_intra_only || rc->source_alt_ref_active;
 
   aom_clear_system_state();
   av1_zero(next_frame);
