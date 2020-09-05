@@ -1749,6 +1749,8 @@ static void update_alt_ref_frame_stats(AV1_COMP *cpi) {
 static void update_golden_frame_stats(AV1_COMP *cpi) {
   RATE_CONTROL *const rc = &cpi->rc;
   const GF_GROUP *const gf_group = &cpi->gf_group;
+  const int is_overlay =
+      gf_group->update_type[gf_group->index] == OVERLAY_UPDATE;
 
   // Update the Golden frame usage counts.
   if (cpi->refresh_frame.golden_frame || rc->is_src_frame_alt_ref) {
@@ -1757,7 +1759,7 @@ static void update_golden_frame_stats(AV1_COMP *cpi) {
     // If we are not using alt ref in the up and coming group clear the arf
     // active flag. In multi arf group case, if the index is not 0 then
     // we are overlaying a mid group arf so should not reset the flag.
-    if (!rc->source_alt_ref_pending && (gf_group->index == 0))
+    if ((!rc->source_alt_ref_pending && (gf_group->index == 0)) || is_overlay)
       rc->source_alt_ref_active = 0;
   } else if (cpi->common.show_frame) {
     rc->frames_since_golden++;
