@@ -1,0 +1,268 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ab1d4f94_f5d1b539",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "j +\u003d 2?",
+      "range": {
+        "startLine": 120,
+        "startChar": 26,
+        "endLine": 120,
+        "endChar": 29
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfdb4407_cd073c7a",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "i +\u003d 2 ?",
+      "range": {
+        "startLine": 121,
+        "startChar": 28,
+        "endLine": 121,
+        "endChar": 31
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "961a9bc9_ea0e0d78",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be (j + 1) * 20 ?",
+      "range": {
+        "startLine": 126,
+        "startChar": 14,
+        "endLine": 126,
+        "endChar": 24
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04eae0b3_cc259d80",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Add assert(INTERINTRA_ML_BORDER % 2 \u003d\u003d 0); ?",
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e344697f_347f3cd5",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "You need to divide this by 2.",
+      "range": {
+        "startLine": 201,
+        "startChar": 34,
+        "endLine": 201,
+        "endChar": 54
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35f82034_d6387c6d",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Divide this by 2 as well.",
+      "range": {
+        "startLine": 202,
+        "startChar": 18,
+        "endLine": 202,
+        "endChar": 38
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24dfb66f_ace51b40",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 204,
+        "startChar": 34,
+        "endLine": 204,
+        "endChar": 55
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "658b790e_973f3d90",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 205,
+        "startChar": 18,
+        "endLine": 205,
+        "endChar": 38
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c4fa2e4_b72d57f6",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Maybe it\u0027s ok due to int casting rules in C/C++, but I would explicitly cast these values to int to make sure we do not accumulate these values in uint8.",
+      "range": {
+        "startLine": 217,
+        "startChar": 15,
+        "endLine": 217,
+        "endChar": 42
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67a7fbc8_cb69b900",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Maybe it\u0027s better to modify copy_to_output() directly, because averaging in floats would be better than rounding then averaging in uint8.",
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03c20607_076d5a23",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "This should be 16 * (2 * j + 1) not 16 * 2 * j + j.",
+      "range": {
+        "startLine": 218,
+        "startChar": 26,
+        "endLine": 218,
+        "endChar": 40
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd663b0e_d7269895",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-06T04:51:01Z",
+      "side": 1,
+      "message": "Ditto.",
+      "range": {
+        "startLine": 219,
+        "startChar": 30,
+        "endLine": 219,
+        "endChar": 44
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
