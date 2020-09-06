@@ -27,7 +27,7 @@ extern "C" {
 #define MFQE_NUM_REFS 3         // Number of reference frames used.
 #define MFQE_N_GRID_SEARCH 13   // Number of points in grid search.
 
-#define MFQE_BLOCK_SIZE BLOCK_8X8  // Block size used for MFQE.
+#define MFQE_BLOCK_SIZE BLOCK_4X4  // Block size used for MFQE.
 #define MFQE_SCALE_SIZE 8          // Scale factor used for MFQE.
 #define MFQE_PADDING_SIZE 8        // Padding size for buffers.
 
@@ -86,7 +86,8 @@ void av1_apply_loop_mfqe(Y_BUFFER_CONFIG *tmp, RefCntBuffer *ref_frames[],
                          BLOCK_SIZE bsize, int scale, int high_bd, int bd);
 
 // Apply In-Loop Multi-Frame Quality Enhancement from the decoder side.
-void av1_decode_restore_mfqe(AV1_COMMON *cm, int scale, BLOCK_SIZE bsize);
+void av1_decode_restore_mfqe(AV1_COMMON *cm, int scale, BLOCK_SIZE bsize,
+                             int high_bd);
 
 #ifdef __cplusplus
 }  // extern "C"

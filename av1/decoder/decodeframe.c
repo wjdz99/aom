@@ -5947,7 +5947,8 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
 #if CONFIG_MFQE_RESTORATION
       if (cm->use_mfqe)
-        av1_decode_restore_mfqe(cm, MFQE_SCALE_SIZE, MFQE_BLOCK_SIZE);
+        av1_decode_restore_mfqe(cm, MFQE_SCALE_SIZE, MFQE_BLOCK_SIZE,
+                                is_cur_buf_hbd(xd));
 #endif  // CONFIG_MFQE_RESTORATION
 
       if (do_loop_restoration) {
