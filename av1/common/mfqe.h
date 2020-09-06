@@ -86,7 +86,8 @@ void av1_apply_loop_mfqe(Y_BUFFER_CONFIG *tmp, RefCntBuffer *ref_frames[],
                          BLOCK_SIZE bsize, int scale, int high_bd, int bd);
 
 // Apply In-Loop Multi-Frame Quality Enhancement from the decoder side.
-void av1_decode_restore_mfqe(AV1_COMMON *cm, int scale, BLOCK_SIZE bsize);
+void av1_decode_restore_mfqe(AV1_COMMON *cm, int scale, BLOCK_SIZE bsize,
+                             int high_bd);
 
 #ifdef __cplusplus
 }  // extern "C"
