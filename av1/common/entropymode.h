@@ -100,6 +100,11 @@ typedef struct {
 #define EOB_CONTEXTS 8
 #endif  // CONFIG_ENTROPY_CONTEXTS
 
+#if CONFIG_INTER_GRAPH_FILTER
+#define GRAPH_FILTER_DEBUG 0
+#define USE_OVERHEAD 1  // always apply graph filter
+#endif
+
 typedef struct frame_contexts {
   aom_cdf_prob txb_skip_cdf[TX_SIZES][TXB_SKIP_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob eob_extra_cdf[TX_SIZES][PLANE_TYPES][EOB_COEF_CONTEXTS]
@@ -202,6 +207,9 @@ typedef struct frame_contexts {
       adapt_filter_intra_mode_cdf[CDF_SIZE(USED_ADAPT_FILTER_INTRA_MODES)];
 #endif  // CONFIG_ADAPT_FILTER_INTRA
   aom_cdf_prob switchable_restore_cdf[CDF_SIZE(RESTORE_SWITCHABLE_TYPES)];
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+  aom_cdf_prob use_graph_filter_cdf[CDF_SIZE(2)];
+#endif
   aom_cdf_prob wiener_restore_cdf[CDF_SIZE(2)];
   aom_cdf_prob sgrproj_restore_cdf[CDF_SIZE(2)];
 #if CONFIG_LOOP_RESTORE_CNN

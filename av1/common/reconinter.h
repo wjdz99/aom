@@ -367,10 +367,17 @@ void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
                           const struct scale_factors *sf, const int num_planes,
                           const CHROMA_REF_INFO *chr_ref_info);
 
+#if CONFIG_INTER_GRAPH_FILTER
+#define DEFAULT_USE_GRAPH_FILTER 0
+#endif
+
 static INLINE void set_default_interp_filters(
     MB_MODE_INFO *const mbmi, InterpFilter frame_interp_filter) {
   mbmi->interp_filters =
       av1_broadcast_interp_filter(av1_unswitchable_filter(frame_interp_filter));
+#if CONFIG_INTER_GRAPH_FILTER
+  mbmi->use_graph_filter = DEFAULT_USE_GRAPH_FILTER;
+#endif
 }
 
 static INLINE int av1_is_interp_needed(const MACROBLOCKD *const xd) {

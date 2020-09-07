@@ -1345,6 +1345,9 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
 
   if (cm->interp_filter != SWITCHABLE) {
     mbmi->interp_filters = av1_broadcast_interp_filter(cm->interp_filter);
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+    mbmi->use_graph_filter = DEFAULT_USE_GRAPH_FILTER;
+#endif
   } else {
     InterpFilter ref0_filter[2] = { EIGHTTAP_REGULAR, EIGHTTAP_REGULAR };
     for (int dir = 0; dir < 2; ++dir) {
@@ -1359,6 +1362,10 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
     // The index system works as: (0, 1) -> (vertical, horizontal) filter types
     mbmi->interp_filters.as_filters.x_filter = ref0_filter[1];
     mbmi->interp_filters.as_filters.y_filter = ref0_filter[0];
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+    mbmi->use_graph_filter =
+        aom_read_symbol(r, ec_ctx->use_graph_filter_cdf, 2, ACCT_STR);
+#endif
   }
 }
 

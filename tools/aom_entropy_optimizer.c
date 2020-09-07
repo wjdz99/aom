@@ -727,6 +727,13 @@ int main(int argc, const char **argv) {
                      "static const aom_cdf_prob default_sgrproj_restore_cdf"
                      "[CDF_SIZE(2)]");
 
+#if CONFIG_INTER_GRAPH_FILTER
+  cts_each_dim[0] = 2;
+  optimize_cdf_table(&fc.use_graph_filter[0], probsfile, 1, cts_each_dim,
+                     "static const aom_cdf_prob default_use_graph_filter_cdf"
+                     "[CDF_SIZE(2)]");
+#endif
+
   /* intra tx size */
   cts_each_dim[0] = MAX_TX_CATS;
   cts_each_dim[1] = TX_SIZE_CONTEXTS;

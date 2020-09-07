@@ -333,6 +333,10 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
                            fc->switchable_restore_cdf, NULL);
   av1_cost_tokens_from_cdf(x->wiener_restore_cost, fc->wiener_restore_cdf,
                            NULL);
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+  av1_cost_tokens_from_cdf(x->graph_filter_cost, fc->use_graph_filter_cdf,
+                           NULL);
+#endif
 #if CONFIG_EXT_LOOP_RESTORATION
   // TODO(anyone): Make the sharad param flag use the arithmetic encoder
   // av1_cost_tokens_from_cdf(x->shared_param_cost, fc->shared_param_cdf, NULL);
@@ -1436,7 +1440,14 @@ int av1_get_switchable_rate(const AV1_COMMON *const cm, MACROBLOCK *x,
           av1_extract_interp_filter(mbmi->interp_filters, dir);
       inter_filter_cost += x->switchable_interp_costs[ctx][filter];
     }
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+    const int use_graph_filter_bit_cost =
+        x->graph_filter_cost[mbmi->use_graph_filter];
+    return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost +
+           use_graph_filter_bit_cost;
+#else
     return SWITCHABLE_INTERP_RATE_FACTOR * inter_filter_cost;
+#endif
   } else {
     return 0;
   }

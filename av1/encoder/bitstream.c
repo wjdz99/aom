@@ -900,6 +900,9 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
     int_interpfilters filters =
         av1_broadcast_interp_filter(av1_unswitchable_filter(cm->interp_filter));
     assert(mbmi->interp_filters.as_int == filters.as_int);
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+    assert(mbmi->use_graph_filter == DEFAULT_USE_GRAPH_FILTER);
+#endif
     (void)filters;
     return;
   }
@@ -914,6 +917,14 @@ static void write_mb_interp_filter(AV1_COMP *cpi, const MACROBLOCKD *xd,
       ++cm->cur_frame->interp_filter_selected[filter];
       if (cm->seq_params.enable_dual_filter == 0) return;
     }
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+    aom_write_symbol(w, mbmi->use_graph_filter, ec_ctx->use_graph_filter_cdf,
+                     2);
+#if CONFIG_ENTROPY_STATS
+    // TODO(kslu): is this the right position?
+    ++cpi->counts.use_graph_filter[mbmi->use_graph_filter];
+#endif
+#endif
   }
 }
 

@@ -9849,6 +9849,9 @@ static INLINE int64_t interpolation_filter_rd(
   av1_init_rd_stats(&this_rd_stats_luma);
   this_rd_stats = *rd_stats_luma;
   const int_interpfilters last_best = mbmi->interp_filters;
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+  const int last_use_graph_filter = mbmi->use_graph_filter;
+#endif
   mbmi->interp_filters = filter_sets[filter_idx];
   const int tmp_rs =
       get_switchable_rate(x, mbmi->interp_filters, switchable_ctx);
@@ -9880,13 +9883,17 @@ static INLINE int64_t interpolation_filter_rd(
                           ? INTERP_SKIP_LUMA_SKIP_CHROMA
                           : skip_pred;
 
-  switch (tmp_skip_pred) {
-    case INTERP_EVAL_LUMA_EVAL_CHROMA:
-      // skip_pred = 0: Evaluate both luma and chroma.
-      // Luma MC
-      interp_model_rd_eval(x, cpi, bsize, orig_dst, AOM_PLANE_Y, AOM_PLANE_Y,
-                           &this_rd_stats_luma, 0);
-      this_rd_stats = this_rd_stats_luma;
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+  for (int use_graph_filter = 0; use_graph_filter <= 1; use_graph_filter++) {
+    mbmi->use_graph_filter = use_graph_filter;
+#endif
+    switch (tmp_skip_pred) {
+      case INTERP_EVAL_LUMA_EVAL_CHROMA:
+        // skip_pred = 0: Evaluate both luma and chroma.
+        // Luma MC
+        interp_model_rd_eval(x, cpi, bsize, orig_dst, AOM_PLANE_Y, AOM_PLANE_Y,
+                             &this_rd_stats_luma, 0);
+        this_rd_stats = this_rd_stats_luma;
 #if CONFIG_COLLECT_RD_STATS == 3
       RD_STATS rd_stats_y;
       pick_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize, INT64_MAX);
@@ -9940,6 +9947,10 @@ static INLINE int64_t interpolation_filter_rd(
     }
     return 1;
   }
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+  }
+  mbmi->use_graph_filter = last_use_graph_filter;
+#endif
   mbmi->interp_filters = last_best;
   return 0;
 }

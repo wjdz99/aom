@@ -1650,6 +1650,12 @@ static const aom_cdf_prob default_switchable_restore_cdf[CDF_SIZE(
     RESTORE_SWITCHABLE_TYPES)] = { AOM_CDF3(9413, 22581) };
 #endif  // CONFIG_LOOP_RESTORE_CNN || CONFIG_WIENER_NONSEP
 
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+static const aom_cdf_prob default_use_graph_filter_cdf[CDF_SIZE(2)] = {
+  AOM_CDF2(16384)
+};
+#endif
+
 static const aom_cdf_prob default_wiener_restore_cdf[CDF_SIZE(2)] = { AOM_CDF2(
     11570) };
 
@@ -1945,6 +1951,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->adapt_filter_intra_cdfs, default_adapt_filter_intra_cdfs);
   av1_copy(fc->adapt_filter_intra_mode_cdf,
            default_adapt_filter_intra_mode_cdf);
+#endif
+#if CONFIG_INTER_GRAPH_FILTER && USE_OVERHEAD
+  av1_copy(fc->use_graph_filter_cdf, default_use_graph_filter_cdf);
 #endif
   av1_copy(fc->switchable_restore_cdf, default_switchable_restore_cdf);
   av1_copy(fc->wiener_restore_cdf, default_wiener_restore_cdf);

@@ -566,6 +566,9 @@ struct macroblock {
   int angle_delta_cost[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
   int switchable_restore_cost[RESTORE_SWITCHABLE_TYPES];
   int wiener_restore_cost[2];
+#if CONFIG_INTER_GRAPH_FILTER
+  int graph_filter_cost[2];
+#endif
 #if CONFIG_EXT_LOOP_RESTORATION
   int shared_param_cost[2];
 #endif  // CONFIG_EXT_LOOP_RESTORATION

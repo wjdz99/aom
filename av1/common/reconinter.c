@@ -1321,6 +1321,141 @@ static void build_inter_predictors(
   }
 }
 
+#if CONFIG_INTER_GRAPH_FILTER
+// center Laplacian frequency mev = 4
+#define MAX_GRAPH_FILTER_BLOCKSIZE 64  // 8x8
+#define CHEBYSHEV_COEFFS_BITS 14
+#define CHEBY_ORDER 2
+// mu = 1
+// const int32_t tikhonov_cheby[CHEBY_ORDER + 1] = { 14043, -6687, 2675};
+// mu = 0.5
+// const int32_t tikhonov_cheby[CHEBY_ORDER + 1] = { 16384, -6144, 2048};
+// mu = 0.25
+// const int32_t tikhonov_cheby[CHEBY_ORDER + 1] = { 19661, -5243, 1311 };
+// mu = 0.1
+const int32_t tikhonov_cheby[CHEBY_ORDER + 1] = { 24576, -3584, 512 };
+// mu = 0.02
+// const int32_t tikhonov_cheby[CHEBY_ORDER + 1] = { 30427, -1128, 42};
+
+void apply_laplacian(int32_t *src, int32_t *dst, int width, int height) {
+  int s1 = 0, s2 = 0;
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      s1 = i * width + j;
+      // bit depth of dst/src = 8 + 2 + 1 = 11
+      dst[s1] = -src[s1] << 2;  // -mev*src[]
+    }
+  }
+  // horizontal grid edges
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width - 1; j++) {
+      s1 = i * width + j;
+      s2 = s1 + 1;
+      dst[s1] += src[s1] - src[s2];
+      dst[s2] += src[s2] - src[s1];
+    }
+  }
+  // vertical grid edges
+  for (int j = 0; j < width; j++) {
+    for (int i = 0; i < height - 1; i++) {
+      s1 = i * width + j;
+      s2 = s1 + width;
+      dst[s1] += src[s1] - src[s2];
+      dst[s2] += src[s2] - src[s1];
+    }
+  }
+  // bit depth of dst = 11 + 3 (at most 8 terms for each dst[i]) = 14
+  // Each call of apply_laplacian increases the bit depth by at most 6
+}
+
+void chebyshev_graph_filter(uint8_t *dgd, int order, const int32_t *coeffs,
+                            int32_t *tmpbuf, int width, int height,
+                            int stride) {
+  int32_t *twf_0 = tmpbuf;
+  int32_t *twf_1 = twf_0 + MAX_GRAPH_FILTER_BLOCKSIZE;
+  int32_t *twf_2 = twf_1 + MAX_GRAPH_FILTER_BLOCKSIZE;
+  int s = 0;
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      twf_0[i * width + j] = (int32_t)dgd[i * stride + j];
+    }
+  }
+  apply_laplacian(twf_0, twf_1, width, height);
+
+  // first iteration
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      s = i * width + j;
+      twf_1[s] = twf_1[s] >> 2;  // twf_1 / mev
+      dgd[i * stride + j] =
+          round_shift((coeffs[0] * twf_0[s] >> 1) + coeffs[1] * twf_1[s],
+                      CHEBYSHEV_COEFFS_BITS);
+    }
+  }
+
+  for (int k = 2; k <= order; k++) {
+    // twf_2 is used as a buffer here
+    apply_laplacian(twf_1, twf_2, width, height);
+    for (int i = 0; i < height; i++) {
+      for (int j = 0; j < width; j++) {
+        s = i * width + j;
+        // 2 / mev * twf_2[] - twf_0[]
+        twf_2[s] = (twf_2[s] >> 1) - twf_0[s];
+        dgd[i * stride + j] +=
+            round_shift(coeffs[k] * twf_2[s], CHEBYSHEV_COEFFS_BITS);
+      }
+    }
+    if (k < order) {
+      av1_copy_array(twf_0, twf_1, height * width);
+      av1_copy_array(twf_1, twf_2, height * width);
+    }
+  }
+}
+
+static void maybe_apply_graph_filter(MACROBLOCKD *xd, int32_t *tmpbuf,
+                                     int plane_from, int plane_to) {
+#if USE_OVERHEAD
+  if (!xd->mi[0]->use_graph_filter) return;
+#endif
+  // Note: av1_loop_restoration_precal() should already be called before this.
+  // This is already done in encoder.c and decoder.c
+  for (int plane = plane_from; plane <= plane_to; ++plane) {
+    const MACROBLOCKD_PLANE *const pd = &xd->plane[plane];
+    const int bw = pd->width;
+    const int bh = pd->height;
+#if GRAPH_FILTER_DEBUG
+    if (bw <= 8 && bh <= 8) {
+      fprintf(stderr, "p%d[%dx%d] bd:%d \n  Original\n", plane, bw, bh);
+      for (int i = 0; i < bh; i++) {
+        fprintf(stderr, "  ");
+        for (int j = 0; j < bw; j++) {
+          fprintf(stderr, " %d,", pd->dst.buf[i * pd->dst.stride + j]);
+        }
+        fprintf(stderr, "\n");
+      }
+    }
+#endif
+
+    if (bw <= 8 && bh <= 8)
+      chebyshev_graph_filter(pd->dst.buf, CHEBY_ORDER, tikhonov_cheby, tmpbuf,
+                             bw, bh, pd->dst.stride);
+
+#if GRAPH_FILTER_DEBUG
+    if (bw <= 8 && bh <= 8) {
+      fprintf(stderr, "p%d[%dx%d] bd:%d \n  Filtered\n", plane, bw, bh);
+      for (int i = 0; i < bh; i++) {
+        fprintf(stderr, "  ");
+        for (int j = 0; j < bw; j++) {
+          fprintf(stderr, " %d,", pd->dst.buf[i * pd->dst.stride + j]);
+        }
+        fprintf(stderr, "\n");
+      }
+    }
+#endif
+  }
+}
+#endif  // CONFIG_INTER_GRAPH_FILTER
+
 #if CONFIG_DERIVED_MV
 #define DERIVED_MV_REF_LINES 4
 #define REFINE_SUBPEL_RANGE 16
@@ -1571,6 +1706,9 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                            calc_subpel_params_func_args, dst, dst_stride,
                            border);
   }
+#if CONFIG_INTER_GRAPH_FILTER
+  maybe_apply_graph_filter(xd, cm->rst_tmpbuf, 0, 0);
+#endif
 }
 
 #if USE_PRECOMPUTED_WEDGE_MASK
