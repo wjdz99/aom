@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd372480_854af5c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-07T03:24:35Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have introduced a new function aom_sum_sse_2d_i16_c which computes the sum of values and sum of squared values of residual block. The existing function (aom_sum_squares_2d_i16_c) computes only SSE but in order to compute the variance and energy of the residual block in a single iteration, along with SSE we also need the sum of the residual values. The corresponding AVX2 and SSE functions are also added along with a test bench to validate the implementation.\n\nThis function will be used in the future patch to bypass tx type search for DC only blocks.\n\nPlease review the patch.\nThankyou.\n",
+      "revId": "6a57344b84fea3d563f30c18a14fb4baa55f7c0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
