@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87a250a0_05d320e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-07T03:48:38Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have introduced a new speed feature \u0027enable_dc_only_blk_pred\u0027 which will bypass the tx type search if the residual variance of the block is very low as compared to qstep based threshold. \n\nIn cases of blocks whose residual variance is low, only the DC coefficient would get coded most of the times. This enables us to bypass the transform type search for such blocks. In this patch, we set the transform type for blocks with low AC energy (corresponding to the residual variance) as DCT_DCT, and derive the DC coefficient by scaling the block mean appropriately for DCT_DCT. Thus, we save on the forward transform as well as transform type search.\nSince intra chroma blocks have mode dependent transform type, in which case the scaling to obtain the DC coefficient from block mean varies based on the transform type, the logic is disabled for intra chroma blocks.\nIn cases where the residual variance is low and the DC coefficient is less compared to the qstep, the block is marked as skip and the search is terminated early.\n\nThis speed feature is enabled from speed 6 for normal modes and disabled for winner modes.\n\n                      Instruction Count       BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr    ssim  \n   6       LOW RES       1.185           0.0858    0.0764    0.1024 \n   6       MID RES       1.544           0.2116    0.2155    0.0351\n   6        HD RES       1.554           0.1020    0.0997    0.1584 \n   6       Average       1.367           0.1291    0.1265    0.0428\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nAlso, PSNR limit of HorzSuperresEndToEndTest test is adjusted to avoid unit test failure. PSNR threshold is reduced from 27.84 dB to 27.74 dB for highbd content.\n\nPlease review the patch.\nThankyou.\n",
+      "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
