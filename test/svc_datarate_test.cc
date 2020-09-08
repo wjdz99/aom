@@ -265,6 +265,11 @@ class DatarateTestSVC
         for (int i = 0; i < 7; i++) ref_frame_config->ref_idx[i] = 1;
         ref_frame_config->ref_idx[0] = 2;
         ref_frame_config->refresh[2] = 1;
+        if (multi_ref) {
+          ref_frame_config->ref_idx[6] = 7;
+          ref_frame_config->reference[6] = 1;
+          if (base_count % 10 == 0) ref_frame_config->refresh[7] = 1;
+        }
       }
       // Reference GOLDEN.
       if (layer_id->spatial_layer_id > 0) ref_frame_config->reference[3] = 1;
@@ -542,6 +547,37 @@ class DatarateTestSVC
     const int bitrate_array[2] = { 500, 1000 };
     cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
     ResetModel();
+    number_temporal_layers_ = 1;
+    number_spatial_layers_ = 3;
+    target_layer_bitrate_[0] = 1 * cfg_.rc_target_bitrate / 8;
+    target_layer_bitrate_[1] = 3 * cfg_.rc_target_bitrate / 8;
+    target_layer_bitrate_[2] = 4 * cfg_.rc_target_bitrate / 8;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    for (int i = 0; i < number_temporal_layers_ * number_spatial_layers_; i++) {
+      ASSERT_GE(effective_datarate_tl[i], target_layer_bitrate_[i] * 0.80)
+          << " The datarate for the file is lower than target by too much!";
+      ASSERT_LE(effective_datarate_tl[i], target_layer_bitrate_[i] * 1.38)
+          << " The datarate for the file is greater than target by too much!";
+    }
+  }
+
+  virtual void BasicRateTargetingSVC1TL3SLMultiRefTest() {
+    cfg_.rc_buf_initial_sz = 500;
+    cfg_.rc_buf_optimal_sz = 500;
+    cfg_.rc_buf_sz = 1000;
+    cfg_.rc_dropframe_thresh = 0;
+    cfg_.rc_min_quantizer = 0;
+    cfg_.rc_max_quantizer = 63;
+    cfg_.rc_end_usage = AOM_CBR;
+    cfg_.g_lag_in_frames = 0;
+    cfg_.g_error_resilient = 1;
+
+    ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
+                                         288, 30, 1, 0, 300);
+    const int bitrate_array[2] = { 500, 1000 };
+    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
+    ResetModel();
+    multi_ref_ = 1;
     number_temporal_layers_ = 1;
     number_spatial_layers_ = 3;
     target_layer_bitrate_[0] = 1 * cfg_.rc_target_bitrate / 8;
@@ -947,6 +983,12 @@ TEST_P(DatarateTestSVC, BasicRateTargetingSVC1TL2SL) {
 // Check basic rate targeting for CBR, for 3 spatial layers, 1 temporal.
 TEST_P(DatarateTestSVC, BasicRateTargetingSVC1TL3SL) {
   BasicRateTargetingSVC1TL3SLTest();
+}
+
+// Check basic rate targeting for CBR, for 3 spatial layers, 1 temporal,
+// with additional temporal reference for top spatial layer.
+TEST_P(DatarateTestSVC, BasicRateTargetingSVC1TL3SLMultiRef) {
+  BasicRateTargetingSVC1TL3SLMultiRefTest();
 }
 
 // Check basic rate targeting for CBR, for 3 spatial, 3 temporal layers.
