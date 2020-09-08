@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+void *get_enc_func();
+
 // Builds the inter-predictors in xd->dst.buf[plane] for each plane
 // between from and to (inclusive on both ends). If the predictor
 // requires a border, the border region will be computed internally and
