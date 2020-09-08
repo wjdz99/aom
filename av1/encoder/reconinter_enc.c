@@ -84,6 +84,8 @@ static INLINE void enc_calc_subpel_params(
   *src_stride = pre_buf->stride;
 }
 
+void *get_enc_func() { return enc_calc_subpel_params; }
+
 static void enc_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                        int plane, const MB_MODE_INFO *mi,
                                        int build_for_obmc, int bw, int bh,

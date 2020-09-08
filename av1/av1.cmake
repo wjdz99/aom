@@ -98,6 +98,13 @@ if(CONFIG_INTERINTRA_ML)
               "${AOM_ROOT}/av1/common/interintra_ml_model.cc")
 endif()
 
+if(CONFIG_INTERINTRA_ML_DATA_COLLECT)
+  list(APPEND AOM_AV1_COMMON_SOURCES
+              "${AOM_ROOT}/av1/common/interintra_ml_data_collect.h"
+              "${AOM_ROOT}/av1/common/interintra_ml_data_collect.c")
+
+endif()
+
 if(CONFIG_LPF_MASK)
   list(APPEND AOM_AV1_COMMON_SOURCES "${AOM_ROOT}/av1/common/loopfiltermask.c")
 endif()
