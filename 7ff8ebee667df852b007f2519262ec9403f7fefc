@@ -70,6 +70,24 @@
       "revId": "7ff8ebee667df852b007f2519262ec9403f7fefc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f71086fa_99a5e15e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-08T07:14:14Z",
+      "side": 1,
+      "message": "Thanks for checking!\nI\u0027ll abandon the patches for master branch, and change only the research branch then.",
+      "parentUuid": "14dda902_2536b306",
+      "revId": "7ff8ebee667df852b007f2519262ec9403f7fefc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
