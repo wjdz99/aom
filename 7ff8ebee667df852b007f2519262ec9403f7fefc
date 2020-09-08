@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d369e94_96e6ba9a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-09-08T06:32:36Z",
+      "side": 1,
+      "message": "The current lag-in-frame \u003d 0 case is likely broken in the master branch, as a large re-design of the GOP structure and the associated rate control system is in progress. Most related unit tests are disabled for now, and the codes you are changing here will be removed soon too.\n\nPlease hold off submitting until we land the major piece in and re-enable the unit tests.",
+      "revId": "7ff8ebee667df852b007f2519262ec9403f7fefc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
