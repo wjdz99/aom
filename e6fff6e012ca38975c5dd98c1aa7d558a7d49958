@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "443338c9_dd48bc44",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-09T12:27:45Z",
+      "side": 1,
+      "message": "The computation of the scaling terms depend on the number of samples in the transform block and whether the block is square or rectangular. Computing them on the fly could add thus lead to additional control code. Hence we thought of keeping them in a table.",
+      "parentUuid": "e8fedbed_117f988f",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 2
+      },
+      "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5c81d2ff_489961b7",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 12
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "4499d31a_b2f042f8",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-09T12:27:45Z",
+      "side": 1,
+      "message": "The predict_skip_txfm() function makes the skip decision solely based on luma  block’s SSE (for normal modes), and is called before the transform tree is evaluated. The dc prediction (and skip prediction if both dc and ac components are small) in the current patch is applicable for luma and chroma blocks separately, and it needs both variance and mean of the residual block. We shall check the feasibility of merging both the logics while extending the enable_dc_only_blk_pred speed feature to other presets.",
+      "parentUuid": "5c81d2ff_489961b7",
+      "range": {
+        "startLine": 438,
+        "startChar": 11,
+        "endLine": 438,
+        "endChar": 28
+      },
+      "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6bee9843_d388a0a5",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 12
@@ -93,6 +141,30 @@
       "writtenOn": "2020-09-08T18:22:33Z",
       "side": 1,
       "message": "move this part out of this function?",
+      "range": {
+        "startLine": 2252,
+        "startChar": 0,
+        "endLine": 2299,
+        "endChar": 5
+      },
+      "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffe29813_3c71c235",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2299,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-09T12:27:45Z",
+      "side": 1,
+      "message": "Sure, Yunqing, we will abstract this logic into a separate function and soon submit a patch towards the same.",
+      "parentUuid": "6bee9843_d388a0a5",
       "range": {
         "startLine": 2252,
         "startChar": 0,
