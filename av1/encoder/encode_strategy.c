@@ -756,6 +756,7 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
       default: assert(0 && "unknown type");
     }
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
@@ -847,6 +848,7 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     default: assert(0 && "unknown type");
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
@@ -891,6 +893,8 @@ static int get_refresh_idx(int update_arf, int refresh_level,
 
   int oldest_ref_level_order = INT32_MAX;
   int oldest_ref_level_idx = -1;
+  if (cur_frame_disp == 43)
+    printf("debug\n");
 
   for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
     RefFrameMapPair ref_pair = ref_frame_map_pairs[map_idx];
@@ -913,13 +917,13 @@ static int get_refresh_idx(int update_arf, int refresh_level,
     if (reference_frame_level == 1) {
       // If there are more than 2 level 1 frames in the reference list,
       // discard the oldest
-      if (update_arf) {
+   // if (update_arf) {
         if (frame_order < oldest_arf_order) {
           oldest_arf_order = frame_order;
           oldest_arf_idx = map_idx;
         }
-        if (++arf_count > 2) break;
-      }
+    //  if (++arf_count > 2) break;
+    //}
       continue;
     }
 
@@ -929,10 +933,14 @@ static int get_refresh_idx(int update_arf, int refresh_level,
       oldest_idx = map_idx;
     }
   }
-  assert(oldest_idx >= 0);
+  printf("cur_disp_order %d\n", cur_frame_disp);
+//assert(oldest_idx >= 0);
   if (oldest_ref_level_idx > -1) return oldest_ref_level_idx;
-  if (arf_count > 2) return oldest_arf_idx;
-  return oldest_idx;
+  if (update_arf && arf_count > 2) return oldest_arf_idx;
+  if (oldest_idx >= 0) return oldest_idx;
+  if (oldest_arf_idx >= 0) return oldest_arf_idx;
+  assert(0 && "No valid refresh index found");
+  return -1;
 }
 
 static int get_refresh_frame_flags_subgop_cfg(
