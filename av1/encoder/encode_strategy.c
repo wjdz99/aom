@@ -1579,12 +1579,19 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_params.existing_fb_idx_to_show = INVALID_IDX;
     // Find the frame buffer to show based on display order
     if (frame_params.show_existing_frame) {
+      const int gf_index = cpi->gf_group.index;
+      int show_frame_frame_order = cur_frame_disp;
+      if (use_subgop_cfg(gf_group, gf_index)) {
+        const SubGOPStepCfg *step_gop_cfg = get_subgop_step(gf_group, gf_index);
+        show_frame_frame_order = cur_frame_disp + step_gop_cfg->disp_frame_idx -
+                                 gf_group->cur_frame_idx[gf_index] + 1;
+      }
       for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
         // Get reference frame buffer
         const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
         if (buf == NULL) continue;
         const int frame_order = (int)buf->display_order_hint;
-        if (frame_order == cur_frame_disp) {
+        if (frame_order == show_frame_frame_order) {
           frame_params.existing_fb_idx_to_show =
               get_ref_frame_map_idx(cm, frame);
         }
