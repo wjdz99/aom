@@ -309,6 +309,8 @@ void av1_gop_setup_structure(AV1_COMP *cpi,
   gf_group->is_user_specified = 0;
   gf_group->has_overlay_for_key_frame = 0;
   printf("baseline_gf_interval = %d\n", rc->baseline_gf_interval);
+  if (rc->baseline_gf_interval == 1)
+    printf("debug\n");
   gf_group->size = construct_multi_layer_gf_structure(
       cpi, twopass, gf_group, rc, frame_info, rc->baseline_gf_interval,
       first_frame_update_type);

@@ -341,6 +341,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     }
 
     const YV12_BUFFER_CONFIG *ref_frame_ptr = tpl_data->src_ref_frame[rf_idx];
+    if (mi_row == 0 && mi_col == 0 && bsize == BLOCK_16X16 && tx_size == 2 && cpi->common.cur_frame->display_order_hint == 6)
+      printf("debug\n");
     int ref_mb_offset =
         mi_row * MI_SIZE * ref_frame_ptr->y_stride + mi_col * MI_SIZE;
     uint8_t *ref_mb = ref_frame_ptr->y_buffer + ref_mb_offset;
@@ -774,7 +776,8 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
       this_frame->y_crop_width, this_frame->y_crop_height);
 
   xd->cur_buf = this_frame;
-
+  if (cpi->common.cur_frame->display_order_hint == 6)
+    printf("debug\n");
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {
     TplDepFrame *tpl_ref_frame =
         &tpl_data->tpl_frame[tpl_frame->ref_map_index[idx]];
@@ -935,6 +938,8 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   TplParams *const tpl_data = &cpi->tpl_data;
 
   int ref_picture_map[REF_FRAMES];
+  if (cpi->common.cur_frame->display_order_hint == 6)
+    printf("debug\n");
 
   for (int i = 0; i < REF_FRAMES; ++i) {
     if (frame_params.frame_type == KEY_FRAME || gop_eval) {
@@ -1126,10 +1131,13 @@ static AOM_INLINE void init_tpl_stats(TplParams *const tpl_data) {
   }
 }
 
+//sarahparker
 int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
                         const EncodeFrameParams *const frame_params,
                         const EncodeFrameInput *const frame_input) {
   AV1_COMMON *cm = &cpi->common;
+  if (cpi->common.cur_frame->display_order_hint == 6)
+    printf("debug\n");
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   AV1TplRowMultiThreadInfo *const tpl_row_mt = &mt_info->tpl_row_mt;
   GF_GROUP *gf_group = &cpi->gf_group;

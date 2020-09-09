@@ -698,15 +698,14 @@ static void update_arf_stack(int ref_map_index,
     }
   }
 }
-
 // Update reference frame stack info according to the subgop cfg
 static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
                                         int show_existing_frame,
                                         int ref_map_index,
                                         RefBufferStack *ref_buffer_stack) {
+  printf("update\n");
   GF_GROUP gf_group = cpi->gf_group;
   AV1_COMMON *const cm = &cpi->common;
-
   if (is_frame_droppable(&cpi->svc, &cpi->ext_flags.refresh_frame)) return;
   if (cm->current_frame.frame_type == KEY_FRAME || frame_is_sframe(cm)) {
     if (show_existing_frame)
@@ -715,6 +714,7 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
     stack_reset(ref_buffer_stack->lst_stack, &ref_buffer_stack->lst_stack_size);
     stack_reset(ref_buffer_stack->gld_stack, &ref_buffer_stack->gld_stack_size);
     stack_reset(ref_buffer_stack->arf_stack, &ref_buffer_stack->arf_stack_size);
+    printf("PUSH GLD %d\n", ref_map_index);
     stack_push(ref_buffer_stack->gld_stack, &ref_buffer_stack->gld_stack_size,
                ref_map_index);
   } else {
@@ -727,8 +727,11 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
         if (pyr_level == 1) {
           ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
                                     &ref_buffer_stack->arf_stack_size);
+       // if (ref_buffer_stack->arf_stack_size == 0) 
+       //   cpi->rc.source_alt_ref_pending = 0; 
           stack_push(ref_buffer_stack->gld_stack,
                      &ref_buffer_stack->gld_stack_size, ref_map_index);
+    printf("PUSH GLD1 %d\n", ref_map_index);
         } else {
           ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
                                     &ref_buffer_stack->arf_stack_size);
@@ -752,10 +755,12 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
         update_arf_stack(ref_map_index, ref_buffer_stack);
         stack_push(ref_buffer_stack->arf_stack,
                    &ref_buffer_stack->arf_stack_size, ref_map_index);
+        cm->n_altrefs = ref_buffer_stack->arf_stack_size;
         break;
       default: assert(0 && "unknown type");
     }
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
@@ -780,6 +785,7 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
                                 ref_map_index, ref_buffer_stack);
     return;
   }
+  printf("NO SUBGOP\n");
 
   // TODO(jingning): Consider the S-frame same as key frame for the
   // reference frame tracking purpose. The logic might be better
@@ -799,11 +805,13 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
                   &ref_buffer_stack->gld_stack_size);
       stack_reset(ref_buffer_stack->arf_stack,
                   &ref_buffer_stack->arf_stack_size);
+    printf("XXXPUSH GLD %d\n", ref_map_index);
       stack_push(ref_buffer_stack->gld_stack, &ref_buffer_stack->gld_stack_size,
                  ref_map_index);
       break;
     case GF_UPDATE:
       update_arf_stack(ref_map_index, ref_buffer_stack);
+    printf("XXXPUSH GLD1 %d\n", ref_map_index);
       stack_push(ref_buffer_stack->gld_stack, &ref_buffer_stack->gld_stack_size,
                  ref_map_index);
       // For nonrd_mode: update LAST as well on GF_UPDATE frame.
@@ -831,11 +839,13 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       }
       stack_push(ref_buffer_stack->arf_stack, &ref_buffer_stack->arf_stack_size,
                  ref_map_index);
+      cm->n_altrefs = ref_buffer_stack->arf_stack_size;
       break;
     case OVERLAY_UPDATE:
     case KFFLT_OVERLAY_UPDATE:
       ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
                                 &ref_buffer_stack->arf_stack_size);
+    printf("XXXPUSH GLD2 %d %d, arf_stack %d\n", ref_map_index, frame_update_type, ref_buffer_stack->arf_stack_size);
       stack_push(ref_buffer_stack->gld_stack, &ref_buffer_stack->gld_stack_size,
                  ref_map_index);
       break;
@@ -847,6 +857,7 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     default: assert(0 && "unknown type");
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
@@ -1282,6 +1293,9 @@ void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack) {
 
   // Initialization
   for (int i = 0; i < REF_FRAMES; ++i) remapped_ref_idx[i] = INVALID_IDX;
+  printf("GLD STACK: ");
+  for (int i = 0; i < gld_stack_size; i++) printf("%d ", gld_stack[i]);
+  printf("\n");
 
   if (arf_stack_size) {
     remapped_ref_idx[ALTREF_FRAME - LAST_FRAME] = arf_stack[arf_stack_size - 1];
