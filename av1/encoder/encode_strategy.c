@@ -756,6 +756,7 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
       default: assert(0 && "unknown type");
     }
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
@@ -847,6 +848,7 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     default: assert(0 && "unknown type");
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
@@ -879,6 +881,74 @@ static int get_free_ref_map_index(const RefBufferStack *ref_buffer_stack) {
   return INVALID_IDX;
 }
 
+#define NEW_REFRESH 1
+
+#if NEW_REFRESH
+static int get_refresh_idx(int update_arf, int refresh_level,
+                           int cur_frame_disp,
+                           RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
+  int arf_count = 0;
+  int oldest_arf_order = INT32_MAX;
+  int oldest_arf_idx = -1;
+
+  int oldest_frame_order = INT32_MAX;
+  int oldest_idx = -1;
+
+  int oldest_ref_level_order = INT32_MAX;
+  int oldest_ref_level_idx = -1;
+//if (cur_frame_disp == 43)
+//  printf("debug\n");
+
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    RefFrameMapPair ref_pair = ref_frame_map_pairs[map_idx];
+    if (ref_pair.disp_order == -1) continue;
+    const int frame_order = ref_pair.disp_order;
+    const int reference_frame_level = ref_pair.pyr_level;
+    if (frame_order > cur_frame_disp) continue;
+
+    // Keep track of the oldest reference frame matching the specified
+    // refresh level from the subgop cfg
+    if (refresh_level > 0 && refresh_level == reference_frame_level) {
+      if (frame_order < oldest_ref_level_order) {
+        oldest_ref_level_order = frame_order;
+        oldest_ref_level_idx = map_idx;
+      }
+    }
+
+    // Keep track of the oldest level 1 frame if the current frame is level also
+    // 1
+    if (reference_frame_level == 1) {
+      // If there are more than 2 level 1 frames in the reference list,
+      // discard the oldest
+   // if (update_arf) {
+        if (frame_order < oldest_arf_order) {
+          oldest_arf_order = frame_order;
+          oldest_arf_idx = map_idx;
+        }
+        arf_count++;
+    //  if (++arf_count > 2) break;
+    //}
+      continue;
+    }
+
+    // Update the overall oldest reference frame
+    if (frame_order < oldest_frame_order) {
+      oldest_frame_order = frame_order;
+      oldest_idx = map_idx;
+    }
+  }
+  printf("cur_disp_order %d\n", cur_frame_disp);
+//assert(oldest_idx >= 0);
+  printf("%d %d %d %d %d \n", oldest_ref_level_idx, update_arf, arf_count, oldest_arf_idx, oldest_idx);
+  if (oldest_ref_level_idx > -1) return oldest_ref_level_idx;
+  if (update_arf && arf_count > 2) return oldest_arf_idx;
+  if (oldest_idx >= 0) return oldest_idx;
+  if (oldest_arf_idx >= 0) return oldest_arf_idx;
+  assert(0 && "No valid refresh index found");
+  return -1;
+}
+
+#else 
 static int get_refresh_idx(int update_arf, int refresh_level,
                            int cur_frame_disp,
                            RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
@@ -898,6 +968,8 @@ static int get_refresh_idx(int update_arf, int refresh_level,
     const int frame_order = ref_pair.disp_order;
     const int reference_frame_level = ref_pair.pyr_level;
     if (frame_order > cur_frame_disp) continue;
+     // get_true_pyr_level(
+     // buf->pyramid_level, frame_order, cpi->gf_group.max_layer_depth);
 
     // Keep track of the oldest reference frame matching the specified
     // refresh level from the subgop cfg
@@ -929,11 +1001,13 @@ static int get_refresh_idx(int update_arf, int refresh_level,
       oldest_idx = map_idx;
     }
   }
+  printf("%d %d %d %d %d \n", oldest_ref_level_idx, update_arf, arf_count, oldest_arf_idx, oldest_idx);
   assert(oldest_idx >= 0);
   if (oldest_ref_level_idx > -1) return oldest_ref_level_idx;
   if (arf_count > 2) return oldest_arf_idx;
   return oldest_idx;
 }
+#endif
 
 static int get_refresh_frame_flags_subgop_cfg(
     const AV1_COMP *const cpi, int gf_index, int cur_disp_order,
@@ -957,6 +1031,7 @@ static int get_refresh_frame_flags_subgop_cfg(
   const int refresh_level = step_gop_cfg->refresh;
   const int refresh_idx = get_refresh_idx(update_arf, refresh_level,
                                           cur_disp_order, ref_frame_map_pairs);
+  printf("REFRESH %d\n", refresh_idx);
   return 1 << refresh_idx;
 }
 
