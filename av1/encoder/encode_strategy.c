@@ -905,6 +905,8 @@ static int get_refresh_idx(int update_arf, int refresh_level,
     const int frame_order = ref_pair.disp_order;
     const int reference_frame_level = ref_pair.pyr_level;
     if (frame_order > cur_frame_disp) continue;
+     // get_true_pyr_level(
+     // buf->pyramid_level, frame_order, cpi->gf_group.max_layer_depth);
 
     // Keep track of the oldest reference frame matching the specified
     // refresh level from the subgop cfg
@@ -937,9 +939,7 @@ static int get_refresh_idx(int update_arf, int refresh_level,
       oldest_idx = map_idx;
     }
   }
-  printf("cur_disp_order %d\n", cur_frame_disp);
 //assert(oldest_idx >= 0);
-  printf("%d %d %d %d %d \n", oldest_ref_level_idx, update_arf, arf_count, oldest_arf_idx, oldest_idx);
   if (oldest_ref_level_idx > -1) return oldest_ref_level_idx;
   if (update_arf && arf_count > 2) return oldest_arf_idx;
   if (oldest_idx >= 0) return oldest_idx;
@@ -1263,6 +1263,10 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     apply_filtering = oxcf->algo_cfg.arnr_max_frames > 0;
     if (gf_group->is_user_specified) {
       apply_filtering &= gf_group->is_filtered[gf_group->index];
+      if (!apply_filtering && (get_frame_update_type(&cpi->gf_group) == ARF_UPDATE ||
+          get_frame_update_type(&cpi->gf_group) == KFFLT_UPDATE)) {
+        cpi->show_existing_alt_ref = 1;
+      }
     }
     if (apply_filtering) {
       arf_src_index = gf_group->arf_src_offset[gf_group->index];
@@ -1654,6 +1658,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_params.existing_fb_idx_to_show = INVALID_IDX;
     // Find the frame buffer to show based on display order
     if (frame_params.show_existing_frame) {
+      printf("SHOW EXISTING\n");
       for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
         // Get reference frame buffer
         const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
