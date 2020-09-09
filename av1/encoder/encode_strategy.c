@@ -756,6 +756,7 @@ static void update_ref_frame_map_gopcfg(AV1_COMP *cpi, int gf_index,
       default: assert(0 && "unknown type");
     }
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
@@ -847,6 +848,7 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
       break;
     default: assert(0 && "unknown type");
   }
+  cm->n_altrefs = ref_buffer_stack->arf_stack_size;
   return;
 }
 
