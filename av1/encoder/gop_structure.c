@@ -305,7 +305,7 @@ void av1_gop_setup_structure(AV1_COMP *cpi,
   const int key_frame = (frame_params->frame_type == KEY_FRAME);
   const FRAME_UPDATE_TYPE first_frame_update_type =
       key_frame ? KF_UPDATE
-                : rc->source_alt_ref_active ? OVERLAY_UPDATE : GF_UPDATE;
+                : cpi->common.n_altrefs && rc->source_alt_ref_active ? OVERLAY_UPDATE : GF_UPDATE;
   gf_group->is_user_specified = 0;
   gf_group->has_overlay_for_key_frame = 0;
   printf("baseline_gf_interval = %d\n", rc->baseline_gf_interval);
