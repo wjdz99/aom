@@ -913,13 +913,11 @@ static int get_refresh_idx(int update_arf, int refresh_level,
     if (reference_frame_level == 1) {
       // If there are more than 2 level 1 frames in the reference list,
       // discard the oldest
-      if (update_arf) {
-        if (frame_order < oldest_arf_order) {
-          oldest_arf_order = frame_order;
-          oldest_arf_idx = map_idx;
-        }
-        if (++arf_count > 2) break;
+      if (frame_order < oldest_arf_order) {
+        oldest_arf_order = frame_order;
+        oldest_arf_idx = map_idx;
       }
+      arf_count++;
       continue;
     }
 
@@ -929,10 +927,12 @@ static int get_refresh_idx(int update_arf, int refresh_level,
       oldest_idx = map_idx;
     }
   }
-  assert(oldest_idx >= 0);
   if (oldest_ref_level_idx > -1) return oldest_ref_level_idx;
-  if (arf_count > 2) return oldest_arf_idx;
-  return oldest_idx;
+  if (update_arf && arf_count > 2) return oldest_arf_idx;
+  if (oldest_idx >= 0) return oldest_idx;
+  if (oldest_arf_idx >= 0) return oldest_arf_idx;
+  assert(0 && "No valid refresh index found");
+  return -1;
 }
 
 static int get_refresh_frame_flags_subgop_cfg(
@@ -1212,6 +1212,9 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
         get_frame_update_type(&cpi->gf_group) == KFFLT_UPDATE) {
       cpi->show_existing_alt_ref = show_existing_alt_ref;
     }
+  } else if (get_frame_update_type(&cpi->gf_group) == ARF_UPDATE ||
+             get_frame_update_type(&cpi->gf_group) == KFFLT_UPDATE) {
+    cpi->show_existing_alt_ref = 1;
   }
 
   // perform tpl after filtering

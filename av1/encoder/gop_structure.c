@@ -308,10 +308,13 @@ void av1_gop_setup_structure(AV1_COMP *cpi,
                 : rc->source_alt_ref_active ? OVERLAY_UPDATE : GF_UPDATE;
   gf_group->is_user_specified = 0;
   gf_group->has_overlay_for_key_frame = 0;
-  printf("baseline_gf_interval = %d\n", rc->baseline_gf_interval);
+  if (cpi->print_per_frame_stats) {
+    printf("baseline_gf_interval = %d\n", rc->baseline_gf_interval);
+  }
   gf_group->size = construct_multi_layer_gf_structure(
       cpi, twopass, gf_group, rc, frame_info, rc->baseline_gf_interval,
       first_frame_update_type);
+  cpi->rc.level1_qp = -1;  // Set to uninitialized.
 
 #if CHECK_GF_PARAMETER
   check_frame_params(gf_group, rc->baseline_gf_interval);
