@@ -1132,15 +1132,13 @@ static void cnn_filter_stripe(const RestorationUnitInfo *rui, int stripe_width,
   (void)bit_depth;
   assert(bit_depth == 8);
 
+  (void)procunit_width;
   (void)tmpbuf;  // Unused.
   assert(rui->cnn_info.base_qindex > MIN_CNN_Q_INDEX);
-  for (int j = 0; j < stripe_width; j += procunit_width) {
-    int w = AOMMIN(procunit_width, stripe_width - j);
-    av1_restore_cnn_img_tflite(rui->cnn_info.base_qindex, src + j, w,
-                               stripe_height, src_stride, dst + j, dst_stride,
-                               1 /* num_threads */,
-                               is_frame_intra_only(rui->cnn_info.frame_type));
-  }
+  av1_restore_cnn_img_tflite(rui->cnn_info.base_qindex, src, stripe_width,
+                             stripe_height, src_stride, dst, dst_stride,
+                             1 /* num_threads */,
+                             is_frame_intra_only(rui->cnn_info.frame_type));
 }
 
 static void cnn_filter_stripe_highbd(const RestorationUnitInfo *rui,
@@ -1149,16 +1147,14 @@ static void cnn_filter_stripe_highbd(const RestorationUnitInfo *rui,
                                      int src_stride, uint8_t *dst,
                                      int dst_stride, int32_t *tmpbuf,
                                      int bit_depth) {
+  (void)procunit_width;
   (void)tmpbuf;  // Unused.
   assert(rui->cnn_info.base_qindex > MIN_CNN_Q_INDEX);
-  for (int j = 0; j < stripe_width; j += procunit_width) {
-    int w = AOMMIN(procunit_width, stripe_width - j);
-    av1_restore_cnn_img_tflite_highbd(
-        rui->cnn_info.base_qindex, (const uint16_t *)(src + j), w,
-        stripe_height, src_stride, (uint16_t *)(dst + j), dst_stride,
-        1 /* num_threads */, bit_depth,
-        is_frame_intra_only(rui->cnn_info.frame_type));
-  }
+  av1_restore_cnn_img_tflite_highbd(
+      rui->cnn_info.base_qindex, (const uint16_t *)src, stripe_width,
+      stripe_height, src_stride, (uint16_t *)dst, dst_stride,
+      1 /* num_threads */, bit_depth,
+      is_frame_intra_only(rui->cnn_info.frame_type));
 }
 
 #endif  // CONFIG_LOOP_RESTORE_CNN
@@ -1286,7 +1282,13 @@ void av1_loop_restoration_filter_unit(
     get_stripe_boundary_info(&remaining_stripes, tile_rect, ss_y, &copy_above,
                              &copy_below);
 
+#if CONFIG_LOOP_RESTORE_CNN
+    const int full_stripe_height = (unit_rtype == RESTORE_CNN)
+                                       ? 256 >> ss_y
+                                       : RESTORATION_PROC_UNIT_SIZE >> ss_y;
+#else
     const int full_stripe_height = RESTORATION_PROC_UNIT_SIZE >> ss_y;
+#endif  // CONFIG_LOOP_RESTORE_CNN
     const int runit_offset = RESTORATION_UNIT_OFFSET >> ss_y;
 
     // Work out where this stripe's boundaries are within
