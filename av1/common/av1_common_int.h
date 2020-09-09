@@ -1051,6 +1051,10 @@ typedef struct AV1Common {
   int64_t txcoeff_cost_timer;
   int64_t txcoeff_cost_count;
 #endif  // TXCOEFF_COST_TIMER
+  /*!
+   * The number of altref frames in the reference buffer slots.
+   */
+  int n_altrefs;
 
 #if CONFIG_LPF_MASK
   int is_decoding;

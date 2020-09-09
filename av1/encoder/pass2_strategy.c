@@ -1802,7 +1802,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Should we use the alternate reference frame.
   if (use_alt_ref) {
-    rc->source_alt_ref_pending = 1;
+    if (cm->n_altrefs) rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = gf_cfg->gf_max_pyr_height;
 #if CONFIG_SINGLEPASS
     set_baseline_gf_interval(cpi, i, active_max_gf_interval, use_alt_ref);
