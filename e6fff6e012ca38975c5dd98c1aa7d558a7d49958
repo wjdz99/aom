@@ -83,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "de31f541_edaa646f",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-09-09T16:30:42Z",
+      "side": 1,
+      "message": "Ok. Could you add the details on how to calculate this table in the comment, so others can adjust it if needed?",
+      "parentUuid": "443338c9_dd48bc44",
+      "range": {
+        "startLine": 162,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 2
+      },
+      "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5c81d2ff_489961b7",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 12
@@ -130,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "a84e4573_7dceba3c",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-09-09T16:30:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4499d31a_b2f042f8",
+      "range": {
+        "startLine": 438,
+        "startChar": 11,
+        "endLine": 438,
+        "endChar": 28
+      },
+      "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bee9843_d388a0a5",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 12
@@ -174,6 +222,30 @@
       "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "890abc44_3b268e3d",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 2299,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-09-09T16:30:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ffe29813_3c71c235",
+      "range": {
+        "startLine": 2252,
+        "startChar": 0,
+        "endLine": 2299,
+        "endChar": 5
+      },
+      "revId": "e6fff6e012ca38975c5dd98c1aa7d558a7d49958",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
