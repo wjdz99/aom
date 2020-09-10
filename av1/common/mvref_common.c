@@ -1390,7 +1390,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         affine_mv.as_mv.col = (affine_mv.as_mv.col >> shift) << shift;
       }
       if (affine_mv.as_int != INVALID_MV &&
-          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
           (!is_duplicated(affine_mv, ref_mv_stack, (*refmv_count)))) {
         ref_mv_stack[(*refmv_count)].this_mv = affine_mv;
         ref_mv_weight[(*refmv_count)] = 1;
@@ -1428,7 +1427,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         rotzoom_mv.as_mv.col = (rotzoom_mv.as_mv.col >> shift) << shift;
       }
       if (rotzoom_mv.as_int != INVALID_MV &&
-          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
           (!is_duplicated(rotzoom_mv, ref_mv_stack, (*refmv_count)))) {
         ref_mv_stack[(*refmv_count)].this_mv = rotzoom_mv;
         ref_mv_weight[(*refmv_count)] = 1;
@@ -1447,7 +1445,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
         arithmetic_mv.as_mv.col = (arithmetic_mv.as_mv.col >> shift) << shift;
       }
       if (arithmetic_mv.as_int != INVALID_MV &&
-          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
           (!is_duplicated(arithmetic_mv, ref_mv_stack, (*refmv_count)))) {
         ref_mv_stack[(*refmv_count)].this_mv = arithmetic_mv;
         ref_mv_weight[(*refmv_count)] = 1;
@@ -1468,7 +1465,6 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                     << shift;
       }
       if (weighted_avg_mv.as_int != INVALID_MV &&
-          (*refmv_count) < MAX_REF_MV_STACK_SIZE &&
           (!is_duplicated(weighted_avg_mv, ref_mv_stack, (*refmv_count)))) {
         ref_mv_stack[(*refmv_count)].this_mv = weighted_avg_mv;
         ref_mv_weight[(*refmv_count)] = 1;
