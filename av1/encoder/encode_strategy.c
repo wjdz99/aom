@@ -1582,18 +1582,47 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     frame_params.existing_fb_idx_to_show = INVALID_IDX;
     // Find the frame buffer to show based on display order
     if (frame_params.show_existing_frame) {
-      for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
-        // Get reference frame buffer
-        const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+      for (int frame = 0; frame < REF_FRAMES; frame++) {
+        const RefCntBuffer *const buf = cm->ref_frame_map[frame];
         if (buf == NULL) continue;
         const int frame_order = (int)buf->display_order_hint;
-        if (frame_order == cur_frame_disp) {
-          frame_params.existing_fb_idx_to_show =
-              get_ref_frame_map_idx(cm, frame);
-        }
+        if (frame_order == cur_frame_disp)
+          frame_params.existing_fb_idx_to_show = frame;
       }
     }
   }
+    const int cur_frame_disp =
+        cpi->common.current_frame.frame_number + frame_params.order_offset;
+   char *str_frames[7] = {
+  "LAST_FRAME",
+  "LAST2_FRAME",
+  "LAST3_FRAME",
+  "GOLDEN_FRAME",
+  "BWDREF_FRAME",
+  "ALTREF2_FRAME",
+  "ALTREF_FRAME"
+   };
+   char *ud_str[7] = {
+  "KF_UPDATE",
+  "LF_UPDATE",
+  "GF_UPDATE",
+  "ARF_UPDATE",
+  "OVERLAY_UPDATE",
+  "INTNL_OVERLAY_UPDATE",
+  "INTNL_ARF_UPDATE"
+   };
+   printf("~~~~~~~~ %s ~~~~~~~~ %d \n", ud_str[gf_group->update_type[gf_group->index]], cur_frame_disp);
+   for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+     char *frm_str = str_frames[frame - 1];
+     // Get reference frame buffer
+     const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+     if (buf == NULL) continue;
+     const int frame_order = (int)buf->display_order_hint;
+     const int frame_level = buf->pyramid_level;
+     printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+   }
+   printf("\n\n");
+
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
   // Currently, reference buffer assignment is done by update_ref_frame_map()
