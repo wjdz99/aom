@@ -99,6 +99,8 @@ class ForwardKeyTest
   double psnr_;
 };
 
+// TODO(sarahparker) Re-enable test when aomedia:2823 is resolved
+/*
 TEST_P(ForwardKeyTest, ForwardKeyEncodeTest) {
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
@@ -112,6 +114,7 @@ TEST_P(ForwardKeyTest, ForwardKeyEncodeTest) {
 
 AV1_INSTANTIATE_TEST_SUITE(ForwardKeyTest, NONREALTIME_TEST_MODES,
                            ::testing::ValuesIn(kTestParams));
+*/
 
 typedef struct {
   const unsigned int min_kf_dist;
@@ -178,6 +181,8 @@ class ForwardKeyPresenceTestLarge
   aom_rc_mode end_usage_check_;
 };
 
+// TODO(sarahparker) Re-enable test when aomedia:2823 is resolved
+/*
 TEST_P(ForwardKeyPresenceTestLarge, ForwardKeyEncodePresenceTest) {
   is_fwd_kf_present_ = 0;
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
@@ -190,4 +195,5 @@ TEST_P(ForwardKeyPresenceTestLarge, ForwardKeyEncodePresenceTest) {
 AV1_INSTANTIATE_TEST_SUITE(ForwardKeyPresenceTestLarge, NONREALTIME_TEST_MODES,
                            ::testing::ValuesIn(kfTestParams),
                            ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
+*/
 }  // namespace
