@@ -1007,6 +1007,9 @@ static AOM_INLINE void init_gop_frames_for_tpl(
         break;
       }
       tpl_frame->gf_picture = gop_eval ? &buf->img : frame_input->source;
+
+      if (gop_eval && cpi->rc.frames_since_key > 0 && gf_group->arf_index > -1)
+        tpl_frame->gf_picture = &cpi->alt_ref_buffer;
     } else {
       struct lookahead_entry *buf = av1_lookahead_peek(
           cpi->lookahead, lookahead_index,
@@ -1252,7 +1255,7 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   // Allow larger GOP size if the base layer ARF has higher dependency factor
   // than the intermediate ARF and both ARFs have reasonably high dependency
   // factors.
-  return (beta[0] >= beta[1] + 0.7) && beta[0] > 3.0;
+  return (beta[0] >= beta[1] + 0.7) && beta[0] > 8.0;
 }
 
 void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
