@@ -157,8 +157,30 @@ static INLINE int is_trellis_used(TRELLIS_OPT_TYPE optimize_b,
   return true;
 }
 
-// Scaling terms (precision of 12 bits) to obtain DC coefficient from block
-// residual mean
+// DC coefficient = residual-per-pixel-mean/Divisor[tx_size]
+// TX-SIZE  | Divisor
+// TX_4X4   | 4
+// TX_8X8   | 2
+// TX_16X16 | 1
+// TX_32X32 | 1
+// TX_64X64 | N.A.
+// TX_4X8   | 2*sqrt(2)
+// TX_8X4   | 2*sqrt(2)
+// TX_8X16  | sqrt(2)
+// TX_16X8  | sqrt(2)
+// TX_16X32 | sqrt(2)
+// TX_32X16 | sqrt(2)
+// TX_32X64 | N.A.
+// TX_64X32 | N.A.
+// TX_4X16  | 2
+// TX_16X4  | 2
+// TX_8X32  | 1
+// TX_32X8  | 1
+// TX_16X64 | N.A.
+// TX_64X16 | N.A.
+// These dc coeff scaling terms are computed using the above Divisor (precision
+// of 12 bits) and are used to obtain DC coefficient from block residual mean
+// DC-coefficient = residual-per-pixel-mean * dc_coeff_scale[tx_size]
 static const uint16_t dc_coeff_scale[TX_SIZES_ALL] = {
   1024, 2048, 4096, 4096, 0,    1448, 1448, 2896, 2896, 2896,
   2896, 0,    0,    2048, 2048, 4096, 4096, 0,    0
