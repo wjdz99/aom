@@ -139,6 +139,8 @@ set_aom_config_var(CONFIG_SUPERRES_IN_RECODE 1
                    "when AOM_SUPERRES_AUTO mode is used.")
 set_aom_config_var(CONFIG_OPTICAL_FLOW_API 0
                    "AV1 experiment flag for optical flow API.")
+set_aom_config_var(CONFIG_DBSCAN_FEATURE 0
+                   "0 is to disable clustering for mv reduction, 1 is to enable the feature (refer to mvref_common.c)")
 #
 # Variables in this section control optional features of the build system.
 #
