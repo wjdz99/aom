@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3989dcad_3a02840c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-10T12:53:40Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch addresses the comments in CL - https://aomedia-review.googlesource.com/c/aom/+/118144.\nPlease review the patch.\n\nRegards,\nRavi",
+      "revId": "c4aff3a79aa71c6d5c1d1097540386e67263a692",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
