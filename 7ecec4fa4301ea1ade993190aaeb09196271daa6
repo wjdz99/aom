@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "38c48a0a_38cf2de9",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-10T22:07:19Z",
+      "side": 1,
+      "message": "On the master branch, this block of code reads:\n\n  if(NOT EMSCRIPTEN)\n    if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)\n      set(CMAKE_BUILD_TYPE\n          \"Release\"\n          CACHE STRING \"Build type: Debug, Release, RelWithDebInfo or MinSizeRel\"\n                FORCE)\n    endif()\n  endif()\n\nSo I made the same change here.",
+      "revId": "7ecec4fa4301ea1ade993190aaeb09196271daa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e5259aa_a2f69d7b",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-10T22:07:19Z",
+      "side": 1,
+      "message": "On the master branch, these variables are set using the set_aom_detect_var() macro, which is defined in build/cmake/util.cmake as follows:\n\n  macro(set_aom_detect_var name value helpstring)\n    unset(list_index)\n    list(FIND AOM_DETECT_VARS ${name} list_index)\n    if(${list_index} EQUAL -1)\n      list(APPEND AOM_DETECT_VARS ${name})\n    endif()\n\n    # Update the variable only when it does not carry the CMake assigned help\n    # string for variables specified via the command line.\n    unset(cache_helpstring)\n    get_property(cache_helpstring CACHE ${name} PROPERTY HELPSTRING)\n    if(NOT \"${cache_helpstring}\" STREQUAL \"${cmake_cmdline_helpstring}\")\n      set(${name} ${value} CACHE STRING \"${helpstring}\")\n      mark_as_advanced(${name})\n    else()\n      message(\n        WARNING\n          \"${name} has been set by CMake, but it may be overridden by the build \"\n          \"system during environment detection\")\n    endif()\n  endmacro()\n\nNote the line:\n\n      set(${name} ${value} CACHE STRING \"${helpstring}\")",
+      "revId": "7ecec4fa4301ea1ade993190aaeb09196271daa6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
