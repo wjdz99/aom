@@ -1007,6 +1007,9 @@ static AOM_INLINE void init_gop_frames_for_tpl(
         break;
       }
       tpl_frame->gf_picture = gop_eval ? &buf->img : frame_input->source;
+
+      if (gop_eval && cpi->rc.frames_since_key > 0 && gf_group->arf_index == gf_index)
+        tpl_frame->gf_picture = &cpi->alt_ref_buffer;
     } else {
       struct lookahead_entry *buf = av1_lookahead_peek(
           cpi->lookahead, lookahead_index,
@@ -1220,10 +1223,11 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   if (gf_group->max_layer_depth_allowed == 0) return 1;
   assert(gf_group->arf_index >= 0);
 
-  double beta[2] = { 0.0 };
+  double beta[MAX_ARF_LAYERS] = { 0.0 };
   for (int frame_idx = gf_group->arf_index;
        frame_idx <= AOMMIN(tpl_gf_group_frames - 1, gf_group->arf_index + 1);
        ++frame_idx) {
+
     TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
     TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
     int tpl_stride = tpl_frame->stride;
@@ -1248,11 +1252,42 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
         (double)mc_dep_cost_base / intra_cost_base;
   }
 
-  fprintf(stderr, "beta = %lf, %lf\n", beta[0], beta[1]);
+  double beta_total = 0.0;
+  for (int frame_idx = gf_group->arf_index; frame_idx < tpl_gf_group_frames; ++frame_idx) {
+    if (gf_group->update_type[frame_idx] != ARF_UPDATE &&
+        gf_group->update_type[frame_idx] != INTNL_ARF_UPDATE)
+      continue;
+
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+    int tpl_stride = tpl_frame->stride;
+    int64_t intra_cost_base = 0;
+    int64_t mc_dep_cost_base = 0;
+    const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+    const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
+
+    for (int row = 0; row < cm->mi_params.mi_rows; row += step) {
+      for (int col = 0; col < mi_cols_sr; col += step) {
+        TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+        int64_t mc_dep_delta =
+            RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+                   this_stats->mc_dep_dist);
+        intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
+        mc_dep_cost_base +=
+            (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      }
+    }
+    beta_total += (double)mc_dep_cost_base / intra_cost_base;
+  }
+
+  fprintf(stderr, "beta = %f, %f, total = %f, gf interval = %d\n", 
+    beta[0], beta[1], beta_total, cpi->rc.baseline_gf_interval);
+
   // Allow larger GOP size if the base layer ARF has higher dependency factor
   // than the intermediate ARF and both ARFs have reasonably high dependency
   // factors.
-  return (beta[0] >= beta[1] + 0.7) && beta[0] > 3.0;
+  return (beta[0] >= beta[1] + 0.7) && (beta_total > cpi->rc.baseline_gf_interval * 1.3);
 }
 
 void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
