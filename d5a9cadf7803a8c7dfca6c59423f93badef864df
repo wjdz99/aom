@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0758fba7_db7f1564",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-09-10T16:48:59Z",
+      "side": 1,
+      "message": "This patch depends on https://aomedia-review.googlesource.com/c/aom/+/118603/1, which was abandoned.",
+      "revId": "d5a9cadf7803a8c7dfca6c59423f93badef864df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91dde509_3792ad07",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-09-10T16:48:59Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 45
+      },
+      "revId": "d5a9cadf7803a8c7dfca6c59423f93badef864df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "771642cf_12d7bb3f",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1129,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-09-10T16:48:59Z",
+      "side": 1,
+      "message": "Can be done in one line int64_t col \u003d 0, row \u003d 0;",
+      "range": {
+        "startLine": 1128,
+        "startChar": 2,
+        "endLine": 1129,
+        "endChar": 16
+      },
+      "revId": "d5a9cadf7803a8c7dfca6c59423f93badef864df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8087fcc_d8028628",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1135,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-09-10T16:48:59Z",
+      "side": 1,
+      "message": "const int64_t",
+      "range": {
+        "startLine": 1132,
+        "startChar": 4,
+        "endLine": 1135,
+        "endChar": 42
+      },
+      "revId": "d5a9cadf7803a8c7dfca6c59423f93badef864df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db7ec487_24775dcd",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1163,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-09-10T16:48:59Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1162,
+        "startChar": 2,
+        "endLine": 1163,
+        "endChar": 16
+      },
+      "revId": "d5a9cadf7803a8c7dfca6c59423f93badef864df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2786f5b5_2b3d46dd",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1415,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-09-10T16:48:59Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 1397,
+        "startChar": 8,
+        "endLine": 1415,
+        "endChar": 66
+      },
+      "revId": "d5a9cadf7803a8c7dfca6c59423f93badef864df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
