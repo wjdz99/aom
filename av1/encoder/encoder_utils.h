@@ -775,6 +775,16 @@ static AOM_INLINE void refresh_reference_frames(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   // All buffers are refreshed for shown keyframes and S-frames.
 
+  // Properly update order hints with a forward key frame
+  if (cpi->common.cur_frame->frame_type == KEY_FRAME 
+      && cpi->common.show_existing_frame) {
+      printf("UD FWD KF\n");
+      
+//  cpi->common.cur_frame->display_order_hint = 0;  
+//  cpi->common.cur_frame->order_hint = 0;  
+////cpi->common.cur_frame->showable_frame = 1;  
+  }
+
   for (int ref_frame = 0; ref_frame < REF_FRAMES; ref_frame++) {
     if (((cm->current_frame.refresh_frame_flags >> ref_frame) & 1) == 1) {
       assign_frame_buffer_p(&cm->ref_frame_map[ref_frame], cm->cur_frame);

@@ -1062,11 +1062,18 @@ void av1_finalize_encoded_frame(AV1_COMP *const cpi) {
       encode_show_existing_frame(cm)) {
     RefCntBuffer *const frame_to_show =
         cm->ref_frame_map[cpi->existing_fb_idx_to_show];
+//  if (current_frame->frame_type == KEY_FRAME) {
+//    printf("FWD KF~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+//    printf("ftc oh %d type %d\n", frame_to_show->order_hint, frame_to_show->frame_type);
+//    frame_to_show->order_hint = 0;
+//    printf("ftc2 oh %d type %d\n", frame_to_show->order_hint, frame_to_show->frame_type);
+//  }
 
     if (frame_to_show == NULL) {
       aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                          "Buffer does not contain a reconstructed frame");
     }
+    printf("FRAME TO SHOWABLE %d\n", frame_to_show->showable_frame);
     assert(frame_to_show->ref_count > 0);
     assign_frame_buffer_p(&cm->cur_frame, frame_to_show);
   }

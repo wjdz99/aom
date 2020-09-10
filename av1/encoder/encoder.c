@@ -3163,6 +3163,7 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   current_frame->order_hint =
       current_frame->frame_number + frame_params->order_offset;
   current_frame->display_order_hint = current_frame->order_hint;
+    printf("order hint %d, offset %d\n", current_frame->order_hint, frame_params->order_offset);
   current_frame->pyramid_level = cpi->gf_group.layer_depth[cpi->gf_group.index];
 
   current_frame->absolute_poc =
