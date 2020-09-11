@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de33a8cb_00e9dd9b",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1194,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-09-11T21:33:34Z",
+      "side": 1,
+      "message": "Prefer this section to be not inside \"if (gf_group-\u003eis_user_specified)\" since it seems more universal. Suggesting moving it down.",
+      "revId": "8ba9e5c2a79647ec65cafb09e60d8c659c4e71e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
