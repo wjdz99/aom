@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ca58cbb3_b032c570",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-11T04:49:53Z",
+      "side": 1,
+      "message": "Name suggests this is 1.000?",
+      "range": {
+        "startLine": 176,
+        "startChar": 30,
+        "endLine": 176,
+        "endChar": 35
+      },
+      "revId": "144785d9d61e5ab2467c020abd1c14172f54eb66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
