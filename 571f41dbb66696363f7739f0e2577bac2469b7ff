@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf016262_2f98e4c1",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "Please use \u003ccassert\u003e for C++. Although is this needed? I think you only use GTest\u0027s asserts.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14b8c621_ff94f67b",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "Please use \u003ccstdio\u003e for C++. Although is this needed? Memset is located in \u003ccstring\u003e and I don\u0027t see other functions from stdio",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 13,
+        "endChar": 15
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca77b6fd_2fc4c1b4",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "Although this rule isn\u0027t enforced much, it is a good idea to suffix protected variables with _ (e.g., tmp_) to indicate it is a protected/private variable.",
+      "range": {
+        "startLine": 27,
+        "startChar": 19,
+        "endLine": 27,
+        "endChar": 22
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67a65a6d_4588198b",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "in C++ please use reinterpret_cast\u003cRefCntBuffer**\u003e(...) for pointer casts",
+      "range": {
+        "startLine": 41,
+        "startChar": 17,
+        "endLine": 41,
+        "endChar": 34
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13c1b7d2_756aad3e",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 45,
+        "startChar": 22,
+        "endLine": 45,
+        "endChar": 38
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e225918_85682521",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 53,
+        "startChar": 10,
+        "endLine": 53,
+        "endChar": 21
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbbafc20_c2cbafed",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "it\u0027s fine to move these asserts into the setup method and then assume it\u0027s always set correctly.",
+      "range": {
+        "startLine": 77,
+        "startChar": 2,
+        "endLine": 78,
+        "endChar": 33
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0a8db2c_b3435197",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "Since these are unchanging, please declare them const int.",
+      "range": {
+        "startLine": 92,
+        "startChar": 2,
+        "endLine": 93,
+        "endChar": 19
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f8bfea4_ea9fcb74",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "It looks like you are testing two cases -- one where everything is zero, and confirming it is zero, and one where every 11th byte is set to 1, and that in the resulting MFQE analysis, the value is either 0 or 1. Is this correct? Please document these cases separately with comments.",
+      "range": {
+        "startLine": 94,
+        "startChar": 2,
+        "endLine": 101,
+        "endChar": 0
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "337afbcd_ecf2dca3",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "FYI since it is initialized this way in Setup, it\u0027s fine to assume. You could add a comment to Setup explaining the structures it initializes.",
+      "range": {
+        "startLine": 108,
+        "startChar": 1,
+        "endLine": 114,
+        "endChar": 3
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2645a11b_181fd71d",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "Please declare these const.",
+      "range": {
+        "startLine": 116,
+        "startChar": 2,
+        "endLine": 117,
+        "endChar": 19
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebc8694a_56fe8e7b",
+        "filename": "test/mfqe_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-11T22:46:11Z",
+      "side": 1,
+      "message": "Please describe, in comments, the various cases you are testing here.",
+      "range": {
+        "startLine": 119,
+        "startChar": 2,
+        "endLine": 121,
+        "endChar": 3
+      },
+      "revId": "571f41dbb66696363f7739f0e2577bac2469b7ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
