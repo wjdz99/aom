@@ -1406,8 +1406,13 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
   const int boosted = frame_is_boosted(cpi);
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
-  if (is_720p_or_larger && cpi->oxcf.mode == GOOD && speed == 0) {
-    if (cm->quant_params.base_qindex <= 108) {
+
+  if (cpi->oxcf.mode == GOOD && speed == 0) {
+    // qindex_thresh for resolution < 720p
+    const int qindex_thresh = boosted ? 90 : 140;
+
+    if ((!is_720p_or_larger && cm->quant_params.base_qindex <= qindex_thresh) ||
+        (is_720p_or_larger && cm->quant_params.base_qindex <= 108)) {
       sf->rd_sf.perform_coeff_opt = 2 + is_1080p_or_larger;
       memcpy(winner_mode_params->coeff_opt_dist_threshold,
              coeff_opt_dist_thresholds[sf->rd_sf.perform_coeff_opt],
