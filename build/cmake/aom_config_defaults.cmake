@@ -232,6 +232,9 @@ set_aom_config_var(CONFIG_INTERINTRA_ML 0 NUMBER
 set_aom_config_var(CONFIG_MFQE_RESTORATION 0 NUMBER
                    "AV2 multi-frame quality enhancement experiment flag")
 
+set_aom_config_var(CONFIG_DBSCAN_FEATURE 0 NUMBER
+                   "AV2 dbscan clustering for mv reduction (refer to mvref_common.c)")
+
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
 # path to tensorflow root via TENSORFLOW_INCLUDE_DIR.
