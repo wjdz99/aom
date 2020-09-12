@@ -1544,6 +1544,27 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
 
   if (rc_mode == AOM_Q || rc_mode == AOM_CQ) active_best_quality = rc->arf_q;
   int this_height = gf_group_pyramid_level(gf_group, gf_index);
+
+  if (rc_mode == AOM_Q) {
+    double arf_q = av1_convert_qindex_to_q(active_best_quality, bit_depth);
+    double base_q = av1_convert_qindex_to_q(active_worst_quality, bit_depth);
+    double alpha = arf_q / base_q;
+    // double target = base_q * pow(alpha, 1.0 / this_height);
+    double target = arf_q;
+
+    while (this_height > 1) {
+      target = (target + base_q) / 2;
+      --this_height;
+    }
+
+    int qindex = active_best_quality;
+    for (; qindex < active_worst_quality; ++qindex) {
+      double this_q = av1_convert_qindex_to_q(qindex, bit_depth);
+      if (this_q >= target) break;
+    }
+    return qindex;
+  }
+
   while (this_height > 1) {
     active_best_quality = (active_best_quality + active_worst_quality + 1) / 2;
     --this_height;
