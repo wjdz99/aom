@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8c07c7ee_4b85514f",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-09-14T23:36:37Z",
+      "side": 1,
+      "message": "take this out of the Q condition since it applies to both cases?\n\nIt seems that for low-res and for res \u003e\u003d 640x480 thresh[2]\u003dINT32_MAX is always applied (under the speed feature) but for CIF \u003c res \u003c VGA only for high Q, is that intentional?",
+      "revId": "c292fa8d4deb8335a55cfe1d16a8cef0de6b2ab2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
