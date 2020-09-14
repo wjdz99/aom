@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c365940_c0381e23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2020-09-14T17:02:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe added a speed feature to prune rectangular split based on q-index for smaller block sizes. Typically rectangular partition help in saving the bits as compared to split partitions. At high bitrates, saving in bits for rectangular partition can be of lesser importance. Hence, the partitions are pruned based on q-index (Prune aggressiveness is set to high for lower q-index and low for higher q-index). The logic is limited to smaller block sizes and we shall experiment with extension to larger blocks, once the patch is merged.\n\nThis speed feature is enabled for speed \u003d 6.\n\n                      Instruction Count        BD-Rate Loss(%)\ncpu-used  Resolution    Reduction(%)     avg.psnr  ovr.psnr   ssim\n   6       LOW RES        1.755          0.2071     0.2100   0.1547\n   6       MID RES        1.889          0.1743     0.1786   0.1135\n   6        HD RES        0.738          0.0789     0.0702   0.0472\n   6       Average        1.529          0.1584     0.1582   0.1098\n\n In the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc ...\n\nPlease review the patch. \nThank you.",
+      "revId": "500f68a37bcf29b12456046497ce7e7bb7f76b90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
