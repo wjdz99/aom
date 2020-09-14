@@ -1394,11 +1394,12 @@ static void update_stats(const AV1_COMMON *const cm, TileDataEnc *tile_data,
       update_cdf(fc->intrabc_cdf, is_intrabc_block(mbmi), 2);
 #if CONFIG_EXT_IBC_MODES
       if (is_intrabc_block(mbmi)) {
-        update_cdf(fc->intrabc_mode_cdf, mbmi->ibc_mode, 8);
-        // update_cdf(fc->intrabcplus_cdf, mbmi->is_ibcplus, 2);
-        /*if (mbmi->is_ibcplus) {
-                update_cdf(fc->intrabcplus_mode_cdf, mbmi->ibcplus_mode, 4);
-    }*/
+        if (cm->ext_ibc_config == CONFIG_EXT_IBC_ALLMODES)
+          update_cdf(fc->intrabc_mode_cdf, mbmi->ibc_mode, 8);
+        else if (cm->ext_ibc_config == CONFIG_EXT_IBC_TOP5MODES)
+          update_cdf(fc->intrabc_mode_cdf, mbmi->ibc_mode, 6);
+        else if (cm->ext_ibc_config == CONFIG_EXT_IBC_TOP3MODES)
+          update_cdf(fc->intrabc_mode_cdf, mbmi->ibc_mode, 4);
       }
 #endif  // CONFIG_EXT_IBC_MODES
     }
@@ -3234,7 +3235,7 @@ static INLINE void set_partition_cost_for_edge_blk(
     }
     search_state->partition_cost = search_state->tmp_partition_cost;
   }
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
   const BLOCK_SIZE bsize = blk_params->bsize;
   if (!(blk_params->has_rows && blk_params->has_cols)) {
     assert(search_state->is_block_splittable && search_state->pl >= 0);
@@ -3304,7 +3305,7 @@ static INLINE void init_partition_allowed(PartitionSearchState *search_state,
 #if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       (has_cols || (!has_rows && !has_cols)) &&
       is_partition_valid(bsize, PARTITION_HORZ) &&
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       blk_params->has_cols && is_partition_valid(bsize, PARTITION_HORZ) &&
 #endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       cpi->oxcf.enable_rect_partitions && is_chroma_size_valid_horz;
@@ -3312,7 +3313,7 @@ static INLINE void init_partition_allowed(PartitionSearchState *search_state,
 #if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       (has_rows || (!has_rows && !has_cols)) &&
       is_partition_valid(bsize, PARTITION_VERT) &&
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       blk_params->has_rows && is_partition_valid(bsize, PARTITION_VERT) &&
 #endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       cpi->oxcf.enable_rect_partitions && is_chroma_size_valid_vert;
@@ -3405,14 +3406,14 @@ static INLINE void prune_partitions_after_none(
 
 #if CONFIG_EXT_RECUR_PARTITIONS
   (void)sms_tree;
-#else   // !CONFIG_EXT_RECUR_PARTITIONS
+#else  // !CONFIG_EXT_RECUR_PARTITIONS
   const int mi_row = blk_params->mi_row, mi_col = blk_params->mi_col;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 
   if (!frame_is_intra_only(cm) &&
 #if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       search_state->do_rectangular_split &&
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       (search_state->do_square_split || search_state->do_rectangular_split) &&
 #endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
       !x->e_mbd.lossless[xd->mi[0]->segment_id] && ctx_none->skippable) {
@@ -4216,7 +4217,7 @@ static bool rd_pick_partition(
 #if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
     search_state.partition_rect_allowed[HORZ] = 1;
     search_state.partition_rect_allowed[VERT] = 1;
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
     search_state.partition_rect_allowed[HORZ] = 0;
     search_state.partition_rect_allowed[VERT] = 0;
     search_state.do_square_split = 1;
@@ -4230,7 +4231,7 @@ static bool rd_pick_partition(
     // boundary. Otherwise, inherit the square split flag from previous logic
 #if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
     search_state.partition_none_allowed = 1;
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
     if (blk_params->has_rows && blk_params->has_cols)
       search_state.do_square_split = 0;
     search_state.partition_none_allowed = !search_state.do_square_split;
@@ -5435,11 +5436,10 @@ static int get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   offset = AOMMAX(offset, -delta_q_info->delta_q_res * 9 + 1);
   int qindex = cm->base_qindex + offset;
 #if CONFIG_EXTQUANT_HBD
-  qindex = AOMMIN(qindex, cm->seq_params.bit_depth == AOM_BITS_8
-                              ? MAXQ_8_BITS
-                              : cm->seq_params.bit_depth == AOM_BITS_10
-                                    ? MAXQ_10_BITS
-                                    : MAXQ);
+  qindex =
+      AOMMIN(qindex, cm->seq_params.bit_depth == AOM_BITS_8    ? MAXQ_8_BITS
+                     : cm->seq_params.bit_depth == AOM_BITS_10 ? MAXQ_10_BITS
+                                                               : MAXQ);
 #else
   qindex = AOMMIN(qindex, MAXQ);
 #endif
@@ -5658,7 +5658,7 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   // Rectangular blocks
   AVERAGE_CDF(ctx_left->txfm_partition_cdf[1], ctx_tr->txfm_partition_cdf[1],
               TX_PARTITION_TYPES);
-#else   // CONFIG_NEW_TX_PARTITION
+#else  // CONFIG_NEW_TX_PARTITION
   AVERAGE_CDF(ctx_left->txfm_partition_cdf, ctx_tr->txfm_partition_cdf, 2);
 #endif  // CONFIG_NEW_TX_PARTITION
   AVERAGE_CDF(ctx_left->compound_index_cdf, ctx_tr->compound_index_cdf, 2);
@@ -5674,9 +5674,8 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->intrabc_cdf, ctx_tr->intrabc_cdf, 2);
 #if CONFIG_EXT_IBC_MODES
   AVERAGE_CDF(ctx_left->intrabc_mode_cdf, ctx_tr->intrabc_mode_cdf, 8);
-  // AVERAGE_CDF(ctx_left->intrabcplus_cdf, ctx_tr->intrabcplus_cdf, 2);
-  // AVERAGE_CDF(ctx_left->intrabcplus_mode_cdf, ctx_tr->intrabcplus_mode_cdf,
-  // 4);
+  // AVERAGE_CDF(ctx_left->intrabc_mode_cdf, ctx_tr->intrabc_mode_cdf, 6);
+  // AVERAGE_CDF(ctx_left->intrabc_mode_cdf, ctx_tr->intrabc_mode_cdf, 4);
 #endif  // CONFIG_EXT_IBC_MODES
 #if CONFIG_DERIVED_INTRA_MODE
   AVERAGE_CDF(ctx_left->derived_intra_mode_cdf, ctx_tr->derived_intra_mode_cdf,
@@ -7308,154 +7307,148 @@ static void encode_frame_internal(AV1_COMP *cpi) {
 #if CONFIG_EXT_IBC_MODES
 // static uint16_t FrameNum = -1;
 
-/*
 static void av1_setup_ibc_statistics() {
-
   // FrameNum++;  // Update Frame Count
 
-  // Reset variables
-
-  // regular_ibc = ibc_rotation90 = ibc_rotation180 = ibc_rotation270 =
-  // ibc_mirror0 = ibc_mirror45 = ibc_mirror90 = ibc_mirror135 = 0;
-
-  // regular_ibc = ibc_plus = 0;
-  // ibc_blk128x = ibc_blk64x = ibc_blk32x = ibc_blk16x = ibc_blk8x =
-  // ibc_blk4x = 0;
-
+  /* Reset variables
+  regular_ibc = ibc_rotation90 = ibc_rotation180 = ibc_rotation270 =
+      ibc_mirror0 = ibc_mirror45 = ibc_mirror90 = ibc_mirror135 = 0;
+  */
+  /* Reset variables
+  regular_ibc = ibc_plus = 0;
+  ibc_blk128x = ibc_blk64x = ibc_blk32x = ibc_blk16x = ibc_blk8x =
+  ibc_blk4x = 0;
+  */
 }
-*/
 
-/*
 static void av1_write_ibc_statistics() {
+  /*
+  IBCStats = fopen("IBC_Statistics.txt", "a+");
+  fprintf(IBCStats, "\nFrame Number : %d\n", FrameNum);
+  */
+  /*
+  float totalIBCWinners = regular_ibc + ibc_rotation90 + ibc_rotation180 +
+                          ibc_rotation270 + ibc_mirror0 + ibc_mirror45 +
+                          ibc_mirror90 + ibc_mirror135;
+  float regularIBCPercent = (float)(regular_ibc) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Regular IBC : %d\t Percentage Win : %f\n", regular_ibc,
+          regularIBCPercent);
 
-  // IBCStats = fopen("IBC_Statistics.txt", "a+");
-  // fprintf(IBCStats, "\nFrame Number : %d\n", FrameNum);
+  fprintf(IBCStats, "Rotation Mode Winners :\n");
+  float ibcR90Percent = (float)(ibc_rotation90) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Rotation 90 : %d\t Percentage Win : %f\n", ibc_rotation90,
+          ibcR90Percent);
+  float ibcR180Percent = (float)(ibc_rotation180) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Rotation 180 : %d\t Percentage Win : %f\n",
+          ibc_rotation180, ibcR180Percent);
+  float ibcR270Percent = (float)(ibc_rotation270) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Rotation 270 : %d\t Percentage Win : %f\n",
+          ibc_rotation270, ibcR270Percent);
 
-  // float totalIBCWinners = regular_ibc + ibc_rotation90 + ibc_rotation180 +
-  //                      ibc_rotation270 + ibc_mirror0 + ibc_mirror45 +
-  //                      ibc_mirror90 + ibc_mirror135;
-  // float regularIBCPercent = (float)(regular_ibc) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Regular IBC : %d\t Percentage Win : %f\n", regular_ibc,
-  //      regularIBCPercent);
+  fprintf(IBCStats, "Mirror Mode Winners :\n");
+  float ibcM0Percent = (float)(ibc_mirror0) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Mirror 0 : %d\t Percentage Win : %f\n", ibc_mirror0,
+          ibcM0Percent);
+  float ibcM45Percent = (float)(ibc_mirror45) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Mirror 45 : %d\t Percentage Win : %f\n", ibc_mirror45,
+          ibcM45Percent);
+  float ibcM90Percent = (float)(ibc_mirror90) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Mirror 90 : %d\t Percentage Win : %f\n", ibc_mirror90,
+          ibcM90Percent);
+  float ibcM135Percent = (float)(ibc_mirror135) / totalIBCWinners * 100;
+  fprintf(IBCStats, "Mirror 135 : %d\t Percentage Win : %f\n", ibc_mirror135,
+          ibcM135Percent);
+  */
+  /*
+   float totalIBCWinners = regular_ibc + ibc_plus;
 
-  // fprintf(IBCStats, "Rotation Mode Winners :\n");
-  // float ibcR90Percent = (float)(ibc_rotation90) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Rotation 90 : %d\t Percentage Win : %f\n",
-ibc_rotation90,
-  //         ibcR90Percent);
-  // float ibcR180Percent = (float)(ibc_rotation180) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Rotation 180 : %d\t Percentage Win : %f\n",
-  // ibc_rotation180, ibcR180Percent); float ibcR270Percent =
-  // (float)(ibc_rotation270) / totalIBCWinners * 100; fprintf(IBCStats,
-"Rotation
-  // 270 : %d\t Percentage Win : %f\n", ibc_rotation270, ibcR270Percent);
-  //
-  // fprintf(IBCStats, "Mirror Mode Winners :\n");
-  // float ibcM0Percent = (float)(ibc_mirror0) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Mirror 0 : %d\t Percentage Win : %f\n", ibc_mirror0,
-  //         ibcM0Percent);
-  // float ibcM45Percent = (float)(ibc_mirror45) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Mirror 45 : %d\t Percentage Win : %f\n", ibc_mirror45,
-  //         ibcM45Percent);
-  // float ibcM90Percent = (float)(ibc_mirror90) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Mirror 90 : %d\t Percentage Win : %f\n", ibc_mirror90,
-  //         ibcM90Percent);
-  // float ibcM135Percent = (float)(ibc_mirror135) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Mirror 135 : %d\t Percentage Win : %f\n", ibc_mirror135,
-  //         ibcM135Percent);
+   float regularIBCPercent = (float)(regular_ibc) / totalIBCWinners * 100;
+   fprintf(IBCStats, "Regular IBC : %d\t Percentage Win : %f\n", regular_ibc,
+           regularIBCPercent);
+   float ibcPlusPercent = (float)(ibc_plus) / totalIBCWinners * 100;
+   fprintf(IBCStats, "IBC+ : %d\t Percentage Win : %f\n", ibc_plus,
+           ibcPlusPercent);
 
-  // float totalIBCWinners = regular_ibc + ibc_plus;
-  //
-  // float regularIBCPercent = (float)(regular_ibc) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "Regular IBC : %d\t Percentage Win : %f\n", regular_ibc,
-  //         regularIBCPercent);
-  // float ibcPlusPercent = (float)(ibc_plus) / totalIBCWinners * 100;
-  // fprintf(IBCStats, "IBC+ : %d\t Percentage Win : %f\n", ibc_plus,
-  //         ibcPlusPercent);
-  //
-  // fprintf(IBCStats, " \n");
-  // float ibc_blk128x_Percent = (float)(ibc_blk128x) / ibc_plus * 100;
-  // fprintf(IBCStats,
-  //         "IBC+ Blocks (128x128, 128x64, 64x128) : %d\t Percentage Win :
-%f\n",
-  //         ibc_blk128x, ibc_blk128x_Percent);
-  // float ibc_blk64x_Percent = (float)(ibc_blk64x) / ibc_plus * 100;
-  // fprintf(IBCStats,
-  //         "IBC+ Blocks (64x64, 64x32, 32x64, 64x16, 16x64) : %d\t Percentage
-"
-  //         "Win : %f\n", ibc_blk64x, ibc_blk64x_Percent);
-  // float ibc_blk32x_Percent = (float)(ibc_blk32x) / ibc_plus * 100;
-  // fprintf(IBCStats,
-  //         "IBC+ Blocks (32x32, 32x16, 16x32, 32x8, 8x32) : %d\t Percentage
-Win "
-  //         ": %f\n", ibc_blk32x, ibc_blk32x_Percent);
-  // float ibc_blk16x_Percent = (float)(ibc_blk16x) / ibc_plus * 100;
-  // fprintf(IBCStats,
-  //         "IBC+ Blocks (16x16, 16x8, 8x16, 16x4, 4x16) : %d\t Percentage Win
-"
-  //         ": %f\n", ibc_blk16x, ibc_blk16x_Percent);
-  // float ibc_blk8x_Percent = (float)(ibc_blk8x) / ibc_plus * 100;
-  // fprintf(IBCStats,
-  //         "IBC+ Blocks (8x8, 8x4, 4x8) : %d\t Percentage Win "
-  //         ": %f\n", ibc_blk8x, ibc_blk8x_Percent);
-  // float ibc_blk4x_Percent = (float)(ibc_blk4x) / ibc_plus * 100;
-  // fprintf(IBCStats,
-  //         "IBC+ Blocks (4x4) : %d\t Percentage Win "
-  //         ": %f\n", ibc_blk4x, ibc_blk4x_Percent);
+   fprintf(IBCStats, " \n");
+   float ibc_blk128x_Percent = (float)(ibc_blk128x) / ibc_plus * 100;
+   fprintf(IBCStats,
+           "IBC+ Blocks (128x128, 128x64, 64x128) : %d\t Percentage Win :
+   %f\n",
+           ibc_blk128x, ibc_blk128x_Percent);
+   float ibc_blk64x_Percent = (float)(ibc_blk64x) / ibc_plus * 100;
+   fprintf(IBCStats,
+           "IBC+ Blocks (64x64, 64x32, 32x64, 64x16, 16x64) : %d\t Percentage
+   "
+           "Win : %f\n", ibc_blk64x, ibc_blk64x_Percent);
+   float ibc_blk32x_Percent = (float)(ibc_blk32x) / ibc_plus * 100;
+   fprintf(IBCStats,
+           "IBC+ Blocks (32x32, 32x16, 16x32, 32x8, 8x32) : %d\t Percentage
+   Win "
+           ": %f\n", ibc_blk32x, ibc_blk32x_Percent);
+   float ibc_blk16x_Percent = (float)(ibc_blk16x) / ibc_plus * 100;
+   fprintf(IBCStats,
+           "IBC+ Blocks (16x16, 16x8, 8x16, 16x4, 4x16) : %d\t Percentage Win
+   "
+           ": %f\n", ibc_blk16x, ibc_blk16x_Percent);
+   float ibc_blk8x_Percent = (float)(ibc_blk8x) / ibc_plus * 100;
+   fprintf(IBCStats,
+           "IBC+ Blocks (8x8, 8x4, 4x8) : %d\t Percentage Win "
+           ": %f\n", ibc_blk8x, ibc_blk8x_Percent);
+   float ibc_blk4x_Percent = (float)(ibc_blk4x) / ibc_plus * 100;
+   fprintf(IBCStats,
+           "IBC+ Blocks (4x4) : %d\t Percentage Win "
+           ": %f\n", ibc_blk4x, ibc_blk4x_Percent);
+  */
 
   // fclose(IBCStats);
 }
-*/
 
-/*
 static void av1_log_ibc_statistics(MB_MODE_INFO *mbmi, BLOCK_SIZE bsize) {
   // uint8_t ibcWinMode = mbmi->ibc_mode;
-  // uint8_t ibcWinMode = mbmi->is_ibcplus ? (0x1 + mbmi->ibcplus_mode) : 0x0;
 
-  // if (ibcWinMode == ROTATION_0)
-  //   regular_ibc++;
-  // else if (ibcWinMode == MIRROR_90)
-  //   ibc_mirror90++;
-  // else if (ibcWinMode == MIRROR_0)
-  //   ibc_mirror0++;
-  // else if (ibcWinMode == ROTATION_180)
-  //   ibc_rotation180++;
-  // else if (ibcWinMode == MIRROR_135)
-  //   ibc_mirror135++;
-  // else if (ibcWinMode == MIRROR_45)
-  //   ibc_mirror45++;
-  // else if (ibcWinMode == ROTATION_90)
-  //   ibc_rotation90++;
-  // else if (ibcWinMode == ROTATION_270)
-  //   ibc_rotation270++;
-
-
-  // if (ibcWinMode == ROTATION_0) {
-  //   ++regular_ibc;
-  // } else {
-  //   ++ibc_plus;
-  //   if (bsize == BLOCK_128X128 || bsize == BLOCK_128X64 ||
-  //       bsize == BLOCK_64X128)
-  //     ++ibc_blk128x;
-  //   else if (bsize == BLOCK_64X64 || bsize == BLOCK_64X32 ||
-  //            bsize == BLOCK_32X64 || bsize == BLOCK_64X16 ||
-  //            bsize == BLOCK_16X64)
-  //     ++ibc_blk64x;
-  //   else if (bsize == BLOCK_32X32 || bsize == BLOCK_32X16 ||
-  //            bsize == BLOCK_16X32 || bsize == BLOCK_32X8 || bsize ==
-BLOCK_8X32)
-  //     ++ibc_blk32x;
-  //   else if (bsize == BLOCK_16X16 || bsize == BLOCK_16X8 ||
-  //            bsize == BLOCK_8X16 || bsize == BLOCK_16X4 || bsize ==
-BLOCK_4X16)
-  //     ++ibc_blk16x;
-  //   else if (bsize == BLOCK_8X8 || bsize == BLOCK_8X4 || bsize == BLOCK_4X8)
-  //     ++ibc_blk8x;
-  //   else if (bsize == BLOCK_4X4)
-  //     ++ibc_blk4x;
-  // }
+  /*
+  if (ibcWinMode == ROTATION_0)
+    regular_ibc++;
+  else if (ibcWinMode == MIRROR_90)
+    ibc_mirror90++;
+  else if (ibcWinMode == MIRROR_0)
+    ibc_mirror0++;
+  else if (ibcWinMode == ROTATION_180)
+    ibc_rotation180++;
+  else if (ibcWinMode == MIRROR_135)
+    ibc_mirror135++;
+  else if (ibcWinMode == MIRROR_45)
+    ibc_mirror45++;
+  else if (ibcWinMode == ROTATION_90)
+    ibc_rotation90++;
+  else if (ibcWinMode == ROTATION_270)
+    ibc_rotation270++;
+  */
+  /*
+  if (ibcWinMode == ROTATION_0) {
+    ++regular_ibc;
+  } else {
+    ++ibc_plus;
+    if (bsize == BLOCK_128X128 || bsize == BLOCK_128X64 ||
+        bsize == BLOCK_64X128)
+      ++ibc_blk128x;
+    else if (bsize == BLOCK_64X64 || bsize == BLOCK_64X32 ||
+             bsize == BLOCK_32X64 || bsize == BLOCK_64X16 ||
+             bsize == BLOCK_16X64)
+      ++ibc_blk64x;
+    else if (bsize == BLOCK_32X32 || bsize == BLOCK_32X16 ||
+             bsize == BLOCK_16X32 || bsize == BLOCK_32X8 || bsize == BLOCK_8X32)
+      ++ibc_blk32x;
+    else if (bsize == BLOCK_16X16 || bsize == BLOCK_16X8 ||
+             bsize == BLOCK_8X16 || bsize == BLOCK_16X4 || bsize == BLOCK_4X16)
+      ++ibc_blk16x;
+    else if (bsize == BLOCK_8X8 || bsize == BLOCK_8X4 || bsize == BLOCK_4X8)
+      ++ibc_blk8x;
+    else if (bsize == BLOCK_4X4)
+      ++ibc_blk4x;
+  }
+  */
 }
-*/
 #endif  // CONFIG_EXT_IBC_MODES
 
 void av1_encode_frame(AV1_COMP *cpi) {
@@ -7882,11 +7875,10 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     assert(av1_check_newmv_joint_nonzero(cm, x));
 #endif  // CONFIG_NEW_INTER_MODES && DISABLE_NEW_INTER_MODES_JOINT_ZERO
 #if CONFIG_EXT_IBC_MODES
-    /* Log IBC Statistics
+    // Log IBC Statistics
     if (is_intrabc_block(mbmi) && !dry_run) {
       av1_log_ibc_statistics(mbmi, bsize);
     }
-    */
 #endif  // CONFIG_EXT_IBC_MODES
 
 #if CONFIG_DERIVED_MV

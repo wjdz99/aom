@@ -150,16 +150,16 @@ typedef enum {
   MIRROR_0,
   ROTATION_180,
   ROTATION_90,
-  MIRROR_135,
-  MIRROR_45,
   ROTATION_270,
+  MIRROR_45,
+  MIRROR_135
 } IBC_MODE;
 
 #define MAX_IBC_BLK_SIZE 128
 
 typedef enum {
   CONFIG_EXT_IBC_ALLMODES,
-  CONFIG_EXT_IBC_TOP4MODES,
+  CONFIG_EXT_IBC_TOP5MODES,
   CONFIG_EXT_IBC_TOP3MODES
 } IBC_CONFIG;
 #endif  // CONFIG_EXT_IBC_MODES
@@ -219,7 +219,7 @@ enum {
   PARTITION_TYPES = PARTITION_SPLIT + 1,
   PARTITION_INVALID = 255
 } UENUM1BYTE(PARTITION_TYPE);
-#else   // KEEP_PARTITION_SPLIT
+#else  // KEEP_PARTITION_SPLIT
 enum {
   PARTITION_NONE,
   PARTITION_HORZ,
@@ -232,7 +232,7 @@ enum {
   PARTITION_INVALID = 255
 } UENUM1BYTE(PARTITION_TYPE);
 #endif  // KEEP_PARTITION_SPLIT
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_EXT_RECUR_PARTITIONS
 enum {
   PARTITION_NONE,
   PARTITION_HORZ,
@@ -264,7 +264,7 @@ enum {
 #if CONFIG_FLEX_PARTITION
   PARTITION_SHORT_SIDE_3_REC,
   PARTITION_TYPES_REC = PARTITION_SHORT_SIDE_3_REC + 1,
-#else   // CONFIG_FLEX_PARTITION
+#else  // CONFIG_FLEX_PARTITION
   PARTITION_TYPES_REC = PARTITION_SHORT_SIDE_2_REC + 1,
 #endif  // CONFIG_FLEX_PARTITION
   PARTITION_INVALID_REC = 255
@@ -296,13 +296,13 @@ enum {
   TX_16X64,  // 16x64 transform
   TX_64X16,  // 64x16 transform
 #if CONFIG_FLEX_PARTITION
-  TX_4X32,            // 4x32 transform
-  TX_32X4,            // 32x4 transform
-  TX_8X64,            // 8x64 transform
-  TX_64X8,            // 64x8 transform
-  TX_4X64,            // 4x64 transform
-  TX_64X4,            // 64x4 transform
-#endif                // CONFIG_FLEX_PARTITION
+  TX_4X32,  // 4x32 transform
+  TX_32X4,  // 32x4 transform
+  TX_8X64,  // 8x64 transform
+  TX_64X8,  // 64x8 transform
+  TX_4X64,  // 4x64 transform
+  TX_64X4,  // 64x4 transform
+#endif  // CONFIG_FLEX_PARTITION
   TX_SIZES_ALL,       // Includes rectangular transforms
   TX_SIZES = TX_4X8,  // Does NOT include rectangular transforms
   TX_SIZES_LARGEST = TX_64X64,
@@ -411,7 +411,7 @@ enum {
 #if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
   MDTX1_1D,
   NSTX,  // this is a placeholder
-#endif   // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
   TX_TYPES_1D,
 } UENUM1BYTE(TX_TYPE_1D);
 
@@ -455,8 +455,8 @@ enum {
   MDTX_INTRA_3,  // DCT in vertical, MDTX in horizontal
 #if CONFIG_MODE_DEP_NONSEP_INTRA_TX
   MDTX_INTRA_4,  // non-separable MDTX
-#endif           // CONFIG_MODE_DEP_NONSEP_INTRA_TX
-#endif           // CONFIG_MODE_DEP_INTRA_TX
+#endif  // CONFIG_MODE_DEP_NONSEP_INTRA_TX
+#endif  // CONFIG_MODE_DEP_INTRA_TX
 #if CONFIG_MODE_DEP_INTER_TX
   // 8 mode-dependent tx for inter
   MDTX_INTER_1,  // MDTX in both horizontal and vertical
@@ -467,7 +467,7 @@ enum {
   MDTX_INTER_6,  // DCT in vertical, flipped MDTX in horizontal
   MDTX_INTER_7,  // flipped MDTX in vertical, MDTX in horizontal
   MDTX_INTER_8,  // MDTX in vertical, flipped MDTX in horizontal
-#endif           // CONFIG_MODE_DEP_INTER_TX
+#endif  // CONFIG_MODE_DEP_INTER_TX
   TX_TYPES,
 } UENUM1BYTE(TX_TYPE);
 
@@ -517,7 +517,7 @@ enum {
 #define IS_2D_TRANSFORM(tx_type) (tx_type < IDTX)
 #endif  // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
 
-#define EXT_TX_SIZES 4       // number of sizes that use extended transforms
+#define EXT_TX_SIZES 4  // number of sizes that use extended transforms
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 
