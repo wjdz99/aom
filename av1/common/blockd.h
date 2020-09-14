@@ -143,29 +143,29 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,           // SMOOTH_H_PRED
     MB_MODE_COUNT,           // PAETH_PRED
 #if !CONFIG_NEW_INTER_MODES  //
-    MB_MODE_COUNT,           // NEARESTMV
-#endif                       // !CONFIG_NEW_INTER_MODES
+    MB_MODE_COUNT,  // NEARESTMV
+#endif  // !CONFIG_NEW_INTER_MODES
     MB_MODE_COUNT,           // NEARMV
     MB_MODE_COUNT,           // GLOBALMV
     MB_MODE_COUNT,           // NEWMV
 #if !CONFIG_NEW_INTER_MODES  //
-    NEARESTMV,               // NEAREST_NEARESTMV
-#endif                       // !CONFIG_NEW_INTER_MODES
+    NEARESTMV,  // NEAREST_NEARESTMV
+#endif  // !CONFIG_NEW_INTER_MODES
     NEARMV,                  // NEAR_NEARMV
 #if !CONFIG_NEW_INTER_MODES  //
-    NEARESTMV,               // NEAREST_NEWMV
-    NEWMV,                   // NEW_NEARESTMV
-#endif                       // !CONFIG_NEW_INTER_MODES
-    NEARMV,                  // NEAR_NEWMV
-    NEWMV,                   // NEW_NEARMV
-    GLOBALMV,                // GLOBAL_GLOBALMV
-    NEWMV,                   // NEW_NEWMV
+    NEARESTMV,  // NEAREST_NEWMV
+    NEWMV,      // NEW_NEARESTMV
+#endif  // !CONFIG_NEW_INTER_MODES
+    NEARMV,    // NEAR_NEWMV
+    NEWMV,     // NEW_NEARMV
+    GLOBALMV,  // GLOBAL_GLOBALMV
+    NEWMV,     // NEW_NEWMV
 #if CONFIG_EXT_COMPOUND
     NEARMV,         // NEAR_SCALED
     MB_MODE_COUNT,  // SCALED_NEAR
     NEWMV,          // NEW_SCALED
     MB_MODE_COUNT,  // SCALED_NEW
-#endif              // CONFIG_EXT_COMPOUND
+#endif  // CONFIG_EXT_COMPOUND
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode));
@@ -188,29 +188,29 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,           // SMOOTH_H_PRED
     MB_MODE_COUNT,           // PAETH_PRED
 #if !CONFIG_NEW_INTER_MODES  //
-    MB_MODE_COUNT,           // NEARESTMV
-#endif                       // !CONFIG_NEW_INTER_MODES
+    MB_MODE_COUNT,  // NEARESTMV
+#endif  // !CONFIG_NEW_INTER_MODES
     MB_MODE_COUNT,           // NEARMV
     MB_MODE_COUNT,           // GLOBALMV
     MB_MODE_COUNT,           // NEWMV
 #if !CONFIG_NEW_INTER_MODES  //
-    NEARESTMV,               // NEAREST_NEARESTMV
-#endif                       // !CONFIG_NEW_INTER_MODES
+    NEARESTMV,  // NEAREST_NEARESTMV
+#endif  // !CONFIG_NEW_INTER_MODES
     NEARMV,                  // NEAR_NEARMV
 #if !CONFIG_NEW_INTER_MODES  //
-    NEWMV,                   // NEAREST_NEWMV
-    NEARESTMV,               // NEW_NEARESTMV
-#endif                       // !CONFIG_NEW_INTER_MODES
-    NEWMV,                   // NEAR_NEWMV
-    NEARMV,                  // NEW_NEARMV
-    GLOBALMV,                // GLOBAL_GLOBALMV
-    NEWMV,                   // NEW_NEWMV
+    NEWMV,      // NEAREST_NEWMV
+    NEARESTMV,  // NEW_NEARESTMV
+#endif  // !CONFIG_NEW_INTER_MODES
+    NEWMV,     // NEAR_NEWMV
+    NEARMV,    // NEW_NEARMV
+    GLOBALMV,  // GLOBAL_GLOBALMV
+    NEWMV,     // NEW_NEWMV
 #if CONFIG_EXT_COMPOUND
     MB_MODE_COUNT,  // NEAR_SCALED
     NEARMV,         // SCALED_NEAR
     MB_MODE_COUNT,  // NEW_SCALED
     NEWMV,          // SCALED_NEW
-#endif              // CONFIG_EXT_COMPOUND
+#endif  // CONFIG_EXT_COMPOUND
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode));
@@ -700,8 +700,6 @@ typedef struct MB_MODE_INFO {
   uint8_t use_intrabc : 1;
 #if CONFIG_EXT_IBC_MODES
   uint8_t ibc_mode : 3;
-  // uint8_t is_ibcplus : 1;
-  // uint8_t ibcplus_mode : 2;
 #endif  // CONFIG_EXT_IBC_MODES
   CHROMA_REF_INFO chroma_ref_info;
 #if CONFIG_NEW_INTER_MODES && MAX_DRL_BITS > 3
@@ -722,7 +720,7 @@ typedef struct MB_MODE_INFO {
 #if CONFIG_INTRA_ENTROPY && !CONFIG_USE_SMALL_MODEL
   uint64_t y_gradient_hist[8];
   int64_t y_recon_var;  // Variance of reconstructed Y values.
-#endif                  // CONFIG_INTRA_ENTROPY && !CONFIG_USE_SMALL_MODEL
+#endif  // CONFIG_INTRA_ENTROPY && !CONFIG_USE_SMALL_MODEL
 #if CONFIG_DERIVED_INTRA_MODE
   uint8_t use_derived_intra_mode[2];
   uint8_t derived_angle;
