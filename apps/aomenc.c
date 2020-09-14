@@ -637,6 +637,10 @@ static const arg_def_t denoise_noise_level =
             "Amount of noise (from 0 = don't denoise, to 50)");
 static const arg_def_t denoise_block_size =
     ARG_DEF(NULL, "denoise-block-size", 1, "Denoise block size (default = 32)");
+static const arg_def_t enable_dnl_denoising =
+    ARG_DEF(NULL, "enable-dnl-denoising", 1, "Apply denoising to the frame "
+            "being encoded when denoise-noise-level is enabled (0: false, "
+            "1: true (default))");
 #endif
 static const arg_def_t enable_ref_frame_mvs =
     ARG_DEF(NULL, "enable-ref-frame-mvs", 1,
@@ -921,6 +925,7 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #if CONFIG_DENOISE
                                        &denoise_noise_level,
                                        &denoise_block_size,
+                                       &enable_dnl_denoising,
 #endif  // CONFIG_DENOISE
                                        &max_reference_frames,
                                        &reduced_reference_set,
@@ -1029,6 +1034,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
 #if CONFIG_DENOISE
                                         AV1E_SET_DENOISE_NOISE_LEVEL,
                                         AV1E_SET_DENOISE_BLOCK_SIZE,
+                                        AV1E_SET_ENABLE_DNL_DENOISING,
 #endif  // CONFIG_DENOISE
                                         AV1E_SET_MAX_REFERENCE_FRAMES,
                                         AV1E_SET_REDUCED_REFERENCE_SET,
