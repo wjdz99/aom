@@ -622,7 +622,8 @@ typedef struct AV1Common {
   int coded_frame_idx;
 #endif  // CONFIG_COLLECT_FRAME_INFO
 #if CONFIG_EXT_IBC_MODES
-  int ext_IBC_config;
+  int ext_ibc_config;
+  IBC_MODE max_ibc_mode;
 #endif  // CONFIG_EXT_IBC_MODES
 } AV1_COMMON;
 
@@ -1268,7 +1269,7 @@ static INLINE int partition_plane_context(const MACROBLOCKD *xd, int mi_row,
 static INLINE int partition_cdf_length(BLOCK_SIZE bsize) {
 #if CONFIG_EXT_RECUR_PARTITIONS
   if (bsize <= BLOCK_8X8 || bsize == BLOCK_128X128) return PARTITION_TYPES;
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_EXT_RECUR_PARTITIONS
   if (bsize <= BLOCK_8X8)
     return PARTITION_TYPES;
   else if (bsize == BLOCK_128X128)
