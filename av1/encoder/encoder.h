@@ -522,7 +522,7 @@ typedef struct FRAME_COUNTS {
 #if CONFIG_NEW_TX_PARTITION
   unsigned int intra_tx_size[2][TX_SIZE_CONTEXTS][TX_PARTITION_TYPES_INTRA];
   unsigned int txfm_partition[2][TXFM_PARTITION_CONTEXTS][TX_PARTITION_TYPES];
-#else   // CONFIG_NEW_TX_PARTITION
+#else  // CONFIG_NEW_TX_PARTITION
   unsigned int txfm_partition[TXFM_PARTITION_CONTEXTS][2];
   unsigned int intra_tx_size[MAX_TX_CATS][TX_SIZE_CONTEXTS][MAX_TX_DEPTH + 1];
 #endif  // CONFIG_NEW_TX_PARTITION
@@ -1213,9 +1213,9 @@ typedef struct {
 /*
 FILE *IBCStats;
 #define FILE_NAME_LEN 100
+uint16_t regular_ibc;
 */
 /*
-uint16_t regular_ibc;
 uint16_t ibc_rotation90;
 uint16_t ibc_rotation180;
 uint16_t ibc_rotation270;

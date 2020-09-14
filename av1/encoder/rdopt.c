@@ -1497,10 +1497,9 @@ static double od_compute_dist_common(int activity_masking, uint16_t *x,
     sum *= 2.2 + (1.7 - 2.2) * (qindex - 99) / (210 - 99) +
            (qindex < 99 ? 2.5 * (qindex - 99) / 99 * (qindex - 99) / 99 : 0);
   } else {
-    sum *= qindex >= 128
-               ? 1.4 + (0.9 - 1.4) * (qindex - 128) / (209 - 128)
-               : qindex <= 43 ? 1.5 + (2.0 - 1.5) * (qindex - 43) / (16 - 43)
-                              : 1.5 + (1.4 - 1.5) * (qindex - 43) / (128 - 43);
+    sum *= qindex >= 128  ? 1.4 + (0.9 - 1.4) * (qindex - 128) / (209 - 128)
+           : qindex <= 43 ? 1.5 + (2.0 - 1.5) * (qindex - 43) / (16 - 43)
+                          : 1.5 + (1.4 - 1.5) * (qindex - 43) / (128 - 43);
   }
 
   return sum;
@@ -3958,7 +3957,7 @@ static int64_t txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int is_rect = is_rect_tx(max_tx_size);
   const int r_tx_size = is_inter ? x->txfm_partition_cost[is_rect][ctx][0]
                                  : tx_size_cost(cm, x, bs, tx_size);
-#else   // CONFIG_NEW_TX_PARTITION
+#else  // CONFIG_NEW_TX_PARTITION
   const int r_tx_size = is_inter ? x->txfm_partition_cost[ctx][0]
                                  : tx_size_cost(cm, x, bs, tx_size);
 #endif  // CONFIG_NEW_TX_PARTITION
@@ -6853,7 +6852,7 @@ static const RD_RECORD_IDX_NODE *rd_record_tree[BLOCK_SIZES_ALL] = {
   NULL,  // BLOCK_64X8
   NULL,  // BLOCK_4X64
   NULL,  // BLOCK_64X4
-#endif   // CONFIG_FLEX_PARTITION
+#endif  // CONFIG_FLEX_PARTITION
 };
 
 static const int rd_record_tree_size[BLOCK_SIZES_ALL] = {
@@ -6881,12 +6880,12 @@ static const int rd_record_tree_size[BLOCK_SIZES_ALL] = {
   sizeof(rd_record_tree_4_1) / sizeof(RD_RECORD_IDX_NODE),      // BLOCK_64X16
 #if CONFIG_FLEX_PARTITION
   // TODO(debargha): Fix these
-  0,    // BLOCK_4X32
-  0,    // BLOCK_32X4
-  0,    // BLOCK_8X64
-  0,    // BLOCK_64X8
-  0,    // BLOCK_4X64
-  0,    // BLOCK_64X4
+  0,  // BLOCK_4X32
+  0,  // BLOCK_32X4
+  0,  // BLOCK_8X64
+  0,  // BLOCK_64X8
+  0,  // BLOCK_4X64
+  0,  // BLOCK_64X4
 #endif  // CONFIG_FLEX_PARTITION
 };
 
@@ -8857,7 +8856,7 @@ static int8_t estimate_wedge_sign(const AV1_COMP *cpi, const MACROBLOCK *x,
     BLOCK_4X32,     // 8X64
     BLOCK_INVALID,  // 4X64
     BLOCK_INVALID,  // 64X4
-#endif              // CONFIG_FLEX_PARTITION
+#endif  // CONFIG_FLEX_PARTITION
   };
   const struct macroblock_plane *const p = &x->plane[0];
   const uint8_t *src = p->src.buf;
@@ -13140,8 +13139,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   rd_intrabc_allocate_sb(&src_block, w, h);
   rd_intrabc_extract_source_sb(x, src_block, w, h);
 
-  for (IBC_MODE ibcMode = ROTATION_0; ibcMode <= ROTATION_270 /*ROTATION_90*/;
-       ++ibcMode) {
+  for (IBC_MODE ibcMode = ROTATION_0; ibcMode <= cm->max_ibc_mode; ++ibcMode) {
     // Translate Source Block & Update Source Pointer for search
     switch (ibcMode) {
       case ROTATION_0: rd_intrabc_copy_sb(x->ibc_src, src_block, w, h); break;
@@ -13299,8 +13297,6 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 #endif  // CONFIG_NN_RECON
 #if CONFIG_EXT_IBC_MODES
       mbmi->ibc_mode = ibcMode;
-      // mbmi->is_ibcplus = (ibcMode != ROTATION_0) ? 0x1 : 0x0;
-      // mbmi->ibcplus_mode = mbmi->is_ibcplus ? (ibcMode-MIRROR_90) : 0x0;
 #endif  // CONFIG_EXT_IBC_MODES
 #if CONFIG_DERIVED_MV
       mbmi->derived_mv_allowed = mbmi->use_derived_mv = 0;
@@ -13385,8 +13381,6 @@ void av1_rd_pick_intra_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   mbmi->use_intrabc = 0;
 #if CONFIG_EXT_IBC_MODES
   mbmi->ibc_mode = 0;
-  // mbmi->is_ibcplus = 0;
-  // mbmi->ibcplus_mode = 0;
 #endif  // CONFIG_EXT_IBC_MODES
   mbmi->mv[0].as_int = 0;
 #if CONFIG_DSPL_RESIDUAL
