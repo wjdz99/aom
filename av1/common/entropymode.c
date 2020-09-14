@@ -404,7 +404,7 @@ static const aom_cdf_prob
       { AOM_CDF3(1736, 12989) },
     };
 #endif  // KEEP_PARTITION_SPLIT
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_EXT_RECUR_PARTITIONS
 static const aom_cdf_prob default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(
     EXT_PARTITION_TYPES)] = {
   { AOM_CDF4(19132, 25510, 30392) },
@@ -1492,7 +1492,7 @@ static const aom_cdf_prob
           { AOM_CDF6(16088, 17088, 17188, 17288, 17388) },
       }
     };
-#else   // CONFIG_NEW_TX_PARTITION
+#else  // CONFIG_NEW_TX_PARTITION
 static const aom_cdf_prob
     default_txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)] = {
       { AOM_CDF2(28581) }, { AOM_CDF2(23846) }, { AOM_CDF2(20847) },
@@ -1543,17 +1543,10 @@ static const aom_cdf_prob default_intrabc_cdf[CDF_SIZE(2)] = { AOM_CDF2(
 
 #if CONFIG_EXT_IBC_MODES
 static const aom_cdf_prob default_intrabc_mode_cdf[CDF_SIZE(8)] = {
-  // AOM_CDF4(24835, 28629, 31043) };
-  AOM_CDF8(22937, 26542, 29491, 31130, 31948, 32440, 32604)
+  AOM_CDF8(21299, 23265, 25231, 27197, 29164, 31130, 31949)
+  // AOM_CDF6(22938, 24904, 26870, 28836, 30802)
+  // AOM_CDF4(24904, 27525, 30145)
 };
-/*static const aom_cdf_prob default_intrabcplus_cdf[CDF_SIZE(2)] = {
-        AOM_CDF2(22937) };
-static const aom_cdf_prob default_intrabcplus_mode_cdf[CDF_SIZE(4)] = {
-        //AOM_CDF7(12015, 21845, 27306, 28945, 31676, 32222) };
-        AOM_CDF4(12015, 21845, 27306) };
-        //AOM_CDF4(24835, 28629, 31043) };
-        //AOM_CDF2(18022) };
-        //AOM_CDF8(22937, 26542, 29491, 31130, 31948, 32440, 32604) };*/
 #endif  // CONFIG_EXT_IBC_MODES
 
 #if CONFIG_DERIVED_INTRA_MODE
@@ -2002,8 +1995,6 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->intrabc_cdf, default_intrabc_cdf);
 #if CONFIG_EXT_IBC_MODES
   av1_copy(fc->intrabc_mode_cdf, default_intrabc_mode_cdf);
-  // av1_copy(fc->intrabcplus_cdf, default_intrabcplus_cdf);
-  // av1_copy(fc->intrabcplus_mode_cdf, default_intrabcplus_mode_cdf);
 #endif  // CONFIG_EXT_IBC_MODES
 
 #if CONFIG_DERIVED_INTRA_MODE

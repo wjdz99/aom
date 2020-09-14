@@ -172,7 +172,7 @@ typedef struct frame_contexts {
 #if CONFIG_NEW_TX_PARTITION
   aom_cdf_prob txfm_partition_cdf[2][TXFM_PARTITION_CONTEXTS]
                                  [CDF_SIZE(TX_PARTITION_TYPES)];
-#else   // CONFIG_NEW_TX_PARTITION
+#else  // CONFIG_NEW_TX_PARTITION
   aom_cdf_prob txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)];
 #endif  // CONFIG_NEW_TX_PARTITION
   aom_cdf_prob compound_index_cdf[COMP_INDEX_CONTEXTS][CDF_SIZE(2)];
@@ -190,8 +190,8 @@ typedef struct frame_contexts {
   aom_cdf_prob intrabc_cdf[CDF_SIZE(2)];
 #if CONFIG_EXT_IBC_MODES
   aom_cdf_prob intrabc_mode_cdf[CDF_SIZE(8)];
-  // aom_cdf_prob intrabcplus_cdf[CDF_SIZE(2)];
-  // aom_cdf_prob intrabcplus_mode_cdf[CDF_SIZE(4)];
+  // aom_cdf_prob intrabc_mode_cdf[CDF_SIZE(6)];
+  // aom_cdf_prob intrabc_mode_cdf[CDF_SIZE(4)];
 #endif  // CONFIG_EXT_IBC_MODES
   struct segmentation_probs seg;
   aom_cdf_prob filter_intra_cdfs[BLOCK_SIZES_ALL][CDF_SIZE(2)];
