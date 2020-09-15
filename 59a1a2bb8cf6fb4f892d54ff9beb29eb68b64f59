@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e5eb73a_ead063ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-09-15T00:52:04Z",
+      "side": 1,
+      "message": "transient failures. gerrit is unstable...",
+      "revId": "59a1a2bb8cf6fb4f892d54ff9beb29eb68b64f59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
