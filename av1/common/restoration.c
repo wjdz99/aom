@@ -57,8 +57,7 @@ const int wienerns_uv_from_uv_pixel =
 
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
 const int wienerns_config_uv_from_y[][3] = {
-  { 1, 0, 6 }, { -1, 0, 6 }, { 0, 1, 6 }, { 0, -1, 6 },
-  { 2, 0, 7 }, { -2, 0, 7 }, { 0, 2, 7 }, { 0, -2, 7 },
+  { 1, 0, 6 }, { -1, 0, 6 }, { 0, 1, 7 }, { 0, -1, 7 },
 };
 const int wienerns_uv_from_y_pixel =
     sizeof(wienerns_config_uv_from_y) / sizeof(wienerns_config_uv_from_y[0]);
