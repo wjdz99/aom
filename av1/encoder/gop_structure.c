@@ -200,7 +200,7 @@ void av1_gop_setup_structure(AV1_COMP *cpi,
     //(frame_params->frame_type == KEY_FRAME);
   const FRAME_UPDATE_TYPE first_frame_update_type =
       key_frame ? KF_UPDATE
-                : use_altref ? OVERLAY_UPDATE : GF_UPDATE;
+                : cpi->gf_state.arf_gf_boost_lst ? OVERLAY_UPDATE : GF_UPDATE;
   gf_group->size = construct_multi_layer_gf_structure(
       cpi, twopass, gf_group, rc, frame_info, rc->baseline_gf_interval - 1,
       first_frame_update_type);
