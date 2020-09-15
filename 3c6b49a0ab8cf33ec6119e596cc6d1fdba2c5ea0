@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84c307f6_cd737410",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-09-15T20:44:55Z",
+      "side": 1,
+      "message": "This helps with low q encoding speed for lowres \u0026 midres. The tradeoff is 100(speed):1(quality). Just a little hesitate about 0.1% quality loss.",
+      "revId": "3c6b49a0ab8cf33ec6119e596cc6d1fdba2c5ea0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
