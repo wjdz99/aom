@@ -87,6 +87,24 @@
       "revId": "79a361a207146f84af8b0869aa19d96e8fd036bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "95ad8333_ed88ebdc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2020-09-15T03:56:33Z",
+      "side": 1,
+      "message": "I\u0027m not totally sure this patch is still necessary. Are there any crashes left unfixed? I got the impression that correcting show_existing_frame also corrected the crash this one was meant to fix.",
+      "parentUuid": "5b6acc91_2ed2be57",
+      "revId": "79a361a207146f84af8b0869aa19d96e8fd036bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
