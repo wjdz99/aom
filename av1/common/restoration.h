@@ -171,32 +171,14 @@ extern "C" {
 
 #if CONFIG_WIENER_NONSEP
 #define WIENERNS_PREC_BITS 8
-#define WIENERNS_Y 12        // Number of luma coefficients in all
-#define WIENERNS_Y_PIXEL 24  // Number of pixels used for filtering luma
 
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
 #define WIENERNS_UV_BRD 2  // Max offset for luma used for chorma
-#define WIENERNS_UV 8      // Number of chroma coefficients in all
-#define WIENERNS_UV_INTER_PIXEL \
-  12  // Number of pixels used for filtering from chroma only
-#define WIENERNS_UV_PIXEL \
-  20  // Number of pixels used for filtering from chroma and luma
 #else
 #define WIENERNS_UV_BRD 0  // Max offset for luma used for chorma
-#define WIENERNS_UV 6      // Number of chroma coefficients in all
-#define WIENERNS_UV_INTER_PIXEL \
-  12  // Number of pixels used for filtering from chroma only
-#define WIENERNS_UV_PIXEL (WIENERNS_UV_INTER_PIXEL)
-#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
+#endif                     // CONFIG_WIENER_NONSEP_CROSS_FILT
 
-#if WIENERNS_Y >= WIENERNS_UV
-#define WIENERNS_MAX (WIENERNS_Y)
-#else
-#define WIENERNS_MAX (WIENERNS_UV)
-#endif
-
-#define WIENERNS_YUV (WIENERNS_Y + WIENERNS_UV)
-#define WIENERNS_YUV_PIXEL (WIENERNS_Y_PIXEL + WIENERNS_UV_PIXEL)
+#define WIENERNS_MAX 20
 
 #define WIENERNS_ROW_ID 0
 #define WIENERNS_COL_ID 1
@@ -207,15 +189,20 @@ extern "C" {
 #define WIENERNS_SUBEXP_K_ID 2
 #define WIENERNS_STEP_ID 3
 extern const int wienerns_prec_bits;
-extern const int wienerns_y_pixel;
-extern const int wienerns_yuv_pixel;
-extern const int wienerns_uv_inter_pixel;
-extern const int wienerns_uv_pixel;
-extern const int wienerns_y;
-extern const int wienerns_uv;
-extern const int wienerns_yuv;
+extern const int wienerns_y_pixel;  // Number of pixels used for filtering luma
+extern const int wienerns_uv_from_uv_pixel;  // Number of pixels used for
+                                             // filtering uv from uv only
+extern const int wienerns_uv_pixel;  // Number of pixels used for filtering uv
+extern const int wienerns_y;         // Number of luma coefficients in all
+extern const int wienerns_uv;        // Number of chroma coefficients in all
+extern const int wienerns_yuv;       // Number of luma and chroma coefficients
 extern const int wienerns_config_y[][3];
-extern const int wienerns_config_uv[][3];
+extern const int wienerns_config_uv_from_uv[][3];
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+extern const int wienerns_uv_from_y_pixel;  // Number of pixels used for
+                                            // filtering uv from y
+extern const int wienerns_config_uv_from_y[][3];
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
 extern const int wienerns_coeff_y[][3];
 extern const int wienerns_coeff_uv[][3];
 #endif  // CONFIG_WIENER_NONSEP
