@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7426c96a_a03bb778",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-15T11:29:38Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nPlease review this patch.\n\nRegards,\nRavi",
+      "revId": "0055628ae69c661e5cbd7be73fdf1a928d606d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
