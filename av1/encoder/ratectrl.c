@@ -1542,6 +1542,8 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
 
   // TODO(chengchen): can we remove this condition?
   if (rc_mode == AOM_Q && !refresh_frame_flags->alt_ref_frame &&
+      !refresh_frame_flags->golden_frame &&
+      !refresh_frame_flags->golden_frame &&
       !is_intrl_arf_boost) {
     return cq_level;
   }
