@@ -123,6 +123,24 @@
       "revId": "79a361a207146f84af8b0869aa19d96e8fd036bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f780341_0d4079a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-09-15T18:47:42Z",
+      "side": 1,
+      "message": "My bad. Looks like the part that fixed the crash in 2819 has been merged with a previous patch",
+      "parentUuid": "5e449b7c_842b88e3",
+      "revId": "79a361a207146f84af8b0869aa19d96e8fd036bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
