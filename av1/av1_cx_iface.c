@@ -211,13 +211,20 @@ const char subgop_config_str_enh[] =
     "5S/6V5/7R2/10U3/8V5/9V5/10S/11V5/12R1/"
     "15U4/13V5/14V5/15S,"
 
+/*
     "16:0:16F1/8F2/4U3/2U4/1V5/2S/3V5/4S/"
     "6U4/5V5/6S/7V5/8R2/12U3/10U4/9V5/10S/"
     "11V5/12S/14U4/13V5/14S/15V5/16R1,"
+*/
+    "16:0:16F1/8F2/4U3/2U4/1V5/2S/3V5/4S/12U3/6U4/5V5/6S/7V5/8R2/"
+    "10U4/9V5/10S/11V5/12S/14U4/13V5/14S/15V5/16R1,"
 
-    "16:1:13F1/7F2/4U3/2U4/1V5/2S/3V5/4S/"
-    "5V4/6V5/7R2/10U3/8V4/9V5/10S/11V4/12V5/"
-    "13R1/16U4/14V4/15V5/16S";
+//  "16:1:13F1/7F2/4U3/2U4/1V5/2S/3V5/4S/"
+//  "5V4/6V5/7R2/10U3/8V4/9V5/10S/11V4/12V5/"
+//  "13R1/16U4/14V4/15V5/16S";
+    "16:1:13F1/7F2/4U3/2U4/1V5/2S/3V5/4S/5V4/6V5/7R2/"
+    "10U3/8V4/9V5/10S/11V4/12V5/13R1/16U4/14V4/15V5/16S";
+
 
 // A config that honors temporally scalable prediction structure, i.e.
 // no frame is coded with references at higher pyramid depths.
