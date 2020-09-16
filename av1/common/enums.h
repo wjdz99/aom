@@ -24,6 +24,8 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#define CONFIG_EXT_COMP_REFMV 1
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
