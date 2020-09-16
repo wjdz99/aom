@@ -957,6 +957,7 @@ static int get_refresh_frame_flags_subgop_cfg(
   const int refresh_level = step_gop_cfg->refresh;
   const int refresh_idx = get_refresh_idx(update_arf, refresh_level,
                                           cur_disp_order, ref_frame_map_pairs);
+  printf("REFRESH %d\n", ref_frame_map_pairs[refresh_idx].disp_order);
   return 1 << refresh_idx;
 }
 
@@ -1041,36 +1042,76 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
                                               ref_frame_map_pairs, refresh_mask,
                                               free_fb_index);
   }
+
+#define MERGED 1
+#if MERGED
+  // No refresh necessary for these frame types
+    if (frame_update_type == OVERLAY_UPDATE || 
+        frame_update_type == KFFLT_OVERLAY_UPDATE ||
+        frame_update_type == INTNL_OVERLAY_UPDATE)
+    return refresh_mask;
+
+  // If there is an open slot, refresh that one instead of replacing a reference
+  if (free_fb_index != INVALID_IDX) {
+    refresh_mask = 1 << free_fb_index;
+    return refresh_mask;
+  }
+
+  const int update_arf = frame_update_type == ARF_UPDATE;
+  const int refresh_idx = get_refresh_idx(update_arf, -1,
+                                          cur_disp_order, ref_frame_map_pairs);
+  printf("REFRESH %d\n", ref_frame_map_pairs[refresh_idx].disp_order);
+  printf("old refresh %d\n", gf_index);
+  return 1 << refresh_idx;
+#else
   switch (frame_update_type) {
     case KF_UPDATE:
     case GF_UPDATE:
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
-        if (ref_buffer_stack->gld_stack_size)
+        if (ref_buffer_stack->gld_stack_size) {
+          int map_idx = 
+              ref_buffer_stack
+                       ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
+          printf("REFRESH %d\n", ref_frame_map_pairs[map_idx].disp_order);
           refresh_mask =
               1 << ref_buffer_stack
                        ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
-        else
+        } else {
+          int map_idx = 
+              ref_buffer_stack
+                       ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+          printf("REFRESH %d\n", ref_frame_map_pairs[map_idx].disp_order);
           refresh_mask =
               1 << ref_buffer_stack
                        ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+        }
       }
       break;
     case LF_UPDATE:
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
-        if (ref_buffer_stack->lst_stack_size >= 2)
+        if (ref_buffer_stack->lst_stack_size >= 2) {
+          int map_idx = 
+              ref_buffer_stack
+                       ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+          printf("REFRESH %d\n", ref_frame_map_pairs[map_idx].disp_order);
           refresh_mask =
               1 << ref_buffer_stack
                        ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
-        else if (ref_buffer_stack->gld_stack_size >= 2)
+        } else if (ref_buffer_stack->gld_stack_size >= 2) {
+          int map_idx = 
+              ref_buffer_stack
+                       ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
+          printf("REFRESH %d\n", ref_frame_map_pairs[map_idx].disp_order);
           refresh_mask =
               1 << ref_buffer_stack
                        ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
-        else
+        } else {
           assert(0 && "No ref map index found");
+        }
       }
       break;
     case ARF_UPDATE:
@@ -1078,22 +1119,35 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
-        if (ref_buffer_stack->gld_stack_size >= 3)
+        if (ref_buffer_stack->gld_stack_size >= 3) {
+          int map_idx = 
+              ref_buffer_stack
+                       ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
+          printf("REFRESH %d\n", ref_frame_map_pairs[map_idx].disp_order);
           refresh_mask =
               1 << ref_buffer_stack
                        ->gld_stack[ref_buffer_stack->gld_stack_size - 1];
-        else if (ref_buffer_stack->lst_stack_size >= 2)
+        } else if (ref_buffer_stack->lst_stack_size >= 2) {
+          int map_idx = 
+              ref_buffer_stack
+                       ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+          printf("REFRESH %d\n", ref_frame_map_pairs[map_idx].disp_order);
           refresh_mask =
               1 << ref_buffer_stack
                        ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
-        else
+        } else {
           assert(0 && "No ref map index found");
+        }
       }
       break;
     case INTNL_ARF_UPDATE:
       if (free_fb_index != INVALID_IDX) {
         refresh_mask = 1 << free_fb_index;
       } else {
+          int map_idx = 
+            ref_buffer_stack
+                     ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
+          printf("REFRESH %d\n", ref_frame_map_pairs[map_idx].disp_order);
         refresh_mask =
             1 << ref_buffer_stack
                      ->lst_stack[ref_buffer_stack->lst_stack_size - 1];
@@ -1105,7 +1159,9 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
     default: assert(0); break;
   }
 
+  printf("old refresh\n");
   return refresh_mask;
+#endif
 }
 
 #if !CONFIG_REALTIME_ONLY
@@ -1591,6 +1647,44 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       }
     }
   }
+    const int cur_frame_disp =
+        cpi->common.current_frame.frame_number + frame_params.order_offset;
+
+  char *str_frames[7] = { 
+ "LAST_FRAME",
+ "LAST2_FRAME",
+ "LAST3_FRAME",
+ "GOLDEN_FRAME",
+ "BWDREF_FRAME",
+ "ALTREF2_FRAME",
+ "ALTREF_FRAME"
+  };
+  char *ud_str[7] = {
+ "KF_UPDATE",
+ "LF_UPDATE",
+ "GF_UPDATE",
+ "ARF_UPDATE",
+ "OVERLAY_UPDATE",
+ "INTNL_OVERLAY_UPDATE",
+ "INTNL_ARF_UPDATE"
+  };
+  printf("~~~~~~~~ %s ~~~~~~~~ %d\n", ud_str[gf_group->update_type[gf_group->index]], cur_frame_disp);
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    char *frm_str = str_frames[frame - 1];
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int frame_level = buf->pyramid_level;
+    printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+  }
+      for (int frame = 0; frame < REF_FRAMES; frame++) {
+        const RefCntBuffer *const buf = cm->ref_frame_map[frame];
+        if (buf == NULL) continue;
+        const int frame_order = (int)buf->display_order_hint;
+        printf("idx %d frame %d\n", frame, frame_order);
+      }
+  printf("\n\n");
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
   // Currently, reference buffer assignment is done by update_ref_frame_map()

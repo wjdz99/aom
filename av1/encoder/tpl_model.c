@@ -1087,6 +1087,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     // av1_update_ref_frame_map() will execute default behavior even when
     // subgop cfg is enabled. This should be addressed if we ever remove the
     // frame_update_type.
+    printf("GF INDEX %d\n", gf_index);
     const int true_disp =
         (int)(tpl_frame->frame_display_index) - frame_params.show_frame;
     int refresh_mask = av1_get_refresh_frame_flags(
@@ -1096,6 +1097,12 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
                              -1, frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
+    if (refresh_frame_map_index < REF_FRAMES) {
+      ref_frame_map_pairs[refresh_frame_map_index].disp_order =
+          AOMMAX(0, true_disp);
+      ref_frame_map_pairs[refresh_frame_map_index].pyr_level =
+          gf_group->layer_depth[gf_index];
+    }
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       tpl_frame->ref_map_index[i - LAST_FRAME] =
