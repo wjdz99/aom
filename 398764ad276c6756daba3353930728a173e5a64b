@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a3a1d0d_0202902e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2020-09-16T18:13:24Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWhile analyzing the differences in coeff_opt_satd_threshold pruning for 8-bit and 10-bit encoding, we observed that the satd was not scaled according to bit-depth before comparing against the qstep (which was scaled down to 8-bit equivalent) based threshold in skip_trellis_opt_based_on_satd(). This was causing the 10-bit encoding to prune RDOQ computation more aggressively than needed.\n\nThis patch scales the satd as per bit-depth in skip_trellis_opt_based_on_satd(). This has resulted in BD rate improvement for speed 4, 5, 6. Though there is some speed loss, the quality improvement obtained is better than the trade-off for the respective speed levels.\n\nWe have also changed the psnr threshold for AV1/HorzSuperresFixedEndToEndTest.HorzSuperresFixedTestParam/9 so that the test passes.\n\nPlease find the detailed borg results for 10-bit encoding below.\n\n CPU Resolution Instruction Count          BD-Rate  Impact %\n                   Reduction %    avg.psnr ovr.psnr   ssim       avg.psnr\n                                   8-bit    8-bit    8-bit        10-bit\n 4   LOW RES         -1.446      -0.2483  -0.2521  -0.1955      -0.2434\n 4   MID RES         -1.232      -0.1995  -0.2165  -0.1479      -0.1981\n 4    HD RES         -1.253      -0.2899  -0.2955  -0.2513      -0.2903\n 4   AVERAGE         -1.345      -0.2467  -0.2549  -0.1986      -0.2444\n \n 5   LOW RES         -1.016      -0.1526  -0.1643  -0.0815      -0.1418\n 5   MID RES         -0.802      -0.3384  -0.3431  -0.3146      -0.3377\n 5    HD RES         -0.584      -0.2534  -0.2661  -0.2406      -0.2506\n 5   AVERAGE         -0.854      -0.2377  -0.2477  -0.1982      -0.2323\n \n 6   LOW RES         -0.738      -0.1187  -0.1205   -0.105      -0.1226\n 6   MID RES         -0.712      -0.2579  -0.2501  -0.1986      -0.2559\n 6    HD RES         0.039       -0.1559  -0.1718  -0.1423       -0.156\n 6   AVERAGE         -0.534      -0.1708  -0.1741  -0.1438      -0.1718\n\nOn 12-bit encode, please find the results on speed 5 below.\n\n CPU Resolution Instruction Count          BD-Rate  Impact %\n                  Reduction %    avg.psnr ovr.psnr   ssim       avg.psnr\n                                   8-bit    8-bit   8-bit        12-bit\n 5   LOW RES         -0.985      -0.2184  -0.2236  -0.1636      -0.2241\n 5   MID RES         -0.649      -0.3957  -0.4254  -0.2925      -0.3985\n 5    HD RES         -0.455       -0.379  -0.4456   -0.22       -0.3751\n 5   AVERAGE         -0.769      -0.3193  -0.3503  -0.2185      -0.3212\n\nIn the commit message, BD-Rate Impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nThis is a bit-exact change with no impact on speed for 8-bit encode (verified locally).\nPlease review the patch.\nThank you.\n",
+      "revId": "398764ad276c6756daba3353930728a173e5a64b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
