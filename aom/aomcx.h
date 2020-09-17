@@ -426,10 +426,12 @@ enum aome_enc_control_id {
    * AV1 has a segment based feature that allows encoder to adaptively change
    * quantization parameter for each segment within a frame to improve the
    * subjective quality. This control makes encoder operate in one of the
-   * several AQ_modes supported.
+   * several AQ modes supported.
    *
    * - 0 = disable (default)
-   * - 1 = enable
+   * - 1 = variance
+   * - 2 = complexity
+   * - 3 = cyclic refresh
    */
   AV1E_SET_AQ_MODE = 40,
 
@@ -1378,7 +1380,7 @@ typedef enum {
   AOM_TUNE_VMAF_NEG_MAX_GAIN = 7,
 } aom_tune_metric;
 
-#define AOM_MAX_LAYERS 32   /**< Max number of layers */
+#define AOM_MAX_LAYERS 32 /**< Max number of layers */
 #define AOM_MAX_SS_LAYERS 4 /**< Max number of spatial layers */
 #define AOM_MAX_TS_LAYERS 8 /**< Max number of temporal layers */
 
