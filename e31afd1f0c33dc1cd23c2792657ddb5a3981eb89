@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6503553b_d5060d3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2020-09-17T13:23:47Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have cherry-picked the following patch: https://aomedia-review.googlesource.com/c/aom/+/119041 , onto the research branch.\nPlease review.\n\nThanks.",
+      "revId": "e31afd1f0c33dc1cd23c2792657ddb5a3981eb89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
