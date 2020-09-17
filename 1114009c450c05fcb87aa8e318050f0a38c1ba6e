@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d45fa2c8_859f60c7",
+        "filename": "common/args.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-17T20:06:33Z",
+      "side": 1,
+      "message": "1. The arg_init() call at line 152 sets arg.argv to argv. Since line 150 ensures that argv[0][0] \u003d\u003d \u0027-\u0027, we know it is valid to read arg.argv[0][1] here. Therefore it is valid to pass arg.argv[0] + 1 to strcmp().\n\n2. If strcmp(arg.argv[0] + 1, def-\u003eshort_name) returns 0, then strlen(arg.argv[0]) \u003d\u003d strlen(def-\u003eshort_name) + 1 is true. Therefore we can safely remove the strlen(arg.argv[0]) \u003d\u003d strlen(def-\u003eshort_name) + 1 check.",
+      "range": {
+        "startLine": 154,
+        "startChar": 33,
+        "endLine": 154,
+        "endChar": 48
+      },
+      "revId": "1114009c450c05fcb87aa8e318050f0a38c1ba6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5eadb469_14271b0b",
+        "filename": "common/args.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-17T20:06:33Z",
+      "side": 1,
+      "message": "It is valid to read arg.argv[0][1] here. (See my comment above).",
+      "revId": "1114009c450c05fcb87aa8e318050f0a38c1ba6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98bcf1bf_21b77424",
+        "filename": "common/args.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-17T20:06:33Z",
+      "side": 1,
+      "message": "1. Here arg.argv[0][1] \u003d\u003d \u0027-\u0027, so it is valid to read arg.argv[0][2] and also valid to pass arg.argv[0] + 2 to strncmp().\n\n2. If strncmp(arg.argv[0] + 2, def-\u003elong_name, name_len) returns 0, then strlen(arg.argv[0]) \u003e\u003d name_len + 2 must be true. Therefore we can safely remove the strlen(arg.argv[0]) \u003e\u003d name_len + 2 check.",
+      "revId": "1114009c450c05fcb87aa8e318050f0a38c1ba6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
