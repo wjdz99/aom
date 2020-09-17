@@ -1039,8 +1039,12 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
     CHECK_MEM_ERROR(cm, cpi->vmaf_info.rdmult_scaling_factors,
                     aom_calloc(num_rows * num_cols,
                                sizeof(*cpi->vmaf_info.rdmult_scaling_factors)));
-    cpi->vmaf_info.last_frame_unsharp_amount = 0.0;
-    cpi->vmaf_info.best_unsharp_amount = 0.0;
+    for (int i = 1; i < 6; i++) {
+      cpi->vmaf_info.last_frame_unsharp_amount[i] = -1.0;
+      cpi->vmaf_info.last_frame_ysse[i] = -1.0;
+      cpi->vmaf_info.last_frame_vmaf[i] = -1.0;
+      cpi->vmaf_info.best_unsharp_amount[i] = -1.0;
+    }
     cpi->vmaf_info.original_qindex = -1;
 
 #if CONFIG_USE_VMAF_RC

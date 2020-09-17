@@ -27,16 +27,16 @@ typedef struct {
   double *rdmult_scaling_factors;
 
   // Stores the luma sse of the last frame.
-  double last_frame_ysse;
+  double last_frame_ysse[6];
 
   // Stores the VMAF of the last frame.
-  double last_frame_vmaf;
+  double last_frame_vmaf[6];
 
   // Stores the filter strength of the last frame.
-  double last_frame_unsharp_amount;
+  double last_frame_unsharp_amount[6];
 
   // Stores the base unsharp amount in video pre-processing.
-  double best_unsharp_amount;
+  double best_unsharp_amount[6];
 
   // Stores the origial qindex before scaling.
   int original_qindex;
