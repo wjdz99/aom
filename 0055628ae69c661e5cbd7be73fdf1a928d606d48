@@ -70,6 +70,30 @@
       "revId": "0055628ae69c661e5cbd7be73fdf1a928d606d48",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67888659_4b21d0d3",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-09-17T16:51:57Z",
+      "side": 0,
+      "message": "So, your fix works since predict_dc_block is turned off now for winner mode. But, this wouldn\u0027t be true if predict_dc_block is turned on later for winner mode, right? Do we need to modify this to support that as well? What do you think?",
+      "parentUuid": "070a3226_c6126af1",
+      "range": {
+        "startLine": 2212,
+        "startChar": 8,
+        "endLine": 2213,
+        "endChar": 69
+      },
+      "revId": "0055628ae69c661e5cbd7be73fdf1a928d606d48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
