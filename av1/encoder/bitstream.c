@@ -200,24 +200,24 @@ static void write_drl_idx(FRAME_CONTEXT *ec_ctx, const AV1_COMMON *cm,
 #if CONFIG_FLEX_MVRES && ADJUST_DRL_FLEX_MVRES
   if (mbmi->pb_mv_precision < mbmi->max_mv_precision &&
       (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV)) {
-    assert(mbmi->ref_mv_idx_adj < mbmi_ext->ref_mv_count_adj);
+    assert(mbmi->ref_mv_idx_adj < mbmi_ext->ref_mv_info.ref_mv_count_adj);
     assert(mbmi->ref_mv_idx_adj < MAX_DRL_BITS + 1);
-    int range_adj = AOMMIN(mbmi_ext->ref_mv_count_adj - 1, MAX_DRL_BITS);
+    int range_adj = AOMMIN(mbmi_ext->ref_mv_info.ref_mv_count_adj - 1, MAX_DRL_BITS);
     for (int idx = 0; idx < range_adj; ++idx) {
       aom_cdf_prob *drl_cdf = av1_get_drl_cdf(mode_ctx, ec_ctx, mbmi->mode,
-                                              mbmi_ext->weight_adj, idx);
+                                              mbmi_ext->ref_mv_info.weight_adj, idx);
       aom_write_symbol(w, mbmi->ref_mv_idx_adj != idx, drl_cdf, 2);
       if (mbmi->ref_mv_idx_adj == idx) break;
     }
     return;
   }
 #endif  // CONFIG_FLEX_MVRES && ADJUST_DRL_FLEX_MVRES
-  assert(mbmi->ref_mv_idx < mbmi_ext->ref_mv_count[ref_frame_type]);
+  assert(mbmi->ref_mv_idx < mbmi_ext->ref_mv_info.count[ref_frame_type]);
   assert(mbmi->ref_mv_idx < MAX_DRL_BITS + 1);
-  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
+  int range = AOMMIN(mbmi_ext->ref_mv_info.count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf = av1_get_drl_cdf(
-        mode_ctx, ec_ctx, mbmi->mode, mbmi_ext->weight[ref_frame_type], idx);
+        mode_ctx, ec_ctx, mbmi->mode, mbmi_ext->ref_mv_info.weight[ref_frame_type], idx);
     aom_write_symbol(w, mbmi->ref_mv_idx != idx, drl_cdf, 2);
     if (mbmi->ref_mv_idx == idx) break;
   }
@@ -1746,7 +1746,7 @@ static void write_intrabc_info(
     else if (cm->ext_ibc_config == CONFIG_EXT_IBC_TOP3MODES)
       aom_write_symbol(w, mbmi->ibc_mode, ec_ctx->intrabc_mode_cdf, 4);
 #endif  // CONFIG_EXT_IBC_MODES
-    int_mv dv_ref = mbmi_ext->ref_mv_stack[INTRA_FRAME][0].this_mv;
+    int_mv dv_ref = mbmi_ext->ref_mv_info.stack[INTRA_FRAME][0].this_mv;
     av1_encode_dv(w, &mbmi->mv[0].as_mv, &dv_ref.as_mv, &ec_ctx->ndvc);
   }
 }
