@@ -209,7 +209,10 @@ enum aome_enc_control_id {
 
   /* NOTE: enum 15 unused */
 
-  /*!\brief Codec control function to set sharpness, unsigned int parameter.
+  /*!\brief Codec control function to set loop filter sharpness,
+   * unsigned int parameter.
+   *
+   * Valid range: 0..7. The default is 0.
    */
   AOME_SET_SHARPNESS = AOME_SET_ENABLEAUTOALTREF + 2,  // 16
 
@@ -1378,7 +1381,7 @@ typedef enum {
   AOM_TUNE_VMAF_NEG_MAX_GAIN = 7,
 } aom_tune_metric;
 
-#define AOM_MAX_LAYERS 32   /**< Max number of layers */
+#define AOM_MAX_LAYERS 32 /**< Max number of layers */
 #define AOM_MAX_SS_LAYERS 4 /**< Max number of spatial layers */
 #define AOM_MAX_TS_LAYERS 8 /**< Max number of temporal layers */
 
