@@ -8281,8 +8281,7 @@ static void setup_buffer_ref_mvs_inter(
   }
 
   // Gets an initial list of candidate vectors from neighbours and orders them
-  av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
-                   mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+  av1_find_mv_refs(cm, xd, mbmi, ref_frame, &mbmi_ext->ref_mv_info, NULL,
                    mbmi_ext->global_mvs, mbmi_ext->mode_context);
 
   // Further refinement that is encode side only to test the top few candidates
@@ -11620,12 +11619,14 @@ static INLINE void get_this_mv(const AV1_COMMON *cm, int_mv *mv,
   } else {
     assert(single_mode == NEARMV);
     const uint8_t ref_frame_type = av1_ref_frame_type(ref_frame);
-    if (ref_mv_idx < mbmi_ext->ref_mv_count[ref_frame_type]) {
+    if (ref_mv_idx < mbmi_ext->ref_mv_info.count[ref_frame_type]) {
       assert(ref_mv_idx >= 0);
       if (ref_idx == 0) {
-        *this_mv = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].this_mv;
+        *this_mv =
+            mbmi_ext->ref_mv_info.stack[ref_frame_type][ref_mv_idx].this_mv;
       } else {
-        *this_mv = mbmi_ext->ref_mv_stack[ref_frame_type][ref_mv_idx].comp_mv;
+        *this_mv =
+            mbmi_ext->ref_mv_info.stack[ref_frame_type][ref_mv_idx].comp_mv;
       }
     } else {
       *this_mv = mbmi_ext->global_mvs[ref_frame[ref_idx]];
@@ -11722,9 +11723,11 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
       av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
   (void)mode_ctx;  // This is here for future experiments
   int cost = 0;
-  int range = AOMMIN(mbmi_ext->ref_mv_count[ref_frame_type] - 1, MAX_DRL_BITS);
+  int range =
+      AOMMIN(mbmi_ext->ref_mv_info.count[ref_frame_type] - 1, MAX_DRL_BITS);
   for (int idx = 0; idx < range; ++idx) {
-    uint8_t drl_ctx = av1_drl_ctx(mbmi_ext->weight[ref_frame_type], idx);
+    uint8_t drl_ctx =
+        av1_drl_ctx(mbmi_ext->ref_mv_info.weight[ref_frame_type], idx);
     switch (idx) {
       case 0:
         cost += x->drl0_mode_cost[drl_ctx][mbmi->ref_mv_idx != idx];
@@ -12157,7 +12160,7 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
     return 1;
   }
   const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
-  int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
+  int ref_mv_count = mbmi_ext->ref_mv_info.count[ref_frame_type];
   return AOMMIN(MAX_REF_MV_SEARCH, ref_mv_count);
 }
 #else
@@ -12193,7 +12196,8 @@ static bool ref_mv_idx_early_breakout(MACROBLOCK *x,
         mbmi->ref_frame[0] == LAST3_FRAME ||
         mbmi->ref_frame[1] == LAST2_FRAME ||
         mbmi->ref_frame[1] == LAST3_FRAME) {
-      if (mbmi_ext->weight[ref_frame_type][ref_mv_idx] < REF_CAT_LEVEL) {
+      if (mbmi_ext->ref_mv_info.weight[ref_frame_type][ref_mv_idx] <
+          REF_CAT_LEVEL) {
         return true;
       }
     }
@@ -13083,8 +13087,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   MV_REFERENCE_FRAME ref_frame = INTRA_FRAME;
-  av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
-                   mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+  av1_find_mv_refs(cm, xd, mbmi, ref_frame, &mbmi_ext->ref_mv_info, NULL,
                    mbmi_ext->global_mvs, mbmi_ext->mode_context);
 
 #if CONFIG_NEW_INTER_MODES
@@ -13112,7 +13115,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   // Ref DV should not have sub-pel.
   assert((dv_ref.as_mv.col & 7) == 0);
   assert((dv_ref.as_mv.row & 7) == 0);
-  mbmi_ext->ref_mv_stack[INTRA_FRAME][0].this_mv = dv_ref;
+  mbmi_ext->ref_mv_info.stack[INTRA_FRAME][0].this_mv = dv_ref;
 
   struct buf_2d yv12_mb[MAX_MB_PLANE];
   av1_setup_pred_block(xd, yv12_mb, xd->cur_buf, NULL, NULL, num_planes);
@@ -13544,14 +13547,13 @@ static void rd_pick_skip_mode(RD_STATS *rd_cost,
   mbmi->ref_frame[0] = ref_frame;
   mbmi->ref_frame[1] = second_ref_frame;
   const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
-  if (x->mbmi_ext->ref_mv_count[ref_frame_type] == UINT8_MAX) {
-    if (x->mbmi_ext->ref_mv_count[ref_frame] == UINT8_MAX ||
-        x->mbmi_ext->ref_mv_count[second_ref_frame] == UINT8_MAX) {
+  if (x->mbmi_ext->ref_mv_info.count[ref_frame_type] == UINT8_MAX) {
+    if (x->mbmi_ext->ref_mv_info.count[ref_frame] == UINT8_MAX ||
+        x->mbmi_ext->ref_mv_info.count[second_ref_frame] == UINT8_MAX) {
       return;
     }
     MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
-    av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, mbmi_ext->ref_mv_count,
-                     mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+    av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, &mbmi_ext->ref_mv_info, NULL,
                      mbmi_ext->global_mvs, mbmi_ext->mode_context);
   }
 
@@ -14047,7 +14049,7 @@ static void set_params_rd_pick_inter_mode(
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;
-    mbmi_ext->ref_mv_count[ref_frame] = UINT8_MAX;
+    mbmi_ext->ref_mv_info.count[ref_frame] = UINT8_MAX;
     if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
       if (mbmi->partition != PARTITION_NONE &&
           mbmi->partition != PARTITION_SPLIT) {
@@ -14077,7 +14079,7 @@ static void set_params_rd_pick_inter_mode(
   // ref_frame = ALTREF_FRAME
   for (; ref_frame < MODE_CTX_REF_FRAMES; ++ref_frame) {
     x->mbmi_ext->mode_context[ref_frame] = 0;
-    mbmi_ext->ref_mv_count[ref_frame] = UINT8_MAX;
+    mbmi_ext->ref_mv_info.count[ref_frame] = UINT8_MAX;
     const MV_REFERENCE_FRAME *rf = ref_frame_map[ref_frame - REF_FRAMES];
     if (!((cpi->ref_frame_flags & av1_ref_frame_flag_list[rf[0]]) &&
           (cpi->ref_frame_flags & av1_ref_frame_flag_list[rf[1]]))) {
@@ -14090,8 +14092,7 @@ static void set_params_rd_pick_inter_mode(
         continue;
       }
     }
-    av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
-                     mbmi_ext->ref_mv_stack, mbmi_ext->weight, NULL,
+    av1_find_mv_refs(cm, xd, mbmi, ref_frame, &mbmi_ext->ref_mv_info, NULL,
                      mbmi_ext->global_mvs, mbmi_ext->mode_context);
   }
 
@@ -15872,17 +15873,12 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV)) {
     const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
     MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
-    av1_get_mv_refs_adj(mbmi_ext->ref_mv_stack[ref_frame_type],
-                        mbmi_ext->weight[ref_frame_type],
-                        mbmi_ext->ref_mv_count[ref_frame_type],
+    av1_get_mv_refs_adj(&mbmi_ext->ref_mv_info, ref_frame_type,
                         is_inter_compound_mode(mbmi->mode),
-                        mbmi->pb_mv_precision, mbmi_ext->ref_mv_stack_adj,
-                        mbmi_ext->weight_adj, &mbmi_ext->ref_mv_count_adj);
+                        mbmi->pb_mv_precision);
     mbmi->ref_mv_idx_adj = av1_get_ref_mv_idx_adj(
-        mbmi_ext->ref_mv_stack[ref_frame_type],
-        mbmi_ext->ref_mv_count[ref_frame_type], mbmi->ref_mv_idx,
-        is_inter_compound_mode(mbmi->mode), mbmi->pb_mv_precision,
-        mbmi_ext->ref_mv_stack_adj, mbmi_ext->ref_mv_count_adj);
+        &mbmi_ext->ref_mv_info, ref_frame_type, mbmi->ref_mv_idx,
+        is_inter_compound_mode(mbmi->mode), mbmi->pb_mv_precision);
   }
 #endif  // ADJUST_DRL_FLEX_MVRES
   assert(check_mv_precision(mbmi));
@@ -15975,7 +15971,7 @@ static void set_params_nonrd_pick_inter_mode(
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;
-    mbmi_ext->ref_mv_count[ref_frame] = UINT8_MAX;
+    mbmi_ext->ref_mv_info.count[ref_frame] = UINT8_MAX;
     if (cpi->ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
       if (mbmi->partition != PARTITION_NONE &&
           mbmi->partition != PARTITION_SPLIT) {
