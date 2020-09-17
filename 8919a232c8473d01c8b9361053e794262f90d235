@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71d268b0_8424f7a2",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1189,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-17T19:49:20Z",
+      "side": 1,
+      "message": "arg_match() is used in three files: apps/aomdec.c, apps/aomenc.c, and examples/inspect.c. I verified that the arg_match() calls in these three files are all arranged in an if-else-if control structure except for this one. It is easy to rewrite the next few lines so that this arg_match() call can be merged into the if-else-if control structure below.",
+      "revId": "8919a232c8473d01c8b9361053e794262f90d235",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c731433e_182e3c68",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1642,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-17T19:49:20Z",
+      "side": 1,
+      "message": "Adding a break statement here makes this for loop equivalent to an if-else-if control structure.",
+      "revId": "8919a232c8473d01c8b9361053e794262f90d235",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
