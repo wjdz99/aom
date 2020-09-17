@@ -16,6 +16,24 @@
       "revId": "1b9a96da02c3aefc6bf1c48f53786af6bef8c866",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b2e6690_e9c7742e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1641,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-17T21:46:56Z",
+      "side": 0,
+      "message": "There is indeed a static analyzer error if I remove this null pointer check:\n\n13:00:04 /var/jenkins/workspace/libaom__static_analysis/mode/shallow/aom/apps/aomenc.c:1641:11: warning: 2nd function call argument is an uninitialized value\n13:00:04           set_config_arg_ctrls(config, ctrl_args_map[i], \u0026arg);\n13:00:04           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\nI don\u0027t understand why the second function call argument is uninitialized. I suspect it may have something to do with the fact that ctrl_args and ctrl_args_map are declared as function-scope static variables. I have reverted this change from the CL.",
+      "parentUuid": "e889485b_d865d4bc",
+      "revId": "1b9a96da02c3aefc6bf1c48f53786af6bef8c866",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
