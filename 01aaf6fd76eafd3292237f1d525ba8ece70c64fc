@@ -16,6 +16,24 @@
       "revId": "01aaf6fd76eafd3292237f1d525ba8ece70c64fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61c2506a_abce8694",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 17992
+      },
+      "writtenOn": "2020-09-17T21:27:03Z",
+      "side": 1,
+      "message": "This patch stems from wanting to use film grain synthesis on near transparent encodes. However, we have observed that the wiener denoise filter can be too agressive in removing detail.\n\nWe have found that encoding the original frame preserves this detail (at the cost of a higher bitrate) and that the quantizer provides sufficient denoising to prevent synthetic noise + encoded noise being too much.\n\nThis can be seen a comparison (https://slow.pics/c/pm3051Qc) of encoding with the original frame (labeled patched), the source (labeled original) and the default denoise-noise-level behavior (labeled default). You can see how detail on the forehead and hair of the left character has been lost in the \"default\" frame due to denoising, but is present on the patched encode.",
+      "parentUuid": "767fce16_e885bbf4",
+      "revId": "01aaf6fd76eafd3292237f1d525ba8ece70c64fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
