@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aeaec71f_f72279e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-09-17T09:39:58Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we introduced an approach to reduce the frequency of mv cost update. \nAs per the current optimization, we changed the frequency from ‘once for a each row’ to ‘once for 4 sb rows’ when sb size is 64. The frequency of 4 sb rows is mapped to 2 when sb size is 128. However, as the updates may not be equally spaced in smaller resolutions, we tried making updates equally spaced by calculating \"mv_num_rows_cost_update\", the number of rows after which the cost update should happen. As per the implementation to support the tiles, the calculation of \"mv_num_rows_cost_update\" was kept inside the function and relevant calculations happens once for a row.\n\nThis change is not applicable for hd res as the speed-up/trade-off was not seen to be encouraging (due to larger width in HD res as compared to low-res/mid-res). We renamed the existing sf \"disable_sb_level_mv_cost_upd\" with \"mv_cost_upd_level\" and added an option to reduce the entropy cost update frequency for mv.\nSpeed and bd-rate numbers are measured for Borg test suite including hd-res with the change disabled.\nThe optimization is now enabled for only speed preset 6. We shall try to extend the sf for lower presets once the patch is merged. The change is a bit exact for speed presets \u003c\u003d5 with no speed impact (verified locally).\n\n                      Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr  ovr.psnr   ssim   \n   6       LOW RES        1.576        0.0273    0.0192    0.0764\n   6       MID RES        0.779        0.0222    0.0331    0.1096\n   6        HD RES        0.000        0.0000    0.0000    0.0000\n   6       Average        0.981        0.0175    0.0174    0.0628\n\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease merge the patch in case of no issues.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "740905d86e89d28ed26a81a23e09e18d35b7069c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
