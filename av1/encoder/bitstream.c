@@ -340,13 +340,16 @@ static AOM_INLINE void write_delta_lflevel(const AV1_COMMON *cm,
 }
 
 static AOM_INLINE void pack_map_tokens(aom_writer *w, const TokenExtra **tp,
-                                       int n, int num) {
+                                       int n, int num, MapCdf map_pb_cdf) {
   const TokenExtra *p = *tp;
+  const int palette_size_idx = n - PALETTE_MIN_SIZE;
   write_uniform(w, n, p->token);  // The first color index.
   ++p;
   --num;
   for (int i = 0; i < num; ++i) {
-    aom_write_symbol(w, p->token, p->color_map_cdf, n);
+    assert((p->color_ctx >= 0) && (p->color_ctx < CDF_SIZE(PALETTE_COLORS)));
+    aom_cdf_prob *color_map_cdf = map_pb_cdf[palette_size_idx][p->color_ctx];
+    aom_write_symbol(w, p->token, color_map_cdf, n);
     ++p;
   }
   *tp = p;
@@ -1488,6 +1491,7 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
   const AV1_COMMON *cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   MACROBLOCKD *xd = &cpi->td.mb.e_mbd;
+  FRAME_CONTEXT *tile_pb_ctx = cpi->td.mb.tile_pb_ctx;
   const int grid_idx = mi_row * mi_params->mi_stride + mi_col;
   xd->mi = mi_params->mi_grid_base + grid_idx;
   cpi->td.mb.mbmi_ext_frame =
@@ -1526,7 +1530,9 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
       av1_get_block_dimensions(mbmi->bsize, plane, xd, NULL, NULL, &rows,
                                &cols);
       assert(*tok < tok_end);
-      pack_map_tokens(w, tok, palette_size_plane, rows * cols);
+      MapCdf map_pb_cdf = plane ? tile_pb_ctx->palette_uv_color_index_cdf
+                                : tile_pb_ctx->palette_y_color_index_cdf;
+      pack_map_tokens(w, tok, palette_size_plane, rows * cols, map_pb_cdf);
     }
   }
 
@@ -3535,6 +3541,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
         mode_bc.allow_update_cdf =
             mode_bc.allow_update_cdf && !cm->features.disable_cdf_update;
         aom_start_encode(&mode_bc, buf->data + data_offset);
+        cpi->td.mb.tile_pb_ctx = &this_tile->tctx;
         write_modes(cpi, &tile_info, &mode_bc, tile_row, tile_col);
         aom_stop_encode(&mode_bc);
         tile_size = mode_bc.pos;
@@ -3677,6 +3684,7 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
       av1_reset_loop_restoration(&cpi->td.mb.e_mbd, num_planes);
 
       aom_start_encode(&mode_bc, dst + total_size);
+      cpi->td.mb.tile_pb_ctx = &this_tile->tctx;
       write_modes(cpi, &tile_info, &mode_bc, tile_row, tile_col);
       aom_stop_encode(&mode_bc);
       tile_size = mode_bc.pos;
