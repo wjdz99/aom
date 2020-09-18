@@ -225,6 +225,30 @@
     },
     {
       "key": {
+        "uuid": "b8975edc_fc9a8c12",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-18T04:46:50Z",
+      "side": 1,
+      "message": "Ah, you\u0027re correct. I didn\u0027t notice that this was border width of scaled_intra_pred.",
+      "parentUuid": "2b42e498_cb0533cf",
+      "range": {
+        "startLine": 201,
+        "startChar": 34,
+        "endLine": 201,
+        "endChar": 54
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35f82034_d6387c6d",
         "filename": "av1/common/interintra_ml.cc",
         "patchSetId": 2
@@ -269,6 +293,30 @@
       "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1125ac4b_79459390",
+        "filename": "av1/common/interintra_ml.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-09-18T04:46:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "016e78bd_10de9f2d",
+      "range": {
+        "startLine": 202,
+        "startChar": 18,
+        "endLine": 202,
+        "endChar": 38
+      },
+      "revId": "e9b4fbbc04b65935ebb10acc6ed5ee2d8a3ec564",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
