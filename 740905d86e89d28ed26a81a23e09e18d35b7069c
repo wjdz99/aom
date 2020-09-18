@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "5bb68d12_6d473b9f",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1259,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-09-18T14:16:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e5037d04_3a76cf0d",
+      "range": {
+        "startLine": 1259,
+        "startChar": 50,
+        "endLine": 1259,
+        "endChar": 53
+      },
+      "revId": "740905d86e89d28ed26a81a23e09e18d35b7069c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8372b1a9_14836e22",
         "filename": "av1/encoder/encodeframe_utils.c",
         "patchSetId": 5
@@ -82,6 +106,30 @@
     },
     {
       "key": {
+        "uuid": "06ec3520_8e344690",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-09-18T14:16:12Z",
+      "side": 1,
+      "message": "Yunqing, we refactored the code as per your suggestion. Condition of return is simplified further for better readability.",
+      "parentUuid": "8372b1a9_14836e22",
+      "range": {
+        "startLine": 1262,
+        "startChar": 2,
+        "endLine": 1264,
+        "endChar": 50
+      },
+      "revId": "740905d86e89d28ed26a81a23e09e18d35b7069c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8b40ac29_6a947338",
         "filename": "av1/encoder/encodeframe_utils.c",
         "patchSetId": 5
@@ -93,6 +141,30 @@
       "writtenOn": "2020-09-17T21:23:24Z",
       "side": 1,
       "message": "Is it possible to use int instead? Maybe multiply by a large number?",
+      "range": {
+        "startLine": 1277,
+        "startChar": 12,
+        "endLine": 1277,
+        "endChar": 18
+      },
+      "revId": "740905d86e89d28ed26a81a23e09e18d35b7069c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a627883_7b88e121",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1277,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-09-18T14:16:12Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nChanged the logic to derive \"num_sb_rows_per_update\". Used integer arithmetic to replace double data type operations. The integer division result is rounded-up to next integer to serve the purpose of ceil().",
+      "parentUuid": "8b40ac29_6a947338",
       "range": {
         "startLine": 1277,
         "startChar": 12,
