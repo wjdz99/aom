@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12a438b9_b682e3e2",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1137,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-09-20T17:17:26Z",
+      "side": 0,
+      "message": "If this is deleted, would it be possible for enable_overlay to be 0, yet we still have an overlay frame?",
+      "range": {
+        "startLine": 1137,
+        "startChar": 12,
+        "endLine": 1137,
+        "endChar": 46
+      },
+      "revId": "f842039ce2157e50729a52615d43141607a67129",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
