@@ -1637,9 +1637,7 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       for (i = 0; ctrl_args[i]; i++) {
         if (arg_match(&arg, ctrl_args[i], argi)) {
           match = 1;
-          if (ctrl_args_map) {
-            set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
-          }
+          set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
           break;
         }
       }
