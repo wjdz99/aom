@@ -1437,8 +1437,8 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
                                struct stream_state *stream, char **argv) {
   char **argi, **argj;
   struct arg arg;
-  static const arg_def_t **ctrl_args = no_args;
-  static const int *ctrl_args_map = NULL;
+  const arg_def_t **ctrl_args = no_args;
+  const int *ctrl_args_map = NULL;
   struct stream_config *config = &stream->config;
   int eos_mark_found = 0;
   int webm_forced = 0;
@@ -1637,9 +1637,7 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       for (i = 0; ctrl_args[i]; i++) {
         if (arg_match(&arg, ctrl_args[i], argi)) {
           match = 1;
-          if (ctrl_args_map) {
-            set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
-          }
+          set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
           break;
         }
       }
