@@ -102,12 +102,14 @@ double av1_estimate_noise_from_single_plane(const YV12_BUFFER_CONFIG *frame,
  * \param[in]   cpi                        Top level encoder instance structure
  * \param[in]   filter_frame_lookahead_idx The index of the to-filter frame in
  *                                         the lookahead buffer cpi->lookahead.
+ * \param[in]   gf_group_index             The ARF index in the GOP.
  * \param[in,out]   show_existing_arf      Whether to show existing ARF. This
  *                                         field is updated in this function.
  *
  * \return Whether temporal filtering is successfully done.
  */
 int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
+                        int gf_group_index,
                         int *show_existing_arf);
 
 #ifdef __cplusplus

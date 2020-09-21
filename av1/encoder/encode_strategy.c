@@ -922,7 +922,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     // TODO(bohanli): figure out why we need frame_type in cm here.
     cm->current_frame.frame_type = frame_params->frame_type;
     const int code_arf =
-        av1_temporal_filter(cpi, arf_src_index, &show_existing_alt_ref);
+        av1_temporal_filter(cpi, arf_src_index, gf_group->index, &show_existing_alt_ref);
     if (code_arf) {
       aom_extend_frame_borders(&cpi->alt_ref_buffer, av1_num_planes(cm));
       frame_input->source = &cpi->alt_ref_buffer;

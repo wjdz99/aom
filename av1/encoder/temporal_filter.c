@@ -20,6 +20,7 @@
 #include "av1/common/quant_common.h"
 #include "av1/common/reconinter.h"
 #include "av1/encoder/av1_quantize.h"
+#include "av1/encoder/encodeframe.h"
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/extend.h"
 #include "av1/encoder/firstpass.h"
@@ -967,8 +968,9 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
  *         in this function. Estimated noise levels for YUV planes will be
  *         saved in `noise_levels`.
  */
-static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
+static void tf_setup_filtering_buffer(AV1_COMP *cpi,
                                       const int filter_frame_lookahead_idx,
+                                      const int gf_group_index,
                                       const int is_second_arf,
                                       YV12_BUFFER_CONFIG **frames,
                                       int *num_frames_for_filtering,
@@ -985,11 +987,11 @@ static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
   // Temporal filtering should not go beyond key frames
   const int key_to_curframe =
       AOMMAX(cpi->rc.frames_since_key +
-                 cpi->gf_group.arf_src_offset[cpi->gf_group.index],
+                 cpi->gf_group.arf_src_offset[gf_group_index],
              0);
   const int curframe_to_key =
       AOMMAX(cpi->rc.frames_to_key -
-                 cpi->gf_group.arf_src_offset[cpi->gf_group.index] - 1,
+                 cpi->gf_group.arf_src_offset[gf_group_index] - 1,
              0);
 
   // Number of buffered frames before the to-filter frame.
@@ -1000,9 +1002,12 @@ static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
   // Number of buffered frames after the to-filter frame.
   const int max_after = AOMMIN(lookahead_depth - max_before, curframe_to_key);
 
-  const int filter_frame_offset = filter_frame_lookahead_idx < -1
+  int filter_frame_offset = filter_frame_lookahead_idx < -1
                                       ? -filter_frame_lookahead_idx
                                       : filter_frame_lookahead_idx;
+
+  filter_frame_offset +=
+    cpi->gf_group.cur_frame_idx[gf_group_index] - cpi->gf_group.cur_frame_idx[cpi->gf_group.index];
 
   // Estimate noises for each plane.
   const struct lookahead_entry *to_filter_buf = av1_lookahead_peek(
@@ -1059,11 +1064,14 @@ static void tf_setup_filtering_buffer(const AV1_COMP *cpi,
     const int lookahead_idx = frame - num_before + filter_frame_offset;
     struct lookahead_entry *buf = av1_lookahead_peek(
         cpi->lookahead, lookahead_idx, cpi->compressor_stage);
-    assert(buf != NULL);
+    if (buf == NULL) continue;
     frames[frame] = &buf->img;
   }
   *num_frames_for_filtering = num_frames;
   *filter_frame_idx = num_before;
+
+  av1_setup_src_planes(&cpi->td.mb, &to_filter_buf->img, 0, 0,
+    num_planes, cpi->common.seq_params.sb_size);
   assert(frames[*filter_frame_idx] == to_filter_frame);
 }
 
@@ -1118,11 +1126,11 @@ double av1_estimate_noise_from_single_plane(const YV12_BUFFER_CONFIG *frame,
 }
 
 int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
+                        int gf_group_index,
                         int *show_existing_arf) {
   // Basic informaton of the current frame.
   const GF_GROUP *const gf_group = &cpi->gf_group;
-  const uint8_t group_idx = gf_group->index;
-  const FRAME_UPDATE_TYPE update_type = gf_group->update_type[group_idx];
+  const FRAME_UPDATE_TYPE update_type = gf_group->update_type[gf_group_index];
   // Filter one more ARF if the lookahead index is leq 7 (w.r.t. 9-th frame).
   // This frame is ALWAYS a show existing frame.
   const int is_second_arf =
@@ -1150,7 +1158,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   int num_frames_for_filtering = 0;
   int filter_frame_idx = -1;
   double noise_levels[MAX_MB_PLANE] = { 0 };
-  tf_setup_filtering_buffer(cpi, filter_frame_lookahead_idx, is_second_arf,
+  tf_setup_filtering_buffer(cpi, filter_frame_lookahead_idx, gf_group_index, is_second_arf,
                             frames, &num_frames_for_filtering,
                             &filter_frame_idx, noise_levels);
   assert(num_frames_for_filtering > 0);
@@ -1195,13 +1203,13 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
 
     aom_clear_system_state();
     // TODO(yunqing): This can be combined with TPL q calculation later.
-    cpi->rc.base_frame_target = gf_group->bit_allocation[group_idx];
+    cpi->rc.base_frame_target = gf_group->bit_allocation[gf_group_index];
     av1_set_target_rate(cpi, cpi->common.width, cpi->common.height);
     int top_index = 0;
     int bottom_index = 0;
     const int q = av1_rc_pick_q_and_bounds(
         cpi, &cpi->rc, cpi->oxcf.frm_dim_cfg.width,
-        cpi->oxcf.frm_dim_cfg.height, group_idx, &bottom_index, &top_index);
+        cpi->oxcf.frm_dim_cfg.height, gf_group_index, &bottom_index, &top_index);
     const int ac_q = av1_ac_quant_QTX(q, 0, cpi->common.seq_params.bit_depth);
     const float threshold = 0.7f * ac_q * ac_q;
 

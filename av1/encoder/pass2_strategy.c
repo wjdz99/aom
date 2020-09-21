@@ -2892,9 +2892,12 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
         // max_gop_length = 32 with look-ahead gf intervals.
         define_gf_group(cpi, &this_frame, frame_params, max_gop_length, 0);
         this_frame = this_frame_copy;
-        if (rc->frames_since_key > 0 && gf_group->arf_index > -1) {
+        if (gf_group->arf_index > -1) {
           int arf_src_index = gf_group->arf_src_offset[gf_group->arf_index];
-          av1_temporal_filter(cpi, arf_src_index, NULL);
+          MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
+          av1_init_mi_buffers(&cpi->common.mi_params);
+          av1_init_macroblockd(&cpi->common, xd);
+          av1_temporal_filter(cpi, arf_src_index, gf_group->arf_index, NULL);
         }
         if (!av1_tpl_setup_stats(cpi, 1, frame_params, frame_input)) {
           // Tpl decides that a shorter gf interval is better.
