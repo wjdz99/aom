@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e8eb7cf9_6e32bf84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15030
+      },
+      "writtenOn": "2020-09-21T16:14:52Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWhile analyzing the transform search speed features, we found that the threshold used to detect high energy in a block was incorrectly scaled depending on bit-depth. Since the block SSE is already in 8 bit domain, the scaling of threshold should not be done. This patch fixes this issue.\n\nPlease find Borg results for 10 bit encoding.\n CPU Resolution Instruction Count          BD-Rate  Impact %\n                   Reduction %    avg.psnr ovr.psnr   ssim       avg.psnr\n                                   8-bit    8-bit    8-bit        10-bit\n \n 0   LOW RES         -0.174       0.0136   0.0193   0.0042       0.012\n 0   MID RES         -0.262       0.0369   0.0525   0.0537       0.0366\n 0    HD RES         -0.479       0.055    0.0571   0.0696       0.0517\n 0   AVERAGE         -0.273       0.0331   0.0406   0.0386       0.0313\n \n 1   LOW RES         -0.013      -0.0086  -0.0106  -0.0255      -0.0084\n 1   MID RES         0.043       -0.0366  -0.0431   -0.055      -0.0353\n 1    HD RES         -0.006       0.0016   0.0016   0.0121       0.0034\n 1   AVERAGE         0.003       -0.0137  -0.0164  -0.0227      -0.0127\n\n 2   LOW RES         0.007        0.0059   0.0054   0.0002       0.0076\n 2   MID RES         -0.016       0.0038  -0.0001   0.0163       0.0024\n 2    HD RES         -0.042       0.0156   0.0174   0.0016       0.0152\n 2   AVERAGE         -0.011       0.0083   0.0075   0.0053       0.0084\n\n 3   LOW RES         -0.021       0.0071   0.0009   0.036        0.0074\n 3   MID RES         -0.064       -0.058  -0.0764  -0.1118      -0.0596\n 3    HD RES         0.095       -0.0049  -0.0103  -0.0591      -0.0048\n 3   AVERAGE         -0.002      -0.0156  -0.0251  -0.0362      -0.0159\n\n 4   LOW RES         -0.013      -0.0015   0.0003  -0.0407      -0.0029\n 4   MID RES         0.009       -0.0177   0.0059  -0.0551      -0.0216\n 4    HD RES         -0.023       0.0018  -0.0018   0.013       -0.0001\n 4   AVERAGE         -0.01       -0.0052   0.0013  -0.0286      -0.0075\n\n 5   LOW RES         -0.007      -0.0118  -0.0087   0.0136      -0.0115\n 5   MID RES         -0.171       0.0203   0.0121   0.0208       0.0204\n 5    HD RES         -0.005      -0.0244  -0.0203  -0.0118      -0.0283\n 5   AVERAGE         -0.046      -0.0063  -0.0062   0.008       -0.0073\n\n 6   LOW RES         -0.007      -0.0317  -0.0374  -0.0453      -0.0311\n 6   MID RES         -0.087       0.0669   0.0624   0.0852       0.067\n 6    HD RES         -1.807      -0.0503  -0.0577  -0.0784      -0.0508\n 6   AVERAGE         -0.484      -0.0085  -0.0144  -0.0172      -0.0084\n  \n \n In the commit message, BD-Rate Impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nThis is a bit-exact change with no impact on speed for 8-bit encode (verified locally).\nPlease review.\n",
+      "revId": "891afef672708e6fe5a692392521b173706b289b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
