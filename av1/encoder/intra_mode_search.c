@@ -179,12 +179,18 @@ int av1_count_colors(const uint8_t *src, int stride, int rows, int cols,
 int av1_count_colors_highbd(const uint8_t *src8, int stride, int rows, int cols,
                             int bit_depth, int *val_count) {
   assert(bit_depth <= 12);
-  const int max_pix_val = 1 << bit_depth;
+  // max_pix_val is same as bit-depth=8
+  const int max_pix_val = 1 << 8;
   const uint16_t *src = CONVERT_TO_SHORTPTR(src8);
   memset(val_count, 0, max_pix_val * sizeof(val_count[0]));
   for (int r = 0; r < rows; ++r) {
     for (int c = 0; c < cols; ++c) {
-      const int this_val = src[r * stride + c];
+      /*
+       * Colors are counted using binning method by downscaling
+       * the pixels to 8bit domain. This provides consistency
+       * of stats between 8bit and 10bit path.
+       */
+      const int this_val = ((src[r * stride + c]) >> (bit_depth - 8));
       assert(this_val < max_pix_val);
       if (this_val >= max_pix_val) return 0;
       ++val_count[this_val];
