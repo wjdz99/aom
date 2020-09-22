@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "401a1f20_46d34c79",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-22T01:03:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf669e71_46d45864",
+      "revId": "28afa85998fc43947fc0874687599d23f31b1ea7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f555ee4_73d3584e",
         "filename": "av1/encoder/bitstream.c",
         "patchSetId": 8
@@ -33,6 +51,24 @@
       "revId": "28afa85998fc43947fc0874687599d23f31b1ea7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51dc203e_13fec1fb",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1653,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-22T01:03:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f555ee4_73d3584e",
+      "revId": "28afa85998fc43947fc0874687599d23f31b1ea7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
