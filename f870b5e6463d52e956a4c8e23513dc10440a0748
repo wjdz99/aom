@@ -34,6 +34,24 @@
       "revId": "f870b5e6463d52e956a4c8e23513dc10440a0748",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67e6c78c_0e998fb9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-09-22T09:19:19Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThere was a run-to-run difference in the memory profiling numbers generated using \u0027command time -v\u0027 across multiple tests. The magnitude of the variation was observed to be high for lower res (360p and 480p) compared to higher res (720p and 1080p). The results mentioned in the commit message were averaged out across multiple instances to produce a reliable output.\n\nRegards,\nJayasanker.",
+      "parentUuid": "0c884e03_101a88c2",
+      "revId": "f870b5e6463d52e956a4c8e23513dc10440a0748",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
