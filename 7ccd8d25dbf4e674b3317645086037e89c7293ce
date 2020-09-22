@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7fb4441f_358821d5",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 41
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-09-22T18:04:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d7e05b9c_40cda83b",
+      "range": {
+        "startLine": 28,
+        "startChar": 55,
+        "endLine": 28,
+        "endChar": 72
+      },
+      "revId": "7ccd8d25dbf4e674b3317645086037e89c7293ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "18ad3385_5fda6f67",
         "filename": "av1/encoder/gop_structure.c",
         "patchSetId": 41
@@ -140,6 +164,30 @@
       "revId": "7ccd8d25dbf4e674b3317645086037e89c7293ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6e46e00_58e02620",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 41
+      },
+      "lineNbr": 2882,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-09-22T18:04:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "51b05cd3_de524cf6",
+      "range": {
+        "startLine": 2882,
+        "startChar": 23,
+        "endLine": 2882,
+        "endChar": 31
+      },
+      "revId": "7ccd8d25dbf4e674b3317645086037e89c7293ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
