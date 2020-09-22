@@ -526,7 +526,7 @@ class SFramePresenceTestLarge
   aom_s_frame_info sframe_info;
 };
 
-TEST_P(SFramePresenceTestLarge, SFramePresenceTest) {
+TEST_P(SFramePresenceTestLarge, DISABLED_SFramePresenceTest) {
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
                                      0, 100);
