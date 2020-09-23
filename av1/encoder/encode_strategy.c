@@ -1420,7 +1420,7 @@ int av1_check_keyframe_arf(int gf_index, GF_GROUP *gf_group,
 // kf overlays).
 int av1_check_keyframe_overlay(int gf_index, GF_GROUP *gf_group,
                                int frame_since_key) {
-  if (gf_index < 1) return 0;
+  if (gf_index < 1 || 1) return 0;
   return gf_group->update_type[gf_index - 1] == ARF_UPDATE &&
          gf_group->update_type[gf_index] == OVERLAY_UPDATE &&
          frame_since_key == 0;
