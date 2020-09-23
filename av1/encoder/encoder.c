@@ -3176,7 +3176,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                     cpi->rc.frames_since_key))
       ++current_frame->frame_number;
   } else if (av1_check_keyframe_arf(cpi->gf_group.index, &cpi->gf_group,
-                                    cpi->rc.frames_since_key)) {
+                                    cpi->rc.frames_since_key) && 0) {
     // TODO(bohanli) Hack here: increment kf overlay before it is encoded
     ++current_frame->frame_number;
   }

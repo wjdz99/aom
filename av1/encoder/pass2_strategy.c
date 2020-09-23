@@ -2672,6 +2672,7 @@ static void process_first_pass_stats(AV1_COMP *cpi,
   TWO_PASS *const twopass = &cpi->twopass;
 
   if (cpi->oxcf.rc_cfg.mode != AOM_Q && current_frame->frame_number == 0 &&
+      cpi->gf_group.index == 0 &&
       cpi->twopass.stats_buf_ctx->total_stats &&
       cpi->twopass.stats_buf_ctx->total_left_stats) {
     if (cpi->lap_enabled) {
@@ -2725,10 +2726,6 @@ static void process_first_pass_stats(AV1_COMP *cpi,
     twopass->frame_avg_haar_energy =
         log((this_frame->frame_avg_wavelet_energy / num_mbs) + 1.0);
   }
-
-  // Update the total stats remaining structure.
-  if (twopass->stats_buf_ctx->total_left_stats)
-    subtract_stats(twopass->stats_buf_ctx->total_left_stats, this_frame);
 
   // Set the frame content type flag.
   if (this_frame->intra_skip_pct >= FC_ANIMATION_THRESH)
@@ -2908,6 +2905,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     rc->frames_till_gf_update_due = rc->baseline_gf_interval;
     assert(gf_group->index == 0);
 
+      for (int idx = 0; idx < gf_group->size; ++idx)
+        fprintf(stderr, "gf idx = %d, type = %d, bits = %d\n",
+          idx, gf_group->update_type[idx], gf_group->bit_allocation[idx]);
+      fprintf(stderr, "\n");
 #if ARF_STATS_OUTPUT
     {
       FILE *fpfile;
@@ -2925,8 +2926,14 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   assert(gf_group->index < gf_group->size);
 
   if (gf_group->update_type[gf_group->index] == ARF_UPDATE ||
-      gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE)
+      gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE) {
     reset_fpf_position(twopass, start_pos);
+  } else {
+    // Update the total stats remaining structure.
+    if (twopass->stats_buf_ctx->total_left_stats)
+      subtract_stats(twopass->stats_buf_ctx->total_left_stats, &this_frame_copy);
+  }
+
 
   frame_params->frame_type = gf_group->frame_type[gf_group->index];
 
