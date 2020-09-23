@@ -211,14 +211,6 @@ static INLINE int coded_to_superres_mi(int mi_col, int denom) {
 }
 #endif
 
-static INLINE int av1_encoder_get_relative_dist(const OrderHintInfo *oh, int a,
-                                                int b) {
-  if (!oh->enable_order_hint) return 0;
-
-  assert(a >= 0 && b >= 0);
-  return (a - b);
-}
-
 // This function will return number of mi's in a superblock.
 static INLINE int av1_get_sb_mi_size(const AV1_COMMON *const cm) {
   const int mi_alloc_size_1d = mi_size_wide[cm->mi_params.mi_alloc_bsize];

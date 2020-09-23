@@ -192,17 +192,6 @@ static AOM_INLINE int do_slipt_check(BLOCK_SIZE bsize) {
 }
 
 #if !CONFIG_REALTIME_ONLY
-static AOM_INLINE const FIRSTPASS_STATS *read_one_frame_stats(const TWO_PASS *p,
-                                                              int frm) {
-  assert(frm >= 0);
-  if (frm < 0 ||
-      p->stats_buf_ctx->stats_in_start + frm > p->stats_buf_ctx->stats_in_end) {
-    return NULL;
-  }
-
-  return &p->stats_buf_ctx->stats_in_start[frm];
-}
-
 static BLOCK_SIZE dim_to_size(int dim) {
   switch (dim) {
     case 4: return BLOCK_4X4;

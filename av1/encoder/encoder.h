@@ -3050,10 +3050,11 @@ static const MV_REFERENCE_FRAME disable_order[] = {
   GOLDEN_FRAME,
 };
 
-static INLINE int get_max_allowed_ref_frames(
-    int selective_ref_frame, unsigned int max_reference_frames) {
+static INLINE int get_max_allowed_ref_frames(int selective_ref_frame,
+                                             unsigned int max_reference_frames,
+                                             int num_refs_to_disable) {
   const unsigned int max_allowed_refs_for_given_speed =
-      (selective_ref_frame >= 3) ? INTER_REFS_PER_FRAME - 1
+      (selective_ref_frame >= 3) ? INTER_REFS_PER_FRAME - num_refs_to_disable
                                  : INTER_REFS_PER_FRAME;
   return AOMMIN(max_allowed_refs_for_given_speed, max_reference_frames);
 }
@@ -3092,10 +3093,64 @@ static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
   return flags;
 }
 
+static INLINE int av1_encoder_get_relative_dist(const OrderHintInfo *oh, int a,
+                                                int b) {
+  if (!oh->enable_order_hint) return 0;
+
+  assert(a >= 0 && b >= 0);
+  return (a - b);
+}
+
+#if !CONFIG_REALTIME_ONLY
+static AOM_INLINE const FIRSTPASS_STATS *read_one_frame_stats(const TWO_PASS *p,
+                                                              int frm) {
+  assert(frm >= 0);
+  if (frm < 0 ||
+      p->stats_buf_ctx->stats_in_start + frm > p->stats_buf_ctx->stats_in_end) {
+    return NULL;
+  }
+
+  return &p->stats_buf_ctx->stats_in_start[frm];
+}
+#endif  // CONFIG_REALTIME_ONLY
+
+// This function will compute the number of reference frames to be disabled
+// based on selective_ref_frame speed feature.
+static AOM_INLINE int get_num_refs_to_disable(
+    const AV1_COMP *cpi, const int *ref_frame_flags,
+    const unsigned int *ref_display_order_hint, int cur_frame_display_index) {
+  int num_refs_to_disable = 0;
+  if (cpi->sf.inter_sf.selective_ref_frame >= 3) {
+    num_refs_to_disable = 1;
+    // Disable LAST2_FRAME if it is a temporally distant frame or if the coded
+    // error of the current frame based on first pass stats is very low.
+    if (cpi->sf.inter_sf.selective_ref_frame >= 5 &&
+        *ref_frame_flags & av1_ref_frame_flag_list[LAST2_FRAME]) {
+      const OrderHintInfo *const order_hint_info =
+          &cpi->common.seq_params.order_hint_info;
+      const int last2_frame_dist = av1_encoder_get_relative_dist(
+          order_hint_info, ref_display_order_hint[LAST2_FRAME - LAST_FRAME],
+          cur_frame_display_index);
+#if !CONFIG_REALTIME_ONLY
+      const FIRSTPASS_STATS *const this_frame_stats =
+          read_one_frame_stats(&cpi->twopass, cur_frame_display_index);
+      const double coded_error_per_mb =
+          this_frame_stats->coded_error / cpi->frame_info.num_mbs;
+      if (coded_error_per_mb < 100 || abs(last2_frame_dist) > 2)
+        num_refs_to_disable = 2;
+#else
+      if (abs(last2_frame_dist) > 2) num_refs_to_disable = 2;
+#endif  // CONFIG_REALTIME_ONLY
+    }
+  }
+  return num_refs_to_disable;
+}
+
 // Enforce the number of references for each arbitrary frame based on user
 // options and speed.
-static AOM_INLINE void enforce_max_ref_frames(AV1_COMP *cpi,
-                                              int *ref_frame_flags) {
+static AOM_INLINE void enforce_max_ref_frames(
+    AV1_COMP *cpi, int *ref_frame_flags,
+    const unsigned int *ref_display_order_hint, int cur_frame_display_index) {
   MV_REFERENCE_FRAME ref_frame;
   int total_valid_refs = 0;
 
@@ -3105,9 +3160,11 @@ static AOM_INLINE void enforce_max_ref_frames(AV1_COMP *cpi,
     }
   }
 
-  const int max_allowed_refs =
-      get_max_allowed_ref_frames(cpi->sf.inter_sf.selective_ref_frame,
-                                 cpi->oxcf.ref_frm_cfg.max_reference_frames);
+  const int num_refs_to_disable = get_num_refs_to_disable(
+      cpi, ref_frame_flags, ref_display_order_hint, cur_frame_display_index);
+  const int max_allowed_refs = get_max_allowed_ref_frames(
+      cpi->sf.inter_sf.selective_ref_frame,
+      cpi->oxcf.ref_frm_cfg.max_reference_frames, num_refs_to_disable);
 
   for (int i = 0; i < 4 && total_valid_refs > max_allowed_refs; ++i) {
     const MV_REFERENCE_FRAME ref_frame_to_disable = disable_order[i];
