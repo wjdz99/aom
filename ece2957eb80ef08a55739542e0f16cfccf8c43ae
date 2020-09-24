@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49ee2fc5_bfa728f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-09-24T13:29:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this CL, we have optimized the memory usage in palette tile token buffer\nby replacing color_map_cdf pointer in TokenExtra with the index to color_ctx.\n\nPFB the memory reduction for this patch, measured using the command\n$command time -v ./aomenc ... for cpu-used 1, 60 frames:\n\n                    Avg Memory reduction\n                      Single   Multi\nResolution    Tile    thread   thread\n640x360       2x1      7.11%    6.65%\n832x480       2x1      8.99%    8.16%\n1280x720      2x2      9.96%    9.75%\n1920x1080     4x2     11.36%   10.72%\n\nPFB the memory reduction results for this patch, measured using the command\n$valgrind --tool\u003dmassif ./aomenc ... for cpu-used 1, 60 frames:\n\n                    Avg Memory reduction\n                      Single   Multi\nResolution    Tile    thread   thread\n640x360       2x1      6.73%    6.25%\n832x480       2x1      8.21%    7.79%\n1280x720      2x2      9.72%    9.02%\n1920x1080     4x2     10.86%    9.80%\n\nThis CL is bit-exact with no impact on encode time.\n\nAWCY Link (cpu-used 1, 60 frames, bit-exact)\nhttps://beta.arewecompressedyet.com/?job\u003d230920_ref_cpu1_master%402020-09-23T07%3A24%3A18.952Z\u0026job\u003d230920_mem_opt_cpu1_%402020-09-23T07%3A22%3A36.061Z\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "ece2957eb80ef08a55739542e0f16cfccf8c43ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
