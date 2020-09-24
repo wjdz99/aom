@@ -148,6 +148,10 @@ void SumSSETest::RunSpeedTest() {
   }
 }
 
+// To suppress possible Jenkins error "Paramaterized test suite SumSSETest is
+// defined via TEST_P, but never instantiated".
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(SumSSETest);
+
 TEST_P(SumSSETest, OperationCheck) {
   RunTest(1);  // GenRandomData
 }
