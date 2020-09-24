@@ -70,6 +70,24 @@
       "revId": "432f0306881fde3d7106c4a137d2a5acf8081035",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36470cd0_8d1a795d",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-09-24T21:31:01Z",
+      "side": 1,
+      "message": "Isn\u0027t it safe to assume C99 compatibility? I care about backwards compatibility, but I do feel you can draw the line at C99 :)",
+      "parentUuid": "956ac3e8_cfd1e8a5",
+      "revId": "432f0306881fde3d7106c4a137d2a5acf8081035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
