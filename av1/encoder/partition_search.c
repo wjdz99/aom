@@ -3473,7 +3473,7 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   // Pruning: before searching any partition type, using source and simple
   // motion search results to prune out unlikely partitions.
   av1_prune_partitions_before_search(
-      cpi, x, mi_row, mi_col, bsize, sms_tree,
+      cpi, td, x, mi_row, mi_col, bsize, sms_tree,
       &part_search_state.partition_none_allowed, partition_horz_allowed,
       partition_vert_allowed, &part_search_state.do_rectangular_split,
       &part_search_state.do_square_split, prune_horz, prune_vert);

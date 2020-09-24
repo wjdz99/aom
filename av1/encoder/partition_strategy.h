@@ -163,8 +163,8 @@ int av1_ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 // has been tested. The decisions will be updated and passed back
 // to the partition search function.
 void av1_prune_partitions_before_search(
-    AV1_COMP *const cpi, MACROBLOCK *const x, int mi_row, int mi_col,
-    BLOCK_SIZE bsize, SIMPLE_MOTION_DATA_TREE *const sms_tree,
+    AV1_COMP *const cpi, ThreadData *const td, MACROBLOCK *const x, int mi_row,
+    int mi_col, BLOCK_SIZE bsize, SIMPLE_MOTION_DATA_TREE *const sms_tree,
     int *partition_none_allowed, int *partition_horz_allowed,
     int *partition_vert_allowed, int *do_rectangular_split,
     int *do_square_split, int *prune_horz, int *prune_vert);

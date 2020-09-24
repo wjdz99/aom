@@ -1295,8 +1295,8 @@ int av1_ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 #undef FEATURES
 
 void av1_prune_partitions_before_search(
-    AV1_COMP *const cpi, MACROBLOCK *const x, int mi_row, int mi_col,
-    BLOCK_SIZE bsize, SIMPLE_MOTION_DATA_TREE *const sms_tree,
+    AV1_COMP *const cpi, ThreadData *const td, MACROBLOCK *const x, int mi_row,
+    int mi_col, BLOCK_SIZE bsize, SIMPLE_MOTION_DATA_TREE *const sms_tree,
     int *partition_none_allowed, int *partition_horz_allowed,
     int *partition_vert_allowed, int *do_rectangular_split,
     int *do_square_split, int *prune_horz, int *prune_vert) {
@@ -1321,6 +1321,27 @@ void av1_prune_partitions_before_search(
       *do_rectangular_split = 0;
       *partition_horz_allowed = 0;
       *partition_vert_allowed = 0;
+    }
+  }
+
+  if (cpi->sf.part_sf.prune_sub_8x8_partition_level && (bsize == BLOCK_8X8)) {
+    const MACROBLOCKD *const xd = &td->mb.e_mbd;
+    int prune_sub_8x8 = 1;
+    if (cpi->sf.part_sf.prune_sub_8x8_partition_level == 1) {
+      int num_neighbors_lt_8x8 = 0;
+      if (xd->left_available)
+        num_neighbors_lt_8x8 += (xd->left_mbmi->bsize <= BLOCK_8X8);
+      if (xd->up_available)
+        num_neighbors_lt_8x8 += (xd->above_mbmi->bsize <= BLOCK_8X8);
+      // Evaluate only if both left and above blocks are of size <= BLOCK_8X8.
+      if (num_neighbors_lt_8x8 == 2) {
+        prune_sub_8x8 = 0;
+      }
+    }
+    if (prune_sub_8x8) {
+      *partition_horz_allowed = 0;
+      *partition_vert_allowed = 0;
+      *do_square_split = 0;
     }
   }
 
