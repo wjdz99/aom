@@ -1772,7 +1772,10 @@ int av1_intrabc_hash_search(const AV1_COMP *cpi, const MACROBLOCKD *xd,
                             const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
                             IntraBCHashInfo *intrabc_hash_info,
                             FULLPEL_MV *best_mv) {
-  if (!av1_use_hash_me(cpi)) return INT_MAX;
+  if (is_stat_generation_stage(cpi) || !av1_use_hash_me(cpi) ||
+      cpi->sf.rt_sf.use_nonrd_pick_mode) {
+    return INT_MAX;
+  }
 
   const BLOCK_SIZE bsize = ms_params->bsize;
   const int block_width = block_size_wide[bsize];
