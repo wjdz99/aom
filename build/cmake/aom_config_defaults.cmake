@@ -193,6 +193,8 @@ set_aom_config_var(CONFIG_SUPERRES_TX64_DIRFILTER 0 NUMBER
                    "AV2 64-length superres tx w/ dir filter experiment flag")
 set_aom_config_var(CONFIG_SUPERRES_EXT 0 NUMBER
                    "AV2 superres mode extensions experiment flag")
+set_aom_config_var(CONFIG_SGRPROJ_EXT 0 NUMBER
+                   "AV2 sgrproj extensions experiment flag")
 set_aom_config_var(CONFIG_DIFFWTD_42 0 NUMBER
                    "AV2 diffwtd mask experiment flag")
 set_aom_config_var(CONFIG_ILLUM_MCOMP 0 NUMBER
