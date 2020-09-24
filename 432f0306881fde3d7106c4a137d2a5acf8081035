@@ -52,6 +52,24 @@
       "revId": "432f0306881fde3d7106c4a137d2a5acf8081035",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "956ac3e8_cfd1e8a5",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-24T20:53:42Z",
+      "side": 1,
+      "message": "I only recently discovered that libaom uses stdbool.h internally in av1/encoder/. The public API still doesn\u0027t use stdbool.h.",
+      "parentUuid": "6f4b0100_4d0c2902",
+      "revId": "432f0306881fde3d7106c4a137d2a5acf8081035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
