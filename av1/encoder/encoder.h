@@ -3060,8 +3060,8 @@ static INLINE int get_max_allowed_ref_frames(
 
 static const MV_REFERENCE_FRAME
     ref_frame_priority_order[INTER_REFS_PER_FRAME] = {
-      LAST_FRAME,    ALTREF_FRAME, BWDREF_FRAME, GOLDEN_FRAME,
-      ALTREF2_FRAME, LAST2_FRAME,  LAST3_FRAME,
+      ALTREF_FRAME, LAST_FRAME, BWDREF_FRAME, GOLDEN_FRAME,
+      ALTREF2_FRAME, LAST2_FRAME, LAST3_FRAME,
     };
 
 static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
