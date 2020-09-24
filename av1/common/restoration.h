@@ -88,7 +88,11 @@ extern "C" {
 #define SGRPROJ_TMPBUF_SIZE (RESTORATION_UNITPELS_MAX * 2 * sizeof(int32_t))
 
 #define SGRPROJ_EXTBUF_SIZE (0)
+#if CONFIG_SGRPROJ_EXT
+#define SGRPROJ_PARAMS_BITS 5
+#else
 #define SGRPROJ_PARAMS_BITS 4
+#endif  // CONFIG_SGRPROJ_EXT
 #define SGRPROJ_PARAMS (1 << SGRPROJ_PARAMS_BITS)
 
 // Precision bits for projection
