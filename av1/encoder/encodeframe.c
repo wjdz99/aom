@@ -1187,6 +1187,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
       features->allow_warped_motion = 0;
   }
 
+  // DO NOT SUBMIT: For code review only.
   int hash_table_created = 0;
   if (!is_stat_generation_stage(cpi) && av1_use_hash_me(cpi) &&
       !cpi->sf.rt_sf.use_nonrd_pick_mode) {
