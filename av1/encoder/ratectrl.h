@@ -180,6 +180,10 @@ typedef struct {
   int cur_gf_index;
 
   /*!\cond */
+  int num_regions;
+  REGIONS regions[MAX_FIRSTPASS_ANALYSIS_FRAMES];
+  double cor_coeff[MAX_FIRSTPASS_ANALYSIS_FRAMES];
+
   int min_gf_interval;
   int max_gf_interval;
   int static_scene_max_gf_interval;

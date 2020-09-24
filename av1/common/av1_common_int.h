@@ -100,6 +100,25 @@ enum {
   REFRESH_FRAME_CONTEXT_BACKWARD,
 } UENUM1BYTE(REFRESH_FRAME_CONTEXT_MODE);
 
+#define MAX_FIRSTPASS_ANALYSIS_FRAMES 150
+typedef enum region_types {
+  STABLE_REGION = 0,
+  HIGH_VAR_REGION = 1,
+  SCENECUT_REGION = 2,
+  BLENDING_REGION = 3,
+} REGION_TYPES;
+
+typedef struct regions {
+  int start;
+  int last;
+  double avg_noise_var;
+  double avg_cor_coeff;
+  double avg_sr_fr_ratio;
+  double avg_intra_err;
+  double avg_coded_err;
+  REGION_TYPES type;
+} REGIONS;
+
 #define MFMV_STACK_SIZE 3
 typedef struct {
   int_mv mfmv0;
