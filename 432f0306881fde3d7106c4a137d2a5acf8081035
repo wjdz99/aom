@@ -16,6 +16,24 @@
       "revId": "432f0306881fde3d7106c4a137d2a5acf8081035",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8edee9df_400b6f05",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-09-24T01:34:21Z",
+      "side": 1,
+      "message": "I like the suggestion. But I don\u0027t know how to make this change in an automated way.\n\nAnother idea is to use the C99 bool type. Since this code is internal to libaom, we can include \u003cstdbool.h\u003e.",
+      "parentUuid": "c01bd26c_97811475",
+      "revId": "432f0306881fde3d7106c4a137d2a5acf8081035",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
