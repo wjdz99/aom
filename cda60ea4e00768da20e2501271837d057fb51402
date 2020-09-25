@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2b94222_407de259",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-09-25T21:00:36Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we introduced \"prune_sub_8x8_partition_level\" speed feature to prune sub_8x8 partitions. As per the stats it is observed that the winning percentage of sub8x8 is less compared to the number of sub8x8 evaluations. When tried to prune sub 8x8 partitions, even though the speed vs quality data is within the tradeoff it is observed that most of the quality drops are coming from key frames. So, introduced conservative way of pruning in key frames to improve the average BD-rate drop. The value of \"prune_sub_8x8_partition_level\" speed feature indicates the aggressiveness of pruning and in current optimization the pruning happens like mentioned below.\n1) prune_sub_8x8_partition_level \u003d 0 : No pruning\n2) prune_sub_8x8_partition_level \u003d 1 : Prunes sub8x8 if any of the neighbor blocks is of size \u003e BLOCK_8X8.\n3) prune_sub_8x8_partition_level \u003d 2 : prune always\n\nThe speed feature is now enabled for only speed preset 6. We shall try to extend the sf for lower presets once the patch is merged. The change is a bit exact for speed presets \u003c\u003d5 with no speed impact (verified locally).\n\n                     Instruction Count      BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr  ovr.psnr   ssim   \n   6      LOW RES        3.865        0.2428    0.2265     0.1644\n   6      MID RES        2.146        0.1542    0.1492     0.1718\n   6      HD RES         0.905        0.0919    0.0925     0.0803\n   6      Average        2.694        0.1709    0.1631     0.1410\n\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease merge the patch in case of no issues.\n\nThanks \u0026 regards,\nVenkata.",
+      "revId": "cda60ea4e00768da20e2501271837d057fb51402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
