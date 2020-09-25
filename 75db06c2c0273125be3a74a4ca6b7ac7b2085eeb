@@ -34,6 +34,24 @@
       "revId": "75db06c2c0273125be3a74a4ca6b7ac7b2085eeb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80aedcc0_6c655820",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-09-25T18:01:28Z",
+      "side": 1,
+      "message": "\u003e Thanks. Do you know why the Jenkins build failed?\n\u003e \n\u003e error: index-pack died of signal 15\n\u003e 09:03:03 fatal: index-pack failed\n\nlooks like a timeout:\n09:03:01 ERROR: Timeout after 10 minutes\n\nthat occurs on the main instance, so it might be overloaded.",
+      "parentUuid": "fd388c70_6783c52e",
+      "revId": "75db06c2c0273125be3a74a4ca6b7ac7b2085eeb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
