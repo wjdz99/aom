@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6db94db6_80c5916d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-25T05:38:02Z",
+      "side": 1,
+      "message": "Note: Exact same gains for best low-delay mode with LD config (\"--lag-in-frames\u003d0 --subgop-config-str\u003dld --kf-max-dist\u003d49\") as well.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 24
+      },
+      "revId": "840ec77f96c35ba01b299d8ff404d6bd00a5d44f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
