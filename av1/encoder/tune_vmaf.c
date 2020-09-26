@@ -12,6 +12,7 @@
 #include "av1/encoder/tune_vmaf.h"
 
 #include "aom_dsp/psnr.h"
+#include "aom_dsp/ssim.h"
 #include "aom_ports/system_state.h"
 #include "av1/encoder/extend.h"
 #include "av1/encoder/rdopt.h"
@@ -1218,6 +1219,14 @@ static double find_best_frame_unsharp_amount_neg(
 }
 #endif  // CONFIG_USE_VMAF_RC
 
+static void write_image(YV12_BUFFER_CONFIG *img, FILE *fptr) {
+  for (int i = 0; i < img->y_height; i++) {
+    for (int j = 0; j < img->y_width; j++) {
+      fprintf(fptr, "%d,", *(img->y_buffer + i * img->y_stride + j));
+    }
+  }
+}
+
 void av1_update_vmaf_curve(AV1_COMP *cpi) {
   YV12_BUFFER_CONFIG *source = cpi->source;
   YV12_BUFFER_CONFIG *recon = &cpi->common.cur_frame->buf;
@@ -1226,13 +1235,13 @@ void av1_update_vmaf_curve(AV1_COMP *cpi) {
   const int layer_depth =
       AOMMIN(gf_group->layer_depth[gf_group->index], MAX_ARF_LAYERS - 1);
 #if CONFIG_USE_VMAF_RC
-  double base_score;
-  VmafContext *vmaf_context;
-  aom_init_vmaf_context_rc(
-      &vmaf_context, cpi->vmaf_info.vmaf_model,
-      cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN);
-  aom_calc_vmaf_at_index_rc(vmaf_context, cpi->vmaf_info.vmaf_model, source,
-                            recon, bit_depth, 0, &base_score);
+  double base_score = 100.0;
+  //  VmafContext *vmaf_context;
+  //  aom_init_vmaf_context_rc(
+  //      &vmaf_context, cpi->vmaf_info.vmaf_model,
+  //      cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN);
+  //  aom_calc_vmaf_at_index_rc(vmaf_context, cpi->vmaf_info.vmaf_model, source,
+  //                            recon, bit_depth, 0, &base_score);
   cpi->vmaf_info.last_frame_vmaf[layer_depth] = base_score;
 #else
   aom_calc_vmaf(cpi->oxcf.tune_cfg.vmaf_model_path, source, recon, bit_depth,
@@ -1249,17 +1258,101 @@ void av1_update_vmaf_curve(AV1_COMP *cpi) {
   }
 
 #if CONFIG_USE_VMAF_RC
-  if (cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
-    YV12_BUFFER_CONFIG *last, *next;
-    get_neighbor_frames(cpi, &last, &next);
-    double best_unsharp_amount_start =
-        get_layer_value(cpi->vmaf_info.last_frame_unsharp_amount, layer_depth);
-    const int max_loop_count = 5;
-    cpi->vmaf_info.last_frame_unsharp_amount[layer_depth] =
-        find_best_frame_unsharp_amount_neg(
-            cpi, vmaf_context, source, recon, last, base_score,
-            best_unsharp_amount_start, 0.025, max_loop_count, 1.01);
+  const bool write_file = true;
+  if (write_file) {
+    AV1_COMMON *const cm = &cpi->common;
+    FILE *fptr = fopen("vmaf.txt", "a");
+    fprintf(fptr, "%d\t%d\t%d\t", cm->quant_params.base_qindex,
+            source->y_height, source->y_width);
+    write_image(source, fptr);
+    fprintf(fptr, "\t");
+    write_image(recon, fptr);
+    fprintf(fptr, "\t");
+
+    const int block_size = BLOCK_128X128;
+    const int block_w = mi_size_wide[block_size] * 4;
+    const int block_h = mi_size_high[block_size] * 4;
+    const int num_cols = (source->y_width) / block_w;
+    const int num_rows = (source->y_height) / block_h;
+
+    YV12_BUFFER_CONFIG source_block, recon_block;
+    memset(&source_block, 0, sizeof(source_block));
+    memset(&recon_block, 0, sizeof(recon_block));
+    aom_alloc_frame_buffer(
+        &source_block, block_w, block_h, 1, 1, cm->seq_params.use_highbitdepth,
+        cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
+    aom_alloc_frame_buffer(
+        &recon_block, block_w, block_h, 1, 1, cm->seq_params.use_highbitdepth,
+        cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
+
+    for (int row = 0; row < num_rows; ++row) {
+      for (int col = 0; col < num_cols; ++col) {
+        const int row_offset_y = row * block_h;
+        const int col_offset_y = col * block_w;
+
+        uint8_t *frame_src_buf =
+            source->y_buffer + row_offset_y * source->y_stride + col_offset_y;
+        uint8_t *frame_recon_buf =
+            recon->y_buffer + row_offset_y * recon->y_stride + col_offset_y;
+        uint8_t *recon_dst = recon_block.y_buffer;
+        uint8_t *src_dst = source_block.y_buffer;
+
+        // Copy block from source frame.
+        for (int i = 0; i < block_h; ++i) {
+          for (int j = 0; j < block_w; ++j) {
+            src_dst[j] = frame_src_buf[j];
+            recon_dst[j] = frame_recon_buf[j];
+          }
+          frame_src_buf += source->y_stride;
+          frame_recon_buf += recon->y_stride;
+          src_dst += source_block.y_stride;
+          recon_dst += recon_block.y_stride;
+        }
+
+        double vmaf_neg, vmaf;
+        {
+          VmafContext *vmaf_context;
+          aom_init_vmaf_context_rc(&vmaf_context, cpi->vmaf_info.vmaf_model,
+                                   true);
+          aom_calc_vmaf_at_index_rc(vmaf_context, cpi->vmaf_info.vmaf_model,
+                                    &source_block, &recon_block, bit_depth, 0,
+                                    &vmaf_neg);
+          aom_close_vmaf_context_rc(vmaf_context);
+        }
+        {
+          VmafContext *vmaf_context;
+          aom_init_vmaf_context_rc(&vmaf_context, cpi->vmaf_info.vmaf_model,
+                                   false);
+          aom_calc_vmaf_at_index_rc(vmaf_context, cpi->vmaf_info.vmaf_model,
+                                    &source_block, &recon_block, bit_depth, 0,
+                                    &vmaf);
+          aom_close_vmaf_context_rc(vmaf_context);
+        }
+
+        int64_t sse = aom_get_y_sse(&source_block, &recon_block);
+        double ssim = aom_calc_ssim_y(&source_block, &recon_block);
+
+        fprintf(fptr, "%f:%f:%ld:%f,", vmaf, vmaf_neg, sse, ssim);
+      }
+    }
+    aom_free_frame_buffer(&source_block);
+    aom_free_frame_buffer(&recon_block);
+    fprintf(fptr, "\n");
+    fclose(fptr);
   }
-  aom_close_vmaf_context_rc(vmaf_context);
+
+//  if (cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
+//    YV12_BUFFER_CONFIG *last, *next;
+//    get_neighbor_frames(cpi, &last, &next);
+//    double best_unsharp_amount_start =
+//        get_layer_value(cpi->vmaf_info.last_frame_unsharp_amount,
+//        layer_depth);
+//    const int max_loop_count = 5;
+//    cpi->vmaf_info.last_frame_unsharp_amount[layer_depth] =
+//        find_best_frame_unsharp_amount_neg(
+//            cpi, vmaf_context, source, recon, last, base_score,
+//            best_unsharp_amount_start, 0.025, max_loop_count, 1.01);
+//  }
+// aom_close_vmaf_context_rc(vmaf_context);
 #endif  // CONFIG_USE_VMAF_RC
 }

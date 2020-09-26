@@ -180,6 +180,13 @@ void aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
   *fast_ssim = abc[0] * .8 + .1 * (abc[1] + abc[2]);
 }
 
+double aom_calc_ssim_y(const YV12_BUFFER_CONFIG *source,
+                       const YV12_BUFFER_CONFIG *dest) {
+  return aom_ssim2(source->buffers[0], dest->buffers[0], source->strides[0],
+                   dest->strides[0], source->crop_widths[0],
+                   source->crop_heights[0]);
+}
+
 // traditional ssim as per: http://en.wikipedia.org/wiki/Structural_similarity
 //
 // Re working out the math ->
