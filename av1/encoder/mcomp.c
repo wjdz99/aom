@@ -1772,6 +1772,19 @@ int av1_intrabc_hash_search(const AV1_COMP *cpi, const MACROBLOCKD *xd,
                             const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
                             IntraBCHashInfo *intrabc_hash_info,
                             FULLPEL_MV *best_mv) {
+  if (is_stat_generation_stage(cpi)) {
+    fprintf(stderr,
+            "av1_intrabc_hash_search: is_stat_generation_stage(cpi) is true\n");
+    int *p = NULL;
+    *p = 0;
+  }
+  if (cpi->sf.rt_sf.use_nonrd_pick_mode) {
+    fprintf(
+        stderr,
+        "av1_intrabc_hash_search: cpi->sf.rt_sf.use_nonrd_pick_mode is true\n");
+    int *p = NULL;
+    *p = 0;
+  }
   if (!av1_use_hash_me(cpi)) return INT_MAX;
 
   const BLOCK_SIZE bsize = ms_params->bsize;
