@@ -2819,9 +2819,9 @@ static void prune_tx_split_no_split(MACROBLOCK *x, BLOCK_SIZE bsize,
   get_blk_var_dev(diff, diff_stride, bw, bh, &dev_of_means, &var_of_vars);
   const int dc_q = x->plane[0].dequant_QTX[0] >> 3;
   const int ac_q = x->plane[0].dequant_QTX[1] >> 3;
-  const int no_split_thresh_scales[4] = { 0, 24, 8, 8 };
+  const int no_split_thresh_scales[5] = { 0, 24, 24, 8, 8 };
   const int no_split_thresh_scale = no_split_thresh_scales[pruning_level];
-  const int split_thresh_scales[4] = { 0, 24, 10, 8 };
+  const int split_thresh_scales[5] = { 0, 32, 24, 10, 8 };
   const int split_thresh_scale = split_thresh_scales[pruning_level];
 
   if ((dev_of_means <= dc_q) &&

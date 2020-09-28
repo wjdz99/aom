@@ -832,7 +832,7 @@ typedef struct TX_SPEED_FEATURES {
 
   // Prune transform split/no_split eval based on residual properties. A value
   // of 0 indicates no pruning, and the aggressiveness of pruning progressively
-  // increases from levels 1 to 3.
+  // increases from levels 1 to 4.
   int prune_tx_size_level;
 } TX_SPEED_FEATURES;
 
