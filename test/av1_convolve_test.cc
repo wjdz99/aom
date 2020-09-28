@@ -139,7 +139,6 @@ TEST_F(AV1ConvolveParametersTest, GetLowbdTestParams) {
   }
 }
 
-#if CONFIG_AV1_HIGHBITDEPTH
 template <typename T>
 std::vector<TestParam<T>> GetHighbdTestParams(T test_func) {
   return GetTestParams({ 10, 12 }, test_func);
@@ -168,7 +167,6 @@ TEST_F(AV1ConvolveParametersTest, GetHighbdTestParams) {
   }
   ASSERT_EQ(num_10, num_12);
 }
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 // AV1ConvolveTest is the base class that all convolve tests should derive from.
 // It provides storage/methods for generating randomized buffers for both
@@ -249,7 +247,6 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
     }
   }
 
-#if CONFIG_AV1_HIGHBITDEPTH
   // Note that the randomized values are capped by bit-depth.
   const uint16_t *FirstRandomInput16(const TestParam<T> &param) {
     return RandomInput16(input16_1_, param);
@@ -258,7 +255,6 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
   const uint16_t *SecondRandomInput16(const TestParam<T> &param) {
     return RandomInput16(input16_2_, param);
   }
-#endif
 
  private:
   const uint8_t *RandomInput8(uint8_t *p, const TestParam<T> &param) {
@@ -277,7 +273,6 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
     }
   }
 
-#if CONFIG_AV1_HIGHBITDEPTH
   const uint16_t *RandomInput16(uint16_t *p, const TestParam<T> &param) {
     // Check that this is only called with high bit-depths.
     EXPECT_TRUE(param.BitDepth() == 10 || param.BitDepth() == 12);
@@ -294,7 +289,6 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
       p[i] = rnd_.Rand16() & ((1 << bit_depth) - 1);
     }
   }
-#endif
 
   static constexpr int kInputStride = MAX_SB_SIZE + kInputPadding;
 
@@ -304,10 +298,8 @@ class AV1ConvolveTest : public ::testing::TestWithParam<TestParam<T>> {
   // which is a C99 feature and interacts badly with C++ member variables.
   uint8_t input8_1_[kInputStride * kInputStride];
   uint8_t input8_2_[kInputStride * kInputStride];
-#if CONFIG_AV1_HIGHBITDEPTH
   uint16_t input16_1_[kInputStride * kInputStride];
   uint16_t input16_2_[kInputStride * kInputStride];
-#endif
 };
 
 ////////////////////////////////////////////////////////
@@ -371,7 +363,6 @@ INSTANTIATE_TEST_SUITE_P(NEON, AV1ConvolveXTest,
                          BuildLowbdParams(av1_convolve_x_sr_neon));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 /////////////////////////////////////////////////////////
 // Single reference convolve-x functions (high bit-depth)
 /////////////////////////////////////////////////////////
@@ -431,8 +422,6 @@ INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveXHighbdTest,
                          BuildHighbdParams(av1_highbd_convolve_x_sr_avx2));
 #endif
 
-#endif  // CONFIG_AV1_HIGHBITDEPTH
-
 ////////////////////////////////////////////////////////
 // Single reference convolve-y functions (low bit-depth)
 ////////////////////////////////////////////////////////
@@ -491,7 +480,6 @@ INSTANTIATE_TEST_SUITE_P(NEON, AV1ConvolveYTest,
                          BuildLowbdParams(av1_convolve_y_sr_neon));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 /////////////////////////////////////////////////////////
 // Single reference convolve-y functions (high bit-depth)
 /////////////////////////////////////////////////////////
@@ -545,7 +533,6 @@ INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveYHighbdTest,
                          BuildHighbdParams(av1_highbd_convolve_y_sr_avx2));
 #endif
 
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 //////////////////////////////////////////////////////////////
 // Single reference convolve-copy functions (low bit-depth)
@@ -600,7 +587,6 @@ INSTANTIATE_TEST_SUITE_P(DSPR2, AV1ConvolveCopyTest,
                          BuildLowbdParams(aom_convolve_copy_dspr2));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 ///////////////////////////////////////////////////////////////
 // Single reference convolve-copy functions (high bit-depth)
 ///////////////////////////////////////////////////////////////
@@ -639,8 +625,6 @@ INSTANTIATE_TEST_SUITE_P(SSE2, AV1ConvolveCopyHighbdTest,
 INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveCopyHighbdTest,
                          BuildHighbdParams(aom_highbd_convolve_copy_avx2));
 #endif
-
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 /////////////////////////////////////////////////////////
 // Single reference convolve-2D functions (low bit-depth)
@@ -711,7 +695,6 @@ INSTANTIATE_TEST_SUITE_P(NEON, AV1Convolve2DTest,
                          BuildLowbdParams(av1_convolve_2d_sr_neon));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 //////////////////////////////////////////////////////////
 // Single reference convolve-2d functions (high bit-depth)
 //////////////////////////////////////////////////////////
@@ -780,8 +763,6 @@ INSTANTIATE_TEST_SUITE_P(AVX2, AV1Convolve2DHighbdTest,
                          BuildHighbdParams(av1_highbd_convolve_2d_sr_avx2));
 #endif
 
-#endif  // CONFIG_AV1_HIGHBITDEPTH
-
 //////////////////////////
 // Compound Convolve Tests
 //////////////////////////
@@ -827,7 +808,6 @@ TEST_F(AV1ConvolveParametersTest, GetLowbdLumaTestParams) {
   }
 }
 
-#if CONFIG_AV1_HIGHBITDEPTH
 template <typename T>
 std::vector<TestParam<T>> GetHighbdLumaTestParams(T test_func) {
   return GetLumaTestParams({ 10, 12 }, test_func);
@@ -857,7 +837,6 @@ template <typename T>
   return ::testing::ValuesIn(GetHighbdLumaTestParams(test_func));
 }
 
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 // Compound cases also need to test different frame offsets and weightings.
 class CompoundParam {
@@ -997,7 +976,6 @@ INSTANTIATE_TEST_SUITE_P(NEON, AV1ConvolveXCompoundTest,
                          BuildLowbdLumaParams(av1_dist_wtd_convolve_x_neon));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 /////////////////////////////////////////////////
 // Compound convolve-x functions (high bit-depth)
 /////////////////////////////////////////////////
@@ -1085,8 +1063,6 @@ INSTANTIATE_TEST_SUITE_P(
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_x_avx2));
 #endif
 
-#endif  // CONFIG_AV1_HIGHBITDEPTH
-
 ////////////////////////////////////////////////
 // Compound convolve-y functions (low bit-depth)
 ////////////////////////////////////////////////
@@ -1125,7 +1101,6 @@ INSTANTIATE_TEST_SUITE_P(NEON, AV1ConvolveYCompoundTest,
                          BuildLowbdLumaParams(av1_dist_wtd_convolve_y_neon));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 /////////////////////////////////////////////////
 // Compound convolve-y functions (high bit-depth)
 /////////////////////////////////////////////////
@@ -1158,8 +1133,6 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1ConvolveYHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_y_avx2));
 #endif
-
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 //////////////////////////////////////////////////////
 // Compound convolve-2d-copy functions (low bit-depth)
@@ -1239,7 +1212,6 @@ INSTANTIATE_TEST_SUITE_P(
     BuildLowbdLumaParams(av1_dist_wtd_convolve_2d_copy_neon));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 ///////////////////////////////////////////////////////
 // Compound convolve-2d-copy functions (high bit-depth)
 ///////////////////////////////////////////////////////
@@ -1318,8 +1290,6 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1Convolve2DCopyHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_copy_avx2));
 #endif
-
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 /////////////////////////////////////////////////
 // Compound convolve-2d functions (low bit-depth)
@@ -1418,7 +1388,6 @@ INSTANTIATE_TEST_SUITE_P(NEON, AV1Convolve2DCompoundTest,
                          BuildLowbdLumaParams(av1_dist_wtd_convolve_2d_neon));
 #endif
 
-#if CONFIG_AV1_HIGHBITDEPTH
 //////////////////////////////////////////////////
 // Compound convolve-2d functions (high bit-depth)
 //////////////////////////////////////////////////
@@ -1509,7 +1478,5 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1Convolve2DHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_avx2));
 #endif
-
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 }  // namespace
