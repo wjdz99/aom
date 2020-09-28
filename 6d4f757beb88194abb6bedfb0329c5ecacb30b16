@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c88dd2f0_3bbe350c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-09-28T14:35:23Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have introduced a reduced primary filter search method for CDEF search.\nThis change is applicable only for cpu-used 6.\n\n                     Instruction Count      BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr   ovr.psnr   ssim   \n   6       LOW RES        1.944       0.1631     0.1692     0.2564\n   6       MID RES        1.618       0.2225     0.2181     0.1948\n   6        HD RES        1.780       0.2824     0.2972     0.3165\n   6       AVERAGE        1.823       0.2169     0.2225     0.2567\n\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "6d4f757beb88194abb6bedfb0329c5ecacb30b16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
