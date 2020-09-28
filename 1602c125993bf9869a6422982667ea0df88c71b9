@@ -16,6 +16,23 @@
       "revId": "1602c125993bf9869a6422982667ea0df88c71b9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66a9abbb_ade5b5aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-09-28T22:46:52Z",
+      "side": 1,
+      "message": "Thanks. This helps with speed \u003c\u003d2 HBD encoding. I guess we can have this change. But my concern is that we are adding more and more speed features for the same purpose, which makes code base more complicated. I was hoping existing ml_predict_tx_split would work for HBD as well. I understand the tradeoff wasn\u0027t good. But looks like the values used to make the decision in this CL is similar to those features gathered in ml model. It would be better if we could consolidate these speed features. What do you think?",
+      "revId": "1602c125993bf9869a6422982667ea0df88c71b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
