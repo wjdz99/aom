@@ -208,6 +208,10 @@ void arg_show_usage(FILE *fp, const struct arg_def *const *defs) {
 
   for (; *defs; defs++) {
     const struct arg_def *def = *defs;
+    if (def->has_val != 0 && def->has_val != 1 && def->has_val != -1) {
+      die("Error: option %s has invalid has_val value %d.\n",
+          def->long_name ? def->long_name : def->short_name, def->has_val);
+    }
     char *short_val = def->has_val ? " <arg>" : "";
     char *long_val = def->has_val ? "=<arg>" : "";
 
