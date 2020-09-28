@@ -56,6 +56,30 @@
       "revId": "cda60ea4e00768da20e2501271837d057fb51402",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bcd57778_1d8f15dc",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-09-28T14:58:35Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe tried enabling the sf for screen contents. As per the borg results (chinaspeed_xga, snowmnt_480p, flower_cif are detected as screen contents), we observed speed gains and quality impact was seen to be within the tradeoff. However, when tested for couple of screen contents (dota2, screendata) locally in CQP mode, BD-rate drop was seen to be much beyond trade-off for screendata content. Hence we did not enable the sf for screen contents. \nWe plan to do more experiments and shall submit a patch in case trade-off improves.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "0b6ff5f6_ef930952",
+      "range": {
+        "startLine": 674,
+        "startChar": 8,
+        "endLine": 674,
+        "endChar": 34
+      },
+      "revId": "cda60ea4e00768da20e2501271837d057fb51402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
