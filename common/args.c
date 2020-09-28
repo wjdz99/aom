@@ -18,12 +18,7 @@
 #include "aom/aom_integer.h"
 #include "aom_ports/msvc.h"
 #include "aom/aom_codec.h"
-
-#if defined(__GNUC__) && __GNUC__
-extern void die(const char *fmt, ...) __attribute__((noreturn));
-#else
-extern void die(const char *fmt, ...);
-#endif
+#include "common/tools_common.h"
 
 struct arg arg_init(char **argv) {
   struct arg a;
@@ -208,6 +203,10 @@ void arg_show_usage(FILE *fp, const struct arg_def *const *defs) {
 
   for (; *defs; defs++) {
     const struct arg_def *def = *defs;
+    if (def->has_val != 0 && def->has_val != 1 && def->has_val != -1) {
+      fatal("Error: option %s has invalid has_val value %d.\n",
+            def->long_name ? def->long_name : def->short_name, def->has_val);
+    }
     char *short_val = def->has_val ? " <arg>" : "";
     char *long_val = def->has_val ? "=<arg>" : "";
 
