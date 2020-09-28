@@ -46,6 +46,30 @@
       "revId": "e53999055e9fc95d5cedeb582de7809464d69fe9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7fb9d3e_5c524924",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-09-28T17:28:49Z",
+      "side": 0,
+      "message": "That makes sense. Thanks!",
+      "parentUuid": "b32b7d8f_9f3593f2",
+      "range": {
+        "startLine": 365,
+        "startChar": 6,
+        "endLine": 365,
+        "endChar": 38
+      },
+      "revId": "e53999055e9fc95d5cedeb582de7809464d69fe9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
