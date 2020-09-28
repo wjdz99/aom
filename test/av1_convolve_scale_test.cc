@@ -461,7 +461,6 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::ValuesIn(kNTaps), ::testing::ValuesIn(kNTaps),
                        ::testing::Bool()));
 
-#if CONFIG_AV1_HIGHBITDEPTH
 typedef void (*HighbdConvolveFunc)(const uint16_t *src, int src_stride,
                                    uint16_t *dst, int dst_stride, int w, int h,
                                    const InterpFilterParams *filter_params_x,
@@ -527,5 +526,4 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::ValuesIn(kBlockDim),
                        ::testing::ValuesIn(kNTaps), ::testing::ValuesIn(kNTaps),
                        ::testing::Bool(), ::testing::ValuesIn(kBDs)));
-#endif  // CONFIG_AV1_HIGHBITDEPTH
 }  // namespace
