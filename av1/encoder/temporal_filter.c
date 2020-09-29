@@ -110,7 +110,7 @@ static void tf_motion_search(AV1_COMP *cpi,
       cpi->mv_search_params.search_site_cfg[SS_CFG_LOOKAHEAD];
   const int step_param = av1_init_search_range(
       AOMMAX(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height));
-  const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;
+  SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;
   const int force_integer_mv = cpi->common.features.cur_frame_force_integer_mv;
   const MV_COST_TYPE mv_cost_type =
       min_frame_size >= 720
@@ -130,6 +130,7 @@ static void tf_motion_search(AV1_COMP *cpi,
   // Unused intermediate results for motion search.
   unsigned int sse, error;
   int distortion;
+  int distortion1;
   int cost_list[5];
 
   // Do motion search.
@@ -175,6 +176,25 @@ static void tf_motion_search(AV1_COMP *cpi,
     block_mse = DIVIDE_AND_ROUND(error, mb_pels);
     block_mv = best_mv.as_mv;
     *ref_mv = best_mv.as_mv;
+
+    // try sharp f
+    ms_params.var_params.subpel_search_type = USE_8_TAPS_SHARP;  //
+    subpel_start_mv = get_mv_from_fullmv(&best_mv.as_fullmv);    // block_mv
+    unsigned int error1, sse1;
+    error1 = cpi->mv_search_params.find_fractional_mv_step(
+        &mb->e_mbd, &cpi->common, &ms_params, subpel_start_mv, &best_mv.as_mv,
+        &distortion1, &sse1, NULL);
+
+    // add sse comparison to be conservative.
+    if (error > error1 && sse > sse1) {
+      // printf(" (%d, %d)(%d, %d)(%d, %d)   ", error, error1, distortion,
+      // distortion1, sse, sse1);
+      block_mse = DIVIDE_AND_ROUND(error1, mb_pels);
+      block_mv = best_mv.as_mv;
+      *ref_mv = best_mv.as_mv;
+      subpel_search_type = USE_8_TAPS_SHARP;
+    }
+
     // On 4 sub-blocks.
     const BLOCK_SIZE subblock_size = ss_size_lookup[block_size][1][1];
     const int subblock_height = block_size_high[subblock_size];
