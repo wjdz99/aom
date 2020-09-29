@@ -44,6 +44,7 @@ enum {
   USE_2_TAPS,
   USE_4_TAPS,
   USE_8_TAPS,
+  USE_8_TAPS_SHARP,
 } UENUM1BYTE(SUBPEL_SEARCH_TYPE);
 
 enum {
@@ -246,6 +247,7 @@ static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
     case USE_2_TAPS: return &av1_interp_4tap[BILINEAR];
     case USE_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
     case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
+    case USE_8_TAPS_SHARP: return &av1_interp_filter_params_list[MULTITAP_SHARP];
     default: assert(0); return NULL;
   }
 }
