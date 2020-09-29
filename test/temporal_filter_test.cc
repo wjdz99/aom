@@ -36,7 +36,13 @@ using ::testing::ValuesIn;
 
 #if !CONFIG_REALTIME_ONLY
 namespace {
-
+typedef enum {
+  I400,  // Monochrome
+  I420,  // 4:2:0
+  I422,  // 4:2:2
+  I444,  // 4:4:4
+} ColorFormat;
+static const char *color_fmt_str[] = { "I400", "I420", "I422", "I444" };
 typedef void (*TemporalFilterFunc)(
     const YV12_BUFFER_CONFIG *ref_frame, const MACROBLOCKD *mbd,
     const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
@@ -66,23 +72,38 @@ class TemporalFilterTest
     aom_free(src1_);
     aom_free(src2_);
   }
-  void RunTest(int isRandom, int width, int height, int run_times);
+  void RunTest(int isRandom, int width, int height, int run_times,
+               ColorFormat color_fmt);
 
-  void GenRandomData(int width, int height, int stride, int stride2) {
-    for (int ii = 0; ii < height; ii++) {
-      for (int jj = 0; jj < width; jj++) {
-        src1_[ii * stride + jj] = rnd_.Rand8();
-        src2_[ii * stride2 + jj] = rnd_.Rand8();
+  void GenRandomData(int width, int height, int stride, int stride2,
+                     int num_planes, int subsampling_x, int subsampling_y) {
+    for (int plane = 0; plane < num_planes; plane++) {
+      int plane_w = plane ? width >> subsampling_x : width;
+      int plane_h = plane ? height >> subsampling_y : height;
+      int plane_stride = plane ? stride >> subsampling_x : stride;
+      int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
+      for (int ii = 0; ii < plane_h; ii++) {
+        for (int jj = 0; jj < plane_w; jj++) {
+          src1_[ii * plane_stride + jj] = rnd_.Rand8();
+          src2_[ii * plane_stride2 + jj] = rnd_.Rand8();
+        }
       }
     }
   }
 
   void GenExtremeData(int width, int height, int stride, uint8_t *data,
-                      int stride2, uint8_t *data2, uint8_t val) {
-    for (int ii = 0; ii < height; ii++) {
-      for (int jj = 0; jj < width; jj++) {
-        data[ii * stride + jj] = val;
-        data2[ii * stride2 + jj] = (255 - val);
+                      int stride2, uint8_t *data2, int num_planes,
+                      int subsampling_x, int subsampling_y, uint8_t val) {
+    for (int plane = 0; plane < num_planes; plane++) {
+      int plane_w = plane ? width >> subsampling_x : width;
+      int plane_h = plane ? height >> subsampling_y : height;
+      int plane_stride = plane ? stride >> subsampling_x : stride;
+      int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
+      for (int ii = 0; ii < plane_h; ii++) {
+        for (int jj = 0; jj < plane_w; jj++) {
+          data[ii * plane_stride + jj] = val;
+          data2[ii * plane_stride2 + jj] = (255 - val);
+        }
       }
     }
   }
@@ -96,20 +117,35 @@ class TemporalFilterTest
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(TemporalFilterTest);
 
 void TemporalFilterTest::RunTest(int isRandom, int width, int height,
-                                 int run_times) {
+                                 int run_times, ColorFormat color_fmt) {
   aom_usec_timer ref_timer, test_timer;
+  int num_planes = MAX_MB_PLANE;
+  int subsampling_x = 0;
+  int subsampling_y = 0;
+  if (color_fmt == I420) {
+    subsampling_x = 1;
+    subsampling_y = 1;
+  } else if (color_fmt == I422) {
+    subsampling_x = 1;
+    subsampling_y = 0;
+  } else if (color_fmt == I400) {
+    num_planes = 1;
+  }
   for (int k = 0; k < 3; k++) {
     const int stride = width;
     const int stride2 = width;
     if (isRandom) {
-      GenRandomData(width, height, stride, stride2);
+      GenRandomData(width, height, stride, stride2, num_planes, subsampling_x,
+                    subsampling_y);
     } else {
       const int msb = 8;  // Up to 8 bit input
       const int limit = (1 << msb) - 1;
       if (k == 0) {
-        GenExtremeData(width, height, stride, src1_, stride2, src2_, limit);
+        GenExtremeData(width, height, stride, src1_, stride2, src2_, num_planes,
+                       subsampling_x, subsampling_y, limit);
       } else {
-        GenExtremeData(width, height, stride, src1_, stride2, src2_, 0);
+        GenExtremeData(width, height, stride, src1_, stride2, src2_, num_planes,
+                       subsampling_x, subsampling_y, 0);
       }
     }
     double sigma[1] = { 2.1002103677063437 };
@@ -130,23 +166,26 @@ void TemporalFilterTest::RunTest(int isRandom, int width, int height,
     const int filter_strength = 5;
     const int mb_row = 0;
     const int mb_col = 0;
-    const int num_planes = 1;
     YV12_BUFFER_CONFIG *ref_frame =
         (YV12_BUFFER_CONFIG *)malloc(sizeof(YV12_BUFFER_CONFIG));
     ref_frame->y_crop_height = 360;
     ref_frame->y_crop_width = 540;
-    ref_frame->heights[0] = height;
-    ref_frame->strides[0] = stride;
+    ref_frame->heights[PLANE_TYPE_Y] = height;
+    ref_frame->heights[PLANE_TYPE_UV] = height >> subsampling_y;
+    ref_frame->strides[PLANE_TYPE_Y] = stride;
+    ref_frame->strides[PLANE_TYPE_UV] = stride >> subsampling_x;
     DECLARE_ALIGNED(16, uint8_t, src[1024 * 3]);
     ref_frame->buffer_alloc = src;
-    ref_frame->buffers[0] = ref_frame->buffer_alloc;
     ref_frame->flags = 0;  // Only support low bit-depth test.
     memcpy(src, src1_, 1024 * 3 * sizeof(uint8_t));
 
     MACROBLOCKD *mbd = (MACROBLOCKD *)malloc(sizeof(MACROBLOCKD));
-    mbd->plane[0].subsampling_y = 0;
-    mbd->plane[0].subsampling_x = 0;
     mbd->bd = 8;
+    for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
+      ref_frame->buffers[plane] = ref_frame->buffer_alloc + plane * 32 * 32;
+      mbd->plane[plane].subsampling_x = plane ? subsampling_x : 0;
+      mbd->plane[plane].subsampling_y = plane ? subsampling_y : 0;
+    }
 
     params_.ref_func(ref_frame, mbd, block_size, mb_row, mb_col, num_planes,
                      sigma, subblock_mvs, subblock_mses, q_factor,
@@ -178,20 +217,22 @@ void TemporalFilterTest::RunTest(int isRandom, int width, int height,
 
       printf(
           "c_time=%d \t simd_time=%d \t "
-          "gain=%f\t width=%d\t height=%d \n",
+          "gain=%f\t width=%d\t height=%d\t color_format=%s\n",
           elapsed_time_c, elapsed_time_simd,
           (float)((float)elapsed_time_c / (float)elapsed_time_simd), width,
-          height);
+          height, color_fmt_str[color_fmt]);
 
     } else {
       for (int i = 0, l = 0; i < height; i++) {
         for (int j = 0; j < width; j++, l++) {
           EXPECT_EQ(accumulator_ref[l], accumulator_mod[l])
               << "Error:" << k << " SSE Sum Test [" << width << "x" << height
-              << "] C accumulator does not match optimized accumulator.";
+              << "] " << color_fmt_str[color_fmt]
+              << " C accumulator does not match optimized accumulator.";
           EXPECT_EQ(count_ref[l], count_mod[l])
               << "Error:" << k << " SSE Sum Test [" << width << "x" << height
-              << "] C count does not match optimized count.";
+              << "] " << color_fmt_str[color_fmt]
+              << " count does not match optimized count.";
         }
       }
     }
@@ -203,19 +244,28 @@ void TemporalFilterTest::RunTest(int isRandom, int width, int height,
 
 TEST_P(TemporalFilterTest, OperationCheck) {
   for (int height = 32; height <= 32; height = height * 2) {
-    RunTest(1, height, height, 1);  // GenRandomData
+    RunTest(1, height, height, 1, I400);
+    RunTest(1, height, height, 1, I420);
+    RunTest(1, height, height, 1, I422);
+    RunTest(1, height, height, 1, I444);
   }
 }
 
 TEST_P(TemporalFilterTest, ExtremeValues) {
   for (int height = 32; height <= 32; height = height * 2) {
-    RunTest(0, height, height, 1);
+    RunTest(0, height, height, 1, I400);
+    RunTest(0, height, height, 1, I420);
+    RunTest(0, height, height, 1, I422);
+    RunTest(0, height, height, 1, I444);
   }
 }
 
 TEST_P(TemporalFilterTest, DISABLED_Speed) {
   for (int height = 32; height <= 32; height = height * 2) {
-    RunTest(1, height, height, 100000);
+    RunTest(1, height, height, 100000, I400);
+    RunTest(1, height, height, 100000, I420);
+    RunTest(1, height, height, 100000, I422);
+    RunTest(1, height, height, 100000, I444);
   }
 }
 
@@ -266,40 +316,55 @@ class HBDTemporalFilterTest
     aom_free(src1_);
     aom_free(src2_);
   }
-  void RunTest(int isRandom, int width, int height, int run_times, int bd);
+  void RunTest(int isRandom, int width, int height, int run_times, int bd,
+               ColorFormat color_fmt);
 
-  void GenRandomData(int width, int height, int stride, int stride2, int bd) {
-    if (bd == 10) {
-      for (int ii = 0; ii < height; ii++) {
-        for (int jj = 0; jj < width; jj++) {
-          src1_[ii * stride + jj] = rnd_.Rand16() & 0x3FF;
-          src2_[ii * stride2 + jj] = rnd_.Rand16() & 0x3FF;
+  void GenRandomData(int width, int height, int stride, int stride2, int bd,
+                     int subsampling_x, int subsampling_y, int num_planes) {
+    for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
+      int plane_w = plane ? width >> subsampling_x : width;
+      int plane_h = plane ? height >> subsampling_y : height;
+      int plane_stride = plane ? stride >> subsampling_x : stride;
+      int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
+      if (bd == 10) {
+        for (int ii = 0; ii < plane_h; ii++) {
+          for (int jj = 0; jj < plane_w; jj++) {
+            src1_[ii * plane_stride + jj] = rnd_.Rand16() & 0x3FF;
+            src2_[ii * plane_stride2 + jj] = rnd_.Rand16() & 0x3FF;
+          }
         }
-      }
-    } else {
-      for (int ii = 0; ii < height; ii++) {
-        for (int jj = 0; jj < width; jj++) {
-          src1_[ii * stride + jj] = rnd_.Rand16() & 0xFFF;
-          src2_[ii * stride2 + jj] = rnd_.Rand16() & 0xFFF;
+      } else {
+        for (int ii = 0; ii < plane_h; ii++) {
+          for (int jj = 0; jj < plane_w; jj++) {
+            src1_[ii * plane_stride + jj] = rnd_.Rand16() & 0xFFF;
+            src2_[ii * plane_stride2 + jj] = rnd_.Rand16() & 0xFFF;
+          }
         }
       }
     }
   }
 
   void GenExtremeData(int width, int height, int stride, uint16_t *data,
-                      int stride2, uint16_t *data2, uint16_t val, int bd) {
-    if (bd == 10) {
-      for (int ii = 0; ii < height; ii++) {
-        for (int jj = 0; jj < width; jj++) {
-          data[ii * stride + jj] = val;
-          data2[ii * stride2 + jj] = (1023 - val);
+                      int stride2, uint16_t *data2, int bd, int subsampling_x,
+                      int subsampling_y, int num_planes, uint16_t val) {
+    for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
+      int plane_w = plane ? width >> subsampling_x : width;
+      int plane_h = plane ? height >> subsampling_y : height;
+      int plane_stride = plane ? stride >> subsampling_x : stride;
+      int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
+      if (bd == 10) {
+        for (int ii = 0; ii < plane_h; ii++) {
+          for (int jj = 0; jj < plane_w; jj++) {
+            data[ii * plane_stride + jj] = val;
+            data2[ii * plane_stride2 + jj] = (1023 - val);
+          }
         }
-      }
-    } else {
-      for (int ii = 0; ii < height; ii++) {
-        for (int jj = 0; jj < width; jj++) {
-          data[ii * stride + jj] = val;
-          data2[ii * stride2 + jj] = (4095 - val);
+      } else {
+        for (int ii = 0; ii < plane_h; ii++) {
+          for (int jj = 0; jj < plane_w; jj++) {
+            data[ii * plane_stride + jj] = val;
+            data2[ii * plane_stride2 + jj] = (4095 - val);
+          }
         }
       }
     }
@@ -315,20 +380,36 @@ class HBDTemporalFilterTest
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(HBDTemporalFilterTest);
 
 void HBDTemporalFilterTest::RunTest(int isRandom, int width, int height,
-                                    int run_times, int BD) {
+                                    int run_times, int BD,
+                                    ColorFormat color_fmt) {
   aom_usec_timer ref_timer, test_timer;
+  int num_planes = MAX_MB_PLANE;
+  int subsampling_x = 0;
+  int subsampling_y = 0;
+  if (color_fmt == I420) {
+    subsampling_x = 1;
+    subsampling_y = 1;
+  } else if (color_fmt == I422) {
+    subsampling_x = 1;
+    subsampling_y = 0;
+  } else if (color_fmt == I400) {
+    num_planes = 1;
+  }
   for (int k = 0; k < 3; k++) {
     const int stride = width;
     const int stride2 = width;
     if (isRandom) {
-      GenRandomData(width, height, stride, stride2, BD);
+      GenRandomData(width, height, stride, stride2, BD, subsampling_x,
+                    subsampling_y, num_planes);
     } else {
       const int msb = BD;
       const uint16_t limit = (1 << msb) - 1;
       if (k == 0) {
-        GenExtremeData(width, height, stride, src1_, stride2, src2_, limit, BD);
+        GenExtremeData(width, height, stride, src1_, stride2, src2_, BD,
+                       subsampling_x, subsampling_y, num_planes, limit);
       } else {
-        GenExtremeData(width, height, stride, src1_, stride2, src2_, 0, BD);
+        GenExtremeData(width, height, stride, src1_, stride2, src2_, BD,
+                       subsampling_x, subsampling_y, num_planes, 0);
       }
     }
     double sigma[1] = { 2.1002103677063437 };
@@ -349,23 +430,26 @@ void HBDTemporalFilterTest::RunTest(int isRandom, int width, int height,
     const int filter_strength = 5;
     const int mb_row = 0;
     const int mb_col = 0;
-    const int num_planes = 1;
     YV12_BUFFER_CONFIG *ref_frame =
         (YV12_BUFFER_CONFIG *)malloc(sizeof(YV12_BUFFER_CONFIG));
     ref_frame->y_crop_height = 360;
     ref_frame->y_crop_width = 540;
-    ref_frame->heights[0] = height;
-    ref_frame->strides[0] = stride;
+    ref_frame->heights[PLANE_TYPE_Y] = height;
+    ref_frame->heights[PLANE_TYPE_UV] = height >> subsampling_y;
+    ref_frame->strides[PLANE_TYPE_Y] = stride;
+    ref_frame->strides[PLANE_TYPE_UV] = stride >> subsampling_x;
     DECLARE_ALIGNED(16, uint16_t, src[1024 * 3]);
     ref_frame->buffer_alloc = CONVERT_TO_BYTEPTR(src);
-    ref_frame->buffers[0] = ref_frame->buffer_alloc;
     ref_frame->flags = YV12_FLAG_HIGHBITDEPTH;  // Only Hihgbd bit-depth test.
     memcpy(src, src1_, 1024 * 3 * sizeof(uint16_t));
 
     MACROBLOCKD *mbd = (MACROBLOCKD *)malloc(sizeof(MACROBLOCKD));
-    mbd->plane[0].subsampling_y = 0;
-    mbd->plane[0].subsampling_x = 0;
     mbd->bd = BD;
+    for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
+      ref_frame->buffers[plane] = ref_frame->buffer_alloc + plane * 32 * 32;
+      mbd->plane[plane].subsampling_x = plane ? subsampling_x : 0;
+      mbd->plane[plane].subsampling_y = plane ? subsampling_y : 0;
+    }
 
     params_.ref_func(ref_frame, mbd, block_size, mb_row, mb_col, num_planes,
                      sigma, subblock_mvs, subblock_mses, q_factor,
@@ -401,20 +485,22 @@ void HBDTemporalFilterTest::RunTest(int isRandom, int width, int height,
 
       printf(
           "c_time=%d \t simd_time=%d \t "
-          "gain=%f\t width=%d\t height=%d \n",
+          "gain=%f\t width=%d\t height=%d\t color_format=%s\n",
           elapsed_time_c, elapsed_time_simd,
           (float)((float)elapsed_time_c / (float)elapsed_time_simd), width,
-          height);
+          height, color_fmt_str[color_fmt]);
 
     } else {
       for (int i = 0, l = 0; i < height; i++) {
         for (int j = 0; j < width; j++, l++) {
           EXPECT_EQ(accumulator_ref[l], accumulator_mod[l])
               << "Error:" << k << " SSE Sum Test [" << width << "x" << height
-              << "] C accumulator does not match optimized accumulator.";
+              << "] " << color_fmt_str[color_fmt]
+              << " C accumulator does not match optimized accumulator.";
           EXPECT_EQ(count_ref[l], count_mod[l])
               << "Error:" << k << " SSE Sum Test [" << width << "x" << height
-              << "] C count does not match optimized count.";
+              << "] " << color_fmt_str[color_fmt]
+              << " C count does not match optimized count.";
         }
       }
     }
@@ -426,19 +512,28 @@ void HBDTemporalFilterTest::RunTest(int isRandom, int width, int height,
 
 TEST_P(HBDTemporalFilterTest, OperationCheck) {
   for (int height = 32; height <= 32; height = height * 2) {
-    RunTest(1, height, height, 1, 10);  // GenRandomData
+    RunTest(1, height, height, 1, 10, I400);
+    RunTest(1, height, height, 1, 10, I420);
+    RunTest(1, height, height, 1, 10, I422);
+    RunTest(1, height, height, 1, 10, I444);
   }
 }
 
 TEST_P(HBDTemporalFilterTest, ExtremeValues) {
   for (int height = 32; height <= 32; height = height * 2) {
-    RunTest(0, height, height, 1, 10);
+    RunTest(0, height, height, 1, 10, I400);
+    RunTest(0, height, height, 1, 10, I420);
+    RunTest(0, height, height, 1, 10, I422);
+    RunTest(0, height, height, 1, 10, I444);
   }
 }
 
 TEST_P(HBDTemporalFilterTest, DISABLED_Speed) {
   for (int height = 32; height <= 32; height = height * 2) {
-    RunTest(1, height, height, 100000, 10);
+    RunTest(1, height, height, 100000, 10, I400);
+    RunTest(1, height, height, 100000, 10, I420);
+    RunTest(1, height, height, 100000, 10, I422);
+    RunTest(1, height, height, 100000, 10, I444);
   }
 }
 #if HAVE_SSE2
