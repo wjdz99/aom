@@ -308,7 +308,8 @@ static INLINE int is_frame_high_bitdepth(const YV12_BUFFER_CONFIG *frame) {
  *
  * \return Nothing returned, But the contents of `pred` will be modified
  */
-static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
+static void tf_build_predictor(AV1_COMP *cpi, const YV12_BUFFER_CONFIG *ref_frame,
+                               const YV12_BUFFER_CONFIG *cur_frame,
                                const MACROBLOCKD *mbd,
                                const BLOCK_SIZE block_size, const int mb_row,
                                const int mb_col, const int num_planes,
@@ -324,8 +325,11 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
   const int is_intrabc = 0;                           // Is intra-copied?
   const int is_high_bitdepth = is_frame_high_bitdepth(ref_frame);
 
+  unsigned int sse[2] = { 0, 0 };
+  unsigned int var[2] = { 0, 0 };
+
   // Default interpolation filters.
-  const int_interpfilters interp_filters =
+  int_interpfilters interp_filters =
       av1_broadcast_interp_filter(MULTITAP_SHARP);
 
   // Handle Y-plane, U-plane and V-plane (if needed) in sequence.
@@ -370,7 +374,93 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
       }
     }
     plane_offset += mb_pels;
+
+    if (!plane) {
+    const int source_y_stride = cur_frame->y_stride;
+    const int source_offset =
+        mb_row * plane_h * source_y_stride + mb_col * plane_w;
+    var[0] = cpi->fn_ptr[block_size].vf(cur_frame->y_buffer + source_offset,
+                               source_y_stride,
+                               pred,
+                               plane_w, &sse[0]);
+    }
   }
+
+  ///////// try 8 tap
+
+  // Allocate memory for temp predictor.
+  uint8_t *tpred8 = aom_memalign(32, num_planes * mb_pels * sizeof(uint8_t));
+  uint16_t *tpred16 = aom_memalign(32, num_planes * mb_pels * sizeof(uint16_t));
+  memset(tpred8, 0, num_planes * mb_pels * sizeof(tpred8[0]));
+  memset(tpred16, 0, num_planes * mb_pels * sizeof(tpred16[0]));
+  uint8_t *const tpred = is_high_bitdepth ? CONVERT_TO_BYTEPTR(tpred16) : tpred8;
+
+  // Default interpolation filters.
+  interp_filters =
+      av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
+
+  // Handle Y-plane, U-plane and V-plane (if needed) in sequence.
+  plane_offset = 0;
+  for (int plane = 0; plane < num_planes; ++plane) {
+    const int subsampling_y = mbd->plane[plane].subsampling_y;
+    const int subsampling_x = mbd->plane[plane].subsampling_x;
+    // Information of each sub-block in current plane.
+    const int plane_h = mb_height >> subsampling_y;  // Plane height.
+    const int plane_w = mb_width >> subsampling_x;   // Plane width.
+    const int plane_y = mb_y >> subsampling_y;       // Y-coord (Top-left).
+    const int plane_x = mb_x >> subsampling_x;       // X-coord (Top-left).
+    const int h = plane_h >> 1;                      // Sub-block height.
+    const int w = plane_w >> 1;                      // Sub-block width.
+    const int is_y_plane = (plane == 0);             // Is Y-plane?
+
+    const struct buf_2d ref_buf = { NULL, ref_frame->buffers[plane],
+                                    ref_frame->widths[is_y_plane ? 0 : 1],
+                                    ref_frame->heights[is_y_plane ? 0 : 1],
+                                    ref_frame->strides[is_y_plane ? 0 : 1] };
+
+    // Handle each subblock.
+    int subblock_idx = 0;
+    for (int i = 0; i < plane_h; i += h) {
+      for (int j = 0; j < plane_w; j += w) {
+        // Choose proper motion vector.
+        const MV mv = subblock_mvs[subblock_idx++];
+        assert(mv.row >= INT16_MIN && mv.row <= INT16_MAX &&
+               mv.col >= INT16_MIN && mv.col <= INT16_MAX);
+
+        const int y = plane_y + i;
+        const int x = plane_x + j;
+
+        // Build predictior for each sub-block on current plane.
+        InterPredParams inter_pred_params;
+        av1_init_inter_params(&inter_pred_params, w, h, y, x, subsampling_x,
+                              subsampling_y, bit_depth, is_high_bitdepth,
+                              is_intrabc, scale, &ref_buf, interp_filters);
+        inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
+        av1_enc_build_one_inter_predictor(&tpred[plane_offset + i * plane_w + j],
+                                          plane_w, &mv, &inter_pred_params);
+      }
+    }
+    plane_offset += mb_pels;
+
+    if (!plane) {
+    const int source_y_stride = cur_frame->y_stride;
+    const int source_offset =
+        mb_row * plane_h * source_y_stride + mb_col * plane_w;
+    var[1] = cpi->fn_ptr[block_size].vf(cur_frame->y_buffer + source_offset,
+                               source_y_stride,
+                               tpred,
+                               plane_w, &sse[1]);
+
+    }
+  }
+
+  printf("\n var: %d, %d;  sse: %d, %d;  \n", var[0],var[1],sse[0],sse[1]);
+
+  if (sse[0] > sse[1]) {
+    size_t sz = is_high_bitdepth ? num_planes * mb_pels * sizeof(uint16_t) : num_planes * mb_pels * sizeof(uint8_t);
+    memcpy(pred, tpred, sz);
+    }
+
 }
 /*!\cond */
 
@@ -862,7 +952,7 @@ static FRAME_DIFF tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
                            mb_row, mb_col, &ref_mv, subblock_mvs,
                            subblock_mses);
         }
-        tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
+        tf_build_predictor(cpi, frames[frame], frames[filter_frame_idx], mbd, block_size, mb_row, mb_col,
                            num_planes, scale, subblock_mvs, pred);
 
         // Perform weighted averaging.
