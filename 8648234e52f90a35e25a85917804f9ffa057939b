@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "608b3c13_7a065c70",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1637,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-09-29T17:59:01Z",
+      "side": 1,
+      "message": "\"deprecated\"",
+      "range": {
+        "startLine": 1637,
+        "startChar": 22,
+        "endLine": 1637,
+        "endChar": 32
+      },
+      "revId": "8648234e52f90a35e25a85917804f9ffa057939b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
