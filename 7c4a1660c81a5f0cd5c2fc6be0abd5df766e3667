@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3b06a1f_99724330",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9096
+      },
+      "writtenOn": "2020-09-30T12:42:04Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have added a call to aom_clear_system_state() before double operations in get_num_refs_to_disable() to avoid issues with 32-bit build. When we tested the parent version locally, we did not observe any failures. This could be due to aom_clear_system_state() calls in other parts of code. However we feel that adding this call would help in avoiding issues in future.\n\nPlease review.\nThank you.",
+      "revId": "7c4a1660c81a5f0cd5c2fc6be0abd5df766e3667",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
