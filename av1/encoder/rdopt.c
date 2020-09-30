@@ -1814,6 +1814,18 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   return ref_set;
 }
 
+// Checks if particular ref_mv_idx should be pruned.
+static int prune_ref_mv_idx(const int reduce_inter_modes, const int qindex,
+                            const int ref_mv_idx) {
+  if (reduce_inter_modes >= 3) return 1;
+  // When reduce_inter_modes=2, pruning happens as below based on q index.
+  // For q index range between 0 and 85: prune if ref_mv_idx >= 1.
+  // For q index range between 86 and 170: prune if ref_mv_idx == 2.
+  // For q index range between 171 and 255: no pruning.
+  const int min_prune_ref_mv_idx = (qindex * 3 / QINDEX_RANGE) + 1;
+  return (ref_mv_idx >= min_prune_ref_mv_idx);
+}
+
 // Whether this reference motion vector can be skipped, based on initial
 // heuristics.
 static bool ref_mv_idx_early_breakout(
@@ -1837,14 +1849,18 @@ static bool ref_mv_idx_early_breakout(
         return true;
       }
     }
+
     // TODO(any): Experiment with reduce_inter_modes for compound prediction
     if (sf->inter_sf.reduce_inter_modes >= 2 && !is_comp_pred &&
         have_newmv_in_inter_mode(mbmi->mode)) {
       if (mbmi->ref_frame[0] != ref_frame_dist_info->nearest_past_ref &&
           mbmi->ref_frame[0] != ref_frame_dist_info->nearest_future_ref) {
         const int has_nearmv = have_nearmv_in_inter_mode(mbmi->mode) ? 1 : 0;
-        if (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
-            REF_CAT_LEVEL) {
+        const int do_prune = prune_ref_mv_idx(sf->inter_sf.reduce_inter_modes,
+                                              x->qindex, ref_mv_idx);
+        if (do_prune &&
+            (mbmi_ext->weight[ref_frame_type][ref_mv_idx + has_nearmv] <
+             REF_CAT_LEVEL)) {
           return true;
         }
       }
