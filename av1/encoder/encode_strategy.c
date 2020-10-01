@@ -965,7 +965,7 @@ static int get_refresh_frame_flags_subgop_cfg(
   const int refresh_level = step_gop_cfg->refresh;
   const int refresh_idx = get_refresh_idx(update_arf, refresh_level,
                                           cur_disp_order, ref_frame_map_pairs);
-  return 1 << refresh_idx;
+  return refresh_level == 0 ? 0 : 1 << refresh_idx;
 }
 
 int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
