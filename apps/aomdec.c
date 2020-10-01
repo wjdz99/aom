@@ -106,15 +106,16 @@ static const arg_def_t outallarg = ARG_DEF(
     NULL, "all-layers", 0, "Output all decoded frames of a scalable bitstream");
 static const arg_def_t skipfilmgrain =
     ARG_DEF(NULL, "skip-film-grain", 0, "Skip film grain application");
+static const arg_def_t toplayeronly =
+    ARG_DEF(NULL, "top-layer-only", 0, "Only write out top spatial layer");
 
 static const arg_def_t *all_args[] = {
-  &help,           &codecarg, &use_yv12,      &use_i420,
-  &flipuvarg,      &rawvideo, &noblitarg,     &progressarg,
-  &limitarg,       &skiparg,  &summaryarg,    &outputfile,
-  &threadsarg,     &rowmtarg, &verbosearg,    &scalearg,
-  &fb_arg,         &md5arg,   &framestatsarg, &continuearg,
-  &outbitdeptharg, &isannexb, &oppointarg,    &outallarg,
-  &skipfilmgrain,  NULL
+  &help,           &codecarg,   &use_yv12,    &use_i420,      &flipuvarg,
+  &rawvideo,       &noblitarg,  &progressarg, &limitarg,      &skiparg,
+  &summaryarg,     &outputfile, &threadsarg,  &rowmtarg,      &verbosearg,
+  &scalearg,       &fb_arg,     &md5arg,      &framestatsarg, &continuearg,
+  &outbitdeptharg, &isannexb,   &oppointarg,  &outallarg,     &skipfilmgrain,
+  &toplayeronly,   NULL
 };
 
 #if CONFIG_LIBYUV
@@ -462,6 +463,7 @@ static int main_loop(int argc, const char **argv_) {
   aom_image_t *img_shifted = NULL;
   int frame_avail, got_data, flush_decoder = 0;
   int num_external_frame_buffers = 0;
+  int top_layer_only = 0;
   struct ExternalFrameBufferList ext_fb_list = { 0, NULL };
 
   const char *outfile_pattern = NULL;
@@ -575,6 +577,8 @@ static int main_loop(int argc, const char **argv_) {
       output_all_layers = 1;
     } else if (arg_match(&arg, &skipfilmgrain, argi)) {
       skip_film_grain = 1;
+    } else if (arg_match(&arg, &toplayeronly, argi)) {
+      top_layer_only = 1;
     } else {
       argj++;
     }
@@ -743,6 +747,9 @@ static int main_loop(int argc, const char **argv_) {
 
   if (framestats_file) fprintf(framestats_file, "bytes,qp\r\n");
 
+  unsigned int top_spatial_layer_width = aom_input_ctx.width;
+  unsigned int top_spatial_layer_height = aom_input_ctx.height;
+
   /* Decode file */
   while (frame_avail || got_data) {
     aom_codec_iter_t iter = NULL;
@@ -801,6 +808,9 @@ static int main_loop(int argc, const char **argv_) {
 
     got_data = 0;
     while ((img = aom_codec_get_frame(&decoder, &iter))) {
+      if (top_layer_only && (img->d_w != top_spatial_layer_width ||
+                             img->d_h != top_spatial_layer_height))
+        continue;
       ++frame_out;
       got_data = 1;
 
