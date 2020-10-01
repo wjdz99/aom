@@ -64,6 +64,9 @@ static int dec_alloc_mi(AV1_COMMON *cm, int mi_size, int sbi_size) {
   cm->sbi_alloc_size = sbi_size;
   for (int i = 0; i < sbi_size; ++i) cm->sbi_grid_base[i].ptree_root = NULL;
 
+#if CONFIG_LOG_TXSKIP
+  alloc_txk_skip_array(cm);
+#endif
   return 0;
 }
 
@@ -79,6 +82,9 @@ static void dec_free_mi(AV1_COMMON *cm) {
   aom_free(cm->sbi_grid_base);
   cm->sbi_grid_base = NULL;
   cm->sbi_alloc_size = 0;
+#if CONFIG_LOG_TXSKIP
+  dealloc_txk_skip_array(cm);
+#endif
 }
 
 AV1Decoder *av1_decoder_create(BufferPool *const pool) {
@@ -139,6 +145,10 @@ AV1Decoder *av1_decoder_create(BufferPool *const pool) {
 
   aom_get_worker_interface()->init(&pbi->lf_worker);
   pbi->lf_worker.thread_name = "aom lf worker";
+
+#if CONFIG_LOG_TXSKIP
+  cm->fDecoderLog = NULL;  // fopen("DecTxSkipLog.txt", "wt");
+#endif
 
   return pbi;
 }
@@ -216,6 +226,12 @@ void av1_decoder_remove(AV1Decoder *pbi) {
   aom_accounting_clear(&pbi->accounting);
 #endif
   av1_free_mc_tmp_buf(&pbi->td);
+
+#if CONFIG_LOG_TXSKIP
+  if (pbi->common.fDecoderLog != NULL) {
+    fclose(pbi->common.fDecoderLog);
+  }
+#endif
 
   aom_free(pbi);
 }

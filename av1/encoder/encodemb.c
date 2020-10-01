@@ -415,6 +415,13 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
                      DCT_DCT);
   }
 
+#if CONFIG_LOG_TXSKIP
+  if (p->eobs[block] == 0 && dry_run == OUTPUT_ENABLED) {
+    update_txk_skip_array(cm, mi_row, mi_col, plane, blk_row, blk_col, tx_size,
+                          cm->fEncoderLog);
+  }
+#endif
+
 #if CONFIG_MISMATCH_DEBUG
   if (dry_run == OUTPUT_ENABLED) {
     int pixel_c, pixel_r;
@@ -628,7 +635,17 @@ void av1_encode_inter_txfm_block(const struct AV1_COMP *cpi, MACROBLOCK *x,
   };
   int plane;
 
+  // first set mbmi->skip = 1. inside encode_block_inter function, if certain
+  // blocks' eob != 0, mbmi->skip will be set to 0. After all blocks are coded
+  // if mbmi->skip is still 1, then this block should be coded as skip.
   mbmi->skip = 1;
+
+#if CONFIG_LOG_TXSKIP
+  if (x->skip && dry_run == OUTPUT_ENABLED) {
+    init_txk_skip_array(cm, mbmi, mi_row, mi_col, mbmi->sb_type, 1,
+                        cm->fEncoderLog);
+  }
+#endif
 
   if (x->skip) return;
 
@@ -774,6 +791,13 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
     update_txk_array(mbmi->txk_type, plane_bsize, blk_row, blk_col, tx_size,
                      DCT_DCT);
   }
+
+#if CONFIG_LOG_TXSKIP
+  if (*eob == 0 && args->dry_run == OUTPUT_ENABLED) {
+    update_txk_skip_array(cm, xd->mi_row, xd->mi_col, plane, blk_row, blk_col,
+                          tx_size, cm->fEncoderLog);
+  }
+#endif
 
   // For intra mode, skipped blocks are so rare that transmitting skip=1 is
   // very expensive.

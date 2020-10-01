@@ -393,6 +393,9 @@ static int enc_alloc_mi(AV1_COMMON *cm, int mi_size, int sbi_size) {
   cm->sbi_alloc_size = sbi_size;
   for (int i = 0; i < sbi_size; ++i) cm->sbi_grid_base[i].ptree_root = NULL;
 
+#if CONFIG_LOG_TXSKIP
+  alloc_txk_skip_array(cm);
+#endif
   return 0;
 }
 
@@ -412,6 +415,9 @@ static void enc_free_mi(AV1_COMMON *cm) {
   aom_free(cm->sbi_grid_base);
   cm->sbi_grid_base = NULL;
   cm->sbi_alloc_size = 0;
+#if CONFIG_LOG_TXSKIP
+  dealloc_txk_skip_array(cm);
+#endif
 }
 
 static void swap_mi_and_prev_mi(AV1_COMMON *cm) {
@@ -2960,6 +2966,10 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
     return 0;
   }
 
+#if CONFIG_LOG_TXSKIP
+  cm->fEncoderLog = NULL;  // fopen("EncTxSkipLog.txt", "wt");
+#endif
+
   cm->error.setjmp = 1;
   cm->alloc_mi = enc_alloc_mi;
   cm->free_mi = enc_free_mi;
@@ -3645,6 +3655,12 @@ void av1_remove_compressor(AV1_COMP *cpi) {
 
   aom_free(cpi->twopass.total_stats);
   aom_free(cpi->twopass.total_left_stats);
+
+#if CONFIG_LOG_TXSKIP
+  if (cpi->common.fEncoderLog != NULL) {
+    fclose(cpi->common.fEncoderLog);
+  }
+#endif
 
   aom_free(cpi);
 
