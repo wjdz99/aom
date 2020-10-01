@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "415147e6_a0b0d1b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-01T20:51:10Z",
+      "side": 1,
+      "message": "+1 to Deb\u0027s question.\nFor example, you can look at sb_all_skip(), which utilizes this skip info for CDEF.",
+      "parentUuid": "21a4a607_3792dd44",
+      "revId": "3057e62c7398c8d685ade03242a38cd1a0fc6f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a283d49f_2909322b",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 3
