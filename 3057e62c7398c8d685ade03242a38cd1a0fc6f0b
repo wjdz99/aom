@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "922df579_e5e2ca31",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-10-01T18:50:29Z",
+      "side": 1,
+      "message": "this patch add the support to capture the skip info for transform blocks. the granularity of the data structure is 4x4. ",
+      "revId": "3057e62c7398c8d685ade03242a38cd1a0fc6f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    }
+  ]
+}
