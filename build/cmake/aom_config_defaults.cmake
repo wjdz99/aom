@@ -232,6 +232,8 @@ set_aom_config_var(CONFIG_EXT_REFMV 0 NUMBER
 
 set_aom_config_var(CONFIG_DBSCAN_FEATURE 0 NUMBER
                    "AV2 dbscan clustering for mv reduction")
+set_aom_config_var(CONFIG_INLOOP_RESTORATION_DATA_COLLECT 0 NUMBER
+                   "AV2 in-loop restoration data collection flag")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
@@ -252,9 +254,10 @@ set_aom_config_var(CONFIG_REALTIME_ONLY 0 NUMBER
 set_aom_config_var(CONFIG_AV1_HIGHBITDEPTH 1 NUMBER
                    "Build with high bitdepth support.")
 set_aom_config_var(CONFIG_NN_V2 0 NUMBER "Fully-connected neural nets ver.2.")
-set_aom_config_var(CONFIG_SUPERRES_IN_RECODE 1 NUMBER
-                   "Enable encoding both full-res and superres in recode loop"
-                   "when SUPERRES_AUTO mode is used.")
+set_aom_config_var(
+  CONFIG_SUPERRES_IN_RECODE 1 NUMBER
+  "Enable encoding both full-res and superres in recode loop"
+  "when SUPERRES_AUTO mode is used.")
 #
 # Variables in this section control optional features of the build system.
 #
@@ -293,10 +296,10 @@ set_aom_option_var(ENABLE_VSX "Enables VSX optimizations on PowerPC targets."
                    ON)
 
 # x86/x86_64 assembly/intrinsics flags.
-set_aom_option_var(ENABLE_MMX "Enables MMX optimizations on x86/x86_64 targets."
-                   ON)
-set_aom_option_var(ENABLE_SSE "Enables SSE optimizations on x86/x86_64 targets."
-                   ON)
+set_aom_option_var(ENABLE_MMX
+                   "Enables MMX optimizations on x86/x86_64 targets." ON)
+set_aom_option_var(ENABLE_SSE
+                   "Enables SSE optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE2
                    "Enables SSE2 optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE3
@@ -307,7 +310,7 @@ set_aom_option_var(ENABLE_SSE4_1
                    "Enables SSE4_1 optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_SSE4_2
                    "Enables SSE4_2 optimizations on x86/x86_64 targets." ON)
-set_aom_option_var(ENABLE_AVX "Enables AVX optimizations on x86/x86_64 targets."
-                   ON)
+set_aom_option_var(ENABLE_AVX
+                   "Enables AVX optimizations on x86/x86_64 targets." ON)
 set_aom_option_var(ENABLE_AVX2
                    "Enables AVX2 optimizations on x86/x86_64 targets." ON)
