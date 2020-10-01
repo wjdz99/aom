@@ -232,6 +232,8 @@ set_aom_config_var(CONFIG_EXT_REFMV 0 NUMBER
 
 set_aom_config_var(CONFIG_DBSCAN_FEATURE 0 NUMBER
                    "AV2 dbscan clustering for mv reduction")
+set_aom_config_var(CONFIG_INLOOP_RESTORATION_DATA_COLLECT 0 NUMBER
+		   "AV2 in-loop restoration data collection flag")
 
 # To include Tensorflow, make sure to build tensorflow locally using
 # tensorflow/contrib/makefile/build_all_linux.sh and then providing the correct
