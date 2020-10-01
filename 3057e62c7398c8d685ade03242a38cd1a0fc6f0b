@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "8f1909b4_835a0981",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-10-01T21:06:44Z",
+      "side": 1,
+      "message": "no. the mbmi-\u003eskip only indicate that if the coded block (CU) is coded as skip or not. it means Inter block has no coefficients and also the MV is the nearest MV. this new flag indicate if the transform block (TU) has any non-zero coefficients or not. it can be used for INTRA block as well. so it is at smaller granularity. I can add more comments in the code to explain the difference.",
+      "parentUuid": "415147e6_a0b0d1b7",
+      "revId": "3057e62c7398c8d685ade03242a38cd1a0fc6f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a283d49f_2909322b",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 3
@@ -65,6 +83,24 @@
       "writtenOn": "2020-10-01T20:32:08Z",
       "side": 1,
       "message": "Do we need a flag for this? perhaps we can log the array anyways - since we want to use this also for Wiener filters.",
+      "revId": "3057e62c7398c8d685ade03242a38cd1a0fc6f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b476afb6_ed420cbd",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-10-01T21:06:44Z",
+      "side": 1,
+      "message": "yeah. just want to use this flag to easily located the code changes I make. if you agree, I can remove the config flag. let me add a new patch.",
+      "parentUuid": "a283d49f_2909322b",
       "revId": "3057e62c7398c8d685ade03242a38cd1a0fc6f0b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
