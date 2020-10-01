@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7750ae47_48561c36",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-10-01T19:26:25Z",
+      "side": 1,
+      "message": "Jerome: Please check the definition of all-layers:\n\n  /*!\\brief Codec control function to indicate whether to output one frame per\n   * temporal unit (the default), or one frame per spatial layer. int parameter\n   *\n   * In a scalable stream, each temporal unit corresponds to a single \"frame\"\n   * of video, and within a temporal unit there may be multiple spatial layers\n   * with different versions of that frame.\n   * For video playback, only the highest-quality version (within the\n   * selected operating point) is needed, but for some use cases it is useful\n   * to have access to multiple versions of a frame when they are available.\n   */\n  AV1D_SET_OUTPUT_ALL_LAYERS,\n\nand:\n\n  // Each time the decoder is called, we expect to receive a full temporal unit.\n  // This can contain up to one shown frame per spatial layer in the current\n  // operating point (note that some layers may be entirely omitted).\n  // If the \u0027output_all_layers\u0027 option is true, we save all of these shown\n  // frames so that they can be returned to the application. If the\n  // \u0027output_all_layers\u0027 option is false, then we only output one image per\n  // temporal unit.\n  //\n  // Note: The saved buffers are released at the start of the next time the\n  // application calls aom_codec_decode().\n  int output_all_layers;\n\nand:\n\n    if (cm-\u003eshow_existing_frame || cm-\u003eshow_frame) {\n      if (pbi-\u003eoutput_all_layers) {\n        // Append this frame to the output queue\n        if (pbi-\u003enum_output_frames \u003e\u003d MAX_NUM_SPATIAL_LAYERS) {\n          // We can\u0027t store the new frame anywhere, so drop it and return an\n          // error\n          cm-\u003ecur_frame-\u003ebuf.corrupted \u003d 1;\n          decrease_ref_count(cm-\u003ecur_frame, pool);\n          cm-\u003eerror.error_code \u003d AOM_CODEC_UNSUP_BITSTREAM;\n        } else {\n          pbi-\u003eoutput_frames[pbi-\u003enum_output_frames] \u003d cm-\u003ecur_frame;\n          pbi-\u003enum_output_frames++;\n        }\n      } else {\n        // Replace any existing output frame\n        assert(pbi-\u003enum_output_frames \u003d\u003d 0 || pbi-\u003enum_output_frames \u003d\u003d 1);\n        if (pbi-\u003enum_output_frames \u003e 0) {\n          decrease_ref_count(pbi-\u003eoutput_frames[0], pool);\n        }\n        pbi-\u003eoutput_frames[0] \u003d cm-\u003ecur_frame;\n        pbi-\u003enum_output_frames \u003d 1;\n      }\n    } else {\n      decrease_ref_count(cm-\u003ecur_frame, pool);\n    }\n\nI think all-layers may be the exact opposite of top-layer-only. If that\u0027s the case, then the default is already to only output the top spatial layer.",
+      "range": {
+        "startLine": 104,
+        "startChar": 11,
+        "endLine": 104,
+        "endChar": 21
+      },
+      "revId": "5523fc05f534ef71f31ec958e6675dc082cccbd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    }
+  ]
+}
