@@ -90,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "faf05d27_4ea4c689",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-01T21:28:46Z",
+      "side": 1,
+      "message": "LGTM, thanks for creating this!",
+      "revId": "3057e62c7398c8d685ade03242a38cd1a0fc6f0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a283d49f_2909322b",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 3
