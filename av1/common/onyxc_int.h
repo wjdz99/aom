@@ -621,6 +621,12 @@ typedef struct AV1Common {
 #if CONFIG_COLLECT_FRAME_INFO
   int coded_frame_idx;
 #endif  // CONFIG_COLLECT_FRAME_INFO
+#if CONFIG_LOG_TXSKIP
+  FILE *fEncoderLog;
+  FILE *fDecoderLog;
+  uint8_t *tx_skip[MAX_MB_PLANE];
+  uint32_t tx_skip_buf_size[MAX_MB_PLANE];
+#endif
 #if CONFIG_EXT_IBC_MODES
   int ext_ibc_config;
   IBC_MODE max_ibc_mode;
@@ -1840,6 +1846,18 @@ static INLINE void init_frame_info(FRAME_INFO *frame_info,
   frame_info->subsampling_x = cm->seq_params.subsampling_x;
   frame_info->subsampling_y = cm->seq_params.subsampling_y;
 }
+
+#if CONFIG_LOG_TXSKIP
+void alloc_txk_skip_array(AV1_COMMON *cm);
+void dealloc_txk_skip_array(AV1_COMMON *cm);
+void init_txk_skip_array(const AV1_COMMON *cm, MB_MODE_INFO *mbmi,
+  int mi_row, int mi_col, BLOCK_SIZE bsize, uint8_t value, FILE *fLog);
+void update_txk_skip_array(const AV1_COMMON *cm, int mi_row, int mi_col,
+  int plane, int blk_row, int blk_col, TX_SIZE tx_size, FILE *fLog);
+uint8_t av1_get_txk_skip(const AV1_COMMON *cm, int mi_row, int mi_col,
+  int plane, int blk_row, int blk_col);
+uint8_t lpf_get_txk_skip(const AV1_COMMON *cm, int px, int py, int plane);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
