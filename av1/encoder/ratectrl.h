@@ -46,7 +46,9 @@ extern "C" {
 #define FIXED_GF_INTERVAL 16
 #define MAX_GF_LENGTH_LAP 16
 
-#define MAX_NUM_GF_INTERVALS 15
+// TODO(bohanli): the current gop length decision works only for the next GOP.
+// Need to change logic so we can account for whether the GOPs have arf.
+#define MAX_NUM_GF_INTERVALS 1
 
 #define MAX_ARF_LAYERS 6
 // #define STRICT_RC
@@ -202,6 +204,8 @@ typedef struct {
   int num_regions;
   REGIONS regions[MAX_FIRSTPASS_ANALYSIS_FRAMES];
   double cor_coeff[MAX_FIRSTPASS_ANALYSIS_FRAMES];
+  int regions_offset;  // offset of regions from the last keyframe
+  int frames_till_regions_update;
 
   int min_gf_interval;
   int max_gf_interval;
