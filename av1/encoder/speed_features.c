@@ -1239,8 +1239,10 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     set_rt_speed_features_framesize_independent(cpi, sf, speed);
 
   if (!cpi->seq_params_locked) {
+#if !CONFIG_REMOVE_DUAL_FILTER
     cpi->common.seq_params.enable_dual_filter &=
         !sf->interp_sf.disable_dual_filter;
+#endif  // CONFIG_REMOVE_DUAL_FILTER
     cpi->common.seq_params.enable_restoration &= !sf->lpf_sf.disable_lr_filter;
 
     cpi->common.seq_params.enable_masked_compound &=

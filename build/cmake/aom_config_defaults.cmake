@@ -139,6 +139,9 @@ set_aom_config_var(CONFIG_SUPERRES_IN_RECODE 1
                    "when AOM_SUPERRES_AUTO mode is used.")
 set_aom_config_var(CONFIG_OPTICAL_FLOW_API 0
                    "AV1 experiment flag for optical flow API.")
+set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 0
+                   "AV2 experiment flag to remove dual filter")
+
 #
 # Variables in this section control optional features of the build system.
 #
