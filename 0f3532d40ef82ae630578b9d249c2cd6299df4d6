@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "18fcd0be_0790ddf3",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-10-05T21:48:51Z",
+      "side": 1,
+      "message": "That makes sense. Just that in this case filt_intra_err and filt_coded_err have different conditions for \"ignore\", it is in my opinion a bit complicated to get a separate function to support this and used only for this scenario. I\u0027m leaving this as is for now. Please let me know if you think it is better to change it.",
+      "parentUuid": "01e198b0_6c2c1b98",
+      "range": {
+        "startLine": 1248,
+        "startChar": 0,
+        "endLine": 1264,
+        "endChar": 3
+      },
+      "revId": "0f3532d40ef82ae630578b9d249c2cd6299df4d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c9efcc1_44efb6e1",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "0f3532d40ef82ae630578b9d249c2cd6299df4d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e69dfc22_9194d498",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1273,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-10-05T21:48:51Z",
+      "side": 1,
+      "message": "You are right, thanks! Changed the denominator to (next-prev).",
+      "parentUuid": "9c9efcc1_44efb6e1",
+      "range": {
+        "startLine": 1273,
+        "startChar": 46,
+        "endLine": 1273,
+        "endChar": 49
+      },
+      "revId": "0f3532d40ef82ae630578b9d249c2cd6299df4d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     },
     {
       "key": {
