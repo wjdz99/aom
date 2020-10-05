@@ -22,6 +22,30 @@
       "revId": "25e0353dc1f7c9aa973a9b7ab115983c9368842d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1ddc6ee_50971697",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-10-05T19:08:03Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "da9f4237_879f3b39",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "25e0353dc1f7c9aa973a9b7ab115983c9368842d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": false
     }
   ]
 }
