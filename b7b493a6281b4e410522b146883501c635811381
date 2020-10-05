@@ -16,6 +16,24 @@
       "revId": "b7b493a6281b4e410522b146883501c635811381",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a9045a6_50aff47f",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 14731
+      },
+      "writtenOn": "2020-10-05T07:22:40Z",
+      "side": 1,
+      "message": "Yes, I agree with Urvang. Maybe keep it as 0 for now until the CWG decision is made.",
+      "parentUuid": "f71d672d_6d71e958",
+      "revId": "b7b493a6281b4e410522b146883501c635811381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
+      "unresolved": true
     }
   ]
 }
