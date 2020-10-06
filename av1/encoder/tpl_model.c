@@ -1231,7 +1231,9 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   // Allow larger GOP size if the base layer ARF has higher dependency factor
   // than the intermediate ARF and both ARFs have reasonably high dependency
   // factors.
-  return (beta[0] >= beta[1] + 0.7) && beta[0] > 8.0;
+  double thr1 = (cpi->sf.inter_sf.selective_ref_frame >= 5) ? 1.5 : 0.7;
+  double thr2 = (cpi->sf.inter_sf.selective_ref_frame >= 5) ? 8.5 : 8.0;
+  return (beta[0] >= beta[1] + thr1) && beta[0] > thr2;
 }
 
 void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
