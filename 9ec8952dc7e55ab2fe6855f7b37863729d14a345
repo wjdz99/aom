@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis CL fixes the bug in TemporalFilterTest which was causing the valgrind issue.\n\nWhile looking into this issue, we have identified some scope for memory optimization. We will be working on the same.\n\nRegards,\nJayasanker.",
       "revId": "9ec8952dc7e55ab2fe6855f7b37863729d14a345",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a548ac6f_13dc1c57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-06T19:36:27Z",
+      "side": 1,
+      "message": "Thanks for fixing the bug in the code base! Your plan about memory optimization sounds good.",
+      "parentUuid": "6f4201dd_0258222c",
+      "revId": "9ec8952dc7e55ab2fe6855f7b37863729d14a345",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
