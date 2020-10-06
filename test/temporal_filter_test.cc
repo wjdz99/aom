@@ -87,6 +87,7 @@ class TemporalFilterTest
       int plane_h = plane ? height >> subsampling_y : height;
       int plane_stride = plane ? stride >> subsampling_x : stride;
       int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
+      src2p = src2_ + plane * stride2 * height;
       for (int ii = 0; ii < plane_h; ii++) {
         for (int jj = 0; jj < plane_w; jj++) {
           src1p[jj] = rnd_.Rand8();
@@ -108,6 +109,7 @@ class TemporalFilterTest
       int plane_h = plane ? height >> subsampling_y : height;
       int plane_stride = plane ? stride >> subsampling_x : stride;
       int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
+      src2p = src2_ + plane * stride2 * height;
       for (int ii = 0; ii < plane_h; ii++) {
         for (int jj = 0; jj < plane_w; jj++) {
           src1p[jj] = val;
@@ -196,8 +198,10 @@ void TemporalFilterTest::RunTest(int isRandom, int run_times,
     MACROBLOCKD *mbd = (MACROBLOCKD *)malloc(sizeof(MACROBLOCKD));
     mbd->bd = 8;
     for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
+      int plane_height = plane ? height >> subsampling_y : height;
+      int plane_stride = plane ? stride >> subsampling_x : stride;
       ref_frame->buffers[plane] =
-          ref_frame->buffer_alloc + plane * width * height;
+          ref_frame->buffer_alloc + plane * plane_stride * plane_height;
       mbd->plane[plane].subsampling_x = plane ? subsampling_x : 0;
       mbd->plane[plane].subsampling_y = plane ? subsampling_y : 0;
     }
@@ -339,6 +343,7 @@ class HBDTemporalFilterTest
       int plane_stride = plane ? stride >> subsampling_x : stride;
       int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
       const uint16_t max_val = (1 << bd) - 1;
+      src2p = src2_ + plane * stride2 * height;
       for (int ii = 0; ii < plane_h; ii++) {
         for (int jj = 0; jj < plane_w; jj++) {
           src1p[jj] = rnd_.Rand16() & max_val;
@@ -360,6 +365,7 @@ class HBDTemporalFilterTest
       int plane_h = plane ? height >> subsampling_y : height;
       int plane_stride = plane ? stride >> subsampling_x : stride;
       int plane_stride2 = plane ? stride2 >> subsampling_x : stride2;
+      src2p = src2_ + plane * stride2 * height;
       uint16_t max_val = (1 << bd) - 1;
       for (int ii = 0; ii < plane_h; ii++) {
         for (int jj = 0; jj < plane_w; jj++) {
@@ -450,8 +456,10 @@ void HBDTemporalFilterTest::RunTest(int isRandom, int run_times, int BD,
     MACROBLOCKD *mbd = (MACROBLOCKD *)malloc(sizeof(MACROBLOCKD));
     mbd->bd = BD;
     for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
+      int plane_height = plane ? height >> subsampling_y : height;
+      int plane_stride = plane ? stride >> subsampling_x : stride;
       ref_frame->buffers[plane] =
-          ref_frame->buffer_alloc + plane * width * height;
+          ref_frame->buffer_alloc + plane * plane_stride * plane_height;
       mbd->plane[plane].subsampling_x = plane ? subsampling_x : 0;
       mbd->plane[plane].subsampling_y = plane ? subsampling_y : 0;
     }
