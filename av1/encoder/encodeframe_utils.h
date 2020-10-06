@@ -327,17 +327,19 @@ static AOM_INLINE unsigned int get_num_refs_to_disable(
     const unsigned int *ref_display_order_hint,
     unsigned int cur_frame_display_index) {
   unsigned int num_refs_to_disable = 0;
-  if (cpi->sf.inter_sf.selective_ref_frame >= 3) {
+  int selective_ref_frame = cpi->sf.inter_sf.selective_ref_frame;
+  if (selective_ref_frame >= 3) {
     num_refs_to_disable++;
-    if (cpi->sf.inter_sf.selective_ref_frame >= 5 &&
+    if (selective_ref_frame >= 5 &&
         *ref_frame_flags & av1_ref_frame_flag_list[LAST2_FRAME]) {
       const OrderHintInfo *const order_hint_info =
           &cpi->common.seq_params.order_hint_info;
       const int last2_frame_dist = av1_encoder_get_relative_dist(
           order_hint_info, ref_display_order_hint[LAST2_FRAME - LAST_FRAME],
           cur_frame_display_index);
+      const int temporal_dist_thresh = (selective_ref_frame >= 6) ? 2 : 3;
       // Disable LAST2_FRAME if it is a temporally distant frame
-      if (abs(last2_frame_dist) > 2) {
+      if (abs(last2_frame_dist) > temporal_dist_thresh) {
         num_refs_to_disable++;
       }
 #if !CONFIG_REALTIME_ONLY
@@ -347,9 +349,18 @@ static AOM_INLINE unsigned int get_num_refs_to_disable(
         aom_clear_system_state();
         const double coded_error_per_mb =
             this_frame_stats->coded_error / cpi->frame_info.num_mbs;
-        // Disable LAST2_FRAME if the coded error of the current frame based on
-        // first pass stats is very low.
-        if (coded_error_per_mb < 100.0) num_refs_to_disable++;
+        const double sr_coded_error_per_mb =
+            this_frame_stats->sr_coded_error / cpi->frame_info.num_mbs;
+        const double pcnt_second_ref = this_frame_stats->pcnt_second_ref;
+        // If selective_ref_frame >= 6, disable LAST2_FRAME if the coded error
+        // of the current frame based on first pass stats is very low.
+        // For selective_ref_frame = 5, LAST2_FRAME is disabled when coded error
+        // is low and either the second reference coded error is high or the
+        // pcnt_second_ref is low.
+        if (coded_error_per_mb < 100.0 &&
+            (selective_ref_frame >= 6 || sr_coded_error_per_mb > 100.0 ||
+             pcnt_second_ref < 0.2))
+          num_refs_to_disable++;
       }
 #endif  // CONFIG_REALTIME_ONLY
     }
