@@ -318,7 +318,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                              mv_costs->mv_cost_stack, MV_COST_WEIGHT);
 }
 
-void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
+int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
                              BLOCK_SIZE bsize, int_mv *cur_mv,
                              const uint8_t *mask, int mask_stride,
                              int *rate_mv) {
@@ -494,11 +494,15 @@ void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
                                 mv_costs->nmv_joint_cost,
                                 mv_costs->mv_cost_stack, MV_COST_WEIGHT);
   }
+
+  if (last_besterr[0] == INT_MAX || last_besterr[1] == INT_MAX) return INT_MAX;
+
+  return last_besterr[0] + last_besterr[1];
 }
 
 // Search for the best mv for one component of a compound,
 // given that the other component is fixed.
-void av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
+int av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
                                        BLOCK_SIZE bsize, MV *this_mv,
                                        const uint8_t *second_pred,
                                        const uint8_t *mask, int mask_stride,
@@ -601,6 +605,8 @@ void av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
   *rate_mv += av1_mv_bit_cost(this_mv, &ref_mv.as_mv, mv_costs->nmv_joint_cost,
                               mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+
+  return bestsme;
 }
 
 static AOM_INLINE void build_second_inter_pred(const AV1_COMP *cpi,
@@ -661,8 +667,36 @@ void av1_compound_single_motion_search_interinter(
   MV *this_mv = &cur_mv[ref_idx].as_mv;
   const MV *other_mv = &cur_mv[!ref_idx].as_mv;
   build_second_inter_pred(cpi, x, bsize, other_mv, ref_idx, second_pred);
-  av1_compound_single_motion_search(cpi, x, bsize, this_mv, second_pred, mask,
-                                    mask_stride, rate_mv, ref_idx);
+
+  int best_sme =
+    av1_compound_single_motion_search(cpi, x, bsize, this_mv, second_pred, mask,
+                                      mask_stride, rate_mv, ref_idx);
+  if (!mask) {
+    InterPredParams inter_pred_params;
+    xd->mi[0]->compound_idx = 0;
+    dist_wtd_comp_weight_assign(
+        &cpi->common, xd->mi[0], 0, &inter_pred_params.conv_params.fwd_offset,
+        &inter_pred_params.conv_params.bck_offset,
+        &inter_pred_params.conv_params.use_dist_wtd_comp_avg, 1);
+
+    uint8_t mask_value = inter_pred_params.conv_params.bck_offset * 4;
+
+    memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
+    mask = xd->seg_mask;
+    mask_stride = block_size_wide[bsize];
+
+    MV tmp_mv;
+    int tmp_rate_mv;
+    int distc_sme =
+      av1_compound_single_motion_search(cpi, x, bsize, &tmp_mv, second_pred, mask,
+                                        mask_stride, &tmp_rate_mv, ref_idx);
+    if (distc_sme < best_sme) {
+      *this_mv = tmp_mv;
+      *rate_mv = tmp_rate_mv;
+    } else {
+      xd->mi[0]->compound_idx = 1;
+    }
+  }
 }
 
 static AOM_INLINE void do_masked_motion_search_indexed(

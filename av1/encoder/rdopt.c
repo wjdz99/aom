@@ -1055,7 +1055,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
                             const BLOCK_SIZE bsize, int_mv *cur_mv,
                             int *const rate_mv, HandleInterModeArgs *const args,
                             inter_mode_info *mode_info) {
-  const MACROBLOCKD *const xd = &x->e_mbd;
+  MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int is_comp_pred = has_second_ref(mbmi);
   const PREDICTION_MODE this_mode = mbmi->mode;
@@ -1080,7 +1080,30 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
       // aomenc1
       if (cpi->sf.inter_sf.comp_inter_joint_search_thresh <= bsize ||
           !valid_mv0 || !valid_mv1) {
-        av1_joint_motion_search(cpi, x, bsize, cur_mv, NULL, 0, rate_mv);
+        int best_sme =
+          av1_joint_motion_search(cpi, x, bsize, cur_mv, NULL, 0, rate_mv);
+        
+        InterPredParams inter_pred_params;
+        xd->mi[0]->compound_idx = 0;
+        dist_wtd_comp_weight_assign(
+          &cpi->common, xd->mi[0], 0, &inter_pred_params.conv_params.fwd_offset,
+          &inter_pred_params.conv_params.bck_offset,
+          &inter_pred_params.conv_params.use_dist_wtd_comp_avg, 1);
+        uint8_t mask_value = inter_pred_params.conv_params.bck_offset * 4;
+        memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
+
+        int_mv tmp_mv[2] = {cur_mv[0], cur_mv[1]};
+        int tmp_rate_mv;
+        int this_sme =
+            av1_joint_motion_search(cpi, x, bsize, tmp_mv, xd->seg_mask,
+                block_size_wide[bsize], &tmp_rate_mv);
+        if (this_sme < best_sme) {
+          cur_mv[0] = tmp_mv[0];
+          cur_mv[1] = tmp_mv[1];
+          *rate_mv = tmp_rate_mv;
+        } else {
+          xd->mi[0]->compound_idx = 1;
+        }
       } else {
         *rate_mv = 0;
         for (int i = 0; i < 2; ++i) {
