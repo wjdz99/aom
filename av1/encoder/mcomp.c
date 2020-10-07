@@ -1646,9 +1646,9 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
     MARK_MV_INVALID(second_best_mv);
   }
 
-  assert(ms_params->ms_buffers.second_pred == NULL &&
-         ms_params->ms_buffers.mask == NULL &&
-         "av1_full_pixel_search does not support compound pred");
+  // assert(ms_params->ms_buffers.second_pred == NULL &&
+  //        ms_params->ms_buffers.mask == NULL &&
+  //        "av1_full_pixel_search does not support compound pred");
 
   if (cost_list) {
     cost_list[0] = INT_MAX;
