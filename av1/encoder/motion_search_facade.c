@@ -688,12 +688,11 @@ void av1_compound_single_motion_search_interinter(
     int distc_sme =
       av1_compound_single_motion_search(cpi, x, bsize, &tmp_mv, second_pred, mask,
                                         mask_stride, &tmp_rate_mv, ref_idx);
-    if (distc_sme < best_sme) {
-      *this_mv = tmp_mv;
+    cur_mv[ref_idx + 2].as_mv = tmp_mv;
+    if (distc_sme < best_sme)
       *rate_mv = tmp_rate_mv;
-    } else {
+    else
       xd->mi[0]->compound_idx = 1;
-    }
   }
 }
 

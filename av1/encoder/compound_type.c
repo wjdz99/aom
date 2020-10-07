@@ -865,7 +865,7 @@ static INLINE int compute_valid_comp_types(
        comp_type++) {
     valid_check =
         (comp_type == COMPOUND_AVERAGE) ? try_average_comp : try_distwtd_comp;
-    if (!*try_average_and_distwtd_comp && valid_check &&
+    if (valid_check &&
         is_interinter_compound_used(comp_type, bsize))
       valid_comp_types[valid_type_count++] = comp_type;
   }
@@ -1340,7 +1340,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   // are to be searched. In this case, first estimate between the two
   // modes and then call estimate_yrd_for_sb() only for the better of
   // the two.
-  if (try_average_and_distwtd_comp) {
+  if (try_average_and_distwtd_comp && 0) {
     int est_rate[2];
     int64_t est_dist[2], est_rd;
     COMPOUND_TYPE best_type;
@@ -1372,6 +1372,8 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       for (int comp_type = COMPOUND_AVERAGE; comp_type <= COMPOUND_DISTWTD;
            comp_type++) {
         update_mbmi_for_compound_type(mbmi, comp_type);
+        mbmi->mv[0] = comp_type == COMPOUND_AVERAGE ? cur_mv[0] : cur_mv[2];
+        mbmi->mv[1] = comp_type == COMPOUND_AVERAGE ? cur_mv[1] : cur_mv[3];
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                       AOM_PLANE_Y, AOM_PLANE_Y);
         model_rd_sb_fn[MODELRD_CURVFIT](
@@ -1391,6 +1393,9 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       best_type = find_best_avg_distwtd_comp_type(
           x, comp_model_rate, comp_model_dist, *rate_mv, &est_rd);
       update_mbmi_for_compound_type(mbmi, best_type);
+      mbmi->mv[0] = best_type == COMPOUND_AVERAGE ? cur_mv[0] : cur_mv[2];
+      mbmi->mv[1] = best_type == COMPOUND_AVERAGE ? cur_mv[1] : cur_mv[3];
+
       if (best_type == COMPOUND_AVERAGE) restore_dst_buf(xd, *orig_dst, 1);
       rs2 = masked_type_cost[best_type];
       RD_STATS est_rd_stats;
@@ -1438,6 +1443,9 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
     comp_model_rd_cur = INT64_MAX;
     tmp_rate_mv = *rate_mv;
     best_rd_cur = INT64_MAX;
+
+    mbmi->mv[0] = cur_type == COMPOUND_DISTWTD ? cur_mv[2] : cur_mv[0];
+    mbmi->mv[1] = cur_type == COMPOUND_DISTWTD ? cur_mv[3] : cur_mv[1];
 
     // Case COMPOUND_AVERAGE and COMPOUND_DISTWTD
     if (cur_type < COMPOUND_WEDGE) {
@@ -1535,9 +1543,6 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
                               &best_tmp_rate_mv, tmp_rate_mv, &cpi->sf);
       }
     }
-    // reset to original mvs for next iteration
-    mbmi->mv[0].as_int = cur_mv[0].as_int;
-    mbmi->mv[1].as_int = cur_mv[1].as_int;
   }
   if (mbmi->interinter_comp.type != best_type_stats.best_compound_data.type) {
     mbmi->comp_group_idx =
@@ -1550,6 +1555,12 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   if (have_newmv_in_inter_mode(this_mode)) {
     mbmi->mv[0].as_int = best_mv[0].as_int;
     mbmi->mv[1].as_int = best_mv[1].as_int;
+
+    if (best_type_stats.best_compound_data.type == COMPOUND_DISTWTD) {
+      mbmi->mv[0].as_int = cur_mv[2].as_int;
+      mbmi->mv[1].as_int = cur_mv[3].as_int;
+    }
+
     if (mbmi->interinter_comp.type == COMPOUND_WEDGE) {
       rd_stats->rate += best_tmp_rate_mv - *rate_mv;
       *rate_mv = best_tmp_rate_mv;

@@ -1097,13 +1097,13 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
         int this_sme =
             av1_joint_motion_search(cpi, x, bsize, tmp_mv, xd->seg_mask,
                 block_size_wide[bsize], &tmp_rate_mv);
-        if (this_sme < best_sme) {
-          cur_mv[0] = tmp_mv[0];
-          cur_mv[1] = tmp_mv[1];
+        cur_mv[2] = tmp_mv[0];
+        cur_mv[3] = tmp_mv[1];
+
+        if (this_sme < best_sme)
           *rate_mv = tmp_rate_mv;
-        } else {
+        else
           xd->mi[0]->compound_idx = 1;
-        }
       } else {
         *rate_mv = 0;
         for (int i = 0; i < 2; ++i) {
@@ -2696,7 +2696,7 @@ static int64_t handle_inter_mode(
     int rs = 0;
     int compmode_interinter_cost = 0;
 
-    int_mv cur_mv[2];
+    int_mv cur_mv[4];
 
     // TODO(Cherma): Extend this speed feature to support compound mode
     int skip_repeated_ref_mv =
@@ -2704,6 +2704,12 @@ static int64_t handle_inter_mode(
     // Generate the current mv according to the prediction mode
     if (!build_cur_mv(cur_mv, this_mode, cm, x, skip_repeated_ref_mv)) {
       continue;
+    }
+
+    // Populate the reference motion vectors through the cur_mv buffer.
+    if (is_comp_pred) {
+      cur_mv[2] = cur_mv[0];
+      cur_mv[3] = cur_mv[1];
     }
 
     // The above call to build_cur_mv does not handle NEWMV modes. Build
