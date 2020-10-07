@@ -1726,21 +1726,21 @@ static void read_interintra_mode_bits(MACROBLOCKD *const xd,
 #endif  // CONFIG_DERIVED_INTRA_MODE
   const int size_group = size_group_lookup[bsize];
 
-#if CONFIG_INTERINTRA_ML
-  if (is_interintra_ml_supported(xd, mbmi->use_wedge_interintra)) {
-    mbmi->interintra_mode =
-        aom_read_symbol(r, xd->tile_ctx->interintra_ml_mode_cdf[size_group],
-                        INTERINTRA_MODES, ACCT_STR);
-  } else {
-    mbmi->interintra_mode =
-        aom_read_symbol(r, xd->tile_ctx->interintra_mode_cdf[size_group],
-                        II_ML_PRED0, ACCT_STR);
-  }
-#else
+// #if CONFIG_INTERINTRA_ML
+//   if (is_interintra_ml_supported(xd, mbmi->use_wedge_interintra)) {
+//     mbmi->interintra_mode =
+//         aom_read_symbol(r, xd->tile_ctx->interintra_ml_mode_cdf[size_group],
+//                         INTERINTRA_MODES, ACCT_STR);
+//   } else {
+//     mbmi->interintra_mode =
+//         aom_read_symbol(r, xd->tile_ctx->interintra_mode_cdf[size_group],
+//                         II_ML_PRED0, ACCT_STR);
+//   }
+// #else
   mbmi->interintra_mode =
       aom_read_symbol(r, xd->tile_ctx->interintra_mode_cdf[size_group],
                       INTERINTRA_MODES, ACCT_STR);
-#endif  // CONFIG_INTERINTRA_ML
+// #endif  // CONFIG_INTERINTRA_ML
 }
 
 static void read_interintra_mode_and_wedge_bits(MACROBLOCKD *const xd,

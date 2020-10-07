@@ -148,13 +148,15 @@ typedef struct frame_contexts {
   aom_cdf_prob interintra_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(2)];
   aom_cdf_prob wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
 #if CONFIG_INTERINTRA_ML
-  // Note that currently, only one of the 4 block sizes is used for
-  // the interintra_ml_mode_cdf.
-  aom_cdf_prob interintra_ml_mode_cdf[BLOCK_SIZE_GROUPS]
-                                     [CDF_SIZE(INTERINTRA_MODES)];
-  // For all other block sizes, the CDF only encompasses up to
-  // the first ML mode.
-  aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(II_ML_PRED0)];
+  // // Note that currently, only one of the 4 block sizes is used for
+  // // the interintra_ml_mode_cdf.
+  // aom_cdf_prob interintra_ml_mode_cdf[BLOCK_SIZE_GROUPS]
+  //                                    [CDF_SIZE(INTERINTRA_MODES)];
+  // // For all other block sizes, the CDF only encompasses up to
+  // // the first ML mode.
+  // aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(II_ML_PRED0)];
+  aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
+                                  [CDF_SIZE(INTERINTRA_MODES)];
 #else
   aom_cdf_prob interintra_mode_cdf[BLOCK_SIZE_GROUPS]
                                   [CDF_SIZE(INTERINTRA_MODES)];

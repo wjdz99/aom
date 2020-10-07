@@ -2497,6 +2497,16 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
   const int bh = block_size_high[plane_bsize];
   const int size_scale = ii_size_scales[plane_bsize];
 
+// #if CONFIG_INTERINTRA_ML
+//   if (is_interintra_ml_supported(plane_bsize)) {
+//     for (i = 0; i < bh; ++i) {
+//       memset(mask, 32, bw * sizeof(mask[0]));
+//       mask += stride;
+//     }
+//     return;
+//   }
+// #endif  // CONFIG_INTERINTRA_ML
+
   switch (mode) {
     case II_V_PRED:
       for (i = 0; i < bh; ++i) {
@@ -2525,16 +2535,16 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
     case II_ILLUM_MCOMP_PRED:
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-    case II_ML_PRED0:
-    case II_ML_PRED1:
-    case II_ML_PRED2:
-    case II_ML_PRED3:
-    case II_ML_PRED4:
-    case II_ML_PRED5:
-    case II_ML_PRED6:
-    case II_ML_PRED7:
-    case II_ML_PRED8:
-    case II_ML_PRED9:
+    // case II_ML_PRED0:
+    // case II_ML_PRED1:
+    // case II_ML_PRED2:
+    // case II_ML_PRED3:
+    // case II_ML_PRED4:
+    // case II_ML_PRED5:
+    // case II_ML_PRED6:
+    // case II_ML_PRED7:
+    // case II_ML_PRED8:
+    // case II_ML_PRED9:
 #endif  // CONFIG_INTERINTRA_ML
     default:
       for (i = 0; i < bh; ++i) {
@@ -2807,15 +2817,20 @@ static void illum_combine_interintra_highbd(
 }
 #endif  // CONFIG_ILLUM_MCOMP
 
-static void combine_interintra(INTERINTRA_MODE mode,
-                               int8_t use_wedge_interintra, int8_t wedge_index,
-                               int8_t wedge_sign, BLOCK_SIZE bsize,
-                               BLOCK_SIZE plane_bsize, uint8_t *comppred,
-                               int compstride, const uint8_t *interpred,
-                               int interstride, const uint8_t *intrapred,
-                               int intrastride, int border) {
+static void combine_interintra(const MACROBLOCKD *xd,
+                               INTERINTRA_MODE mode,
+                               int8_t use_wedge_interintra,
+                               int8_t wedge_index,
+                               int8_t wedge_sign,
+                               BLOCK_SIZE bsize,
+                               BLOCK_SIZE plane_bsize,
+                               uint8_t *comppred, int compstride,
+                               const uint8_t *interpred, int interstride,
+                               const uint8_t *intrapred, int intrastride,
+                               int border) {
   assert(plane_bsize < BLOCK_SIZES_ALL);
   (void)border;
+
 #if CONFIG_ILLUM_MCOMP
   if (mode == II_ILLUM_MCOMP_PRED) {
     illum_combine_interintra(use_wedge_interintra, wedge_index, wedge_sign,
@@ -2826,13 +2841,19 @@ static void combine_interintra(INTERINTRA_MODE mode,
   }
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  if (is_interintra_ml_supported(xd, use_wedge_interintra)) {
     assert(!use_wedge_interintra);
     av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
                               interpred, interstride, intrapred, intrastride,
                               border);
     return;
   }
+  // if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  //   av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
+  //                             interpred, interstride, intrapred, intrastride,
+  //                             border);
+  //   return;
+  // }
 #endif  // CONFIG_INTERINTRA_ML
 
   const int bw = block_size_wide[plane_bsize];
@@ -2858,9 +2879,9 @@ static void combine_interintra(INTERINTRA_MODE mode,
 }
 
 static void combine_interintra_highbd(
-    INTERINTRA_MODE mode, int8_t use_wedge_interintra, int8_t wedge_index,
-    int8_t wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
-    uint8_t *comppred8, int compstride, const uint8_t *interpred8,
+    const MACROBLOCKD *xd, INTERINTRA_MODE mode, int8_t use_wedge_interintra,
+    int8_t wedge_index, int8_t wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE
+    plane_bsize, uint8_t *comppred8, int compstride, const uint8_t *interpred8,
     int interstride, const uint8_t *intrapred8, int intrastride, int bd,
     int border) {
   assert(plane_bsize < BLOCK_SIZES_ALL);
@@ -2875,13 +2896,19 @@ static void combine_interintra_highbd(
   }
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  if (is_interintra_ml_supported(xd, use_wedge_interintra)) {
     assert(!use_wedge_interintra);
     av1_combine_interintra_ml_highbd(mode, plane_bsize, comppred8, compstride,
                                      interpred8, interstride, intrapred8,
                                      intrastride, bd, border);
     return;
   }
+  // if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  //   av1_combine_interintra_ml_highbd(mode, plane_bsize, comppred8, compstride,
+  //                                    interpred8, interstride, intrapred8,
+  //                                    intrastride, bd, border);
+  //   return;
+  // }
 #endif  // CONFIG_INTERINTRA_ML
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];
@@ -2965,13 +2992,13 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize_base, ssx, ssy);
   if (is_cur_buf_hbd(xd)) {
     combine_interintra_highbd(
-        mode, xd->mi[0]->use_wedge_interintra,
+        xd, mode, xd->mi[0]->use_wedge_interintra,
         xd->mi[0]->interintra_wedge_index, INTERINTRA_WEDGE_SIGN, bsize,
         plane_bsize, xd->plane[plane].dst.buf, xd->plane[plane].dst.stride,
         inter_pred, inter_stride, intra_pred, intra_stride, xd->bd, border);
     return;
   }
-  combine_interintra(mode, xd->mi[0]->use_wedge_interintra,
+  combine_interintra(xd, mode, xd->mi[0]->use_wedge_interintra,
                      xd->mi[0]->interintra_wedge_index, INTERINTRA_WEDGE_SIGN,
                      bsize, plane_bsize, xd->plane[plane].dst.buf,
                      xd->plane[plane].dst.stride, inter_pred, inter_stride,
