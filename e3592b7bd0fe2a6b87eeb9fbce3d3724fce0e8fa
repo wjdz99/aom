@@ -71,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "798cd71a_f8b3d16c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1437,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-10-07T21:48:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c60e8fc_681bb7ae",
+      "range": {
+        "startLine": 1437,
+        "startChar": 15,
+        "endLine": 1437,
+        "endChar": 17
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d59848e_53e152b9",
@@ -118,6 +142,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b06e1a2_ed2c21e2",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-10-07T21:48:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "079e6d9c_26371104",
+      "range": {
+        "startLine": 1439,
+        "startChar": 0,
+        "endLine": 1439,
+        "endChar": 28
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "74f2a71e_1dc7c5e1",
@@ -131,6 +179,30 @@
       "writtenOn": "2020-10-07T18:43:08Z",
       "side": 1,
       "message": "I might be good to define two variables with proper names.\ndouble xxx \u003d AOMMAX(stats[i].coded_error, stats[i - 1].coded_error);\ndouble yyy \u003d regions[k].last - regions[k].start + check_first_sr;\nregions[k].avg_sr_fr_ratio +\u003d stats[i].sr_coded_error / (xxx * yyy);",
+      "range": {
+        "startLine": 1471,
+        "startChar": 0,
+        "endLine": 1474,
+        "endChar": 72
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d26b3931_6ab214c6",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1474,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-10-07T21:48:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74f2a71e_1dc7c5e1",
       "range": {
         "startLine": 1471,
         "startChar": 0,
@@ -200,6 +272,30 @@
       "writtenOn": "2020-10-07T18:43:08Z",
       "side": 1,
       "message": "Use parentheses.",
+      "range": {
+        "startLine": 1547,
+        "startChar": 17,
+        "endLine": 1547,
+        "endChar": 59
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42725fc6_b3bcce28",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-10-07T21:48:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1fb7407_d3dda235",
       "range": {
         "startLine": 1547,
         "startChar": 17,
