@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8c09074d_6b82f4f3",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1291,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-10-07T19:30:42Z",
+      "side": 1,
+      "message": "Thanks for the review! Do you mean I should always use curly braces for the if statements? Is this required in our style guide somewhere, since I remember for short \"if\" statements with no \"else\", it is ok to use one-line statement like this? (Besides there are many other usages like this in our codebase in our codebase)",
+      "parentUuid": "f5505882_e16c4dcb",
+      "range": {
+        "startLine": 1291,
+        "startChar": 4,
+        "endLine": 1291,
+        "endChar": 45
+      },
+      "revId": "f797604c5e8dd2bf1f9e4dee1014d48a661fe42a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d5aa361c_b0e0d4d3",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 7
