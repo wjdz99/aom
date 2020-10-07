@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de36554b_3c636faa",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1429,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T18:43:08Z",
+      "side": 1,
+      "message": "Use parentheses.",
+      "range": {
+        "startLine": 1429,
+        "startChar": 0,
+        "endLine": 1429,
+        "endChar": 68
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d70a3a49_a96496b5",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1437,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T18:43:08Z",
+      "side": 1,
+      "message": "Will C2 always greater than 0?",
+      "range": {
+        "startLine": 1437,
+        "startChar": 15,
+        "endLine": 1437,
+        "endChar": 17
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d59848e_53e152b9",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T18:43:08Z",
+      "side": 1,
+      "message": "Since we are looking for min noise, why do we need to skip if noise \u003c 0?\nShouldn\u0027t it be noise \u003d AOMMAX(noise, 0)?",
+      "range": {
+        "startLine": 1439,
+        "startChar": 0,
+        "endLine": 1439,
+        "endChar": 28
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74f2a71e_1dc7c5e1",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1474,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T18:43:08Z",
+      "side": 1,
+      "message": "I might be good to define two variables with proper names.\ndouble xxx \u003d AOMMAX(stats[i].coded_error, stats[i - 1].coded_error);\ndouble yyy \u003d regions[k].last - regions[k].start + check_first_sr;\nregions[k].avg_sr_fr_ratio +\u003d stats[i].sr_coded_error / (xxx * yyy);",
+      "range": {
+        "startLine": 1471,
+        "startChar": 0,
+        "endLine": 1474,
+        "endChar": 72
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9efe4b03_930acb53",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1511,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T18:43:08Z",
+      "side": 1,
+      "message": "Use parentheses.",
+      "range": {
+        "startLine": 1511,
+        "startChar": 0,
+        "endLine": 1511,
+        "endChar": 55
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28948655_54543686",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1513,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T18:43:08Z",
+      "side": 1,
+      "message": "Use parentheses.",
+      "range": {
+        "startLine": 1513,
+        "startChar": 0,
+        "endLine": 1513,
+        "endChar": 52
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1fb7407_d3dda235",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T18:43:08Z",
+      "side": 1,
+      "message": "Use parentheses.",
+      "range": {
+        "startLine": 1547,
+        "startChar": 17,
+        "endLine": 1547,
+        "endChar": 59
+      },
+      "revId": "e3592b7bd0fe2a6b87eeb9fbce3d3724fce0e8fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
