@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "567f719c_e6d50bef",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1291,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T21:47:56Z",
+      "side": 1,
+      "message": "Actually, you are right.\n\nHere is the google guideline.\nhttps://engdoc.corp.google.com/eng/doc/devguide/cpp/styleguide.md?cl\u003dhead#Conditionals\n\nSorry that I remembered it wrong.\n\nMy opinion is, if the if statement uses two lines, I will always choose to use parenthesis.\n\nIt\u0027s up to you.",
+      "parentUuid": "8c09074d_6b82f4f3",
+      "range": {
+        "startLine": 1291,
+        "startChar": 4,
+        "endLine": 1291,
+        "endChar": 45
+      },
+      "revId": "f797604c5e8dd2bf1f9e4dee1014d48a661fe42a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d5aa361c_b0e0d4d3",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 7
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "I think so, since we always add a constant min_err to the actual intra error.",
       "parentUuid": "d5aa361c_b0e0d4d3",
+      "range": {
+        "startLine": 1292,
+        "startChar": 46,
+        "endLine": 1292,
+        "endChar": 72
+      },
+      "revId": "f797604c5e8dd2bf1f9e4dee1014d48a661fe42a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ea8285d_dd4f0478",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2020-10-07T21:47:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "708f310a_76d3cb82",
       "range": {
         "startLine": 1292,
         "startChar": 46,
