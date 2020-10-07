@@ -318,7 +318,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                              mv_costs->mv_cost_stack, MV_COST_WEIGHT);
 }
 
-void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
+int64_t av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
                              BLOCK_SIZE bsize, int_mv *cur_mv,
                              const uint8_t *mask, int mask_stride,
                              int *rate_mv) {
@@ -420,8 +420,11 @@ void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
     // Make motion search params
     FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+    const search_site_config *src_search_sites =
+        cpi->mv_search_params.search_site_cfg[SS_CFG_SRC];
+
     av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
-                                       &ref_mv[id].as_mv, NULL,
+                                       &ref_mv[id].as_mv, src_search_sites,
                                        /*fine_search_interval=*/0);
 
     av1_set_ms_compound_refs(&full_ms_params.ms_buffers, second_pred, mask,
@@ -431,8 +434,13 @@ void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     const FULLPEL_MV start_fullmv = get_fullmv_from_mv(&cur_mv[id].as_mv);
 
     // Small-range full-pixel motion search.
-    bestsme = av1_refining_search_8p_c(&full_ms_params, start_fullmv,
-                                       &best_mv.as_fullmv);
+    if (mask) {
+      bestsme = av1_full_pixel_search(
+              start_fullmv, &full_ms_params, 0, NULL, &best_mv.as_fullmv, NULL);    
+    } else {
+      bestsme = av1_refining_search_8p_c(&full_ms_params, start_fullmv,
+                                         &best_mv.as_fullmv);
+    }
 
     if (bestsme < INT_MAX) {
       bestsme = av1_get_mvpred_compound_var(
@@ -487,18 +495,19 @@ void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   *rate_mv = 0;
-
   for (ref = 0; ref < 2; ++ref) {
     const int_mv curr_ref_mv = av1_get_ref_mv(x, ref);
     *rate_mv += av1_mv_bit_cost(&cur_mv[ref].as_mv, &curr_ref_mv.as_mv,
                                 mv_costs->nmv_joint_cost,
                                 mv_costs->mv_cost_stack, MV_COST_WEIGHT);
   }
+
+  return AOMMIN(last_besterr[0], last_besterr[1]);
 }
 
 // Search for the best mv for one component of a compound,
 // given that the other component is fixed.
-void av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
+int av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
                                        BLOCK_SIZE bsize, MV *this_mv,
                                        const uint8_t *second_pred,
                                        const uint8_t *mask, int mask_stride,
@@ -601,6 +610,8 @@ void av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
   *rate_mv += av1_mv_bit_cost(this_mv, &ref_mv.as_mv, mv_costs->nmv_joint_cost,
                               mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+
+  return bestsme;
 }
 
 static AOM_INLINE void build_second_inter_pred(const AV1_COMP *cpi,
@@ -643,7 +654,7 @@ static AOM_INLINE void build_second_inter_pred(const AV1_COMP *cpi,
 
 // Wrapper for av1_compound_single_motion_search, for the common case
 // where the second prediction is also an inter mode.
-void av1_compound_single_motion_search_interinter(
+int av1_compound_single_motion_search_interinter(
     const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int_mv *cur_mv,
     const uint8_t *mask, int mask_stride, int *rate_mv, int ref_idx) {
   MACROBLOCKD *xd = &x->e_mbd;
@@ -661,8 +672,11 @@ void av1_compound_single_motion_search_interinter(
   MV *this_mv = &cur_mv[ref_idx].as_mv;
   const MV *other_mv = &cur_mv[!ref_idx].as_mv;
   build_second_inter_pred(cpi, x, bsize, other_mv, ref_idx, second_pred);
-  av1_compound_single_motion_search(cpi, x, bsize, this_mv, second_pred, mask,
-                                    mask_stride, rate_mv, ref_idx);
+
+  int best_sme =
+    av1_compound_single_motion_search(cpi, x, bsize, this_mv, second_pred, mask,
+                                      mask_stride, rate_mv, ref_idx);
+  return best_sme;
 }
 
 static AOM_INLINE void do_masked_motion_search_indexed(
