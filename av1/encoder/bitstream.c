@@ -1661,15 +1661,18 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
 #endif  // CONFIG_DERIVED_INTRA_MODE
         {
 #if CONFIG_INTERINTRA_ML
-          if (is_interintra_ml_supported(bsize)) {
-            aom_write_symbol(w, mbmi->interintra_mode,
-                             ec_ctx->interintra_ml_mode_cdf[bsize_group],
-                             INTERINTRA_MODES);
-          } else {
-            aom_write_symbol(w, mbmi->interintra_mode,
-                             ec_ctx->interintra_mode_cdf[bsize_group],
-                             II_ML_PRED0);
-          }
+          // if (is_interintra_ml_supported(bsize)) {
+          //   aom_write_symbol(w, mbmi->interintra_mode,
+          //                    ec_ctx->interintra_ml_mode_cdf[bsize_group],
+          //                    INTERINTRA_MODES);
+          // } else {
+          //   aom_write_symbol(w, mbmi->interintra_mode,
+          //                    ec_ctx->interintra_mode_cdf[bsize_group],
+          //                    II_ML_PRED0);
+          // }
+          aom_write_symbol(w, mbmi->interintra_mode,
+                           ec_ctx->interintra_mode_cdf[bsize_group],
+                           INTERINTRA_MODES);
 #else
           aom_write_symbol(w, mbmi->interintra_mode,
                            ec_ctx->interintra_mode_cdf[bsize_group],

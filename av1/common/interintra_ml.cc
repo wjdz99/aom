@@ -164,7 +164,7 @@ void load_inputs(tflite::Interpreter *interpreter, INTERINTRA_MODE mode,
   }
 
   int *mode_input = interpreter->typed_input_tensor<int>(3);
-  *mode_input = mode - II_ML_PRED0 + 1;  // Normalize so 1 is the first mode.
+  *mode_input = mode - II_ML_PRED0;  // Normalize so 0 is the first mode.
 }
 
 // Copy the output of the interpreter into the destination buffer. If

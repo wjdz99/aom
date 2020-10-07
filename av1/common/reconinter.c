@@ -2497,6 +2497,16 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
   const int bh = block_size_high[plane_bsize];
   const int size_scale = ii_size_scales[plane_bsize];
 
+#if CONFIG_INTERINTRA_ML
+  if (is_interintra_ml_supported(plane_bsize)) {
+    for (i = 0; i < bh; ++i) {
+      memset(mask, 32, bw * sizeof(mask[0]));
+      mask += stride;
+    }
+    return;
+  }
+#endif  // CONFIG_INTERINTRA_ML
+
   switch (mode) {
     case II_V_PRED:
       for (i = 0; i < bh; ++i) {
@@ -2525,16 +2535,16 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
     case II_ILLUM_MCOMP_PRED:
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-    case II_ML_PRED0:
-    case II_ML_PRED1:
-    case II_ML_PRED2:
-    case II_ML_PRED3:
-    case II_ML_PRED4:
-    case II_ML_PRED5:
-    case II_ML_PRED6:
-    case II_ML_PRED7:
-    case II_ML_PRED8:
-    case II_ML_PRED9:
+    // case II_ML_PRED0:
+    // case II_ML_PRED1:
+    // case II_ML_PRED2:
+    // case II_ML_PRED3:
+    // case II_ML_PRED4:
+    // case II_ML_PRED5:
+    // case II_ML_PRED6:
+    // case II_ML_PRED7:
+    // case II_ML_PRED8:
+    // case II_ML_PRED9:
 #endif  // CONFIG_INTERINTRA_ML
     default:
       for (i = 0; i < bh; ++i) {
@@ -2826,12 +2836,18 @@ static void combine_interintra(INTERINTRA_MODE mode,
   }
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
-    av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
-                              interpred, interstride, intrapred, intrastride,
-                              border);
-    return;
+  if (is_interintra_ml_supported(plane_bsize)) {
+  av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
+                            interpred, interstride, intrapred, intrastride,
+                            border);
+  return;
   }
+  // if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  //   av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
+  //                             interpred, interstride, intrapred, intrastride,
+  //                             border);
+  //   return;
+  // }
 #endif  // CONFIG_INTERINTRA_ML
 
   const int bw = block_size_wide[plane_bsize];
@@ -2874,12 +2890,18 @@ static void combine_interintra_highbd(
   }
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  if (is_interintra_ml_supported(plane_bsize)) {
     av1_combine_interintra_ml_highbd(mode, plane_bsize, comppred8, compstride,
                                      interpred8, interstride, intrapred8,
                                      intrastride, bd, border);
     return;
   }
+  // if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  //   av1_combine_interintra_ml_highbd(mode, plane_bsize, comppred8, compstride,
+  //                                    interpred8, interstride, intrapred8,
+  //                                    intrastride, bd, border);
+  //   return;
+  // }
 #endif  // CONFIG_INTERINTRA_ML
   const int bw = block_size_wide[plane_bsize];
   const int bh = block_size_high[plane_bsize];

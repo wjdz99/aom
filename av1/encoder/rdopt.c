@@ -10689,9 +10689,9 @@ static INLINE bool enable_smooth_interintra_search(const AV1_COMP *const cpi) {
 static int interintra_mode_cost(MACROBLOCK *const x, BLOCK_SIZE bsize,
                                 int mode) {
 #if CONFIG_INTERINTRA_ML
-  if (is_interintra_ml_supported(bsize)) {
-    return x->interintra_ml_mode_cost_[size_group_lookup[bsize]][mode];
-  }
+  // if (is_interintra_ml_supported(bsize)) {
+  //   return x->interintra_ml_mode_cost_[size_group_lookup[bsize]][mode];
+  // }
 #endif  // CONFIG_INTERINTRA_ML
   return x->interintra_mode_cost_[size_group_lookup[bsize]][mode];
 }
