@@ -1372,6 +1372,8 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       for (int comp_type = COMPOUND_AVERAGE; comp_type <= COMPOUND_DISTWTD;
            comp_type++) {
         update_mbmi_for_compound_type(mbmi, comp_type);
+        mbmi->mv[0] = comp_type == COMPOUND_AVERAGE ? cur_mv[0] : cur_mv[2];
+        mbmi->mv[1] = comp_type == COMPOUND_AVERAGE ? cur_mv[1] : cur_mv[3];
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                       AOM_PLANE_Y, AOM_PLANE_Y);
         model_rd_sb_fn[MODELRD_CURVFIT](
@@ -1391,6 +1393,9 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       best_type = find_best_avg_distwtd_comp_type(
           x, comp_model_rate, comp_model_dist, *rate_mv, &est_rd);
       update_mbmi_for_compound_type(mbmi, best_type);
+      mbmi->mv[0] = best_type == COMPOUND_AVERAGE ? cur_mv[0] : cur_mv[2];
+      mbmi->mv[1] = best_type == COMPOUND_AVERAGE ? cur_mv[1] : cur_mv[3];
+
       if (best_type == COMPOUND_AVERAGE) restore_dst_buf(xd, *orig_dst, 1);
       rs2 = masked_type_cost[best_type];
       RD_STATS est_rd_stats;
