@@ -402,7 +402,7 @@ static void set_good_speed_features_framesize_independent(
   sf->inter_sf.prune_wedge_pred_diff_based = 1;
   sf->inter_sf.reduce_inter_modes = 1;
   sf->inter_sf.selective_ref_frame = 1;
-  sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
+  // sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
 
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
 
@@ -493,7 +493,7 @@ static void set_good_speed_features_framesize_independent(
     // clips (e.g. 5% loss on dinner_1080p). We need to examine the sequence a
     // bit more closely to figure out why.
     sf->inter_sf.adaptive_rd_thresh = 1;
-    sf->inter_sf.comp_inter_joint_search_thresh = BLOCK_SIZES_ALL;
+    // sf->inter_sf.comp_inter_joint_search_thresh = BLOCK_SIZES_ALL;
     sf->inter_sf.disable_wedge_search_var_thresh = 100;
     sf->inter_sf.fast_interintra_wedge_search = 1;
     sf->inter_sf.prune_comp_search_by_single_result = boosted ? 4 : 1;
@@ -501,7 +501,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.prune_comp_type_by_comp_avg = 2;
     sf->inter_sf.reuse_best_prediction_for_part_ab = 1;
     sf->inter_sf.selective_ref_frame = 3;
-    sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
+    // sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
 
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->interp_sf.adaptive_interp_filter_search = 1;
