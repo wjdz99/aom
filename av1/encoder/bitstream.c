@@ -1527,6 +1527,7 @@ static void write_interintra_mode_bits(MACROBLOCKD const *xd,
                                        const MB_MODE_INFO *mbmi,
                                        BLOCK_SIZE bsize, aom_writer *w,
                                        FRAME_CONTEXT *ec_ctx) {
+  (void)xd;
 #if CONFIG_DERIVED_INTRA_MODE
   if (av1_enable_derived_intra_mode(xd, bsize)) {
     aom_write_symbol(
@@ -1549,8 +1550,11 @@ static void write_interintra_mode_bits(MACROBLOCKD const *xd,
                      ec_ctx->interintra_ml_mode_cdf[bsize_group],
                      INTERINTRA_MODES);
   } else {
+    // aom_write_symbol(w, mbmi->interintra_mode,
+    //                  ec_ctx->interintra_mode_cdf[bsize_group],II_ML_PRED0);
     aom_write_symbol(w, mbmi->interintra_mode,
-                     ec_ctx->interintra_mode_cdf[bsize_group], II_ML_PRED0);
+                     ec_ctx->interintra_mode_cdf[bsize_group],
+                     INTERINTRA_MODES);
   }
 #else
   (void)xd;

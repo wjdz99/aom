@@ -10878,7 +10878,8 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       x->derived_intra_mode_cost[1][above + left];
 #elif CONFIG_INTERINTRA_ML
   // Only search the ML model predictors if the block size is 16x16.
-  const int total_modes = bsize == BLOCK_16X16 ? INTERINTRA_MODES : II_ML_PRED0;
+  // const int total_modes = bsize == BLOCK_16X16 ? INTERINTRA_MODES : II_ML_PRED0;
+  const int total_modes = INTERINTRA_MODES;
   const int *derived_intra_mode_cost = NULL;
   int pick_derived_intra_mode = 0;
 #else
@@ -10937,10 +10938,12 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       for (int j = 0; j < total_modes; ++j) {
 #if CONFIG_INTERINTRA_ML
         assert(mbmi->use_wedge_interintra);
+        // // ML modes do not support wedge mode.
+        // continue;
         // Wedge mode not supported for interintra-ML modes.
-        if (j >= II_ML_PRED0 && j <= II_ML_PRED9) {
-          continue;
-        }
+        // if (j >= II_ML_PRED0 && j <= II_ML_PRED9) {
+        //   continue;
+        // }
 #endif  // CONFIG_INTERINTRA_ML
         mbmi->interintra_mode = (INTERINTRA_MODE)j;
 #if CONFIG_DERIVED_INTRA_MODE

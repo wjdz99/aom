@@ -16,6 +16,7 @@
 #include "av1/common/entropy.h"
 #include "av1/common/entropymode.h"
 #include "av1/common/entropymv.h"
+#include "av1/common/enums.h"
 #include "av1/common/mvref_common.h"
 #include "av1/common/pred_common.h"
 #include "av1/common/reconinter.h"
@@ -1732,9 +1733,12 @@ static void read_interintra_mode_bits(MACROBLOCKD *const xd,
         aom_read_symbol(r, xd->tile_ctx->interintra_ml_mode_cdf[size_group],
                         INTERINTRA_MODES, ACCT_STR);
   } else {
+    // mbmi->interintra_mode =
+    //     aom_read_symbol(r, xd->tile_ctx->interintra_mode_cdf[size_group],
+    //                     II_ML_PRED0, ACCT_STR);
     mbmi->interintra_mode =
         aom_read_symbol(r, xd->tile_ctx->interintra_mode_cdf[size_group],
-                        II_ML_PRED0, ACCT_STR);
+                        INTERINTRA_MODES, ACCT_STR);
   }
 #else
   mbmi->interintra_mode =
