@@ -519,7 +519,7 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
     RD_STATS dummy_rdc;
     get_estimated_pred(cpi, tile_info, x, mi_row, mi_col);
     av1_nonrd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col,
-                             BLOCK_64X64, &dummy_rdc, 1, INT64_MAX, pc_root);
+                             BLOCK_64X64, &dummy_rdc, 1, INT64_MAX, pc_root, 0);
     av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
     return;
   }
