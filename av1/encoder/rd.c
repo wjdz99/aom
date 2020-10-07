@@ -482,8 +482,8 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       av1_cost_tokens_from_cdf(x->interintra_mode_cost_[i],
                                fc->interintra_mode_cdf[i], NULL);
 #if CONFIG_INTERINTRA_ML
-      av1_cost_tokens_from_cdf(x->interintra_ml_mode_cost_[i],
-                               fc->interintra_ml_mode_cdf[i], NULL);
+      // av1_cost_tokens_from_cdf(x->interintra_ml_mode_cost_[i],
+      //                          fc->interintra_ml_mode_cdf[i], NULL);
 #endif
     }
     for (i = 0; i < BLOCK_SIZES_ALL; ++i) {

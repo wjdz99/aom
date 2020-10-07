@@ -10689,11 +10689,12 @@ static INLINE bool enable_smooth_interintra_search(const AV1_COMP *const cpi) {
 // direct variable in the macroblock structure.
 static int interintra_mode_cost(MACROBLOCK *const x, BLOCK_SIZE bsize, int mode,
                                 bool use_wedge_interintra) {
-#if CONFIG_INTERINTRA_ML
-  if (is_interintra_ml_supported(&x->e_mbd, use_wedge_interintra)) {
-    return x->interintra_ml_mode_cost_[size_group_lookup[bsize]][mode];
-  }
-#endif  // CONFIG_INTERINTRA_ML
+// #if CONFIG_INTERINTRA_ML
+//   if (is_interintra_ml_supported(&x->e_mbd, use_wedge_interintra)) {
+//     // return x->interintra_ml_mode_cost_[size_group_lookup[bsize]][mode];
+//     return x->interintra_mode_cost_[size_group_lookup[bsize]][mode];
+//   }
+// #endif  // CONFIG_INTERINTRA_ML
   (void)use_wedge_interintra;
   return x->interintra_mode_cost_[size_group_lookup[bsize]][mode];
 }
@@ -10937,10 +10938,12 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       for (int j = 0; j < total_modes; ++j) {
 #if CONFIG_INTERINTRA_ML
         assert(mbmi->use_wedge_interintra);
+        // ML modes do not support wedge mode.
+        continue;
         // Wedge mode not supported for interintra-ML modes.
-        if (j >= II_ML_PRED0 && j <= II_ML_PRED9) {
-          continue;
-        }
+        // if (j >= II_ML_PRED0 && j <= II_ML_PRED9) {
+        //   continue;
+        // }
 #endif  // CONFIG_INTERINTRA_ML
         mbmi->interintra_mode = (INTERINTRA_MODE)j;
 #if CONFIG_DERIVED_INTRA_MODE

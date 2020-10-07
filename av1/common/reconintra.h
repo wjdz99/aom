@@ -85,20 +85,20 @@ static const PREDICTION_MODE interintra_to_intra_mode[INTERINTRA_MODES] = {
 #if CONFIG_ILLUM_MCOMP
   DC_PRED
 #endif  // CONFIG_ILLUM_MCOMP
-#if CONFIG_INTERINTRA_ML
-      // The intra-prediction is not used directly by the ML models. Use
-      // simplest intra-predictor for speed.
-      DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED
-#endif  // CONFIG_INTERINTRA_ML
+// #if CONFIG_INTERINTRA_ML
+//       // The intra-prediction is not used directly by the ML models. Use
+//       // simplest intra-predictor for speed.
+//       DC_PRED,
+//   DC_PRED,
+//   DC_PRED,
+//   DC_PRED,
+//   DC_PRED,
+//   DC_PRED,
+//   DC_PRED,
+//   DC_PRED,
+//   DC_PRED,
+//   DC_PRED
+// #endif  // CONFIG_INTERINTRA_ML
 };
 
 // Mapping of intra mode to the interintra mode
