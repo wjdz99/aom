@@ -16,6 +16,24 @@
       "message": "I am still seeing a 0.8-0.9% loss on enh when the config from 2819 is used to replace 16:0 in enh.",
       "revId": "53f3a9905daa589ace5c1f080bad9192df5a24f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c08857f2_555cdaeb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2020-10-08T07:19:41Z",
+      "side": 1,
+      "message": "I assume you are running with TPL? In the commit description I mention that I need to do a followup for TPL because there is a larger performance drop with it on. It\u0027ll probably be a quick fix tomorrow but for now the new mapping is not enabled with TPL.",
+      "parentUuid": "7c7ea497_32d2c4dd",
+      "revId": "53f3a9905daa589ace5c1f080bad9192df5a24f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
