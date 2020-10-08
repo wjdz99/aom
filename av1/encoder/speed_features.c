@@ -364,7 +364,9 @@ static void set_good_speed_features_framesize_independent(
   sf->inter_sf.prune_wedge_pred_diff_based = 1;
   sf->inter_sf.reduce_inter_modes = 1;
   sf->inter_sf.selective_ref_frame = 1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
   sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
 
@@ -460,7 +462,9 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.prune_compound_using_neighbors = 1;
     sf->inter_sf.prune_comp_type_by_comp_avg = 2;
     sf->inter_sf.selective_ref_frame = 3;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
     sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->interp_sf.adaptive_interp_filter_search = 1;
@@ -689,7 +693,9 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->inter_sf.prune_wedge_pred_diff_based = 1;
   sf->inter_sf.reduce_inter_modes = 1;
   sf->inter_sf.selective_ref_frame = 1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
   sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
 
@@ -762,7 +768,9 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->inter_sf.fast_wedge_sign_estimate = 1;
     sf->inter_sf.prune_comp_type_by_comp_avg = 2;
     sf->inter_sf.selective_ref_frame = 3;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
     sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
     sf->interp_sf.adaptive_interp_filter_search = 1;
     sf->interp_sf.cb_pred_filter_search = 0;
@@ -1049,7 +1057,9 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->disable_wedge_search_var_thresh = 0;
   inter_sf->fast_wedge_sign_estimate = 0;
   inter_sf->prune_wedge_pred_diff_based = 0;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
   inter_sf->use_dist_wtd_comp_flag = DIST_WTD_COMP_ENABLED;
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   inter_sf->reuse_inter_intra_mode = 0;
   inter_sf->disable_sb_level_coeff_cost_upd = 0;
   inter_sf->disable_sb_level_mv_cost_upd = 0;
