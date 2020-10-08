@@ -75,6 +75,7 @@ int av1_get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   if (tpl_frame->is_valid == 0) return deltaq_rdmult;
   if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return deltaq_rdmult;
   if (tpl_idx >= MAX_TPL_FRAME_IDX) return deltaq_rdmult;
+  // TODO(now): Fix this.
   if (cpi->superres_mode != AOM_SUPERRES_NONE) return deltaq_rdmult;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return deltaq_rdmult;
 
@@ -673,8 +674,11 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
       coded_to_superres_mi(mi_col + mi_wide, cm->superres_scale_denominator);
   const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
   const int step = 1 << block_mis_log2;
-  for (int row = mi_row; row < mi_row + mi_high; row += step) {
-    for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
+  const int row_step = step;
+  const int col_step_sr =
+      coded_to_superres_mi(step, cm->superres_scale_denominator);
+  for (int row = mi_row; row < mi_row + mi_high; row += row_step) {
+    for (int col = mi_col_sr; col < mi_col_end_sr; col += col_step_sr) {
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) continue;
       TplDepStats *this_stats =
           &tpl_stats[av1_tpl_ptr_pos(row, col, tpl_stride, block_mis_log2)];
@@ -686,6 +690,7 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
       mi_count++;
     }
   }
+  assert(mi_count <= MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB);
 
   aom_clear_system_state();
 
@@ -773,7 +778,6 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   sb_enc->tpl_data_count = 0;
 
   if (!cpi->oxcf.algo_cfg.enable_tpl_model) return;
-  if (cpi->superres_mode != AOM_SUPERRES_NONE) return;
   if (cpi->common.current_frame.frame_type == KEY_FRAME) return;
   const FRAME_UPDATE_TYPE update_type = get_frame_update_type(&cpi->gf_group);
   if (update_type == INTNL_OVERLAY_UPDATE || update_type == OVERLAY_UPDATE)
@@ -806,15 +810,19 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   // Here always use motion estimation size to avoid getting repetitive inter/
   // intra cost.
   const BLOCK_SIZE tpl_bsize = convert_length_to_bsize(tpl_data->tpl_bsize_1d);
-  const int step = mi_size_wide[tpl_bsize];
   assert(mi_size_wide[tpl_bsize] == mi_size_high[tpl_bsize]);
+  const int row_step = mi_size_high[tpl_bsize];
+  const int col_step_sr = coded_to_superres_mi(mi_size_wide[tpl_bsize],
+                                               cm->superres_scale_denominator);
 
   // Stride is only based on SB size, and we fill in values for every 16x16
   // block in a SB.
-  sb_enc->tpl_stride = (mi_col_end_sr - mi_col_sr) / step;
+  // TODO(now): Correct?
+  sb_enc->tpl_stride = (mi_col_end_sr - mi_col_sr) / col_step_sr;
 
-  for (int row = mi_row; row < mi_row + mi_high; row += step) {
-    for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
+  for (int row = mi_row; row < mi_row + mi_high; row += row_step) {
+    for (int col = mi_col_sr; col < mi_col_end_sr; col += col_step_sr) {
+      assert(count < MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB);
       // Handle partial SB, so that no invalid values are used later.
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) {
         sb_enc->tpl_inter_cost[count] = INT64_MAX;
@@ -836,6 +844,7 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
     }
   }
 
+  assert(mi_count <= MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB);
   sb_enc->tpl_data_count = mi_count;
 }
 
@@ -874,8 +883,11 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
       coded_to_superres_mi(mi_col + mi_wide, cm->superres_scale_denominator);
   const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
   const int step = 1 << block_mis_log2;
-  for (int row = mi_row; row < mi_row + mi_high; row += step) {
-    for (int col = mi_col_sr; col < mi_col_end_sr; col += step) {
+  const int row_step = step;
+  const int col_step_sr =
+      coded_to_superres_mi(step, cm->superres_scale_denominator);
+  for (int row = mi_row; row < mi_row + mi_high; row += row_step) {
+    for (int col = mi_col_sr; col < mi_col_end_sr; col += col_step_sr) {
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) continue;
       TplDepStats *this_stats =
           &tpl_stats[av1_tpl_ptr_pos(row, col, tpl_stride, block_mis_log2)];
@@ -887,6 +899,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
       mi_count++;
     }
   }
+  assert(mi_count <= MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB);
 
   aom_clear_system_state();
 

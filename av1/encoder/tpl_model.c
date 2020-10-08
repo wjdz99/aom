@@ -1127,7 +1127,10 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   EncodeFrameParams this_frame_params = *frame_params;
   TplParams *const tpl_data = &cpi->tpl_data;
 
-  if (cpi->superres_mode != AOM_SUPERRES_NONE) return 0;
+  if (cpi->superres_mode != AOM_SUPERRES_NONE) {
+    assert(cpi->superres_mode != AOM_SUPERRES_AUTO);
+    return 0;
+  }
 
   cm->current_frame.frame_type = frame_params->frame_type;
   for (int gf_index = gf_group->index; gf_index < gf_group->size; ++gf_index) {
@@ -1209,10 +1212,13 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
     int64_t intra_cost_base = 0;
     int64_t mc_dep_cost_base = 0;
     const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+    const int row_step = step;
+    const int col_step_sr =
+        coded_to_superres_mi(step, cm->superres_scale_denominator);
     const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
 
-    for (int row = 0; row < cm->mi_params.mi_rows; row += step) {
-      for (int col = 0; col < mi_cols_sr; col += step) {
+    for (int row = 0; row < cm->mi_params.mi_rows; row += row_step) {
+      for (int col = 0; col < mi_cols_sr; col += col_step_sr) {
         TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
             row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
         int64_t mc_dep_delta =
@@ -1244,6 +1250,7 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
   const TplDepFrame *const tpl_frame = &tpl_data->tpl_frame[tpl_idx];
 
   if (!tpl_frame->is_valid) return;
+  // TODO(now): Fix.
   if (cpi->superres_mode != AOM_SUPERRES_NONE) return;
 
   const TplDepStats *const tpl_stats = tpl_frame->tpl_stats_ptr;
@@ -1256,6 +1263,7 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
   const int num_cols = (mi_cols_sr + num_mi_w - 1) / num_mi_w;
   const int num_rows = (cm->mi_params.mi_rows + num_mi_h - 1) / num_mi_h;
   const double c = 1.2;
+  // TODO(now): Use col and row steps.
   const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
 
   aom_clear_system_state();
@@ -1300,6 +1308,7 @@ void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
   if (tpl_frame->is_valid == 0) return;
   if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return;
   if (tpl_idx >= MAX_TPL_FRAME_IDX) return;
+  // TODO(now): Fix.
   if (cpi->superres_mode != AOM_SUPERRES_NONE) return;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return;
 
