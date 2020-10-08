@@ -2155,9 +2155,11 @@ static void get_cx_data(struct stream_state *stream,
           stream->psnr_sse_total[0] += pkt->data.psnr.sse[0];
           stream->psnr_samples_total[0] += pkt->data.psnr.samples[0];
           for (i = 0; i < 4; i++) {
-            if (!global->quiet)
-              fprintf(stderr, "%.3f ", pkt->data.psnr.psnr[i]);
+            fprintf(stderr, "%.3f ", pkt->data.psnr.psnr[i]);
             stream->psnr_totals[0][i] += pkt->data.psnr.psnr[i];
+          }
+          if (global->quiet) {
+            fprintf(stderr, "\n");
           }
           stream->psnr_count[0]++;
 
@@ -2167,9 +2169,11 @@ static void get_cx_data(struct stream_state *stream,
             stream->psnr_sse_total[1] += pkt->data.psnr.sse_hbd[0];
             stream->psnr_samples_total[1] += pkt->data.psnr.samples_hbd[0];
             for (i = 0; i < 4; i++) {
-              if (!global->quiet)
-                fprintf(stderr, "%.3f ", pkt->data.psnr.psnr_hbd[i]);
+              fprintf(stderr, "%.3f ", pkt->data.psnr.psnr_hbd[i]);
               stream->psnr_totals[1][i] += pkt->data.psnr.psnr_hbd[i];
+            }
+            if (global->quiet) {
+              fprintf(stderr, "\n");
             }
             stream->psnr_count[1]++;
           }
