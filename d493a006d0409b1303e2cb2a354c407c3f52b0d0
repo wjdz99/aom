@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11bf1a28_a39f139c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-10-09T14:06:37Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe observed that the count_buf array used to obtain the dominant colors (top_colors[]) in av1_rd_pick_palette_intra_sby() has been using the count based on down-converted pixels for high bit-depth encodes, which is incorrect. This patch fixes the issue by obtaining the top_colors[] based on original hbd samples. The function av1_count_colors_highbd() has been accordingly modified to compute the color counts based on the original as well as the down-sampled pixels (which is used to obtain the color count threshold to prune palette mode search). \nIn addition, this patch also scales the min_diff threshold in optimize_palette_colors() as per bit-depth, which is used to bias towards the use of cached colors.  \n\nThe borg results on lowres for speed 0 to 6 presets for 10-bit encoding show more or less neutral speed and BD rate impact.\n\n CPU  Instruction Count             BD-Rate  Impact %\n        Reduction %        avg.psnr ovr.psnr  ssim       avg.psnr\n                            8-bit    8-bit    8-bit       10-bit  \n  0       0.000             0.0000   0.0000  -0.0001       0.0000\n  1       0.001             0.0000  -0.0001  -0.0004      -0.0002\n  2      -0.001             0.0003   0.0003   0.0006       0.0004\n  3      -0.002             0.0006   0.0004   0.0006       0.0005\n  4      -0.002            -0.0021  -0.0021  -0.0025      -0.0020\n  5       0.005            -0.0009  -0.0008  -0.0030      -0.0009\n  6       0.002             0.0020   0.0022   0.0121       0.0020\n\nThe borg results on 10-bit encode for screen content clips (Dota, Minecraft, chinaspeed, screendata, Wikipedia) with tune-content\u003dscreen option enabled show BD rate gain for all speed levels, except speed 4. There is a BD rate drop of 2.36% for screendata in speed 4 which is contributing to the overall drop for speed 4. We shall plan to analyse this issue in future.\n\n CPU  Instruction Count             BD-Rate  Impact %\n        Reduction %      avg.psnr  ovr.psnr   ssim       avg.psnr\n                          8-bit     8-bit     8-bit       10-bit  \n  0      -0.556          -0.1156   -0.0434   -0.0347      0.0056\n  1      -1.653          -0.9296   -1.0349   -1.1917     -0.9232\n  2       0.132          -0.4154   -0.2370   -0.1552     -0.3491\n  3      -0.157          -0.1535    0.0049   -0.1102     -0.1435\n  4       0.192           0.4782    0.5197    0.4751      0.4736\n  5      -0.033          -0.2926   -0.2895   -0.0213     -0.2940\n  6      -0.307          -0.2145   -0.2782   -0.2612     -0.2142\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks",
+      "revId": "d493a006d0409b1303e2cb2a354c407c3f52b0d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
