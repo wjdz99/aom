@@ -1101,7 +1101,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
         mask_value = inter_pred_params.conv_params.fwd_offset * 4;
         memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
 
-        int_mv tmp_mv[2] = {cur_mv[0], cur_mv[1]};
+        int_mv tmp_mv[2] = {av1_get_ref_mv(x, 0), av1_get_ref_mv(x, 1)};
         int tmp_rate_mv;
         int64_t this_sme =
             av1_joint_motion_search(cpi, x, bsize, tmp_mv, xd->seg_mask,
@@ -1141,7 +1141,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
           &inter_pred_params.conv_params.use_dist_wtd_comp_avg, 1);
         int mask_value = inter_pred_params.conv_params.fwd_offset * 4;
         memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
-        int_mv tmp_mv[2] = {cur_mv[0], cur_mv[1]};
+        int_mv tmp_mv[2] = {av1_get_ref_mv(x, 0), av1_get_ref_mv(x, 1)};
         int tmp_rate_mv;
         int thissme =
             av1_compound_single_motion_search_interinter(cpi, x, bsize, tmp_mv,
@@ -1180,7 +1180,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
           &inter_pred_params.conv_params.use_dist_wtd_comp_avg, 1);
         int mask_value = inter_pred_params.conv_params.fwd_offset * 4;
         memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
-        int_mv tmp_mv[2] = {cur_mv[0], cur_mv[1]};
+        int_mv tmp_mv[2] = {av1_get_ref_mv(x, 0), av1_get_ref_mv(x, 1)};
         int tmp_rate_mv;
         int thissme =
             av1_compound_single_motion_search_interinter(cpi, x, bsize, tmp_mv,
