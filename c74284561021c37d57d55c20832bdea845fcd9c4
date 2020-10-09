@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1578799_daa97f32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-10-09T14:24:51Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have optimized the memory usage in temporal filter pred buffer by allocating the memory based on the bit-depth and chroma subsampling format. The respective tests are also modified accordingly.\n\nThe observed peak memory reduction is negligible. A potential reason could be that this memory is being allocated and freed within a short time interval, making it difficult to be captured by the profiling tool.\n\nThis patch is verified to be bit-exact with no impact on encode time.\n\nAWCY Link (8bit, cpu-used 1, 60 frames, bit-exact)\nhttps://beta.arewecompressedyet.com/?job\u003d081020_ref_cpu1_8b_master%402020-10-08T12%3A52%3A22.812Z\u0026job\u003d081020_tf_mem_opt_cpu1_8b_master%402020-10-09T07%3A59%3A38.915Z\n\nAWCY Link (10bit, cpu-used 1, 60 frames, bit-exact)\nhttps://beta.arewecompressedyet.com/?job\u003d081020_ref_cpu1_10b_master%402020-10-08T12%3A48%3A35.602Z\u0026job\u003d081020_tf_mem_opt_cpu1_10b_master%402020-10-09T07%3A58%3A51.971Z\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "c74284561021c37d57d55c20832bdea845fcd9c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
