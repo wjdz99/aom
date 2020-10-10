@@ -660,8 +660,8 @@ static INLINE int get_mvpred_compound_var_cost(
   int bestsme;
 
   if (mask) {
-    bestsme = vfp->msvf(src_buf, src_stride, 0, 0,
-                        get_buf_from_fullmv(ref, this_mv), ref_stride,
+    bestsme = vfp->msvf(get_buf_from_fullmv(ref, this_mv), ref_stride, 0, 0,
+                        src_buf, src_stride,
                         second_pred, mask, mask_stride, invert_mask, &unused);
   } else if (second_pred) {
     bestsme = vfp->svaf(get_buf_from_fullmv(ref, this_mv), ref_stride, 0, 0,
@@ -2339,7 +2339,7 @@ static int upsampled_pref_error(MACROBLOCKD *xd, const AV1_COMMON *cm,
     DECLARE_ALIGNED(16, uint8_t, pred[MAX_SB_SQUARE]);
     if (second_pred != NULL) {
       if (mask) {
-        aom_comp_mask_upsampled_pred(
+        aom_comp_mask_upsampled_pred_c(
             xd, cm, mi_row, mi_col, this_mv, pred, second_pred, w, h,
             subpel_x_q3, subpel_y_q3, ref, ref_stride, mask, mask_stride,
             invert_mask, subpel_search_type);
@@ -3704,8 +3704,8 @@ static INLINE int get_mvpred_mask_var(
   const MV mv = get_mv_from_fullmv(&best_mv);
   unsigned int unused;
 
-  return vfp->msvf(src->buf, src->stride, 0, 0,
-                   get_buf_from_fullmv(pre, &best_mv), pre->stride, second_pred,
+  return vfp->msvf(get_buf_from_fullmv(pre, &best_mv), pre->stride, 0, 0,
+                   src->buf, src->stride, second_pred,
                    mask, mask_stride, invert_mask, &unused) +
          mv_err_cost_(&mv, mv_cost_params);
 }
