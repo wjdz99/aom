@@ -214,7 +214,7 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   }
 
   if (seq_params->reduced_still_picture_hdr) {
-    cm->timing_info_present = 0;
+    seq_params->timing_info_present = 0;
     seq_params->decoder_model_info_present_flag = 0;
     seq_params->display_model_info_present_flag = 0;
     seq_params->operating_points_cnt_minus_1 = 0;
@@ -227,9 +227,10 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
     cm->op_params[0].decoder_model_param_present_flag = 0;
     cm->op_params[0].display_model_param_present_flag = 0;
   } else {
-    cm->timing_info_present = aom_rb_read_bit(rb);  // timing_info_present_flag
-    if (cm->timing_info_present) {
-      av1_read_timing_info_header(cm, rb);
+    seq_params->timing_info_present =
+        aom_rb_read_bit(rb);  // timing_info_present_flag
+    if (seq_params->timing_info_present) {
+      av1_read_timing_info_header(&seq_params->timing_info, &cm->error, rb);
 
       seq_params->decoder_model_info_present_flag = aom_rb_read_bit(rb);
       if (seq_params->decoder_model_info_present_flag)
@@ -260,8 +261,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
       } else {
         cm->op_params[i].decoder_model_param_present_flag = 0;
       }
-      if (cm->timing_info_present &&
-          (cm->timing_info.equal_picture_interval ||
+      if (seq_params->timing_info_present &&
+          (seq_params->timing_info.equal_picture_interval ||
            cm->op_params[i].decoder_model_param_present_flag)) {
         cm->op_params[i].bitrate = max_level_bitrate(
             cm->profile, major_minor_to_seq_level_idx(seq_params->level[i]),
@@ -275,7 +276,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
         // Buffer size in bits/s is bitrate in bits/s * 1 s
         cm->op_params[i].buffer_size = cm->op_params[i].bitrate;
       }
-      if (cm->timing_info_present && cm->timing_info.equal_picture_interval &&
+      if (seq_params->timing_info_present &&
+          seq_params->timing_info.equal_picture_interval &&
           !cm->op_params[i].decoder_model_param_present_flag) {
         // When the decoder_model_parameters are not sent for this op, set
         // the default ones that can be used with the resource availability mode
@@ -435,12 +437,11 @@ static void alloc_tile_list_buffer(AV1Decoder *pbi) {
   // Allocate the tile list output buffer.
   // Note: if cm->seq_params.use_highbitdepth is 1 and cm->seq_params.bit_depth
   // is 8, we could allocate less memory, namely, 8 bits/pixel.
-  if (aom_alloc_frame_buffer(&pbi->tile_list_outbuf, output_frame_width,
-                             output_frame_height, cm->subsampling_x,
-                             cm->subsampling_y,
-                             (cm->use_highbitdepth &&
-                              (cm->bit_depth > AOM_BITS_8)),
-                             0, cm->byte_alignment))
+  if (aom_alloc_frame_buffer(
+          &pbi->tile_list_outbuf, output_frame_width, output_frame_height,
+          cm->subsampling_x, cm->subsampling_y,
+          (cm->use_highbitdepth && (cm->bit_depth > AOM_BITS_8)), 0,
+          cm->byte_alignment))
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate the tile list output buffer");
 }
@@ -500,8 +501,7 @@ static void copy_decoded_tile_to_tile_list_buffer(AV1Decoder *pbi,
     int vstart2 = tr * h;
     int hstart2 = tc * w;
 
-    if (cm->use_highbitdepth &&
-        cm->bit_depth == AOM_BITS_8) {
+    if (cm->use_highbitdepth && cm->bit_depth == AOM_BITS_8) {
       yv12_tile_copy(cur_frame, hstart1, hend1, vstart1, vend1,
                      &pbi->tile_list_outbuf, hstart2, vstart2, plane);
     } else {
@@ -884,6 +884,11 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
       case OBU_SEQUENCE_HEADER:
         decoded_payload_size = read_sequence_header_obu(pbi, &rb);
         if (cm->error.error_code != AOM_CODEC_OK) return -1;
+        // The sequence header should not change in the middle of a frame.
+        if (pbi->sequence_header_changed && pbi->seen_frame_header) {
+          cm->error.error_code = AOM_CODEC_CORRUPT_FRAME;
+          return -1;
+        }
         break;
       case OBU_FRAME_HEADER:
       case OBU_REDUNDANT_FRAME_HEADER:
