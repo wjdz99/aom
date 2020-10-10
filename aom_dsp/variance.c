@@ -363,7 +363,7 @@ void aom_comp_avg_upsampled_pred_c(MACROBLOCKD *xd, const AV1_COMMON *const cm,
                                    int ref_stride, int subpel_search) {
   int i, j;
 
-  aom_upsampled_pred(xd, cm, mi_row, mi_col, mv, comp_pred, width, height,
+  aom_upsampled_pred_c(xd, cm, mi_row, mi_col, mv, comp_pred, width, height,
                      subpel_x_q3, subpel_y_q3, ref, ref_stride, subpel_search);
   for (i = 0; i < height; i++) {
     for (j = 0; j < width; j++) {
