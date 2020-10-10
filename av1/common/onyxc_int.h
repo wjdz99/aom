@@ -231,6 +231,8 @@ typedef struct SequenceHeader {
   int enable_restoration;  // To turn on/off loop restoration
   int operating_points_cnt_minus_1;
   int operating_point_idc[MAX_NUM_OPERATING_POINTS];
+  int timing_info_present;
+  aom_timing_info_t timing_info;
   int display_model_info_present_flag;
   int decoder_model_info_present_flag;
   BitstreamLevel level[MAX_NUM_OPERATING_POINTS];
@@ -251,8 +253,6 @@ typedef struct AV1Common {
   int render_height;
   int last_width;
   int last_height;
-  int timing_info_present;
-  aom_timing_info_t timing_info;
   int buffer_removal_delay_present;
   aom_dec_model_info_t buffer_model;
   aom_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
