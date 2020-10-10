@@ -2495,19 +2495,19 @@ static void write_color_config(AV1_COMMON *const cm,
   aom_wb_write_bit(wb, cm->separate_uv_delta_q);
 }
 
-static void write_timing_info_header(AV1_COMMON *const cm,
+static void write_timing_info_header(const aom_timing_info_t *const timing_info,
                                      struct aom_write_bit_buffer *wb) {
-  aom_wb_write_unsigned_literal(wb, cm->timing_info.num_units_in_display_tick,
+  aom_wb_write_unsigned_literal(wb, timing_info->num_units_in_display_tick,
                                 32);  // Number of units in tick
-  aom_wb_write_unsigned_literal(wb, cm->timing_info.time_scale,
+  aom_wb_write_unsigned_literal(wb, timing_info->time_scale,
                                 32);  // Time scale
   aom_wb_write_bit(
       wb,
-      cm->timing_info.equal_picture_interval);  // Equal picture interval bit
-  if (cm->timing_info.equal_picture_interval) {
+      timing_info->equal_picture_interval);  // Equal picture interval bit
+  if (timing_info->equal_picture_interval) {
     aom_wb_write_uvlc(
         wb,
-        cm->timing_info.num_ticks_per_picture - 1);  // ticks per picture
+        timing_info->num_ticks_per_picture - 1);  // ticks per picture
   }
 }
 
@@ -2958,7 +2958,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
       aom_wb_write_literal(wb, cpi->existing_fb_idx_to_show, 3);
 
       if (cm->seq_params.decoder_model_info_present_flag &&
-          cm->timing_info.equal_picture_interval == 0) {
+          cm->seq_params.timing_info.equal_picture_interval == 0) {
         write_tu_pts_info(cm, wb);
       }
       if (cm->seq_params.frame_id_numbers_present_flag) {
@@ -2984,7 +2984,7 @@ static void write_uncompressed_header_obu(AV1_COMP *cpi,
     aom_wb_write_bit(wb, cm->show_frame);
     if (cm->show_frame) {
       if (cm->seq_params.decoder_model_info_present_flag &&
-          cm->timing_info.equal_picture_interval == 0)
+          cm->seq_params.timing_info.equal_picture_interval == 0)
         write_tu_pts_info(cm, wb);
     } else {
       aom_wb_write_bit(wb, cm->showable_frame);
@@ -3507,16 +3507,17 @@ static uint32_t write_sequence_header_obu(AV1_COMP *cpi, uint8_t *const dst) {
   aom_wb_write_bit(&wb, cm->seq_params.reduced_still_picture_hdr);
 
   if (cm->seq_params.reduced_still_picture_hdr) {
-    assert(cm->timing_info_present == 0);
+    assert(cm->seq_params.timing_info_present == 0);
     assert(cm->seq_params.decoder_model_info_present_flag == 0);
     assert(cm->seq_params.display_model_info_present_flag == 0);
     write_bitstream_level(cm->seq_params.level[0], &wb);
   } else {
-    aom_wb_write_bit(&wb, cm->timing_info_present);  // timing info present flag
+    aom_wb_write_bit(
+        &wb, cm->seq_params.timing_info_present);  // timing info present flag
 
-    if (cm->timing_info_present) {
+    if (cm->seq_params.timing_info_present) {
       // timing_info
-      write_timing_info_header(cm, &wb);
+      write_timing_info_header(&cm->seq_params.timing_info, &wb);
       aom_wb_write_bit(&wb, cm->seq_params.decoder_model_info_present_flag);
       if (cm->seq_params.decoder_model_info_present_flag) {
         write_decoder_model_info(cm, &wb);

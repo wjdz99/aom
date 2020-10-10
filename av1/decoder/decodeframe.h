@@ -51,8 +51,9 @@ void av1_read_color_config(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
                            int allow_lowbitdepth, SequenceHeader *seq_params);
 
 // Implements the timing_info() function in the spec. Reports errors by calling
-// rb->error_handler().
-void av1_read_timing_info_header(AV1_COMMON *cm,
+// rb->error_handler() or aom_internal_error().
+void av1_read_timing_info_header(aom_timing_info_t *timing_info,
+                                 struct aom_internal_error_info *error,
                                  struct aom_read_bit_buffer *rb);
 
 // Implements the decoder_model_info() function in the spec. Reports errors by

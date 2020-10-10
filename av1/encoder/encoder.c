@@ -1015,13 +1015,13 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   cm->seq_params.monochrome = oxcf->monochrome;
   cm->chroma_sample_position = oxcf->chroma_sample_position;
   cm->color_range = oxcf->color_range;
-  cm->timing_info_present = oxcf->timing_info_present;
-  cm->timing_info.num_units_in_display_tick =
+  cm->seq_params.timing_info_present = oxcf->timing_info_present;
+  cm->seq_params.timing_info.num_units_in_display_tick =
       oxcf->timing_info.num_units_in_display_tick;
-  cm->timing_info.time_scale = oxcf->timing_info.time_scale;
-  cm->timing_info.equal_picture_interval =
+  cm->seq_params.timing_info.time_scale = oxcf->timing_info.time_scale;
+  cm->seq_params.timing_info.equal_picture_interval =
       oxcf->timing_info.equal_picture_interval;
-  cm->timing_info.num_ticks_per_picture =
+  cm->seq_params.timing_info.num_ticks_per_picture =
       oxcf->timing_info.num_ticks_per_picture;
 
   cm->seq_params.display_model_info_present_flag =
@@ -1035,8 +1035,8 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
     cm->buffer_removal_delay_present = 1;
     set_aom_dec_model_info(&cm->buffer_model);
     set_dec_model_op_parameters(&cm->op_params[0]);
-  } else if (cm->timing_info_present &&
-             cm->timing_info.equal_picture_interval &&
+  } else if (cm->seq_params.timing_info_present &&
+             cm->seq_params.timing_info.equal_picture_interval &&
              !cm->seq_params.decoder_model_info_present_flag) {
     // set the decoder model parameters in resource availability mode
     set_resource_availability_parameters(&cm->op_params[0]);
@@ -2268,13 +2268,13 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
   assert(IMPLIES(cm->profile <= PROFILE_1, cm->bit_depth <= AOM_BITS_10));
 
-  cm->timing_info_present = oxcf->timing_info_present;
-  cm->timing_info.num_units_in_display_tick =
+  cm->seq_params.timing_info_present = oxcf->timing_info_present;
+  cm->seq_params.timing_info.num_units_in_display_tick =
       oxcf->timing_info.num_units_in_display_tick;
-  cm->timing_info.time_scale = oxcf->timing_info.time_scale;
-  cm->timing_info.equal_picture_interval =
+  cm->seq_params.timing_info.time_scale = oxcf->timing_info.time_scale;
+  cm->seq_params.timing_info.equal_picture_interval =
       oxcf->timing_info.equal_picture_interval;
-  cm->timing_info.num_ticks_per_picture =
+  cm->seq_params.timing_info.num_ticks_per_picture =
       oxcf->timing_info.num_ticks_per_picture;
 
   cm->seq_params.display_model_info_present_flag =
@@ -2288,8 +2288,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     cm->buffer_removal_delay_present = 1;
     set_aom_dec_model_info(&cm->buffer_model);
     set_dec_model_op_parameters(&cm->op_params[0]);
-  } else if (cm->timing_info_present &&
-             cm->timing_info.equal_picture_interval &&
+  } else if (cm->seq_params.timing_info_present &&
+             cm->seq_params.timing_info.equal_picture_interval &&
              !cm->seq_params.decoder_model_info_present_flag) {
     // set the decoder model parameters in resource availability mode
     set_resource_availability_parameters(&cm->op_params[0]);
@@ -4940,7 +4940,8 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size, uint8_t *dest,
           (frame_is_intra_only(cm) || !cm->show_frame) ? 0 : 1;
       break;
   }
-  cm->timing_info_present &= !cm->seq_params.reduced_still_picture_hdr;
+  cm->seq_params.timing_info_present &=
+      !cm->seq_params.reduced_still_picture_hdr;
 
   if (cpi->sf.recode_loop == DISALLOW_RECODE) {
     if (encode_without_recode_loop(cpi) != AOM_CODEC_OK) return AOM_CODEC_ERROR;
