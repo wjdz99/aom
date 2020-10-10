@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22997a1f_c08ebc4b",
+        "filename": "av1/common/obu_util.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-10-10T18:25:47Z",
+      "side": 0,
+      "message": "In the test vector invalid-oss-fuzz-10389.ivf for invalid_file_test.cc, frame number 6 (frame numbers are 0-based, so this is the seventh IVF frame) has an OBU with type 12 (OBU types 9-14 are reserved) and has_size_field \u003d\u003d 0. So previously we would return AOM_CODEC_CORRUPT_FRAME (7) from line 67. Now we return AOM_CODEC_UNSUP_BITSTREAM (5) here. I updated the expected results file invalid-oss-fuzz-10389.ivf.res.4 with this 7-\u003e5 change for frame number 6.",
+      "revId": "8c6b8f1796a1641324cc4f52d01d05e952ff95b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
