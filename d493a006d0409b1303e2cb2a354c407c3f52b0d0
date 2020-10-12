@@ -33,6 +33,24 @@
       "message": "This seems related to your previous cl:\nhttps://aomedia-review.googlesource.com/c/aom/+/120121\nPrevious cl: \"This is because the total number of distinct pixel values in a block was compared against same thresholds in both lbd and hbd encoding to gate the evaluation of palette mode search.\"\n\nCurrent cl: \"This patch fixes the issue by obtaining the top_colors[] based on original hbd samples.\"\n\nPlease correct me if I didn\u0027t understand this correctly. Would it be an easier fix if we just up scale the thresholds you mentioned in previous cl for HBD case, so we don\u0027t have to calculate counts in 8 bit at all?",
       "revId": "d493a006d0409b1303e2cb2a354c407c3f52b0d0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a86192fe_e0c62d8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-10-12T05:11:33Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nYes, this patch is related to the previous CL:\nhttps://aomedia-review.googlesource.com/c/aom/+/120121\n\nThough it would have been simpler if the counts were kept for hbd samples only by adjusting the thresholds, we had tried this approach while working on the previous CL and it was found to be not beneficial as explained below.\n\nThe primary goal of the previous CL was to remove the differences in statistics between 8-bit and 10-bit encodes for prune_palette_search_level speed feature, where palette path was evaluated considerably less number of times in 10-bit encode than in 8-bit encode. In this context, we had tried the approach of (1) modifying the threshold for gating palette search as per bit-depth, as well as (2) down-converting the samples to 8-bit domain as in the CL. However, approach (1) did not resolve the differences in speed feature statistics with considerably more number of unwanted palette mode evaluations happening in 10-bit encode than in 8-bit encode and hence resulted in more encode time increase than the approach (2) for a similar BD rate gain. Approach (2) resulted in similar BD rate gain as approach (1) with lower encode time increase for screen contents and consistency in statistics with the 8-bit encode. Hence we had chosen the approach (2) of down-converting the samples to obtain the count for gating the palette mode search with existing thresholds.\n\nThanks",
+      "parentUuid": "ca543a53_aefae946",
+      "revId": "d493a006d0409b1303e2cb2a354c407c3f52b0d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
