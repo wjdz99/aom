@@ -1104,9 +1104,9 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
         int cmp_jnt_sme =
             av1_joint_motion_search(cpi, x, bsize, tmp_mv, xd->seg_mask,
                                 block_size_wide[bsize], &tmp_rate_mv);
+        cur_mv[2] = tmp_mv[0];
+        cur_mv[3] = tmp_mv[1];
         if (cmp_jnt_sme < cmp_avg_sme) {
-          cur_mv[0] = tmp_mv[0];
-          cur_mv[1] = tmp_mv[1];
           *rate_mv = tmp_rate_mv;
         } else {
           mbmi->compound_idx = 1;
@@ -1154,9 +1154,9 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
             av1_compound_single_motion_search_interinter(cpi, x, bsize, tmp_mv,
                                                      xd->seg_mask, block_size_wide[bsize],
                                                      &tmp_rate_mv, 1);
+        cur_mv[2] = tmp_mv[0];
+        cur_mv[3] = tmp_mv[1];
         if (cmp_jnt_sme < cmp_avg_sme) {
-          cur_mv[0] = tmp_mv[0];
-          cur_mv[1] = tmp_mv[1];
           *rate_mv = tmp_rate_mv;
         } else {
           mbmi->compound_idx = 1;
@@ -1202,9 +1202,9 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
             av1_compound_single_motion_search_interinter(cpi, x, bsize, tmp_mv,
                                                      xd->seg_mask, block_size_wide[bsize],
                                                      &tmp_rate_mv, 0);
+        cur_mv[2] = tmp_mv[0];
+        cur_mv[3] = tmp_mv[1];
         if (cmp_jnt_sme < cmp_avg_sme) {
-          cur_mv[0] = tmp_mv[0];
-          cur_mv[1] = tmp_mv[1];
           *rate_mv = tmp_rate_mv;
         } else {
           mbmi->compound_idx = 1;
@@ -2763,7 +2763,7 @@ static int64_t handle_inter_mode(
     int rs = 0;
     int compmode_interinter_cost = 0;
 
-    int_mv cur_mv[2];
+    int_mv cur_mv[4];
 
     // TODO(Cherma): Extend this speed feature to support compound mode
     int skip_repeated_ref_mv =
@@ -2772,6 +2772,9 @@ static int64_t handle_inter_mode(
     if (!build_cur_mv(cur_mv, this_mode, cm, x, skip_repeated_ref_mv)) {
       continue;
     }
+
+    cur_mv[2] = cur_mv[0];
+    cur_mv[3] = cur_mv[1];
 
     // The above call to build_cur_mv does not handle NEWMV modes. Build
     // the mv here if we have NEWMV for any predictors.

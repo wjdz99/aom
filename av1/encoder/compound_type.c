@@ -858,7 +858,7 @@ static INLINE int compute_valid_comp_types(
       ((mode_search_mask & (1 << COMPOUND_DISTWTD)) &&
        cm->seq_params.order_hint_info.enable_dist_wtd_comp == 1 &&
        cpi->sf.inter_sf.use_dist_wtd_comp_flag != DIST_WTD_COMP_DISABLED);
-  *try_average_and_distwtd_comp = try_average_comp && try_distwtd_comp;
+  *try_average_and_distwtd_comp = try_average_comp && try_distwtd_comp && 0;
 
   // Check if COMPOUND_AVERAGE and COMPOUND_DISTWTD are valid cases
   for (comp_type = COMPOUND_AVERAGE; comp_type <= COMPOUND_DISTWTD;
@@ -1447,6 +1447,10 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       if (mode_rd < ref_best_rd) {
         // Reuse data if matching record is found
         if (comp_rate[cur_type] == INT_MAX) {
+          if (cur_type == COMPOUND_DISTWTD) {
+            mbmi->mv[0] = cur_mv[2];
+            mbmi->mv[1] = cur_mv[3];
+          }
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                         AOM_PLANE_Y, AOM_PLANE_Y);
           if (cur_type == COMPOUND_AVERAGE) *is_luma_interp_done = 1;
@@ -1553,6 +1557,10 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (mbmi->interinter_comp.type == COMPOUND_WEDGE) {
       rd_stats->rate += best_tmp_rate_mv - *rate_mv;
       *rate_mv = best_tmp_rate_mv;
+    }
+    if (mbmi->interinter_comp.type == COMPOUND_DISTWTD) {
+      mbmi->mv[0].as_int = cur_mv[2].as_int;
+      mbmi->mv[1].as_int = cur_mv[3].as_int;
     }
   }
   restore_dst_buf(xd, *orig_dst, 1);
