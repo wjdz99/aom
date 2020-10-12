@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f213a322_be436739",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-12T22:34:45Z",
+      "side": 1,
+      "message": "Hope to see some gains.",
+      "revId": "1592d8011eb1f6eb0dc4dd2a710bddb986c4812b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d647ea2_8aa3dedf",
+        "filename": "av1/encoder/mcomp.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-12T22:34:45Z",
+      "side": 1,
+      "message": "Good fix!",
+      "range": {
+        "startLine": 663,
+        "startChar": 14,
+        "endLine": 663,
+        "endChar": 23
+      },
+      "revId": "1592d8011eb1f6eb0dc4dd2a710bddb986c4812b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
