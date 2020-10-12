@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": true,
       "key": {
         "uuid": "1623400e_7ec18e17",
         "filename": "apps/aomenc.c",
@@ -20,8 +21,31 @@
         "endChar": 36
       },
       "revId": "eda1b7e7efd9de34775a56a3ba2db78ed91273e6",
-      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
-      "unresolved": true
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e95054c5_9570f0c6",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1889,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-10-12T19:20:14Z",
+      "side": 1,
+      "message": "Will correct it in a separate patch. Thanks for catching.",
+      "parentUuid": "1623400e_7ec18e17",
+      "range": {
+        "startLine": 1888,
+        "startChar": 63,
+        "endLine": 1889,
+        "endChar": 36
+      },
+      "revId": "eda1b7e7efd9de34775a56a3ba2db78ed91273e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
