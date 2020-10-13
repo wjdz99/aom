@@ -1435,10 +1435,14 @@ static void get_ref_frames_subgop(
 
 void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack,
                         RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
-  if (use_subgop_cfg(&cpi->gf_group, cpi->gf_group.index)) {
+  for (int i = 0; i < REF_FRAMES; i++) {
+    printf("disp %d pyr %d\n", ref_frame_map_pairs[i].disp_order, ref_frame_map_pairs[i].pyr_level);
+  }
+printf("\n");
+//if (use_subgop_cfg(&cpi->gf_group, cpi->gf_group.index)) {
     get_ref_frames_subgop(cpi, ref_frame_map_pairs);
     return;
-  }
+//}
 
   AV1_COMMON *cm = &cpi->common;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
