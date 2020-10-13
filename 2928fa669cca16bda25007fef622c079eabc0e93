@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0c32b8fd_2f3a77e6",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2508,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-10-13T21:34:57Z",
+      "side": 1,
+      "message": "In the switch-case clause below, ML modes used to have mask set to 32. (Case fall-through).\n\nNow because II_ML_PREDx have the same values as II_DC_PRED, II_V_PRED, etc., we cannot handle this inside the switch clause. So instead, if ML mode is supported, before hitting the switch clause, we execute the default case and return.",
+      "parentUuid": "5f219c50_e59eb464",
+      "range": {
+        "startLine": 2500,
+        "startChar": 1,
+        "endLine": 2508,
+        "endChar": 31
+      },
+      "revId": "2928fa669cca16bda25007fef622c079eabc0e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "54931959_0b6c3af9",
         "filename": "av1/common/reconinter.c",
         "patchSetId": 1
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-13T21:25:52Z",
       "side": 1,
       "message": "If the interintra-ML mode is not supported, what sort of inter-intra combination occurs?",
+      "range": {
+        "startLine": 2839,
+        "startChar": 2,
+        "endLine": 2844,
+        "endChar": 3
+      },
+      "revId": "2928fa669cca16bda25007fef622c079eabc0e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4910460e_51311cd5",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2844,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-10-13T21:34:57Z",
+      "side": 1,
+      "message": "If I understand correctly, in case of non-wedge mode, build_smooth_interintra_mask() below will produce mask for the non-ML interintra modes such as II_PRED_DC, and aom_blend_a64_mask() will blend.",
+      "parentUuid": "54931959_0b6c3af9",
       "range": {
         "startLine": 2839,
         "startChar": 2,
