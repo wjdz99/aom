@@ -1290,16 +1290,11 @@ static void set_unmapped_ref(RefBufMapData *buffer_map, int n_bufs,
 }
 
 static void get_ref_frames_subgop(
-    AV1_COMP *const cpi, RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
+    AV1_COMP *const cpi, int cur_frame_disp,
+    RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
   AV1_COMMON *cm = &cpi->common;
-  GF_GROUP gf_group = cpi->gf_group;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
 
-  // The current display index stored has not yet been updated. We must add
-  // The order offset to get the correct value here.
-  const int order_offset = gf_group.arf_src_offset[gf_group.index];
-  const int cur_frame_disp =
-      cpi->common.current_frame.frame_number + order_offset;
   int buf_map_idx = 0;
 
   // Initialize reference frame mappings
@@ -1434,12 +1429,12 @@ static void get_ref_frames_subgop(
 }
 
 void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack,
+                        int cur_frame_disp,
                         RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
-  if (use_subgop_cfg(&cpi->gf_group, cpi->gf_group.index)) {
-    get_ref_frames_subgop(cpi, ref_frame_map_pairs);
-    return;
-  }
+  get_ref_frames_subgop(cpi, cur_frame_disp, ref_frame_map_pairs);
+  return;
 
+  // TODO(sarahparker) Delete this all with stack deletion
   AV1_COMMON *cm = &cpi->common;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
   int *const arf_stack = ref_buffer_stack->arf_stack;
@@ -1701,7 +1696,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     const YV12_BUFFER_CONFIG *ref_frame_buf[INTER_REFS_PER_FRAME];
 
     if (!ext_flags->refresh_frame.update_pending) {
-      av1_get_ref_frames(cpi, &cpi->ref_buffer_stack, ref_frame_map_pairs);
+      const int order_offset = gf_group->arf_src_offset[gf_group->index];
+      const int cur_frame_disp =
+          cpi->common.current_frame.frame_number + order_offset;
+      av1_get_ref_frames(cpi, &cpi->ref_buffer_stack, cur_frame_disp,
+                         ref_frame_map_pairs);
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
         cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
