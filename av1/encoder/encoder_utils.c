@@ -381,6 +381,8 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         int64_t mc_dep_delta =
             RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                    this_stats->mc_dep_dist);
+     // printf("mult %d rate %ld dist %ld\n", tpl_frame->base_rdmult, this_stats->mc_dep_rate, 
+     //                                     this_stats->mc_dep_dist);
         intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
         mc_dep_cost_base +=
             (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;

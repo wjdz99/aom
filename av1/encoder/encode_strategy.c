@@ -1290,16 +1290,16 @@ static void set_unmapped_ref(RefBufMapData *buffer_map, int n_bufs,
 }
 
 static void get_ref_frames_subgop(
-    AV1_COMP *const cpi, RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
+    AV1_COMP *const cpi, int cur_frame_disp, RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
   AV1_COMMON *cm = &cpi->common;
   GF_GROUP gf_group = cpi->gf_group;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
 
   // The current display index stored has not yet been updated. We must add
   // The order offset to get the correct value here.
-  const int order_offset = gf_group.arf_src_offset[gf_group.index];
-  const int cur_frame_disp =
-      cpi->common.current_frame.frame_number + order_offset;
+//const int order_offset = gf_group.arf_src_offset[gf_group.index];
+//const int cur_frame_disp =
+//    cpi->common.current_frame.frame_number + order_offset;
   int buf_map_idx = 0;
 
   // Initialize reference frame mappings
@@ -1429,16 +1429,52 @@ static void get_ref_frames_subgop(
   }
 
   // Fill any slots that are empty (should only happen for the first 7 frames)
-  for (int i = 0; i < REF_FRAMES; ++i)
+  for (int i = 0; i < REF_FRAMES; ++i) {
     if (remapped_ref_idx[i] == INVALID_IDX) remapped_ref_idx[i] = 0;
+  }
+
+
+ 
+    char *str_frames[7] = {
+   "LAST_FRAME",
+   "LAST2_FRAME",
+   "LAST3_FRAME",
+   "GOLDEN_FRAME",
+   "BWDREF_FRAME",
+   "ALTREF2_FRAME",
+   "ALTREF_FRAME"
+    };
+    char *ud_str[7] = {
+   "KF_UPDATE",
+   "LF_UPDATE",
+   "GF_UPDATE",
+   "ARF_UPDATE",
+   "OVERLAY_UPDATE",
+   "INTNL_OVERLAY_UPDATE",
+   "INTNL_ARF_UPDATE"
+    };
+    printf("~~~~~~~~ %s ~~~~~~~~ %d\n", ud_str[gf_group.update_type[gf_group.index]], cur_frame_disp);
+    for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+      char *frm_str = str_frames[frame - 1];
+
+      RefFrameMapPair pair = ref_frame_map_pairs[remapped_ref_idx[frame - LAST_FRAME]];
+      const int frame_order = (int)pair.disp_order;
+      const int frame_level = pair.pyr_level;
+      printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+    }
+    printf("\n\n");
 }
 
 void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack,
-                        RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
-  if (use_subgop_cfg(&cpi->gf_group, cpi->gf_group.index)) {
-    get_ref_frames_subgop(cpi, ref_frame_map_pairs);
-    return;
+                        int cur_frame_disp, RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
+  for (int i = 0; i < REF_FRAMES; i++) {
+    printf("disp %d pyr %d\n", ref_frame_map_pairs[i].disp_order, ref_frame_map_pairs[i].pyr_level);
   }
+printf("\n");
+//if (use_subgop_cfg(&cpi->gf_group, cpi->gf_group.index)) {
+    get_ref_frames_subgop(cpi, cur_frame_disp, ref_frame_map_pairs);
+    return;
+//}
 
   AV1_COMMON *cm = &cpi->common;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
@@ -1701,7 +1737,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     const YV12_BUFFER_CONFIG *ref_frame_buf[INTER_REFS_PER_FRAME];
 
     if (!ext_flags->refresh_frame.update_pending) {
-      av1_get_ref_frames(cpi, &cpi->ref_buffer_stack, ref_frame_map_pairs);
+      const int order_offset = gf_group->arf_src_offset[gf_group->index];
+      const int cur_frame_disp =
+      cpi->common.current_frame.frame_number + order_offset;
+      av1_get_ref_frames(cpi, &cpi->ref_buffer_stack, cur_frame_disp, ref_frame_map_pairs);
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
         cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
