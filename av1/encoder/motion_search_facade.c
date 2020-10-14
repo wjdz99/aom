@@ -436,13 +436,6 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     bestsme = av1_full_pixel_search(start_fullmv, &full_ms_params, 5, NULL,
                                     &best_mv.as_fullmv, NULL);
 
-    if (bestsme < INT_MAX) {
-      bestsme = av1_get_mvpred_compound_var(
-          &full_ms_params.mv_cost_params, best_mv.as_fullmv, second_pred, mask,
-          mask_stride, id, &cpi->fn_ptr[bsize], &x->plane[0].src,
-          &ref_yv12[id]);
-    }
-
     // Restore the pointer to the first (possibly scaled) prediction buffer.
     if (id) xd->plane[plane].pre[0] = ref_yv12[0];
 
@@ -565,12 +558,6 @@ int av1_compound_single_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   // Small-range full-pixel motion search.
   bestsme = av1_full_pixel_search(start_fullmv, &full_ms_params, 5, NULL,
                                   &best_mv.as_fullmv, NULL);
-
-  if (bestsme < INT_MAX) {
-    bestsme = av1_get_mvpred_compound_var(
-        &full_ms_params.mv_cost_params, best_mv.as_fullmv, second_pred, mask,
-        mask_stride, ref_idx, &cpi->fn_ptr[bsize], &x->plane[0].src, &ref_yv12);
-  }
 
   if (scaled_ref_frame) {
     // Swap back the original buffers for subpel motion search.
