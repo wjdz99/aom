@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b709d8cf_d3fcbc40",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-10-14T19:42:25Z",
+      "side": 0,
+      "message": "Some notes:\nAfter this change, this function is no longer used elsewhere.\n\nI assume the full pixel search range will take more time. Not sure how much.",
+      "range": {
+        "startLine": 562,
+        "startChar": 12,
+        "endLine": 562,
+        "endChar": 36
+      },
+      "revId": "da2dbee376872eb3f765dd4d7ae8c9f5eed3c2f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
