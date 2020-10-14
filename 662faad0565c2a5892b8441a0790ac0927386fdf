@@ -34,6 +34,24 @@
       "parentUuid": "de311fce_47d2f074",
       "revId": "662faad0565c2a5892b8441a0790ac0927386fdf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b796ee5f_239a522c",
+        "filename": "test/intrapred_extension_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-10-14T22:05:26Z",
+      "side": 1,
+      "message": "\u003e Seems like it doesn\u0027t understand std::min (although #include \u003calgorithm\u003e is above) and is confusing it with the min macro:\n\u003e \n\u003e \u0027(\u0027: illegal token on right side of \u0027::\u0027\n\u003e type \u0027unknown-type\u0027 unexpected\n\u003e syntax error: \u0027)\u0027\n\u003e \n\u003e #define min(a, b) (((a) \u003c (b)) ? (a) : (b))\n\u003e Expands to ... [does the macro expansion]\n\u003e \n\u003e expected an identifier\n\nI see, thanks for the reminder. It\u0027s because NOMINMAX isn\u0027t defined and somewhere in the chain windows.h or similar header is being included. That could get added to cmake for a more permanent solution.",
+      "parentUuid": "6613192a_e4b9efa7",
+      "revId": "662faad0565c2a5892b8441a0790ac0927386fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
