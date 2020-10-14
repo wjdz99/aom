@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "225d6ade_7499fd75",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2709,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-10-14T18:53:13Z",
+      "side": 1,
+      "message": "gfu_boost_forward: Boost factor calculated from the current ARF to the next ARF.\ngfu_boost_backward: Boost factor calculated from the previous ARF to the current ARF.\n\ngfu_boost \u003d gfu_boost_forward + gfu_boost_backward\n\nThis has been documented in ratectrl.h",
+      "parentUuid": "f3cdbd4d_ba70edff",
+      "range": {
+        "startLine": 2709,
+        "startChar": 8,
+        "endLine": 2709,
+        "endChar": 25
+      },
+      "revId": "53903c0380dad64463d82b04a9e500838e0fc963",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f308dd6f_06f72866",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-10-14T18:30:20Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 2735,
+        "startChar": 8,
+        "endLine": 2735,
+        "endChar": 26
+      },
+      "revId": "53903c0380dad64463d82b04a9e500838e0fc963",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f5377e1_430d7e90",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2735,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-10-14T18:53:13Z",
+      "side": 1,
+      "message": "Please see the above comments.",
+      "parentUuid": "f308dd6f_06f72866",
       "range": {
         "startLine": 2735,
         "startChar": 8,
