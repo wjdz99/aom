@@ -46,6 +46,30 @@
       },
       "revId": "fc259215fae4402e06f539485d7aae17b666ea43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fc6a118_c4ff68c4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2518,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-10-15T19:42:55Z",
+      "side": 1,
+      "message": "For a current frame, one might have multiple recodes, each has its own bit-stream packing. So the coeff_size will be updated multiple times. But the final value corresponding to the final bit-stream writing will always happen in the last run of bit-stream packing.",
+      "parentUuid": "d0142965_9e8a6941",
+      "range": {
+        "startLine": 2517,
+        "startChar": 6,
+        "endLine": 2518,
+        "endChar": 31
+      },
+      "revId": "fc259215fae4402e06f539485d7aae17b666ea43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
