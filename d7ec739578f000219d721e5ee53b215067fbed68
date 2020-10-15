@@ -34,6 +34,24 @@
       "parentUuid": "9cc0afa9_ecc24be8",
       "revId": "d7ec739578f000219d721e5ee53b215067fbed68",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba185c16_3366232e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-10-15T21:21:35Z",
+      "side": 1,
+      "message": "The deleted part uses a model rd to select either average compound or distance weighted compound. I mean now they are both searched in the rdo. Am I right?",
+      "parentUuid": "ad523733_cb2dba27",
+      "revId": "d7ec739578f000219d721e5ee53b215067fbed68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
