@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25d2ca45_9c327829",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2518,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-10-15T05:41:36Z",
+      "side": 1,
+      "message": "These two steps seem redundant, since you always reset coefficient_size to 0 regardless if it is a dummy packing. And I assume the final packing is always the last bit-stream writing in the current frame?",
+      "range": {
+        "startLine": 2517,
+        "startChar": 6,
+        "endLine": 2518,
+        "endChar": 31
+      },
+      "revId": "fc259215fae4402e06f539485d7aae17b666ea43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
