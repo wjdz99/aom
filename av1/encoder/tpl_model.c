@@ -1031,10 +1031,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     const int true_disp =
         (int)(tpl_frame->frame_display_index) -
         (gf_group->subgop_cfg != NULL && frame_params.show_frame);
-    av1_get_ref_frames(cpi, &ref_buffer_stack, true_disp, ref_frame_map_pairs);
+    av1_get_ref_frames(cpi, true_disp, ref_frame_map_pairs);
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, gf_index, true_disp,
-        ref_frame_map_pairs, &ref_buffer_stack);
+        ref_frame_map_pairs);
 
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
     av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
@@ -1105,14 +1105,14 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     const int true_disp =
         (int)(tpl_frame->frame_display_index) -
         (gf_group->subgop_cfg != NULL && frame_params.show_frame);
-    av1_get_ref_frames(cpi, &ref_buffer_stack, true_disp, ref_frame_map_pairs);
+    av1_get_ref_frames(cpi, true_disp, ref_frame_map_pairs);
     // TODO(sarahparker) av1_get_refresh_frame_flags() and
     // av1_update_ref_frame_map() will execute default behavior even when
     // subgop cfg is enabled. This should be addressed if we ever remove the
     // frame_update_type.
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, -1, true_disp,
-        ref_frame_map_pairs, &ref_buffer_stack);
+        ref_frame_map_pairs);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
     av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
                              -1, frame_params.show_existing_frame,
