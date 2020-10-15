@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90cf43ef_4601fa31",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-10-15T16:58:14Z",
+      "side": 1,
+      "message": "Average psnr tends to be dominated by the best frames and less impacted by the worst. The reverse is true for overall psnr, You can make average psnr better by just making a few frames much better but a frame going from 50-60db or 60-100 does not actually mean much in perceptual terms. I tend to be a bit nervous of cases where there is a large fall in overall psnr even if average has improved. For example coding a blank frame almost perfectly can do that.",
+      "parentUuid": "69fcbb1e_7cac37f2",
+      "revId": "53903c0380dad64463d82b04a9e500838e0fc963",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3cdbd4d_ba70edff",
