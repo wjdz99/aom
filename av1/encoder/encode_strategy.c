@@ -853,33 +853,21 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
   return;
 }
 
-static int get_free_ref_map_index(const RefBufferStack *ref_buffer_stack) {
-  for (int idx = 0; idx < REF_FRAMES; ++idx) {
-    int is_free = 1;
-    for (int i = 0; i < ref_buffer_stack->arf_stack_size; ++i) {
-      if (ref_buffer_stack->arf_stack[i] == idx) {
-        is_free = 0;
-        break;
-      }
-    }
+static int get_free_ref_map_index(const AV1_COMP *const cpi) {
+   for (int idx = 0; idx < REF_FRAMES - 1; ++idx) {
+     // Get reference frame buffer
+     const RefCntBuffer *const buf = cpi->common.ref_frame_map[idx];
+     if (buf == NULL)  return idx;
+     if (buf->ref_count > 1) {
+       for (int idx2 = idx + 1; idx2 < REF_FRAMES; ++idx2) {
+         const RefCntBuffer *const buf2 = cpi->common.ref_frame_map[idx2];
+         if (buf2 == buf) return idx2;//printf("buf disp %d, idx %d\n", (int)buf->display_order_hint,      idx);
+       }
+     }
+ //  printf("nref %d\n", buf->ref_count);
+   }
+   return INVALID_IDX;
 
-    for (int i = 0; i < ref_buffer_stack->lst_stack_size; ++i) {
-      if (ref_buffer_stack->lst_stack[i] == idx) {
-        is_free = 0;
-        break;
-      }
-    }
-
-    for (int i = 0; i < ref_buffer_stack->gld_stack_size; ++i) {
-      if (ref_buffer_stack->gld_stack[i] == idx) {
-        is_free = 0;
-        break;
-      }
-    }
-
-    if (is_free) return idx;
-  }
-  return INVALID_IDX;
 }
 
 static int get_refresh_idx(int update_arf, int refresh_level,
@@ -969,8 +957,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
                                 const EncodeFrameParams *const frame_params,
                                 FRAME_UPDATE_TYPE frame_update_type,
                                 int gf_index, int cur_disp_order,
-                                RefFrameMapPair ref_frame_map_pairs[REF_FRAMES],
-                                const RefBufferStack *const ref_buffer_stack) {
+                                RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
   const AV1_COMMON *const cm = &cpi->common;
   const ExtRefreshFrameFlagsInfo *const ext_refresh_frame_flags =
       &cpi->ext_flags.refresh_frame;
@@ -1039,7 +1026,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
   }
 
   // Search for the open slot to store the current frame.
-  int free_fb_index = get_free_ref_map_index(ref_buffer_stack);
+  int free_fb_index = get_free_ref_map_index(cpi);
 
   if (use_subgop_cfg(&cpi->gf_group, gf_index)) {
     return get_refresh_frame_flags_subgop_cfg(cpi, gf_index, cur_disp_order,
@@ -1292,7 +1279,7 @@ static void set_unmapped_ref(RefBufMapData *buffer_map, int n_bufs,
   buffer_map[unmapped_idx].used = 1;
 }
 
-static void get_ref_frames_subgop(
+void av1_get_ref_frames(
     AV1_COMP *const cpi, int cur_frame_disp,
     RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
   AV1_COMMON *cm = &cpi->common;
@@ -1430,91 +1417,6 @@ static void get_ref_frames_subgop(
   // Fill any slots that are empty (should only happen for the first 7 frames)
   for (int i = 0; i < REF_FRAMES; ++i)
     if (remapped_ref_idx[i] == INVALID_IDX) remapped_ref_idx[i] = 0;
-}
-
-void av1_get_ref_frames(AV1_COMP *const cpi, RefBufferStack *ref_buffer_stack,
-                        int cur_frame_disp,
-                        RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
-  get_ref_frames_subgop(cpi, cur_frame_disp, ref_frame_map_pairs);
-  return;
-
-  // TODO(sarahparker) Delete this all with stack deletion
-  AV1_COMMON *cm = &cpi->common;
-  int *const remapped_ref_idx = cm->remapped_ref_idx;
-  int *const arf_stack = ref_buffer_stack->arf_stack;
-  int *const lst_stack = ref_buffer_stack->lst_stack;
-  int *const gld_stack = ref_buffer_stack->gld_stack;
-  const int arf_stack_size = ref_buffer_stack->arf_stack_size;
-  const int lst_stack_size = ref_buffer_stack->lst_stack_size;
-  const int gld_stack_size = ref_buffer_stack->gld_stack_size;
-
-  // Initialization
-  for (int i = 0; i < REF_FRAMES; ++i) remapped_ref_idx[i] = INVALID_IDX;
-
-  if (arf_stack_size) {
-    remapped_ref_idx[ALTREF_FRAME - LAST_FRAME] = arf_stack[arf_stack_size - 1];
-
-    if (arf_stack_size > 1)
-      remapped_ref_idx[BWDREF_FRAME - LAST_FRAME] = arf_stack[0];
-
-    if (arf_stack_size > 2)
-      remapped_ref_idx[ALTREF2_FRAME - LAST_FRAME] = arf_stack[1];
-  }
-
-  if (lst_stack_size) {
-    remapped_ref_idx[LAST_FRAME - LAST_FRAME] = lst_stack[0];
-
-    if (lst_stack_size > 1)
-      remapped_ref_idx[LAST2_FRAME - LAST_FRAME] = lst_stack[1];
-  }
-
-  if (gld_stack_size) {
-    remapped_ref_idx[GOLDEN_FRAME - LAST_FRAME] = gld_stack[0];
-
-    // If there are more frames in the golden stack, assign them to BWDREF,
-    // ALTREF2, or LAST3.
-    if (gld_stack_size > 1) {
-      if (arf_stack_size <= 2) {
-        if (arf_stack_size <= 1) {
-          remapped_ref_idx[BWDREF_FRAME - LAST_FRAME] = gld_stack[1];
-          if (gld_stack_size > 2)
-            remapped_ref_idx[ALTREF2_FRAME - LAST_FRAME] = gld_stack[2];
-        } else {
-          remapped_ref_idx[ALTREF2_FRAME - LAST_FRAME] = gld_stack[1];
-        }
-      } else {
-        remapped_ref_idx[LAST3_FRAME - LAST_FRAME] = gld_stack[1];
-      }
-    }
-  }
-
-  for (int idx = ALTREF_FRAME - LAST_FRAME; idx >= 0; --idx) {
-    int ref_map_index = remapped_ref_idx[idx];
-
-    if (ref_map_index != INVALID_IDX) continue;
-
-    ref_map_index =
-        find_unused_ref_frame(remapped_ref_idx, arf_stack, arf_stack_size);
-
-    if (ref_map_index == INVALID_IDX) {
-      ref_map_index =
-          find_unused_ref_frame(remapped_ref_idx, gld_stack, gld_stack_size);
-    }
-
-    if (ref_map_index == INVALID_IDX) {
-      ref_map_index =
-          find_unused_ref_frame(remapped_ref_idx, lst_stack, lst_stack_size);
-    }
-
-    if (ref_map_index != INVALID_IDX) {
-      remapped_ref_idx[idx] = ref_map_index;
-    } else if (!gld_stack_size && arf_stack_size) {
-      remapped_ref_idx[idx] = ref_buffer_stack->arf_stack[0];
-    } else {
-      remapped_ref_idx[idx] = ref_buffer_stack->gld_stack[0];
-    }
-    assert(remapped_ref_idx[idx] != INVALID_IDX);
-  }
 }
 
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
@@ -1703,7 +1605,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       const int order_offset = gf_group->arf_src_offset[gf_group->index];
       const int cur_frame_disp =
           cpi->common.current_frame.frame_number + order_offset;
-      av1_get_ref_frames(cpi, &cpi->ref_buffer_stack, cur_frame_disp,
+      av1_get_ref_frames(cpi, cur_frame_disp,
                          ref_frame_map_pairs);
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
@@ -1743,7 +1645,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, cpi->gf_group.index,
-        cur_frame_disp, ref_frame_map_pairs, &cpi->ref_buffer_stack);
+        cur_frame_disp, ref_frame_map_pairs);
 
     frame_params.existing_fb_idx_to_show = INVALID_IDX;
     // Find the frame buffer to show based on display order
