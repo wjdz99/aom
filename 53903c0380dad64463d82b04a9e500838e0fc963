@@ -54,6 +54,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34c5e839_2ef29f0c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-10-15T18:38:50Z",
+      "side": 1,
+      "message": "Yes. This is a valid concern. I checked this clip, the drop is due to the misallocation of bits for some inter frames. As compared to the baseline, their PSNRs are down 0.2 db, from 40-ish db. The gain of avg psnr is from other frames, whose psnrs are about 50db.\nI think this issue can be solved if we take transform coefficient\u0027s ratio into account, which is similar to allocate at least some bits to internal frames.",
+      "parentUuid": "90cf43ef_4601fa31",
+      "revId": "53903c0380dad64463d82b04a9e500838e0fc963",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3cdbd4d_ba70edff",
