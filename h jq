@@ -1,0 +1,89 @@
+[1mdiff --git a/av1/encoder/rdopt.c b/av1/encoder/rdopt.c[m
+[1mindex af56f4318..91129ca12 100644[m
+[1m--- a/av1/encoder/rdopt.c[m
+[1m+++ b/av1/encoder/rdopt.c[m
+[36m@@ -4012,8 +4012,55 @@[m [mstatic int inter_mode_search_order_independent_skip([m
+     return 1;[m
+   }[m
+ [m
+[31m-  if (x->use_intermode_cache && mode != x->intermode_cache->mode) {[m
+[31m-    return 1;[m
+[32m+[m[32m  // Reuse the prediction mode in cache[m
+[32m+[m[32m  if (x->use_intermode_cache) {[m
+[32m+[m[32m    const MB_MODE_INFO *cached_mi = x->intermode_cache;[m
+[32m+[m[32m    const PREDICTION_MODE cached_mode = cached_mi->mode;[m
+[32m+[m[32m    const MV_REFERENCE_FRAME *cached_frame = cached_mi->ref_frame;[m
+[32m+[m[32m    const int cached_mode_is_single = cached_frame[1] <= INTRA_FRAME;[m
+[32m+[m
+[32m+[m[32m    // If the cached mode is intra, then we just need to match the mode.[m
+[32m+[m[32m    if (is_mode_intra(cached_mode)) {[m
+[32m+[m[32m      return mode != cached_mode;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // If the cached mode is single inter mode, then we match the mode and[m
+[32m+[m[32m    // reference frame.[m
+[32m+[m[32m    if (cached_mode_is_single) {[m
+[32m+[m[32m      return mode != cached_mode || ref_frame[0] != cached_frame[0];[m
+[32m+[m[32m    } else {[m
+[32m+[m[32m      // If the cached mode is compound, then we need to consider several cases.[m
+[32m+[m[32m      const int mode_is_single = ref_frame[1] <= INTRA_FRAME;[m
+[32m+[m[32m      if (mode_is_single) {[m
+[32m+[m[32m        // If the mode is single, we know the modes can't match. But we might[m
+[32m+[m[32m        // still want to search it if compound mode depends on the current mode.[m
+[32m+[m[32m        int skip_motion_mode_only = 0;[m
+[32m+[m[32m        if (cached_mode == NEW_NEARMV || cached_mode == NEW_NEARESTMV) {[m
+[32m+[m[32m          if (ref_frame[0] == cached_frame[0]) {[m
+[32m+[m[32m            skip_motion_mode_only = 1;[m
+[32m+[m[32m          }[m
+[32m+[m[32m        } else if (cached_mode == NEAR_NEWMV || cached_mode == NEAREST_NEWMV) {[m
+[32m+[m[32m          if (ref_frame[0] == cached_frame[1]) {[m
+[32m+[m[32m            skip_motion_mode_only = 1;[m
+[32m+[m[32m          }[m
+[32m+[m[32m        } else if (cached_mode == NEW_NEWMV) {[m
+[32m+[m[32m          if (ref_frame[0] == cached_frame[0] ||[m
+[32m+[m[32m              ref_frame[0] == cached_frame[1]) {[m
+[32m+[m[32m            skip_motion_mode_only = 1;[m
+[32m+[m[32m          }[m
+[32m+[m[32m        }[m
+[32m+[m[32m        if (skip_motion_mode_only) {[m
+[32m+[m[32m          return 2;[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m          return 1;[m
+[32m+[m[32m        }[m
+[32m+[m[32m      } else {[m
+[32m+[m[32m        if (mode != cached_mode || ref_frame[0] != cached_frame[0] ||[m
+[32m+[m[32m            ref_frame[1] != cached_frame[1]) {[m
+[32m+[m[32m          return 1;[m
+[32m+[m[32m        }[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+   }[m
+ [m
+   const MB_MODE_INFO *const mbmi = x->e_mbd.mi[0];[m
+[36m@@ -4443,9 +4490,8 @@[m [mstatic INLINE void update_search_state([m
+   const MACROBLOCKD *xd = &x->e_mbd;[m
+   const MB_MODE_INFO *mbmi = xd->mi[0];[m
+   const int skip_ctx = av1_get_skip_txfm_context(xd);[m
+[31m-  const int mode_is_intra =[m
+[31m-      (av1_mode_defs[new_best_mode].mode < INTRA_MODE_END);[m
+[31m-  const int skip_txfm = mbmi->skip_txfm && !mode_is_intra;[m
+[32m+[m[32m  const int skip_txfm =[m
+[32m+[m[32m      mbmi->skip_txfm && !is_mode_intra(av1_mode_defs[new_best_mode].mode);[m
+   const TxfmSearchInfo *txfm_info = &x->txfm_search_info;[m
+ [m
+   search_state->best_rd = new_best_rd_stats->rdcost;[m
+[1mdiff --git a/av1/encoder/rdopt_utils.h b/av1/encoder/rdopt_utils.h[m
+[1mindex c7c7d17a2..e636df887 100644[m
+[1m--- a/av1/encoder/rdopt_utils.h[m
+[1m+++ b/av1/encoder/rdopt_utils.h[m
+[36m@@ -683,6 +683,10 @@[m [munsigned int av1_high_get_sby_perpixel_variance(const struct AV1_COMP *cpi,[m
+                                                 const struct buf_2d *ref,[m
+                                                 BLOCK_SIZE bs, int bd);[m
+ [m
+[32m+[m[32mstatic INLINE int is_mode_intra(PREDICTION_MODE mode) {[m
+[32m+[m[32m  return mode < INTRA_MODE_END;[m
+[32m+[m[32m}[m
+[32m+[m
+ #ifdef __cplusplus[m
+ }  // extern "C"[m
+ #endif[m
