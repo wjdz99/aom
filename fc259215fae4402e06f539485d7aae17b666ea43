@@ -118,6 +118,30 @@
       },
       "revId": "fc259215fae4402e06f539485d7aae17b666ea43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "593388f7_9b7af1df",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2518,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2020-10-15T22:23:42Z",
+      "side": 1,
+      "message": "Yes. I removed \"is_final_packing\" from cpi. Please see the new patch.",
+      "parentUuid": "d1e95787_2a88e243",
+      "range": {
+        "startLine": 2517,
+        "startChar": 6,
+        "endLine": 2518,
+        "endChar": 31
+      },
+      "revId": "fc259215fae4402e06f539485d7aae17b666ea43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
