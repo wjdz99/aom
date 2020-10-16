@@ -2842,10 +2842,15 @@ typedef struct {
 static INLINE void init_ref_map_pair(
     AV1_COMP *cpi, RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
   memset(ref_frame_map_pairs, -1, sizeof(*ref_frame_map_pairs) * REF_FRAMES);
+//printf("\n\nPAIR\n");
   for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
     // Get reference frame buffer
     const RefCntBuffer *const buf = cpi->common.ref_frame_map[map_idx];
-    if (buf == NULL) continue;
+    if (buf == NULL) {
+//    printf("continue\n");
+      continue;
+    }
+//  printf("here %d\n", (int)buf->display_order_hint);
     ref_frame_map_pairs[map_idx].disp_order = (int)buf->display_order_hint;
     const int reference_frame_level = buf->pyramid_level;
     ref_frame_map_pairs[map_idx].pyr_level = reference_frame_level;
