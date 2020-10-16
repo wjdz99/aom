@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa43b45a_810d82e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2020-10-16T16:24:48Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch corrects the assertion checking the valid values for rd_thresh in select_tx_size_and_type(). The variable rd_thresh can take a value of 0 when \u0027min_header_rd_possible \u003d mode_rd \u003d ref_best_rd\u0027 in av1_txfm_search(), and hence the assert should check for (rd_thresh \u003e\u003d 0).\n\nPlease review the patch.\n\nRegards,\nNithya",
+      "revId": "9ce2e90911ecbf962cc0eaaaec377c343d8f1781",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
