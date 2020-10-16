@@ -3444,7 +3444,7 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
   if (fast_tx_search && rd_thresh < INT64_MAX) {
     if (INT64_MAX - rd_thresh > (rd_thresh >> 3)) rd_thresh += (rd_thresh >> 3);
   }
-  assert(rd_thresh > 0);
+  assert(rd_thresh >= 0);
   const FAST_TX_SEARCH_MODE ftxs_mode =
       fast_tx_search ? FTXS_DCT_AND_1D_DCT_ONLY : FTXS_NONE;
   const struct macroblockd_plane *const pd = &xd->plane[0];
