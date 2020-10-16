@@ -32,6 +32,13 @@ typedef enum ATTRIBUTE_PACKED {
   EIGHTTAP_SMOOTH,
   MULTITAP_SHARP,
   BILINEAR,
+
+  // enc only filters
+  MULTITAP_SHARP2,
+  MULTITAP_SHARP3,
+  MULTITAP_SHARP4,
+  MULTITAP_SHARP5,
+
   INTERP_FILTERS_ALL,
   SWITCHABLE_FILTERS = BILINEAR,
   SWITCHABLE = SWITCHABLE_FILTERS + 1, /* the last switchable one */
@@ -153,14 +160,73 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, 4, 36, 62, 26, 0, 0 },    { 0, 0, 2, 34, 62, 28, 2, 0 }
 };
 
+// Encoder side only
+DECLARE_ALIGNED(256, static const InterpKernel,
+                av1_sub_pel_filters_8sharp2[SUBPEL_SHIFTS]) = {
+  { 0, 0, 0, 128, 0, 0, 0, 0 },         { -1, 2, -6, 127, 9, -4, 2, -1 },
+  { -2, 5, -12, 124, 18, -7, 4, -2 },   { -2, 7, -16, 119, 28, -11, 5, -2 },
+  { -3, 8, -19, 114, 38, -14, 7, -3 },  { -3, 9, -22, 107, 49, -17, 8, -3 },
+  { -4, 10, -23, 99, 60, -20, 10, -4 }, { -4, 11, -23, 90, 70, -22, 10, -4 },
+  { -4, 11, -23, 80, 80, -23, 11, -4 }, { -4, 10, -22, 70, 90, -23, 11, -4 },
+  { -4, 10, -20, 60, 99, -23, 10, -4 }, { -3, 8, -17, 49, 107, -22, 9, -3 },
+  { -3, 7, -14, 38, 114, -19, 8, -3 },  { -2, 5, -11, 28, 119, -16, 7, -2 },
+  { -2, 4, -7, 18, 124, -12, 5, -2 },   { -1, 2, -4, 9, 127, -6, 2, -1 }
+};
+
+DECLARE_ALIGNED(256, static const InterpKernel,
+                av1_sub_pel_filters_8sharp3[SUBPEL_SHIFTS]) = {
+  { 0, 0, 0, 128, 0, 0, 0, 0 },         { -1, 3, -7, 127, 9, -4, 2, -1 },
+  { -2, 5, -12, 124, 18, -7, 4, -2 },   { -3, 7, -17, 120, 28, -11, 6, -2 },
+  { -4, 9, -20, 114, 38, -14, 8, -3 },  { -4, 10, -22, 107, 49, -17, 9, -4 },
+  { -4, 11, -24, 99, 60, -20, 10, -4 }, { -5, 12, -24, 90, 71, -22, 11, -5 },
+  { -5, 12, -24, 81, 81, -24, 12, -5 }, { -5, 11, -22, 71, 90, -24, 12, -5 },
+  { -4, 10, -20, 60, 99, -24, 11, -4 }, { -4, 9, -17, 49, 107, -22, 10, -4 },
+  { -3, 8, -14, 38, 114, -20, 9, -4 },  { -2, 6, -11, 28, 120, -17, 7, -3 },
+  { -2, 4, -7, 18, 124, -12, 5, -2 },   { -1, 2, -4, 9, 127, -7, 3, -1 }
+};
+
+DECLARE_ALIGNED(256, static const InterpKernel,
+                av1_sub_pel_filters_8sharp4[SUBPEL_SHIFTS]) = {
+  { 0, 0, 0, 128, 0, 0, 0, 0 },          { -1, 3, -7, 127, 9, -4, 2, -1 },
+  { -2, 6, -12, 124, 18, -8, 4, -2 },    { -3, 8, -17, 120, 28, -11, 6, -3 },
+  { -4, 10, -20, 114, 39, -15, 8, -4 },  { -5, 11, -23, 108, 49, -18, 10, -4 },
+  { -5, 12, -24, 100, 60, -21, 11, -5 }, { -6, 13, -25, 91, 71, -23, 12, -5 },
+  { -6, 13, -24, 81, 81, -24, 13, -6 },  { -5, 12, -23, 71, 91, -25, 13, -6 },
+  { -5, 11, -21, 60, 100, -24, 12, -5 }, { -4, 10, -18, 49, 108, -23, 11, -5 },
+  { -4, 8, -15, 39, 114, -20, 10, -4 },  { -3, 6, -11, 28, 120, -17, 8, -3 },
+  { -2, 4, -8, 18, 124, -12, 6, -2 },    { -1, 2, -4, 9, 127, -7, 3, -1 }
+};
+
+DECLARE_ALIGNED(256, static const InterpKernel,
+                av1_sub_pel_filters_8sharp5[SUBPEL_SHIFTS]) = {
+  { 0, 0, 0, 128, 0, 0, 0, 0 },          { -2, 3, -7, 127, 9, -4, 3, -1 },
+  { -3, 6, -13, 125, 18, -8, 5, -2 },    { -4, 9, -17, 120, 28, -11, 7, -4 },
+  { -5, 11, -21, 115, 39, -15, 9, -5 },  { -6, 13, -24, 108, 50, -18, 11, -6 },
+  { -7, 14, -25, 100, 61, -21, 13, -7 }, { -7, 14, -25, 91, 71, -23, 14, -7 },
+  { -7, 14, -25, 82, 82, -25, 14, -7 },  { -7, 14, -23, 71, 91, -25, 14, -7 },
+  { -7, 13, -21, 61, 100, -25, 14, -7 }, { -6, 11, -18, 50, 108, -24, 13, -6 },
+  { -5, 9, -15, 39, 115, -21, 11, -5 },  { -4, 7, -11, 28, 120, -17, 9, -4 },
+  { -2, 5, -8, 18, 125, -13, 6, -3 },    { -1, 3, -4, 9, 127, -7, 3, -2 }
+};
+
 static const InterpFilterParams
-    av1_interp_filter_params_list[SWITCHABLE_FILTERS + 1] = {
+    av1_interp_filter_params_list[INTERP_FILTERS_ALL] = {  // SWITCHABLE_FILTERS
+                                                           // + 1] = {
       { (const int16_t *)av1_sub_pel_filters_8, SUBPEL_TAPS, EIGHTTAP_REGULAR },
       { (const int16_t *)av1_sub_pel_filters_8smooth, SUBPEL_TAPS,
         EIGHTTAP_SMOOTH },
       { (const int16_t *)av1_sub_pel_filters_8sharp, SUBPEL_TAPS,
         MULTITAP_SHARP },
-      { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, BILINEAR }
+      { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, BILINEAR },
+
+      { (const int16_t *)av1_sub_pel_filters_8sharp2, SUBPEL_TAPS,
+        MULTITAP_SHARP2 },
+      { (const int16_t *)av1_sub_pel_filters_8sharp3, SUBPEL_TAPS,
+        MULTITAP_SHARP3 },
+      { (const int16_t *)av1_sub_pel_filters_8sharp4, SUBPEL_TAPS,
+        MULTITAP_SHARP4 },
+      { (const int16_t *)av1_sub_pel_filters_8sharp5, SUBPEL_TAPS,
+        MULTITAP_SHARP5 }
     };
 
 // A special 2-tap bilinear filter for IntraBC chroma. IntraBC uses full pixel
