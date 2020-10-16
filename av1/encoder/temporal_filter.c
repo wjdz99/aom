@@ -328,8 +328,12 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
   const InterpFilter interp_filters = MULTITAP_SHARP;
 #else
   const int_interpfilters interp_filters =
+<<<<<<< HEAD   (2f16e8 Superres: convert macros to speed features)
       av1_broadcast_interp_filter(MULTITAP_SHARP);
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
+=======
+      av1_broadcast_interp_filter(MULTITAP_SHARP2);
+>>>>>>> CHANGE (144a94 Improve temporal filter prediction)
 
   // Handle Y-plane, U-plane and V-plane (if needed) in sequence.
   int plane_offset = 0;
