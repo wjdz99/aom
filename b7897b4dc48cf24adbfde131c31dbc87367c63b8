@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f03e36e_4f82e2f1",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-10-16T22:24:45Z",
+      "side": 1,
+      "message": "/* Note: enum value 82 unused */\n\nSetting this to 82 is incorrect. The gap exists for compatibility between versions:\nhttps://aomedia-review.googlesource.com/c/aom/+/100610\n\nIt might be ok if there was an ABI bump, but it\u0027s safest to use a new value.",
+      "range": {
+        "startLine": 868,
+        "startChar": 1,
+        "endLine": 868,
+        "endChar": 31
+      },
+      "revId": "b7897b4dc48cf24adbfde131c31dbc87367c63b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
