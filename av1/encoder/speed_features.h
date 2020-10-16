@@ -354,6 +354,10 @@ typedef struct TPL_SPEED_FEATURES {
 
   // Prune reference frames in TPL.
   int prune_ref_frames_in_tpl;
+
+  // Tpl stats generated to decide gop length is also
+  // used for tpl stats required for rd mult and q modulation.
+  int reuse_tpl_stats_from_gop_length_decision;
 } TPL_SPEED_FEATURES;
 
 typedef struct GLOBAL_MOTION_SPEED_FEATURES {
