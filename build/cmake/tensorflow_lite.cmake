@@ -13,31 +13,22 @@ if(AOM_BUILD_CMAKE_TENSORFLOW_LITE_CMAKE_)
 endif() # AOM_BUILD_CMAKE_TENSORFLOW_LITE_CMAKE_
 set(AOM_BUILD_CMAKE_TENSORFLOW_LITE_CMAKE_ 1)
 
+include(ExternalProject)
 include(FindGit)
 
-# Checks if the dependencies on Tensorflow Lite are already checked out -- if
-# not, uses the git submodule command to fetch them.
-function(checkout_submodules_)
+# Checks if Tensorflow has been checked out -- if not, uses  the git submodule
+# command to fetch it.
+function(checkout_submodule_)
   # As a quick sanity check, see if at least 1 expected file or directory is
   # present in each submodule. If so, assume they are all checked out (if they
   # are not, then the base directory will be empty).
-  if(
-    (EXISTS "${AOM_ROOT}/third_party/tensorflow/tensorflow")
-    AND (EXISTS
-         "${AOM_ROOT}/third_party/tensorflow_dependencies/neon_2_sse/ReadMe.md")
-    AND (EXISTS "${AOM_ROOT}/third_party/tensorflow_aom/absl/absl")
-    AND (EXISTS "${AOM_ROOT}/third_party/tensorflow_aom/eigen/Eigen")
-    AND (EXISTS "${AOM_ROOT}/third_party/tensorflow_aom/farmhash/Makefile.am")
-    AND (EXISTS "${AOM_ROOT}/third_party/tensorflow_aom/flatbuffers/BUILD")
-    AND (EXISTS "${AOM_ROOT}/third_party/tensorflow_aom/fp16/CMakeLists.txt")
-    AND (EXISTS "${AOM_ROOT}/third_party/tensorflow_aom/gemmlowp/BUILD")
-    AND (EXISTS "${AOM_ROOT}/third_party/tensorflow_aom/ruy/BUILD"))
+  if(EXISTS "${AOM_ROOT}/third_party/tensorflow/tensorflow")
     return()
   endif()
   if(NOT GIT_FOUND)
     message(
       FATAL_ERROR
-        "Tensorflow-Lite/dependencies not present; " "git could not be found; "
+        "Tensorflow-Lite not present; " "git could not be found; "
         "please check out submodules with 'git submodule update --init'")
   endif()
   # Note that "git submodule update --init" must be run from inside the git
@@ -55,30 +46,13 @@ function(checkout_submodules_)
   endif()
 endfunction()
 
-function(add_tensorflow_lite_dependency_)
-  if(NOT AOM_APP_TARGETS)
-    message(FATAL_ERROR "AOM_APP_TARGETS variable must not be empty.")
-  endif()
-  # Build the library.
-  add_custom_command(
-    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a"
-    COMMAND "${AOM_ROOT}/third_party/tensorflow_dependencies/build.pl"
-            "${AOM_ROOT}" "${CMAKE_CURRENT_BINARY_DIR}"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
-  add_custom_target(tensorflowlite_a ALL
-                    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a")
-  include_directories("${AOM_ROOT}/third_party/tensorflow")
-  include_directories(
-    "${AOM_ROOT}/third_party/tensorflow_dependencies/flatbuffers/include/")
-  # Add tensorflow-lite as a dependency on all AOM applications.
-  foreach(aom_app ${AOM_APP_TARGETS})
-    add_dependencies(${aom_app} tensorflowlite_a)
-    target_link_libraries(
-      ${aom_app}
-      PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/libtensorflow-lite.a"
-              ${AOM_LIB_LINK_TYPE} Threads::Threads
-      PRIVATE ${CMAKE_DL_LIBS})
-  endforeach()
+function(add_tf_lite_dependency target)
+  add_dependencies(${target} tensorflow_lite)
+  target_link_libraries(
+    ${target}
+    PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/tensorflow_lite/libtensorflow-lite.a"
+            ${AOM_LIB_LINK_TYPE} Threads::Threads
+    PRIVATE ${CMAKE_DL_LIBS})
 endfunction()
 
 # If Tensorflow-Lite should be enabled, adds appropriate build rules / targets.
@@ -93,11 +67,34 @@ function(setup_tensorflow_lite)
     set(CONFIG_TENSORFLOW_LITE 0 PARENT_SCOPE)
     return()
   endif()
-  checkout_submodules_()
-  add_tensorflow_lite_dependency_()
+  checkout_submodule_()
+
+  # Allow code to reference TF.
+  include_directories("${AOM_ROOT}/third_party/tensorflow")
+  # TF-Lite depends on this, and downloads it during compilation.
+  include_directories(
+    "${AOM_ROOT}/third_party/tensorflow_dependencies/flatbuffers/include/")
+
+  # Create a target for tf_lite. For windows, we need to define NOMINMAX=1 to
+  # disable windows.h from including min/max macros, which conflict with the C++
+  # std functions.
+  add_compile_definitions(NOMINMAX=1)
+  externalproject_add(
+    tensorflow_lite
+    SOURCE_DIR "${AOM_ROOT}/third_party/tensorflow/tensorflow/lite"
+    PREFIX "${CMAKE_BINARY_DIR}/tensorflow_lite"
+    BINARY_DIR "${CMAKE_BINARY_DIR}/tensorflow_lite"
+    DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/tensorflow_lite"
+    LOG_BUILD 1)
+
+  # Add tensorflow-lite as a dependency on all AOM applications.
+  foreach(aom_app ${AOM_APP_TARGETS})
+    add_tf_lite_dependency(${aom_app})
+  endforeach()
 endfunction()
 
-function(add_tf_lite_dependency experiment_name)
+# Signal that the experiment needs TF-lite enabled.
+function(experiment_requires_tf_lite experiment_name)
   # Experiment is not enabled, no need to include TF-Lite in the build.
   if(${${experiment_name}} EQUAL "0")
     return()
