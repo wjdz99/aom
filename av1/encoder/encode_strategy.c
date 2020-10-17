@@ -1298,6 +1298,7 @@ static void get_ref_frames_subgop(
   AV1_COMMON *cm = &cpi->common;
   int *const remapped_ref_idx = cm->remapped_ref_idx;
 
+  const int is_low_delay = cpi->oxcf.gf_cfg.lag_in_frames == 0;
   int buf_map_idx = 0;
 
   // Initialize reference frame mappings
@@ -1348,7 +1349,8 @@ static void get_ref_frames_subgop(
       if (buffer_map[i].disp_order < cur_frame_disp &&
           remapped_ref_idx[GOLDEN_FRAME - LAST_FRAME] == INVALID_IDX) {
         // Map the GOLDEN_FRAME
-        add_ref_to_slot(&buffer_map[i], remapped_ref_idx, GOLDEN_FRAME);
+        if (!is_low_delay)
+          add_ref_to_slot(&buffer_map[i], remapped_ref_idx, GOLDEN_FRAME);
       }
     } else if (buffer_map[i].disp_order == cur_frame_disp) {
       // Map the BWDREF_FRAME if this is the show_existing_frame
@@ -1385,18 +1387,20 @@ static void get_ref_frames_subgop(
   }
 
   // Assign low level frames
-  buf_map_idx = n_bufs - 1;
-  for (int frame = ALTREF_FRAME; frame >= LAST_FRAME; frame--) {
-    // Continue if the current ref slot is already full
-    if (remapped_ref_idx[frame - LAST_FRAME] != INVALID_IDX) continue;
-    // Find the next unmapped low level reference buffer
-    for (; buf_map_idx >= 0; buf_map_idx--) {
-      if (buffer_map[buf_map_idx].pyr_level != min_level) continue;
-      if (!buffer_map[buf_map_idx].used) break;
+  if (!is_low_delay) {
+    buf_map_idx = n_bufs - 1;
+    for (int frame = ALTREF_FRAME; frame >= LAST_FRAME; frame--) {
+      // Continue if the current ref slot is already full
+      if (remapped_ref_idx[frame - LAST_FRAME] != INVALID_IDX) continue;
+      // Find the next unmapped low level reference buffer
+      for (; buf_map_idx >= 0; buf_map_idx--) {
+        if (buffer_map[buf_map_idx].pyr_level != min_level) continue;
+        if (!buffer_map[buf_map_idx].used) break;
+      }
+      if (buf_map_idx < 0) break;
+      if (buffer_map[buf_map_idx].used) break;
+      add_ref_to_slot(&buffer_map[buf_map_idx], remapped_ref_idx, frame);
     }
-    if (buf_map_idx < 0) break;
-    if (buffer_map[buf_map_idx].used) break;
-    add_ref_to_slot(&buffer_map[buf_map_idx], remapped_ref_idx, frame);
   }
 
   // Place remaining past frames
