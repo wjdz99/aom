@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": false,
       "key": {
         "uuid": "5b6a11ab_6a5b6107",
         "filename": "/PATCHSET_LEVEL",
@@ -14,8 +15,24 @@
       "side": 1,
       "message": "LGTM, Ryan. Thanks for writing the patch.\nI can +2 after we have confirmation from CWG.",
       "revId": "8ee9cd5c68e03e0ff95bdce064899eb81c065881",
-      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
-      "unresolved": false
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "516c446b_31ccfd82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-19T22:00:50Z",
+      "side": 1,
+      "message": "Hi Ryan,\nFYI: There is at least one known issue on highbd code path: https://crbug.com/aomedia/2847\nSo, we are waiting on that one to be fixed (before merging this patch).",
+      "revId": "8ee9cd5c68e03e0ff95bdce064899eb81c065881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
