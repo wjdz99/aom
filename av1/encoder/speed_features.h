@@ -283,6 +283,12 @@ enum {
   QTR_ONLY,
 } UENUM1BYTE(MV_PREC_LOGIC);
 
+enum {
+  SUPERRES_AUTO_ALL,
+  SUPERRES_AUTO_DUAL,
+  SUPERRES_AUTO_SOLO,
+} UENUM1BYTE(SUPERRES_AUTO_SEARCH_TYPE);
+
 /*!\endcond */
 /*!
  * \brief Sequence/frame level speed vs quality features
@@ -1135,6 +1141,11 @@ typedef struct SPEED_FEATURES {
    * Real-time mode speed features:
    */
   REAL_TIME_SPEED_FEATURES rt_sf;
+
+  /*!
+   * Superres-auto mode search type:
+   */
+  SUPERRES_AUTO_SEARCH_TYPE superres_auto_search_type;
 } SPEED_FEATURES;
 /*!\cond */
 
