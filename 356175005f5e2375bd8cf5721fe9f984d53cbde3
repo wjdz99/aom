@@ -46,6 +46,30 @@
       },
       "revId": "356175005f5e2375bd8cf5721fe9f984d53cbde3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7275223c_f3ae791c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-10-20T16:15:53Z",
+      "side": 1,
+      "message": "\"should not bring any gains\" ? wrt to the old fwd kf ?",
+      "parentUuid": "0d064a2d_c4d4e269",
+      "range": {
+        "startLine": 10,
+        "startChar": 46,
+        "endLine": 10,
+        "endChar": 48
+      },
+      "revId": "356175005f5e2375bd8cf5721fe9f984d53cbde3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
