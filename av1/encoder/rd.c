@@ -494,6 +494,12 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
       av1_cost_tokens_from_cdf(x->motion_mode_cost[i], fc->motion_mode_cdf[i],
                                NULL);
     }
+#if CONFIG_ENHANCED_WARPED_MOTION
+    for (i = 0; i < BLOCK_SIZES_ALL; i++) {
+      av1_cost_tokens_from_cdf(x->comp_motion_mode_cost[i], fc->comp_motion_mode_cdf[i],
+                               NULL);
+    }
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
     for (i = BLOCK_8X8; i < BLOCK_SIZES_ALL; i++) {
       av1_cost_tokens_from_cdf(x->motion_mode_cost1[i], fc->obmc_cdf[i], NULL);
     }

@@ -1762,8 +1762,13 @@ static INLINE int is_motion_variation_allowed_compound(
     const MB_MODE_INFO *mbmi) {
   if (!has_second_ref(mbmi))
     return 1;
-  else
-    return 0;
+
+#if CONFIG_ENHANCED_WARPED_MOTION
+  return 1;
+  // if (mbmi->interinter_comp.type == COMPOUND_AVERAGE) return 1;
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+
+  return 0;
 }
 
 // input: log2 of length, 0(4), 1(8), ...
@@ -1811,8 +1816,10 @@ static INLINE void assert_motion_mode_valid(MOTION_MODE mode,
       motion_mode_allowed(gm_params, xd, mbmi, allow_warped_motion);
 
   // Check that the input mode is not illegal
-  if (last_motion_mode_allowed < mode)
+  if (last_motion_mode_allowed < mode) {
+    printf("assert assert_motion_mode_valid\n");
     assert(0 && "Illegal motion mode selected");
+  }
 }
 
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {

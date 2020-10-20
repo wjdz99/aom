@@ -2295,23 +2295,25 @@ uint8_t av1_findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd,
                         const REF_MV_INFO *ref_mv_info,
 #endif  // CONFIG_ENHANCED_WARPED_MOTION
                         int *pts, int *pts_inref) {
-  const MB_MODE_INFO *const mbmi0 = xd->mi[0];
+  const MB_MODE_INFO* const mbmi0 = xd->mi[0];
 #if CONFIG_ENHANCED_WARPED_MOTION
-  const MV_REFERENCE_FRAME ref_frame_type =
-      av1_ref_frame_type(mbmi0->ref_frame);
-  const uint8_t n = AOMMIN(LEAST_SQUARES_SAMPLES_MAX,
-                           ref_mv_info->ref_mv_location_count[ref_frame_type]);
-  const LOCATION_INFO *location_stack =
-      ref_mv_info->ref_mv_location_stack[ref_frame_type];
-  for (int i = 0; i < n; ++i) {
-    pts[0] = location_stack[i].x;
-    pts[1] = location_stack[i].y;
-    pts_inref[0] = pts[0] + location_stack[i].this_mv.as_mv.col;
-    pts_inref[1] = pts[1] + location_stack[i].this_mv.as_mv.row;
-    pts += 2;
-    pts_inref += 2;
+  if (!has_second_ref(mbmi0)) {
+    const MV_REFERENCE_FRAME ref_frame_type =
+        av1_ref_frame_type(mbmi0->ref_frame);
+    const uint8_t n = AOMMIN(LEAST_SQUARES_SAMPLES_MAX,
+                             ref_mv_info->ref_mv_location_count[ref_frame_type]);
+    const LOCATION_INFO* location_stack =
+        ref_mv_info->ref_mv_location_stack[ref_frame_type];
+    for (int i = 0; i < n; ++i) {
+      pts[0] = location_stack[i].x;
+      pts[1] = location_stack[i].y;
+      pts_inref[0] = pts[0] + location_stack[i].this_mv.as_mv.col;
+      pts_inref[1] = pts[1] + location_stack[i].this_mv.as_mv.row;
+      pts += 2;
+      pts_inref += 2;
+    }
+    return n;
   }
-  return n;
 #endif  // CONFIG_ENHANCED_WARPED_MOTION
   const int ref_frame = mbmi0->ref_frame[0];
   const int up_available = xd->up_available;

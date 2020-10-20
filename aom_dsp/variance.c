@@ -369,6 +369,7 @@ void aom_upsampled_pred_c(MACROBLOCKD *xd, const AV1_COMMON *const cm,
       WarpTypesAllowed warp_types;
       warp_types.global_warp_allowed = is_global;
       warp_types.local_warp_allowed = mi->motion_mode == WARPED_CAUSAL;
+      if (mi->motion_mode == WARPED_CAUSAL) printf("\n mark \n");
 
       // Get convolve parameters.
       ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);

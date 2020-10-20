@@ -323,6 +323,9 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->interintra_mode_cdf, ctx_tr->interintra_mode_cdf,
               INTERINTRA_MODES);
   AVERAGE_CDF(ctx_left->motion_mode_cdf, ctx_tr->motion_mode_cdf, MOTION_MODES);
+#if CONFIG_ENHANCED_WARPED_MOTION
+  AVERAGE_CDF(ctx_left->comp_motion_mode_cdf, ctx_tr->comp_motion_mode_cdf, MOTION_MODES);
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
   AVERAGE_CDF(ctx_left->obmc_cdf, ctx_tr->obmc_cdf, 2);
   AVERAGE_CDF(ctx_left->palette_y_size_cdf, ctx_tr->palette_y_size_cdf,
               PALETTE_SIZES);

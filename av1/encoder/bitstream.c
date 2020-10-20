@@ -495,9 +495,18 @@ static void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
                        xd->tile_ctx->obmc_cdf[mbmi->sb_type], 2);
       break;
     default:
+#if CONFIG_ENHANCED_WARPED_MOTION
+    if (has_second_ref(mbmi)) {
       aom_write_symbol(w, mbmi->motion_mode,
-                       xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
+                       xd->tile_ctx->comp_motion_mode_cdf[mbmi->sb_type],
                        MOTION_MODES);
+    } else
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+      {
+        aom_write_symbol(w, mbmi->motion_mode,
+                         xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
+                         MOTION_MODES);
+      }
   }
 }
 
@@ -1687,7 +1696,9 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
       }
     }
 
-    if (mbmi->ref_frame[1] != INTRA_FRAME) write_motion_mode(cm, xd, mbmi, w);
+#if !CONFIG_ENHANCED_WARPED_MOTION
+    write_motion_mode(cm, xd, mbmi, w);
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
 
       // First write idx to indicate current compound inter prediction mode
       // group Group A (0): dist_wtd_comp, compound_average Group B (1):
@@ -1744,6 +1755,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
         }
       }
     }
+
+#if CONFIG_ENHANCED_WARPED_MOTION
+    write_motion_mode(cm, xd, mbmi, w);
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+
     write_mb_interp_filter(cpi, xd, w);
   }
 }

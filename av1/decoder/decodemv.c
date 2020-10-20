@@ -332,6 +332,14 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
         aom_read_symbol(r, xd->tile_ctx->obmc_cdf[mbmi->sb_type], 2, ACCT_STR);
     return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   } else {
+#if CONFIG_ENHANCED_WARPED_MOTION
+    if (has_second_ref(mbmi)) {
+      motion_mode =
+        aom_read_symbol(r, xd->tile_ctx->comp_motion_mode_cdf[mbmi->sb_type],
+                        MOTION_MODES, ACCT_STR);
+      return motion_mode;
+    }
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
     motion_mode =
         aom_read_symbol(r, xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
                         MOTION_MODES, ACCT_STR);
@@ -1993,7 +2001,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   if (is_motion_variation_allowed_bsize(mbmi->sb_type, mi_row, mi_col) &&
-      !mbmi->skip_mode && !has_second_ref(mbmi)) {
+      !mbmi->skip_mode &&
+      (!has_second_ref(mbmi) || CONFIG_ENHANCED_WARPED_MOTION)) {
     mbmi->num_proj_ref = av1_findSamples(cm, xd,
 #if CONFIG_ENHANCED_WARPED_MOTION
                                          &xd->ref_mv_info,
@@ -2002,8 +2011,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   }
   av1_count_overlappable_neighbors(cm, xd);
 
-  if (mbmi->ref_frame[1] != INTRA_FRAME)
-    mbmi->motion_mode = read_motion_mode(cm, xd, mbmi, r);
+#if !CONFIG_ENHANCED_WARPED_MOTION
+  mbmi->motion_mode = read_motion_mode(cm, xd, mbmi, r);
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
 
   // init
   mbmi->comp_group_idx = 0;
@@ -2064,6 +2074,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       }
     }
   }
+
+#if 0
+  printf("mbmi->interinter_comp.type %d\n", mbmi->interinter_comp.type);
+#endif
+
+#if CONFIG_ENHANCED_WARPED_MOTION
+  mbmi->motion_mode = read_motion_mode(cm, xd, mbmi, r);
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
 
   read_mb_interp_filter(cm, xd, mbmi, r);
 

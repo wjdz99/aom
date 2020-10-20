@@ -385,8 +385,13 @@ static void build_inter_predictors_single_buf(MACROBLOCKD *xd, int plane,
 
   ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);
   const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[ref]];
+#if CONFIG_ENHANCED_WARPED_MOTION
+  const int local_warp = ref == 0 && mi->motion_mode == WARPED_CAUSAL;
+#else
+  const int local_warp = mi->motion_mode == WARPED_CAUSAL;
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
   const WarpTypesAllowed warp_types = { is_global_mv_block(mi, wm->wmtype),
-                                        mi->motion_mode == WARPED_CAUSAL };
+                                        local_warp };
   const int pre_x = (mi_x) >> pd->subsampling_x;
   const int pre_y = (mi_y) >> pd->subsampling_y;
   uint8_t *pre;

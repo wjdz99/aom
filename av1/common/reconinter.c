@@ -900,6 +900,10 @@ static void av1_make_inter_predictor_aux(
   const int is_intrabc = mi->use_intrabc;
   assert(IMPLIES(is_intrabc, !do_warp));
 
+  if (warp_types->local_warp_allowed && ref) {
+    printf("error in av1_make_inter_predictor_aux\n");
+  }
+
   if (do_warp && xd->cur_frame_force_integer_mv == 0) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const struct buf_2d *const pre_buf = &pd->pre[ref];
@@ -1004,6 +1008,7 @@ static void build_inter_predictors_sub8x8(
 
       const WarpTypesAllowed warp_types = { is_global, this_mbmi->motion_mode ==
                                                            WARPED_CAUSAL };
+      if (this_mbmi->motion_mode == WARPED_CAUSAL) printf("\n mark \n");
 
       uint8_t *pre;
       SubpelParams subpel_params;
@@ -1178,8 +1183,12 @@ static void build_inter_predictors(
 #else
     const MV mv = mi->mv[ref].as_mv;
 #endif  // CONFIG_DERIVED_MV
-    const WarpTypesAllowed warp_types = { is_global[ref],
-                                          mi->motion_mode == WARPED_CAUSAL };
+#if CONFIG_ENHANCED_WARPED_MOTION
+    const int local_warp = ref == 0 && mi->motion_mode == WARPED_CAUSAL;
+#else
+    const int local_warp = mi->motion_mode == WARPED_CAUSAL;
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+    const WarpTypesAllowed warp_types = { is_global[ref], local_warp };
     uint8_t *pre;
     SubpelParams subpel_params;
     int src_stride;

@@ -784,6 +784,32 @@ void av1_encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
 #endif  // CONFIG_INTRA_ENTROPY
 
+#if 0
+  if (!dry_run) {
+    FILE *fp = fopen("enc.txt", "a");
+    fprintf(fp, "frame %d, mi %d %d, bsize %d %d, mode %d %d\n",
+            cm->current_frame.order_hint, mi_row, mi_col,
+            block_size_wide[bsize], block_size_high[bsize],
+            mbmi->mode, mbmi->uv_mode);
+    if (is_inter_mode(mbmi->mode)) {
+      fprintf(fp, "ref %d %d, motion mode %d\n",
+              mbmi->ref_frame[0], mbmi->ref_frame[1],
+              mbmi->motion_mode);
+    }
+    for (int i = 0; i < 1; ++i) {
+      uint8_t* dst = xd->plane[i].dst.buf;
+      int stride = xd->plane[i].dst.stride;
+      for (int r = 0; r < block_size_high[bsize]; ++r) {
+        for (int c = 0; c < block_size_wide[bsize]; ++c) {
+          fprintf(fp, "%3d ", dst[r * stride + c]);
+        }
+        fprintf(fp, "\n");
+      }
+    }
+    fclose(fp);
+  }
+#endif
+
   if (!dry_run) {
     if (av1_allow_intrabc(cm) && is_intrabc_block(mbmi)) td->intrabc_used = 1;
     if (cm->tx_mode == TX_MODE_SELECT && !xd->lossless[mbmi->segment_id] &&
@@ -1056,7 +1082,11 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
     }
 
     if (cm->interp_filter == SWITCHABLE &&
+#if CONFIG_ENHANCED_WARPED_MOTION
+        (mi_addr->motion_mode != WARPED_CAUSAL || has_second_ref(mi_addr)) &&
+#else
         mi_addr->motion_mode != WARPED_CAUSAL &&
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
         !is_nontrans_global_motion(xd, xd->mi[0])) {
       update_filter_type_count(td->counts, xd, mi_addr);
     }
@@ -1719,23 +1749,29 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
               ? motion_mode_allowed(xd->global_motion, xd, mbmi,
                                     cm->allow_warped_motion)
               : SIMPLE_TRANSLATION;
-      if (mbmi->ref_frame[1] != INTRA_FRAME) {
-        if (motion_allowed == WARPED_CAUSAL) {
+      if (motion_allowed == WARPED_CAUSAL) {
 #if CONFIG_ENTROPY_STATS
-          counts->motion_mode[bsize][mbmi->motion_mode]++;
+        counts->motion_mode[bsize][mbmi->motion_mode]++;
 #endif  // CONFIG_ENTROPY_STATS
-          if (allow_update_cdf) {
+        if (allow_update_cdf) {
+#if CONFIG_ENHANCED_WARPED_MOTION
+          if (has_second_ref(mbmi)) {
+            update_cdf(fc->comp_motion_mode_cdf[bsize], mbmi->motion_mode,
+                       MOTION_MODES);
+          } else
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+          {
             update_cdf(fc->motion_mode_cdf[bsize], mbmi->motion_mode,
                        MOTION_MODES);
           }
-        } else if (motion_allowed == OBMC_CAUSAL) {
+        }
+      } else if (motion_allowed == OBMC_CAUSAL) {
 #if CONFIG_ENTROPY_STATS
-          counts->obmc[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
+        counts->obmc[bsize][mbmi->motion_mode == OBMC_CAUSAL]++;
 #endif  // CONFIG_ENTROPY_STATS
-          if (allow_update_cdf) {
-            update_cdf(fc->obmc_cdf[bsize], mbmi->motion_mode == OBMC_CAUSAL,
-                       2);
-          }
+        if (allow_update_cdf) {
+          update_cdf(fc->obmc_cdf[bsize], mbmi->motion_mode == OBMC_CAUSAL,
+                     2);
         }
       }
 
@@ -1795,9 +1831,7 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
     }
   }
 
-  if (inter_block && cm->interp_filter == SWITCHABLE &&
-      mbmi->motion_mode != WARPED_CAUSAL &&
-      !is_nontrans_global_motion(xd, xd->mi[0])) {
+  if (inter_block && av1_is_interp_needed(xd)) {
     update_filter_type_cdf(allow_update_cdf, xd, mbmi);
   }
 

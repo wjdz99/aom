@@ -1500,6 +1500,33 @@ static void parse_decode_block(AV1Decoder *const pbi, ThreadData *const td,
   decode_token_recon_block(pbi, td, mi_row, mi_col, r, bsize);
 
   av1_mark_block_as_coded(xd, mi_row, mi_col, bsize, cm->seq_params.sb_size);
+
+#if 0
+  {
+    FILE *fp = fopen("dec.txt", "a");
+    fprintf(fp, "frame %d, mi %d %d, bsize %d %d, mode %d %d\n",
+            cm->current_frame.order_hint, mi_row, mi_col,
+            block_size_wide[bsize], block_size_high[bsize],
+            mbmi->mode, mbmi->uv_mode);
+    if (is_inter_mode(mbmi->mode)) {
+      fprintf(fp, "ref %d %d, motion mode %d\n",
+              mbmi->ref_frame[0], mbmi->ref_frame[1],
+              mbmi->motion_mode);
+    }
+    for (int i = 0; i < 1; ++i) {
+      uint8_t *dst = xd->plane[i].dst.buf;
+      int stride = xd->plane[i].dst.stride;
+      for (int r = 0; r < block_size_high[bsize]; ++r) {
+        for (int c = 0; c < block_size_wide[bsize]; ++c) {
+          fprintf(fp, "%3d ", dst[r * stride + c]);
+        }
+        fprintf(fp, "\n");
+      }
+    }
+
+    fclose(fp);
+  }
+#endif
 }
 
 static void set_offsets_for_pred_and_recon(AV1Decoder *const pbi,

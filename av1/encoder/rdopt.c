@@ -7901,6 +7901,7 @@ static void joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     const int is_global = is_global_mv_block(xd->mi[0], wm->wmtype);
     warp_types[ref].global_warp_allowed = is_global;
     warp_types[ref].local_warp_allowed = mbmi->motion_mode == WARPED_CAUSAL;
+    if (mbmi->motion_mode == WARPED_CAUSAL) printf("\n mark \n");
   }
 #if CONFIG_FLEX_MVRES
   const int use_flex_mv =
@@ -8533,7 +8534,11 @@ static void build_second_inter_pred(const AV1_COMP *cpi, MACROBLOCK *x,
   ConvolveParams conv_params = get_conv_params(0, plane, xd->bd);
   WarpTypesAllowed warp_types;
   warp_types.global_warp_allowed = is_global;
+#if CONFIG_ENHANCED_WARPED_MOTION
+  warp_types.local_warp_allowed = ref_idx && mbmi->motion_mode == WARPED_CAUSAL;
+#else
   warp_types.local_warp_allowed = mbmi->motion_mode == WARPED_CAUSAL;
+#endif
 
   // Get the prediction block from the 'other' reference frame.
   av1_build_inter_predictor(ref_yv12.buf, ref_yv12.stride, second_pred, pw,
@@ -11231,6 +11236,11 @@ static int64_t motion_mode_rd(
       assert(mbmi->ref_frame[1] != INTRA_FRAME);
     }
 
+#if CONFIG_ENHANCED_WARPED_MOTION
+    if (is_comp_pred && mbmi->motion_mode == OBMC_CAUSAL) continue;
+    //if (is_comp_pred && mbmi->motion_mode == WARPED_CAUSAL) continue;
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+
     if ((cpi->oxcf.enable_obmc == 0 || cpi->sf.use_fast_nonrd_pick_mode) &&
         mbmi->motion_mode == OBMC_CAUSAL)
       continue;
@@ -11293,8 +11303,13 @@ static int64_t motion_mode_rd(
       int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
       mbmi->motion_mode = WARPED_CAUSAL;
       mbmi->wm_params.wmtype = DEFAULT_WMTYPE;
-      mbmi->interp_filters = av1_broadcast_interp_filter(
-          av1_unswitchable_filter(cm->interp_filter));
+#if CONFIG_ENHANCED_WARPED_MOTION
+      if (!is_comp_pred)
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+      {
+        mbmi->interp_filters = av1_broadcast_interp_filter(
+            av1_unswitchable_filter(cm->interp_filter));
+      }
 
       memcpy(pts, pts0, total_samples * 2 * sizeof(*pts0));
       memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
@@ -11315,7 +11330,14 @@ static int64_t motion_mode_rd(
                                mi_col)) {
         // Refine MV for NEWMV mode
         assert(!is_comp_pred);
-        if (have_newmv_in_inter_mode(this_mode)) {
+#if CONFIG_ENHANCED_WARPED_MOTION
+        int do_refine = this_mode == NEWMV || this_mode == NEW_NEARMV ||
+            this_mode == NEW_NEWMV;
+        //do_refine = this_mode == NEWMV || this_mode == NEW_NEARMV;
+#else
+        const int do_refine = have_newmv_in_inter_mode(this_mode);
+#endif  //
+        if (do_refine) {
 #if CONFIG_FLEX_MVRES
           const int use_flex_mv =
               is_pb_mv_precision_active(cm, mbmi->mode, mbmi->max_mv_precision);
@@ -11347,7 +11369,18 @@ static int64_t motion_mode_rd(
                                               mv_precision_cost,
 #endif  // CONFIG_FLEX_MVRES
                                               MV_COST_WEIGHT);
-
+#if CONFIG_ENHANCED_WARPED_MOTION
+            if (this_mode == NEW_NEWMV) {
+              const int_mv ref_mv1 = av1_get_ref_mv(x, 1);
+              tmp_rate_mv += av1_mv_bit_cost_gen(&mbmi->mv[1].as_mv, &ref_mv1.as_mv,
+                                                 max_mv_precision, x->nmv_vec_cost,
+                                                 x->nmvcost,
+#if CONFIG_FLEX_MVRES
+                                                 mv_precision_cost,
+#endif  // CONFIG_FLEX_MVRES
+                                                 MV_COST_WEIGHT);
+            }
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
 #if USE_DISCOUNT_NEWMV_TEST
             if (discount_newmv_test(cpi, x, this_mode, mbmi->mv[0])) {
               tmp_rate_mv = AOMMAX((tmp_rate_mv / NEW_MV_DISCOUNT_FACTOR), 1);
@@ -11386,7 +11419,13 @@ static int64_t motion_mode_rd(
     rd_stats->sse = 0;
     rd_stats->skip = 1;
     rd_stats->rate = tmp_rate2;
+#if CONFIG_ENHANCED_WARPED_MOTION
+    if (av1_is_interp_needed(xd)) {
+      rd_stats->rate += switchable_rate;
+    }
+#else
     if (mbmi->motion_mode != WARPED_CAUSAL) rd_stats->rate += switchable_rate;
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
     if (interintra_allowed) {
       const int is_interintra = mbmi->ref_frame[1] == INTRA_FRAME;
       const int size_group = size_group_lookup[bsize];
@@ -11424,7 +11463,15 @@ static int64_t motion_mode_rd(
     if ((last_motion_mode_allowed > SIMPLE_TRANSLATION) &&
         (mbmi->ref_frame[1] != INTRA_FRAME)) {
       if (last_motion_mode_allowed == WARPED_CAUSAL) {
+#if CONFIG_ENHANCED_WARPED_MOTION
+        if (is_comp_pred) {
+          rd_stats->rate += x->comp_motion_mode_cost[bsize][mbmi->motion_mode];
+        } else {
+          rd_stats->rate += x->motion_mode_cost[bsize][mbmi->motion_mode];
+        }
+#else
         rd_stats->rate += x->motion_mode_cost[bsize][mbmi->motion_mode];
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
       } else {
         rd_stats->rate += x->motion_mode_cost1[bsize][mbmi->motion_mode];
       }
@@ -11990,6 +12037,46 @@ static int compound_type_rd(
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
 
+#if CONFIG_ENHANCED_WARPED_MOTION
+  int pts[SAMPLES_ARRAY_SIZE], pts_inref[SAMPLES_ARRAY_SIZE];
+  mbmi->num_proj_ref = 1;  // assume num_proj_ref >=1
+  MOTION_MODE last_motion_mode_allowed = SIMPLE_TRANSLATION;
+  if (cm->switchable_motion_mode) {
+    last_motion_mode_allowed = motion_mode_allowed(xd->global_motion, xd, mbmi,
+                                                   cm->allow_warped_motion);
+  }
+  if (last_motion_mode_allowed == WARPED_CAUSAL) {
+    mbmi->num_proj_ref = av1_findSamples(cm, xd,
+#if CONFIG_ENHANCED_WARPED_MOTION
+                                         &x->mbmi_ext->ref_mv_info,
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+                                         pts, pts_inref);
+  }
+  const int total_samples = mbmi->num_proj_ref;
+  if (total_samples == 0) {
+    last_motion_mode_allowed = OBMC_CAUSAL;
+  }
+  int try_warp = 0;
+  if (last_motion_mode_allowed >= WARPED_CAUSAL) {
+    MV mv = mbmi->mv[0].as_mv;
+    if (mbmi->num_proj_ref > 1) {
+      mbmi->num_proj_ref =
+          av1_selectSamples(&mv, pts, pts_inref, mbmi->num_proj_ref, bsize);
+    }
+    aom_clear_system_state();
+    if (!av1_find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize,
+                             mv.row, mv.col, &mbmi->wm_params, mi_row,
+                             mi_col)) {
+      try_warp = 1;
+    }
+  }
+
+    int best_motion_mode[COMPOUND_TYPES] = {
+        SIMPLE_TRANSLATION, SIMPLE_TRANSLATION, SIMPLE_TRANSLATION,
+        SIMPLE_TRANSLATION,
+    };
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
+
   // Special handling if both compound_average and compound_distwtd
   // are to be searched. In this case, first estimate between the two
   // modes and then call estimate_yrd_for_sb() only for the better of
@@ -12003,16 +12090,49 @@ static int compound_type_rd(
     for (int comp_type = COMPOUND_AVERAGE; comp_type <= COMPOUND_DISTWTD;
          comp_type++) {
       update_mbmi_for_compound_type(mbmi, comp_type);
+#if CONFIG_ENHANCED_WARPED_MOTION
+      mbmi->motion_mode = SIMPLE_TRANSLATION;
+      if (try_warp) {
+        int64_t tmp_best_rd = INT64_MAX;
+        for (int use_warp = 0; use_warp < 2; ++use_warp) {
+          mbmi->motion_mode = use_warp ? WARPED_CAUSAL : SIMPLE_TRANSLATION;
+          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                        AOM_PLANE_Y, AOM_PLANE_Y);
+          model_rd_sb_fn[MODELRD_CURVFIT](
+          cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &est_rate[comp_type],
+          &est_dist[comp_type], NULL, NULL, NULL, NULL, NULL);
+          est_rate[comp_type] +=
+              x->comp_motion_mode_cost[bsize][mbmi->motion_mode];
+          const int64_t this_rd =
+              RDCOST(x->rdmult, est_rate[comp_type], est_dist[comp_type]);
+          if (this_rd < tmp_best_rd) {
+            tmp_best_rd = this_rd;
+            best_motion_mode[comp_type] = mbmi->motion_mode;
+          }
+        }
+        mbmi->motion_mode = best_motion_mode[comp_type];
+        //mbmi->motion_mode = SIMPLE_TRANSLATION;
+      }
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                     AOM_PLANE_Y, AOM_PLANE_Y);
       model_rd_sb_fn[MODELRD_CURVFIT](
           cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &est_rate[comp_type],
           &est_dist[comp_type], NULL, NULL, NULL, NULL, NULL);
       est_rate[comp_type] += masked_type_cost[comp_type];
+#if CONFIG_ENHANCED_WARPED_MOTION
+      est_rate[comp_type] +=
+          x->comp_motion_mode_cost[bsize][mbmi->motion_mode];
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
       est_rd[comp_type] = RDCOST(x->rdmult, est_rate[comp_type] + *rate_mv,
                                  est_dist[comp_type]);
       if (comp_type == COMPOUND_AVERAGE) {
-        *is_luma_interp_done = 1;
+#if CONFIG_ENHANCED_WARPED_MOTION
+        if (mbmi->motion_mode == SIMPLE_TRANSLATION)
+#endif  //
+        {
+          *is_luma_interp_done = 1;
+        }
         restore_dst_buf(xd, *tmp_dst, 1);
       }
     }
@@ -12022,6 +12142,9 @@ static int compound_type_rd(
                     ? COMPOUND_AVERAGE
                     : COMPOUND_DISTWTD;
     update_mbmi_for_compound_type(mbmi, best_type);
+#if CONFIG_ENHANCED_WARPED_MOTION
+    mbmi->motion_mode = best_motion_mode[best_type];
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
     if (best_type == COMPOUND_AVERAGE) restore_dst_buf(xd, *orig_dst, 1);
     rs2 = masked_type_cost[best_type];
     RD_STATS est_rd_stats;
@@ -12055,11 +12178,49 @@ static int compound_type_rd(
     comp_model_rd_cur = INT64_MAX;
     tmp_rate_mv = *rate_mv;
     best_rd_cur = INT64_MAX;
+#if CONFIG_ENHANCED_WARPED_MOTION
+    mbmi->motion_mode = SIMPLE_TRANSLATION;
+    if (try_warp &&
+        cur_type != COMPOUND_WEDGE && cur_type != COMPOUND_DIFFWTD) {
+      //printf("start %d\n", cur_type);
+      int64_t tmp_best_rd = INT64_MAX;
+      for (int use_warp = 0; use_warp < 2; ++use_warp) {
+        //printf("1 \n");
+#if 0
+        if (use_warp &&
+            (cur_type == COMPOUND_WEDGE || cur_type == COMPOUND_DIFFWTD)) {
+          continue;
+        }
+#endif
+        mbmi->motion_mode = use_warp ? WARPED_CAUSAL : SIMPLE_TRANSLATION;
+        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                      AOM_PLANE_Y, AOM_PLANE_Y);
+        //printf("2 \n");
+        int rate;
+        int64_t dist;
+        model_rd_sb_fn[MODELRD_CURVFIT](
+            cpi, bsize, x, xd, 0, 0, mi_row, mi_col, &rate,
+            &dist, NULL, NULL, NULL, NULL, NULL);
+        //printf("3 \n");
+        rate += x->comp_motion_mode_cost[bsize][mbmi->motion_mode];
+        const int64_t this_rd = RDCOST(x->rdmult, rate, dist);
+        if (this_rd < tmp_best_rd) {
+          tmp_best_rd = this_rd;
+          best_motion_mode[cur_type] = mbmi->motion_mode;
+        }
+      }
+      mbmi->motion_mode = best_motion_mode[cur_type];
+      //printf("done \n");
+    }
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
 
     // Case COMPOUND_AVERAGE and COMPOUND_DISTWTD
     if (cur_type < COMPOUND_WEDGE) {
       update_mbmi_for_compound_type(mbmi, cur_type);
       rs2 = masked_type_cost[cur_type];
+#if CONFIG_ENHANCED_WARPED_MOTION
+      rs2 += x->comp_motion_mode_cost[bsize][best_motion_mode[cur_type]];
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
       const int64_t mode_rd = RDCOST(x->rdmult, rs2 + rd_stats->rate, 0);
       if (mode_rd < ref_best_rd) {
         // Reuse data if matching record is found
@@ -12100,6 +12261,9 @@ static int compound_type_rd(
       // Handle masked compound types
       update_mbmi_for_compound_type(mbmi, cur_type);
       rs2 = masked_type_cost[cur_type];
+#if CONFIG_ENHANCED_WARPED_MOTION
+      rs2 += x->comp_motion_mode_cost[bsize][best_motion_mode[cur_type]];
+#endif  // CONFIG_ENHANCED_WARPED_MOTION
       // Evaluate COMPOUND_WEDGE / COMPOUND_DIFFWTD if approximated cost is
       // within threshold
       int64_t approx_rd = ((*rd / cpi->max_comp_type_rd_threshold_div) *
