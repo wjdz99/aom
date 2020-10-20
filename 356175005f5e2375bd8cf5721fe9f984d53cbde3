@@ -94,6 +94,30 @@
       },
       "revId": "356175005f5e2375bd8cf5721fe9f984d53cbde3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "154fdc79_ac5a55f2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-10-20T16:46:06Z",
+      "side": 1,
+      "message": "Right, did you verify that the results are similar as before? so as to make sure that we didn\u0027t miss anything else in the new scheme.",
+      "parentUuid": "0e0d119f_3fde008c",
+      "range": {
+        "startLine": 10,
+        "startChar": 46,
+        "endLine": 10,
+        "endChar": 48
+      },
+      "revId": "356175005f5e2375bd8cf5721fe9f984d53cbde3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
