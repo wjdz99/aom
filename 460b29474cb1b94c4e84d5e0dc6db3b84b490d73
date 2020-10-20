@@ -22,6 +22,30 @@
       },
       "revId": "460b29474cb1b94c4e84d5e0dc6db3b84b490d73",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a696a8cf_6b447fba",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2020-10-20T20:36:47Z",
+      "side": 1,
+      "message": "The reason is because lag-in-frames\u003d0 causes all frames to be level 1 but I\u0027m realizing this won\u0027t necessarily be true with subgop-cfg so maybe I\u0027ll hold off a day to submit this while I investigate that case. I will add more comments when that is finalized.",
+      "parentUuid": "1f1e68de_4c0ff61f",
+      "range": {
+        "startLine": 1352,
+        "startChar": 13,
+        "endLine": 1352,
+        "endChar": 25
+      },
+      "revId": "460b29474cb1b94c4e84d5e0dc6db3b84b490d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
