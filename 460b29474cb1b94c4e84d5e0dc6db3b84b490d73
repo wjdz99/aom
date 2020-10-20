@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f1e68de_4c0ff61f",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1352,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-20T20:05:03Z",
+      "side": 1,
+      "message": "Could you explain why we disable some of the code for low delay? I\u0027m not very familiar with this part of the code.",
+      "range": {
+        "startLine": 1352,
+        "startChar": 13,
+        "endLine": 1352,
+        "endChar": 25
+      },
+      "revId": "460b29474cb1b94c4e84d5e0dc6db3b84b490d73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
