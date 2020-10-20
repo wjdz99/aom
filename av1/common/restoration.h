@@ -253,6 +253,10 @@ typedef struct {
 #endif  // CONFIG_LOOP_RESTORE_CNN
 #if CONFIG_WIENER_NONSEP
   WienerNonsepInfo wiener_nonsep_info;
+#if CONFIG_WIENER_NONSEP_MASK
+  const uint8_t *txskip_mask;
+  int mask_stride;
+#endif
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   const uint8_t *luma;
   int luma_stride;

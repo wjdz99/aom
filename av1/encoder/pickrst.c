@@ -1579,6 +1579,11 @@ static int compute_quantized_wienerns_filter(const uint8_t *dgd,
 
   for (int i = v_beg; i < v_end; ++i) {
     for (int j = h_beg; j < h_end; ++j) {
+#if CONFIG_WIENER_NONSEP_MASK
+      if (rui->txskip_mask[(i >> MIN_TX_SIZE_LOG2) * rui->mask_stride +
+                           (j >> MIN_TX_SIZE_LOG2)])
+        continue;
+#endif
       int dgd_id = i * dgd_stride + j;
       int src_id = i * src_stride + j;
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
@@ -1709,6 +1714,8 @@ static int64_t finer_tile_search_wienerns(const RestSearchCtxt *rsc,
   return best_err;
 }
 
+#define WIENER_NS_DEBUG 0
+
 static void search_wiener_nonsep(const RestorationTileLimits *limits,
                                  const AV1PixelRect *tile_rect,
                                  int rest_unit_idx, void *priv, int32_t *tmpbuf,
@@ -1728,6 +1735,28 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
   rui.luma_stride = rsc->luma_stride;
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
   rui.plane = rsc->plane;
+#if CONFIG_WIENER_NONSEP_MASK
+  int w = ((rsc->cm->width + MAX_SB_SIZE - 1) >> MAX_SB_SIZE_LOG2)
+          << MAX_SB_SIZE_LOG2;
+  w >>= ((rui.plane == 0) ? 0 : rsc->cm->seq_params.subsampling_x);
+  rui.mask_stride = (w + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
+  rui.txskip_mask = &rsc->cm->tx_skip[rui.plane][0];
+#if WIENER_NS_DEBUG
+  fprintf(stderr, "Plane = %d\n", rui.plane);
+  for (int yy = limits->v_start; yy < limits->v_end; yy++) {
+    for (int xx = limits->h_start; xx < limits->h_end; xx++) {
+      int dgd_id = yy * rsc->dgd_stride + xx;
+      int src_id = yy * rsc->src_stride + xx;
+      fprintf(stderr, "[%d/%d/%d/%d]",
+              av1_lpf_get_txk_skip(rsc->cm, xx, yy, rui.plane),
+              rui.txskip_mask[(yy >> MIN_TX_SIZE_LOG2) * rui.mask_stride +
+                              (xx >> MIN_TX_SIZE_LOG2)],
+              rsc->dgd_buffer[dgd_id], rsc->src_buffer[src_id]);
+    }
+    fprintf(stderr, "\n");
+  }
+#endif  // WIENER_NS_DEBUG
+#endif  // CONFIG_WIENER_NONSEP_MASK
 
   if (compute_quantized_wienerns_filter(
           rsc->dgd_buffer, rsc->src_buffer, limits->h_start, limits->h_end,

@@ -62,6 +62,19 @@ void av1_convolve_nonsep_highbd(const uint8_t *dgd, int width, int height,
                                 int stride, const NonsepFilterConfig *config,
                                 const int16_t *filter, uint8_t *dst,
                                 int dst_stride, int bit_depth);
+#if CONFIG_WIENER_NONSEP_MASK
+void av1_convolve_nonsep_mask(const uint8_t *dgd, int width, int height,
+                              int stride, const NonsepFilterConfig *config,
+                              const int16_t *filter, uint8_t *dst,
+                              int dst_stride, const uint8_t *skip_mask,
+                              int mask_stride);
+void av1_convolve_nonsep_mask_highbd(const uint8_t *dgd, int width, int height,
+                                     int stride,
+                                     const NonsepFilterConfig *config,
+                                     const int16_t *filter, uint8_t *dst,
+                                     int dst_stride, int bit_depth,
+                                     const uint8_t *skip_mask, int mask_stride);
+#endif
 
 // Nonseparable convolution with dual input planes - used for cross component
 // filtering
