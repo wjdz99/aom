@@ -16,6 +16,52 @@
       "message": "Hi Yunqing,\n\nIn this patch, we introduced a logic to prune NEWMV inter modes in speed 0. As per our understanding, rdmult-\u003e0 at high bit-rates/lower quantizes and all the relevant NEWMV modes tend to converge to same MV. Hence it might be okay to evaluate fewer ref_mv_idx values at higher bit-rates. Hence, the pruning is made dependent on QIndex. We tried improving the logic further based on neighboring block information and found that there was no improvement in trade-off. \nThe current patch has pruning logic based on QIndex as below (aggressive at lower QIndex and vice versa)\n  -\u003e For q index range between 0 and 85: prune if ref_mv_idx \u003e\u003d 1.\n  -\u003e For q index range between 86 and 170: prune if ref_mv_idx \u003d\u003d 2.\n  -\u003e For q index range between 171 and 255: no pruning.\n\nThe change is a bit exact for speed presets 1 to 6 with no speed impact (verified locally).\n\n                     Instruction Count      BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr  ovr.psnr   ssim   \n   0      LOW RES        4.478        0.0201    0.0140     0.0140\n   0      MID RES        2.325        0.0134    0.0068     0.0102\n   0      HD RES         2.855        0.0227    0.0255     0.0260\n   0      Average        3.541        0.0190    0.0154     0.0166\n\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease merge the patch in case of no issues.\n\nThanks \u0026 regards,\nVenkata.",
       "revId": "d0daf62f7ab7a2c3d346e4c4d79fa3c2a8997f51",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e85d648_986ee631",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-20T21:44:19Z",
+      "side": 1,
+      "message": "To be safe, also add \"if (reduce_inter_modes \u003c\u003d 0) return 0;\" ?",
+      "range": {
+        "startLine": 1821,
+        "startChar": 2,
+        "endLine": 1821,
+        "endChar": 40
+      },
+      "revId": "d0daf62f7ab7a2c3d346e4c4d79fa3c2a8997f51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "348ed820_da51052b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-20T21:44:19Z",
+      "side": 1,
+      "message": "Not sure I understand the logic here - would \"\u0026\u0026\" end up with less pruning than original code?",
+      "range": {
+        "startLine": 1861,
+        "startChar": 21,
+        "endLine": 1861,
+        "endChar": 23
+      },
+      "revId": "d0daf62f7ab7a2c3d346e4c4d79fa3c2a8997f51",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
