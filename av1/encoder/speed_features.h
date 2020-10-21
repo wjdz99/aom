@@ -529,6 +529,9 @@ typedef struct MV_SPEED_FEATURES {
   // encoding and decoding; otherwise, it uses bilinear interpolation.
   SUBPEL_SEARCH_TYPE use_accurate_subpel_search;
 
+  // Set subpel search type in temporal filtering.
+  SUBPEL_SEARCH_TYPE tf_subpel_search;
+
   // Threshold for allowing exhaustive motion search.
   int exhaustive_searches_thresh;
 
