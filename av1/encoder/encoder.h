@@ -40,6 +40,7 @@
 #include "av1/encoder/level.h"
 #include "av1/encoder/lookahead.h"
 #include "av1/encoder/mcomp.h"
+#include "av1/encoder/pickcdef.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/speed_features.h"
@@ -1337,7 +1338,7 @@ typedef struct {
 /*!
  * \brief Encoder parameters related to multi-threading.
  */
-typedef struct {
+typedef struct MultiThreadInfo {
   /*!
    * Number of workers created for multi-threading.
    */
@@ -1394,6 +1395,10 @@ typedef struct {
    * Global Motion multi-threading object.
    */
   AV1GlobalMotionSync gm_sync;
+  /*!
+   * CDEF search multi-threading object.
+   */
+  AV1CdefSync cdef_sync;
 } MultiThreadInfo;
 
 /*!\cond */
