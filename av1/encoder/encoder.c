@@ -2027,7 +2027,8 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #endif
     // Find CDEF parameters
     av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
-                    cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult);
+                    &cpi->cdef_search_ctx, cpi->sf.lpf_sf.cdef_pick_method,
+                    cpi->td.mb.rdmult);
 
     // Apply the filter
     if (!cpi->sf.rt_sf.skip_loopfilter_non_reference)

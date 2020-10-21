@@ -29,7 +29,6 @@
 
 #include "av1/encoder/av1_quantize.h"
 #include "av1/encoder/encoder.h"
-#include "av1/encoder/mathutils.h"
 #include "av1/encoder/picklpf.h"
 #include "av1/encoder/pickrst.h"
 

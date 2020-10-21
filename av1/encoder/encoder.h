@@ -40,6 +40,7 @@
 #include "av1/encoder/level.h"
 #include "av1/encoder/lookahead.h"
 #include "av1/encoder/mcomp.h"
+#include "av1/encoder/pickcdef.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/speed_features.h"
@@ -2090,6 +2091,11 @@ typedef struct AV1_COMP {
    * Parameters related to tpl.
    */
   TplParams tpl_data;
+
+  /*!
+   * CDEF search context.
+   */
+  CdefSearchCtx cdef_search_ctx;
 
   /*!
    * For a still frame, this flag is set to 1 to skip partition search.
