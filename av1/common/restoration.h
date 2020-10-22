@@ -326,7 +326,7 @@ static INLINE void set_default_wiener(WienerInfo *wiener_info) {
   wiener_info->vfilter[6] = wiener_info->hfilter[6] = WIENER_FILT_TAP0_MIDV;
 }
 
-#if CONFIG_EXT_LOOP_RESTORATION
+#if CONFIG_EXT_LOOP_RESTORATION || CONFIG_RST_MERGECOEFFS
 static INLINE int check_wiener_eq(int chroma, const WienerInfo *info,
                                   const WienerInfo *ref) {
   if (!chroma) {
@@ -344,13 +344,12 @@ static INLINE int check_wiener_eq(int chroma, const WienerInfo *info,
   }
   return 0;
 }
-
 static INLINE int check_sgrproj_eq(const SgrprojInfo *info,
                                    const SgrprojInfo *ref) {
   if (!memcmp(info, ref, sizeof(*info))) return 1;
   return 0;
 }
-#endif  // CONFIG_EXT_LOOP_RESTORATION
+#endif  // CONFIG_EXT_LOOP_RESTORATION || CONFIG_RST_MERGECOEFFS
 
 #if CONFIG_WIENER_NONSEP
 static INLINE void set_default_wiener_nonsep(WienerNonsepInfo *wienerns_info) {
@@ -363,7 +362,7 @@ static INLINE void set_default_wiener_nonsep(WienerNonsepInfo *wienerns_info) {
   }
 }
 
-#if CONFIG_EXT_LOOP_RESTORATION
+#if CONFIG_EXT_LOOP_RESTORATION || CONFIG_RST_MERGECOEFFS
 static INLINE int check_wienerns_eq(int chroma, const WienerNonsepInfo *info,
                                     const WienerNonsepInfo *ref) {
   if (!chroma) {
@@ -377,7 +376,7 @@ static INLINE int check_wienerns_eq(int chroma, const WienerNonsepInfo *info,
   }
   return 0;
 }
-#endif  // CONFIG_EXT_LOOP_RESTORATION
+#endif  // CONFIG_EXT_LOOP_RESTORATION || CONFIG_RST_MERGECOEFFS
 
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
 uint8_t *wienerns_copy_luma(const uint8_t *dgd, int height_y, int width_y,
@@ -390,6 +389,17 @@ uint8_t *wienerns_copy_luma(const uint8_t *dgd, int height_y, int width_y,
 typedef struct {
   int h_start, h_end, v_start, v_end;
 } RestorationTileLimits;
+
+#if CONFIG_RST_MERGECOEFFS
+typedef struct RstUnitSnapshot {
+  const RestorationTileLimits *limits;
+  int rest_unit_idx;  // update filter value and sse as needed
+  int64_t M[WIENER_WIN2];
+  int64_t H[WIENER_WIN2 * WIENER_WIN2];
+  int64_t current_sse;
+  int64_t current_bits;
+} RstUnitSnapshot;
+#endif  // CONFIG_RST_MERGECOEFFS
 
 typedef void (*rest_unit_visitor_t)(const RestorationTileLimits *limits,
                                     const AV1PixelRect *tile_rect,
