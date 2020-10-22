@@ -1408,6 +1408,74 @@ static void search_wiener(const RestorationTileLimits *limits,
            rui.wiener_info.hfilter[WIENER_WIN - 1] == 0);
   }
 
+#if CONFIG_RST_MERGECOEFFS
+  const int64_t bits_nomerge =
+      x->wiener_restore_cost[1] + x->shared_param_cost[0] +
+      (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
+       << AV1_PROB_COST_SHIFT);
+  double cost_nomerge =
+      RDCOST_DBL(x->rdmult, bits_wiener >> 4, rusi->sse[RESTORE_WIENER]);
+  int64_t M_AVG[WIENER_WIN2] = M;
+  int64_t H_AVG[WIENER_WIN2 * WIENER_WIN2] = H;
+  // iterate through vector to get current cost and the sum of M and H so far
+  for (Iterator listed_unit = aom_vector_begin((current_unit_stack)),
+                end = aom_vector_end((current_unit_stack));
+       !aom_iterator_equals(&(listed_unit), &end);
+       aom_iterator_increment(&(listed_unit))) {
+    cost_nomerge += listed_unit->current_cost;
+    for (int index = 0; index < WIENER_WIN2; index++) {
+      M_AVG[index] += listed_unit->M[index];
+    }
+    for (int index_r = 0; index_r < WIENER_WIN2; index_r++) {
+      for (int index_c = 0; index_c < WIENER_WIN2; index_c++) {
+        H_AVG[index_r][index_c] += listed_unit->H[index_r][index_c];
+      }
+    }
+  }
+  // divide M and H by vector size + 1 to get average
+  for (int index = 0; index < WIENER_WIN2; index++) {
+    M_AVG[index] = (M_AVG[index]) / (current_unit_stack->size + 1);
+  }
+  for (int index_r = 0; index_r < WIENER_WIN2; index_r++) {
+    for (int index_c = 0; index_c < WIENER_WIN2; index_c++) {
+      H_AVG[index_r][index_c] =
+          (H_AVG[index_r][index_c]) / (current_unit_stack->size + 1);
+    }
+  }
+  // generate new filter
+  RestorationUnitInfo rui_temp;
+  memset(&rui_temp, 0, sizeof(rui_temp));
+  rui_temp.restoration_type = RESTORE_WIENER;
+  int32_t vfilter_merge[WIENER_WIN], hfilter_merge[WIENER_WIN];
+  wiener_decompose_sep_sym(reduced_wiener_win, M_AVG, H_AVG, vfilter_merge,
+                           hfilter_merge);
+  finalize_sym_filter(reduced_wiener_win, vfilter_merge,
+                      rui_temp.wiener_info.vfilter);
+  finalize_sym_filter(reduced_wiener_win, hfilter_merge,
+                      rui_temp.wiener_info.hfilter);
+  // iterate through vector to get sse and bits for each on the new filter
+  double cost_merge = 0;
+  for (Iterator listed_unit = aom_vector_begin((current_unit_stack)),
+                end = aom_vector_end((current_unit_stack));
+       !aom_iterator_equals(&(listed_unit), &end);
+       aom_iterator_increment(&(listed_unit))) {
+    int64_t unit_sse = finer_tile_search_wiener(
+        rsc, listed_unit->limits, tile_rect, &rui_temp, reduced_wiener_win);
+    // TODO (susannad): individual bit calculations for units - inside the loop
+    // should be single bit denoting copy
+    int64_t unit_bits = 1 cost_merge +=
+        RDCOST_DBL(x->rdmult, unit_bits >> 4, unit_sse);
+  }
+  // TODO (susannad): add to cost_merge cost of unit that's not in the stack
+  // yet.
+  // TODO (susannad): compare - if it's better update all the old block filter
+  // values which means we need to hold a pointer to rusi and add this unit to
+  // the stack. if not, clear the stack and start with this unit.
+  if (cost_merge < cost_nomerge) {
+  }
+
+#endif  // CONFIG_RST_MERGECOEFFS
+
 #if CONFIG_EXT_LOOP_RESTORATION
   const int64_t bits_wiener =
       x->wiener_restore_cost[1] + x->shared_param_cost[0] +

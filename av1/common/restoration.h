@@ -243,6 +243,16 @@ typedef struct {
 } SharedParams;
 #endif  // CONFIG_EXT_LOOP_RESTORATION
 
+#if CONFIG_RST_MERGECOEFFS
+typedef struct {
+  RestorationTileLimits *limits;
+  int rest_unit_idx;  // update filter value and sse as needed
+  int64_t M[WIENER_WIN2];
+  int64_t H[WIENER_WIN2 * WIENER_WIN2];
+  double current_cost;
+} RstUnitSnapshot;
+#endif  // CONFIG_RST_MERGECOEFFS
+
 typedef struct {
   int r[2];  // radii
   int s[2];  // sgr parameters for r[0] and r[1], based on GenSgrprojVtable()
