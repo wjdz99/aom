@@ -346,6 +346,13 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   x->shared_param_cost[0] = 1 << AV1_PROB_COST_SHIFT;
   x->shared_param_cost[1] = 1 << AV1_PROB_COST_SHIFT;
 #endif  // CONFIG_EXT_LOOP_RESTORATION
+#if CONFIG_RST_MERGECOEFFS
+  // bit cost for parameter to designated whether unit coeffs are merged
+  // TODO(anyone): Make the merged param flag use the arithmetic encoder
+  // av1_cost_tokens_from_cdf(x->shared_param_cost, fc->shared_param_cdf, NULL);
+  x->merged_param_cost[0] = 1 << AV1_PROB_COST_SHIFT;
+  x->merged_param_cost[1] = 1 << AV1_PROB_COST_SHIFT;
+#endif  // CONFIG_RST_MERGECOEFFS
   av1_cost_tokens_from_cdf(x->sgrproj_restore_cost, fc->sgrproj_restore_cdf,
                            NULL);
 #if CONFIG_LOOP_RESTORE_CNN
