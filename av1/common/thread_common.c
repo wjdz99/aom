@@ -33,6 +33,7 @@ static INLINE int get_sync_range(int width) {
     return 8;
 }
 
+#if !CONFIG_RST_MERGECOEFFS
 static INLINE int get_lr_sync_range(int width) {
 #if 0
   // nsync numbers are picked by testing. For example, for 4k
@@ -50,6 +51,7 @@ static INLINE int get_lr_sync_range(int width) {
   return 1;
 #endif
 }
+#endif  // !CONFIG_RST_MERGECOEFFS
 
 // Allocate memory for lf row synchronization
 static void loop_filter_alloc(AV1LfSync *lf_sync, AV1_COMMON *cm, int rows,
@@ -520,6 +522,7 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #endif
 }
 
+#if !CONFIG_RST_MERGECOEFFS
 static INLINE void lr_sync_read(void *const lr_sync, int r, int c, int plane) {
 #if CONFIG_MULTITHREAD
   AV1LrSync *const loop_res_sync = (AV1LrSync *)lr_sync;
@@ -574,6 +577,7 @@ static INLINE void lr_sync_write(void *const lr_sync, int r, int c,
   (void)plane;
 #endif  // CONFIG_MULTITHREAD
 }
+#endif  // !CONFIG_RST_MERGECOEFFS
 
 #if !CONFIG_RST_MERGECOEFFS
 // Allocate memory for loop restoration row synchronization

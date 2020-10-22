@@ -2503,7 +2503,7 @@ static void encode_restoration_mode(AV1_COMMON *cm,
 
 static void write_wiener_filter(int wiener_win, const WienerInfo *wiener_info,
                                 WienerInfo *ref_wiener_info, aom_writer *wb) {
-#if CONFIG_EXT_LOOP_RESTORATION
+#if CONFIG_EXT_LOOP_RESTORATION || CONFIG_RST_MERGECOEFFS
   const int equal =
       check_wiener_eq(wiener_win != WIENER_WIN, wiener_info, ref_wiener_info);
   aom_write_bit(wb, equal);
@@ -2511,7 +2511,7 @@ static void write_wiener_filter(int wiener_win, const WienerInfo *wiener_info,
     memcpy(ref_wiener_info, wiener_info, sizeof(*wiener_info));
     return;
   }
-#endif  // CONFIG_EXT_LOOP_RESTORATION
+#endif  // CONFIG_EXT_LOOP_RESTORATION || CONFIG_RST_MERGECOEFFS
   if (wiener_win == WIENER_WIN)
     aom_write_primitive_refsubexpfin(
         wb, WIENER_FILT_TAP0_MAXV - WIENER_FILT_TAP0_MINV + 1,

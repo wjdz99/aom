@@ -391,6 +391,17 @@ typedef struct {
   int h_start, h_end, v_start, v_end;
 } RestorationTileLimits;
 
+#if CONFIG_RST_MERGECOEFFS
+typedef struct {
+  const RestorationTileLimits *limits;
+  int rest_unit_idx;  // update filter value and sse as needed
+  int64_t M[WIENER_WIN2];
+  int64_t H[WIENER_WIN2 * WIENER_WIN2];
+  int64_t current_sse;
+  int64_t current_bits;
+} RstUnitSnapshot;
+#endif  // CONFIG_RST_MERGECOEFFS
+
 typedef void (*rest_unit_visitor_t)(const RestorationTileLimits *limits,
                                     const AV1PixelRect *tile_rect,
                                     int rest_unit_idx, void *priv,
