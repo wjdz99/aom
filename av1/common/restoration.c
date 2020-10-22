@@ -500,7 +500,7 @@ static void restore_processing_stripe_boundary(
   }
 }
 
-static void wiener_filter_stripe(const RestorationUnitInfo *rui,
+static void wiener_filter_stripe(RestorationUnitInfo *rui,
                                  int stripe_width, int stripe_height,
                                  int procunit_width, const uint8_t *src,
                                  int src_stride, uint8_t *dst, int dst_stride,
@@ -1021,7 +1021,7 @@ void av1_apply_selfguided_restoration_c(const uint8_t *dat8, int width,
   }
 }
 
-static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
+static void sgrproj_filter_stripe(RestorationUnitInfo *rui,
                                   int stripe_width, int stripe_height,
                                   int procunit_width, const uint8_t *src,
                                   int src_stride, uint8_t *dst, int dst_stride,
@@ -1081,7 +1081,7 @@ void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
   return;
 }
 
-static void wiener_nsfilter_stripe(const RestorationUnitInfo *rui,
+static void wiener_nsfilter_stripe(RestorationUnitInfo *rui,
                                    int stripe_width, int stripe_height,
                                    int procunit_width, const uint8_t *src,
                                    int src_stride, uint8_t *dst, int dst_stride,
@@ -1089,9 +1089,15 @@ static void wiener_nsfilter_stripe(const RestorationUnitInfo *rui,
   (void)tmpbuf;
   (void)bit_depth;
   assert(bit_depth == 8);
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+  const uint8_t *luma_in_stripe = rui->luma;
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
 
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, stripe_width - j);
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+    rui->luma = luma_in_stripe + j;
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
     apply_wiener_nonsep(src + j, w, stripe_height, src_stride,
                         rui->wiener_nonsep_info.nsfilter, dst + j, dst_stride,
                         rui->plane,
@@ -1102,6 +1108,9 @@ static void wiener_nsfilter_stripe(const RestorationUnitInfo *rui,
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
     );
   }
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+  rui->luma = luma_in_stripe;
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
 }
 
 void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
@@ -1150,7 +1159,7 @@ void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
   return;
 }
 
-static void wiener_nsfilter_stripe_highbd(const RestorationUnitInfo *rui,
+static void wiener_nsfilter_stripe_highbd(RestorationUnitInfo *rui,
                                           int stripe_width, int stripe_height,
                                           int procunit_width,
                                           const uint8_t *src, int src_stride,
@@ -1213,7 +1222,7 @@ static INLINE int is_frame_intra_only(const FRAME_TYPE frame_type) {
   return frame_type == KEY_FRAME || frame_type == INTRA_ONLY_FRAME;
 }
 
-static void cnn_filter_stripe(const RestorationUnitInfo *rui, int stripe_width,
+static void cnn_filter_stripe(RestorationUnitInfo *rui, int stripe_width,
                               int stripe_height, int procunit_width,
                               const uint8_t *src, int src_stride, uint8_t *dst,
                               int dst_stride, int32_t *tmpbuf, int bit_depth) {
@@ -1229,7 +1238,7 @@ static void cnn_filter_stripe(const RestorationUnitInfo *rui, int stripe_width,
                              is_frame_intra_only(rui->cnn_info.frame_type));
 }
 
-static void cnn_filter_stripe_highbd(const RestorationUnitInfo *rui,
+static void cnn_filter_stripe_highbd(RestorationUnitInfo *rui,
                                      int stripe_width, int stripe_height,
                                      int procunit_width, const uint8_t *src,
                                      int src_stride, uint8_t *dst,
@@ -1247,7 +1256,7 @@ static void cnn_filter_stripe_highbd(const RestorationUnitInfo *rui,
 
 #endif  // CONFIG_LOOP_RESTORE_CNN
 
-static void wiener_filter_stripe_highbd(const RestorationUnitInfo *rui,
+static void wiener_filter_stripe_highbd(RestorationUnitInfo *rui,
                                         int stripe_width, int stripe_height,
                                         int procunit_width, const uint8_t *src8,
                                         int src_stride, uint8_t *dst8,
@@ -1276,7 +1285,7 @@ static void wiener_filter_stripe_highbd(const RestorationUnitInfo *rui,
   }
 }
 
-static void sgrproj_filter_stripe_highbd(const RestorationUnitInfo *rui,
+static void sgrproj_filter_stripe_highbd(RestorationUnitInfo *rui,
                                          int stripe_width, int stripe_height,
                                          int procunit_width,
                                          const uint8_t *src8, int src_stride,
@@ -1290,7 +1299,7 @@ static void sgrproj_filter_stripe_highbd(const RestorationUnitInfo *rui,
   }
 }
 
-typedef void (*stripe_filter_fun)(const RestorationUnitInfo *rui,
+typedef void (*stripe_filter_fun)(RestorationUnitInfo *rui,
                                   int stripe_width, int stripe_height,
                                   int procunit_width, const uint8_t *src,
                                   int src_stride, uint8_t *dst, int dst_stride,
@@ -1335,7 +1344,7 @@ static const stripe_filter_fun stripe_filters[NUM_STRIPE_FILTERS] = {
 
 // Filter one restoration unit
 void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
-                                      const RestorationUnitInfo *rui,
+                                      RestorationUnitInfo *rui,
                                       const RestorationStripeBoundaries *rsb,
 #if CONFIG_LOOP_RESTORE_CNN
                                       int restoration_unit_size,
@@ -1365,6 +1374,10 @@ void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
   const stripe_filter_fun stripe_filter = stripe_filters[filter_idx];
 
   const int procunit_width = RESTORATION_PROC_UNIT_SIZE >> ss_x;
+
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+  const uint8_t *luma_in_ru = rui->luma;
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
 
   // Convolve the whole tile one stripe at a time
   RestorationTileLimits remaining_stripes = *limits;
@@ -1405,6 +1418,9 @@ void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
                                      h, data8, stride, rlbs, copy_above,
                                      copy_below, optimized_lr);
 
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+    rui->luma = luma_in_ru + i * rui->luma_stride;
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
     stripe_filter(rui, unit_w, h, procunit_width, data8_tl + i * stride, stride,
                   dst8_tl + i * dst_stride, dst_stride, tmpbuf, bit_depth);
 
@@ -1414,6 +1430,9 @@ void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
 
     i += h;
   }
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+  rui->luma = luma_in_ru;
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
 }
 
 static void filter_frame_on_unit(const RestorationTileLimits *limits,
