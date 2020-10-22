@@ -34,6 +34,24 @@
       "parentUuid": "fbf73ac0_bbcd203f",
       "revId": "f8539bd3ad6146dc27bb48a111f16e536d2b7baf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0fbfe18c_22e80fd2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2020-10-22T08:13:06Z",
+      "side": 1,
+      "message": "Hi Debargha,\n\nCurrently the changes for enabling warped motion for sub-8x8 blocks and the use of extended warp filter for larger blocks (blocks with min(width, height) \u003e\u003d8 ) are under the same flag ‘CONFIG_EXT_WARP’. We shall introduce a new flag to enable/disable warped motion for sub8x8 blocks and submit another patch.\n\nRegards,\nRemya",
+      "parentUuid": "5e3560ae_61787596",
+      "revId": "f8539bd3ad6146dc27bb48a111f16e536d2b7baf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
