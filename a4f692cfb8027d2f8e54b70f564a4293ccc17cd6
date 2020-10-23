@@ -22,6 +22,29 @@
       },
       "revId": "a4f692cfb8027d2f8e54b70f564a4293ccc17cd6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c085a272_1ef3654f",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-23T21:33:15Z",
+      "side": 1,
+      "message": "Couldn\u0027t the last buf at cm-\u003eref_frame_map[REF_FRAMES - 1] be NULL (and so free)?",
+      "range": {
+        "startLine": 857,
+        "startChar": 0,
+        "endLine": 857,
+        "endChar": 50
+      },
+      "revId": "a4f692cfb8027d2f8e54b70f564a4293ccc17cd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
