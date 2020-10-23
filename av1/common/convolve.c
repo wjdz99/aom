@@ -1463,7 +1463,15 @@ void av1_convolve_nonsep_mask(const uint8_t *dgd, int width, int height,
     for (int j = 0; j < width; ++j) {
       int dgd_id = i * stride + j;
       int dst_id = i * dst_stride + j;
+#if CONFIG_WIENER_NONSEP_MASK
+      // This is a workaround for nonseparable Wiener restoration. Since
+      // the granularity of txskip_mask is 4x4, indices in the mask need to
+      // be set this way.
+      int mask_idx =
+          (i >> MIN_TX_SIZE_LOG2) * mask_stride + (j >> MIN_TX_SIZE_LOG2);
+#else
       int mask_idx = i * mask_stride + j;
+#endif
       if (skip_mask[mask_idx]) {
         dst[dst_id] = dgd[dgd_id];
         continue;
@@ -1499,7 +1507,12 @@ void av1_convolve_nonsep_mask_highbd(
     for (int j = 0; j < width; ++j) {
       int dgd_id = i * stride + j;
       int dst_id = i * dst_stride + j;
+#if CONFIG_WIENER_NONSEP_MASK
+      int mask_idx =
+          (i >> MIN_TX_SIZE_LOG2) * mask_stride + (j >> MIN_TX_SIZE_LOG2);
+#else
       int mask_idx = i * mask_stride + j;
+#endif
       if (skip_mask[mask_idx]) {
         dst[dst_id] = dgd[dgd_id];
         continue;
