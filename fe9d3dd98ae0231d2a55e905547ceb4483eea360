@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11961a01_52bbe9e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-10-23T20:22:47Z",
+      "side": 1,
+      "message": "Hi, Chia-Yang\n\nplease help review this patch. It searches the convex hull curve to fund out the corresponding [qp, resolution] based on specified quality metrics values. ",
+      "revId": "fe9d3dd98ae0231d2a55e905547ceb4483eea360",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46ae561e_f208ac97",
+        "filename": "tools/convexhull_framework/src/ConvexHullTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-10-23T20:22:47Z",
+      "side": 1,
+      "message": "tab should be replaced by 4 spaces",
+      "range": {
+        "startLine": 32,
+        "startChar": 2,
+        "endLine": 32,
+        "endChar": 3
+      },
+      "revId": "fe9d3dd98ae0231d2a55e905547ceb4483eea360",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
