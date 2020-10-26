@@ -250,6 +250,8 @@ static void set_good_speed_feature_framesize_dependent(
     if (is_720p_or_larger) {
       sf->part_sf.partition_search_breakout_dist_thr = (1 << 25);
       sf->part_sf.partition_search_breakout_rate_thr = 200;
+
+      sf->intra_sf.use_yrd_for_luma_intra_mode_search = 1;
     } else {
       sf->part_sf.max_intra_bsize = BLOCK_32X32;
       sf->part_sf.partition_search_breakout_dist_thr = (1 << 23);
@@ -1181,6 +1183,7 @@ static AOM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
   intra_sf->intra_pruning_with_hog = 0;
   intra_sf->src_var_thresh_intra_skip = 1;
   intra_sf->prune_palette_search_level = 0;
+  intra_sf->use_yrd_for_luma_intra_mode_search = 0;
 
   for (int i = 0; i < TX_SIZES; i++) {
     intra_sf->intra_y_mode_mask[i] = INTRA_ALL;

@@ -5191,9 +5191,12 @@ static AOM_INLINE void search_intra_modes_in_interframe(
     RD_STATS intra_rd_stats_y;
     int mode_cost_y;
     int64_t intra_rd_y = INT64_MAX;
+    const int64_t rd_threshold = sf->intra_sf.use_yrd_for_luma_intra_mode_search
+                                     ? AOMMIN(search_state->best_rd, best_rd_y)
+                                     : search_state->best_rd;
     const int is_luma_result_valid = av1_handle_intra_y_mode(
         intra_search_state, cpi, x, bsize, intra_ref_frame_cost, ctx,
-        &intra_rd_stats_y, search_state->best_rd, &mode_cost_y, &intra_rd_y);
+        &intra_rd_stats_y, rd_threshold, &mode_cost_y, &intra_rd_y);
     if (is_luma_result_valid && intra_rd_y < yrd_threshold) {
       is_best_y_mode_intra = 1;
       if (intra_rd_y < best_rd_y) {
