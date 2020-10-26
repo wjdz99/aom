@@ -34,6 +34,24 @@
       "parentUuid": "608cd22b_eda03e0c",
       "revId": "352bd4e31f5e0e74c2f7372d63e3a1b8bc5447e0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44d2e71c_5dc578ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-26T17:23:37Z",
+      "side": 1,
+      "message": "If you want to add HBD in a separate CL. Then, for this CL, fix unit test to support \u003e 32 block width.",
+      "parentUuid": "cf11cb90_1f17b644",
+      "revId": "352bd4e31f5e0e74c2f7372d63e3a1b8bc5447e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
