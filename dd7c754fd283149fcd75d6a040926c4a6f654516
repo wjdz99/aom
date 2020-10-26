@@ -16,6 +16,29 @@
       "message": "Hi Yunqing,\n\nIn this patch, we have abstracted row-level code from tf_do_filtering() in order\nto facilitate multithreading. Also, buffers which are used in temporal filtering\nwhich would be thread-specific are moved into the ThreadData structure.\n\nThis is a bit-exact change with no speed impact (verified locally).\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "dd7c754fd283149fcd75d6a040926c4a6f654516",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "669df144_c1d53df9",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-26T21:10:53Z",
+      "side": 1,
+      "message": "Move these functions to another file (e.g. header file)? It might be more clear to separate MT functions from this file.",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 0
+      },
+      "revId": "dd7c754fd283149fcd75d6a040926c4a6f654516",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
