@@ -418,8 +418,10 @@ def GenerateSummaryConvexHullExcelFile(encMethod, codecName, preset,
         sht.write(0, 2, 'Num RD Points')
         col = 3
         for qty in QualityList:
-            sht.write(0, col, 'Bitrate(kbps)')
-            sht.write(0, col + 1, qty)
-            col += 2
+            sht.write(0, col, 'Resolution')
+            sht.write(0, col + 1, 'QP')
+            sht.write(0, col + 2, 'Bitrate(kbps)')
+            sht.write(0, col + 3, qty)
+            col += 4
         sum_start_row[shtname] = 1
     return sum_wb, sum_start_row

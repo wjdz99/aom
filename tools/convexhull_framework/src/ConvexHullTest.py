@@ -112,7 +112,7 @@ def AddConvexHullCurveToCharts(sht, startrow, startcol, charts, rdPoints,
     numitems = 5  # qty, bitrate, qp, resolution, 1 empty row as internal
     rows = [startrow + 1 + numitems * i for i in range(len(QualityList))]
 
-    hull = {}
+    hull = {}; cvh_QPs = {}; cvh_Res_txt = {}
     max_len = 0
 
     for qty, idx, row in zip(QualityList, range(len(QualityList)), rows):
@@ -131,11 +131,11 @@ def AddConvexHullCurveToCharts(sht, startrow, startcol, charts, rdPoints,
 
         rdpnts_qtys = [rd[1] for rd in rdPoints[idx]]
         cvh_qidxs = [rdpnts_qtys.index(qty) for qty in qtys]
-        cvh_QPs = [QPs[i % len(QPs)] for i in cvh_qidxs]
+        cvh_QPs[qty] = [QPs[i % len(QPs)] for i in cvh_qidxs]
         cvh_Res = [dnScaledRes[i // len(QPs)] for i in cvh_qidxs]
-        cvh_Res_txt = ["%sx%s" % (x, y) for (x, y) in cvh_Res]
-        sht.write_row(row + 2, startcol + 1, cvh_QPs)
-        sht.write_row(row + 3, startcol + 1, cvh_Res_txt)
+        cvh_Res_txt[qty] = ["%sx%s" % (x, y) for (x, y) in cvh_Res]
+        sht.write_row(row + 2, startcol + 1, cvh_QPs[qty])
+        sht.write_row(row + 3, startcol + 1, cvh_Res_txt[qty])
 
         cols = [startcol + 1 + i for i in range(len(hull[qty]))]
         AddSeriesToChart_Scatter_Rows(shtname, cols, row, row + 1, charts[idx],
@@ -150,11 +150,13 @@ def AddConvexHullCurveToCharts(sht, startrow, startcol, charts, rdPoints,
     sum_col = 3
     for qty in QualityList:
         row = sum_row
-        for point in hull[qty]:
-            sum_sht.write(row, sum_col, point[0])
-            sum_sht.write(row, sum_col + 1, point[1])
+        for (res, qp, point) in zip(cvh_Res_txt[qty], cvh_QPs[qty], hull[qty]):
+            sum_sht.write(row, sum_col, res)            #Resolution
+            sum_sht.write(row, sum_col + 1, qp)         #QP
+            sum_sht.write(row, sum_col + 2, point[0])   #Bitrate
+            sum_sht.write(row, sum_col + 3, point[1])   #Quality
             row += 1
-        sum_col += 2
+        sum_col += 4
 
     return endrow, sum_start_row + max_len - 1
 
