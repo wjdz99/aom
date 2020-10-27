@@ -854,22 +854,8 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
 }
 
 static int get_free_ref_map_index(const AV1_COMMON *const cm) {
-  for (int idx = 0; idx < REF_FRAMES - 1; ++idx) {
-    // Get reference frame buffer
-    const RefCntBuffer *const buf = cm->ref_frame_map[idx];
-    if (buf == NULL) return idx;
-    // Once the keyframe is coded, the slots in ref_frame_map will all
-    // point to the same frame. In that case, all subsequent pointers
-    // matching the current are considered "free" slots. This will find
-    // the next occurance of the current pointer if ref_count indicates
-    // there are multiple instances of it.
-    if (buf->ref_count > 1) {
-      for (int idx2 = idx + 1; idx2 < REF_FRAMES; ++idx2) {
-        const RefCntBuffer *const buf2 = cm->ref_frame_map[idx2];
-        if (buf2 == buf) return idx2;
-      }
-    }
-  }
+  for (int idx = 0; idx < REF_FRAMES - 1; ++idx)
+    if (ref_frame_map_pairs[idx].disp_order == -1) return idx;
   return INVALID_IDX;
 }
 
