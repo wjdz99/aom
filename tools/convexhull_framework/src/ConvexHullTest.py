@@ -190,11 +190,13 @@ def AddConvexHullCurveToCharts(sht, startrow, startcol, charts, rdPoints,
     sum_col = 3
     for qty in QualityList:
         row = sum_row
-        for point in hull[qty]:
-            sum_sht.write(row, sum_col, point[0])
-            sum_sht.write(row, sum_col + 1, point[1])
+        for (res, qp, point) in zip(cvh_Res_txt[qty], cvh_QPs[qty], hull[qty]):
+            sum_sht.write(row, sum_col, res)            #Resolution
+            sum_sht.write(row, sum_col + 1, qp)         #QP
+            sum_sht.write(row, sum_col + 2, point[0])   #Bitrate
+            sum_sht.write(row, sum_col + 3, point[1])   #Quality
             row += 1
-        sum_col += 2
+        sum_col += 4
 
     return endrow, sum_start_row + max_len - 1
 
