@@ -33,6 +33,23 @@
       "message": "first tried to add chuangh@fb.com as reviewer but failed. then I tried to remove him first from CC and then add him to Reviewer. but seems i still could not see his name in Reviewer list...",
       "revId": "1bf8da4a0c132d37d851780fb58d1659bb9cdbd3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13050dbe_63d36313",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18232
+      },
+      "writtenOn": "2020-10-27T05:38:45Z",
+      "side": 1,
+      "message": "adding chuangh@fb.com to CC list is successful.",
+      "revId": "1bf8da4a0c132d37d851780fb58d1659bb9cdbd3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
