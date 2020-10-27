@@ -853,24 +853,54 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
   return;
 }
 
-static int get_free_ref_map_index(const AV1_COMMON *const cm) {
-  for (int idx = 0; idx < REF_FRAMES - 1; ++idx) {
-    // Get reference frame buffer
-    const RefCntBuffer *const buf = cm->ref_frame_map[idx];
-    if (buf == NULL) return idx;
-    // Once the keyframe is coded, the slots in ref_frame_map will all
-    // point to the same frame. In that case, all subsequent pointers
-    // matching the current are considered "free" slots. This will find
-    // the next occurance of the current pointer if ref_count indicates
-    // there are multiple instances of it.
-    if (buf->ref_count > 1) {
-      for (int idx2 = idx + 1; idx2 < REF_FRAMES; ++idx2) {
-        const RefCntBuffer *const buf2 = cm->ref_frame_map[idx2];
-        if (buf2 == buf) return idx2;
+#define OLD 0
+static int get_free_ref_map_index(const RefBufferStack *ref_buffer_stack, 
+                                RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
+#if OLD
+  for (int idx = 0; idx < REF_FRAMES; ++idx) {
+    int is_free = 1;
+    for (int i = 0; i < ref_buffer_stack->arf_stack_size; ++i) {
+      if (ref_buffer_stack->arf_stack[i] == idx) {
+        is_free = 0;
+        break;
+      }
+    }
+
+    for (int i = 0; i < ref_buffer_stack->lst_stack_size; ++i) {
+      if (ref_buffer_stack->lst_stack[i] == idx) {
+        is_free = 0;
+        break;
+      }
+    }
+
+    for (int i = 0; i < ref_buffer_stack->gld_stack_size; ++i) {
+      if (ref_buffer_stack->gld_stack[i] == idx) {
+        is_free = 0;
+        break;
       }
     }
   }
   return INVALID_IDX;
+#else
+  for (int idx = 0; idx < REF_FRAMES - 1; ++idx) {
+    if (ref_frame_map_pairs[idx].disp_order == -1) return idx; 
+//  // Get reference frame buffer
+//  const RefCntBuffer *const buf = cm->ref_frame_map[idx];
+//  if (buf == NULL) return idx;
+//  // Once the keyframe is coded, the slots in ref_frame_map will all
+//  // point to the same frame. In that case, all subsequent pointers
+//  // matching the current are considered "free" slots. This will find
+//  // the next occurance of the current pointer if ref_count indicates
+//  // there are multiple instances of it.
+//  if (buf->ref_count > 1) {
+//    for (int idx2 = idx + 1; idx2 < REF_FRAMES; ++idx2) {
+//      const RefCntBuffer *const buf2 = cm->ref_frame_map[idx2];
+//      if (buf2 == buf) return idx2;
+//    }
+//  }
+  }
+  return INVALID_IDX;
+#endif
 }
 
 static int get_refresh_idx(int update_arf, int refresh_level,
@@ -885,12 +915,14 @@ static int get_refresh_idx(int update_arf, int refresh_level,
 
   int oldest_ref_level_order = INT32_MAX;
   int oldest_ref_level_idx = -1;
+//printf("\n\ncur disp %d\n", cur_frame_disp);
 
   for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
     RefFrameMapPair ref_pair = ref_frame_map_pairs[map_idx];
     if (ref_pair.disp_order == -1) continue;
     const int frame_order = ref_pair.disp_order;
     const int reference_frame_level = ref_pair.pyr_level;
+//  printf("ref disp %d pyr %d\n", frame_order, reference_frame_level);
     if (frame_order > cur_frame_disp) continue;
 
     // Keep track of the oldest reference frame matching the specified
@@ -962,6 +994,7 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
                                 int gf_index, int cur_disp_order,
                                 RefFrameMapPair ref_frame_map_pairs[REF_FRAMES],
                                 const RefBufferStack *const ref_buffer_stack) {
+  printf("refresh\n");
   const AV1_COMMON *const cm = &cpi->common;
   const ExtRefreshFrameFlagsInfo *const ext_refresh_frame_flags =
       &cpi->ext_flags.refresh_frame;
@@ -1032,7 +1065,8 @@ int av1_get_refresh_frame_flags(const AV1_COMP *const cpi,
   }
 
   // Search for the open slot to store the current frame.
-  int free_fb_index = get_free_ref_map_index(cm);
+  int free_fb_index = get_free_ref_map_index(ref_buffer_stack, ref_frame_map_pairs);
+  printf("free idx %d\n", free_fb_index);
 
   if (use_subgop_cfg(&cpi->gf_group, gf_index)) {
     return get_refresh_frame_flags_subgop_cfg(cpi, gf_index, cur_disp_order,
@@ -1743,6 +1777,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     const int cur_frame_disp =
         cpi->common.current_frame.frame_number + frame_params.order_offset;
 
+    printf("call3\n");
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, cpi->gf_group.index,
         cur_frame_disp, ref_frame_map_pairs, &cpi->ref_buffer_stack);
@@ -1759,6 +1794,38 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       }
     }
   }
+    const int cur_frame_disp =
+        cpi->common.current_frame.frame_number + frame_params.order_offset;
+
+  char *str_frames[7] = { 
+ "LAST_FRAME",
+ "LAST2_FRAME",
+ "LAST3_FRAME",
+ "GOLDEN_FRAME",
+ "BWDREF_FRAME",
+ "ALTREF2_FRAME",
+ "ALTREF_FRAME"
+  };
+  char *ud_str[7] = {
+ "KF_UPDATE",
+ "LF_UPDATE",
+ "GF_UPDATE",
+ "ARF_UPDATE",
+ "OVERLAY_UPDATE",
+ "INTNL_OVERLAY_UPDATE",
+ "INTNL_ARF_UPDATE"
+  };
+  printf("~~~~~~~~ %s ~~~~~~~~ %d\n", ud_str[gf_group->update_type[gf_group->index]], cur_frame_disp);
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    char *frm_str = str_frames[frame - 1];
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int frame_level = buf->pyramid_level;
+    printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+  }
+  printf("\n\n");
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
   // Currently, reference buffer assignment is done by update_ref_frame_map()

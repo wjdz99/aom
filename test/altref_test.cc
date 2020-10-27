@@ -64,6 +64,9 @@ class AltRefFramePresenceTestLarge
     cfg_.kf_min_dist = altref_test_params_.min_kf_dist;
     cfg_.kf_max_dist = altref_test_params_.max_kf_dist;
     cfg_.g_lag_in_frames = altref_test_params_.lag_in_frames;
+    printf("min kf %d max kf %d lif %d rc %d min gf %d max gf %d\n", cfg_.kf_min_dist, 
+           cfg_.kf_max_dist, cfg_.g_lag_in_frames, cfg_.rc_end_usage, 
+           altref_test_params_.min_gf_interval, altref_test_params_.max_gf_interval);
   }
 
   virtual bool DoDecode() const { return 1; }
@@ -97,6 +100,7 @@ class AltRefFramePresenceTestLarge
 };
 
 TEST_P(AltRefFramePresenceTestLarge, AltRefFrameEncodePresenceTest) {
+  printf("here\n");
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
                                      0, 100);

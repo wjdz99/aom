@@ -1497,6 +1497,7 @@ static INLINE void set_baseline_gf_interval(AV1_COMP *cpi, int arf_position,
   } else {
     rc->baseline_gf_interval = arf_position - rc->source_alt_ref_pending;
   }
+  printf("BASELINE %d~~~~~~~~~~~~~~~\n", rc->baseline_gf_interval);
 }
 
 // initialize GF_GROUP_STATS

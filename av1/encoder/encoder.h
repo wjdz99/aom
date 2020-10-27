@@ -2841,14 +2841,26 @@ typedef struct {
 
 static INLINE void init_ref_map_pair(
     AV1_COMP *cpi, RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
-  memset(ref_frame_map_pairs, -1, sizeof(*ref_frame_map_pairs) * REF_FRAMES);
+  memset(ref_frame_map_pairs, 0, sizeof(*ref_frame_map_pairs) * REF_FRAMES);
   for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
     // Get reference frame buffer
     const RefCntBuffer *const buf = cpi->common.ref_frame_map[map_idx];
-    if (buf == NULL) continue;
+    if (ref_frame_map_pairs[map_idx].disp_order == -1) continue;
+    if (buf == NULL) {
+      ref_frame_map_pairs[map_idx].disp_order = -1; 
+      ref_frame_map_pairs[map_idx].pyr_level = -1;
+      continue;
+    } else if (buf->ref_count > 1) {
+      for (int idx2 = map_idx + 1; idx2 < REF_FRAMES; ++idx2) {
+        const RefCntBuffer *const buf2 = cpi->common.ref_frame_map[idx2];
+        if (buf2 == buf) {
+          ref_frame_map_pairs[map_idx].disp_order = -1;
+          ref_frame_map_pairs[map_idx].pyr_level = -1;
+        }
+      }
+    }
     ref_frame_map_pairs[map_idx].disp_order = (int)buf->display_order_hint;
-    const int reference_frame_level = buf->pyramid_level;
-    ref_frame_map_pairs[map_idx].pyr_level = reference_frame_level;
+    ref_frame_map_pairs[map_idx].pyr_level = buf->pyramid_level;
   }
 }
 

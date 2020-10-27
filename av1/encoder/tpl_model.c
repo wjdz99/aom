@@ -962,8 +962,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   int anc_frame_offset = gf_group->cur_frame_idx[cur_frame_idx];
   int process_frame_count = 0;
   const int gop_length = get_gop_length(gf_group);
+  printf("GOP LENGTH %d, cur %d\n", gop_length, cur_frame_idx);
 
   for (gf_index = cur_frame_idx; gf_index <= gop_length; ++gf_index) {
+    printf("idx %d\n", gf_index);
     TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_index];
     FRAME_UPDATE_TYPE frame_update_type = gf_group->update_type[gf_index];
     int frame_display_index = gf_index == gf_group->size
@@ -993,7 +995,10 @@ static AOM_INLINE void init_gop_frames_for_tpl(
       struct lookahead_entry *buf = av1_lookahead_peek(
           cpi->lookahead, frame_display_index - anc_frame_offset,
           cpi->compressor_stage);
-      if (buf == NULL) break;
+      if (buf == NULL) {
+        printf("BREAK\n");
+        break;
+      }
       tpl_frame->gf_picture = &buf->img;
     }
     // 'cm->current_frame.frame_number' is the display number
@@ -1019,6 +1024,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
         (int)(tpl_frame->frame_display_index) -
         (gf_group->subgop_cfg != NULL && frame_params.show_frame);
     av1_get_ref_frames(cpi, &ref_buffer_stack, true_disp, ref_frame_map_pairs);
+    printf("call1\n");
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, gf_index, true_disp,
         ref_frame_map_pairs, &ref_buffer_stack);
@@ -1043,6 +1049,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     if (refresh_mask) ref_picture_map[refresh_frame_map_index] = gf_index;
 
     ++*tpl_group_frames;
+    printf("idx %d\n", gf_index);
   }
 
   if (cur_frame_idx == 0) return;
@@ -1097,6 +1104,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     // av1_update_ref_frame_map() will execute default behavior even when
     // subgop cfg is enabled. This should be addressed if we ever remove the
     // frame_update_type.
+    printf("call2\n");
     int refresh_mask = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, -1, true_disp,
         ref_frame_map_pairs, &ref_buffer_stack);
