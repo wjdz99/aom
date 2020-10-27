@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "006573a6_c301a1b0",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1422,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-27T23:31:22Z",
+      "side": 1,
+      "message": "For full line comments, First line should be capital and end with full stop.",
+      "range": {
+        "startLine": 1422,
+        "startChar": 0,
+        "endLine": 1422,
+        "endChar": 77
+      },
+      "revId": "8a75f921e177f1a4e5fda9631e225203d5cee093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81a8d4b6_de4cdc0e",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-27T23:31:22Z",
+      "side": 1,
+      "message": "Use post-increment as per C++ style guide: \"++index\"",
+      "range": {
+        "startLine": 1433,
+        "startChar": 59,
+        "endLine": 1433,
+        "endChar": 66
+      },
+      "revId": "8a75f921e177f1a4e5fda9631e225203d5cee093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bee05a5_6ed68f30",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-27T23:31:22Z",
+      "side": 1,
+      "message": "You are taking the floor here (as it\u0027s an integer division).\nDo you want rounding instead? If so, you can use DIVIDE_AND_ROUND() macro.",
+      "range": {
+        "startLine": 1439,
+        "startChar": 0,
+        "endLine": 1439,
+        "endChar": 67
+      },
+      "revId": "8a75f921e177f1a4e5fda9631e225203d5cee093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96c76465_adda411e",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1464,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-27T23:31:22Z",
+      "side": 1,
+      "message": "bc --\u003e because?",
+      "range": {
+        "startLine": 1464,
+        "startChar": 48,
+        "endLine": 1464,
+        "endChar": 50
+      },
+      "revId": "8a75f921e177f1a4e5fda9631e225203d5cee093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12db33ba_8f9cbb7e",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1505,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-27T23:31:22Z",
+      "side": 1,
+      "message": "Add braces for if and else.\n\n\"if (foo) x \u003d y;\" is fine (if whole thing is in a single line).\nFor longer statements, pls add braces for readability and to avoid bugs.",
+      "revId": "8a75f921e177f1a4e5fda9631e225203d5cee093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5d1879e_07c1bcf5",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-27T23:31:22Z",
+      "side": 1,
+      "message": "Could be \"#else\" instead of these two lines?",
+      "range": {
+        "startLine": 1545,
+        "startChar": 0,
+        "endLine": 1546,
+        "endChar": 27
+      },
+      "revId": "8a75f921e177f1a4e5fda9631e225203d5cee093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60032b86_8a9ef010",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-27T23:31:22Z",
+      "side": 1,
+      "message": "\u0027merged_param_cost\u0027",
+      "range": {
+        "startLine": 352,
+        "startChar": 33,
+        "endLine": 352,
+        "endChar": 50
+      },
+      "revId": "8a75f921e177f1a4e5fda9631e225203d5cee093",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
