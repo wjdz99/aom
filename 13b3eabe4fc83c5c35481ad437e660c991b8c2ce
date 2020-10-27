@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57546eab_8efbe035",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-10-27T17:38:05Z",
+      "side": 1,
+      "message": "\"BLOCK_8X32,  BLOCK_32X8\" occurs twice in this table, could you please explain the reason for that?",
+      "revId": "13b3eabe4fc83c5c35481ad437e660c991b8c2ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
