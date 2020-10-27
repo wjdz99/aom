@@ -202,7 +202,13 @@ static AOM_INLINE void optimize_palette_colors(uint16_t *color_cache,
         idx = j;
       }
     }
-    int min_threshold = (1 << (bit_depth - 8));
+    int min_threshold = 1;
+    switch (bit_depth) {
+      case 8: min_threshold = 1; break;
+      case 10: min_threshold = 2 << (bit_depth - 8); break;
+      case 12: min_threshold = 2 << (bit_depth - 8); break;
+      default: assert(0 && "Invalid bit_depth.");
+    }
     if (min_diff <= min_threshold) centroids[i] = color_cache[idx];
   }
 }
