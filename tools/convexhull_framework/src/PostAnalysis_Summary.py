@@ -81,7 +81,8 @@ def CopyResultDataToSummaryFile_Onesheet(sht, wt_cols, infile_path):
 
 def CalBDRateWithExcel_OneSheet(sht, cols, cols_bdmtrs, cellformat):
     row_refst = 0
-    bdstep = 3
+    #calculate bdrate based on all QPs
+    bdstep = len(QPs) - 1
     for cols_bd, residx in zip(cols_bdmtrs, range(1, len(DnScaleRatio))):
         sht.write(0, cols_bd, 'BD-Rate %.2f vs. %.2f' % (DnScaleRatio[residx],
                                                          DnScaleRatio[0]))
@@ -120,7 +121,8 @@ def CalBDRateWithExcel_OneSheet(sht, cols, cols_bdmtrs, cellformat):
 
 def CalBDRateWithPython_OneSheet(sht, cols_bdmtrs, infile_path, cellformat):
     row_refst = 0
-    bdstep = 3
+    # calculate bdrate based on all QPs
+    bdstep = len(QPs) - 1
     assert row_refst + bdstep < len(CvxH_WtRows)
     resultfiles = os.listdir(infile_path)
     shtname = sht.get_name()
