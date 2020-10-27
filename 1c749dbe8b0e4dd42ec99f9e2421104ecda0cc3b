@@ -16,6 +16,24 @@
       "message": "Would this cause quality change?",
       "revId": "1c749dbe8b0e4dd42ec99f9e2421104ecda0cc3b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c192171d_2fa5e4d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-10-27T00:45:43Z",
+      "side": 1,
+      "message": "This changes the bitstream output, but the change in bitrate is \u003c 0.01%.",
+      "parentUuid": "4a358bef_a53529cb",
+      "revId": "1c749dbe8b0e4dd42ec99f9e2421104ecda0cc3b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
