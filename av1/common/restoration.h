@@ -257,6 +257,11 @@ typedef struct {
 #endif  // CONFIG_LOOP_RESTORE_CNN
 #if CONFIG_WIENER_NONSEP
   WienerNonsepInfo wiener_nonsep_info;
+#if CONFIG_WIENER_NONSEP_MASK
+  // pointer to tx_skip array at the first pixel of the current RU
+  const uint8_t *txskip_mask;
+  int mask_stride;
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   const uint8_t *luma;
   int luma_stride;
@@ -415,6 +420,11 @@ typedef struct FilterFrameCtxt {
   FRAME_TYPE frame_type;
 #if CONFIG_WIENER_NONSEP
   int plane;
+#if CONFIG_WIENER_NONSEP_MASK
+  // pointer to tx_skip array at the first pixel of the plane
+  const uint8_t *txskip_mask;
+  int mask_stride;
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   const uint8_t *luma;
   int luma_stride;

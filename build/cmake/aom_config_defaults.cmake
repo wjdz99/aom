@@ -187,6 +187,8 @@ set_aom_config_var(CONFIG_WIENER_NONSEP 0 NUMBER
                    "AV2 nonsep Wiener filter experiment flag")
 set_aom_config_var(CONFIG_WIENER_NONSEP_CROSS_FILT 0 NUMBER
                    "AV2 nonsep Wiener cross filter experiment flag")
+set_aom_config_var(CONFIG_WIENER_NONSEP_MASK 0 NUMBER
+                   "AV2 nonsep masked Wiener filter experiment flag")
 set_aom_config_var(CONFIG_SUPERRES_TX64 0 NUMBER
                    "AV2 64-length superres tx experiment flag")
 set_aom_config_var(CONFIG_SUPERRES_TX64_DIRFILTER 0 NUMBER

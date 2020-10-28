@@ -1040,7 +1040,11 @@ static void sgrproj_filter_stripe(const RestorationUnitInfo *rui,
 #if CONFIG_WIENER_NONSEP
 void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
                          const int16_t *filter, uint8_t *dst, int dst_stride,
-                         int plane, const uint8_t *luma, int luma_stride) {
+                         int plane,
+#if CONFIG_WIENER_NONSEP_MASK
+                         const uint8_t *txskip_mask, int mask_stride,
+#endif
+                         const uint8_t *luma, int luma_stride) {
   (void)luma;
   (void)luma_stride;
   int is_uv = (plane != AOM_PLANE_Y);
@@ -1066,17 +1070,37 @@ void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
   };
   const NonsepFilterConfig *nsfilter = is_uv ? &nsfilter_uv : &nsfilter_y;
   const int16_t *filter_ = is_uv ? filter + wienerns_y : filter;
+#if CONFIG_WIENER_NONSEP_MASK
+  // Granularity of txskip_mask is 4x4. Here we construct a mask
+  // using av1_resize_plane.
+  uint8_t *skip_mask = (uint8_t *)aom_malloc(sizeof(uint8_t) * width * height);
+  int h0 = height >> MIN_TX_SIZE_LOG2;
+  int w0 = width >> MIN_TX_SIZE_LOG2;
+  av1_resize_plane(txskip_mask, h0, w0, mask_stride, skip_mask, height, width,
+                   width);
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   if (!is_uv || wienerns_uv_from_y_pixel == 0) {
+#if CONFIG_WIENER_NONSEP_MASK
+    av1_convolve_nonsep_mask(dgd, width, height, stride, nsfilter, filter_, dst,
+                             dst_stride, skip_mask, width);
+#else
     av1_convolve_nonsep(dgd, width, height, stride, nsfilter, filter_, dst,
                         dst_stride);
+#endif  // CONFIG_WIENER_NONSEP_MASK
   } else {
     av1_convolve_nonsep_dual(dgd, width, height, stride, luma, luma_stride,
                              nsfilter, filter_, dst, dst_stride);
   }
 #else
-  av1_convolve_nonsep(dgd, width, height, stride, nsfilter, filter_, dst,
-                      dst_stride);
+#if CONFIG_WIENER_NONSEP_MASK
+  if (!is_uv)
+    av1_convolve_nonsep_mask(dgd, width, height, stride, nsfilter, filter_, dst,
+                             dst_stride, skip_mask, width);
+  else
+#endif  // CONFIG_WIENER_NONSEP_MASK
+    av1_convolve_nonsep(dgd, width, height, stride, nsfilter, filter_, dst,
+                        dst_stride);
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
   return;
 }
@@ -1092,13 +1116,16 @@ static void wiener_nsfilter_stripe(const RestorationUnitInfo *rui,
 
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, stripe_width - j);
-    apply_wiener_nonsep(src + j, w, stripe_height, src_stride,
-                        rui->wiener_nonsep_info.nsfilter, dst + j, dst_stride,
-                        rui->plane,
+    apply_wiener_nonsep(
+        src + j, w, stripe_height, src_stride, rui->wiener_nonsep_info.nsfilter,
+        dst + j, dst_stride, rui->plane,
+#if CONFIG_WIENER_NONSEP_MASK
+        rui->txskip_mask + (j >> MIN_TX_SIZE_LOG2), rui->mask_stride,
+#endif
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
-                        rui->luma + j, rui->luma_stride
+        rui->luma + j, rui->luma_stride
 #else
-                        NULL, -1
+        NULL, -1
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
     );
   }
@@ -1107,6 +1134,9 @@ static void wiener_nsfilter_stripe(const RestorationUnitInfo *rui,
 void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
                                 int stride, const int16_t *filter,
                                 uint8_t *dst8, int dst_stride, int plane,
+#if CONFIG_WIENER_NONSEP_MASK
+                                const uint8_t *txskip_mask, int mask_stride,
+#endif
                                 const uint8_t *luma8, int luma_stride,
                                 int bit_depth) {
   (void)luma8;
@@ -1134,18 +1164,38 @@ void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
   };
   const NonsepFilterConfig *nsfilter = is_uv ? &nsfilter_uv : &nsfilter_y;
   const int16_t *filter_ = is_uv ? filter + wienerns_y : filter;
+#if CONFIG_WIENER_NONSEP_MASK
+  uint8_t *skip_mask = (uint8_t *)aom_malloc(sizeof(uint8_t) * width * height);
+  int h0 = height >> MIN_TX_SIZE_LOG2;
+  int w0 = width >> MIN_TX_SIZE_LOG2;
+  av1_resize_plane(txskip_mask, h0, w0, mask_stride, skip_mask, height, width,
+                   width);
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   if (!is_uv || wienerns_uv_from_y_pixel == 0) {
+#if CONFIG_WIENER_NONSEP_MASK
+    av1_convolve_nonsep_mask_highbd(dgd8, width, height, stride, nsfilter,
+                                    filter_, dst8, dst_stride, bit_depth,
+                                    skip_mask, width);
+#else
     av1_convolve_nonsep_highbd(dgd8, width, height, stride, nsfilter, filter_,
                                dst8, dst_stride, bit_depth);
+#endif  // CONFIG_WIENER_NONSEP_MASK
   } else {
     av1_convolve_nonsep_dual_highbd(dgd8, width, height, stride, luma8,
                                     luma_stride, nsfilter, filter_, dst8,
                                     dst_stride, bit_depth);
   }
 #else
-  av1_convolve_nonsep_highbd(dgd8, width, height, stride, nsfilter, filter_,
-                             dst8, dst_stride, bit_depth);
+#if CONFIG_WIENER_NONSEP_MASK
+  if (!is_uv)
+    av1_convolve_nonsep_mask_highbd(dgd8, width, height, stride, nsfilter,
+                                    filter_, dst8, dst_stride, bit_depth,
+                                    skip_mask, width);
+  else
+#endif  // CONFIG_WIENER_NONSEP_MASK
+    av1_convolve_nonsep_highbd(dgd8, width, height, stride, nsfilter, filter_,
+                               dst8, dst_stride, bit_depth);
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
   return;
 }
@@ -1161,15 +1211,18 @@ static void wiener_nsfilter_stripe_highbd(const RestorationUnitInfo *rui,
 
   for (int j = 0; j < stripe_width; j += procunit_width) {
     int w = AOMMIN(procunit_width, stripe_width - j);
-    apply_wiener_nonsep_highbd(src + j, w, stripe_height, src_stride,
-                               rui->wiener_nonsep_info.nsfilter, dst + j,
-                               dst_stride, rui->plane,
+    apply_wiener_nonsep_highbd(
+        src + j, w, stripe_height, src_stride, rui->wiener_nonsep_info.nsfilter,
+        dst + j, dst_stride, rui->plane,
+#if CONFIG_WIENER_NONSEP_MASK
+        rui->txskip_mask + (j >> MIN_TX_SIZE_LOG2), rui->mask_stride,
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
-                               rui->luma + j, rui->luma_stride,
+        rui->luma + j, rui->luma_stride,
 #else
-                               NULL, -1,
+        NULL, -1,
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
-                               bit_depth);
+        bit_depth);
   }
 }
 
@@ -1366,6 +1419,13 @@ void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
 
   const int procunit_width = RESTORATION_PROC_UNIT_SIZE >> ss_x;
 
+#if CONFIG_WIENER_NONSEP_MASK
+  const uint8_t *txskip_mask_in_plane = rui->txskip_mask;
+  int mask_idx_in_ru =
+      (limits->v_start >> MIN_TX_SIZE_LOG2) * rui->mask_stride +
+      (limits->h_start >> MIN_TX_SIZE_LOG2);
+  const uint8_t *txskip_mask_in_ru = txskip_mask_in_plane + mask_idx_in_ru;
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   const uint8_t *luma_in_plane = rui->luma;
   const uint8_t *luma_in_ru =
@@ -1411,6 +1471,10 @@ void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
                                      h, data8, stride, rlbs, copy_above,
                                      copy_below, optimized_lr);
 
+#if CONFIG_WIENER_NONSEP_MASK
+    rui->txskip_mask =
+        txskip_mask_in_ru + (i >> MIN_TX_SIZE_LOG2) * rui->mask_stride;
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
     rui->luma = luma_in_ru + i * rui->luma_stride;
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
@@ -1423,6 +1487,9 @@ void av1_loop_restoration_filter_unit(const RestorationTileLimits *limits,
 
     i += h;
   }
+#if CONFIG_WIENER_NONSEP_MASK
+  rui->txskip_mask = txskip_mask_in_plane;
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   rui->luma = luma_in_plane;
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
@@ -1460,6 +1527,10 @@ static void filter_frame_on_unit(const RestorationTileLimits *limits,
   rsi->unit_info[rest_unit_idx].luma = is_uv ? ctxt->luma : NULL;
   rsi->unit_info[rest_unit_idx].luma_stride = is_uv ? ctxt->luma_stride : -1;
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
+#if CONFIG_WIENER_NONSEP_MASK
+  rsi->unit_info[rest_unit_idx].mask_stride = ctxt->mask_stride;
+  rsi->unit_info[rest_unit_idx].txskip_mask = ctxt->txskip_mask;
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #endif  // CONFIG_WIENER_NONSEP
 
   av1_loop_restoration_filter_unit(
@@ -1570,6 +1641,13 @@ static void foreach_rest_unit_in_planes(AV1LrStruct *lr_ctxt, AV1_COMMON *cm,
     ctxt[plane].luma = is_uv ? luma : NULL;
     ctxt[plane].luma_stride = is_uv ? luma_stride : -1;
 #endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
+#if CONFIG_WIENER_NONSEP_MASK
+    int w = ((cm->width + MAX_SB_SIZE - 1) >> MAX_SB_SIZE_LOG2)
+            << MAX_SB_SIZE_LOG2;
+    w >>= ((plane == 0) ? 0 : cm->seq_params.subsampling_x);
+    ctxt[plane].mask_stride = (w + MIN_TX_SIZE - 1) >> MIN_TX_SIZE_LOG2;
+    ctxt[plane].txskip_mask = cm->tx_skip[plane];
+#endif  // CONFIG_WIENER_NONSEP_MASK
 #endif  // CONFIG_WIENER_NONSEP
 
     av1_foreach_rest_unit_in_plane(cm, plane, lr_ctxt->on_rest_unit,
