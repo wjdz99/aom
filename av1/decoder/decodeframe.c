@@ -4307,10 +4307,12 @@ static int read_global_motion_params(WarpedMotionParams *params,
                        trans_dec_factor;
   }
 
+#if !CONFIG_REALTIME_ONLY
   if (params->wmtype <= AFFINE) {
     int good_shear_params = av1_get_shear_params(params);
     if (!good_shear_params) return 0;
   }
+#endif
 
   return 1;
 }
