@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f001f24e_27d8aedf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-10-28T02:03:31Z",
+      "side": 1,
+      "message": "I don\u0027t know if you were using a different test setup to render this, but compare:\nCurrently:\nhttps://aomedia.googlesource.com/aom/+/refs/heads/master/doc/AlgorithmDescription.md###Loop-Restoration-filter\n\nAfter this change:\nhttps://aomedia.googlesource.com/aom/+/refs/heads/master/doc/AlgorithmDescription.md#Loop-Restoration-filter",
+      "revId": "e930058f9deaae576da9df961ed1f2e99f9fe909",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
