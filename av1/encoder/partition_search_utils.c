@@ -1714,6 +1714,31 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
       }
 
       set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+
+      if (allow_update_cdf) {
+        const ALLOWED_MOTION_MODE_SET motion_mode_set =
+            cm->switchable_motion_mode ?
+            av1_get_allowed_motion_mode_set(xd->global_motion, xd, mbmi,
+                                            cm->allow_warped_motion) :
+            ONLY_SIMPLE_TRANSLATION;
+        if (motion_mode_set != ONLY_SIMPLE_TRANSLATION) {
+          int num_modes = 0;
+          aom_cdf_prob* cdf =
+              av1_get_motion_mode_cdf(xd,
+                                      motion_mode_set,
+                                      mbmi->sb_type,
+                                      &num_modes);
+          int symbol = mbmi->motion_mode;
+#if CONFIG_EXT_WARP && CONFIG_SUB8X8_WARP
+          if (motion_mode_set == ALLOW_WARPED_CAUSAL) {
+            symbol = mbmi->motion_mode == WARPED_CAUSAL;
+          }
+#endif  // CONFIG_EXT_WARP && CONFIG_SUB8X8_WARP
+          update_cdf(cdf, symbol, num_modes);
+        }
+      }
+
+#if 0
       const MOTION_MODE motion_allowed =
           cm->switchable_motion_mode
               ? motion_mode_allowed(xd->global_motion, xd, mbmi,
@@ -1752,6 +1777,7 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
           }
         }
       }
+#endif
 
       if (has_second_ref(mbmi)) {
         assert(current_frame->reference_mode != SINGLE_REFERENCE &&
