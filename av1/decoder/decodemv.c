@@ -1204,7 +1204,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                          .as_int;
       break;
     }
-    default: { return 0; }
+    default: {
+      return 0;
+    }
   }
 
   int ret = is_mv_valid(&mv[0].as_mv);
@@ -1475,10 +1477,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   read_mb_interp_filter(xd, features->interp_filter,
                         cm->seq_params.enable_dual_filter, mbmi, r);
 
-  const int mi_row = xd->mi_row;
-  const int mi_col = xd->mi_col;
-
+#if !CONFIG_REALTIME_ONLY
   if (mbmi->motion_mode == WARPED_CAUSAL) {
+    const int mi_row = xd->mi_row;
+    const int mi_col = xd->mi_col;
     mbmi->wm_params.wmtype = DEFAULT_WMTYPE;
     mbmi->wm_params.invalid = 0;
 
@@ -1496,6 +1498,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       mbmi->wm_params.invalid = 1;
     }
   }
+#endif
 
   xd->cfl.store_y = store_cfl_required(cm, xd);
 
