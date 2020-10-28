@@ -115,6 +115,7 @@ void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
   assert(IMPLIES(inter_pred_params->conv_params.is_compound,
                  inter_pred_params->conv_params.dst != NULL));
 
+#if !CONFIG_REALTIME_ONLY
   // TODO(jingning): av1_warp_plane() can be further cleaned up.
   if (inter_pred_params->mode == WARP_PRED) {
     av1_warp_plane(
@@ -127,22 +128,24 @@ void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
         inter_pred_params->block_width, inter_pred_params->block_height,
         dst_stride, inter_pred_params->subsampling_x,
         inter_pred_params->subsampling_y, &inter_pred_params->conv_params);
-  } else if (inter_pred_params->mode == TRANSLATION_PRED) {
+  } else {
+#endif
+    if (inter_pred_params->mode == TRANSLATION_PRED) {
 #if CONFIG_AV1_HIGHBITDEPTH
-    if (inter_pred_params->use_hbd_buf) {
-      highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_params,
-                             inter_pred_params->block_width,
-                             inter_pred_params->block_height,
-                             &inter_pred_params->conv_params,
-                             inter_pred_params->interp_filter_params,
-                             inter_pred_params->bit_depth);
-    } else {
-      inter_predictor(src, src_stride, dst, dst_stride, subpel_params,
-                      inter_pred_params->block_width,
-                      inter_pred_params->block_height,
-                      &inter_pred_params->conv_params,
-                      inter_pred_params->interp_filter_params);
-    }
+      if (inter_pred_params->use_hbd_buf) {
+        highbd_inter_predictor(src, src_stride, dst, dst_stride, subpel_params,
+                               inter_pred_params->block_width,
+                               inter_pred_params->block_height,
+                               &inter_pred_params->conv_params,
+                               inter_pred_params->interp_filter_params,
+                               inter_pred_params->bit_depth);
+      } else {
+        inter_predictor(src, src_stride, dst, dst_stride, subpel_params,
+                        inter_pred_params->block_width,
+                        inter_pred_params->block_height,
+                        &inter_pred_params->conv_params,
+                        inter_pred_params->interp_filter_params);
+      }
 #else
     inter_predictor(src, src_stride, dst, dst_stride, subpel_params,
                     inter_pred_params->block_width,
@@ -150,6 +153,7 @@ void av1_make_inter_predictor(const uint8_t *src, int src_stride, uint8_t *dst,
                     &inter_pred_params->conv_params,
                     inter_pred_params->interp_filter_params);
 #endif
+    }
   }
 }
 
