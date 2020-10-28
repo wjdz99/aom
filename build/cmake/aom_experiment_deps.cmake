@@ -64,6 +64,11 @@ macro(fix_experiment_configs)
                            CONFIG_WIENER_NONSEP_CROSS_FILT)
   endif()
 
+  if(CONFIG_WIENER_NONSEP_MASK)
+    change_config_and_warn(CONFIG_WIENER_NONSEP 1
+                           CONFIG_WIENER_NONSEP_MASK)
+  endif()
+
   if(CONFIG_NN_RECON)
     change_config_and_warn(CONFIG_TENSORFLOW_LITE 1 CONFIG_NN_RECON)
   endif()
