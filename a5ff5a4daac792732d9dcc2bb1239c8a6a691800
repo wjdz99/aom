@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6083b4e2_f70b475e",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1419,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-10-28T17:31:47Z",
+      "side": 1,
+      "message": "Silly question: what are M and H in this context?",
+      "range": {
+        "startLine": 1419,
+        "startChar": 15,
+        "endLine": 1419,
+        "endChar": 17
+      },
+      "revId": "a5ff5a4daac792732d9dcc2bb1239c8a6a691800",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9f46a09_22226a0b",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-10-28T17:31:47Z",
+      "side": 1,
+      "message": "I assume H is harmonic average? Is that typically used for this? I\u0027ve typically seen harmonic averages used for benchmarks, which I don\u0027t think this is.",
+      "range": {
+        "startLine": 1420,
+        "startChar": 2,
+        "endLine": 1420,
+        "endChar": 43
+      },
+      "revId": "a5ff5a4daac792732d9dcc2bb1239c8a6a691800",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c45d5a0_f42bfeff",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1422,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-10-28T17:31:47Z",
+      "side": 1,
+      "message": "It seems like some of these steps could be factored out into helper functions. That might make testing easier and improve readability",
+      "range": {
+        "startLine": 1422,
+        "startChar": 2,
+        "endLine": 1422,
+        "endChar": 3
+      },
+      "revId": "a5ff5a4daac792732d9dcc2bb1239c8a6a691800",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
