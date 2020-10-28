@@ -16,6 +16,23 @@
       "message": "Hi Yunqing, \n\nWe have seen that temporally filtered ARF is used in the tpl stats generation for gop length decision. However, after temporal filtering, frame borders are not extended. This results in tpl using stale frame border pixels. In this patch, we have fixed this issue by extending the borders of ARF frame after temporal filtering. \n\nWe have verified that the change is bit-exact for speed\u003d6 (as gop length decision is disabled).  \n\n                     Instruction Count         BD-Rate Loss %         \ncpu-used  Resolution    Reduction %     avg.psnr   ovr.psnr  ssim  \n 0         LOW RES        0.009         -0.0021    -0.0010   -0.0003 \n 0         MID RES       -0.005         -0.0023     0.0031   -0.0078 \n 0          HD RES        0.020          0.0035     0.0016    0.0295 \n 0         Average        0.008         -0.0005     0.0010    0.0066 \n                                                                     \n 1         LOW RES        0.022          0.0014     0.0016   -0.0032 \n 1         MID RES        0.000         -0.0011    -0.0035   -0.0017 \n 1          HD RES        0.000         -0.0000    -0.0000   -0.0000 \n 1         Average        0.011          0.0003    -0.0004   -0.0018 \n                                                                     \n 2         LOW RES        0.094         -0.0170    -0.0166   -0.0370 \n 2         MID RES        0.034         -0.0121    -0.0147   -0.0093 \n 2          HD RES        0.065          0.0050     0.0047    0.0185 \n 2         Average        0.072         -0.0089    -0.0096   -0.0120 \n                                                                     \n 3         LOW RES        0.052          0.0119     0.0169    0.0035 \n 3         MID RES        0.023         -0.0190    -0.0251   -0.0335 \n 3          HD RES        0.028          0.0257     0.0279    0.0314 \n 3         Average        0.038          0.0071     0.0080    0.0012 \n                                                                     \n 4         LOW RES        0.047         -0.0034    -0.0021   -0.0085 \n 4         MID RES        0.045         -0.0347    -0.0274   -0.1127 \n 4          HD RES        0.050          0.0374     0.0470    0.0506 \n 4         Average        0.047         -0.0001     0.0055   -0.0209 \n                                                                     \n 5         LOW RES        0.038         -0.0097    -0.0090   -0.0352 \n 5         MID RES        0.020         -0.0229    -0.0038   -0.0677 \n 5          HD RES        0.046          0.0994     0.1002    0.1133 \n 5         Average        0.036          0.0197     0.0258    0.0005 \n\nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc ...\n\nPlease review the patch. \n\nThank you.\n",
       "revId": "dd88c3ce0fdb260391ce547e04a8e04a0a99def2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84bb1f1f_33503954",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-28T21:24:26Z",
+      "side": 1,
+      "message": "Thanks for the fix!",
+      "revId": "dd88c3ce0fdb260391ce547e04a8e04a0a99def2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
