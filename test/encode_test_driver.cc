@@ -209,10 +209,9 @@ void EncoderTest::RunLoop(VideoSource *video) {
     }
 
     ASSERT_FALSE(::testing::Test::HasFatalFailure());
-
+#if CONFIG_AV1_DECODER
     std::unique_ptr<Decoder> decoder(
         codec_->CreateDecoder(dec_cfg, 0 /* flags */));
-#if CONFIG_AV1_DECODER
     if (decoder->IsAV1()) {
       // Set dec_cfg.tile_row = -1 and dec_cfg.tile_col = -1 so that the whole
       // frame is decoded.
@@ -237,13 +236,15 @@ void EncoderTest::RunLoop(VideoSource *video) {
         CxDataIterator iter = encoder->GetCxData();
 
         bool has_cxdata = false;
+#if CONFIG_AV1_DECODER
         bool has_dxdata = false;
+#endif
         while (const aom_codec_cx_pkt_t *pkt = iter.Next()) {
           pkt = MutateEncoderOutputHook(pkt);
           again = true;
           switch (pkt->kind) {
-            case AOM_CODEC_CX_FRAME_PKT:
-              has_cxdata = true;
+            case AOM_CODEC_CX_FRAME_PKT: has_cxdata = true;
+#if CONFIG_AV1_DECODER
               if (decoder.get() != NULL && DoDecode()) {
                 aom_codec_err_t res_dec;
                 if (DoDecodeInvisible()) {
@@ -260,6 +261,7 @@ void EncoderTest::RunLoop(VideoSource *video) {
 
                 has_dxdata = true;
               }
+#endif
               ASSERT_GE(pkt->data.frame.pts, last_pts_);
               if (sl == number_spatial_layers_) last_pts_ = pkt->data.frame.pts;
               FramePktHook(pkt);
@@ -272,7 +274,7 @@ void EncoderTest::RunLoop(VideoSource *video) {
             default: break;
           }
         }
-
+#if CONFIG_AV1_DECODER
         if (has_dxdata && has_cxdata) {
           const aom_image_t *img_enc = encoder->GetPreviewFrame();
           DxDataIterator dec_iter = decoder->GetDxData();
@@ -286,6 +288,7 @@ void EncoderTest::RunLoop(VideoSource *video) {
           }
           if (img_dec) DecompressedFrameHook(*img_dec, video->pts());
         }
+#endif
         if (!Continue()) break;
       }  // Loop over spatial layers
     }
