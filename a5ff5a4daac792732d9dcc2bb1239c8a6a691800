@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ada2759e_f4057ad8",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1419,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-10-28T18:30:11Z",
+      "side": 1,
+      "message": "I don\u0027t know the specifics of Wiener filter computation, but here\u0027s what I do know - M and H are initialized on line 1337/1338 and passed to av1_compute_stats functions as arguments where the computed stats are stored. They are then passed to wiener_decompose_sep_sym(), which computes the filter and stores the results in hfilter and vfilter. \nI am considering them as storing the pixel statistics that Deb mentioned averaging to get input for calculation of of merged filter coefficients.",
+      "parentUuid": "6083b4e2_f70b475e",
+      "range": {
+        "startLine": 1419,
+        "startChar": 15,
+        "endLine": 1419,
+        "endChar": 17
+      },
+      "revId": "a5ff5a4daac792732d9dcc2bb1239c8a6a691800",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e9f46a09_22226a0b",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a789c800_017c8b57",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-10-28T18:30:11Z",
+      "side": 1,
+      "message": "I\u0027m using H_AVG in this context as an array that holds the mean of H array values for every unit in the current stack + the unit we are considering merging. Should I rename the variable to something a little clearer?",
+      "parentUuid": "e9f46a09_22226a0b",
+      "range": {
+        "startLine": 1420,
+        "startChar": 2,
+        "endLine": 1420,
+        "endChar": 43
+      },
+      "revId": "a5ff5a4daac792732d9dcc2bb1239c8a6a691800",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c45d5a0_f42bfeff",
@@ -60,6 +108,30 @@
       "writtenOn": "2020-10-28T17:31:47Z",
       "side": 1,
       "message": "It seems like some of these steps could be factored out into helper functions. That might make testing easier and improve readability",
+      "range": {
+        "startLine": 1422,
+        "startChar": 2,
+        "endLine": 1422,
+        "endChar": 3
+      },
+      "revId": "a5ff5a4daac792732d9dcc2bb1239c8a6a691800",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b5fe410_f9c81348",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1422,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-10-28T18:30:11Z",
+      "side": 1,
+      "message": "Definitely - I already have a couple ideas, but I thought it might be helpful to focus on understanding the results I\u0027m getting right now and trying to get the experiment to actually produce gains before making the code more friendly. Please let me know if I should switch those priorities!",
+      "parentUuid": "8c45d5a0_f42bfeff",
       "range": {
         "startLine": 1422,
         "startChar": 2,
