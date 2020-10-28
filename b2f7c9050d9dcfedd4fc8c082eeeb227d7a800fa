@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \n\nIn this patch we have added a speed feature to reuse tpl stats, generated during gop length decision, for rdmult and q index modulation, whenever gf interval is not shortened based on tpl stats. \n\nPlease note that we have introduced a speed feature to reuse tpl stats as the change is not bit-exact (\u0027rc-\u003eactive_worst_quality\u0027 is updated after the gop length decision). \n\nAlso, tpl stats is reused only when ARF is temporally filtered (as tpl stats generation in second stage would use the temporally filtered ARF), i.e., tpl stats is not reused in case of key frame (as unfiltered key frame is used to generate tpl stats in first stage whereas temporally filtered key frame is used to generate tpl stats in second stage). \n\nIn file encode_strategy.c (line number 937) we conditionally reset the tpl data (av1_init_tpl_stats()) as there is a call to av1_init_tpl_stats() in the function av1_tpl_setup_stats() as well.  \n\nWe have verified that the change is bit-exact for speed \u003d 0, 1, 2, 6.  \n\n                    Instruction Count      BD-Rate Loss %         \ncpu-used Resolution    Reduction %     avg.psnr  ovr.psnr    ssim  \n 3        LOW RES        0.609         -0.0032   -0.0020    0.0093 \n 3        MID RES        1.513         -0.0179   -0.0153   -0.0046 \n 3         HD RES        1.365          0.0177    0.0228    0.0151 \n 3        Average        1.021         -0.0011    0.0017    0.0070 \n\t  \t   \t\t\t\t\t\t\t\t\t\t\t  \n 4        LOW RES        0.662          0.0009    0.0013   -0.0166 \n 4        MID RES        1.442         -0.0007   -0.0107    0.0221 \n 4         HD RES        1.502          0.0025    0.0061    0.0161 \n 4        Average        1.065          0.0009   -0.0007    0.0047 \n                                                                   \n 5        LOW RES        1.003          0.0165    0.0168   -0.0071 \n 5        MID RES        1.956         -0.0074   -0.0205   -0.0006 \n 5         HD RES        2.064         -0.0432   -0.0459   -0.0737 \n 5        Average        1.505         -0.0087   -0.0132   -0.0255 \n\nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc ...\n\nPlease review the patch. \n\nThank you. \n",
       "revId": "b2f7c9050d9dcfedd4fc8c082eeeb227d7a800fa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9a8b50a_50ed533c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-28T23:27:43Z",
+      "side": 1,
+      "message": "Good optimization. Looks like the quality difference is negligible. Maybe just make this change the default for all speeds, so we don\u0027t need to have 1 more speed feature?",
+      "parentUuid": "07d6e573_e0d12cff",
+      "revId": "b2f7c9050d9dcfedd4fc8c082eeeb227d7a800fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
