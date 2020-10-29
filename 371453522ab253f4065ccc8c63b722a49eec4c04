@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53f16fe1_7bb6b4ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18232
+      },
+      "writtenOn": "2020-10-29T03:30:40Z",
+      "side": 1,
+      "message": "The commit message need to be updated after rebase",
+      "revId": "371453522ab253f4065ccc8c63b722a49eec4c04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
