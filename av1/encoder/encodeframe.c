@@ -470,6 +470,10 @@ static void get_estimated_pred(AV1_COMP *cpi, const TileInfo *const tile,
 
     set_ref_ptrs(cm, xd, mi->ref_frame[0], mi->ref_frame[1]);
 
+    const MV dummy_mv = { 0, 0 };
+    av1_int_pro_motion_estimation(cpi, x, cm->seq_params.sb_size, mi_row,
+                                  mi_col, &dummy_mv);
+
     xd->plane[0].dst.buf = x->est_pred;
     xd->plane[0].dst.stride = 64;
     av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);

@@ -3768,7 +3768,7 @@ BEGIN_PARTITION_SEARCH:
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
-#define FEATURES 6
+#define FEATURES 4
 #define LABELS 2
 static int ml_predict_var_paritioning(AV1_COMP *cpi, MACROBLOCK *x,
                                       BLOCK_SIZE bsize, int mi_row,
@@ -3833,6 +3833,8 @@ static int ml_predict_var_paritioning(AV1_COMP *cpi, MACROBLOCK *x,
       features[feature_idx] = (logf((float)var + 1.0f) - means[feature_idx]) /
                               sqrtf(vars[feature_idx]);
       feature_idx++;
+      float min_ratio = 1.0f;
+      float max_ratio = 0.0f;
       for (i = 0; i < 4; ++i) {
         const int x_idx = (i & 1) * bs / 2;
         const int y_idx = (i >> 1) * bs / 2;
@@ -3843,10 +3845,15 @@ static int ml_predict_var_paritioning(AV1_COMP *cpi, MACROBLOCK *x,
             cpi->fn_ptr[subsize].vf(src + src_offset, src_stride,
                                     pred + pred_offset, pred_stride, &sse);
         const float var_ratio = (var == 0) ? 1.0f : factor * (float)sub_var;
-        features[feature_idx] =
-            (var_ratio - means[feature_idx]) / sqrtf(vars[feature_idx]);
-        feature_idx++;
+        if (var_ratio > max_ratio) max_ratio = var_ratio;
+        if (var_ratio < min_ratio) min_ratio = var_ratio;
       }
+      features[feature_idx] =
+          (min_ratio - means[feature_idx]) / sqrtf(vars[feature_idx]);
+      feature_idx++;
+      features[feature_idx] =
+          (max_ratio - means[feature_idx]) / sqrtf(vars[feature_idx]);
+      feature_idx++;
     }
     //    for (int i = 0; i<FEATURES; i++)
     //      printf("F_%d, %f; ", i, features[i]);
@@ -3862,7 +3869,7 @@ static int ml_predict_var_paritioning(AV1_COMP *cpi, MACROBLOCK *x,
 #undef LABELS
 
 // Uncomment for collecting data for ML-based partitioning
-// #define _COLLECT_GROUND_TRUTH_
+//#define _COLLECT_GROUND_TRUTH_
 
 #ifdef _COLLECT_GROUND_TRUTH_
 static int store_partition_data(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
@@ -3924,6 +3931,8 @@ static int store_partition_data(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
       features[feature_idx++] = logf((float)var + 1.0f);
 
       fprintf(f, "%f,%f,", features[0], features[1]);
+      float min_ratio = 1.0f;
+      float max_ratio = 0.0f;
       for (i = 0; i < 4; ++i) {
         const int x_idx = (i & 1) * bs / 2;
         const int y_idx = (i >> 1) * bs / 2;
@@ -3934,9 +3943,10 @@ static int store_partition_data(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
             cpi->fn_ptr[subsize].vf(src + src_offset, src_stride,
                                     pred + pred_offset, pred_stride, &sse);
         const float var_ratio = (var == 0) ? 1.0f : factor * (float)sub_var;
-        features[feature_idx++] = var_ratio;
-        fprintf(f, "%f,", var_ratio);
+        if (var_ratio > max_ratio) max_ratio = var_ratio;
+        if (var_ratio < min_ratio) min_ratio = var_ratio;
       }
+      fprintf(f, "%f,%f,", min_ratio, max_ratio);
 
       fprintf(f, "%d\n", part == PARTITION_NONE ? 0 : 1);
     }
@@ -4030,7 +4040,7 @@ void av1_nonrd_pick_partition(AV1_COMP *cpi, ThreadData *td,
   const int force_horz_split = (mi_row + 2 * hbs > cm->mi_params.mi_rows);
   const int force_vert_split = (mi_col + 2 * hbs > cm->mi_params.mi_cols);
 
-  int partition_none_allowed = !force_horz_split && !force_vert_split;
+  int partition_none_allowed = !force_horz_split || !force_vert_split;
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);  // Square partition only
   assert(cm->seq_params.sb_size == BLOCK_64X64);       // Small SB so far
@@ -4039,12 +4049,17 @@ void av1_nonrd_pick_partition(AV1_COMP *cpi, ThreadData *td,
 
   av1_invalid_rd_stats(&best_rdc);
   best_rdc.rdcost = best_rd;
+
 #ifndef _COLLECT_GROUND_TRUTH_
-  if (partition_none_allowed && do_split) {
+  const int ml_prediction = partition_none_allowed && do_split;
+  if (ml_prediction) {
     const int ml_predicted_partition =
         ml_predict_var_paritioning(cpi, x, bsize, mi_row, mi_col);
     if (ml_predicted_partition == PARTITION_NONE) do_split = 0;
     if (ml_predicted_partition == PARTITION_SPLIT) partition_none_allowed = 0;
+  }
+  if (bsize == BLOCK_16X16 && ml_prediction) {
+    partition_none_allowed = 1;
   }
 #endif
 
@@ -4080,6 +4095,13 @@ void av1_nonrd_pick_partition(AV1_COMP *cpi, ThreadData *td,
       }
     }
   }
+
+#ifndef _COLLECT_GROUND_TRUTH_
+  if (bsize == BLOCK_16X16 && ml_prediction && this_rdc.rate != INT_MAX &&
+      pc_tree->none->mic.skip_txfm == 1 && do_split == 1) {
+    do_split = 0;
+  }
+#endif
 
   // PARTITION_SPLIT
   if (do_split) {
@@ -4124,7 +4146,8 @@ void av1_nonrd_pick_partition(AV1_COMP *cpi, ThreadData *td,
   }
 
 #ifdef _COLLECT_GROUND_TRUTH_
-  store_partition_data(cpi, x, bsize, mi_row, mi_col, pc_tree->partitioning);
+  if (do_split && partition_none_allowed)
+    store_partition_data(cpi, x, bsize, mi_row, mi_col, pc_tree->partitioning);
 #endif
 
   *rd_cost = best_rdc;

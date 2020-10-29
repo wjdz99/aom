@@ -327,7 +327,16 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   (void)is_720p_or_larger;  // Not used so far
 
   if (!is_360p_or_larger) {
-    if (speed >= 6) sf->rt_sf.force_tx_search_off = 1;
+    if (speed >= 6) {
+      sf->rt_sf.force_tx_search_off = 1;
+#if 1
+      if (!frame_is_intra_only(cm)) {
+        sf->part_sf.partition_search_type = ML_BASED_PARTITION;
+        sf->rt_sf.reuse_inter_pred_nonrd = 0;
+        sf->rt_sf.use_nonrd_pick_mode = 1;
+      }
+#endif
+    }
     if (speed >= 8) {
       sf->rt_sf.use_modeled_non_rd_cost = 0;
       sf->rt_sf.use_nonrd_filter_search = 0;
@@ -335,7 +344,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 9) {
       sf->rt_sf.use_modeled_non_rd_cost = 1;
 // TODO(kyslov) Re-enable when AV1 models are trained
-#if 0
+#if 1
       if (!frame_is_intra_only(cm)) {
         sf->part_sf.partition_search_type = ML_BASED_PARTITION;
         sf->rt_sf.reuse_inter_pred_nonrd = 0;
