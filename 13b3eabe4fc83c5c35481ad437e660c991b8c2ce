@@ -16,6 +16,24 @@
       "message": "\"BLOCK_8X32,  BLOCK_32X8\" occurs twice in this table, could you please explain the reason for that?",
       "revId": "13b3eabe4fc83c5c35481ad437e660c991b8c2ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62cf148c_a7ba8b04",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-10-29T16:05:16Z",
+      "side": 1,
+      "message": "Good catch. We will fix it subsequently.",
+      "parentUuid": "57546eab_8efbe035",
+      "revId": "13b3eabe4fc83c5c35481ad437e660c991b8c2ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
