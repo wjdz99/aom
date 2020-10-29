@@ -39,6 +39,23 @@
       "message": "Fixes in patch set 6.",
       "revId": "ce1b9afa58694fa88df1c49f59e10fff2e544964",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9050e2f3_ed9e8104",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-10-29T03:53:43Z",
+      "side": 1,
+      "message": "I checked out the code to try running it locally, and ran across these make errors. Can you take a look into them?\n\n../../aom/av1/encoder/pickrst.c:726:49: error: unused parameter \u0027previous_rui\u0027 [-Werror,-Wunused-parameter]\n                           RestorationUnitInfo *previous_rui,\n                                                ^\n../../aom/av1/encoder/pickrst.c:1399:11: error: unused variable \u0027shared_sse\u0027 [-Werror,-Wunused-variable]\n  int64_t shared_sse \u003d\n          ^\n../../aom/av1/encoder/pickrst.c:1599:51: error: unused parameter \u0027previous_rui\u0027 [-Werror,-Wunused-parameter]\n                             RestorationUnitInfo *previous_rui,\n                                                  ^\n../../aom/av1/encoder/pickrst.c:2004:13: error: operator \u0027?:\u0027 has lower precedence than \u0027+\u0027; \u0027+\u0027 will be evaluated first [-Werror,-Wparentheses]\n            ? x-\u003eshared_param_cost[1]\n            ^\n../../aom/av1/encoder/pickrst.c:2004:13: note: place parentheses around the \u0027+\u0027 expression to silence this warning\n            ? x-\u003eshared_param_cost[1]\n            ^\n../../aom/av1/encoder/pickrst.c:2004:13: note: place parentheses around the \u0027?:\u0027 expression to evaluate it first\n            ? x-\u003eshared_param_cost[1]\n            ^\n../../aom/av1/encoder/pickrst.c:1934:52: error: unused parameter \u0027previous_rui\u0027 [-Werror,-Wunused-parameter]\n                              RestorationUnitInfo *previous_rui,\n                                                   ^\n\n\n../../aom/av1/common/restoration.c:1433:55: error: unused parameter \u0027shared_params\u0027 [-Werror,-Wunused-parameter]\n                                 RestorationUnitInfo *shared_params,\n                                                      ^\n../../aom/av1/common/restoration.c:1635:79: error: too few arguments to function call, expected 8, have 7\n    on_rest_unit(limits, tile_rect, unit_idx, priv, tmpbuf, previous_rui, rlbs);\n    ~~~~~~~~~~~~                                                              ^\n../../aom/av1/common/restoration.c:1608:13: error: unused parameter \u0027current_unit_stack\u0027 [-Werror,-Wunused-parameter]\n    Vector *current_unit_stack,\n            ^\n../../aom/av1/common/restoration.c:1703:68: error: too few arguments to function call, expected 17, have 16\n        rlbs, av1_lr_sync_read_dummy, av1_lr_sync_write_dummy, NULL);\n                                                                   ^\n../../aom/av1/common/restoration.c:1599:1: note: \u0027av1_foreach_rest_unit_in_row\u0027 declared here\nvoid av1_foreach_rest_unit_in_row(\n^\n../../aom/av1/common/restoration.c:1677:47: error: unused parameter \u0027current_unit_stack\u0027 [-Werror,-Wunused-parameter]\n                                      Vector *current_unit_stack,\n                                              ^\n../../aom/av1/common/restoration.c:1739:33: error: too few arguments to function call, expected 16, have 15\n                            rlbs);\n                                ^\n../../aom/av1/common/restoration.c:1666:1: note: \u0027foreach_rest_unit_in_tile\u0027 declared here\nstatic void foreach_rest_unit_in_tile(const AV1PixelRect *tile_rect,\n^",
+      "revId": "ce1b9afa58694fa88df1c49f59e10fff2e544964",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
