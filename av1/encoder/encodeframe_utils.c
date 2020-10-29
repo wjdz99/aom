@@ -256,9 +256,10 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
     // Else for cyclic refresh mode update the segment map, set the segment id
     // and then update the quantizer.
     if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ) {
-      av1_cyclic_refresh_update_segment(cpi, mi_addr, mi_row, mi_col, bsize,
-                                        ctx->rd_stats.rate, ctx->rd_stats.dist,
-                                        txfm_info->skip_txfm);
+      CR_COUNTS *const cr_counts = &td->cr_counts;
+      av1_cyclic_refresh_update_segment(
+          cpi, cr_counts, mi_addr, mi_row, mi_col, bsize, ctx->rd_stats.rate,
+          ctx->rd_stats.dist, txfm_info->skip_txfm);
     }
     if (mi_addr->uv_mode == UV_CFL_PRED && !is_cfl_allowed(xd))
       mi_addr->uv_mode = UV_DC_PRED;
