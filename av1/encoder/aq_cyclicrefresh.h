@@ -113,6 +113,8 @@ struct CYCLIC_REFRESH {
 
 struct AV1_COMP;
 
+struct CR_COUNTS;
+
 typedef struct CYCLIC_REFRESH CYCLIC_REFRESH;
 
 CYCLIC_REFRESH *av1_cyclic_refresh_alloc(int mi_rows, int mi_cols);
@@ -181,6 +183,7 @@ int av1_cyclic_refresh_rc_bits_per_mb(const struct AV1_COMP *cpi, int i,
  * the \c cm->cpi->enc_seg.map.
  */
 void av1_cyclic_refresh_update_segment(const struct AV1_COMP *cpi,
+                                       struct CR_COUNTS *const cr_counts,
                                        MB_MODE_INFO *const mbmi, int mi_row,
                                        int mi_col, BLOCK_SIZE bsize,
                                        int64_t rate, int64_t dist, int skip);

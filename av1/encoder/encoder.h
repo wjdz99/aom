@@ -1261,6 +1261,12 @@ typedef struct RD_COUNTS {
   int warped_used[2];
 } RD_COUNTS;
 
+typedef struct CR_COUNTS {
+  int actual_num_seg1_blocks;
+  int actual_num_seg2_blocks;
+  int cnt_zeromv;
+} CR_COUNTS;
+
 typedef struct ThreadData {
   MACROBLOCK mb;
   RD_COUNTS rd_counts;
@@ -1282,6 +1288,7 @@ typedef struct ThreadData {
   int32_t num_64x64_blocks;
   PICK_MODE_CONTEXT *firstpass_ctx;
   TemporalFilterData tf_data;
+  CR_COUNTS cr_counts;
 } ThreadData;
 
 struct EncWorkerData;
