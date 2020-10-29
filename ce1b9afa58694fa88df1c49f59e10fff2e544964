@@ -74,6 +74,24 @@
       "parentUuid": "9050e2f3_ed9e8104",
       "revId": "ce1b9afa58694fa88df1c49f59e10fff2e544964",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "587ecb55_a2156aa8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-10-29T17:11:49Z",
+      "side": 1,
+      "message": "Successfully replicated the error, and I apologize for not being clearer - you shouldn\u0027t use the CONFIG_EXT_LOOP_RESTORATION flag for this experiment! Just using -DCONFIG_RST_MERGECOEFFS\u003d1 activates the experiment. I believe all these make errors are coming from some incomplete parts of EXT_LOOP_RESTORATION and messy if/else logic between the two experiments as they overlap heavily.",
+      "parentUuid": "2a9bc5fb_9a55fc36",
+      "revId": "ce1b9afa58694fa88df1c49f59e10fff2e544964",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
