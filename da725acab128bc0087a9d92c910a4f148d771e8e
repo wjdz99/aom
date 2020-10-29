@@ -46,6 +46,30 @@
       },
       "revId": "da725acab128bc0087a9d92c910a4f148d771e8e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0b40b29_dedce89a",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-10-29T00:09:32Z",
+      "side": 1,
+      "message": "looks good. thanks for doing the experiments.",
+      "parentUuid": "cd5c1221_9fe75b4e",
+      "range": {
+        "startLine": 207,
+        "startChar": 30,
+        "endLine": 207,
+        "endChar": 31
+      },
+      "revId": "da725acab128bc0087a9d92c910a4f148d771e8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
