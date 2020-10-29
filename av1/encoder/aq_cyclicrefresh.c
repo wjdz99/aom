@@ -153,10 +153,12 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
                                        int64_t rate, int64_t dist, int skip) {
   const AV1_COMMON *const cm = &cpi->common;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
+  MV mv = mbmi->mv[0].as_mv;
   const int bw = mi_size_wide[bsize];
   const int bh = mi_size_high[bsize];
   const int xmis = AOMMIN(cm->mi_params.mi_cols - mi_col, bw);
   const int ymis = AOMMIN(cm->mi_params.mi_rows - mi_row, bh);
+  const int num_bls = ymis * xmis;
   const int block_index = mi_row * cm->mi_params.mi_cols + mi_col;
   const int refresh_this_block =
       candidate_refresh_aq(cr, mbmi, rate, dist, bsize);
@@ -195,35 +197,19 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi,
       cr->map[map_offset] = new_map_value;
       cpi->enc_seg.map[map_offset] = mbmi->segment_id;
     }
+  // Update some stats.
+  if (mbmi->segment_id == CR_SEGMENT_ID_BOOST1)
+    cr->actual_num_seg1_blocks += num_bls;
+  else if (mbmi->segment_id == CR_SEGMENT_ID_BOOST2)
+    cr->actual_num_seg2_blocks += num_bls;
+  if (is_inter_block(mbmi) && abs(mv.row) < 16 && abs(mv.col) < 16)
+     cr->cnt_zeromv += num_bls;
 }
 
 void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
-  unsigned char *const seg_map = cpi->enc_seg.map;
-  cr->cnt_zeromv = 0;
-  cr->actual_num_seg1_blocks = 0;
-  cr->actual_num_seg2_blocks = 0;
-  for (int mi_row = 0; mi_row < mi_params->mi_rows; mi_row++) {
-    for (int mi_col = 0; mi_col < mi_params->mi_cols; mi_col++) {
-      MB_MODE_INFO **mi =
-          mi_params->mi_grid_base + mi_row * mi_params->mi_stride + mi_col;
-      MV mv = mi[0]->mv[0].as_mv;
-      if (cm->seg.enabled) {
-        int map_index = mi_row * mi_params->mi_cols + mi_col;
-        if (cyclic_refresh_segment_id(seg_map[map_index]) ==
-            CR_SEGMENT_ID_BOOST1)
-          cr->actual_num_seg1_blocks++;
-        else if (cyclic_refresh_segment_id(seg_map[map_index]) ==
-                 CR_SEGMENT_ID_BOOST2)
-          cr->actual_num_seg2_blocks++;
-      }
-      // Accumulate low_content_frame.
-      if (is_inter_block(mi[0]) && abs(mv.row) < 16 && abs(mv.col) < 16)
-        cr->cnt_zeromv++;
-    }
-  }
   cr->cnt_zeromv =
       100 * cr->cnt_zeromv / (mi_params->mi_rows * mi_params->mi_cols);
   cr->avg_frame_low_motion =
@@ -420,6 +406,9 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     }
     return;
   } else {
+    cr->cnt_zeromv = 0;
+    cr->actual_num_seg1_blocks = 0;
+    cr->actual_num_seg2_blocks = 0;
     const double q = av1_convert_qindex_to_q(cm->quant_params.base_qindex,
                                              cm->seq_params.bit_depth);
     aom_clear_system_state();
