@@ -1362,13 +1362,16 @@ static INLINE void read_mb_interp_filter(AV1_COMMON *const cm,
   } else {
     InterpFilter ref0_filter[2] = { EIGHTTAP_REGULAR, EIGHTTAP_REGULAR };
     for (int dir = 0; dir < 2; ++dir) {
-      const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
-      ref0_filter[dir] = (InterpFilter)aom_read_symbol(
-          r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS, ACCT_STR);
-      if (cm->seq_params.enable_dual_filter == 0) {
+      if (dir && cm->seq_params.enable_dual_filter == 0) {
         ref0_filter[1] = ref0_filter[0];
         break;
       }
+#if CONFIG_SKIP_INTERP_FILTER
+      if (!av1_mv_has_subpel(mbmi, dir)) continue;
+#endif  // CONFIG_SKIP_INTERP_FILTER
+      const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
+      ref0_filter[dir] = (InterpFilter)aom_read_symbol(
+          r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS, ACCT_STR);
     }
     // The index system works as: (0, 1) -> (vertical, horizontal) filter types
     mbmi->interp_filters.as_filters.x_filter = ref0_filter[1];

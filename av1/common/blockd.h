@@ -2062,6 +2062,20 @@ static INLINE int get_mode_dep_txfm_mode(const MB_MODE_INFO *const mbmi) {
 }
 #endif  // CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
 
+#if CONFIG_SKIP_INTERP_FILTER
+static INLINE int av1_mv_has_subpel(const MB_MODE_INFO *mbmi, int dir) {
+  int has_subpel = 0;
+  for (int i = 0; i < 1 + has_second_ref(mbmi); ++i) {
+    if (dir == 0) {
+      if (mbmi->mv[i].as_mv.row & 7) has_subpel = 1;
+    } else {
+      if (mbmi->mv[i].as_mv.col & 7) has_subpel = 1;
+    }
+  }
+  return has_subpel;
+}
+#endif  // CONFIG_SKIP_INTERP_FILTER
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

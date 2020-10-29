@@ -1442,9 +1442,10 @@ int av1_get_switchable_rate(const AV1_COMMON *const cm, MACROBLOCK *x,
   if (cm->interp_filter == SWITCHABLE) {
     const MB_MODE_INFO *const mbmi = xd->mi[0];
     int inter_filter_cost = 0;
-    int dir;
-
-    for (dir = 0; dir < 2; ++dir) {
+    for (int dir = 0; dir < 2; ++dir) {
+#if CONFIG_SKIP_INTERP_FILTER
+      if (!av1_mv_has_subpel(mbmi, dir)) continue;
+#endif  // CONFIG_SKIP_INTERP_FILTER
       const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       const InterpFilter filter =
           av1_extract_interp_filter(mbmi->interp_filters, dir);
