@@ -105,7 +105,7 @@ string(STRIP "${AOM_CMAKE_CONFIG}" AOM_CMAKE_CONFIG)
 message("--- aom_configure: Detected CPU: ${AOM_TARGET_CPU}")
 set(AOM_TARGET_SYSTEM ${CMAKE_SYSTEM_NAME})
 
-if("${CMAKE_BUILD_TYPE}" MATCHES "Deb")
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
   set(CONFIG_DEBUG 1)
 endif()
 
