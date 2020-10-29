@@ -668,6 +668,10 @@ struct macroblock {
 #if CONFIG_EXT_RECUR_PARTITIONS
   SimpleMotionDataBufs *sms_bufs;
 
+  /*! \brief Determines what encoding decision should be reused. */
+  int reuse_inter_mode_cache_type;
+
+  /*! \brief The mode to reuse during \ref av1_rd_pick_inter_mode_sb. */
   MB_MODE_INFO *inter_mode_cache;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 };
@@ -779,6 +783,10 @@ static INLINE int is_blk_skip(MACROBLOCK *x, int plane, int blk_idx) {
   assert((x->blk_skip[blk_idx] & 0x88) == 0);
 #endif
   return (x->blk_skip[blk_idx] >> plane) & 1;
+}
+
+static INLINE int should_reuse_mode(const MACROBLOCK *x, int mode_flag) {
+  return x->reuse_inter_mode_cache_type & mode_flag;
 }
 
 #ifdef __cplusplus
