@@ -113,6 +113,8 @@ struct CYCLIC_REFRESH {
 
 struct AV1_COMP;
 
+struct CR_COUNTS;
+
 typedef struct CYCLIC_REFRESH CYCLIC_REFRESH;
 
 CYCLIC_REFRESH *av1_cyclic_refresh_alloc(int mi_rows, int mi_cols);
@@ -169,18 +171,20 @@ int av1_cyclic_refresh_rc_bits_per_mb(const struct AV1_COMP *cpi, int i,
  * \callergraph
  *
  * \param[in]   cpi       Top level encoder structure
+ * \param[in]   cr_counts Stats for the cyclic refresh
  * \param[in]   mbmi      MB_MODE_INFO pointer for mi block
  * \param[in]   mi_row    Row coordinate of the block in a step size of MI_SIZE
  * \param[in]   mi_col    Col coordinate of the block in a step size of MI_SIZE
  * \param[in]   bsize     Block size
  * \param[in]   rate      Projected block rate from pickmode
  * \param[in]   dist      Projected block dist from pickmode
- * \param[in]  skip       Skip flag set from picmode
+ * \param[in]   skip      Skip flag set from picmode
  *
  * \return Update the \c mbmi->segment_id, the \c cpi->cyclic_refresh and
  * the \c cm->cpi->enc_seg.map.
  */
 void av1_cyclic_refresh_update_segment(const struct AV1_COMP *cpi,
+                                       struct CR_COUNTS *const cr_counts,
                                        MB_MODE_INFO *const mbmi, int mi_row,
                                        int mi_col, BLOCK_SIZE bsize,
                                        int64_t rate, int64_t dist, int skip);
