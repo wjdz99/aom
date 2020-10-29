@@ -917,6 +917,7 @@ static int rd_try_subblock_new(AV1_COMP *const cpi, ThreadData *td,
                   PICK_MODE_RD);
 #if USE_OLD_PREDICTION_MODE
     x->inter_mode_cache = NULL;
+    x->reuse_inter_mode_cache_type = 0;
     if (this_rdc.rate != INT_MAX) {
       av1_add_mode_search_context_to_cache(sms_data, rdo_data->ctx);
     }
@@ -1121,6 +1122,7 @@ static INLINE void search_partition_none(
                 bsize, ctx_none, best_remain_rdcost, PICK_MODE_RD);
 #if USE_OLD_PREDICTION_MODE
   x->inter_mode_cache = NULL;
+  x->reuse_inter_mode_cache_type = 0;
   if (this_rdc.rate != INT_MAX) {
     av1_add_mode_search_context_to_cache(sms_data, ctx_none);
   }
@@ -2965,7 +2967,12 @@ BEGIN_PARTITION_SEARCH:
     }
   }
 
-  if (!pc_tree_dealloc && !USE_OLD_PREDICTION_MODE) {
+  int keep_tree = 0;
+#if USE_OLD_PREDICTION_MODE
+  keep_tree = 1;
+#endif  // USE_OLD_PREDICTION_MODE
+
+  if (!pc_tree_dealloc && !keep_tree) {
     av1_free_pc_tree_recursive(pc_tree, num_planes, 1, 1);
   }
 
