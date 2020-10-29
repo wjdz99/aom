@@ -43,12 +43,11 @@
 
 // When set to RESTORE_WIENER or RESTORE_SGRPROJ only those are allowed.
 // When set to RESTORE_TYPES we allow switchable.
-#if CONFIG_RST_MERGECOEFFS
-// experiment temporarily constrained to Wiener filters
+#if CONFIG_FORCE_WIENER
 static const RestorationType force_restore_type = RESTORE_WIENER;
 #else
 static const RestorationType force_restore_type = RESTORE_TYPES;
-#endif  // CONFIG_RST_MERGECOEFFS
+#endif  // CONFIG_FORCE_WIENER
 
 // Number of Wiener iterations
 #define NUM_WIENER_ITERS 5
@@ -1421,13 +1420,13 @@ static void search_wiener(const RestorationTileLimits *limits,
       (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
        << AV1_PROB_COST_SHIFT);
 #endif  // CONFIG_EXT_LOOP_RESTORATION
-#if !CONFIG_RST_MERGECOEFFS
-  // temporarily suspending cost calculations for RESTORE_NONE vs RESTORE_WIENER
+#if !CONFIG_FORCE_WIENER
+  // Suspend cost calculations for RESTORE_NONE vs RESTORE_WIENER.
   double cost_none =
       RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
   double cost_wiener =
       RDCOST_DBL(x->rdmult, bits_wiener >> 4, rusi->sse[RESTORE_WIENER]);
-#endif  // CONFIG_RST_MERGECOEFFS
+#endif  // CONFIG_RST_FORCE_WIENER
 
 #if CONFIG_EXT_LOOP_RESTORATION
   if (cost_shared < cost_wiener) {
@@ -1440,8 +1439,8 @@ static void search_wiener(const RestorationTileLimits *limits,
   }
 #endif  // CONFIG_EXT_LOOP_RESTORATION
 
-#if CONFIG_RST_MERGECOEFFS
-  // force all units to RESTORE_WIENER to ensure we have coefficients to share
+#if CONFIG_FORCE_WIENER
+  // force all units to RESTORE_WIENER.
   RestorationType rtype = RESTORE_WIENER;
   rusi->best_rtype[RESTORE_WIENER - 1] = rtype;
   rsc->sse += rusi->sse[rtype];
@@ -1460,7 +1459,7 @@ static void search_wiener(const RestorationTileLimits *limits,
   rsc->sse += rusi->sse[rtype];
   rsc->bits += (cost_wiener < cost_none) ? bits_wiener : bits_none;
   if (cost_wiener < cost_none) rsc->wiener = rusi->wiener;
-#endif  // CONFIG_RST_MERGECOEFFS
+#endif  // CONFIG_FORCE_WIENER
 }
 
 static void search_norestore(const RestorationTileLimits *limits,
