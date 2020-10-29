@@ -2833,7 +2833,7 @@ static void combine_interintra(const MACROBLOCKD *xd,
 #if CONFIG_INTERINTRA_ML
   if (is_interintra_ml_supported(xd, use_wedge_interintra)) {
     assert(!use_wedge_interintra);
-    av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
+    av1_combine_interintra_ml(mode, bsize, plane_bsize, comppred, compstride,
                               interpred, interstride, intrapred, intrastride,
                               border);
     return;

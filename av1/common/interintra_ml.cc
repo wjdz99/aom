@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "aom_dsp/aom_dsp_common.h"
+#include "av1/common/enums.h"
 #include "av1/common/interintra_ml.h"
 #include "av1/common/interintra_ml_model.h"
 #include "av1/common/reconinter.h"
@@ -67,43 +68,79 @@ tflite::ErrorReporter *get_reporter() {
   return reporter_;
 }
 
+const unsigned char *get_serialized_tflite_model(BLOCK_SIZE bsize) {
+  switch (bsize) {
+    case BLOCK_8X8:
+      return decode_18258746_8x8_tflite_data;
+    case BLOCK_8X16:
+      return decode_18258746_8x16_tflite_data;
+    case BLOCK_16X8:
+      return decode_18258746_16x8_tflite_data;
+    case BLOCK_8X32:
+      return decode_18258746_8x32_tflite_data;
+    case BLOCK_32X8:
+      return decode_18258746_32x8_tflite_data;
+    case BLOCK_16X16:
+      return decode_18258746_16x16_tflite_data;
+    case BLOCK_16X32:
+      return decode_18258746_16x32_tflite_data;
+    case BLOCK_32X16:
+      return decode_18258746_32x16_tflite_data;
+    case BLOCK_32X32:
+      return decode_18258746_32x32_tflite_data;
+    default:
+      return nullptr;
+  }
+}
+
 // Initialize the interpreter (only used for static initialization).
-tflite::Interpreter *init_interpreter_() {
-  auto model = tflite::GetModel(decode_13759197_5_tflite_data);
-  tflite::MutableOpResolver resolver;
-  add_resolver_builtins(&resolver);
-  tflite::InterpreterBuilder builder(model, resolver);
-  std::unique_ptr<tflite::Interpreter> interpreter;
-  tflite::ErrorReporter *reporter = get_reporter();
-  if (builder(&interpreter) != kTfLiteOk) {
-    reporter->Report("Builder failed");
-    return nullptr;
+tflite::Interpreter **init_interpreter_() {
+  static tflite::Interpreter *interpreter_[BLOCK_SIZES_ALL] = {nullptr};
+
+  const BLOCK_SIZE supported_sizes[9] = {
+    BLOCK_8X8, BLOCK_8X16, BLOCK_16X8, BLOCK_8X32, BLOCK_32X8,
+    BLOCK_16X16, BLOCK_16X32, BLOCK_32X16, BLOCK_32X32 };
+
+  for (int i = 0; i < 9; ++i) {
+    // auto model = tflite::GetModel(decode_13759197_5_tflite_data);
+    auto model = tflite::GetModel(get_serialized_tflite_model(supported_sizes[i]));
+    tflite::MutableOpResolver resolver;
+    add_resolver_builtins(&resolver);
+    tflite::InterpreterBuilder builder(model, resolver);
+    std::unique_ptr<tflite::Interpreter> interpreter;
+    tflite::ErrorReporter *reporter = get_reporter();
+    if (builder(&interpreter) != kTfLiteOk) {
+      reporter->Report("Builder failed");
+      return nullptr;
+    }
+
+    if (interpreter->AllocateTensors() != kTfLiteOk) {
+      reporter->Report("Allocating tensors failed");
+      return nullptr;
+    }
+
+    if (interpreter->inputs().size() != 4) {
+      reporter->Report("Wrong number of inputs");
+      return nullptr;
+    }
+
+    if (interpreter->outputs().size() != 1) {
+      reporter->Report("Wrong number of outputs");
+      return nullptr;
+    }
+
+    interpreter_[supported_sizes[i]] = interpreter.release();
   }
 
-  if (interpreter->AllocateTensors() != kTfLiteOk) {
-    reporter->Report("Allocating tensors failed");
-    return nullptr;
-  }
-
-  if (interpreter->inputs().size() != 4) {
-    reporter->Report("Wrong number of inputs");
-    return nullptr;
-  }
-
-  if (interpreter->outputs().size() != 1) {
-    reporter->Report("Wrong number of outputs");
-    return nullptr;
-  }
-
-  return interpreter.release();
+  return &interpreter_[0];
 }
 
 // Get the interpreter (initialized statically). Assumes entire program
 // is single threaded.
-tflite::Interpreter *get_interpreter() {
+tflite::Interpreter *get_interpreter(BLOCK_SIZE bsize) {
   // Assumes entire program is single-threaded.
-  static tflite::Interpreter *interpreter_ = init_interpreter_();
-  return interpreter_;
+  static tflite::Interpreter **interpreter = init_interpreter_();
+  return interpreter[bsize];
 }
 
 // Copy a blank square into the region. Needed as default behavior if
@@ -117,10 +154,10 @@ void copy_blank_square(uint8_t *dst, int stride, BLOCK_SIZE bsize,
   }
 }
 
-void superscale_pred(uint8_t dst[400], const uint8_t *pred, int stride) {
-  const int dst_stride = 20;
-  for (int j = 0; j < 20; j += 2) {
-    for (int i = 0; i < 20; i += 2) {
+void superscale_pred(BLOCK_SIZE bsize, uint8_t* dst, const uint8_t *pred, int stride) {
+  const int dst_stride = block_size_wide[bsize] + INTERINTRA_ML_BORDER;
+  for (int j = 0; j < block_size_high[bsize] + INTERINTRA_ML_BORDER; j += 2) {
+    for (int i = 0; i < block_size_wide[bsize] + INTERINTRA_ML_BORDER; i += 2) {
       int scaled_i = i / 2;
       int scaled_j = j / 2;
       dst[i + j * dst_stride] = pred[scaled_i + scaled_j * stride];
@@ -188,7 +225,7 @@ void copy_to_output(tflite::Interpreter *interpreter, BLOCK_SIZE bsize,
       // Weighted average.
       const int scaled_i = 2 * i;
       const int scaled_j = 2 * j;
-      const int output_stride = 16;
+      const int output_stride = bw;
       float total = output[scaled_i + output_stride * scaled_j] +
                     output[scaled_i + output_stride * scaled_j + 1] +
                     output[scaled_i + output_stride * (scaled_j + 1)] +
@@ -201,23 +238,24 @@ void copy_to_output(tflite::Interpreter *interpreter, BLOCK_SIZE bsize,
 }
 
 void scale_load_inputs(tflite::Interpreter *interpreter, INTERINTRA_MODE mode,
+                       BLOCK_SIZE bsize,
                        const uint8_t *inter_pred, int inter_stride,
                        const uint8_t *intra_pred, int intra_stride) {
-  uint8_t scaled_inter_pred[400];
-  const int scaled_inter_stride = 20;
+  uint8_t scaled_inter_pred[(32 + INTERINTRA_ML_BORDER) * (32 + INTERINTRA_ML_BORDER)];
+  const int scaled_inter_stride = block_size_wide[bsize] + INTERINTRA_ML_BORDER;
   assert(INTERINTRA_ML_BORDER % 2 == 0);
-  superscale_pred(scaled_inter_pred,
+  superscale_pred(bsize, scaled_inter_pred,
                   inter_pred - INTERINTRA_ML_BORDER * inter_stride / 2 -
                       INTERINTRA_ML_BORDER / 2,
                   inter_stride);
 
-  uint8_t scaled_intra_pred[400];
-  const int scaled_intra_stride = 20;
-  superscale_pred(scaled_intra_pred,
+  uint8_t scaled_intra_pred[(32 + INTERINTRA_ML_BORDER) * (32 + INTERINTRA_ML_BORDER)];
+  const int scaled_intra_stride = block_size_wide[bsize] + INTERINTRA_ML_BORDER;
+  superscale_pred(bsize, scaled_intra_pred,
                   intra_pred - INTERINTRA_ML_BORDER * intra_stride / 2 -
                       INTERINTRA_ML_BORDER / 2,
                   intra_stride);
-  load_inputs(interpreter, mode, BLOCK_16X16,
+  load_inputs(interpreter, mode, bsize,
               scaled_inter_pred + INTERINTRA_ML_BORDER * scaled_inter_stride +
                   INTERINTRA_ML_BORDER,
               scaled_inter_stride,
@@ -235,7 +273,8 @@ bool is_interintra_ml_supported(const MACROBLOCKD *xd, bool wedge) {
   }
   // Only supported for block-sizes of 16x16.
   const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
-  if (bsize != BLOCK_16X16) {
+  // if (bsize != BLOCK_16X16) {
+  if (bsize != BLOCK_8X8 && bsize != BLOCK_8X16 && bsize != BLOCK_16X8 && bsize != BLOCK_8X32 && bsize != BLOCK_32X8 && bsize != BLOCK_16X16 && bsize != BLOCK_16X32 && bsize != BLOCK_32X16 && bsize != BLOCK_32X32) {
     return false;
   }
   // build-for-obmc is just used to check whether this is a sub-8x8 block or
@@ -247,25 +286,29 @@ bool is_interintra_ml_supported(const MACROBLOCKD *xd, bool wedge) {
   return border >= INTERINTRA_ML_BORDER;
 }
 
-void av1_combine_interintra_ml(INTERINTRA_MODE mode, BLOCK_SIZE plane_bsize,
-                               uint8_t *comp_pred, int comp_stride,
-                               const uint8_t *inter_pred, int inter_stride,
-                               const uint8_t *intra_pred, int intra_stride,
-                               int border) {
+void av1_combine_interintra_ml(INTERINTRA_MODE mode, BLOCK_SIZE bsize,
+                               BLOCK_SIZE plane_bsize, uint8_t *comp_pred,
+                               int comp_stride, const uint8_t *inter_pred,
+                               int inter_stride, const uint8_t *intra_pred,
+                               int intra_stride, int border) {
   (void)border;
   assert(border >= INTERINTRA_ML_BORDER);
-  if (plane_bsize != BLOCK_16X16 && plane_bsize != BLOCK_8X8) {
+  // if (plane_bsize != BLOCK_16X16 && plane_bsize != BLOCK_8X8) {
+  if (bsize != BLOCK_8X8 && bsize != BLOCK_8X16 && bsize != BLOCK_16X8 && bsize != BLOCK_8X32 && bsize != BLOCK_32X8 && bsize != BLOCK_16X16 && bsize != BLOCK_16X32 && bsize != BLOCK_32X16 && bsize != BLOCK_32X32) {
     // Not yet implemented. Just copy a blank square into the predictor.
     copy_blank_square(comp_pred, comp_stride, plane_bsize, false);
     return;
   }
-  tflite::Interpreter *interpreter = get_interpreter();
-  if (plane_bsize == BLOCK_16X16) {
+  tflite::Interpreter *interpreter = get_interpreter(bsize);
+  // if (plane_bsize == BLOCK_16X16) {
+  if (plane_bsize == bsize) {
     load_inputs(interpreter, mode, plane_bsize, inter_pred, inter_stride,
                 intra_pred, intra_stride);
   } else {
-    assert(plane_bsize == BLOCK_8X8);
-    scale_load_inputs(interpreter, mode, inter_pred, inter_stride, intra_pred,
+    // assert(plane_bsize == BLOCK_8X8);
+    assert(block_size_wide[bsize] == 2 * block_size_wide[plane_bsize]);
+    assert(block_size_high[bsize] == 2 * block_size_high[plane_bsize]);
+    scale_load_inputs(interpreter, mode, bsize, inter_pred, inter_stride, intra_pred,
                       intra_stride);
   }
   auto status = interpreter->Invoke();
