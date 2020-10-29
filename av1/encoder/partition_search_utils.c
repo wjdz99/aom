@@ -733,6 +733,10 @@ void av1_encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
 #endif  // CONFIG_DERIVED_MV
 
+#if CONFIG_SKIP_INTERP_FILTER
+    av1_validate_interp_filter(cm, mbmi);
+#endif  // CONFIG_SKIP_INTERP_FILTER
+
 #if CONFIG_INTERINTRA_ML_DATA_COLLECT
     if (dry_run == OUTPUT_ENABLED &&
         av1_interintra_ml_data_collect_valid(x, bsize)) {
@@ -891,9 +895,12 @@ static void update_filter_type_count(FRAME_COUNTS *counts,
 
 static void update_filter_type_cdf(uint8_t allow_update_cdf,
                                    const MACROBLOCKD *xd,
-                                   const MB_MODE_INFO *mbmi) {
-  int dir;
-  for (dir = 0; dir < 2; ++dir) {
+                                   const MB_MODE_INFO *mbmi,
+                                   int enable_dual_filter) {
+  for (int dir = 0; dir < 2; ++dir) {
+#if CONFIG_SKIP_INTERP_FILTER
+    if (!av1_mv_has_subpel(mbmi, dir, enable_dual_filter)) continue;
+#endif  // CONFIG_SKIP_INTERP_FILTER
     const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
     InterpFilter filter = av1_extract_interp_filter(mbmi->interp_filters, dir);
     if (allow_update_cdf) {
@@ -1794,7 +1801,8 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
   if (inter_block && cm->interp_filter == SWITCHABLE &&
       mbmi->motion_mode != WARPED_CAUSAL &&
       !is_nontrans_global_motion(xd, xd->mi[0])) {
-    update_filter_type_cdf(allow_update_cdf, xd, mbmi);
+    update_filter_type_cdf(allow_update_cdf, xd, mbmi,
+                           cm->seq_params.enable_dual_filter);
   }
 
   if (inter_block &&
