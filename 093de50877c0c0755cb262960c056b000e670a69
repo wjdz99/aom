@@ -51,6 +51,52 @@
       "parentUuid": "89f737c5_57872ebb",
       "revId": "093de50877c0c0755cb262960c056b000e670a69",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6012e656_8b4b4913",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-30T18:57:41Z",
+      "side": 1,
+      "message": "can be changed to x+\u003d32, so you can use x directly instead of calculating x*32 ?",
+      "range": {
+        "startLine": 501,
+        "startChar": 38,
+        "endLine": 501,
+        "endChar": 41
+      },
+      "revId": "093de50877c0c0755cb262960c056b000e670a69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42edc260_64c26092",
+        "filename": "aom_dsp/x86/variance_sse2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-30T18:57:41Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 733,
+        "startChar": 38,
+        "endLine": 733,
+        "endChar": 41
+      },
+      "revId": "093de50877c0c0755cb262960c056b000e670a69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
