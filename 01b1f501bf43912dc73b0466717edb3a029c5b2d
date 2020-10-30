@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nWe tried to extend the speed feature to speed presets 0, 1, 2. There was no/little encode time reduction for speed presets 0, 1 and the trade-off is not encouraging as well. The results, for speed preset 2, are as given in the table below. Please note that the BD-rate and speed data are generated on patchset2 (for all presets). We have extended the speed feature for speed\u003d2 in patchset 3 after rebasing to the latest version. Please review and merge this patch.   \n \n                      Instruction Count     BD-Rate Loss %\ncpu-used  Resolution    Reduction %      avg.psnr  ovr.psnr   ssim\n 2         LOW RES         0.724          0.0123    0.0147   -0.0015\n 2         MID RES         2.009         -0.0122   -0.0052    0.0066\n 2         HD RES          1.170          0.0151    0.0177    0.0157\n 2         AVERAGE         1.151          0.0060    0.0098    0.0061\n",
       "revId": "01b1f501bf43912dc73b0466717edb3a029c5b2d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a9579a7_39e096b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-10-30T17:23:43Z",
+      "side": 1,
+      "message": "Thanks for testing. Could you share the results for speed 0 and 1?",
+      "parentUuid": "38db28ea_8344c0a0",
+      "revId": "01b1f501bf43912dc73b0466717edb3a029c5b2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
