@@ -16,6 +16,24 @@
       "message": "In future, please remove all unnecessary diffs -- it make it easier to later when debugging and going back and forth, seeing what has changed. This is a relatively minor point, but an easy one to do. \n\nThere is NO NEED to do for this change, as it will re-trigger Jenkin\u0027s review process and take several hours to complete, and it is not worth that trade-off (again this is a small point). Just keep it in mind for next time!",
       "revId": "9e7b5a577a8bc3023481ee2e9e582c753ec4ccb4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34d7df18_ad000321",
+        "filename": "av1/common/restoration.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-10-30T18:25:11Z",
+      "side": 0,
+      "message": "Will do :)",
+      "parentUuid": "f05061ff_8d466e47",
+      "revId": "9e7b5a577a8bc3023481ee2e9e582c753ec4ccb4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
