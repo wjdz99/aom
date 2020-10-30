@@ -397,6 +397,43 @@ static AOM_INLINE void set_stage2_params(int *min_n, int *max_n, int *step_size,
   *step_size = AOMMAX(1, *max_n - *min_n);
 }
 
+static AOM_INLINE void fill_data_and_get_bounds(
+    const uint8_t *const src, const int src_stride, const int rows,
+    const int cols, const int is_high_bitdepth, int *const data,
+    int *lower_bound, int *upper_bound) {
+  if (is_high_bitdepth) {
+    int *data_pt = data;
+    const uint16_t *src_ptr = CONVERT_TO_SHORTPTR(src);
+    *lower_bound = *upper_bound = src_ptr[0];
+    for (int r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
+        const int val = src_ptr[c];
+        data_pt[c] = val;
+        *lower_bound = AOMMIN(*lower_bound, val);
+        *upper_bound = AOMMAX(*upper_bound, val);
+      }
+      src_ptr += src_stride;
+      data_pt += cols;
+    }
+    return;
+  }
+
+  // low bit depth
+  int *data_pt = data;
+  const uint8_t *src_ptr = src;
+  *lower_bound = *upper_bound = src_ptr[0];
+  for (int r = 0; r < rows; ++r) {
+    for (int c = 0; c < cols; ++c) {
+      const int val = src_ptr[c];
+      data_pt[c] = val;
+      *lower_bound = AOMMIN(*lower_bound, val);
+      *upper_bound = AOMMAX(*upper_bound, val);
+    }
+    src_ptr += src_stride;
+    data_pt += cols;
+  }
+}
+
 void av1_rd_pick_palette_intra_sby(
     const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize, int dc_mode_cost,
     MB_MODE_INFO *best_mbmi, uint8_t *best_palette_color_map, int64_t *best_rd,
@@ -437,35 +474,8 @@ void av1_rd_pick_palette_intra_sby(
     int *const data = x->palette_buffer->kmeans_data_buf;
     int centroids[PALETTE_MAX_SIZE];
     int lb, ub;
-    if (is_hbd) {
-      int *data_pt = data;
-      const uint16_t *src_pt = CONVERT_TO_SHORTPTR(src);
-      lb = ub = src_pt[0];
-      for (int r = 0; r < rows; ++r) {
-        for (int c = 0; c < cols; ++c) {
-          const int val = src_pt[c];
-          data_pt[c] = val;
-          lb = AOMMIN(lb, val);
-          ub = AOMMAX(ub, val);
-        }
-        src_pt += src_stride;
-        data_pt += cols;
-      }
-    } else {
-      int *data_pt = data;
-      const uint8_t *src_pt = src;
-      lb = ub = src[0];
-      for (int r = 0; r < rows; ++r) {
-        for (int c = 0; c < cols; ++c) {
-          const int val = src_pt[c];
-          data_pt[c] = val;
-          lb = AOMMIN(lb, val);
-          ub = AOMMAX(ub, val);
-        }
-        src_pt += src_stride;
-        data_pt += cols;
-      }
-    }
+    fill_data_and_get_bounds(src, src_stride, rows, cols, is_hbd, data, &lb,
+                             &ub);
 
     mbmi->mode = DC_PRED;
     mbmi->filter_intra_mode_info.use_filter_intra = 0;
