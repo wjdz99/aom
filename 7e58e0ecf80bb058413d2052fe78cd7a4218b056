@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "403c0ae0_72965f0e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-10-31T04:40:01Z",
+      "side": 1,
+      "message": "This one doesn\u0027t change the stats, so no need to revert as discussed offline.",
+      "revId": "7e58e0ecf80bb058413d2052fe78cd7a4218b056",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
