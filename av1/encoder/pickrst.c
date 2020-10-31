@@ -674,9 +674,7 @@ static AOM_INLINE void get_proj_subspace(const uint8_t *src8, int width,
                              flt0, flt0_stride, flt1, flt1_stride, H, C,
                              params);
     }
-  }
-#if CONFIG_AV1_HIGHBITDEPTH
-  else {  // NOLINT
+  } else {
     if ((width & 0x7) == 0) {
       av1_calc_proj_params_high_bd(src8, width, height, src_stride, dat8,
                                    dat_stride, flt0, flt0_stride, flt1,
@@ -687,7 +685,6 @@ static AOM_INLINE void get_proj_subspace(const uint8_t *src8, int width,
                                      flt1_stride, H, C, params);
     }
   }
-#endif
 
   if (params->r[0] == 0) {
     // H matrix is now only the scalar H[1][1]
