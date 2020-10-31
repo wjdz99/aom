@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91ae5f7b_c7c008e4",
+        "filename": "tools/convexhull_framework/src/CalcBDRate.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-10-31T03:48:17Z",
+      "side": 1,
+      "message": "here, we need to sort the quality value first. if the quality value is the same, then we need to sort based on the bit rate. this way, we can make sure both bit rate and quality metrics are in non-decreasing order.",
+      "range": {
+        "startLine": 67,
+        "startChar": 6,
+        "endLine": 67,
+        "endChar": 7
+      },
+      "revId": "e305f786b834773c06a9a7486d79a5708e2eba59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
