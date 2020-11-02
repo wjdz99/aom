@@ -2091,6 +2091,11 @@ typedef struct AV1_COMP {
   TplParams tpl_data;
 
   /*!
+   * Parameters related to temporal filtering.
+   */
+  TemporalFilterCtx tf_ctx;
+
+  /*!
    * For a still frame, this flag is set to 1 to skip partition search.
    */
   int partition_search_skippable_frame;
