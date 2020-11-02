@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59a13b3d_ec853910",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-11-02T17:20:17Z",
+      "side": 1,
+      "message": "These need to be reverted due to not so ideal encode complexity increase.",
+      "revId": "069a43d86f440461087ae2a7997177992eba47fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
