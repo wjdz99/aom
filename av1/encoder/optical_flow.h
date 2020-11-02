@@ -48,12 +48,12 @@ typedef struct opfl_params {
 
 #define OPFL_FLAG_SPARSE 1
 
-void init_opfl_params(OPFL_PARAMS *opfl_params) {
+INLINE void init_opfl_params(OPFL_PARAMS *opfl_params) {
   opfl_params->pyramid_levels = OPFL_PYRAMID_LEVELS;
   opfl_params->lk_params = NULL;
 }
 
-void init_lk_params(LK_PARAMS *lk_params) {
+INLINE void init_lk_params(LK_PARAMS *lk_params) {
   lk_params->window_size = OPFL_WINDOW_SIZE;
 }
 

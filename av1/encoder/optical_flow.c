@@ -144,9 +144,9 @@ void temporal_gradient(const YV12_BUFFER_CONFIG *frame,
                        double *derivative, LOCALMV *mv) {
   // TODO(any): this is a roundabout way of enforcing build_one_inter_pred
   // to use the 8-tap filter (instead of lower). it would be more
-  // efficient to apply the filter only at 1 pixel instead of 25 pixels.
-  const int w = 5;
-  const int h = 5;
+  // efficient to apply the filter only at 1 pixel instead of 8*8 pixels.
+  const int w = 8;
+  const int h = 8;
   uint8_t pred1[25];
   uint8_t pred2[25];
 
@@ -193,8 +193,8 @@ void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
                            const double x_coord, const double y_coord,
                            const int window_size, const int bit_depth,
                            double *ix, double *iy, double *it, LOCALMV *mv) {
-  const double left = x_coord - window_size / 2;
-  const double top = y_coord - window_size / 2;
+  const double left = x_coord - window_size / 2.0;
+  const double top = y_coord - window_size / 2.0;
   // gradient operators need pixel before and after (start at 1)
   const double x_start = AOMMAX(1, left);
   const double y_start = AOMMAX(1, top);
@@ -204,8 +204,8 @@ void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
   double deriv_y;
   double deriv_t;
 
-  const double x_end = AOMMIN(x_coord + window_size / 2, frame_width - 2);
-  const double y_end = AOMMIN(y_coord + window_size / 2, frame_height - 2);
+  const double x_end = AOMMIN(x_coord + window_size / 2.0, frame_width - 2);
+  const double y_end = AOMMIN(y_coord + window_size / 2.0, frame_height - 2);
   const int xs = (int)AOMMAX(1, x_start - 1);
   const int ys = (int)AOMMAX(1, y_start - 1);
   const int xe = (int)AOMMIN(x_end + 2, frame_width - 2);
@@ -399,7 +399,7 @@ void reduce(uint8_t *img, int height, int width, int stride,
         }
       }
       reduced_img[(y / 2) * new_width + (x / 2)] = (uint8_t)convolve(
-          gaussian_filter, img_section, (int)pow(window_size, 2));
+          gaussian_filter, img_section, window_size * window_size);
     }
   }
 }
@@ -478,11 +478,11 @@ void filter_mvs(const MV_FILTER_TYPE mv_filter, const int frame_height,
 // Computes optical flow at a single pyramid level,
 // using Lucas-Kanade algorithm.
 // Modifies mvs array.
-void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
-                  const YV12_BUFFER_CONFIG *ref_frame, const int level,
+void lucas_kanade(const YV12_BUFFER_CONFIG *from_frame,
+                  const YV12_BUFFER_CONFIG *to_frame, const int level,
                   const LK_PARAMS *lk_params, const int num_ref_corners,
-                  int *ref_corners, const int highres_frame_width,
-                  const int bit_depth, LOCALMV *mvs) {
+                  int *ref_corners, const int mv_stride, const int bit_depth,
+                  LOCALMV *mvs) {
   assert(lk_params->window_size > 0 && lk_params->window_size % 2 == 0);
   const int n = lk_params->window_size;
   // algorithm is sensitive to window size
@@ -500,7 +500,7 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
     const double y_coord = 1.0 * ref_corners[i * 2 + 1] / expand_multiplier;
     int highres_x = ref_corners[i * 2];
     int highres_y = ref_corners[i * 2 + 1];
-    int mv_idx = highres_y * (highres_frame_width) + highres_x;
+    int mv_idx = highres_y * (mv_stride) + highres_x;
     LOCALMV mv_old = mvs[mv_idx];
     mv_old.row = mv_old.row / expand_multiplier;
     mv_old.col = mv_old.col / expand_multiplier;
@@ -511,8 +511,8 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *frame_to_filter,
       i_y[j] = 0;
       i_t[j] = 0;
     }
-    gradients_over_window(frame_to_filter, ref_frame, x_coord, y_coord, n,
-                          bit_depth, i_x, i_y, i_t, &mv_old);
+    gradients_over_window(from_frame, to_frame, x_coord, y_coord, n, bit_depth,
+                          i_x, i_y, i_t, &mv_old);
     double Mres1[1] = { 0 }, Mres2[1] = { 0 }, Mres3[1] = { 0 };
     double bres1[1] = { 0 }, bres2[1] = { 0 };
     for (int j = 0; j < n * n; j++) {
@@ -574,6 +574,7 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
   int fw = frame_width;
   int fh = frame_height;
   for (int i = 1; i < levels; i++) {
+    // TODO(bohanli): may need to extend buffers for better interpolation SIMD
     images1[i] = (uint8_t *)aom_calloc(fh / 2 * fw / 2, sizeof(uint8_t));
     images2[i] = (uint8_t *)aom_calloc(fh / 2 * fw / 2, sizeof(uint8_t));
     int stride;
@@ -597,10 +598,11 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
     buffers2[i] = b;
   }
   // Compute corners for specific frame
-  int maxcorners = from_frame->y_crop_width * from_frame->y_crop_height;
-  int *ref_corners = aom_malloc(maxcorners * 2 * sizeof(int));
+  int *ref_corners = NULL;
   int num_ref_corners = 0;
   if (is_sparse(opfl_params)) {
+    int maxcorners = from_frame->y_crop_width * from_frame->y_crop_height;
+    ref_corners = aom_malloc(maxcorners * 2 * sizeof(int));
     num_ref_corners = detect_corners(from_frame, to_frame, maxcorners,
                                      ref_corners, bit_depth);
   }
@@ -672,18 +674,9 @@ void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
   for (int j = 0; j < frame_height; j++) {
     for (int i = 0; i < frame_width; i++) {
       int idx = j * frame_width + i;
-      int new_x = (int)(localmvs[idx].row + i);
-      int new_y = (int)(localmvs[idx].col + j);
-      if ((fabs(localmvs[idx].row) >= 0.125 ||
-           fabs(localmvs[idx].col) >= 0.125)) {
-        // if mv points outside of frame (lost feature), keep old mv.
-        if (new_x < frame_width && new_x >= 0 && new_y < frame_height &&
-            new_y >= 0) {
-          MV mv = { .row = (int16_t)round(8 * localmvs[idx].row),
-                    .col = (int16_t)round(8 * localmvs[idx].col) };
-          mvs[idx] = mv;
-        }
-      }
+      MV mv = { .row = (int16_t)round(8 * localmvs[idx].row),
+                .col = (int16_t)round(8 * localmvs[idx].col) };
+      mvs[idx] = mv;
     }
   }
 
