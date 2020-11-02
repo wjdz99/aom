@@ -16,6 +16,7 @@
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/mathutils.h"
 #include "av1/encoder/optical_flow.h"
+#include "av1/encoder/sparse_linear_solver.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "aom_mem/aom_mem.h"
 
@@ -547,6 +548,304 @@ void lucas_kanade(const YV12_BUFFER_CONFIG *from_frame,
   aom_free(i_y);
 }
 
+// mvs point to src_frame
+void warp_back_frame(YV12_BUFFER_CONFIG *warped_frame,
+                     const YV12_BUFFER_CONFIG *src_frame, LOCALMV *mvs,
+                     int mv_stride) {
+  int w, h;
+  int fw = src_frame->y_crop_width;
+  int fh = src_frame->y_crop_height;
+  int src_fs = src_frame->y_stride, warped_fs = warped_frame->y_stride;
+  uint8_t *src_buf = src_frame->y_buffer;
+  uint8_t *warped_buf = warped_frame->y_buffer;
+  double temp;
+  for (h = 0; h < fh; h++) {
+    for (w = 0; w < fw; w++) {
+      double cord_x = (double)w + mvs[h * mv_stride + w].col;
+      double cord_y = (double)h + mvs[h * mv_stride + w].row;
+      cord_x = fclamp(cord_x, 0, (double)(fw - 1));
+      cord_y = fclamp(cord_y, 0, (double)(fh - 1));
+      int floorx = (int)floor(cord_x);
+      int floory = (int)floor(cord_y);
+      double fracx = cord_x - (double)floorx;
+      double fracy = cord_y - (double)floory;
+
+      // TODO(bohanli) use better interpolation here
+      temp = 0;
+      for (int hh = 0; hh < 2; hh++) {
+        double weighth = hh ? (fracy) : (1 - fracy);
+        if (h == fh - 1) {
+          if (hh == 1) continue;
+          weighth = 1 - hh;
+        }
+        for (int ww = 0; ww < 2; ww++) {
+          double weightw = ww ? (fracx) : (1 - fracx);
+          if (w == fw - 1) {
+            if (ww == 1) continue;
+            weightw = 1 - ww;
+          }
+          temp += (double)src_buf[(hh + floory) * src_fs + ww + floorx] *
+                  weightw * weighth;
+        }
+      }
+      temp = fclamp(temp, 0, 255);
+      warped_buf[h * warped_fs + w] = (uint8_t)round(temp);
+    }
+  }
+}
+
+#define DERIVATIVE_FILTER_LENGTH 7
+double filter[DERIVATIVE_FILTER_LENGTH] = { -1.0 / 60, 9.0 / 60,  -45.0 / 60, 0,
+                                            45.0 / 60, -9.0 / 60, 1.0 / 60 };
+
+void get_frame_gradients(const YV12_BUFFER_CONFIG *from_frame,
+                         const YV12_BUFFER_CONFIG *to_frame, double *ix,
+                         double *iy, double *it, int grad_stride) {
+  int w, h, k, idx;
+  int fw = from_frame->y_crop_width;
+  int fh = from_frame->y_crop_height;
+  int from_fs = from_frame->y_stride, to_fs = to_frame->y_stride;
+  uint8_t *from_buf = from_frame->y_buffer;
+  uint8_t *to_buf = to_frame->y_buffer;
+
+  int lh = DERIVATIVE_FILTER_LENGTH;
+  int hleft = (lh - 1) / 2;
+
+  for (h = 0; h < fh; h++) {
+    for (w = 0; w < fw; w++) {
+      // x
+      ix[h * grad_stride + w] = 0;
+      for (k = 0; k < lh; k++) {
+        // if we want to make this block dependent, need to extend the
+        // boundaries using other initializations.
+        idx = w + k - hleft;
+        idx = clamp(idx, 0, fw);
+        ix[h * grad_stride + w] += filter[k] * 0.5 *
+                                   ((double)from_buf[h * from_fs + idx] +
+                                    (double)to_buf[h * to_fs + idx]);
+      }
+      // y
+      iy[h * grad_stride + w] = 0;
+      for (k = 0; k < lh; k++) {
+        // if we want to make this block dependent, need to extend the
+        // boundaries using other initializations.
+        idx = h + k - hleft;
+        idx = clamp(idx, 0, fh);
+        iy[h * grad_stride + w] += filter[k] * 0.5 *
+                                   ((double)from_buf[idx * from_fs + w] +
+                                    (double)to_buf[idx * to_fs + w]);
+      }
+      // t
+      it[h * grad_stride + w] =
+          (double)to_buf[h * to_fs + w] - (double)from_buf[h * from_fs + w];
+    }
+  }
+}
+
+void solve_horn_schunck(double *ix, double *iy, double *it, int grad_stride,
+                        int width, int height, LOCALMV *mvs, int mv_stride) {
+  // TODO(bohanli): May just need to allocate the buffers once per optical flow
+  // calculation
+  int *row_pos = aom_calloc(width * height * 28, sizeof(int));
+  int *col_pos = aom_calloc(width * height * 28, sizeof(int));
+  double *values = aom_calloc(width * height * 28, sizeof(double));
+  double *mv_vec = aom_calloc(width * height * 2, sizeof(double));
+  double *b = aom_calloc(width * height * 2, sizeof(double));
+
+  // the location idx for neighboring pixels, k < 4 are the 4 direct neighbors
+  int check_locs_y[12] = { 0, 0, -1, 1, -1, -1, 1, 1, 0, 0, -2, 2 };
+  int check_locs_x[12] = { -1, 1, 0, 0, -1, 1, -1, 1, -2, 2, 0, 0 };
+
+  int h, w, checkh, checkw, k;
+  int offset = height * width;
+  SPARSE_MTX A;
+  int c = 0;
+  double lambda = 100;
+  // get matrix A
+  for (w = 0; w < width; w++) {
+    for (h = 0; h < height; h++) {
+      int center_num_direct = 4;
+      int center_idx = w * height + h;
+      if (w == 0 || w == width - 1) center_num_direct--;
+      if (h == 0 || h == height - 1) center_num_direct--;
+      // diagonal entry for this row from the center pixel
+      double cor_w = center_num_direct * center_num_direct + center_num_direct;
+      row_pos[c] = center_idx;
+      col_pos[c] = center_idx;
+      values[c] = lambda * cor_w + pow(ix[h * grad_stride + w], 2.0);
+      c++;
+      row_pos[c] = center_idx + offset;
+      col_pos[c] = center_idx + offset;
+      values[c] = lambda * cor_w + pow(iy[h * grad_stride + w], 2.0);
+      c++;
+      // other entries from direct neighbors
+      for (k = 0; k < 4; k++) {
+        checkh = h + check_locs_y[k];
+        checkw = w + check_locs_x[k];
+        if (checkh < 0 || checkh >= height || checkw < 0 || checkw >= width) {
+          continue;
+        }
+        int this_idx = checkw * height + checkh;
+        int this_num_direct = 4;
+        if (checkw == 0 || checkw == width - 1) this_num_direct--;
+        if (checkh == 0 || checkh == height - 1) this_num_direct--;
+        cor_w = -center_num_direct - this_num_direct;
+        row_pos[c] = center_idx;
+        col_pos[c] = this_idx;
+        values[c] = lambda * cor_w;
+        c++;
+        row_pos[c] = center_idx + offset;
+        col_pos[c] = this_idx + offset;
+        values[c] = lambda * cor_w;
+        c++;
+      }
+      // entries from neighbors on the diagonal corners
+      for (k = 4; k < 8; k++) {
+        checkh = h + check_locs_y[k];
+        checkw = w + check_locs_x[k];
+        if (checkh < 0 || checkh >= height || checkw < 0 || checkw >= width) {
+          continue;
+        }
+        int this_idx = checkw * height + checkh;
+        cor_w = 2;
+        row_pos[c] = center_idx;
+        col_pos[c] = this_idx;
+        values[c] = lambda * cor_w;
+        c++;
+        row_pos[c] = center_idx + offset;
+        col_pos[c] = this_idx + offset;
+        values[c] = lambda * cor_w;
+        c++;
+      }
+      // entries from neighbors with dist of 2
+      for (k = 8; k < 12; k++) {
+        checkh = h + check_locs_y[k];
+        checkw = w + check_locs_x[k];
+        if (checkh < 0 || checkh >= height || checkw < 0 || checkw >= width) {
+          continue;
+        }
+        int this_idx = checkw * height + checkh;
+        cor_w = 1;
+        row_pos[c] = center_idx;
+        col_pos[c] = this_idx;
+        values[c] = lambda * cor_w;
+        c++;
+        row_pos[c] = center_idx + offset;
+        col_pos[c] = this_idx + offset;
+        values[c] = lambda * cor_w;
+        c++;
+      }
+    }
+  }
+  // add cross terms to A and modify b with ExEt / EyEt
+  for (w = 0; w < width; w++) {
+    for (h = 0; h < height; h++) {
+      int curidx = w * height + h;
+      // modify b
+      b[curidx] = -ix[h * grad_stride + w] * it[h * grad_stride + w];
+      b[curidx + offset] = -iy[h * grad_stride + w] * it[h * grad_stride + w];
+      // add cross terms to A
+      row_pos[c] = curidx;
+      col_pos[c] = curidx + offset;
+      values[c] = ix[h * grad_stride + w] * iy[h * grad_stride + w];
+      c++;
+      row_pos[c] = curidx + offset;
+      col_pos[c] = curidx;
+      values[c] = ix[h * grad_stride + w] * iy[h * grad_stride + w];
+      c++;
+    }
+  }
+  av1_init_sparse_mtx(row_pos, col_pos, values, c, 2 * width * height,
+                      2 * width * height, &A);
+  // solve for the mvs
+  av1_conjugate_gradient_sparse(&A, b, 2 * width * height, mv_vec);
+  // copy mvs
+  for (w = 0; w < width; w++) {
+    for (h = 0; h < height; h++) {
+      mvs[h * mv_stride + w].col = mv_vec[w * height + h];
+      mvs[h * mv_stride + w].row = mv_vec[w * height + h + offset];
+    }
+  }
+  aom_free(row_pos);
+  aom_free(col_pos);
+  aom_free(values);
+  aom_free(mv_vec);
+  aom_free(b);
+  av1_free_sparse_mtx_elems(&A);
+}
+
+void horn_schunck(const YV12_BUFFER_CONFIG *from_frame,
+                  const YV12_BUFFER_CONFIG *to_frame, const int level,
+                  const int mv_stride, const int mv_height, const int mv_width,
+                  const OPFL_PARAMS *opfl_params, LOCALMV *mvs) {
+  // mvs are always on level 0, here we define two new mv arrays that is of size
+  // of this level.
+  int fw = from_frame->y_crop_width, fh = from_frame->y_crop_height;
+  int factor = (int)pow(2, level);
+  int w, h, k, init_mv_stride;
+  LOCALMV *init_mvs;
+  if (level == 0) {
+    init_mvs = mvs;
+    init_mv_stride = mv_stride;
+  } else {
+    init_mvs = aom_calloc(fw * fh, sizeof(*mvs));
+    init_mv_stride = fw;
+    for (h = 0; h < fh; h++) {
+      for (w = 0; w < fw; w++) {
+        init_mvs[h * init_mv_stride + w].row =
+            mvs[h * factor * mv_stride + w * factor].row / (double)factor;
+        init_mvs[h * init_mv_stride + w].col =
+            mvs[h * factor * mv_stride + w * factor].col / (double)factor;
+      }
+    }
+  }
+  LOCALMV *refine_mvs = aom_calloc(fw * fh, sizeof(*mvs));
+  // temp frame for warping
+  YV12_BUFFER_CONFIG temp_frame;
+  temp_frame.y_buffer = (uint8_t *)aom_calloc(fh * fw, sizeof(uint8_t));
+  temp_frame.y_crop_height = fh;
+  temp_frame.y_crop_width = fw;
+  temp_frame.y_stride = fw;
+  // gradient buffers
+  double *ix = aom_calloc(fw * fh, sizeof(double));
+  double *iy = aom_calloc(fw * fh, sizeof(double));
+  double *it = aom_calloc(fw * fh, sizeof(double));
+  // For each warping step
+  for (k = 0; k < opfl_params->warping_steps; k++) {
+    // warp from_frame with init_mv
+    warp_back_frame(&temp_frame, to_frame, init_mvs, init_mv_stride);
+    // calculate frame gradients
+    get_frame_gradients(from_frame, &temp_frame, ix, iy, it, fw);
+    // form linear equations and solve mvs
+    solve_horn_schunck(ix, iy, it, fw, fw, fh, refine_mvs, fw);
+    // update init_mvs
+    for (h = 0; h < fh; h++) {
+      for (w = 0; w < fw; w++) {
+        init_mvs[h * init_mv_stride + w].col += refine_mvs[h * fw + w].col;
+        init_mvs[h * init_mv_stride + w].row += refine_mvs[h * fw + w].row;
+      }
+    }
+  }
+  // copy back the mvs if needed
+  if (level != 0) {
+    for (h = 0; h < mv_height; h++) {
+      for (w = 0; w < mv_width; w++) {
+        mvs[h * mv_stride + w].row =
+            init_mvs[h / factor * init_mv_stride + w / factor].row *
+            (double)factor;
+        mvs[h * mv_stride + w].col =
+            init_mvs[h / factor * init_mv_stride + w / factor].col *
+            (double)factor;
+      }
+    }
+  }
+  if (level != 0) aom_free(init_mvs);
+  aom_free(refine_mvs);
+  aom_free(temp_frame.y_buffer);
+  aom_free(ix);
+  aom_free(iy);
+  aom_free(it);
+}
 // Apply optical flow iteratively at each pyramid level
 void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
                           const YV12_BUFFER_CONFIG *to_frame,
@@ -613,6 +912,11 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
       lucas_kanade(&buffers1[i], &buffers2[i], i, opfl_params->lk_params,
                    num_ref_corners, ref_corners, buffers1[0].y_crop_width,
                    bit_depth, mvs);
+    } else if (method == HORN_SCHUNCK) {
+      assert(!is_sparse(opfl_params));
+      horn_schunck(&buffers1[i], &buffers2[i], i, buffers1[0].y_crop_width,
+                   buffers1[0].y_crop_height, buffers1[0].y_crop_width,
+                   opfl_params, mvs);
     }
   }
   for (int i = 1; i < levels; i++) {

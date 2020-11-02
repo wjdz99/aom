@@ -20,7 +20,7 @@ extern "C" {
 
 #if CONFIG_OPTICAL_FLOW_API
 
-typedef enum { LUCAS_KANADE } OPTFLOW_METHOD;
+typedef enum { LUCAS_KANADE, HORN_SCHUNCK } OPTFLOW_METHOD;
 
 typedef enum {
   MV_FILTER_NONE,
@@ -32,6 +32,7 @@ typedef enum {
 // default options for optical flow
 #define OPFL_WINDOW_SIZE 15
 #define OPFL_PYRAMID_LEVELS 3  // total levels
+#define OPFL_WARPING_STEPS 3
 
 // parameters specific to Lucas-Kanade
 typedef struct lk_params {
@@ -42,18 +43,20 @@ typedef struct lk_params {
 // optical flow algorithms
 typedef struct opfl_params {
   int pyramid_levels;
+  int warping_steps;
   LK_PARAMS *lk_params;
   int flags;
 } OPFL_PARAMS;
 
 #define OPFL_FLAG_SPARSE 1
 
-INLINE void init_opfl_params(OPFL_PARAMS *opfl_params) {
+INLINE void av1_init_opfl_params(OPFL_PARAMS *opfl_params) {
   opfl_params->pyramid_levels = OPFL_PYRAMID_LEVELS;
+  opfl_params->warping_steps = OPFL_WARPING_STEPS;
   opfl_params->lk_params = NULL;
 }
 
-INLINE void init_lk_params(LK_PARAMS *lk_params) {
+INLINE void av1_init_lk_params(LK_PARAMS *lk_params) {
   lk_params->window_size = OPFL_WINDOW_SIZE;
 }
 
