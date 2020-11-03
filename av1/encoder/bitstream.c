@@ -2503,9 +2503,11 @@ static void write_wiener_filter(int wiener_win, const WienerInfo *wiener_info,
       check_wiener_eq(wiener_win != WIENER_WIN, wiener_info, ref_wiener_info);
   aom_write_bit(wb, equal);
   if (equal) {
+    printf("\nBitstream: Merged w/ previous.\n");
     memcpy(ref_wiener_info, wiener_info, sizeof(*wiener_info));
     return;
   }
+  printf("\nBitstream: Not merged w/ previous.\n");
 #endif  // CONFIG_RST_MERGECOEFFS
   if (wiener_win == WIENER_WIN)
     aom_write_primitive_refsubexpfin(
