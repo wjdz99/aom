@@ -42,6 +42,7 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
 
 int av1_interinter_compound_motion_search(const AV1_COMP *const cpi,
                                           MACROBLOCK *x,
+                                          int *bestsme,
                                           const int_mv *const cur_mv,
                                           const BLOCK_SIZE bsize,
                                           const PREDICTION_MODE this_mode);

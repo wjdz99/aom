@@ -658,7 +658,7 @@ int av1_compound_single_motion_search_interinter(
                                            mask, mask_stride, rate_mv, ref_idx);
 }
 
-static AOM_INLINE void do_masked_motion_search_indexed(
+static AOM_INLINE int do_masked_motion_search_indexed(
     const AV1_COMP *const cpi, MACROBLOCK *x, const int_mv *const cur_mv,
     const INTERINTER_COMPOUND_DATA *const comp_data, BLOCK_SIZE bsize,
     int_mv *tmp_mv, int *rate_mv, int which) {
@@ -668,21 +668,25 @@ static AOM_INLINE void do_masked_motion_search_indexed(
   BLOCK_SIZE sb_type = mbmi->bsize;
   const uint8_t *mask;
   const int mask_stride = block_size_wide[bsize];
+  int bestsme = INT_MAX;
 
   mask = av1_get_compound_type_mask(comp_data, sb_type);
 
   tmp_mv[0].as_int = cur_mv[0].as_int;
   tmp_mv[1].as_int = cur_mv[1].as_int;
   if (which == 0 || which == 1) {
-    av1_compound_single_motion_search_interinter(cpi, x, bsize, tmp_mv, mask,
-                                                 mask_stride, rate_mv, which);
+    bestsme =
+        av1_compound_single_motion_search_interinter(cpi, x, bsize, tmp_mv, mask,
+                                                     mask_stride, rate_mv, which);
   } else if (which == 2) {
-    av1_joint_motion_search(cpi, x, bsize, tmp_mv, mask, mask_stride, rate_mv);
+    bestsme =
+        av1_joint_motion_search(cpi, x, bsize, tmp_mv, mask, mask_stride, rate_mv);
   }
+  return bestsme;
 }
 
 int av1_interinter_compound_motion_search(const AV1_COMP *const cpi,
-                                          MACROBLOCK *x,
+                                          MACROBLOCK *x, int *bestsme,
                                           const int_mv *const cur_mv,
                                           const BLOCK_SIZE bsize,
                                           const PREDICTION_MODE this_mode) {
@@ -694,16 +698,18 @@ int av1_interinter_compound_motion_search(const AV1_COMP *const cpi,
   const INTERINTER_COMPOUND_DATA *compound_data = &mbmi->interinter_comp;
 
   if (this_mode == NEW_NEWMV) {
-    do_masked_motion_search_indexed(cpi, x, cur_mv, compound_data, bsize,
-                                    tmp_mv, &tmp_rate_mv, 2);
+    *bestsme =
+        do_masked_motion_search_indexed(cpi, x, cur_mv, compound_data, bsize,
+                                        tmp_mv, &tmp_rate_mv, 2);
     mbmi->mv[0].as_int = tmp_mv[0].as_int;
     mbmi->mv[1].as_int = tmp_mv[1].as_int;
   } else if (this_mode >= NEAREST_NEWMV && this_mode <= NEW_NEARMV) {
     // which = 1 if this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV
     // which = 0 if this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV
     int which = (NEWMV == compound_ref1_mode(this_mode));
-    do_masked_motion_search_indexed(cpi, x, cur_mv, compound_data, bsize,
-                                    tmp_mv, &tmp_rate_mv, which);
+    *bestsme =
+        do_masked_motion_search_indexed(cpi, x, cur_mv, compound_data, bsize,
+                                        tmp_mv, &tmp_rate_mv, which);
     mbmi->mv[which].as_int = tmp_mv[which].as_int;
   }
   return tmp_rate_mv;

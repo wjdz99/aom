@@ -1113,17 +1113,18 @@ static int64_t masked_compound_type_rd(
         cpi->sf.inter_sf.enable_interinter_diffwtd_newmv_search &&
         compound_type == COMPOUND_DIFFWTD &&
         have_newmv_in_inter_mode(this_mode);
+    int thissme;
 
     // Search for new MV if needed and build predictor
     if (wedge_newmv_search) {
-      *out_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
+      *out_rate_mv = av1_interinter_compound_motion_search(cpi, x, &thissme, cur_mv,
                                                            bsize, this_mode);
       const int mi_row = xd->mi_row;
       const int mi_col = xd->mi_col;
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, ctx, bsize,
                                     AOM_PLANE_Y, AOM_PLANE_Y);
     } else if (diffwtd_newmv_search) {
-      *out_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
+      *out_rate_mv = av1_interinter_compound_motion_search(cpi, x, &thissme, cur_mv,
                                                            bsize, this_mode);
       // we need to update the mask according to the new motion vector
       CompoundTypeRdBuffers tmp_buf;
@@ -1333,8 +1334,9 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       int mask_value = inter_pred_params.conv_params.fwd_offset * 4;
       memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
       tmp_rate_mv = *rate_mv;
+      int thissme;
       if (have_newmv_in_inter_mode(this_mode))
-        tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
+        tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, &thissme, cur_mv,
                                                             bsize, this_mode);
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                     AOM_PLANE_Y, AOM_PLANE_Y);
@@ -1350,31 +1352,47 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
     } else if (cur_type == COMPOUND_WEDGE) {
       int best_mask_index = 0;
       int best_wedge_sign = 0;
+      int bestsme = INT_MAX;
       const int wedge_mask_size = get_wedge_types_lookup(bsize);
       for (int wedge_mask = 0; wedge_mask < wedge_mask_size; ++wedge_mask) {
         for (int wedge_sign = 0; wedge_sign < 2; ++wedge_sign) {
+          int thissme;
           tmp_rate_mv = *rate_mv;
-          rs2 = masked_type_cost[cur_type];
           mbmi->interinter_comp.wedge_index = wedge_mask;
           mbmi->interinter_comp.wedge_sign = wedge_sign;
+          rs2 = masked_type_cost[cur_type];
+          rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
           if (have_newmv_in_inter_mode(this_mode)) {
             tmp_rate_mv =
-                av1_interinter_compound_motion_search(cpi, x, cur_mv,
+                av1_interinter_compound_motion_search(cpi, x, &thissme, cur_mv,
                                                       bsize, this_mode);
+          } else {
+            av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                          AOM_PLANE_Y, AOM_PLANE_Y);
+            unsigned int sse;
+            cpi->fn_ptr[bsize].vf(x->plane[0].src.buf, x->plane[0].src.stride,
+                                  xd->plane[0].dst.buf, xd->plane[0].dst.stride, &sse);
+            thissme = sse;
           }
-          rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
-          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
-                                        AOM_PLANE_Y, AOM_PLANE_Y);
-          RD_STATS est_rd_stats;
-          estimate_yrd_for_sb(cpi, bsize, x, INT64_MAX, &est_rd_stats);
-          int64_t this_rd_cur =
-              RDCOST(x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate,
-                     est_rd_stats.dist);
-          if (this_rd_cur < best_rd_cur) {
+
+          thissme += RDCOST(x->rdmult, rs2 + tmp_rate_mv, 0);
+
+          if (thissme < bestsme) {
             best_mask_index = wedge_mask;
             best_wedge_sign = wedge_sign;
-            best_rd_cur = this_rd_cur;
+            bestsme = thissme;
           }
+
+          // RD_STATS est_rd_stats;
+          // estimate_yrd_for_sb(cpi, bsize, x, INT64_MAX, &est_rd_stats);
+          // int64_t this_rd_cur =
+          //     RDCOST(x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate,
+          //            est_rd_stats.dist);
+          // if (this_rd_cur < best_rd_cur) {
+          //   best_mask_index = wedge_mask;
+          //   best_wedge_sign = wedge_sign;
+          //   best_rd_cur = this_rd_cur;
+          // }
         }
       }
 
@@ -1384,7 +1402,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       tmp_rate_mv = *rate_mv;
       if (have_newmv_in_inter_mode(this_mode)) {
         tmp_rate_mv =
-            av1_interinter_compound_motion_search(cpi, x, cur_mv,
+            av1_interinter_compound_motion_search(cpi, x, &bestsme, cur_mv,
                                                   bsize, this_mode);
       }
       rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
