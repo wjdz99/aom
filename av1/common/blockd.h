@@ -988,7 +988,7 @@ typedef struct macroblockd_plane {
 #define BLOCK_OFFSET(x, i) \
   ((x) + (i) * (1 << (tx_size_wide_log2[0] + tx_size_high_log2[0])))
 
-typedef struct {
+typedef struct WienerInfo {
   DECLARE_ALIGNED(16, InterpKernel, vfilter);
   DECLARE_ALIGNED(16, InterpKernel, hfilter);
 } WienerInfo;
