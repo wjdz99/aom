@@ -171,7 +171,7 @@ typedef enum {
 #define KEEP_PARTITION_SPLIT 0
 // Whether to cache the old prediction mode from earlier partitions and reuse
 // them in later partition search.
-#define USE_OLD_PREDICTION_MODE 0
+#define USE_OLD_PREDICTION_MODE 1
 
 // Whether to use simple_motion_search to prune partitioning
 #define ENABLE_FAST_RECUR_PARTITION 0
