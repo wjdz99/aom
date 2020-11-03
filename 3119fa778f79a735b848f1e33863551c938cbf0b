@@ -16,6 +16,86 @@
       "message": "Hi Wan-Teh / Jingning,\n\nIn this patch, TPL buffers are allocated conditionally based on lag_in_frames. When lag_in_frames \u003c \u003d1, TPL module is not invoked. Hence, relevant TPL buffer allocations are avoided accordingly.\n\nFor libaom AV1 encode, bit match is verified (w.r.t parent commit) for few videos for the following cases.\n1) Good Quality (--good): speed presets 0 to 6 with lag_in_frames equal to 0, 1 and 35.\n2) Realtime (--rt): speed presets 0 to 9 with lag_in_frames equal to 0 and 1.\n\nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset. \n\nFollowing are memory reduction results when AVIF encode was tested for ‘building.jpg’ (4032x3024) image for 4 threads at cq_level\u003d18.\n   Speed                 HEAP  Memory\n   preset                Reduction(%)\n    3           ~63.9 (from 1413.26 MB to 508.88 MB)\n    6           ~65.0 (from 1389.75 MB to 485.78 MB)\n\nHEAP memory reduction (Maximum resident set size) was measured using the command below.\n$command time -v ./avifenc ...\n\nPlease review.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c6e27ab_6a11429f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-03T18:47:00Z",
+      "side": 1,
+      "message": "Thanks for the CL!",
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7853d08_6b5bfebb",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-03T18:47:00Z",
+      "side": 1,
+      "message": "Instead of this change, please add a new lag_in_frames parameter, so that the function prototype looks like this:\n\nstatic AOM_INLINE void setup_tpl_buffers(AV1_COMMON *const cm,\n                                         TplParams *const tpl_data,\n                                         int lag_in_frames) {\n\nThe reason is that if the function takes \u0027cpi\u0027 as the parameter, it is not clear which members of \u0027cpi\u0027 is used by the function as input and output. Passing smaller structs or field as parameters makes it easier to analyze this function.",
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0dcb397_f1591513",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-03T18:47:00Z",
+      "side": 1,
+      "message": "Could you tell me where we check lag_in_frames \u003c\u003d 1 to determine if the TPL module should be invoked? Thanks.\n\nMy analysis shows that tpl_data-\u003etpl_stats_pool and tpl_data-\u003etpl_rec_pool are accessed directly by av1_tpl_setup_stats(). av1_tpl_setup_stats() has two callers.\n\n1. denoise_and_encode(): this av1_tpl_setup_stats() call is guarded by \u0027allow_tpl\u0027, which is defined as follows:\n\n  int allow_tpl \u003d oxcf-\u003egf_cfg.lag_in_frames \u003e 1 \u0026\u0026 ...;\n\nTherefore lag_in_frames \u003c\u003d 1 disables this av1_tpl_setup_stats() call.\n\n2. av1_get_second_pass_params(). It is not clear whether av1_get_second_pass_params() is called if lag_in_frames \u003c\u003d 1.",
+      "range": {
+        "startLine": 138,
+        "startChar": 5,
+        "endLine": 138,
+        "endChar": 54
+      },
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d678470_9bf8dded",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-03T18:47:00Z",
+      "side": 1,
+      "message": "It is best to put a specific person or a bug number in a TODO comment.\nIn this case, I suggest we file a bug report on this exploration and put\nthe bug number here, such as TODO(aomedia:\u003cnumber\u003e) or TODO(crbug.com/aomedia/\u003cnumber\u003e).",
+      "range": {
+        "startLine": 142,
+        "startChar": 10,
+        "endLine": 142,
+        "endChar": 13
+      },
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
