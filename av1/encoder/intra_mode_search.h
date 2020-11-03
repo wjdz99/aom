@@ -51,6 +51,14 @@ typedef struct IntraModeSearchState {
    * \brief Whether \ref directional_mode_skip_mask is valid for pruning.
    */
   int dir_mode_skip_mask_ready;
+  /*!
+   * \brief Whether a directional mode is pruned.
+   */
+  uint8_t chroma_directional_mode_skip_mask[UV_INTRA_MODES];
+  /*!
+   * \brief Whether \ref directional_mode_skip_mask is valid for pruning.
+   */
+  int chroma_dir_mode_skip_mask_ready;
   /**@}*/
 
   /** \name Chroma mode search cache
@@ -253,6 +261,12 @@ void av1_count_colors_highbd(const uint8_t *src8, int stride, int rows,
                              int cols, int bit_depth, int *val_count,
                              int *val_count_8bit, int *num_color_bins,
                              int *num_colors);
+
+static AOM_INLINE void init_intra_mode_search_state(
+    IntraModeSearchState *intra_search_state) {
+  memset(intra_search_state, 0, sizeof(*intra_search_state));
+  intra_search_state->rate_uv_intra = INT_MAX;
+}
 
 #ifdef __cplusplus
 }  // extern "C"
