@@ -123,6 +123,7 @@ CalcBDRateInExcel = False
 # line color used, number of colors >= len(DnScaledRes)
 LineColors = ['blue', 'red', 'green', 'orange', 'pink', 'yellow']
 ConvexHullColor = 'white'
+Int_ConvexHullColor = 'cyan'
 
 # find out QP/Resolution with specified qty metrics
 TargetQtyMetrics = {'VMAF_Y': [60, 70, 80, 90],
@@ -140,7 +141,7 @@ CvxH_WtLastRow = CvxH_WtRows[-1]
 
 # format for writing convexhull curve data
 CvxHDataStartRow = CvxH_WtRows[-1] + 2; CvxHDataStartCol = 0
-CvxHDataNum = 5  # qty, bitrate, qp, resolution, 1 empty row as internal
+CvxHDataNum = 7  # qty, bitrate, qp, resolution, int_qty, int_bitrate, 1 empty row as internal
 CvxHDataRows = [CvxHDataStartRow + 1 + CvxHDataNum * i for i in range(len(QualityList))]
 
 ######################## post analysis #########################################
