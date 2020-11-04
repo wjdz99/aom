@@ -1832,6 +1832,67 @@ static void setup_ref_mv_list(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   }
 #endif  // CONFIG_EXT_COMP_REFMV
 
+#if CONFIG_REF_MV_BANK
+  if (*refmv_count < MAX_REF_MV_STACK_SIZE && ref_frame != INTRA_FRAME) {
+    const REF_MV_BANK *ref_mv_bank_left = xd->ref_mv_bank_left_pt ?
+        xd->ref_mv_bank_left_pt : &xd->ref_mv_bank_left;
+    const CANDIDATE_MV* queue_left = ref_mv_bank_left->ref_mv_bank_queue[ref_frame];
+    const int count_left = ref_mv_bank_left->ref_mv_bank_count[ref_frame];
+    const int start_idx_left = ref_mv_bank_left->ref_mv_bank_start_idx[ref_frame];
+
+    const int sb_col = xd->mi_col / cm->seq_params.mib_size;
+    const REF_MV_BANK *ref_mv_bank_above = xd->ref_mv_bank_above_pt ?
+        &xd->ref_mv_bank_above_pt[sb_col] : &xd->ref_mv_bank_above[sb_col];
+    const int count_above = ref_mv_bank_above->ref_mv_bank_count[ref_frame];
+    const CANDIDATE_MV* queue_above = ref_mv_bank_above->ref_mv_bank_queue[ref_frame];
+    const int start_idx_above = ref_mv_bank_above->ref_mv_bank_start_idx[ref_frame];
+
+    const int is_comp = rf[1] > INTRA_FRAME;
+    int idx_left = 0, idx_above = 0;
+    do {
+      for (; idx_left < count_left && *refmv_count < MAX_REF_MV_STACK_SIZE; ++idx_left) {
+        const int idx = (start_idx_left + count_left - 1 - idx_left)
+            % REF_MV_BANK_SIZE;
+        int existing = 0;
+        for (int j = 0; j < *refmv_count; ++j) {
+          if (ref_mv_stack[j].this_mv.as_int == queue_left[idx].this_mv.as_int &&
+              (!is_comp || ref_mv_stack[j].comp_mv.as_int
+                  == queue_left[idx].comp_mv.as_int)) {
+            existing = 1;
+            break;
+          }
+        }
+        if (existing) continue;
+        ref_mv_stack[*refmv_count] = queue_left[idx];
+        ref_mv_weight[*refmv_count] = 1;
+        ++*refmv_count;
+        break;
+      }
+
+      for (; idx_above < count_above && *refmv_count < MAX_REF_MV_STACK_SIZE; ++idx_above) {
+        const int idx = (start_idx_above + count_above - 1 - idx_above)
+            % REF_MV_BANK_SIZE;
+        int existing = 0;
+        for (int j = 0; j < *refmv_count; ++j) {
+          if (ref_mv_stack[j].this_mv.as_int == queue_above[idx].this_mv.as_int &&
+              (!is_comp || ref_mv_stack[j].comp_mv.as_int
+                  == queue_above[idx].comp_mv.as_int)) {
+            existing = 1;
+            break;
+          }
+        }
+        if (existing) continue;
+        ref_mv_stack[*refmv_count] = queue_above[idx];
+        ref_mv_weight[*refmv_count] = 1;
+        ++*refmv_count;
+        break;
+      }
+
+      if (idx_left >= count_left && idx_above >= count_above) break;
+    } while (*refmv_count < MAX_REF_MV_STACK_SIZE);
+  }
+#endif  // CONFIG_REF_MV_BANK
+
   int mi_width = AOMMIN(mi_size_wide[BLOCK_64X64], xd->n4_w);
   mi_width = AOMMIN(mi_width, cm->mi_cols - mi_col);
   int mi_height = AOMMIN(mi_size_high[BLOCK_64X64], xd->n4_h);

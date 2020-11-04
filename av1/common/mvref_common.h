@@ -378,6 +378,55 @@ int av1_get_ref_mv_idx_adj(REF_MV_INFO *ref_mv_info, int ref_frame,
                            int ref_mv_idx_orig);
 #endif  // ADJUST_DRL_FLEX_MVRES
 #endif  // CONFIG_FLEX_MVRES
+
+#if CONFIG_REF_MV_BANK
+static INLINE void update_ref_mv_bank(const MB_MODE_INFO *const mbmi,
+                                      REF_MV_BANK *ref_mv_bank) {
+  const MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
+  CANDIDATE_MV *queue = ref_mv_bank->ref_mv_bank_queue[ref_frame];
+  const int is_comp = has_second_ref(mbmi);
+  const int start_idx = ref_mv_bank->ref_mv_bank_start_idx[ref_frame];
+  const int count = ref_mv_bank->ref_mv_bank_count[ref_frame];
+  int found = -1;
+  for (int i = 0; i < count; ++i) {
+    const int idx = (start_idx + i) % REF_MV_BANK_SIZE;
+    if (mbmi->mv[0].as_int == queue[idx].this_mv.as_int &&
+        (!is_comp || mbmi->mv[1].as_int == queue[idx].comp_mv.as_int)) {
+      found = i;
+      break;
+    }
+  }
+  if (found >= 0) {
+    const int idx = (start_idx + found) % REF_MV_BANK_SIZE;
+    const CANDIDATE_MV cand = queue[idx];
+    for (int i = found; i < count - 1; ++i) {
+      const int idx0 = (start_idx + i) % REF_MV_BANK_SIZE;
+      const int idx1 = (start_idx + i + 1) % REF_MV_BANK_SIZE;
+      queue[idx0] = queue[idx1];
+    }
+    const int tail = (start_idx + count - 1) % REF_MV_BANK_SIZE;
+    queue[tail] = cand;
+    return;
+  }
+  const int idx = (start_idx + count) % REF_MV_BANK_SIZE;
+  queue[idx].this_mv = mbmi->mv[0];
+  if (is_comp) queue[idx].comp_mv = mbmi->mv[1];
+  if (count < REF_MV_BANK_SIZE) {
+    ++ref_mv_bank->ref_mv_bank_count[ref_frame];
+  } else {
+    ++ref_mv_bank->ref_mv_bank_start_idx[ref_frame];
+  }
+}
+
+static INLINE void av1_update_ref_mv_bank(MACROBLOCKD *const xd,
+                                          const MB_MODE_INFO *const mbmi,
+                                          int mib_size) {
+  update_ref_mv_bank(mbmi, &xd->ref_mv_bank_left);
+  const int sb_col = (xd->mi_col / mib_size);
+  update_ref_mv_bank(mbmi, &xd->ref_mv_bank_above[sb_col]);
+}
+#endif  // CONFIG_REF_MV_BANK
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
