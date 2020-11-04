@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "26f59c26_b60bb630",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-11-04T14:15:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e7853d08_6b5bfebb",
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c0dcb397_f1591513",
@@ -101,6 +119,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "faaadf41_d1811a28",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-11-04T14:15:12Z",
+      "side": 1,
+      "message": "setup_tpl_buffers() is called from aom_codec_enc_init(). However the value of cpi-\u003eoxcf.algo_cfg.enable_tpl_model can be modified using a control call (i.e., aom_codec_control() -\u003e ctrl_set_enable_tpl_model()) after above init call. As the value of cpi-\u003eoxcf.algo_cfg.enable_tpl_model is not finalized, making the allocation based on cpi-\u003eoxcf.algo_cfg.enable_tpl_model may not be desired (though default value of enable_tpl_model is 1).\nHence the check is left unmodified.",
+      "parentUuid": "889c1548_8c10e0c4",
+      "range": {
+        "startLine": 138,
+        "startChar": 5,
+        "endLine": 138,
+        "endChar": 54
+      },
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4d678470_9bf8dded",
         "filename": "av1/encoder/encoder_alloc.h",
         "patchSetId": 4
@@ -112,6 +154,30 @@
       "writtenOn": "2020-11-03T18:47:00Z",
       "side": 1,
       "message": "It is best to put a specific person or a bug number in a TODO comment.\nIn this case, I suggest we file a bug report on this exploration and put\nthe bug number here, such as TODO(aomedia:\u003cnumber\u003e) or TODO(crbug.com/aomedia/\u003cnumber\u003e).",
+      "range": {
+        "startLine": 142,
+        "startChar": 10,
+        "endLine": 142,
+        "endChar": 13
+      },
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74344add_2f176981",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-11-04T14:15:12Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4d678470_9bf8dded",
       "range": {
         "startLine": 142,
         "startChar": 10,
