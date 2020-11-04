@@ -1356,9 +1356,8 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
           mbmi->interinter_comp.wedge_index = wedge_mask;
           mbmi->interinter_comp.wedge_sign = wedge_sign;
           if (have_newmv_in_inter_mode(this_mode)) {
-            tmp_rate_mv =
-                av1_interinter_compound_motion_search(cpi, x, cur_mv,
-                                                      bsize, this_mode);
+            tmp_rate_mv = av1_interinter_compound_motion_search(
+                cpi, x, cur_mv, bsize, this_mode);
           }
           rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
@@ -1381,9 +1380,8 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       rs2 = masked_type_cost[cur_type];
       tmp_rate_mv = *rate_mv;
       if (have_newmv_in_inter_mode(this_mode)) {
-        tmp_rate_mv =
-            av1_interinter_compound_motion_search(cpi, x, cur_mv,
-                                                  bsize, this_mode);
+        tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
+                                                            bsize, this_mode);
       }
       rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
       av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
@@ -1392,6 +1390,44 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       estimate_yrd_for_sb(cpi, bsize, x, INT64_MAX, &est_rd_stats);
       best_rd_cur = RDCOST(x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate,
                            est_rd_stats.dist);
+    } else if (cur_type == COMPOUND_DIFFWTD) {
+      rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
+      int mask_value = 38;
+      memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
+      tmp_rate_mv = *rate_mv;
+      mbmi->interinter_comp.mask_type = DIFFWTD_38;
+
+      if (have_newmv_in_inter_mode(this_mode))
+        tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
+                                                            bsize, this_mode);
+      av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                    AOM_PLANE_Y, AOM_PLANE_Y);
+      RD_STATS est_rd_stats;
+      estimate_yrd_for_sb(cpi, bsize, x, INT64_MAX, &est_rd_stats);
+      best_rd_cur = RDCOST(x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate,
+                           est_rd_stats.dist);
+      int_mv tmp_mv[2] = { mbmi->mv[0], mbmi->mv[1] };
+
+      mask_value = 26;
+      memset(xd->seg_mask, mask_value, sizeof(xd->seg_mask));
+      tmp_rate_mv = *rate_mv;
+      mbmi->interinter_comp.mask_type = DIFFWTD_38_INV;
+
+      if (have_newmv_in_inter_mode(this_mode))
+        tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
+                                                            bsize, this_mode);
+      av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                    AOM_PLANE_Y, AOM_PLANE_Y);
+      estimate_yrd_for_sb(cpi, bsize, x, INT64_MAX, &est_rd_stats);
+      int64_t this_rd_cur = RDCOST(
+          x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate, est_rd_stats.dist);
+      if (this_rd_cur < best_rd_cur) {
+        best_rd_cur = this_rd_cur;
+      } else {
+        mbmi->interinter_comp.mask_type = DIFFWTD_38;
+        mbmi->mv[0] = tmp_mv[0];
+        mbmi->mv[1] = tmp_mv[1];
+      }
     } else {
       // Handle masked compound types
       // Factors to control gating of compound type selection based on best
@@ -1418,6 +1454,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
             ref_skip_rd);
       }
     }
+
     // Update stats for best compound type
     if (best_rd_cur < *rd) {
       update_best_info(mbmi, rd, &best_type_stats, best_rd_cur,
