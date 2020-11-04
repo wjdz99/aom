@@ -2126,6 +2126,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   xd->cfl.is_chroma_reference = mbmi->chroma_ref_info.is_chroma_ref;
   xd->cfl.store_y = store_cfl_required(cm, xd);
 
+#if CONFIG_NON_LOCAL_REFMV
+  av1_update_nl_refmv(xd, mbmi, cm->seq_params.mib_size);
+#endif  // CONFIG_NON_LOCAL_REFMV
+
 #if DEC_MISMATCH_DEBUG
   dec_dump_logs(cm, mi, mi_row, mi_col, mode_ctx);
 #endif  // DEC_MISMATCH_DEBUG

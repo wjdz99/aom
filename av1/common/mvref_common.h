@@ -378,6 +378,57 @@ int av1_get_ref_mv_idx_adj(REF_MV_INFO *ref_mv_info, int ref_frame,
                            int ref_mv_idx_orig);
 #endif  // ADJUST_DRL_FLEX_MVRES
 #endif  // CONFIG_FLEX_MVRES
+
+#if CONFIG_NON_LOCAL_REFMV
+static INLINE void update_nl_refmv(const MB_MODE_INFO *const mbmi,
+                                   NL_REF_MV_INFO *nl_ref_mv_info) {
+  const MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
+  CANDIDATE_MV *queue = nl_ref_mv_info->nl_ref_mv_queue[ref_frame];
+  const int is_comp = has_second_ref(mbmi);
+  const int start_idx = nl_ref_mv_info->nl_ref_mv_start_idx[ref_frame];
+  const int count = nl_ref_mv_info->nl_ref_mv_count[ref_frame];
+  int found = -1;
+  for (int i = 0; i < count; ++i) {
+    const int idx = (start_idx + i) % NON_LOCAL_REF_MV_SIZE;
+    if (mbmi->mv[0].as_int == queue[idx].this_mv.as_int &&
+        (!is_comp || mbmi->mv[1].as_int == queue[idx].comp_mv.as_int)) {
+      found = i;
+      break;
+    }
+  }
+  if (found >= 0) {
+    const int idx = (start_idx + found) % NON_LOCAL_REF_MV_SIZE;
+    const CANDIDATE_MV cand = queue[idx];
+    for (int i = found; i < count - 1; ++i) {
+      const int idx0 = (start_idx + i) % NON_LOCAL_REF_MV_SIZE;
+      const int idx1 = (start_idx + i + 1) % NON_LOCAL_REF_MV_SIZE;
+      queue[idx0] = queue[idx1];
+    }
+    const int tail = (start_idx + count - 1) % NON_LOCAL_REF_MV_SIZE;
+    queue[tail] = cand;
+    return;
+  }
+  const int idx = (start_idx + count) % NON_LOCAL_REF_MV_SIZE;
+  queue[idx].this_mv = mbmi->mv[0];
+  if (is_comp) queue[idx].comp_mv = mbmi->mv[1];
+  if (count < NON_LOCAL_REF_MV_SIZE) {
+    ++nl_ref_mv_info->nl_ref_mv_count[ref_frame];
+  } else {
+    ++nl_ref_mv_info->nl_ref_mv_start_idx[ref_frame];
+  }
+}
+
+static INLINE void av1_update_nl_refmv(MACROBLOCKD *const xd,
+                                       const MB_MODE_INFO *const mbmi,
+                                       int mib_size) {
+  update_nl_refmv(mbmi, &xd->nl_ref_mv_info_left);
+
+  const int sb_col = (xd->mi_col / mib_size);
+  //printf("mib_size %d\n", mib_size);
+  update_nl_refmv(mbmi, &xd->nl_ref_mv_info_above[sb_col]);
+}
+#endif  // CONFIG_NON_LOCAL_REFMV
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

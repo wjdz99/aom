@@ -863,6 +863,9 @@ void av1_encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       }
     }
 #endif  // CONFIG_NN_RECON
+#if CONFIG_NON_LOCAL_REFMV
+    if (is_inter) av1_update_nl_refmv(xd, mbmi, cm->seq_params.mib_size);
+#endif  // CONFIG_NON_LOCAL_REFMV
   }
 
   if (cm->tx_mode == TX_MODE_SELECT && block_signals_txsize(mbmi->sb_type) &&

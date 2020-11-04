@@ -45,6 +45,12 @@ extern "C" {
 
 #define INTERINTRA_WEDGE_SIGN 0
 
+#define CONFIG_NON_LOCAL_REFMV 1
+
+#if CONFIG_NON_LOCAL_REFMV
+#define NON_LOCAL_REF_MV_SIZE 64
+#endif  // CONFIG_NON_LOCAL_REFMV
+
 // DIFFWTD_MASK_TYPES should not surpass 1 << MAX_DIFFWTD_MASK_BITS
 enum {
 #if CONFIG_DIFFWTD_42
@@ -1091,6 +1097,14 @@ typedef struct {
 #endif  // CONFIG_EXT_REFMV || CONFIG_ENHANCED_WARPED_MOTION
 } REF_MV_INFO;
 
+#if CONFIG_NON_LOCAL_REFMV
+typedef struct {
+  int nl_ref_mv_count[MODE_CTX_REF_FRAMES];
+  int nl_ref_mv_start_idx[MODE_CTX_REF_FRAMES];
+  CANDIDATE_MV nl_ref_mv_queue[MODE_CTX_REF_FRAMES][NON_LOCAL_REF_MV_SIZE];
+} NL_REF_MV_INFO;
+#endif  // CONFIG_NON_LOCAL_REFMV
+
 // Most/all of the pointers are mere pointers to actual arrays are allocated
 // elsewhere. This is mostly for coding convenience.
 typedef struct macroblockd {
@@ -1159,6 +1173,13 @@ typedef struct macroblockd {
   uint8_t n4_w, n4_h;
 
   REF_MV_INFO ref_mv_info;
+
+#if CONFIG_NON_LOCAL_REFMV
+  NL_REF_MV_INFO nl_ref_mv_info_left;
+  NL_REF_MV_INFO nl_ref_mv_info_above[64];
+  NL_REF_MV_INFO *nl_ref_mv_info_left_pt;
+  NL_REF_MV_INFO *nl_ref_mv_info_above_pt;
+#endif  // CONFIG_NON_LOCAL_REFMV
 
   uint8_t is_sec_rect;
 

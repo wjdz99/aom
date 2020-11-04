@@ -64,6 +64,10 @@ typedef struct ThreadData {
   decode_block_visitor_fn_t inverse_tx_inter_block_visit;
   predict_inter_block_visitor_fn_t predict_inter_block_visit;
   cfl_store_inter_block_visitor_fn_t cfl_store_inter_block_visit;
+#if CONFIG_NON_LOCAL_REFMV
+  NL_REF_MV_INFO nl_ref_mv_info_left;
+  NL_REF_MV_INFO nl_ref_mv_info_above[64];
+#endif  // CONFIG_NON_LOCAL_REFMV
 } ThreadData;
 
 typedef struct AV1DecRowMTJobInfo {
