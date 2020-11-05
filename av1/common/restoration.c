@@ -1078,9 +1078,15 @@ void apply_wiener_nonsep(const uint8_t *dgd, int width, int height, int stride,
   for (int yy = 0; yy < height; yy++) {
     for (int xx = 0; xx < width; xx++) {
       int idx = yy * width + xx;
-      skip_mask[idx] =
-          txskip_mask[((v_start + yy) >> MIN_TX_SIZE_LOG2) * mask_stride +
-                      ((h_start + xx) >> MIN_TX_SIZE_LOG2)];
+      skip_mask[idx] = 1;
+      for (int jj = yy - dd; jj <= yy + dd; ++jj) {
+        for (int ii = xx - dd; ii <= xx + dd; ++ii) {
+          int iy = (v_start + jj) >> MIN_TX_SIZE_LOG2;
+          int ix = (h_start + ii) >> MIN_TX_SIZE_LOG2;
+          if (iy >= 0 && iy < mask_height && ix >= 0 && ix < mask_stride)
+            skip_mask[idx] &= txskip_mask[iy * mask_stride + ix];
+        }
+      }
     }
   }
 #endif  // WIENER_NONSEP_MASK
@@ -1177,9 +1183,15 @@ void apply_wiener_nonsep_highbd(const uint8_t *dgd8, int width, int height,
   for (int yy = 0; yy < height; yy++) {
     for (int xx = 0; xx < width; xx++) {
       int idx = yy * width + xx;
-      skip_mask[idx] =
-          txskip_mask[((v_start + yy) >> MIN_TX_SIZE_LOG2) * mask_stride +
-                      ((h_start + xx) >> MIN_TX_SIZE_LOG2)];
+      skip_mask[idx] = 1;
+      for (int jj = yy - dd; jj <= yy + dd; ++jj) {
+        for (int ii = xx - dd; ii <= xx + dd; ++ii) {
+          int iy = (v_start + jj) >> MIN_TX_SIZE_LOG2;
+          int ix = (h_start + ii) >> MIN_TX_SIZE_LOG2;
+          if (iy >= 0 && iy < mask_height && ix >= 0 && ix < mask_stride)
+            skip_mask[idx] &= txskip_mask[iy * mask_stride + ix];
+        }
+      }
     }
   }
 #endif  // WIENER_NONSEP_MASK
