@@ -28,6 +28,11 @@ typedef enum {
   MV_FILTER_MEDIAN
 } MV_FILTER_TYPE;
 
+typedef struct LOCALMV {
+  double row;
+  double col;
+} LOCALMV;
+
 #define MAX_PYRAMID_LEVELS 5
 // default options for optical flow
 #define OPFL_WINDOW_SIZE 15
@@ -50,15 +55,9 @@ typedef struct opfl_params {
 
 #define OPFL_FLAG_SPARSE 1
 
-INLINE void av1_init_opfl_params(OPFL_PARAMS *opfl_params) {
-  opfl_params->pyramid_levels = OPFL_PYRAMID_LEVELS;
-  opfl_params->warping_steps = OPFL_WARPING_STEPS;
-  opfl_params->lk_params = NULL;
-}
+void av1_init_opfl_params(OPFL_PARAMS *opfl_params);
 
-INLINE void av1_init_lk_params(LK_PARAMS *lk_params) {
-  lk_params->window_size = OPFL_WINDOW_SIZE;
-}
+void av1_init_lk_params(LK_PARAMS *lk_params);
 
 void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
                   const YV12_BUFFER_CONFIG *to_frame, const int from_frame_idx,

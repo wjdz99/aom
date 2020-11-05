@@ -12,8 +12,8 @@
 #include <math.h>
 #include <limits.h>
 
+#include "av1/common/filter.h"
 #include "config/aom_config.h"
-
 #include "av1/common/alloccommon.h"
 #include "av1/common/av1_common_int.h"
 #include "av1/common/odintrin.h"
@@ -29,6 +29,7 @@
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/temporal_filter.h"
+#include "av1/encoder/optical_flow.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_mem/aom_mem.h"
 #include "aom_ports/aom_timer.h"
@@ -1043,6 +1044,480 @@ static void tf_do_filtering(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
   tf_restore_state(mbd, input_mb_mode_info, input_buffer, num_planes);
 }
 
+static void tf_build_predictor_opfl(
+    const YV12_BUFFER_CONFIG *ref_frame, const MACROBLOCKD *mbd,
+    const BLOCK_SIZE block_size, const int mb_row, const int mb_col,
+    const int num_planes, const struct scale_factors *scale, const MV *mvs,
+    int h_start, int w_start, int mv_stride, uint8_t *pred) {
+  // Information of the entire block.
+  const int mb_height = block_size_high[block_size];  // Height.
+  const int mb_width = block_size_wide[block_size];   // Width.
+  const int mb_y = mb_height * mb_row;                // Y-coord (Top-left).
+  const int mb_x = mb_width * mb_col;                 // X-coord (Top-left).
+  const int bit_depth = mbd->bd;                      // Bit depth.
+  const int is_intrabc = 0;                           // Is intra-copied?
+  const int is_high_bitdepth = is_frame_high_bitdepth(ref_frame);
+
+  // Default interpolation filters.
+  int blk = 2;
+  const int_interpfilters interp_filters =
+      av1_broadcast_interp_filter(MULTITAP_SHARP2);
+  uint8_t temp_pred[4];
+
+  // Handle Y-plane, U-plane and V-plane (if needed) in sequence.
+  int plane_offset = 0;
+  for (int plane = 0; plane < num_planes; ++plane) {
+    const int subsampling_y = mbd->plane[plane].subsampling_y;
+    const int subsampling_x = mbd->plane[plane].subsampling_x;
+    // Information of each sub-block in current plane.
+    const int plane_h = mb_height >> subsampling_y;  // Plane height.
+    const int plane_w = mb_width >> subsampling_x;   // Plane width.
+    const int plane_y = mb_y >> subsampling_y;       // Y-coord (Top-left).
+    const int plane_x = mb_x >> subsampling_x;       // g X-coord (Top-left).
+    const int is_y_plane = (plane == 0);             // Is Y-plane?
+
+    const struct buf_2d ref_buf = { NULL, ref_frame->buffers[plane],
+                                    ref_frame->widths[is_y_plane ? 0 : 1],
+                                    ref_frame->heights[is_y_plane ? 0 : 1],
+                                    ref_frame->strides[is_y_plane ? 0 : 1] };
+
+    // Handle each pixel
+    for (int i = 0; i < plane_h; i++) {
+      for (int j = 0; j < plane_w; j++) {
+        // Choose proper motion vector.
+        int h = h_start + (i << subsampling_y);
+        int w = w_start + (j << subsampling_x);
+        if (h >= ref_frame->y_crop_height || w >= ref_frame->y_crop_width)
+          continue;
+        h = AOMMIN(h, ref_frame->y_crop_height - 1);
+        w = AOMMIN(w, ref_frame->y_crop_width - 1);
+        const MV mv = mvs[h * mv_stride + w];
+        assert(mv.row >= INT16_MIN && mv.row <= INT16_MAX &&
+               mv.col >= INT16_MIN && mv.col <= INT16_MAX);
+
+        const int y = plane_y + i;
+        const int x = plane_x + j;
+
+        // Build predictior for each sub-block on current plane.
+        InterPredParams inter_pred_params;
+        av1_init_inter_params(&inter_pred_params, blk, blk, y, x, subsampling_x,
+                              subsampling_y, bit_depth, is_high_bitdepth,
+                              is_intrabc, scale, &ref_buf, interp_filters);
+        inter_pred_params.interp_filter_params[0] =
+            &av1_interp_filter_params_list[interp_filters.as_filters.x_filter];
+        inter_pred_params.interp_filter_params[1] =
+            &av1_interp_filter_params_list[interp_filters.as_filters.y_filter];
+
+        inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
+        av1_enc_build_one_inter_predictor(temp_pred, blk, &mv,
+                                          &inter_pred_params);
+        pred[plane_offset + i * plane_w + j] = temp_pred[0];
+      }
+    }
+    plane_offset += plane_h * plane_w;
+  }
+}
+
+double get_mf_var(MV *this_mv, int h_start, int w_start, int mv_stride,
+                  int mb_height, int mb_width, int h_max, int w_max) {
+  double var_r = 0, var_c = 0;
+  double total = mb_height * mb_width;
+  int h_filt[5] = { 0, 0, 0, 1, -1 };
+  int w_filt[5] = { 0, -1, 1, 0, 0 };
+  double wt[5] = { 4, -1, -1, -1, -1 };
+  for (int h = h_start; h < mb_height + h_start; h++) {
+    for (int w = w_start; w < mb_width + w_start; w++) {
+      double delta_r = 0, delta_c = 0;
+      for (int i = 0; i < 5; i++) {
+        int h_idx = clamp(h + h_filt[i], h_start, h_start + mb_height - 1);
+        int w_idx = clamp(w + w_filt[i], w_start, w_start + mb_width - 1);
+        h_idx = AOMMIN(h_idx, h_max - 1);
+        w_idx = AOMMIN(w_idx, w_max - 1);
+
+        delta_r += wt[i] * (double)this_mv[h_idx * mv_stride + w_idx].row;
+        delta_c += wt[i] * (double)this_mv[h_idx * mv_stride + w_idx].col;
+      }
+      var_r += delta_r * delta_r / total;
+      var_c += delta_c * delta_c / total;
+    }
+  }
+  return var_c + var_r;
+}
+
+static void tf_do_filtering_opfl(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
+                                 const int num_frames,
+                                 const int filter_frame_idx,
+                                 const int check_show_existing,
+                                 const struct scale_factors *scale,
+                                 const double *noise_levels, int num_pels,
+                                 MV **frame_mvs, int mv_stride) {
+  // Basic information.
+  ThreadData *td = &cpi->td;
+  const YV12_BUFFER_CONFIG *const frame_to_filter = frames[filter_frame_idx];
+  const BLOCK_SIZE block_size = TF_BLOCK_SIZE;
+  const int frame_height = frame_to_filter->y_crop_height;
+  const int frame_width = frame_to_filter->y_crop_width;
+  const int mb_height = block_size_high[block_size];
+  const int mb_width = block_size_wide[block_size];
+  const int mb_rows = get_num_blocks(frame_height, mb_height);
+  const int mb_cols = get_num_blocks(frame_width, mb_width);
+  const int mi_h = mi_size_high_log2[block_size];
+  const int mi_w = mi_size_wide_log2[block_size];
+  const int num_planes = av1_num_planes(&cpi->common);
+  assert(num_planes >= 1 && num_planes <= MAX_MB_PLANE);
+
+  // Quantization factor used in temporal filtering.
+  const int q_factor = get_q(cpi);
+  // Factor to control the filering strength.
+  const int filter_strength = cpi->oxcf.algo_cfg.arnr_strength;
+
+  MACROBLOCK *const mb = &td->mb;
+  MACROBLOCKD *mbd = &td->mb.e_mbd;
+  uint8_t *input_buffer[MAX_MB_PLANE];
+  MB_MODE_INFO **input_mb_mode_info;
+  tf_save_state(mbd, &input_mb_mode_info, input_buffer, num_planes);
+  tf_setup_macroblockd(mbd, &td->tf_data, scale);
+
+  // DO motion search
+  for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
+    av1_set_mv_row_limits(&cpi->common.mi_params, &mb->mv_limits,
+                          (mb_row << mi_h), (mb_height >> MI_SIZE_LOG2),
+                          cpi->oxcf.border_in_pixels);
+    for (int mb_col = 0; mb_col < mb_cols; mb_col++) {
+      av1_set_mv_col_limits(&cpi->common.mi_params, &mb->mv_limits,
+                            (mb_col << mi_w), (mb_width >> MI_SIZE_LOG2),
+                            cpi->oxcf.border_in_pixels);
+      MV ref_mv = kZeroMv;
+      for (int frame = 0; frame < num_frames; frame++) {
+        // Motion search.
+        MV subblock_mvs[4] = { kZeroMv, kZeroMv, kZeroMv, kZeroMv };
+        int subblock_mses[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+        if (frame == filter_frame_idx) {  // Frame to be filtered.
+          // Change ref_mv sign for following frames.
+          ref_mv.row *= -1;
+          ref_mv.col *= -1;
+        } else {  // Other reference frames.
+          tf_motion_search(cpi, mb, frame_to_filter, frames[frame], block_size,
+                           mb_row, mb_col, &ref_mv, subblock_mvs,
+                           subblock_mses);
+          int h_start = (mb_row << (mi_h + 2));
+          int w_start = (mb_col << (mi_w + 2));
+          for (int h = h_start; h < h_start + mb_height; h++) {
+            for (int w = w_start; w < w_start + mb_width; w++) {
+              int sub_idx = 0;
+              if (h - h_start < mb_height / 2) {
+                if (w - w_start < mb_width / 2) {
+                  sub_idx = 0;
+                } else {
+                  sub_idx = 1;
+                }
+              } else {
+                if (w - w_start < mb_width / 2) {
+                  sub_idx = 2;
+                } else {
+                  sub_idx = 3;
+                }
+              }
+              if (h >= frames[filter_frame_idx]->y_crop_height ||
+                  w >= frames[filter_frame_idx]->y_crop_width)
+                continue;
+              frame_mvs[frame][h * mv_stride + w] = subblock_mvs[sub_idx];
+            }
+          }
+        }
+      }  // frame
+    }    // col
+  }      // rows
+  // do optical flow
+  OPFL_PARAMS opfl_params;
+  av1_init_opfl_params(&opfl_params);
+  MV_FILTER_TYPE mv_filt = MV_FILTER_MEDIAN;
+  // printf("\ncalculating optical flow... ");
+  for (int frame = 0; frame < num_frames; frame++) {
+    if (frame == filter_frame_idx) continue;
+    // printf(" frame %d,", frame);
+    optical_flow(frames[filter_frame_idx], frames[frame], filter_frame_idx,
+                 frame, frames[0]->bit_depth, &opfl_params, mv_filt,
+                 HORN_SCHUNCK, frame_mvs[frame]);
+  }
+  // do filtering
+  TemporalFilterData *const tf_data = &td->tf_data;
+  uint32_t *accum = tf_data->accum;
+  uint16_t *count = tf_data->count;
+  uint8_t *pred = tf_data->pred;
+  for (int mb_row = 0; mb_row < mb_rows; mb_row++) {
+    av1_set_mv_row_limits(&cpi->common.mi_params, &mb->mv_limits,
+                          (mb_row << mi_h), (mb_height >> MI_SIZE_LOG2),
+                          cpi->oxcf.border_in_pixels);
+    for (int mb_col = 0; mb_col < mb_cols; mb_col++) {
+      av1_set_mv_col_limits(&cpi->common.mi_params, &mb->mv_limits,
+                            (mb_col << mi_w), (mb_width >> MI_SIZE_LOG2),
+                            cpi->oxcf.border_in_pixels);
+      memset(accum, 0, num_pels * sizeof(accum[0]));
+      memset(count, 0, num_pels * sizeof(count[0]));
+      MV ref_mv = kZeroMv;
+      for (int frame = 0; frame < num_frames; frame++) {
+        if (frames[frame] == NULL) continue;
+
+        MV subblock_mvs[4] = { kZeroMv, kZeroMv, kZeroMv, kZeroMv };
+        int subblock_mses[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
+        if (frame == filter_frame_idx) {  // Frame to be filtered.
+          // Change ref_mv sign for following frames.
+          ref_mv.row *= -1;
+          ref_mv.col *= -1;
+        } else {  // Other reference frames.
+          tf_motion_search(cpi, mb, frame_to_filter, frames[frame], block_size,
+                           mb_row, mb_col, &ref_mv, subblock_mvs,
+                           subblock_mses);
+        }
+        if (frame == filter_frame_idx) {  // Frame to be filtered.
+          tf_apply_temporal_filter_self(frames[frame], mbd, block_size, mb_row,
+                                        mb_col, num_planes, accum, count);
+        } else {
+          // interpolate the pixels
+          int h_start = (mb_row << (2 + mi_h));
+          int w_start = (mb_col << (2 + mi_w));
+          MV *this_mv = frame_mvs[frame];
+          // clamp mvs
+          for (int h = h_start; h < h_start + mb_height; h++) {
+            for (int w = w_start; w < w_start + mb_width; w++) {
+              if (h >= frames[filter_frame_idx]->y_crop_height ||
+                  w >= frames[filter_frame_idx]->y_crop_width)
+                continue;
+              if (this_mv[h * mv_stride + w].row < mb->mv_limits.row_min * 8) {
+                this_mv[h * mv_stride + w].row = mb->mv_limits.row_min * 8;
+              } else if (this_mv[h * mv_stride + w].row >
+                         mb->mv_limits.row_max * 8) {
+                this_mv[h * mv_stride + w].row = mb->mv_limits.row_max * 8;
+              }
+              if (this_mv[h * mv_stride + w].col < mb->mv_limits.col_min * 8) {
+                this_mv[h * mv_stride + w].col = mb->mv_limits.col_min * 8;
+              } else if (this_mv[h * mv_stride + w].col >
+                         mb->mv_limits.col_max * 8) {
+                this_mv[h * mv_stride + w].col = mb->mv_limits.col_max * 8;
+              }
+            }
+          }
+
+          int sub_idx = 0;
+          const BLOCK_SIZE subblock_size = ss_size_lookup[block_size][1][1];
+
+          int sameMV = 1;
+          const double lambda = 20;
+
+          for (sub_idx = 1; sub_idx < 4; sub_idx++) {
+            if (subblock_mvs[sub_idx].row != subblock_mvs[0].row ||
+                subblock_mvs[sub_idx].col != subblock_mvs[0].col ||
+                subblock_mses[sub_idx] != subblock_mses[0]) {
+              sameMV = 0;
+              break;
+            }
+          }
+          if (sameMV) {
+            // build predictor
+            tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
+                               num_planes, scale, subblock_mvs, pred);
+            int stride = frames[filter_frame_idx]->y_stride;
+            unsigned int sse;
+            unsigned int error = cpi->fn_ptr[block_size].vf(
+                frames[filter_frame_idx]->y_buffer + h_start * stride + w_start,
+                stride, pred, mb_width, &sse);
+            int this_mse = DIVIDE_AND_ROUND(error, mb_width * mb_height);
+
+            tf_build_predictor_opfl(frames[frame], mbd, block_size, mb_row,
+                                    mb_col, num_planes, scale, this_mv, h_start,
+                                    w_start, mv_stride, pred);
+
+            double mf_var = get_mf_var(
+                this_mv, h_start, w_start, mv_stride, mb_height, mb_width,
+                frames[frame]->y_crop_height, frames[frame]->y_crop_width);
+
+            error = cpi->fn_ptr[block_size].vf(
+                frames[filter_frame_idx]->y_buffer + h_start * stride + w_start,
+                stride, pred, mb_width, &sse);
+            int new_mse = DIVIDE_AND_ROUND(error, mb_width * mb_height);
+
+            // if ((double)new_mse + lambda * mf_var < (double)this_mse) {
+            if (new_mse * 16 < this_mse * 9) {
+              sub_idx = 0;
+              for (int h = h_start; h < h_start + mb_height;
+                   h += mb_height / 2) {
+                for (int w = w_start; w < w_start + mb_width;
+                     w += mb_width / 2) {
+                  subblock_mses[sub_idx] = new_mse;
+                  int mv_r = 0, mv_c = 0, countmv = 0;
+                  for (int hh = 0; hh < mb_height / 2; hh++) {
+                    for (int ww = 0; ww < mb_width / 2; ww++) {
+                      int h_idx = h + hh;
+                      int w_idx = w + ww;
+                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
+                          w_idx >= frames[filter_frame_idx]->y_crop_width)
+                        continue;
+                      mv_r += this_mv[h_idx * mv_stride + w_idx].row;
+                      mv_c += this_mv[h_idx * mv_stride + w_idx].col;
+                      countmv++;
+                    }
+                  }
+                  if (countmv > 0) {
+                    subblock_mvs[sub_idx].row = DIVIDE_AND_ROUND(mv_r, countmv);
+                    subblock_mvs[sub_idx].col = DIVIDE_AND_ROUND(mv_c, countmv);
+                  }
+
+                  sub_idx++;
+                }
+              }
+            } else {
+              sub_idx = 0;
+              for (int h = h_start; h < h_start + mb_height;
+                   h += mb_height / 2) {
+                for (int w = w_start; w < w_start + mb_width;
+                     w += mb_width / 2) {
+                  for (int hh = 0; hh < mb_height / 2; hh++) {
+                    for (int ww = 0; ww < mb_width / 2; ww++) {
+                      int h_idx = h + hh;
+                      int w_idx = w + ww;
+                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
+                          w_idx >= frames[filter_frame_idx]->y_crop_width)
+                        continue;
+                      this_mv[h_idx * mv_stride + w_idx] =
+                          subblock_mvs[sub_idx];
+                    }
+                  }
+
+                  sub_idx++;
+                }
+              }
+            }
+          } else {
+            // get sub mse and avg mv
+            sub_idx = 0;
+            for (int h = h_start; h < h_start + mb_height; h += mb_height / 2) {
+              for (int w = w_start; w < w_start + mb_width; w += mb_width / 2) {
+                // build predictor
+                tf_build_predictor(frames[frame], mbd, block_size, mb_row,
+                                   mb_col, num_planes, scale, subblock_mvs,
+                                   pred);
+                int stride = frames[filter_frame_idx]->y_stride;
+                unsigned int sse;
+                unsigned int error = cpi->fn_ptr[subblock_size].vf(
+                    frames[filter_frame_idx]->y_buffer + h * stride + w, stride,
+                    pred + (h - h_start) * mb_width + w - w_start, mb_width,
+                    &sse);
+                int this_mse =
+                    DIVIDE_AND_ROUND(error, mb_width * mb_height / 4);
+
+                tf_build_predictor_opfl(frames[frame], mbd, block_size, mb_row,
+                                        mb_col, num_planes, scale, this_mv,
+                                        h_start, w_start, mv_stride, pred);
+
+                double mf_var = get_mf_var(
+                    this_mv, h, w, mv_stride, mb_height / 2, mb_width / 2,
+                    frames[frame]->y_crop_height, frames[frame]->y_crop_width);
+
+                error = cpi->fn_ptr[subblock_size].vf(
+                    frames[filter_frame_idx]->y_buffer + h * stride + w, stride,
+                    pred + (h - h_start) * mb_width + w - w_start, mb_width,
+                    &sse);
+                int new_mse = DIVIDE_AND_ROUND(error, mb_width * mb_height / 4);
+
+                // if ((double)new_mse + lambda * mf_var > (double)this_mse) {
+                if (new_mse * 16 >= this_mse * 12) {
+                  for (int hh = 0; hh < mb_height / 2; hh++) {
+                    for (int ww = 0; ww < mb_width / 2; ww++) {
+                      int h_idx = h + hh;
+                      int w_idx = w + ww;
+                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
+                          w_idx >= frames[filter_frame_idx]->y_crop_width)
+                        continue;
+                      this_mv[h_idx * mv_stride + w_idx] =
+                          subblock_mvs[sub_idx];
+                    }
+                  }
+                } else {
+                  subblock_mses[sub_idx] = new_mse;
+                  int mv_r = 0, mv_c = 0, countmv = 0;
+                  for (int hh = 0; hh < mb_height / 2; hh++) {
+                    for (int ww = 0; ww < mb_width / 2; ww++) {
+                      int h_idx = h + hh;
+                      int w_idx = w + ww;
+                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
+                          w_idx >= frames[filter_frame_idx]->y_crop_width)
+                        continue;
+                      mv_r += this_mv[h_idx * mv_stride + w_idx].row;
+                      mv_c += this_mv[h_idx * mv_stride + w_idx].col;
+                      countmv++;
+                    }
+                  }
+                  if (countmv > 0) {
+                    subblock_mvs[sub_idx].row = DIVIDE_AND_ROUND(mv_r, countmv);
+                    subblock_mvs[sub_idx].col = DIVIDE_AND_ROUND(mv_c, countmv);
+                  }
+                }
+                sub_idx++;
+              }
+            }
+          }
+
+          tf_build_predictor_opfl(frames[frame], mbd, block_size, mb_row,
+                                  mb_col, num_planes, scale, this_mv, h_start,
+                                  w_start, mv_stride, pred);
+
+          if (is_frame_high_bitdepth(frame_to_filter)) {  // for high bit-depth
+#if CONFIG_AV1_HIGHBITDEPTH
+            if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5) {
+              av1_highbd_apply_temporal_filter(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+            } else {
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+              av1_apply_temporal_filter_c(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+#if CONFIG_AV1_HIGHBITDEPTH
+            }
+#endif              // CONFIG_AV1_HIGHBITDEPTH
+          } else {  // for 8-bit
+            if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5) {
+              av1_apply_temporal_filter(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+            } else {
+              av1_apply_temporal_filter_c(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+            }
+          }
+        }
+      }
+      tf_normalize_filtered_frame(mbd, block_size, mb_row, mb_col, num_planes,
+                                  accum, count, &cpi->alt_ref_buffer);
+      if (check_show_existing) {
+        FRAME_DIFF *diff = &td->tf_data.diff;
+        const int y_height = mb_height >> mbd->plane[0].subsampling_y;
+        const int y_width = mb_width >> mbd->plane[0].subsampling_x;
+        const int source_y_stride = frame_to_filter->y_stride;
+        const int filter_y_stride = cpi->alt_ref_buffer.y_stride;
+        const int source_offset =
+            mb_row * y_height * source_y_stride + mb_col * y_width;
+        const int filter_offset =
+            mb_row * y_height * filter_y_stride + mb_col * y_width;
+        unsigned int sse = 0;
+        cpi->fn_ptr[block_size].vf(frame_to_filter->y_buffer + source_offset,
+                                   source_y_stride,
+                                   cpi->alt_ref_buffer.y_buffer + filter_offset,
+                                   filter_y_stride, &sse);
+        diff->sum += sse;
+        diff->sse += sse * sse;
+      }
+    }
+  }
+  tf_restore_state(mbd, input_mb_mode_info, input_buffer, num_planes);
+}
+
 /*!\brief Setups the frame buffer for temporal filtering. This fuction
  * determines how many frames will be used for temporal filtering and then
  * groups them into a buffer. This function will also estimate the noise level
@@ -1302,9 +1777,24 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   }
   tf_alloc_and_reset_data(tf_data, num_pels, is_highbitdepth);
 
-  // Perform temporal filtering process.
-  tf_do_filtering(cpi, frames, num_frames_for_filtering, filter_frame_idx,
-                  check_show_existing, &sf, noise_levels, num_pels);
+  MV **frame_mvs = aom_calloc(num_frames_for_filtering, sizeof(MV *));
+  for (int k = 0; k < num_frames_for_filtering; k++) {
+    frame_mvs[k] = aom_calloc(
+        frames[filter_frame_idx]->y_height * frames[filter_frame_idx]->y_width,
+        sizeof(MV));
+  }
+
+  // // Perform temporal filtering process.
+  // tf_do_filtering(cpi, frames, num_frames_for_filtering, filter_frame_idx,
+  //                 check_show_existing, &sf, noise_levels, num_pels);
+  tf_do_filtering_opfl(cpi, frames, num_frames_for_filtering, filter_frame_idx,
+                       check_show_existing, &sf, noise_levels, num_pels,
+                       frame_mvs, frames[filter_frame_idx]->y_crop_width);
+
+  for (int k = 0; k < num_frames_for_filtering; k++) {
+    aom_free(frame_mvs[k]);
+  }
+  aom_free(frame_mvs);
 
   // Deallocate temporal filter buffers.
   tf_dealloc_data(tf_data, is_highbitdepth);

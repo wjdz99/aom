@@ -10,7 +10,10 @@
  */
 #include <math.h>
 #include <limits.h>
+#include <stdint.h>
 
+#include "aom_dsp/aom_dsp_common.h"
+#include "av1/common/filter.h"
 #include "config/aom_config.h"
 #include "av1/common/av1_common_int.h"
 #include "av1/encoder/encoder.h"
@@ -21,7 +24,15 @@
 #include "aom_mem/aom_mem.h"
 
 #if CONFIG_OPTICAL_FLOW_API
+void av1_init_opfl_params(OPFL_PARAMS *opfl_params) {
+  opfl_params->pyramid_levels = OPFL_PYRAMID_LEVELS;
+  opfl_params->warping_steps = OPFL_WARPING_STEPS;
+  opfl_params->lk_params = NULL;
+}
 
+void av1_init_lk_params(LK_PARAMS *lk_params) {
+  lk_params->window_size = OPFL_WINDOW_SIZE;
+}
 // Helper function to determine whether a frame is encoded with high bit-depth.
 static INLINE int is_frame_high_bitdepth(const YV12_BUFFER_CONFIG *frame) {
   return (frame->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
@@ -31,11 +42,6 @@ static INLINE int is_frame_high_bitdepth(const YV12_BUFFER_CONFIG *frame) {
 static INLINE int is_sparse(const OPFL_PARAMS *opfl_params) {
   return (opfl_params->flags & OPFL_FLAG_SPARSE) ? 1 : 0;
 }
-
-typedef struct LOCALMV {
-  double row;
-  double col;
-} LOCALMV;
 
 void gradients_over_window(const YV12_BUFFER_CONFIG *frame,
                            const YV12_BUFFER_CONFIG *ref_frame,
@@ -148,8 +154,8 @@ void temporal_gradient(const YV12_BUFFER_CONFIG *frame,
   // efficient to apply the filter only at 1 pixel instead of 8*8 pixels.
   const int w = 8;
   const int h = 8;
-  uint8_t pred1[25];
-  uint8_t pred2[25];
+  uint8_t pred1[64];
+  uint8_t pred2[64];
 
   const int y = (int)y_coord;
   const int x = (int)x_coord;
@@ -422,56 +428,51 @@ void filter_mvs(const MV_FILTER_TYPE mv_filter, const int frame_height,
     for (int y = 0; y < frame_height; y++) {
       for (int x = 0; x < frame_width; x++) {
         int center_idx = y * frame_width + x;
-        if (fabs(localmvs[center_idx].row) > 0 ||
-            fabs(localmvs[center_idx].col) > 0) {
-          int i = 0;
-          double filtered_row = 0;
-          double filtered_col = 0;
-          for (int yy = y - n / 2; yy <= y + n / 2; yy++) {
-            for (int xx = x - n / 2; xx <= x + n / 2; xx++) {
-              int yvalue = yy + y;
-              int xvalue = xx + x;
-              // copied pixels outside the boundary
-              if (yvalue < 0) yvalue = 0;
-              if (xvalue < 0) xvalue = 0;
-              if (yvalue >= frame_height) yvalue = frame_height - 1;
-              if (xvalue >= frame_width) xvalue = frame_width - 1;
-              int index = yvalue * frame_width + xvalue;
-              if (mv_filter == MV_FILTER_SMOOTH) {
-                filtered_row += mvs[index].row * gaussian_filter[i];
-                filtered_col += mvs[index].col * gaussian_filter[i];
-              } else if (mv_filter == MV_FILTER_MEDIAN) {
-                mvrows[i] = mvs[index].row;
-                mvcols[i] = mvs[index].col;
-              }
-              i++;
+        int i = 0;
+        double filtered_row = 0;
+        double filtered_col = 0;
+        for (int yy = y - n / 2; yy <= y + n / 2; yy++) {
+          for (int xx = x - n / 2; xx <= x + n / 2; xx++) {
+            int yvalue = yy;
+            int xvalue = xx;
+            // copied pixels outside the boundary
+            if (yvalue < 0) yvalue = 0;
+            if (xvalue < 0) xvalue = 0;
+            if (yvalue >= frame_height) yvalue = frame_height - 1;
+            if (xvalue >= frame_width) xvalue = frame_width - 1;
+            int index = yvalue * frame_width + xvalue;
+            if (mv_filter == MV_FILTER_SMOOTH) {
+              filtered_row += mvs[index].row * gaussian_filter[i];
+              filtered_col += mvs[index].col * gaussian_filter[i];
+            } else if (mv_filter == MV_FILTER_MEDIAN) {
+              mvrows[i] = mvs[index].row;
+              mvcols[i] = mvs[index].col;
             }
+            i++;
           }
-
-          MV mv = mvs[center_idx];
-          if (mv_filter == MV_FILTER_SMOOTH) {
-            mv.row = (int16_t)filtered_row;
-            mv.col = (int16_t)filtered_col;
-          } else if (mv_filter == MV_FILTER_MEDIAN) {
-            qsort(mvrows, 25, sizeof(mv.row), cmpfunc);
-            qsort(mvcols, 25, sizeof(mv.col), cmpfunc);
-            mv.row = mvrows[25 / 2];
-            mv.col = mvcols[25 / 2];
-          }
-          LOCALMV localmv = { .row = ((double)mv.row) / 8,
-                              .col = ((double)mv.row) / 8 };
-          localmvs[y * frame_width + x] = localmv;
-          // if mvs array is immediately updated here, then the result may
-          // propagate to other pixels.
         }
+
+        MV mv = mvs[center_idx];
+        if (mv_filter == MV_FILTER_SMOOTH) {
+          mv.row = (int16_t)filtered_row;
+          mv.col = (int16_t)filtered_col;
+        } else if (mv_filter == MV_FILTER_MEDIAN) {
+          qsort(mvrows, 25, sizeof(mvrows[0]), cmpfunc);
+          qsort(mvcols, 25, sizeof(mvcols[0]), cmpfunc);
+          mv.row = mvrows[25 / 2];
+          mv.col = mvcols[25 / 2];
+        }
+        LOCALMV localmv = { .row = ((double)mv.row) / 8,
+                            .col = ((double)mv.col) / 8 };
+        localmvs[y * frame_width + x] = localmv;
+        // if mvs array is immediately updated here, then the result may
+        // propagate to other pixels.
       }
     }
     for (int i = 0; i < frame_height * frame_width; i++) {
-      if (fabs(localmvs[i].row) > 0 || fabs(localmvs[i].col) > 0) {
-        MV mv = { .row = (int16_t)round(8 * localmvs[i].row),
-                  .col = (int16_t)round(8 * localmvs[i].col) };
-        mvs[i] = mv;
-      }
+      MV mv = { .row = (int16_t)round(8 * localmvs[i].row),
+                .col = (int16_t)round(8 * localmvs[i].col) };
+      mvs[i] = mv;
     }
   }
 }
@@ -574,22 +575,64 @@ void warp_back_frame(YV12_BUFFER_CONFIG *warped_frame,
       temp = 0;
       for (int hh = 0; hh < 2; hh++) {
         double weighth = hh ? (fracy) : (1 - fracy);
-        if (h == fh - 1) {
-          if (hh == 1) continue;
-          weighth = 1 - hh;
-        }
         for (int ww = 0; ww < 2; ww++) {
           double weightw = ww ? (fracx) : (1 - fracx);
-          if (w == fw - 1) {
-            if (ww == 1) continue;
-            weightw = 1 - ww;
-          }
-          temp += (double)src_buf[(hh + floory) * src_fs + ww + floorx] *
-                  weightw * weighth;
+          int y = floory + hh;
+          int x = floorx + ww;
+          y = clamp(y, 0, fh);
+          x = clamp(x, 0, fw);
+          temp += (double)src_buf[y * src_fs + x] * weightw * weighth;
         }
       }
       temp = fclamp(temp, 0, 255);
       warped_buf[h * warped_fs + w] = (uint8_t)round(temp);
+    }
+  }
+}
+
+void warp_back_frame_intp(YV12_BUFFER_CONFIG *warped_frame,
+                          const YV12_BUFFER_CONFIG *src_frame, LOCALMV *mvs,
+                          int mv_stride) {
+  int w, h;
+  int fw = src_frame->y_crop_width;
+  int fh = src_frame->y_crop_height;
+  int warped_fs = warped_frame->y_stride;
+  uint8_t *warped_buf = warped_frame->y_buffer;
+  int blk = 2;
+  uint8_t temp_blk[4];
+
+  const int is_intrabc = 0;  // Is intra-copied?
+  const int is_high_bitdepth = is_frame_high_bitdepth(src_frame);
+  const int subsampling_x = 0, subsampling_y = 0;  // for y-buffer
+  const int_interpfilters interp_filters =
+      av1_broadcast_interp_filter(MULTITAP_SHARP2);
+  const int plane = 0;  // y-plane
+  const struct buf_2d ref_buf2 = { NULL, src_frame->y_buffer,
+                                   src_frame->y_crop_width,
+                                   src_frame->y_crop_height,
+                                   src_frame->y_stride };
+  int bit_depth = src_frame->bit_depth;
+  struct scale_factors scale;
+  av1_setup_scale_factors_for_frame(
+      &scale, src_frame->y_crop_width, src_frame->y_crop_height,
+      src_frame->y_crop_width, src_frame->y_crop_height);
+
+  for (h = 0; h < fh; h++) {
+    for (w = 0; w < fw; w++) {
+      InterPredParams inter_pred_params;
+      av1_init_inter_params(&inter_pred_params, blk, blk, h, w, subsampling_x,
+                            subsampling_y, bit_depth, is_high_bitdepth,
+                            is_intrabc, &scale, &ref_buf2, interp_filters);
+      inter_pred_params.interp_filter_params[0] =
+          &av1_interp_filter_params_list[interp_filters.as_filters.x_filter];
+      inter_pred_params.interp_filter_params[1] =
+          &av1_interp_filter_params_list[interp_filters.as_filters.y_filter];
+      inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
+      MV newmv = { .row = (int16_t)round((mvs[h * mv_stride + w].row) * 8),
+                   .col = (int16_t)round((mvs[h * mv_stride + w].col) * 8) };
+      av1_enc_build_one_inter_predictor(temp_blk, blk, &newmv,
+                                        &inter_pred_params);
+      warped_buf[h * warped_fs + w] = temp_blk[0];
     }
   }
 }
@@ -619,7 +662,7 @@ void get_frame_gradients(const YV12_BUFFER_CONFIG *from_frame,
         // if we want to make this block dependent, need to extend the
         // boundaries using other initializations.
         idx = w + k - hleft;
-        idx = clamp(idx, 0, fw);
+        idx = clamp(idx, 0, fw - 1);
         ix[h * grad_stride + w] += filter[k] * 0.5 *
                                    ((double)from_buf[h * from_fs + idx] +
                                     (double)to_buf[h * to_fs + idx]);
@@ -630,7 +673,7 @@ void get_frame_gradients(const YV12_BUFFER_CONFIG *from_frame,
         // if we want to make this block dependent, need to extend the
         // boundaries using other initializations.
         idx = h + k - hleft;
-        idx = clamp(idx, 0, fh);
+        idx = clamp(idx, 0, fh - 1);
         iy[h * grad_stride + w] += filter[k] * 0.5 *
                                    ((double)from_buf[idx * from_fs + w] +
                                     (double)to_buf[idx * to_fs + w]);
@@ -643,13 +686,16 @@ void get_frame_gradients(const YV12_BUFFER_CONFIG *from_frame,
 }
 
 void solve_horn_schunck(double *ix, double *iy, double *it, int grad_stride,
-                        int width, int height, LOCALMV *mvs, int mv_stride) {
+                        int width, int height, LOCALMV *init_mvs,
+                        int init_mv_stride, LOCALMV *mvs, int mv_stride) {
   // TODO(bohanli): May just need to allocate the buffers once per optical flow
   // calculation
   int *row_pos = aom_calloc(width * height * 28, sizeof(int));
   int *col_pos = aom_calloc(width * height * 28, sizeof(int));
   double *values = aom_calloc(width * height * 28, sizeof(double));
   double *mv_vec = aom_calloc(width * height * 2, sizeof(double));
+  double *mv_init_vec = aom_calloc(width * height * 2, sizeof(double));
+  double *temp_b = aom_calloc(width * height * 2, sizeof(double));
   double *b = aom_calloc(width * height * 2, sizeof(double));
 
   // the location idx for neighboring pixels, k < 4 are the 4 direct neighbors
@@ -661,6 +707,15 @@ void solve_horn_schunck(double *ix, double *iy, double *it, int grad_stride,
   SPARSE_MTX A;
   int c = 0;
   double lambda = 100;
+
+  for (w = 0; w < width; w++) {
+    for (h = 0; h < height; h++) {
+      mv_init_vec[w * height + h] = init_mvs[h * init_mv_stride + w].col;
+      mv_init_vec[w * height + h + offset] =
+          init_mvs[h * init_mv_stride + w].row;
+    }
+  }
+
   // get matrix A
   for (w = 0; w < width; w++) {
     for (h = 0; h < height; h++) {
@@ -672,11 +727,11 @@ void solve_horn_schunck(double *ix, double *iy, double *it, int grad_stride,
       double cor_w = center_num_direct * center_num_direct + center_num_direct;
       row_pos[c] = center_idx;
       col_pos[c] = center_idx;
-      values[c] = lambda * cor_w + pow(ix[h * grad_stride + w], 2.0);
+      values[c] = lambda * cor_w;
       c++;
       row_pos[c] = center_idx + offset;
       col_pos[c] = center_idx + offset;
-      values[c] = lambda * cor_w + pow(iy[h * grad_stride + w], 2.0);
+      values[c] = lambda * cor_w;
       c++;
       // other entries from direct neighbors
       for (k = 0; k < 4; k++) {
@@ -737,13 +792,22 @@ void solve_horn_schunck(double *ix, double *iy, double *it, int grad_stride,
       }
     }
   }
+  av1_init_sparse_mtx(row_pos, col_pos, values, c, 2 * width * height,
+                      2 * width * height, &A);
+  // substract init mv part from b
+  av1_mtx_vect_multi_left(&A, mv_init_vec, temp_b, 2 * width * height);
+  for (int i = 0; i < 2 * width * height; i++) {
+    b[i] = -temp_b[i];
+  }
+  av1_free_sparse_mtx_elems(&A);
+
   // add cross terms to A and modify b with ExEt / EyEt
   for (w = 0; w < width; w++) {
     for (h = 0; h < height; h++) {
       int curidx = w * height + h;
       // modify b
-      b[curidx] = -ix[h * grad_stride + w] * it[h * grad_stride + w];
-      b[curidx + offset] = -iy[h * grad_stride + w] * it[h * grad_stride + w];
+      b[curidx] += -ix[h * grad_stride + w] * it[h * grad_stride + w];
+      b[curidx + offset] += -iy[h * grad_stride + w] * it[h * grad_stride + w];
       // add cross terms to A
       row_pos[c] = curidx;
       col_pos[c] = curidx + offset;
@@ -755,8 +819,24 @@ void solve_horn_schunck(double *ix, double *iy, double *it, int grad_stride,
       c++;
     }
   }
+  // Add diagonal terms to A
+  for (int i = 0; i < c; i++) {
+    if (row_pos[i] == col_pos[i]) {
+      if (row_pos[i] < offset) {
+        w = row_pos[i] / height;
+        h = row_pos[i] % height;
+        values[i] += pow(ix[h * grad_stride + w], 2);
+      } else {
+        w = (row_pos[i] - offset) / height;
+        h = (row_pos[i] - offset) % height;
+        values[i] += pow(iy[h * grad_stride + w], 2);
+      }
+    }
+  }
+
   av1_init_sparse_mtx(row_pos, col_pos, values, c, 2 * width * height,
                       2 * width * height, &A);
+
   // solve for the mvs
   av1_conjugate_gradient_sparse(&A, b, 2 * width * height, mv_vec);
   // copy mvs
@@ -811,13 +891,19 @@ void horn_schunck(const YV12_BUFFER_CONFIG *from_frame,
   double *iy = aom_calloc(fw * fh, sizeof(double));
   double *it = aom_calloc(fw * fh, sizeof(double));
   // For each warping step
-  for (k = 0; k < opfl_params->warping_steps; k++) {
+  for (k = 0; k < AOMMIN(opfl_params->warping_steps, 10); k++) {
     // warp from_frame with init_mv
-    warp_back_frame(&temp_frame, to_frame, init_mvs, init_mv_stride);
+    if (level == 0) {
+      warp_back_frame_intp(&temp_frame, to_frame, init_mvs, init_mv_stride);
+    } else {
+      warp_back_frame(&temp_frame, to_frame, init_mvs, init_mv_stride);
+    }
+
     // calculate frame gradients
     get_frame_gradients(from_frame, &temp_frame, ix, iy, it, fw);
     // form linear equations and solve mvs
-    solve_horn_schunck(ix, iy, it, fw, fw, fh, refine_mvs, fw);
+    solve_horn_schunck(ix, iy, it, fw, fw, fh, init_mvs, init_mv_stride,
+                       refine_mvs, fw);
     // update init_mvs
     for (h = 0; h < fh; h++) {
       for (w = 0; w < fw; w++) {
@@ -830,12 +916,22 @@ void horn_schunck(const YV12_BUFFER_CONFIG *from_frame,
   if (level != 0) {
     for (h = 0; h < mv_height; h++) {
       for (w = 0; w < mv_width; w++) {
-        mvs[h * mv_stride + w].row =
-            init_mvs[h / factor * init_mv_stride + w / factor].row *
-            (double)factor;
-        mvs[h * mv_stride + w].col =
-            init_mvs[h / factor * init_mv_stride + w / factor].col *
-            (double)factor;
+        if (fabs(init_mvs[(h / factor) * init_mv_stride + (w / factor)].row) <
+            0.001) {
+          mvs[h * mv_stride + w].row = 0;
+        } else {
+          mvs[h * mv_stride + w].row =
+              init_mvs[(h / factor) * init_mv_stride + (w / factor)].row *
+              (double)factor;
+        }
+        if (fabs(init_mvs[(h / factor) * init_mv_stride + (w / factor)].col) <
+            0.001) {
+          mvs[h * mv_stride + w].col = 0;
+        } else {
+          mvs[h * mv_stride + w].col =
+              init_mvs[(h / factor) * init_mv_stride + (w / factor)].col *
+              (double)factor;
+        }
       }
     }
   }
@@ -905,7 +1001,7 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
     num_ref_corners = detect_corners(from_frame, to_frame, maxcorners,
                                      ref_corners, bit_depth);
   }
-  const int stop_level = 0;
+  const int stop_level = 2;
   for (int i = levels - 1; i >= stop_level; i--) {
     if (method == LUCAS_KANADE) {
       assert(is_sparse(opfl_params));
@@ -964,6 +1060,9 @@ void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
 
   // Initialize double mvs based on input parameter mvs array
   LOCALMV *localmvs = aom_malloc(frame_height * frame_width * sizeof(LOCALMV));
+
+  filter_mvs(MV_FILTER_SMOOTH, frame_height, frame_width, localmvs, mvs);
+
   for (int i = 0; i < frame_width * frame_height; i++) {
     MV mv = mvs[i];
     LOCALMV localmv = { .row = ((double)mv.row) / 8,
@@ -978,6 +1077,10 @@ void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
   for (int j = 0; j < frame_height; j++) {
     for (int i = 0; i < frame_width; i++) {
       int idx = j * frame_width + i;
+      if (j + localmvs[idx].row < 0 || j + localmvs[idx].row >= frame_height ||
+          i + localmvs[idx].col < 0 || i + localmvs[idx].col >= frame_width) {
+        continue;
+      }
       MV mv = { .row = (int16_t)round(8 * localmvs[idx].row),
                 .col = (int16_t)round(8 * localmvs[idx].col) };
       mvs[idx] = mv;

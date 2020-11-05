@@ -20,7 +20,7 @@ extern "C" {
 
 #if CONFIG_OPTICAL_FLOW_API
 
-#define MAX_CG_SP_ITER 200
+#define MAX_CG_SP_ITER 100
 
 typedef struct {
   int n_elem;  // number of non-zero elements

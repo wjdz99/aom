@@ -12,6 +12,8 @@
 #ifndef AOM_AV1_ENCODER_TEMPORAL_FILTER_H_
 #define AOM_AV1_ENCODER_TEMPORAL_FILTER_H_
 
+#include <stdint.h>
+#include "av1/common/blockd.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
