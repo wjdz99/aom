@@ -884,8 +884,9 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
     if (sf->intra_sf.intra_pruning_with_hog &&
         !intra_search_state->dir_mode_skip_mask_ready) {
       // Need to adjust the threshold for different speeds.
-      const float intra_pruning_with_hog_thresh = -1.2f;
-      prune_intra_mode_with_hog(x, bsize, intra_pruning_with_hog_thresh,
+      const float thresh[2] = { -1.2f, -1.8f };
+      prune_intra_mode_with_hog(x, bsize,
+                                thresh[sf->intra_sf.intra_pruning_with_hog - 1],
                                 intra_search_state->directional_mode_skip_mask);
       intra_search_state->dir_mode_skip_mask_ready = 1;
     }
