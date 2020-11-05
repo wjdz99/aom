@@ -44,3 +44,6 @@ if(CMAKE_C_COMPILER_ID MATCHES "Clang")
     require_linker_flag("--rtlib=compiler-rt -lgcc_s")
   endif()
 endif()
+
+# Increase gcse memory allocation to allow const/copy propagation
+require_compiler_flag("--param max-gcse-memory=400000000" YES)
