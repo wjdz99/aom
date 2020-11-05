@@ -165,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f4f8f40_acae8f99",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-11-05T12:29:20Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nEven though tpl module is not invoked (for lag_in_frames \u003c\u003d 1), we need to initialize \u0027is_valid\u0027 flag in tpl_frame structure to exit from the modules which consume tpl data. However, it might be possible to avoid majority of setup_tpl_buffers(), as the \u0027cpi-\u003etpl_stats_buffer\u0027 is already initialized to zero (hence \u0027is_valid\u0027 flag as well). But the assignment (tpl_data-\u003etpl_frame \u003d \u0026tpl_data-\u003etpl_stats_buffer[REF_FRAMES + 1]) is needed as \u0027tpl_data-\u003etpl_frame\u0027 is accessed during consumption.\n\nFollowing are some of the modules, where validity of tpl_data is checked using \u0027is_valid\u0027 flag.\n1) init_ref_frame_space()\n2) av1_get_tpl_stats_sb() \n\nRegards,\nVenkata.",
+      "parentUuid": "07f8f54b_c01101f5",
+      "range": {
+        "startLine": 138,
+        "startChar": 5,
+        "endLine": 138,
+        "endChar": 54
+      },
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d678470_9bf8dded",
