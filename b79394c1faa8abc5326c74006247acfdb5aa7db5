@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh,\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "b79394c1faa8abc5326c74006247acfdb5aa7db5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f7dd349_489715ec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-05T01:33:00Z",
+      "side": 1,
+      "message": "Jingning, would you like to take a look?",
+      "revId": "b79394c1faa8abc5326c74006247acfdb5aa7db5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

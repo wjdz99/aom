@@ -141,6 +141,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07f8f54b_c01101f5",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-05T01:33:00Z",
+      "side": 1,
+      "message": "Thank you for the careful analysis. This is a very subtle point!\n\nDo you think we can skip the setup_tpl_buffers() call completely if lag_in_frames \u003c\u003d 1?\n\nSince you moved the statement\n\n    tpl_data-\u003etpl_frame \u003d \u0026tpl_data-\u003etpl_stats_buffer[REF_FRAMES + 1];\n\nbefore this early return, I assume some of the fields in tpl_data still need to be set up, even though tpl analysis won\u0027t be performed. Do I understand this correctly?",
+      "parentUuid": "faaadf41_d1811a28",
+      "range": {
+        "startLine": 138,
+        "startChar": 5,
+        "endLine": 138,
+        "endChar": 54
+      },
+      "revId": "3119fa778f79a735b848f1e33863551c938cbf0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d678470_9bf8dded",
