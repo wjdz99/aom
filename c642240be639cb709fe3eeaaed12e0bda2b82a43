@@ -39,6 +39,30 @@
       },
       "revId": "c642240be639cb709fe3eeaaed12e0bda2b82a43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "023d6b32_18db8610",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 887,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-05T20:53:22Z",
+      "side": 1,
+      "message": "It is in prune_intra_mode_with_hog().",
+      "parentUuid": "800d5c8c_de6170a9",
+      "range": {
+        "startLine": 887,
+        "startChar": 6,
+        "endLine": 887,
+        "endChar": 46
+      },
+      "revId": "c642240be639cb709fe3eeaaed12e0bda2b82a43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
