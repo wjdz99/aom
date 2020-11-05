@@ -304,6 +304,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     (void)num_planes;
 #endif
 
+    if (!dry_run && !x->skip) {
+
+    //get_training_data(cpi, x, bsize, 0, mi_row, mi_col);
+      printf("get training\n");
+    }
     av1_encode_sb(cpi, x, bsize, dry_run);
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
