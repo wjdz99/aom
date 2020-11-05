@@ -1695,9 +1695,17 @@ static int compute_quantized_wienerns_filter(const uint8_t *dgd,
   for (int i = v_beg; i < v_end; ++i) {
     for (int j = h_beg; j < h_end; ++j) {
 #if WIENER_NONSEP_MASK
-      if (rui->txskip_mask[(yy >> MIN_TX_SIZE_LOG2) * rui->mask_stride +
-                           (xx >> MIN_TX_SIZE_LOG2)])
-        continue;
+      int skip = 1;
+      int dd = (LOOKAROUND_WIN - 1) / 2;
+      for (int yy = i - dd; yy <= i + dd; ++yy) {
+        for (int xx = j - dd; xx <= j + dd; ++xx) {
+          int my = yy >> MIN_TX_SIZE_LOG2, mx = xx >> MIN_TX_SIZE_LOG2;
+          if (my >= 0 && my < rui->mask_height && mx >= 0 &&
+              mx < rui->mask_stride)
+            skip &= rui->txskip_mask[my * rui->mask_stride + mx];
+        }
+      }
+      if (skip) continue;
 #endif  // WIENER_NONSEP_MASK
       int dgd_id = i * dgd_stride + j;
       int src_id = i * src_stride + j;
