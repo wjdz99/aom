@@ -185,6 +185,11 @@ extern "C" {
 
 // Apply masking for nonseparable Wiener restoration
 #define WIENER_NONSEP_MASK 0
+#if WIENER_NONSEP_MASK
+// Skip a pixel if all pixels in an NxN window around it have zero transform
+// coefficients
+#define LOOKAROUND_WIN 1
+#endif  // WIENER_NONSEP_MASK
 
 #define WIENERNS_MAX 20
 
