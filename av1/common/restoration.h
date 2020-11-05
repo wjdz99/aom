@@ -183,6 +183,9 @@ extern "C" {
 #define WIENERNS_UV_BRD 0  // Max offset for luma used for chorma
 #endif                     // CONFIG_WIENER_NONSEP_CROSS_FILT
 
+// Apply masking for nonseparable Wiener restoration
+#define WIENER_NONSEP_MASK 0
+
 #define WIENERNS_MAX 20
 
 #define WIENERNS_ROW_ID 0
@@ -250,6 +253,14 @@ typedef struct {
 #endif  // CONFIG_LOOP_RESTORE_CNN
 #if CONFIG_WIENER_NONSEP
   WienerNonsepInfo wiener_nonsep_info;
+#if WIENER_NONSEP_MASK
+  // pointer to tx_skip array at the first pixel of the current RU
+  const uint8_t *txskip_mask;
+  int mask_stride;
+  int mask_height;
+  int v_start;
+  int h_start;
+#endif  // WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   const uint8_t *luma;
   int luma_stride;
@@ -415,6 +426,12 @@ typedef struct FilterFrameCtxt {
   FRAME_TYPE frame_type;
 #if CONFIG_WIENER_NONSEP
   int plane;
+#if WIENER_NONSEP_MASK
+  // pointer to tx_skip array at the first pixel of the plane
+  const uint8_t *txskip_mask;
+  int mask_stride;
+  int mask_height;
+#endif  // WIENER_NONSEP_MASK
 #if CONFIG_WIENER_NONSEP_CROSS_FILT
   const uint8_t *luma;
   int luma_stride;
