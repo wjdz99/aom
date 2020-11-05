@@ -304,6 +304,26 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     (void)num_planes;
 #endif
 
+    if (!dry_run && !is_compound) {
+      const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, 0, 0);
+   //const uint8_t bw_full = block_size_wide[plane_bsize];
+   //const uint8_t bh_full = block_size_high[plane_bsize];
+     const uint8_t bw = block_size_wide[plane_bsize] >> 2;
+     const uint8_t bh = block_size_high[plane_bsize] >> 2;
+      const MV_REFERENCE_FRAME ref0 = mbmi->ref_frame[0];
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, ref0);
+        assert(buf != NULL);
+      printf("new_block\n");
+      printf("show_frame %d\n", cm->show_frame);
+      printf("n_4x4s %d\n", bw * bh);
+      printf("cur_frame_disp %d\n", cm->current_frame.display_order_hint);
+      printf("cur_frame_q %d\n", cm->quant_params.base_qindex);
+      printf("cur_frame_pyr %d\n", cm->current_frame.pyramid_level);
+      printf("block_ref_disp %d\n",(int)buf->display_order_hint);
+   // printf("block_ref_q %d\n", );
+      printf("block_ref_pyr %d\n", (int)buf->pyramid_level);
+      printf("block_ref_slot %d\n", ref0);
+    }
     av1_encode_sb(cpi, x, bsize, dry_run);
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
