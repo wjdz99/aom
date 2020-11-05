@@ -1386,19 +1386,7 @@ static void search_wiener(const RestorationTileLimits *limits,
     assert(rui.wiener_info.hfilter[0] == 0 &&
            rui.wiener_info.hfilter[WIENER_WIN - 1] == 0);
   }
-  printf("\n**Unit %d - M: ", rest_unit_idx);
-  for (int i = 0; i < WIENER_WIN2; ++i) {
-    printf("%ld ", M[i]);
-  }
 #if CONFIG_RST_MERGECOEFFS
-  printf(
-      "\nUnit %d Bits_nomerge "
-      "makeup\n**wiener_restore_cost[1]=%d\n**merged_param_cost[0]=%d\n**count_"
-      "wiener_bits=%d\n**count_wiener_bits_unshifted=%d\n",
-      rest_unit_idx, x->wiener_restore_cost[1], x->merged_param_cost[0],
-      count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
-          << AV1_PROB_COST_SHIFT,
-      count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener));
   const int64_t bits_nomerge =
       x->wiener_restore_cost[1] + x->merged_param_cost[0] +
       (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
@@ -1423,15 +1411,6 @@ static void search_wiener(const RestorationTileLimits *limits,
     unit_snapshot.current_bits = bits_nomerge;
     aom_vector_push_back(current_unit_stack, &unit_snapshot);
 
-    printf("\nThis unit's filter:\n");
-    printf("\n**Unit %d - Horizontal:", rest_unit_idx);
-    for (int i = 0; i < SUBPEL_TAPS; ++i) {
-      printf("%d ", rusi->wiener.hfilter[i]);
-    }
-    printf("\n**Unit %d - Vertical:", rest_unit_idx);
-    for (int i = 0; i < SUBPEL_TAPS; ++i) {
-      printf("%d ", rusi->wiener.vfilter[i]);
-    }
     return;
   }
 
@@ -1484,19 +1463,8 @@ static void search_wiener(const RestorationTileLimits *limits,
           x->wiener_restore_cost[1] + x->merged_param_cost[0] +
           (count_wiener_bits(wiener_win, &rui_temp.wiener_info, &rsc->wiener)
            << AV1_PROB_COST_SHIFT);
-      printf(
-          "\nUnit %d Bits_merge "
-          "makeup\n**wiener_restore_cost[1]=%d\n**merged_param_cost[0]=%d\n**"
-          "count_wiener_bits=%d\n**count_wiener_bits_unshifted=%d\n",
-          old_unit->rest_unit_idx, x->wiener_restore_cost[1],
-          x->merged_param_cost[0],
-          count_wiener_bits(wiener_win, &rui_temp.wiener_info, &rsc->wiener)
-              << AV1_PROB_COST_SHIFT,
-          count_wiener_bits(wiener_win, &rui_temp.wiener_info, &rsc->wiener));
     } else {
       unit_bits = x->merged_param_cost[1];
-      printf("\nUnit %d Bits_merge makeup\n**merged_param_cost[1]=%d\n",
-             old_unit->rest_unit_idx, x->merged_param_cost[1]);
     }
     cost_merge += RDCOST_DBL(x->rdmult, unit_bits >> 4, unit_sse);
   }
@@ -1518,8 +1486,6 @@ static void search_wiener(const RestorationTileLimits *limits,
   RestorationType rtype = RESTORE_WIENER;
   rusi->best_rtype[RESTORE_WIENER - 1] = rtype;
 
-  printf("\nPickrst: cost_merge=%f, cost_nomerge=%f\n", cost_merge,
-         cost_nomerge);
   // temporarily disable merging
   // if (false) {
   if (cost_merge < cost_nomerge) {
@@ -1584,34 +1550,11 @@ static void search_wiener(const RestorationTileLimits *limits,
     aom_vector_push_back(current_unit_stack, &unit_snapshot);
   }
 
-  // Debugging: check what current filter values on the stack are
-  printf("\nCurrent stack filters:\n");
-  VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
-    RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
-    RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
-    printf("\n**Unit %d - Horizontal:", old_unit->rest_unit_idx);
-    for (int i = 0; i < SUBPEL_TAPS; ++i) {
-      printf("%d ", old_rusi->wiener.hfilter[i]);
-    }
-    printf("\n**Unit %d - Vertical:", old_unit->rest_unit_idx);
-    for (int i = 0; i < SUBPEL_TAPS; ++i) {
-      printf("%d ", old_rusi->wiener.vfilter[i]);
-    }
-  }
-
 #else  // CONFIG_RST_MERGECOEFFS
   const int64_t bits_wiener =
       x->wiener_restore_cost[1] +
       (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
        << AV1_PROB_COST_SHIFT);
-  printf(
-      "\nUnit %d Bits_forcewiener "
-      "makeup\n**wiener_restore_cost[1]=%d\n**count_wiener_bits=%d\n**count_"
-      "wiener_bits_unshifted=%d\n",
-      rest_unit_idx, x->wiener_restore_cost[1],
-      count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
-          << AV1_PROB_COST_SHIFT,
-      count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener));
 #if CONFIG_FORCE_WIENER
   // force all units to RESTORE_WIENER to ensure we have coefficients to share
   RestorationType rtype = RESTORE_WIENER;
@@ -1620,15 +1563,6 @@ static void search_wiener(const RestorationTileLimits *limits,
   rsc->bits += bits_wiener;
   rsc->wiener = rusi->wiener;
 
-  printf("\nThis filter's unit:\n");
-  printf("\n**Unit %d - Horizontal:", rest_unit_idx);
-  for (int i = 0; i < SUBPEL_TAPS; ++i) {
-    printf("%d ", rusi->wiener.hfilter[i]);
-  }
-  printf("\n**Unit %d - Vertical:", rest_unit_idx);
-  for (int i = 0; i < SUBPEL_TAPS; ++i) {
-    printf("%d ", rusi->wiener.vfilter[i]);
-  }
 #else
   double cost_none =
       RDCOST_DBL(x->rdmult, bits_none >> 4, rusi->sse[RESTORE_NONE]);
@@ -2255,7 +2189,6 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src,
       }
     }
 
-    printf("\nPickrst: frame restoration type is %d\n", best_rtype);
     cm->rst_info[plane].frame_restoration_type = best_rtype;
     if (force_restore_type != RESTORE_TYPES)
       assert(best_rtype == force_restore_type || best_rtype == RESTORE_NONE);

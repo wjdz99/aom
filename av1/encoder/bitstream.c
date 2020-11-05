@@ -2502,13 +2502,18 @@ static void write_wiener_filter(int wiener_win, const WienerInfo *wiener_info,
   const int equal =
       check_wiener_eq(wiener_win != WIENER_WIN, wiener_info, ref_wiener_info);
   aom_write_bit(wb, equal);
+  printf("Equal? %d  ", equal);
   if (equal) {
-    printf("\nBitstream: Merged w/ previous.\n");
+    printf("\n");
     memcpy(ref_wiener_info, wiener_info, sizeof(*wiener_info));
     return;
   }
-  printf("\nBitstream: Not merged w/ previous.\n");
 #endif  // CONFIG_RST_MERGECOEFFS
+  printf("(Luma? %d)   v: %d, %d, %d      h: %d, %d, %d\n",
+         wiener_win == WIENER_WIN, ref_wiener_info->vfilter[0],
+         ref_wiener_info->vfilter[1], ref_wiener_info->vfilter[2],
+         ref_wiener_info->hfilter[0], ref_wiener_info->hfilter[1],
+         ref_wiener_info->hfilter[2]);
   if (wiener_win == WIENER_WIN)
     aom_write_primitive_refsubexpfin(
         wb, WIENER_FILT_TAP0_MAXV - WIENER_FILT_TAP0_MINV + 1,
