@@ -481,6 +481,7 @@ static void set_good_speed_features_framesize_independent(
 
     // TODO(any, yunqing): move this feature to speed 0.
     sf->tpl_sf.skip_alike_starting_mv = 1;
+    sf->tpl_sf.reuse_tpl_stats_from_gop_length_decision = 1;
   }
 
   if (speed >= 2) {
@@ -517,7 +518,6 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.prune_sgr_based_on_wiener = 1;
 
     sf->tpl_sf.prune_ref_frames_in_tpl = 1;
-    sf->tpl_sf.reuse_tpl_stats_from_gop_length_decision = 1;
   }
 
   if (speed >= 3) {
