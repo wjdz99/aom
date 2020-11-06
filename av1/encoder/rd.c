@@ -1082,7 +1082,7 @@ YV12_BUFFER_CONFIG *av1_get_scaled_ref_frame(const AV1_COMP *cpi,
 }
 
 int av1_get_switchable_rate(const MACROBLOCK *x, const MACROBLOCKD *xd,
-                            InterpFilter interp_filter) {
+                            InterpFilter interp_filter, int dual_filter) {
   if (interp_filter == SWITCHABLE) {
     const MB_MODE_INFO *const mbmi = xd->mi[0];
 #if CONFIG_REMOVE_DUAL_FILTER
@@ -1092,6 +1092,10 @@ int av1_get_switchable_rate(const MACROBLOCK *x, const MACROBLOCKD *xd,
 #else
     int inter_filter_cost = 0;
     for (int dir = 0; dir < 2; ++dir) {
+<<<<<<< HEAD   (c15883 Rework grp idx ctx when dist-wtd-comp is removed)
+=======
+      if (dir && !dual_filter) break;
+>>>>>>> CHANGE (221008 Fix interp filter type bit cost calculation)
       const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
       const InterpFilter filter =
           av1_extract_interp_filter(mbmi->interp_filters, dir);
