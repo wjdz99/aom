@@ -717,14 +717,7 @@ static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
 static void search_sgrproj(const RestorationTileLimits *limits,
                            const AV1PixelRect *tile, int rest_unit_idx,
                            void *priv, int32_t *tmpbuf,
-#if CONFIG_RST_MERGECOEFFS
-                           Vector *current_unit_stack,
-#endif  // CONFIG_RST_MERGECOEFFS
                            RestorationLineBuffers *rlbs) {
-#if CONFIG_RST_MERGECOEFFS
-  // required in function signature but not needed in this function
-  (void)current_unit_stack;
-#endif  // CONFIG_RST_MERGECOEFFS
   (void)rlbs;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
@@ -1300,15 +1293,8 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
 static void search_wiener(const RestorationTileLimits *limits,
                           const AV1PixelRect *tile_rect, int rest_unit_idx,
                           void *priv, int32_t *tmpbuf,
-#if CONFIG_RST_MERGECOEFFS
-                          Vector *current_unit_stack,
-#endif  // CONFIG_RST_MERGECOEFFS
                           RestorationLineBuffers *rlbs) {
   (void)tmpbuf;
-#if CONFIG_RST_MERGECOEFFS
-  // required in function signature but not needed in this function
-  (void)current_unit_stack;
-#endif  // CONFIG_RST_MERGECOEFFS
   (void)rlbs;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
@@ -1393,7 +1379,7 @@ static void search_wiener(const RestorationTileLimits *limits,
        << AV1_PROB_COST_SHIFT);
   double cost_nomerge =
       RDCOST_DBL(x->rdmult, bits_nomerge >> 4, rusi->sse[RESTORE_WIENER]);
-
+  Vector *current_unit_stack = limits->vector;
   // If current_unit_stack is empty, we can leave early.
   if (aom_vector_is_empty(current_unit_stack)) {
     RstUnitSnapshot unit_snapshot;
@@ -1582,16 +1568,9 @@ static void search_wiener(const RestorationTileLimits *limits,
 static void search_norestore(const RestorationTileLimits *limits,
                              const AV1PixelRect *tile_rect, int rest_unit_idx,
                              void *priv, int32_t *tmpbuf,
-#if CONFIG_RST_MERGECOEFFS
-                             Vector *current_unit_stack,
-#endif  // CONFIG_RST_MERGECOEFFS
                              RestorationLineBuffers *rlbs) {
   (void)tile_rect;
   (void)tmpbuf;
-#if CONFIG_RST_MERGECOEFFS
-  // required in function signature but not needed in this function
-  (void)current_unit_stack;
-#endif  // CONFIG_RST_MERGECOEFFS
   (void)rlbs;
 
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
@@ -1914,17 +1893,10 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
 static void search_switchable(const RestorationTileLimits *limits,
                               const AV1PixelRect *tile_rect, int rest_unit_idx,
                               void *priv, int32_t *tmpbuf,
-#if CONFIG_RST_MERGECOEFFS
-                              Vector *current_unit_stack,
-#endif  // CONFIG_RST_MERGECOEFFS
                               RestorationLineBuffers *rlbs) {
   (void)limits;
   (void)tile_rect;
   (void)tmpbuf;
-#if CONFIG_RST_MERGECOEFFS
-  // required in function signature but not needed in this function
-  (void)current_unit_stack;
-#endif  // CONFIG_RST_MERGECOEFFS
   (void)rlbs;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];

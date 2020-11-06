@@ -381,6 +381,15 @@ uint8_t *wienerns_copy_luma(const uint8_t *dgd, int height_y, int width_y,
 
 typedef struct {
   int h_start, h_end, v_start, v_end;
+#if CONFIG_RST_MERGECOEFFS
+  // RestorationTileLimits has nothing to do with the vector of merged
+  // coefficients -- however, it is passed around just about everywhere.
+  // As such, use it to also carry around the vector of merged coefficients
+  // for the CONFIG_RST_MERGECOEFFS -- otherwise we need to duplicate
+  // the function signatures, or make the function signatures conditional
+  // on the experiment.
+  Vector *vector;
+#endif
 } RestorationTileLimits;
 
 #if CONFIG_RST_MERGECOEFFS
@@ -398,9 +407,6 @@ typedef void (*rest_unit_visitor_t)(const RestorationTileLimits *limits,
                                     const AV1PixelRect *tile_rect,
                                     int rest_unit_idx, void *priv,
                                     int32_t *tmpbuf,
-#if CONFIG_RST_MERGECOEFFS
-                                    Vector *current_unit_stack,
-#endif  // CONFIG_RST_MERGECOEFFS
                                     RestorationLineBuffers *rlbs);
 
 typedef struct FilterFrameCtxt {
@@ -522,17 +528,15 @@ void av1_foreach_rest_unit_in_row(
     RestorationTileLimits *limits, const AV1PixelRect *tile_rect,
     rest_unit_visitor_t on_rest_unit, int row_number, int unit_size,
     int unit_idx0, int hunits_per_tile, int vunits_per_tile, int plane,
-    void *priv, int32_t *tmpbuf,
-#if CONFIG_RST_MERGECOEFFS
-    Vector *current_unit_stack,
-#endif  // CONFIG_RST_MERGECOEFFS
-    RestorationLineBuffers *rlbs, sync_read_fn_t on_sync_read,
-    sync_write_fn_t on_sync_write, struct AV1LrSyncData *const lr_sync);
+    void *priv, int32_t *tmpbuf, RestorationLineBuffers *rlbs,
+    sync_read_fn_t on_sync_read, sync_write_fn_t on_sync_write,
+    struct AV1LrSyncData *const lr_sync);
 AV1PixelRect av1_whole_frame_rect(const struct AV1Common *cm, int is_uv);
 int av1_lr_count_units_in_tile(int unit_size, int tile_size);
 void av1_lr_sync_read_dummy(void *const lr_sync, int r, int c, int plane);
 void av1_lr_sync_write_dummy(void *const lr_sync, int r, int c,
                              const int sb_cols, int plane);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
