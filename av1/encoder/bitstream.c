@@ -2623,8 +2623,7 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
                                              aom_writer *const w, int plane,
                                              FRAME_COUNTS *counts) {
   const RestorationInfo *rsi = cm->rst_info + plane;
-  RestorationType frame_rtype = rsi->frame_restoration_type;
-  if (frame_rtype == RESTORE_NONE) return;
+  assert(rsi->frame_restoration_type != RESTORE_NONE);
 
   (void)counts;
   assert(!cm->all_lossless);
