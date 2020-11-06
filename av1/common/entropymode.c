@@ -1740,6 +1740,10 @@ static const aom_cdf_prob default_wiener_restore_cdf[CDF_SIZE(2)] = { AOM_CDF2(
 
 static const aom_cdf_prob default_sgrproj_restore_cdf[CDF_SIZE(2)] = { AOM_CDF2(
     16855) };
+#if CONFIG_RST_MERGECOEFFS
+static const aom_cdf_prob default_merged_param_cdf[CDF_SIZE(2)] = { AOM_CDF2(
+    16855) };
+#endif  // CONFIG_RST_MERGECOEFFS
 
 #if CONFIG_LOOP_RESTORE_CNN
 static const aom_cdf_prob default_cnn_restore_cdf[CDF_SIZE(2)] = { AOM_CDF2(
@@ -2040,6 +2044,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->switchable_restore_cdf, default_switchable_restore_cdf);
   av1_copy(fc->wiener_restore_cdf, default_wiener_restore_cdf);
   av1_copy(fc->sgrproj_restore_cdf, default_sgrproj_restore_cdf);
+#if CONFIG_RST_MERGECOEFFS
+  av1_copy(fc->merged_param_cdf, default_merged_param_cdf);
+#endif
 #if CONFIG_LOOP_RESTORE_CNN
   av1_copy(fc->cnn_restore_cdf, default_cnn_restore_cdf);
 #endif  // CONFIG_LOOP_RESTORE_CNN

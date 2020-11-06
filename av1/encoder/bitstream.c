@@ -2496,12 +2496,13 @@ static void encode_restoration_mode(AV1_COMMON *cm,
   }
 }
 
-static void write_wiener_filter(int wiener_win, const WienerInfo *wiener_info,
+static void write_wiener_filter(MACROBLOCKD *xd, int wiener_win,
+                                const WienerInfo *wiener_info,
                                 WienerInfo *ref_wiener_info, aom_writer *wb) {
 #if CONFIG_RST_MERGECOEFFS
   const int equal =
       check_wiener_eq(wiener_win != WIENER_WIN, wiener_info, ref_wiener_info);
-  aom_write_bit(wb, equal);
+  aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
   printf("Equal? %d  ", equal);
   if (equal) {
     printf("\n");
@@ -2555,12 +2556,13 @@ static void write_wiener_filter(int wiener_win, const WienerInfo *wiener_info,
   memcpy(ref_wiener_info, wiener_info, sizeof(*wiener_info));
 }
 
-static void write_sgrproj_filter(const SgrprojInfo *sgrproj_info,
+static void write_sgrproj_filter(MACROBLOCKD *xd,
+                                 const SgrprojInfo *sgrproj_info,
                                  SgrprojInfo *ref_sgrproj_info,
                                  aom_writer *wb) {
 #if CONFIG_RST_MERGECOEFFS
   const int equal = check_sgrproj_eq(sgrproj_info, ref_sgrproj_info);
-  aom_write_bit(wb, equal);
+  aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
   if (equal) {
     memcpy(ref_sgrproj_info, sgrproj_info, sizeof(*sgrproj_info));
     return;
@@ -2595,13 +2597,13 @@ static void write_sgrproj_filter(const SgrprojInfo *sgrproj_info,
 }
 
 #if CONFIG_WIENER_NONSEP
-static void write_wiener_nsfilter(int is_uv,
+static void write_wiener_nsfilter(MACROBLOCKD *xd, int is_uv,
                                   const WienerNonsepInfo *wienerns_info,
                                   WienerNonsepInfo *ref_wienerns_info,
                                   aom_writer *wb) {
 #if CONFIG_RST_MERGECOEFFS
   const int equal = check_wienerns_eq(is_uv, wienerns_info, ref_wienerns_info);
-  aom_write_bit(wb, equal);
+  aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
   if (equal) {
     memcpy(ref_wienerns_info, wienerns_info, sizeof(*wienerns_info));
     return;
@@ -2676,10 +2678,11 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 
     switch (unit_rtype) {
       case RESTORE_WIENER:
-        write_wiener_filter(wiener_win, &rui->wiener_info, ref_wiener_info, w);
+        write_wiener_filter(xd, wiener_win, &rui->wiener_info, ref_wiener_info,
+                            w);
         break;
       case RESTORE_SGRPROJ:
-        write_sgrproj_filter(&rui->sgrproj_info, ref_sgrproj_info, w);
+        write_sgrproj_filter(xd, &rui->sgrproj_info, ref_sgrproj_info, w);
         break;
 #if CONFIG_LOOP_RESTORE_CNN
       case RESTORE_CNN: break;
@@ -2699,7 +2702,8 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
     ++counts->wiener_restore[unit_rtype != RESTORE_NONE];
 #endif
     if (unit_rtype != RESTORE_NONE) {
-      write_wiener_filter(wiener_win, &rui->wiener_info, ref_wiener_info, w);
+      write_wiener_filter(xd, wiener_win, &rui->wiener_info, ref_wiener_info,
+                          w);
     }
   } else if (frame_rtype == RESTORE_SGRPROJ) {
     aom_write_symbol(w, unit_rtype != RESTORE_NONE,
@@ -2708,7 +2712,7 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
     ++counts->sgrproj_restore[unit_rtype != RESTORE_NONE];
 #endif
     if (unit_rtype != RESTORE_NONE) {
-      write_sgrproj_filter(&rui->sgrproj_info, ref_sgrproj_info, w);
+      write_sgrproj_filter(xd, &rui->sgrproj_info, ref_sgrproj_info, w);
     }
   }
 #if CONFIG_LOOP_RESTORE_CNN

@@ -221,6 +221,9 @@ typedef struct frame_contexts {
 #endif  // CONFIG_LOOP_RESTORE_CNN
   aom_cdf_prob wiener_restore_cdf[CDF_SIZE(2)];
   aom_cdf_prob sgrproj_restore_cdf[CDF_SIZE(2)];
+#if CONFIG_RST_MERGECOEFFS
+  aom_cdf_prob merged_param_cdf[CDF_SIZE(2)];
+#endif  // CONFIG_RST_MERGECOEFFS
 #if CONFIG_LOOP_RESTORE_CNN
   aom_cdf_prob cnn_restore_cdf[CDF_SIZE(2)];
 #endif  // CONFIG_LOOP_RESTORE_CNN

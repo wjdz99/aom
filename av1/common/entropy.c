@@ -186,6 +186,9 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
   RESET_CDF_COUNTER(fc->switchable_restore_cdf, RESTORE_SWITCHABLE_TYPES);
 #endif  // CONFIG_LOOP_RESTORE_CNN
   RESET_CDF_COUNTER(fc->wiener_restore_cdf, 2);
+#if CONFIG_RST_MERGECOEFFS
+  RESET_CDF_COUNTER(fc->merged_param_cdf, 2);
+#endif  // CONFIG_RST_MERGECOEFFS
   RESET_CDF_COUNTER(fc->sgrproj_restore_cdf, 2);
 #if CONFIG_LOOP_RESTORE_CNN
   RESET_CDF_COUNTER(fc->cnn_restore_cdf, 2);
