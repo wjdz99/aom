@@ -35,14 +35,12 @@ typedef void (*comp_mask_pred_func)(uint8_t *comp_pred, const uint8_t *pred,
                                     int ref_stride, const uint8_t *mask,
                                     int mask_stride, int invert_mask);
 
-#if HAVE_SSSE3 || HAVE_SSE2 || HAVE_AVX2
 const BLOCK_SIZE kValidBlockSize[] = {
   BLOCK_8X8,   BLOCK_8X16,  BLOCK_8X32,   BLOCK_16X8,   BLOCK_16X16,
   BLOCK_16X32, BLOCK_32X8,  BLOCK_32X16,  BLOCK_32X32,  BLOCK_32X64,
   BLOCK_64X32, BLOCK_64X64, BLOCK_64X128, BLOCK_128X64, BLOCK_128X128,
   BLOCK_16X64, BLOCK_64X16
 };
-#endif
 typedef std::tuple<comp_mask_pred_func, BLOCK_SIZE> CompMaskPredParam;
 
 class AV1CompMaskVarianceTest
@@ -55,6 +53,8 @@ class AV1CompMaskVarianceTest
 
  protected:
   void RunCheckOutput(comp_mask_pred_func test_impl, BLOCK_SIZE bsize, int inv);
+  void RunCheckDiffMask(comp_mask_pred_func test_impl, BLOCK_SIZE bsize,
+                        int inv);
   void RunSpeedTest(comp_mask_pred_func test_impl, BLOCK_SIZE bsize);
   bool CheckResult(int width, int height) {
     for (int y = 0; y < height; ++y) {
@@ -122,6 +122,21 @@ void AV1CompMaskVarianceTest::RunCheckOutput(comp_mask_pred_func test_impl,
   }
 }
 
+void AV1CompMaskVarianceTest::RunCheckDiffMask(comp_mask_pred_func test_impl,
+                                               BLOCK_SIZE bsize, int inv) {
+  const int w = block_size_wide[bsize];
+  const int h = block_size_high[bsize];
+  uint8_t mask[4 * 128 * 128];
+  av1_diffwtd_mask(mask, inv, 38, pred_, w, ref_, MAX_SB_SIZE, h, w);
+
+  aom_comp_mask_pred_c(comp_pred1_, pred_, w, h, ref_, MAX_SB_SIZE, mask, w,
+                       inv);
+  test_impl(comp_pred2_, pred_, w, h, ref_, MAX_SB_SIZE, mask, w, inv);
+
+  ASSERT_EQ(CheckResult(w, h), true) << " Diffwtd "
+                                     << " inv " << inv;
+}
+
 void AV1CompMaskVarianceTest::RunSpeedTest(comp_mask_pred_func test_impl,
                                            BLOCK_SIZE bsize) {
   const int w = block_size_wide[bsize];
@@ -153,6 +168,8 @@ TEST_P(AV1CompMaskVarianceTest, CheckOutput) {
   // inv = 0, 1
   RunCheckOutput(GET_PARAM(0), GET_PARAM(1), 0);
   RunCheckOutput(GET_PARAM(0), GET_PARAM(1), 1);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 0);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 1);
 }
 
 TEST_P(AV1CompMaskVarianceTest, DISABLED_Speed) {
@@ -181,6 +198,8 @@ class AV1CompMaskUpVarianceTest : public AV1CompMaskVarianceTest {
 
  protected:
   void RunCheckOutput(comp_mask_pred_func test_impl, BLOCK_SIZE bsize, int inv);
+  void RunCheckDiffMask(comp_mask_pred_func test_impl, BLOCK_SIZE bsize,
+                        int inv);
   void RunSpeedTest(comp_mask_pred_func test_impl, BLOCK_SIZE bsize,
                     int havSub);
 };
@@ -216,6 +235,36 @@ void AV1CompMaskUpVarianceTest::RunCheckOutput(comp_mask_pred_func test_impl,
             << " wedge " << wedge_index << " inv " << inv << "sub (" << subx
             << "," << suby << ")";
       }
+    }
+  }
+}
+
+void AV1CompMaskUpVarianceTest::RunCheckDiffMask(comp_mask_pred_func test_impl,
+                                                 BLOCK_SIZE bsize, int inv) {
+  const int w = block_size_wide[bsize];
+  const int h = block_size_high[bsize];
+  int subpel_search;
+  uint8_t mask[8 * 128 * 128];
+  for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS;
+       ++subpel_search) {
+    // loop through subx and suby
+    for (int sub = 0; sub < 8 * 8; ++sub) {
+      int subx = sub & 0x7;
+      int suby = (sub >> 3);
+      av1_diffwtd_mask(mask, inv, 38, pred_, w, ref_, MAX_SB_SIZE, h, w);
+
+      // ref
+      aom_comp_mask_upsampled_pred_c(NULL, NULL, 0, 0, NULL, comp_pred1_, pred_,
+                                     w, h, subx, suby, ref_, MAX_SB_SIZE, mask,
+                                     w, inv, subpel_search);
+
+      aom_comp_mask_pred = test_impl;  // test
+      aom_comp_mask_upsampled_pred(NULL, NULL, 0, 0, NULL, comp_pred2_, pred_,
+                                   w, h, subx, suby, ref_, MAX_SB_SIZE, mask, w,
+                                   inv, subpel_search);
+      ASSERT_EQ(CheckResult(w, h), true)
+          << " Diffwtd "
+          << " inv " << inv << "sub (" << subx << "," << suby << ")";
     }
   }
 }
@@ -256,6 +305,8 @@ TEST_P(AV1CompMaskUpVarianceTest, CheckOutput) {
   // inv mask = 0, 1
   RunCheckOutput(GET_PARAM(0), GET_PARAM(1), 0);
   RunCheckOutput(GET_PARAM(0), GET_PARAM(1), 1);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 0);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 1);
 }
 
 TEST_P(AV1CompMaskUpVarianceTest, DISABLED_Speed) {
@@ -299,6 +350,8 @@ class AV1HighbdCompMaskVarianceTest
  protected:
   void RunCheckOutput(highbd_comp_mask_pred_func test_impl, BLOCK_SIZE bsize,
                       int inv);
+  void RunCheckDiffMask(highbd_comp_mask_pred_func test_impl, BLOCK_SIZE bsize,
+                        int inv, const unsigned int bd);
   void RunSpeedTest(highbd_comp_mask_pred_func test_impl, BLOCK_SIZE bsize);
   bool CheckResult(int width, int height) {
     for (int y = 0; y < height; ++y) {
@@ -376,6 +429,33 @@ void AV1HighbdCompMaskVarianceTest::RunCheckOutput(
   }
 }
 
+void AV1HighbdCompMaskVarianceTest::RunCheckDiffMask(
+    highbd_comp_mask_pred_func test_impl, BLOCK_SIZE bsize, int inv,
+    const unsigned int bd) {
+  int bd_ = GET_PARAM(2);
+  const int w = block_size_wide[bsize];
+  const int h = block_size_high[bsize];
+
+  for (int i = 0; i < MAX_SB_SQUARE; ++i) {
+    pred_[i] = rnd_.Rand16() & ((1 << bd_) - 1);
+  }
+  for (int i = 0; i < MAX_SB_SQUARE + (8 * MAX_SB_SIZE); ++i) {
+    ref_buffer_[i] = rnd_.Rand16() & ((1 << bd_) - 1);
+  }
+  uint8_t mask[4 * 128 * 128];
+  av1_diffwtd_mask_highbd(mask, inv, 38, pred_, w, ref_, MAX_SB_SIZE, h, w, bd);
+
+  aom_highbd_comp_mask_pred_c(
+      CONVERT_TO_BYTEPTR(comp_pred1_), CONVERT_TO_BYTEPTR(pred_), w, h,
+      CONVERT_TO_BYTEPTR(ref_), MAX_SB_SIZE, mask, w, inv);
+
+  test_impl(CONVERT_TO_BYTEPTR(comp_pred2_), CONVERT_TO_BYTEPTR(pred_), w, h,
+            CONVERT_TO_BYTEPTR(ref_), MAX_SB_SIZE, mask, w, inv);
+
+  ASSERT_EQ(CheckResult(w, h), true) << " Diffwtd "
+                                     << " inv " << inv;
+}
+
 void AV1HighbdCompMaskVarianceTest::RunSpeedTest(
     highbd_comp_mask_pred_func test_impl, BLOCK_SIZE bsize) {
   int bd_ = GET_PARAM(2);
@@ -419,6 +499,12 @@ TEST_P(AV1HighbdCompMaskVarianceTest, CheckOutput) {
   // inv = 0, 1
   RunCheckOutput(GET_PARAM(0), GET_PARAM(1), 0);
   RunCheckOutput(GET_PARAM(0), GET_PARAM(1), 1);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 0, 8);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 1, 8);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 0, 10);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 1, 10);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 0, 12);
+  RunCheckDiffMask(GET_PARAM(0), GET_PARAM(1), 1, 12);
 }
 
 TEST_P(AV1HighbdCompMaskVarianceTest, DISABLED_Speed) {
