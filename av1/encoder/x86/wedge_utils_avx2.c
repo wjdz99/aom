@@ -92,7 +92,6 @@ int8_t av1_wedge_sign_from_residuals_avx2(const int16_t *ds, const uint8_t *m,
   // Input size limited to 8192 by the use of 32 bit accumulators and m
   // being between [0, 64]. Overflow might happen at larger sizes,
   // though it is practically impossible on real video input.
-  assert(N < 8192);
   assert(N % 64 == 0);
 
   do {
