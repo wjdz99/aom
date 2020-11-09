@@ -34,6 +34,24 @@
       "parentUuid": "c57d4d00_da52cf40",
       "revId": "5e2e4afdcf4ed06f7cd55d8794d6b71f7a7ccf11",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5624943c_29e2ea92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-11-09T18:13:01Z",
+      "side": 1,
+      "message": "This CL on its own only has noise level compression stats change (\u003c0.03%).",
+      "parentUuid": "3ca30e1e_2e995d5b",
+      "revId": "5e2e4afdcf4ed06f7cd55d8794d6b71f7a7ccf11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
