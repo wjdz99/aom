@@ -53,7 +53,8 @@ void av1_subtract_block(const MACROBLOCKD *xd, int rows, int cols,
 }
 
 void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
-                      int blk_col, int blk_row, TX_SIZE tx_size) {
+                      int blk_col, int blk_row, TX_SIZE tx_size) 
+{
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   const struct macroblockd_plane *const pd = &x->e_mbd.plane[plane];
@@ -62,12 +63,12 @@ void av1_subtract_txb(MACROBLOCK *x, int plane, BLOCK_SIZE plane_bsize,
   const int dst_stride = pd->dst.stride;
   const int tx1d_width = tx_size_wide[tx_size];
   const int tx1d_height = tx_size_high[tx_size];
-  uint8_t *dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << MI_SIZE_LOG2];
-  uint8_t *src = &p->src.buf[(blk_row * src_stride + blk_col) << MI_SIZE_LOG2];
-  int16_t *src_diff =
-      &p->src_diff[(blk_row * diff_stride + blk_col) << MI_SIZE_LOG2];
-  av1_subtract_block(xd, tx1d_height, tx1d_width, src_diff, diff_stride, src,
-                     src_stride, dst, dst_stride);
+  uint8_t *dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << MI_SIZE_LOG2];//预测的buffer
+  uint8_t *src = &p->src.buf[(blk_row * src_stride + blk_col) << MI_SIZE_LOG2];//原始的buffer
+  int16_t *src_diff =  &p->src_diff[(blk_row * diff_stride + blk_col) << MI_SIZE_LOG2];//存储残差
+
+  av1_subtract_block(xd, tx1d_height, tx1d_width, src_diff, diff_stride, src, src_stride, dst, dst_stride);
+
 }
 
 void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE plane_bsize, int plane) {
@@ -84,7 +85,8 @@ void av1_subtract_plane(MACROBLOCK *x, BLOCK_SIZE plane_bsize, int plane) {
 
 int av1_optimize_b(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
                    int block, TX_SIZE tx_size, TX_TYPE tx_type,
-                   const TXB_CTX *const txb_ctx, int *rate_cost) {
+                   const TXB_CTX *const txb_ctx, int fast_mode,
+                   int *rate_cost) {
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   const int eob = p->eobs[block];
@@ -92,12 +94,12 @@ int av1_optimize_b(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   if (eob == 0 || !cpi->optimize_seg_arr[segment_id] ||
       xd->lossless[segment_id]) {
-    *rate_cost = av1_cost_skip_txb(&x->coeff_costs, txb_ctx, plane, tx_size);
+    *rate_cost = av1_cost_skip_txb(x, txb_ctx, plane, tx_size);
     return eob;
   }
 
   return av1_optimize_txb_new(cpi, x, plane, block, tx_size, tx_type, txb_ctx,
-                              rate_cost, cpi->oxcf.algo_cfg.sharpness);
+                              rate_cost, cpi->oxcf.sharpness, fast_mode);
 }
 
 // Hyper-parameters for dropout optimization, based on following logics.
@@ -132,9 +134,11 @@ const int DROPOUT_MULTIPLIER_Q_BASE = 32;  // Base Q to compute multiplier.
 
 void av1_dropout_qcoeff(MACROBLOCK *mb, int plane, int block, TX_SIZE tx_size,
                         TX_TYPE tx_type, int qindex) {
+  MACROBLOCKD *const xd = &mb->e_mbd;
   const struct macroblock_plane *const p = &mb->plane[plane];
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
   tran_low_t *const qcoeff = p->qcoeff + BLOCK_OFFSET(block);
-  tran_low_t *const dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
+  tran_low_t *const dqcoeff = pd->dqcoeff + BLOCK_OFFSET(block);
   const int tx_width = tx_size_wide[tx_size];
   const int tx_height = tx_size_high[tx_size];
   const int max_eob = av1_get_max_eob(tx_size);
@@ -223,7 +227,7 @@ void av1_dropout_qcoeff(MACROBLOCK *mb, int plane, int block, TX_SIZE tx_size,
   if (eob != p->eobs[block]) {
     p->eobs[block] = eob;
     p->txb_entropy_ctx[block] =
-        av1_get_txb_entropy_context(qcoeff, scan_order, eob);
+        (uint8_t)av1_get_txb_entropy_context(qcoeff, scan_order, eob);
   }
 }
 
@@ -259,53 +263,29 @@ static AV1_QUANT_FACADE quant_func_list[AV1_XFORM_QUANT_TYPES] = {
 };
 #endif
 
-// Computes the transform for DC only blocks
-void av1_xform_dc_only(MACROBLOCK *x, int plane, int block,
-                       TxfmParam *txfm_param, int64_t per_px_mean) {
-  assert(per_px_mean != INT64_MAX);
-  const struct macroblock_plane *const p = &x->plane[plane];
-  const int block_offset = BLOCK_OFFSET(block);
-  tran_low_t *const coeff = p->coeff + block_offset;
-  const int n_coeffs = av1_get_max_eob(txfm_param->tx_size);
-  memset(coeff, 0, sizeof(*coeff) * n_coeffs);
-  coeff[0] =
-      (tran_low_t)((per_px_mean * dc_coeff_scale[txfm_param->tx_size]) >> 12);
-}
-
 void av1_xform_quant(MACROBLOCK *x, int plane, int block, int blk_row,
                      int blk_col, BLOCK_SIZE plane_bsize, TxfmParam *txfm_param,
                      QUANT_PARAM *qparam) {
-  av1_xform(x, plane, block, blk_row, blk_col, plane_bsize, txfm_param);
-  av1_quant(x, plane, block, txfm_param, qparam);
-}
-
-void av1_xform(MACROBLOCK *x, int plane, int block, int blk_row, int blk_col,
-               BLOCK_SIZE plane_bsize, TxfmParam *txfm_param) {
+  MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblock_plane *const p = &x->plane[plane];
-  const int block_offset = BLOCK_OFFSET(block);
-  tran_low_t *const coeff = p->coeff + block_offset;
-  const int diff_stride = block_size_wide[plane_bsize];
-
-  const int src_offset = (blk_row * diff_stride + blk_col);
-  const int16_t *src_diff = &p->src_diff[src_offset << MI_SIZE_LOG2];
-
-  av1_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);
-}
-
-void av1_quant(MACROBLOCK *x, int plane, int block, TxfmParam *txfm_param,
-               QUANT_PARAM *qparam) {
-  const struct macroblock_plane *const p = &x->plane[plane];
+  const struct macroblockd_plane *const pd = &xd->plane[plane];
   const SCAN_ORDER *const scan_order =
       get_scan(txfm_param->tx_size, txfm_param->tx_type);
   const int block_offset = BLOCK_OFFSET(block);
   tran_low_t *const coeff = p->coeff + block_offset;
   tran_low_t *const qcoeff = p->qcoeff + block_offset;
-  tran_low_t *const dqcoeff = p->dqcoeff + block_offset;
+  tran_low_t *const dqcoeff = pd->dqcoeff + block_offset;
   uint16_t *const eob = &p->eobs[block];
+  const int diff_stride = block_size_wide[plane_bsize];
+
+  const int src_offset = (blk_row * diff_stride + blk_col);
+  const int16_t *src_diff = &p->src_diff[src_offset << MI_SIZE_LOG2];//残差
+
+  av1_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);//对残差进行变换
 
   if (qparam->xform_quant_idx != AV1_XFORM_QUANT_SKIP_QUANT) {
     const int n_coeffs = av1_get_max_eob(txfm_param->tx_size);
-    if (LIKELY(!x->seg_skip_block)) {
+    if (LIKELY(!x->skip_block)) {
 #if CONFIG_AV1_HIGHBITDEPTH
       quant_func_list[qparam->xform_quant_idx][txfm_param->is_hbd](
           coeff, n_coeffs, p, qcoeff, dqcoeff, eob, scan_order, qparam);
@@ -323,8 +303,9 @@ void av1_quant(MACROBLOCK *x, int plane, int block, TxfmParam *txfm_param,
     p->txb_entropy_ctx[block] = 0;
   } else {
     p->txb_entropy_ctx[block] =
-        av1_get_txb_entropy_context(qcoeff, scan_order, *eob);
+        (uint8_t)av1_get_txb_entropy_context(qcoeff, scan_order, *eob);
   }
+  return;
 }
 
 void av1_setup_xform(const AV1_COMMON *cm, MACROBLOCK *x, TX_SIZE tx_size,
@@ -378,7 +359,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   MB_MODE_INFO *mbmi = xd->mi[0];
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  tran_low_t *const dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
+  tran_low_t *const dqcoeff = pd->dqcoeff + BLOCK_OFFSET(block);
   uint8_t *dst;
   ENTROPY_CONTEXT *a, *l;
   int dummy_rate_cost = 0;
@@ -390,9 +371,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   l = &args->tl[blk_row];
 
   TX_TYPE tx_type = DCT_DCT;
-  if (!is_blk_skip(x->txfm_search_info.blk_skip, plane,
-                   blk_row * bw + blk_col) &&
-      !mbmi->skip_mode) {
+  if (!is_blk_skip(x, plane, blk_row * bw + blk_col) && !mbmi->skip_mode) {
     tx_type = av1_get_tx_type(xd, pd->plane_type, blk_row, blk_col, tx_size,
                               cm->features.reduced_tx_set_used);
     TxfmParam txfm_param;
@@ -405,8 +384,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
       quant_idx =
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP;
     av1_setup_xform(cm, x, tx_size, tx_type, &txfm_param);
-    av1_setup_quant(tx_size, use_trellis, quant_idx,
-                    cpi->oxcf.q_cfg.quant_b_adapt, &quant_param);
+    av1_setup_quant(tx_size, use_trellis, quant_idx, cpi->oxcf.quant_b_adapt,
+                    &quant_param);
     av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
                       &quant_param);
     av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize, &txfm_param,
@@ -422,7 +401,7 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
       TXB_CTX txb_ctx;
       get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
       av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
-                     &dummy_rate_cost);
+                     args->cpi->sf.rd_sf.trellis_eob_fast, &dummy_rate_cost);
     }
     if (!quant_param.use_optimize_b && do_dropout) {
       av1_dropout_qcoeff(x, plane, block, tx_size, tx_type,
@@ -449,8 +428,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   // again.
   if (p->eobs[block] == 0 && plane == 0) {
 #if 0
-    if (args->cpi->oxcf.q_cfg.aq_mode == NO_AQ &&
-        args->cpi->oxcf.q_cfg.deltaq_mode == NO_DELTA_Q) {
+    if (args->cpi->oxcf.aq_mode == NO_AQ &&
+        args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
       // TODO(jingning,angiebird,huisu@google.com): enable txk_check when
       // enable_optimize_b is true to detect potential RD bug.
       const uint8_t disable_txk_check = args->enable_optimize_b;
@@ -492,7 +471,7 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_max_uv_txsize(mbmi->bsize, pd->subsampling_x,
+      plane ? av1_get_max_uv_txsize(mbmi->sb_type, pd->subsampling_x,
                                     pd->subsampling_y)
             : mbmi->inter_tx_size[av1_get_txb_size_index(plane_bsize, blk_row,
                                                          blk_col)];
@@ -530,14 +509,14 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
   }
 }
 
-void av1_foreach_transformed_block_in_plane(
-    const MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize, int plane,
+void av1_foreach_transformed_block_in_plane( const MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize, int plane,
     foreach_transformed_block_visitor visit, void *arg) {
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   // block and transform sizes, in number of 4x4 blocks log 2 ("*_b")
   // 4x4=0, 8x8=2, 16x16=4, 32x32=6, 64x64=8
   // transform size varies per plane, look it up in a common way.
-  const TX_SIZE tx_size = av1_get_tx_size(plane, xd);
+  const TX_SIZE tx_size = av1_get_tx_size(plane, xd); //变换块尺寸
+  //宽度和高度分别有多少个4x4单元
   const uint8_t txw_unit = tx_size_wide_unit[tx_size];
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
   const int step = txw_unit * txh_unit;
@@ -545,10 +524,11 @@ void av1_foreach_transformed_block_in_plane(
   // If mb_to_right_edge is < 0 we are in a situation in which
   // the current block size extends into the UMV and we won't
   // visit the sub blocks that are wholly within the UMV.
+  // 如果mb_to_right_edge<0，我们将处于当前块大小扩展到UMV的情况下，并且我们不会访问完全在UMV中的子块。
   const int max_blocks_wide = max_block_wide(xd, plane_bsize, plane);
   const int max_blocks_high = max_block_high(xd, plane_bsize, plane);
   const BLOCK_SIZE max_unit_bsize =
-      get_plane_block_size(BLOCK_64X64, pd->subsampling_x, pd->subsampling_y);
+      get_plane_block_size(BLOCK_64X64, pd->subsampling_x, pd->subsampling_y);//64x64 16 16 32x32 8 8
   const int mu_blocks_wide =
       AOMMIN(mi_size_wide[max_unit_bsize], max_blocks_wide);
   const int mu_blocks_high =
@@ -556,12 +536,15 @@ void av1_foreach_transformed_block_in_plane(
 
   // Keep track of the row and column of the blocks we use so that we know
   // if we are in the unrestricted motion border.
+  // 跟踪我们使用的块的行和列，这样我们就知道我们是否处于不受限制的运动边界中
   int i = 0;
   for (int r = 0; r < max_blocks_high; r += mu_blocks_high) {
     const int unit_height = AOMMIN(mu_blocks_high + r, max_blocks_high);
     // Skip visiting the sub blocks that are wholly within the UMV.
+	// 跳过访问完全在UMV中的子块
     for (int c = 0; c < max_blocks_wide; c += mu_blocks_wide) {
       const int unit_width = AOMMIN(mu_blocks_wide + c, max_blocks_wide);
+
       for (int blk_row = r; blk_row < unit_height; blk_row += txh_unit) {
         for (int blk_col = c; blk_col < unit_width; blk_col += txw_unit) {
           visit(plane, i, blk_row, blk_col, plane_bsize, tx_size, arg);
@@ -587,7 +570,7 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  tran_low_t *const dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
+  tran_low_t *const dqcoeff = pd->dqcoeff + BLOCK_OFFSET(block);
 
   uint8_t *dst;
   dst = &pd->dst.buf[(blk_row * pd->dst.stride + blk_col) << MI_SIZE_LOG2];
@@ -596,7 +579,7 @@ static void encode_block_pass1(int plane, int block, int blk_row, int blk_col,
   QUANT_PARAM quant_param;
 
   av1_setup_xform(cm, x, tx_size, DCT_DCT, &txfm_param);
-  av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_B, cpi->oxcf.q_cfg.quant_b_adapt,
+  av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_B, cpi->oxcf.quant_b_adapt,
                   &quant_param);
   av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, DCT_DCT,
                     &quant_param);
@@ -626,12 +609,12 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   assert(bsize < BLOCK_SIZES_ALL);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
-  mbmi->skip_txfm = 1;
-  if (x->txfm_search_info.skip_txfm) return;
+  mbmi->skip = 1;
+  if (x->force_skip) return;
 
   struct optimize_ctx ctx;
   struct encode_b_args arg = {
-    cpi,  x,    &ctx,    &mbmi->skip_txfm,
+    cpi,  x,    &ctx,    &mbmi->skip,
     NULL, NULL, dry_run, cpi->optimize_seg_arr[mbmi->segment_id]
   };
   const AV1_COMMON *const cm = &cpi->common;
@@ -705,7 +688,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   MACROBLOCKD *const xd = &x->e_mbd;
   struct macroblock_plane *const p = &x->plane[plane];
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  tran_low_t *dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
+  tran_low_t *dqcoeff = pd->dqcoeff + BLOCK_OFFSET(block);
   PLANE_TYPE plane_type = get_plane_type(plane);
   uint16_t *eob = &p->eobs[block];
   const int dst_stride = pd->dst.stride;
@@ -716,8 +699,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
 
   TX_TYPE tx_type = DCT_DCT;
   const int bw = mi_size_wide[plane_bsize];
-  if (plane == 0 && is_blk_skip(x->txfm_search_info.blk_skip, plane,
-                                blk_row * bw + blk_col)) {
+  if (plane == 0 && is_blk_skip(x, plane, blk_row * bw + blk_col)) {
     *eob = 0;
     p->txb_entropy_ctx[block] = 0;
   } else {
@@ -739,8 +721,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
           USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B : AV1_XFORM_QUANT_FP;
 
     av1_setup_xform(cm, x, tx_size, tx_type, &txfm_param);
-    av1_setup_quant(tx_size, use_trellis, quant_idx,
-                    cpi->oxcf.q_cfg.quant_b_adapt, &quant_param);
+    av1_setup_quant(tx_size, use_trellis, quant_idx, cpi->oxcf.quant_b_adapt,
+                    &quant_param);
     av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
                       &quant_param);
 
@@ -766,7 +748,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
       TXB_CTX txb_ctx;
       get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
       av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
-                     &dummy_rate_cost);
+                     args->cpi->sf.rd_sf.trellis_eob_fast, &dummy_rate_cost);
     }
     if (do_dropout) {
       av1_dropout_qcoeff(x, plane, block, tx_size, tx_type,
@@ -787,8 +769,8 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   // again.
   if (*eob == 0 && plane == 0) {
 #if 0
-    if (args->cpi->oxcf.q_cfg.aq_mode == NO_AQ
-        && args->cpi->oxcf.q_cfg.deltaq_mode == NO_DELTA_Q) {
+    if (args->cpi->oxcf.aq_mode == NO_AQ
+        && args->cpi->oxcf.deltaq_mode == NO_DELTA_Q) {
       assert(xd->tx_type_map[blk_row * xd->tx_type_map_stride + blk_col)] ==
           DCT_DCT);
     }
@@ -803,6 +785,7 @@ void av1_encode_block_intra(int plane, int block, int blk_row, int blk_col,
   if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
     cfl_store_tx(xd, blk_row, blk_col, tx_size, plane_bsize);
   }
+
 }
 
 void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
@@ -817,7 +800,7 @@ void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
   const int ss_y = pd->subsampling_y;
   ENTROPY_CONTEXT ta[MAX_MIB_SIZE] = { 0 };
   ENTROPY_CONTEXT tl[MAX_MIB_SIZE] = { 0 };
-  struct encode_b_args arg = { cpi, x,  NULL,    &(xd->mi[0]->skip_txfm),
+  struct encode_b_args arg = { cpi, x,  NULL,    &(xd->mi[0]->skip),
                                ta,  tl, dry_run, enable_optimize_b };
   const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ss_x, ss_y);
   if (enable_optimize_b) {
@@ -825,4 +808,13 @@ void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
   }
   av1_foreach_transformed_block_in_plane(
       xd, plane_bsize, plane, encode_block_intra_and_set_context, &arg);
+
+#if CONFIG_CFL_SEARCH_VERSION_1
+  // 对亮度重建上一行和左一列参考像素进行下采样
+  if (plane == AOM_PLANE_Y && xd->cfl.store_y)
+  {
+	  cfl_store_nb(xd,plane_bsize);
+  }
+#endif
+
 }

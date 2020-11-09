@@ -35,7 +35,6 @@ enum {
 #define INTRA_EDGE_FILT 3
 #define INTRA_EDGE_TAPS 5
 #define MAX_UPSAMPLE_SZ 16
-#define NUM_INTRA_NEIGHBOUR_PIXELS (MAX_TX_SIZE * 2 + 32)
 
 static const uint8_t extend_modes[INTRA_MODES] = {
   NEED_ABOVE | NEED_LEFT,                   // DC
@@ -456,7 +455,7 @@ static intra_pred_fn dc_pred[2][2][TX_SIZES_ALL];
 #if CONFIG_AV1_HIGHBITDEPTH
 typedef void (*intra_high_pred_fn)(uint16_t *dst, ptrdiff_t stride,
                                    const uint16_t *above, const uint16_t *left,
-                                   int bd);
+                                   int bd);//定义了一种intra…的类型，为指向某种函数的指针，这种函数有5个参数，返回void
 static intra_high_pred_fn pred_high[INTRA_MODES][TX_SIZES_ALL];
 static intra_high_pred_fn dc_pred_high[2][2][TX_SIZES_ALL];
 #endif
@@ -1134,17 +1133,20 @@ void av1_upsample_intra_edge_high_c(uint16_t *p, int sz, int bd) {
   }
 }
 #if CONFIG_AV1_HIGHBITDEPTH
-static void build_intra_predictors_high(
+static void build_intra_predictors_high
+(
     const MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
     int dst_stride, PREDICTION_MODE mode, int angle_delta,
     FILTER_INTRA_MODE filter_intra_mode, TX_SIZE tx_size,
     int disable_edge_filter, int n_top_px, int n_topright_px, int n_left_px,
-    int n_bottomleft_px, int plane) {
+    int n_bottomleft_px, int plane) 
+{
   int i;
   uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
   uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
-  DECLARE_ALIGNED(16, uint16_t, left_data[NUM_INTRA_NEIGHBOUR_PIXELS]);
-  DECLARE_ALIGNED(16, uint16_t, above_data[NUM_INTRA_NEIGHBOUR_PIXELS]);
+  
+  DECLARE_ALIGNED(16, uint16_t, left_data[MAX_TX_SIZE * 2 + 32]);//内存对齐？
+  DECLARE_ALIGNED(16, uint16_t, above_data[MAX_TX_SIZE * 2 + 32]);
   uint16_t *const above_row = above_data + 16;
   uint16_t *const left_col = left_data + 16;
   const int txwpx = tx_size_wide[tx_size];
@@ -1158,12 +1160,6 @@ static void build_intra_predictors_high(
   const int is_dr_mode = av1_is_directional_mode(mode);
   const int use_filter_intra = filter_intra_mode != FILTER_INTRA_MODES;
   int base = 128 << (xd->bd - 8);
-  // The left_data, above_data buffers must be zeroed to fix some intermittent
-  // valgrind errors. Uninitialized reads in intra pred modules (e.g. width = 4
-  // path in av1_highbd_dr_prediction_z2_avx2()) from left_data, above_data are
-  // seen to be the potential reason for this issue.
-  aom_memset16(left_data, base + 1, NUM_INTRA_NEIGHBOUR_PIXELS);
-  aom_memset16(above_data, base - 1, NUM_INTRA_NEIGHBOUR_PIXELS);
 
   // The default values if ref pixels are not available:
   // base   base-1 base-1 .. base-1 base-1 base-1 base-1 base-1 base-1
@@ -1191,7 +1187,7 @@ static void build_intra_predictors_high(
   if ((!need_above && n_left_px == 0) || (!need_left && n_top_px == 0)) {
     int val;
     if (need_left) {
-      val = (n_top_px > 0) ? above_ref[0] : base + 1;
+      val = (n_top_px > 0) ? above_ref[0] : base + 1;//上参考的像素个数大于0？
     } else {
       val = (n_left_px > 0) ? left_ref[0] : base - 1;
     }
@@ -1218,8 +1214,12 @@ static void build_intra_predictors_high(
       }
       if (i < num_left_pixels_needed)
         aom_memset16(&left_col[i], left_col[i - 1], num_left_pixels_needed - i);
-    } else if (n_top_px > 0) {
-      aom_memset16(left_col, above_ref[0], num_left_pixels_needed);
+    } else {
+      if (n_top_px > 0) {
+        aom_memset16(left_col, above_ref[0], num_left_pixels_needed);
+      } else {
+        aom_memset16(left_col, base + 1, num_left_pixels_needed);
+      }
     }
   }
 
@@ -1241,8 +1241,16 @@ static void build_intra_predictors_high(
       if (i < num_top_pixels_needed)
         aom_memset16(&above_row[i], above_row[i - 1],
                      num_top_pixels_needed - i);
-    } else if (n_left_px > 0) {
-      aom_memset16(above_row, left_ref[0], num_top_pixels_needed);
+    } 
+    else 
+    {
+      if (n_left_px > 0) {
+        aom_memset16(above_row, left_ref[0], num_top_pixels_needed);
+      } 
+      else 
+      {
+        aom_memset16(above_row, base - 1, num_top_pixels_needed);
+      }
     }
   }
 
@@ -1309,10 +1317,12 @@ static void build_intra_predictors_high(
   }
 
   // predict
-  if (mode == DC_PRED) {
-    dc_pred_high[n_left_px > 0][n_top_px > 0][tx_size](
-        dst, dst_stride, above_row, left_col, xd->bd);
-  } else {
+  if (mode == DC_PRED) 
+  {
+    dc_pred_high[n_left_px > 0][n_top_px > 0][tx_size](dst, dst_stride, above_row, left_col, xd->bd);
+  } 
+  else
+  {
     pred_high[mode][tx_size](dst, dst_stride, above_row, left_col, xd->bd);
   }
 }
@@ -1325,28 +1335,23 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
                                    TX_SIZE tx_size, int disable_edge_filter,
                                    int n_top_px, int n_topright_px,
                                    int n_left_px, int n_bottomleft_px,
-                                   int plane) {
+                                   int plane) 
+{
   int i;
-  const uint8_t *above_ref = ref - ref_stride;
-  const uint8_t *left_ref = ref - 1;
-  DECLARE_ALIGNED(16, uint8_t, left_data[NUM_INTRA_NEIGHBOUR_PIXELS]);
-  DECLARE_ALIGNED(16, uint8_t, above_data[NUM_INTRA_NEIGHBOUR_PIXELS]);
+  const uint8_t *above_ref = ref - ref_stride;//上参考
+  const uint8_t *left_ref = ref - 1;//左参考
+  DECLARE_ALIGNED(16, uint8_t, left_data[MAX_TX_SIZE * 2 + 32]);//内存对齐
+  DECLARE_ALIGNED(16, uint8_t, above_data[MAX_TX_SIZE * 2 + 32]);
   uint8_t *const above_row = above_data + 16;
   uint8_t *const left_col = left_data + 16;
   const int txwpx = tx_size_wide[tx_size];
   const int txhpx = tx_size_high[tx_size];
-  int need_left = extend_modes[mode] & NEED_LEFT;
-  int need_above = extend_modes[mode] & NEED_ABOVE;
-  int need_above_left = extend_modes[mode] & NEED_ABOVELEFT;
+  int need_left = extend_modes[mode] & NEED_LEFT;//4|2 && 2 //2 need left
+  int need_above = extend_modes[mode] & NEED_ABOVE;//need above
+  int need_above_left = extend_modes[mode] & NEED_ABOVELEFT;//DC：need_above_left=0
   int p_angle = 0;
   const int is_dr_mode = av1_is_directional_mode(mode);
   const int use_filter_intra = filter_intra_mode != FILTER_INTRA_MODES;
-  // The left_data, above_data buffers must be zeroed to fix some intermittent
-  // valgrind errors. Uninitialized reads in intra pred modules (e.g. width = 4
-  // path in av1_dr_prediction_z1_avx2()) from left_data, above_data are seen to
-  // be the potential reason for this issue.
-  memset(left_data, 129, NUM_INTRA_NEIGHBOUR_PIXELS);
-  memset(above_data, 127, NUM_INTRA_NEIGHBOUR_PIXELS);
 
   // The default values if ref pixels are not available:
   // 128 127 127 .. 127 127 127 127 127 127
@@ -1356,7 +1361,8 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   // 129  G   H  ..  S   T   T   T   T   T
   // ..
 
-  if (is_dr_mode) {
+  if (is_dr_mode) 
+  {
     p_angle = mode_to_angle_map[mode] + angle_delta;
     if (p_angle <= 90)
       need_above = 1, need_left = 0, need_above_left = 1;
@@ -1365,21 +1371,28 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
     else
       need_above = 0, need_left = 1, need_above_left = 1;
   }
-  if (use_filter_intra) need_left = need_above = need_above_left = 1;
+  if (use_filter_intra) 
+      need_left = need_above = need_above_left = 1;
 
   assert(n_top_px >= 0);
   assert(n_topright_px >= 0);
   assert(n_left_px >= 0);
   assert(n_bottomleft_px >= 0);
 
-  if ((!need_above && n_left_px == 0) || (!need_left && n_top_px == 0)) {
+  //无需上侧参考像素且左侧可用参考像素个数为0 或 无需左侧参考像素且上侧可用参考像素的个数为0
+  if ((!need_above && n_left_px == 0) || (!need_left && n_top_px == 0))
+  {//不可用时填充默认值
     int val;
-    if (need_left) {
+    if (need_left)//如果需要左侧参考像素
+    {
       val = (n_top_px > 0) ? above_ref[0] : 129;
-    } else {
+    } 
+    else
+    {
       val = (n_left_px > 0) ? left_ref[0] : 127;
     }
-    for (i = 0; i < txhpx; ++i) {
+    for (i = 0; i < txhpx; ++i) 
+    {
       memset(dst, val, txwpx);
       dst += dst_stride;
     }
@@ -1391,7 +1404,10 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
     int need_bottom = extend_modes[mode] & NEED_BOTTOMLEFT;
     if (use_filter_intra) need_bottom = 0;
     if (is_dr_mode) need_bottom = p_angle > 180;
-    const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 0);
+    // the avx2 dr_prediction_z2 may read at most 3 extra bytes,
+    // due to the avx2 mask load is with dword granularity.
+    // so we initialize 3 extra bytes to silence valgrind complain.
+    const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 3);
     i = 0;
     if (n_left_px > 0) {
       for (; i < n_left_px; i++) left_col[i] = left_ref[i * ref_stride];
@@ -1402,105 +1418,138 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
       }
       if (i < num_left_pixels_needed)
         memset(&left_col[i], left_col[i - 1], num_left_pixels_needed - i);
-    } else if (n_top_px > 0) {
-      memset(left_col, above_ref[0], num_left_pixels_needed);
+    } else {
+      if (n_top_px > 0) {
+        memset(left_col, above_ref[0], num_left_pixels_needed);
+      } else {
+        memset(left_col, 129, num_left_pixels_needed);
+      }
     }
   }
 
   // NEED_ABOVE
-  if (need_above) {
+  if (need_above) 
+  {
     int need_right = extend_modes[mode] & NEED_ABOVERIGHT;
     if (use_filter_intra) need_right = 0;
     if (is_dr_mode) need_right = p_angle < 90;
     const int num_top_pixels_needed = txwpx + (need_right ? txhpx : 0);
-    if (n_top_px > 0) {
+    if (n_top_px > 0) 
+    {
       memcpy(above_row, above_ref, n_top_px);
       i = n_top_px;
-      if (need_right && n_topright_px > 0) {
+      if (need_right && n_topright_px > 0) 
+      {
         assert(n_top_px == txwpx);
         memcpy(above_row + txwpx, above_ref + txwpx, n_topright_px);
         i += n_topright_px;
       }
       if (i < num_top_pixels_needed)
         memset(&above_row[i], above_row[i - 1], num_top_pixels_needed - i);
-    } else if (n_left_px > 0) {
-      memset(above_row, left_ref[0], num_top_pixels_needed);
+    } 
+    else 
+    {
+      if (n_left_px > 0) 
+      {
+        memset(above_row, left_ref[0], num_top_pixels_needed);
+      } 
+      else 
+      {
+        memset(above_row, 127, num_top_pixels_needed);
+      }
     }
   }
 
-  if (need_above_left) {
-    if (n_top_px > 0 && n_left_px > 0) {
+  if (need_above_left) 
+  {
+    if (n_top_px > 0 && n_left_px > 0) 
+    {
       above_row[-1] = above_ref[-1];
-    } else if (n_top_px > 0) {
+    } 
+    else if (n_top_px > 0) 
+    {
       above_row[-1] = above_ref[0];
-    } else if (n_left_px > 0) {
+    } 
+    else if (n_left_px > 0) 
+    {
       above_row[-1] = left_ref[0];
-    } else {
+    } 
+    else 
+    {
       above_row[-1] = 128;
     }
     left_col[-1] = above_row[-1];
   }
 
-  if (use_filter_intra) {
-    av1_filter_intra_predictor(dst, dst_stride, tx_size, above_row, left_col,
-                               filter_intra_mode);
+  if (use_filter_intra) 
+  {
+    av1_filter_intra_predictor(dst, dst_stride, tx_size, above_row, left_col, filter_intra_mode);
     return;
   }
 
-  if (is_dr_mode) {
+  if (is_dr_mode) 
+  {
     int upsample_above = 0;
     int upsample_left = 0;
-    if (!disable_edge_filter) {
+    if (!disable_edge_filter) 
+    {
       const int need_right = p_angle < 90;
       const int need_bottom = p_angle > 180;
       const int filt_type = get_filt_type(xd, plane);
-      if (p_angle != 90 && p_angle != 180) {
+      if (p_angle != 90 && p_angle != 180) 
+      {
         const int ab_le = need_above_left ? 1 : 0;
-        if (need_above && need_left && (txwpx + txhpx >= 24)) {
+        if (need_above && need_left && (txwpx + txhpx >= 24))
+        {
           filter_intra_edge_corner(above_row, left_col);
         }
-        if (need_above && n_top_px > 0) {
-          const int strength =
-              intra_edge_filter_strength(txwpx, txhpx, p_angle - 90, filt_type);
+        if (need_above && n_top_px > 0) 
+        {
+          const int strength = intra_edge_filter_strength(txwpx, txhpx, p_angle - 90, filt_type);
           const int n_px = n_top_px + ab_le + (need_right ? txhpx : 0);
           av1_filter_intra_edge(above_row - ab_le, n_px, strength);
         }
-        if (need_left && n_left_px > 0) {
-          const int strength = intra_edge_filter_strength(
-              txhpx, txwpx, p_angle - 180, filt_type);
+        if (need_left && n_left_px > 0) 
+        {
+          const int strength = intra_edge_filter_strength(txhpx, txwpx, p_angle - 180, filt_type);
           const int n_px = n_left_px + ab_le + (need_bottom ? txwpx : 0);
           av1_filter_intra_edge(left_col - ab_le, n_px, strength);
         }
       }
-      upsample_above =
-          av1_use_intra_edge_upsample(txwpx, txhpx, p_angle - 90, filt_type);
-      if (need_above && upsample_above) {
+      upsample_above = av1_use_intra_edge_upsample(txwpx, txhpx, p_angle - 90, filt_type);
+      if (need_above && upsample_above) 
+      {
         const int n_px = txwpx + (need_right ? txhpx : 0);
         av1_upsample_intra_edge(above_row, n_px);
       }
-      upsample_left =
-          av1_use_intra_edge_upsample(txhpx, txwpx, p_angle - 180, filt_type);
-      if (need_left && upsample_left) {
+      upsample_left = av1_use_intra_edge_upsample(txhpx, txwpx, p_angle - 180, filt_type);
+      if (need_left && upsample_left) 
+      {
         const int n_px = txhpx + (need_bottom ? txwpx : 0);
         av1_upsample_intra_edge(left_col, n_px);
       }
     }
-    dr_predictor(dst, dst_stride, tx_size, above_row, left_col, upsample_above,
-                 upsample_left, p_angle);
+    dr_predictor(dst, dst_stride, tx_size, above_row, left_col, upsample_above, upsample_left, p_angle);
     return;
   }
 
   // predict
-  if (mode == DC_PRED) {
-    dc_pred[n_left_px > 0][n_top_px > 0][tx_size](dst, dst_stride, above_row,
-                                                  left_col);
-  } else {
+  if (mode == DC_PRED) 
+  {
+    dc_pred[n_left_px > 0][n_top_px > 0][tx_size](dst, dst_stride, above_row, left_col);
+    //11
+    //dc_pred[n_left_px==0][n_top_px > 0]->01
+    //dc_pred[n_left_px > 0][n_top_px ==0]->10
+  }
+  else
+  {
     pred[mode][tx_size](dst, dst_stride, above_row, left_col);
   }
 }
 
 static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
-                                            int subsampling_y) {
+                                            int subsampling_y) 
+{
   assert(subsampling_x >= 0 && subsampling_x < 2);
   assert(subsampling_y >= 0 && subsampling_y < 2);
   BLOCK_SIZE bs = bsize;
@@ -1554,14 +1603,16 @@ void av1_predict_intra_block(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
     TX_SIZE tx_size, PREDICTION_MODE mode, int angle_delta, int use_palette,
     FILTER_INTRA_MODE filter_intra_mode, const uint8_t *ref, int ref_stride,
-    uint8_t *dst, int dst_stride, int col_off, int row_off, int plane) {
+    uint8_t *dst, int dst_stride, int col_off, int row_off, int plane) 
+{
   const MB_MODE_INFO *const mbmi = xd->mi[0];
-  const int txwpx = tx_size_wide[tx_size];
-  const int txhpx = tx_size_high[tx_size];
+  const int txwpx = tx_size_wide[tx_size];//宽度存在多少像素
+  const int txhpx = tx_size_high[tx_size];///高度存在多少像素
   const int x = col_off << MI_SIZE_LOG2;
   const int y = row_off << MI_SIZE_LOG2;
 
-  if (use_palette) {
+  if (use_palette) 
+  {
     int r, c;
     const uint8_t *const map = xd->plane[plane != 0].color_index_map +
                                xd->color_index_map_offset[plane != 0];
@@ -1596,13 +1647,17 @@ void av1_predict_intra_block(
       col_off || (ss_x ? xd->chroma_left_available : xd->left_available);
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+  const int xr_chr_offset = 0;
+  const int yd_chr_offset = 0;
 
   // Distance between the right edge of this prediction block to
   // the frame right edge
-  const int xr = (xd->mb_to_right_edge >> (3 + ss_x)) + wpx - x - txwpx;
+  const int xr =
+      (xd->mb_to_right_edge >> (3 + ss_x)) + (wpx - x - txwpx) - xr_chr_offset;
   // Distance between the bottom edge of this prediction block to
   // the frame bottom edge
-  const int yd = (xd->mb_to_bottom_edge >> (3 + ss_y)) + hpx - y - txhpx;
+  const int yd =
+      (xd->mb_to_bottom_edge >> (3 + ss_y)) + (hpx - y - txhpx) - yd_chr_offset;
   const int right_available =
       mi_col + ((col_off + txw) << ss_x) < xd->tile.mi_col_end;
   const int bottom_available =
@@ -1610,9 +1665,10 @@ void av1_predict_intra_block(
 
   const PARTITION_TYPE partition = mbmi->partition;
 
-  BLOCK_SIZE bsize = mbmi->bsize;
+  BLOCK_SIZE bsize = mbmi->sb_type;
   // force 4x4 chroma component block size.
-  if (ss_x || ss_y) {
+  if (ss_x || ss_y) 
+  {
     bsize = scale_chroma_bsize(bsize, ss_x, ss_y);
   }
 
@@ -1625,7 +1681,8 @@ void av1_predict_intra_block(
 
   const int disable_edge_filter = !cm->seq_params.enable_intra_edge_filter;
 #if CONFIG_AV1_HIGHBITDEPTH
-  if (is_cur_buf_hbd(xd)) {
+  if (is_cur_buf_hbd(xd)) 
+  {
     build_intra_predictors_high(
         xd, ref, ref_stride, dst, dst_stride, mode, angle_delta,
         filter_intra_mode, tx_size, disable_edge_filter,
@@ -1647,25 +1704,24 @@ void av1_predict_intra_block(
 
 void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                     int plane, int blk_col, int blk_row,
-                                    TX_SIZE tx_size) {
+                                    TX_SIZE tx_size)
+{
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   struct macroblockd_plane *const pd = &xd->plane[plane];
   const int dst_stride = pd->dst.stride;
   uint8_t *dst = &pd->dst.buf[(blk_row * dst_stride + blk_col) << MI_SIZE_LOG2];
-  const PREDICTION_MODE mode =
-      (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
+  const PREDICTION_MODE mode = (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
   const int use_palette = mbmi->palette_mode_info.palette_size[plane != 0] > 0;
-  const FILTER_INTRA_MODE filter_intra_mode =
-      (plane == AOM_PLANE_Y && mbmi->filter_intra_mode_info.use_filter_intra)
-          ? mbmi->filter_intra_mode_info.filter_intra_mode
-          : FILTER_INTRA_MODES;
+  const FILTER_INTRA_MODE filter_intra_mode = (plane == AOM_PLANE_Y && mbmi->filter_intra_mode_info.use_filter_intra)? mbmi->filter_intra_mode_info.filter_intra_mode : FILTER_INTRA_MODES;
   const int angle_delta = mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
+  int dc_loop_flag_max = 3;
 
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
+  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED)//色度分量的CFL模式
+  {
 #if CONFIG_DEBUG
     assert(is_cfl_allowed(xd));
-    const BLOCK_SIZE plane_bsize =
-        get_plane_block_size(mbmi->bsize, pd->subsampling_x, pd->subsampling_y);
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(
+        mbmi->sb_type, pd->subsampling_x, pd->subsampling_y);
     (void)plane_bsize;
     assert(plane_bsize < BLOCK_SIZES_ALL);
     if (!xd->lossless[mbmi->segment_id]) {
@@ -1677,26 +1733,65 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
     CFL_CTX *const cfl = &xd->cfl;
     CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
-    if (cfl->dc_pred_is_cached[pred_plane] == 0) {
+#if CONFIG_CFL_SEARCH_VERSION_1
+	if (cfl->search_res_is_cached[pred_plane] == 0)
+	{
+		if (cfl->use_dc)
+		{
+			av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
+				angle_delta, use_palette, filter_intra_mode, dst,
+				dst_stride, dst, dst_stride, blk_col, blk_row,
+				plane);
+		}
+		else
+		{
+			cfl_search(xd, dst, dst_stride, pred_plane, tx_size);
+			cfl_get_dc(xd, dst, dst_stride, pred_plane, tx_size);
+		}
+
+		//没有保存搜索得到的最佳结果
+		if (cfl->use_search_res_cache)
+		{
+			cfl_store_search_res(xd, dst, dst_stride, pred_plane, tx_size);
+			cfl->search_res_is_cached[pred_plane] = 1;
+		}
+	}
+	else
+	{
+		cfl_load_search_res(xd, dst, dst_stride, tx_size, pred_plane);
+	}
+
+#else
+    if (cfl->dc_pred_is_cached[pred_plane] == 0) //U或V
+    {//没有缓存到DC预测值
+
       av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
                               angle_delta, use_palette, filter_intra_mode, dst,
                               dst_stride, dst, dst_stride, blk_col, blk_row,
-                              plane);
-      if (cfl->use_dc_pred_cache) {
-        cfl_store_dc_pred(xd, dst, pred_plane, tx_size_wide[tx_size]);
-        cfl->dc_pred_is_cached[pred_plane] = 1;
+                              plane);  //根据不同的模式进行预测
+
+      //xd->mbmi->mode
+      if (cfl->use_dc_pred_cache) //如果使用DC缓存
+      {
+        cfl_store_dc_pred(xd, dst, pred_plane, tx_size_wide[tx_size]);//缓存DC模式预测值的时候都是存一行值
+        cfl->dc_pred_is_cached[pred_plane] = 1;//DC缓存好
       }
-    } else {
-      cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);
+    } 
+    else //已经缓存好
+    {
+      cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);//将DC预测值填充给整个块
     }
-    cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
+#endif
+
+    cfl_predict_block(xd, dst, dst_stride, tx_size, plane);//进行CFL模式的预测值
     return;
   }
-  av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
-                          angle_delta, use_palette, filter_intra_mode, dst,
+
+  av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode, angle_delta, use_palette, filter_intra_mode, dst,
                           dst_stride, dst, dst_stride, blk_col, blk_row, plane);
 }
 
-void av1_init_intra_predictors(void) {
+void av1_init_intra_predictors(void) 
+{
   aom_once(init_intra_predictors_internal);
 }

@@ -18,7 +18,7 @@
 // Can we use CfL for the current block?
 static INLINE CFL_ALLOWED_TYPE is_cfl_allowed(const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = xd->mi[0];
-  const BLOCK_SIZE bsize = mbmi->bsize;
+  const BLOCK_SIZE bsize = mbmi->sb_type;
   assert(bsize < BLOCK_SIZES_ALL);
   if (xd->lossless[mbmi->segment_id]) {
     // In lossless, CfL is available when the partition size is equal to the
@@ -66,6 +66,10 @@ static INLINE CFL_PRED_TYPE get_cfl_pred_type(PLANE_TYPE plane) {
   return (CFL_PRED_TYPE)(plane - 1);
 }
 
+#if CONFIG_CFL_SEARCH_VERSION_1
+void cfl_store_nb(MACROBLOCKD *const xd, BLOCK_SIZE bsize);
+#endif
+
 void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                        TX_SIZE tx_size, int plane);
 
@@ -74,12 +78,27 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size);
 void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size,
                   BLOCK_SIZE bsize);
 
+#if CONFIG_CFL_SEARCH_VERSION_1
+void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
+	CFL_PRED_TYPE pred_plane, TX_SIZE txsize);
+
+void cfl_store_search_res(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
+	CFL_PRED_TYPE pred_plane, TX_SIZE txsize);
+
+void cfl_load_search_res(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
+	TX_SIZE tx_size, CFL_PRED_TYPE pred_plane);
+#else
 void cfl_store_dc_pred(MACROBLOCKD *const xd, const uint8_t *input,
                        CFL_PRED_TYPE pred_plane, int width);
 
 void cfl_load_dc_pred(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                       TX_SIZE tx_size, CFL_PRED_TYPE pred_plane);
+#endif
 
+#if CONFIG_CFL_SEARCH_VERSION_1
+void cfl_get_dc(MACROBLOCKD *const xd,uint8_t *dst, int dst_stride,
+	CFL_PRED_TYPE pred_plane, TX_SIZE txsize);
+#endif
 // Allows the CFL_SUBSAMPLE function to switch types depending on the bitdepth.
 #define CFL_lbd_TYPE uint8_t *cfl_type
 #define CFL_hbd_TYPE uint16_t *cfl_type
