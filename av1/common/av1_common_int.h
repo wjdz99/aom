@@ -52,6 +52,8 @@ extern "C" {
 #endif
 
 #define CDEF_MAX_STRENGTHS 16
+/* Constant value specifying size of subgop stats*/
+#define MAX_SUBGOP_STATS_SIZE 32
 
 /* Constant values while waiting for the sequence header */
 #define FRAME_ID_LENGTH 15
@@ -1060,6 +1062,21 @@ typedef struct AV1Common {
   int is_decoding;
 #endif  // CONFIG_LPF_MASK
 } AV1_COMMON;
+
+typedef struct {
+  int disp_frame_idx;
+  int is_filtered;
+  int show_frame;
+  int show_existing_frame;
+  int pyramid_level;
+} SUBGOP_STEP_DATA;
+
+typedef struct {
+  int num_steps;
+  int step_idx_enc;
+  int step_idx_dec;
+  SUBGOP_STEP_DATA step[MAX_SUBGOP_STATS_SIZE];
+} SUBGOP_DATA;
 
 /*!\cond */
 
