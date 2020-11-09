@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72b1f53e_95b3291b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-09T18:38:43Z",
+      "side": 1,
+      "message": "Fine for this patch.\nBut in future, if you need to itemize list of fixes like this, it\u0027s an indication that the patch should be split into multiple patches.\nThis makes it easier to review, and also bisect/revert relevant parts in future if needed.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 34
+      },
+      "revId": "f11efd0e80b63188828b3b0fff3987bfc63292e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
