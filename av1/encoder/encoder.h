@@ -132,14 +132,6 @@ enum {
   RESIZE_MODES
 } UENUM1BYTE(RESIZE_MODE);
 
-typedef enum {
-  kInvalid = 0,
-  kLowSad = 1,
-  kMedSad = 2,
-  kHighSad = 3,
-  kLowVarHighSumdiff = 4,
-} CONTENT_STATE_SB;
-
 enum {
   SS_CFG_SRC = 0,
   SS_CFG_LOOKAHEAD = 1,
@@ -163,7 +155,6 @@ typedef enum {
   COST_UPD_TILE,
   COST_UPD_OFF,
 } COST_UPDATE_TYPE;
-
 /*!\endcond */
 
 /*!
