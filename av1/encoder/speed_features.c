@@ -1295,6 +1295,12 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
     set_rt_speed_feature_framesize_dependent(cpi, sf, speed);
   }
 
+  // Reset mv_cost_upd_level speed feature to use row level update when row_mt
+  // is enabled.
+  if ((cpi->oxcf.row_mt == 1) && (cpi->oxcf.max_threads > 1) &&
+      (sf->inter_sf.mv_cost_upd_level > 1))
+    sf->inter_sf.mv_cost_upd_level = 1;
+
   // This is only used in motion vector unit test.
   if (cpi->oxcf.unit_test_cfg.motion_vector_unit_test == 1)
     cpi->mv_search_params.find_fractional_mv_step = av1_return_max_sub_pixel_mv;
