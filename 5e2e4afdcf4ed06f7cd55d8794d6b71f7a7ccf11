@@ -16,6 +16,24 @@
       "message": "This is a surprisingly large change in metrics for this one change or are the numbers given for the chain if changes in total?",
       "revId": "5e2e4afdcf4ed06f7cd55d8794d6b71f7a7ccf11",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ca30e1e_2e995d5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-11-09T18:12:13Z",
+      "side": 1,
+      "message": "Sorry for the misleading message on its own.\n\nThe coding gain numbers include all its 4 parent CLs.",
+      "parentUuid": "c57d4d00_da52cf40",
+      "revId": "5e2e4afdcf4ed06f7cd55d8794d6b71f7a7ccf11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
