@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f375fb7_bb9e1237",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5005
+      },
+      "writtenOn": "2020-11-09T22:29:21Z",
+      "side": 1,
+      "message": "I am a bit confused by the commit message, is this an change to speed 1 or speed 2??\n\n\u003e2% is a good speedup, regardless speed 1 or 2, btw.",
+      "range": {
+        "startLine": 12,
+        "startChar": 21,
+        "endLine": 12,
+        "endChar": 28
+      },
+      "revId": "c6e83f7299d39452fa9f75c0369f3acc2131776b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
