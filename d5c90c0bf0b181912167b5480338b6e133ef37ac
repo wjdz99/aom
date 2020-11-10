@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eeb83cdc_8bd26490",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-11-10T15:40:59Z",
+      "side": 1,
+      "message": "\nHi Yunqing,\n\nConsidering the future patches we are going to submit for cdef multi-threading, we observe that there is a possibility of two functions with different functionalities but same function name to be included in a file (specifically sign() function which is present in both cdef.h and mathutils.h). This happens when ‘pickcdef.h’ is included in ‘encoder.h’ file. Hence, we thought of renaming the sign() function in mathutils.h to apply_sign(). The renaming also justifies the functionality of sign(double a, double b) present in mathutils.h (which applies the sign for \"a\" based on magnitude of \"b\").\n\nThis is a bit-exact change with no speed impact (verified locally). \n\nPlease review.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "d5c90c0bf0b181912167b5480338b6e133ef37ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
