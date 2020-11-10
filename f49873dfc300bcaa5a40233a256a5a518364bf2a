@@ -142,6 +142,30 @@
       },
       "revId": "f49873dfc300bcaa5a40233a256a5a518364bf2a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23f7d1c5_0d185b7a",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-10T20:57:14Z",
+      "side": 0,
+      "message": "This is the function you need to test:\naom_comp_mask_pred_c(comp_pred1_, pred_, w, h, ref_, MAX_SB_SIZE, mask, w,\n                         inv)\nYou can define a mask(const uint8_t mask[]... ) yourself and pass it to the above function. You don\u0027t have to use\nconst uint8_t *mask \u003d av1_get_contiguous_soft_mask(wedge_index, 1, bsize);\n\nStill keep current test for w\u003c\u003d32, and add a new one for w\u003e32.",
+      "parentUuid": "c548bdba_58a89d41",
+      "range": {
+        "startLine": 285,
+        "startChar": 4,
+        "endLine": 285,
+        "endChar": 5
+      },
+      "revId": "f49873dfc300bcaa5a40233a256a5a518364bf2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
