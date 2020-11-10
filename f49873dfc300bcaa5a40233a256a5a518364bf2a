@@ -46,6 +46,30 @@
       },
       "revId": "f49873dfc300bcaa5a40233a256a5a518364bf2a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5c6c7f0_7ae3e03c",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-10T04:51:43Z",
+      "side": 0,
+      "message": "We shouldn\u0027t make the change here. You could add needed masks in unit test file. Anyway, masks with width \u003e 32 are for other masked compound modes (not for wedge compound mode). The change here is not right.",
+      "parentUuid": "d1113e3b_d0b64c30",
+      "range": {
+        "startLine": 285,
+        "startChar": 4,
+        "endLine": 285,
+        "endChar": 5
+      },
+      "revId": "f49873dfc300bcaa5a40233a256a5a518364bf2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
