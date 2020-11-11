@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "aed555fa_829e36ed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-11-11T22:13:14Z",
+      "side": 1,
+      "message": "The BDRate decrease for VGA is ~2.5% with ~4% speed up. So, limiting this for lowres only",
+      "parentUuid": "d13925e9_ddfec754",
+      "revId": "758301b9306dab7f79ebae168c8b14fada62fd10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb3f06cd_4f1bf115",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 2
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "576bf9be_8079b558",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1256,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-11-11T22:13:14Z",
+      "side": 1,
+      "message": "Yes, this gives about 0.1% BDRate gain overall. I ported it from RDO from VP9",
+      "parentUuid": "eb3f06cd_4f1bf115",
+      "revId": "758301b9306dab7f79ebae168c8b14fada62fd10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1c043ed6_3f0fef09",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 2
@@ -48,6 +84,24 @@
       "writtenOn": "2020-11-11T17:57:44Z",
       "side": 1,
       "message": "this means this won\u0027t be used for resolutions above vga? If so can we put the resolution condition directly in the speed feature setting?",
+      "revId": "758301b9306dab7f79ebae168c8b14fada62fd10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c2e2faf_d6e8e61e",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1974,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2020-11-11T22:13:14Z",
+      "side": 1,
+      "message": "Good point. I am limiting it in speed feature setting to lowres only",
+      "parentUuid": "1c043ed6_3f0fef09",
       "revId": "758301b9306dab7f79ebae168c8b14fada62fd10",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
