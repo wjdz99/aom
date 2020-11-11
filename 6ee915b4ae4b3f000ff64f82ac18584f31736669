@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9015530f_4f3aaf97",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "sure.",
+      "parentUuid": "b93063b6_e2fbed5c",
+      "range": {
+        "startLine": 365,
+        "startChar": 23,
+        "endLine": 365,
+        "endChar": 35
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6f6ecb5_a9443411",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-11T22:04:32Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 380,
+        "startChar": 29,
+        "endLine": 380,
+        "endChar": 48
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b612b5be_89e5eede",
+        "filename": "av1/common/reconinter.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "a6f6ecb5_a9443411",
       "range": {
         "startLine": 380,
         "startChar": 29,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d05aa89b_44815780",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Diffwtd_mask needs them and also the wedge tests earlier use them.",
+      "parentUuid": "76a2a08d_377b3203",
+      "range": {
+        "startLine": 59,
+        "startChar": 24,
+        "endLine": 59,
+        "endChar": 31
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "800d36a4_978a1ef4",
@@ -83,6 +155,30 @@
       "writtenOn": "2020-11-11T22:04:32Z",
       "side": 1,
       "message": "probably not to use WEDGE related macros if possible.",
+      "range": {
+        "startLine": 131,
+        "startChar": 19,
+        "endLine": 131,
+        "endChar": 34
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53a66d28_4532a550",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "800d36a4_978a1ef4",
       "range": {
         "startLine": 131,
         "startChar": 19,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36e02acb_98d12e8a",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure",
+      "parentUuid": "c3840194_33ccd2e9",
+      "range": {
+        "startLine": 139,
+        "startChar": 44,
+        "endLine": 139,
+        "endChar": 49
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d430ecfd_f4c43df7",
@@ -129,6 +249,30 @@
       "writtenOn": "2020-11-11T22:04:32Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 250,
+        "startChar": 19,
+        "endLine": 250,
+        "endChar": 57
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43128296_966f4a5b",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "d430ecfd_f4c43df7",
       "range": {
         "startLine": 250,
         "startChar": 19,
@@ -162,6 +306,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b8e01df_b247c8b8",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "d3c0d879_ac24b08c",
+      "range": {
+        "startLine": 271,
+        "startChar": 17,
+        "endLine": 271,
+        "endChar": 22
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "af9d1d6c_766afaed",
@@ -175,6 +343,30 @@
       "writtenOn": "2020-11-11T22:04:32Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 360,
+        "startChar": 24,
+        "endLine": 360,
+        "endChar": 31
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38ac7bad_e2f6c1fa",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "af9d1d6c_766afaed",
       "range": {
         "startLine": 360,
         "startChar": 24,
@@ -208,6 +400,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8d90f05_ff3b442a",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure",
+      "parentUuid": "cbf12cec_609ceefd",
+      "range": {
+        "startLine": 451,
+        "startChar": 19,
+        "endLine": 451,
+        "endChar": 35
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e909dd57_81b2b1a6",
@@ -221,6 +437,30 @@
       "writtenOn": "2020-11-11T22:04:32Z",
       "side": 1,
       "message": "same",
+      "range": {
+        "startLine": 462,
+        "startChar": 44,
+        "endLine": 462,
+        "endChar": 49
+      },
+      "revId": "6ee915b4ae4b3f000ff64f82ac18584f31736669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21b9cd4b_3b347d34",
+        "filename": "test/comp_mask_variance_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-11T22:38:38Z",
+      "side": 1,
+      "message": "Sure.",
+      "parentUuid": "e909dd57_81b2b1a6",
       "range": {
         "startLine": 462,
         "startChar": 44,
