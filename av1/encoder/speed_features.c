@@ -1029,6 +1029,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.force_large_partition_blocks = 1;
     for (int i = 0; i < BLOCK_SIZES; ++i)
       sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC;
+    sf->rt_sf.nonrd_agressive_skip = 1;
   }
 }
 
