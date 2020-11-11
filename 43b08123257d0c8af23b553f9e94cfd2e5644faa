@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05a3c6d8_03d20bc2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-11-11T13:54:06Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we have moved the functions which will be common for both single-thread and multi-thread implementation of temporal filter to the header file temporal_filter.h, in order to facilitate multi-threading.\n\nThis patch is verified to be bit-exact with no impact on encode time.\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "43b08123257d0c8af23b553f9e94cfd2e5644faa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
