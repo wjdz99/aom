@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e73f1f70_f2b0d04c",
+        "filename": "tools/convexhull_framework/src/AV2CTCVideo.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "will change",
+      "parentUuid": "7a884d1e_1ca8dad3",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "424b1aee_6b23a30c",
         "filename": "tools/convexhull_framework/src/CalcQtyWithVmafTool.py",
         "patchSetId": 4
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-10T19:44:06Z",
       "side": 1,
       "message": "the aggregated qty metrics values for whole sequence in vmaf out file does not have key word \"aggreate*\" now? it changed to \"mean\"?",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c69ebac_84031496",
+        "filename": "tools/convexhull_framework/src/CalcQtyWithVmafTool.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "right, the output file format is different from before in the new vmaf_rc tool.",
+      "parentUuid": "424b1aee_6b23a30c",
       "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ca20098_e551dee2",
+        "filename": "tools/convexhull_framework/src/CalculateQualityMetrics.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "Agree. we can further clean it up in the next step.",
+      "parentUuid": "6fe93843_f700cbb6",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "035da96b_4b243ddb",
@@ -65,6 +119,24 @@
       "writtenOn": "2020-11-10T19:44:06Z",
       "side": 1,
       "message": "delete this line since we only support VMAF now",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "267ccd56_2574cd07",
+        "filename": "tools/convexhull_framework/src/Config.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "will change",
+      "parentUuid": "035da96b_4b243ddb",
       "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7a8e795_d7e9215c",
+        "filename": "tools/convexhull_framework/src/Config.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "0cb9793d_ab73dcb6",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6add66a5_bf43b110",
@@ -99,6 +189,24 @@
       "writtenOn": "2020-11-10T19:44:06Z",
       "side": 1,
       "message": "EncodeMethod, CodecName, EncodePreset, LogCmdOnly are global variables, so no need to send through functions which implemented in this file.",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a37ee4bc_13a90dce",
+        "filename": "tools/convexhull_framework/src/ConvexHullTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "6add66a5_bf43b110",
       "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +228,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e41c6da_28c0fa42",
+        "filename": "tools/convexhull_framework/src/ScalingTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "function GetDownScaledOutFile is called in multiple places, some other places need the full path of the file.",
+      "parentUuid": "b55747b3_32fde26d",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5a4c4bac_88f66c8e",
@@ -133,6 +259,24 @@
       "writtenOn": "2020-11-10T19:44:06Z",
       "side": 1,
       "message": "we do not need to give path_dnscl here and in next GetUpScaleOutFile, reason is the 2 places are just get file name not the path. the path is decided at line 215. That is why i did not send the dnscale path in function input parameter before.",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "004b44a2_b14bc482",
+        "filename": "tools/convexhull_framework/src/ScalingTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "parentUuid": "5a4c4bac_88f66c8e",
       "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +298,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "823d1804_9ac354a7",
+        "filename": "tools/convexhull_framework/src/ScalingTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f6ed17fa_2ee81f1d",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ef525576_1ed5da24",
@@ -167,6 +329,24 @@
       "writtenOn": "2020-11-10T19:44:06Z",
       "side": 1,
       "message": "is this function still needed?",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90baa9ec_e72dba65",
+        "filename": "tools/convexhull_framework/src/Utils.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "it is not needed anymore. I will delete it.",
+      "parentUuid": "ef525576_1ed5da24",
       "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -188,6 +368,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a0a528c_1f2e26a8",
+        "filename": "tools/convexhull_framework/src/VideoScaler.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "will remove",
+      "parentUuid": "972eb938_e8de4426",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "45c9013b_5d103dbf",
@@ -201,6 +399,24 @@
       "writtenOn": "2020-11-10T19:44:06Z",
       "side": 1,
       "message": "is this function to be removed?",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de7f90fc_7b1c11f9",
+        "filename": "tools/convexhull_framework/src/VideoScaler.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T01:31:41Z",
+      "side": 1,
+      "message": "will remove",
+      "parentUuid": "45c9013b_5d103dbf",
       "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
