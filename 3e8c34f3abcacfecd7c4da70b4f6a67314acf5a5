@@ -300,6 +300,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80845d17_7beacfb8",
+        "filename": "tools/convexhull_framework/src/ScalingTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T21:37:14Z",
+      "side": 1,
+      "message": "The GetDownScaleOutFile is also used in the DownScaling function, it needs to get the full path of the file.",
+      "parentUuid": "4622d185_529b63d5",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5a4c4bac_88f66c8e",
@@ -472,6 +490,24 @@
       "side": 1,
       "message": "Actually, 4 * QP is NOT accurate for higher values. (e.g. 63 should map to 255, but in your case it will map to 252).\nI think there is a function and a table in libaom code for this mapping. You may have to write something similar.",
       "parentUuid": "517a832c_caad2b85",
+      "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "596590b2_61470273",
+        "filename": "tools/convexhull_framework/src/VideoEncoder.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-11-11T21:37:14Z",
+      "side": 1,
+      "message": "Urvang, will the cq_level argument still be supported in the future. If yes, I can change it back to still use --cq_level instead of --qp.",
+      "parentUuid": "16f536f8_90105a3f",
       "revId": "3e8c34f3abcacfecd7c4da70b4f6a67314acf5a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
