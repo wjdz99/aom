@@ -169,6 +169,30 @@ INSTANTIATE_TEST_SUITE_P(
                        ::testing::ValuesIn(kTxSize)));
 #endif  // HAVE_SSE4_1
 
+#if HAVE_AVX2
+const PredFuncMode kPredFuncMdArrayAVX2[] = {
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_avx2,
+             FILTER_DC_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_avx2,
+             FILTER_V_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_avx2,
+             FILTER_H_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_avx2,
+             FILTER_D157_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_avx2,
+             FILTER_PAETH_PRED),
+};
+
+const TX_SIZE kTxSizeAVX2[] = { TX_4X4,  TX_8X8,  TX_16X16, TX_32X32, TX_4X8,
+                                TX_8X4,  TX_8X16, TX_16X8,  TX_16X32, TX_32X16,
+                                TX_4X16, TX_16X4, TX_8X32,  TX_32X8 };
+
+INSTANTIATE_TEST_SUITE_P(
+    AVX2, AV1FilterIntraPredTest,
+    ::testing::Combine(::testing::ValuesIn(kPredFuncMdArrayAVX2),
+                       ::testing::ValuesIn(kTxSizeAVX2)));
+#endif  // HAVE_AVX2
+
 #if HAVE_NEON
 const PredFuncMode kPredFuncMdArrayNEON[] = {
   make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_neon,
