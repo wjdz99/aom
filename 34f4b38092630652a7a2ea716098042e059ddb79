@@ -22,6 +22,30 @@
       },
       "revId": "34f4b38092630652a7a2ea716098042e059ddb79",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "947cc8c4_b32ada63",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-11-12T07:52:28Z",
+      "side": 0,
+      "message": "Hi Yunqing,\n\nWe have verified that there are no doxygen warnings with this patchset. These functions are moved to temporal_filter.h where they are kept inside /*!\\cond */ - /*!\\endcond */.\n\nRegards,\nJayasanker.",
+      "parentUuid": "36d52c7a_f7c79df6",
+      "range": {
+        "startLine": 832,
+        "startChar": 0,
+        "endLine": 832,
+        "endChar": 11
+      },
+      "revId": "34f4b38092630652a7a2ea716098042e059ddb79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
