@@ -1441,6 +1441,22 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     const int cur_frame_disp =
         cpi->common.current_frame.frame_number + frame_params.order_offset;
 
+    if (cpi->gf_group.update_type[cpi->gf_group.index] == OVERLAY_UPDATE || 
+        cpi->gf_group.update_type[cpi->gf_group.index] == INTNL_OVERLAY_UPDATE) {
+//    printf("cur %d\n", cur_frame_disp);
+      for (int i = LAST_FRAME; i <= ALTREF_FRAME; i++) {
+          const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, i);
+          if (buf == NULL) continue;
+          const int frame_order = (int)buf->display_order_hint;
+        if (frame_order == cur_frame_disp) {
+          frame_params.ref_frame_flags &= (1 << (i - LAST_FRAME));
+        } else {
+          frame_params.ref_frame_flags &= ~(1 << (i - LAST_FRAME));
+        }
+      }
+//    printf("params %d\n", frame_params.ref_frame_flags);
+    }
+
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, cpi->gf_group.index,
         cur_frame_disp, ref_frame_map_pairs);
@@ -1457,6 +1473,40 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       }
     }
   }
+/*
+    const int cur_frame_disp =
+        cpi->common.current_frame.frame_number + frame_params.order_offset;
+
+  char *str_frames[7] = { 
+ "LAST_FRAME",
+ "LAST2_FRAME",
+ "LAST3_FRAME",
+ "GOLDEN_FRAME",
+ "BWDREF_FRAME",
+ "ALTREF2_FRAME",
+ "ALTREF_FRAME"
+  };
+  char *ud_str[7] = {
+ "KF_UPDATE",
+ "LF_UPDATE",
+ "GF_UPDATE",
+ "ARF_UPDATE",
+ "OVERLAY_UPDATE",
+ "INTNL_OVERLAY_UPDATE",
+ "INTNL_ARF_UPDATE"
+  };
+  printf("~~~~~~~~ %s ~~~~~~~~ %d\n", ud_str[gf_group->update_type[gf_group->index]], cur_frame_disp);
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    char *frm_str = str_frames[frame - 1];
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(&cpi->common, frame);
+    if (buf == NULL) continue;
+    const int frame_order = (int)buf->display_order_hint;
+    const int frame_level = buf->pyramid_level;
+    printf("%s (l: %d, o: %d)\n", frm_str, frame_level, frame_order);
+  }
+  printf("\n\n");
+*/
 
   // The way frame_params->remapped_ref_idx is setup is a placeholder.
   // Currently, reference buffer assignment is done by update_ref_frame_map()

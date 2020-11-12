@@ -956,6 +956,10 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
 
     if (mode == COMPOUND_REFERENCE) {
+      if (cm->is_overlay) {
+          ref_frame[0] = ALTREF_FRAME;
+          ref_frame[1] = ALTREF_FRAME;
+      } else {
       const COMP_REFERENCE_TYPE comp_ref_type = read_comp_reference_type(xd, r);
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
@@ -1004,7 +1008,12 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       } else {
         ref_frame[idx] = ALTREF_FRAME;
       }
+    }
     } else if (mode == SINGLE_REFERENCE) {
+      if (cm->is_overlay) {
+
+          ref_frame[0] = ALTREF_FRAME;
+      } else { 
       const int bit0 = READ_REF_BIT(single_ref_p1);
       if (bit0) {
         const int bit1 = READ_REF_BIT(single_ref_p2);
@@ -1025,6 +1034,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
         }
       }
 
+      }
       ref_frame[1] = NONE_FRAME;
     } else {
       assert(0 && "Invalid prediction mode.");

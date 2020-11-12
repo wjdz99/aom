@@ -509,6 +509,7 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
     }
 
     if (is_compound) {
+      if (!cm->is_overlay) {
       const COMP_REFERENCE_TYPE comp_ref_type = has_uni_comp_refs(mbmi)
                                                     ? UNIDIR_COMP_REFERENCE
                                                     : BIDIR_COMP_REFERENCE;
@@ -556,7 +557,9 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
         WRITE_REF_BIT(mbmi->ref_frame[1] == ALTREF2_FRAME, comp_bwdref_p1);
       }
 
+      }
     } else {
+      if (!cm->is_overlay) {
       const int bit0 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
                         mbmi->ref_frame[0] >= BWDREF_FRAME);
       WRITE_REF_BIT(bit0, single_ref_p1);
@@ -581,6 +584,7 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
           WRITE_REF_BIT(bit4, single_ref_p5);
         }
       }
+    }
     }
   }
 }
@@ -2853,6 +2857,11 @@ static AOM_INLINE void write_uncompressed_header_obu(
   MACROBLOCKD *const xd = &cpi->td.mb.e_mbd;
   CurrentFrame *const current_frame = &cm->current_frame;
   FeatureFlags *const features = &cm->features;
+  const int is_overlay = 
+    cpi->gf_group.update_type[cpi->gf_group.index] == OVERLAY_UPDATE || 
+    cpi->gf_group.update_type[cpi->gf_group.index] == INTNL_OVERLAY_UPDATE;
+  cm->is_overlay = is_overlay;
+
 
   current_frame->frame_refs_short_signaling = 0;
 
@@ -2981,8 +2990,12 @@ static AOM_INLINE void write_uncompressed_header_obu(
   // frames.  For all other frame types, we need to write refresh_frame_flags.
   if ((current_frame->frame_type == KEY_FRAME && !cm->show_frame) ||
       current_frame->frame_type == INTER_FRAME ||
-      current_frame->frame_type == INTRA_ONLY_FRAME)
-    aom_wb_write_literal(wb, current_frame->refresh_frame_flags, REF_FRAMES);
+      current_frame->frame_type == INTRA_ONLY_FRAME) {
+  if (current_frame->frame_type == INTER_FRAME) aom_wb_write_bit(wb, cm->is_overlay);
+    if (!cm->is_overlay || current_frame->frame_type == KEY_FRAME || 
+        current_frame->frame_type == INTRA_ONLY_FRAME)
+      aom_wb_write_literal(wb, current_frame->refresh_frame_flags, REF_FRAMES);
+  }
 
   if (!frame_is_intra_only(cm) || current_frame->refresh_frame_flags != 0xff) {
     // Write all ref frame order hints if error_resilient_mode == 1

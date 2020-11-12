@@ -4439,6 +4439,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   aom_s_frame_info *sframe_info = &pbi->sframe_info;
   sframe_info->is_s_frame = 0;
   sframe_info->is_s_frame_at_altref = 0;
+  cm->is_overlay = 0;
 
   if (!pbi->sequence_header_ready) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
@@ -4705,8 +4706,15 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         pbi->need_resync = 0;
       }
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
-      current_frame->refresh_frame_flags =
+      
+      cm->is_overlay = aom_rb_read_bit(rb);
+      if (!cm->is_overlay) {
+        current_frame->refresh_frame_flags =
           frame_is_sframe(cm) ? 0xFF : aom_rb_read_literal(rb, REF_FRAMES);
+      } else {
+        current_frame->refresh_frame_flags =
+          frame_is_sframe(cm) ? 0xFF : 0;
+      }
     }
   }
 
