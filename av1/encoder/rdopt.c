@@ -2766,8 +2766,6 @@ static int64_t handle_inter_mode(
     save_mv[i][1].as_int = INVALID_MV;
   }
 
-  args->wedge_index = -1;
-  args->wedge_sign = -1;
   args->diffwtd_index = -1;
 
   // Main loop of this function. This will  iterate over all of the ref mvs
@@ -5351,9 +5349,13 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi,
                                interintra_modes,
                                { { { 0 }, { { 0 } }, { 0 }, 0, 0, 0, 0 } },
                                0,
-                               0,
-                               0,
+                               { 0 },
+                               { 0 },
                                0 };
+  for (i = 0; i < MODE_CTX_REF_FRAMES; ++i) {
+    args.wedge_index[i] = -1;
+    args.wedge_sign[i] = -1;
+  }
   // Indicates the appropriate number of simple translation winner modes for
   // exhaustive motion mode evaluation
   const int max_winner_motion_mode_cand =
