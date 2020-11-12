@@ -348,7 +348,8 @@ list(APPEND AOM_AV1_COMMON_INTRIN_AVX2
             "${AOM_ROOT}/av1/common/x86/reconinter_avx2.c"
             "${AOM_ROOT}/av1/common/x86/selfguided_avx2.c"
             "${AOM_ROOT}/av1/common/x86/warp_plane_avx2.c"
-            "${AOM_ROOT}/av1/common/x86/wiener_convolve_avx2.c")
+            "${AOM_ROOT}/av1/common/x86/wiener_convolve_avx2.c"
+            "${AOM_ROOT}/av1/common/x86/filterintra_avx2.c")
 
 if(NOT CONFIG_AV1_HIGHBITDEPTH)
   list(REMOVE_ITEM AOM_AV1_COMMON_INTRIN_AVX2
