@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7964470_632dfbc2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-11-13T18:25:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "376bb3a4_68edb14c",
+      "revId": "1f1d403eea1dd5744a9940cdc63a7aa1ff36ffe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a21229b4_1be52281",
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3a0e20bb_93a01794",
+        "filename": "av1/common/interintra_ml_model.cc",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-11-13T18:25:02Z",
+      "side": 1,
+      "message": "Yes, from the commit message, \"Also fixes a missing header in interintra_ml_model.cc (which causes a link error in MSVC)\". Please let me know if this should be clearer, or if you want this split out.",
+      "parentUuid": "a21229b4_1be52281",
+      "revId": "1f1d403eea1dd5744a9940cdc63a7aa1ff36ffe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ae51f30c_22f8ec5f",
         "filename": "build/cmake/tensorflow_lite.cmake",
         "patchSetId": 15
@@ -48,6 +84,30 @@
       "writtenOn": "2020-11-13T18:09:34Z",
       "side": 1,
       "message": "Is \u0027target\u0027 a cmake keyword? (Guessing from the highlighting shown here).\nIf so, maybe clearer to use some other variable name.\nif not, pls ignore the comment.",
+      "range": {
+        "startLine": 51,
+        "startChar": 34,
+        "endLine": 51,
+        "endChar": 40
+      },
+      "revId": "1f1d403eea1dd5744a9940cdc63a7aa1ff36ffe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6ba2558_dfeff485",
+        "filename": "build/cmake/tensorflow_lite.cmake",
+        "patchSetId": 15
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-11-13T18:25:02Z",
+      "side": 1,
+      "message": "I do not see it listed as a keyword when I searched for documentation, but I agree that it is odd that it is being highlighted. It seems that CMake refers to these as either targets or named targets. I will clarify the documentation and switch to named_target.",
+      "parentUuid": "ae51f30c_22f8ec5f",
       "range": {
         "startLine": 51,
         "startChar": 34,
