@@ -1237,6 +1237,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   MB_MODE_INFO *mbmi = xd->mi[0];
   const PREDICTION_MODE this_mode = mbmi->mode;
   const int bw = block_size_wide[bsize];
+  int ref_frame = av1_ref_frame_type(mbmi->ref_frame);
   int rs2;
   int_mv best_mv[2];
   int best_tmp_rate_mv = *rate_mv;
@@ -1349,12 +1350,15 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       // use spare buffer for following compound type try
       if (cur_type == COMPOUND_AVERAGE) restore_dst_buf(xd, *tmp_dst, 1);
     } else if (cur_type == COMPOUND_WEDGE) {
+      if (args->newmv_mode[ref_frame] == COMPOUND_AVERAGE ||
+          args->newmv_mode[ref_frame] == COMPOUND_DISTWTD)
+        continue;
+
       int best_mask_index = 0;
       int best_wedge_sign = 0;
       int_mv tmp_mv[2] = { mbmi->mv[0], mbmi->mv[1] };
       int best_rate_mv = *rate_mv;
       const int wedge_mask_size = get_wedge_types_lookup(bsize);
-      int ref_frame = av1_ref_frame_type(mbmi->ref_frame);
       int need_mask_search = args->wedge_index[ref_frame] == -1 ||
                              !have_newmv_in_inter_mode(this_mode);
 
@@ -1431,6 +1435,11 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       best_rd_cur = RDCOST(x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate,
                            est_rd_stats.dist);
     } else if (cur_type == COMPOUND_DIFFWTD) {
+      if (have_newmv_in_inter_mode(this_mode) &&
+          (args->newmv_mode[ref_frame] == COMPOUND_AVERAGE ||
+           args->newmv_mode[ref_frame] == COMPOUND_DISTWTD))
+        continue;
+      
       int_mv tmp_mv[2];
       int best_mask_index = 0;
       rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
@@ -1542,6 +1551,9 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       !(best_type_stats.best_compound_data.type == COMPOUND_DISTWTD);
   mbmi->interinter_comp = best_type_stats.best_compound_data;
   memcpy(xd->seg_mask, buffers->tmp_best_mask_buf, mask_len);
+
+  if (this_mode == NEW_NEWMV)
+    args->newmv_mode[ref_frame] = mbmi->interinter_comp.type;
 
   if (have_newmv_in_inter_mode(this_mode)) {
     mbmi->mv[0].as_int = best_mv[0].as_int;

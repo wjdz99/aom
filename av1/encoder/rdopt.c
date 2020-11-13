@@ -5350,8 +5350,10 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
                                0,
                                { 0 },
                                { 0 },
+                               { 0 },
                                0 };
   for (i = 0; i < MODE_CTX_REF_FRAMES; ++i) {
+    args.newmv_mode[i] = -1;
     args.wedge_index[i] = -1;
     args.wedge_sign[i] = -1;
   }

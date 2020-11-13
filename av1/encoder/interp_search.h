@@ -124,6 +124,10 @@ typedef struct {
    */
   int interp_filter_stats_idx;
   /*!
+   * An indicator to check if wedge mode is being searched
+   */
+  int newmv_mode[MODE_CTX_REF_FRAMES];
+  /*!
    * Estimated wedge index.
    */
   int wedge_index[MODE_CTX_REF_FRAMES];
