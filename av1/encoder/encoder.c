@@ -1545,6 +1545,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     av1_loop_restoration_dealloc(&mt_info->lr_row_sync, mt_info->num_workers);
     av1_gm_dealloc(&mt_info->gm_sync);
 #endif
+    av1_tf_mt_dealloc(&mt_info->tf_sync);
   }
 
   dealloc_compressor_data(cpi);
