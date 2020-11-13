@@ -21,11 +21,6 @@
 
 #if CONFIG_OPTICAL_FLOW_API
 
-// Helper function to determine whether a frame is encoded with high bit-depth.
-static INLINE int is_frame_high_bitdepth(const YV12_BUFFER_CONFIG *frame) {
-  return (frame->flags & YV12_FLAG_HIGHBITDEPTH) ? 1 : 0;
-}
-
 // Helper function to determine whether optical flow method is sparse.
 static INLINE int is_sparse(const OPFL_PARAMS *opfl_params) {
   return (opfl_params->flags & OPFL_FLAG_SPARSE) ? 1 : 0;
