@@ -16,6 +16,24 @@
       "message": "Will this change help with quality?",
       "revId": "cf2130005bd71a1b375e4e8d79b87cdabf00bfae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97721414_676fa9de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-11-13T18:29:59Z",
+      "side": 1,
+      "message": "It changes the quality slightly. Really should have merged with next CL together.",
+      "parentUuid": "d27086b1_56b0ad72",
+      "revId": "cf2130005bd71a1b375e4e8d79b87cdabf00bfae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
