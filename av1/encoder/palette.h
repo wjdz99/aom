@@ -25,23 +25,6 @@ struct AV1_COMP;
 struct PICK_MODE_CONTEXT;
 struct macroblock;
 
-/*!\cond */
-#define AV1_K_MEANS_RENAME(func, dim) func##_dim##dim
-
-void AV1_K_MEANS_RENAME(av1_calc_indices, 1)(const int *data,
-                                             const int *centroids,
-                                             uint8_t *indices, int n, int k);
-void AV1_K_MEANS_RENAME(av1_calc_indices, 2)(const int *data,
-                                             const int *centroids,
-                                             uint8_t *indices, int n, int k);
-void AV1_K_MEANS_RENAME(av1_k_means, 1)(const int *data, int *centroids,
-                                        uint8_t *indices, int n, int k,
-                                        int max_itr);
-void AV1_K_MEANS_RENAME(av1_k_means, 2)(const int *data, int *centroids,
-                                        uint8_t *indices, int n, int k,
-                                        int max_itr);
-/*!\endcond */
-
 /*!\brief Calculates the cluster to which each data point belong.
  *
  * \ingroup palette_mode_search
@@ -62,9 +45,9 @@ static INLINE void av1_calc_indices(const int *data, const int *centroids,
   assert(n > 0);
   assert(k > 0);
   if (dim == 1) {
-    AV1_K_MEANS_RENAME(av1_calc_indices, 1)(data, centroids, indices, n, k);
+    av1_calc_indices_dim1(data, centroids, indices, n, k);
   } else if (dim == 2) {
-    AV1_K_MEANS_RENAME(av1_calc_indices, 2)(data, centroids, indices, n, k);
+    av1_calc_indices_dim2_c(data, centroids, indices, n, k);
   } else {
     assert(0 && "Untemplated k means dimension");
   }
@@ -96,9 +79,9 @@ static INLINE void av1_k_means(const int *data, int *centroids,
   assert(n > 0);
   assert(k > 0);
   if (dim == 1) {
-    AV1_K_MEANS_RENAME(av1_k_means, 1)(data, centroids, indices, n, k, max_itr);
+    av1_k_means_dim1_c(data, centroids, indices, n, k, max_itr);
   } else if (dim == 2) {
-    AV1_K_MEANS_RENAME(av1_k_means, 2)(data, centroids, indices, n, k, max_itr);
+    av1_k_means_dim2_c(data, centroids, indices, n, k, max_itr);
   } else {
     assert(0 && "Untemplated k means dimension");
   }
