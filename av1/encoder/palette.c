@@ -24,13 +24,6 @@
 #include "av1/encoder/rdopt_utils.h"
 #include "av1/encoder/tx_search.h"
 
-#define AV1_K_MEANS_DIM 1
-#include "av1/encoder/k_means_template.h"
-#undef AV1_K_MEANS_DIM
-#define AV1_K_MEANS_DIM 2
-#include "av1/encoder/k_means_template.h"
-#undef AV1_K_MEANS_DIM
-
 static int int_comparer(const void *a, const void *b) {
   return (*(int *)a - *(int *)b);
 }
