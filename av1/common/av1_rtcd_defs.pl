@@ -113,6 +113,15 @@ specialize qw/av1_dr_prediction_z3 avx2 neon/;
 add_proto qw/void av1_filter_intra_predictor/, "uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size, const uint8_t *above, const uint8_t *left, int mode";
 specialize qw/av1_filter_intra_predictor sse4_1 neon/;
 
+add_proto qw/void av1_calc_indices_dim1/, "const int *data, const int *centroids, uint8_t *indices, int n, int k";
+specialize qw/av1_calc_indices_dim1 avx2/;
+
+add_proto qw/void av1_calc_indices_dim2/, "const int *data, const int *centroids, uint8_t *indices, int n, int k";
+
+add_proto qw/void av1_k_means_dim1/, "const int *data, int *centroids, uint8_t *indices, int n, int k, int max_itr";
+
+add_proto qw/void av1_k_means_dim2/, "const int *data, int *centroids, uint8_t *indices, int n, int k, int max_itr";
+
 # High bitdepth functions
 
 #
