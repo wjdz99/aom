@@ -1359,7 +1359,47 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
                              !have_newmv_in_inter_mode(this_mode);
 
       for (int wedge_mask = 0; wedge_mask < wedge_mask_size && need_mask_search;
+           wedge_mask += 4) {
+        for (int wedge_sign = 0; wedge_sign < 2; ++wedge_sign) {
+          tmp_rate_mv = *rate_mv;
+          mbmi->interinter_comp.wedge_index = wedge_mask;
+          mbmi->interinter_comp.wedge_sign = wedge_sign;
+          rs2 = masked_type_cost[cur_type];
+          rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
+
+          mode_rd = RDCOST(x->rdmult, rs2 + rd_stats->rate, 0);
+          if (mode_rd >= ref_best_rd) continue;
+
+          if (have_newmv_in_inter_mode(this_mode)) {
+            tmp_rate_mv = av1_interinter_compound_motion_search(
+                cpi, x, cur_mv, bsize, this_mode);
+          }
+
+          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                        AOM_PLANE_Y, AOM_PLANE_Y);
+          RD_STATS est_rd_stats;
+          int64_t this_rd_cur =
+              estimate_yrd_for_sb(cpi, bsize, x, best_rd_cur, &est_rd_stats);
+          if (this_rd_cur < INT64_MAX) {
+            this_rd_cur =
+                RDCOST(x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate,
+                       est_rd_stats.dist);
+          }
+          if (this_rd_cur < best_rd_cur) {
+            best_mask_index = wedge_mask;
+            best_wedge_sign = wedge_sign;
+            best_rd_cur = this_rd_cur;
+            tmp_mv[0] = mbmi->mv[0];
+            tmp_mv[1] = mbmi->mv[1];
+            best_rate_mv = tmp_rate_mv;
+          }
+        }
+      }
+
+      for (int wedge_mask = best_mask_index - 2; wedge_mask < best_mask_index + 2 && need_mask_search;
            ++wedge_mask) {
+        if (wedge_mask == best_mask_index) continue;
+        if (wedge_mask >= wedge_mask_size || wedge_mask < 0) continue;
         for (int wedge_sign = 0; wedge_sign < 2; ++wedge_sign) {
           tmp_rate_mv = *rate_mv;
           mbmi->interinter_comp.wedge_index = wedge_mask;
