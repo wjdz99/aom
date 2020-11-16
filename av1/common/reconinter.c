@@ -1345,8 +1345,21 @@ int av1_derived_mv_allowed(MACROBLOCKD *const xd, MB_MODE_INFO *const mbmi) {
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int bw = block_size_wide[bsize];
   const int bh = block_size_high[bsize];
-  return !is_cur_buf_hbd(xd) && !mbmi->skip_mode &&
+  return !is_cur_buf_hbd(xd) && (1 || !mbmi->skip_mode) &&
          (mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV) &&
+         bw <= DERIVED_MV_MAX_BSIZE && bh <= DERIVED_MV_MAX_BSIZE &&
+         bw >= DERIVED_MV_MIN_BSIZE && bh >= DERIVED_MV_MIN_BSIZE &&
+         xd->mi_row + mi_size_high[bsize] <= xd->tile.mi_row_end &&
+         xd->mi_col + mi_size_wide[bsize] <= xd->tile.mi_col_end &&
+         xd->mi_row > xd->tile.mi_row_start &&
+         xd->mi_col > xd->tile.mi_col_start;
+}
+
+int av1_derived_mv_allowed_for_skip_mode(MACROBLOCKD *const xd,
+                                         BLOCK_SIZE bsize) {
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  return !is_cur_buf_hbd(xd) &&
          bw <= DERIVED_MV_MAX_BSIZE && bh <= DERIVED_MV_MAX_BSIZE &&
          bw >= DERIVED_MV_MIN_BSIZE && bh >= DERIVED_MV_MIN_BSIZE &&
          xd->mi_row + mi_size_high[bsize] <= xd->tile.mi_row_end &&
