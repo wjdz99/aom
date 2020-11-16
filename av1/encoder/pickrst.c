@@ -1387,14 +1387,6 @@ static void search_wiener(const RestorationTileLimits *limits,
   RestorationType rtype =
       (cost_nomerge < cost_none) ? RESTORE_WIENER : RESTORE_NONE;
   rusi->best_rtype[RESTORE_WIENER - 1] = rtype;
-  // If rtype == RESTORE_NONE, for now don't add to stack.
-  // TODO(susannad): remove this if statement, allow upgrading to
-  // RESTORE_WIENER.
-  if (rtype == RESTORE_NONE) {
-    rsc->sse += rusi->sse[rtype];
-    rsc->bits += bits_none;
-    return;
-  }
   // If current_unit_stack is empty, we can leave early.
   if (aom_vector_is_empty(current_unit_stack)) {
     rsc->sse += rusi->sse[rtype];
@@ -1429,28 +1421,48 @@ static void search_wiener(const RestorationTileLimits *limits,
   memcpy(M_AVG, M, WIENER_WIN2 * sizeof(*M));
   int64_t H_AVG[WIENER_WIN2 * WIENER_WIN2];
   memcpy(H_AVG, H, WIENER_WIN2 * WIENER_WIN2 * sizeof(*H));
+  int first_rw = -1;
+  bool all_rn = true;
+  // Get information about contents of stack.
+  VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
+    RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
+    RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
+    if (old_rusi->best_rtype[RESTORE_WIENER - 1] == RESTORE_WIENER) {
+      if (first_rw == -1) first_rw = old_unit->rest_unit_idx;
+      all_rn = false;
+    }
+  }
+  int included_in_avg = 1;
   // Iterate through vector to get current cost and the sum of M and H so far.
   VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
     RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
+    RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
+    cost_none += RDCOST_DBL(x->rdmult, old_unit->current_bits >> 4,
+                            old_unit->current_sse);
     cost_nomerge += RDCOST_DBL(x->rdmult, old_unit->current_bits >> 4,
                                old_unit->current_sse);
-    for (int index = 0; index < WIENER_WIN2; ++index) {
-      M_AVG[index] += old_unit->M[index];
-    }
-    for (int index = 0; index < WIENER_WIN2 * WIENER_WIN2; ++index) {
-      H_AVG[index] += old_unit->H[index];
+    // Unless trying to retroactively merge leading RESTORE_NONE units,
+    // use pixel stats of RESTORE_WIENER units.
+    if (all_rn || old_rusi->best_rtype[RESTORE_WIENER - 1] == RESTORE_WIENER) {
+      for (int index = 0; index < WIENER_WIN2; ++index) {
+        M_AVG[index] += old_unit->M[index];
+      }
+      for (int index = 0; index < WIENER_WIN2 * WIENER_WIN2; ++index) {
+        H_AVG[index] += old_unit->H[index];
+      }
+      ++included_in_avg;
     }
     // Merge SSE and bits must be recalculated every time we create a new merge
     // filter.
     old_unit->merge_sse = 0;
     old_unit->merge_bits = 0;
   }
-  // Divide M and H by vector size + 1 to get average.
+  // Divide M and H by number of units involved to get average.
   for (int index = 0; index < WIENER_WIN2; ++index) {
-    M_AVG[index] = DIVIDE_AND_ROUND(M_AVG[index], current_unit_stack->size + 1);
+    M_AVG[index] = DIVIDE_AND_ROUND(M_AVG[index], included_in_avg);
   }
   for (int index = 0; index < WIENER_WIN2 * WIENER_WIN2; ++index) {
-    H_AVG[index] = DIVIDE_AND_ROUND(H_AVG[index], current_unit_stack->size + 1);
+    H_AVG[index] = DIVIDE_AND_ROUND(H_AVG[index], included_in_avg);
   }
   // Generate new filter.
   RestorationUnitInfo rui_temp;
@@ -1467,45 +1479,67 @@ static void search_wiener(const RestorationTileLimits *limits,
   double cost_merge = 0;
   VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
     RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
-    old_unit->merge_sse =
-        try_restoration_unit(rsc, &old_unit->limits, tile_rect, &rui_temp);
-    // First unit in stack has larger unit_bits because the merged coeffs are
-    // linked to it.
-    Iterator begin = aom_vector_begin((current_unit_stack));
-    if (aom_iterator_equals(&(listed_unit), &begin)) {
-      old_unit->merge_bits =
-          x->wiener_restore_cost[1] + x->merged_param_cost[0] +
-          (count_wiener_bits(wiener_win, &rui_temp.wiener_info,
-                             &old_unit->ref_wiener)
-           << AV1_PROB_COST_SHIFT);
+    RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
+    // Only try to merge RESTORE_WIENER units.
+    if (all_rn || old_rusi->best_rtype[RESTORE_WIENER - 1] == RESTORE_WIENER) {
+      old_unit->merge_sse =
+          try_restoration_unit(rsc, &old_unit->limits, tile_rect, &rui_temp);
+      // First RESTORE_WIENER unit in stack has larger unit_bits because the
+      // merged coeffs are linked to it.
+      if (old_unit->rest_unit_idx == first_rw) {
+        old_unit->merge_bits =
+            x->wiener_restore_cost[1] + x->merged_param_cost[0] +
+            (count_wiener_bits(wiener_win, &rui_temp.wiener_info,
+                               &old_unit->ref_wiener)
+             << AV1_PROB_COST_SHIFT);
+      } else {
+        old_unit->merge_bits =
+            x->wiener_restore_cost[1] + x->merged_param_cost[1];
+      }
+      cost_merge +=
+          RDCOST_DBL(x->rdmult, old_unit->merge_bits >> 4, old_unit->merge_sse);
     } else {
-      old_unit->merge_bits =
-          x->wiener_restore_cost[1] + x->merged_param_cost[1];
+      old_unit->merge_sse = old_unit->current_sse;
+      old_unit->merge_bits = old_unit->current_bits;
+      cost_merge += RDCOST_DBL(x->rdmult, old_unit->current_bits >> 4,
+                               old_unit->current_sse);
     }
-    cost_merge +=
-        RDCOST_DBL(x->rdmult, old_unit->merge_bits >> 4, old_unit->merge_sse);
   }
   // Add to cost_merge cost of potentially merged unit.
   int64_t new_unit_sse =
       try_restoration_unit(rsc, limits, tile_rect, &rui_temp);
-  int64_t new_unit_bits = x->wiener_restore_cost[1] + x->merged_param_cost[1];
+  int64_t new_unit_bits;
+  if (first_rw == -1) {
+    // Stack is all RESTORE_NONE, this unit would be first RESTORE_NONE.
+    new_unit_bits =
+        x->wiener_restore_cost[1] + x->merged_param_cost[0] +
+        (count_wiener_bits(wiener_win, &rui_temp.wiener_info, &rsc->wiener)
+         << AV1_PROB_COST_SHIFT);
+  } else {
+    new_unit_bits = x->wiener_restore_cost[1] + x->merged_param_cost[1];
+  }
   cost_merge += RDCOST_DBL(x->rdmult, new_unit_bits >> 4, new_unit_sse);
 
-  if (cost_merge < cost_nomerge) {
+  if ((cost_merge < cost_nomerge) && (cost_merge < cost_none)) {
     // Update data within the stack.
     VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
       RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
       RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
-      old_rusi->wiener = rui_temp.wiener_info;
-      old_rusi->sse[RESTORE_WIENER] = old_unit->merge_sse;
-      rsc->sse -= old_unit->current_sse;
-      rsc->sse += old_unit->merge_sse;
-      rsc->bits -= old_unit->current_bits;
-      rsc->bits += old_unit->merge_bits;
-      old_unit->current_sse = old_unit->merge_sse;
-      old_unit->current_bits = old_unit->merge_bits;
+      if (all_rn ||
+          old_rusi->best_rtype[RESTORE_WIENER - 1] == RESTORE_WIENER) {
+        old_rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_WIENER;
+        old_rusi->wiener = rui_temp.wiener_info;
+        old_rusi->sse[RESTORE_WIENER] = old_unit->merge_sse;
+        rsc->sse -= old_unit->current_sse;
+        rsc->sse += old_unit->merge_sse;
+        rsc->bits -= old_unit->current_bits;
+        rsc->bits += old_unit->merge_bits;
+        old_unit->current_sse = old_unit->merge_sse;
+        old_unit->current_bits = old_unit->merge_bits;
+      }
     }
     // Finalize data for newly merged unit.
+    rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_WIENER;
     rusi->sse[rtype] = new_unit_sse;
     rusi->wiener = rui_temp.wiener_info;
     rsc->sse += rusi->sse[rtype];
@@ -1518,12 +1552,14 @@ static void search_wiener(const RestorationTileLimits *limits,
   } else {
     // Finalize data for new unit.
     rsc->sse += rusi->sse[rtype];
-    rsc->bits += bits_nomerge;
-    rsc->wiener = rusi->wiener;
-    // Clear old vector and make this block the start of a new one.
-    aom_vector_clear(current_unit_stack);
+    rsc->bits += (rtype == RESTORE_WIENER) ? bits_nomerge : bits_none;
+    if (rtype == RESTORE_WIENER) rsc->wiener = rusi->wiener;
+    // if RESTORE_WIENER rtype, clear old vector and make this block the start
+    // of a new one.
+    if (rtype == RESTORE_WIENER) aom_vector_clear(current_unit_stack);
     unit_snapshot.current_sse = rusi->sse[rtype];
-    unit_snapshot.current_bits = bits_nomerge;
+    unit_snapshot.current_bits =
+        (rtype == RESTORE_WIENER) ? bits_nomerge : bits_none;
     aom_vector_push_back(current_unit_stack, &unit_snapshot);
   }
 
