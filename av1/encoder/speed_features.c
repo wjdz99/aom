@@ -524,6 +524,7 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 3) {
     sf->hl_sf.high_precision_mv_usage = CURRENT_Q;
     sf->hl_sf.recode_loop = ALLOW_RECODE_KFARFGF;
+    sf->hl_sf.second_alt_ref_filtering = 0;
 
     sf->gm_sf.gm_search_type = GM_DISABLE_SEARCH;
 
@@ -1043,6 +1044,7 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   hl_sf->high_precision_mv_usage = CURRENT_Q;
   hl_sf->superres_auto_search_type = SUPERRES_AUTO_ALL;
   hl_sf->disable_extra_sc_testing = 0;
+  hl_sf->second_alt_ref_filtering = 1;
 }
 
 static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
