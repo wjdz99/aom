@@ -124,6 +124,10 @@ typedef struct {
    */
   int interp_filter_stats_idx;
   /*!
+   * Decide if wedge prediction mode could improve the prediction quality.
+   */
+  int allow_wedge_mode[MODE_CTX_REF_FRAMES];
+  /*!
    * Estimated wedge index.
    */
   int wedge_index[MODE_CTX_REF_FRAMES];
