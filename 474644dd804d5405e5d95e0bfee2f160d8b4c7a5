@@ -33,6 +33,24 @@
       "message": "Are all the c code change necessary?\nIf c changes are needed, please add c changes in a separate CL as a refactoring CL.\n ",
       "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84015feb_7a177661",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-17T21:41:07Z",
+      "side": 1,
+      "message": "Sure. they are necessary to incorporate AVX2 and SSE2 calls.",
+      "parentUuid": "0fe7f87d_f00bde59",
+      "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
