@@ -64,9 +64,9 @@ typedef struct {
    */
   const YV12_BUFFER_CONFIG *ref;
   /*!
-   * Pointer to top level common structure
+   * Pointer to params related to MB_MODE_INFO arrays and related info
    */
-  AV1_COMMON *cm;
+  CommonModeInfoParams *mi_params;
   /*!
    * Info specific to each plane
    */

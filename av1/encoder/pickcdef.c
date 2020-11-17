@@ -290,10 +290,9 @@ static uint64_t compute_cdef_dist(void *dst, int dstride, uint16_t *src,
 // Returns:
 //   Nothing will be returned. Contents of cdef_search_ctx will be modified.
 static void cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr,
-                                int fbc) {
-  const CommonModeInfoParams *const mi_params = &cdef_search_ctx->cm->mi_params;
+                                int fbc, int sb_count) {
+  const CommonModeInfoParams *const mi_params = cdef_search_ctx->mi_params;
   const YV12_BUFFER_CONFIG *ref = cdef_search_ctx->ref;
-  const int sb_count = cdef_search_ctx->sb_count;
   const int coeff_shift = cdef_search_ctx->coeff_shift;
   const int *mi_wide_l2 = cdef_search_ctx->mi_wide_l2;
   const int *mi_high_l2 = cdef_search_ctx->mi_high_l2;
@@ -387,14 +386,13 @@ static void cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr,
 // Returns:
 //   Nothing will be returned. Contents of cdef_search_ctx will be modified.
 static void cdef_mse_calc_frame(CdefSearchCtx *cdef_search_ctx) {
-  const CommonModeInfoParams *const mi_params = &cdef_search_ctx->cm->mi_params;
   // Loop over each sb.
   for (int fbr = 0; fbr < cdef_search_ctx->nvfb; ++fbr) {
     for (int fbc = 0; fbc < cdef_search_ctx->nhfb; ++fbc) {
       // Checks if cdef processing can be skipped for particular sb.
-      if (cdef_sb_skip(mi_params, fbr, fbc)) continue;
+      if (cdef_sb_skip(cdef_search_ctx->mi_params, fbr, fbc)) continue;
       // Calculate mse for each sb and store the relevant sb index.
-      cdef_mse_calc_block(cdef_search_ctx, fbr, fbc);
+      cdef_mse_calc_block(cdef_search_ctx, fbr, fbc, cdef_search_ctx->sb_count);
       cdef_search_ctx->sb_count++;
     }
   }
@@ -448,7 +446,7 @@ static AOM_INLINE void cdef_params_init(const YV12_BUFFER_CONFIG *frame,
                                         CDEF_PICK_METHOD pick_method) {
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int num_planes = av1_num_planes(cm);
-  cdef_search_ctx->cm = cm;
+  cdef_search_ctx->mi_params = &cm->mi_params;
   cdef_search_ctx->ref = ref;
   cdef_search_ctx->nvfb =
       (mi_params->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
