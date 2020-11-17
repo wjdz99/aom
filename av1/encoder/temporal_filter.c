@@ -1185,7 +1185,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   // Filter one more ARF if the lookahead index is leq 7 (w.r.t. 9-th frame).
   // This frame is ALWAYS a show existing frame.
   const int is_second_arf =
-      (update_type == INTNL_ARF_UPDATE) && (filter_frame_lookahead_idx >= 7);
+      (update_type == INTNL_ARF_UPDATE) && (filter_frame_lookahead_idx >= 15);
   // TODO(anyone): Currently, we enforce the filtering strength on internal
   // ARFs except the second ARF to be zero. We should investigate in which case
   // it is more beneficial to use non-zero strength filtering.
