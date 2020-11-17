@@ -1297,6 +1297,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   int64_t best_rd_cur = ref_best_rd;
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
+  int ref_frame = av1_ref_frame_type(mbmi->ref_frame);
 
   // If the match is found, calculate the rd cost using the
   // stored stats and update the mbmi appropriately.
@@ -1309,8 +1310,13 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   // If COMPOUND_AVERAGE is not valid, use the spare buffer
   if (valid_comp_types[0] != COMPOUND_AVERAGE) restore_dst_buf(xd, *tmp_dst, 1);
 
+  int wedge_mode_enabled = 0;
+  for (int i = 0; i < valid_type_count; ++i)
+    if (valid_comp_types[i] == COMPOUND_WEDGE) wedge_mode_enabled = 1;
+
   // Loop over valid compound types
   for (int i = 0; i < valid_type_count; i++) {
+    wedge_mode_enabled &= args->allow_wedge_mode[ref_frame];
     cur_type = valid_comp_types[i];
     comp_model_rd_cur = INT64_MAX;
     tmp_rate_mv = *rate_mv;
@@ -1355,9 +1361,11 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       int best_rs2 = 0;
       int best_rate_mv = *rate_mv;
       const int wedge_mask_size = get_wedge_types_lookup(bsize);
-      int ref_frame = av1_ref_frame_type(mbmi->ref_frame);
       int need_mask_search = args->wedge_index[ref_frame] == -1 ||
                              !have_newmv_in_inter_mode(this_mode);
+
+      if (!wedge_mode_enabled && have_newmv_in_inter_mode(this_mode))
+        continue;
 
       for (int wedge_mask = 0; wedge_mask < wedge_mask_size && need_mask_search;
            ++wedge_mask) {
@@ -1534,6 +1542,39 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       if (have_newmv_in_inter_mode(this_mode))
         update_mask_best_mv(mbmi, best_mv, &best_tmp_rate_mv, tmp_rate_mv);
     }
+
+    if (wedge_mode_enabled && cur_type == COMPOUND_AVERAGE &&
+        mbmi->mode == NEW_NEWMV) {
+      args->allow_wedge_mode[ref_frame] = 0;
+      update_mbmi_for_compound_type(mbmi, cur_type);
+      const int wedge_mask_size = get_wedge_types_lookup(bsize);
+      for (int wedge_mask = 0;
+           wedge_mask < wedge_mask_size && !args->allow_wedge_mode[ref_frame];
+           ++wedge_mask) {
+        for (int wedge_sign = 0; wedge_sign < 2; ++wedge_sign) {
+          tmp_rate_mv = *rate_mv;
+          mbmi->interinter_comp.wedge_index = wedge_mask;
+          mbmi->interinter_comp.wedge_sign = wedge_sign;
+          rs2 = masked_type_cost[cur_type];
+          rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
+
+          mode_rd = RDCOST(x->rdmult, rs2 + rd_stats->rate, 0);
+          if (mode_rd >= ref_best_rd) continue;
+          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
+                                        AOM_PLANE_Y, AOM_PLANE_Y);
+          RD_STATS est_rd_stats;
+          int64_t this_rd_cur =
+              estimate_yrd_for_sb(cpi, bsize, x, INT64_MAX, &est_rd_stats);
+          if (this_rd_cur < INT64_MAX) {
+            this_rd_cur =
+                RDCOST(x->rdmult, rs2 + tmp_rate_mv + est_rd_stats.rate,
+                       est_rd_stats.dist);
+          }
+          if (this_rd_cur < best_rd_cur) args->allow_wedge_mode[ref_frame] = 1;
+        }
+      }
+    }
+
     // reset to original mvs for next iteration
     mbmi->mv[0].as_int = cur_mv[0].as_int;
     mbmi->mv[1].as_int = cur_mv[1].as_int;
