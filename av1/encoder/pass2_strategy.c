@@ -844,15 +844,7 @@ static void allocate_gf_group_bits(GF_GROUP *gf_group, RATE_CONTROL *const rc,
   // For key frames the frame target rate is already set and it
   // is also the golden frame.
   // === [frame_index == 0] ===
-  int frame_index = 0;
-  if (!key_frame) {
-    if (rc->source_alt_ref_active)
-      gf_group->bit_allocation[frame_index] = 0;
-    else
-      gf_group->bit_allocation[frame_index] =
-          base_frame_bits + (int)(gf_arf_bits * layer_fraction[1]);
-  }
-  frame_index++;
+  int frame_index = !!key_frame;
 
   // Check the number of frames in each layer in case we have a
   // non standard group length.
@@ -1251,7 +1243,7 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
 
     // reaches next key frame, break here
     if (i >= rc->frames_to_key) {
-      cut_pos[count_cuts] = i - 1;
+      cut_pos[count_cuts] = i;
       count_cuts++;
       break;
     }
@@ -1354,7 +1346,7 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
   // save intervals
   rc->intervals_till_gf_calculate_due = count_cuts - 1;
   for (int n = 1; n < count_cuts; n++) {
-    rc->gf_intervals[n - 1] = cut_pos[n] + 1 - cut_pos[n - 1];
+    rc->gf_intervals[n - 1] = cut_pos[n] - cut_pos[n - 1];
   }
   rc->cur_gf_index = 0;
   twopass->stats_in = start_pos;
@@ -1375,7 +1367,7 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
 
 static void correct_frames_to_key(AV1_COMP *cpi) {
   int lookahead_size =
-      (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage) + 1;
+      (int)av1_lookahead_depth(cpi->lookahead, cpi->compressor_stage);
   if (lookahead_size <
       av1_lookahead_pop_sz(cpi->lookahead, cpi->compressor_stage)) {
     assert(IMPLIES(cpi->frames_left > 0, lookahead_size == cpi->frames_left));
@@ -1492,10 +1484,10 @@ static INLINE void set_baseline_gf_interval(AV1_COMP *cpi, int arf_position,
         rc->intervals_till_gf_calculate_due = 0;
       }
     } else {
-      rc->baseline_gf_interval = arf_position - rc->source_alt_ref_pending;
+      rc->baseline_gf_interval = arf_position;
     }
   } else {
-    rc->baseline_gf_interval = arf_position - rc->source_alt_ref_pending;
+    rc->baseline_gf_interval = arf_position;
   }
 }
 
@@ -1622,7 +1614,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   i = 0;
   // get the determined gf group length from rc->gf_intervals
-  while (i < rc->gf_intervals[rc->cur_gf_index]) {
+  while (i <= rc->gf_intervals[rc->cur_gf_index]) {
     ++i;
     // Accumulate error score of frames in this gf group.
     mod_frame_err = 0.0;
@@ -1718,8 +1710,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
     // maximum length of next gf group
     const int next_gf_len = rc->frames_to_key - i;
-    const int single_overlay_left =
-        next_gf_len == 0 && i > REDUCE_GF_LENGTH_THRESH;
     // the next gf is probably going to have a ARF but it will be shorter than
     // this gf
     const int unbalanced_gf =
@@ -1727,7 +1717,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         next_gf_len + 1 < REDUCE_GF_LENGTH_TO_KEY_THRESH &&
         next_gf_len + 1 >= rc->min_gf_interval;
 
-    if (single_overlay_left || unbalanced_gf) {
+    if (unbalanced_gf) {
       const int roll_back = REDUCE_GF_LENGTH_BY;
       // Reduce length only if active_min_gf_interval will be respected later.
       if (i - roll_back >= active_min_gf_interval + 1) {
@@ -1740,29 +1730,27 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   // Should we use the alternate reference frame.
   if (use_alt_ref) {
-    rc->source_alt_ref_pending = 1;
     gf_group->max_layer_depth_allowed = gf_cfg->gf_max_pyr_height;
-    set_baseline_gf_interval(cpi, i, active_max_gf_interval, use_alt_ref);
+    set_baseline_gf_interval(cpi, i - 1, active_max_gf_interval, use_alt_ref);
 
-    const int forward_frames = (rc->frames_to_key - i >= i - 1)
+    const int forward_frames = (rc->frames_to_key - i + 1 >= i - 1)
                                    ? i - 1
-                                   : AOMMAX(0, rc->frames_to_key - i);
+                                   : AOMMAX(0, rc->frames_to_key - i + 1);
 
     // Calculate the boost for alt ref.
     rc->gfu_boost = av1_calc_arf_boost(
-        twopass, rc, frame_info, alt_offset, forward_frames, (i - 1),
+        twopass, rc, frame_info, alt_offset, forward_frames, i - 1,
         cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
         cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL);
   } else {
     reset_fpf_position(twopass, start_pos);
-    rc->source_alt_ref_pending = 0;
     gf_group->max_layer_depth_allowed = 0;
-    set_baseline_gf_interval(cpi, i, active_max_gf_interval, use_alt_ref);
+    set_baseline_gf_interval(cpi, i - 1, active_max_gf_interval, use_alt_ref);
 
     rc->gfu_boost = AOMMIN(
         MAX_GF_BOOST,
         av1_calc_arf_boost(
-            twopass, rc, frame_info, alt_offset, (i - 1), 0,
+            twopass, rc, frame_info, alt_offset, i - 1, 0,
             cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
             cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL));
   }
@@ -1779,10 +1767,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
   rc->arf_boost_factor = 1.0;
-  if (rc->source_alt_ref_pending && !is_lossless_requested(rc_cfg)) {
+  if (!is_lossless_requested(rc_cfg)) {
     // Reduce the boost of altref in the last gf group
-    if (rc->frames_to_key - i == REDUCE_GF_LENGTH_BY ||
-        rc->frames_to_key - i == 0) {
+    if (rc->frames_to_key - i + 1 == REDUCE_GF_LENGTH_BY ||
+        rc->frames_to_key - i + 1 == 0) {
       rc->arf_boost_factor = LAST_ALR_BOOST_FACTOR;
     }
   }
@@ -2680,10 +2668,6 @@ static void process_first_pass_stats(AV1_COMP *cpi,
         log((this_frame->frame_avg_wavelet_energy / num_mbs) + 1.0);
   }
 
-  // Update the total stats remaining structure.
-  if (twopass->stats_buf_ctx->total_left_stats)
-    subtract_stats(twopass->stats_buf_ctx->total_left_stats, this_frame);
-
   // Set the frame content type flag.
   if (this_frame->intra_skip_pct >= FC_ANIMATION_THRESH)
     twopass->fr_content_type = FC_GRAPHICS_ANIMATION;
@@ -2715,7 +2699,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
 
   if (is_stat_consumption_stage(cpi) && !twopass->stats_in) return;
 
-  if (rc->frames_till_gf_update_due > 0 && !(frame_flags & FRAMEFLAGS_KEY)) {
+  if (gf_group->index < gf_group->size && !(frame_flags & FRAMEFLAGS_KEY)) {
     assert(gf_group->index < gf_group->size);
     const int update_type = gf_group->update_type[gf_group->index];
 
@@ -2751,8 +2735,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (is_stat_consumption_stage(cpi)) {
     // Do not read if it is overlay for kf arf, since kf already
     // advanced the first pass stats pointer
-    if (!av1_check_keyframe_overlay(gf_group->index, gf_group,
-                                    rc->frames_since_key)) {
+    if (gf_group->index < gf_group->size || rc->frames_to_key == 0) {
       process_first_pass_stats(cpi, &this_frame);
     }
   } else {
@@ -2808,7 +2791,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   }
 
   // Define a new GF/ARF group. (Should always enter here for key frames).
-  if (rc->frames_till_gf_update_due == 0) {
+  if (gf_group->index == gf_group->size) {
     assert(cpi->common.current_frame.frame_number == 0 ||
            gf_group->index == gf_group->size);
     const FIRSTPASS_STATS *const start_position = twopass->stats_in;
