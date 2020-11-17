@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff7a86d8_de5f9233",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-11-17T07:29:38Z",
+      "side": 1,
+      "message": "Thank you for the work!",
+      "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee11c7cb_fad6b186",
+        "filename": "av1/encoder/interintra_ml_data_collect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-11-17T07:29:38Z",
+      "side": 1,
+      "message": "Maybe we want to save the atoi() to a static variable.\nOtherwise, every time we attempt to dump a block, we read environment variable and it could be expensive.",
+      "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5379ef4_7ee3e417",
+        "filename": "av1/encoder/interintra_ml_data_collect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-11-17T07:29:38Z",
+      "side": 1,
+      "message": "Just curious. Does this function read the selected prediction mode from cm or xd and use that mode? Or does it attempt to search for the best prediction mode again?",
+      "range": {
+        "startLine": 202,
+        "startChar": 2,
+        "endLine": 202,
+        "endChar": 31
+      },
+      "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61e52ae2_7d093e89",
+        "filename": "av1/encoder/interintra_ml_data_collect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-11-17T07:29:38Z",
+      "side": 1,
+      "message": "It doesn\u0027t look like we have code to dump intra. Can we leave a comment about that?",
+      "range": {
+        "startLine": 76,
+        "startChar": 10,
+        "endLine": 76,
+        "endChar": 25
+      },
+      "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b377e36_4ac0c360",
+        "filename": "av1/encoder/interintra_ml_data_collect.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-11-17T07:29:38Z",
+      "side": 1,
+      "message": "Is this predictor only, or does it include residuals?",
+      "range": {
+        "startLine": 77,
+        "startChar": 26,
+        "endLine": 77,
+        "endChar": 41
+      },
+      "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9beaef2e_5bad89d3",
+        "filename": "av1/encoder/partition_search_utils.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 18857
+      },
+      "writtenOn": "2020-11-17T07:29:38Z",
+      "side": 1,
+      "message": "Is this used?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 0
+      },
+      "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
