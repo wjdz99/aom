@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d05ade16_3d3c3ae9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-11-17T14:11:30Z",
+      "side": 1,
+      "message": "Hi Debargha,\n\nWe noticed that gf_group-\u003ecur_frame_idx is not appropriately set in case of subgop configuration. \nThe same variable is used to retrieve look-ahead frame in init_gop_frames_for_tpl() function. \nBelow are the borg results for this patch, the tests were done for “--subgop-config-str\u003denh” config.\nFor CQP test the q values used are 20,30,40,50,60.\n\nCQP results:\n cpu-used   Instruction count             BD-Rate Loss(%)\n               Reduction(%)        avg.psnr    ovr.psnr     ssim\n   0           0.1902              -0.1065    -0.2204     -0.1099                      \n   1           0.0111              -0.1002    -0.2266     -0.0953\n   2          -0.6329              -0.1166    -0.2441     -0.0739\n   3          -0.7845              -0.2186    -0.3657     -0.1812\n   4          -2.8606              -0.6847    -0.8657     -0.4556\n   5          -3.4802              -0.7618    -0.9499     -0.5367\n   6          -3.4515              -0.6904    -0.8702     -0.4989\n\nVBR results:\n cpu-used  Instruction count              BD-Rate Loss(%)\n              Reduction(%)         avg.psnr    ovr.psnr     ssim\n   0          -0.0205               0.0068     -0.0567     0.0133               \n   1          -0.3669               0.0440     -0.0507    -0.0235\n   2          -1.0147               0.0149     -0.0950     0.0201\n   3          -1.2233              -0.1467     -0.2715    -0.2193\n   4          -3.5909              -0.7641     -0.9286    -0.7145\n   5          -3.8837              -0.8059     -0.9936    -0.7487\n   6          -3.8080              -0.6964     -0.8796    -0.6622\n\nPlease review the patch.\n\nThanks.\n",
+      "revId": "eba2504887bb50fb645e73a8bfc4af667418600d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
