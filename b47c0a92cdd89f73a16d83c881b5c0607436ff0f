@@ -16,6 +16,23 @@
       "message": "Hi Sarah, Debargha\nWe have submitted 3 patches to facilitate sub-gop unit tests (sub-gop size, sub-gop position check and pyramid level). The patches have code changes as follows,\n\t\n1. Patch 1 adds control calls in encoder to collect sub-gop stats. Encoder sub-gop stat consists of baseline gf interval, frames_to_key, sub-gop configuration, is_filtered flag and pyramid level.\n2. Patch 2 adds control calls in decoder to collect sub-gop stats. Decoder sub-gop stat consists of disp_frame_idx, show_existing_frame and show_frame flags.\n3. Patch 3 adds hook functions required to handle encode result and decoder input.\n\nSubsequently, we are planning to submit the unit test changes for sub-gop configuration. It will act as a framework to all unit tests related to sub-gop. \nWe have tested the patches locally. Kindly review the same and let us know your thoughts.\n\nThank you.",
       "revId": "b47c0a92cdd89f73a16d83c881b5c0607436ff0f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d3b963d_cafe33ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2020-11-17T20:17:45Z",
+      "side": 1,
+      "message": "Can you make sure to add my @google email instead of my gmail for review? I don\u0027t check the gmail account often so it takes me more time to notice I\u0027ve been added to a change. ",
+      "revId": "b47c0a92cdd89f73a16d83c881b5c0607436ff0f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
