@@ -51,6 +51,121 @@
       "parentUuid": "0fe7f87d_f00bde59",
       "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e8c69eb_afe31260",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 11
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-17T21:50:17Z",
+      "side": 1,
+      "message": "Why need to change name from .h to .c? Prefer not to make this change.",
+      "range": {
+        "startLine": 199,
+        "startChar": 37,
+        "endLine": 199,
+        "endChar": 56
+      },
+      "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f543496_55804512",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 11
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-17T21:50:17Z",
+      "side": 1,
+      "message": "Remove these changes if they are irrelevant to this CL.",
+      "range": {
+        "startLine": 367,
+        "startChar": 0,
+        "endLine": 371,
+        "endChar": 116
+      },
+      "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ff27c8b_1bbfe3d2",
+        "filename": "av1/encoder/x86/av1_k_means_avx2.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-17T21:50:17Z",
+      "side": 1,
+      "message": "Copyright information is missing",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 3
+      },
+      "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12123177_6a984345",
+        "filename": "test/av1_k_means_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-17T21:50:17Z",
+      "side": 1,
+      "message": "2020",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa18f624_ad64dcf2",
+        "filename": "test/av1_k_means_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-17T21:50:17Z",
+      "side": 1,
+      "message": "This is 1 d data. Why these block sizes are needed? Is it necessary?",
+      "range": {
+        "startLine": 36,
+        "startChar": 1,
+        "endLine": 41,
+        "endChar": 0
+      },
+      "revId": "474644dd804d5405e5d95e0bfee2f160d8b4c7a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
