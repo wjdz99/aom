@@ -281,8 +281,8 @@ static int get_twopass_worst_quality(AV1_COMP *cpi, const double av_frame_err,
     // content at the given rate.
     int q = find_qindex_by_rate_with_correction(
         target_norm_bits_per_mb, cpi->common.seq_params.bit_depth,
-        av_err_per_mb, cpi->twopass.bpm_factor, rate_err_tol, rc->best_quality,
-        rc->worst_quality);
+        av_err_per_mb, cpi->twopass.bpm_factor * cpi->twopass.kf_rate_err_fac,
+        rate_err_tol, rc->best_quality, rc->worst_quality);
 
     // Restriction on active max q for constrained quality mode.
     if (rc_cfg->mode == AOM_CQ) q = AOMMAX(q, rc_cfg->cq_level);
@@ -3726,6 +3726,8 @@ void av1_init_second_pass(AV1_COMP *cpi) {
 
   // Initialize bits per macro_block estimate correction factor.
   twopass->bpm_factor = 1.0;
+  twopass->kf_rate_err_fac = 1.0;
+
   // Initialize actual and target bits counters for ARF groups so that
   // at the start we have a neutral bpm adjustment.
   twopass->rolling_arf_group_target_bits = 1;
@@ -3757,6 +3759,8 @@ void av1_init_single_pass_lap(AV1_COMP *cpi) {
 
   // Initialize bits per macro_block estimate correction factor.
   twopass->bpm_factor = 1.0;
+  twopass->kf_rate_err_fac = 1.0;
+
   // Initialize actual and target bits counters for ARF groups so that
   // at the start we have a neutral bpm adjustment.
   twopass->rolling_arf_group_target_bits = 1;
@@ -3770,6 +3774,25 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
   TWO_PASS *const twopass = &cpi->twopass;
   RATE_CONTROL *const rc = &cpi->rc;
   const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
+
+  // If the frame is a key frame then not the error rate for the frame.
+  // This is then used to adjust assumptions for calculating Q range for
+  // the rest of the KF group.
+  // Very short KF groups are ignored in this context.
+  if ((cpi->common.current_frame.frame_type == KEY_FRAME) &&
+      (rc->frames_to_key > MAX_GF_INTERVAL)) {
+    double kf_rate_err = (rc->projected_frame_size - rc->base_frame_target) /
+                         (double)rc->base_frame_target;
+
+    // Is the error > than a threshold value
+    if (kf_rate_err < -0.1) {
+      twopass->kf_rate_err_fac = AOMMAX(0.5, 1.0 + kf_rate_err + 0.1);
+    } else if (kf_rate_err > 0.1) {
+      twopass->kf_rate_err_fac = AOMMIN(1.5, 1.0 + kf_rate_err - 0.1);
+    } else {
+      twopass->kf_rate_err_fac = 1.0;
+    }
+  }
 
   // VBR correction is done through rc->vbr_bits_off_target. Based on the
   // sign of this value, a limited % adjustment is made to the target rate
@@ -3808,14 +3831,14 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
     }
   }
 
-#if 0
+#if 1
   {
     AV1_COMMON *cm = &cpi->common;
     FILE *fpfile;
     fpfile = fopen("details.stt", "a");
     fprintf(fpfile,
             "%10d %10d %10d %10" PRId64 " %10" PRId64
-            " %10d %10d %10d %10.4lf %10.4lf %10.4lf %10.4lf\n",
+            " %10d %10d %10d %10.4lf %10.4lf %10.4lf %10.4lf %10.4lf\n",
             cm->current_frame.frame_number, rc->base_frame_target,
             rc->projected_frame_size, rc->total_actual_bits,
             rc->vbr_bits_off_target, rc->rate_error_estimate,
@@ -3823,7 +3846,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
             twopass->rolling_arf_group_actual_bits,
             (double)twopass->rolling_arf_group_actual_bits /
                 (double)twopass->rolling_arf_group_target_bits,
-            twopass->bpm_factor,
+            twopass->bpm_factor, twopass->kf_rate_err_fac,
             av1_convert_qindex_to_q(cpi->common.quant_params.base_qindex,
                                     cm->seq_params.bit_depth),
             av1_convert_qindex_to_q(rc->active_worst_quality,
