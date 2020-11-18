@@ -34,6 +34,24 @@
       "parentUuid": "59bdcc63_f39f9c48",
       "revId": "8e8c61c95b7a832a02fce3bafed39793ae4ce123",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6ae4f2d_25faa5c1",
+        "filename": "av1/encoder/interintra_ml_data_collect.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-11-18T03:10:34Z",
+      "side": 1,
+      "message": "Hmm, when I try to compile with this now, I get:\n\n./../aom/av1/encoder/interintra_ml_data_collect.c:46:36: error: initializer element is not a compile-time constant\n  static const uint8_t interintra_bias \u003d read_interintra_bias();\n\nI will revert back.",
+      "parentUuid": "5c5dd089_b87b182e",
+      "revId": "8e8c61c95b7a832a02fce3bafed39793ae4ce123",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
