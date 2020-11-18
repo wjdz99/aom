@@ -855,10 +855,6 @@ void av1_filter_intra_predictor_c(uint8_t *dst, ptrdiff_t stride,
 
   assert(bw <= 32 && bh <= 32);
 
-  // The initialization is just for silencing Jenkins static analysis warnings
-  for (r = 0; r < bh + 1; ++r)
-    memset(buffer[r], 0, (bw + 1) * sizeof(buffer[0][0]));
-
   for (r = 0; r < bh; ++r) buffer[r + 1][0] = left[r];
   memcpy(buffer[0], &above[-1], (bw + 1) * sizeof(uint8_t));
 
@@ -905,10 +901,6 @@ static void highbd_filter_intra_predictor(uint16_t *dst, ptrdiff_t stride,
   const int bh = tx_size_high[tx_size];
 
   assert(bw <= 32 && bh <= 32);
-
-  // The initialization is just for silencing Jenkins static analysis warnings
-  for (r = 0; r < bh + 1; ++r)
-    memset(buffer[r], 0, (bw + 1) * sizeof(buffer[0][0]));
 
   for (r = 0; r < bh; ++r) buffer[r + 1][0] = left[r];
   memcpy(buffer[0], &above[-1], (bw + 1) * sizeof(buffer[0][0]));
@@ -1442,8 +1434,8 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   }
 
   if (use_filter_intra) {
-    av1_filter_intra_predictor(dst, dst_stride, tx_size, above_row, left_col,
-                               filter_intra_mode);
+    av1_filter_intra_predictor_c(dst, dst_stride, tx_size, above_row, left_col,
+                                 filter_intra_mode);
     return;
   }
 
