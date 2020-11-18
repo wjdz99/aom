@@ -4543,6 +4543,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       }
     }
 
+    if (cm->current_frame.frame_type == KEY_FRAME) cm->current_frame.pyramid_level = 1;
     cm->show_frame = aom_rb_read_bit(rb);
     if (cm->show_frame == 0) pbi->is_arf_frame_present = 1;
     if (cm->show_frame == 0 && cm->current_frame.frame_type == KEY_FRAME)
@@ -4820,9 +4821,20 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         av1_set_frame_refs(cm, cm->remapped_ref_idx, lst_ref, gld_ref);
       }
 
+      if (!current_frame->frame_refs_short_signaling && 
+          seq_params->order_hint_info.enable_order_hint) { 
+        int is_min_pyr = aom_rb_read_bit(rb);
+//      int is_max_pyr = aom_rb_read_bit(rb);
+        current_frame->pyramid_level = is_min_pyr ? 1 : (aom_rb_read_bit(rb) ? 6 : 3);
+        RefFrameMapPair ref_frame_map_pairs[REF_FRAMES];
+        init_ref_map_pair(cm, ref_frame_map_pairs);
+        av1_get_ref_frames(cm, current_frame->order_hint, ref_frame_map_pairs);
+      }
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         int ref = 0;
-        if (!frame_refs_short_signaling) {
+        if (seq_params->order_hint_info.enable_order_hint && !frame_refs_short_signaling) {
+          ref = cm->remapped_ref_idx[i];
+        } else if (!frame_refs_short_signaling) {
           ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
 
           // Most of the time, streams start with a keyframe. In that case,
@@ -4835,6 +4847,12 @@ static int read_uncompressed_header(AV1Decoder *pbi,
             aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
                                "Inter frame requests nonexistent reference");
           cm->remapped_ref_idx[i] = ref;
+          //sarahparker here
+//printf("============================\n");
+//for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+//  printf("disp %d ", ref_frame_map_pairs[map_idx].disp_order);
+//  printf("pyr %d\n", ref_frame_map_pairs[map_idx].pyr_level);
+//}
         } else {
           ref = cm->remapped_ref_idx[i];
         }
