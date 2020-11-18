@@ -22,6 +22,30 @@
       },
       "revId": "06720ad3b500c34cefbcafeea4150938b8b28382",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55b12db9_5d09195c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2020-11-18T10:01:07Z",
+      "side": 1,
+      "message": "Simply because with os/us 100 this then gives a damping factor of 10 which seems to work well, dropping down to 5 as tighter rate control is mandated with lower os/us. However, this may want some further tweaking. Perhaps factoring in the overall level of rate error so far into the magnitude of the allowed adjustment, which at the moment just reflects the previous range of adjustment. I have already run experiments along these lines which improve rate accuracy (over the clip as a whole rather than just future gops), though thus far they have a negative impact on metrics as is often the case.",
+      "parentUuid": "65adc9c8_bf3189a9",
+      "range": {
+        "startLine": 189,
+        "startChar": 32,
+        "endLine": 189,
+        "endChar": 42
+      },
+      "revId": "06720ad3b500c34cefbcafeea4150938b8b28382",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
