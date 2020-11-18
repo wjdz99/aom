@@ -247,6 +247,9 @@ typedef struct {
   // Over time correction for bits per macro block estimation
   double bpm_factor;
 
+  // Recorder rate error rate in last kf
+  double kf_rate_err_fac;
+
   // Record of target and actual bits spent in current ARF group
   int rolling_arf_group_target_bits;
   int rolling_arf_group_actual_bits;
