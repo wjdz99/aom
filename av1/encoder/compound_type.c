@@ -1402,6 +1402,10 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
         if (have_newmv_in_inter_mode(this_mode)) {
           args->wedge_index[ref_frame] = best_mask_index;
           args->wedge_sign[ref_frame] = best_wedge_sign;
+          for (int rf = 0; rf < MODE_CTX_REF_FRAMES; ++rf) {
+            args->wedge_index[rf] = best_mask_index;
+            args->wedge_sign[rf] = best_wedge_sign;
+          }
         }
       } else {
         mbmi->interinter_comp.wedge_index = args->wedge_index[ref_frame];
