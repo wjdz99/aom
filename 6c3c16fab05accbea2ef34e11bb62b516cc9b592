@@ -16,6 +16,24 @@
       "message": "This speed-up feels reasonable. Just a thought: would the frames pair to search for the wedge index matter? I would assume it finds the wedge index better with closer reference frames? ",
       "revId": "6c3c16fab05accbea2ef34e11bb62b516cc9b592",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b7ba3d7_99368c18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2020-11-18T19:11:47Z",
+      "side": 1,
+      "message": "I guess we can try reschedule the higher level search order to test it out?",
+      "parentUuid": "fdcee70b_a826a9f9",
+      "revId": "6c3c16fab05accbea2ef34e11bb62b516cc9b592",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
