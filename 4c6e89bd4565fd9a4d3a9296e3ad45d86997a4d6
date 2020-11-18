@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a385071_7e4c6471",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-11-18T16:06:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have added support for row-based multithreading of temporal filter module. Please find below the average encode time reduction observed with this change.\n\n                                  Average Encode Time\ncpu-used    Resolution    Tile       Reduction (%)\n    1        832x480      2x1       0.59 (2 threads)\n    2        832x480      2x1       0.82 (2 threads)\n    3       1280x720      2x2       8.50 (4 threads)\n    4       1920x1080     4x2      11.89 (8 threads)\n    5       3840x2160     4x2      24.62 (8 threads)\n    6       3840x2160     4x2      25.88 (8 threads)\n    \nThis patch is verified to be bit-exact with no impact on encode time for single thread configuration.\n    \nAs MULTITAP_SHARP2 interpolation filter used in temporal filter does not have a SIMD variant, we have measured the encode time reduction by using MULTITAP_SHARP instead in both reference and modified versions. The results observed are as mentioned below:\n\n                                  Average Encode Time\ncpu-used    Resolution    Tile       Reduction (%)\n    1        832x480      2x1       0.97 (2 threads)\n    2        832x480      2x1       0.90 (2 threads)\n    3       1280x720      2x2       5.86 (4 threads)\n    4       1920x1080     4x2       7.17 (8 threads)\n    5       3840x2160     4x2      14.62 (8 threads)\n    6       3840x2160     4x2      15.77 (8 threads)\n    \nOnce 12-tap SIMD variants are introduced, we can expect an encode time reduction in the range of 45.3% - 72.3% (summed across speed presets) with temporal filter multi-threading.\n    \nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "4c6e89bd4565fd9a4d3a9296e3ad45d86997a4d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
