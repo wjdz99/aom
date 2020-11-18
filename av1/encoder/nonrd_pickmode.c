@@ -63,13 +63,22 @@ static const int pos_shift_16x16[4][4] = {
   { 9, 10, 13, 14 }, { 11, 12, 15, 16 }, { 17, 18, 21, 22 }, { 19, 20, 23, 24 }
 };
 
-#define RT_INTER_MODES 9
-static const REF_MODE ref_mode_set[RT_INTER_MODES] = {
+#define NUM_INTER_MODES_RT 9
+#define NUM_INTER_MODES_REDUCED 8
+
+static const REF_MODE ref_mode_set_rt[NUM_INTER_MODES_RT] = {
   { LAST_FRAME, NEARESTMV },   { LAST_FRAME, NEARMV },
   { LAST_FRAME, NEWMV },       { GOLDEN_FRAME, NEARESTMV },
   { GOLDEN_FRAME, NEARMV },    { GOLDEN_FRAME, NEWMV },
   { ALTREF_FRAME, NEARESTMV }, { ALTREF_FRAME, NEARMV },
   { ALTREF_FRAME, NEWMV }
+};
+
+static const REF_MODE ref_mode_set_reduced[NUM_INTER_MODES_REDUCED] = {
+  { LAST_FRAME, GLOBALMV },   { LAST_FRAME, NEARESTMV },
+  { GOLDEN_FRAME, GLOBALMV }, { LAST_FRAME, NEARMV },
+  { LAST_FRAME, NEWMV },      { GOLDEN_FRAME, NEARESTMV },
+  { GOLDEN_FRAME, NEARMV },   { GOLDEN_FRAME, NEWMV }
 };
 
 static const THR_MODES mode_idx[REF_FRAMES][4] = {
@@ -355,6 +364,7 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
     av1_find_best_ref_mvs_from_stack(
         cm->features.allow_high_precision_mv, mbmi_ext, ref_frame,
         &frame_mv[NEARESTMV][ref_frame], &frame_mv[NEARMV][ref_frame], 0);
+    frame_mv[GLOBALMV][ref_frame] = mbmi_ext->global_mvs[ref_frame];
     // Early exit for non-LAST frame if force_skip_low_temp_var is set.
     if (!av1_is_scaled(sf) && bsize >= BLOCK_8X8 &&
         !(force_skip_low_temp_var && ref_frame != LAST_FRAME)) {
@@ -1916,7 +1926,7 @@ static AOM_INLINE int skip_mode_by_low_temp(PREDICTION_MODE mode,
 
 static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
     PREDICTION_MODE mode, MV_REFERENCE_FRAME ref_frame, BLOCK_SIZE bsize,
-    int extra_prune, unsigned int sse_zeromv_norm) {
+    int extra_prune, unsigned int sse_zeromv_norm, int more_prune) {
   const unsigned int thresh_skip_golden = 500;
 
   if (ref_frame != LAST_FRAME && sse_zeromv_norm < thresh_skip_golden &&
@@ -1932,6 +1942,8 @@ static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
       return 1;
 
     if (ref_frame != LAST_FRAME && mode == NEARMV) return 1;
+
+    if (more_prune && bsize >= BLOCK_32X32 && mode == NEARMV) return 1;
   }
   return 0;
 }
@@ -1963,7 +1975,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int force_skip_low_temp_var = 0;
   int use_ref_frame_mask[REF_FRAMES] = { 0 };
   unsigned int sse_zeromv_norm = UINT_MAX;
-  int num_inter_modes = RT_INTER_MODES;
+  const int num_inter_modes = cpi->sf.rt_sf.nonrd_agressive_skip
+                                  ? NUM_INTER_MODES_REDUCED
+                                  : NUM_INTER_MODES_RT;
+  const REF_MODE *const ref_mode_set = cpi->sf.rt_sf.nonrd_agressive_skip
+                                           ? ref_mode_set_reduced
+                                           : ref_mode_set_rt;
   PRED_BUFFER tmp[4];
   DECLARE_ALIGNED(16, uint8_t, pred_buf[3 * 128 * 128]);
   PRED_BUFFER *this_mode_pred = NULL;
@@ -2107,9 +2124,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame)
       continue;
 
-    if (skip_mode_by_bsize_and_ref_frame(this_mode, ref_frame, bsize,
-                                         x->nonrd_prune_ref_frame_search,
-                                         sse_zeromv_norm))
+    if (skip_mode_by_bsize_and_ref_frame(
+            this_mode, ref_frame, bsize, x->nonrd_prune_ref_frame_search,
+            sse_zeromv_norm, cpi->sf.rt_sf.nonrd_agressive_skip))
       continue;
 
     if (skip_mode_by_low_temp(this_mode, ref_frame, bsize, x->content_state_sb,
