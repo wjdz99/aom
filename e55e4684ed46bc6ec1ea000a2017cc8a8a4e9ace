@@ -215,6 +215,30 @@
       },
       "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c51646c_8071c1ca",
+        "filename": "av1/encoder/partition_search_utils.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-11-18T00:30:27Z",
+      "side": 1,
+      "message": "Yes, I moved it from encodeframe.c to here. encodeframe.c was recently split into multiple parts, and this file contained the interintra_ml_data_collect stuff -- it was relying on the import from other files.",
+      "parentUuid": "9beaef2e_5bad89d3",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 0
+      },
+      "revId": "e55e4684ed46bc6ec1ea000a2017cc8a8a4e9ace",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
