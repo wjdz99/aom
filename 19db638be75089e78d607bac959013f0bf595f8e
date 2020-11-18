@@ -16,6 +16,24 @@
       "message": "Hi Wan-Teh,\n\nIn this patch, we have removed the memset which is not required in filter_intra_predictor module. \nmemset has been removed from the following functions.\n    •    av1_filter_intra_predictor_neon()\n    •    av1_filter_intra_predictor_sse4_1()\n    •    av1_filter_intra_predictor_c()\n    •    highbd_filter_intra_predictor()\n\nFor libaom AV1 encode, bit match is verified (w.r.t parent commit) for few videos for the following cases (64 bit + 32 bit build)\n1) C and SSE4_1 path of low bit depth for speed presets 3 and 6.\n2) C path of high bit depth for speed presets 3 and 6.\n3) C and NEON path of arm for speed preset 6.\n\nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset. There was a marginal AVIF encode time reduction of 0.5% seen for speed\u003d6 at cq-level\u003d18.\n\nAnd also we pushed patchset 2, by forcing C path without memset and observed that no issues were reported by gerrit.\n\nPlease review.\n\nThanks \u0026 Regards,\nAniket.",
       "revId": "19db638be75089e78d607bac959013f0bf595f8e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8fdfa81f_e106be1f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-18T17:05:17Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nThank you very much for the clear description and all the testing you did to verify bit match in several configurations! Glad to know there is a tiny but measurable speedup at speed 6.",
+      "parentUuid": "e228ec3e_0109d984",
+      "revId": "19db638be75089e78d607bac959013f0bf595f8e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
