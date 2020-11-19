@@ -17,6 +17,9 @@ print <<EOF
 #include "aom/aom_integer.h"
 #include "aom_dsp/txfm_common.h"
 #include "av1/common/common.h"
+#if CONFIG_IBP
+#include "av1/common/av1_common_int.h"
+#endif
 #include "av1/common/enums.h"
 #include "av1/common/quant_common.h"
 #include "av1/common/filter.h"
@@ -45,6 +48,9 @@ struct FC_LAYER;
 typedef struct FC_LAYER FC_LAYER;
 #endif  // CONFIG_NN_V2
 
+#if CONFIG_IBP
+typedef struct IBP_Pred_Pos_ IBP_Pred_Pos;
+#endif
 struct CNN_CONFIG;
 typedef struct CNN_CONFIG CNN_CONFIG;
 struct CNN_LAYER_CONFIG;
@@ -104,6 +110,11 @@ add_proto qw/void av1_dr_prediction_z2/, "uint8_t *dst, ptrdiff_t stride, int bw
 specialize qw/av1_dr_prediction_z2 avx2 neon/;
 add_proto qw/void av1_dr_prediction_z3/, "uint8_t *dst, ptrdiff_t stride, int bw, int bh, const uint8_t *above, const uint8_t *left, int upsample_left, int dx, int dy";
 specialize qw/av1_dr_prediction_z3 avx2 neon/;
+
+#if CONFIG_IBP
+add_proto qw/void av1_ibp_dr_prediction_z1/, "uint16_t* weights, uint8_t *dst, ptrdiff_t stride, uint8_t* second_pred, ptrdiff_t second_stride, int bw, int bh";
+add_proto qw/void av1_ibp_dr_prediction_z3/, "uint16_t* weights, uint8_t *dst, ptrdiff_t stride, uint8_t* second_pred, ptrdiff_t second_stride, int bw, int bh";
+#endif
 
 # FILTER_INTRA predictor functions
 add_proto qw/void av1_filter_intra_predictor/, "uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size, const uint8_t *above, const uint8_t *left, int mode";
@@ -243,6 +254,11 @@ add_proto qw/void av1_highbd_dr_prediction_z2/, "uint16_t *dst, ptrdiff_t stride
 specialize qw/av1_highbd_dr_prediction_z2 avx2/;
 add_proto qw/void av1_highbd_dr_prediction_z3/, "uint16_t *dst, ptrdiff_t stride, int bw, int bh, const uint16_t *above, const uint16_t *left, int upsample_left, int dx, int dy, int bd";
 specialize qw/av1_highbd_dr_prediction_z3 avx2/;
+
+#if CONFIG_IBP
+add_proto qw/void av1_highbd_ibp_dr_prediction_z1/, "uint16_t* weights, uint16_t *dst, ptrdiff_t stride, uint16_t* second_pred, ptrdiff_t second_stride, int bw, int bh";
+add_proto qw/void av1_highbd_ibp_dr_prediction_z3/, "uint16_t* weights, uint16_t *dst, ptrdiff_t stride, uint16_t* second_pred, ptrdiff_t second_stride, int bw, int bh";
+#endif
 
 # build compound seg mask functions
 add_proto qw/void av1_build_compound_diffwtd_mask/, "uint8_t *mask, DIFFWTD_MASK_TYPE mask_type, const uint8_t *src0, int src0_stride, const uint8_t *src1, int src1_stride, int h, int w";
