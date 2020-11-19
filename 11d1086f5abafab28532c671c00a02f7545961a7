@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9c33b97_31aa5e93",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-19T23:30:44Z",
+      "side": 1,
+      "message": "If the stack is empty and we get a RESTORE_NONE unit, it never had the chance to merge. There might be a case where a merged Wiener filter has higher accuracy than skipping restoration without a significant increase in bitrate, so I try to merge each RESTORE_NONE unit once. So units are automatically pushed to an empty stack (line 1396) and if the second unit doesn\u0027t successfully merge and convert both units to RESTORE_WIENER the stack is emptied when the first RESTORE_WIENER unit occurs.\n\nAll that to say - the comment is describing something that\u0027s still happening, but I can see how it wouldn\u0027t be necessary to understanding the for loop and I\u0027ll take it out :)",
+      "parentUuid": "0315ae76_919d1c21",
+      "range": {
+        "startLine": 1424,
+        "startChar": 0,
+        "endLine": 1424,
+        "endChar": 71
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "526b4941_e98bfb40",
@@ -54,6 +78,30 @@
       "writtenOn": "2020-11-19T22:45:20Z",
       "side": 1,
       "message": "Change in comment seems irrelevant now",
+      "range": {
+        "startLine": 1437,
+        "startChar": 0,
+        "endLine": 1437,
+        "endChar": 63
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8115e7c8_71efa5fc",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1437,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-19T23:30:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "526b4941_e98bfb40",
       "range": {
         "startLine": 1437,
         "startChar": 0,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3346832_4d3f94f0",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1455,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-19T23:30:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63bef062_24e8128d",
+      "range": {
+        "startLine": 1455,
+        "startChar": 5,
+        "endLine": 1455,
+        "endChar": 8
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e3a0680_590f1b94",
@@ -110,6 +182,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66fceb5b_309025a3",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1456,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-19T23:30:44Z",
+      "side": 1,
+      "message": "As I was looking into incorporating finer_tile_search_wiener() back in, I realized that I would  need to pass the limits of all units potentially involved in the merge over to it. This is a lot easier if I push the current unit onto the stack early, access the limits through the stack as found in rsc, and then remove the unit as needed. The change is tied closely to some of the readability improvements made in this CL, so I thought I\u0027d include it here.",
+      "parentUuid": "1e3a0680_590f1b94",
+      "range": {
+        "startLine": 1456,
+        "startChar": 0,
+        "endLine": 1456,
+        "endChar": 59
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db26ee79_bbab69fa",
@@ -123,6 +219,30 @@
       "writtenOn": "2020-11-19T22:45:20Z",
       "side": 1,
       "message": "\"off\" --\u003e \"from the top of the\"",
+      "range": {
+        "startLine": 1496,
+        "startChar": 25,
+        "endLine": 1496,
+        "endChar": 28
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d291c0f_406687df",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1496,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-19T23:30:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db26ee79_bbab69fa",
       "range": {
         "startLine": 1496,
         "startChar": 25,
