@@ -962,7 +962,9 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
           assert(rb.bit_offset == 0);
           rb.bit_offset = 8 * frame_header_size;
         }
-
+#if CONFIG_IBP
+        av1_set_ibp_params(cm);
+#endif
         decoded_payload_size = frame_header_size;
         pbi->frame_header_size = frame_header_size;
 
