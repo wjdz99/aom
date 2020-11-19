@@ -1531,6 +1531,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   }
 
   dealloc_compressor_data(cpi);
+#if CONFIG_IBP
+  free_ibp_info(cm->ibp_directional_weights);
+#endif
 
 #if CONFIG_INTERNAL_STATS
   aom_free(cpi->ssim_vars);
@@ -3448,7 +3451,9 @@ int av1_get_compressed_data(AV1_COMP *cpi, unsigned int *frame_flags,
           : REFRESH_FRAME_CONTEXT_BACKWARD;
   if (oxcf->tile_cfg.enable_large_scale_tile)
     cm->features.refresh_frame_context = REFRESH_FRAME_CONTEXT_DISABLED;
-
+#if CONFIG_IBP
+  av1_set_ibp_params(cm);
+#endif
   // Initialize fields related to forward keyframes
   cpi->no_show_fwd_kf = 0;
 
