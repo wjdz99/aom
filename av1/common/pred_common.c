@@ -109,6 +109,7 @@ void av1_get_ref_frames(AV1_COMMON *const cm, int cur_frame_disp,
     // Keep track of the lowest and highest levels that currently exist
     if (reference_frame_level < min_level) min_level = reference_frame_level;
     if (reference_frame_level > max_level) max_level = reference_frame_level;
+    printf("ref lev %d ord %d\n", reference_frame_level, frame_order);
 
     buffer_map[n_bufs].map_idx = map_idx;
     buffer_map[n_bufs].disp_order = frame_order;
