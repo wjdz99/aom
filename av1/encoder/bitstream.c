@@ -3039,9 +3039,18 @@ static AOM_INLINE void write_uncompressed_header_obu(
         aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
       }
 
+      if (!current_frame->frame_refs_short_signaling &&
+          seq_params->order_hint_info.enable_order_hint) {
+        aom_wb_write_bit(wb, cpi->common.current_frame.pyramid_level == 1);
+        if (cpi->common.current_frame.pyramid_level != 1) {
+          aom_wb_write_bit(wb, (int)cpi->common.current_frame.pyramid_level ==
+                                   cpi->gf_group.max_layer_depth);
+        }
+      }
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
         assert(get_ref_frame_map_idx(cm, ref_frame) != INVALID_IDX);
-        if (!current_frame->frame_refs_short_signaling)
+        if (!current_frame->frame_refs_short_signaling &&
+            !seq_params->order_hint_info.enable_order_hint)
           aom_wb_write_literal(wb, get_ref_frame_map_idx(cm, ref_frame),
                                REF_FRAMES_LOG2);
         if (seq_params->frame_id_numbers_present_flag) {
