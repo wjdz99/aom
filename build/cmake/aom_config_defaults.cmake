@@ -107,6 +107,7 @@ set_aom_config_var(CONFIG_TUNE_VMAF 0 "Enable encoding tuning for VMAF.")
 set_aom_config_var(CONFIG_USE_VMAF_RC 0 "Use libvmaf_rc tune for VMAF_NEG.")
 
 # AV1 experiment flags.
+set_aom_config_var(CONFIG_IBP 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SPEED_STATS 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_COLLECT_RD_STATS 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DIST_8X8 0 "AV1 experiment flag.")

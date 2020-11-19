@@ -683,6 +683,10 @@ enum {
 #define MAX_EXTERNAL_REFERENCES 128
 #define MAX_TILES 512
 
+#if CONFIG_IBP
+#define DIR_MODES_0_90 17
+#endif
+
 /*!\endcond */
 
 #ifdef __cplusplus
