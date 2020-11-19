@@ -595,6 +595,7 @@ INTRA_PRED_TEST(C_3, TX_16X32, aom_dc_predictor_16x32_c,
                 aom_smooth_predictor_16x32_c, aom_smooth_v_predictor_16x32_c,
                 aom_smooth_h_predictor_16x32_c)
 
+#if !CONFIG_REALTIME_ONLY
 INTRA_PRED_TEST(C_4, TX_16X4, aom_dc_predictor_16x4_c,
                 aom_dc_left_predictor_16x4_c, aom_dc_top_predictor_16x4_c,
                 aom_dc_128_predictor_16x4_c, aom_v_predictor_16x4_c,
@@ -608,6 +609,7 @@ INTRA_PRED_TEST(C_5, TX_16X64, aom_dc_predictor_16x64_c,
                 aom_h_predictor_16x64_c, aom_paeth_predictor_16x64_c,
                 aom_smooth_predictor_16x64_c, aom_smooth_v_predictor_16x64_c,
                 aom_smooth_h_predictor_16x64_c)
+#endif
 
 #if HAVE_SSE2
 INTRA_PRED_TEST(SSE2_1, TX_16X16, aom_dc_predictor_16x16_sse2,
