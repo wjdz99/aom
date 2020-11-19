@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73560e9e_bfe5d3cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-19T21:10:25Z",
+      "side": 1,
+      "message": "I still think it would be good to gather the tools disabled into some of the API documentation / README for visibility.",
+      "revId": "598d6b246d7b137a17d3a96b0cbe260f539989bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
