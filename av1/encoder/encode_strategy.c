@@ -1210,6 +1210,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       const int order_offset = gf_group->arf_src_offset[gf_group->index];
       const int cur_frame_disp =
           cpi->common.current_frame.frame_number + order_offset;
+        for (int i = 0; i < REF_FRAMES; ++i) {
+          printf("ENC cur %d pair disp %d pyr %d\n", cur_frame_disp, 
+                                          ref_frame_map_pairs[i].disp_order,
+                                          ref_frame_map_pairs[i].pyr_level);
+        }
       av1_get_ref_frames(cm, cur_frame_disp, ref_frame_map_pairs);
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)

@@ -56,6 +56,8 @@ static INLINE void init_ref_map_pair(
         }
       }
     }
+    if ((int)buf->display_order_hint != (int)buf->order_hint) printf("~~~~~~\n");
+    printf("ord %d disp %d\n\n", (int)buf->display_order_hint, (int)buf->order_hint); 
     ref_frame_map_pairs[map_idx].disp_order = (int)buf->display_order_hint;
     ref_frame_map_pairs[map_idx].pyr_level = buf->pyramid_level;
   }
