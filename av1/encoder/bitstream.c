@@ -2896,6 +2896,7 @@ static AOM_INLINE void write_uncompressed_header_obu(
       aom_wb_write_bit(wb, features->error_resilient_mode);
     }
   }
+//sarahparker
   aom_wb_write_bit(wb, features->disable_cdf_update);
 
   if (seq_params->force_screen_content_tools == 2) {
