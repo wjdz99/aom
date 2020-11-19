@@ -16,6 +16,24 @@
       "message": "Looks much cleaner than previous patchset.\n\nQuestion:\nPERF analysis: C-code:1.49%  AVX2-code:0.28%\nWhat clip was used at which speed?\n\nIf you can not run borg tests to ensure no bitstream change, can you run a 150 frame encoder test before/after the CL and check the resulted bitstream?\n",
       "revId": "8f7ad8aa573e9e58a5437e68b1bb35832eff01aa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a339138_c8c0e4a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-19T19:11:50Z",
+      "side": 1,
+      "message": "The PERF analysis was done at cpu-speed\u003d6.\n\nCarried out before/after CL for both CPU and SIMD. All the four resultin the same size and verified through vbindiff.",
+      "parentUuid": "b3df60e1_ed21dc0c",
+      "revId": "8f7ad8aa573e9e58a5437e68b1bb35832eff01aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
