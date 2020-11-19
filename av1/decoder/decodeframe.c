@@ -4732,7 +4732,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
   if (current_frame->frame_type == KEY_FRAME) {
-    if (!cm->show_frame) {  // unshown keyframe (forward keyframe)
+    if (!cm->show_frame && 
+        !seq_params->order_hint_info.enable_order_hint) {  // unshown keyframe (forward keyframe)
+      current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+    } else if (!cm->show_frame) {
+        // TODO(sarahparker)
       current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
     } else {  // shown keyframe
       current_frame->refresh_frame_flags = (1 << REF_FRAMES) - 1;
@@ -4747,7 +4751,13 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   } else {
     if (current_frame->frame_type == INTRA_ONLY_FRAME) {
-      current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+      if (!seq_params->order_hint_info.enable_order_hint) {
+        current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+      } else {
+        // TODO(sarahparker)
+        current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+      }
+
       if (current_frame->refresh_frame_flags == 0xFF) {
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                            "Intra only frames cannot have refresh flags 0xFF");
@@ -4757,8 +4767,14 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         pbi->need_resync = 0;
       }
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
-      current_frame->refresh_frame_flags =
-          frame_is_sframe(cm) ? 0xFF : aom_rb_read_literal(rb, REF_FRAMES);
+      if (frame_is_sframe(cm)) {
+        current_frame->refresh_frame_flags = 0xFF;
+      } else if (!seq_params->order_hint_info.enable_order_hint) {
+          current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+      } else {
+          current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+        // TODO(sarahparker)
+      }
     }
   }
 

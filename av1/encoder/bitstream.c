@@ -2977,12 +2977,16 @@ static AOM_INLINE void write_uncompressed_header_obu(
     }
   }
 
-  // Shown keyframes and switch-frames automatically refreshes all reference
-  // frames.  For all other frame types, we need to write refresh_frame_flags.
-  if ((current_frame->frame_type == KEY_FRAME && !cm->show_frame) ||
-      current_frame->frame_type == INTER_FRAME ||
-      current_frame->frame_type == INTRA_ONLY_FRAME)
-    aom_wb_write_literal(wb, current_frame->refresh_frame_flags, REF_FRAMES);
+  // If order hints are enabled, the decoder can derive the refresh flags
+  // TODO(sarahparker)
+  if (1) { //!seq_params->order_hint_info.enable_order_hint) {
+    // Shown keyframes and switch-frames automatically refreshes all reference
+    // frames.  For all other frame types, we need to write refresh_frame_flags.
+    if ((current_frame->frame_type == KEY_FRAME && !cm->show_frame) ||
+        current_frame->frame_type == INTER_FRAME ||
+        current_frame->frame_type == INTRA_ONLY_FRAME)
+      aom_wb_write_literal(wb, current_frame->refresh_frame_flags, REF_FRAMES);
+  }
 
   if (!frame_is_intra_only(cm) || current_frame->refresh_frame_flags != 0xff) {
     // Write all ref frame order hints if error_resilient_mode == 1
