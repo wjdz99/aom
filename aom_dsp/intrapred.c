@@ -562,7 +562,224 @@ static INLINE void highbd_dc_predictor(uint16_t *dst, ptrdiff_t stride, int bw,
     dst += stride;
   }
 }
+#if CONFIG_IBP
+const uint8_t ibp_weights[5][16] = {
+    { 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    { 171, 213,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    { 154, 179, 205, 230, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    { 142, 156, 171, 185, 199, 213, 228, 242, 0, 0, 0, 0, 0, 0, 0, 0},
+    { 136, 143, 151, 158, 166, 173, 181, 188,
+      196, 203, 211, 218, 226, 233, 241, 248}
+};
+const uint8_t ibp_offset = 128;
+const uint8_t ibp_shift = 8;
+const uint8_t size_to_weights_index[9] = { 0, 1, 2, 0, 3, 0, 0, 0, 4 };
+static INLINE void highbd_ibp_dc_left_predictor(uint16_t *dst, ptrdiff_t stride,
+                                              int bw, int bh,
+                                              const uint16_t *above,
+                                              const uint16_t *left, int bd) {
+    int i, r, expected_dc, sum = 0;
+    (void)above;
+    (void)bd;
+    uint16_t *orig_dst = dst;
+    for (i = 0; i < bh; i++) sum += left[i];
+    expected_dc = (sum + (bh >> 1)) / bh;
 
+    for (r = 0; r < bh; r++) {
+        aom_memset16(dst, expected_dc, bw);
+        dst += stride;
+    }
+
+    int len = bw >> 2;
+    dst = orig_dst;
+    uint8_t weights_index = size_to_weights_index[bw>>3];
+    const uint8_t* weights = ibp_weights[weights_index];
+    for (r = 0; r < bh; r++) {
+        for (int c = 0; c < len; c++) {
+            int val = (left[r] * (256 - weights[c]) +
+                       dst[c] * weights[c] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+}
+
+static INLINE void highbd_ibp_dc_top_predictor(uint16_t *dst, ptrdiff_t stride,
+                                             int bw, int bh,
+                                             const uint16_t *above,
+                                             const uint16_t *left, int bd) {
+    int i, r, expected_dc, sum = 0;
+    (void)left;
+    (void)bd;
+    uint16_t *orig_dst = dst;
+    for (i = 0; i < bw; i++) sum += above[i];
+    expected_dc = (sum + (bw >> 1)) / bw;
+
+    for (r = 0; r < bh; r++) {
+        aom_memset16(dst, expected_dc, bw);
+        dst += stride;
+    }
+    int len = bh >> 2;
+    dst = orig_dst;
+    uint8_t weights_index = size_to_weights_index[bh>>3];
+    const uint8_t* weights = ibp_weights[weights_index];
+    for (r = 0; r < len; r++) {
+        for (int c = 0; c < bw; c++) {
+            int val = (above[c] * (256 - weights[r]) +
+                       dst[c] * weights[r] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+}
+
+static INLINE void highbd_ibp_dc_predictor(
+    uint16_t *dst, ptrdiff_t stride, int bw,
+    int bh, const uint16_t *above,
+    const uint16_t *left, int bd) {
+    int i, r, expected_dc, sum = 0;
+    const int count = bw + bh;
+    (void)bd;
+    uint16_t *orig_dst = dst;
+    for (i = 0; i < bw; i++) {
+        sum += above[i];
+    }
+    for (i = 0; i < bh; i++) {
+        sum += left[i];
+    }
+
+    expected_dc = (sum + (count >> 1)) / count;
+
+    for (r = 0; r < bh; r++) {
+        aom_memset16(dst, expected_dc, bw);
+        dst += stride;
+    }
+    int len_h = bh >> 2;
+    int len_w = bw >> 2;
+    dst = orig_dst;
+    uint8_t weights_index = size_to_weights_index[bh>>3];
+    const uint8_t* weights = ibp_weights[weights_index];
+    for (r = 0; r < len_h; r++) {
+        for (int c = 0; c < bw; c++) {
+            int val = (above[c] * (256 - weights[r]) +
+                       dst[c] * weights[r] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+    dst = orig_dst;
+    weights_index = size_to_weights_index[bw>>3];
+    weights = ibp_weights[weights_index];
+    for (r = 0; r < bh; r++) {
+        for (int c = 0; c < len_w; c++) {
+            int val = (left[r] * (256 - weights[c]) +
+                       dst[c] * weights[c] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+}
+
+
+static INLINE void ibp_dc_left_predictor(uint8_t *dst, ptrdiff_t stride, int bw,
+                                       int bh, const uint8_t *above,
+                                       const uint8_t *left) {
+    int i, r, expected_dc, sum = 0;
+    (void)above;
+    uint8_t *orig_dst = dst;
+    for (i = 0; i < bh; i++) sum += left[i];
+    expected_dc = (sum + (bh >> 1)) / bh;
+
+    for (r = 0; r < bh; r++) {
+        memset(dst, expected_dc, bw);
+        dst += stride;
+    }
+    dst = orig_dst;
+    uint8_t weights_index = size_to_weights_index[bw>>3];
+    const uint8_t* weights = ibp_weights[weights_index];
+    int len = bw >> 2;
+    for (r = 0; r < bh; r++) {
+        for (int c = 0; c < len; c++) {
+            int val = (left[r] * (256 - weights[c]) +
+                       dst[c] * weights[c] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+}
+
+static INLINE void ibp_dc_top_predictor(uint8_t *dst, ptrdiff_t stride, int bw,
+                                      int bh, const uint8_t *above,
+                                      const uint8_t *left) {
+    int i, r, expected_dc, sum = 0;
+    (void)left;
+    uint8_t *orig_dst = dst;
+    for (i = 0; i < bw; i++) sum += above[i];
+    expected_dc = (sum + (bw >> 1)) / bw;
+
+    for (r = 0; r < bh; r++) {
+        memset(dst, expected_dc, bw);
+        dst += stride;
+    }
+    dst = orig_dst;
+    uint8_t weights_index = size_to_weights_index[bh>>3];
+    const uint8_t* weights = ibp_weights[weights_index];
+    int len = bh >> 2;
+    for (r = 0; r < len; r++) {
+        for (int c = 0; c < bw; c++) {
+            int val = (above[c] * (256 - weights[r]) +
+                       dst[c] * weights[r] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+}
+
+static INLINE void ibp_dc_predictor(
+    uint8_t *dst, ptrdiff_t stride, int bw, int bh,
+    const uint8_t *above, const uint8_t *left) {
+    int i, r, expected_dc, sum = 0;
+    const int count = bw + bh;
+    uint8_t *orig_dst = dst;
+    for (i = 0; i < bw; i++) {
+        sum += above[i];
+    }
+    for (i = 0; i < bh; i++) {
+        sum += left[i];
+    }
+
+    expected_dc = (sum + (count >> 1)) / count;
+
+    for (r = 0; r < bh; r++) {
+        memset(dst, expected_dc, bw);
+        dst += stride;
+    }
+    dst = orig_dst;
+    uint8_t weights_index = size_to_weights_index[bh>>3];
+    const uint8_t* weights = ibp_weights[weights_index];
+    int len_w = bw >> 2;
+    int len_h = bh >> 2;
+    for (r = 0; r < len_h; r++) {
+        for (int c = 0; c < bw; c++) {
+            int val = (above[c] * (256 - weights[r]) +
+                       dst[c] * weights[r] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+    dst = orig_dst;
+    weights_index = size_to_weights_index[bw>>3];
+    weights = ibp_weights[weights_index];
+    for (r = 0; r < bh; r++) {
+        for (int c = 0; c < len_w; c++) {
+            int val = (left[r] * (256 - weights[c]) +
+                       dst[c] * weights[c] + ibp_offset) >> ibp_shift;
+            dst[c] = val;
+        }
+        dst += stride;
+    }
+}
+#endif
 // Obtained similarly as DC_MULTIPLIER_1X2 and DC_MULTIPLIER_1X4 above, but
 // assume 2nd shift of 17 bits instead of 16.
 // Note: Strictly speaking, 2nd shift needs to be 17 only when:
@@ -788,5 +1005,9 @@ intra_pred_allsizes(dc_128)
 intra_pred_allsizes(dc_left)
 intra_pred_allsizes(dc_top)
 intra_pred_square(dc)
+intra_pred_allsizes(ibp_dc_left)
+intra_pred_allsizes(ibp_dc_top)
+intra_pred_allsizes(ibp_dc)
+
 /* clang-format on */
 #undef intra_pred_allsizes
