@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2543e970_034949ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-19T23:39:58Z",
+      "side": 1,
+      "message": "Looks good. I\u0027ll let Elliott take a look as well.\nAlso, be sure to add BDRate improvement number to the commit message.",
+      "revId": "5efce1d62c77e57b3a73a1e9d8371727716b4b6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
