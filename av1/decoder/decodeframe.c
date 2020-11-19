@@ -4789,6 +4789,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   }
 
   if (current_frame->frame_type == KEY_FRAME) {
+    cm->current_frame.pyramid_level = 1;
     setup_frame_size(cm, frame_size_override_flag, rb);
 
     if (features->allow_screen_content_tools && !av1_superres_scaled(cm))
@@ -4834,6 +4835,17 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                              "Inter frame requests nonexistent reference");
 
         av1_set_frame_refs(cm, cm->remapped_ref_idx, lst_ref, gld_ref);
+      }
+
+      if (!frame_refs_short_signaling && 
+          seq_params->order_hint_info.enable_order_hint) { 
+
+        int is_lowest_level = aom_rb_read_bit(rb);
+        cm->current_frame.pyramid_level = is_lowest_level ? 1 : 
+          (aom_rb_read_bit(rb) ? 6 : 3);
+        RefFrameMapPair ref_frame_map_pairs[REF_FRAMES];
+        init_ref_map_pair(cm, ref_frame_map_pairs);
+        av1_get_ref_frames(cm, current_frame->order_hint, ref_frame_map_pairs);
       }
 
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
