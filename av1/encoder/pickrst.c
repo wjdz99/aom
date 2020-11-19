@@ -1183,6 +1183,27 @@ static int count_wiener_bits(int wiener_win, WienerInfo *wiener_info,
   return bits;
 }
 
+static int64_t calc_finer_tile_search_error(const RestSearchCtxt *rsc,
+                                            const RestorationTileLimits *limits,
+                                            const AV1PixelRect *tile,
+                                            RestorationUnitInfo *rui) {
+  // If finding error for a possible merged filter, limits will be NULL.
+  int64_t err = 0;
+  if (limits != NULL) {
+    err = try_restoration_unit(rsc, limits, tile, rui);
+  }
+#if CONFIG_RST_MERGECOEFFS
+  else {
+    Vector *current_unit_stack = rsc->unit_stack;
+    VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
+      RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
+      err += try_restoration_unit(rsc, &old_unit->limits, tile, rui);
+    }
+  }
+#endif  // CONFIG_RST_MERGECOEFFS
+  return err;
+}
+
 #define USE_WIENER_REFINEMENT_SEARCH 1
 static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
                                         const RestorationTileLimits *limits,
@@ -1190,7 +1211,7 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
                                         RestorationUnitInfo *rui,
                                         int wiener_win) {
   const int plane_off = (WIENER_WIN - wiener_win) >> 1;
-  int64_t err = try_restoration_unit(rsc, limits, tile, rui);
+  int64_t err = calc_finer_tile_search_error(rsc, limits, tile, rui);
 #if USE_WIENER_REFINEMENT_SEARCH
   int64_t err2;
   int tap_min[] = { WIENER_FILT_TAP0_MINV, WIENER_FILT_TAP1_MINV,
@@ -1210,7 +1231,7 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->hfilter[p] -= s;
           plane_wiener->hfilter[WIENER_WIN - p - 1] -= s;
           plane_wiener->hfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_unit(rsc, limits, tile, rui);
+          err2 = calc_finer_tile_search_error(rsc, limits, tile, rui);
           if (err2 > err) {
             plane_wiener->hfilter[p] += s;
             plane_wiener->hfilter[WIENER_WIN - p - 1] += s;
@@ -1230,7 +1251,7 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->hfilter[p] += s;
           plane_wiener->hfilter[WIENER_WIN - p - 1] += s;
           plane_wiener->hfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_unit(rsc, limits, tile, rui);
+          err2 = calc_finer_tile_search_error(rsc, limits, tile, rui);
           if (err2 > err) {
             plane_wiener->hfilter[p] -= s;
             plane_wiener->hfilter[WIENER_WIN - p - 1] -= s;
@@ -1251,7 +1272,7 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->vfilter[p] -= s;
           plane_wiener->vfilter[WIENER_WIN - p - 1] -= s;
           plane_wiener->vfilter[WIENER_HALFWIN] += 2 * s;
-          err2 = try_restoration_unit(rsc, limits, tile, rui);
+          err2 = calc_finer_tile_search_error(rsc, limits, tile, rui);
           if (err2 > err) {
             plane_wiener->vfilter[p] += s;
             plane_wiener->vfilter[WIENER_WIN - p - 1] += s;
@@ -1271,7 +1292,7 @@ static int64_t finer_tile_search_wiener(const RestSearchCtxt *rsc,
           plane_wiener->vfilter[p] += s;
           plane_wiener->vfilter[WIENER_WIN - p - 1] += s;
           plane_wiener->vfilter[WIENER_HALFWIN] -= 2 * s;
-          err2 = try_restoration_unit(rsc, limits, tile, rui);
+          err2 = calc_finer_tile_search_error(rsc, limits, tile, rui);
           if (err2 > err) {
             plane_wiener->vfilter[p] -= s;
             plane_wiener->vfilter[WIENER_WIN - p - 1] -= s;
@@ -1452,6 +1473,7 @@ static void search_wiener(const RestorationTileLimits *limits,
                       rui_temp.wiener_info.hfilter);
   // Push current unit onto stack.
   aom_vector_push_back(current_unit_stack, &unit_snapshot);
+  finer_tile_search_wiener(rsc, NULL, tile_rect, &rui_temp, reduced_wiener_win);
   // Iterate through vector to get sse and bits for each on the new filter.
   double cost_merge = 0;
   VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
