@@ -4438,6 +4438,41 @@ static INLINE void reset_frame_buffers(AV1_COMMON *cm) {
   unlock_buffer_pool(cm->buffer_pool);
 }
 
+// Derive the display order hint from the signalled order_hint.
+// This requires scaling up order_hints corresponding to frame
+// numbers that exceed the number of bits available to send the order_hints.
+static INLINE int get_disp_order_hint(AV1_COMMON *const cm) {
+  CurrentFrame *const current_frame = &cm->current_frame;
+  if (current_frame->frame_type == KEY_FRAME && cm->show_existing_frame)
+    return 0;
+
+  // Find the reference frame with the largest order_hint
+  int max_disp_ord = 0;
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = cm->ref_frame_map[map_idx];
+    if (buf == NULL) continue;
+    if ((int)buf->display_order_hint > max_disp_ord)
+      max_disp_ord = buf->display_order_hint;
+  }
+
+  // If the order_hint is above the threshold distance from the found reference
+  // frame, we assume it was modified using:
+  // order_hint = display_order_hint % display_order_hint_factor. Here, the
+  // actual display_order_hint is recovered.
+  const int order_hint = current_frame->order_hint;
+  int cur_disp_ord_hint = order_hint;
+  if (abs(max_disp_ord - order_hint) > 32) {
+    assert(order_hint < max_disp_ord);
+    const int display_order_hint_factor =
+        (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
+    const int upper_order_factor =
+        order_hint +
+        (display_order_hint_factor - (order_hint % display_order_hint_factor));
+    cur_disp_ord_hint += upper_order_factor;
+  }
+  return cur_disp_ord_hint;
+}
 // On success, returns 0. On failure, calls aom_internal_error and does not
 // return.
 static int read_uncompressed_header(AV1Decoder *pbi,
@@ -4664,6 +4699,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
     current_frame->order_hint = aom_rb_read_literal(
         rb, seq_params->order_hint_info.order_hint_bits_minus_1 + 1);
+    current_frame->display_order_hint = get_disp_order_hint(cm);
     current_frame->frame_number = current_frame->order_hint;
 
     if (!features->error_resilient_mode && !frame_is_intra_only(cm)) {
@@ -4789,6 +4825,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   }
 
   if (current_frame->frame_type == KEY_FRAME) {
+    cm->current_frame.pyramid_level = 1;
     setup_frame_size(cm, frame_size_override_flag, rb);
 
     if (features->allow_screen_content_tools && !av1_superres_scaled(cm))
@@ -4836,9 +4873,46 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         av1_set_frame_refs(cm, cm->remapped_ref_idx, lst_ref, gld_ref);
       }
 
+#if CONFIG_NEW_REF_SIGNALING
+      int is_realtime = 1;
+      if (!frame_refs_short_signaling &&
+          seq_params->order_hint_info.enable_order_hint) {
+        // Realtime mode has a different reference mapping scheme
+        is_realtime = aom_rb_read_bit(rb);
+        if (!is_realtime) {
+          // av1_get_ref_frames use the pyramid level to map references, but it
+          // currently only needs to know whether a frame is the lowest level
+          // or highest level so we can get away with assigning 1 for lowest,
+          // 3 for highest, and 2 for everything else. The exact pyraid level is
+          // not necessary. This can go away if we adjust the implementation of
+          // av1_get_ref_frames to use q value rather than pyramid level.
+          int is_lowest_level = aom_rb_read_bit(rb);
+          cm->current_frame.pyramid_level =
+              is_lowest_level ? 1 : (aom_rb_read_bit(rb) ? 3 : 2);
+          RefFrameMapPair ref_frame_map_pairs[REF_FRAMES];
+          init_ref_map_pair(cm, ref_frame_map_pairs,
+                            current_frame->frame_type == KEY_FRAME);
+          // Derive the reference frame mapping
+          av1_get_ref_frames(cm, current_frame->display_order_hint,
+                             ref_frame_map_pairs);
+        }
+      }
+#endif  // CONFIG_NEW_REF_SIGNALING
+
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         int ref = 0;
+#if CONFIG_NEW_REF_SIGNALING
+        if ( !is_realtime && !frame_refs_short_signaling &&
+            seq_params->order_hint_info.enable_order_hint) {
+          ref = cm->remapped_ref_idx[i];
+          if (cm->ref_frame_map[ref] == NULL)
+            aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
+                               "Inter frame requests nonexistent reference");
+
+        } else if (!frame_refs_short_signaling) {
+#else 
         if (!frame_refs_short_signaling) {
+#endif  // CONFIG_NEW_REF_SIGNALING
           ref = aom_rb_read_literal(rb, REF_FRAMES_LOG2);
 
           // Most of the time, streams start with a keyframe. In that case,
