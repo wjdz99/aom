@@ -3190,6 +3190,7 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
 
   current_frame->order_hint =
       current_frame->frame_number + frame_params->order_offset;
+  printf("ENC oh %d\n", current_frame->order_hint);
   current_frame->display_order_hint = current_frame->order_hint;
   current_frame->pyramid_level = get_true_pyr_level(
       cpi->gf_group.layer_depth[cpi->gf_group.index],
@@ -3200,6 +3201,7 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
 
   current_frame->order_hint %=
       (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
+  printf("MODED OH %d\n", current_frame->order_hint);
 
   if (is_stat_generation_stage(cpi)) {
 #if !CONFIG_REALTIME_ONLY
