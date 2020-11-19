@@ -22,6 +22,30 @@
       },
       "revId": "d37f345b7220adb7122e5d340dc2b8ef9e156c3c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db6191b7_c2a29245",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 14927,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-11-19T19:27:39Z",
+      "side": 1,
+      "message": "The statement cached_mode-\u003emode \u003d\u003d DC_PRED should always be true once we get here.\nI will change this to an assertion instead.",
+      "parentUuid": "a1b55a6d_1bd9b1a7",
+      "range": {
+        "startLine": 14927,
+        "startChar": 8,
+        "endLine": 14927,
+        "endChar": 73
+      },
+      "revId": "d37f345b7220adb7122e5d340dc2b8ef9e156c3c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
