@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7139daca_0244476e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-19T22:45:20Z",
+      "side": 1,
+      "message": "When you have verified the gains from the experiment, add the gain to the commit message (including what \u0027baseline\u0027 and \u0027test\u0027 was, which set, how many frames).",
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0315ae76_919d1c21",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1424,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-19T22:45:20Z",
+      "side": 1,
+      "message": "Is the comment still relevant?",
+      "range": {
+        "startLine": 1424,
+        "startChar": 0,
+        "endLine": 1424,
+        "endChar": 71
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "526b4941_e98bfb40",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1437,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-19T22:45:20Z",
+      "side": 1,
+      "message": "Change in comment seems irrelevant now",
+      "range": {
+        "startLine": 1437,
+        "startChar": 0,
+        "endLine": 1437,
+        "endChar": 63
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63bef062_24e8128d",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1455,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-19T22:45:20Z",
+      "side": 1,
+      "message": "\"Push\"?",
+      "range": {
+        "startLine": 1455,
+        "startChar": 5,
+        "endLine": 1455,
+        "endChar": 8
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e3a0680_590f1b94",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1456,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-19T22:45:20Z",
+      "side": 1,
+      "message": "Why was this statement got moved from below? I feel that this made the \"else\" case below harder to understand (as it now pops are pushes both)",
+      "range": {
+        "startLine": 1456,
+        "startChar": 0,
+        "endLine": 1456,
+        "endChar": 59
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db26ee79_bbab69fa",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1496,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-19T22:45:20Z",
+      "side": 1,
+      "message": "\"off\" --\u003e \"from the top of the\"",
+      "range": {
+        "startLine": 1496,
+        "startChar": 25,
+        "endLine": 1496,
+        "endChar": 28
+      },
+      "revId": "11d1086f5abafab28532c671c00a02f7545961a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
