@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "356f7726_e1b595e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-20T17:59:28Z",
+      "side": 1,
+      "message": "Mostly looks good. Some minor comments...",
+      "revId": "126f9a785af0dd037eba5d02d99fbca822a91f54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "912fdb65_727c83bf",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1190,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-20T17:59:28Z",
+      "side": 1,
+      "message": "I\u0027ll make this function level comment (above the function signature), and write it as something like:\n\"If limits !\u003d NULL, calculates error for current restoration unit.\nAnd if limits \u003d\u003d NULL, calculates error for all units in the stack\"",
+      "range": {
+        "startLine": 1190,
+        "startChar": 0,
+        "endLine": 1190,
+        "endChar": 72
+      },
+      "revId": "126f9a785af0dd037eba5d02d99fbca822a91f54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ff585aa_8421ac04",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-20T17:59:28Z",
+      "side": 1,
+      "message": "This should go before calc_finer_tile_search_error()",
+      "range": {
+        "startLine": 1208,
+        "startChar": 0,
+        "endLine": 1208,
+        "endChar": 38
+      },
+      "revId": "126f9a785af0dd037eba5d02d99fbca822a91f54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "579ca136_bb019129",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1477,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-20T17:59:28Z",
+      "side": 1,
+      "message": "I\u0027d move this line above, as it\u0027s part of \"Generate new filter\" section.",
+      "range": {
+        "startLine": 1477,
+        "startChar": 2,
+        "endLine": 1477,
+        "endChar": 26
+      },
+      "revId": "126f9a785af0dd037eba5d02d99fbca822a91f54",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
