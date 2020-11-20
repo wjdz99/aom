@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+
+#define MAX_RATIONAL_FACTOR 16
+#define MAX_FILTER_LEN 32
+
+typedef struct {
+  int p;
+  int q;
+  int length;
+  int start;
+  int steps[MAX_RATIONAL_FACTOR];
+  int16_t filter[MAX_RATIONAL_FACTOR][MAX_FILTER_LEN];
+  double phases[MAX_RATIONAL_FACTOR];
+} RationalResampleFilter;
+
+typedef struct {
+  int bits;
+  int issigned;
+} ClipProfile;
+
+double get_centered_x0(int p, int q);
+double get_inverse_x0(int p, int q, double x0);
+
+void get_resample_filter(int p, int q, int a, double x0, int prec,
+                         RationalResampleFilter *rf);
+void get_resample_filter_inv(int p, int q, int a, double x0, int bits,
+                             RationalResampleFilter *rf);
+
+// Assume no extension of the input x buffer
+void resample_1d(const int16_t *x, int inlen, RationalResampleFilter *rf,
+                 int downshift, ClipProfile *clip, int16_t *y, int outlen);
+
+// Assume a scratch buffer xext of size inlen + rf->length is provided
+void resample_1d_xc(const int16_t *x, int inlen, RationalResampleFilter *rf,
+                    int downshift, ClipProfile *clip, int16_t *y, int outlen,
+                    int16_t *xext);
+
+// Assume x buffer is already extended on both sides with x pointing to the
+// leftmost pixel, but the extension values are not filled up.
+void resample_1d_xt(int16_t *x, int inlen, RationalResampleFilter *rf,
+                    int downshift, ClipProfile *clip, int16_t *y, int outlen);
+
+// Assume x buffer is already extended on both sides with x pointing to the
+// leftmost pixel, and the extension values are already filled up.
+void resample_1d_core(const int16_t *x, int inlen, RationalResampleFilter *rf,
+                      int downshift, ClipProfile *clip, int16_t *y, int outlen);
+
+void resample_2d(const int16_t *x, int inwidth, int inheight, int instride,
+                 RationalResampleFilter *rfh, RationalResampleFilter *rfv,
+                 int downshifth, int downshiftv, ClipProfile *clip, int16_t *y,
+                 int outwidth, int outheight, int outstride);
+
+void resample_hor(const int16_t *x, int inwidth, int inheight, int instride,
+                  RationalResampleFilter *rfh, int downshifth,
+                  ClipProfile *clip, int16_t *y, int outwidth, int outstride);
+
+void show_resample_filter(RationalResampleFilter *rf);
+
+int get_resampled_output_length(int inlen, int p, int q, int force_even);
