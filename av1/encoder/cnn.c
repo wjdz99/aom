@@ -147,9 +147,9 @@ int check_tensor_equal_size(TENSOR *t1, TENSOR *t2) {
           t1->height == t2->height);
 }
 
-static void find_layer_output_size(int in_width, int in_height,
-                                   const CNN_LAYER_CONFIG *layer_config,
-                                   int *out_width, int *out_height) {
+void find_layer_output_size(int in_width, int in_height,
+                            const CNN_LAYER_CONFIG *layer_config,
+                            int *out_width, int *out_height) {
   if (!layer_config->deconvolve) {
     switch (layer_config->pad) {
       case PADDING_SAME_ZERO:
@@ -295,14 +295,6 @@ activation_fn get_activation(ACTIVATION layer_activation) {
       return NULL;
     default: assert(0 && "Unknown activation type"); return NULL;
   }
-}
-
-static INLINE int get_start_shift_convolve(int width, int filt_width,
-                                           int stride) {
-  const int mod = (width % stride);
-  const int filt_off = (filt_width - 1) / 2;
-  const int dif = (mod ? mod - 1 : stride - 1);
-  return AOMMIN((dif + (filt_width % 2)) / 2, filt_off);
 }
 
 void av1_cnn_add_c(float **output, int channels, int width, int height,

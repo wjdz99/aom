@@ -166,6 +166,9 @@ struct CNN_MULTI_OUT {
 void av1_find_cnn_output_size(int in_width, int in_height,
                               const CNN_CONFIG *cnn_config, int *out_width,
                               int *out_height, int *out_channels);
+void find_layer_output_size(int in_width, int in_height,
+                            const CNN_LAYER_CONFIG *layer_config,
+                            int *out_width, int *out_height);
 
 // Prediction functions from set of input image buffers. This function supports
 // CNN with multiple outputs.
@@ -189,6 +192,14 @@ void av1_cnn_predict_img_highbd(uint16_t **dgd, int width, int height,
                                 int stride, const CNN_CONFIG *cnn_config,
                                 const CNN_THREAD_DATA *thread_data,
                                 int bit_depth, float **output, int out_stride);
+
+// CNNConvolve get start shift value
+INLINE int get_start_shift_convolve(int width, int filt_width, int stride) {
+  const int mod = (width % stride);
+  const int filt_off = (filt_width - 1) / 2;
+  const int dif = (mod ? mod - 1 : stride - 1);
+  return AOMMIN((dif + (filt_width % 2)) / 2, filt_off);
+}
 
 #ifdef __cplusplus
 }  // extern "C"
