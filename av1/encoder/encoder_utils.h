@@ -998,6 +998,13 @@ void av1_set_mb_ssim_rdmult_scaling(AV1_COMP *cpi);
 
 void av1_save_all_coding_context(AV1_COMP *cpi);
 
+typedef void (*collect_block_stats_visit_fn)(const AV1_COMP *cpi, int mi_row,
+                                             int mi_col, void *args);
+
+void av1_collect_stats_post_encodeframe(AV1_COMP *cpi,
+                                        collect_block_stats_visit_fn visit_fn,
+                                        void *args);
+
 #if DUMP_RECON_FRAMES == 1
 void av1_dump_filtered_recon_frames(AV1_COMP *cpi);
 #endif

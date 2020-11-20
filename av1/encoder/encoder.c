@@ -14,6 +14,8 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "aom_mem/aom_mem.h"
+#include "av1/common/enums.h"
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
 
@@ -2330,6 +2332,20 @@ static int encode_without_recode(AV1_COMP *cpi) {
 }
 
 #if !CONFIG_REALTIME_ONLY
+static int get_sb_stride(const AV1_COMMON *cm) {
+  const int sb_mi_size = cm->seq_params.mib_size;
+  const int mi_rows = cm->mi_params.mi_rows;
+  return (mi_rows + sb_mi_size) / sb_mi_size;
+}
+
+static int get_num_sbs(const AV1_COMMON *cm) {
+  const int sb_mi_size = cm->seq_params.mib_size;
+  const int mi_rows = cm->mi_params.mi_rows;
+  const int mi_cols = cm->mi_params.mi_cols;
+  const int sb_rows = (mi_rows + sb_mi_size) / sb_mi_size;
+  const int sb_cols = (mi_cols + sb_mi_size) / sb_mi_size;
+  return sb_rows * sb_cols;
+}
 
 /*!\brief Recode loop for encoding one frame. the purpose of encoding one frame
  * for multiple times can be approaching a target bitrate or adjusting the usage
@@ -2406,6 +2422,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   int undershoot_seen = 0;
   int low_cr_seen = 0;
   int last_loop_allow_hp = 0;
+
+  SBPartitionDepthMap *partition_depth_map =
+      aom_calloc(get_num_sbs(cm), sizeof(*partition_depth_map));
 
   do {
     loop = 0;

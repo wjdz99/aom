@@ -9,10 +9,12 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "av1/common/enums.h"
 #include "config/aom_config.h"
 
 #include "aom_ports/system_state.h"
 
+#include "av1/encoder/encoder_utils.h"
 #include "av1/encoder/encodemv.h"
 #if !CONFIG_REALTIME_ONLY
 #include "av1/encoder/misc_model_weights.h"
@@ -173,9 +175,8 @@ static AOM_INLINE void keep_one_mv_stat(MV_STATS *mv_stats, const MV *ref_mv,
   }
 }
 
-static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
-                                          const AV1_COMP *cpi, int mi_row,
-                                          int mi_col) {
+static AOM_INLINE void collect_mv_stats_b(const AV1_COMP *cpi, int mi_row,
+                                          int mi_col, void *args) {
   const AV1_COMMON *cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
 
@@ -189,6 +190,8 @@ static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
       cpi->mbmi_ext_info.frame_base +
       get_mi_ext_idx(mi_row, mi_col, cm->mi_params.mi_alloc_bsize,
                      cpi->mbmi_ext_info.stride);
+
+  MV_STATS *mv_stats = (MV_STATS *)args;
 
   if (!is_inter_block(mbmi)) {
     mv_stats->intra_count++;
@@ -262,109 +265,9 @@ static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
   }
 }
 
-// Split block
-static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
-                                           const AV1_COMP *cpi, int mi_row,
-                                           int mi_col, BLOCK_SIZE bsize) {
-  assert(bsize < BLOCK_SIZES_ALL);
-  const AV1_COMMON *cm = &cpi->common;
-
-  if (mi_row >= cm->mi_params.mi_rows || mi_col >= cm->mi_params.mi_cols)
-    return;
-
-  const PARTITION_TYPE partition = get_partition(cm, mi_row, mi_col, bsize);
-  const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
-
-  const int hbs = mi_size_wide[bsize] / 2;
-  const int qbs = mi_size_wide[bsize] / 4;
-  switch (partition) {
-    case PARTITION_NONE:
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
-      break;
-    case PARTITION_HORZ:
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col);
-      break;
-    case PARTITION_VERT:
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col + hbs);
-      break;
-    case PARTITION_SPLIT:
-      collect_mv_stats_sb(mv_stats, cpi, mi_row, mi_col, subsize);
-      collect_mv_stats_sb(mv_stats, cpi, mi_row, mi_col + hbs, subsize);
-      collect_mv_stats_sb(mv_stats, cpi, mi_row + hbs, mi_col, subsize);
-      collect_mv_stats_sb(mv_stats, cpi, mi_row + hbs, mi_col + hbs, subsize);
-      break;
-    case PARTITION_HORZ_A:
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col + hbs);
-      collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col);
-      break;
-    case PARTITION_HORZ_B:
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col + hbs);
-      break;
-    case PARTITION_VERT_A:
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col + hbs);
-      break;
-    case PARTITION_VERT_B:
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
-      collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col + hbs);
-      collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col + hbs);
-      break;
-    case PARTITION_HORZ_4:
-      for (int i = 0; i < 4; ++i) {
-        const int this_mi_row = mi_row + i * qbs;
-        collect_mv_stats_b(mv_stats, cpi, this_mi_row, mi_col);
-      }
-      break;
-    case PARTITION_VERT_4:
-      for (int i = 0; i < 4; ++i) {
-        const int this_mi_col = mi_col + i * qbs;
-        collect_mv_stats_b(mv_stats, cpi, mi_row, this_mi_col);
-      }
-      break;
-    default: assert(0);
-  }
-}
-
-static AOM_INLINE void collect_mv_stats_tile(MV_STATS *mv_stats,
-                                             const AV1_COMP *cpi,
-                                             const TileInfo *tile_info) {
-  const AV1_COMMON *cm = &cpi->common;
-  const int mi_row_start = tile_info->mi_row_start;
-  const int mi_row_end = tile_info->mi_row_end;
-  const int mi_col_start = tile_info->mi_col_start;
-  const int mi_col_end = tile_info->mi_col_end;
-  const int sb_size_mi = cm->seq_params.mib_size;
-  BLOCK_SIZE sb_size = cm->seq_params.sb_size;
-  for (int mi_row = mi_row_start; mi_row < mi_row_end; mi_row += sb_size_mi) {
-    for (int mi_col = mi_col_start; mi_col < mi_col_end; mi_col += sb_size_mi) {
-      collect_mv_stats_sb(mv_stats, cpi, mi_row, mi_col, sb_size);
-    }
-  }
-}
-
 void av1_collect_mv_stats(AV1_COMP *cpi, int current_q) {
   MV_STATS *mv_stats = &cpi->mv_stats;
-  const AV1_COMMON *cm = &cpi->common;
-  const int tile_cols = cm->tiles.cols;
-  const int tile_rows = cm->tiles.rows;
-
-  for (int tile_row = 0; tile_row < tile_rows; tile_row++) {
-    TileInfo tile_info;
-    av1_tile_set_row(&tile_info, cm, tile_row);
-    for (int tile_col = 0; tile_col < tile_cols; tile_col++) {
-      const int tile_idx = tile_row * tile_cols + tile_col;
-      av1_tile_set_col(&tile_info, cm, tile_col);
-      cpi->tile_data[tile_idx].tctx = *cm->fc;
-      cpi->td.mb.e_mbd.tile_ctx = &cpi->tile_data[tile_idx].tctx;
-      collect_mv_stats_tile(mv_stats, cpi, &tile_info);
-    }
-  }
+  av1_collect_stats_post_encodeframe(cpi, collect_mv_stats_b, (void *)mv_stats);
 
   mv_stats->q = current_q;
   mv_stats->order = cpi->common.current_frame.order_hint;

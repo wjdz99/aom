@@ -2018,10 +2018,21 @@ typedef struct {
   uint8_t *entropy_ctx;
 } CoeffBufferPool;
 
+typedef struct {
+  int8_t block_128_split;
+  int8_t block_64_split[4];
+  int8_t block_32_split[16];
+  int8_t block_16_split[64];
+  int8_t block_8_split[64 * 4];
+  int valid;
+} SBPartitionDepthMap;
+
 /*!
  * \brief Top level encoder structure.
  */
 typedef struct AV1_COMP {
+  SBPartitionDepthMap *SBPartitionDepthMap;
+
   /*!
    * Quantization and dequantization parameters for internal quantizer setup
    * in the encoder.

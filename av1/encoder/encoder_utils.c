@@ -1346,3 +1346,111 @@ void av1_dump_filtered_recon_frames(AV1_COMP *cpi) {
   fclose(f_recon);
 }
 #endif  // DUMP_RECON_FRAMES
+
+static AOM_INLINE void collect_splitblock_stats_post_encodeframe(
+    AV1_COMP *cpi, collect_block_stats_visit_fn visit_fn, int mi_row,
+    int mi_col, BLOCK_SIZE bsize, void *args) {
+  assert(bsize < BLOCK_SIZES_ALL);
+  const AV1_COMMON *cm = &cpi->common;
+
+  if (mi_row >= cm->mi_params.mi_rows || mi_col >= cm->mi_params.mi_cols)
+    return;
+
+  const PARTITION_TYPE partition = get_partition(cm, mi_row, mi_col, bsize);
+  const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
+
+  const int hbs = mi_size_wide[bsize] / 2;
+  const int qbs = mi_size_wide[bsize] / 4;
+  switch (partition) {
+    case PARTITION_NONE: visit_fn(cpi, mi_row, mi_col, visit_fn); break;
+    case PARTITION_HORZ:
+      visit_fn(cpi, mi_row, mi_col, visit_fn);
+      visit_fn(cpi, mi_row, mi_col + hbs, visit_fn);
+      break;
+    case PARTITION_VERT:
+      visit_fn(cpi, mi_row, mi_col, args);
+      visit_fn(cpi, mi_row, mi_col + hbs, args);
+      break;
+    case PARTITION_SPLIT:
+      collect_splitblock_stats_post_encodeframe(cpi, visit_fn, mi_row, mi_col,
+                                                subsize, args);
+      collect_splitblock_stats_post_encodeframe(cpi, visit_fn, mi_row,
+                                                mi_col + hbs, subsize, args);
+      collect_splitblock_stats_post_encodeframe(cpi, visit_fn, mi_row + hbs,
+                                                mi_col, subsize, args);
+      collect_splitblock_stats_post_encodeframe(cpi, visit_fn, mi_row + hbs,
+                                                mi_col + hbs, subsize, args);
+      break;
+    case PARTITION_HORZ_A:
+      visit_fn(cpi, mi_row, mi_col, args);
+      visit_fn(cpi, mi_row, mi_col + hbs, args);
+      visit_fn(cpi, mi_row + hbs, mi_col, args);
+      break;
+    case PARTITION_HORZ_B:
+      visit_fn(cpi, mi_row, mi_col, args);
+      visit_fn(cpi, mi_row + hbs, mi_col, args);
+      visit_fn(cpi, mi_row + hbs, mi_col + hbs, args);
+      break;
+    case PARTITION_VERT_A:
+      visit_fn(cpi, mi_row, mi_col, args);
+      visit_fn(cpi, mi_row + hbs, mi_col, args);
+      visit_fn(cpi, mi_row, mi_col + hbs, args);
+      break;
+    case PARTITION_VERT_B:
+      visit_fn(cpi, mi_row, mi_col, args);
+      visit_fn(cpi, mi_row, mi_col + hbs, args);
+      visit_fn(cpi, mi_row + hbs, mi_col + hbs, args);
+      break;
+    case PARTITION_HORZ_4:
+      for (int i = 0; i < 4; ++i) {
+        const int this_mi_row = mi_row + i * qbs;
+        visit_fn(cpi, this_mi_row, mi_col, args);
+      }
+      break;
+    case PARTITION_VERT_4:
+      for (int i = 0; i < 4; ++i) {
+        const int this_mi_col = mi_col + i * qbs;
+        visit_fn(cpi, mi_row, this_mi_col, args);
+      }
+      break;
+    default: assert(0);
+  }
+}
+
+static AOM_INLINE void collect_tile_stats_post_encodeframe(
+    AV1_COMP *cpi, collect_block_stats_visit_fn visit_fn, void *args,
+    const TileInfo *tile_info) {
+  const AV1_COMMON *cm = &cpi->common;
+  const int mi_row_start = tile_info->mi_row_start;
+  const int mi_row_end = tile_info->mi_row_end;
+  const int mi_col_start = tile_info->mi_col_start;
+  const int mi_col_end = tile_info->mi_col_end;
+  const int sb_size_mi = cm->seq_params.mib_size;
+  BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+  for (int mi_row = mi_row_start; mi_row < mi_row_end; mi_row += sb_size_mi) {
+    for (int mi_col = mi_col_start; mi_col < mi_col_end; mi_col += sb_size_mi) {
+      collect_splitblock_stats_post_encodeframe(cpi, visit_fn, mi_row, mi_col,
+                                                sb_size, args);
+    }
+  }
+}
+
+void av1_collect_stats_post_encodeframe(AV1_COMP *cpi,
+                                        collect_block_stats_visit_fn visit_fn,
+                                        void *args) {
+  const AV1_COMMON *cm = &cpi->common;
+  const int tile_cols = cm->tiles.cols;
+  const int tile_rows = cm->tiles.rows;
+
+  for (int tile_row = 0; tile_row < tile_rows; tile_row++) {
+    TileInfo tile_info;
+    av1_tile_set_row(&tile_info, cm, tile_row);
+    for (int tile_col = 0; tile_col < tile_cols; tile_col++) {
+      const int tile_idx = tile_row * tile_cols + tile_col;
+      av1_tile_set_col(&tile_info, cm, tile_col);
+      cpi->tile_data[tile_idx].tctx = *cm->fc;
+      cpi->td.mb.e_mbd.tile_ctx = &cpi->tile_data[tile_idx].tctx;
+      collect_tile_stats_post_encodeframe(cpi, visit_fn, args, &tile_info);
+    }
+  }
+}
