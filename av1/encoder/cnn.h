@@ -34,6 +34,8 @@ struct AV1Common;
 #define NO_BN_PARAMS \
   { NULL, NULL, NULL, NULL }
 
+#define CLAMPINDEX(a, hi) ((a) < 0 ? 0 : ((a) >= (hi) ? ((hi)-1) : (a)))
+
 enum {
   PADDING_SAME_ZERO,       // tensorflow's SAME padding with pixels outside
                            // the image area assumed to be 0 (default)
@@ -166,6 +168,11 @@ struct CNN_MULTI_OUT {
 void av1_find_cnn_output_size(int in_width, int in_height,
                               const CNN_CONFIG *cnn_config, int *out_width,
                               int *out_height, int *out_channels);
+
+// Function to return output width and output height of given layer.
+void av1_find_layer_output_size(int in_width, int in_height,
+                                const CNN_LAYER_CONFIG *layer_config,
+                                int *out_width, int *out_height);
 
 // Prediction functions from set of input image buffers. This function supports
 // CNN with multiple outputs.
