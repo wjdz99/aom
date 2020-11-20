@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20fc8024_6d580fa1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2020-11-20T15:57:27Z",
+      "side": 1,
+      "message": "Hi Sarah, Debargha,\nThis patch fixes potential deallocation of subgop_config_str or subgop_config_path pointers twice. The issue can be reproduced when a ‘null’ pointer is passed in three consecutive control calls (AV1E_SET_SUBGOP_CONFIG_STR or AV1E_SET_SUBGOP_CONFIG_PATH).\n\nFor example,\nLet input string of three consecutive control calls are {“enh”, null, “enh”}. \nIn this case, av1_change_config() function tries to free same memory region ( held by ‘subgop_config_str’) in 2nd and 3rd control calls respectively. This was leading to a crash issue in encoder. \n\nThis patch fixes the issue by resetting the pointer after freeing the memory. Please review the patch.\nThank you.",
+      "revId": "81a00fcf1026cb1cd2a67aba91a80693b8927df0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
