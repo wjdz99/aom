@@ -5230,7 +5230,12 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
                                0,
                                -1,
                                -1,
+                               { { { 0 } } },
                                0 };
+  for (i = 0; i < MODE_CTX_REF_FRAMES; ++i) {
+    args.wedge_mv[i][0].as_int = INVALID_MV;
+    args.wedge_mv[i][1].as_int = INVALID_MV;
+  }
   // Indicates the appropriate number of simple translation winner modes for
   // exhaustive motion mode evaluation
   const int max_winner_motion_mode_cand =

@@ -11,6 +11,7 @@
 
 #include "av1/common/pred_common.h"
 #include "av1/encoder/compound_type.h"
+#include "av1/encoder/encodemv.h"
 #include "av1/encoder/encoder_alloc.h"
 #include "av1/encoder/model_rd.h"
 #include "av1/encoder/motion_search_facade.h"
@@ -1240,6 +1241,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
   int rs2;
   int_mv best_mv[2];
   int best_tmp_rate_mv = *rate_mv;
+  int ref_frame = av1_ref_frame_type(mbmi->ref_frame);
   BEST_COMP_TYPE_STATS best_type_stats;
   // Initializing BEST_COMP_TYPE_STATS
   best_type_stats.best_compound_data.type = COMPOUND_AVERAGE;
@@ -1357,6 +1359,19 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       const int wedge_mask_size = get_wedge_types_lookup(bsize);
       int need_mask_search =
           args->wedge_index == -1 || !have_newmv_in_inter_mode(this_mode);
+      int need_mv_search = have_newmv_in_inter_mode(this_mode);
+
+      if (this_mode == NEW_NEWMV) {
+        if (args->wedge_mv[ref_frame][0].as_int != INVALID_MV &&
+            args->wedge_mv[ref_frame][1].as_int != INVALID_MV)
+          need_mv_search = 0;
+      } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
+        if (args->wedge_mv[ref_frame][1].as_int != INVALID_MV)
+          need_mv_search = 0;
+      } else if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV) {
+        if (args->wedge_mv[ref_frame][0].as_int != INVALID_MV)
+          need_mv_search = 0;
+      }
 
       for (int wedge_mask = 0; wedge_mask < wedge_mask_size && need_mask_search;
            ++wedge_mask) {
@@ -1370,9 +1385,33 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
           mode_rd = RDCOST(x->rdmult, rs2 + rd_stats->rate, 0);
           if (mode_rd >= ref_best_rd / 2) continue;
 
-          if (have_newmv_in_inter_mode(this_mode)) {
+          if (need_mv_search) {
             tmp_rate_mv = av1_interinter_compound_motion_search(
                 cpi, x, cur_mv, bsize, this_mode);
+          } else if (have_newmv_in_inter_mode(this_mode)) {
+            if (this_mode == NEW_NEWMV) {
+              mbmi->mv[0].as_int = args->wedge_mv[ref_frame][0].as_int;
+              mbmi->mv[1].as_int = args->wedge_mv[ref_frame][1].as_int;
+              tmp_rate_mv = 0;
+              for (int idx = 0; idx < 2; ++idx) {
+                const int_mv ref_mv = av1_get_ref_mv(x, idx);
+                tmp_rate_mv += av1_mv_bit_cost(&cur_mv[idx].as_mv, &ref_mv.as_mv,
+                                      x->mv_costs.nmv_joint_cost,
+                                      x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
+              }
+            } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
+              mbmi->mv[1].as_int = args->wedge_mv[ref_frame][1].as_int;
+              const int_mv ref_mv = av1_get_ref_mv(x, 1);
+              tmp_rate_mv = av1_mv_bit_cost(&cur_mv[1].as_mv, &ref_mv.as_mv,
+                                   x->mv_costs.nmv_joint_cost,
+                                   x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
+            } else if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV) {
+              mbmi->mv[0].as_int = args->wedge_mv[ref_frame][0].as_int;
+              const int_mv ref_mv = av1_get_ref_mv(x, 0);
+              tmp_rate_mv = av1_mv_bit_cost(&cur_mv[0].as_mv, &ref_mv.as_mv,
+                                   x->mv_costs.nmv_joint_cost,
+                                   x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
+            }
           }
 
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
@@ -1402,13 +1441,58 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
           args->wedge_index = best_mask_index;
           args->wedge_sign = best_wedge_sign;
         }
+        if (need_mv_search) {
+          if (this_mode == NEW_NEWMV) {
+            args->wedge_mv[ref_frame][0].as_int = tmp_mv[0].as_int;
+            args->wedge_mv[ref_frame][1].as_int = tmp_mv[1].as_int;
+          } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
+            args->wedge_mv[ref_frame][1].as_int = tmp_mv[1].as_int;
+          } else {
+            args->wedge_mv[ref_frame][0].as_int = tmp_mv[0].as_int;
+          }          
+        }
       } else {
         mbmi->interinter_comp.wedge_index = args->wedge_index;
         mbmi->interinter_comp.wedge_sign = args->wedge_sign;
         rs2 = masked_type_cost[cur_type];
         rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
-        tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
-                                                            bsize, this_mode);
+
+        if (need_mv_search) {
+          tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
+                                                              bsize, this_mode);
+          if (this_mode == NEW_NEWMV) {
+            args->wedge_mv[ref_frame][0].as_int = mbmi->mv[0].as_int;
+            args->wedge_mv[ref_frame][1].as_int = mbmi->mv[1].as_int;
+          } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
+            args->wedge_mv[ref_frame][1].as_int = mbmi->mv[1].as_int;
+          } else {
+            args->wedge_mv[ref_frame][0].as_int = mbmi->mv[0].as_int;
+          }
+        } else if (have_newmv_in_inter_mode(this_mode)) {
+          if (this_mode == NEW_NEWMV) {
+            mbmi->mv[0].as_int = args->wedge_mv[ref_frame][0].as_int;
+            mbmi->mv[1].as_int = args->wedge_mv[ref_frame][1].as_int;
+            tmp_rate_mv = 0;
+            for (int idx = 0; idx < 2; ++idx) {
+              const int_mv ref_mv = av1_get_ref_mv(x, idx);
+              tmp_rate_mv += av1_mv_bit_cost(&cur_mv[idx].as_mv, &ref_mv.as_mv,
+                                    x->mv_costs.nmv_joint_cost,
+                                    x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
+            }
+          } else if (this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV) {
+            mbmi->mv[1].as_int = args->wedge_mv[ref_frame][1].as_int;
+            const int_mv ref_mv = av1_get_ref_mv(x, 1);
+            tmp_rate_mv = av1_mv_bit_cost(&cur_mv[1].as_mv, &ref_mv.as_mv,
+                                 x->mv_costs.nmv_joint_cost,
+                                 x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
+          } else if (this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV) {
+            mbmi->mv[0].as_int = args->wedge_mv[ref_frame][0].as_int;
+            const int_mv ref_mv = av1_get_ref_mv(x, 0);
+            tmp_rate_mv = av1_mv_bit_cost(&cur_mv[0].as_mv, &ref_mv.as_mv,
+                                 x->mv_costs.nmv_joint_cost,
+                                 x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
+          }
+        }
 
         best_mask_index = args->wedge_index;
         best_wedge_sign = args->wedge_sign;

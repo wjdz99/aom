@@ -132,6 +132,10 @@ typedef struct {
    */
   int wedge_sign;
   /*!
+   * Motion vector search results for wedge mode.
+   */
+  int_mv wedge_mv[MODE_CTX_REF_FRAMES][2];
+  /*!
    * Estimated diff wtd index.
    */
   int diffwtd_index;
