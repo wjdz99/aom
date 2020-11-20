@@ -22,6 +22,13 @@
 /*!\file
  * \brief Provides definitions for using AOM or AV1 encoder algorithm within the
  *        aom Codec Interface.
+ *
+ * Several interfaces are excluded with CONFIG_REALTIME_ONLY build:
+ * Global motion
+ * Warped motion
+ * OBMC
+ * TPL model
+ * Loop restoration
  */
 
 #ifdef __cplusplus
@@ -376,6 +383,8 @@ enum aome_enc_control_id {
    *
    * - 0 = disable
    * - 1 = enable (default)
+   *
+   * Excluded from CONFIG_REALTIME_ONLY build.
    */
   AV1E_SET_ENABLE_TPL_MODEL = 35,
 
@@ -639,6 +648,8 @@ enum aome_enc_control_id {
    *
    * - 0 = disable
    * - 1 = enable (default)
+   *
+   * Excluded from CONFIG_REALTIME_ONLY build.
    */
   AV1E_SET_ENABLE_RESTORATION = 59,
 
@@ -654,6 +665,8 @@ enum aome_enc_control_id {
    *
    * - 0 = disable
    * - 1 = enable (default)
+   *
+   * Excluded from CONFIG_REALTIME_ONLY build.
    */
   AV1E_SET_ENABLE_OBMC = 61,
 
@@ -983,6 +996,8 @@ enum aome_enc_control_id {
    *
    * - 0 = disable
    * - 1 = enable (default)
+   *
+   * Excluded from CONFIG_REALTIME_ONLY build.
    */
   AV1E_SET_ENABLE_GLOBAL_MOTION = 95,
 
@@ -991,6 +1006,8 @@ enum aome_enc_control_id {
    *
    * - 0 = disable
    * - 1 = enable (default)
+   *
+   * Excluded from CONFIG_REALTIME_ONLY build.
    */
   AV1E_SET_ENABLE_WARPED_MOTION = 96,
 
@@ -1002,6 +1019,8 @@ enum aome_enc_control_id {
    *
    * - 0 = disable
    * - 1 = enable (default)
+   *
+   * Excluded from CONFIG_REALTIME_ONLY build.
    */
   AV1E_SET_ALLOW_WARPED_MOTION = 97,
 
