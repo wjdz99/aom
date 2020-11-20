@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17943bd0_0594d7d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-20T06:54:07Z",
+      "side": 1,
+      "message": "Thanks for the fix!\nVerified that it fixes the issue for me. (Not sure why Jenkins did not catch this earlier)",
+      "revId": "a18a241e11ceffdd9c8c9344157996ca708c7c36",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
