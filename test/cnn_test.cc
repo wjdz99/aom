@@ -17,7 +17,11 @@
 
 #include "config/av1_rtcd.h"
 
+#include "aom_ports/aom_timer.h"
 #include "av1/encoder/cnn.h"
+#include "av1/encoder/partition_cnn_weights.h"
+#include "test/acm_random.h"
+#include "test/util.h"
 
 #define SQR(x) ((x) * (x))
 
@@ -28,6 +32,8 @@
 #define MSE_FLOAT_TOL 1E-6
 #define MSE_INT_TOL 0
 
+// Cnn convolve pixelwise guarenteed preicison given each float has at most.
+#define CNN_CONVOLVE_PIXELWISE_FLOAT_TOL 1e-3f
 namespace {
 
 class CNNTest : public ::testing::Test {
@@ -2494,3 +2500,140 @@ TEST_F(CNNTest, TestMultiOutput) {
 
   aom_free(output_);
 }
+
+namespace {
+typedef void (*CNNConvolve_Func)(const float **input, int in_width,
+                                 int in_height, int in_stride,
+                                 const CNN_LAYER_CONFIG *layer_config,
+                                 float **output, int out_stride, int start_idx,
+                                 int step);
+
+typedef std::tuple<const CNNConvolve_Func> CNNConvolveTestParam;
+
+class CNNConvolveTest : public ::testing::TestWithParam<CNNConvolveTestParam> {
+ public:
+  libaom_test::ACMRandom rng_;
+
+ private:
+  CNNConvolve_Func target_func_;
+
+ protected:
+  virtual void SetUp() { target_func_ = GET_PARAM(0); }
+
+  void RunCNNConvolveSetup(int run_times) {
+    int image_width = 65;
+    int image_height = 65;
+
+    const CNN_CONFIG cnn_config = av1_intra_mode_cnn_partition_cnn_config;
+
+    for (int layer = 0; layer < cnn_config.num_layers; ++layer) {
+      int o_width = 0, o_height = 0;
+      int in_size = image_width * image_height;
+      // Get current layer output width and height.
+      find_layer_output_size(image_height, image_width,
+                             &cnn_config.layer_config[layer], &o_width,
+                             &o_height);
+
+      int out_size = o_width * o_height;
+      float *input[20], *output_ref[20], *output_mod[20];
+
+      float *input_data =
+          (float *)aom_malloc(sizeof(*input_data) * in_size *
+                              cnn_config.layer_config[layer].in_channels);
+      float *temp_ptr = input_data;
+      for (int i = 0; i < cnn_config.layer_config[layer].in_channels; ++i) {
+        input[i] = temp_ptr;
+        for (int j = 0; j < in_size; j++) {
+          *(temp_ptr++) = ((float)rng_.Rand31() - (1 << 30)) / (1u << 31);
+        }
+      }
+
+      float *out_data_ref = (float *)aom_calloc(
+          sizeof(*out_data_ref),
+          out_size * cnn_config.layer_config[layer].out_channels);
+      float *out_data_mod = (float *)aom_calloc(
+          sizeof(*out_data_mod),
+          out_size * cnn_config.layer_config[layer].out_channels);
+      float *temp_ptr1 = out_data_ref;
+      float *temp_ptr2 = out_data_mod;
+      for (int i = 0; i < cnn_config.layer_config[layer].out_channels; ++i) {
+        output_ref[i] = temp_ptr1;
+        output_mod[i] = temp_ptr2;
+        temp_ptr1 += out_size;
+        temp_ptr2 += out_size;
+      }
+
+      RunCNNConvolveTest(image_width, image_height, out_size, input,
+                         &cnn_config.layer_config[layer], output_ref,
+                         output_mod, o_width, 0, 1, run_times, layer);
+
+      // Set current layer output width and height as next layer input width and
+      // height.
+      image_width = o_width;
+      image_height = o_height;
+
+      aom_free(input_data);
+      aom_free(out_data_ref);
+      aom_free(out_data_mod);
+    }
+  }
+
+  void RunCNNConvolveTest(int image_width, int image_height, int o_size,
+                          float **input, const CNN_LAYER_CONFIG *layer_config,
+                          float **output_ref, float **output_mod,
+                          int out_stride, int start_idx, int step,
+                          int run_times, int layer) {
+    aom_usec_timer timer;
+    aom_usec_timer_start(&timer);
+    for (int i = 0; i < run_times; ++i) {
+      av1_cnn_convolve_c((const float **)input, image_width, image_height,
+                         image_width, layer_config, output_ref, out_stride,
+                         start_idx, step);
+    }
+    aom_usec_timer_mark(&timer);
+    const double time1 = static_cast<double>(aom_usec_timer_elapsed(&timer));
+
+    aom_usec_timer_start(&timer);
+    for (int i = 0; i < run_times; ++i) {
+      target_func_((const float **)input, image_width, image_height,
+                   image_width, layer_config, output_mod, out_stride, start_idx,
+                   step);
+    }
+    aom_usec_timer_mark(&timer);
+    const double time2 = static_cast<double>(aom_usec_timer_elapsed(&timer));
+
+    if (run_times > 1) {
+      printf("layer : %d \n", layer);
+      printf("%7.2f/%7.2fns (%3.2f)\n", time1, time2, time1 / time2);
+    } else {
+      for (int channel = 0; channel < layer_config->out_channels; ++channel) {
+        const float *buf_ref = output_ref[channel];
+        const float *buf_mod = output_mod[channel];
+
+        for (int i = 0; i < o_size; ++i) {
+          if (buf_ref[i] < CNN_CONVOLVE_PIXELWISE_FLOAT_TOL) {
+            ASSERT_LE(buf_ref[i], CNN_CONVOLVE_PIXELWISE_FLOAT_TOL)
+                << "Reference output was near-zero, test output was not ("
+                << buf_mod[i] << ")";
+          } else {
+            const float error = buf_ref[i] - buf_mod[i];
+            const float relative_error = fabsf(error / buf_ref[i]);
+            ASSERT_LE(relative_error, CNN_CONVOLVE_PIXELWISE_FLOAT_TOL)
+                << " channel " << channel << " pixel " << i << ": "
+                << buf_ref[i] << "/" << buf_mod[i] << std::endl;
+          }
+        }
+      }
+    }
+  }
+};
+}  // namespace
+
+TEST_P(CNNConvolveTest, CheckOutput) { RunCNNConvolveSetup(1); }
+
+TEST_P(CNNConvolveTest, DISABLED_Speed) { RunCNNConvolveSetup(100000); }
+
+#if HAVE_AVX2
+INSTANTIATE_TEST_SUITE_P(AVX2, CNNConvolveTest,
+                         ::testing::Values(av1_cnn_convolve_avx2));
+#endif
