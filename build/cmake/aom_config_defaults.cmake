@@ -128,7 +128,16 @@ set_aom_config_var(CONFIG_COLLECT_COMPONENT_TIMING 0
 set_aom_config_var(CONFIG_LPF_MASK 0
                    "Enable the use loop filter bitmasks for optimizations.")
 set_aom_config_var(CONFIG_REALTIME_ONLY 0
-                   "Build for RTC-only to reduce binary size.")
+                   "Build for RTC-only to reduce binary size.\
+                   Features disabled for this config:\
+                   Global motion\
+                   Warped motion\
+                   OBMC\
+                   TPL model\
+                   CNN\
+                   Loop restoration\
+                   4X rectangular blocks\
+                   4X rectangular transform in intra prediction")
 set_aom_config_var(CONFIG_AV1_HIGHBITDEPTH 1
                    "Build with high bitdepth support.")
 set_aom_config_var(CONFIG_AV1_TEMPORAL_DENOISING 0
