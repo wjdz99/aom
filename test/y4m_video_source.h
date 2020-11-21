@@ -84,7 +84,10 @@ class Y4mVideoSource : public VideoSource {
   virtual void FillFrame() {
     ASSERT_TRUE(input_file_ != NULL);
     // Read a frame from input_file.
-    y4m_input_fetch_frame(&y4m_, input_file_, img_.get());
+    if (y4m_input_fetch_frame(&y4m_, input_file_, img_.get()) != 1) {
+      ASSERT_TRUE(frame_ > 0);
+      limit_ = frame_ - 1;
+    }
   }
 
   // Swap buffers with another y4m source. This allows reading a new frame
