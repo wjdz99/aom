@@ -210,8 +210,6 @@ void EncoderTest::RunLoop(VideoSource *video) {
 
     bool again;
     for (again = true; again; video->Next()) {
-      again = (video->img() != NULL);
-
       for (int sl = 0; sl < number_spatial_layers_; sl++) {
         PreEncodeFrameHook(video);
         PreEncodeFrameHook(video, encoder.get());
@@ -270,6 +268,9 @@ void EncoderTest::RunLoop(VideoSource *video) {
         }
         if (!Continue()) break;
       }  // Loop over spatial layers
+      // break the loop when next frame is unavailable
+      again = (video->img() != NULL);
+      if (!again) break;
     }
 
     EndPassHook();
