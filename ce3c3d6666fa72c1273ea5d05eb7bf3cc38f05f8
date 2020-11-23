@@ -16,6 +16,29 @@
       "message": "MAC build is giving a warning about kValidBlockSize in av1_k_means_test.cc. I have added if condition to remove the warning. Please review and submit. thanks. ",
       "revId": "ce3c3d6666fa72c1273ea5d05eb7bf3cc38f05f8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0dc2591_81f9022d",
+        "filename": "test/av1_k_means_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-11-23T18:28:58Z",
+      "side": 1,
+      "message": "Could you move const BLOCK_SIZE kValidBlockSize[] \u003d ... here?",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 13
+      },
+      "revId": "ce3c3d6666fa72c1273ea5d05eb7bf3cc38f05f8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
