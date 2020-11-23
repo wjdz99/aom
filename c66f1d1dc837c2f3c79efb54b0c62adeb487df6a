@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c232e83_91132239",
+        "filename": "tools/convexhull_framework/src/AV2CTCVideo.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-23T18:07:30Z",
+      "side": 1,
+      "message": "optional suggestion: Use one filename per line",
+      "range": {
+        "startLine": 20,
+        "startChar": 20,
+        "endLine": 20,
+        "endChar": 62
+      },
+      "revId": "c66f1d1dc837c2f3c79efb54b0c62adeb487df6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
