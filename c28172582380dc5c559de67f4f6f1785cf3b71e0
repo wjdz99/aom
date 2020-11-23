@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6707dfe_2a0d5aaa",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1867,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-23T21:21:40Z",
+      "side": 1,
+      "message": "This is what I was wondering about with the discussion of helper functions in the group chat - because there are so many filter-specific functions, I think it would take a lot of extra LOC to move all the merging code to one place. It might be worth it to make strategy changes easier though 😊",
+      "parentUuid": "79d16a9e_7e77e9b8",
+      "range": {
+        "startLine": 1867,
+        "startChar": 0,
+        "endLine": 1867,
+        "endChar": 26
+      },
+      "revId": "c28172582380dc5c559de67f4f6f1785cf3b71e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb2317aa_da407232",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-23T18:59:24Z",
       "side": 1,
       "message": "In \"(cost_nomerge \u003c cost_none)\" case, we seem to be doing redundant assignments (this line and next).\n\nMaybe just:\nif (cost_none \u003c\u003d cost_nomerge) {\n  bits_nomerge \u003d bits_none;\n  cost_nomerge \u003d cost_none;\n}",
+      "range": {
+        "startLine": 1878,
+        "startChar": 0,
+        "endLine": 1878,
+        "endChar": 73
+      },
+      "revId": "c28172582380dc5c559de67f4f6f1785cf3b71e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b621f14_ef2da136",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1878,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-23T21:21:40Z",
+      "side": 1,
+      "message": "Sure! I thought using the ternary operator was a bit more concise, but your suggestion feels more readable.",
+      "parentUuid": "eb2317aa_da407232",
       "range": {
         "startLine": 1878,
         "startChar": 0,
