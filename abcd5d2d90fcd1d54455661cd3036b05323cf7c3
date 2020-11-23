@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f633c871_4d8693b6",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1885,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-23T18:59:24Z",
+      "side": 0,
+      "message": "Shouldn\u0027t this block of code remain exactly same for #else case on the right? That avoids any bugs and eases review as well.",
+      "range": {
+        "startLine": 1876,
+        "startChar": 0,
+        "endLine": 1885,
+        "endChar": 5
+      },
+      "revId": "abcd5d2d90fcd1d54455661cd3036b05323cf7c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
