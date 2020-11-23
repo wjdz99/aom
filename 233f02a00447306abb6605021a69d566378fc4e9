@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27c5e1a3_bbb0c040",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2020-11-23T09:42:04Z",
+      "side": 1,
+      "message": "Hi Sarah, Debargha\nIn this patch we have added a unit test framework to validate sub-gop parameters such as length, position, frame coding order and frame type with correct application of temporal filtering. \n\nPlease check the functionality of the framework with respect to each function calls,\n\nPreEncodeFrameHook:\nThe following events takes place at 0th frame.\n1. Enables sub-gop stats collection in encoder.\n2. Configures the encoder with given sub-gop string, min and max gf-intervals\n3. Process given sub-gop strings and stores in Sub-gop Cfg structure\n\nPreDecodeFrameHook:\nEnables sub-gop stats collection in decoder at 0th frame.\n\nHandleEncodeResult:\n1. Captures and validates sub-gop info such as sub-gop size and position at 0th frame of each sub-gop.\n2. Determines relevant sub-gop position code.\n3. Collects sub-gop stats for every frame from the Encoder.\n\nHandleDecodeResult:\n1. Collects sub-gop stats for every frame from the Decoder.\n2. At last frame of the sub-gop, constructs sub-gop config based on stats collected from encoder and decoder.\n3. Validates the sub-gop config with the user reference.\n\nSubsequently, we are planning to extend the test cases with more sub-gop config. We will also add support to validate other sub-gop parameters like pyramid-level with q index, refresh flags.\n \nWe have tested the patch locally. Kindly review the same and let us know your thoughts.\nThank you.",
+      "revId": "233f02a00447306abb6605021a69d566378fc4e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
