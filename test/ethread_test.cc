@@ -230,7 +230,7 @@ class AVxEncoderThreadTest
     SetMode(encoding_mode_);
 
     if (encoding_mode_ != ::libaom_test::kRealTime) {
-      cfg_.g_lag_in_frames = 5;
+      cfg_.g_lag_in_frames = 9;
       cfg_.rc_end_usage = AOM_VBR;
       cfg_.rc_2pass_vbr_minsection_pct = 5;
       cfg_.rc_2pass_vbr_maxsection_pct = 2000;
@@ -296,7 +296,7 @@ class AVxEncoderThreadTest
 
   void DoTest() {
     ::libaom_test::YUVVideoSource video(
-        "niklas_640_480_30.yuv", AOM_IMG_FMT_I420, 640, 480, 30, 1, 15, 21);
+        "niklas_640_480_30.yuv", AOM_IMG_FMT_I420, 640, 480, 30, 1, 15, 23);
     cfg_.rc_target_bitrate = 1000;
 
     if (row_mt_ == 0) {
