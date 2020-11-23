@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d649ed7b_8a1c5ab4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-23T15:27:26Z",
+      "side": 1,
+      "message": "Alex: I set the author of this CL to you because you wrote the original libgav1 code. I hope you don\u0027t mind. An alternative is to acknowledge you as the original author (at line 19).",
+      "revId": "e2809a66dc27117ff442855f72a6ee0dc97e2da7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7728c4cb_9bdccf99",
         "filename": "av1/common/x86/filterintra_sse4.c",
         "patchSetId": 4
