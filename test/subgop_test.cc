@@ -80,8 +80,6 @@ int is_extension_y4m(const char *filename) {
     return !strcmp(dot, ".y4m");
 }
 
-// TODO(vishnu): Uncomment when unit test is enabled
-/*
 static const SubgopTestParams SubGopTestVectors[] = {
 // Default sub-gop config
 { subgop_config_str_preset_map[DEFAULT].preset_tag,
@@ -132,7 +130,6 @@ static const SubgopTestParams SubGopTestVectors[] = {
 
 // TODO(vishnu) : Add non-default subgop config
 };
-*/
 
 std::ostream &operator<<(std::ostream &os, const SubgopTestParams &test_arg) {
   return os << "SubgopTestParams { sub_gop_config:" << test_arg.subgop_str
@@ -454,11 +451,8 @@ TEST_P(SubGopTestLarge, SubGopTest) {
   }
 }
 
-// TODO(vishnu): Uncomment when overlay frame movement from first step of
-// next subgop to last step of current subgop is completed
-// AV1_INSTANTIATE_TEST_SUITE(SubGopTestLarge,
-//                           ::testing::ValuesIn(SubGopTestVectors),
-//                           ::testing::Values(AOM_Q, AOM_VBR, AOM_CQ,
-//                           AOM_CBR));
+AV1_INSTANTIATE_TEST_SUITE(SubGopTestLarge,
+                           ::testing::ValuesIn(SubGopTestVectors),
+                           ::testing::Values(AOM_Q, AOM_VBR, AOM_CQ, AOM_CBR));
 
 }  // namespace
