@@ -2212,4 +2212,5 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src,
 #if CONFIG_RST_MERGECOEFFS
   aom_vector_destroy(&unit_stack);
 #endif  // CONFIG_RST_MERGECOEFFS
+  // it's an extra comment!
 }
