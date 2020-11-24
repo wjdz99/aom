@@ -544,6 +544,7 @@ static AOM_INLINE void update_subgop_stats(const AV1_COMMON *const cm,
   subgop_stats->show_existing_frame[subgop_stats->stat_count] =
       cm->show_existing_frame;
   subgop_stats->show_frame[subgop_stats->stat_count] = cm->show_frame;
+  subgop_stats->qindex[subgop_stats->stat_count] = cm->quant_params.base_qindex;
   assert(subgop_stats->stat_count < MAX_SUBGOP_STATS_SIZE);
   subgop_stats->stat_count++;
 }
@@ -4921,9 +4922,6 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   }
 
-  update_subgop_stats(cm, &pbi->subgop_stats, cm->current_frame.order_hint,
-                      pbi->enable_subgop_stats);
-
   av1_setup_frame_buf_refs(cm);
 
   av1_setup_frame_sign_bias(cm);
@@ -5082,6 +5080,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   cm->cur_frame->film_grain_params_present =
       seq_params->film_grain_params_present;
   read_film_grain(cm, rb);
+
+  update_subgop_stats(cm, &pbi->subgop_stats, cm->current_frame.order_hint,
+                      pbi->enable_subgop_stats);
 
 #if EXT_TILE_DEBUG
   if (pbi->ext_tile_debug && cm->tiles.large_scale) {

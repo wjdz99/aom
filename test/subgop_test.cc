@@ -233,6 +233,8 @@ class SubGopTestLarge
       subgop_data_.step[idx].show_existing_frame = -1;
       subgop_data_.step[idx].show_frame = -1;
       subgop_data_.step[idx].is_filtered = -1;
+      subgop_data_.step[idx].pyramid_level = 0;
+      subgop_data_.step[idx].qindex = 0;
     }
     subgop_data_.num_steps = 0;
     subgop_data_.step_idx_enc = 0;
@@ -363,6 +365,28 @@ class SubGopTestLarge
     return 1;
   }
 
+  // Validates Pyramid level along with qindex assignment
+  void ValidatePyramidLevelQIndex() {
+    int level_qindex[REF_FRAMES] = { 0 };
+    int pyramid_level;
+    for (int idx = 0; idx < subgop_cfg_ref_->num_steps; idx++) {
+      pyramid_level = subgop_data_.step[idx].pyramid_level;
+      if (!level_qindex[pyramid_level])
+        level_qindex[pyramid_level] = subgop_data_.step[idx].qindex;
+      else if (!subgop_data_.step[idx].show_existing_frame)
+        EXPECT_EQ(level_qindex[pyramid_level], subgop_data_.step[idx].qindex)
+            << "Error:qindex in a pyramid level doesn't match";
+    }
+    pyramid_level = 1;
+    for (int idx = 1; idx < REF_FRAMES; idx++) {
+      if (level_qindex[pyramid_level]) {
+        EXPECT_LT(level_qindex[pyramid_level - 1], level_qindex[pyramid_level])
+            << "Error:qindex should be higher in hierarchical pyramid level";
+        pyramid_level++;
+      }
+    }
+  }
+
   void ValidateSubgopConfig() {
     if (frame_type_test_ == KEY_FRAME) return;
     subgop_cfg_ref_ = DetermineSubgopConfig();
@@ -389,7 +413,9 @@ class SubGopTestLarge
       if (subgop_info_.is_user_specified) {
         FillTestSubgopConfig();
         ValidateSubgopFrametype();
+        if (rc_end_usage_ == AOM_Q) ValidatePyramidLevelQIndex();
       }
+
       frames_from_key_ += subgop_info_.size;
       if (frame_type_test_ == KEY_FRAME) frames_from_key_ = 0;
       ResetSubgop();
