@@ -16,6 +16,24 @@
       "message": "This patch will not change the bitstream, is it?\n\nDo you have any number in mind on how much memory is reduced on average or in worst case? And how many operations of buffer copies is eliminated for 8-bit and 16-bit cases separately?",
       "revId": "89abc871f168f903095d6215068b2c5ad450b9e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d44612b_02986c93",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-11-24T20:06:05Z",
+      "side": 1,
+      "message": "This is just a tool right now not integrated into aomenc. So no change in bitstream. For the resampling process, there is no change either.\n\nThe memory usage is reduced by a factor or two. You can easily see that from the changes in lanczos_resample_y4m.c and lanczos_resample_yuv.c.",
+      "parentUuid": "4cf6dc46_14d7e32e",
+      "revId": "89abc871f168f903095d6215068b2c5ad450b9e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
