@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4aa7df67_c61ec96c",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-24T07:18:52Z",
+      "side": 1,
+      "message": "\"filter_avg\" to adhere to style guide.\n(There are a few capital letters in some places elsewhere, but those are special cases. Generally, lower case with underscore only).",
+      "range": {
+        "startLine": 812,
+        "startChar": 14,
+        "endLine": 812,
+        "endChar": 24
+      },
+      "revId": "52f85e1caa3248833fa0e0931dfd9206e9da4f50",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b02af9f_f9e21689",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-11-24T07:18:52Z",
+      "side": 1,
+      "message": "This \"\u003c 10\" case handling is in 3 places now.\nCan we:\n- Have a const / #define for 10?\n- Can we refactor the multiplier to a const variable?",
+      "range": {
+        "startLine": 862,
+        "startChar": 6,
+        "endLine": 862,
+        "endChar": 37
+      },
+      "revId": "52f85e1caa3248833fa0e0931dfd9206e9da4f50",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
