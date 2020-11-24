@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "580fa84d_36d8add6",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-24T18:48:04Z",
+      "side": 1,
+      "message": "I decided to remove the comments at this line and line 117.\n\nI wrote a test program to verify the equivalence. I found that they are not equivalent when the value is very close to INT16_MAX because _mm_add_epi16(v_val_d, v_bias_d) will overflow.\n\nChanging _mm_add_epi16 to the saturated add _mm_add_epi16 gives an answer that\u0027s still not equal to ROUND_POWER_OF_TWO(v_val_d, bits) but only off by one.",
+      "revId": "d25e7ae8ad493fd1deaa2c07aafba222396d6956",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
