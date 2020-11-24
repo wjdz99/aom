@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83552a1f_465bf164",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-24T17:20:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4aa7df67_c61ec96c",
+      "range": {
+        "startLine": 812,
+        "startChar": 14,
+        "endLine": 812,
+        "endChar": 24
+      },
+      "revId": "52f85e1caa3248833fa0e0931dfd9206e9da4f50",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b02af9f_f9e21689",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-11-24T07:18:52Z",
       "side": 1,
       "message": "This \"\u003c 10\" case handling is in 3 places now.\nCan we:\n- Have a const / #define for 10?\n- Can we refactor the multiplier to a const variable?",
+      "range": {
+        "startLine": 862,
+        "startChar": 6,
+        "endLine": 862,
+        "endChar": 37
+      },
+      "revId": "52f85e1caa3248833fa0e0931dfd9206e9da4f50",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82230a1b_ab181291",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 862,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-11-24T17:20:08Z",
+      "side": 1,
+      "message": "I don\u0027t actually know what this case/multiplier does in terms of algorithm, but it looks like rsc-\u003esf-\u003edual_sgr_penalty_level is set in speed_features.c - I think I can safely make it a const, and have a #define for 10 up by DUAL_SGR_PENALTY_MULT.",
+      "parentUuid": "0b02af9f_f9e21689",
       "range": {
         "startLine": 862,
         "startChar": 6,
