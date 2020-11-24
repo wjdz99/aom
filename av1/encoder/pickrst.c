@@ -2104,6 +2104,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src,
   // Valgrind's warnings we initialise the array below.
   memset(rusi, 0, sizeof(*rusi) * ntiles[0]);
   cpi->td.mb.rdmult = cpi->rd.RDMULT;
+  printf("dummy change");
 
 #if CONFIG_RST_MERGECOEFFS
   Vector unit_stack;
