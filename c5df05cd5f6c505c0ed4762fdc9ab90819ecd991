@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "6092aaab_bece3d82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-25T20:53:53Z",
+      "side": 1,
+      "message": "Thanks for the review!",
+      "revId": "c5df05cd5f6c505c0ed4762fdc9ab90819ecd991",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "750a9d39_abd1b3c1",
         "filename": "aom_dsp/x86/synonyms.h",
         "patchSetId": 2
@@ -32,6 +49,24 @@
       "side": 1,
       "message": "\u003e This line is the same as line 104 (which I just added today). If this line does not need an int16_t cast, neither does line 104.\n\nit\u0027s possible it was picked up from other uses of _mm_set1 with immediates that are \u003e INT16_MAX",
       "parentUuid": "750a9d39_abd1b3c1",
+      "revId": "c5df05cd5f6c505c0ed4762fdc9ab90819ecd991",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46886457_f8c8dfd7",
+        "filename": "aom_dsp/x86/synonyms.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-25T20:53:53Z",
+      "side": 1,
+      "message": "I wonder if the int16_t cast is needed in libgav1 because different compiler warning flags are used or the code is being compiled as C++ code.",
+      "parentUuid": "13c76dcd_5a0bd36a",
       "revId": "c5df05cd5f6c505c0ed4762fdc9ab90819ecd991",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
