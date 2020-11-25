@@ -16,6 +16,23 @@
       "message": "Hi Debargha and Sarah,\n\nWe have logically cherry picked the needed changes from master branch to move overlay frame to the tail of previous subgop along with few required fixes. The list of changes we have done are mentioned below,\n\n1. Move the overlay frame to the tail of previous subgop and update the gf_group structure properly in construct_multi_layer_gf_structure().\n2. Cherry pick the changes related to structuring the GOP decision stage ahead of frame processing.\n3. Fix the rc-\u003egf_intervals variable to respect the min_gf_interval and max_gf_interval.\n4. Fix the subgop-\u003esteps properly after moving overlay frame to the previous gop in get_subgop_step() function.\n5. Introduce get_subgop_config() function to make sure the subgop configuration is called only when altref is enabled for subgop configurations other than low-delay, this is to avoid forcing the altref from user configuration when encoder decides to disable the altref, which was causing issues. \n6. Cherry pick the changes related to the gf_group_bits properly in allocate_gf_group_bits() after overlay frame movement.\n7. Cherry pick conditions related to gf_group-\u003esize, source_alt_ref_pending, source_alt_ref_active after overlay frame movement.\n8. Cleaning up few unused variables like frame_params similar to master in av1_gop_setup_structure() and define_gf_group_pass0()\n\nThe list of changes that cause the stats change are mentioned below,\n\n1. Due to overlay frame movement - gfu_boost corresponding to the overlay frame will change, this will affect the rdmult in av1_compute_rd_mult().\n2. Overlay frame was always having  MAX_ARF_LAYERS + 1 as pyramid level irrespective of user configuration, this patch properly takes care of the pyramid_level mentioned by user configuration. This also will affect the rdmult calculated in av1_compute_rd_mult().\n3. Cherry picking the changes related to allocate_gf_group_bits() and cleaning up of arf_active_or_kf, which is required after overlay movement\n4.  Irrespective of the altref disabled or enabled by encoder (use_alt_ref flag indicates this decision in define_gf_group), if the user configuration is available for corresponding gf_interval then the gop structure as per user configuration (including the altref) is forced in case of subgop, this is modified in the current patch. If the altref is disabled by encoder, then the user configuration which contains the altref decision will not be forced.\n\nBelow are the borg results for this patch, the tests were done for “--subgop-config-str\u003denh” config. For CQP test the q values used are 20,32,43,55,63. \n\nCQP results:\n cpu-used   Instruction count         BD-Rate Loss(%)\n              Reduction(%)     avg.psnr   ovr.psnr   ssim\n    0          -0.1460          0.0441    0.0551    0.0501\n    1          -0.1713          0.0322    0.0415    0.0567\n    2          -0.1745          0.0309    0.0434    0.0480\n    3          -0.1626         -0.0091    0.0118   -0.0191\n    4          -0.0809         -0.1482   -0.1426   -0.1635\n    5          -0.0559         -0.1484   -0.1427   -0.1579\n    6          -0.0686         -0.1473   -0.1402   -0.1615\n\nVBR results:\n cpu-used   Instruction count         BD-Rate Loss(%)\n             Reduction(%)      avg.psnr  ovr.psnr   ssim\n    0          8.2079          -0.0323   0.3596    -0.6802\n    1          7.7325          -0.0031   0.3948    -0.6489 \n    2          7.1577           0.0697   0.4994    -0.5719\n    3          5.9652          -0.1530   0.2765    -0.6251\n    4          5.0497          -0.2803   0.1397    -0.7338\n    5          4.0008          -0.2163   0.2112    -0.7134\n    6          3.9501          -0.1910   0.2514    -0.6815\n\nPlease review the patch.\nThanks.",
       "revId": "6ec72a07ab1fbb7f65f9506ce75ae50d1bbb19b1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28cc1abd_b3fdba3d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-11-25T17:24:12Z",
+      "side": 1,
+      "message": "Why did the Stats change in this patch?",
+      "revId": "6ec72a07ab1fbb7f65f9506ce75ae50d1bbb19b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
