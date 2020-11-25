@@ -105,6 +105,24 @@
       "parentUuid": "1071d5a4_0da7127c",
       "revId": "c9bdf4eb1b457b5805790c0b358e69554ca235af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb819b48_4e60f22a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21182
+      },
+      "writtenOn": "2020-11-25T22:17:56Z",
+      "side": 1,
+      "message": "The biggest upside to this method(other than massive first pass speedup since the external denoiser doesn\u0027t give the encoder the denoised image to work with) is that the rate control isn\u0027t changed with this different way of doing grain synthesis.\nThat does mean it is a bit less efficient, but it also means when the grain is removed by the encoder anyway(via the compression process) it can potentially work better than the default method. It also has the advantage of not having to have to generate the noise parameters separately.\n\nThat\u0027s my 2 cents anyway. I\u0027ve been using the new option a lot by patching it separately, and it works quite well overall. If it was possible to therefore integrated natively, it would be great.",
+      "parentUuid": "4ed59bbf_360a3a06",
+      "revId": "c9bdf4eb1b457b5805790c0b358e69554ca235af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
