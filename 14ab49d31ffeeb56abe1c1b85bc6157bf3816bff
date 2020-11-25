@@ -16,6 +16,24 @@
       "message": "https://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/15238/\n\nFrom the above page, looks like the sanitizer failures happen for address, integer, ...\nFor example, you can click on 1 address failure to get:\nhttps://build.aomedia.org/jenkins/job/libaom__per_commit-unit_test-sanitizers/15238/GTEST_SHARD_INDEX\u003d0,sanitizer\u003daddress/console\nTry to reproduce it.\n\nAlso, Test Result (10 failures / +10)\nAVX2/AV1HighbdCompMaskUpVarianceTest.CheckOutput/\nLooks like HBD test failed. You may want to focus on HBD test to figure out what is wrong.\n",
       "revId": "14ab49d31ffeeb56abe1c1b85bc6157bf3816bff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e36fa507_56aa1a3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 27
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-11-25T22:18:27Z",
+      "side": 1,
+      "message": "Sure. In the absence of reproducibility of the previous error, I am removing some functions to see where the error is creeping from.",
+      "parentUuid": "8a6ce2c2_7291f9b8",
+      "revId": "14ab49d31ffeeb56abe1c1b85bc6157bf3816bff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
