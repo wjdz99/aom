@@ -3862,12 +3862,6 @@ int av1_txfm_search(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
     const int64_t tokenonly_rdy =
         AOMMIN(RDCOST(x->rdmult, rd_stats_y->rate, rd_stats_y->dist),
                RDCOST(x->rdmult, 0, rd_stats_y->sse));
-    // Invalidate rd_stats_y to skip the rest of the motion modes search
-    if (tokenonly_rdy -
-            (tokenonly_rdy >> cpi->sf.inter_sf.prune_motion_mode_level) >
-        rd_thresh) {
-      av1_invalid_rd_stats(rd_stats_y);
-    }
     return 0;
   }
 
