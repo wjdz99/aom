@@ -555,6 +555,8 @@ static AOM_INLINE void create_enc_workers(AV1_COMP *cpi, int num_workers) {
 
     thread_data->cpi = cpi;
     thread_data->thread_id = i;
+    // Set the starting tile for each thread.
+    thread_data->start = i;
 
     if (i > 0) {
       // Set up sms_tree.
@@ -677,6 +679,8 @@ static AOM_INLINE void fp_create_enc_workers(AV1_COMP *cpi, int num_workers) {
 
     thread_data->cpi = cpi;
     thread_data->thread_id = i;
+    // Set the starting tile for each thread.
+    thread_data->start = i;
 
     if (i > 0) {
       // Set up firstpass PICK_MODE_CONTEXT.
