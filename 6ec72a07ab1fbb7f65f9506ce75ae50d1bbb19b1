@@ -35,6 +35,41 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bade204_0ececbdb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-11-27T04:26:29Z",
+      "side": 1,
+      "message": "Debargha,\n\nWe have identified few differences while doing changes for overlay movement which causes the stats change. You shall find the list in review message above. \n\nThank you.",
+      "parentUuid": "28cc1abd_b3fdba3d",
+      "revId": "6ec72a07ab1fbb7f65f9506ce75ae50d1bbb19b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98f5ec73_90dfa629",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-11-27T04:26:29Z",
+      "side": 1,
+      "message": "Urvang,\n\nThank you for the suggestions, we will work on it and upload a new patchset.",
+      "revId": "6ec72a07ab1fbb7f65f9506ce75ae50d1bbb19b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "143913a0_d2303cd3",
