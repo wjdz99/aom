@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, Wan-Teh,\n\nFloating-point instructions in av1_apply_temporal_filter() led to the MT mismatch, with 32-bit build. This patch adds a call to aom_clear_system_state() in av1_tf_do_filtering_row() before av1_apply_temporal_filter() to ensure match.\n\nWe have verified that all tests in AVxEncoderThreadTestLarge.EncoderResultTest and AVxEncoderThreadLSTestLarge.EncoderResultTest are passing with this change.\n\nIt looks like the issue was not caught earlier with single-thread as thread\u003d0 (master thread) has call to aom_clear_system_state() in the code which is not multi-threaded.\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "8317779cd4f9aa43a62c60f272b26d1cf7b121da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a993741_56c052c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-11-27T15:37:39Z",
+      "side": 1,
+      "message": "Hi Jayasanker,\n\nThank you very much for the fix! Do you know why only 32-bit build has the\nerror?",
+      "parentUuid": "61a7a510_653aff73",
+      "revId": "8317779cd4f9aa43a62c60f272b26d1cf7b121da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
