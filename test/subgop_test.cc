@@ -234,6 +234,7 @@ class SubGopTestLarge
     subgop_data_.num_steps = MAX_SUBGOP_STATS_SIZE;
     ResetSubgop();
     is_first_frame_in_subgop_key_ = 0;
+    is_prev_subgop_user_ = 0;
     frames_from_key_ = 0;
     frame_num_ = 0;
     // TODO(any): Extend this unit test for 'CONFIG_REALTIME_ONLY'
@@ -256,9 +257,17 @@ class SubGopTestLarge
       subgop_data_.step[idx].pyramid_level = 0;
       subgop_data_.step[idx].qindex = 0;
       subgop_data_.step[idx].refresh_frame_flags = 0;
+      subgop_data_.step[idx].num_of_refs = -1;
+      memset(subgop_data_.step[idx].ref_frame_pyr_level, 0,
+             sizeof(subgop_data_.step[idx].ref_frame_pyr_level));
+      memset(subgop_data_.step[idx].ref_frame_disp_order, -1,
+             sizeof(subgop_data_.step[idx].ref_frame_disp_order));
+      memset(subgop_data_.step[idx].ref_frame_valid, 0,
+             sizeof(subgop_data_.step[idx].ref_frame_valid));
       memset(subgop_data_.step[idx].ref_frame_map, 0,
              sizeof(subgop_data_.step[idx].ref_frame_map));
     }
+    memset(display_order_test_, -1, sizeof(display_order_test_));
     subgop_data_.num_steps = 0;
     subgop_data_.step_idx_enc = 0;
     subgop_data_.step_idx_dec = 0;
@@ -318,6 +327,14 @@ class SubGopTestLarge
           subgop_data_.step[idx].disp_frame_idx - frames_from_key_;
       subgop_cfg_test_.step[idx].pyr_level =
           subgop_data_.step[idx].pyramid_level;
+      subgop_cfg_test_.step[idx].num_references =
+          subgop_data_.step[idx].num_of_refs;
+      for (int ref = 0; ref < 7; ref++) {  // [INTER_REFS_PER_FRAME]
+        subgop_cfg_test_.step[idx].references[ref] =
+            subgop_data_.step[idx].ref_frame_pyr_level[ref];
+        display_order_test_[idx][ref] =
+            subgop_data_.step[idx].ref_frame_disp_order[ref];
+      }
       if (subgop_data_.step[idx].is_filtered) {
         filtered_frames[buf_idx++] =
             subgop_data_.step[idx].disp_frame_idx - frames_from_key_;
@@ -470,6 +487,32 @@ class SubGopTestLarge
     }
   }
 
+  void ValidateRefFrames() {
+    int start_idx = !is_prev_subgop_user_;
+    for (int idx = start_idx; idx < subgop_cfg_ref_->num_steps; idx++) {
+      unsigned int *ref_frame_map =
+          (idx > 0) ? subgop_data_.step[idx - 1].ref_frame_map
+                    : subgop_last_step_.ref_frame_map;
+      if (!subgop_data_.step[idx].show_existing_frame)
+        EXPECT_EQ(subgop_cfg_ref_->step[idx].num_references,
+                  subgop_cfg_test_.step[idx].num_references)
+            << "Error:Reference frames count doesn't match";
+      for (int ref = 0; ref < subgop_cfg_test_.step[idx].num_references;
+           ref++) {
+        if (subgop_data_.step[idx].ref_frame_valid[ref]) {
+          EXPECT_EQ(subgop_cfg_ref_->step[idx].references[ref],
+                    subgop_cfg_test_.step[idx].references[ref])
+              << "Error:Reference frame level doesn't match";
+          for (int buf = 0; buf < REF_FRAMES; buf++) {
+            if (display_order_test_[idx][ref] == ref_frame_map[buf]) break;
+            EXPECT_NE(buf, REF_FRAMES - 1)
+                << "Error:Ref frame isn't part of ref_picture_buf";
+          }
+        }
+      }
+    }
+  }
+
   void ValidateSubgopConfig() {
     if (frame_type_test_ == KEY_FRAME) return;
     subgop_cfg_ref_ = DetermineSubgopConfig();
@@ -502,6 +545,7 @@ class SubGopTestLarge
         ValidatePyramidLevel();
         if (rc_end_usage_ == AOM_Q) ValidatePyramidLevelQIndex();
         ValidateRefBufRefresh();
+        ValidateRefFrames();
       }
       frames_from_key_ += subgop_info_.size;
       if (frame_type_test_ == KEY_FRAME) {
@@ -515,6 +559,7 @@ class SubGopTestLarge
         memcpy(&subgop_last_step_, &subgop_data_.step[idx],
                sizeof(subgop_last_step_));
       }
+      is_prev_subgop_user_ = subgop_info_.is_user_specified;
       ResetSubgop();
     }
     frame_num_++;
@@ -531,8 +576,10 @@ class SubGopTestLarge
   SUBGOP_IN_GOP_CODE subgop_code_test_;
   FRAME_TYPE frame_type_test_;
   aom_rc_mode rc_end_usage_;
+  int display_order_test_[MAX_SUBGOP_SIZE][REF_FRAMES];
   int subgop_size_;
   bool is_first_frame_in_subgop_key_;
+  bool is_prev_subgop_user_;
   int frames_from_key_;
   unsigned int frame_num_in_subgop_;
   unsigned int frame_num_;

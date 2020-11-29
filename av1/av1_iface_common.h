@@ -18,6 +18,7 @@
 
 /* Constant value specifying size of subgop*/
 #define MAX_SUBGOP_SIZE 32
+
 typedef struct {
   int disp_frame_idx;
   int is_filtered;
@@ -26,6 +27,10 @@ typedef struct {
   int pyramid_level;
   int qindex;
   int refresh_frame_flags;
+  int num_of_refs;
+  int ref_frame_pyr_level[7];     // [INTER_REFS_PER_FRAME];
+  int ref_frame_disp_order[7];    // [INTER_REFS_PER_FRAME];
+  int ref_frame_valid[7];         // [INTER_REFS_PER_FRAME];
   unsigned int ref_frame_map[8];  // [REF_FRAMES]
 } SubGOPStepData;
 

@@ -928,6 +928,18 @@ static AOM_INLINE void update_subgop_stats(const GF_GROUP *const gf_group,
   subgop_stats->stat_count++;
 }
 
+static AOM_INLINE void update_subgop_stats_ext(
+    SubGOPStatsEnc *const subgop_stats, unsigned int enable_subgop_stats,
+    int ref_frame, int valid_flag, int level, int best_disp_order,
+    int num_of_refs) {
+  if (!enable_subgop_stats) return;
+  int stat_count = subgop_stats->stat_count - 1;
+  subgop_stats->ref_frame_valid[stat_count][ref_frame] = valid_flag;
+  subgop_stats->ref_frame_pyr_level[stat_count][ref_frame] = level;
+  subgop_stats->ref_frame_disp_order[stat_count][ref_frame] = best_disp_order;
+  subgop_stats->num_of_refs[stat_count] = num_of_refs;
+}
+
 void av1_update_film_grain_parameters(struct AV1_COMP *cpi,
                                       const AV1EncoderConfig *oxcf);
 
