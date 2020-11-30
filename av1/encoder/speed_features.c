@@ -1472,6 +1472,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
       else
         // Use DC, H, V intra mode for block sizes < 32X32.
         sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC_H_V;
+    sf->rt_sf.use_comp_ref_nonrd = 1;
   }
 
   if (speed >= 8) {
