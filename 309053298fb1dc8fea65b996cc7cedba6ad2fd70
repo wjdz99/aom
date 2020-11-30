@@ -34,6 +34,24 @@
       "parentUuid": "1611e430_666caa52",
       "revId": "309053298fb1dc8fea65b996cc7cedba6ad2fd70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0e5c06e_b5edaa44",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-11-30T23:41:33Z",
+      "side": 1,
+      "message": "\u003e I don\u0027t know what needs to be done on the master branch. Did you mean the master branch just needs the v2.0.1 tag but does not need the update to CHANGELOG? Would it be better to do both?\n\u003e \n\u003e How do I merge the v2.0.1 tag back?  Thanks!\n\nSorry, I meant doing git merge v2.0.1 to merge the tag and related changes back to master, like Jerome did for applejack/v2.0.0:\nhttps://aomedia-review.googlesource.com/c/aom/+/111942",
+      "parentUuid": "adf46e8a_6e7c94a1",
+      "revId": "309053298fb1dc8fea65b996cc7cedba6ad2fd70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
