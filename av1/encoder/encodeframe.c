@@ -1744,7 +1744,8 @@ void av1_encode_frame(AV1_COMP *cpi) {
   (void)num_planes;
 #endif
 
-  if (cpi->sf.hl_sf.frame_parameter_update) {
+  if (cpi->sf.hl_sf.frame_parameter_update ||
+      cpi->sf.rt_sf.use_comp_ref_nonrd) {
     RD_COUNTS *const rdc = &cpi->td.rd_counts;
 
     if (frame_is_intra_only(cm))
@@ -1788,6 +1789,10 @@ void av1_encode_frame(AV1_COMP *cpi) {
         features->tx_mode = TX_MODE_LARGEST;
     }
   } else {
+    // This is needed if real-time speed setting is changed on the fly
+    // from one using compound prediction to one using single reference.
+    if (current_frame->reference_mode == REFERENCE_MODE_SELECT)
+      current_frame->reference_mode = SINGLE_REFERENCE;
     encode_frame_internal(cpi);
   }
 }
