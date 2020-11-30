@@ -1744,7 +1744,8 @@ void av1_encode_frame(AV1_COMP *cpi) {
   (void)num_planes;
 #endif
 
-  if (cpi->sf.hl_sf.frame_parameter_update) {
+  if (cpi->sf.hl_sf.frame_parameter_update ||
+      cpi->sf.rt_sf.use_comp_ref_nonrd) {
     RD_COUNTS *const rdc = &cpi->td.rd_counts;
 
     if (frame_is_intra_only(cm))
