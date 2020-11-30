@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42f5cedf_003f3783",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-11-30T09:45:10Z",
+      "side": 1,
+      "message": "\u003e Patch Set 1: Code-Review-1\n\u003e \n\u003e Code Style Warnings (non-blocking):\n\u003e \n\u003e    test/cnn_test.cc:2639:  Could not find a newline character at the end of the file.  [whitespace/ending_newline] [5]\n\n",
+      "revId": "4effe0b58cf3da06bbac4aef34eeebc23a091a0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
