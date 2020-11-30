@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7ec7baf_f0946bd4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-11-30T10:43:04Z",
+      "side": 1,
+      "message": "Thanks for these results.\nCan you also run the following in CQP config on your test sets:\n1. BDRATE between current patch and HEAD without any subgop-config-str parameter.\n2. BDRATE between --subgop-config-str\u003denh and no subgop-config-str with the current patch, compared to the HEAD.\n3. BDRATE between --subgop-config-str\u003dld and no subgop-config-str with the current patch, compared to the HEAD.",
+      "parentUuid": "1546bded_1dfb5e32",
+      "revId": "6ec72a07ab1fbb7f65f9506ce75ae50d1bbb19b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "143913a0_d2303cd3",
