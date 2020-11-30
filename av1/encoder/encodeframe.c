@@ -1623,6 +1623,16 @@ void av1_encode_frame(AV1_COMP *cpi) {
         features->tx_mode = TX_MODE_LARGEST;
     }
   } else {
+    RD_COUNTS *const rdc = &cpi->td.rd_counts;
+    rdc->compound_ref_used_flag = 0;
+    if (cpi->sf.rt_sf.use_comp_ref_nonrd && !frame_is_intra_only(cm))
+      current_frame->reference_mode = REFERENCE_MODE_SELECT;
+    else
+      current_frame->reference_mode = SINGLE_REFERENCE;
     encode_frame_internal(cpi);
+    if (current_frame->reference_mode == REFERENCE_MODE_SELECT) {
+      if (rdc->compound_ref_used_flag == 0)
+        current_frame->reference_mode = SINGLE_REFERENCE;
+    }
   }
 }
