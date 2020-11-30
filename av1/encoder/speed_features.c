@@ -1033,6 +1033,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->interp_sf.cb_pred_filter_search = 1;
   }
   if (speed >= 9) {
+    sf->rt_sf.use_comp_ref_nonrd = 1;
     sf->rt_sf.estimate_motion_for_var_based_partition = 0;
     sf->rt_sf.force_large_partition_blocks = 1;
     for (int i = 0; i < BLOCK_SIZES; ++i)
