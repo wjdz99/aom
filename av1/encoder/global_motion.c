@@ -886,6 +886,7 @@ int av1_compute_global_motion(TransformationType type,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
                               MotionModel *params_by_motion, int num_motions) {
+  // test
   switch (gm_estimation_type) {
     case GLOBAL_MOTION_FEATURE_BASED:
       return compute_global_motion_feature_based(
