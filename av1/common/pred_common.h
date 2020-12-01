@@ -85,6 +85,63 @@ static INLINE int get_segment_id(const CommonModeInfoParams *const mi_params,
   return segment_id;
 }
 
+static INLINE int get_refresh_idx(int update_arf, int refresh_level,
+                           int cur_frame_disp,
+                           RefFrameMapPair ref_frame_map_pairs[REF_FRAMES]) {
+  int arf_count = 0;
+  int oldest_arf_order = INT32_MAX;
+  int oldest_arf_idx = -1;
+
+  int oldest_frame_order = INT32_MAX;
+  int oldest_idx = -1;
+
+  int oldest_ref_level_order = INT32_MAX;
+  int oldest_ref_level_idx = -1;
+
+  for (int map_idx = 0; map_idx < REF_FRAMES; map_idx++) {
+    RefFrameMapPair ref_pair = ref_frame_map_pairs[map_idx];
+    if (ref_pair.disp_order == -1) continue;
+    const int frame_order = ref_pair.disp_order;
+    const int reference_frame_level = ref_pair.pyr_level;
+    if (frame_order > cur_frame_disp) continue;
+
+    // Keep track of the oldest reference frame matching the specified
+    // refresh level from the subgop cfg
+    if (refresh_level > 0 && refresh_level == reference_frame_level) {
+      if (frame_order < oldest_ref_level_order) {
+        oldest_ref_level_order = frame_order;
+        oldest_ref_level_idx = map_idx;
+      }
+    }
+
+    // Keep track of the oldest level 1 frame if the current frame is level also
+    // 1
+    if (reference_frame_level == 1) {
+      // If there are more than 2 level 1 frames in the reference list,
+      // discard the oldest
+      if (frame_order < oldest_arf_order) {
+        oldest_arf_order = frame_order;
+        oldest_arf_idx = map_idx;
+      }
+      arf_count++;
+      continue;
+    }
+
+    // Update the overall oldest reference frame
+    if (frame_order < oldest_frame_order) {
+      oldest_frame_order = frame_order;
+      oldest_idx = map_idx;
+    }
+  }
+  if (oldest_ref_level_idx > -1) return oldest_ref_level_idx;
+  if (update_arf && arf_count > 2) return oldest_arf_idx;
+  if (oldest_idx >= 0) return oldest_idx;
+  if (oldest_arf_idx >= 0) return oldest_arf_idx;
+  assert(0 && "No valid refresh index found");
+  return -1;
+}
+
+
 static INLINE int av1_get_spatial_seg_pred(const AV1_COMMON *const cm,
                                            const MACROBLOCKD *const xd,
                                            int *cdf_index) {
