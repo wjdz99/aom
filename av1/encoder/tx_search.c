@@ -2868,7 +2868,7 @@ static AOM_INLINE void select_tx_block(
 
   // Prune tx_split and no-split based on sub-block properties.
   if (tx_size != TX_4X4 && try_split == 1 && try_no_split == 1 &&
-      cpi->sf.tx_sf.prune_tx_size_level > 0) {
+      cpi->sf.tx_sf.prune_tx_size_level > 0 && 0) {
     prune_tx_split_no_split(x, plane_bsize, blk_row, blk_col, tx_size,
                             &try_no_split, &try_split,
                             cpi->sf.tx_sf.prune_tx_size_level);
@@ -3198,6 +3198,91 @@ static AOM_INLINE void block_rd_txfm(int plane, int block, int blk_row,
 
   args->current_rd += rd;
   if (args->current_rd > args->best_rd) args->exit_early = 1;
+}
+
+int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
+                             RD_STATS *rd_stats, int64_t ref_best_rd,
+                             BLOCK_SIZE bs, TX_SIZE tx_size,
+                             FAST_TX_SEARCH_MODE ftxs_mode, int skip_trellis) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
+  const ModeCosts *mode_costs = &x->mode_costs;
+  const int is_inter = is_inter_block(mbmi);
+  const int tx_select = txfm_params->tx_mode_search_type == TX_MODE_SELECT &&
+                        block_signals_txsize(mbmi->bsize);
+  int tx_size_rate = 0;
+  if (tx_select && 0) {
+    const int ctx = txfm_partition_context(
+        xd->above_txfm_context, xd->left_txfm_context, mbmi->bsize, tx_size);
+    tx_size_rate = is_inter ? mode_costs->txfm_partition_cost[ctx][0]
+                            : tx_size_cost(x, bs, tx_size);
+  }
+  const int skip_ctx = av1_get_skip_txfm_context(xd);
+  const int no_skip_txfm_rate = mode_costs->skip_txfm_cost[skip_ctx][0];
+  const int skip_txfm_rate = mode_costs->skip_txfm_cost[skip_ctx][1];
+  const int64_t skip_txfm_rd =
+      is_inter ? RDCOST(x->rdmult, skip_txfm_rate, 0) : INT64_MAX;
+  const int64_t no_this_rd =
+      RDCOST(x->rdmult, no_skip_txfm_rate + tx_size_rate, 0);
+  mbmi->tx_size = tx_size;
+
+  const uint8_t txw_unit = tx_size_wide_unit[tx_size];
+  const uint8_t txh_unit = tx_size_high_unit[tx_size];
+  const int step = txw_unit * txh_unit;
+  const int max_blocks_wide = max_block_wide(xd, bs, 0);
+  const int max_blocks_high = max_block_high(xd, bs, 0);
+
+  struct rdcost_block_args args;
+  av1_zero(args);
+  args.x = x;
+  args.cpi = cpi;
+  args.best_rd = ref_best_rd;
+  args.current_rd = AOMMIN(no_this_rd, skip_txfm_rd);
+  args.ftxs_mode = ftxs_mode;
+  args.skip_trellis = skip_trellis;
+  av1_init_rd_stats(&args.rd_stats);
+  av1_get_entropy_contexts(bs, &xd->plane[0], args.t_above, args.t_left);
+  int i = 0;  
+  for (int r = 0; r < max_blocks_high; r += txh_unit) {
+    for (int c = 0; c < max_blocks_wide; c += txw_unit) {
+      block_rd_txfm(0, i, r, c, bs, tx_size, &args);
+      i += step;
+    }
+  }
+
+  const int invalid_rd = is_inter ? args.incomplete_exit : args.exit_early;
+  if (invalid_rd) av1_invalid_rd_stats(&args.rd_stats);
+
+  *rd_stats = args.rd_stats;
+  if (rd_stats->rate == INT_MAX) return INT64_MAX;
+
+  int64_t rd;
+  // rdstats->rate should include all the rate except skip/non-skip cost as the
+  // same is accounted in the caller functions after rd evaluation of all
+  // planes. However the decisions should be done after considering the
+  // skip/non-skip header cost
+  if (rd_stats->skip_txfm && is_inter) {
+    rd = RDCOST(x->rdmult, skip_txfm_rate, rd_stats->sse);
+  } else {
+    // Intra blocks are always signalled as non-skip
+    rd = RDCOST(x->rdmult, rd_stats->rate + no_skip_txfm_rate + tx_size_rate,
+                rd_stats->dist);
+    rd_stats->rate += tx_size_rate;
+  }
+  // Check if forcing the block to skip transform leads to smaller RD cost.
+  if (is_inter && !rd_stats->skip_txfm && !xd->lossless[mbmi->segment_id]) {
+    int64_t temp_skip_txfm_rd =
+        RDCOST(x->rdmult, skip_txfm_rate, rd_stats->sse);
+    if (temp_skip_txfm_rd <= rd) {
+      rd = temp_skip_txfm_rd;
+      rd_stats->rate = 0;
+      rd_stats->dist = rd_stats->sse;
+      rd_stats->skip_txfm = 1;
+    }
+  }
+
+  return rd;
 }
 
 int64_t av1_uniform_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
