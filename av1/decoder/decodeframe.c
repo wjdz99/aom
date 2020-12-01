@@ -4697,7 +4697,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   }
   if (current_frame->frame_type == KEY_FRAME) {
     if (!cm->show_frame) {  // unshown keyframe (forward keyframe)
-      current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+      int is_zero_refresh = aom_rb_read_bit(rb);
+      current_frame->refresh_frame_flags = is_zero_refresh ? 0 : 
+        (1 << aom_rb_read_literal(rb, REF_FRAMES_LOG2));
     } else {  // shown keyframe
       current_frame->refresh_frame_flags = (1 << REF_FRAMES) - 1;
     }
@@ -4711,7 +4713,9 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     }
   } else {
     if (current_frame->frame_type == INTRA_ONLY_FRAME) {
-      current_frame->refresh_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
+      int is_zero_refresh = aom_rb_read_bit(rb);
+      current_frame->refresh_frame_flags = is_zero_refresh ? 0 : 
+        (1 << aom_rb_read_literal(rb, REF_FRAMES_LOG2));
       if (current_frame->refresh_frame_flags == 0xFF) {
         aom_internal_error(&cm->error, AOM_CODEC_UNSUP_BITSTREAM,
                            "Intra only frames cannot have refresh flags 0xFF");
@@ -4721,8 +4725,14 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         pbi->need_resync = 0;
       }
     } else if (pbi->need_resync != 1) { /* Skip if need resync */
-      current_frame->refresh_frame_flags =
-          frame_is_sframe(cm) ? 0xFF : aom_rb_read_literal(rb, REF_FRAMES);
+      if (frame_is_sframe(cm)) {
+        current_frame->refresh_frame_flags = 0xFF;
+      } else {
+      int is_zero_refresh = aom_rb_read_bit(rb);
+      current_frame->refresh_frame_flags = is_zero_refresh ? 0 : 
+        (1 << aom_rb_read_literal(rb, REF_FRAMES_LOG2));
+
+      }
     }
   }
 
