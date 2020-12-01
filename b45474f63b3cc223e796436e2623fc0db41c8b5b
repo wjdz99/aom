@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e71ea28e_7ff0196c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-01T18:27:38Z",
+      "side": 1,
+      "message": "Mostly looks fine now. Pls answer:\n- One question below\n- Deb\u0027s previous question about BDRate numbers",
+      "revId": "b45474f63b3cc223e796436e2623fc0db41c8b5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4566b686_6505b6c0",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-01T18:27:38Z",
+      "side": 1,
+      "message": "Why does \"(rc-\u003ebaseline_gf_interval \u003d\u003d 1)\" imply ARF_UPDATE type?",
+      "range": {
+        "startLine": 350,
+        "startChar": 32,
+        "endLine": 350,
+        "endChar": 63
+      },
+      "revId": "b45474f63b3cc223e796436e2623fc0db41c8b5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
