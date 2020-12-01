@@ -1730,7 +1730,11 @@ void av1_set_screen_content_options(AV1_COMP *cpi, FeatureFlags *features) {
     return;
   }
 
+<<<<<<< HEAD   (351401 AV1 RT: Use Level 4 CDEF search of speed 5)
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
+=======
+  if (cpi->oxcf.content == AOM_CONTENT_SCREEN) {
+>>>>>>> BRANCH (b52ee6 Update CHANGELOG for libaom v2.0.1)
     features->allow_screen_content_tools = features->allow_intrabc = 1;
     return;
   }

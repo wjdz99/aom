@@ -616,7 +616,11 @@ static AOM_INLINE void chroma_check(AV1_COMP *cpi, MACROBLOCK *x,
   int i;
   MACROBLOCKD *xd = &x->e_mbd;
 
+<<<<<<< HEAD   (351401 AV1 RT: Use Level 4 CDEF search of speed 5)
   if (is_key_frame || cpi->oxcf.tool_cfg.enable_monochrome) return;
+=======
+  if (is_key_frame || cpi->oxcf.monochrome) return;
+>>>>>>> BRANCH (b52ee6 Update CHANGELOG for libaom v2.0.1)
 
   for (i = 1; i <= 2; ++i) {
     unsigned int uv_sad = UINT_MAX;
