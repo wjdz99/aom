@@ -535,19 +535,6 @@ static INLINE void extend_mc_border(const struct scale_factors *const sf,
   }
 }
 
-static AOM_INLINE void update_subgop_stats(const AV1_COMMON *const cm,
-                                           SubGOPStatsDec *const subgop_stats,
-                                           unsigned int display_order_hint,
-                                           unsigned int enable_subgop_stats) {
-  if (!enable_subgop_stats) return;
-  subgop_stats->disp_frame_idx[subgop_stats->stat_count] = display_order_hint;
-  subgop_stats->show_existing_frame[subgop_stats->stat_count] =
-      cm->show_existing_frame;
-  subgop_stats->show_frame[subgop_stats->stat_count] = cm->show_frame;
-  assert(subgop_stats->stat_count < MAX_SUBGOP_STATS_SIZE);
-  subgop_stats->stat_count++;
-}
-
 static void dec_calc_subpel_params(const MV *const src_mv,
                                    InterPredParams *const inter_pred_params,
                                    const MACROBLOCKD *const xd, int mi_x,
