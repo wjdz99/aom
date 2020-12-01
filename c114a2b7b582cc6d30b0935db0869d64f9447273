@@ -16,6 +16,24 @@
       "message": "This fixes the build for e.g., ",
       "revId": "c114a2b7b582cc6d30b0935db0869d64f9447273",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "206205ac_e1af973d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5041
+      },
+      "writtenOn": "2020-12-01T02:03:13Z",
+      "side": 1,
+      "message": "Should read: \"This fixes the build for e.g., gcc 4.8\"",
+      "parentUuid": "5cc0a3bf_ce39bc0f",
+      "revId": "c114a2b7b582cc6d30b0935db0869d64f9447273",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
