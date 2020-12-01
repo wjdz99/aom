@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "412d0b2d_b6e6860e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-01T01:59:52Z",
+      "side": 1,
+      "message": "The patches targetted towards AV2 and gitlab should generally go to \u0027research\u0027 branch.\nThis one small enough, so maybe going to master is ok, and can cherry-pick to research too.",
+      "revId": "3698bf87b9ba8eb0ad28f1ebe0c35dc677c1630e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b9f4d05_a4a4469a",
+        "filename": "av1/encoder/cnn.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-01T01:59:52Z",
+      "side": 1,
+      "message": "To make sure: this will still zero the whole array, right?",
+      "range": {
+        "startLine": 835,
+        "startChar": 0,
+        "endLine": 835,
+        "endChar": 47
+      },
+      "revId": "3698bf87b9ba8eb0ad28f1ebe0c35dc677c1630e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
