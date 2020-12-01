@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3aad680a_d1c74443",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-12-01T18:34:06Z",
+      "side": 1,
+      "message": "Please submit. I have forgot to keep the if/else for SSE2 and AVX2.It is generating warning for IOS build.",
+      "revId": "e0e54cbf784418570cbf17143d420e335c96ba19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
