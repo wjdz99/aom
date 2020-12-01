@@ -2981,8 +2981,20 @@ static AOM_INLINE void write_uncompressed_header_obu(
   // frames.  For all other frame types, we need to write refresh_frame_flags.
   if ((current_frame->frame_type == KEY_FRAME && !cm->show_frame) ||
       current_frame->frame_type == INTER_FRAME ||
-      current_frame->frame_type == INTRA_ONLY_FRAME)
-    aom_wb_write_literal(wb, current_frame->refresh_frame_flags, REF_FRAMES);
+      current_frame->frame_type == INTRA_ONLY_FRAME) {
+    aom_wb_write_bit(wb, current_frame->refresh_frame_flags == 0);
+    if (current_frame->refresh_frame_flags > 0) {
+      int refresh_idx = -1;
+      for (int i = 0; i < REF_FRAMES; i++) {
+        if (current_frame->refresh_frame_flags & (1 << i)) {
+          assert(refresh_idx == -1);
+          refresh_idx = i;
+        }
+      }
+      assert(refresh_idx >= 0);
+      aom_wb_write_literal(wb, refresh_idx, REF_FRAMES_LOG2);
+    }
+  }
 
   if (!frame_is_intra_only(cm) || current_frame->refresh_frame_flags != 0xff) {
     // Write all ref frame order hints if error_resilient_mode == 1
