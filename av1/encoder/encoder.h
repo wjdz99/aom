@@ -827,6 +827,7 @@ typedef struct {
   int frames_to_key;
   int gf_interval;
   unsigned int size;
+  int8_t num_steps;
   SUBGOP_IN_GOP_CODE pos_code;
   SubGOPCfg subgop_cfg;
 } SubGOPInfo;
@@ -870,8 +871,6 @@ typedef struct {
   int size;
   // Current subgop cfg being used, NULL if cfg not specified
   const SubGOPCfg *subgop_cfg;
-  // The cfg step specified for the last frame in the previous gf group.
-  const SubGOPStepCfg *last_step_prev;
   /*!\endcond */
 } GF_GROUP;
 /*!\cond */
