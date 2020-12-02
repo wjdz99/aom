@@ -123,6 +123,23 @@
       "parentUuid": "4ed59bbf_360a3a06",
       "revId": "c9bdf4eb1b457b5805790c0b358e69554ca235af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33397bd8_90fd80dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 23197
+      },
+      "writtenOn": "2020-12-02T18:25:45Z",
+      "side": 1,
+      "message": "I think this option has some merit. If the user wants to retain the same amount of grain/dithering in their video while using a very high q value. This is currently impossible in aomenc as at high q values grain is often discarded (for good reason). That said I see part of the intent of DNL as reducing the size of the video without hurting the quality and for that purpose I don\u0027t think this option is useful.\n\n...Unless you are using a third party tool like av1an or qencoder to do something like target vmaf. I haven\u0027t tested it extensively but I could see some benefit to this patch for tools like that since it would better preserve the original video, the difference between the source and encoded video (with grain synthesis during decoding disabled, eg via dav1d with dav1d --filmgrain 0) would be much smaller resulting in higher vmaf/psnr/ssim/etc. While still giving you the benefits of grain synthesis which do not show up on any of these comparative metrics.",
+      "revId": "c9bdf4eb1b457b5805790c0b358e69554ca235af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
