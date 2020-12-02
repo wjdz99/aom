@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b46ee6b_87f02426",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-12-02T15:11:23Z",
+      "side": 1,
+      "message": "Debargha,\n\nThis patch adds the test to compare the PSNR difference between subgop and no-subgop configuration. We set the maximum allowed PSNR threshold range as -0.2 dB to +0.2 dB. \nWe observed that few test cases are having more PSNR drop than the allowed threshold. Also most of the testcases in CBR mode have more PSNR drop. We have currently disabled the test cases by default. We will raise a bug for the same.\n\nPlease review the patch.\nThank you.\n",
+      "revId": "1e2141761f5caabb6a512a068140491f8cbdc5a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
