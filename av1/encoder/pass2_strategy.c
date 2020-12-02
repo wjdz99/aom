@@ -180,24 +180,22 @@ static double calc_correction_factor(double err_per_mb, int q) {
   return fclamp(pow(error_term, power_term), 0.05, 5.0);
 }
 
-static void twopass_update_bpm_factor(TWO_PASS *twopass, int err_estimate,
-                                      int rate_err_tol) {
-  // Based on recent history adjust expectations of bits per macroblock.
-  double last_group_rate_err =
-      (double)twopass->rolling_arf_group_actual_bits /
-      DOUBLE_DIVIDE_CHECK((double)twopass->rolling_arf_group_target_bits);
-  double damp_fac = AOMMAX(5.0, rate_err_tol / 10.0);
+static void twopass_update_bpm_factor(TWO_PASS *twopass, double rate_err_factor,
+                                      double max_adj) {
+  //if (rate_err_factor != 1.0) {
+    rate_err_factor =
+        AOMMAX(1.0 - max_adj, AOMMIN(1.0 + max_adj, rate_err_factor));
 
-  last_group_rate_err = AOMMAX(0.75, AOMMIN(1.25, last_group_rate_err));
-  last_group_rate_err = 1.0 + ((last_group_rate_err - 1.0) / damp_fac);
+    // 1st ARF group special case. Reduced adjustment from subsequent groups.
+    //if (twopass->bpm_factor != 1.0) {
+    rate_err_factor = 1.0 + ((rate_err_factor - 1.0) / 10.0);
+    //}
 
-  // Is the last GOP error making the total error worse or better? Only make
-  // an adjustment if things are getting worse.
-  if ((last_group_rate_err < 1.0 && err_estimate > 0) ||
-      (last_group_rate_err > 1.0 && err_estimate < 0)) {
-    twopass->bpm_factor *= last_group_rate_err;
-    twopass->bpm_factor = AOMMAX(0.75, AOMMIN(1.25, twopass->bpm_factor));
-  }
+    // Modify bits per macro block factor.
+    twopass->bpm_factor *= rate_err_factor;
+    twopass->bpm_factor =
+        AOMMAX(1.0 - max_adj, AOMMIN(1.0 + max_adj, twopass->bpm_factor));
+  //}
 }
 
 static int qbpm_enumerator(int rate_err_tol) {
@@ -271,11 +269,19 @@ static int get_twopass_worst_quality(AV1_COMP *cpi, const double av_frame_err,
     const double av_err_per_mb = av_frame_err / active_mbs;
     const int target_norm_bits_per_mb =
         (int)((uint64_t)av_target_bandwidth << BPER_MB_NORMBITS) / active_mbs;
-    int rate_err_tol = AOMMIN(rc_cfg->under_shoot_pct, rc_cfg->over_shoot_pct);
+    const int rate_err_tol =
+        AOMMIN(rc_cfg->under_shoot_pct, rc_cfg->over_shoot_pct);
+    const double max_adj = AOMMAX(0.10, (double)(100 - rate_err_tol) / 200.0);
+    double rate_err_factor = 1.0;
+
+    if (rc->vbr_bits_off_target && rc->total_actual_bits) {
+      rate_err_factor =
+          1.0 - ((double)(rc->vbr_bits_off_target / 1) /
+                 AOMMAX(rc->total_actual_bits, cpi->twopass.bits_left));
+    }
 
     // Update bpm correction factor based on previous GOP rate error.
-    twopass_update_bpm_factor(&cpi->twopass, rc->rate_error_estimate,
-                              rate_err_tol);
+    twopass_update_bpm_factor(&cpi->twopass, rate_err_factor, max_adj);
 
     // Try and pick a max Q that will be high enough to encode the
     // content at the given rate.
@@ -3725,6 +3731,7 @@ void av1_init_second_pass(AV1_COMP *cpi) {
 
   // Initialize bits per macro_block estimate correction factor.
   twopass->bpm_factor = 1.0;
+
   // Initialize actual and target bits counters for ARF groups so that
   // at the start we have a neutral bpm adjustment.
   twopass->rolling_arf_group_target_bits = 1;
@@ -3756,6 +3763,7 @@ void av1_init_single_pass_lap(AV1_COMP *cpi) {
 
   // Initialize bits per macro_block estimate correction factor.
   twopass->bpm_factor = 1.0;
+
   // Initialize actual and target bits counters for ARF groups so that
   // at the start we have a neutral bpm adjustment.
   twopass->rolling_arf_group_target_bits = 1;
