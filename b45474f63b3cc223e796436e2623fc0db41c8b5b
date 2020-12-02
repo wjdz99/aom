@@ -38,6 +38,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e1b6f36a_10f7ae4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-02T23:00:32Z",
+      "side": 1,
+      "message": "I see a TODO in subgop_test.cc to to enable a test when this behavior change is done.\nCan you enable it?",
+      "revId": "b45474f63b3cc223e796436e2623fc0db41c8b5b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4566b686_6505b6c0",
         "filename": "av1/encoder/gop_structure.c",
         "patchSetId": 24
