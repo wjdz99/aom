@@ -70,6 +70,24 @@
       "parentUuid": "a0e5c06e_b5edaa44",
       "revId": "309053298fb1dc8fea65b996cc7cedba6ad2fd70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30e0b874_df622d22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-02T02:05:13Z",
+      "side": 1,
+      "message": "\u003e Thank you. I just created a CL with \"git merge v2.0.1\". (I had to resolve merge\n\u003e conflicts because both bug fixes in v2.0.1 came from the master branch.)\n\u003e \n\u003e When I tried to push the CL for code review, I got this error:\n\u003e To https://aomedia-review.googlesource.com/aom\n\u003e  ! [remote rejected]     HEAD -\u003e refs/for/master (commit 3c8e24d: you are not allowed to upload merges)\n\u003e error: failed to push some refs to \u0027https://aomedia-review.googlesource.com/aom\u0027\n\u003e \n\u003e Do you know what is wrong? Thanks.\n\nYes, sorry about that. I blocked uploading merges for most users because it was a common mistake after they tried to update a branch with git pull and no --rebase. You should be able to push to refs/for/master now, but not refs/heads/master.",
+      "parentUuid": "1733a870_b35d3d31",
+      "revId": "309053298fb1dc8fea65b996cc7cedba6ad2fd70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
