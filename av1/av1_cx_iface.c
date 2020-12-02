@@ -1365,7 +1365,10 @@ static aom_codec_err_t ctrl_get_enc_sub_gop_config(aom_codec_alg_priv_t *ctx,
   subgop_info->size = cpi->rc.baseline_gf_interval;
   if (subgop_cfg) {
     memcpy(&subgop_info->subgop_cfg, subgop_cfg, sizeof(*subgop_cfg));
+    subgop_info->num_steps = subgop_cfg->num_steps;
     subgop_info->pos_code = subgop_cfg->subgop_in_gop_code;
+  } else {
+    subgop_info->num_steps = gf_group->size;
   }
   return AOM_CODEC_OK;
 }
