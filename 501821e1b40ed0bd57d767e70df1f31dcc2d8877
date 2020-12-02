@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39970779_d3d91722",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-12-02T14:20:56Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have added support for block based multi-threading of CDEF search module. Please find the average encode time reduction below :\n\t\t\t      Average Encode Time\ncpu-used   Resolution   Tile      Reduction (%)\n   2 \t   832x480 \t 2x1     0.39 (2 threads)\n   3 \t   1280x720 \t 2x2     0.52 (4 threads)\n   4 \t   1920x1080 \t 4x2     0.51 (8 threads)\n   5 \t   3840x2160 \t 4x2     2.57 (8 threads)\n   6 \t   3840x2160 \t 4x2     1.55 (8 threads)\n\nThis patch is verified to be bit-exact with no impact on encode time for single thread configuration. Also, it is verified to be bit-exact for different tile and thread configurations.\n\nWe have also verified that the current encoder unit tests (AVxEncoderThreadTest, AVxEncoderThreadTestLarge) already cover validation of CDEF search MT.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "501821e1b40ed0bd57d767e70df1f31dcc2d8877",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
