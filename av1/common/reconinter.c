@@ -425,8 +425,6 @@ int av1_compute_subpel_gradients(const AV1_COMMON *cm, MACROBLOCKD *xd,
   return r_dist;
 }
 
-#define OPFL_REFINE_MV_PREC_BITS 6  // 6 refers to 1/64th pel precision
-
 // Optical flow based mv refinement computation function:
 //
 // p0, pstride0: predictor 0 and its stride
@@ -442,6 +440,8 @@ int av1_compute_subpel_gradients(const AV1_COMMON *cm, MACROBLOCKD *xd,
 // max_prec_bits: maximum offset in bits
 // vx0, vy0: output high resolution mv offset for p0
 // vx1, vy1: output high resolution mv offset for p1
+
+#define MV_REFINE_PREC_BITS 2
 
 void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
                                   const uint8_t *p1, int pstride1,
@@ -468,8 +468,8 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
     }
   }
   const int64_t D = su2 * sv2 - suv * suv;
-  const int64_t Px = (sv2 * suw - suv * svw) * (1 << OPFL_REFINE_MV_PREC_BITS);
-  const int64_t Py = (su2 * svw - suv * suw) * (1 << OPFL_REFINE_MV_PREC_BITS);
+  const int64_t Px = (sv2 * suw - suv * svw) * (1 << MV_REFINE_PREC_BITS);
+  const int64_t Py = (su2 * svw - suv * suw) * (1 << MV_REFINE_PREC_BITS);
 
   if (D == 0) return;
   *vx0 = (int)DIVIDE_AND_ROUND_SIGNED(Px, D);
@@ -478,12 +478,6 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
   const int ty1 = -(*vy0) * d1;
   *vx1 = (int)DIVIDE_AND_ROUND_SIGNED(tx1, d0);
   *vy1 = (int)DIVIDE_AND_ROUND_SIGNED(ty1, d0);
-
-  const int max_value = 1 << (OPFL_REFINE_MV_PREC_BITS - max_prec_bits);
-  *vx0 = clamp(*vx0, -max_value, max_value);
-  *vy0 = clamp(*vy0, -max_value, max_value);
-  *vx1 = clamp(*vx1, -max_value, max_value);
-  *vy1 = clamp(*vy1, -max_value, max_value);
 }
 
 void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
@@ -511,8 +505,8 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
     }
   }
   const int64_t D = su2 * sv2 - suv * suv;
-  const int64_t Px = (sv2 * suw - suv * svw) * (1 << OPFL_REFINE_MV_PREC_BITS);
-  const int64_t Py = (su2 * svw - suv * suw) * (1 << OPFL_REFINE_MV_PREC_BITS);
+  const int64_t Px = (sv2 * suw - suv * svw) * (1 << MV_REFINE_PREC_BITS);
+  const int64_t Py = (su2 * svw - suv * suw) * (1 << MV_REFINE_PREC_BITS);
 
   if (D == 0) return;
   *vx0 = (int)DIVIDE_AND_ROUND_SIGNED(Px, D);
@@ -521,12 +515,6 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
   const int ty1 = -(*vy0) * d1;
   *vx1 = (int)DIVIDE_AND_ROUND_SIGNED(tx1, d0);
   *vy1 = (int)DIVIDE_AND_ROUND_SIGNED(ty1, d0);
-
-  const int max_value = 1 << (OPFL_REFINE_MV_PREC_BITS - max_prec_bits);
-  *vx0 = clamp(*vx0, -max_value, max_value);
-  *vy0 = clamp(*vy0, -max_value, max_value);
-  *vx1 = clamp(*vx1, -max_value, max_value);
-  *vy1 = clamp(*vy1, -max_value, max_value);
 }
 
 // Macros for optical flow experiment where offsets are added in nXn blocks
@@ -587,7 +575,6 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
   int vy1[N_OF_OFFSETS] = { 0 };
   const int prec = mbmi->pb_mv_precision;
   const int target_prec = prec + 1;
-  int out_prec = 0;
   // Convert output MV to 1/16th pel
   for (int mvi = 0; mvi < N_OF_OFFSETS; mvi++) {
     mv_refined[mvi * 2].as_mv.row *= 2;
@@ -664,37 +651,10 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 
   for (int i = 0; i < n_blocks; i++) {
-    int vx0_block = vx0[i];
-    int vy0_block = vy0[i];
-    int vx1_block = vx1[i];
-    int vy1_block = vy1[i];
-    // Only update precision if any of the offsets is nonzero
-    if (vx0_block == 0 && vy0_block == 0 && vx1_block == 0 && vy1_block == 0)
-      continue;
-
-    out_prec = target_prec;
-    // Compute offset sign
-    const int vy0_block_sign = (vy0_block < 0) ? -1 : 1;
-    const int vy1_block_sign = (vy1_block < 0) ? -1 : 1;
-    const int vx0_block_sign = (vx0_block < 0) ? -1 : 1;
-    const int vx1_block_sign = (vx1_block < 0) ? -1 : 1;
-    // Used to convert the offset to 1/16th pel
-    const int prec_factor = 1 << (SUBPEL_BITS - out_prec);
-    const int round_factor = 1 << (OPFL_REFINE_MV_PREC_BITS - out_prec - 1);
-    // Compute final offset
-    const int vy0_block_prec =
-        vy0_block_sign * (abs(vy0_block) >= round_factor) * prec_factor;
-    const int vy1_block_prec =
-        vy1_block_sign * (abs(vy1_block) >= round_factor) * prec_factor;
-    const int vx0_block_prec =
-        vx0_block_sign * (abs(vx0_block) >= round_factor) * prec_factor;
-    const int vx1_block_prec =
-        vx1_block_sign * (abs(vx1_block) >= round_factor) * prec_factor;
-    // Add offset to output MV
-    mv_refined[i * 2].as_mv.row += vy0_block_prec;
-    mv_refined[i * 2].as_mv.col += vx0_block_prec;
-    mv_refined[i * 2 + 1].as_mv.row += vy1_block_prec;
-    mv_refined[i * 2 + 1].as_mv.col += vx1_block_prec;
+    mv_refined[i * 2].as_mv.row += vy0[i];
+    mv_refined[i * 2].as_mv.col += vx0[i];
+    mv_refined[i * 2 + 1].as_mv.row += vy1[i];
+    mv_refined[i * 2 + 1].as_mv.col += vx1[i];
   }
 
 exit_refinement:
@@ -702,7 +662,7 @@ exit_refinement:
   aom_free(dst0);
   aom_free(g1);
   aom_free(dst1);
-  return out_prec;
+  return target_prec;
 }
 #endif  // CONFIG_EXT_COMPOUND
 
