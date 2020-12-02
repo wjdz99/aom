@@ -1366,6 +1366,10 @@ static aom_codec_err_t ctrl_get_enc_sub_gop_config(aom_codec_alg_priv_t *ctx,
   if (subgop_cfg) {
     memcpy(&subgop_info->subgop_cfg, subgop_cfg, sizeof(*subgop_cfg));
     subgop_info->pos_code = subgop_cfg->subgop_in_gop_code;
+    subgop_info->num_steps = subgop_cfg->num_steps;
+  } else {
+    const int offset = gf_group->update_type[0] == KF_UPDATE ? 1 : 0;
+    subgop_info->num_steps = gf_group->size - offset;
   }
   return AOM_CODEC_OK;
 }
