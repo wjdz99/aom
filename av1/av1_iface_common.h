@@ -25,6 +25,8 @@ typedef struct {
   int show_existing_frame;
   int pyramid_level;
   int qindex;
+  int refresh_frame_flags;
+  unsigned int ref_frame_map[8];  // [REF_FRAMES]
 } SubGOPStepData;
 
 typedef struct {
