@@ -26,6 +26,10 @@ typedef struct {
   int pyramid_level;
   int qindex;
   int refresh_frame_flags;
+  int num_references;
+  int ref_frame_pyr_level[7];     // [INTER_REFS_PER_FRAME];
+  int ref_frame_disp_order[7];    // [INTER_REFS_PER_FRAME];
+  int is_valid_ref_frame[7];      // [INTER_REFS_PER_FRAME];
   unsigned int ref_frame_map[8];  // [REF_FRAMES]
 } SubGOPStepData;
 
