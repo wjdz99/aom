@@ -674,7 +674,7 @@ static void av1_make_inter_predictor_aux(
     int p_col, int p_row, int plane, int ref, const MB_MODE_INFO *mi,
     int build_for_obmc, const MACROBLOCKD *xd, int can_use_previous);
 
-#if CONFIG_OPTFLOW_REFINEMENT && USE_OF_NXN
+#if CONFIG_EXT_COMPOUND && USE_OF_NXN
 // Makes the interpredictor for the region by dividing it up into nxn blocks
 // and running the interpredictor code on each one.
 void make_inter_pred_of_nxn(
@@ -720,7 +720,7 @@ void make_inter_pred_of_nxn(
 
   conv_params->dst = orig_conv_dst;
 }
-#endif  // CONFIG_OPTFLOW_REFINEMENT && USE_OF_NXN
+#endif  // CONFIG_EXT_COMPOUND && USE_OF_NXN
 
 // Makes the interpredictor for the region by dividing it up into 8x8 blocks
 // and running the interpredictor code on each one.
@@ -1130,8 +1130,8 @@ static void build_inter_predictors(
     mv_refined[mvi * 2].as_mv = mi->mv[0].as_mv;
     mv_refined[mvi * 2 + 1].as_mv = mi->mv[1].as_mv;
   }
-  const int use_optflow_prec = (mi->mode > NEW_NEWMV) && is_compound &&
-                               CONFIG_OPTFLOW_REFINEMENT && plane == 0;
+  const int use_optflow_prec =
+      (mi->mode > NEW_NEWMV) && is_compound && plane == 0;
   if (use_optflow_prec) {
     av1_get_optflow_based_mv(cm, xd, mi, mv_refined, bw, bh, mi_x, mi_y,
                              build_for_obmc, calc_subpel_params_func,
