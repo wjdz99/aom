@@ -838,6 +838,10 @@ typedef struct {
 typedef struct {
   unsigned char is_filtered[MAX_SUBGOP_STATS_SIZE];
   unsigned int pyramid_level[MAX_SUBGOP_STATS_SIZE];
+  int ref_frame_pyr_level[MAX_SUBGOP_STATS_SIZE][INTER_REFS_PER_FRAME];
+  int8_t ref_frame_disp_order[MAX_SUBGOP_STATS_SIZE][INTER_REFS_PER_FRAME];
+  int is_valid_ref_frame[MAX_SUBGOP_STATS_SIZE][INTER_REFS_PER_FRAME];
+  int8_t num_references[MAX_SUBGOP_STATS_SIZE];
   unsigned char stat_count;
 } SubGOPStatsEnc;
 
