@@ -543,7 +543,7 @@ static void convolve_2d_facade_single(
   } else if (need_x && !need_y) {
     // Filters with taps > 8 are only for encoder side use.
     // TODO(any): need SIMD for > 8 taps filters
-    if (filter_params_x->taps > 8 || filter_params_y->taps > 8) {
+    if ((filter_params_x->taps > 8 || filter_params_y->taps > 8) && w < 4) {
       av1_convolve_x_sr_c(src, src_stride, dst, dst_stride, w, h,
                           filter_params_x, subpel_x_qn, conv_params);
     } else {
