@@ -22,6 +22,30 @@
       },
       "revId": "2f804945cac8207467635c22f3ef117ed65e6b01",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfb48ae2_ee78e843",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-12-02T08:37:34Z",
+      "side": 0,
+      "message": "because inspect uses these enums",
+      "parentUuid": "d2e1bb25_c65eb699",
+      "range": {
+        "startLine": 270,
+        "startChar": 5,
+        "endLine": 270,
+        "endChar": 30
+      },
+      "revId": "2f804945cac8207467635c22f3ef117ed65e6b01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
