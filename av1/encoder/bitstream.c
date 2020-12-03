@@ -3039,6 +3039,9 @@ static AOM_INLINE void write_uncompressed_header_obu(
         aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
       }
 
+      // Write map of allowed references for this frame
+      aom_wb_write_literal(wb, cpi->common.ref_frame_flags, REF_FRAMES);
+
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
         assert(get_ref_frame_map_idx(cm, ref_frame) != INVALID_IDX);
         if (!current_frame->frame_refs_short_signaling)
