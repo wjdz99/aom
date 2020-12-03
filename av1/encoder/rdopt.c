@@ -751,44 +751,86 @@ static AOM_INLINE void estimate_ref_frame_costs(
     const int ctx_p5 = av1_get_pred_context_single_ref_p5(xd);
     const int ctx_p6 = av1_get_pred_context_single_ref_p6(xd);
 
+#if SHORT_REF_SIG_EXP 
+    int ref_frame_flags = cm->ref_frame_flags;
+    int last_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST_FRAME]) != 0;
+    int last2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST2_FRAME]) != 0;
+    int last3_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST3_FRAME]) != 0;
+    int golden_allowed = (ref_frame_flags & av1_ref_frame_flag_list[GOLDEN_FRAME]) != 0;
+    int bwdref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME]) != 0;
+    int altref2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF2_FRAME]) != 0;
+    int altref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF_FRAME]) != 0;
+#else
+  int last_allowed = 1;
+  int last2_allowed = 1;
+  int last3_allowed = 1; 
+  int golden_allowed = 1;
+  int bwdref_allowed = 1;
+  int altref2_allowed = 1;
+  int altref_allowed = 1;
+#endif
+
+  //printf("ref frame flags %d\n", cm->ref_frame_flags);
+  //printf("LAST %d\n", last_allowed); 
+  //printf("LAST2 %d\n", last2_allowed);
+  //printf("LAST3 %d\n", last3_allowed);
+  //printf("GOLDEN %d\n", golden_allowed); 
+  //printf("BWDREF %d\n", bwdref_allowed); 
+  //printf("ALTREF2 %d\n", altref2_allowed);
+  //printf("ALTREF %d\n", altref_allowed); 
     // Determine cost of a single ref frame, where frame types are represented
     // by a tree:
     // Level 0: add cost whether this ref is a forward or backward ref
-    ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
-    ref_costs_single[ALTREF2_FRAME] +=
-        mode_costs->single_ref_cost[ctx_p1][0][1];
-    ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
+    // Add fwd vs backward costs only if there is at least 1 forward and 1 
+    // backward ref
+    if ((last_allowed || last2_allowed || last3_allowed || golden_allowed) && 
+        (bwdref_allowed || altref2_allowed || altref_allowed)) {
+      ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
+      ref_costs_single[ALTREF2_FRAME] +=
+          mode_costs->single_ref_cost[ctx_p1][0][1];
+      ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
+    }
 
     // Level 1: if this ref is forward ref,
     // add cost whether it is last/last2 or last3/golden
-    ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
-    ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
-    ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
-    ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
+    if ((last_allowed || last2_allowed) && (last3_allowed || golden_allowed)) {
+      ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
+      ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
+      ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
+      ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
+    }
 
     // Level 1: if this ref is backward ref
     // then add cost whether this ref is altref or backward ref
-    ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][0];
-    ref_costs_single[ALTREF2_FRAME] +=
-        mode_costs->single_ref_cost[ctx_p2][1][0];
-    ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][1];
+    if (altref_allowed && (bwdref_allowed || altref2_allowed)) {
+      ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][0];
+      ref_costs_single[ALTREF2_FRAME] +=
+          mode_costs->single_ref_cost[ctx_p2][1][0];
+      ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][1];
+    }
 
     // Level 2: further add cost whether this ref is last or last2
-    ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][0];
-    ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][1];
+    if (last_allowed && last2_allowed) {
+      ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][0];
+      ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][1];
+    } 
 
     // Level 2: last3 or golden
-    ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][0];
-    ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][1];
+    if (last3_allowed && golden_allowed) {
+      ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][0];
+      ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][1];
+    } 
 
     // Level 2: bwdref or altref2
-    ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p6][5][0];
-    ref_costs_single[ALTREF2_FRAME] +=
-        mode_costs->single_ref_cost[ctx_p6][5][1];
+    if (bwdref_allowed && altref2_allowed) {
+      ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p6][5][0];
+      ref_costs_single[ALTREF2_FRAME] +=
+          mode_costs->single_ref_cost[ctx_p6][5][1];
+    } 
 
     if (cm->current_frame.reference_mode != SINGLE_REFERENCE) {
       // Similar to single ref, determine cost of compound ref frames.
@@ -809,6 +851,7 @@ static AOM_INLINE void estimate_ref_frame_costs(
       ref_bicomp_costs[ALTREF_FRAME] = 0;
 
       // cost of first ref frame
+      if ((golden_allowed || last3_allowed) && (last_allowed || last2_allowed)) {
       ref_bicomp_costs[LAST_FRAME] +=
           mode_costs->comp_ref_cost[ref_comp_ctx_p][0][0];
       ref_bicomp_costs[LAST2_FRAME] +=
@@ -817,29 +860,38 @@ static AOM_INLINE void estimate_ref_frame_costs(
           mode_costs->comp_ref_cost[ref_comp_ctx_p][0][1];
       ref_bicomp_costs[GOLDEN_FRAME] +=
           mode_costs->comp_ref_cost[ref_comp_ctx_p][0][1];
+      }
 
+      if (last2_allowed && last_allowed) {
       ref_bicomp_costs[LAST_FRAME] +=
           mode_costs->comp_ref_cost[ref_comp_ctx_p1][1][0];
       ref_bicomp_costs[LAST2_FRAME] +=
           mode_costs->comp_ref_cost[ref_comp_ctx_p1][1][1];
+      }
 
+      if (golden_allowed && last3_allowed) {
       ref_bicomp_costs[LAST3_FRAME] +=
           mode_costs->comp_ref_cost[ref_comp_ctx_p2][2][0];
       ref_bicomp_costs[GOLDEN_FRAME] +=
           mode_costs->comp_ref_cost[ref_comp_ctx_p2][2][1];
+      }
 
       // cost of second ref frame
+      if (altref_allowed && (bwdref_allowed || altref2_allowed)) {
       ref_bicomp_costs[BWDREF_FRAME] +=
           mode_costs->comp_bwdref_cost[bwdref_comp_ctx_p][0][0];
       ref_bicomp_costs[ALTREF2_FRAME] +=
           mode_costs->comp_bwdref_cost[bwdref_comp_ctx_p][0][0];
       ref_bicomp_costs[ALTREF_FRAME] +=
           mode_costs->comp_bwdref_cost[bwdref_comp_ctx_p][0][1];
+      }
 
+      if (altref2_allowed && bwdref_allowed) {
       ref_bicomp_costs[BWDREF_FRAME] +=
           mode_costs->comp_bwdref_cost[bwdref_comp_ctx_p1][1][0];
       ref_bicomp_costs[ALTREF2_FRAME] +=
           mode_costs->comp_bwdref_cost[bwdref_comp_ctx_p1][1][1];
+      }
 
       // cost: if one ref frame is forward ref, the other ref is backward ref
       int ref0, ref1;
@@ -854,23 +906,27 @@ static AOM_INLINE void estimate_ref_frame_costs(
       const int uni_comp_ref_ctx_p = av1_get_pred_context_uni_comp_ref_p(xd);
       const int uni_comp_ref_ctx_p1 = av1_get_pred_context_uni_comp_ref_p1(xd);
       const int uni_comp_ref_ctx_p2 = av1_get_pred_context_uni_comp_ref_p2(xd);
+      const int uni_write_p = ((bwdref_allowed && altref_allowed) && 
+            (last_allowed && (golden_allowed || last3_allowed || last2_allowed)));
+      const int uni_write_p1 = (last2_allowed && (last3_allowed || golden_allowed));
+      const int uni_write_p2 = (golden_allowed && last3_allowed);
       ref_costs_comp[LAST_FRAME][LAST2_FRAME] =
           base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p1][1][0];
+          (uni_write_p * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0]) +
+          (uni_write_p1 * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p1][1][0]);
       ref_costs_comp[LAST_FRAME][LAST3_FRAME] =
           base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p1][1][1] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p2][2][0];
+          (uni_write_p * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0]) +
+          (uni_write_p1 * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p1][1][1]) +
+          (uni_write_p2 * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p2][2][0]);
       ref_costs_comp[LAST_FRAME][GOLDEN_FRAME] =
           base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p1][1][1] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p2][2][1];
+          (uni_write_p * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0]) +
+          (uni_write_p1 * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p1][1][1]) +
+          (uni_write_p2 * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p2][2][1]);
       ref_costs_comp[BWDREF_FRAME][ALTREF_FRAME] =
           base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
-          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][1];
+          (uni_write_p * mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][1]);
     } else {
       int ref0, ref1;
       for (ref0 = LAST_FRAME; ref0 <= GOLDEN_FRAME; ++ref0) {
