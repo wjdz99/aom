@@ -487,6 +487,15 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
   const int is_compound = has_second_ref(mbmi);
   const int segment_id = mbmi->segment_id;
 
+  int ref_frame_flags = cm->ref_frame_flags;
+  int last_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST_FRAME]) != 0;
+  int last2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST2_FRAME]) != 0;
+  int last3_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST3_FRAME]) != 0;
+  int golden_allowed = (ref_frame_flags & av1_ref_frame_flag_list[GOLDEN_FRAME]) != 0;
+  int bwdref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME]) != 0;
+  int altref2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF2_FRAME]) != 0;
+  int altref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF_FRAME]) != 0;
+
   // If segment level coding of this signal is disabled...
   // or the segment allows multiple reference frame options
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
@@ -559,26 +568,36 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
     } else {
       const int bit0 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
                         mbmi->ref_frame[0] >= BWDREF_FRAME);
-      WRITE_REF_BIT(bit0, single_ref_p1);
+      if ((last_allowed || last2_allowed || last3_allowed || golden_allowed) &&
+          (bwdref_allowed || altref2_allowed || altref_allowed)) {
+        WRITE_REF_BIT(bit0, single_ref_p1);
+      }
 
       if (bit0) {
         const int bit1 = mbmi->ref_frame[0] == ALTREF_FRAME;
-        WRITE_REF_BIT(bit1, single_ref_p2);
+        if (altref_allowed && (bwdref_allowed || altref2_allowed))
+          WRITE_REF_BIT(bit1, single_ref_p2);
 
         if (!bit1) {
-          WRITE_REF_BIT(mbmi->ref_frame[0] == ALTREF2_FRAME, single_ref_p6);
+          if (altref2_allowed && bwdref_allowed)
+            WRITE_REF_BIT(mbmi->ref_frame[0] == ALTREF2_FRAME, single_ref_p6);
         }
       } else {
         const int bit2 = (mbmi->ref_frame[0] == LAST3_FRAME ||
                           mbmi->ref_frame[0] == GOLDEN_FRAME);
-        WRITE_REF_BIT(bit2, single_ref_p3);
+        if ((last_allowed || last2_allowed) && (last3_allowed || golden_allowed))
+          WRITE_REF_BIT(bit2, single_ref_p3);
 
         if (!bit2) {
-          const int bit3 = mbmi->ref_frame[0] != LAST_FRAME;
-          WRITE_REF_BIT(bit3, single_ref_p4);
+          if (last_allowed && last2_allowed) {
+            const int bit3 = mbmi->ref_frame[0] != LAST_FRAME;
+            WRITE_REF_BIT(bit3, single_ref_p4);
+          }
         } else {
-          const int bit4 = mbmi->ref_frame[0] != LAST3_FRAME;
-          WRITE_REF_BIT(bit4, single_ref_p5);
+          if (last3_allowed && golden_allowed) {
+            const int bit4 = mbmi->ref_frame[0] != LAST3_FRAME;
+            WRITE_REF_BIT(bit4, single_ref_p5);
+          }
         }
       }
     }
@@ -3038,6 +3057,9 @@ static AOM_INLINE void write_uncompressed_header_obu(
         const int gld_ref = get_ref_frame_map_idx(cm, GOLDEN_FRAME);
         aom_wb_write_literal(wb, gld_ref, REF_FRAMES_LOG2);
       }
+
+      // Write map of allowed references for this frame
+      aom_wb_write_literal(wb, cpi->common.ref_frame_flags, REF_FRAMES);
 
       for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
         assert(get_ref_frame_map_idx(cm, ref_frame) != INVALID_IDX);

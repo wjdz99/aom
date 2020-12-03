@@ -384,6 +384,15 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
   if (seg_ref_active) {
     memset(ref_costs_single, 0, REF_FRAMES * sizeof(*ref_costs_single));
   } else {
+    int ref_frame_flags = cm->ref_frame_flags;
+    int last_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST_FRAME]) != 0;
+    int last2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST2_FRAME]) != 0;
+    int last3_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST3_FRAME]) != 0;
+    int golden_allowed = (ref_frame_flags & av1_ref_frame_flag_list[GOLDEN_FRAME]) != 0;
+    int bwdref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME]) != 0;
+    int altref2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF2_FRAME]) != 0;
+    int altref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF_FRAME]) != 0;
+
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
     ref_costs_single[INTRA_FRAME] =
         mode_costs->intra_inter_cost[intra_inter_ctx][0];
@@ -402,41 +411,54 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
     // Determine cost of a single ref frame, where frame types are represented
     // by a tree:
     // Level 0: add cost whether this ref is a forward or backward ref
-    ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
-    ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
-    ref_costs_single[ALTREF2_FRAME] +=
-        mode_costs->single_ref_cost[ctx_p1][0][1];
-    ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
+    if ((last_allowed || last2_allowed || last3_allowed || golden_allowed) && 
+        (bwdref_allowed || altref2_allowed || altref_allowed)) {
+      ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][0];
+      ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
+      ref_costs_single[ALTREF2_FRAME] +=
+          mode_costs->single_ref_cost[ctx_p1][0][1];
+      ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p1][0][1];
+    }
 
     // Level 1: if this ref is forward ref,
     // add cost whether it is last/last2 or last3/golden
-    ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
-    ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
-    ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
-    ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
+    if ((last_allowed || last2_allowed) && (last3_allowed || golden_allowed)) {
+      ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
+      ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][0];
+      ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
+      ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p3][2][1];
+    }
 
     // Level 1: if this ref is backward ref
     // then add cost whether this ref is altref or backward ref
-    ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][0];
-    ref_costs_single[ALTREF2_FRAME] +=
-        mode_costs->single_ref_cost[ctx_p2][1][0];
-    ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][1];
+    if (altref_allowed && (bwdref_allowed || altref2_allowed)) {
+      ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][0];
+      ref_costs_single[ALTREF2_FRAME] +=
+          mode_costs->single_ref_cost[ctx_p2][1][0];
+      ref_costs_single[ALTREF_FRAME] += mode_costs->single_ref_cost[ctx_p2][1][1];
+    }
 
     // Level 2: further add cost whether this ref is last or last2
-    ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][0];
-    ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][1];
+    if (last_allowed && last2_allowed) {
+      ref_costs_single[LAST_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][0];
+      ref_costs_single[LAST2_FRAME] += mode_costs->single_ref_cost[ctx_p4][3][1];
+    }
 
     // Level 2: last3 or golden
-    ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][0];
-    ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][1];
+    if (last3_allowed && golden_allowed) {
+      ref_costs_single[LAST3_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][0];
+      ref_costs_single[GOLDEN_FRAME] += mode_costs->single_ref_cost[ctx_p5][4][1];
+    }
 
     // Level 2: bwdref or altref2
-    ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p6][5][0];
-    ref_costs_single[ALTREF2_FRAME] +=
-        mode_costs->single_ref_cost[ctx_p6][5][1];
+    if (bwdref_allowed && altref2_allowed) {
+      ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p6][5][0];
+      ref_costs_single[ALTREF2_FRAME] +=
+          mode_costs->single_ref_cost[ctx_p6][5][1];
+    }
   }
 }
 

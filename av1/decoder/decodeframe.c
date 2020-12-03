@@ -4836,6 +4836,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
         av1_set_frame_refs(cm, cm->remapped_ref_idx, lst_ref, gld_ref);
       }
 
+      // Write map of allowed references for this frame
+      cm->ref_frame_flags = aom_rb_read_literal(rb, REF_FRAMES);
       for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
         int ref = 0;
         if (!frame_refs_short_signaling) {
