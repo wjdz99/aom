@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2184acb1_f5792c0b",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3203,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-03T22:05:51Z",
+      "side": 1,
+      "message": "Nice speedup!\n\nCommon code exists in this function and av1_uniform_txfm_yrd(). Maybe some refactoring can be done to reduce duplicate code.",
+      "range": {
+        "startLine": 3203,
+        "startChar": 8,
+        "endLine": 3203,
+        "endChar": 29
+      },
+      "revId": "52d9242b6572a5ecae705c4cdc552439fcb72e68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
