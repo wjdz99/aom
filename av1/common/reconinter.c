@@ -526,8 +526,7 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
 
 // Macros for optical flow experiment where offsets are added in nXn blocks
 // rather than adding a single offset to the entire prediction unit.
-// Off by default.
-#define USE_OF_NXN 0
+#define USE_OF_NXN 1
 #if USE_OF_NXN
 #define OF_BSIZE_LOG2 3
 // Block size to use to divide up the prediction unit
