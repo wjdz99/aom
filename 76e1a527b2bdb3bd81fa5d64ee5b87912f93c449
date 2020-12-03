@@ -16,6 +16,24 @@
       "message": "Hey Marco, I am trying to work on the reference frame syntax and I wanted to make a change that assumes a frame will only update 0 or 1 reference slot (unless it is a key frame.) This part of svc seems to violate that but I don\u0027t see any reason why you would want to refresh both last and golden. Let me know if this change is ok with you, and what configurations I would need to test to make sure it didn\u0027t break svc. ",
       "revId": "76e1a527b2bdb3bd81fa5d64ee5b87912f93c449",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff0ed5e8_242b49fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2020-12-03T04:56:59Z",
+      "side": 1,
+      "message": "Hi Sarah,\n\nThere are cases for RTC where one would want to update more than one reference on a given frame. For example, for sync frames on the base layer, which are used by application to indicate enhancement layers are safe to decode again (after packet loss). So i think its better to keep that option.\n\nFor testing: the unit tests for real-time mode should offer good coverage, if needed we can also run some additional manual tests with the aomenc \nand examples/svc_encoder_rtc command lines.",
+      "parentUuid": "49fa1776_b6d18cf2",
+      "revId": "76e1a527b2bdb3bd81fa5d64ee5b87912f93c449",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
