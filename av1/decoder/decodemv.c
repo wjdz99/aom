@@ -944,6 +944,15 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     return;
   }
 
+  int ref_frame_flags = cm->ref_frame_flags;
+  int last_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST_FRAME]) != 0;
+  int last2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST2_FRAME]) != 0;
+  int last3_allowed = (ref_frame_flags & av1_ref_frame_flag_list[LAST3_FRAME]) != 0;
+  int golden_allowed = (ref_frame_flags & av1_ref_frame_flag_list[GOLDEN_FRAME]) != 0;
+  int bwdref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[BWDREF_FRAME]) != 0;
+  int altref2_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF2_FRAME]) != 0;
+  int altref_allowed = (ref_frame_flags & av1_ref_frame_flag_list[ALTREF_FRAME]) != 0;
+
   if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME)) {
     ref_frame[0] = (MV_REFERENCE_FRAME)get_segdata(&cm->seg, segment_id,
                                                    SEG_LVL_REF_FRAME);
@@ -1005,23 +1014,66 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
         ref_frame[idx] = ALTREF_FRAME;
       }
     } else if (mode == SINGLE_REFERENCE) {
-      const int bit0 = READ_REF_BIT(single_ref_p1);
+      int bit0, bit1, bit2,  bit5;
+      // Read if this is a forward or backward reference
+      // Only future refs are allowed
+      if (!last_allowed && !last2_allowed && !last3_allowed && !golden_allowed) {
+        bit0 = 1;  
+      // Only past refs are allowed
+      } else if (!bwdref_allowed && !altref2_allowed && !altref_allowed) {
+        bit0 = 0;
+      } else {
+        bit0 = READ_REF_BIT(single_ref_p1);
+      }
+
       if (bit0) {
-        const int bit1 = READ_REF_BIT(single_ref_p2);
+        if (!altref2_allowed && !bwdref_allowed) {
+          bit1 = 1;
+        } else if (!altref_allowed) { 
+          bit1 = 0;
+        } else { 
+          bit1 = READ_REF_BIT(single_ref_p2);
+        }
+
         if (!bit1) {
-          const int bit5 = READ_REF_BIT(single_ref_p6);
-          ref_frame[0] = bit5 ? ALTREF2_FRAME : BWDREF_FRAME;
+          if (!altref2_allowed) { 
+            ref_frame[0] = BWDREF_FRAME;
+          } else if (!bwdref_allowed) {
+            ref_frame[0] = ALTREF2_FRAME;
+          } else {
+            bit5 = READ_REF_BIT(single_ref_p6);
+            ref_frame[0] = bit5 ? ALTREF2_FRAME : BWDREF_FRAME;
+          }
         } else {
           ref_frame[0] = ALTREF_FRAME;
         }
       } else {
-        const int bit2 = READ_REF_BIT(single_ref_p3);
-        if (bit2) {
-          const int bit4 = READ_REF_BIT(single_ref_p5);
-          ref_frame[0] = bit4 ? GOLDEN_FRAME : LAST3_FRAME;
+        if (!last_allowed && !last2_allowed) {
+          bit2 = 1; 
+        } else if (!golden_allowed && !last3_allowed) { 
+          bit2 = 0; 
+        } else { 
+          bit2 = READ_REF_BIT(single_ref_p3); 
+        }
+
+        if (bit2) { 
+          if (!golden_allowed) {
+            ref_frame[0] = LAST3_FRAME;
+          } else if (!last3_allowed) {
+            ref_frame[0] = GOLDEN_FRAME;
+          } else {
+            const int bit4 = READ_REF_BIT(single_ref_p5);
+            ref_frame[0] = bit4 ? GOLDEN_FRAME : LAST3_FRAME;
+          }
         } else {
-          const int bit3 = READ_REF_BIT(single_ref_p4);
-          ref_frame[0] = bit3 ? LAST2_FRAME : LAST_FRAME;
+          if (!last2_allowed) {
+            ref_frame[0] = LAST_FRAME; 
+          } else if (!last_allowed) {
+            ref_frame[0] = LAST2_FRAME; 
+          } else {
+            const int bit3 = READ_REF_BIT(single_ref_p4);
+            ref_frame[0] = bit3 ? LAST2_FRAME : LAST_FRAME;
+          }
         }
       }
 
