@@ -21,6 +21,16 @@
 extern "C" {
 #endif
 
+#define SHORT_REF_SIG_EXP 1
+static const uint8_t av1_ref_frame_flag_list[REF_FRAMES] = { 0,
+                                                             AOM_LAST_FLAG,
+                                                             AOM_LAST2_FLAG,
+                                                             AOM_LAST3_FLAG,
+                                                             AOM_GOLD_FLAG,
+                                                             AOM_BWD_FLAG,
+                                                             AOM_ALT2_FLAG,
+                                                             AOM_ALT_FLAG };
+
 typedef struct {
   int pyr_level;
   int disp_order;

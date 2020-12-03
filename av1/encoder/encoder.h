@@ -3059,15 +3059,6 @@ static INLINE BLOCK_SIZE find_partition_size(BLOCK_SIZE bsize, int rows_left,
   return (BLOCK_SIZE)int_size;
 }
 
-static const uint8_t av1_ref_frame_flag_list[REF_FRAMES] = { 0,
-                                                             AOM_LAST_FLAG,
-                                                             AOM_LAST2_FLAG,
-                                                             AOM_LAST3_FLAG,
-                                                             AOM_GOLD_FLAG,
-                                                             AOM_BWD_FLAG,
-                                                             AOM_ALT2_FLAG,
-                                                             AOM_ALT_FLAG };
-
 // When more than 'max_allowed_refs' are available, we reduce the number of
 // reference frames one at a time based on this order.
 static const MV_REFERENCE_FRAME disable_order[] = {
