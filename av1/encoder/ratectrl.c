@@ -2230,12 +2230,13 @@ static void set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   svc->ref_idx[1] = last_idx_refresh;  // LAST2 (for refresh of last).
   svc->ref_idx[3] = gld_idx;           // GOLDEN
   svc->ref_idx[6] = alt_ref_idx;       // ALT_REF
-  // Refresh this slot, which will become LAST on next frame.
-  svc->refresh[last_idx_refresh] = 1;
   // Update GOLDEN on period for fixed slot case.
   if (gld_fixed_slot && gf_update) {
     ext_refresh_frame_flags->golden_frame = 1;
     svc->refresh[gld_idx] = 1;
+  } else {
+    // Refresh this slot, which will become LAST on next frame.
+    svc->refresh[last_idx_refresh] = 1;
   }
 }
 
