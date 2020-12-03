@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6efbb82_4c1a96c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-12-03T03:14:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8db5d6de_0fecc91a",
+      "revId": "ddb030f60bf7ca3ee822cf2ab82c7ba7eb9c95d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "45d14d48_4da95515",
@@ -31,6 +49,24 @@
       "writtenOn": "2020-11-24T03:32:42Z",
       "side": 1,
       "message": "this might need some work with the formatting (try cmake -LH):\n// Build for RTC-only to reduce binary size.                   Features disabled for this config:                   Global motion                   Warped motion                   OBMC                   TPL model                   CNN                   Loop restoration                   4X rectangular blocks                   4X rectangular transform in intra prediction",
+      "revId": "ddb030f60bf7ca3ee822cf2ab82c7ba7eb9c95d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de0fe9bc_cc1a830a",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2020-12-03T03:14:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45d14d48_4da95515",
       "revId": "ddb030f60bf7ca3ee822cf2ab82c7ba7eb9c95d2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
