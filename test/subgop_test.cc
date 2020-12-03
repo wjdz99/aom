@@ -195,6 +195,7 @@ class SubGopTest
     frame_num_ = 0;
     // TODO(any): Extend this unit test for 'CONFIG_REALTIME_ONLY'
     enable_subgop_stats_ = 1;
+    memset(&subgop_last_step_, 0, sizeof(subgop_last_step_));
   }
 
   void ResetSubgop() {
@@ -210,7 +211,19 @@ class SubGopTest
       subgop_data_.step[idx].show_frame = -1;
       subgop_data_.step[idx].is_filtered = -1;
       subgop_data_.step[idx].pyramid_level = 0;
+      subgop_data_.step[idx].qindex = 0;
+      subgop_data_.step[idx].refresh_frame_flags = 0;
+      subgop_data_.step[idx].num_references = -1;
+      memset(subgop_data_.step[idx].ref_frame_pyr_level, 0,
+             sizeof(subgop_data_.step[idx].ref_frame_pyr_level));
+      memset(subgop_data_.step[idx].ref_frame_disp_order, -1,
+             sizeof(subgop_data_.step[idx].ref_frame_disp_order));
+      memset(subgop_data_.step[idx].is_valid_ref_frame, 0,
+             sizeof(subgop_data_.step[idx].is_valid_ref_frame));
+      memset(subgop_data_.step[idx].ref_frame_map, 0,
+             sizeof(subgop_data_.step[idx].ref_frame_map));
     }
+    memset(display_order_test_, -1, sizeof(display_order_test_));
     subgop_data_.num_steps = 0;
     subgop_data_.step_idx_enc = 0;
     subgop_data_.step_idx_dec = 0;
@@ -235,7 +248,6 @@ class SubGopTest
       subgop_code_test_ = SUBGOP_IN_GOP_FIRST;
     else
       subgop_code_test_ = SUBGOP_IN_GOP_GENERIC;
-    is_first_frame_in_subgop_key_ = 0;
     subgop_size_ = subgop_info_.gf_interval;
   }
 
@@ -267,6 +279,16 @@ class SubGopTest
     for (int idx = 0; idx < subgop_data_.num_steps; idx++) {
       subgop_cfg_test_.step[idx].disp_frame_idx =
           subgop_data_.step[idx].disp_frame_idx - frames_from_key_;
+      subgop_cfg_test_.step[idx].pyr_level =
+          subgop_data_.step[idx].pyramid_level;
+      subgop_cfg_test_.step[idx].num_references =
+          subgop_data_.step[idx].num_references;
+      for (int ref = 0; ref < INTER_REFS_PER_FRAME; ref++) {
+        subgop_cfg_test_.step[idx].references[ref] =
+            subgop_data_.step[idx].ref_frame_pyr_level[ref];
+        display_order_test_[idx][ref] =
+            subgop_data_.step[idx].ref_frame_disp_order[ref];
+      }
       if (subgop_data_.step[idx].is_filtered) {
         filtered_frames[buf_idx++] =
             subgop_data_.step[idx].disp_frame_idx - frames_from_key_;
@@ -338,6 +360,117 @@ class SubGopTest
     return 1;
   }
 
+  // Validates Pyramid level with user config
+  void ValidatePyramidLevel() {
+    int max_pyramid_level = 0;
+    for (int idx = 0; idx < subgop_cfg_ref_->num_steps; idx++) {
+      if (max_pyramid_level < subgop_cfg_ref_->step[idx].pyr_level)
+        max_pyramid_level = subgop_cfg_ref_->step[idx].pyr_level;
+    }
+    for (int idx = 0; idx < subgop_cfg_ref_->num_steps; idx++) {
+      int ref_pyramid_level =
+          (subgop_cfg_ref_->step[idx].pyr_level == max_pyramid_level)
+              ? 6
+              : subgop_cfg_ref_->step[idx].pyr_level;
+      EXPECT_EQ(subgop_cfg_test_.step[idx].pyr_level, ref_pyramid_level)
+          << "Error:pyramid level doesn't match";
+    }
+  }
+
+  // Validates Pyramid level along with qindex assignment
+  void ValidatePyramidLevelQIndex() {
+    int level_qindex[REF_FRAMES] = { 0 };
+    int pyramid_level;
+    for (int idx = 0; idx < subgop_cfg_ref_->num_steps; idx++) {
+      pyramid_level = subgop_cfg_test_.step[idx].pyr_level;
+      if (!level_qindex[pyramid_level])
+        level_qindex[pyramid_level] = subgop_data_.step[idx].qindex;
+      else if (!subgop_data_.step[idx].show_existing_frame &&
+               !subgop_data_.step[idx].is_filtered)
+        EXPECT_EQ(level_qindex[pyramid_level], subgop_data_.step[idx].qindex)
+            << "Error:qindex in a pyramid level doesn't match";
+    }
+    pyramid_level = 1;
+    for (int idx = 1; idx < REF_FRAMES; idx++) {
+      if (level_qindex[pyramid_level]) {
+        EXPECT_LT(level_qindex[pyramid_level - 1], level_qindex[pyramid_level])
+            << "Error:qindex should be higher in hierarchical pyramid level";
+        pyramid_level++;
+      }
+    }
+  }
+
+  // Validates reference buffer refresh
+  void ValidateRefBufRefresh() {
+    int start_idx = 0;
+    SubGOPStepData *prev_step_data = &subgop_last_step_;
+    if (is_first_frame_in_subgop_key_) {
+      start_idx = 1;
+      prev_step_data = &subgop_data_.step[0];
+    }
+
+    for (int idx = start_idx; idx < subgop_cfg_ref_->num_steps; idx++) {
+      SubGOPStepData *curr_step_data = &subgop_data_.step[idx];
+      int ref_count = 0;
+      int refresh_frame_flags = curr_step_data->refresh_frame_flags;
+      // Validates user-defined refresh_flag with decoder
+      if (subgop_cfg_ref_->step[idx].refresh != -1 &&
+          !curr_step_data->show_existing_frame)
+        EXPECT_EQ(subgop_cfg_ref_->step[idx].refresh, refresh_frame_flags)
+            << "Error: refresh flag mismatch";
+      // Validates reference picture management w.r.t refresh_flags
+      if (refresh_frame_flags && !curr_step_data->show_existing_frame) {
+        for (int mask = refresh_frame_flags; mask; mask >>= 1) {
+          if (mask & 1)
+            EXPECT_EQ(curr_step_data->disp_frame_idx,
+                      (int)curr_step_data->ref_frame_map[ref_count])
+                << "Error: reference buffer refresh failed";
+          else
+            EXPECT_EQ(prev_step_data->ref_frame_map[ref_count],
+                      curr_step_data->ref_frame_map[ref_count])
+                << "Error: reference buffer refresh failed";
+          assert(ref_count < REF_FRAMES);
+          ref_count++;
+        }
+      }
+
+      for (int ref_idx = ref_count; ref_idx < REF_FRAMES; ref_idx++)
+        EXPECT_EQ(prev_step_data->ref_frame_map[ref_idx],
+                  curr_step_data->ref_frame_map[ref_idx])
+            << "Error: reference buffer refresh failed";
+      prev_step_data = curr_step_data;
+    }
+  }
+
+  void ValidateRefFrames() {
+    int start_idx = is_first_frame_in_subgop_key_;
+    for (int idx = start_idx; idx < subgop_cfg_ref_->num_steps; idx++) {
+      unsigned int *ref_frame_map =
+          (idx > 0) ? subgop_data_.step[idx - 1].ref_frame_map
+                    : subgop_last_step_.ref_frame_map;
+      if (!subgop_data_.step[idx].show_existing_frame)
+        EXPECT_EQ(subgop_cfg_ref_->step[idx].num_references,
+                  subgop_cfg_test_.step[idx].num_references)
+            << "Error:Reference frames count doesn't match";
+      // To validate the count of ref_frames and their management with user
+      // config.
+      for (int ref = 0; ref < subgop_cfg_test_.step[idx].num_references;
+           ref++) {
+        if (subgop_data_.step[idx].is_valid_ref_frame[ref]) {
+          EXPECT_EQ(subgop_cfg_ref_->step[idx].references[ref],
+                    subgop_cfg_test_.step[idx].references[ref])
+              << "Error:Reference frame level doesn't match";
+          for (int buf = 0; buf < REF_FRAMES; buf++) {
+            if (display_order_test_[idx][ref] == (int8_t)ref_frame_map[buf])
+              break;
+            EXPECT_NE(buf, REF_FRAMES - 1)
+                << "Error:Ref frame isn't part of ref_picture_buf";
+          }
+        }
+      }
+    }
+  }
+
   bool IsInputSubgopCfgUsed() {
     int num_ooo_frames_ref = 0;
     int num_ooo_frames_test = 0;
@@ -374,11 +507,14 @@ class SubGopTest
     if (AOM_CODEC_OK != res_dec) return 0;
     aom_codec_ctx_t *ctx_dec = decoder->GetDecoder();
     frame_num_in_subgop_++;
+    int is_last_frame_in_subgop = (frame_num_in_subgop_ == subgop_info_.size);
 
-    if (subgop_info_.is_user_specified)
+    if (subgop_info_.is_user_specified ||
+        is_last_frame_in_subgop)  // To collect last step info of subgop in
+                                  // encoder defined config
       AOM_CODEC_CONTROL_TYPECHECKED(ctx_dec, AOMD_GET_FRAME_INFO,
                                     &subgop_data_);
-    if (frame_num_in_subgop_ == subgop_info_.size) {
+    if (is_last_frame_in_subgop) {
       // Validation of sub-gop structure propagation to decoder.
       if (subgop_info_.is_user_specified) {
         FillTestSubgopConfig();
@@ -386,10 +522,23 @@ class SubGopTest
           EXPECT_EQ(subgop_code_test_, subgop_info_.pos_code)
               << "Error:subgop code doesn't match";
           ValidateSubgopFrametype();
+          ValidatePyramidLevel();
+          if (rc_end_usage_ == AOM_Q) ValidatePyramidLevelQIndex();
+          ValidateRefBufRefresh();
+          ValidateRefFrames();
         }
       }
       frames_from_key_ += subgop_info_.size;
-      if (frame_type_test_ == KEY_FRAME) frames_from_key_ = 0;
+      if (frame_type_test_ == KEY_FRAME) {
+        frames_from_key_ = 0;
+      } else {
+        is_first_frame_in_subgop_key_ = 0;
+        // To collect last step info of subgop.
+        assert(subgop_data_.step_idx_dec >= 0);
+        memcpy(&subgop_last_step_,
+               &subgop_data_.step[subgop_data_.step_idx_dec - 1],
+               sizeof(subgop_last_step_));
+      }
       ResetSubgop();
     }
     frame_num_++;
@@ -402,9 +551,11 @@ class SubGopTest
   SubGOPCfg *subgop_cfg_ref_;
   SubGOPInfo subgop_info_;
   SubGOPData subgop_data_;
+  SubGOPStepData subgop_last_step_;
   SUBGOP_IN_GOP_CODE subgop_code_test_;
   FRAME_TYPE frame_type_test_;
   aom_rc_mode rc_end_usage_;
+  int8_t display_order_test_[MAX_SUBGOP_SIZE][REF_FRAMES];
   int subgop_size_;
   bool is_first_frame_in_subgop_key_;
   int frames_from_key_;
