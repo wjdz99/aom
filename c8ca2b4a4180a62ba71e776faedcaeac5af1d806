@@ -16,6 +16,69 @@
       "message": "Please review.",
       "revId": "c8ca2b4a4180a62ba71e776faedcaeac5af1d806",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08d40077_df22123c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-03T21:48:01Z",
+      "side": 1,
+      "message": "\"PERF performance: 2.68% for c-code 0.59% for AVX2\"\nWhat clip and speed was used in the test?",
+      "revId": "c8ca2b4a4180a62ba71e776faedcaeac5af1d806",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5a1e7db_27e7eedc",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 2
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-03T21:48:01Z",
+      "side": 1,
+      "message": "Please add SSE2 optimizations for these functions to your TODO list.",
+      "range": {
+        "startLine": 365,
+        "startChar": 2,
+        "endLine": 368,
+        "endChar": 44
+      },
+      "revId": "c8ca2b4a4180a62ba71e776faedcaeac5af1d806",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74f65f63_6ffb2318",
+        "filename": "av1/encoder/x86/av1_k_means_avx2.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-03T21:48:01Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 55,
+        "startChar": 2,
+        "endLine": 56,
+        "endChar": 16
+      },
+      "revId": "c8ca2b4a4180a62ba71e776faedcaeac5af1d806",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
