@@ -51,6 +51,42 @@
       "message": "Overall looks good. The current encoder unit test should cover this, right?",
       "revId": "501821e1b40ed0bd57d767e70df1f31dcc2d8877",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c94d5fb_74c8cf91",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-12-03T14:25:46Z",
+      "side": 1,
+      "message": "Yunqing,\n\nWe did not observe any significant increase in memory with CDEF multi-threading when measured using \"command time\". However, CDEF multi-threading increases the per thread memory requirement by ~80 kB which is negligible when compared to the total memory taken by the encoder.",
+      "parentUuid": "9e36a4fe_1235071b",
+      "revId": "501821e1b40ed0bd57d767e70df1f31dcc2d8877",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ef604bb_5bedf2d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2020-12-03T14:25:46Z",
+      "side": 1,
+      "message": "Yes. As mentioned in the review message, the current encoder unit tests (AVxEncoderThreadTest, AVxEncoderThreadTestLarge) already cover validation of CDEF search MT.",
+      "parentUuid": "99219e82_f8c73db2",
+      "revId": "501821e1b40ed0bd57d767e70df1f31dcc2d8877",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
