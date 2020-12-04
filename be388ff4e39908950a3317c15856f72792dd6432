@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47f1be60_69446702",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2020-12-04T17:36:55Z",
+      "side": 1,
+      "message": "Hi Sarah, Debargha\nIn this patch we have updated the subgop stats collection logic with respect to overlay frame movement and enables the subgop unit test.\nAs overlay frame has been moved to tail of subgop, the modification in subgop stats is required to be in line with gf_group structure update.\n\nWe have tested the patch locally. Kindly review the same and let us know your thoughts. Thank you.",
+      "revId": "be388ff4e39908950a3317c15856f72792dd6432",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
