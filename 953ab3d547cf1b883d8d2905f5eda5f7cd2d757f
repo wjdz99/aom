@@ -16,6 +16,160 @@
       "message": "Hi Wan-Teh,\n\nIn this patch, we have added AVX2 variant for 5x5 convolve (for layer 0) in av1_cnn_convolve() function for the case of valid padding with no maxpool.\n\nWe have abstracted the code (related to each switch case in av1_cnn_convolve()) which is common to both C and intrinsic into separate functions.\n\nIntroduced unit test for av1_cnn_convolve() and at present it takes layer related parameters from \"av1_intra_mode_cnn_partition_cnn_config\" ( which is used in the encoder) for bit-match / speed tests. The output of C and intrinsic is matched using relative error percentage (0.1% just like av1_nn_predict() module). \n\nFor libaom AV1 encode, bit match is verified (w.r.t parent commit) for few videos for speed presets 0 to 6. Even though STATS_CHANGED at minimal is expected, we found that streams are bit-matching during our tests.\n\nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset. For speed 3 very minimal gains were seen and for speed 6 following are the gains observed.\n\n              Encode time reduction (%)      BD-Rate Loss (%)\nCpu-used     QP\u003d{18,33,48,63}     QP\u003d18      avg.psnr\tssim \n   6              1.73            0.65       0.00       0.00\n\nThe Encode time reduction specified has been measured using command:\n$ /usr/bin/time -v ./avifenc …\n\nPlease review.\n\nThanks \u0026 Regards,\nAniket.\n \n",
       "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da5a95d1_f2abedea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Aniket: Thank you for the CL and the refactoring. I am still reviewing the CL.\nHere are some preliminary comments.",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51957e93_36a24248",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Is this file not used by CONFIG_REALTIME_ONLY?",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "424d367f_7855bcd1",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 8
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Why did you move the CNN functions into the encoder functions block? Is it because\nthe CNN functions are only used by the encoder?\n\nUPDATE: I think I know why. You wanted to list the CNN functions right after av1_nn_predict,\nright?",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ff7a875_18e538c0",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Nit: No need to quote PADDING_SAME_ZERO. Please search for\n    \"PADDING\nin this file and remove the quotation marks.",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac5ddf05_b4892eb3",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Nit: It would be good to reverse the filter_height_half and filter_width_half because width, height is the commonly used order.",
+      "range": {
+        "startLine": 249,
+        "startChar": 21,
+        "endLine": 250,
+        "endChar": 31
+      },
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b82a9ea2_a82d3a0e",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Nit: It would be good to reverse the filter_height_half and filter_width_half because width, height is the commonly used order.",
+      "range": {
+        "startLine": 291,
+        "startChar": 21,
+        "endLine": 292,
+        "endChar": 31
+      },
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a84c9432_7fb677f1",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Nit: It would be good to reverse the filter_height_half and filter_width_half because width, height is the commonly used order.",
+      "range": {
+        "startLine": 408,
+        "startChar": 36,
+        "endLine": 409,
+        "endChar": 31
+      },
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "778f4eb1_97712820",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-04T02:51:12Z",
+      "side": 1,
+      "message": "Can these three macros be defined as inline functions? I guess macros are more convenient\nbecause you want these macros to use and update \u0027off\u0027 and \u0027input_ptr\u0027?",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
