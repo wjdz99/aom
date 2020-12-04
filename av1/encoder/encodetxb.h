@@ -71,6 +71,11 @@ void av1_alloc_txb_buf(AV1_COMP *cpi);
  * \param[in]    cpi            Top-level encoder structure
  */
 void av1_free_txb_buf(AV1_COMP *cpi);
+
+int av1_static_cost_coeffs_txb(const MACROBLOCK *x, const int plane, const int block,
+                               const TX_SIZE tx_size, const TX_TYPE tx_type,
+                               const TXB_CTX *const txb_ctx, int reduced_tx_set_used);
+
 /*!\brief Compute the entropy cost of coding coefficients in a transform block.
  *
  * \ingroup coefficient_coding
