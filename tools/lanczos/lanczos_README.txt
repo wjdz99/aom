@@ -53,7 +53,10 @@ The usage of lanczos_resample_y4m is:
                        using the inverse of the number provided,
                    or 'c' meaning centered
       <horz_ext>, <vert_ext> are optional extension types:
-                   'r' (Repeat) or 's' (Symmetric) [default: 'r']
+                   'r' or 'rep' (Repeat)
+                   's' or 'sym' (Symmetric)
+                   'f' or 'ref' (Reflect/Mirror-whole)
+                                [default: 'r']
       <outwidth>x<outheight> is output video dimensions
                              only needed in case of upsampling
       Resampling config string of 1:1:1:0 horizontally or vertically
@@ -136,7 +139,10 @@ arguments to specify the input format:
                        using the inverse of the number provided,
                    or 'c' meaning centered
       <horz_ext>, <vert_ext> are optional extension types:
-                   'r' (Repeat) or 's' (Symmetric) [default: 'r']
+                   'r' or 'rep' (Repeat)
+                   's' or 'sym' (Symmetric)
+                   'f' or 'ref' (Reflect/Mirror-whole)
+                                [default: 'r']
       <outwidth>x<outheight> is output video dimensions
                              only needed in case of upsampling
       Resampling config string of 1:1:1:0 horizontally or vertically
