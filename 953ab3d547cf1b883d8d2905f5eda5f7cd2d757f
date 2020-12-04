@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "df90b89f_31deb736",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 8
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-04T13:39:28Z",
+      "side": 1,
+      "message": "Yes. av1_intra_mode_cnn_partition() function is not being called for rt(realtime)  path, as the speed feature intra_cnn_split is set to zero.\nWhich is why CNN related function are removed for CONFIG_REALTIME_ONLY.",
+      "parentUuid": "51957e93_36a24248",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "424d367f_7855bcd1",
@@ -65,6 +83,24 @@
       "writtenOn": "2020-12-04T02:51:12Z",
       "side": 1,
       "message": "Why did you move the CNN functions into the encoder functions block? Is it because\nthe CNN functions are only used by the encoder?\n\nUPDATE: I think I know why. You wanted to list the CNN functions right after av1_nn_predict,\nright?",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e467b507_461481e3",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 8
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-04T13:39:28Z",
+      "side": 1,
+      "message": "The CNN related functions are used only in encoder path, which is why we have moved CNN functions under CONFIG_AV1_ENCODER.",
+      "parentUuid": "424d367f_7855bcd1",
       "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "de899f68_0fc40f79",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-04T13:39:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9ff7a875_18e538c0",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ac5ddf05_b4892eb3",
@@ -99,6 +153,30 @@
       "writtenOn": "2020-12-04T02:51:12Z",
       "side": 1,
       "message": "Nit: It would be good to reverse the filter_height_half and filter_width_half because width, height is the commonly used order.",
+      "range": {
+        "startLine": 249,
+        "startChar": 21,
+        "endLine": 250,
+        "endChar": 31
+      },
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ebe3572_80dd040f",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-04T13:39:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ac5ddf05_b4892eb3",
       "range": {
         "startLine": 249,
         "startChar": 21,
@@ -132,6 +210,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c794f25_5f61e8cb",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-04T13:39:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b82a9ea2_a82d3a0e",
+      "range": {
+        "startLine": 291,
+        "startChar": 21,
+        "endLine": 292,
+        "endChar": 31
+      },
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a84c9432_7fb677f1",
@@ -155,6 +257,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94838104_5c2ec73c",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-04T13:39:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a84c9432_7fb677f1",
+      "range": {
+        "startLine": 408,
+        "startChar": 36,
+        "endLine": 409,
+        "endChar": 31
+      },
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "778f4eb1_97712820",
@@ -168,6 +294,24 @@
       "writtenOn": "2020-12-04T02:51:12Z",
       "side": 1,
       "message": "Can these three macros be defined as inline functions? I guess macros are more convenient\nbecause you want these macros to use and update \u0027off\u0027 and \u0027input_ptr\u0027?",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f957e74b_89e23885",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-04T13:39:28Z",
+      "side": 1,
+      "message": "These can be written as either inline functions or macros with arguments, but with these approaches the explicit update of those variable needs to happen outside. Which is why we defined some macros without arguments as it is more convenient.\n\nPlease let us know your opinion on the same.",
+      "parentUuid": "778f4eb1_97712820",
       "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
