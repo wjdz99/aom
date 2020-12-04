@@ -37,8 +37,8 @@ The usage of lanczos_resample_y4m is:
   lanczos_resample_y4m
       <y4m_input>
       <num_frames>
-      <horz_p>:<horz_q>:<Lanczos_horz_a>[:<horz_x0>]
-      <vert_p>:<vert_q>:<Lanczos_vert_a>[:<vert_x0>]
+      <horz_p>:<horz_q>:<Lanczos_horz_a>[:<horz_x0>:<horz_ext>]
+      <vert_p>:<vert_q>:<Lanczos_vert_a>[:<vert_x0>:<vert_ext>]
       <y4m_output>
       [<outwidth>x<outheight>]
   Notes:
@@ -52,6 +52,8 @@ The usage of lanczos_resample_y4m is:
                    or a number in (-1, 1) prefixed by 'i' meaning
                        using the inverse of the number provided,
                    or 'c' meaning centered
+      <horz_ext>, <vert_ext> are optional extension types:
+                   'r' (Repeat) or 's' (Symmetric) [default: 'r']
       <outwidth>x<outheight> is output video dimensions
                              only needed in case of upsampling
       Resampling config string of 1:1:1:0 horizontally or vertically
@@ -94,6 +96,17 @@ Example usages:
     lanczos_resample_y4m /tmp/down.y4m 10 3:2:6:i0.125 4:3:6 /tmp/downup.y4m \
                          1920x1080
 
+4a. Similar to 3a, except using symmetric border extension for vertical
+    resampling instead of default repeat.
+
+    lanczos_resample_y4m Boat_1920x1080_60fps_10bit_420.y4m 20 \
+                         2:3:6:0.125 3:4:6:c:s /tmp/down.y4m
+
+4b. Reversing the process in 4a.
+
+    lanczos_resample_y4m /tmp/down.y4m 10 3:2:6:i0.125 4:3:6:c:s \
+                         /tmp/downup.y4m 1920x1080
+
 lanczos_resample_yuv
 --------------------
 The usage of lanczos_resample_yuv is similar but with two extra
@@ -103,8 +116,8 @@ arguments to specify the input format:
       <width>x<height>
       <pix_format>
       <num_frames>
-      <horz_p>:<horz_q>:<Lanczos_horz_a>[:horz_x0]
-      <vert_p>:<vert_q>:<Lanczos_vert_a>[:vert_x0]
+      <horz_p>:<horz_q>:<Lanczos_horz_a>[:<horz_x0>:<horz_ext>]
+      <vert_p>:<vert_q>:<Lanczos_vert_a>[:<vert_x0>:<vert_ext>]
       <yuv_output>
       [<outwidth>x<outheight>]
   Notes:
@@ -122,6 +135,8 @@ arguments to specify the input format:
                    or a number in (-1, 1) prefixed by 'i' meaning
                        using the inverse of the number provided,
                    or 'c' meaning centered
+      <horz_ext>, <vert_ext> are optional extension types:
+                   'r' (Repeat) or 's' (Symmetric) [default: 'r']
       <outwidth>x<outheight> is output video dimensions
                              only needed in case of upsampling
       Resampling config string of 1:1:1:0 horizontally or vertically
@@ -166,7 +181,7 @@ The usage for the script is:
           file is deleted.
 
 Example usages:
-4. Similar to use case 1a and 1b above.
+5. Similar to use case 1a and 1b above.
 
   From build directory run:
   /path/to/script/lanczos_downup.sh Boat_1920x1080_60fps_10bit_420.y4m \
@@ -218,7 +233,7 @@ The usage for the script is:
 	  intermediate file is deleted.
 
 Example usages:
-5. Similar to use case 1a and 1b above with a compression step in between.
+6. Similar to use case 1a and 1b above with a compression step in between.
 
   From build directory run:
   /path/to/script/lanczos_downcompup.sh Boat_1920x1080_60fps_10bit_420.y4m \
