@@ -12,10 +12,10 @@
 #       <y4m_input> is input y4m video
 #       <num_frames> is number of frames to process
 #       <horz_resampling_config> is in the format:
-#               <horz_p>:<horz_q>:<Lanczos_horz_a>[:horz_x0]
+#               <horz_p>:<horz_q>:<Lanczos_horz_a>[:<horz_x0>:<horz_ext>]
 #           similar to what is used by lanczos_resample_y4m utility.
 #       <vert_resampling_config> is in the format:
-#               <vert_p>:<vert_q>:<Lanczos_vert_a>[:vert_x0]
+#               <vert_p>:<vert_q>:<Lanczos_vert_a>[:<vert_x0>:<vert_ext>]
 #           similar to what is used by lanczos_resample_y4m utility.
 #       <cq_level>[:<cpu_used>] provides the cq_level parameter of
 #           compression along with an optional cpu_used parameter.
