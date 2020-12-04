@@ -99,22 +99,33 @@ static AOM_INLINE void realloc_segmentation_maps(AV1_COMP *cpi) {
                   aom_calloc(mi_params->mi_rows * mi_params->mi_cols, 1));
 }
 
-static AOM_INLINE void set_tpl_stats_block_size(uint8_t *block_mis_log2,
-                                                uint8_t *tpl_bsize_1d) {
+static AOM_INLINE void set_tpl_stats_block_size(
+    uint8_t *block_mis_log2, uint8_t *tpl_bsize_1d,
+    const int is_screen_content_type) {
   // tpl stats bsize: 2 means 16x16
   *block_mis_log2 = 2;
   // Block size used in tpl motion estimation
   *tpl_bsize_1d = 16;
-  // MIN_TPL_BSIZE_1D = 16;
-  assert(*tpl_bsize_1d >= 16);
+
+  // Use 8x8 block size in tpl model for screen content.
+  // Since screen content videos often contain details, for example characters,
+  // and sharp changes in a small neighborhood. A smaller block size could
+  // provide a better estimation of motion compensated error.
+  if (is_screen_content_type) {
+    *block_mis_log2 = 1;
+    *tpl_bsize_1d = 8;
+  }
+
+  assert(*tpl_bsize_1d >= MIN_TPL_BSIZE_1D);
 }
 
 static AOM_INLINE void setup_tpl_buffers(AV1_COMMON *const cm,
                                          TplParams *const tpl_data,
-                                         int lag_in_frames) {
+                                         int lag_in_frames,
+                                         const int is_screen_content_type) {
   CommonModeInfoParams *const mi_params = &cm->mi_params;
   set_tpl_stats_block_size(&tpl_data->tpl_stats_block_mis_log2,
-                           &tpl_data->tpl_bsize_1d);
+                           &tpl_data->tpl_bsize_1d, is_screen_content_type);
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
   tpl_data->border_in_pixels =
       ALIGN_POWER_OF_TWO(tpl_data->tpl_bsize_1d + 2 * AOM_INTERP_EXTEND, 5);

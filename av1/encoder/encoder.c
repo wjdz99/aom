@@ -1051,7 +1051,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 #endif
 
   if (!is_stat_generation_stage(cpi)) {
-    setup_tpl_buffers(cm, &cpi->tpl_data, cpi->oxcf.gf_cfg.lag_in_frames);
+    setup_tpl_buffers(cm, &cpi->tpl_data, cpi->oxcf.gf_cfg.lag_in_frames,
+                      /*is_screen_content_type=*/0);
   }
 
 #if CONFIG_COLLECT_PARTITION_STATS == 2
@@ -2894,6 +2895,13 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   if (frame_is_intra_only(cm)) {
     av1_set_screen_content_options(cpi, features);
+
+    // Adjust tpl block sizes and re-allocate tpl buffers once
+    // screen content type is detected.
+    if (!is_stat_generation_stage(cpi) && cpi->is_screen_content_type) {
+      setup_tpl_buffers(cm, &cpi->tpl_data, cpi->oxcf.gf_cfg.lag_in_frames,
+                        cpi->is_screen_content_type);
+    }
   }
 
   // frame type has been decided outside of this function call
