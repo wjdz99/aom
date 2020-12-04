@@ -178,6 +178,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "01f9b9f4_d2bd7efb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-12-04T05:44:40Z",
+      "side": 1,
+      "message": "We have updated the commit message.\nPlease review.\n\nThank you.",
+      "parentUuid": "8b8344d7_697f4d35",
+      "revId": "6ec72a07ab1fbb7f65f9506ce75ae50d1bbb19b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "143913a0_d2303cd3",
