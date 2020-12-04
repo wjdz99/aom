@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b2283b5_d8620067",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-12-04T14:31:00Z",
+      "side": 1,
+      "message": "Debargha, Urvang and Sarah,\n\nWe have rebased this patch on its parent\u0027s latest patchset.\nSince this patch was given +2 already, we are submitting this\npatch.\n\nThank you",
+      "revId": "9c2d433b5f910dfedb17eaa24135cd8e9a72a531",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
