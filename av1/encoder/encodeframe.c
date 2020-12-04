@@ -1583,6 +1583,12 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     memset(segment_map, 0,
            sizeof(*segment_map) * segment_map_w * segment_map_h);
 
+    //stats order: total, last, last2, last3, golden, bwdref, altref2, altref
+    int stats[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    //wmtypes order: identity, translation, rotzoom, affine
+    int wmtypes[4] = {0, 0, 0, 0};
+
+
     for (frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
       const MV_REFERENCE_FRAME ref_frame[2] = { frame, NONE_FRAME };
       ref_buf[frame] = NULL;
@@ -1706,8 +1712,20 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   cpi->sf.gm_erroradv_type)) {
             cm->global_motion[frame] = default_warp_params;
           }
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            stats[0] ++;
+            if(frame == LAST_FRAME) stats[1] ++;
+            if(frame == LAST2_FRAME) stats[2] ++;
+            if(frame == LAST3_FRAME) stats[3] ++;
+            if(frame == GOLDEN_FRAME) stats[4] ++;
+            if(frame == BWDREF_FRAME) stats[5] ++;
+            if(frame == ALTREF2_FRAME) stats[6] ++;
+            if(frame == ALTREF_FRAME) stats[7] ++;
+            wmtypes[cm->global_motion[frame].wmtype] ++;
+            break;
+          }
         }
+
         aom_clear_system_state();
       }
       if (cm->global_motion[frame].wmtype != IDENTITY) num_refs_using_gm++;
@@ -1717,6 +1735,21 @@ static void encode_frame_internal(AV1_COMP *cpi) {
           cpi->gmtype_cost[cm->global_motion[frame].wmtype] -
           cpi->gmtype_cost[IDENTITY];
     }
+    FILE *fp;
+    int i;
+    fp = fopen("stats.txt", "a");
+    // fprintf(fp, "total, last, last2, last3, golden, bwdref, altref2, altref, wmtypes \n");
+    for( i=0; i<8; i++){
+      fprintf(fp, "%d,", stats[i]);
+    }
+    for( i=0; i<4; i++){
+      fprintf(fp, "%d,", wmtypes[i]);
+    }
+    fprintf(fp, "\n");
+
+    fclose(fp);
+
+
     aom_free(segment_map);
     // clear disabled ref_frames
     for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {

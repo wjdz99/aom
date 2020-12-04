@@ -3524,7 +3524,10 @@ static void write_global_motion_params(const WarpedMotionParams *params,
   aom_wb_write_bit(wb, type != IDENTITY);
   if (type != IDENTITY) {
     aom_wb_write_bit(wb, type == ROTZOOM);
-    if (type != ROTZOOM) aom_wb_write_bit(wb, type == TRANSLATION);
+    if (type != ROTZOOM){
+      //add assertion to make sure it's translation (not affine)
+      aom_wb_write_bit(wb, type == TRANSLATION); //remove this
+    } 
   }
 
   if (type >= ROTZOOM) {
