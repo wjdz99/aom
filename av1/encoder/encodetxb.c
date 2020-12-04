@@ -791,6 +791,63 @@ int av1_cost_coeffs_txb(const MACROBLOCK *x, const int plane, const int block,
                                   tx_class, reduced_tx_set_used);
 }
 
+static int get_bit_length(int qcoeff) {
+  int bit_len = 1;
+  qcoeff = abs(qcoeff);
+  while (qcoeff) {
+    qcoeff >>= 1;
+    ++bit_len;
+  }
+  return bit_len;
+}
+
+int av1_static_cost_coeffs_txb(const MACROBLOCK *x, const int plane, const int block,
+                               const TX_SIZE tx_size, const TX_TYPE tx_type,
+                               const TXB_CTX *const txb_ctx, int reduced_tx_set_used) {
+  const struct macroblock_plane *p = &x->plane[plane];
+  const int eob = p->eobs[block];
+  const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
+  const PLANE_TYPE plane_type = get_plane_type(plane);
+  const tran_low_t *const qcoeff = p->qcoeff + BLOCK_OFFSET(block);
+
+  const int bwl = get_txb_bwl(tx_size);
+  const int width = get_txb_wide(tx_size);
+  const int height = get_txb_high(tx_size);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
+
+  int rate_cost = 1;
+  
+  for (int idx = 0; idx < eob; ++idx) {
+    int pos = scan_order->scan[idx];
+    int row = pos >> bwl;
+    int col = pos - (row << bwl);
+    int coeff_r = (col < width - 1) ? qcoeff[pos + 1] : 0;
+    int coeff_b = (row < height - 1) ? qcoeff[pos + width] : 0;
+    int coeff_br = (col < width - 1) && (row < height - 1) ?
+        qcoeff[pos + width + 1] : 0;
+    // int ctx = AOMMAX(abs(coeff_r), abs(coeff_b));
+    // ctx = AOMMAX(abs(coeff_br), ctx);
+    int ctx = (abs(coeff_b) + abs(coeff_r) + abs(coeff_br)) / 3;
+    rate_cost += get_bit_length(abs(qcoeff[pos]) - ctx);
+    if (qcoeff[pos]) ++rate_cost;
+  }
+
+  return rate_cost << AV1_PROB_COST_SHIFT;
+
+  const LV_MAP_COEFF_COST *const coeff_costs =
+      &x->coeff_costs.coeff_costs[txs_ctx][plane_type];
+  if (eob == 0) {
+    return coeff_costs->txb_skip_cost[txb_ctx->txb_skip_ctx][1];
+  }
+
+  const MACROBLOCKD *const xd = &x->e_mbd;
+  const TX_CLASS tx_class = tx_type_to_class[tx_type];
+
+  return warehouse_efficients_txb(x, plane, block, tx_size, txb_ctx, p, eob,
+                                  plane_type, coeff_costs, xd, tx_type,
+                                  tx_class, reduced_tx_set_used);
+}
+
 int av1_cost_coeffs_txb_laplacian(const MACROBLOCK *x, const int plane,
                                   const int block, const TX_SIZE tx_size,
                                   const TX_TYPE tx_type,

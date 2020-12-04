@@ -102,12 +102,44 @@ static AOM_INLINE int64_t tpl_get_satd_cost(const MACROBLOCK *x,
   return aom_satd(coeff, pix_num);
 }
 
+static int get_bit_length(int qcoeff) {
+  int bit_len = 1;
+  qcoeff = abs(qcoeff);
+  while (qcoeff) {
+    qcoeff >>= 1;
+    ++bit_len;
+  }
+  return bit_len;
+}
+
 static int rate_estimator(const tran_low_t *qcoeff, int eob, TX_SIZE tx_size) {
-  const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
+  // const SCAN_ORDER *const scan_order = &av1_default_scan_orders[tx_size];
 
   assert((1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]]) >= eob);
   aom_clear_system_state();
   int rate_cost = 1;
+
+  const int bwl = get_txb_bwl(tx_size);
+  const int width = get_txb_wide(tx_size);
+  const int height = get_txb_high(tx_size);
+  const SCAN_ORDER *const scan_order = get_scan(tx_size, DCT_DCT);
+  
+  for (int idx = 0; idx < eob; ++idx) {
+    int pos = scan_order->scan[idx];
+    int row = pos >> bwl;
+    int col = pos - (row << bwl);
+    int coeff_r = (col < width - 1) ? qcoeff[pos + 1] : 0;
+    int coeff_b = (row < height - 1) ? qcoeff[pos + width] : 0;
+    int coeff_br = (col < width - 1) && (row < height - 1) ?
+        qcoeff[pos + width + 1] : 0;
+    // int ctx = AOMMAX(abs(coeff_r), abs(coeff_b));
+    // ctx = AOMMAX(abs(coeff_br), ctx);
+    int ctx = (abs(coeff_b) + abs(coeff_r) + abs(coeff_br)) / 3;
+    rate_cost += get_bit_length(abs(qcoeff[pos]) - ctx);
+    if (qcoeff[pos]) ++rate_cost;
+  }
+
+  return (rate_cost << AV1_PROB_COST_SHIFT);
 
   for (int idx = 0; idx < eob; ++idx) {
     int abs_level = abs(qcoeff[scan_order->scan[idx]]);

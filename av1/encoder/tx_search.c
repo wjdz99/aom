@@ -3266,6 +3266,14 @@ int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
       this_rd_stats.rate =
           cost_coeffs(x, 0, i, tx_size, txfm_param.tx_type, &txb_ctx, 0);
 
+      // this_rd_stats.rate =
+      //     av1_static_cost_coeffs_txb(x, 0, i, tx_size, 
+      //                         txfm_param.tx_type, &txb_ctx, 0);
+
+      // fprintf(stderr, "ref = %d, estimate = %d\n",
+      //     cost_coeffs(x, 0, i, tx_size, txfm_param.tx_type, &txb_ctx, 0),
+      //     this_rd_stats.rate);
+
       dist_block_tx_domain(x, 0, i, tx_size, &this_rd_stats.dist,
                            &this_rd_stats.sse);
 
