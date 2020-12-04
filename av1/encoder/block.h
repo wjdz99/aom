@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 //! Minimum linear dimension of a tpl block
-#define MIN_TPL_BSIZE_1D 16
+#define MIN_TPL_BSIZE_1D 8
 //! Maximum number of tpl block in a super block
 #define MAX_TPL_BLK_IN_SB (MAX_SB_SIZE / MIN_TPL_BSIZE_1D)
 //! Number of intra winner modes kept
