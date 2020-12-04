@@ -1583,6 +1583,11 @@ static void encode_frame_internal(AV1_COMP *cpi) {
     memset(segment_map, 0,
            sizeof(*segment_map) * segment_map_w * segment_map_h);
 
+    //stats order: total global motion enabled frames, last, last2, last3, golden, bwdref, altref2, alref
+    int stats[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    int wmtypes[7] = {-1, -1, -1, -1, -1, -1, -1};
+
+
     for (frame = ALTREF_FRAME; frame >= LAST_FRAME; --frame) {
       const MV_REFERENCE_FRAME ref_frame[2] = { frame, NONE_FRAME };
       ref_buf[frame] = NULL;
@@ -1706,8 +1711,34 @@ static void encode_frame_internal(AV1_COMP *cpi) {
                   cpi->sf.gm_erroradv_type)) {
             cm->global_motion[frame] = default_warp_params;
           }
-          if (cm->global_motion[frame].wmtype != IDENTITY) break;
+          if (cm->global_motion[frame].wmtype != IDENTITY) {
+            stats[0] ++;
+            if(frame == LAST_FRAME) stats[1] ++;
+            if(frame == LAST2_FRAME) stats[2] ++;
+            if(frame == LAST3_FRAME) stats[3] ++;
+            if(frame == GOLDEN_FRAME) stats[4] ++;
+            if(frame == BWDREF_FRAME) stats[5] ++;
+            if(frame == ALTREF2_FRAME) stats[6] ++;
+            if(frame == ALTREF_FRAME) stats[7] ++;
+            wmtypes[frame-1] = cm->global_motion[frame].wmtype;
+            break;
+          }
         }
+        
+        FILE *fp;
+        int i;
+        fp = fopen("stats.txt", "w+");
+        fprintf(fp, "total global motion enabled frames, last, last2, last3, golden, bwdref, altref2, alref, wmtypes \n");
+        for( i=0; i<8; i++){
+          fprintf(fp, "%d,", stats[i]);
+        }
+        for( i=0; i<7; i++){
+          fprintf(fp, "%d,", wmtypes[i]);
+        }
+        fprintf(fp, "\n");
+
+        fclose(fp);
+
         aom_clear_system_state();
       }
       if (cm->global_motion[frame].wmtype != IDENTITY) num_refs_using_gm++;
