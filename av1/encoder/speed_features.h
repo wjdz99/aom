@@ -53,9 +53,19 @@ enum {
 enum {
   INTER_ALL = (1 << NEARMV) | (1 << GLOBALMV) | (1 << NEWMV) |
               (1 << NEAR_NEARMV) | (1 << NEW_NEWMV) | (1 << NEAR_NEWMV) |
+#if CONFIG_OPTFLOW_REFINEMENT
+              (1 << NEAR_NEARMV_OPTFLOW) | (1 << NEAR_NEWMV_OPTFLOW) |
+              (1 << NEW_NEARMV_OPTFLOW) | (1 << GLOBAL_GLOBALMV_OPTFLOW) |
+              (1 << NEW_NEWMV_OPTFLOW) |
+#endif
               (1 << NEW_NEARMV) | (1 << GLOBAL_GLOBALMV),
   INTER_NEAREST_NEAR_ZERO = (1 << NEARMV) | (1 << GLOBALMV) |
                             (1 << GLOBAL_GLOBALMV) | (1 << NEW_NEARMV) |
+#if CONFIG_OPTFLOW_REFINEMENT
+                            (1 << NEAR_NEARMV_OPTFLOW) |
+                            (1 << NEAR_NEWMV_OPTFLOW) |
+                            (1 << NEW_NEARMV_OPTFLOW) |
+#endif
                             (1 << NEAR_NEWMV) | (1 << NEAR_NEARMV),
 };
 #else
