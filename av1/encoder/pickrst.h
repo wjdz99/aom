@@ -61,6 +61,47 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd,
 #endif  // CONFIG_LOOP_RESTORE_CNN
                                  AV1_COMP *cpi);
 
+// Function type to determine edge cost - trivial if cost is constant, but
+// necessary when edge cost is dependent on path from src
+// info : pointer to unspecified structure, holds any information needed
+//  to calculate edge cost
+// path :  pointer to Vector holding current path to edge
+// node_idx : start of currently explored path
+// max_out_nodes: max outgoing edges. Without subsets, this is the number of
+//  nodes in the graph. Otherwise, this is the number of nodes in each subset.
+// int out_edge: outgoing edge we are calculating cost for
+typedef double (*graph_edge_cost_t)(void *info, Vector *path, int node_idx,
+                                    int max_out_nodes, int out_edge);
+
+// Searching a directed graph.
+// If subsets == false, denotes a graph where nodes can have outgoing edge to
+// any other node.
+// Otherwise, nodes are organized into subsets, where a subset  has same value
+// for ((node_idx - 1) / max_out_nodes). Any outgoing edges from nodes in a
+// subset only go to nodes in the subset with next increasing value for
+// ((node_idx - 1) / max_out_nodes). We are finding a set of nodes, one per
+// subset, that form a min cost path from src to dest.
+// (Use case is finding restoration types for each unit in RESTORE_SWITCHABLE.)
+// node_idx : start of currently explored path
+// dest_idx : destination of currently explored path
+// max_out_nodes: max outgoing edges. Without subsets, this is the number of
+//  nodes in the graph. Otherwise, this is the number of nodes in each subset.
+// graph: pointer to adjacency matrix to indicate edges between nodes. If no
+//  edge is present between nodes, element is set to INFINITY. Without subsets,
+//  this is an n*n matrix where n is the number of nodes and element
+//  graph[n1][n2] is an edge from n1 to n2. With subsets, this is a
+//  (# of subsets * max_out_nodes + 2 nodes for src and dest) * max_out_nodes
+//  matrix and element graph [n][e] is an edge from n to the eth node in the
+//  next subset (see rst_mergecoeffs_tst.c for example)
+// best_path : pointer to Vector storing best path from start to destination
+// subsets : indicates whether graph needs to be organized into subsets
+// cost_fn : function to dynamically determine edge cost
+// info : pointer to unspecified structure, holds any information needed
+//  to calculate edge cost
+double min_cost_type_path(int node_idx, int dest_idx, int max_out_nodes,
+                          const double *graph, Vector *best_path, bool subsets,
+                          graph_edge_cost_t cost_fn, void *info);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
