@@ -2208,6 +2208,57 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
 }
 #endif  // CONFIG_WIENER_NONSEP
 
+#if CONFIG_RST_MERGECOEFFS
+// Searching a directed graph.
+// !typed_nodes denotes a graph where nodes can have outgoing edge to any other
+// node Otherwise we are finding the min cost type for each subgroup of nodes
+// where a subgroup has same value for ((node_idx - 1) / max_out_nodes).
+double min_cost_type_path(int node_idx, int dest_idx, int max_out_nodes,
+                          const double *graph, Vector *best_path,
+                          bool typed_nodes) {
+  Vector node_best_path;
+  aom_vector_setup(&node_best_path, 1, sizeof(int));
+  aom_vector_push_back(best_path, &node_idx);
+  double node_dest_distance = INFINITY;
+  if (node_idx == dest_idx) {
+    aom_vector_destroy(&node_best_path);
+    return 0;
+  }
+
+  // shortest path from this node to dest
+  for (int out_edge = 0; out_edge < max_out_nodes; ++out_edge) {
+    // adjacency matrix blank fields are set to INF
+    if (graph[node_idx * max_out_nodes + out_edge] != INFINITY) {
+      int out_idx =
+          (!typed_nodes)
+              ? out_edge
+              : (node_idx == 0)
+                    ? out_edge + 1
+                    : ((((node_idx - 1) / max_out_nodes) + 1) * max_out_nodes) +
+                          out_edge + 1;
+      Vector out_best_path;
+      aom_vector_setup(&out_best_path, 1, sizeof(int));
+      aom_vector_copy_assign(&out_best_path, best_path);
+      double out_dest_distance = min_cost_type_path(
+          out_idx, dest_idx, max_out_nodes, graph, &out_best_path, typed_nodes);
+      // If path with retrieved cost reaches destination, apply min cost.
+      if (out_dest_distance < INFINITY) {
+        if (graph[node_idx * max_out_nodes + out_edge] + out_dest_distance <
+            node_dest_distance) {
+          node_dest_distance =
+              graph[node_idx * max_out_nodes + out_edge] + out_dest_distance;
+          aom_vector_copy_assign(&node_best_path, &out_best_path);
+        }
+      }
+      aom_vector_destroy(&out_best_path);
+    }
+  }
+  aom_vector_copy_assign(best_path, &node_best_path);
+  aom_vector_destroy(&node_best_path);
+  return node_dest_distance;
+}
+#endif  // CONFIG_RST_MERGECOEFFS
+
 static void search_switchable(const RestorationTileLimits *limits,
                               const AV1PixelRect *tile_rect, int rest_unit_idx,
                               void *priv, int32_t *tmpbuf,
@@ -2218,6 +2269,12 @@ static void search_switchable(const RestorationTileLimits *limits,
   (void)rlbs;
   RestSearchCtxt *rsc = (RestSearchCtxt *)priv;
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
+
+#if CONFIG_RST_MERGECOEFFS
+  // Temporary to avoid uninitialized function error.
+  double graph[] = { 0 };
+  min_cost_type_path(0, 0, 0, graph, NULL, false);
+#endif
 
   const MACROBLOCK *const x = rsc->x;
 

@@ -61,6 +61,10 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd,
 #endif  // CONFIG_LOOP_RESTORE_CNN
                                  AV1_COMP *cpi);
 
+double min_cost_type_path(int node_idx, int dest_idx, int max_out_nodes,
+                          const double *graph, Vector *best_path,
+                          bool typed_nodes);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
