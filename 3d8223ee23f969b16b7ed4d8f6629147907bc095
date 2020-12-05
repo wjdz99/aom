@@ -16,6 +16,669 @@
       "message": "Please review the patch.",
       "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "187cbb92_53e44d34",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "I suggest some changes. Although I wrote a lot of comments, all of them are minor issues and requests for more comments. Thanks!",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9b4a004_4a0be915",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 9
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Do you know why only av1_cnn_convolve is guarded by CONFIG_REALTIME_ONLY !\u003d yes?",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56bc66b4_20171958",
+        "filename": "av1/encoder/cnn.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: Could you take the opportunity to reverse these two #include statements, so that the headers are listed in alphabetical order?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 38
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "938ee658_05f84566",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "I suggest we rename this function av1_find_layer_output_size() and leave the function\u0027s definition in cnn.c.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4637b5bc_ce5105e8",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: The exact condition is:\n\n  if (layer_config-\u003emaxpool \u0026\u0026\n      (layer_config-\u003eskip_height \u003e 1 || layer_config-\u003eskip_width \u003e 1)) {\n\nSo not only is maxpool set to 1, but one of skip_height and skip_width also needs to be greater than 1.\n\nI am not sure if we need to document the exact condition though.",
+      "range": {
+        "startLine": 244,
+        "startChar": 27,
+        "endLine": 244,
+        "endChar": 43
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66b245c3_8ec9ef0b",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "List these three input parameters before the output parameter \"float **output\".",
+      "range": {
+        "startLine": 249,
+        "startChar": 4,
+        "endLine": 250,
+        "endChar": 32
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4849f881_5546f363",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: equals \u003d\u003e equal to",
+      "range": {
+        "startLine": 372,
+        "startChar": 3,
+        "endLine": 372,
+        "endChar": 9
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16f4c214_4516ec5c",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 533,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: Add a blank line after this line.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "377c93c4_d10997b9",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: needs \u003d\u003e need",
+      "range": {
+        "startLine": 23,
+        "startChar": 58,
+        "endLine": 23,
+        "endChar": 63
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "019f966e_72b34fde",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: It would be good to explain how 0 to 4, 4 to 8, and 8 to 12 corresponds to the masks below.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 51
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "789fab6c_3a6ca7d7",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "1. Nit: Should we declare these two arrays as 32-byte aligned so that they can be loaded with _mm256_load_si256()?\n\n2. Nit/optional: It would be good to explain why the masks have these elements.",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 76
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d485e2f8_8001b545",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "In a two-dimensional array, the first index is usually called the row and the second index the column. So this looks a little strange.\n\nPerhaps the outer index should be named \u0027row\u0027 and the inner index be named \"col\u0027?",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f578818_892e8ce1",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit/optional: \u0026weight[0][0] is the same as weight[0], so we can just the shorter form. Similarly for the next four lines.\n\nIt\u0027s okay if you prefer the \u0026weight[0][0] form.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57fd4dcc_d236f8af",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Delete blk0. It is not used.",
+      "range": {
+        "startLine": 92,
+        "startChar": 41,
+        "endLine": 92,
+        "endChar": 45
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8ac4abe_afea2d2c",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "1. Nit: It may be better to point out that this function is a specialization of no_maxpool_padding_valid() when filter_width and filter_height are equal to 5.\n\n2. It would be helpful to explain why we handle 5x5 as a special case. It would also be good to document why among the six [no_]maxpool_padding_xxx() functions, you chose to optimize no_maxpool_padding_valid().",
+      "range": {
+        "startLine": 123,
+        "startChar": 3,
+        "endLine": 123,
+        "endChar": 22
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f39ca372_d8945465",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: Add \u0027const\u0027 to these four casts: (const __m256i *)",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 138,
+        "endChar": 62
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11d05943_7595e2d8",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "It would be good to point out that this is a 5x5 array, padded to 8 columns for SIMD.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5cb5c19c_1523c48e",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "The local variable \u0027off\u0027 is only used inside the PREPARE_WEIGHTS_FOR_5X5_CONV() macro, so we can move \u0027off\u0027 into the macro.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa6e84b8_cd4a8abc",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Can we use \u003e\u003d here?\n\n        while (rem_width \u003e\u003d process_width) {",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08441476_4357ec9b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: Can we reverse these two, so that the order is the same as the order in the 1st and 2nd 5x5 blocks?\n\n          output[i][out_h + v + 2] \u003d\n              out_ch_bias +\n              _mm_cvtss_f32(_mm_shuffle_ps(tmp_reg_4, tmp_reg_4, 2)) +\n              _mm_cvtss_f32(_mm_shuffle_ps(accum_l, accum_l, 3));",
+      "range": {
+        "startLine": 193,
+        "startChar": 27,
+        "endLine": 194,
+        "endChar": 69
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb7da30f_64f2a2e7",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Similarly, can we use \u003e\u003d here?\n\n        while (rem_width \u003e\u003d layer_config-\u003eskip_width) {",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aaabd100_57fbbef7",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Please make sure the last two parameters of these two functions are in the same order. Right now they are in opposite orders:\n\n    channel_step, cstep\nvs.\n    cstep, channel_step",
+      "range": {
+        "startLine": 282,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 56
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c9a1107_cd9b20d3",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: Cnn \u003d\u003e CNN\n     guarenteed \u003d\u003e guaranteed\n\nThe \"has at most\" at the end of the sentence sounds incomplete.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "816b64a2_06a491ec",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "1. Nit: add a blank line after this line.\n\n2. What does \"TOL\" mean? Tolerance?",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72a53828_885b779e",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2505,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: CNNConvolve_Func \u003d\u003e CNNConvolveFunc\n\nThe underscore \u0027_\u0027 is not needed.",
+      "range": {
+        "startLine": 2505,
+        "startChar": 15,
+        "endLine": 2505,
+        "endChar": 31
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "805378f6_1e5ac1fb",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2511,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: We should be able to use CNNConvolve_Func directly in line 2513:\n\nclass CNNConvolveTest : public ::testing::TestWithParam\u003cCNNConvolve_Func\u003e {\n\nIt should not be necessary to use a std::tuple with only one component.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "194e6ae6_26c3f114",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2515,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "I think this data member can be declared in the private section. If that doesn\u0027t work, please declare it in the protected section.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e2b8483_4111c22c",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2518,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: The Style Guide recommends listing the public, protected, and private sections in that order. So the private section should be moved to the end of this class.",
+      "range": {
+        "startLine": 2517,
+        "startChar": 0,
+        "endLine": 2518,
+        "endChar": 32
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4716c33e_fbe3ed11",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2525,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit/optional: Rename these in_width and in_height?",
+      "range": {
+        "startLine": 2524,
+        "startChar": 0,
+        "endLine": 2525,
+        "endChar": 26
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9b8925e_90d6cf09",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2527,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Declare this as a reference or a pointer:\n\n    const CNN_CONFIG\u0026 cnn_config \u003d av1_intra_mode_cnn_partition_cnn_config;",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6af737b_84dc2795",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2530,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: If \"o\" means output, I suggest naming these two variables \"out_width\" and \"out_height\".",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61be328d_4c67acae",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2581,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit/optional: rename these in_width and in_height?",
+      "range": {
+        "startLine": 2581,
+        "startChar": 26,
+        "endLine": 2581,
+        "endChar": 59
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31f68489_6be361b1",
+        "filename": "test/cnn_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 2581,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-05T01:48:01Z",
+      "side": 1,
+      "message": "Nit: o_size \u003d\u003e out_size",
+      "range": {
+        "startLine": 2581,
+        "startChar": 65,
+        "endLine": 2581,
+        "endChar": 71
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
