@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93f12972_906d2d33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-07T22:06:50Z",
+      "side": 1,
+      "message": "Verified that this CL ensured the same qp was used for all intra frames in fixed q mode.",
+      "revId": "bf92bf72063d24d046e21c6092af97d31cc980e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
