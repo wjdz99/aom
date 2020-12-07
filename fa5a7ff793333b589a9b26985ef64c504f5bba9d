@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e987b57_ca6fb66d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-12-07T12:54:04Z",
+      "side": 1,
+      "message": "Debargha and Sarah,\n\nThis patch fixes a potential compiler warning in SubGopPSNRCheckTest.\nIn some compilers return type of abs() can be ‘integer’. This patch uses\nfabs() function for which return type is assured to be ‘double’.\n\nPlease review,\nThanks.\n",
+      "revId": "fa5a7ff793333b589a9b26985ef64c504f5bba9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
