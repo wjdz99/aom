@@ -92,6 +92,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "9824e19f_8358d86f",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-07T16:35:39Z",
+      "side": 1,
+      "message": "I suggest we add a new cnn_internal.h header file and move the new static inline functions to cnn_internal.h.\n\nThen, cnn_internal.h is intended to be included by cnn.c and cnn_avx2.c.\n\ncnn.h should only declare/define the public interface of the CNN module.\n\nI will be happy to take care of this after you submit this CL, if you prefer to avoid this kind of structural change at this point.",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "4637b5bc_ce5105e8",
@@ -117,6 +134,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "28d9375a_c250d2cd",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-07T16:35:39Z",
+      "side": 1,
+      "message": "Just wanted to clarify: I am only requesting a more precise comment that matches if-condition in the code. It is not necessary to rename these functions, unless you have short, alternative names.\n\nBut let\u0027s add the \"cnn_\" prefix to these functions.",
+      "parentUuid": "4637b5bc_ce5105e8",
+      "range": {
+        "startLine": 244,
+        "startChar": 27,
+        "endLine": 244,
+        "endChar": 43
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "66b245c3_8ec9ef0b",
         "filename": "av1/encoder/cnn.h",
         "patchSetId": 9
@@ -128,6 +169,30 @@
       "writtenOn": "2020-12-05T01:48:01Z",
       "side": 1,
       "message": "List these three input parameters before the output parameter \"float **output\".",
+      "range": {
+        "startLine": 249,
+        "startChar": 4,
+        "endLine": 250,
+        "endChar": 32
+      },
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4a995c0_b838ba27",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-07T16:35:39Z",
+      "side": 1,
+      "message": "Please ignore this comment.\n\nWhat I suggested in this comment is a recommendation of our Style Guide on ordering a function\u0027s parameters. That\u0027s why I wrote this comment when I first saw this function\u0027s prototype. However, later I found that this file does not fully conform to the Style Guide\u0027s recommendation, so I think this is fine. (In fact, this order allows all the [no_]maxpool_padding_xxx() functions to have the same first seven parameters.) But I forgot to delete this comment.",
+      "parentUuid": "66b245c3_8ec9ef0b",
       "range": {
         "startLine": 249,
         "startChar": 4,
