@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e2ea9d4_db930996",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2020-12-07T07:52:42Z",
+      "side": 1,
+      "message": "Hi Sarah, Debargha\nIn this patch we extended the subgop unit test to support validation of reference buffer refresh of each frame.\nWe have tested the patch locally. Kindly review the same and let us know your thoughts. Thank you. \n",
+      "revId": "47a77ce232b6732356e58a6d2bf9446eabe562c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
