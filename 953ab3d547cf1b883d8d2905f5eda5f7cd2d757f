@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e4763bc2_4255f251",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-07T23:34:13Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nYou wrote:\n\u003e For libaom AV1 encode, bit match is verified (w.r.t parent commit) for few videos for speed presets 0 to 6. Even though STATS_CHANGED at minimal is expected, we found that streams are bit-matching during our tests.\n\nDoes this mean we can remove \"STATS_CHANGED expected\" from the commit message?",
+      "parentUuid": "3739f92c_cd3ed6c9",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "51957e93_36a24248",
         "filename": "av1/av1.cmake",
         "patchSetId": 8
@@ -312,6 +330,24 @@
       "side": 1,
       "message": "These can be written as either inline functions or macros with arguments, but with these approaches the explicit update of those variable needs to happen outside. Which is why we defined some macros without arguments as it is more convenient.\n\nPlease let us know your opinion on the same.",
       "parentUuid": "778f4eb1_97712820",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52338486_b87f6247",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-07T23:34:13Z",
+      "side": 1,
+      "message": "In general functions are preferred over macros. Among these macros, I believe PREPARE_WEIGHTS_FOR_5X5_CONV() can be easily converted into a function.",
+      "parentUuid": "f957e74b_89e23885",
       "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
