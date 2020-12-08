@@ -323,9 +323,10 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
   AV1_COMMON *const cm = &cpi->common;
   const int is_key_frame = frame_is_intra_only(cm);
   const int threshold_multiplier = is_key_frame ? 40 : 1;
-  int64_t threshold_base =
-      (int64_t)(threshold_multiplier *
-                cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[q][1]);
+  int64_t threshold_base = (int64_t)(
+      threshold_multiplier *
+      ROUND_POWER_OF_TWO(cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[q][1],
+                         QUANT_TABLE_BITS));
 
   if (is_key_frame) {
     thresholds[0] = threshold_base;
@@ -837,7 +838,11 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ && cm->seg.enabled &&
       cyclic_refresh_segment_id_boosted(segment_id) &&
       cpi->sf.rt_sf.use_nonrd_pick_mode) {
-    int q = av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex);
+    int q = av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex
+#if CONFIG_EXTQUANT
+                           , cm->seq_params.bit_depth
+#endif
+                           );
     set_vbp_thresholds(cpi, thresholds, q, content_state);
   } else {
     set_vbp_thresholds(cpi, thresholds, cm->quant_params.base_qindex,
