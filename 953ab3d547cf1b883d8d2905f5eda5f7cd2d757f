@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c59c0d8_b6c9fe99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-08T15:00:15Z",
+      "side": 1,
+      "message": "Even though bit match was seen for the tested streams, we can expect STATS_CHANGED for other streams. Hence, it is better to keep it in commit message for future reference.",
+      "parentUuid": "e4763bc2_4255f251",
+      "revId": "953ab3d547cf1b883d8d2905f5eda5f7cd2d757f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "51957e93_36a24248",
