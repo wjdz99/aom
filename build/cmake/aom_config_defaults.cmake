@@ -144,6 +144,8 @@ set_aom_config_var(CONFIG_CNN_RESTORATION 0 NUMBER
                    "AV2 CNN Restoration experiment flag")
 set_aom_config_var(CONFIG_LOOP_RESTORE_CNN 0 NUMBER
                    "AV2 CNN in Loop Restoration experiment flag")
+set_aom_config_var(CONFIG_CNN_GUIDED 0 NUMBER
+                   "AV2 CNN in Loop Guided Restoration experiment flag")
 set_aom_config_var(CONFIG_CNN_RESTORATION_SMALL_MODELS 0 NUMBER
                    "AV2 CNN restoration with smaller models experiment flag")
 

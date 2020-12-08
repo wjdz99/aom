@@ -106,6 +106,7 @@ extern "C" int av1_restore_cnn_img_tflite(int qindex, const uint8_t *dgd,
                                           int width, int height, int dgd_stride,
                                           uint8_t *rst, int rst_stride,
                                           int num_threads, int is_intra_only) {
+  // TODO(dandan): Change the code to get interpreter for guided CNN model.
   std::unique_ptr<tflite::Interpreter> interpreter =
       get_tflite_interpreter(qindex, width, height, num_threads, is_intra_only);
 
@@ -149,6 +150,7 @@ extern "C" int av1_restore_cnn_img_tflite_highbd(int qindex,
                                                  uint16_t *rst, int rst_stride,
                                                  int num_threads, int bit_depth,
                                                  int is_intra_only) {
+  // TODO(dandan): Change the code to get interpreter for guided CNN model.
   std::unique_ptr<tflite::Interpreter> interpreter =
       get_tflite_interpreter(qindex, width, height, num_threads, is_intra_only);
 

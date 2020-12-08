@@ -75,6 +75,12 @@ macro(fix_experiment_configs)
     endif()
   endif()
 
+  if(CONFIG_CNN_GUIDED)
+    if(NOT CONFIG_LOOP_RESTORE_CNN)
+      change_config_and_warn(CONFIG_LOOP_RESTORE_CNN 1 CONFIG_CNN_GUIDED)
+    endif()
+  endif()
+
   if(CONFIG_CNN_RESTORATION)
     change_config_and_warn(CONFIG_TENSORFLOW_LITE 1 CONFIG_CNN_RESTORATION)
   endif()
