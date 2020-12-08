@@ -51,6 +51,69 @@
       "message": "Hi Chi Yo: I just realized that you should also review this CL. Do you have time to take a quick look?",
       "revId": "f49c4cd28f8a336de181c8e0a93d3e0b6c8bc621",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b0fd252_15fb2654",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-12-08T23:37:46Z",
+      "side": 1,
+      "message": "I did not look at the SIMD codes closely, but overall this looks fine.\nI have some small nits, but nothing blocking. Wan-Teh can merge it in if he\u0027s okay with it.",
+      "revId": "f49c4cd28f8a336de181c8e0a93d3e0b6c8bc621",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac608b18_6a2f3a2a",
+        "filename": "av1/encoder/cnn.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-12-08T23:37:46Z",
+      "side": 1,
+      "message": "Nit: I don\u0027t think we need the braces here anymore.",
+      "range": {
+        "startLine": 424,
+        "startChar": 30,
+        "endLine": 424,
+        "endChar": 31
+      },
+      "revId": "f49c4cd28f8a336de181c8e0a93d3e0b6c8bc621",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2db419d_e0aba8aa",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2020-12-08T23:37:46Z",
+      "side": 1,
+      "message": "Nit: This function looks pretty much the same as av1_cnn_convolve_c. It would be slightly cleaner to keep them as a single function, and have a special avx2 version for cnn_no_maxpool_padding_valid instead.",
+      "range": {
+        "startLine": 260,
+        "startChar": 5,
+        "endLine": 260,
+        "endChar": 26
+      },
+      "revId": "f49c4cd28f8a336de181c8e0a93d3e0b6c8bc621",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
