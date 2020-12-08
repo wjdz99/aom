@@ -831,7 +831,12 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
 
 static double convert_qp_offset(int qp, int qp_offset, int bit_depth) {
   const double base_q_val = av1_convert_qindex_to_q(qp, bit_depth);
-  const int new_qp = AOMMAX(qp - qp_offset, 0);
+#if CONFIG_EXTQUANT
+  const int new_q_index_offset = av1_quantizer_to_qindex(qp_offset, AOM_BITS_8);
+#else
+  const int new_q_index_offset = av1_quantizer_to_qindex(qp_offset);
+#endif
+  const int new_qp = AOMMAX(qp - new_q_index_offset, 0);
   const double new_q_val = av1_convert_qindex_to_q(new_qp, bit_depth);
   return (base_q_val - new_q_val);
 }
