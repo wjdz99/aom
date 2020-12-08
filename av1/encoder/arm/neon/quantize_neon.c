@@ -129,11 +129,19 @@ static INLINE void calculate_dqcoeff_lp_and_store(const int16x8_t qcoeff,
   vst1q_s16(dqcoeff, vcombine_s16(vmovn_s32(dqcoeff_0), vmovn_s32(dqcoeff_1)));
 }
 
+#if CONFIG_EXTQUANT
+void av1_quantize_lp_neon(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
+                          const int32_t *round_ptr, const int32_t *quant_ptr,
+                          tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr,
+                          const int32_t *dequant_ptr, uint16_t *eob_ptr,
+                          const int16_t *scan) {
+#else
 void av1_quantize_lp_neon(const int16_t *coeff_ptr, intptr_t count,
                           const int16_t *round_ptr, const int16_t *quant_ptr,
                           int16_t *qcoeff_ptr, int16_t *dqcoeff_ptr,
                           const int16_t *dequant_ptr, uint16_t *eob_ptr,
                           const int16_t *scan) {
+#endif
   // Quantization pass: All coefficients with index >= zero_flag are
   // skippable. Note: zero_flag can be zero.
   const int16x8_t v_zero = vdupq_n_s16(0);
