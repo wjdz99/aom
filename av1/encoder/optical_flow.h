@@ -65,6 +65,14 @@ void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
                   const OPFL_PARAMS *opfl_params,
                   const MV_FILTER_TYPE mv_filter, const OPTFLOW_METHOD method,
                   MV *mvs);
+void optical_flow_3d(YV12_BUFFER_CONFIG **frames, int num_frames,
+                     const int from_frame_idx, const OPFL_PARAMS *opfl_params,
+                     MV **mvs);
+void optical_flow_3d_py(YV12_BUFFER_CONFIG **frames, int num_frames,
+                        const int from_frame_idx, const int bit_depth,
+                        const OPFL_PARAMS *opfl_params,
+                        const MV_FILTER_TYPE mv_filter,
+                        const OPTFLOW_METHOD method, MV **mvs);
 #endif
 
 #ifdef __cplusplus

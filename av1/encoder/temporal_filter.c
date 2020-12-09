@@ -1232,6 +1232,11 @@ static void tf_do_filtering_opfl(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
   OPFL_PARAMS opfl_params;
   av1_init_opfl_params(&opfl_params);
   MV_FILTER_TYPE mv_filt = MV_FILTER_MEDIAN;
+  // optical_flow_3d_py(frames, num_frames, filter_frame_idx,
+  // frames[0]->bit_depth,
+  //                    &opfl_params, mv_filt, HORN_SCHUNCK, frame_mvs);
+  // optical_flow_3d(frames, num_frames, filter_frame_idx, &opfl_params,
+  //                 frame_mvs);
   // printf("\ncalculating optical flow... ");
   for (int frame = 0; frame < num_frames; frame++) {
     if (frame == filter_frame_idx) continue;

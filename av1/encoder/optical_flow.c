@@ -850,7 +850,9 @@ void solve_horn_schunck(double *ix, double *iy, double *it, int grad_stride,
   aom_free(col_pos);
   aom_free(values);
   aom_free(mv_vec);
+  aom_free(mv_init_vec);
   aom_free(b);
+  aom_free(temp_b);
   av1_free_sparse_mtx_elems(&A);
 }
 
@@ -1001,7 +1003,7 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
     num_ref_corners = detect_corners(from_frame, to_frame, maxcorners,
                                      ref_corners, bit_depth);
   }
-  const int stop_level = 2;
+  const int stop_level = 0;
   for (int i = levels - 1; i >= stop_level; i--) {
     if (method == LUCAS_KANADE) {
       assert(is_sparse(opfl_params));
@@ -1020,6 +1022,8 @@ void pyramid_optical_flow(const YV12_BUFFER_CONFIG *from_frame,
     aom_free(images2[i]);
   }
   aom_free(ref_corners);
+  aom_free(buffers1);
+  aom_free(buffers2);
 }
 // Computes optical flow by applying algorithm at
 // multiple pyramid levels of images (lower-resolution, smoothed images)
@@ -1091,4 +1095,599 @@ void optical_flow(const YV12_BUFFER_CONFIG *from_frame,
 
   aom_free(localmvs);
 }
+
+void optical_flow_3d(YV12_BUFFER_CONFIG **frames, int num_frames,
+                     const int from_frame_idx, const OPFL_PARAMS *opfl_params,
+                     MV **mvs) {
+  const int frame_height = frames[from_frame_idx]->y_crop_height;
+  const int frame_width = frames[from_frame_idx]->y_crop_width;
+
+  int fh = frame_height / 4;
+  int fw = frame_width / 4;
+
+  // only do 3d optical flow for 4x4
+  LOCALMV *localmvs = aom_malloc(fh * fw * num_frames * sizeof(LOCALMV));
+  LOCALMV *refinemvs = aom_malloc(fh * fw * num_frames * sizeof(LOCALMV));
+  LOCALMV *tempmvs = aom_malloc(fh * fw * num_frames * sizeof(LOCALMV));
+  for (int k = 0; k < num_frames; k++) {
+    if (k == from_frame_idx) continue;
+    LOCALMV *this_mv = localmvs + k * fh * fw;
+    for (int i = 0; i < fh; i++) {
+      for (int j = 0; j < fw; j++) {
+        this_mv[i * fw + j].col =
+            ((double)mvs[k][i * 4 * frame_width + j * 4].col) / 8.0 / 4.0;
+        this_mv[i * fw + j].row =
+            ((double)mvs[k][i * 4 * frame_width + j * 4].row) / 8.0 / 4.0;
+        refinemvs[i * fw + j + k * fh * fw].col = 0;
+        refinemvs[i * fw + j + k * fh * fw].row = 0;
+      }
+    }
+  }
+  YV12_BUFFER_CONFIG *buffers =
+      aom_malloc(num_frames * sizeof(YV12_BUFFER_CONFIG));
+  uint8_t *temp_image =
+      aom_calloc(frame_height / 2 * frame_width / 2, sizeof(temp_image[0]));
+
+  uint8_t **images = aom_calloc(num_frames, sizeof(*images));
+  for (int k = 0; k < num_frames; k++) {
+    images[k] = aom_calloc(fh * fw, sizeof(images[0][0]));
+
+    reduce(frames[k]->y_buffer, frame_height, frame_width, frames[k]->y_stride,
+           temp_image);
+    reduce(temp_image, frame_height / 2, frame_width / 2, frame_width / 2,
+           images[k]);
+    buffers[k].y_buffer = images[k];
+    buffers[k].y_crop_height = fh;
+    buffers[k].y_crop_width = fw;
+    buffers[k].y_stride = fw;
+  }
+  aom_free(temp_image);
+
+  YV12_BUFFER_CONFIG *warped_buffers =
+      aom_malloc(num_frames * sizeof(YV12_BUFFER_CONFIG));
+
+  uint8_t **warped_images = aom_calloc(num_frames, sizeof(*warped_images));
+  for (int k = 0; k < num_frames; k++) {
+    warped_images[k] = aom_calloc(fh * fw, sizeof(warped_images[0][0]));
+
+    warped_buffers[k].y_buffer = warped_images[k];
+    warped_buffers[k].y_crop_height = fh;
+    warped_buffers[k].y_crop_width = fw;
+    warped_buffers[k].y_stride = fw;
+  }
+  warped_buffers[from_frame_idx].y_buffer = buffers[from_frame_idx].y_buffer;
+
+  double *ix = aom_calloc(fw * fh * num_frames, sizeof(double));
+  double *iy = aom_calloc(fw * fh * num_frames, sizeof(double));
+  double *it = aom_calloc(fw * fh * num_frames, sizeof(double));
+
+  for (int s = 0; s < opfl_params->warping_steps + 2; s++) {
+    for (int k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      // printf("\n%.2f ,%d\n", localmvs[33 * fw + 45 + k * fw * fh].col, k);
+      warp_back_frame(&warped_buffers[k], &buffers[k], localmvs + k * fh * fw,
+                      fw);
+      get_frame_gradients(&buffers[from_frame_idx], &warped_buffers[k],
+                          ix + k * fh * fw, iy + k * fh * fw, it + k * fh * fw,
+                          fw);
+    }
+    double t_lambda = 0.1;
+    double lambda = 100;
+    int hs[] = { -1, 1, 0, 0 };
+    int ws[] = { 0, 0, 1, -1 };
+    int max_t = 100;
+    for (int t = 0; t <= max_t; t++) {
+      double total_change = 0;
+      double count = 0;
+      for (int k = 0; k < num_frames; k++) {
+        if (k == from_frame_idx) continue;
+        LOCALMV *this_local_mv = localmvs + k * fh * fw;
+        double *this_ix = ix + k * fh * fw;
+        double *this_iy = iy + k * fh * fw;
+        double *this_it = it + k * fh * fw;
+        for (int i = 0; i < fh; i++) {
+          for (int j = 0; j < fw; j++) {
+            double total_wt = 4;
+            double mv_c = 0, mv_r = 0;
+            for (int p = 0; p < 4; p++) {
+              int ii = i + hs[p];
+              int jj = j + ws[p];
+              ii = clamp(ii, 0, fh - 1);
+              jj = clamp(jj, 0, fw - 1);
+              mv_c += this_local_mv[ii * fw + jj].col +
+                      refinemvs[ii * fw + jj + k * fw * fh].col;
+              mv_r += this_local_mv[ii * fw + jj].row +
+                      refinemvs[ii * fw + jj + k * fw * fh].row;
+            }
+            for (int kk = 0; kk < num_frames; kk++) {
+              if (kk == k || kk == from_frame_idx) continue;
+              if (abs(kk - k) > 3) continue;
+              double scale =
+                  (double)(k - from_frame_idx) / (double)(kk - from_frame_idx);
+              double wt = t_lambda / fabs((double)k - kk);
+              mv_c += (localmvs[kk * fh * fw + i * fw + j].col +
+                       refinemvs[kk * fh * fw + i * fw + j].col) *
+                      scale * wt;
+              mv_r += (localmvs[kk * fh * fw + i * fw + j].row +
+                       refinemvs[kk * fh * fw + i * fw + j].row) *
+                      scale * wt;
+              total_wt += wt;
+            }
+            mv_c /= total_wt;
+            mv_r /= total_wt;
+            mv_c -= this_local_mv[i * fw + j].col;
+            mv_r -= this_local_mv[i * fw + j].row;
+            double change_c =
+                this_ix[i * fw + j] *
+                (this_ix[i * fw + j] * mv_c + this_iy[i * fw + j] * mv_r +
+                 this_it[i * fw + j]) /
+                (total_wt * total_wt * lambda +
+                 this_ix[i * fw + j] * this_ix[i * fw + j] +
+                 this_iy[i * fw + j] * this_iy[i * fw + j]);
+            double change_r =
+                this_iy[i * fw + j] *
+                (this_ix[i * fw + j] * mv_c + this_iy[i * fw + j] * mv_r +
+                 this_it[i * fw + j]) /
+                (total_wt * total_wt * lambda +
+                 this_ix[i * fw + j] * this_ix[i * fw + j] +
+                 this_iy[i * fw + j] * this_iy[i * fw + j]);
+            tempmvs[i * fw + j + k * fw * fh].col = mv_c - change_c;
+            tempmvs[i * fw + j + k * fw * fh].row = mv_r - change_r;
+          }
+        }
+      }
+      for (int k = 0; k < num_frames; k++) {
+        if (k == from_frame_idx) continue;
+        for (int i = 0; i < fh; i++) {
+          for (int j = 0; j < fw; j++) {
+            total_change += fabs(refinemvs[i * fw + j + k * fw * fh].col -
+                                 tempmvs[i * fw + j + k * fw * fh].col) /
+                            fh / fw / 2.0;
+            total_change += fabs(refinemvs[i * fw + j + k * fw * fh].row -
+                                 tempmvs[i * fw + j + k * fw * fh].row) /
+                            fh / fw / 2.0;
+            refinemvs[i * fw + j + k * fw * fh] =
+                tempmvs[i * fw + j + k * fw * fh];
+          }
+        }
+        count += 1.0;
+      }
+      if ((total_change / count) < 1e-5 || t == max_t) {
+        printf("\n%d, %.4f\n", t, (total_change / count));
+        break;
+      }
+    }
+    for (int k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      for (int i = 0; i < fh; i++) {
+        for (int j = 0; j < fw; j++) {
+          localmvs[i * fw + j + k * fw * fh].col +=
+              refinemvs[i * fw + j + k * fw * fh].col;
+          localmvs[i * fw + j + k * fw * fh].row +=
+              refinemvs[i * fw + j + k * fw * fh].row;
+        }
+      }
+    }
+  }
+
+  for (int k = 0; k < num_frames; k++) {
+    if (k == from_frame_idx) continue;
+    LOCALMV *this_mv = localmvs + k * fh * fw;
+    for (int i = 0; i < frame_height; i++) {
+      for (int j = 0; j < frame_width; j++) {
+        mvs[k][i * frame_width + j].col =
+            (int16_t)round(this_mv[i / 4 * fw + j / 4].col * 8 * 4);
+        mvs[k][i * frame_width + j].row =
+            (int16_t)round(this_mv[i / 4 * fw + j / 4].row * 8 * 4);
+      }
+    }
+  }
+
+  aom_free(localmvs);
+  aom_free(refinemvs);
+  aom_free(tempmvs);
+
+  aom_free(buffers);
+  for (int k = 0; k < num_frames; k++) {
+    aom_free(images[k]);
+  }
+  aom_free(images);
+  aom_free(warped_buffers);
+  for (int k = 0; k < num_frames; k++) {
+    aom_free(warped_images[k]);
+  }
+  aom_free(warped_images);
+  aom_free(ix);
+  aom_free(iy);
+  aom_free(it);
+}
+
+void solve_horn_schunck_3d_iter(int num_frames, int from_frame_idx, double *ix,
+                                double *iy, double *it, int grad_stride, int fw,
+                                int fh, LOCALMV *init_mvs, int init_mv_stride,
+                                LOCALMV *mvs, int mv_stride, int level,
+                                int warp) {
+  if (num_frames <= 1) return;
+  double t_lambda = 1e-5;
+  double lambda_scale = pow(4 + t_lambda * (1 + 0.5 + 0.25) * 1.5, 2);
+  double lambda = 60 * pow(2.0, (double)level);
+  int hs[] = { -1, 1, 0, 0 };
+  int ws[] = { 0, 0, 1, -1 };
+  int max_t = 100 * (2 * level + 1);
+  LOCALMV *tempmvs = aom_calloc(fh * fw * num_frames, sizeof(LOCALMV));
+  for (int t = 0; t <= max_t; t++) {
+    for (int k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      LOCALMV *this_init_mv = init_mvs + k * fh * init_mv_stride;
+      double *this_ix = ix + k * fh * grad_stride;
+      double *this_iy = iy + k * fh * grad_stride;
+      double *this_it = it + k * fh * grad_stride;
+      double this_lambda = lambda / fabs((double)(k - from_frame_idx));
+      for (int i = 0; i < fh; i++) {
+        for (int j = 0; j < fw; j++) {
+          double total_wt = 0;
+          double mv_c = 0, mv_r = 0;
+          for (int p = 0; p < 4; p++) {
+            int ii = i + hs[p];
+            int jj = j + ws[p];
+            ii = clamp(ii, 0, fh - 1);
+            jj = clamp(jj, 0, fw - 1);
+            mv_c += this_init_mv[ii * init_mv_stride + jj].col +
+                    mvs[ii * mv_stride + jj + k * mv_stride * fh].col;
+            mv_r += this_init_mv[ii * init_mv_stride + jj].row +
+                    mvs[ii * mv_stride + jj + k * mv_stride * fh].row;
+            total_wt += 1.0;
+          }
+          double sum_xx = 0, sum_xyr = 0, sum_xyc = 0, sum_yyr = 0, sum_yyc = 0;
+          int countx = 0;
+          for (int kk = 0; kk < num_frames; kk++) {
+            if (kk == k || kk == from_frame_idx) continue;
+            if (abs(kk - k) > 1) continue;
+            // double scale =
+            //     (double)(k - from_frame_idx) / (double)(kk - from_frame_idx);
+            // if (scale > 1.5 || scale < 0) continue;
+            // double wt = t_lambda / fabs((double)k - kk);
+            // mv_c += (init_mvs[kk * fh * init_mv_stride + i * init_mv_stride +
+            // j]
+            //              .col +
+            //          mvs[kk * fh * mv_stride + i * mv_stride + j].col) *
+            //         scale * wt;
+            // mv_r += (init_mvs[kk * fh * init_mv_stride + i * init_mv_stride +
+            // j]
+            //              .row +
+            //          mvs[kk * fh * mv_stride + i * mv_stride + j].row) *
+            //         scale * wt;
+            // total_wt += wt;
+
+            double xx = (double)(kk - from_frame_idx);
+            double yc =
+                (init_mvs[kk * fh * init_mv_stride + i * init_mv_stride + j]
+                     .col +
+                 mvs[kk * fh * mv_stride + i * mv_stride + j].col);
+            double yr =
+                (init_mvs[kk * fh * init_mv_stride + i * init_mv_stride + j]
+                     .row +
+                 mvs[kk * fh * mv_stride + i * mv_stride + j].row);
+            sum_xx += xx * xx;
+            sum_xyr += xx * yr;
+            sum_xyc += xx * yc;
+            sum_yyc += yc * yc;
+            sum_yyr += yr * yr;
+            countx++;
+          }
+          if (countx >= 1) {
+            double ar = sum_xyr / sum_xx;
+            double ac = sum_xyc / sum_xx;
+
+            double diffr = sum_yyr - 2 * ar * sum_xyr + ar * ar * sum_xx;
+            double diffc = sum_yyc - 2 * ac * sum_xyc + ac * ac * sum_xx;
+            diffc /= (double)countx;
+            diffr /= (double)countx;
+
+            if (fabs(ar) > 0.1 || fabs(ac) > 0.1) {
+              int a = 0;
+            }
+
+            if (sqrt(diffc) < 2 && sqrt(diffr) < 2) {
+              double wt = t_lambda * (double)countx;
+              mv_r += ar * (double)(k - from_frame_idx) * wt;
+              mv_c += ac * (double)(k - from_frame_idx) * wt;
+              total_wt += wt;
+            }
+          }
+
+          mv_c /= total_wt;
+          mv_r /= total_wt;
+          mv_c -= this_init_mv[i * init_mv_stride + j].col;
+          mv_r -= this_init_mv[i * init_mv_stride + j].row;
+          double temp_ix = this_ix[i * grad_stride + j];
+          double temp_iy = this_iy[i * grad_stride + j];
+          double temp_it = this_it[i * grad_stride + j];
+
+          double diff = 0;
+          diff += pow(mv_c, 2);
+          diff += pow(mv_r, 2);
+          int outbound = 0;
+          double ii = i + this_init_mv[i * init_mv_stride + j].row;
+          double jj = j + this_init_mv[i * init_mv_stride + j].col;
+          if (ii < 0 || ii >= fh || jj < 0 || jj >= fw) {
+            outbound = 1;
+          }
+          if (sqrt(diff) / fabs((double)k - from_frame_idx) > 3 || outbound) {
+            temp_it = 0;
+            temp_ix = 0;
+            temp_iy = 0;
+          }
+
+          total_wt = 4;
+
+          double change_c = temp_ix *
+                            (temp_ix * mv_c + temp_iy * mv_r + temp_it) /
+                            (total_wt * total_wt * this_lambda +
+                             temp_ix * temp_ix + temp_iy * temp_iy);
+          double change_r = temp_iy *
+                            (temp_ix * mv_c + temp_iy * mv_r + temp_it) /
+                            (total_wt * total_wt * this_lambda +
+                             temp_ix * temp_ix + temp_iy * temp_iy);
+          tempmvs[i * fw + j + k * fw * fh].col = mv_c - change_c;
+          tempmvs[i * fw + j + k * fw * fh].row = mv_r - change_r;
+        }
+      }
+    }
+    double total_change = 0;
+    for (int k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      for (int i = 0; i < fh; i++) {
+        for (int j = 0; j < fw; j++) {
+          total_change += fabs(mvs[i * mv_stride + j + k * mv_stride * fh].col -
+                               tempmvs[i * fw + j + k * fw * fh].col) /
+                          fh / fw / 2.0;
+          total_change += fabs(mvs[i * mv_stride + j + k * mv_stride * fh].row -
+                               tempmvs[i * fw + j + k * fw * fh].row) /
+                          fh / fw / 2.0;
+          mvs[i * mv_stride + j + k * mv_stride * fh] =
+              tempmvs[i * fw + j + k * fw * fh];
+        }
+      }
+    }
+    if (total_change / (double)(num_frames - 1) * pow(2.0, (double)(level)) <
+            1e-5 * 4 ||
+        t == max_t) {
+      printf("\n%d: %d, %.4f\n", level, t,
+             (total_change / (double)(num_frames - 1)));
+      break;
+    }
+  }
+  aom_free(tempmvs);
+}
+void horn_schunck_3d(YV12_BUFFER_CONFIG *frames, int num_frames,
+                     const int from_frame_idx, const int level,
+                     const int mv_stride, const int mv_height,
+                     const int mv_width, const OPFL_PARAMS *opfl_params,
+                     LOCALMV *mvs) {
+  YV12_BUFFER_CONFIG *from_frame = frames + from_frame_idx;
+  int fw = from_frame->y_crop_width, fh = from_frame->y_crop_height;
+  int factor = (int)pow(2, level);
+  int w, h, k, init_mv_stride;
+  LOCALMV *init_mvs;
+  if (level == 0) {
+    init_mvs = mvs;
+    init_mv_stride = mv_stride;
+  } else {
+    init_mvs = aom_calloc(fw * fh * num_frames, sizeof(*mvs));
+    init_mv_stride = fw;
+    for (k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      LOCALMV *this_init_mvs = init_mvs + k * init_mv_stride * fh;
+      LOCALMV *this_mvs = mvs + k * mv_stride * mv_height;
+      for (h = 0; h < fh; h++) {
+        for (w = 0; w < fw; w++) {
+          this_init_mvs[h * init_mv_stride + w].row =
+              this_mvs[h * factor * mv_stride + w * factor].row /
+              (double)factor;
+          this_init_mvs[h * init_mv_stride + w].col =
+              this_mvs[h * factor * mv_stride + w * factor].col /
+              (double)factor;
+        }
+      }
+    }
+  }
+  LOCALMV *refine_mvs = aom_calloc(fw * fh * num_frames, sizeof(*mvs));
+  // temp frame for warping
+  YV12_BUFFER_CONFIG temp_frame;
+  temp_frame.y_buffer = (uint8_t *)aom_calloc(fh * fw, sizeof(uint8_t));
+  temp_frame.y_crop_height = fh;
+  temp_frame.y_crop_width = fw;
+  temp_frame.y_stride = fw;
+  // gradient buffers
+  double *ix = aom_calloc(fw * fh * num_frames, sizeof(double));
+  double *iy = aom_calloc(fw * fh * num_frames, sizeof(double));
+  double *it = aom_calloc(fw * fh * num_frames, sizeof(double));
+  // For each warping step
+  for (int s = 0; s < 3; s++) {
+    // warp from_frame with init_mv
+    for (k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      LOCALMV *this_init_mvs = init_mvs + k * init_mv_stride * fh;
+      if (level == 0) {
+        warp_back_frame_intp(&temp_frame, frames + k, this_init_mvs,
+                             init_mv_stride);
+      } else {
+        warp_back_frame(&temp_frame, frames + k, this_init_mvs, init_mv_stride);
+      }
+      int offset = fw * fh * k;
+      get_frame_gradients(from_frame, &temp_frame, ix + offset, iy + offset,
+                          it + offset, fw);
+    }
+    // form linear equations and solve mvs
+    solve_horn_schunck_3d_iter(num_frames, from_frame_idx, ix, iy, it, fw, fw,
+                               fh, init_mvs, init_mv_stride, refine_mvs, fw,
+                               level, s);
+    // update init_mvs
+    for (k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      LOCALMV *this_init_mvs = init_mvs + k * init_mv_stride * fh;
+      LOCALMV *this_refine_mvs = refine_mvs + k * fw * fh;
+      for (h = 0; h < fh; h++) {
+        for (w = 0; w < fw; w++) {
+          this_init_mvs[h * init_mv_stride + w].col +=
+              this_refine_mvs[h * fw + w].col;
+          this_init_mvs[h * init_mv_stride + w].row +=
+              this_refine_mvs[h * fw + w].row;
+        }
+      }
+    }
+  }
+  // copy back the mvs if needed
+  if (level != 0) {
+    for (k = 0; k < num_frames; k++) {
+      if (k == from_frame_idx) continue;
+      LOCALMV *this_init_mvs = init_mvs + k * init_mv_stride * fh;
+      LOCALMV *this_mvs = mvs + k * mv_stride * mv_height;
+      for (h = 0; h < mv_height; h++) {
+        for (w = 0; w < mv_width; w++) {
+          if (fabs(this_init_mvs[(h / factor) * init_mv_stride + (w / factor)]
+                       .row) < 0.001) {
+            this_mvs[h * mv_stride + w].row = 0;
+          } else {
+            this_mvs[h * mv_stride + w].row =
+                this_init_mvs[(h / factor) * init_mv_stride + (w / factor)]
+                    .row *
+                (double)factor;
+          }
+          if (fabs(this_init_mvs[(h / factor) * init_mv_stride + (w / factor)]
+                       .col) < 0.001) {
+            this_mvs[h * mv_stride + w].col = 0;
+          } else {
+            this_mvs[h * mv_stride + w].col =
+                this_init_mvs[(h / factor) * init_mv_stride + (w / factor)]
+                    .col *
+                (double)factor;
+          }
+        }
+      }
+    }
+  }
+  if (level != 0) aom_free(init_mvs);
+  aom_free(refine_mvs);
+  aom_free(temp_frame.y_buffer);
+  aom_free(ix);
+  aom_free(iy);
+  aom_free(it);
+}
+
+void pyramid_optical_flow_3d(YV12_BUFFER_CONFIG **frames, int num_frames,
+                             const int from_frame_idx, const int bit_depth,
+                             const OPFL_PARAMS *opfl_params,
+                             const OPTFLOW_METHOD method, LOCALMV *mvs) {
+  assert(opfl_params->pyramid_levels > 0 &&
+         opfl_params->pyramid_levels <= MAX_PYRAMID_LEVELS);
+  (void)bit_depth;
+  (void)method;
+  int levels = opfl_params->pyramid_levels;
+  YV12_BUFFER_CONFIG *from_frame = frames[from_frame_idx];
+  const int frame_height = from_frame->y_crop_height;
+  const int frame_width = from_frame->y_crop_width;
+  if ((frame_height / pow(2.0, levels - 1) < 50 ||
+       frame_height / pow(2.0, levels - 1) < 50) &&
+      levels > 1)
+    levels = levels - 1;
+
+  uint8_t *images[MAX_PYRAMID_LEVELS][MAX_LAG_BUFFERS];
+  YV12_BUFFER_CONFIG buffers[MAX_PYRAMID_LEVELS][MAX_LAG_BUFFERS];
+  for (int k = 0; k < num_frames; k++) {
+    images[0][k] = frames[k]->y_buffer;
+    buffers[0][k] = *frames[k];
+    int fw = frame_width;
+    int fh = frame_height;
+    for (int i = 1; i < levels; i++) {
+      // TODO(bohanli): may need to extend buffers for better interpolation
+      // SIMD
+      images[i][k] = (uint8_t *)aom_calloc(fh / 2 * fw / 2, sizeof(uint8_t));
+      int stride;
+      if (i == 1)
+        stride = from_frame->y_stride;
+      else
+        stride = fw;
+      reduce(images[i - 1][k], fh, fw, stride, images[i][k]);
+      fh /= 2;
+      fw /= 2;
+      YV12_BUFFER_CONFIG a = { .y_buffer = images[i][k],
+                               .y_crop_width = fw,
+                               .y_crop_height = fh,
+                               .y_stride = fw };
+      buffers[i][k] = a;
+    }
+  }
+
+  const int stop_level = 0;
+  for (int i = levels - 1; i >= stop_level; i--) {
+    assert(method == HORN_SCHUNCK);
+    horn_schunck_3d(&(buffers[i][0]), num_frames, from_frame_idx, i,
+                    buffers[i][0].y_crop_width, buffers[i][0].y_crop_height,
+                    buffers[i][0].y_crop_width, opfl_params, mvs);
+  }
+  for (int k = 0; k < num_frames; k++) {
+    for (int i = 1; i < levels; i++) {
+      aom_free(images[i][k]);
+    }
+  }
+}
+
+void optical_flow_3d_py(YV12_BUFFER_CONFIG **frames, int num_frames,
+                        const int from_frame_idx, const int bit_depth,
+                        const OPFL_PARAMS *opfl_params,
+                        const MV_FILTER_TYPE mv_filter,
+                        const OPTFLOW_METHOD method, MV **mvs) {
+  YV12_BUFFER_CONFIG *from_frame = frames[from_frame_idx];
+  const int frame_height = from_frame->y_crop_height;
+  const int frame_width = from_frame->y_crop_width;
+
+  // Initialize double mvs based on input parameter mvs array
+  LOCALMV *localmvs =
+      aom_malloc(frame_height * frame_width * num_frames * sizeof(LOCALMV));
+
+  for (int k = 0; k < num_frames; k++) {
+    if (k == from_frame_idx) continue;
+    LOCALMV *this_localmv = localmvs + k * frame_height * frame_width;
+    MV *this_mv = mvs[k];
+    filter_mvs(MV_FILTER_SMOOTH, frame_height, frame_width, this_localmv,
+               this_mv);
+
+    for (int i = 0; i < frame_width * frame_height; i++) {
+      MV mv = this_mv[i];
+      LOCALMV localmv = { .row = ((double)mv.row) / 8,
+                          .col = ((double)mv.col) / 8 };
+      this_localmv[i] = localmv;
+    }
+  }
+  // Apply optical flow algorithm
+  pyramid_optical_flow_3d(frames, num_frames, from_frame_idx, bit_depth,
+                          opfl_params, method, localmvs);
+
+  // Update original mvs array
+  for (int k = 0; k < num_frames; k++) {
+    if (k == from_frame_idx) continue;
+    LOCALMV *this_localmv = localmvs + k * frame_height * frame_width;
+    MV *this_mv = mvs[k];
+    for (int j = 0; j < frame_height; j++) {
+      for (int i = 0; i < frame_width; i++) {
+        int idx = j * frame_width + i;
+        if (j + this_localmv[idx].row < 0 ||
+            j + this_localmv[idx].row >= frame_height ||
+            i + this_localmv[idx].col < 0 ||
+            i + this_localmv[idx].col >= frame_width) {
+          continue;
+        }
+        MV mv = { .row = (int16_t)round(8 * this_localmv[idx].row),
+                  .col = (int16_t)round(8 * this_localmv[idx].col) };
+        this_mv[idx] = mv;
+      }
+    }
+    filter_mvs(mv_filter, frame_height, frame_width, this_localmv, this_mv);
+  }
+
+  aom_free(localmvs);
+}
+
 #endif
