@@ -180,8 +180,11 @@ static double calc_correction_factor(double err_per_mb, int q) {
   return fclamp(pow(error_term, power_term), 0.05, 5.0);
 }
 
-static void twopass_update_bpm_factor(TWO_PASS *twopass, int err_estimate,
-                                      int rate_err_tol) {
+static void twopass_update_bpm_factor(AV1_COMP *cpi, int rate_err_tol) {
+  TWO_PASS *twopass = &cpi->twopass;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  int err_estimate = rc->rate_error_estimate;
+
   // Based on recent history adjust expectations of bits per macroblock.
   double last_group_rate_err =
       (double)twopass->rolling_arf_group_actual_bits /
@@ -193,11 +196,11 @@ static void twopass_update_bpm_factor(TWO_PASS *twopass, int err_estimate,
 
   // Is the last GOP error making the total error worse or better? Only make
   // an adjustment if things are getting worse.
-  if ((last_group_rate_err < 1.0 && err_estimate > 0) ||
-      (last_group_rate_err > 1.0 && err_estimate < 0)) {
-    twopass->bpm_factor *= last_group_rate_err;
-    twopass->bpm_factor = AOMMAX(0.75, AOMMIN(1.25, twopass->bpm_factor));
-  }
+  // if ((last_group_rate_err < 1.0 && err_estimate > 0) ||
+  //     (last_group_rate_err > 1.0 && err_estimate < 0)) {
+  twopass->bpm_factor *= last_group_rate_err;
+  twopass->bpm_factor = AOMMAX(0.75, AOMMIN(1.25, twopass->bpm_factor));
+  // }
 }
 
 static int qbpm_enumerator(int rate_err_tol) {
@@ -258,7 +261,7 @@ static int get_twopass_worst_quality(AV1_COMP *cpi, const double av_frame_err,
                                      int av_target_bandwidth) {
   const RATE_CONTROL *const rc = &cpi->rc;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
-  const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
+  const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
   inactive_zone = fclamp(inactive_zone, 0.0, 1.0);
 
   if (av_target_bandwidth <= 0) {
@@ -274,8 +277,7 @@ static int get_twopass_worst_quality(AV1_COMP *cpi, const double av_frame_err,
     int rate_err_tol = AOMMIN(rc_cfg->under_shoot_pct, rc_cfg->over_shoot_pct);
 
     // Update bpm correction factor based on previous GOP rate error.
-    twopass_update_bpm_factor(&cpi->twopass, rc->rate_error_estimate,
-                              rate_err_tol);
+    twopass_update_bpm_factor(cpi, rate_err_tol);
 
     // Try and pick a max Q that will be high enough to encode the
     // content at the given rate.
