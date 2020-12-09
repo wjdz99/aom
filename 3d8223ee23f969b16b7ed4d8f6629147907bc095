@@ -152,6 +152,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdbfb376_a87ffa40",
+        "filename": "av1/encoder/cnn.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-09T00:42:38Z",
+      "side": 1,
+      "message": "Note: If you made a change suggested by a code reviewer, please use \"Done\" instead of \"Ack\". \"Ack\" means you acknowledged the code reviewer\u0027s comment but did not make the change.",
+      "parentUuid": "15a608f2_bd360655",
+      "revId": "3d8223ee23f969b16b7ed4d8f6629147907bc095",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9824e19f_8358d86f",
