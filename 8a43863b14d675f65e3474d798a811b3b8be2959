@@ -16,6 +16,161 @@
       "message": "Hi Yunqing,\n\nWe have added SSE2 implementation for 12-tap x-convolve, i.e. av1_convolve_x_sr_c\nfor MULTITAP_SHARP2 case. The change has been verified to be bitexact locally and\nthrough testbench. We have also added support to AV1ConvolveXTest to test bitmatch\nfor the newly added function, and a new Speed test to check Module level gains for\nall x-convolve intrinsics.\n\nThe encode-time reduction for all presets are as follows:\n\n   cpu        Encode time\n   used       reduction(%)\n    0            0.45\n    1            0.38          \n    2            0.26          \n    3            0.20          \n    4            0.45         \n    5            0.43          \n    6            0.42          \n\nThe above data is obtained on an Intel(R) Core(TM) i7-4770R machine with gcc-7.4.\n\nWe are also planning on adding SSE2 variants for Y-convolve as well as 2D convolve\nin future patches.\n\nKindly review this patch.\n\nRegards,\nVishesh\n",
       "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62623ea0_172fa2d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-09T21:29:45Z",
+      "side": 1,
+      "message": "Thanks for getting this done. The speedup looks nice!",
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37a222cd_a78c1443",
+        "filename": "aom_dsp/x86/convolve_common_intrin.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-09T21:29:45Z",
+      "side": 1,
+      "message": "This function is kind of long - move to convolve_sse2.c?",
+      "range": {
+        "startLine": 77,
+        "startChar": 19,
+        "endLine": 77,
+        "endChar": 47
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1f1b1db_c12f4404",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-09T21:29:45Z",
+      "side": 1,
+      "message": "Why w\u003c4 wasn\u0027t covered in SIMD function? w\u003c4 case isn\u0027t applicable? If it is true, maybe add this part in SIMD function. I searched and we had a workaround like:\n  if (UNLIKELY((h | w) \u0026 3)) {  // if (w \u003c\u003d 2 || h \u003c\u003d 2)\n    aom_blend_a64_mask_c(dst, dst_stride, src0, src0_stride, src1, src1_stride,\n                         mask, mask_stride, w, h, subw, subh);\n  } else {  ...\nMaybe you can handle it similarly? It will allow us to remove c function calling here.",
+      "range": {
+        "startLine": 546,
+        "startChar": 64,
+        "endLine": 546,
+        "endChar": 74
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5a20d95_5716f2b2",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-09T21:29:45Z",
+      "side": 1,
+      "message": "I added this while adding 12-tap c function. Please remove these lines.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 0
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4521fc33_4d75c8ac",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-09T21:29:45Z",
+      "side": 1,
+      "message": "no need to change here if removing define of INTERP_FILTERS_ALL.",
+      "range": {
+        "startLine": 332,
+        "startChar": 49,
+        "endLine": 332,
+        "endChar": 51
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9f99688_c1245fa3",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-09T21:29:45Z",
+      "side": 1,
+      "message": "If SIMD is modified, this probably can be removed?",
+      "range": {
+        "startLine": 354,
+        "startChar": 4,
+        "endLine": 355,
+        "endChar": 56
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "309fb8b9_d3eae205",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-09T21:29:45Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 377,
+        "startChar": 2,
+        "endLine": 378,
+        "endChar": 56
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
