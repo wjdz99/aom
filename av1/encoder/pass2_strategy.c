@@ -193,11 +193,11 @@ static void twopass_update_bpm_factor(TWO_PASS *twopass, int err_estimate,
 
   // Is the last GOP error making the total error worse or better? Only make
   // an adjustment if things are getting worse.
-  if ((last_group_rate_err < 1.0 && err_estimate > 0) ||
-      (last_group_rate_err > 1.0 && err_estimate < 0)) {
-    twopass->bpm_factor *= last_group_rate_err;
-    twopass->bpm_factor = AOMMAX(0.75, AOMMIN(1.25, twopass->bpm_factor));
-  }
+  // if ((last_group_rate_err < 1.0 && err_estimate > 0) ||
+  //     (last_group_rate_err > 1.0 && err_estimate < 0)) {
+  twopass->bpm_factor *= last_group_rate_err;
+  twopass->bpm_factor = AOMMAX(0.75, AOMMIN(1.25, twopass->bpm_factor));
+  // }
 }
 
 static int qbpm_enumerator(int rate_err_tol) {
