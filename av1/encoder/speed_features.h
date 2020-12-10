@@ -303,8 +303,10 @@ typedef struct HIGH_LEVEL_SPEED_FEATURES {
   /*!
    * Controls the tolerance vs target rate used in deciding whether to
    * recode a frame. It has no meaning if recode is disabled.
+   *  recode_tolerance[0]: undershoot tolerance threshold;
+   *  recode_tolerance[1]: overshoot tolerance threshold;
    */
-  int recode_tolerance;
+  int recode_tolerance[2];
 
   /*!\cond */
   // Determine how motion vector precision is chosen. The possibilities are:
