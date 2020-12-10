@@ -178,7 +178,11 @@ class ForwardKeyPresenceTestLarge
   aom_rc_mode end_usage_check_;
 };
 
+#if !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
 TEST_P(ForwardKeyPresenceTestLarge, ForwardKeyEncodePresenceTest) {
+#else
+TEST_P(ForwardKeyPresenceTestLarge, DISABLED_ForwardKeyEncodePresenceTest) {
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
   is_fwd_kf_present_ = 0;
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,

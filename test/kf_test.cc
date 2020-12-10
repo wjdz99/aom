@@ -100,8 +100,11 @@ class KeyFrameIntervalTestLarge
   bool is_kf_interval_violated_;
   aom_rc_mode end_usage_check_;
 };
-
+#if !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
 TEST_P(KeyFrameIntervalTestLarge, KeyFrameIntervalTest) {
+#else
+TEST_P(KeyFrameIntervalTestLarge, DISABLED_KeyFrameIntervalTest) {
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
                                      0, 75);
@@ -180,7 +183,11 @@ class ForcedKeyTestLarge
   bool is_kf_placement_violated_;
 };
 
+#if !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
 TEST_P(ForcedKeyTestLarge, Frame1IsKey) {
+#else
+TEST_P(ForcedKeyTestLarge, DISABLED_Frame1IsKey) {
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
   const aom_rational timebase = { 1, 30 };
   const int lag_values[] = { 3, 15, 25, -1 };
 
@@ -200,7 +207,11 @@ TEST_P(ForcedKeyTestLarge, Frame1IsKey) {
 
 // This class checks the presence and placement of application
 // forced key frames.
+#if !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
 TEST_P(ForcedKeyTestLarge, ForcedFrameIsKey) {
+#else
+TEST_P(ForcedKeyTestLarge, DISABLED_ForcedFrameIsKey) {
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP && !CONFIG_REMOVE_DUAL_FILTER
   const aom_rational timebase = { 1, 30 };
   const int lag_values[] = { 3, 15, 25, -1 };
 
