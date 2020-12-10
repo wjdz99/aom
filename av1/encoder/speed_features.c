@@ -484,6 +484,9 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 2) {
+    sf->hl_sf.recode_tolerance[0] = boosted ? 25 : 50;  // undershoot
+    sf->hl_sf.recode_tolerance[1] = 25;                 // overshoot
+
     sf->part_sf.allow_partition_search_skip = 1;
 
     sf->mv_sf.auto_mv_step_size = 1;
@@ -690,7 +693,8 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 6) {
     sf->hl_sf.disable_extra_sc_testing = 1;
     sf->hl_sf.second_alt_ref_filtering = 0;
-    sf->hl_sf.recode_tolerance = 55;
+    sf->hl_sf.recode_tolerance[0] = 55;  // undershoot
+    sf->hl_sf.recode_tolerance[1] = 55;  // overshoot
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 3;
     sf->inter_sf.prune_nearmv_using_neighbors = 1;
@@ -1043,7 +1047,8 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   hl_sf->frame_parameter_update = 1;
   hl_sf->recode_loop = ALLOW_RECODE;
   // Recode loop tolerance %.
-  hl_sf->recode_tolerance = 25;
+  hl_sf->recode_tolerance[0] = 25;  // undershoot
+  hl_sf->recode_tolerance[1] = 25;  // overshoot
   hl_sf->high_precision_mv_usage = CURRENT_Q;
   hl_sf->superres_auto_search_type = SUPERRES_AUTO_ALL;
   hl_sf->disable_extra_sc_testing = 0;
