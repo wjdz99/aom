@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22f20414_acc93e09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-10T15:53:28Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nIn this patch, we have added AVX2 variant of 2x2 convolve (for layer 1 and layer 2) for av1_cnn_convolve_no_maxpool_padding_valid_c() function.\n\nFor libaom AV1 encode, bit match is verified (w.r.t parent commit) to few videos for speed presets 0 to 6. Even though STATS_CHANGED at minimal is expected, we found that streams are bit-matching during our tests.\n\nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset.\nFollowing are the gains observed for speed 3 and 6.\n\n          Encode time reduction (%)     BD-Rate Loss (%)\ncpu-used  QP\u003d{18,33,48,63}    QP\u003d18     avg.psnr    ssim\n    3           0.89          0.42      0.00        0.00\n    6           2.17          1.95      0.00        0.00\n\nThe Encode time reduction specified has been measured using command:\n$ /usr/bin/time -v ./avifenc …\n\nPlease review.\n\nRegards,\nAniket.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
