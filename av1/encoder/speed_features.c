@@ -929,7 +929,14 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 2) {
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
     sf->hl_sf.recode_loop = ALLOW_RECODE_KFARFGF;
+=======
+    sf->hl_sf.recode_tolerance[0] = 50;  // boosted ? 25 : 50;  // undershoot
+    sf->hl_sf.recode_tolerance[1] = boosted ? 25 : 50;  // overshoot
+
+    sf->part_sf.allow_partition_search_skip = 1;
+>>>>>>> CHANGE (171417 wip: Use asymmetrical recode tolerance)
 
     sf->fp_sf.skip_motion_search_threshold = 25;
 
@@ -1162,7 +1169,8 @@ static void set_good_speed_features_framesize_independent(
   if (speed >= 6) {
     sf->hl_sf.disable_extra_sc_testing = 1;
     sf->hl_sf.second_alt_ref_filtering = 0;
-    sf->hl_sf.recode_tolerance = 55;
+    sf->hl_sf.recode_tolerance[0] = 55;  // undershoot
+    sf->hl_sf.recode_tolerance[1] = 55;  // overshoot
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 3;
     sf->inter_sf.selective_ref_frame = 6;
@@ -1586,7 +1594,8 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   hl_sf->frame_parameter_update = 1;
   hl_sf->recode_loop = ALLOW_RECODE;
   // Recode loop tolerance %.
-  hl_sf->recode_tolerance = 25;
+  hl_sf->recode_tolerance[0] = 25;  // undershoot
+  hl_sf->recode_tolerance[1] = 25;  // overshoot
   hl_sf->high_precision_mv_usage = CURRENT_Q;
   hl_sf->superres_auto_search_type = SUPERRES_AUTO_ALL;
   hl_sf->disable_extra_sc_testing = 0;
