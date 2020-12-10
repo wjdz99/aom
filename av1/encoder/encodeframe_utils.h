@@ -18,6 +18,10 @@
 #include "av1/encoder/partition_strategy.h"
 #include "av1/encoder/rdopt.h"
 
+#if CONFIG_COLLECT_PARTITION_STATS
+#include "aom_ports/aom_timer.h"
+#endif  // CONFIG_COLLECT_PARTITION_STATS
+
 #ifdef __cplusplus
 extern "C" {
 #endif
