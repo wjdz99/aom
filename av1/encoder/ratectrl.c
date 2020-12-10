@@ -1709,12 +1709,15 @@ void av1_rc_compute_frame_size_bounds(const AV1_COMP *cpi, int frame_target,
   } else {
     // For very small rate targets where the fractional adjustment
     // may be tiny make sure there is at least a minimum range.
-    assert(cpi->sf.hl_sf.recode_tolerance <= 100);
-    const int tolerance = (int)AOMMAX(
-        100, ((int64_t)cpi->sf.hl_sf.recode_tolerance * frame_target) / 100);
-    *frame_under_shoot_limit = AOMMAX(frame_target - tolerance, 0);
-    *frame_over_shoot_limit =
-        AOMMIN(frame_target + tolerance, cpi->rc.max_frame_bandwidth);
+    assert(cpi->sf.hl_sf.recode_tolerance[0] <= 100 &&
+           cpi->sf.hl_sf.recode_tolerance[1] <= 100);
+    const int under_shoot_tolerance = (int)AOMMAX(
+        100, ((int64_t)cpi->sf.hl_sf.recode_tolerance[0] * frame_target) / 100);
+    const int over_shoot_tolerance = (int)AOMMAX(
+        100, ((int64_t)cpi->sf.hl_sf.recode_tolerance[1] * frame_target) / 100);
+    *frame_under_shoot_limit = AOMMAX(frame_target - under_shoot_tolerance, 0);
+    *frame_over_shoot_limit = AOMMIN(frame_target + over_shoot_tolerance,
+                                     cpi->rc.max_frame_bandwidth);
   }
 }
 
