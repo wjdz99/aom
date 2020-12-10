@@ -34,6 +34,24 @@
       "parentUuid": "fe5e1c68_5455e803",
       "revId": "432725cc1a95c565c59773a2d493dea7a2cd2ef0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7277334_7ad3ae55",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-10T20:24:10Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nIf this function assumes skip_width and skip_height are both 4, we should keep this assertion and also update the if statement at lines 315-316 to check layer_config-\u003eskip_width \u003d\u003d 4 \u0026\u0026 layer_config-\u003eskip_height \u003d\u003d 4.\n\nI suggested removing this assertion (at lien 149) because it was not clear whether this function depends on skip_width and skip_height being equalt to 4.",
+      "parentUuid": "4f5dc7d7_96373862",
+      "revId": "432725cc1a95c565c59773a2d493dea7a2cd2ef0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
