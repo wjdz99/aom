@@ -171,7 +171,7 @@ typedef enum {
 #define KEEP_PARTITION_SPLIT 0
 // Whether to cache the old prediction mode from earlier partitions and reuse
 // them in later partition search.
-#define USE_OLD_PREDICTION_MODE 0
+#define USE_OLD_PREDICTION_MODE 1
 
 /*! \brief Used with \ref MACROBLOCK::reuse_inter_mode_cache_type to determine
  * whether partition mode is reused. */
@@ -190,7 +190,7 @@ typedef enum {
       REUSE_INTER_MODE_IN_INTERFRAME_FLAG
 
 // Whether to use simple_motion_search to prune partitioning
-#define ENABLE_FAST_RECUR_PARTITION 0
+#define ENABLE_FAST_RECUR_PARTITION 1
 #define USE_EST_TXFM 0
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 
