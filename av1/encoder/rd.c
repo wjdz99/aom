@@ -470,6 +470,11 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
     for (i = 0; i < BLOCK_SIZES_ALL; ++i)
       av1_cost_tokens_from_cdf(x->compound_type_cost[i],
                                fc->compound_type_cdf[i], NULL);
+#if CONFIG_OPTFLOW_REFINEMENT
+    for (i = 0; i < BLOCK_SIZES_ALL; ++i)
+      av1_cost_tokens_from_cdf(x->opfl_comp_type_cost[i],
+                               fc->opfl_comp_type_cdf[i], NULL);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     for (i = 0; i < BLOCK_SIZES_ALL; ++i) {
       if (get_interinter_wedge_bits(i)) {
         av1_cost_tokens_from_cdf(x->wedge_idx_cost[i], fc->wedge_idx_cdf[i],

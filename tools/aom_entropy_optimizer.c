@@ -524,6 +524,15 @@ int main(int argc, const char **argv) {
                      "static const aom_cdf_prob "
                      "default_wedge_idx_cdf[BLOCK_SIZES_ALL][CDF_SIZE(16)]");
 
+#if CONFIG_OPTFLOW_REFINEMENT
+  /* Compound type in optical flow refinement */
+  cts_each_dim[0] = BLOCK_SIZES_ALL;
+  cts_each_dim[1] = OPFL_COMPOUND_TYPES - 1;
+  optimize_cdf_table(&fc.opfl_comp_type[0][0], probsfile, 2, cts_each_dim,
+                     "static const aom_cdf_prob default_opfl_comp_type_cdf"
+                     "[BLOCK_SIZES_ALL][CDF_SIZE(OPFL_COMPOUND_TYPES)]");
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+
   /* motion_var and warped_motion experiments */
   cts_each_dim[0] = BLOCK_SIZES_ALL;
   cts_each_dim[1] = MOTION_MODES;

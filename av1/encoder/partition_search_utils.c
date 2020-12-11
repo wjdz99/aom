@@ -1826,6 +1826,16 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
           }
         }
       }
+#if CONFIG_OPTFLOW_REFINEMENT
+      if (has_second_ref(mbmi) && mbmi->mode > NEW_NEWMV) {
+        // TODO(kslu): if(opfl_compound_used){...}
+#if CONFIG_ENTROPY_STATS
+        counts->opfl_comp_type[bsize][mbmi->opfl_comp_type]++;
+#endif  // CONFIG_ENTROPY_STATS
+        update_cdf(fc->opfl_comp_type_cdf[bsize], mbmi->opfl_comp_type,
+                   OPFL_COMPOUND_TYPES);
+      }
+#endif
     }
   }
 
