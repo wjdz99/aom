@@ -488,6 +488,9 @@ struct macroblock {
   int comp_bwdref_cost[REF_CONTEXTS][BWD_REFS - 1][2];
   int inter_compound_mode_cost[INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES];
   int compound_type_cost[BLOCK_SIZES_ALL][MASKED_COMPOUND_TYPES];
+#if CONFIG_OPTFLOW_REFINEMENT
+  int opfl_comp_type_cost[BLOCK_SIZES_ALL][OPFL_COMPOUND_TYPES];
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   int wedge_idx_cost[BLOCK_SIZES_ALL][16];
   int interintra_cost[BLOCK_SIZE_GROUPS][2];
   int wedge_interintra_cost[BLOCK_SIZES_ALL][2];

@@ -746,6 +746,9 @@ typedef struct MB_MODE_INFO {
 #endif  // CONFIG_FLEX_MVRES
   // Indicate if masked compound is used(1) or not(0).
   uint8_t comp_group_idx : 1;
+#if CONFIG_OPTFLOW_REFINEMENT
+  uint8_t opfl_comp_type;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   int8_t cdef_strength : 4;
 #if CONFIG_INTRA_ENTROPY && !CONFIG_USE_SMALL_MODEL
   uint64_t y_gradient_hist[8];

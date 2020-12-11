@@ -508,6 +508,9 @@ typedef struct FRAME_COUNTS {
   unsigned int interintra_mode[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
   unsigned int wedge_interintra[BLOCK_SIZES_ALL][2];
   unsigned int compound_type[BLOCK_SIZES_ALL][MASKED_COMPOUND_TYPES];
+#if CONFIG_OPTFLOW_REFINEMENT
+  unsigned int opfl_comp_type[BLOCK_SIZES_ALL][OPFL_COMPOUND_TYPES];
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   unsigned int motion_mode[BLOCK_SIZES_ALL][MOTION_MODES];
   unsigned int obmc[BLOCK_SIZES_ALL][2];
   unsigned int intra_inter[INTRA_INTER_CONTEXTS][2];
