@@ -313,6 +313,10 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
               ctx_tr->inter_compound_mode_cdf, INTER_COMPOUND_MODES);
   AVERAGE_CDF(ctx_left->compound_type_cdf, ctx_tr->compound_type_cdf,
               MASKED_COMPOUND_TYPES);
+#if CONFIG_OPTFLOW_REFINEMENT
+  AVERAGE_CDF(ctx_left->opfl_comp_type_cdf, ctx_tr->opfl_comp_type_cdf,
+              OPFL_COMPOUND_TYPES);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   AVERAGE_CDF(ctx_left->wedge_idx_cdf, ctx_tr->wedge_idx_cdf, 16);
   AVERAGE_CDF(ctx_left->interintra_cdf, ctx_tr->interintra_cdf, 2);
   AVERAGE_CDF(ctx_left->wedge_interintra_cdf, ctx_tr->wedge_interintra_cdf, 2);

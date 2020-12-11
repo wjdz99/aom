@@ -144,6 +144,10 @@ typedef struct frame_contexts {
                                       [CDF_SIZE(INTER_COMPOUND_MODES)];
   aom_cdf_prob compound_type_cdf[BLOCK_SIZES_ALL]
                                 [CDF_SIZE(MASKED_COMPOUND_TYPES)];
+#if CONFIG_OPTFLOW_REFINEMENT
+  aom_cdf_prob opfl_comp_type_cdf[BLOCK_SIZES_ALL]
+                                 [CDF_SIZE(OPFL_COMPOUND_TYPES)];
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   aom_cdf_prob wedge_idx_cdf[BLOCK_SIZES_ALL][CDF_SIZE(16)];
   aom_cdf_prob interintra_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(2)];
   aom_cdf_prob wedge_interintra_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)];
