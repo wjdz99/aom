@@ -74,6 +74,35 @@ static INLINE __m128i convolve_lo_x_12tap(const __m128i *s,
   return convolve_12tap(ss, coeffs);
 }
 
+static INLINE __m128i convolve_lo_y_12tap(const __m128i *s,
+                                          const __m128i *coeffs) {
+  __m128i ss[6];
+  ss[0] = _mm_unpacklo_epi8(s[0], _mm_setzero_si128());
+  ss[1] = _mm_unpacklo_epi8(s[2], _mm_setzero_si128());
+  ss[2] = _mm_unpacklo_epi8(s[4], _mm_setzero_si128());
+  ss[3] = _mm_unpacklo_epi8(s[6], _mm_setzero_si128());
+  ss[4] = _mm_unpacklo_epi8(s[8], _mm_setzero_si128());
+  ss[5] = _mm_unpacklo_epi8(s[10], _mm_setzero_si128());
+  return convolve_12tap(ss, coeffs);
+}
+
+static INLINE __m128i convolve_hi_y_12tap(const __m128i *s,
+                                          const __m128i *coeffs) {
+  __m128i ss[6];
+  ss[0] = _mm_unpackhi_epi8(s[0], _mm_setzero_si128());
+  ss[1] = _mm_unpackhi_epi8(s[2], _mm_setzero_si128());
+  ss[2] = _mm_unpackhi_epi8(s[4], _mm_setzero_si128());
+  ss[3] = _mm_unpackhi_epi8(s[6], _mm_setzero_si128());
+  ss[4] = _mm_unpackhi_epi8(s[8], _mm_setzero_si128());
+  ss[5] = _mm_unpackhi_epi8(s[10], _mm_setzero_si128());
+  return convolve_12tap(ss, coeffs);
+}
+
+void av1_convolve_y_sr_12tap_sse2(const uint8_t *src, int src_stride,
+                                  uint8_t *dst, int dst_stride, int w, int h,
+                                  const InterpFilterParams *filter_params_y,
+                                  int subpel_y_qn);
+
 void av1_convolve_x_sr_12tap_sse2(const uint8_t *src, int src_stride,
                                   uint8_t *dst, int dst_stride, int w, int h,
                                   const InterpFilterParams *filter_params_x,
