@@ -253,7 +253,7 @@ static void tf_determine_block_partition(const MV block_mv, const int block_mse,
                                          MV *subblock_mvs, int *subblock_mses) {
   int min_subblock_mse = INT_MAX;
   int max_subblock_mse = INT_MIN;
-  int sum_subblock_mse = 0;
+  int64_t sum_subblock_mse = 0;
   for (int i = 0; i < 4; ++i) {
     sum_subblock_mse += subblock_mses[i];
     min_subblock_mse = AOMMIN(min_subblock_mse, subblock_mses[i]);
@@ -262,9 +262,9 @@ static void tf_determine_block_partition(const MV block_mv, const int block_mse,
 
   // TODO(any): The following magic numbers may be tuned to improve the
   // performance OR find a way to get rid of these magic numbers.
-  if (((block_mse * 15 < sum_subblock_mse * 4) &&
+  if ((((int64_t)block_mse * 15 < sum_subblock_mse * 4) &&
        max_subblock_mse - min_subblock_mse < 48) ||
-      ((block_mse * 14 < sum_subblock_mse * 4) &&
+      (((int64_t)block_mse * 14 < sum_subblock_mse * 4) &&
        max_subblock_mse - min_subblock_mse < 24)) {  // No split.
     for (int i = 0; i < 4; ++i) {
       subblock_mvs[i] = block_mv;
