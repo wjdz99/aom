@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b384bf9_50df8c8a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T21:42:41Z",
+      "side": 1,
+      "message": "PTAL. I worked out the details. I also ran libaom tests and found that no tests exercise this function. Unless we expend the extra effort of adding a test for this function, we will need to ensure it\u0027s correct by code review.",
+      "revId": "fcf6aa3952aef85491e2c8025640a1e4bb8acd0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1b24b03_c49e1130",
+        "filename": "aom_dsp/x86/aom_subpixel_8t_intrin_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T21:42:41Z",
+      "side": 1,
+      "message": "The transpose_16bit_4x4() function in libaom allows the input and output parameters to point to the same set of registers. So we don\u0027t need the ss[] registers.",
+      "revId": "fcf6aa3952aef85491e2c8025640a1e4bb8acd0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

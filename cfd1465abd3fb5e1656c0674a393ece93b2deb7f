@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7193df31_3a53922f",
+        "filename": "aom_dsp/x86/aom_subpixel_8t_intrin_ssse3.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T21:42:41Z",
+      "side": 0,
+      "message": "Please refer to the new comments at lines 110-113 in aom_dsp/x86/transpose_sse2.h. We conclude that\n\n1. s[1] is equal to ss[1].\n2. Since we set s[2] to ss[1], s[2] is equal to s[1]. This is wrong.\n3. s[3] is equal to 0. This is also wrong.",
+      "revId": "cfd1465abd3fb5e1656c0674a393ece93b2deb7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
