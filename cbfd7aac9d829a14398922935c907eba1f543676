@@ -22,6 +22,30 @@
       },
       "revId": "cbfd7aac9d829a14398922935c907eba1f543676",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1fc9a20_bb4d6ac5",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-12-11T04:12:53Z",
+      "side": 1,
+      "message": "If it is not used anywhere, let\u0027s leave it unchanged and later we can remove it.\nThe dqcoeff_ptr[rc] value should be:\ndqcoeff_ptr[rc] \u003d ROUND_POWER_OF_TWO_64(qcoeff_ptr[rc] * dequant_ptr[rc !\u003d 0], QUANT_TABLE_BITS);\nwhen EXT_QUANT is on.",
+      "parentUuid": "7d836dcc_d39532d9",
+      "range": {
+        "startLine": 279,
+        "startChar": 8,
+        "endLine": 279,
+        "endChar": 9
+      },
+      "revId": "cbfd7aac9d829a14398922935c907eba1f543676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
