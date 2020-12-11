@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ed611f8_1c8285f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:37:51Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nTaken care of the comments as per suggestion.\nPlease review.\n\nRegards,\nAniket",
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
