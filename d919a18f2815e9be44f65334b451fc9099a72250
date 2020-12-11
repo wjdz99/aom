@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7642d03e_a0841db9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T22:00:08Z",
+      "side": 1,
+      "message": "Hui: I\u0027d like to cherry-pick this bug fix to the applejack branch (used for libaom 2.0.x releases), so that I can run test_libaom with assertions enabled.\n\nThe current revision of av1/encoder/encode_strategy.c on the applejack branch is 028ad7dd, so it needs this fix for bug 2648.\n\nCould you also confirm that no other changes are needed to fix bug 2648? Thank you!",
+      "revId": "d919a18f2815e9be44f65334b451fc9099a72250",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
