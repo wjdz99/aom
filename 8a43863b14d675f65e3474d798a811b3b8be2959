@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90e4f756_f88ce613",
+        "filename": "aom_dsp/x86/convolve_common_intrin.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-11T14:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37a222cd_a78c1443",
+      "range": {
+        "startLine": 77,
+        "startChar": 19,
+        "endLine": 77,
+        "endChar": 47
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1f1b1db_c12f4404",
@@ -71,6 +95,30 @@
       "writtenOn": "2020-12-09T21:29:45Z",
       "side": 1,
       "message": "Why w\u003c4 wasn\u0027t covered in SIMD function? w\u003c4 case isn\u0027t applicable? If it is true, maybe add this part in SIMD function. I searched and we had a workaround like:\n  if (UNLIKELY((h | w) \u0026 3)) {  // if (w \u003c\u003d 2 || h \u003c\u003d 2)\n    aom_blend_a64_mask_c(dst, dst_stride, src0, src0_stride, src1, src1_stride,\n                         mask, mask_stride, w, h, subw, subh);\n  } else {  ...\nMaybe you can handle it similarly? It will allow us to remove c function calling here.",
+      "range": {
+        "startLine": 546,
+        "startChar": 64,
+        "endLine": 546,
+        "endChar": 74
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f25d4217_305571d1",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-11T14:53:31Z",
+      "side": 1,
+      "message": "The SIMD does not support w\u003c4 since it operates on 4 pixels at a time. After testing on non-standard resolutions, we found out that the block width for MULTITAP_SHARP2 case is always \u003e\u003d 8, since frame level padding ensures that the corner blocks also are invoked with width \u003e\u003d 8. Hence, we have replaced the condition with an assert instead.",
+      "parentUuid": "d1f1b1db_c12f4404",
       "range": {
         "startLine": 546,
         "startChar": 64,
@@ -104,6 +152,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4676a9e_7c67b5a9",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-11T14:53:31Z",
+      "side": 1,
+      "message": "We shall remove the macro once unit tests for y-convolve and 2d-convolve are also enabled.",
+      "parentUuid": "f5a20d95_5716f2b2",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 0
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4521fc33_4d75c8ac",
@@ -117,6 +189,30 @@
       "writtenOn": "2020-12-09T21:29:45Z",
       "side": 1,
       "message": "no need to change here if removing define of INTERP_FILTERS_ALL.",
+      "range": {
+        "startLine": 332,
+        "startChar": 49,
+        "endLine": 332,
+        "endChar": 51
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4769aec_a62a3884",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-11T14:53:31Z",
+      "side": 1,
+      "message": "Will make the change once all 12-tap unit tests are enabled.",
+      "parentUuid": "4521fc33_4d75c8ac",
       "range": {
         "startLine": 332,
         "startChar": 49,
@@ -150,6 +246,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "63faa07d_c8bd267e",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-11T14:53:31Z",
+      "side": 1,
+      "message": "Width  \u003c\u003d 4 case is not applicable for MULTITAP_SHARP2 case, hence we are not testing for the same.",
+      "parentUuid": "b9f99688_c1245fa3",
+      "range": {
+        "startLine": 354,
+        "startChar": 4,
+        "endLine": 355,
+        "endChar": 56
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "309fb8b9_d3eae205",
@@ -163,6 +283,30 @@
       "writtenOn": "2020-12-09T21:29:45Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 377,
+        "startChar": 2,
+        "endLine": 378,
+        "endChar": 56
+      },
+      "revId": "8a43863b14d675f65e3474d798a811b3b8be2959",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dabb2e3a_c511436a",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-11T14:53:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "309fb8b9_d3eae205",
       "range": {
         "startLine": 377,
         "startChar": 2,
