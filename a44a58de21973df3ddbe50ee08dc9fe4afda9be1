@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e7a2b34_aab6df32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2020-12-11T19:01:33Z",
+      "side": 1,
+      "message": "Curious question -- why not clip sum_subblock_mse to INT_MIN and INT_MAX than going to int64? MSE should be lower than INT_MAX always even in worst case scenario. I am fine either way, more of curious question. ",
+      "revId": "a44a58de21973df3ddbe50ee08dc9fe4afda9be1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
