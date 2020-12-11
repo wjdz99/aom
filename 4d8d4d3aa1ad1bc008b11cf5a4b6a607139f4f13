@@ -1,0 +1,251 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78175ea9_b75e60a6",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "(I\u0027m writing this comment after writing all the others) -- I think this would be clearer if you started off with a block comment describing how a graph is represented, what subsetting means, etc., and then define the functions. The comments for each function can then be reduced accordingly.",
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a38a9f13_0475f50d",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "First part of the comment is descriptive, no need to elaborate.",
+      "range": {
+        "startLine": 64,
+        "startChar": 40,
+        "endLine": 65,
+        "endChar": 57
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "167232c2_b8ab7921",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "By unspecified, do you mean that each graph_edge_cost_t function will cast it to a different data type?",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 26
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8a41739_6af5610d",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "If the vector has the current path to edge, do we need the start of the path as a separate variable? Isn\u0027t it in the vector?",
+      "range": {
+        "startLine": 69,
+        "startChar": 3,
+        "endLine": 69,
+        "endChar": 46
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e006a38a_50a714e2",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "What is the type of vector? I assume int but it is not clear.",
+      "range": {
+        "startLine": 68,
+        "startChar": 3,
+        "endLine": 69,
+        "endChar": 46
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48c4cd75_65fb689a",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "What are subsets in this context?",
+      "range": {
+        "startLine": 70,
+        "startChar": 2,
+        "endLine": 71,
+        "endChar": 78
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1645891a_b6267086",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "No need to specify type here, it is clear from the function signature.",
+      "range": {
+        "startLine": 72,
+        "startChar": 3,
+        "endLine": 72,
+        "endChar": 6
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b3477e3_3b989d6d",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "If subsets is false, is it a complete digraph? If so, please use that terminology - it is precise.",
+      "range": {
+        "startLine": 76,
+        "startChar": 1,
+        "endLine": 78,
+        "endChar": 18
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7503fb3_6968cfb5",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "\"Some\" value instead of \"same\" value?",
+      "range": {
+        "startLine": 79,
+        "startChar": 69,
+        "endLine": 79,
+        "endChar": 72
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a12593fd_fd8732ac",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "please remove the extra space",
+      "range": {
+        "startLine": 79,
+        "startChar": 63,
+        "endLine": 79,
+        "endChar": 64
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25123850_8247fb76",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-11T03:31:37Z",
+      "side": 1,
+      "message": "Is this a range? Not sure what it means to have a \"value for EXPR\".\n\nI feel like I am missing something here.",
+      "range": {
+        "startLine": 80,
+        "startChar": 7,
+        "endLine": 80,
+        "endChar": 39
+      },
+      "revId": "4d8d4d3aa1ad1bc008b11cf5a4b6a607139f4f13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
