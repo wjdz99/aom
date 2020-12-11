@@ -66,20 +66,20 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd,
 // info : pointer to unspecified structure, holds any information needed
 //  to calculate edge cost
 // path :  pointer to Vector holding current path to edge
-// node_idx : start of currently explored path
+// node_idx : start of edge
 // max_out_nodes: max outgoing edges. Without subsets, this is the number of
 //  nodes in the graph. Otherwise, this is the number of nodes in each subset.
-// int out_edge: outgoing edge we are calculating cost for
+// int out_edge: outgoing edge we are calculating cost for, numbered in
+//  relation to node_idx
 typedef double (*graph_edge_cost_t)(void *info, Vector *path, int node_idx,
                                     int max_out_nodes, int out_edge);
 
 // Searching a directed graph.
 // If subsets == false, denotes a graph where nodes can have outgoing edge to
 // any other node.
-// Otherwise, nodes are organized into subsets, where a subset  has same value
-// for ((node_idx - 1) / max_out_nodes). Any outgoing edges from nodes in a
-// subset only go to nodes in the subset with next increasing value for
-// ((node_idx - 1) / max_out_nodes). We are finding a set of nodes, one per
+// Otherwise, nodes are organized into equally sized subsets. Any outgoing
+// edges from nodes in a subset only go to nodes in one other subset, and
+// there are no cycles between subsets. We are finding a set of nodes, one per
 // subset, that form a min cost path from src to dest.
 // (Use case is finding restoration types for each unit in RESTORE_SWITCHABLE.)
 // node_idx : start of currently explored path
