@@ -16,6 +16,503 @@
       "message": "Hi Wan-Teh,\n\nIn this patch, we have added AVX2 variant of 2x2 convolve (for layer 1 and layer 2) for av1_cnn_convolve_no_maxpool_padding_valid_c() function.\n\nFor libaom AV1 encode, bit match is verified (w.r.t parent commit) to few videos for speed presets 0 to 6. Even though STATS_CHANGED at minimal is expected, we found that streams are bit-matching during our tests.\n\nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset.\nFollowing are the gains observed for speed 3 and 6.\n\n          Encode time reduction (%)     BD-Rate Loss (%)\ncpu-used  QP\u003d{18,33,48,63}    QP\u003d18     avg.psnr    ssim\n    3           0.89          0.42      0.00        0.00\n    6           2.17          1.95      0.00        0.00\n\nThe Encode time reduction specified has been measured using command:\n$ /usr/bin/time -v ./avifenc …\n\nPlease review.\n\nRegards,\nAniket.",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e1fca2f_a85436e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nThank you very much for the CL! I suggest some changes.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f480c46_46cff849",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: replicate \u003d\u003e replicates",
+      "range": {
+        "startLine": 50,
+        "startChar": 65,
+        "endLine": 50,
+        "endChar": 74
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a24a9a59_bf8ccc43",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit/optional: It would be clearer to store the return value of _mm256_castps128_ps256() in a local variable and let the compiler allocate registers:\n\n  __m256i weight_vec \u003d _mm256_castps128_ps256(_mm_loadu_ps(weight));\n  shuffle_weight[0] \u003d\n      _mm256_permutevar8x32_ps(weight_vec, weight_mask[0]);\n  shuffle_weight[1] \u003d\n      _mm256_permutevar8x32_ps(weight_vec, weight_mask[1]);",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "47c4e019_addd63b0",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: block \u003d\u003e blocks (plural)",
+      "range": {
+        "startLine": 173,
+        "startChar": 47,
+        "endLine": 173,
+        "endChar": 52
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba3a435c_6658af2c",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Since out_accum and out_pos are always used together in this function as out_accum[out_pos], they can be combined into a single output parameter. Could you try that?",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14539ac8_187af7e2",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: add a space after \"8\".",
+      "range": {
+        "startLine": 199,
+        "startChar": 21,
+        "endLine": 199,
+        "endChar": 22
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6c16f91_a81317ba",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: block \u003d\u003e blocks (plural)",
+      "range": {
+        "startLine": 200,
+        "startChar": 50,
+        "endLine": 200,
+        "endChar": 55
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b801f84e_85b6db0a",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: Let\u0027s just use in_stride * 2 here. Compilers can do this kind of optimization for us.\n\nIn fact, the compiler may transform these four lines into:\n\n  load_src[0] \u003d _mm256_loadu_ps(input_ptr);\n  input_ptr +\u003d in_stride;\n  load_src[1] \u003d _mm256_loadu_ps(input_ptr);\n  input_ptr +\u003d in_stride;\n  load_src[2] \u003d _mm256_loadu_ps(input_ptr);\n  input_ptr +\u003d in_stride;\n  load_src[3] \u003d _mm256_loadu_ps(input_ptr);",
+      "range": {
+        "startLine": 207,
+        "startChar": 44,
+        "endLine": 207,
+        "endChar": 60
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22f0298a_28cfb243",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: I suggest using the same form for lines 190-192 and these three lines.",
+      "range": {
+        "startLine": 217,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 57
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c3a75f2_8c08f489",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Please see if out_accum and out_pos can be combined into a single output parameter.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c6141f5_7e75de26",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Since in_height is always 16, we can remove this parameter and replace in_height with 16 in this function.",
+      "range": {
+        "startLine": 350,
+        "startChar": 25,
+        "endLine": 350,
+        "endChar": 38
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3461dd3_9484ca9b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Since in_height is 16 and layer_config-\u003efilter_height and layer_config-\u003eskip_height are 2, we can replace these lines with:\n\n      for (int h \u003d 0, u \u003d 0; h \u003c 15; h +\u003d 2, ++u) {\n\nYou can define const local variables to make 15 and 2 more meaningful.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9000f08_e2547581",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "As I noted at line 196 above, we should be able to combine u and out_accum into a single argument and just pass \u0026out_accum[u] to the function.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0eeb66a1_7794c49b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Similarly, this can be replaced by\n\n      for (int h \u003d 0, u \u003d 0; h \u003c 15; h +\u003d 2, ++u) {",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14c60f3d_4db5ce44",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Since in_height is always 8, we can remove this parameter and replace in_height with 8 in this function.",
+      "range": {
+        "startLine": 385,
+        "startChar": 25,
+        "endLine": 385,
+        "endChar": 38
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89c88f63_2d16faec",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "This is always 4.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e864861_fe696aee",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "This can be rewritten as\n\n      for (int h \u003d 0, u \u003d 0; h \u003c 7; h +\u003d 4, ++u) {",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db6ebc92_96bf7fa1",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "This can be rewritten as\n\n      for (int h \u003d 0, u \u003d 0; h \u003c 7; h +\u003d 4, ++u) {",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b059b7e2_36fd3f36",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: Delete \"is\"",
+      "range": {
+        "startLine": 445,
+        "startChar": 53,
+        "endLine": 445,
+        "endChar": 55
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c9023ea_2afe3fe1",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: move this comment into the if block, at line 448.",
+      "range": {
+        "startLine": 445,
+        "startChar": 0,
+        "endLine": 446,
+        "endChar": 42
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9138d7b_329ae2b9",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: Delete \"is\"",
+      "range": {
+        "startLine": 452,
+        "startChar": 54,
+        "endLine": 452,
+        "endChar": 56
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0328fe3_f17d4921",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit: calling \u003d\u003e \"we call\" or \"this calls\"",
+      "range": {
+        "startLine": 460,
+        "startChar": 20,
+        "endLine": 460,
+        "endChar": 27
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e08b3ca6_08ab9a23",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Nit/optional: It would be good to avoid getting here, because we will have done some unneeded work at lines 435-443.\n\nSince this is just a theoretical issue right now, you don\u0027t need to fix this.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf4d8bcc_53be3c6a",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "Please add layer_config-\u003eskip_width \u003d\u003d 4 \u0026\u0026 layer_config-\u003eskip_height \u003d\u003d 4 here.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "521e16d9_46f41f02",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-11T02:28:10Z",
+      "side": 1,
+      "message": "We should also test layer_config-\u003eskip_width \u003d\u003d 2 \u0026\u0026 layer_config-\u003eskip_height \u003d\u003d 2 here.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
