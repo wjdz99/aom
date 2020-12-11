@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e30b89d3_1fc3d725",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-11T19:19:08Z",
+      "side": 1,
+      "message": "Thank you. Things are simplified a lot!",
+      "revId": "f4094901098de8eb69d4f0c517715e0ad4825051",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
