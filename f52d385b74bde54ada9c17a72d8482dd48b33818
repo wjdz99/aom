@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6d6ae13_69a5a786",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f480c46_46cff849",
+      "range": {
+        "startLine": 50,
+        "startChar": 65,
+        "endLine": 50,
+        "endChar": 74
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a24a9a59_bf8ccc43",
@@ -71,6 +95,24 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Nit/optional: It would be clearer to store the return value of _mm256_castps128_ps256() in a local variable and let the compiler allocate registers:\n\n  __m256i weight_vec \u003d _mm256_castps128_ps256(_mm_loadu_ps(weight));\n  shuffle_weight[0] \u003d\n      _mm256_permutevar8x32_ps(weight_vec, weight_mask[0]);\n  shuffle_weight[1] \u003d\n      _mm256_permutevar8x32_ps(weight_vec, weight_mask[1]);",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ee23b1a_d43bcc61",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a24a9a59_bf8ccc43",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -98,6 +140,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47c1ce78_f0d3ff69",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47c4e019_addd63b0",
+      "range": {
+        "startLine": 173,
+        "startChar": 47,
+        "endLine": 173,
+        "endChar": 52
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba3a435c_6658af2c",
@@ -115,6 +181,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3559355a_92f593db",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba3a435c_6658af2c",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14539ac8_187af7e2",
@@ -128,6 +212,30 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Nit: add a space after \"8\".",
+      "range": {
+        "startLine": 199,
+        "startChar": 21,
+        "endLine": 199,
+        "endChar": 22
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc1a3e31_e70305fc",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14539ac8_187af7e2",
       "range": {
         "startLine": 199,
         "startChar": 21,
@@ -161,6 +269,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd40ddb5_1a270bd0",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6c16f91_a81317ba",
+      "range": {
+        "startLine": 200,
+        "startChar": 50,
+        "endLine": 200,
+        "endChar": 55
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b801f84e_85b6db0a",
@@ -174,6 +306,30 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Nit: Let\u0027s just use in_stride * 2 here. Compilers can do this kind of optimization for us.\n\nIn fact, the compiler may transform these four lines into:\n\n  load_src[0] \u003d _mm256_loadu_ps(input_ptr);\n  input_ptr +\u003d in_stride;\n  load_src[1] \u003d _mm256_loadu_ps(input_ptr);\n  input_ptr +\u003d in_stride;\n  load_src[2] \u003d _mm256_loadu_ps(input_ptr);\n  input_ptr +\u003d in_stride;\n  load_src[3] \u003d _mm256_loadu_ps(input_ptr);",
+      "range": {
+        "startLine": 207,
+        "startChar": 44,
+        "endLine": 207,
+        "endChar": 60
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ba811f6_ca89e4e9",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b801f84e_85b6db0a",
       "range": {
         "startLine": 207,
         "startChar": 44,
@@ -207,6 +363,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14ee4828_478c955b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "The accumulation is different for perform_convolve_for_8h_2x2_block() and perform_convolve_for_4hx2v_2x2_block() functions. As the processed 2x2 blocks arrangement is different for each case, if we were to use same form their might be need of changing the register names and load accordingly.",
+      "parentUuid": "22f0298a_28cfb243",
+      "range": {
+        "startLine": 217,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 57
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c3a75f2_8c08f489",
@@ -220,6 +400,24 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Please see if out_accum and out_pos can be combined into a single output parameter.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da6f001f_8fb8e032",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c3a75f2_8c08f489",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -247,6 +445,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a8e4005_e454a4d3",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Suggestions related to use constant values instead of variable names might compromise the readability of module. As per our opinion, it is better to leave the variables as it is.\n\nPlease let us know your opinion on the same.",
+      "parentUuid": "9c6141f5_7e75de26",
+      "range": {
+        "startLine": 350,
+        "startChar": 25,
+        "endLine": 350,
+        "endChar": 38
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d3461dd3_9484ca9b",
@@ -260,6 +482,24 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Since in_height is 16 and layer_config-\u003efilter_height and layer_config-\u003eskip_height are 2, we can replace these lines with:\n\n      for (int h \u003d 0, u \u003d 0; h \u003c 15; h +\u003d 2, ++u) {\n\nYou can define const local variables to make 15 and 2 more meaningful.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "741138bd_7b154e98",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "We feel that, use of constant variables to hard coded values might not be good for readability perspective.\n\nlet us know your opinion on the same.",
+      "parentUuid": "d3461dd3_9484ca9b",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -281,6 +521,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "41c7be92_b11462b9",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a9000f08_e2547581",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0eeb66a1_7794c49b",
@@ -294,6 +552,24 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Similarly, this can be replaced by\n\n      for (int h \u003d 0, u \u003d 0; h \u003c 15; h +\u003d 2, ++u) {",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebd4a02e_9a13b23d",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0eeb66a1_7794c49b",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -321,6 +597,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e6315ec_aa897e28",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "14c60f3d_4db5ce44",
+      "range": {
+        "startLine": 385,
+        "startChar": 25,
+        "endLine": 385,
+        "endChar": 38
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89c88f63_2d16faec",
@@ -334,6 +634,24 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "This is always 4.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec98ce79_ea6fa50e",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "89c88f63_2d16faec",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -355,6 +673,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aeaa98be_4516cf4b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0e864861_fe696aee",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db6ebc92_96bf7fa1",
@@ -372,6 +708,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b6f01e9_dfd657ee",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "db6ebc92_96bf7fa1",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b059b7e2_36fd3f36",
@@ -385,6 +739,30 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Nit: Delete \"is\"",
+      "range": {
+        "startLine": 445,
+        "startChar": 53,
+        "endLine": 445,
+        "endChar": 55
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe6ded06_d9ddba4f",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b059b7e2_36fd3f36",
       "range": {
         "startLine": 445,
         "startChar": 53,
@@ -418,6 +796,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1925fb3a_72afbd55",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c9023ea_2afe3fe1",
+      "range": {
+        "startLine": 445,
+        "startChar": 0,
+        "endLine": 446,
+        "endChar": 42
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9138d7b_329ae2b9",
@@ -431,6 +833,30 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Nit: Delete \"is\"",
+      "range": {
+        "startLine": 452,
+        "startChar": 54,
+        "endLine": 452,
+        "endChar": 56
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "940dc04b_d8add376",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9138d7b_329ae2b9",
       "range": {
         "startLine": 452,
         "startChar": 54,
@@ -464,6 +890,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b729b72_5ce8761c",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0328fe3_f17d4921",
+      "range": {
+        "startLine": 460,
+        "startChar": 20,
+        "endLine": 460,
+        "endChar": 27
+      },
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e08b3ca6_08ab9a23",
@@ -477,6 +927,24 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "Nit/optional: It would be good to avoid getting here, because we will have done some unneeded work at lines 435-443.\n\nSince this is just a theoretical issue right now, you don\u0027t need to fix this.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43277433_b3f4b440",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "We have fix this issue by adding another function load_shuffle_masks_for_2x2_convolve().",
+      "parentUuid": "e08b3ca6_08ab9a23",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -498,6 +966,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb9db18b_dace1244",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 485,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf4d8bcc_53be3c6a",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "521e16d9_46f41f02",
@@ -511,6 +997,24 @@
       "writtenOn": "2020-12-11T02:28:10Z",
       "side": 1,
       "message": "We should also test layer_config-\u003eskip_width \u003d\u003d 2 \u0026\u0026 layer_config-\u003eskip_height \u003d\u003d 2 here.",
+      "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f41b71bd_27a110ed",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-11T10:22:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "521e16d9_46f41f02",
       "revId": "f52d385b74bde54ada9c17a72d8482dd48b33818",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
