@@ -837,8 +837,14 @@ static void filter_horiz_w4_ssse3(const uint8_t *const src,
   s[1] = _mm_srli_si128(ss[0], 8);
   // 04 05 14 15 24 25 34 35
   s[2] = ss[1];
+  // DO NOT SUBMIT: s[2] == s[1]
   // 06 07 16 17 26 27 36 37
   s[3] = _mm_srli_si128(ss[1], 8);
+  // DO NOT SUBMIT: s[3] == 0
+  if (0xffff != _mm_movemask_epi8(_mm_cmpeq_epi8(s[3], _mm_setzero_si128()))) {
+    fprintf(stderr, "WTC: Assertion s[3] == 0 failed\n");
+    abort();
+  }
 
   temp = shuffle_filter_convolve8_8_ssse3(s, filter);
   // shrink to 8 bit each 16 bits

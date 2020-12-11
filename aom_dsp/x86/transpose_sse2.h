@@ -107,10 +107,13 @@ static INLINE void transpose_16bit_4x4(const __m128i *const in,
   const __m128i a1 = _mm_unpacklo_epi16(in[2], in[3]);
 
   // Unpack 32 bit elements resulting in:
-  // out[0]: 00 10 20 30
-  // out[1]: 01 11 21 31
-  // out[2]: 02 12 22 32
-  // out[3]: 03 13 23 33
+  // out[0]: 00 10 20 30  01 11 21 31
+  // out[1]: 01 11 21 31  __ __ __ __
+  // out[2]: 02 12 22 32  03 13 23 33
+  // out[3]: 03 13 23 33  __ __ __ __
+  //
+  // Note: The high 64 bits in the registers are shown, even though the caller
+  // is expected to ignore them. __ indicates zeros.
   out[0] = _mm_unpacklo_epi32(a0, a1);
   out[1] = _mm_srli_si128(out[0], 8);
   out[2] = _mm_unpackhi_epi32(a0, a1);
