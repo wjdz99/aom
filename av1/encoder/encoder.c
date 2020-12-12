@@ -1717,8 +1717,11 @@ static void set_mv_search_params(AV1_COMP *cpi) {
   }
 }
 
-void av1_set_screen_content_options(AV1_COMP *cpi, FeatureFlags *features) {
+void av1_set_screen_content_options(
+    AV1_COMP *cpi, const YV12_BUFFER_CONFIG const *unfiltered_source,
+    FeatureFlags *features) {
   const AV1_COMMON *const cm = &cpi->common;
+  assert(unfiltered_source != NULL);
 
   if (cm->seq_params.force_screen_content_tools != 2) {
     features->allow_screen_content_tools = features->allow_intrabc =
@@ -1739,12 +1742,12 @@ void av1_set_screen_content_options(AV1_COMP *cpi, FeatureFlags *features) {
 
   // Estimate if the source frame is screen content, based on the portion of
   // blocks that have few luma colors.
-  const uint8_t *src = cpi->unfiltered_source->y_buffer;
+  const uint8_t *src = unfiltered_source->y_buffer;
   assert(src != NULL);
-  const int use_hbd = cpi->unfiltered_source->flags & YV12_FLAG_HIGHBITDEPTH;
-  const int stride = cpi->unfiltered_source->y_stride;
-  const int width = cpi->unfiltered_source->y_width;
-  const int height = cpi->unfiltered_source->y_height;
+  const int use_hbd = unfiltered_source->flags & YV12_FLAG_HIGHBITDEPTH;
+  const int stride = unfiltered_source->y_stride;
+  const int width = unfiltered_source->y_width;
+  const int height = unfiltered_source->y_height;
   const int bd = cm->seq_params.bit_depth;
   const int blk_w = 16;
   const int blk_h = 16;
@@ -2892,10 +2895,6 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, encode_frame_to_data_rate_time);
 #endif
-
-  if (frame_is_intra_only(cm)) {
-    av1_set_screen_content_options(cpi, features);
-  }
 
   // frame type has been decided outside of this function call
   cm->cur_frame->frame_type = current_frame->frame_type;

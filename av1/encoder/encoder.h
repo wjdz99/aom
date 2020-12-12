@@ -2826,8 +2826,9 @@ int av1_convert_sect5obus_to_annexb(uint8_t *buffer, size_t *input_size);
 // However, the estimation is not accurate and may misclassify videos.
 // A slower but more accurate approach that determines whether to use screen
 // content tools is employed later. See av1_determine_sc_tools_with_encoding().
-void av1_set_screen_content_options(struct AV1_COMP *cpi,
-                                    FeatureFlags *features);
+void av1_set_screen_content_options(
+    struct AV1_COMP *cpi, const YV12_BUFFER_CONFIG *const unfiltered_source,
+    FeatureFlags *features);
 
 // TODO(jingning): Move these functions as primitive members for the new cpi
 // class.
