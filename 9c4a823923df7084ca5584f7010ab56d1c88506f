@@ -33,6 +33,200 @@
       "message": "Aniket: I will review the new patch set today. Thank you for the update.\nChi Yo: Could you also take a quick look? Thanks.",
       "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "038f7c36_fe1d8a67",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I changed \"corresponds\" to \"corresponding\".",
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "615cf3b5_31c36e98",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I changed \"cnn_no_maxpool_padding_valid\" to \"av1_cnn_convolve_no_maxpool_padding_valid_c\".",
+      "range": {
+        "startLine": 238,
+        "startChar": 19,
+        "endLine": 238,
+        "endChar": 47
+      },
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fdf305d_c9e80276",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I removed this comment. The function\u0027s name is self-descriptive. (In fact, the comment has only one more word, \"needed\".)",
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d4260b9_3e3f940e",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I removed this comment. The function\u0027s name is self-descriptive.",
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91f20768_0226b7f6",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 441,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I changed \"cnn_no_maxpool_padding_valid\" to \"av1_cnn_convolve_no_maxpool_padding_valid_c\".",
+      "range": {
+        "startLine": 441,
+        "startChar": 19,
+        "endLine": 441,
+        "endChar": 47
+      },
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c33857b_5de2e358",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I changed \"config layer\" to \"layer config\".",
+      "range": {
+        "startLine": 443,
+        "startChar": 14,
+        "endLine": 443,
+        "endChar": 26
+      },
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4829ae7e_df0fd231",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I changed \"cnn_convolve\" to \"av1_cnn_convolve\".",
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "614d8234_019e7b1f",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I made two minor changes to this sentence.",
+      "range": {
+        "startLine": 478,
+        "startChar": 51,
+        "endLine": 479,
+        "endChar": 51
+      },
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9acd676e_382944f2",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I removed the parentheses here. Since the four tests are all connected by \u0026\u0026, it does not seem necessary to group the tests.",
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b67f0f67_6135e4b8",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-12T01:05:21Z",
+      "side": 1,
+      "message": "I removed the parentheses here.",
+      "revId": "9c4a823923df7084ca5584f7010ab56d1c88506f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
