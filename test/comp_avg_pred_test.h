@@ -291,7 +291,7 @@ class AV1DISTWTDCOMPAVGUPSAMPLEDTest
     const int num_loops = 1000000000 / (in_w + in_h);
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
-    int subpel_search = USE_8_TAPS;  // set to USE_4_TAPS to test 4-tap filter.
+    int subpel_search = USE_8_TAPS_REG;  // set to USE_4_TAPS to test 4-tap filter.
 
     for (int i = 0; i < num_loops; ++i)
       aom_dist_wtd_comp_avg_upsampled_pred_c(
@@ -460,7 +460,7 @@ class AV1HighBDDISTWTDCOMPAVGUPSAMPLEDTest
     dist_wtd_comp_params.use_dist_wtd_comp_avg = 1;
     int sub_x_q3, sub_y_q3;
     int subpel_search;
-    for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS;
+    for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS_REG;
          ++subpel_search) {
       for (sub_x_q3 = 0; sub_x_q3 < 8; ++sub_x_q3) {
         for (sub_y_q3 = 0; sub_y_q3 < 8; ++sub_y_q3) {
@@ -531,7 +531,7 @@ class AV1HighBDDISTWTDCOMPAVGUPSAMPLEDTest
     const int num_loops = 1000000000 / (in_w + in_h);
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
-    int subpel_search = USE_8_TAPS;  // set to USE_4_TAPS to test 4-tap filter.
+    int subpel_search = USE_8_TAPS_REG;  // set to USE_4_TAPS to test 4-tap filter.
     for (int i = 0; i < num_loops; ++i)
       aom_highbd_dist_wtd_comp_avg_upsampled_pred_c(
           NULL, NULL, 0, 0, NULL, CONVERT_TO_BYTEPTR(output),

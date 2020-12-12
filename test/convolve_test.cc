@@ -670,7 +670,7 @@ TEST_P(ConvolveTest, DISABLED_Speed) {
 
   const InterpFilter filter = (InterpFilter)1;
   const InterpKernel *filters =
-      (const InterpKernel *)av1_get_interp_filter_kernel(filter, USE_8_TAPS);
+      (const InterpKernel *)av1_get_interp_filter_kernel(filter, USE_8_TAPS_REG);
   wrapper_filter_average_block2d_8_c(in, kInputStride, filters[1], filters[1],
                                      out, kOutputStride, Width(), Height());
 
@@ -683,7 +683,7 @@ TEST_P(ConvolveTest, DISABLED_Speed) {
       const InterpFilter filter = (InterpFilter)filter_bank;
       const InterpKernel *filters =
           (const InterpKernel *)av1_get_interp_filter_kernel(filter,
-                                                             USE_8_TAPS);
+                                                             USE_8_TAPS_REG);
       for (int filter_x = 0; filter_x < kNumFilters; ++filter_x) {
         for (int filter_y = 0; filter_y < kNumFilters; ++filter_y) {
           if (filter_x && filter_y) continue;

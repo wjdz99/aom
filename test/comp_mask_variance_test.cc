@@ -233,7 +233,7 @@ void AV1CompMaskUpVarianceTest::RunSpeedTest(comp_mask_pred_func test_impl,
   const int num_loops = 1000000000 / (w + h);
   comp_mask_pred_func funcs[2] = { &aom_comp_mask_pred_c, test_impl };
   double elapsed_time[2] = { 0 };
-  int subpel_search = USE_8_TAPS;  // set to USE_4_TAPS to test 4-tap filter.
+  int subpel_search = USE_8_TAPS_REG;  // set to USE_4_TAPS to test 4-tap filter.
   for (int i = 0; i < 2; ++i) {
     aom_usec_timer timer;
     aom_usec_timer_start(&timer);
