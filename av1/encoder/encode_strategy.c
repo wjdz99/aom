@@ -1015,6 +1015,83 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
 }
 #endif  // !CONFIG_REALTIME_ONLY
 
+////////////////////////////////////////
+typedef struct {
+  int use_score;
+  int index;
+} RefScoreData;
+/*!\endcond */
+
+// Comparison function to sort reference frames in ascending display order
+static int compare_score_data_asc(const void *a, const void *b) {
+  if (((RefScoreData *)a)->use_score == ((RefScoreData *)b)->use_score) {
+    return 0;
+  } else if (((const RefScoreData *)a)->use_score >
+             ((const RefScoreData *)b)->use_score) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+static int rank_ref_frames(AV1_COMMON *const cm, 
+                        int cur_frame_disp, int cur_frame_pyr,
+                        int *ranking) {
+  RefScoreData scores[REF_FRAMES];
+  printf("CUR disp %d pyr %d\n", cur_frame_disp, cur_frame_pyr);
+  int n_ranked = 0;
+  for (int i = LAST_FRAME; i <= ALTREF_FRAME; i++) {
+    // Get reference frame buffer
+    const RefCntBuffer *const buf = get_ref_frame_buf(cm, i);
+    if (buf == NULL) continue;
+    const int ref_disp = (int)buf->display_order_hint;
+    int is_duplicate = 0;
+    for (int j = 0; j < n_ranked; j++) {
+      const RefCntBuffer *const buf2 = 
+        get_ref_frame_buf(cm, scores[j].index);
+      if (ref_disp == (int)buf2->display_order_hint) {
+        is_duplicate = 1;
+        break;
+      }
+    }
+    if (is_duplicate) continue;
+    
+    const int ref_pyr = buf->pyramid_level;
+    const int disp_diff = abs(cur_frame_disp - ref_disp); 
+    const int pyr_diff = ref_pyr - cur_frame_pyr;
+    const uint8_t scale_shift = MAX_ARF_LAYERS + pyr_diff;
+    const int score = disp_diff * (1 << scale_shift);
+    scores[n_ranked].index = i;
+    scores[n_ranked].use_score = score;
+    n_ranked++;
+  } 
+
+  qsort(scores, n_ranked, sizeof(scores[0]), compare_score_data_asc);
+
+  for (int i = 0; i < n_ranked; i++) {
+//  int index = scores[i].index;
+//  const RefCntBuffer *const buf = get_ref_frame_buf(cm, index);
+//printf("ind %d disp %d score %d\n", 
+//        index, 
+//        (int)buf->display_order_hint, 
+//        scores[i].use_score);
+    ranking[i] = scores[i].index;
+  }
+  return n_ranked;
+}
+static void disable_low_ranking_refs(int *ref_frame_flags, 
+                               int *ranking, 
+                               int n_ranked, int n_refs_allowed) {
+  const int n_to_disable = n_ranked - n_refs_allowed;
+  assert(n_to_disable >= 0);
+  for (int i = 0; i < n_to_disable; i++) {
+    const int index = n_ranked - 1 - i;
+    const int frame = ranking[index];
+    *ref_frame_flags &= ~(1 << (frame - LAST_FRAME));
+  }
+}
+///////////////////////////////////////
+
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
                         int64_t *const time_stamp, int64_t *const time_end,
@@ -1217,15 +1294,19 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   RefFrameMapPair ref_frame_map_pairs[REF_FRAMES];
   init_ref_map_pair(&cpi->common, ref_frame_map_pairs,
                     gf_group->update_type[gf_group->index] == KEY_FRAME);
+  const int order_offset = gf_group->arf_src_offset[gf_group->index];
+  const int cur_frame_disp =
+      cpi->common.current_frame.frame_number + order_offset;
+  const int cur_pyr_level = get_true_pyr_level(
+    cpi->gf_group.layer_depth[cpi->gf_group.index],
+    cur_frame_disp, cpi->gf_group.max_layer_depth);
+    int ranking[REF_FRAMES - 1] = { 0 };
 
   if (!is_stat_generation_stage(cpi)) {
     const RefCntBuffer *ref_frames[INTER_REFS_PER_FRAME];
     const YV12_BUFFER_CONFIG *ref_frame_buf[INTER_REFS_PER_FRAME];
 
     if (!ext_flags->refresh_frame.update_pending) {
-      const int order_offset = gf_group->arf_src_offset[gf_group->index];
-      const int cur_frame_disp =
-          cpi->common.current_frame.frame_number + order_offset;
       av1_get_ref_frames(cm, cur_frame_disp, ref_frame_map_pairs);
     } else if (cpi->svc.external_ref_frame_config) {
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
@@ -1260,9 +1341,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
       get_gop_cfg_enabled_refs(cpi, &frame_params.ref_frame_flags,
                                frame_params.order_offset);
     }
-
-    const int cur_frame_disp =
-        cpi->common.current_frame.frame_number + frame_params.order_offset;
+    if (!is_stat_generation_stage(cpi)) {
+      int n_ranked = rank_ref_frames(cm, cur_frame_disp, cur_pyr_level,
+                                     ranking);
+      int n_refs_allowed = n_ranked - 1;
+      disable_low_ranking_refs(&frame_params.ref_frame_flags, ranking, 
+                               n_ranked, n_refs_allowed); 
+    }
 
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, cpi->gf_group.index,
