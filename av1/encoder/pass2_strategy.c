@@ -564,7 +564,8 @@ static double calc_frame_boost(const RATE_CONTROL *rc,
 static double calc_kf_frame_boost(const RATE_CONTROL *rc,
                                   const FRAME_INFO *frame_info,
                                   const FIRSTPASS_STATS *this_frame,
-                                  double *sr_accumulator, double max_boost) {
+                                  double *sr_accumulator, double max_boost,
+                                  const int is_screen_content_type) {
   double frame_boost;
   const double lq = av1_convert_qindex_to_q(rc->avg_frame_qindex[INTER_FRAME],
                                             frame_info->bit_depth);
@@ -576,10 +577,13 @@ static double calc_kf_frame_boost(const RATE_CONTROL *rc,
   num_mbs = (int)AOMMAX(1, num_mbs * active_area);
 
   // Underlying boost factor is based on inter error ratio.
+  const double denominator =
+      is_screen_content_type
+          ? this_frame->coded_error * active_area
+          : (this_frame->coded_error + *sr_accumulator) * active_area;
   frame_boost = AOMMAX(baseline_err_per_mb(frame_info) * num_mbs,
                        this_frame->intra_error * active_area) /
-                DOUBLE_DIVIDE_CHECK(
-                    (this_frame->coded_error + *sr_accumulator) * active_area);
+                DOUBLE_DIVIDE_CHECK(denominator);
 
   // Update the accumulator for second ref error difference.
   // This is intended to give an indication of how much the coded error is
@@ -3034,8 +3038,9 @@ static double get_kf_boost_score(AV1_COMP *cpi, double kf_raw_err,
       zm_factor = (0.75 + (*zero_motion_accumulator / 2.0));
 
       if (i < 2) *sr_accumulator = 0.0;
-      frame_boost = calc_kf_frame_boost(rc, frame_info, &frame_stat,
-                                        sr_accumulator, kf_max_boost);
+      frame_boost =
+          calc_kf_frame_boost(rc, frame_info, &frame_stat, sr_accumulator,
+                              kf_max_boost, cpi->is_screen_content_type);
       boost_score += frame_boost * zm_factor;
     }
   }

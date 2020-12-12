@@ -1135,6 +1135,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   const int use_one_pass_rt_params = has_no_stats_stage(cpi) &&
                                      oxcf->mode == REALTIME &&
                                      gf_cfg->lag_in_frames == 0;
+  if (is_stat_consumption_stage(cpi) && frame_is_intra_only(cm) &&
+      cpi->rc.frames_to_key == 0) {
+    // Retrieve source for the key frame to determine screen content type.
+    struct lookahead_entry *unfiltered_source =
+        av1_lookahead_peek(cpi->lookahead, 0, cpi->compressor_stage);
+    av1_set_screen_content_options(cpi, &unfiltered_source->img, &cm->features);
+  }
   if (!use_one_pass_rt_params && !is_stat_generation_stage(cpi)) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, av1_get_second_pass_params_time);
@@ -1191,7 +1198,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   frame_input.source = &source->img;
   frame_input.last_source = last_source != NULL ? &last_source->img : NULL;
   frame_input.ts_duration = source->ts_end - source->ts_start;
-  // Save unfiltered source. It is used in av1_get_second_pass_params().
+  // Save unfiltered source.
   cpi->unfiltered_source = frame_input.source;
 
   *time_stamp = source->ts_start;

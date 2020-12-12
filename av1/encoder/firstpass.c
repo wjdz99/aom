@@ -1143,7 +1143,7 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   // Detect if the key frame is screen content type.
   if (frame_is_intra_only(cm)) {
     FeatureFlags *const features = &cm->features;
-    av1_set_screen_content_options(cpi, features);
+    av1_set_screen_content_options(cpi, cpi->unfiltered_source, features);
   }
   // Unit size for the first pass encoding.
   const BLOCK_SIZE fp_block_size =
