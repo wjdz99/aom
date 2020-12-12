@@ -16,6 +16,24 @@
       "message": "Hi Jayasanker: I am backporting a commit of yours to the applejack branch (used for libaom 2.0.x releases). I\u0027d appreciate it if you could take a look at this CL.\n\nNote that the applejack branch does not have yjshen\u0027s first fix for this bug (commit fbf298a0fd553a9cbb8ffd5790ec4c1c8de1c201). Therefore we just need to modify the assertion.\n\nThank you!",
       "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc090db9_a8716436",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-12-12T09:24:28Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe assertion could be simplified further as you have mentioned in the commit message. But as per the design, the SIMD module expects block_height to be greater than or equal to 4. In case assertion is modified, we feel that the assertion should contain above check for block_height as well.\n\nRegards,\nJayasanker.",
+      "parentUuid": "f6e6526c_489c053e",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
