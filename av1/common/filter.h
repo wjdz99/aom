@@ -46,7 +46,9 @@ enum {
   USE_2_TAPS_ORIG = 0,  // This is used in temporal filtering.
   USE_2_TAPS,
   USE_4_TAPS,
-  USE_8_TAPS,
+  USE_8_TAPS_REG,
+  USE_8_TAPS_SMT,
+  USE_8_TAPS_SHP,
 } UENUM1BYTE(SUBPEL_SEARCH_TYPE);
 
 enum {
@@ -272,7 +274,9 @@ static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
   switch (subpel_search) {
     case USE_2_TAPS: return &av1_interp_4tap[BILINEAR];
     case USE_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
-    case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
+    case USE_8_TAPS_REG: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
+    case USE_8_TAPS_SMT: return &av1_interp_filter_params_list[EIGHTTAP_SMOOTH];
+    case USE_8_TAPS_SHP: return &av1_interp_filter_params_list[MULTITAP_SHARP];
     default: assert(0); return NULL;
   }
 }
