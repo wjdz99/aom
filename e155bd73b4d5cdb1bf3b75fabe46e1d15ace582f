@@ -34,6 +34,75 @@
       "parentUuid": "f6e6526c_489c053e",
       "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a33afb0a_b489bbf0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-13T01:25:12Z",
+      "side": 1,
+      "message": "Thank you very much for your reply! I did not check the SIMD module very carefully when I wrote this CL. I have just checked the SIMD module carefully. I concluded that block_height must be \u003e\u003d 3 to avoid memory access errors. However, block_height \u003d\u003d 3 is probably a degenerate case. I guess that\u0027s why you said the SIMD module expects block_height to be \u003e\u003d 4. Please see my annotation of the source code and comment on my analysis.\n\nI will update the commit message base on your comments. Thank you!",
+      "parentUuid": "bc090db9_a8716436",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34e1c9cb_f798b2d9",
+        "filename": "av1/encoder/x86/temporal_filter_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-13T01:25:12Z",
+      "side": 1,
+      "message": "We load three rows upfront, without checking block_height. Therefore block_height must be \u003e\u003d 3 to avoid memory access errors.",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5ff15bb_caf8e3ad",
+        "filename": "av1/encoder/x86/temporal_filter_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-13T01:25:12Z",
+      "side": 1,
+      "message": "This check has a bug, right?\n\nOn the master branch, this line reads:\n\n      if (row \u003c\u003d block_height - 4) {",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a129c5e5_92bc5f21",
+        "filename": "av1/encoder/x86/temporal_filter_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-13T01:25:12Z",
+      "side": 1,
+      "message": "Here we load one row per loop iteration. Since this load is guarded by the check at line 187, this does not increase the minimum block_height that avoids memory access errors.",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
