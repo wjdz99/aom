@@ -2745,9 +2745,38 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
   AV1_COMMON *const cm = &cpi->common;
   int frame;
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    const WarpedMotionParams *ref_params =
-        cm->prev_frame ? &cm->prev_frame->global_motion[frame]
-                       : &default_warp_params;
+    WarpedMotionParams *ref_params;
+ 
+#if CONFIG_GM_MODEL_CODING
+    if(frame != LAST_FRAME){
+      int cur_poc = cm->cur_frame->absolute_poc;
+      const RefCntBuffer *const buf = get_ref_frame_buf(cm, frame);
+      int ref_poc = buf ? (int)buf->absolute_poc : -1;
+      const RefCntBuffer *const buf_last = get_ref_frame_buf(cm, LAST_FRAME);
+      int last_poc = buf_last ? (int)buf->absolute_poc : -1;
+  
+      uint16_t distance = ref_poc - cur_poc;
+      uint16_t base = last_poc - cur_poc;
+      uint16_t scale_factor = distance/base;
+    
+      ref_params = &cm->cur_frame->global_motion[LAST_FRAME];
+      
+      for(int i=0; i<8; i++){
+        ref_params->wmmat[i] *= scale_factor;
+      }
+      ref_params->alpha *= scale_factor;
+      ref_params->beta *= scale_factor;
+      ref_params->gamma *= scale_factor;
+      ref_params->delta *= scale_factor;
+    }else{
+      ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
+                          : &default_warp_params;
+    }
+#else
+    ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
+                         : &default_warp_params;
+#endif
+
     write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
                                cm->features.allow_high_precision_mv);
     // TODO(sarahparker, debargha): The logic in the commented out code below
