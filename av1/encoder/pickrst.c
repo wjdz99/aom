@@ -105,6 +105,12 @@ typedef struct {
   // The rtype to use for this unit given a frame rtype as
   // index. Indices: WIENER, SGRPROJ, CNN, WIENER_NONSEP, SWITCHABLE.
   RestorationType best_rtype[RESTORE_TYPES - 1];
+
+#if CONFIG_RST_MERGECOEFFS
+  // Indicates if filter is merged.
+  // Indices: WIENER, SGRPROJ, CNN, WIENER_NONSEP.
+  bool merged[RESTORE_TYPES - 2];
+#endif  // CONFIG_RST_MERGECOEFFS
 } RestUnitSearchInfo;
 
 typedef struct {
@@ -803,6 +809,7 @@ static void search_sgrproj(const RestorationTileLimits *limits,
 
 #if CONFIG_RST_MERGECOEFFS
   Vector *current_unit_stack = rsc->unit_stack;
+  rusi->merged[RESTORE_SGRPROJ - 1] = false;
   int64_t bits_nomerge = x->sgrproj_restore_cost[1] + x->merged_param_cost[0] +
                          (count_sgrproj_bits(&rusi->sgrproj, &rsc->sgrproj)
                           << AV1_PROB_COST_SHIFT);
@@ -896,6 +903,7 @@ static void search_sgrproj(const RestorationTileLimits *limits,
     VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
       RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
       RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
+      old_rusi->merged[RESTORE_SGRPROJ - 1] = true;
       old_rusi->best_rtype[RESTORE_SGRPROJ - 1] = RESTORE_SGRPROJ;
       old_rusi->sgrproj = rui_temp.sgrproj_info;
       old_rusi->sse[RESTORE_SGRPROJ] = old_unit->merge_sse;
@@ -1554,6 +1562,7 @@ static void search_wiener(const RestorationTileLimits *limits,
 
 #if CONFIG_RST_MERGECOEFFS
   Vector *current_unit_stack = rsc->unit_stack;
+  rusi->merged[RESTORE_WIENER - 1] = false;
   int64_t bits_nomerge =
       x->wiener_restore_cost[1] + x->merged_param_cost[0] +
       (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
@@ -1666,6 +1675,7 @@ static void search_wiener(const RestorationTileLimits *limits,
     VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
       RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
       RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
+      old_rusi->merged[RESTORE_WIENER - 1] = true;
       old_rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_WIENER;
       old_rusi->wiener = rui_temp.wiener_info;
       old_rusi->sse[RESTORE_WIENER] = old_unit->merge_sse;
@@ -2028,6 +2038,7 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
 #if CONFIG_RST_MERGECOEFFS
     int is_uv = (rsc->plane != AOM_PLANE_Y);
     Vector *current_unit_stack = rsc->unit_stack;
+    rusi->merged[RESTORE_WIENER_NONSEP - 1] = false;
     int64_t bits_nomerge =
         x->wiener_nonsep_restore_cost[1] + x->merged_param_cost[0] +
         (count_wienerns_bits(rsc->plane, &rusi->wiener_nonsep,
@@ -2160,6 +2171,7 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
       VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
         RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
         RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
+        old_rusi->merged[RESTORE_WIENER_NONSEP - 1] = true;
         old_rusi->best_rtype[RESTORE_WIENER_NONSEP - 1] = RESTORE_WIENER_NONSEP;
         old_rusi->wiener_nonsep = rui_temp.wiener_nonsep_info;
         old_rusi->sse[RESTORE_WIENER_NONSEP] = old_unit->merge_sse;
