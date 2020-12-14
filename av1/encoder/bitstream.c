@@ -2744,10 +2744,24 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
                                            struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
+#if CONFIG_GM_MODEL_CODING
+  int base = calculate_ref_params_scaling_base(cm);
+#endif
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
-    const WarpedMotionParams *ref_params =
-        cm->prev_frame ? &cm->prev_frame->global_motion[frame]
-                       : &default_warp_params;
+    const WarpedMotionParams *ref_params;
+#if CONFIG_GM_MODEL_CODING
+    if (frame != LAST_FRAME) {
+      int distance = culate_ref_params_scaling_distance(cm, frame);
+      ref_params = find_GM_ref_params(cm, distance, base);
+    } else {
+      ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
+                                  : &default_warp_params;
+    }
+#else
+    ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
+                                : &default_warp_params;
+#endif
+
     write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
                                cm->features.allow_high_precision_mv);
     // TODO(sarahparker, debargha): The logic in the commented out code below
