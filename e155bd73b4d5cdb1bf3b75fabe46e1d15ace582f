@@ -56,6 +56,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "551e4d2a_57d05232",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-12-14T12:10:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a33afb0a_b489bbf0",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "34e1c9cb_f798b2d9",
         "filename": "av1/encoder/x86/temporal_filter_avx2.c",
         "patchSetId": 1
@@ -67,6 +85,24 @@
       "writtenOn": "2020-12-13T01:25:12Z",
       "side": 1,
       "message": "We load three rows upfront, without checking block_height. Therefore block_height must be \u003e\u003d 3 to avoid memory access errors.",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90ca0518_13dabc51",
+        "filename": "av1/encoder/x86/temporal_filter_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-12-14T12:10:26Z",
+      "side": 1,
+      "message": "From code-review, block_height \u003e\u003d 3 looks sufficient. But we haven\u0027t done any tests to validate these observations.",
+      "parentUuid": "34e1c9cb_f798b2d9",
       "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -108,6 +144,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "933e9d94_51f788f0",
+        "filename": "av1/encoder/x86/temporal_filter_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-12-14T12:10:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "84241277_1ac3c1d7",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "a129c5e5_92bc5f21",
         "filename": "av1/encoder/x86/temporal_filter_avx2.c",
         "patchSetId": 1
@@ -119,6 +173,24 @@
       "writtenOn": "2020-12-13T01:25:12Z",
       "side": 1,
       "message": "Here we load one row per loop iteration. Since this load is guarded by the check at line 187, this does not increase the minimum block_height that avoids memory access errors.",
+      "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16834018_4949bb70",
+        "filename": "av1/encoder/x86/temporal_filter_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2020-12-14T12:10:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a129c5e5_92bc5f21",
       "revId": "e155bd73b4d5cdb1bf3b75fabe46e1d15ace582f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
