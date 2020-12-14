@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dad4575a_8e49a128",
+        "filename": "av1/common/convolve.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-14T14:32:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2226b833_445b01fe",
+      "range": {
+        "startLine": 544,
+        "startChar": 4,
+        "endLine": 544,
+        "endChar": 63
+      },
+      "revId": "32309cd25b93d6007851c930c1ad3b08897dbec8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85a8edec_d01bbaa0",
@@ -81,6 +105,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "97e6e19e_f3b1e023",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-14T14:32:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85a8edec_d01bbaa0",
+      "range": {
+        "startLine": 371,
+        "startChar": 4,
+        "endLine": 371,
+        "endChar": 32
+      },
+      "revId": "32309cd25b93d6007851c930c1ad3b08897dbec8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a09c89b0_ea9c2738",
@@ -94,6 +142,30 @@
       "writtenOn": "2020-12-11T21:18:32Z",
       "side": 1,
       "message": "A workaround change here can be\n if (w \u003c 4) {\n   // w \u003c 4 case optimization can be added if needed later.\n   av1_convolve_x_sr_c(...);\n } else {\n   av1_convolve_x_sr_12tap_sse2(...);\n }",
+      "range": {
+        "startLine": 290,
+        "startChar": 4,
+        "endLine": 290,
+        "endChar": 32
+      },
+      "revId": "32309cd25b93d6007851c930c1ad3b08897dbec8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0821c68b_31d7ac3d",
+        "filename": "av1/common/x86/convolve_sse2.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-14T14:32:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a09c89b0_ea9c2738",
       "range": {
         "startLine": 290,
         "startChar": 4,
