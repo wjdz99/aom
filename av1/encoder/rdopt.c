@@ -1388,7 +1388,6 @@ static int64_t motion_mode_rd(
       mbmi->wm_params.wmtype = DEFAULT_WMTYPE;
       mbmi->interp_filters =
           av1_broadcast_interp_filter(av1_unswitchable_filter(interp_filter));
-
       memcpy(pts, pts0, total_samples * 2 * sizeof(*pts0));
       memcpy(pts_inref, pts_inref0, total_samples * 2 * sizeof(*pts_inref0));
       // Select the samples according to motion vector difference

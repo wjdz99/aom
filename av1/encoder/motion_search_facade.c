@@ -301,21 +301,42 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     switch (mbmi->motion_mode) {
       case SIMPLE_TRANSLATION:
         if (cpi->sf.mv_sf.use_accurate_subpel_search) {
+          MV this_best_mv;
           const int try_second = second_best_mv.as_int != INVALID_MV &&
                                  second_best_mv.as_int != best_mv->as_int;
-          const int best_mv_var = mv_search_params->find_fractional_mv_step(
-              xd, cm, &ms_params, subpel_start_mv, &best_mv->as_mv, &dis,
-              &x->pred_sse[ref], fractional_ms_list);
+          int best_mv_var = INT_MAX;
 
-          if (try_second) {
-            MV this_best_mv;
+          for (SUBPEL_SEARCH_TYPE idx = USE_8_TAPS_REG;
+               idx <= USE_8_TAPS_SHP;
+               ++idx) {
+            ms_params.var_params.subpel_search_type = idx;
+            int this_mv_var =
+                mv_search_params->find_fractional_mv_step(
+                    xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
+                    &x->pred_sse[ref], NULL);
+            if (this_mv_var < best_mv_var) {
+              best_mv->as_mv = this_best_mv;
+              best_mv_var = this_mv_var;
+            }
+          }
+
+          if (try_second) {            
             subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
             if (av1_is_subpelmv_in_range(&ms_params.mv_limits,
                                          subpel_start_mv)) {
-              const int this_var = mv_search_params->find_fractional_mv_step(
-                  xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
-                  &x->pred_sse[ref], fractional_ms_list);
-              if (this_var < best_mv_var) best_mv->as_mv = this_best_mv;
+              for (SUBPEL_SEARCH_TYPE idx = USE_8_TAPS_REG;
+                   idx <= USE_8_TAPS_SHP;
+                   ++idx) {
+                ms_params.var_params.subpel_search_type = idx;
+                int this_mv_var =
+                    mv_search_params->find_fractional_mv_step(
+                        xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
+                        &x->pred_sse[ref], NULL);
+                if (this_mv_var < best_mv_var) {
+                  best_mv->as_mv = this_best_mv;
+                  best_mv_var = this_mv_var;
+                }
+              }
             }
           }
         } else {
