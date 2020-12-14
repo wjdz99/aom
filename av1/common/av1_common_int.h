@@ -1229,6 +1229,35 @@ static INLINE RefCntBuffer *get_primary_ref_frame_buf(
   return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
 }
 
+static INLINE int calculate_ref_params_scaling_base(AV1_COMMON *const cm) {
+  int cur_poc = cm->cur_frame->absolute_poc;
+  const RefCntBuffer *const buf_last = get_ref_frame_buf(cm, LAST_FRAME);
+  int last_poc = buf_last ? (int)buf_last->absolute_poc : -1;
+  return last_poc - cur_poc;
+}
+
+static INLINE int culate_ref_params_scaling_distance(AV1_COMMON *const cm,
+                                                     int frame) {
+  int cur_poc = cm->cur_frame->absolute_poc;
+  const RefCntBuffer *const buf = get_ref_frame_buf(cm, frame);
+  int ref_poc = buf ? (int)buf->absolute_poc : -1;
+  return ref_poc - cur_poc;
+}
+
+static INLINE WarpedMotionParams *find_GM_ref_params(AV1_COMMON *const cm,
+                                                     int distance, int base) {
+  int scale_factor = (base != 0 && distance != 0) ? (distance / base) : 1;
+  WarpedMotionParams *ref_params = &cm->cur_frame->global_motion[LAST_FRAME];
+  for (int i = 0; i < 8; ++i) {
+    ref_params->wmmat[i] *= scale_factor;
+  }
+  ref_params->alpha *= scale_factor;
+  ref_params->beta *= scale_factor;
+  ref_params->gamma *= scale_factor;
+  ref_params->delta *= scale_factor;
+  return ref_params;
+}
+
 // Returns 1 if this frame might allow mvs from some reference frame.
 static INLINE int frame_might_allow_ref_frame_mvs(const AV1_COMMON *cm) {
   return !cm->features.error_resilient_mode &&
