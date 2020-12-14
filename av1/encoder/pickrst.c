@@ -105,12 +105,6 @@ typedef struct {
   // The rtype to use for this unit given a frame rtype as
   // index. Indices: WIENER, SGRPROJ, CNN, WIENER_NONSEP, SWITCHABLE.
   RestorationType best_rtype[RESTORE_TYPES - 1];
-
-#if CONFIG_RST_MERGECOEFFS
-  // Indicates if filter is merged.
-  // Indices: WIENER, SGRPROJ, CNN, WIENER_NONSEP.
-  bool merged[RESTORE_TYPES - 2];
-#endif  // CONFIG_RST_MERGECOEFFS
 } RestUnitSearchInfo;
 
 typedef struct {
@@ -809,7 +803,6 @@ static void search_sgrproj(const RestorationTileLimits *limits,
 
 #if CONFIG_RST_MERGECOEFFS
   Vector *current_unit_stack = rsc->unit_stack;
-  rusi->merged[RESTORE_SGRPROJ - 1] = false;
   int64_t bits_nomerge = x->sgrproj_restore_cost[1] + x->merged_param_cost[0] +
                          (count_sgrproj_bits(&rusi->sgrproj, &rsc->sgrproj)
                           << AV1_PROB_COST_SHIFT);
@@ -903,10 +896,6 @@ static void search_sgrproj(const RestorationTileLimits *limits,
     VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
       RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
       RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
-      // Indicate that all units but the first will be copied.
-      Iterator begin = aom_vector_begin((current_unit_stack));
-      if (!aom_iterator_equals(&(listed_unit), &begin))
-        old_rusi->merged[RESTORE_SGRPROJ - 1] = true;
       old_rusi->best_rtype[RESTORE_SGRPROJ - 1] = RESTORE_SGRPROJ;
       old_rusi->sgrproj = rui_temp.sgrproj_info;
       old_rusi->sse[RESTORE_SGRPROJ] = old_unit->merge_sse;
@@ -1565,7 +1554,6 @@ static void search_wiener(const RestorationTileLimits *limits,
 
 #if CONFIG_RST_MERGECOEFFS
   Vector *current_unit_stack = rsc->unit_stack;
-  rusi->merged[RESTORE_WIENER - 1] = false;
   int64_t bits_nomerge =
       x->wiener_restore_cost[1] + x->merged_param_cost[0] +
       (count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener)
@@ -1678,10 +1666,6 @@ static void search_wiener(const RestorationTileLimits *limits,
     VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
       RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
       RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
-      // Indicate that all units but the first will be copied.
-      Iterator begin = aom_vector_begin((current_unit_stack));
-      if (!aom_iterator_equals(&(listed_unit), &begin))
-        old_rusi->merged[RESTORE_WIENER - 1] = true;
       old_rusi->best_rtype[RESTORE_WIENER - 1] = RESTORE_WIENER;
       old_rusi->wiener = rui_temp.wiener_info;
       old_rusi->sse[RESTORE_WIENER] = old_unit->merge_sse;
@@ -2044,7 +2028,6 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
 #if CONFIG_RST_MERGECOEFFS
     int is_uv = (rsc->plane != AOM_PLANE_Y);
     Vector *current_unit_stack = rsc->unit_stack;
-    rusi->merged[RESTORE_WIENER_NONSEP - 1] = false;
     int64_t bits_nomerge =
         x->wiener_nonsep_restore_cost[1] + x->merged_param_cost[0] +
         (count_wienerns_bits(rsc->plane, &rusi->wiener_nonsep,
@@ -2177,10 +2160,6 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
       VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
         RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
         RestUnitSearchInfo *old_rusi = &rsc->rusi[old_unit->rest_unit_idx];
-        // Indicate that all units but the first will be copied.
-        Iterator begin = aom_vector_begin((current_unit_stack));
-        if (!aom_iterator_equals(&(listed_unit), &begin))
-          old_rusi->merged[RESTORE_WIENER_NONSEP - 1] = true;
         old_rusi->best_rtype[RESTORE_WIENER_NONSEP - 1] = RESTORE_WIENER_NONSEP;
         old_rusi->wiener_nonsep = rui_temp.wiener_nonsep_info;
         old_rusi->sse[RESTORE_WIENER_NONSEP] = old_unit->merge_sse;
@@ -2230,6 +2209,78 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
 }
 #endif  // CONFIG_WIENER_NONSEP
 
+static int64_t count_switchable_bits(int rest_type, RestSearchCtxt *rsc,
+                                     RestUnitSearchInfo *rusi) {
+  const MACROBLOCK *const x = rsc->x;
+  int is_uv = (rsc->plane != AOM_PLANE_Y);
+  const int wiener_win =
+      (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
+  if (rest_type > RESTORE_NONE) {
+    if (rusi->best_rtype[rest_type - 1] == RESTORE_NONE)
+      rest_type = RESTORE_NONE;
+  }
+  int64_t coeff_pcost = 0;
+  switch (rest_type) {
+    case RESTORE_NONE:
+#if CONFIG_LOOP_RESTORE_CNN
+    case RESTORE_CNN:
+#endif  // CONFIG_LOOP_RESTORE_CNN
+      coeff_pcost = 0;
+      break;
+    case RESTORE_WIENER:
+      coeff_pcost = count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener);
+      break;
+    case RESTORE_SGRPROJ:
+      coeff_pcost = count_sgrproj_bits(&rusi->sgrproj, &rsc->sgrproj);
+      break;
+#if CONFIG_WIENER_NONSEP
+    case RESTORE_WIENER_NONSEP:
+      coeff_pcost = count_wienerns_bits(rsc->plane, &rusi->wiener_nonsep,
+                                        &rsc->wiener_nonsep);
+      break;
+#endif  // CONFIG_WIENER_NONSEP
+    default: assert(0); break;
+  }
+  const int64_t coeff_bits = coeff_pcost << AV1_PROB_COST_SHIFT;
+  int64_t bits;
+#if CONFIG_LOOP_RESTORE_CNN
+  bits = x->switchable_restore_cost[rsc->cm->use_cnn][rest_type] + coeff_bits;
+#else
+  bits = x->switchable_restore_cost[rest_type] + coeff_bits;
+#endif  // CONFIG_LOOP_RESTORE_CNN
+#if CONFIG_RST_MERGECOEFFS
+  // RESTORE_NONE and RESTORE_CNN units don't have a merge parameter.
+  int merged = 0;
+  switch (rest_type) {
+    case RESTORE_WIENER:
+      if (check_wiener_eq(&rusi->wiener, &rsc->wiener)) merged = 1;
+      break;
+    case RESTORE_SGRPROJ:
+      if (check_sgrproj_eq(&rusi->sgrproj, &rsc->sgrproj)) merged = 1;
+      break;
+#if CONFIG_WIENER_NONSEP
+    case RESTORE_WIENER_NONSEP:
+      if (check_wienerns_eq(is_uv, &rusi->wiener_nonsep, &rsc->wiener_nonsep))
+        merged = 1;
+      break;
+#endif  // CONFIG_WIENER_NONSEP
+    default: break;
+  }
+#if CONFIG_LOOP_RESTORE_CNN
+  if (rest_type != RESTORE_NONE && rest_type != RESTORE_CNN) {
+#else   // CONFIG_LOOP_RESTORE_CNN
+  if (rest_type != RESTORE_NONE) {
+#endif  // CONFIG_LOOP_RESTORE_CNN
+    bits += x->merged_param_cost[merged];
+    // If merged, we don't need the raw bit count.
+    if (merged == 1) {
+      bits -= coeff_bits;
+    }
+  }
+#endif  // CONFIG_RST_MERGECOEFFS
+  return bits;
+}
+
 static void search_switchable(const RestorationTileLimits *limits,
                               const AV1PixelRect *tile_rect, int rest_unit_idx,
                               void *priv, int32_t *tmpbuf,
@@ -2242,9 +2293,6 @@ static void search_switchable(const RestorationTileLimits *limits,
   RestUnitSearchInfo *rusi = &rsc->rusi[rest_unit_idx];
 
   const MACROBLOCK *const x = rsc->x;
-
-  const int wiener_win =
-      (rsc->plane == AOM_PLANE_Y) ? WIENER_WIN : WIENER_WIN_CHROMA;
 
   double best_cost = 0;
   int64_t best_bits = 0;
@@ -2260,40 +2308,7 @@ static void search_switchable(const RestorationTileLimits *limits,
     }
 
     const int64_t sse = rusi->sse[r];
-    int64_t coeff_pcost = 0;
-    switch (r) {
-      case RESTORE_NONE:
-#if CONFIG_LOOP_RESTORE_CNN
-      case RESTORE_CNN:
-#endif  // CONFIG_LOOP_RESTORE_CNN
-        coeff_pcost = 0;
-        break;
-      case RESTORE_WIENER:
-        // TODO(susannad): if unit has merged coefficients, equals 0.
-        coeff_pcost =
-            count_wiener_bits(wiener_win, &rusi->wiener, &rsc->wiener);
-        break;
-      case RESTORE_SGRPROJ:
-        coeff_pcost = count_sgrproj_bits(&rusi->sgrproj, &rsc->sgrproj);
-        break;
-#if CONFIG_WIENER_NONSEP
-      case RESTORE_WIENER_NONSEP:
-        coeff_pcost = count_wienerns_bits(rsc->plane, &rusi->wiener_nonsep,
-                                          &rsc->wiener_nonsep);
-        break;
-#endif  // CONFIG_WIENER_NONSEP
-      default: assert(0); break;
-    }
-    const int64_t coeff_bits = coeff_pcost << AV1_PROB_COST_SHIFT;
-#if CONFIG_LOOP_RESTORE_CNN
-    const int64_t bits =
-        x->switchable_restore_cost[rsc->cm->use_cnn][r] + coeff_bits;
-#else
-    // TODO(susannad): If RST_MERGECOEFFS flag is set, check if unit
-    // has merged coefficients and set bits to x->merged_param_cost
-    // [0] or [1].
-    const int64_t bits = x->switchable_restore_cost[r] + coeff_bits;
-#endif  // CONFIG_LOOP_RESTORE_CNN
+    int64_t bits = count_switchable_bits(r, rsc, rusi);
     double cost = RDCOST_DBL(x->rdmult, bits >> 4, sse);
     if (r == RESTORE_SGRPROJ && rusi->sgrproj.ep < 10)
       cost *= (1 + DUAL_SGR_PENALTY_MULT * rsc->sf->dual_sgr_penalty_level);
