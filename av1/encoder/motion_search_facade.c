@@ -20,6 +20,7 @@
 #include "av1/encoder/partition_strategy.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/tpl_model.h"
+#include "av1/encoder/tx_search.h"
 
 #define RIGHT_SHIFT_MV(x) (((x) + 3 + ((x) >= 0)) >> 3)
 
@@ -301,23 +302,88 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     switch (mbmi->motion_mode) {
       case SIMPLE_TRANSLATION:
         if (cpi->sf.mv_sf.use_accurate_subpel_search) {
+          struct macroblockd_plane *p = xd->plane;
+          const BUFFER_SET orig_dst = {
+            { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
+            { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
+          };
+          int64_t best_rd = INT64_MAX;
+          MV this_best_mv;
+          int best_filter = USE_8_TAPS_REG;
+          int switchable_ctx[2];
+          switchable_ctx[0] = av1_get_pred_context_switchable_interp(xd, 0);
+          switchable_ctx[1] = av1_get_pred_context_switchable_interp(xd, 1);
           const int try_second = second_best_mv.as_int != INVALID_MV &&
                                  second_best_mv.as_int != best_mv->as_int;
-          const int best_mv_var = mv_search_params->find_fractional_mv_step(
-              xd, cm, &ms_params, subpel_start_mv, &best_mv->as_mv, &dis,
-              &x->pred_sse[ref], fractional_ms_list);
 
-          if (try_second) {
-            MV this_best_mv;
-            subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
-            if (av1_is_subpelmv_in_range(&ms_params.mv_limits,
-                                         subpel_start_mv)) {
-              const int this_var = mv_search_params->find_fractional_mv_step(
-                  xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
-                  &x->pred_sse[ref], fractional_ms_list);
-              if (this_var < best_mv_var) best_mv->as_mv = this_best_mv;
+          for (SUBPEL_SEARCH_TYPE idx = USE_8_TAPS_REG; idx <= USE_8_TAPS_SHP;
+               ++idx) {
+            mbmi->interp_filters.as_filters.x_filter = idx - 3;
+            mbmi->interp_filters.as_filters.y_filter = idx - 3;
+
+            const InterpFilter filter0 = mbmi->interp_filters.as_filters.y_filter;
+            int inter_filter_cost =
+                x->mode_costs.switchable_interp_costs[switchable_ctx[0]][filter0];
+            const InterpFilter filter1 = mbmi->interp_filters.as_filters.x_filter;
+            inter_filter_cost +=
+                x->mode_costs.switchable_interp_costs[switchable_ctx[1]][filter1];
+
+            ms_params.var_params.subpel_search_type = idx;
+            int this_mv_var = mv_search_params->find_fractional_mv_step(
+                xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
+                &x->pred_sse[ref], NULL);
+            mbmi->mv[0].as_mv = this_best_mv;
+            av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
+                                          bsize, 0, 0);
+            av1_subtract_plane(x, bsize, 0);
+            RD_STATS this_rd_stats;
+            av1_init_rd_stats(&this_rd_stats);
+            int64_t rd =
+                av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                                      max_txsize_rect_lookup[bsize]);
+            int this_mv_rate = av1_mv_bit_cost(
+                &this_best_mv, &ref_mv, mv_costs->nmv_joint_cost,
+                mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+            rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate + inter_filter_cost,
+                        this_rd_stats.dist);
+            if (rd < best_rd) {
+              best_mv->as_mv = this_best_mv;
+              best_rd = rd;
+              best_filter = idx;
+            }
+
+            if (try_second) {
+              subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
+              if (av1_is_subpelmv_in_range(&ms_params.mv_limits,
+                                           subpel_start_mv)) {
+                this_mv_var = mv_search_params->find_fractional_mv_step(
+                    xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
+                    &x->pred_sse[ref], NULL);
+
+                mbmi->mv[0].as_mv = this_best_mv;
+                av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
+                                              bsize, 0, 0);
+                av1_subtract_plane(x, bsize, 0);
+                RD_STATS tmp_rd_stats;
+                av1_init_rd_stats(&tmp_rd_stats);
+                rd =
+                    av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX,
+                                          bsize, max_txsize_rect_lookup[bsize]);
+                int tmp_mv_rate = av1_mv_bit_cost(
+                    &this_best_mv, &ref_mv, mv_costs->nmv_joint_cost,
+                    mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+                rd = RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate + inter_filter_cost,
+                            tmp_rd_stats.dist);
+                if (rd < best_rd) {
+                  best_mv->as_mv = this_best_mv;
+                  best_rd = rd;
+                  best_filter = idx;
+                }
+              }
             }
           }
+          mbmi->interp_filters.as_filters.x_filter = best_filter - 3;
+          mbmi->interp_filters.as_filters.y_filter = best_filter - 3;
         } else {
           mv_search_params->find_fractional_mv_step(
               xd, cm, &ms_params, subpel_start_mv, &best_mv->as_mv, &dis,
@@ -429,7 +495,8 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
 
     // Since we have scaled the reference frames to match the size of the
-    // current frame we must use a unit scaling factor during mode selection.
+    // current frame we must use a unit scaling factor during mode
+    // selection.
     av1_enc_build_one_inter_predictor(second_pred, pw, &cur_mv[!id].as_mv,
                                       &inter_pred_params);
 
@@ -804,7 +871,8 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
     SUBPEL_MOTION_SEARCH_PARAMS ms_params;
     av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize, &ref_mv,
                                       cost_list);
-    // TODO(yunqing): integrate this into av1_make_default_subpel_ms_params().
+    // TODO(yunqing): integrate this into
+    // av1_make_default_subpel_ms_params().
     ms_params.forced_stop = cpi->sf.mv_sf.simple_motion_subpel_force_stop;
 
     MV subpel_start_mv = get_mv_from_fullmv(&best_mv.as_fullmv);
@@ -813,8 +881,8 @@ int_mv av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
         xd, cm, &ms_params, subpel_start_mv, &best_mv.as_mv, &not_used,
         &x->pred_sse[ref], NULL);
   } else {
-    // Manually convert from units of pixel to 1/8-pixels if we are not doing
-    // subpel search
+    // Manually convert from units of pixel to 1/8-pixels if we are not
+    // doing subpel search
     convert_fullmv_to_mv(&best_mv);
   }
 
