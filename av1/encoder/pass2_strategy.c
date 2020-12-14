@@ -1909,6 +1909,10 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
   if (has_no_stats_stage(cpi)) {
     for (i = 0; i < MAX_NUM_GF_INTERVALS; i++) {
       rc->gf_intervals[i] = AOMMIN(rc->max_gf_interval, max_gop_length);
+      // when lag_in_frames > kf_max_dist set gf_interval appropriately
+      rc->gf_intervals[i] = AOMMIN(rc->gf_intervals[i], rc->frames_to_key);
+      if (rc->next_is_fwd_key && (rc->gf_intervals[i] == rc->frames_to_key))
+        rc->gf_intervals[i] = rc->gf_intervals[i] + 1;
     }
     rc->cur_gf_index = 0;
     rc->intervals_till_gf_calculate_due = MAX_NUM_GF_INTERVALS;
@@ -2129,6 +2133,11 @@ static void define_gf_group_pass0(AV1_COMP *cpi) {
   if (rc->baseline_gf_interval > rc->frames_to_key)
     rc->baseline_gf_interval = rc->frames_to_key;
 
+  if (cpi->oxcf.kf_cfg.fwd_kf_enabled && cpi->rc.next_is_fwd_key &&
+      ((cpi->oxcf.gf_cfg.lag_in_frames > cpi->oxcf.kf_cfg.key_freq_max) ||
+       (rc->baseline_gf_interval == rc->frames_to_key)))
+    rc->baseline_gf_interval++;
+
   rc->gfu_boost = DEFAULT_GF_BOOST;
   rc->constrained_gf_group =
       (rc->baseline_gf_interval >= rc->frames_to_key) ? 1 : 0;
@@ -2279,6 +2288,10 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
   if (has_no_stats_stage(cpi)) {
     define_gf_group_pass0(cpi);
+    frame_params->frame_type = gf_group->frame_type[gf_group->index];
+    frame_params->show_frame =
+        !(gf_group->update_type[gf_group->index] == ARF_UPDATE ||
+          gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE);
     return;
   }
 
@@ -2551,8 +2564,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   av1_gop_bit_allocation(cpi, rc, gf_group, rc->frames_since_key == 0,
                          use_alt_ref, gf_group_bits);
 
-  frame_params->frame_type =
-      rc->frames_since_key == 0 ? KEY_FRAME : INTER_FRAME;
+  frame_params->frame_type = gf_group->frame_type[gf_group->index];
   frame_params->show_frame =
       !(gf_group->update_type[gf_group->index] == ARF_UPDATE ||
         gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE);
@@ -3459,21 +3471,11 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   // Keyframe and section processing.
   FIRSTPASS_STATS this_frame_copy;
   this_frame_copy = this_frame;
-  int is_overlay_forward_kf =
-      rc->frames_to_key == 0 &&
-      gf_group->update_type[gf_group->index] == OVERLAY_UPDATE;
-  if (rc->frames_to_key <= 0 && !is_overlay_forward_kf) {
+  if (rc->frames_to_key <= 0) {  // && !is_overlay_forward_kf) {
     assert(rc->frames_to_key >= -1);
+    frame_params->frame_type = KEY_FRAME;
     // Define next KF group and assign bits to it.
-    int kf_offset = rc->frames_to_key;
-    if (rc->frames_to_key < 0) {
-      this_frame = *(twopass->stats_in - 1);
-    } else {
-      frame_params->frame_type = KEY_FRAME;
-    }
     find_next_key_frame(cpi, &this_frame);
-    rc->frames_since_key -= kf_offset;
-    rc->frames_to_key += kf_offset;
     this_frame = this_frame_copy;
   } else {
     const int altref_enabled = is_altref_enabled(oxcf->gf_cfg.lag_in_frames,
