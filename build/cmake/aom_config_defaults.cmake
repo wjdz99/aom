@@ -137,10 +137,15 @@ set_aom_config_var(CONFIG_REMOVE_DIST_WTD_COMP 1
                    "AV2 experiment flag to remove dist_wtd_comp tool.")
 set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
                    "AV2 experiment flag to remove dual filter.")
+<<<<<<< HEAD   (86070a Fix bug in ForwardKeyPresenceTestLarge and ForcedKeyTestLarg)
 set_aom_config_var(CONFIG_NEW_REF_SIGNALING 0
                    "AV2 experiment flag for the new reference syntax.")
 set_aom_config_var(CONFIG_EXTQUANT 0
                    "AV2 extended quantization experiment flag")
+=======
+set_aom_config_var(CONFIG_GM_MODEL_CODING 0
+                   "AV2 global motion model compression flag.")
+>>>>>>> CHANGE (d79f71 Add CONFIG_GM_MODEL_CODING flag and initial code)
 
 #
 # Variables in this section control optional features of the build system.
