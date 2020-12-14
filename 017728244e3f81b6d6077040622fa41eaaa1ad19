@@ -16,6 +16,268 @@
       "message": "Hi Wan-Teh, \n\nIn this CL, we have added constant variables in av1_cnn_convolve_no_maxpool_padding_valid_avx2() function for better readability.\n\nBit match has been verified for both libaom AV1 encode (for few videos) and AVIF encode (for typical image dataset).\n\nPlease review the patch.\n\nRegards,\nAniket.\n",
       "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3fd22229_7aedcb1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nThank you for writing the CL! I suggest some small changes. Most of my suggested changes are on using the constant naming convention for the constants.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d4cf7b8_e5e8f86b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Nit/optional: I just noticed that the only field we use in the layer_config struct is \u0027weights\u0027. So this parameter can be replaced by\n\n    const float *layer_config_weights",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 46
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acfd68c8_ac061228",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Nit/optional: I just noticed that the only field we use in the layer_config struct is \u0027weights\u0027. So this parameter can be replaced by\n\n    const float *layer_config_weights",
+      "range": {
+        "startLine": 138,
+        "startChar": 4,
+        "endLine": 138,
+        "endChar": 46
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af1a20b0_0acc93de",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "In C, \u0027const\u0027 can be either a genuine constant or a variable that is immutable after initialization. In the genuine constant case, the Style Guide recommends the following naming convention:\n\nhttps://google.github.io/styleguide/cppguide.html#Constant_Names\n\nSo these four constants should be named\n\n  const int kFilterWidth \u003d 5;\n  const int kFilterHeight \u003d 5;\n  const int kSkipWidth \u003d 4;\n  const int kSkipHeight \u003d 4;\n\nI also suggest moving these four constants either before or after the related assertions at lines 249-250. (If these constants are declared before the assertions, then we can use them in the assertions.)",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6c9ae0a_8add4839",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Nit/optional: We don\u0027t need the out_channels local variable. We can continue to use layer_config-\u003eout_channels directly, just like we use layer_config-\u003ein_channels directly at line 280.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1e2e20e_9742d796",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "This is also a genuine constant, so we can use the naming convention:\n\n  const int kSkipWidthForNextIter \u003d kSkipWidth * 3;",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfb319fb_4ce019ca",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Use the constant naming convention here:\n\n const int kMinWidthFor3_5x5Blocks \u003d (kSkipWidth * 2) + kFilterWidth;",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a49b397d_276c547b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Use the constant naming convention:\n\n  const int kInHeight \u003d 16;\n  const int kFilterHeight \u003d 2;\n  const int kSkipHeight \u003d 2;",
+      "range": {
+        "startLine": 373,
+        "startChar": 0,
+        "endLine": 375,
+        "endChar": 28
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c40756d5_f00dc852",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Nit/optional: We don\u0027t need the out_channels local variable. We can continue to use layer_config-\u003eout_channels directly, just like we use layer_config-\u003ein_channels directly at line 381.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8649ad14_895b97e7",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Nit/optional: We could replace 8 here and in the next line with a constant:\n\n    const int kOutAccumSize \u003d (kInHeight - kFilterHeight + kSkipHeight) / kSkipHeight;\n\nThe kOutAccumSize constant is intended to make it clear it is equal to the number of iterations of the for loops at lines 390 and 398.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "520da60a_6d06e6de",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Use the constant naming convention:\n\n  const int kInHeight \u003d 8;\n  const int kFilterHeight \u003d 2;\n  const int kSkipHeight \u003d 2;\n\nNote that layer_config-\u003eskip_height should be replaced by the kSkipHeight constant in this function.",
+      "range": {
+        "startLine": 414,
+        "startChar": 0,
+        "endLine": 415,
+        "endChar": 30
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "255b1c69_66274a25",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Nit/optional: We don\u0027t need the out_channels local variable. We can continue to use layer_config-\u003eout_channels directly, just like we use layer_config-\u003ein_channels directly at line 425.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f249e97_f167e88b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "Nit/optional: We could replace 2 here and in line 424 with a constant:\n\n    const int kOutAccumSize \u003d (kInHeight - kFilterHeight + kSkipHeightForNextIter) / kSkipHeightForNextIter;\n\nNote: This requires declaring the kSkipHeightForNextIter constant before this line.\n\nThe kOutAccumSize constant is intended to make it clear it is equal to the number of iterations of the for loops at lines 434 and 443.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e33e211_abab08d4",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-14T20:10:57Z",
+      "side": 1,
+      "message": "This is a constant:\n\n    const int kSkipHeightForNextIter \u003d kSkipHeight * 2;",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
