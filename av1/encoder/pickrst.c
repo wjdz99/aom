@@ -751,6 +751,10 @@ static SgrprojInfo search_selfguided_restoration(
 static int count_sgrproj_bits(SgrprojInfo *sgrproj_info,
                               SgrprojInfo *ref_sgrproj_info) {
   int bits = 0;
+#if CONFIG_RST_MERGECOEFFS
+  const int equal = check_sgrproj_eq(sgrproj_info, ref_sgrproj_info);
+  if (equal) return bits;
+#endif  // CONFIG_RST_MERGECOEFFS
   bits += SGRPROJ_PARAMS_BITS;
   const sgr_params_type *params = &av1_sgr_params[sgrproj_info->ep];
   if (params->r[0] > 0)
@@ -1310,6 +1314,10 @@ static void finalize_sym_filter(int wiener_win, int32_t *f, InterpKernel fi) {
 static int count_wiener_bits(int wiener_win, WienerInfo *wiener_info,
                              WienerInfo *ref_wiener_info) {
   int bits = 0;
+#if CONFIG_RST_MERGECOEFFS
+  const int equal = check_wiener_eq(wiener_info, ref_wiener_info);
+  if (equal) return bits;
+#endif  // CONFIG_RST_MERGECOEFFS
   if (wiener_win == WIENER_WIN)
     bits += aom_count_primitive_refsubexpfin(
         WIENER_FILT_TAP0_MAXV - WIENER_FILT_TAP0_MINV + 1,
@@ -1777,6 +1785,10 @@ static int count_wienerns_bits(int plane, WienerNonsepInfo *wienerns_info,
   int is_uv = (plane != AOM_PLANE_Y);
 
   int bits = 0;
+#if CONFIG_RST_MERGECOEFFS
+  const int equal = check_wienerns_eq(is_uv, wienerns_info, ref_wienerns_info);
+  if (equal) return bits;
+#endif  // CONFIG_RST_MERGECOEFFS
   if (is_uv) {
     for (int i = 0; i < wienerns_uv; ++i) {
       bits += aom_count_primitive_refsubexpfin(
