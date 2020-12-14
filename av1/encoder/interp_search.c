@@ -14,6 +14,7 @@
 #include "av1/encoder/model_rd.h"
 #include "av1/encoder/rdopt_utils.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/tx_search.h"
 
 // return mv_diff
 static INLINE int is_interp_filter_good_match(
@@ -139,12 +140,17 @@ static INLINE void interp_model_rd_eval(
   av1_init_rd_stats(&tmp_rd_stats);
 
   // Skip inter predictor if the predictor is already available.
-  if (!is_skip_build_pred) {
+  if (!is_skip_build_pred || 1) {
     const int mi_row = xd->mi_row;
     const int mi_col = xd->mi_col;
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                   plane_from, plane_to);
   }
+  av1_subtract_plane(x, bsize, 0);
+  const int64_t rd = av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
+                                           max_txsize_rect_lookup[bsize]);
+  av1_merge_rd_stats(rd_stats, &tmp_rd_stats);
+  return;
 
   model_rd_sb_fn[cpi->sf.rt_sf.use_simple_rd_model
                      ? MODELRD_LEGACY
@@ -216,6 +222,7 @@ static INLINE int64_t interpolation_filter_rd(
       interp_model_rd_eval(x, cpi, bsize, orig_dst, AOM_PLANE_Y, AOM_PLANE_Y,
                            &this_rd_stats_luma, 0);
       this_rd_stats = this_rd_stats_luma;
+      break;
 #if CONFIG_COLLECT_RD_STATS == 3
       RD_STATS rd_stats_y;
       av1_pick_recursive_tx_size_type_yrd(cpi, x, &rd_stats_y, bsize,
@@ -332,12 +339,13 @@ static DUAL_FILTER_TYPE find_best_interp_rd_facade(
   for (int filt_type = SHARP_SHARP; filt_type >= REG_REG; --filt_type) {
     const int is_filter_allowed =
         get_interp_filter_allowed_mask(allow_interp_mask, filt_type);
-    if (is_filter_allowed)
+    if (is_filter_allowed) {
       if (interpolation_filter_rd(x, cpi, tile_data, bsize, orig_dst, rd,
                                   rd_stats_y, rd_stats, switchable_rate,
                                   dst_bufs, filt_type, switchable_ctx,
                                   tmp_skip_pred))
         best_filt_type = filt_type;
+    }
     tmp_skip_pred = skip_pred;
   }
   return best_filt_type;
@@ -748,7 +756,7 @@ int64_t av1_interpolation_filter_search(
   const BUFFER_SET *dst_bufs[2] = { tmp_dst, orig_dst };
   // Evaluate dual interp filters
   if (cm->seq_params.enable_dual_filter) {
-    if (cpi->sf.interp_sf.use_fast_interpolation_filter_search) {
+    if (cpi->sf.interp_sf.use_fast_interpolation_filter_search && 0) {
       fast_dual_interp_filter_rd(x, cpi, tile_data, bsize, orig_dst, rd,
                                  &rd_stats_luma, &rd_stats, switchable_rate,
                                  dst_bufs, switchable_ctx, skip_hor, skip_ver);
