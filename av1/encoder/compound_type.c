@@ -1495,7 +1495,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       mbmi->mv[1] = tmp_mv[1];
       tmp_rate_mv = best_rate_mv;
       rs2 = best_rs2;
-    } else if (!cpi->sf.inter_sf.enable_fast_compound_mode_search &&
+    } else if (cpi->sf.inter_sf.enable_fast_compound_mode_search != 2 &&
                cur_type == COMPOUND_DIFFWTD) {
       int_mv tmp_mv[2];
       int best_mask_index = 0;
