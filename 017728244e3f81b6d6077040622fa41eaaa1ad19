@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac6c5dfb_635895e1",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d4cf7b8_e5e8f86b",
+      "range": {
+        "startLine": 67,
+        "startChar": 4,
+        "endLine": 67,
+        "endChar": 46
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "acfd68c8_ac061228",
@@ -71,6 +95,30 @@
       "writtenOn": "2020-12-14T20:10:57Z",
       "side": 1,
       "message": "Nit/optional: I just noticed that the only field we use in the layer_config struct is \u0027weights\u0027. So this parameter can be replaced by\n\n    const float *layer_config_weights",
+      "range": {
+        "startLine": 138,
+        "startChar": 4,
+        "endLine": 138,
+        "endChar": 46
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "572706ce_7b577d56",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acfd68c8_ac061228",
       "range": {
         "startLine": 138,
         "startChar": 4,
@@ -98,6 +146,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8941ecd6_04241758",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af1a20b0_0acc93de",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6c9ae0a_8add4839",
@@ -111,6 +177,24 @@
       "writtenOn": "2020-12-14T20:10:57Z",
       "side": 1,
       "message": "Nit/optional: We don\u0027t need the out_channels local variable. We can continue to use layer_config-\u003eout_channels directly, just like we use layer_config-\u003ein_channels directly at line 280.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1f92b4e_444e09fa",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6c9ae0a_8add4839",
       "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -132,6 +216,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "beba7328_112e4c0e",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1e2e20e_9742d796",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bfb319fb_4ce019ca",
@@ -145,6 +247,24 @@
       "writtenOn": "2020-12-14T20:10:57Z",
       "side": 1,
       "message": "Use the constant naming convention here:\n\n const int kMinWidthFor3_5x5Blocks \u003d (kSkipWidth * 2) + kFilterWidth;",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4785d478_423b0d09",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfb319fb_4ce019ca",
       "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -172,6 +292,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9d65846_2f015415",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a49b397d_276c547b",
+      "range": {
+        "startLine": 373,
+        "startChar": 0,
+        "endLine": 375,
+        "endChar": 28
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c40756d5_f00dc852",
@@ -189,6 +333,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ad1f912_e5d94a53",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c40756d5_f00dc852",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8649ad14_895b97e7",
@@ -202,6 +364,24 @@
       "writtenOn": "2020-12-14T20:10:57Z",
       "side": 1,
       "message": "Nit/optional: We could replace 8 here and in the next line with a constant:\n\n    const int kOutAccumSize \u003d (kInHeight - kFilterHeight + kSkipHeight) / kSkipHeight;\n\nThe kOutAccumSize constant is intended to make it clear it is equal to the number of iterations of the for loops at lines 390 and 398.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94fc6724_1dcd3c4b",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe declaration of array in C cannot be done by constant variable, it is a limitation for C. However we can use the macro for declaration instead.\n\nAlso we can use kOutAccumSize (by deriving using the expression) at other places (except at declaration), but the expression is not uniform across all layers. Hence, we have not done the changes suggested related to kOutAccumSize.\n\nLet us know your opinion on the same.\n\nThanks \u0026 regards,\nAniket",
+      "parentUuid": "8649ad14_895b97e7",
       "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -229,6 +409,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcee8350_47c22c6f",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "520da60a_6d06e6de",
+      "range": {
+        "startLine": 414,
+        "startChar": 0,
+        "endLine": 415,
+        "endChar": 30
+      },
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "255b1c69_66274a25",
@@ -242,6 +446,24 @@
       "writtenOn": "2020-12-14T20:10:57Z",
       "side": 1,
       "message": "Nit/optional: We don\u0027t need the out_channels local variable. We can continue to use layer_config-\u003eout_channels directly, just like we use layer_config-\u003ein_channels directly at line 425.",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e419d5f_c4beabee",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "255b1c69_66274a25",
       "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -263,6 +485,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "daf7980d_58f0aa93",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8f249e97_f167e88b",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e33e211_abab08d4",
@@ -276,6 +516,24 @@
       "writtenOn": "2020-12-14T20:10:57Z",
       "side": 1,
       "message": "This is a constant:\n\n    const int kSkipHeightForNextIter \u003d kSkipHeight * 2;",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d19a69a_20b9464d",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-15T11:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e33e211_abab08d4",
       "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
