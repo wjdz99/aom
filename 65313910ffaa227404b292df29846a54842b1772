@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42601a36_c034d457",
+        "filename": "tools/convexhull_framework/src/Config.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-15T07:10:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "846ca870_8dadf74e",
+      "revId": "65313910ffaa227404b292df29846a54842b1772",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8238f172_b60bfd29",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "it has been discussed and agreed that for 4K clip, two vertical tiles should be used. please check the meeting notes from testing sub group. --cpu-used is controlled by \"preset\" which can be specified from the command line.",
       "parentUuid": "8238f172_b60bfd29",
+      "revId": "65313910ffaa227404b292df29846a54842b1772",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba5196c1_0acfeb65",
+        "filename": "tools/convexhull_framework/src/VideoEncoder.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-15T07:10:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ddda444_2f242908",
       "revId": "65313910ffaa227404b292df29846a54842b1772",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
