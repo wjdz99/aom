@@ -16,8 +16,8 @@
 
 namespace {
 
-double cost_fn(const void *info, const Vector *path, int node_idx,
-               int max_out_nodes, int out_edge) {
+double cost_fn(const void *info, Vector *path, int node_idx, int max_out_nodes,
+               int out_edge) {
   (void)path;
   double *graph = (double *)info;
   return graph[node_idx * max_out_nodes + out_edge];

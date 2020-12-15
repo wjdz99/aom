@@ -70,7 +70,7 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *sd,
 // max_out_nodes: max outgoing edges from node
 // out_edge: outgoing edge we are calculating cost for
 // Returns cost of edge.
-typedef double (*graph_edge_cost_t)(const void *info, const Vector *path,
+typedef double (*graph_edge_cost_t)(const void *info, Vector *path,
                                     int node_idx, int max_out_nodes,
                                     int out_edge);
 
