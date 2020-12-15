@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6eabc52c_9ce150b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2020-12-15T16:29:23Z",
+      "side": 1,
+      "message": "Hi Sarah, Debargha, Urvang,\nCode is ready for review after rebase.",
+      "revId": "33c02ea11198f76a108d93375bf5e495ee91726c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
