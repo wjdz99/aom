@@ -20,6 +20,7 @@
 #include "av1/encoder/partition_strategy.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/tpl_model.h"
+#include "av1/encoder/tx_search.h"
 
 #define RIGHT_SHIFT_MV(x) (((x) + 3 + ((x) >= 0)) >> 3)
 
@@ -308,6 +309,25 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
               &x->pred_sse[ref], fractional_ms_list);
 
           if (try_second) {
+            struct macroblockd_plane *p = xd->plane;
+            const BUFFER_SET orig_dst = {
+                { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
+                { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
+            };
+            mbmi->mv[0].as_mv = best_mv->as_mv;
+            av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize,
+                                  0, 0);
+            av1_subtract_plane(x, bsize, 0);
+            RD_STATS this_rd_stats;
+            av1_init_rd_stats(&this_rd_stats);
+            int64_t rd =
+                av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                                      max_txsize_rect_lookup[bsize]);
+            int this_mv_rate =
+                av1_mv_bit_cost(&best_mv->as_mv, &ref_mv, mv_costs->nmv_joint_cost,
+                             mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+            rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate, this_rd_stats.dist);
+                                     
             MV this_best_mv;
             subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
             if (av1_is_subpelmv_in_range(&ms_params.mv_limits,
@@ -315,7 +335,21 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
               const int this_var = mv_search_params->find_fractional_mv_step(
                   xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis,
                   &x->pred_sse[ref], fractional_ms_list);
-              if (this_var < best_mv_var) best_mv->as_mv = this_best_mv;
+              mbmi->mv[0].as_mv = this_best_mv;
+              av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize,
+                                    0, 0);
+              av1_subtract_plane(x, bsize, 0);
+              RD_STATS tmp_rd_stats;
+              av1_init_rd_stats(&tmp_rd_stats);
+              int64_t tmp_rd =
+                  av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
+                                        max_txsize_rect_lookup[bsize]);    
+              int tmp_mv_rate =
+                av1_mv_bit_cost(&this_best_mv, &ref_mv, mv_costs->nmv_joint_cost,
+                             mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+              tmp_rd =
+                  RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate, tmp_rd_stats.dist);                             
+              if (tmp_rd < rd) best_mv->as_mv = this_best_mv;
             }
           }
         } else {
