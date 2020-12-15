@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "353245da_ef2c31b3",
+        "filename": "tools/convexhull_framework/src/VideoEncoder.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-15T00:52:19Z",
+      "side": 1,
+      "message": "Are all 4k clips exactly this resolution? If so, should be OK.\n\nBut ideally, maybe better to:\n- Use \"\u003e\u003d\" instead of \"\u003d\u003d\", and\n- Maybe better to check max(width, height) and min(width, height) to cover vertical videos.\n\nI\u0027ll leave it to you.",
+      "range": {
+        "startLine": 43,
+        "startChar": 4,
+        "endLine": 43,
+        "endChar": 52
+      },
+      "revId": "721ec5ec6d01f02e31da962e02661caf35c6ba1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
