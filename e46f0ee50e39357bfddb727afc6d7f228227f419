@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8aa09149_e07a04a0",
+        "filename": "tools/convexhull_framework/src/VideoEncoder.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-12-15T00:50:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d229bac7_60229138",
+      "revId": "e46f0ee50e39357bfddb727afc6d7f228227f419",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e98adb66_01c22677",
@@ -31,6 +49,30 @@
       "writtenOn": "2020-12-15T00:34:17Z",
       "side": 1,
       "message": "\"--tile-columns\" (plural) I believe",
+      "range": {
+        "startLine": 44,
+        "startChar": 18,
+        "endLine": 44,
+        "endChar": 31
+      },
+      "revId": "e46f0ee50e39357bfddb727afc6d7f228227f419",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48aa3d50_4df343ee",
+        "filename": "tools/convexhull_framework/src/VideoEncoder.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-12-15T00:50:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e98adb66_01c22677",
       "range": {
         "startLine": 44,
         "startChar": 18,
