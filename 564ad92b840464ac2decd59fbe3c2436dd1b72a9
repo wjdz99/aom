@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "407b0f60_aa711727",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-15T01:25:27Z",
+      "side": 1,
+      "message": "Comments resolved over VC - revised minor changes and refactored function calls to generalize some explanations, made diagrams to explain subsets.",
+      "revId": "564ad92b840464ac2decd59fbe3c2436dd1b72a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
