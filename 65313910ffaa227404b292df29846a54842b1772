@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "846ca870_8dadf74e",
+        "filename": "tools/convexhull_framework/src/Config.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-12-15T03:04:22Z",
+      "side": 1,
+      "message": "I don\u0027t have command line for all intra test configurations yet. I can add it later. can you share with me the command line? do we use the same set of test clips for all intra tests?",
+      "parentUuid": "33907f3e_7a5a280a",
+      "revId": "65313910ffaa227404b292df29846a54842b1772",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8238f172_b60bfd29",
         "filename": "tools/convexhull_framework/src/VideoEncoder.py",
         "patchSetId": 4
@@ -31,6 +49,24 @@
       "writtenOn": "2020-12-15T01:02:20Z",
       "side": 1,
       "message": "From AV2 CTC document, it says that \"Encoders should be configured to their best performing settings (i.e., --cpu-used\u003d0) when being compared against each other, single thread (--threads\u003d1) should be used, one tile per picture (--tile-columns\u003d0), single-pass encoding (--passes\u003d1). The related setting based on libaom is:\n\t--codec\u003dav1 --tile-columns\u003d0 --cpu-used\u003d0 --threads\u003d1\n\"\n\nPlease remind me where the decision of 2 tile columns being used for 4K sequences is recorded.",
+      "revId": "65313910ffaa227404b292df29846a54842b1772",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ddda444_2f242908",
+        "filename": "tools/convexhull_framework/src/VideoEncoder.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 11876
+      },
+      "writtenOn": "2020-12-15T03:04:22Z",
+      "side": 1,
+      "message": "it has been discussed and agreed that for 4K clip, two vertical tiles should be used. please check the meeting notes from testing sub group. --cpu-used is controlled by \"preset\" which can be specified from the command line.",
+      "parentUuid": "8238f172_b60bfd29",
       "revId": "65313910ffaa227404b292df29846a54842b1772",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
