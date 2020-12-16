@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "618bf2c7_e04e0cf4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-16T06:30:43Z",
+      "side": 1,
+      "message": "\u003e Patch Set 1: Verified-1 -Code-Review\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://build.aomedia.org/jenkins/job/libaom__commit_trigger/55582/ : FAILURE\n\nThis seems related to the tag that was created. Let me investigate early tomorrow.",
+      "revId": "a67a170c52d06b171085154402bbb02e515c2c0a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "37e077c1_8b75feaf",
