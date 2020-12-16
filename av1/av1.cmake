@@ -14,6 +14,10 @@ endif() # AOM_AV1_AV1_CMAKE_
 set(AOM_AV1_AV1_CMAKE_ 1)
 
 list(APPEND AOM_AV1_COMMON_SOURCES
+            "${AOM_ROOT}/common/args.h"
+            "${AOM_ROOT}/common/args.c"
+            "${AOM_ROOT}/common/tools_common.h"
+            "${AOM_ROOT}/common/tools_common.c"
             "${AOM_ROOT}/av1/av1_iface_common.h"
             "${AOM_ROOT}/av1/common/alloccommon.c"
             "${AOM_ROOT}/av1/common/alloccommon.h"
