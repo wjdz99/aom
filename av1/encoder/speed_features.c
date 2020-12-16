@@ -503,6 +503,8 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.reuse_best_prediction_for_part_ab = 1;
     sf->inter_sf.selective_ref_frame = 3;
     sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
+    // Enable fast search only for COMPOUND_DIFFWTD type.
+    sf->inter_sf.enable_fast_compound_mode_search = 1;
 
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->interp_sf.adaptive_interp_filter_search = 1;
@@ -556,7 +558,6 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.reuse_compound_type_decision = 1;
     sf->inter_sf.txfm_rd_gate_level =
         boosted ? 0 : (is_boosted_arf2_bwd_type ? 1 : 2);
-    sf->inter_sf.enable_fast_compound_mode_search = 1;
 
     // TODO(chiyotsai@google.com): the thresholds chosen for intra hog are
     // inherited directly from luma hog with some minor tweaking. Eventually we
@@ -670,6 +671,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.disable_interinter_wedge = 1;
     sf->inter_sf.prune_inter_modes_if_skippable = 1;
     sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 5;
+    // Enable fast search for all valid compound modes.
     sf->inter_sf.enable_fast_compound_mode_search = 2;
 
     sf->intra_sf.chroma_intra_pruning_with_hog = 3;
