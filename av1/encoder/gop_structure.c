@@ -187,19 +187,21 @@ static void set_multi_layer_params_from_subgop_cfg(
 
 static const SubGOPCfg *get_subgop_config(SubGOPSetCfg *config_set,
                                           int num_frames, int is_last_subgop,
-                                          int is_first_subgop,
-                                          int use_alt_ref) {
-  int is_ld_map = 1;
+                                          int is_first_subgop, int use_alt_ref,
+                                          int *is_ld_map) {
   const SubGOPCfg *cfg = av1_find_subgop_config(
       config_set, num_frames, is_last_subgop, is_first_subgop);
-  if (!cfg) return NULL;
+  if (!cfg) {
+    *is_ld_map = 0;
+    return NULL;
+  }
 
   // Check if the configuration map is low-delay
   for (int idx = 0; idx < cfg->num_steps; ++idx) {
     const SubGOPStepCfg *frame = &cfg->step[idx];
     FRAME_TYPE_CODE type = frame->type_code;
     if (type == FRAME_TYPE_OOO_FILTERED || type == FRAME_TYPE_OOO_UNFILTERED) {
-      is_ld_map = 0;
+      *is_ld_map = 0;
       break;
     }
   }
@@ -209,7 +211,7 @@ static const SubGOPCfg *get_subgop_config(SubGOPSetCfg *config_set,
    * enabled for non low-delay configurations and for low-delay
    * configurations.
    */
-  if (cfg && (use_alt_ref || is_ld_map))
+  if (cfg && (use_alt_ref || *is_ld_map))
     return cfg;
   else
     return NULL;
@@ -226,6 +228,16 @@ static int construct_multi_layer_gf_structure(
          first_frame_update_type == ARF_UPDATE ||
          first_frame_update_type == GF_UPDATE);
   const int use_altref = gf_group->max_layer_depth_allowed > 0;
+  SubGOPSetCfg *subgop_cfg_set = &cpi->subgop_config_set;
+  gf_group->subgop_cfg = NULL;
+  gf_group->is_user_specified = 0;
+  const SubGOPCfg *subgop_cfg;
+  int is_ld_map = 1;
+
+  subgop_cfg = get_subgop_config(
+      subgop_cfg_set, gf_interval, rc->frames_to_key <= gf_interval + 2,
+      first_frame_update_type == KF_UPDATE, use_altref, &is_ld_map);
+  int is_ld_map_first_gop = is_ld_map && first_frame_update_type == KF_UPDATE;
 
   if (first_frame_update_type == KF_UPDATE &&
       cpi->oxcf.kf_cfg.enable_keyframe_filtering > 1) {
@@ -244,7 +256,8 @@ static int construct_multi_layer_gf_structure(
     gf_group->max_layer_depth = 0;
     ++frame_index;
     cur_frame_index++;
-  } else if (first_frame_update_type != ARF_UPDATE) {
+  } else if ((first_frame_update_type != ARF_UPDATE && !is_ld_map) ||
+             is_ld_map_first_gop) {
     gf_group->update_type[frame_index] = first_frame_update_type;
     gf_group->arf_src_offset[frame_index] = 0;
     gf_group->cur_frame_idx[frame_index] = cur_frame_index;
@@ -254,16 +267,6 @@ static int construct_multi_layer_gf_structure(
     ++cur_frame_index;
   }
 
-  // Rest of the frames.
-  SubGOPSetCfg *subgop_cfg_set = &cpi->subgop_config_set;
-  gf_group->subgop_cfg = NULL;
-  gf_group->is_user_specified = 0;
-  const SubGOPCfg *subgop_cfg;
-  if (first_frame_update_type == KF_UPDATE) gf_interval++;
-  subgop_cfg =
-      get_subgop_config(subgop_cfg_set, gf_interval - frame_index,
-                        rc->frames_to_key <= gf_interval + 2,
-                        first_frame_update_type == KF_UPDATE, use_altref);
   if (subgop_cfg) {
     gf_group->subgop_cfg = subgop_cfg;
     gf_group->is_user_specified = 1;
@@ -272,6 +275,7 @@ static int construct_multi_layer_gf_structure(
                                            &frame_index);
     frame_index++;
   } else {
+    if (first_frame_update_type == KF_UPDATE) gf_interval++;
     // ALTREF.
     if (use_altref) {
       gf_group->update_type[frame_index] = ARF_UPDATE;
@@ -347,8 +351,10 @@ void av1_gop_setup_structure(AV1_COMP *cpi) {
   const int use_altref = gf_group->max_layer_depth_allowed > 0;
   const FRAME_UPDATE_TYPE first_frame_update_type =
       key_frame ? KF_UPDATE
-                : use_altref || (rc->baseline_gf_interval == 1) ? ARF_UPDATE
-                                                                : GF_UPDATE;
+                : cpi->gf_state.arf_gf_boost_lst || use_altref ||
+                          (rc->baseline_gf_interval == 1)
+                      ? ARF_UPDATE
+                      : GF_UPDATE;
   gf_group->is_user_specified = 0;
   gf_group->has_overlay_for_key_frame = 0;
   if (cpi->print_per_frame_stats) {
