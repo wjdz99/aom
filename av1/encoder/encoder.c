@@ -2386,7 +2386,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION)
     variance_partition_alloc(cpi);
 
-  if (cm->current_frame.frame_type == KEY_FRAME) copy_frame_prob_info(cpi);
+  if (cm->current_frame.frame_type == KEY_FRAME) {
+    bottom_index = bottom_index / 2;
+    copy_frame_prob_info(cpi);
+  }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   printf("\n Encoding a frame:");

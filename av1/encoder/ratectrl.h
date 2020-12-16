@@ -303,6 +303,12 @@ typedef struct {
    * Proposed maximum alloed Q for current frame
    */
   int active_worst_quality;
+
+  /*!
+  * Delta to active worst Q based on actual Q used for last kf
+  */
+  int awq_groupdelta;
+
   /*!
    * Proposed minimum allowed Q different layers in a coding pyramid
    */
@@ -455,6 +461,10 @@ int av1_rc_clamp_iframe_target_size(const struct AV1_COMP *const cpi,
                                     int target);
 int av1_rc_clamp_pframe_target_size(const struct AV1_COMP *const cpi,
                                     int target, uint8_t frame_update_type);
+
+// Get the active best kf Q for a given setting of active worst q.
+int av1_get_kf_active_quality(const RATE_CONTROL *const rc, int q,
+                              aom_bit_depth_t bit_depth);
 
 // Find q_index corresponding to desired_q, within [best_qindex, worst_qindex].
 // To be precise, 'q_index' is the smallest integer, for which the corresponding

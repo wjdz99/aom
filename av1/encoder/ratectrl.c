@@ -724,8 +724,8 @@ static int get_active_quality(int q, int gfu_boost, int low, int high,
   }
 }
 
-static int get_kf_active_quality(const RATE_CONTROL *const rc, int q,
-                                 aom_bit_depth_t bit_depth) {
+int av1_get_kf_active_quality(const RATE_CONTROL *const rc, int q,
+                              aom_bit_depth_t bit_depth) {
   int *kf_low_motion_minq;
   int *kf_high_motion_minq;
   ASSIGN_MINQ_TABLE(bit_depth, kf_low_motion_minq);
@@ -857,7 +857,8 @@ static int calc_active_best_quality_no_stats_cbr(const AV1_COMP *cpi,
       double q_adj_factor = 1.0;
       double q_val;
       active_best_quality =
-          get_kf_active_quality(rc, rc->avg_frame_qindex[KEY_FRAME], bit_depth);
+          av1_get_kf_active_quality(rc, rc->avg_frame_qindex[KEY_FRAME],
+                                    bit_depth);
       // Allow somewhat lower kf minq with small image formats.
       if ((width * height) <= (352 * 288)) {
         q_adj_factor -= 0.25;
@@ -1128,7 +1129,8 @@ static int rc_pick_q_and_bounds_no_stats(const AV1_COMP *cpi, int width,
       double q_adj_factor = 1.0;
 
       active_best_quality =
-          get_kf_active_quality(rc, rc->avg_frame_qindex[KEY_FRAME], bit_depth);
+          av1_get_kf_active_quality(rc, rc->avg_frame_qindex[KEY_FRAME],
+                                    bit_depth);
 
       // Allow somewhat lower kf minq with small image formats.
       if ((width * height) <= (352 * 288)) {
@@ -1347,7 +1349,7 @@ static void get_intra_q_and_bounds(const AV1_COMP *cpi, int width, int height,
 
     // Baseline value derived from cpi->active_worst_quality and kf boost.
     active_best_quality =
-        get_kf_active_quality(rc, active_worst_quality, bit_depth);
+        av1_get_kf_active_quality(rc, active_worst_quality, bit_depth);
     if (cpi->is_screen_content_type) {
       active_best_quality /= 2;
     }
@@ -1710,8 +1712,11 @@ void av1_rc_compute_frame_size_bounds(const AV1_COMP *cpi, int frame_target,
     // For very small rate targets where the fractional adjustment
     // may be tiny make sure there is at least a minimum range.
     assert(cpi->sf.hl_sf.recode_tolerance <= 100);
-    const int tolerance = (int)AOMMAX(
+    int tolerance = (int)AOMMAX(
         100, ((int64_t)cpi->sf.hl_sf.recode_tolerance * frame_target) / 100);
+
+    if (cpi->common.current_frame.frame_type == KEY_FRAME) tolerance  /= 2;
+
     *frame_under_shoot_limit = AOMMAX(frame_target - tolerance, 0);
     *frame_over_shoot_limit =
         AOMMIN(frame_target + tolerance, cpi->rc.max_frame_bandwidth);

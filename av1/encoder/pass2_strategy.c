@@ -189,9 +189,9 @@ static void twopass_update_bpm_factor(AV1_COMP *cpi, int rate_err_tol) {
   // Based on recent history adjust expectations of bits per macroblock.
   double damp_fac = AOMMAX(5.0, rate_err_tol / 10.0);
   double rate_err_factor = 1.0;
-  const double adj_limit = AOMMAX(0.20, (double)(100 - rate_err_tol) / 200.0);
+  const double adj_limit = AOMMAX(0.25, (double)(100 - rate_err_tol) / 200.0);
   const double min_fac = 1.0 - adj_limit;
-  const double max_fac = 1.0 + adj_limit * 2;
+  const double max_fac = 1.0 + adj_limit;
 
   if (rc->vbr_bits_off_target && rc->total_actual_bits > 0) {
     rate_err_factor =
@@ -296,6 +296,10 @@ static int get_twopass_worst_quality(AV1_COMP *cpi, const double av_frame_err,
         target_norm_bits_per_mb, cpi->common.seq_params.bit_depth,
         av_err_per_mb, cpi->twopass.bpm_factor, rate_err_tol, rc->best_quality,
         rc->worst_quality);
+
+    // Make an delta adjustment based on what we saw in this groups key frame.
+    q += rc->awq_groupdelta;
+    q = AOMMAX(rc->best_quality, AOMMIN(rc->worst_quality, q));
 
     // Restriction on active max q for constrained quality mode.
     if (rc_cfg->mode == AOM_CQ) q = AOMMAX(q, rc_cfg->cq_level);
@@ -3091,6 +3095,9 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   // Reset the GF group data structures.
   av1_zero(*gf_group);
 
+  // Reset the kf group active q delta.
+  rc->awq_groupdelta = 0;
+
   // KF is always a GF so clear frames till next gf counter.
   rc->frames_till_gf_update_due = 0;
 
@@ -3124,6 +3131,10 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
 
   // Is this a forced key frame by interval.
   rc->this_key_frame_forced = rc->next_key_frame_forced;
+
+  // Reset bits per macro_block correction factor for the new kg group.
+  // if this is a real scene cut then reset the mits per macro block
+  if (!rc->this_key_frame_forced) twopass->bpm_factor = 1.0;
 
   twopass->kf_group_bits = 0;        // Total bits available to kf group
   twopass->kf_group_error_left = 0;  // Group modified error score.
@@ -3374,6 +3385,7 @@ static void process_first_pass_stats(AV1_COMP *cpi,
         section_target_bandwidth);
 
     rc->active_worst_quality = tmp_q;
+    rc->awq_groupdelta = 0;
     rc->ni_av_qi = tmp_q;
     rc->last_q[INTER_FRAME] = tmp_q;
     rc->avg_q = av1_convert_qindex_to_q(tmp_q, cm->seq_params.bit_depth);
@@ -3802,6 +3814,33 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
     rc->rate_error_estimate = clamp(rc->rate_error_estimate, -100, 100);
   } else {
     rc->rate_error_estimate = 0;
+  }
+
+  // If the frame was a key frame, us the chosen q to reset the active
+  // worst quality and rate factor.
+  if (cpi->common.current_frame.frame_type == KEY_FRAME) {
+    const int bit_depth = cpi->common.seq_params.bit_depth;
+    int active_worst_quality = rc->active_worst_quality;
+    int active_best_quality;
+    active_best_quality =
+        av1_get_kf_active_quality(rc, active_worst_quality, bit_depth);
+
+    // Adjust the active worst quality to a value that would have given rise
+    // to the actual chosen q for the key frame.
+    while (cpi->common.quant_params.base_qindex < active_best_quality) {
+      active_worst_quality--;
+      active_best_quality =
+        av1_get_kf_active_quality(rc, active_worst_quality, bit_depth);
+    }
+    while (cpi->common.quant_params.base_qindex > active_best_quality) {
+      active_worst_quality++;
+      active_best_quality =
+        av1_get_kf_active_quality(rc, active_worst_quality, bit_depth);
+    }
+
+    // Reset the active worst quality going forward.
+    rc->awq_groupdelta = active_worst_quality - rc->active_worst_quality;
+    rc->active_worst_quality = active_worst_quality;
   }
 
   // Update the active best quality pyramid.
