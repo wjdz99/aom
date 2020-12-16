@@ -192,7 +192,10 @@ static const SubGOPCfg *get_subgop_config(SubGOPSetCfg *config_set,
   int is_ld_map = 1;
   const SubGOPCfg *cfg = av1_find_subgop_config(
       config_set, num_frames, is_last_subgop, is_first_subgop);
-  if (!cfg) return NULL;
+  if (!cfg) {
+    is_ld_map = 0;
+    return NULL;
+  }
 
   // Check if the configuration map is low-delay
   for (int idx = 0; idx < cfg->num_steps; ++idx) {
@@ -226,6 +229,14 @@ static int construct_multi_layer_gf_structure(
          first_frame_update_type == ARF_UPDATE ||
          first_frame_update_type == GF_UPDATE);
   const int use_altref = gf_group->max_layer_depth_allowed > 0;
+  SubGOPSetCfg *subgop_cfg_set = &cpi->subgop_config_set;
+  gf_group->subgop_cfg = NULL;
+  gf_group->is_user_specified = 0;
+  const SubGOPCfg *subgop_cfg;
+
+  subgop_cfg = get_subgop_config(
+      subgop_cfg_set, gf_interval, rc->frames_to_key <= gf_interval + 2,
+      first_frame_update_type == KF_UPDATE, use_altref);
 
   if (first_frame_update_type == KF_UPDATE &&
       cpi->oxcf.kf_cfg.enable_keyframe_filtering > 1) {
@@ -244,7 +255,7 @@ static int construct_multi_layer_gf_structure(
     gf_group->max_layer_depth = 0;
     ++frame_index;
     cur_frame_index++;
-  } else if (first_frame_update_type != ARF_UPDATE) {
+  } else if (first_frame_update_type == KF_UPDATE) {
     gf_group->update_type[frame_index] = first_frame_update_type;
     gf_group->arf_src_offset[frame_index] = 0;
     gf_group->cur_frame_idx[frame_index] = cur_frame_index;
@@ -254,16 +265,6 @@ static int construct_multi_layer_gf_structure(
     ++cur_frame_index;
   }
 
-  // Rest of the frames.
-  SubGOPSetCfg *subgop_cfg_set = &cpi->subgop_config_set;
-  gf_group->subgop_cfg = NULL;
-  gf_group->is_user_specified = 0;
-  const SubGOPCfg *subgop_cfg;
-  if (first_frame_update_type == KF_UPDATE) gf_interval++;
-  subgop_cfg =
-      get_subgop_config(subgop_cfg_set, gf_interval - frame_index,
-                        rc->frames_to_key <= gf_interval + 2,
-                        first_frame_update_type == KF_UPDATE, use_altref);
   if (subgop_cfg) {
     gf_group->subgop_cfg = subgop_cfg;
     gf_group->is_user_specified = 1;
@@ -272,6 +273,7 @@ static int construct_multi_layer_gf_structure(
                                            &frame_index);
     frame_index++;
   } else {
+    if (first_frame_update_type == KF_UPDATE) gf_interval++;
     // ALTREF.
     if (use_altref) {
       gf_group->update_type[frame_index] = ARF_UPDATE;
@@ -297,12 +299,27 @@ static int construct_multi_layer_gf_structure(
       ++frame_index;
     } else {
       for (; cur_frame_index < gf_interval; ++cur_frame_index) {
-        gf_group->update_type[frame_index] = LF_UPDATE;
-        gf_group->arf_src_offset[frame_index] = 0;
-        gf_group->cur_frame_idx[frame_index] = cur_frame_index;
-        gf_group->layer_depth[frame_index] = MAX_ARF_LAYERS;
-        gf_group->arf_boost[frame_index] = NORMAL_BOOST;
-        gf_group->max_layer_depth = AOMMAX(gf_group->max_layer_depth, 2);
+        /*
+         * If the current gop is the end of the clip or
+         * if the next gop contains KEY_FRAME, then insert
+         * last frame as LF_UPDATE to avoid two consecutive
+         * good quality frames.*/
+        int is_clip_end_or_next_gop_key =
+            (cpi->rc.frames_to_key <= cpi->oxcf.gf_cfg.max_gf_interval);
+        if (is_clip_end_or_next_gop_key) {
+          gf_group->update_type[frame_index] = LF_UPDATE;
+          gf_group->arf_src_offset[frame_index] = 0;
+          gf_group->cur_frame_idx[frame_index] = cur_frame_index;
+          gf_group->layer_depth[frame_index] = MAX_ARF_LAYERS;
+          gf_group->arf_boost[frame_index] = NORMAL_BOOST;
+          gf_group->max_layer_depth = AOMMAX(gf_group->max_layer_depth, 2);
+        } else {
+          gf_group->update_type[frame_index] = GF_UPDATE;
+          gf_group->arf_src_offset[frame_index] = 0;
+          gf_group->cur_frame_idx[frame_index] = cur_frame_index;
+          gf_group->layer_depth[frame_index] = 0;
+          gf_group->max_layer_depth = 0;
+        }
         ++frame_index;
       }
     }
