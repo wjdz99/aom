@@ -27,6 +27,8 @@
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/firstpass.h"
 
+#include "common/args.h"
+
 #define MAG_SIZE (4)
 
 struct av1_extracfg {
@@ -2761,6 +2763,626 @@ static aom_codec_err_t ctrl_set_chroma_subsampling_y(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+static const arg_def_t cpu_used_av1 =
+    ARG_DEF(NULL, "cpu-used", 1,
+            "Speed setting (0..6 in good mode, 6..9 in realtime mode)");
+static const arg_def_t auto_altref =
+    ARG_DEF(NULL, "auto-alt-ref", 1, "Enable automatic alt reference frames");
+static const arg_def_t noise_sens =
+    ARG_DEF(NULL, "noise-sensitivity", 1, "Noise sensitivity (frames to blur)");
+static const arg_def_t sharpness =
+    ARG_DEF(NULL, "sharpness", 1, "Loop filter sharpness (0..7), default is 0");
+static const arg_def_t static_thresh =
+    ARG_DEF(NULL, "static-thresh", 1, "Motion detection threshold");
+static const arg_def_t rowmtarg =
+    ARG_DEF(NULL, "row-mt", 1,
+            "Enable row based multi-threading (0: off, 1: on (default))");
+static const arg_def_t tile_cols =
+    ARG_DEF(NULL, "tile-columns", 1, "Number of tile columns to use, log2");
+static const arg_def_t tile_rows =
+    ARG_DEF(NULL, "tile-rows", 1, "Number of tile rows to use, log2");
+static const arg_def_t enable_tpl_model =
+    ARG_DEF(NULL, "enable-tpl-model", 1,
+            "RDO based on frame temporal dependency "
+            "(0: off, 1: backward source based). "
+            "This is required for deltaq mode.");
+static const arg_def_t enable_keyframe_filtering =
+    ARG_DEF(NULL, "enable-keyframe-filtering", 1,
+            "Apply temporal filtering on key frame"
+            "(0: no filter, 1: filter without overlay (default), "
+            "2: filter with overlay - experimental, may break random access in "
+            "players.)");
+static const arg_def_t arnr_maxframes =
+    ARG_DEF(NULL, "arnr-maxframes", 1, "AltRef max frames (0..15)");
+static const arg_def_t arnr_strength =
+    ARG_DEF(NULL, "arnr-strength", 1, "AltRef filter strength (0..6)");
+static const arg_def_t min_gf_interval = ARG_DEF(
+    NULL, "min-gf-interval", 1,
+    "min gf/arf frame interval (default 0, indicating in-built behavior)");
+static const arg_def_t max_gf_interval = ARG_DEF(
+    NULL, "max-gf-interval", 1,
+    "max gf/arf frame interval (default 0, indicating in-built behavior)");
+static const arg_def_t gf_min_pyr_height =
+    ARG_DEF(NULL, "gf-min-pyr-height", 1,
+            "Min height for GF group pyramid structure (0 (default) to 5)");
+static const arg_def_t gf_max_pyr_height =
+    ARG_DEF(NULL, "gf-max-pyr-height", 1,
+            "maximum height for GF group pyramid structure (0 to 5 (default))");
+static const struct arg_enum_list tuning_enum[] = {
+  { "psnr", AOM_TUNE_PSNR },
+  { "ssim", AOM_TUNE_SSIM },
+  { "vmaf_with_preprocessing", AOM_TUNE_VMAF_WITH_PREPROCESSING },
+  { "vmaf_without_preprocessing", AOM_TUNE_VMAF_WITHOUT_PREPROCESSING },
+  { "vmaf", AOM_TUNE_VMAF_MAX_GAIN },
+  { "vmaf_neg", AOM_TUNE_VMAF_NEG_MAX_GAIN },
+  { NULL, 0 }
+};
+static const arg_def_t tune_metric =
+    ARG_DEF_ENUM(NULL, "tune", 1, "Distortion metric tuned with", tuning_enum);
+#if CONFIG_TUNE_VMAF
+static const arg_def_t vmaf_model_path =
+    ARG_DEF(NULL, "vmaf-model-path", 1, "Path to the VMAF model file");
+#endif
+static const arg_def_t cq_level =
+    ARG_DEF(NULL, "cq-level", 1, "Constant/Constrained Quality level");
+static const arg_def_t max_intra_rate_pct =
+    ARG_DEF(NULL, "max-intra-rate", 1, "Max I-frame bitrate (pct)");
+static const arg_def_t max_inter_rate_pct =
+    ARG_DEF(NULL, "max-inter-rate", 1, "Max P-frame bitrate (pct)");
+static const arg_def_t gf_cbr_boost_pct = ARG_DEF(
+    NULL, "gf-cbr-boost", 1, "Boost for Golden Frame in CBR mode (pct)");
+static const arg_def_t lossless =
+    ARG_DEF(NULL, "lossless", 1, "Lossless mode (0: false (default), 1: true)");
+static const arg_def_t enable_cdef =
+    ARG_DEF(NULL, "enable-cdef", 1,
+            "Enable the constrained directional enhancement filter (0: false, "
+            "1: true (default))");
+static const arg_def_t enable_restoration = ARG_DEF(
+    NULL, "enable-restoration", 1,
+    "Enable the loop restoration filter (0: false (default in Realtime mode), "
+    "1: true (default in Non-realtime mode))");
+static const arg_def_t force_video_mode =
+    ARG_DEF(NULL, "force-video-mode", 1,
+            "Force video mode (0: false, 1: true (default))");
+static const arg_def_t enable_obmc = ARG_DEF(
+    NULL, "enable-obmc", 1, "Enable OBMC (0: false, 1: true (default))");
+static const arg_def_t disable_trellis_quant =
+    ARG_DEF(NULL, "disable-trellis-quant", 1,
+            "Disable trellis optimization of quantized coefficients (0: false "
+            "1: true  2: true for rd search 3: true for estimate yrd serch "
+            "(default))");
+static const arg_def_t enable_qm =
+    ARG_DEF(NULL, "enable-qm", 1,
+            "Enable quantisation matrices (0: false (default), 1: true)");
+static const arg_def_t qm_min = ARG_DEF(
+    NULL, "qm-min", 1, "Min quant matrix flatness (0..15), default is 8");
+static const arg_def_t qm_max = ARG_DEF(
+    NULL, "qm-max", 1, "Max quant matrix flatness (0..15), default is 15");
+static const arg_def_t num_tg = ARG_DEF(
+    NULL, "num-tile-groups", 1, "Maximum number of tile groups, default is 1");
+static const arg_def_t mtu_size =
+    ARG_DEF(NULL, "mtu-size", 1,
+            "MTU size for a tile group, default is 0 (no MTU targeting), "
+            "overrides maximum number of tile groups");
+static const struct arg_enum_list timing_info_enum[] = {
+  { "unspecified", AOM_TIMING_UNSPECIFIED },
+  { "constant", AOM_TIMING_EQUAL },
+  { "model", AOM_TIMING_DEC_MODEL },
+  { NULL, 0 }
+};
+static const arg_def_t timing_info =
+    ARG_DEF_ENUM(NULL, "timing-info", 1,
+                 "Signal timing info in the bitstream (model unly works for no "
+                 "hidden frames, no super-res yet):",
+                 timing_info_enum);
+static const arg_def_t frame_parallel_decoding =
+    ARG_DEF(NULL, "frame-parallel", 1,
+            "Enable frame parallel decodability features "
+            "(0: false (default), 1: true)");
+static const arg_def_t enable_dual_filter =
+    ARG_DEF(NULL, "enable-dual-filter", 1,
+            "Enable dual filter "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_chroma_deltaq =
+    ARG_DEF(NULL, "enable-chroma-deltaq", 1,
+            "Enable chroma delta quant "
+            "(0: false (default), 1: true)");
+static const arg_def_t aq_mode = ARG_DEF(
+    NULL, "aq-mode", 1,
+    "Adaptive quantization mode (0: off (default), 1: variance 2: complexity, "
+    "3: cyclic refresh)");
+static const arg_def_t deltaq_mode =
+    ARG_DEF(NULL, "deltaq-mode", 1,
+            "Delta qindex mode (0: off, 1: deltaq objective (default), "
+            "2: deltaq perceptual). "
+            "Currently this requires enable-tpl-model as a prerequisite.");
+static const arg_def_t deltalf_mode = ARG_DEF(
+    NULL, "delta-lf-mode", 1, "Enable delta-lf-mode (0: off (default), 1: on)");
+static const arg_def_t frame_periodic_boost =
+    ARG_DEF(NULL, "frame-boost", 1,
+            "Enable frame periodic boost (0: off (default), 1: on)");
+static const struct arg_enum_list tune_content_enum[] = {
+  { "default", AOM_CONTENT_DEFAULT },
+  { "screen", AOM_CONTENT_SCREEN },
+  { NULL, 0 }
+};
+static const arg_def_t tune_content = ARG_DEF_ENUM(
+    NULL, "tune-content", 1, "Tune content type", tune_content_enum);
+static const struct arg_enum_list color_primaries_enum[] = {
+  { "bt709", AOM_CICP_CP_BT_709 },
+  { "unspecified", AOM_CICP_CP_UNSPECIFIED },
+  { "bt601", AOM_CICP_CP_BT_601 },
+  { "bt470m", AOM_CICP_CP_BT_470_M },
+  { "bt470bg", AOM_CICP_CP_BT_470_B_G },
+  { "smpte240", AOM_CICP_CP_SMPTE_240 },
+  { "film", AOM_CICP_CP_GENERIC_FILM },
+  { "bt2020", AOM_CICP_CP_BT_2020 },
+  { "xyz", AOM_CICP_CP_XYZ },
+  { "smpte431", AOM_CICP_CP_SMPTE_431 },
+  { "smpte432", AOM_CICP_CP_SMPTE_432 },
+  { "ebu3213", AOM_CICP_CP_EBU_3213 },
+  { NULL, 0 }
+};
+static const arg_def_t input_color_primaries = ARG_DEF_ENUM(
+    NULL, "color-primaries", 1,
+    "Color primaries (CICP) of input content:", color_primaries_enum);
+static const struct arg_enum_list transfer_characteristics_enum[] = {
+  { "unspecified", AOM_CICP_CP_UNSPECIFIED },
+  { "bt709", AOM_CICP_TC_BT_709 },
+  { "bt470m", AOM_CICP_TC_BT_470_M },
+  { "bt470bg", AOM_CICP_TC_BT_470_B_G },
+  { "bt601", AOM_CICP_TC_BT_601 },
+  { "smpte240", AOM_CICP_TC_SMPTE_240 },
+  { "lin", AOM_CICP_TC_LINEAR },
+  { "log100", AOM_CICP_TC_LOG_100 },
+  { "log100sq10", AOM_CICP_TC_LOG_100_SQRT10 },
+  { "iec61966", AOM_CICP_TC_IEC_61966 },
+  { "bt1361", AOM_CICP_TC_BT_1361 },
+  { "srgb", AOM_CICP_TC_SRGB },
+  { "bt2020-10bit", AOM_CICP_TC_BT_2020_10_BIT },
+  { "bt2020-12bit", AOM_CICP_TC_BT_2020_12_BIT },
+  { "smpte2084", AOM_CICP_TC_SMPTE_2084 },
+  { "hlg", AOM_CICP_TC_HLG },
+  { "smpte428", AOM_CICP_TC_SMPTE_428 },
+  { NULL, 0 }
+};
+static const arg_def_t input_transfer_characteristics =
+    ARG_DEF_ENUM(NULL, "transfer-characteristics", 1,
+                 "Transfer characteristics (CICP) of input content:",
+                 transfer_characteristics_enum);
+static const struct arg_enum_list matrix_coefficients_enum[] = {
+  { "identity", AOM_CICP_MC_IDENTITY },
+  { "bt709", AOM_CICP_MC_BT_709 },
+  { "unspecified", AOM_CICP_MC_UNSPECIFIED },
+  { "fcc73", AOM_CICP_MC_FCC },
+  { "bt470bg", AOM_CICP_MC_BT_470_B_G },
+  { "bt601", AOM_CICP_MC_BT_601 },
+  { "smpte240", AOM_CICP_CP_SMPTE_240 },
+  { "ycgco", AOM_CICP_MC_SMPTE_YCGCO },
+  { "bt2020ncl", AOM_CICP_MC_BT_2020_NCL },
+  { "bt2020cl", AOM_CICP_MC_BT_2020_CL },
+  { "smpte2085", AOM_CICP_MC_SMPTE_2085 },
+  { "chromncl", AOM_CICP_MC_CHROMAT_NCL },
+  { "chromcl", AOM_CICP_MC_CHROMAT_CL },
+  { "ictcp", AOM_CICP_MC_ICTCP },
+  { NULL, 0 }
+};
+static const arg_def_t input_matrix_coefficients = ARG_DEF_ENUM(
+    NULL, "matrix-coefficients", 1,
+    "Matrix coefficients (CICP) of input content:", matrix_coefficients_enum);
+static const struct arg_enum_list chroma_sample_position_enum[] = {
+  { "unknown", AOM_CSP_UNKNOWN },
+  { "vertical", AOM_CSP_VERTICAL },
+  { "colocated", AOM_CSP_COLOCATED },
+  { NULL, 0 }
+};
+static const arg_def_t input_chroma_sample_position =
+    ARG_DEF_ENUM(NULL, "chroma-sample-position", 1,
+                 "The chroma sample position when chroma 4:2:0 is signaled:",
+                 chroma_sample_position_enum);
+static const struct arg_enum_list superblock_size_enum[] = {
+  { "dynamic", AOM_SUPERBLOCK_SIZE_DYNAMIC },
+  { "64", AOM_SUPERBLOCK_SIZE_64X64 },
+  { "128", AOM_SUPERBLOCK_SIZE_128X128 },
+  { NULL, 0 }
+};
+static const arg_def_t superblock_size = ARG_DEF_ENUM(
+    NULL, "sb-size", 1, "Superblock size to use", superblock_size_enum);
+static const arg_def_t error_resilient_mode =
+    ARG_DEF(NULL, "error-resilient", 1,
+            "Enable error resilient features "
+            "(0: false (default), 1: true)");
+static const arg_def_t sframe_mode =
+    ARG_DEF(NULL, "sframe-mode", 1, "S-Frame insertion mode (1..2)");
+static const arg_def_t film_grain_test =
+    ARG_DEF(NULL, "film-grain-test", 1,
+            "Film grain test vectors (0: none (default), 1: test-1  2: test-2, "
+            "... 16: test-16)");
+static const arg_def_t film_grain_table =
+    ARG_DEF(NULL, "film-grain-table", 1,
+            "Path to file containing film grain parameters");
+static const arg_def_t cdf_update_mode =
+    ARG_DEF(NULL, "cdf-update-mode", 1,
+            "CDF update mode for entropy coding "
+            "(0: no CDF update; 1: update CDF on all frames(default); "
+            "2: selectively update CDF on some frames");
+static const arg_def_t enable_rect_partitions =
+    ARG_DEF(NULL, "enable-rect-partitions", 1,
+            "Enable rectangular partitions "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_ab_partitions =
+    ARG_DEF(NULL, "enable-ab-partitions", 1,
+            "Enable ab partitions (0: false, 1: true (default))");
+static const arg_def_t enable_1to4_partitions =
+    ARG_DEF(NULL, "enable-1to4-partitions", 1,
+            "Enable 1:4 and 4:1 partitions "
+            "(0: false, 1: true (default))");
+static const arg_def_t min_partition_size =
+    ARG_DEF(NULL, "min-partition-size", 1,
+            "Set min partition size "
+            "(4:4x4, 8:8x8, 16:16x16, 32:32x32, 64:64x64, 128:128x128). "
+            "On frame with 4k+ resolutions or higher speed settings, the min "
+            "partition size will have a minimum of 8.");
+static const arg_def_t max_partition_size =
+    ARG_DEF(NULL, "max-partition-size", 1,
+            "Set max partition size "
+            "(4:4x4, 8:8x8, 16:16x16, 32:32x32, 64:64x64, 128:128x128)");
+static const arg_def_t enable_intra_edge_filter =
+    ARG_DEF(NULL, "enable-intra-edge-filter", 1,
+            "Enable intra edge filtering "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_order_hint =
+    ARG_DEF(NULL, "enable-order-hint", 1,
+            "Enable order hint "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_tx64 =
+    ARG_DEF(NULL, "enable-tx64", 1,
+            "Enable 64-pt transform (0: false, 1: true (default))");
+static const arg_def_t enable_flip_idtx =
+    ARG_DEF(NULL, "enable-flip-idtx", 1,
+            "Enable extended transform type (0: false, 1: true (default)) "
+            "including FLIPADST_DCT, DCT_FLIPADST, FLIPADST_FLIPADST, "
+            "ADST_FLIPADST, FLIPADST_ADST, IDTX, V_DCT, H_DCT, V_ADST, "
+            "H_ADST, V_FLIPADST, H_FLIPADST");
+static const arg_def_t enable_rect_tx =
+    ARG_DEF(NULL, "enable-rect-tx", 1,
+            "Enable rectangular transform (0: false, 1: true (default))");
+static const arg_def_t enable_dist_wtd_comp =
+    ARG_DEF(NULL, "enable-dist-wtd-comp", 1,
+            "Enable distance-weighted compound "
+            "(0: false, 1: true (default))");
+static const arg_def_t max_reference_frames = ARG_DEF(
+    NULL, "max-reference-frames", 1,
+    "maximum number of reference frames allowed per frame (3 to 7 (default))");
+static const arg_def_t reduced_reference_set =
+    ARG_DEF(NULL, "reduced-reference-set", 1,
+            "Use reduced set of single and compound references (0: off "
+            "(default), 1: on)");
+static const arg_def_t enable_ref_frame_mvs =
+    ARG_DEF(NULL, "enable-ref-frame-mvs", 1,
+            "Enable temporal mv prediction (default is 1)");
+static const arg_def_t enable_masked_comp =
+    ARG_DEF(NULL, "enable-masked-comp", 1,
+            "Enable masked (wedge/diff-wtd) compound "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_onesided_comp =
+    ARG_DEF(NULL, "enable-onesided-comp", 1,
+            "Enable one sided compound "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_interintra_comp =
+    ARG_DEF(NULL, "enable-interintra-comp", 1,
+            "Enable interintra compound "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_smooth_interintra =
+    ARG_DEF(NULL, "enable-smooth-interintra", 1,
+            "Enable smooth interintra mode "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_diff_wtd_comp =
+    ARG_DEF(NULL, "enable-diff-wtd-comp", 1,
+            "Enable difference-weighted compound "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_interinter_wedge =
+    ARG_DEF(NULL, "enable-interinter-wedge", 1,
+            "Enable interinter wedge compound "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_interintra_wedge =
+    ARG_DEF(NULL, "enable-interintra-wedge", 1,
+            "Enable interintra wedge compound "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_global_motion =
+    ARG_DEF(NULL, "enable-global-motion", 1,
+            "Enable global motion "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_warped_motion =
+    ARG_DEF(NULL, "enable-warped-motion", 1,
+            "Enable local warped motion "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_filter_intra =
+    ARG_DEF(NULL, "enable-filter-intra", 1,
+            "Enable filter intra prediction mode "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_smooth_intra =
+    ARG_DEF(NULL, "enable-smooth-intra", 1,
+            "Enable smooth intra prediction modes "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_paeth_intra =
+    ARG_DEF(NULL, "enable-paeth-intra", 1,
+            "Enable Paeth intra prediction mode (0: false, 1: true (default))");
+static const arg_def_t enable_cfl_intra =
+    ARG_DEF(NULL, "enable-cfl-intra", 1,
+            "Enable chroma from luma intra prediction mode "
+            "(0: false, 1: true (default))");
+static const arg_def_t superres_mode =
+    ARG_DEF(NULL, "superres-mode", 1, "Frame super-resolution mode");
+static const arg_def_t enable_overlay =
+    ARG_DEF(NULL, "enable-overlay", 1,
+            "Enable coding overlay frames (0: false, 1: true (default))");
+static const arg_def_t enable_palette =
+    ARG_DEF(NULL, "enable-palette", 1,
+            "Enable palette prediction mode (0: false, 1: true (default))");
+static const arg_def_t enable_intrabc =
+    ARG_DEF(NULL, "enable-intrabc", 1,
+            "Enable intra block copy prediction mode "
+            "(0: false, 1: true (default))");
+static const arg_def_t enable_angle_delta =
+    ARG_DEF(NULL, "enable-angle-delta", 1,
+            "Enable intra angle delta (0: false, 1: true (default))");
+static const arg_def_t reduced_tx_type_set = ARG_DEF(
+    NULL, "reduced-tx-type-set", 1, "Use reduced set of transform types");
+static const arg_def_t use_intra_dct_only =
+    ARG_DEF(NULL, "use-intra-dct-only", 1, "Use DCT only for INTRA modes");
+static const arg_def_t use_inter_dct_only =
+    ARG_DEF(NULL, "use-inter-dct-only", 1, "Use DCT only for INTER modes");
+static const arg_def_t use_intra_default_tx_only =
+    ARG_DEF(NULL, "use-intra-default-tx-only", 1,
+            "Use Default-transform only for INTRA modes");
+static const arg_def_t quant_b_adapt =
+    ARG_DEF(NULL, "quant-b-adapt", 1, "Use adaptive quantize_b");
+static const arg_def_t vbr_corpus_complexity_lap = ARG_DEF(
+    NULL, "vbr-corpus-complexity-lap", 1,
+    "Set average corpus complexity per mb for single pass VBR using lap. "
+    "(0..10000), default is 0");
+static const arg_def_t set_tier_mask =
+    ARG_DEF(NULL, "set-tier-mask", 1,
+            "Set bit mask to specify which tier each of the 32 possible "
+            "operating points conforms to. "
+            "Bit value 0(defualt): Main Tier; 1: High Tier.");
+static const arg_def_t set_min_cr =
+    ARG_DEF(NULL, "min-cr", 1,
+            "Set minimum compression ratio. Take integer values. Default is 0. "
+            "If non-zero, encoder will try to keep the compression ratio of "
+            "each frame to be higher than the given value divided by 100.");
+static const arg_def_t coeff_cost_upd_freq =
+    ARG_DEF(NULL, "coeff-cost-upd-freq", 1,
+            "Update freq for coeff costs"
+            "0: SB, 1: SB Row per Tile, 2: Tile, 3: Off");
+static const arg_def_t mode_cost_upd_freq =
+    ARG_DEF(NULL, "mode-cost-upd-freq", 1,
+            "Update freq for mode costs"
+            "0: SB, 1: SB Row per Tile, 2: Tile, 3: Off");
+static const arg_def_t mv_cost_upd_freq =
+    ARG_DEF(NULL, "mv-cost-upd-freq", 1,
+            "Update freq for mv costs"
+            "0: SB, 1: SB Row per Tile, 2: Tile, 3: Off");
+
+static aom_codec_err_t ctrl_set_extra_params(aom_codec_alg_priv_t *ctx,
+                                             va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  char *key = va_arg(args, char *);
+  char *value = va_arg(args, char *);
+  char *temp[2] = { NULL, "" };
+  int l = strlen(key) + strlen(value) + 4;
+  temp[0] = aom_calloc(l, sizeof(char));
+  sprintf(temp[0], "--%s=%s", key, value);
+  struct arg arg;
+
+  int match = 1;
+  if (arg_match(&arg, &enable_keyframe_filtering, temp)) {
+    extra_cfg.enable_keyframe_filtering = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &min_gf_interval, temp)) {
+    extra_cfg.min_gf_interval = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &max_gf_interval, temp)) {
+    extra_cfg.max_gf_interval = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &gf_min_pyr_height, temp)) {
+    extra_cfg.gf_min_pyr_height = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &gf_max_pyr_height, temp)) {
+    extra_cfg.gf_max_pyr_height = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &cpu_used_av1, temp)) {
+    extra_cfg.cpu_used = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &auto_altref, temp)) {
+    extra_cfg.enable_auto_alt_ref = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &noise_sens, temp)) {
+    extra_cfg.noise_sensitivity = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &sharpness, temp)) {
+    extra_cfg.sharpness = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &static_thresh, temp)) {
+    extra_cfg.static_thresh = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &rowmtarg, temp)) {
+    extra_cfg.row_mt = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &tile_cols, temp)) {
+    extra_cfg.tile_columns = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &tile_rows, temp)) {
+    extra_cfg.tile_rows = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_tpl_model, temp)) {
+    extra_cfg.enable_tpl_model = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &arnr_maxframes, temp)) {
+    extra_cfg.arnr_max_frames = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &arnr_strength, temp)) {
+    extra_cfg.arnr_strength = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &tune_metric, temp)) {
+    extra_cfg.tuning = arg_parse_enum(&arg);
+  }
+#if CONFIG_TUNE_VMAF
+  else if (arg_match(&arg, &vmaf_model_path, temp)) {
+    extra_cfg.vmaf_model_path = value;
+  }
+#endif
+  else if (arg_match(&arg, &cq_level, temp)) {
+    extra_cfg.cq_level = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &max_intra_rate_pct, temp)) {
+    extra_cfg.rc_max_intra_bitrate_pct = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &max_inter_rate_pct, temp)) {
+    extra_cfg.rc_max_inter_bitrate_pct = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &gf_cbr_boost_pct, temp)) {
+    extra_cfg.gf_cbr_boost_pct = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &lossless, temp)) {
+    extra_cfg.lossless = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_cdef, temp)) {
+    extra_cfg.enable_cdef = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_restoration, temp)) {
+    extra_cfg.enable_restoration = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &force_video_mode, temp)) {
+    extra_cfg.force_video_mode = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_obmc, temp)) {
+    extra_cfg.enable_obmc = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &disable_trellis_quant, temp)) {
+    extra_cfg.disable_trellis_quant = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_qm, temp)) {
+    extra_cfg.enable_qm = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &qm_max, temp)) {
+    extra_cfg.qm_max = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &qm_min, temp)) {
+    extra_cfg.qm_min = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &num_tg, temp)) {
+    extra_cfg.num_tg = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &mtu_size, temp)) {
+    extra_cfg.mtu_size = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &timing_info, temp)) {
+    extra_cfg.timing_info_type = arg_parse_enum(&arg);
+  } else if (arg_match(&arg, &frame_parallel_decoding, temp)) {
+    extra_cfg.frame_parallel_decoding_mode = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_dual_filter, temp)) {
+    extra_cfg.enable_dual_filter = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_chroma_deltaq, temp)) {
+    extra_cfg.enable_chroma_deltaq = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &aq_mode, temp)) {
+    extra_cfg.aq_mode = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &deltaq_mode, temp)) {
+    extra_cfg.deltaq_mode = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &deltalf_mode, temp)) {
+    extra_cfg.deltalf_mode = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &frame_periodic_boost, temp)) {
+    extra_cfg.frame_periodic_boost = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &tune_content, temp)) {
+    extra_cfg.content = arg_parse_enum(&arg);
+  } else if (arg_match(&arg, &input_color_primaries, temp)) {
+    extra_cfg.color_primaries = arg_parse_enum(&arg);
+  } else if (arg_match(&arg, &input_transfer_characteristics, temp)) {
+    extra_cfg.transfer_characteristics = arg_parse_enum(&arg);
+  } else if (arg_match(&arg, &input_matrix_coefficients, temp)) {
+    extra_cfg.matrix_coefficients = arg_parse_enum(&arg);
+  } else if (arg_match(&arg, &input_chroma_sample_position, temp)) {
+    extra_cfg.chroma_sample_position = arg_parse_enum(&arg);
+  } else if (arg_match(&arg, &superblock_size, temp)) {
+    extra_cfg.superblock_size = arg_parse_enum(&arg);
+  } else if (arg_match(&arg, &error_resilient_mode, temp)) {
+    extra_cfg.error_resilient_mode = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &sframe_mode, temp)) {
+    extra_cfg.s_frame_mode = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &film_grain_test, temp)) {
+    extra_cfg.film_grain_test_vector = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &film_grain_table, temp)) {
+    extra_cfg.film_grain_table_filename = value;
+  } else if (arg_match(&arg, &cdf_update_mode, temp)) {
+    extra_cfg.cdf_update_mode = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_rect_partitions, temp)) {
+    extra_cfg.enable_rect_partitions = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_ab_partitions, temp)) {
+    extra_cfg.enable_ab_partitions = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_1to4_partitions, temp)) {
+    extra_cfg.enable_1to4_partitions = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &min_partition_size, temp)) {
+    extra_cfg.min_partition_size = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &max_partition_size, temp)) {
+    extra_cfg.max_partition_size = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_intra_edge_filter, temp)) {
+    extra_cfg.enable_intra_edge_filter = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &enable_order_hint, temp)) {
+    extra_cfg.enable_order_hint = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_tx64, temp)) {
+    extra_cfg.enable_tx64 = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_flip_idtx, temp)) {
+    extra_cfg.enable_flip_idtx = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_rect_tx, temp)) {
+    extra_cfg.enable_rect_tx = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_dist_wtd_comp, temp)) {
+    extra_cfg.enable_dist_wtd_comp = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &max_reference_frames, temp)) {
+    extra_cfg.max_reference_frames = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &reduced_reference_set, temp)) {
+    extra_cfg.enable_reduced_reference_set = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_ref_frame_mvs, temp)) {
+    extra_cfg.enable_ref_frame_mvs = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_masked_comp, temp)) {
+    extra_cfg.enable_masked_comp = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_onesided_comp, temp)) {
+    extra_cfg.enable_onesided_comp = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_interintra_comp, temp)) {
+    extra_cfg.enable_interintra_comp = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_smooth_interintra, temp)) {
+    extra_cfg.enable_smooth_interintra = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_diff_wtd_comp, temp)) {
+    extra_cfg.enable_diff_wtd_comp = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_interinter_wedge, temp)) {
+    extra_cfg.enable_interinter_wedge = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_interintra_wedge, temp)) {
+    extra_cfg.enable_interintra_wedge = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_global_motion, temp)) {
+    extra_cfg.enable_global_motion = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_warped_motion, temp)) {
+    extra_cfg.enable_warped_motion = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_filter_intra, temp)) {
+    extra_cfg.enable_filter_intra = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_smooth_intra, temp)) {
+    extra_cfg.enable_smooth_intra = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_paeth_intra, temp)) {
+    extra_cfg.enable_paeth_intra = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_cfl_intra, temp)) {
+    extra_cfg.enable_cfl_intra = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &superres_mode, temp)) {
+    extra_cfg.enable_superres = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_overlay, temp)) {
+    extra_cfg.enable_overlay = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_palette, temp)) {
+    extra_cfg.enable_palette = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_intrabc, temp)) {
+    extra_cfg.enable_intrabc = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &enable_angle_delta, temp)) {
+    extra_cfg.enable_angle_delta = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &reduced_tx_type_set, temp)) {
+    extra_cfg.reduced_tx_type_set = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &use_intra_dct_only, temp)) {
+    extra_cfg.use_intra_dct_only = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &use_inter_dct_only, temp)) {
+    extra_cfg.use_inter_dct_only = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &use_intra_default_tx_only, temp)) {
+    extra_cfg.use_intra_default_tx_only = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &quant_b_adapt, temp)) {
+    extra_cfg.quant_b_adapt = arg_parse_int(&arg);
+  } else if (arg_match(&arg, &vbr_corpus_complexity_lap, temp)) {
+    extra_cfg.vbr_corpus_complexity_lap = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &set_tier_mask, temp)) {
+    extra_cfg.tier_mask = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &set_min_cr, temp)) {
+    extra_cfg.min_cr = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &coeff_cost_upd_freq, temp)) {
+    extra_cfg.coeff_cost_upd_freq = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &mode_cost_upd_freq, temp)) {
+    extra_cfg.mode_cost_upd_freq = arg_parse_uint(&arg);
+  } else if (arg_match(&arg, &mv_cost_upd_freq, temp)) {
+    extra_cfg.mv_cost_upd_freq = arg_parse_uint(&arg);
+  } else {
+    match = 0;
+  }
+
+  aom_free(temp[0]);
+  if (match) {
+    return update_extra_cfg(ctx, &extra_cfg);
+  } else {
+    return AOM_CODEC_INVALID_PARAM;
+  }
+}
+
 static aom_codec_err_t ctrl_get_seq_level_idx(aom_codec_alg_priv_t *ctx,
                                               va_list args) {
   int *const arg = va_arg(args, int *);
@@ -2894,6 +3516,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_SVC_REF_FRAME_CONFIG, ctrl_set_svc_ref_frame_config },
   { AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, ctrl_set_vbr_corpus_complexity_lap },
   { AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, ctrl_enable_sb_multipass_unit_test },
+  { AV1E_SET_EXTRA_CONFIG, ctrl_set_extra_params },
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
