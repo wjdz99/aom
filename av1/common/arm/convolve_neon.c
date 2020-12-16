@@ -196,10 +196,14 @@ void av1_convolve_x_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                             const InterpFilterParams *filter_params_x,
                             const int subpel_x_qn,
                             ConvolveParams *conv_params) {
-  const uint8_t horiz_offset = filter_params_x->taps / 2 - 1;
-  const int8_t bits = FILTER_BITS - conv_params->round_0;
+  if (filter_params_x->taps > 8) {
+    av1_convolve_x_sr_c(src, src_stride, dst, dst_stride, w, h, filter_params_x,
+                        subpel_x_qn, conv_params);
+  } else {
+    const uint8_t horiz_offset = filter_params_x->taps / 2 - 1;
+    const int8_t bits = FILTER_BITS - conv_params->round_0;
 
-  uint8x8_t t0;
+    uint8x8_t t0;
 #if defined(__aarch64__)
   uint8x8_t t1, t2, t3;
 #endif
@@ -592,22 +596,27 @@ void av1_convolve_x_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
 #if defined(__aarch64__)
   }
 #endif
+  }
 }
 
 void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
                             int dst_stride, int w, int h,
                             const InterpFilterParams *filter_params_y,
                             const int subpel_y_qn) {
-  const int vert_offset = filter_params_y->taps / 2 - 1;
+  if (filter_params_y->taps > 8) {
+    av1_convolve_y_sr_c(src, src_stride, dst, dst_stride, w, h, filter_params_y,
+                        subpel_y_qn);
+  } else {
+    const int vert_offset = filter_params_y->taps / 2 - 1;
 
-  src -= vert_offset * src_stride;
+    src -= vert_offset * src_stride;
 
-  const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_y, subpel_y_qn & SUBPEL_MASK);
+    const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
+        filter_params_y, subpel_y_qn & SUBPEL_MASK);
 
-  if (w <= 4) {
-    uint8x8_t d01;
-    int16x4_t s0, s1, s2, s3, s4, s5, s6, s7, d0;
+    if (w <= 4) {
+      uint8x8_t d01;
+      int16x4_t s0, s1, s2, s3, s4, s5, s6, s7, d0;
 #if defined(__aarch64__)
     uint8x8_t d23;
     int16x4_t s8, s9, s10, d1, d2, d3;
@@ -721,12 +730,12 @@ void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
       h -= 1;
 #endif
     } while (h > 0);
-  } else {
-    int height;
-    const uint8_t *s;
-    uint8_t *d;
-    uint8x8_t t0;
-    int16x8_t s0, s1, s2, s3, s4, s5, s6, s7;
+    } else {
+      int height;
+      const uint8_t *s;
+      uint8_t *d;
+      uint8x8_t t0;
+      int16x8_t s0, s1, s2, s3, s4, s5, s6, s7;
 #if defined(__aarch64__)
     uint8x8_t t1, t2, t3;
     int16x8_t s8, s9, s10;
@@ -826,6 +835,7 @@ void av1_convolve_y_sr_neon(const uint8_t *src, int src_stride, uint8_t *dst,
       dst += 8;
       w -= 8;
     } while (w > 0);
+    }
   }
 }
 
