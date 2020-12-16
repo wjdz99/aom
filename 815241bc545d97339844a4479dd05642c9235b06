@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b0cf492_8a73a4b8",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "Good idea :) I was thinking that as the function is recursive node_idx is often not the first node of the overall path, but it would definitely be the start index of the sub-path to dest_idx!",
+      "parentUuid": "4836111b_dbabde47",
+      "range": {
+        "startLine": 2213,
+        "startChar": 32,
+        "endLine": 2213,
+        "endChar": 36
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e1e1c3e_95b94afa",
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-16T00:49:13Z",
       "side": 1,
       "message": "If these are unmodified by the calling function, please make them const",
+      "range": {
+        "startLine": 72,
+        "startChar": 36,
+        "endLine": 72,
+        "endChar": 60
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "676c5056_1155dce4",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e1e1c3e_95b94afa",
       "range": {
         "startLine": 72,
         "startChar": 36,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e84e0f8f_3a39cbdb",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "I\u0027m confused on how to implement this - I plan to remove the declaration for min_cost_graphsearch from the header file, keep the declarations for the entry points but move their definition into pickrst.c. Please let me know if you had something else in mind!",
+      "parentUuid": "935bd540_dda461fe",
+      "range": {
+        "startLine": 75,
+        "startChar": 1,
+        "endLine": 75,
+        "endChar": 2
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c7155c2_c2a4b59a",
@@ -93,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2b5a0a3_54a71d2d",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "Returns cost of min-cost path, added to comment.",
+      "parentUuid": "0c7155c2_c2a4b59a",
+      "range": {
+        "startLine": 87,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 6
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "05b00301_666e3f21",
@@ -106,6 +202,30 @@
       "writtenOn": "2020-12-16T00:49:13Z",
       "side": 1,
       "message": "If unmodified, please make const (same for void *info)",
+      "range": {
+        "startLine": 88,
+        "startChar": 49,
+        "endLine": 88,
+        "endChar": 66
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0770ff78_21127680",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "best_path is modified (passed in with path from overall start to src_idx and min-cost path from src_idx to dest_idx is appended), but I\u0027ll make that change for info!",
+      "parentUuid": "05b00301_666e3f21",
       "range": {
         "startLine": 88,
         "startChar": 49,
@@ -162,6 +282,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e62e3ac7_8db3c6c1",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "Returns cost of min-cost path, added to comment.",
+      "parentUuid": "3a6a67c9_f1bbab3c",
+      "range": {
+        "startLine": 121,
+        "startChar": 14,
+        "endLine": 121,
+        "endChar": 20
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4a81f22_84afefd6",
@@ -175,6 +319,30 @@
       "writtenOn": "2020-12-16T00:49:13Z",
       "side": 1,
       "message": "Is *info modified?",
+      "range": {
+        "startLine": 124,
+        "startChar": 67,
+        "endLine": 124,
+        "endChar": 77
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28190217_fc649b31",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "No, set to const.",
+      "parentUuid": "c4a81f22_84afefd6",
       "range": {
         "startLine": 124,
         "startChar": 67,
@@ -208,6 +376,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac6e364b_d4615c29",
+        "filename": "av1/encoder/pickrst.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78388459_2fb305a5",
+      "range": {
+        "startLine": 129,
+        "startChar": 31,
+        "endLine": 129,
+        "endChar": 50
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fe517ff1_62211225",
@@ -231,6 +423,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "61db76cf_25f4f56d",
+        "filename": "test/rst_mergecoeffs_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "Yes, the cost function can be different - for example, the graph search implementation for RESTORE_SWITCHABLE has a different cost function that passes a pointer to rsc through info instead of graph. In that case, graph is just indicating the presence of edges and the cost is determined dynamically based on filters from previous nodes.\n\nSince that\u0027s the only use case in the codec so far, it would be possible to not pass a cost function and explicitly call one for the in-loop restoration use case, but it would be much harder to test the graph search. Let me know if you think that\u0027s a trade-off I should make!",
+      "parentUuid": "fe517ff1_62211225",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 22,
+        "endChar": 33
+      },
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98b1bbda_bacfb1c4",
@@ -244,6 +460,24 @@
       "writtenOn": "2020-12-16T00:49:13Z",
       "side": 1,
       "message": "Please add unit-test for case where start index \u003d\u003d end index.",
+      "revId": "815241bc545d97339844a4479dd05642c9235b06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3ed86c3_8db285ff",
+        "filename": "test/rst_mergecoeffs_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 21552
+      },
+      "writtenOn": "2020-12-16T17:54:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98b1bbda_bacfb1c4",
       "revId": "815241bc545d97339844a4479dd05642c9235b06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
