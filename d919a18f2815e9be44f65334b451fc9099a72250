@@ -50,6 +50,24 @@
       "message": "LGTM. Sorry for the delay.",
       "revId": "d919a18f2815e9be44f65334b451fc9099a72250",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5b4eed9_6d4859dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-16T23:47:20Z",
+      "side": 1,
+      "message": "No worries! Thank you for the review! I assume no other CL is needed to fix this bug, right?",
+      "parentUuid": "f97a5760_efc6025f",
+      "revId": "d919a18f2815e9be44f65334b451fc9099a72250",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
