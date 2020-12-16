@@ -1278,6 +1278,8 @@ static void tf_do_filtering_opfl(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
         if (frame == filter_frame_idx) {  // Frame to be filtered.
           tf_apply_temporal_filter_self(frames[frame], mbd, block_size, mb_row,
                                         mb_col, num_planes, accum, count);
+          tf_apply_temporal_filter_self(frames[frame], mbd, block_size, mb_row,
+                                        mb_col, num_planes, accum, count);
         } else {
           // interpolate the pixels
           int h_start = (mb_row << (2 + mi_h));
@@ -1304,12 +1306,44 @@ static void tf_do_filtering_opfl(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
             }
           }
 
+          tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
+                             num_planes, scale, subblock_mvs, pred);
+          if (is_frame_high_bitdepth(frame_to_filter)) {  // for high bit-depth
+#if CONFIG_AV1_HIGHBITDEPTH
+            if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5) {
+              av1_highbd_apply_temporal_filter(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+            } else {
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+              av1_apply_temporal_filter_c(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+#if CONFIG_AV1_HIGHBITDEPTH
+            }
+#endif              // CONFIG_AV1_HIGHBITDEPTH
+          } else {  // for 8-bit
+            if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5) {
+              av1_apply_temporal_filter(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+            } else {
+              av1_apply_temporal_filter_c(
+                  frame_to_filter, mbd, block_size, mb_row, mb_col, num_planes,
+                  noise_levels, subblock_mvs, subblock_mses, q_factor,
+                  filter_strength, pred, accum, count);
+            }
+          }
+
+          tf_build_predictor_opfl(frames[frame], mbd, block_size, mb_row,
+                                  mb_col, num_planes, scale, this_mv, h_start,
+                                  w_start, mv_stride, pred);
           int sub_idx = 0;
           const BLOCK_SIZE subblock_size = ss_size_lookup[block_size][1][1];
-
           int sameMV = 1;
-          const double lambda = 20;
-
           for (sub_idx = 1; sub_idx < 4; sub_idx++) {
             if (subblock_mvs[sub_idx].row != subblock_mvs[0].row ||
                 subblock_mvs[sub_idx].col != subblock_mvs[0].col ||
@@ -1319,78 +1353,37 @@ static void tf_do_filtering_opfl(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
             }
           }
           if (sameMV) {
-            // build predictor
-            tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
-                               num_planes, scale, subblock_mvs, pred);
             int stride = frames[filter_frame_idx]->y_stride;
             unsigned int sse;
-            unsigned int error = cpi->fn_ptr[block_size].vf(
-                frames[filter_frame_idx]->y_buffer + h_start * stride + w_start,
-                stride, pred, mb_width, &sse);
-            int this_mse = DIVIDE_AND_ROUND(error, mb_width * mb_height);
-
-            tf_build_predictor_opfl(frames[frame], mbd, block_size, mb_row,
-                                    mb_col, num_planes, scale, this_mv, h_start,
-                                    w_start, mv_stride, pred);
-
-            double mf_var = get_mf_var(
-                this_mv, h_start, w_start, mv_stride, mb_height, mb_width,
-                frames[frame]->y_crop_height, frames[frame]->y_crop_width);
-
+            unsigned int error;
             error = cpi->fn_ptr[block_size].vf(
                 frames[filter_frame_idx]->y_buffer + h_start * stride + w_start,
                 stride, pred, mb_width, &sse);
             int new_mse = DIVIDE_AND_ROUND(error, mb_width * mb_height);
 
-            // if ((double)new_mse + lambda * mf_var < (double)this_mse) {
-            if (new_mse * 16 < this_mse * 9) {
-              sub_idx = 0;
-              for (int h = h_start; h < h_start + mb_height;
-                   h += mb_height / 2) {
-                for (int w = w_start; w < w_start + mb_width;
-                     w += mb_width / 2) {
-                  subblock_mses[sub_idx] = new_mse;
-                  int mv_r = 0, mv_c = 0, countmv = 0;
-                  for (int hh = 0; hh < mb_height / 2; hh++) {
-                    for (int ww = 0; ww < mb_width / 2; ww++) {
-                      int h_idx = h + hh;
-                      int w_idx = w + ww;
-                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
-                          w_idx >= frames[filter_frame_idx]->y_crop_width)
-                        continue;
-                      mv_r += this_mv[h_idx * mv_stride + w_idx].row;
-                      mv_c += this_mv[h_idx * mv_stride + w_idx].col;
-                      countmv++;
-                    }
+            sub_idx = 0;
+            for (int h = h_start; h < h_start + mb_height; h += mb_height / 2) {
+              for (int w = w_start; w < w_start + mb_width; w += mb_width / 2) {
+                subblock_mses[sub_idx] = new_mse;
+                int mv_r = 0, mv_c = 0, countmv = 0;
+                for (int hh = 0; hh < mb_height / 2; hh++) {
+                  for (int ww = 0; ww < mb_width / 2; ww++) {
+                    int h_idx = h + hh;
+                    int w_idx = w + ww;
+                    if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
+                        w_idx >= frames[filter_frame_idx]->y_crop_width)
+                      continue;
+                    mv_r += this_mv[h_idx * mv_stride + w_idx].row;
+                    mv_c += this_mv[h_idx * mv_stride + w_idx].col;
+                    countmv++;
                   }
-                  if (countmv > 0) {
-                    subblock_mvs[sub_idx].row = DIVIDE_AND_ROUND(mv_r, countmv);
-                    subblock_mvs[sub_idx].col = DIVIDE_AND_ROUND(mv_c, countmv);
-                  }
-
-                  sub_idx++;
                 }
-              }
-            } else {
-              sub_idx = 0;
-              for (int h = h_start; h < h_start + mb_height;
-                   h += mb_height / 2) {
-                for (int w = w_start; w < w_start + mb_width;
-                     w += mb_width / 2) {
-                  for (int hh = 0; hh < mb_height / 2; hh++) {
-                    for (int ww = 0; ww < mb_width / 2; ww++) {
-                      int h_idx = h + hh;
-                      int w_idx = w + ww;
-                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
-                          w_idx >= frames[filter_frame_idx]->y_crop_width)
-                        continue;
-                      this_mv[h_idx * mv_stride + w_idx] =
-                          subblock_mvs[sub_idx];
-                    }
-                  }
-
-                  sub_idx++;
+                if (countmv > 0) {
+                  subblock_mvs[sub_idx].row = DIVIDE_AND_ROUND(mv_r, countmv);
+                  subblock_mvs[sub_idx].col = DIVIDE_AND_ROUND(mv_c, countmv);
                 }
+
+                sub_idx++;
               }
             }
           } else {
@@ -1399,74 +1392,38 @@ static void tf_do_filtering_opfl(AV1_COMP *cpi, YV12_BUFFER_CONFIG **frames,
             for (int h = h_start; h < h_start + mb_height; h += mb_height / 2) {
               for (int w = w_start; w < w_start + mb_width; w += mb_width / 2) {
                 // build predictor
-                tf_build_predictor(frames[frame], mbd, block_size, mb_row,
-                                   mb_col, num_planes, scale, subblock_mvs,
-                                   pred);
                 int stride = frames[filter_frame_idx]->y_stride;
                 unsigned int sse;
-                unsigned int error = cpi->fn_ptr[subblock_size].vf(
-                    frames[filter_frame_idx]->y_buffer + h * stride + w, stride,
-                    pred + (h - h_start) * mb_width + w - w_start, mb_width,
-                    &sse);
-                int this_mse =
-                    DIVIDE_AND_ROUND(error, mb_width * mb_height / 4);
-
-                tf_build_predictor_opfl(frames[frame], mbd, block_size, mb_row,
-                                        mb_col, num_planes, scale, this_mv,
-                                        h_start, w_start, mv_stride, pred);
-
-                double mf_var = get_mf_var(
-                    this_mv, h, w, mv_stride, mb_height / 2, mb_width / 2,
-                    frames[frame]->y_crop_height, frames[frame]->y_crop_width);
-
+                unsigned int error;
                 error = cpi->fn_ptr[subblock_size].vf(
                     frames[filter_frame_idx]->y_buffer + h * stride + w, stride,
                     pred + (h - h_start) * mb_width + w - w_start, mb_width,
                     &sse);
                 int new_mse = DIVIDE_AND_ROUND(error, mb_width * mb_height / 4);
 
-                // if ((double)new_mse + lambda * mf_var > (double)this_mse) {
-                if (new_mse * 16 >= this_mse * 12) {
-                  for (int hh = 0; hh < mb_height / 2; hh++) {
-                    for (int ww = 0; ww < mb_width / 2; ww++) {
-                      int h_idx = h + hh;
-                      int w_idx = w + ww;
-                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
-                          w_idx >= frames[filter_frame_idx]->y_crop_width)
-                        continue;
-                      this_mv[h_idx * mv_stride + w_idx] =
-                          subblock_mvs[sub_idx];
-                    }
-                  }
-                } else {
-                  subblock_mses[sub_idx] = new_mse;
-                  int mv_r = 0, mv_c = 0, countmv = 0;
-                  for (int hh = 0; hh < mb_height / 2; hh++) {
-                    for (int ww = 0; ww < mb_width / 2; ww++) {
-                      int h_idx = h + hh;
-                      int w_idx = w + ww;
-                      if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
-                          w_idx >= frames[filter_frame_idx]->y_crop_width)
-                        continue;
-                      mv_r += this_mv[h_idx * mv_stride + w_idx].row;
-                      mv_c += this_mv[h_idx * mv_stride + w_idx].col;
-                      countmv++;
-                    }
-                  }
-                  if (countmv > 0) {
-                    subblock_mvs[sub_idx].row = DIVIDE_AND_ROUND(mv_r, countmv);
-                    subblock_mvs[sub_idx].col = DIVIDE_AND_ROUND(mv_c, countmv);
+                subblock_mses[sub_idx] = new_mse;
+                int mv_r = 0, mv_c = 0, countmv = 0;
+                for (int hh = 0; hh < mb_height / 2; hh++) {
+                  for (int ww = 0; ww < mb_width / 2; ww++) {
+                    int h_idx = h + hh;
+                    int w_idx = w + ww;
+                    if (h_idx >= frames[filter_frame_idx]->y_crop_height ||
+                        w_idx >= frames[filter_frame_idx]->y_crop_width)
+                      continue;
+                    mv_r += this_mv[h_idx * mv_stride + w_idx].row;
+                    mv_c += this_mv[h_idx * mv_stride + w_idx].col;
+                    countmv++;
                   }
                 }
+                if (countmv > 0) {
+                  subblock_mvs[sub_idx].row = DIVIDE_AND_ROUND(mv_r, countmv);
+                  subblock_mvs[sub_idx].col = DIVIDE_AND_ROUND(mv_c, countmv);
+                }
+
                 sub_idx++;
               }
             }
           }
-
-          tf_build_predictor_opfl(frames[frame], mbd, block_size, mb_row,
-                                  mb_col, num_planes, scale, this_mv, h_start,
-                                  w_start, mv_stride, pred);
-
           if (is_frame_high_bitdepth(frame_to_filter)) {  // for high bit-depth
 #if CONFIG_AV1_HIGHBITDEPTH
             if (TF_BLOCK_SIZE == BLOCK_32X32 && TF_WINDOW_LENGTH == 5) {
