@@ -1307,6 +1307,8 @@ enum aome_enc_control_id {
   /*!\brief Control to get baseline gf interval
    */
   AV1E_GET_BASELINE_GF_INTERVAL = 158,
+
+  AV1E_SET_EXTRA_CONFIG = 159,
 };
 
 /*!\brief aom 1-D scaling mode
