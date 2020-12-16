@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "251c6a72_d64a9a0c",
+        "filename": "build/cmake/version.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2020-12-16T18:47:23Z",
+      "side": 1,
+      "message": "would it make sense to generalize this to strip any leading prefix? git describe could use --match to limit any future unknowns on any of the branches. It can be given multiple times to match a set of patterns.",
+      "revId": "9e3722d70623763997f29035169a85587a5d02da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
