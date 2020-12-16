@@ -18,7 +18,7 @@ from Utils import GetShortContentName, CreateNewSubfolder, SetupLogging, \
      Cleanfolder, CreateClipList
 import Utils
 from Config import LogLevels, FrameNum, TEST_CONFIGURATIONS, QPs, WorkPath, \
-     Path_RDResults, LoggerName,QualityList
+     Path_RDResults, LoggerName,QualityList, AllIntra_QPs
 from EncDecUpscale import Encode, Decode
 
 ###############################################################################
@@ -65,8 +65,8 @@ def CleanUp_workfolders():
 def Run_Encode_Test(test_cfg, clip, preset, LogCmdOnly = False):
     Utils.Logger.info("start running %s encode tests with %s"
                       % (test_cfg, clip.file_name))
-
-    for QP in QPs:
+    QP_List = AllIntra_QPs if test_cfg == 'AI' else QPs
+    for QP in QP_List:
         Utils.Logger.info("start encode with QP %d" % (QP))
         #encode
         if LogCmdOnly:
@@ -103,7 +103,8 @@ def GenerateSummaryRDDataFile(EncodeMethod, CodecName, EncodePreset,
     csv.write('\n')
 
     for clip in clip_list:
-        for qp in QPs:
+        QP_List = AllIntra_QPs if test_cfg == 'AI' else QPs
+        for qp in QP_List:
             bs, dec = GetBsReconFileName(EncodeMethod, CodecName, EncodePreset,
                                          test_cfg, clip, qp)
             bitrate = (os.path.getsize(bs) * 8 * (clip.fps_num / clip.fps_denom)

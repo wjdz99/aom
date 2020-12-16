@@ -14,7 +14,7 @@ import os
 import AV2CTCVideo
 
 #TEST_CONFIGURATIONS = ["RA","LD", "AS"]
-TEST_CONFIGURATIONS = ["LD", "RA"]
+TEST_CONFIGURATIONS = ["LD", "RA", "AI"]
 
 ######################################
 # configuration settings
@@ -23,7 +23,7 @@ RootPath = "..\\"
 BinPath = os.path.join(RootPath, 'bin')
 WorkPath = os.path.join(RootPath, 'test')
 SMOKE_TEST = False  # override some parameters to do a quick smoke test
-FrameNum = 2
+FrameNum = 130
 
 if SMOKE_TEST:
     FrameNum = 2
@@ -52,6 +52,7 @@ AOMENC = os.path.join(BinPath, 'aomenc.exe')
 SVTAV1 = os.path.join(BinPath, 'SvtAv1EncApp.exe')
 AOMDEC = os.path.join(BinPath, 'aomdec.exe')
 QPs = [23, 31, 39, 47, 55, 63]
+AllIntra_QPs = [18, 27, 36, 45, 54, 63]
 ######################## quality evalution config #############################
 QualityList = ['PSNR_Y', 'PSNR_U', 'PSNR_V','SSIM_Y(dB)','MS-SSIM_Y(dB)','VMAF_Y',
                'PSNR-HVS','CIEDE2000','APSNR_Y','APSNR_U','APSNR_V']
