@@ -32,6 +32,12 @@ if(EXISTS "${GIT_EXECUTABLE}")
   if(${version_check_result} EQUAL 0)
     string(STRIP "${aom_version}" aom_version)
 
+    # Remove the leading 'research-' from version string.
+    string(FIND "${aom_version}" "research-" r_pos)
+    if(${r_pos} EQUAL 0)
+      string(SUBSTRING "${aom_version}" 9 -1 aom_version)
+    endif()
+
     # Remove the leading 'v' from the version string.
     string(FIND "${aom_version}" "v" v_pos)
     if(${v_pos} EQUAL 0)
