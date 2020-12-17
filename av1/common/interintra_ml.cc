@@ -69,7 +69,7 @@ tflite::ErrorReporter *get_reporter() {
 
 // Initialize the interpreter (only used for static initialization).
 tflite::Interpreter *init_interpreter_() {
-  auto model = tflite::GetModel(decode_13759197_5_tflite_data);
+  auto model = tflite::GetModel(decode_17600647_009_tflite_data);
   tflite::MutableOpResolver resolver;
   add_resolver_builtins(&resolver);
   tflite::InterpreterBuilder builder(model, resolver);
@@ -165,7 +165,7 @@ void load_inputs(tflite::Interpreter *interpreter, INTERINTRA_MODE mode,
   }
 
   int *mode_input = interpreter->typed_input_tensor<int>(3);
-  *mode_input = mode - II_ML_PRED0 + 1;  // Normalize so 1 is the first mode.
+  *mode_input = mode + 1;  // Normalize so 1 is the first mode.
 }
 
 // Copy the output of the interpreter into the destination buffer. If
@@ -229,12 +229,13 @@ void scale_load_inputs(tflite::Interpreter *interpreter, INTERINTRA_MODE mode,
 }  // namespace
 
 bool is_interintra_ml_supported(const MACROBLOCKD *xd, bool wedge) {
-  // Not supported in wedge mode.
-  if (wedge) {
+  const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
+  // Not supported in wedge mode, but wedge bit is only valid if the
+  // block size supports the wedge case.
+  if (wedge && is_interintra_wedge_used(bsize)) {
     return false;
   }
   // Only supported for block-sizes of 16x16.
-  const BLOCK_SIZE bsize = xd->mi[0]->sb_type;
   if (bsize != BLOCK_16X16) {
     return false;
   }
