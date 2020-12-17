@@ -499,12 +499,29 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   assert(sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip ||
          cpi->partition_search_skippable_frame ||
          sf->part_sf.partition_search_type == VAR_BASED_PARTITION);
+#if !ENABLE_SDP_ENCODER
   td->mb.cb_offset = 0;
+#endif
 
   // Adjust and encode the superblock
   PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+#if ENABLE_SDP_ENCODER
+  int totalLoopNum =
+      (frame_is_intra_only(cm) && !cm->seq_params.monochrome) ? 2 : 1;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  for (int loopIdx = 0; loopIdx < totalLoopNum; loopIdx++) {
+    cm->tree_type =
+        (totalLoopNum == 1 ? SHARED_PART
+                           : (loopIdx == 0 ? LUMA_PART : CHROMA_PART));
+    xd->tree_type = cm->tree_type;
+    td->mb.cb_offset[cm->tree_type == CHROMA_PART] = 0;
+    av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                            pc_root);
+  }
+#else
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                           pc_root);
+#endif
   av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
 }
 
@@ -582,7 +599,14 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   MB_MODE_INFO **mi = cm->mi_params.mi_grid_base +
                       get_mi_grid_idx(&cm->mi_params, mi_row, mi_col);
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+#if ENABLE_SDP_ENCODER
+  int num_planes = av1_num_planes(cm);
+  int totalLoopNum =
+      (frame_is_intra_only(cm) && !cm->seq_params.monochrome) ? 2 : 1;
+  MACROBLOCKD *const xd = &x->e_mbd;
+#else
   const int num_planes = av1_num_planes(cm);
+#endif
   int dummy_rate;
   int64_t dummy_dist;
   RD_STATS dummy_rdc;
@@ -592,22 +616,30 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   (void)seg_skip;
 #endif  // CONFIG_REALTIME_ONLY
 
-  init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row, mi_col,
-                    1);
+#if ENABLE_SDP_ENCODER
+  for (int loopIdx = 0; loopIdx < totalLoopNum; loopIdx++) {
+    cm->tree_type =
+        (totalLoopNum == 1 ? SHARED_PART
+                           : (loopIdx == 0 ? LUMA_PART : CHROMA_PART));
+    xd->tree_type = cm->tree_type;
+    num_planes = av1_num_planes(cm);
+#endif
+    init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row, mi_col,
+                      1);
 
-  // Encode the superblock
-  if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
-    // partition search starting from a variance-based partition
-    av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
-                                       sb_size);
-    av1_choose_var_based_partitioning(cpi, tile_info, td, x, mi_row, mi_col);
-    PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
-    av1_rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                         &dummy_rate, &dummy_dist, 1, pc_root);
-    av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
-  }
+    // Encode the superblock
+    if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
+      // partition search starting from a variance-based partition
+      av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
+                                         sb_size);
+      av1_choose_var_based_partitioning(cpi, tile_info, td, x, mi_row, mi_col);
+      PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+      av1_rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                           &dummy_rate, &dummy_dist, 1, pc_root);
+      av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
+    }
 #if !CONFIG_REALTIME_ONLY
-  else if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
+    else if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
     // partition search by adjusting a fixed-size partition
     av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
     const BLOCK_SIZE bsize =
@@ -685,6 +717,13 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 #endif
   }
 #endif  // !CONFIG_REALTIME_ONLY
+#if ENABLE_SDP_ENCODER
+  }
+#endif
+#if ENABLE_SDP_ENCODER
+  cm->tree_type = SHARED_PART;
+  xd->tree_type = SHARED_PART;
+#endif
 
   // Update the inter rd model
   // TODO(angiebird): Let inter_mode_rd_model_estimation support multi-tile.
