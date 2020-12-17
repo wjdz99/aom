@@ -404,6 +404,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "af507d8d_abf3fc79",
+        "filename": "av1/encoder/x86/cnn_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2020-12-17T11:05:37Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have added comments as per your suggestion and pushed a patch to gerrit.\nhttps://aomedia-review.googlesource.com/c/aom/+/126041\n\nPlease review.\n\nThanks, \nAniket",
+      "parentUuid": "20168d2a_0ab7eb3b",
+      "revId": "017728244e3f81b6d6077040622fa41eaaa1ad19",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "520da60a_6d06e6de",
