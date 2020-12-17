@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "afefa69d_bcc0bdbc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-17T19:17:17Z",
+      "side": 1,
+      "message": "Typo: ABI \u003d\u003e API\n\n(ABI refers to the binary interface, i.e., the interface between compiled binary code. API refers to the programming interface between source code.)\n\nAlso please add BUG\u003daomedia:2875",
+      "range": {
+        "startLine": 7,
+        "startChar": 16,
+        "endLine": 7,
+        "endChar": 19
+      },
+      "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b3b4d234_9e62f894",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 7
@@ -14,6 +37,114 @@
       "writtenOn": "2020-12-17T18:25:15Z",
       "side": 1,
       "message": "Currently in this CL since we use args.h and in turn tools_common.h, it requires the definition of usage_exit(). This breaks the current FFMpeg build without the usage_exit() function definition. ",
+      "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d6defe2_2db5e8d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-17T19:17:17Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nI took a quick look and suggest some changes. Also, could you describe the difficulty you ran into with ffmpeg integration? Thanks.",
+      "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9f7799c_f6334762",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1311,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-17T19:17:17Z",
+      "side": 1,
+      "message": "I see you design the key \u0026 value API as a new aom_codec_control() enum.\n\nAn alternative design is to add a new function, for example,\n\naom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *ctx, const char *key, const char *value);\n\nThe first parameter of this new function could also be a config or extra config struct. That may require adding a new aom codec function that takes the config or extra config struct as input.",
+      "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "744bc245_2145c4bb",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-17T19:17:17Z",
+      "side": 1,
+      "message": "The type of \u0027key\u0027 and \u0027value\u0027 should be const char *:\n\n  const char *key \u003d va_arg(args, const char *);\n  const char *value \u003d va_arg(args, const char *);",
+      "range": {
+        "startLine": 3172,
+        "startChar": 0,
+        "endLine": 3173,
+        "endChar": 37
+      },
+      "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6492e88_926238a2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-17T19:17:17Z",
+      "side": 1,
+      "message": "Nit: name this variable \"argv\". More descriptive than \"temp\":\n\n  char *argv[2] \u003d { NULL, \"\" };",
+      "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a4e38f3_92775d32",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-17T19:17:17Z",
+      "side": 1,
+      "message": "Nit: Declare this variable as size_t. Then we don\u0027t need the int cast. Name this variable \"len\". (\"l\" is not easy to see and looks like \"1\".)\n\n  size_t len \u003d strlen(key) + strlen(value) + 4;",
+      "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb5158a3_77bdff20",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-17T19:17:17Z",
+      "side": 1,
+      "message": "Use aom_malloc instead:\n\n  temp[0] \u003d (char *)aom_malloc(len);\n\naom_calloc() zero-initializes the allocated memory, which is not necessary here.\n\nNote: The (char *) cast can be omitted in C. I recommend using it for clarify. (The cast is required in C++.)",
       "revId": "80bedfdf2992de642dc7d44518318c236e1fb706",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
