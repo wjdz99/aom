@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac4d1f9f_45111883",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2020-12-17T14:23:07Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have added SSE2 implementation for av1_convolve_2d_sr_c for MULTITAP_SHARP2\ncase. The change has been verified to be bit-exact locally and through unit test. We have\nalso added support to AV1Convolve2DTest to test bitmatch for the newly added function,\nand a new Speed test to check Module level gains for all 2d-convolve intrinsics. Since\nthe current 2D convolve unit test covers different filters for X and Y direction, we have\nadded separate tests for MULTITAP_SHARP2 ( Here in MULTITAP_SHARP2 case, X and Y\nwill always have same number of taps).\n\nTo handle the unit test cases where neon intrinsics are called, av1_convolve_2d_sr_neon\nis modified to call the corresponding C function for 12-tap case. \n\nKindly note that the macro INTERP_FILTERS_ALL is needed for the unit tests for HBD \nfunctions, hence the macro is still present.\n\nThe encode-time reduction for all presets are as follows:\n\n   cpu        Encode time\n   used       reduction(%)\n    0            0.54\n    1            0.24          \n    2            0.31          \n    3            1.39          \n    4            2.50         \n    5            5.70          \n    6            7.19\n\nThe above data is obtained on an Intel(R) Core(TM) i7-4770R machine with gcc-7.4.\n\nKindly review this patch.\n\nRegards,\nVishesh\n",
+      "revId": "4cd713b7601c638b9d99403d8d6c2fd2b502134a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
