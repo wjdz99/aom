@@ -1598,8 +1598,11 @@ void av1_predict_intra_block(
       (yd > 0) && (mi_row + ((row_off + txh) << ss_y) < xd->tile.mi_row_end);
 
   const PARTITION_TYPE partition = mbmi->partition;
-
+#if ENABLE_SDP_SIGNALING
+  BLOCK_SIZE bsize = mbmi->sb_type[plane > 0 ? 1 : 0];
+#else
   BLOCK_SIZE bsize = mbmi->sb_type;
+#endif
   // force 4x4 chroma component block size.
   if (ss_x || ss_y) {
     bsize = scale_chroma_bsize(bsize, ss_x, ss_y);
@@ -1678,6 +1681,10 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     } else {
       cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);
     }
+#if CONFIG_SDP
+    if (xd->tree_type == CHROMA_PART)
+      cfl_store_tx(xd, blk_row, blk_col, tx_size, mbmi->sb_type[PLANE_TYPE_UV]);
+#endif
     cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
     return;
   }

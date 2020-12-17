@@ -160,12 +160,23 @@ static void reset_tx_size(MACROBLOCK *x, MB_MODE_INFO *mbmi,
                           const TX_MODE tx_mode) {
   MACROBLOCKD *const xd = &x->e_mbd;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
+#if ENABLE_SDP_SIGNALING
+  int plane_index = xd->tree_type == CHROMA_PART;
+#endif
   if (xd->lossless[mbmi->segment_id]) {
     mbmi->tx_size = TX_4X4;
   } else if (tx_mode != TX_MODE_SELECT) {
+#if ENABLE_SDP_SIGNALING
+    mbmi->tx_size = tx_size_from_tx_mode(mbmi->sb_type[plane_index], tx_mode);
+#else
     mbmi->tx_size = tx_size_from_tx_mode(mbmi->sb_type, tx_mode);
+#endif
   } else {
+#if ENABLE_SDP_SIGNALING
+    BLOCK_SIZE bsize = mbmi->sb_type[plane_index];
+#else
     BLOCK_SIZE bsize = mbmi->sb_type;
+#endif
     TX_SIZE min_tx_size = depth_to_tx_size(MAX_TX_DEPTH, bsize);
     mbmi->tx_size = (TX_SIZE)TXSIZEMAX(mbmi->tx_size, min_tx_size);
   }
@@ -173,8 +184,13 @@ static void reset_tx_size(MACROBLOCK *x, MB_MODE_INFO *mbmi,
     memset(mbmi->inter_tx_size, mbmi->tx_size, sizeof(mbmi->inter_tx_size));
   }
   const int stride = xd->tx_type_map_stride;
+#if ENABLE_SDP_SIGNALING
+  const int bw = mi_size_wide[mbmi->sb_type[plane_index]];
+  for (int row = 0; row < mi_size_high[mbmi->sb_type[plane_index]]; ++row) {
+#else
   const int bw = mi_size_wide[mbmi->sb_type];
   for (int row = 0; row < mi_size_high[mbmi->sb_type]; ++row) {
+#endif
     memset(xd->tx_type_map + row * stride, DCT_DCT,
            bw * sizeof(xd->tx_type_map[0]));
   }
@@ -213,39 +229,55 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
   MB_MODE_INFO *const mi_addr = xd->mi[0];
   const struct segmentation *const seg = &cm->seg;
   assert(bsize < BLOCK_SIZES_ALL);
+#if ENABLE_SDP_SIGNALING
+  const int bw = mi_size_wide[mi->sb_type[xd->tree_type == CHROMA_PART]];
+  const int bh = mi_size_high[mi->sb_type[xd->tree_type == CHROMA_PART]];
+#else
   const int bw = mi_size_wide[mi->sb_type];
   const int bh = mi_size_high[mi->sb_type];
+#endif
   const int mis = mi_params->mi_stride;
   const int mi_width = mi_size_wide[bsize];
   const int mi_height = mi_size_high[bsize];
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
-
+#if ENABLE_SDP_SIGNALING
+  assert(mi->sb_type[xd->tree_type == CHROMA_PART] == bsize);
+#else
   assert(mi->sb_type == bsize);
+#endif
 
   *mi_addr = *mi;
-  copy_mbmi_ext_frame_to_mbmi_ext(x->mbmi_ext, &ctx->mbmi_ext_best,
-                                  av1_ref_frame_type(ctx->mic.ref_frame));
+#if ENABLE_SDP_ENCODER
+  if (xd->tree_type != CHROMA_PART)
+#endif
+    copy_mbmi_ext_frame_to_mbmi_ext(x->mbmi_ext, &ctx->mbmi_ext_best,
+                                    av1_ref_frame_type(ctx->mic.ref_frame));
 
   memcpy(txfm_info->blk_skip, ctx->blk_skip,
          sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
 
   txfm_info->skip_txfm = ctx->rd_stats.skip_txfm;
-
-  xd->tx_type_map = ctx->tx_type_map;
-  xd->tx_type_map_stride = mi_size_wide[bsize];
-  // If not dry_run, copy the transform type data into the frame level buffer.
-  // Encoder will fetch tx types when writing bitstream.
-  if (!dry_run) {
-    const int grid_idx = get_mi_grid_idx(mi_params, mi_row, mi_col);
-    uint8_t *const tx_type_map = mi_params->tx_type_map + grid_idx;
-    const int mi_stride = mi_params->mi_stride;
-    for (int blk_row = 0; blk_row < bh; ++blk_row) {
-      av1_copy_array(tx_type_map + blk_row * mi_stride,
-                     xd->tx_type_map + blk_row * xd->tx_type_map_stride, bw);
+#if ENABLE_SDP_ENCODER
+  if (xd->tree_type != CHROMA_PART) {
+#endif
+    xd->tx_type_map = ctx->tx_type_map;
+    xd->tx_type_map_stride = mi_size_wide[bsize];
+    // If not dry_run, copy the transform type data into the frame level buffer.
+    // Encoder will fetch tx types when writing bitstream.
+    if (!dry_run) {
+      const int grid_idx = get_mi_grid_idx(mi_params, mi_row, mi_col);
+      uint8_t *const tx_type_map = mi_params->tx_type_map + grid_idx;
+      const int mi_stride = mi_params->mi_stride;
+      for (int blk_row = 0; blk_row < bh; ++blk_row) {
+        av1_copy_array(tx_type_map + blk_row * mi_stride,
+                       xd->tx_type_map + blk_row * xd->tx_type_map_stride, bw);
+      }
+      xd->tx_type_map = tx_type_map;
+      xd->tx_type_map_stride = mi_stride;
     }
-    xd->tx_type_map = tx_type_map;
-    xd->tx_type_map_stride = mi_stride;
+#if ENABLE_SDP_ENCODER
   }
+#endif
 
   // If segmentation in use
   if (seg->enabled) {
@@ -267,8 +299,11 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
     if (mi_addr->uv_mode == UV_CFL_PRED && !is_cfl_allowed(xd))
       mi_addr->uv_mode = UV_DC_PRED;
   }
-
+#if ENABLE_SDP_ENCODER
+  for (i = (xd->tree_type == CHROMA_PART); i < num_planes; ++i) {
+#else
   for (i = 0; i < num_planes; ++i) {
+#endif
     p[i].coeff = ctx->coeff[i];
     p[i].qcoeff = ctx->qcoeff[i];
     p[i].dqcoeff = ctx->dqcoeff[i];
@@ -282,7 +317,24 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
     for (x_idx = 0; x_idx < mi_width; x_idx++) {
       if ((xd->mb_to_right_edge >> (3 + MI_SIZE_LOG2)) + mi_width > x_idx &&
           (xd->mb_to_bottom_edge >> (3 + MI_SIZE_LOG2)) + mi_height > y) {
-        xd->mi[x_idx + y * mis] = mi_addr;
+#if ENABLE_SDP_ENCODER
+        const int mi_idx =
+            get_alloc_mi_idx(mi_params, mi_row + y, mi_col + x_idx);
+        xd->mi[x_idx + y * mis] = &mi_params->mi_alloc[mi_idx];
+        if (xd->tree_type == LUMA_PART) {
+          *(xd->mi[x_idx + y * mis]) = *mi_addr;
+        } else if (xd->tree_type == CHROMA_PART) {
+          xd->mi[x_idx + y * mis]->sb_type[PLANE_TYPE_UV] =
+              mi_addr->sb_type[PLANE_TYPE_UV];
+          xd->mi[x_idx + y * mis]->uv_mode = mi_addr->uv_mode;
+          xd->mi[x_idx + y * mis]->angle_delta[PLANE_TYPE_UV] =
+              mi_addr->angle_delta[PLANE_TYPE_UV];
+          xd->mi[x_idx + y * mis]->cfl_alpha_signs = mi_addr->cfl_alpha_signs;
+          xd->mi[x_idx + y * mis]->cfl_alpha_idx = mi_addr->cfl_alpha_idx;
+          xd->mi[x_idx + y * mis]->partition = mi_addr->partition;
+        } else
+#endif
+          xd->mi[x_idx + y * mis] = mi_addr;
       }
     }
   }
@@ -385,13 +437,20 @@ void av1_update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
 static void update_palette_cdf(MACROBLOCKD *xd, const MB_MODE_INFO *const mbmi,
                                FRAME_COUNTS *counts) {
   FRAME_CONTEXT *fc = xd->tile_ctx;
+#if ENABLE_SDP_SIGNALING
+  const BLOCK_SIZE bsize = mbmi->sb_type[xd->tree_type == CHROMA_PART];
+#else
   const BLOCK_SIZE bsize = mbmi->sb_type;
+#endif
   const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   const int palette_bsize_ctx = av1_get_palette_bsize_ctx(bsize);
 
   (void)counts;
-
+#if ENABLE_SDP_SIGNALING
+  if (mbmi->mode == DC_PRED && xd->tree_type != CHROMA_PART) {
+#else
   if (mbmi->mode == DC_PRED) {
+#endif
     const int n = pmi->palette_size[0];
     const int palette_mode_ctx = av1_get_palette_mode_ctx(xd);
 
@@ -408,8 +467,11 @@ static void update_palette_cdf(MACROBLOCKD *xd, const MB_MODE_INFO *const mbmi,
                  n - PALETTE_MIN_SIZE, PALETTE_SIZES);
     }
   }
-
+#if ENABLE_SDP_SIGNALING
+  if (mbmi->uv_mode == UV_DC_PRED && xd->tree_type != LUMA_PART) {
+#else
   if (mbmi->uv_mode == UV_DC_PRED) {
+#endif
     const int n = pmi->palette_size[1];
     const int palette_uv_mode_ctx = (pmi->palette_size[0] > 0);
 
@@ -435,9 +497,15 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
   FRAME_CONTEXT *fc = xd->tile_ctx;
   const PREDICTION_MODE y_mode = mbmi->mode;
   (void)counts;
+#if ENABLE_SDP_SIGNALING
+  const BLOCK_SIZE bsize = mbmi->sb_type[xd->tree_type == CHROMA_PART];
+#else
   const BLOCK_SIZE bsize = mbmi->sb_type;
-
-  if (intraonly) {
+#endif
+#if ENABLE_SDP_ENCODER
+  if (xd->tree_type != CHROMA_PART) {
+#endif
+    if (intraonly) {
 #if CONFIG_ENTROPY_STATS
     const PREDICTION_MODE above = av1_above_block_mode(above_mi);
     const PREDICTION_MODE left = av1_left_block_mode(left_mi);
@@ -463,7 +531,13 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
             ->filter_intra_mode[mbmi->filter_intra_mode_info.filter_intra_mode];
     }
 #endif  // CONFIG_ENTROPY_STATS
+#if ENABLE_SDP_SIGNALING
+    update_cdf(
+        fc->filter_intra_cdfs[mbmi->sb_type[xd->tree_type == CHROMA_PART]],
+        use_filter_intra_mode, 2);
+#else
     update_cdf(fc->filter_intra_cdfs[mbmi->sb_type], use_filter_intra_mode, 2);
+#endif
     if (use_filter_intra_mode) {
       update_cdf(fc->filter_intra_mode_cdf,
                  mbmi->filter_intra_mode_info.filter_intra_mode,
@@ -475,15 +549,26 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     ++counts->angle_delta[mbmi->mode - V_PRED]
                          [mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA];
 #endif
+#if CONFIG_SDP
+    update_cdf(fc->angle_delta_cdf[PLANE_TYPE_Y][mbmi->mode - V_PRED],
+               mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
+               2 * MAX_ANGLE_DELTA + 1);
+#else
     update_cdf(fc->angle_delta_cdf[mbmi->mode - V_PRED],
                mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
                2 * MAX_ANGLE_DELTA + 1);
+#endif
   }
+#if ENABLE_SDP_ENCODER
+  }
+#endif
 
   if (!xd->is_chroma_ref) return;
-
-  const UV_PREDICTION_MODE uv_mode = mbmi->uv_mode;
-  const CFL_ALLOWED_TYPE cfl_allowed = is_cfl_allowed(xd);
+#if ENABLE_SDP_ENCODER
+  if (xd->tree_type != LUMA_PART) {
+#endif
+    const UV_PREDICTION_MODE uv_mode = mbmi->uv_mode;
+    const CFL_ALLOWED_TYPE cfl_allowed = is_cfl_allowed(xd);
 #if CONFIG_ENTROPY_STATS
   ++counts->uv_mode[cfl_allowed][y_mode][uv_mode];
 #endif  // CONFIG_ENTROPY_STATS
@@ -520,10 +605,19 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     ++counts->angle_delta[uv_mode - UV_V_PRED]
                          [mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA];
 #endif
+#if CONFIG_SDP
+    update_cdf(fc->angle_delta_cdf[PLANE_TYPE_UV][uv_mode - UV_V_PRED],
+               mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA,
+               2 * MAX_ANGLE_DELTA + 1);
+#else
     update_cdf(fc->angle_delta_cdf[uv_mode - UV_V_PRED],
                mbmi->angle_delta[PLANE_TYPE_UV] + MAX_ANGLE_DELTA,
                2 * MAX_ANGLE_DELTA + 1);
+#endif
   }
+#if ENABLE_SDP_ENCODER
+  }
+#endif
   if (av1_allow_palette(cm->features.allow_screen_content_tools, bsize)) {
     update_palette_cdf(xd, mbmi, counts);
   }
@@ -538,7 +632,11 @@ void av1_restore_context(MACROBLOCK *x, const RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
   const int num_4x4_blocks_high = mi_size_high[bsize];
   int mi_width = mi_size_wide[bsize];
   int mi_height = mi_size_high[bsize];
+#if ENABLE_SDP_SIGNALING
+  for (p = (xd->tree_type == CHROMA_PART); p < num_planes; p++) {
+#else
   for (p = 0; p < num_planes; p++) {
+#endif
     int tx_col = mi_col;
     int tx_row = mi_row & MAX_MIB_MASK;
     memcpy(
@@ -550,11 +648,20 @@ void av1_restore_context(MACROBLOCK *x, const RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
            ctx->l + num_4x4_blocks_high * p,
            (sizeof(ENTROPY_CONTEXT) * num_4x4_blocks_high) >>
                xd->plane[p].subsampling_y);
+#if ENABLE_SDP_SIGNALING
+    memcpy(xd->above_partition_context[p] + mi_col, ctx->sa + mi_width * p,
+           sizeof(*xd->above_partition_context[p]) * mi_width);
+    memcpy(xd->left_partition_context[p] + (mi_row & MAX_MIB_MASK),
+           ctx->sl + mi_height * p,
+           sizeof(xd->left_partition_context[p][0]) * mi_height);
+#endif
   }
+#if !ENABLE_SDP_SIGNALING
   memcpy(xd->above_partition_context + mi_col, ctx->sa,
          sizeof(*xd->above_partition_context) * mi_width);
   memcpy(xd->left_partition_context + (mi_row & MAX_MIB_MASK), ctx->sl,
          sizeof(xd->left_partition_context[0]) * mi_height);
+#endif
   xd->above_txfm_context = ctx->p_ta;
   xd->left_txfm_context = ctx->p_tl;
   memcpy(xd->above_txfm_context, ctx->ta,
@@ -572,7 +679,11 @@ void av1_save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
   int mi_height = mi_size_high[bsize];
 
   // buffer the above/left context information of the block in search.
+#if ENABLE_SDP_SIGNALING
+  for (p = (xd->tree_type == CHROMA_PART); p < num_planes; ++p) {
+#else
   for (p = 0; p < num_planes; ++p) {
+#endif
     int tx_col = mi_col;
     int tx_row = mi_row & MAX_MIB_MASK;
     memcpy(
@@ -582,11 +693,20 @@ void av1_save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
     memcpy(ctx->l + mi_height * p,
            xd->left_entropy_context[p] + (tx_row >> xd->plane[p].subsampling_y),
            (sizeof(ENTROPY_CONTEXT) * mi_height) >> xd->plane[p].subsampling_y);
+#if ENABLE_SDP_SIGNALING
+    memcpy(ctx->sa + mi_width * p, xd->above_partition_context[p] + mi_col,
+           sizeof(*xd->above_partition_context[p]) * mi_width);
+    memcpy(ctx->sl + mi_height * p,
+           xd->left_partition_context[p] + (mi_row & MAX_MIB_MASK),
+           sizeof(xd->left_partition_context[p][0]) * mi_height);
+#endif
   }
+#if !ENABLE_SDP_SIGNALING
   memcpy(ctx->sa, xd->above_partition_context + mi_col,
          sizeof(*xd->above_partition_context) * mi_width);
   memcpy(ctx->sl, xd->left_partition_context + (mi_row & MAX_MIB_MASK),
          sizeof(xd->left_partition_context[0]) * mi_height);
+#endif
   memcpy(ctx->ta, xd->above_txfm_context,
          sizeof(*xd->above_txfm_context) * mi_width);
   memcpy(ctx->tl, xd->left_txfm_context,
@@ -608,8 +728,14 @@ static void set_partial_sb_partition(const AV1_COMMON *const cm,
       const int grid_index = get_mi_grid_idx(&cm->mi_params, r, c);
       const int mi_index = get_alloc_mi_idx(&cm->mi_params, r, c);
       mib[grid_index] = mi + mi_index;
+#if ENABLE_SDP_SIGNALING
+      mib[grid_index]->sb_type[cm->tree_type == CHROMA_PART] =
+          find_partition_size(bsize, mi_rows_remaining - r,
+                              mi_cols_remaining - c, &bh, &bw);
+#else
       mib[grid_index]->sb_type = find_partition_size(
           bsize, mi_rows_remaining - r, mi_cols_remaining - c, &bh, &bw);
+#endif
     }
   }
 }
@@ -645,7 +771,11 @@ void av1_set_fixed_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
         const int grid_index = get_mi_grid_idx(mi_params, block_row, block_col);
         const int mi_index = get_alloc_mi_idx(mi_params, block_row, block_col);
         mib[grid_index] = mi_upper_left + mi_index;
+#if ENABLE_SDP_SIGNALING
+        mib[grid_index]->sb_type[cm->tree_type == CHROMA_PART] = bsize;
+#else
         mib[grid_index]->sb_type = bsize;
+#endif
       }
     }
   } else {
@@ -1085,6 +1215,22 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVG_CDF_STRIDE(ctx_left->uv_mode_cdf[0], ctx_tr->uv_mode_cdf[0],
                  UV_INTRA_MODES - 1, CDF_SIZE(UV_INTRA_MODES));
   AVERAGE_CDF(ctx_left->uv_mode_cdf[1], ctx_tr->uv_mode_cdf[1], UV_INTRA_MODES);
+#if ENABLE_SDP_SIGNALING
+  for (int plane_index = 0; plane_index < MAX_MB_PLANE; plane_index++) {
+    for (int i = 0; i < PARTITION_CONTEXTS; i++) {
+      if (i < 4) {
+        AVG_CDF_STRIDE(ctx_left->partition_cdf[plane_index][i],
+                       ctx_tr->partition_cdf[plane_index][i], 4, CDF_SIZE(10));
+      } else if (i < 16) {
+        AVERAGE_CDF(ctx_left->partition_cdf[plane_index][i],
+                    ctx_tr->partition_cdf[plane_index][i], 10);
+      } else {
+        AVG_CDF_STRIDE(ctx_left->partition_cdf[plane_index][i],
+                       ctx_tr->partition_cdf[plane_index][i], 8, CDF_SIZE(10));
+      }
+    }
+  }
+#else
   for (int i = 0; i < PARTITION_CONTEXTS; i++) {
     if (i < 4) {
       AVG_CDF_STRIDE(ctx_left->partition_cdf[i], ctx_tr->partition_cdf[i], 4,
@@ -1096,6 +1242,7 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
                      CDF_SIZE(10));
     }
   }
+#endif
   AVERAGE_CDF(ctx_left->switchable_interp_cdf, ctx_tr->switchable_interp_cdf,
               SWITCHABLE_FILTERS);
   AVERAGE_CDF(ctx_left->kf_y_cdf, ctx_tr->kf_y_cdf, INTRA_MODES);
