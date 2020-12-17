@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "795aeb3a_d4341b5e",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-17T23:58:09Z",
+      "side": 1,
+      "message": "maybe add gm to the function name, like calculate_gm_ref_params_scaling_base()",
+      "range": {
+        "startLine": 1205,
+        "startChar": 18,
+        "endLine": 1205,
+        "endChar": 51
+      },
+      "revId": "d79f71d9db777d3746607906de125f7f59ec9a53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "958e39bc_3aec3974",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-17T23:58:09Z",
+      "side": 1,
+      "message": "\"culate\"-\u003e\"calculate\"\nand add \"gm\" to the function name as well",
+      "revId": "d79f71d9db777d3746607906de125f7f59ec9a53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cea800e_2522b9e9",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-17T23:58:09Z",
+      "side": 1,
+      "message": "\"GM\"-\u003e\"gm\". This codebase barely use capital letters in the function names",
+      "revId": "d79f71d9db777d3746607906de125f7f59ec9a53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "180592ab_394de66a",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-17T23:58:09Z",
+      "side": 1,
+      "message": "maybe add a TODO here, to remind us to do scaling in floating number for better precision.",
+      "range": {
+        "startLine": 1222,
+        "startChar": 2,
+        "endLine": 1222,
+        "endChar": 5
+      },
+      "revId": "d79f71d9db777d3746607906de125f7f59ec9a53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d0b6f22_f87e9f55",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1223,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-17T23:58:09Z",
+      "side": 1,
+      "message": "Just a reminder, as we discussed, return the default model if the wmtype for last frame\u0027s model is identity",
+      "revId": "d79f71d9db777d3746607906de125f7f59ec9a53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "840c4598_4e439a81",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 4318,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-17T23:58:09Z",
+      "side": 1,
+      "message": "Add \"  // CONFIG_GM_MODEL_CODING\" after \"#endif\", same for other places",
+      "revId": "d79f71d9db777d3746607906de125f7f59ec9a53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
