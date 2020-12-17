@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a21ac46e_d7cc1e07",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-17T21:09:26Z",
+      "side": 1,
+      "message": "Borg test result at speed 2:\nps1\n         avg_psnr:  ovr_psnr:  ssim:  speedup:\nlowres2:  0.204      0.208     0.086   16.6%\nmidres2:  0.194      0.189     0.102   16.5%\nhdres2:  -0.011      0.204    -0.083   22.1%\n\nps2\n         avg_psnr:  ovr_psnr:  ssim:  speedup:\nlowres2:  0.217      0.220     0.084   15.5%\nmidres2:  0.209      0.207     0.147   15.4%\nhdres2:  -0.048      0.164    -0.168   20.7%\n\nps3\n         avg_psnr:  ovr_psnr:  ssim:  speedup:\nlowres2:  0.017      0.020     0.041   4.3%\nmidres2:  0.059      0.063     0.038   4.7%\nhdres2:  -0.109      0.105    -0.074   6.5%\n\n",
+      "revId": "00e0c707d919169d34f9165ec60ee45bcb083f38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
