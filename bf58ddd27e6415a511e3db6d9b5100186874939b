@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97307379_f58e3695",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-18T01:11:25Z",
+      "side": 1,
+      "message": "One general comment about the flags.\nI\u0027ll let Yue review the actual logic.",
+      "revId": "bf58ddd27e6415a511e3db6d9b5100186874939b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9bab73a_a8ec19cb",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-18T01:11:25Z",
+      "side": 1,
+      "message": "So, there seem to be 3 separate flags: CONFIG_SDP, ENABLE_SDP_SIGNALING and ENABLE_SDP_ENCODER?\nCan you explain what the last 2 are for?\nIf they are optional extensions of CONFIG_SDP:\n- Better to declare them in cmake\n- Use CONFIG_ prefix for them. \"ENABLE_\" prefix is generally used for optional features of the build system",
+      "range": {
+        "startLine": 229,
+        "startChar": 4,
+        "endLine": 229,
+        "endChar": 22
+      },
+      "revId": "bf58ddd27e6415a511e3db6d9b5100186874939b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
