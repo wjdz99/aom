@@ -63,6 +63,30 @@
       },
       "revId": "bf58ddd27e6415a511e3db6d9b5100186874939b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2297f8c_d224e9c4",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-18T06:47:01Z",
+      "side": 1,
+      "message": "Agreed that keeping macros makes sense.\nHowever, you can actually move them to the aom_config_defaults.cmake file (with CONFIG_ prefix) and then define the dependence in aom_experiment_deps.cmake file. (This file is exactly to enforce such dependencies).\n\nSo, you can add a rule that if ENABLE_SDP_SIGNALING is on, then CONFIG_SDP is automatically turned on as well.\n(And same for ENABLE_SDP_ENCODER).\n\nFor example, see this line: https://aomedia.googlesource.com/aom/+/research/build/cmake/aom_experiment_deps.cmake#20\n(This example means that whenever CONFIG_ANALYZER is turned on, the rule will automatically turn on CONFIG_INSPECTION too, to enforce this dependency).\n\nThe benefit of doing that is that you will get build with each CONFIG_ on automatically tested by Jenkins.",
+      "parentUuid": "79b90731_b5ea6d9c",
+      "range": {
+        "startLine": 229,
+        "startChar": 4,
+        "endLine": 229,
+        "endChar": 22
+      },
+      "revId": "bf58ddd27e6415a511e3db6d9b5100186874939b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
