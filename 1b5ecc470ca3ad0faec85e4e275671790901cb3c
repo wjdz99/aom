@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f08104d0_79dad894",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2020-12-18T17:58:29Z",
+      "side": 1,
+      "message": "Should be 0 by default and remove STATS_CHANGED from commit message",
+      "range": {
+        "startLine": 141,
+        "startChar": 30,
+        "endLine": 141,
+        "endChar": 31
+      },
+      "revId": "1b5ecc470ca3ad0faec85e4e275671790901cb3c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
