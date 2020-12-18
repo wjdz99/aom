@@ -215,6 +215,8 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
         FULLPEL_MV smv = cand[m].fmv;
         FULLPEL_MV this_best_mv, this_second_best_mv;
 
+        full_ms_params.rd_mv_search = 1;
+
         int thissme = av1_full_pixel_search(
             smv, &full_ms_params, step_param, cond_cost_list(cpi, cost_list),
             &this_best_mv, &this_second_best_mv);

@@ -165,6 +165,8 @@ enum {
 // This struct holds fullpixel motion search parameters that should be constant
 // during the search
 typedef struct {
+  const struct AV1_COMP *cpi;
+  MACROBLOCK *x;
   BLOCK_SIZE bsize;
   // A function pointer to the simd function for fast computation
   const aom_variance_fn_ptr_t *vfp;
@@ -194,6 +196,8 @@ typedef struct {
 
   int fast_obmc_search;
 
+  int rd_mv_search;
+
   // For calculating mv cost
   MV_COST_PARAMS mv_cost_params;
 
@@ -205,7 +209,7 @@ typedef struct {
 
 void av1_make_default_fullpel_ms_params(
     FULLPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
-    const MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
+    MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
     const search_site_config search_sites[NUM_SEARCH_METHODS],
     int fine_search_interval);
 

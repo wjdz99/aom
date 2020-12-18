@@ -31,6 +31,7 @@
 #include "av1/encoder/mcomp.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/tx_search.h"
 
 static INLINE void init_mv_cost_params(MV_COST_PARAMS *mv_cost_params,
                                        const MvCosts *mv_costs,
@@ -80,7 +81,7 @@ get_faster_search_method(SEARCH_METHODS search_method) {
 
 void av1_make_default_fullpel_ms_params(
     FULLPEL_MOTION_SEARCH_PARAMS *ms_params, const struct AV1_COMP *cpi,
-    const MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
+    MACROBLOCK *x, BLOCK_SIZE bsize, const MV *ref_mv,
     const search_site_config search_sites[NUM_SEARCH_METHODS],
     int fine_search_interval) {
   const MV_SPEED_FEATURES *mv_sf = &cpi->sf.mv_sf;
@@ -88,6 +89,10 @@ void av1_make_default_fullpel_ms_params(
   // High level params
   ms_params->bsize = bsize;
   ms_params->vfp = &cpi->fn_ptr[bsize];
+
+  ms_params->cpi = cpi;
+  ms_params->x = x;
+  ms_params->rd_mv_search = 0;
 
   init_ms_buffers(&ms_params->ms_buffers, x);
 
@@ -1256,6 +1261,25 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
   int best_site = 0;
   int is_off_center = 0;
 
+  const AV1_COMP *cpi = ms_params->cpi;
+  const AV1_COMMON *cm = &cpi->common;
+  MACROBLOCK *x = ms_params->x;
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  struct macroblockd_plane *p = xd->plane;
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  const BLOCK_SIZE bsize = ms_params->bsize;
+  const MvCosts *mv_costs = &x->mv_costs;
+  MV ref_mv = *ms_params->mv_cost_params.ref_mv;
+
+  const BUFFER_SET orig_dst = {
+    { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
+    { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
+  };
+
+  int64_t best_rd = INT64_MAX, this_rd = INT64_MAX;
+
   clamp_fullmv(&start_mv, &ms_params->mv_limits);
 
   // search_step determines the length of the initial step and hence the number
@@ -1269,6 +1293,22 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
   best_address = get_buf_from_fullmv(ref, &start_mv);
   bestsad = get_mvpred_compound_sad(ms_params, src, best_address, ref_stride);
   bestsad += mvsad_err_cost_(best_mv, &ms_params->mv_cost_params);
+
+  if (ms_params->rd_mv_search) {
+    mbmi->mv[0].as_mv = get_mv_from_fullmv(&start_mv);
+    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize, 0,
+                                  0);
+    av1_subtract_plane(x, bsize, 0);
+    RD_STATS this_rd_stats;
+    av1_init_rd_stats(&this_rd_stats);
+    av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                          max_txsize_rect_lookup[bsize]);
+    int this_mv_rate =
+        av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv, mv_costs->nmv_joint_cost,
+                        mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+    best_rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
+                     this_rd_stats.dist);
+  }
 
   int next_step_size = tot_steps > 2 ? cfg->radius[tot_steps - 2] : 1;
   for (int step = tot_steps - 1; step >= 0; --step) {
@@ -1331,14 +1371,42 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
       }
     }
 
-    if (best_site != 0) {
-      if (second_best_mv) {
-        *second_best_mv = *best_mv;
+    if (ms_params->rd_mv_search) {
+      FULLPEL_MV this_fulmv = { best_mv->row + site[best_site].mv.row,
+                                best_mv->col + site[best_site].mv.col };
+      mbmi->mv[0].as_mv = get_mv_from_fullmv(&this_fulmv);
+      av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize, 0,
+                                    0);
+      av1_subtract_plane(x, bsize, 0);
+      RD_STATS this_rd_stats;
+      av1_init_rd_stats(&this_rd_stats);
+      av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                            max_txsize_rect_lookup[bsize]);
+      int this_mv_rate =
+          av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv, mv_costs->nmv_joint_cost,
+                          mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+      this_rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
+                       this_rd_stats.dist);
+      if (this_rd < best_rd) {
+        best_mv->row += site[best_site].mv.row;
+        best_mv->col += site[best_site].mv.col;
+        best_address += site[best_site].offset;
+        is_off_center = 1;
+        if (second_best_mv) {
+          *second_best_mv = *best_mv;
+        }
+        best_rd = this_rd;
       }
-      best_mv->row += site[best_site].mv.row;
-      best_mv->col += site[best_site].mv.col;
-      best_address += site[best_site].offset;
-      is_off_center = 1;
+    } else {
+      if (best_site != 0) {
+        if (second_best_mv) {
+          *second_best_mv = *best_mv;
+        }
+        best_mv->row += site[best_site].mv.row;
+        best_mv->col += site[best_site].mv.col;
+        best_address += site[best_site].offset;
+        is_off_center = 1;
+      }
     }
 
     if (is_off_center == 0) (*num00)++;
@@ -1364,8 +1432,43 @@ static int full_pixel_diamond(const FULLPEL_MV start_mv,
                               FULLPEL_MV *best_mv, FULLPEL_MV *second_best_mv) {
   const search_site_config *cfg = ms_params->search_sites;
   int thissme, n, num00 = 0;
+
+  const AV1_COMP *cpi = ms_params->cpi;
+  const AV1_COMMON *cm = &cpi->common;
+  MACROBLOCK *x = ms_params->x;
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  struct macroblockd_plane *p = xd->plane;
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  const BLOCK_SIZE bsize = ms_params->bsize;
+  const MvCosts *mv_costs = &x->mv_costs;
+  MV ref_mv = *ms_params->mv_cost_params.ref_mv;
+
+  const BUFFER_SET orig_dst = {
+    { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
+    { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
+  };
+
+  int64_t best_rd = INT64_MAX, this_rd = INT64_MAX;
   int bestsme = diamond_search_sad(start_mv, ms_params, step_param, &n, best_mv,
                                    second_best_mv);
+
+  if (ms_params->rd_mv_search) {
+    mbmi->mv[0].as_mv = get_mv_from_fullmv(best_mv);
+    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize, 0,
+                                  0);
+    av1_subtract_plane(x, bsize, 0);
+    RD_STATS this_rd_stats;
+    av1_init_rd_stats(&this_rd_stats);
+    av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                          max_txsize_rect_lookup[bsize]);
+    int this_mv_rate =
+        av1_mv_bit_cost(&mbmi->mv[0].as_mv, &ref_mv, mv_costs->nmv_joint_cost,
+                        mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+    best_rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
+                     this_rd_stats.dist);
+  }
 
   if (bestsme < INT_MAX) {
     bestsme = get_mvpred_compound_var_cost(ms_params, best_mv);
@@ -1390,9 +1493,32 @@ static int full_pixel_diamond(const FULLPEL_MV start_mv,
         thissme = get_mvpred_compound_var_cost(ms_params, &tmp_best_mv);
       }
 
-      if (thissme < bestsme) {
-        bestsme = thissme;
-        *best_mv = tmp_best_mv;
+      if (ms_params->rd_mv_search) {
+        if (ms_params->rd_mv_search) {
+          mbmi->mv[0].as_mv = get_mv_from_fullmv(&tmp_best_mv);
+          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
+                                        bsize, 0, 0);
+          av1_subtract_plane(x, bsize, 0);
+          RD_STATS this_rd_stats;
+          av1_init_rd_stats(&this_rd_stats);
+          av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                                max_txsize_rect_lookup[bsize]);
+          int this_mv_rate = av1_mv_bit_cost(
+              &mbmi->mv[0].as_mv, &ref_mv, mv_costs->nmv_joint_cost,
+              mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+          this_rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
+                           this_rd_stats.dist);
+        }
+        if (this_rd < best_rd) {
+          *best_mv = tmp_best_mv;
+          thissme = bestsme;
+          this_rd = best_rd;
+        }
+      } else {
+        if (thissme < bestsme) {
+          bestsme = thissme;
+          *best_mv = tmp_best_mv;
+        }
       }
     }
   }
