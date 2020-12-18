@@ -259,11 +259,11 @@ static int construct_multi_layer_gf_structure(
   gf_group->subgop_cfg = NULL;
   gf_group->is_user_specified = 0;
   const SubGOPCfg *subgop_cfg;
+  const int orig_gf_interval = gf_interval;
   if (first_frame_update_type == KF_UPDATE) gf_interval++;
-  subgop_cfg =
-      get_subgop_config(subgop_cfg_set, gf_interval - frame_index,
-                        rc->frames_to_key <= gf_interval + 2,
-                        first_frame_update_type == KF_UPDATE, use_altref);
+  subgop_cfg = get_subgop_config(
+      subgop_cfg_set, orig_gf_interval, rc->frames_to_key <= gf_interval + 2,
+      first_frame_update_type == KF_UPDATE, use_altref);
   if (subgop_cfg) {
     gf_group->subgop_cfg = subgop_cfg;
     gf_group->is_user_specified = 1;
