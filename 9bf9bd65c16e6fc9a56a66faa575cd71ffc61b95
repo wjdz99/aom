@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cccdbfc1_6f43b20b",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1237,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-12-18T00:31:34Z",
+      "side": 1,
+      "message": "We probably don\u0027t need calculate_ref_params_scaling_base(), because calculate_ref_params_scaling_base(cm) is the same as calculate_ref_params_scaling_distance(cm, LAST_FRAME).",
+      "parentUuid": "d0fef565_85ecdcf1",
+      "range": {
+        "startLine": 1234,
+        "startChar": 2,
+        "endLine": 1237,
+        "endChar": 28
+      },
+      "revId": "9bf9bd65c16e6fc9a56a66faa575cd71ffc61b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7fbebf22_79999b73",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 5
