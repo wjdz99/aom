@@ -16,6 +16,24 @@
       "message": "Bohan: Could you see if it is safe to merge just this change from your commit 1629a4b33cab5987af0194de7f964e6f709f4a1b to the applejack branch (used for libaom 2.0.x releases)?\n\nThe applejack branch was created off the master branch on Apr. 15, 2020. So it is eight months old.\n\nI explained why I need to merge this change to the applejack branch in the commit message. Thank you for your help!",
       "revId": "2d10b0520e28988444e5f9874f6e89cac5cecf5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbbbc800_c3f820ec",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 6379,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-18T03:32:38Z",
+      "side": 1,
+      "message": "I honestly do not remember why this line was added in the CL, and I do not understand why this line would be required from the CL you want to merge. But I think this should be safe without the other changes.",
+      "parentUuid": "4e67e7bd_e3b8ce91",
+      "revId": "2d10b0520e28988444e5f9874f6e89cac5cecf5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
