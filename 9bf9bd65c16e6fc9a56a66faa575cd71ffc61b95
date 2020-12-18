@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e6a303a_8b4a73fa",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1237,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-12-18T00:06:04Z",
+      "side": 1,
+      "message": "simplify as calculate_ref_params_scaling_distance(cm, LAST_FRAME)?",
+      "range": {
+        "startLine": 1234,
+        "startChar": 2,
+        "endLine": 1237,
+        "endChar": 28
+      },
+      "revId": "9bf9bd65c16e6fc9a56a66faa575cd71ffc61b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fbebf22_79999b73",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4352,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-12-18T00:06:04Z",
+      "side": 1,
+      "message": "can be const",
+      "range": {
+        "startLine": 4352,
+        "startChar": 2,
+        "endLine": 4352,
+        "endChar": 5
+      },
+      "revId": "9bf9bd65c16e6fc9a56a66faa575cd71ffc61b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "958959db_88bc827f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 4358,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-12-18T00:06:04Z",
+      "side": 1,
+      "message": "can be const",
+      "range": {
+        "startLine": 4358,
+        "startChar": 6,
+        "endLine": 4358,
+        "endChar": 9
+      },
+      "revId": "9bf9bd65c16e6fc9a56a66faa575cd71ffc61b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d43a1649_52ee08f7",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2766,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-12-18T00:06:04Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 2766,
+        "startChar": 2,
+        "endLine": 2766,
+        "endChar": 5
+      },
+      "revId": "9bf9bd65c16e6fc9a56a66faa575cd71ffc61b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0302a810_06e347d1",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2772,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2020-12-18T00:06:04Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 2772,
+        "startChar": 6,
+        "endLine": 2772,
+        "endChar": 9
+      },
+      "revId": "9bf9bd65c16e6fc9a56a66faa575cd71ffc61b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
