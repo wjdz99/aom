@@ -479,7 +479,7 @@ int is_forced_keyframe_pending(struct lookahead_ctx *lookahead,
       // so there isn't a forced key-frame pending.
       return -1;
     } else if (e->flags == AOM_EFLAG_FORCE_KF) {
-      return i;
+      return ((i > 0) ? i : -1);
     } else {
       continue;
     }
