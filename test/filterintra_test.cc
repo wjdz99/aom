@@ -21,6 +21,12 @@
 #include "test/util.h"
 #include "av1/common/enums.h"
 
+extern "C" {
+void av1_filter_intra_predictor_gav1(uint8_t *dst, ptrdiff_t stride,
+                                     TX_SIZE tx_size, const uint8_t *above,
+                                     const uint8_t *left, int mode);
+}
+
 namespace {
 
 using libaom_test::ACMRandom;
@@ -192,5 +198,27 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Combine(::testing::ValuesIn(kPredFuncMdArrayNEON),
                        ::testing::ValuesIn(kTxSizeNEON)));
 #endif  // HAVE_NEON
+
+const PredFuncMode kPredFuncMdArrayGav1[] = {
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_gav1,
+             FILTER_DC_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_gav1,
+             FILTER_V_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_gav1,
+             FILTER_H_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_gav1,
+             FILTER_D157_PRED),
+  make_tuple(&av1_filter_intra_predictor_c, &av1_filter_intra_predictor_gav1,
+             FILTER_PAETH_PRED),
+};
+
+const TX_SIZE kTxSizeGav1[] = { TX_4X4,  TX_8X8,  TX_16X16, TX_32X32, TX_4X8,
+                                TX_8X4,  TX_8X16, TX_16X8,  TX_16X32, TX_32X16,
+                                TX_4X16, TX_16X4, TX_8X32,  TX_32X8 };
+
+INSTANTIATE_TEST_SUITE_P(
+    Gav1, AV1FilterIntraPredTest,
+    ::testing::Combine(::testing::ValuesIn(kPredFuncMdArrayGav1),
+                       ::testing::ValuesIn(kTxSizeGav1)));
 
 }  // namespace

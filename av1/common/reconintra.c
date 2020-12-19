@@ -901,52 +901,117 @@ void av1_filter_intra_predictor_c(uint8_t *dst, ptrdiff_t stride,
   }
 }
 
+void av1_filter_intra_predictor_gav1(uint8_t *dst, ptrdiff_t stride,
+                                     TX_SIZE tx_size, const uint8_t *above,
+                                     const uint8_t *left, int mode) {
+  const int width = tx_size_wide[tx_size];
+  const int height = tx_size_high[tx_size];
+
+  assert(width <= 32 && height <= 32);
+
+  uint8_t buffer[3][33];  // cache 2 rows + above & left boundaries
+  memcpy(buffer[0], &above[-1], (width + 1) * sizeof(above[0]));
+
+  int row0 = 0, row2 = 2;
+  int ystep = 1;
+  int y = 0;
+  do {
+    buffer[1][0] = left[y];
+    buffer[row2][0] = left[y + 1];
+    int x = 1;
+    do {
+      const uint8_t p0 = buffer[row0][x - 1];  // above-left
+      const uint8_t p1 = buffer[row0][x + 0];  // above 0
+      const uint8_t p2 = buffer[row0][x + 1];  // above 1
+      const uint8_t p3 = buffer[row0][x + 2];  // above 2
+      const uint8_t p4 = buffer[row0][x + 3];  // above 3
+      const uint8_t p5 = buffer[1][x - 1];     // left 0
+      const uint8_t p6 = buffer[row2][x - 1];  // left 1
+      for (int i = 0; i < 8; ++i) {
+        const int xoffset = i & 0x03;
+        const int yoffset = (i >> 2) * ystep;
+        const int value = av1_filter_intra_taps[mode][i][0] * p0 +
+                          av1_filter_intra_taps[mode][i][1] * p1 +
+                          av1_filter_intra_taps[mode][i][2] * p2 +
+                          av1_filter_intra_taps[mode][i][3] * p3 +
+                          av1_filter_intra_taps[mode][i][4] * p4 +
+                          av1_filter_intra_taps[mode][i][5] * p5 +
+                          av1_filter_intra_taps[mode][i][6] * p6;
+        buffer[1 + yoffset][x + xoffset] = (uint8_t)clip_pixel(
+            ROUND_POWER_OF_TWO_SIGNED(value, FILTER_INTRA_SCALE_BITS));
+      }
+      x += 4;
+    } while (x < width);
+    memcpy(dst, &buffer[1][1], width * sizeof(dst[0]));
+    dst += stride;
+    memcpy(dst, &buffer[row2][1], width * sizeof(dst[0]));
+    dst += stride;
+
+    // The final row becomes the above for the next pass.
+    row0 ^= 2;
+    row2 ^= 2;
+    ystep = -ystep;
+    y += 2;
+  } while (y < height);
+}
+
 #if CONFIG_AV1_HIGHBITDEPTH
 static void highbd_filter_intra_predictor(uint16_t *dst, ptrdiff_t stride,
                                           TX_SIZE tx_size,
                                           const uint16_t *above,
                                           const uint16_t *left, int mode,
                                           int bd) {
-  int r, c;
-  uint16_t buffer[33][33];
-  const int bw = tx_size_wide[tx_size];
-  const int bh = tx_size_high[tx_size];
+  const int width = tx_size_wide[tx_size];
+  const int height = tx_size_high[tx_size];
+  const int kMaxPixel = (1 << bd) - 1;
 
-  assert(bw <= 32 && bh <= 32);
+  assert(width <= 32 && height <= 32);
 
-  for (r = 0; r < bh; ++r) buffer[r + 1][0] = left[r];
-  memcpy(buffer[0], &above[-1], (bw + 1) * sizeof(buffer[0][0]));
+  uint16_t buffer[3][33];  // cache 2 rows + above & left boundaries
+  memcpy(buffer[0], &above[-1], (width + 1) * sizeof(above[0]));
 
-  for (r = 1; r < bh + 1; r += 2)
-    for (c = 1; c < bw + 1; c += 4) {
-      const uint16_t p0 = buffer[r - 1][c - 1];
-      const uint16_t p1 = buffer[r - 1][c];
-      const uint16_t p2 = buffer[r - 1][c + 1];
-      const uint16_t p3 = buffer[r - 1][c + 2];
-      const uint16_t p4 = buffer[r - 1][c + 3];
-      const uint16_t p5 = buffer[r][c - 1];
-      const uint16_t p6 = buffer[r + 1][c - 1];
-      for (int k = 0; k < 8; ++k) {
-        int r_offset = k >> 2;
-        int c_offset = k & 0x03;
-        buffer[r + r_offset][c + c_offset] =
-            clip_pixel_highbd(ROUND_POWER_OF_TWO_SIGNED(
-                                  av1_filter_intra_taps[mode][k][0] * p0 +
-                                      av1_filter_intra_taps[mode][k][1] * p1 +
-                                      av1_filter_intra_taps[mode][k][2] * p2 +
-                                      av1_filter_intra_taps[mode][k][3] * p3 +
-                                      av1_filter_intra_taps[mode][k][4] * p4 +
-                                      av1_filter_intra_taps[mode][k][5] * p5 +
-                                      av1_filter_intra_taps[mode][k][6] * p6,
-                                  FILTER_INTRA_SCALE_BITS),
-                              bd);
+  int row0 = 0, row2 = 2;
+  int ystep = 1;
+  int y = 0;
+  do {
+    buffer[1][0] = left[y];
+    buffer[row2][0] = left[y + 1];
+    int x = 1;
+    do {
+      const uint16_t p0 = buffer[row0][x - 1];  // above-left
+      const uint16_t p1 = buffer[row0][x + 0];  // above 0
+      const uint16_t p2 = buffer[row0][x + 1];  // above 1
+      const uint16_t p3 = buffer[row0][x + 2];  // above 2
+      const uint16_t p4 = buffer[row0][x + 3];  // above 3
+      const uint16_t p5 = buffer[1][x - 1];     // left 0
+      const uint16_t p6 = buffer[row2][x - 1];  // left 1
+      for (int i = 0; i < 8; ++i) {
+        const int xoffset = i & 0x03;
+        const int yoffset = (i >> 2) * ystep;
+        const int value = av1_filter_intra_taps[mode][i][0] * p0 +
+                          av1_filter_intra_taps[mode][i][1] * p1 +
+                          av1_filter_intra_taps[mode][i][2] * p2 +
+                          av1_filter_intra_taps[mode][i][3] * p3 +
+                          av1_filter_intra_taps[mode][i][4] * p4 +
+                          av1_filter_intra_taps[mode][i][5] * p5 +
+                          av1_filter_intra_taps[mode][i][6] * p6;
+        buffer[1 + yoffset][x + xoffset] = (uint16_t)clamp(
+            ROUND_POWER_OF_TWO_SIGNED(value, FILTER_INTRA_SCALE_BITS), 0,
+            kMaxPixel);
       }
-    }
-
-  for (r = 0; r < bh; ++r) {
-    memcpy(dst, &buffer[r + 1][1], bw * sizeof(dst[0]));
+      x += 4;
+    } while (x < width);
+    memcpy(dst, &buffer[1][1], width * sizeof(dst[0]));
     dst += stride;
-  }
+    memcpy(dst, &buffer[row2][1], width * sizeof(dst[0]));
+    dst += stride;
+
+    // The final row becomes the above for the next pass.
+    row0 ^= 2;
+    row2 ^= 2;
+    ystep = -ystep;
+    y += 2;
+  } while (y < height);
 }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 
