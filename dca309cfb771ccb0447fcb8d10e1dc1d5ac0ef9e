@@ -16,6 +16,24 @@
       "message": "Any perf difference?",
       "revId": "dca309cfb771ccb0447fcb8d10e1dc1d5ac0ef9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d6bd16b_b2293537",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-21T19:17:55Z",
+      "side": 1,
+      "message": "Hi Yaowu,\n\nI wrote this CL because I previously contributed libgav1\u0027s FilterIntraPredictor_SSE4_1() to libaom and I thought I should also contribute FilterIntraPredictor_C() for consistency. I did not look at the code before I started, so I didn\u0027t know the only main difference was in the \u0027buffer\u0027 variable until I finished the CL.\n\nI answered the performance question in test/filterintra_test.cc.",
+      "parentUuid": "20a415c0_b9da2326",
+      "revId": "dca309cfb771ccb0447fcb8d10e1dc1d5ac0ef9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
