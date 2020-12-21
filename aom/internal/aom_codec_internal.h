@@ -153,6 +153,25 @@ typedef aom_codec_err_t (*aom_codec_get_si_fn_t)(aom_codec_alg_priv_t *ctx,
 typedef aom_codec_err_t (*aom_codec_control_fn_t)(aom_codec_alg_priv_t *ctx,
                                                   va_list ap);
 
+/*!\brief codec option set function pointer prototype
+ * This function is used to set a codec option using a key & value pair.
+ *
+ * \param[in]     codec_ctx        Pointer to the encoder/decoder context
+ * \param[in]     name             A string of the option's name (key)
+ * \param[in]     value            A string of the value to be set to
+ * \param[in,out] err_msg          A string for returning a detailed error
+ *                                 message when an error occurs. Expected to be
+ *                                 of at least ARG_ERR_MSG_MAX_LEN long when the
+ *                                 pointer is not NULL
+ *
+ * \retval #AOM_CODEC_OK
+ *     The option is successfully set to the value
+ */
+typedef aom_codec_err_t (*aom_codec_option_fn_t)(aom_codec_ctx_t *codec_ctx,
+                                                 const char *name,
+                                                 const char *value,
+                                                 char *err_msg);
+
 /*!\brief control function pointer mapping
  *
  * This structure stores the mapping between control identifiers and
@@ -292,6 +311,7 @@ struct aom_codec_iface {
     aom_codec_get_preview_frame_fn_t
         get_preview; /**< \copydoc ::aom_codec_get_preview_frame_fn_t */
   } enc;
+  aom_codec_option_fn_t set_option_fn;
 };
 
 /*!\brief Instance private storage
