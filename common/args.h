@@ -15,11 +15,13 @@
 
 #include "aom/aom_codec.h"
 #include "aom/aom_encoder.h"
+#include "common/args_helper.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+<<<<<<< HEAD   (1579a4 hash_sse42.c: Fix static analysis error.)
 struct arg {
   char **argv;
   const char *name;
@@ -50,9 +52,9 @@ typedef struct arg_def {
   { 0 }
 
 struct arg arg_init(char **argv);
+=======
+>>>>>>> CHANGE (df1c60 Add helper functions for argument processing.)
 int arg_match(struct arg *arg_, const struct arg_def *def, char **argv);
-char *ignore_front_spaces(const char *str);
-void ignore_end_spaces(char *str);
 int parse_cfg(const char *file, cfg_options_t *config);
 const char *arg_next(struct arg *arg);
 void arg_show_usage(FILE *fp, const struct arg_def *const *defs);
