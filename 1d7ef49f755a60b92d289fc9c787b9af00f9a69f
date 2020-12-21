@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d442670_d8e5fea6",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-21T22:25:20Z",
+      "side": 1,
+      "message": "const int",
+      "range": {
+        "startLine": 1861,
+        "startChar": 2,
+        "endLine": 1861,
+        "endChar": 5
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e9b486e_3103028d",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-21T22:25:20Z",
+      "side": 1,
+      "message": "const int\n\nAlso if I understand correctly, xd-\u003etree_type and cm-\u003etree_type will both be SHARED_PART at this point. If so, plane_type needs to be inferred from plane, e.g., plane_type \u003d (plane \u003e 0)\n\nSame for other places in this file, instead of checking cm-\u003etx_type \u003d\u003d CHROMA_TYPE, use (plane \u003e 0) can better adapt lpf to tx boundaries in different planes.",
+      "range": {
+        "startLine": 199,
+        "startChar": 2,
+        "endLine": 199,
+        "endChar": 5
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36c58aab_ef9c8e4c",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-21T22:25:20Z",
+      "side": 1,
+      "message": "The two #if..#else..#endif may be combined",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 6
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b898b6f5_cb1dd4c9",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-21T22:25:20Z",
+      "side": 1,
+      "message": "See the above comment.",
+      "range": {
+        "startLine": 301,
+        "startChar": 26,
+        "endLine": 301,
+        "endChar": 54
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c295c41_3b037a72",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-21T22:25:20Z",
+      "side": 1,
+      "message": "See the above comment.",
+      "range": {
+        "startLine": 322,
+        "startChar": 33,
+        "endLine": 322,
+        "endChar": 61
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72eafde8_9f57402c",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-21T22:25:20Z",
+      "side": 1,
+      "message": "can directly use \"plane \u003e 0\"",
+      "range": {
+        "startLine": 329,
+        "startChar": 28,
+        "endLine": 329,
+        "endChar": 45
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
