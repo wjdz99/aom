@@ -490,6 +490,10 @@ aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
  */
 aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...);
 
+aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *codec_ctx,
+                                     const char *key, const char *value,
+                                     char *err_message);
+
 /*!\brief aom_codec_control wrapper macro (adds type-checking, less flexible)
  *
  * This macro allows for type safe conversions across the variadic parameter
