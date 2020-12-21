@@ -131,7 +131,7 @@ extern "C" {
 /* Sets a stdio stream into binary mode */
 FILE *set_binary_mode(FILE *stream);
 
-void die(const char *fmt, ...) AOM_NO_RETURN;
+void die(char *fmt, ...) AOM_NO_RETURN;
 void fatal(const char *fmt, ...) AOM_NO_RETURN;
 void warn(const char *fmt, ...);
 
