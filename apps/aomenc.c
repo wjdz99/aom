@@ -117,6 +117,7 @@ static int fourcc_is_ivf(const char detect[4]) {
   return 0;
 }
 
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
 static const arg_def_t help =
     ARG_DEF(NULL, "help", 0, "Show usage options and exit");
 static const arg_def_t debugmode =
@@ -959,6 +960,8 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &subgop_config_str,
                                        &subgop_config_path,
                                        NULL };
+=======
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
 static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AOME_SET_ENABLEAUTOALTREF,
                                         AOME_SET_SHARPNESS,
@@ -1066,7 +1069,197 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_SUBGOP_CONFIG_STR,
                                         AV1E_SET_SUBGOP_CONFIG_PATH,
                                         0 };
-#endif  // CONFIG_AV1_ENCODER
+
+const arg_def_t *main_args[] = { &g_av1_codec_arg_defs.help,
+                                 &g_av1_codec_arg_defs.use_cfg,
+                                 &g_av1_codec_arg_defs.debugmode,
+                                 &g_av1_codec_arg_defs.outputfile,
+                                 &g_av1_codec_arg_defs.codecarg,
+                                 &g_av1_codec_arg_defs.passes,
+                                 &g_av1_codec_arg_defs.pass_arg,
+                                 &g_av1_codec_arg_defs.fpf_name,
+                                 &g_av1_codec_arg_defs.limit,
+                                 &g_av1_codec_arg_defs.skip,
+                                 &g_av1_codec_arg_defs.good_dl,
+                                 &g_av1_codec_arg_defs.rt_dl,
+                                 &g_av1_codec_arg_defs.quietarg,
+                                 &g_av1_codec_arg_defs.verbosearg,
+                                 &g_av1_codec_arg_defs.psnrarg,
+                                 &g_av1_codec_arg_defs.use_webm,
+                                 &g_av1_codec_arg_defs.use_ivf,
+                                 &g_av1_codec_arg_defs.use_obu,
+                                 &g_av1_codec_arg_defs.q_hist_n,
+                                 &g_av1_codec_arg_defs.rate_hist_n,
+                                 &g_av1_codec_arg_defs.disable_warnings,
+                                 &g_av1_codec_arg_defs.disable_warning_prompt,
+                                 &g_av1_codec_arg_defs.recontest,
+                                 NULL };
+
+const arg_def_t *global_args[] = {
+  &g_av1_codec_arg_defs.use_yv12,
+  &g_av1_codec_arg_defs.use_i420,
+  &g_av1_codec_arg_defs.use_i422,
+  &g_av1_codec_arg_defs.use_i444,
+  &g_av1_codec_arg_defs.usage,
+  &g_av1_codec_arg_defs.threads,
+  &g_av1_codec_arg_defs.profile,
+  &g_av1_codec_arg_defs.width,
+  &g_av1_codec_arg_defs.height,
+  &g_av1_codec_arg_defs.forced_max_frame_width,
+  &g_av1_codec_arg_defs.forced_max_frame_height,
+#if CONFIG_WEBM_IO
+  &g_av1_codec_arg_defs.stereo_mode,
+#endif
+  &g_av1_codec_arg_defs.timebase,
+  &g_av1_codec_arg_defs.framerate,
+  &g_av1_codec_arg_defs.global_error_resilient,
+  &g_av1_codec_arg_defs.bitdeptharg,
+  &g_av1_codec_arg_defs.lag_in_frames,
+  &g_av1_codec_arg_defs.large_scale_tile,
+  &g_av1_codec_arg_defs.monochrome,
+  &g_av1_codec_arg_defs.full_still_picture_hdr,
+  &g_av1_codec_arg_defs.use_16bit_internal,
+  NULL
+};
+
+const arg_def_t *rc_args[] = { &g_av1_codec_arg_defs.dropframe_thresh,
+                               &g_av1_codec_arg_defs.resize_mode,
+                               &g_av1_codec_arg_defs.resize_denominator,
+                               &g_av1_codec_arg_defs.resize_kf_denominator,
+                               &g_av1_codec_arg_defs.superres_mode,
+                               &g_av1_codec_arg_defs.superres_denominator,
+                               &g_av1_codec_arg_defs.superres_kf_denominator,
+                               &g_av1_codec_arg_defs.superres_qthresh,
+                               &g_av1_codec_arg_defs.superres_kf_qthresh,
+                               &g_av1_codec_arg_defs.end_usage,
+                               &g_av1_codec_arg_defs.target_bitrate,
+                               &g_av1_codec_arg_defs.min_quantizer,
+                               &g_av1_codec_arg_defs.max_quantizer,
+                               &g_av1_codec_arg_defs.undershoot_pct,
+                               &g_av1_codec_arg_defs.overshoot_pct,
+                               &g_av1_codec_arg_defs.buf_sz,
+                               &g_av1_codec_arg_defs.buf_initial_sz,
+                               &g_av1_codec_arg_defs.buf_optimal_sz,
+                               &g_av1_codec_arg_defs.bias_pct,
+                               &g_av1_codec_arg_defs.minsection_pct,
+                               &g_av1_codec_arg_defs.maxsection_pct,
+                               NULL };
+
+const arg_def_t *kf_args[] = { &g_av1_codec_arg_defs.fwd_kf_enabled,
+                               &g_av1_codec_arg_defs.kf_min_dist,
+                               &g_av1_codec_arg_defs.kf_max_dist,
+                               &g_av1_codec_arg_defs.kf_disabled, NULL };
+
+const arg_def_t *av1_args[] = {
+  &g_av1_codec_arg_defs.cpu_used_av1,
+  &g_av1_codec_arg_defs.auto_altref,
+  &g_av1_codec_arg_defs.sharpness,
+  &g_av1_codec_arg_defs.static_thresh,
+  &g_av1_codec_arg_defs.rowmtarg,
+  &g_av1_codec_arg_defs.tile_cols,
+  &g_av1_codec_arg_defs.tile_rows,
+  &g_av1_codec_arg_defs.enable_tpl_model,
+  &g_av1_codec_arg_defs.enable_keyframe_filtering,
+  &g_av1_codec_arg_defs.arnr_maxframes,
+  &g_av1_codec_arg_defs.arnr_strength,
+  &g_av1_codec_arg_defs.tune_metric,
+  &g_av1_codec_arg_defs.cq_level,
+  &g_av1_codec_arg_defs.max_intra_rate_pct,
+  &g_av1_codec_arg_defs.max_inter_rate_pct,
+  &g_av1_codec_arg_defs.gf_cbr_boost_pct,
+  &g_av1_codec_arg_defs.lossless,
+  &g_av1_codec_arg_defs.enable_cdef,
+  &g_av1_codec_arg_defs.enable_restoration,
+  &g_av1_codec_arg_defs.enable_rect_partitions,
+  &g_av1_codec_arg_defs.enable_ab_partitions,
+  &g_av1_codec_arg_defs.enable_1to4_partitions,
+  &g_av1_codec_arg_defs.min_partition_size,
+  &g_av1_codec_arg_defs.max_partition_size,
+  &g_av1_codec_arg_defs.enable_dual_filter,
+  &g_av1_codec_arg_defs.enable_chroma_deltaq,
+  &g_av1_codec_arg_defs.enable_intra_edge_filter,
+  &g_av1_codec_arg_defs.enable_order_hint,
+  &g_av1_codec_arg_defs.enable_tx64,
+  &g_av1_codec_arg_defs.enable_flip_idtx,
+  &g_av1_codec_arg_defs.enable_rect_tx,
+  &g_av1_codec_arg_defs.enable_dist_wtd_comp,
+  &g_av1_codec_arg_defs.enable_masked_comp,
+  &g_av1_codec_arg_defs.enable_onesided_comp,
+  &g_av1_codec_arg_defs.enable_interintra_comp,
+  &g_av1_codec_arg_defs.enable_smooth_interintra,
+  &g_av1_codec_arg_defs.enable_diff_wtd_comp,
+  &g_av1_codec_arg_defs.enable_interinter_wedge,
+  &g_av1_codec_arg_defs.enable_interintra_wedge,
+  &g_av1_codec_arg_defs.enable_global_motion,
+  &g_av1_codec_arg_defs.enable_warped_motion,
+  &g_av1_codec_arg_defs.enable_filter_intra,
+  &g_av1_codec_arg_defs.enable_smooth_intra,
+  &g_av1_codec_arg_defs.enable_paeth_intra,
+  &g_av1_codec_arg_defs.enable_cfl_intra,
+  &g_av1_codec_arg_defs.force_video_mode,
+  &g_av1_codec_arg_defs.enable_obmc,
+  &g_av1_codec_arg_defs.enable_overlay,
+  &g_av1_codec_arg_defs.enable_palette,
+  &g_av1_codec_arg_defs.enable_intrabc,
+  &g_av1_codec_arg_defs.enable_angle_delta,
+  &g_av1_codec_arg_defs.disable_trellis_quant,
+  &g_av1_codec_arg_defs.enable_qm,
+  &g_av1_codec_arg_defs.qm_min,
+  &g_av1_codec_arg_defs.qm_max,
+  &g_av1_codec_arg_defs.reduced_tx_type_set,
+  &g_av1_codec_arg_defs.use_intra_dct_only,
+  &g_av1_codec_arg_defs.use_inter_dct_only,
+  &g_av1_codec_arg_defs.use_intra_default_tx_only,
+  &g_av1_codec_arg_defs.quant_b_adapt,
+  &g_av1_codec_arg_defs.coeff_cost_upd_freq,
+  &g_av1_codec_arg_defs.mode_cost_upd_freq,
+  &g_av1_codec_arg_defs.mv_cost_upd_freq,
+  &g_av1_codec_arg_defs.frame_parallel_decoding,
+  &g_av1_codec_arg_defs.error_resilient_mode,
+  &g_av1_codec_arg_defs.aq_mode,
+  &g_av1_codec_arg_defs.deltaq_mode,
+  &g_av1_codec_arg_defs.deltalf_mode,
+  &g_av1_codec_arg_defs.frame_periodic_boost,
+  &g_av1_codec_arg_defs.noise_sens,
+  &g_av1_codec_arg_defs.tune_content,
+  &g_av1_codec_arg_defs.cdf_update_mode,
+  &g_av1_codec_arg_defs.input_color_primaries,
+  &g_av1_codec_arg_defs.input_transfer_characteristics,
+  &g_av1_codec_arg_defs.input_matrix_coefficients,
+  &g_av1_codec_arg_defs.input_chroma_sample_position,
+  &g_av1_codec_arg_defs.min_gf_interval,
+  &g_av1_codec_arg_defs.max_gf_interval,
+  &g_av1_codec_arg_defs.gf_min_pyr_height,
+  &g_av1_codec_arg_defs.gf_max_pyr_height,
+  &g_av1_codec_arg_defs.superblock_size,
+  &g_av1_codec_arg_defs.num_tg,
+  &g_av1_codec_arg_defs.mtu_size,
+  &g_av1_codec_arg_defs.timing_info,
+  &g_av1_codec_arg_defs.film_grain_test,
+  &g_av1_codec_arg_defs.film_grain_table,
+#if CONFIG_DENOISE
+  &g_av1_codec_arg_defs.denoise_noise_level,
+  &g_av1_codec_arg_defs.denoise_block_size,
+#endif  // CONFIG_DENOISE
+  &g_av1_codec_arg_defs.max_reference_frames,
+  &g_av1_codec_arg_defs.reduced_reference_set,
+  &g_av1_codec_arg_defs.enable_ref_frame_mvs,
+  &g_av1_codec_arg_defs.target_seq_level_idx,
+  &g_av1_codec_arg_defs.set_tier_mask,
+  &g_av1_codec_arg_defs.set_min_cr,
+  &g_av1_codec_arg_defs.vbr_corpus_complexity_lap,
+  &g_av1_codec_arg_defs.bitdeptharg,
+  &g_av1_codec_arg_defs.inbitdeptharg,
+  &g_av1_codec_arg_defs.input_chroma_subsampling_x,
+  &g_av1_codec_arg_defs.input_chroma_subsampling_y,
+  &g_av1_codec_arg_defs.sframe_dist,
+  &g_av1_codec_arg_defs.sframe_mode,
+  &g_av1_codec_arg_defs.save_as_annexb,
+#if CONFIG_TUNE_VMAF
+  &g_av1_codec_arg_defs.vmaf_model_path,
+#endif
+  NULL
+};
 
 static const arg_def_t *no_args[] = { NULL };
 
@@ -1212,51 +1405,79 @@ static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
   for (argi = argj = argv_local; (*argj = *argi); argi += arg.argv_step) {
     arg.argv_step = 1;
 
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     if (arg_match(&arg, &use_cfg, argi)) {
       if (cfg_included) continue;
       if (parse_cfg(arg.val, &global->encoder_config)) {
         die("Reading / parsing error for config file: %s\n", arg.val);
+=======
+    if (arg_match(&arg, &g_av1_codec_arg_defs.use_cfg, argi)) {
+      if (!cfg_included) {
+        parse_cfg(arg.val, &global->encoder_config);
+        cfg_included = 1;
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       }
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
       cfg_included = 1;
       continue;
     }
     if (arg_match(&arg, &help, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.help, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       show_help(stdout, 0);
       exit(EXIT_SUCCESS);
-    } else if (arg_match(&arg, &codecarg, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.codecarg, argi)) {
       global->codec = get_aom_encoder_by_short_name(arg.val);
       if (!global->codec)
         die("Error: Unrecognized argument (%s) to --codec\n", arg.val);
-    } else if (arg_match(&arg, &passes, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.passes, argi)) {
       global->passes = arg_parse_uint(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &pass_arg, argi)) {
+=======
+
+      if (global->passes < 1 || global->passes > 2)
+        die("Error: Invalid number of passes (%d)\n", global->passes);
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.pass_arg, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       global->pass = arg_parse_uint(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &input_chroma_sample_position, argi)) {
+=======
+
+      if (global->pass < 1 || global->pass > 2)
+        die("Error: Invalid pass selected (%d)\n", global->pass);
+    } else if (arg_match(&arg,
+                         &g_av1_codec_arg_defs.input_chroma_sample_position,
+                         argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       global->csp = arg_parse_enum(&arg);
       /* Flag is used by later code as well, preserve it. */
       argj++;
-    } else if (arg_match(&arg, &usage, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.usage, argi)) {
       global->usage = arg_parse_uint(&arg);
-    else if (arg_match(&arg, &good_dl, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.good_dl, argi)) {
       global->usage = AOM_USAGE_GOOD_QUALITY;  // Good quality usage
-    else if (arg_match(&arg, &rt_dl, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.rt_dl, argi)) {
       global->usage = AOM_USAGE_REALTIME;  // Real-time usage
-    else if (arg_match(&arg, &use_yv12, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_yv12, argi)) {
       global->color_type = YV12;
-    else if (arg_match(&arg, &use_i420, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_i420, argi)) {
       global->color_type = I420;
-    else if (arg_match(&arg, &use_i422, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_i422, argi)) {
       global->color_type = I422;
-    else if (arg_match(&arg, &use_i444, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_i444, argi)) {
       global->color_type = I444;
-    else if (arg_match(&arg, &quietarg, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.quietarg, argi)) {
       global->quiet = 1;
-    else if (arg_match(&arg, &verbosearg, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.verbosearg, argi)) {
       global->verbose = 1;
-    else if (arg_match(&arg, &limit, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.limit, argi)) {
       global->limit = arg_parse_uint(&arg);
-    else if (arg_match(&arg, &skip, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.skip, argi)) {
       global->skip_frames = arg_parse_uint(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     else if (arg_match(&arg, &step, argi)) {
       global->step_frames = arg_parse_uint(&arg);
       if (global->step_frames == 0) {
@@ -1265,23 +1486,37 @@ static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
     } else if (arg_match(&arg, &psnrarg, argi))
       global->show_psnr = 1;
     else if (arg_match(&arg, &recontest, argi))
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.psnrarg, argi)) {
+      if (arg.val)
+        global->show_psnr = arg_parse_int(&arg);
+      else
+        global->show_psnr = 1;
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.recontest, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       global->test_decode = arg_parse_enum_or_int(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     else if (arg_match(&arg, &framerate, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.framerate, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       global->framerate = arg_parse_rational(&arg);
       validate_positive_rational(arg.name, &global->framerate);
       global->have_framerate = 1;
-    } else if (arg_match(&arg, &debugmode, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.debugmode, argi)) {
       global->debug = 1;
-    else if (arg_match(&arg, &q_hist_n, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.q_hist_n, argi)) {
       global->show_q_hist_buckets = arg_parse_uint(&arg);
-    else if (arg_match(&arg, &rate_hist_n, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.rate_hist_n, argi)) {
       global->show_rate_hist_buckets = arg_parse_uint(&arg);
-    else if (arg_match(&arg, &disable_warnings, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.disable_warnings, argi)) {
       global->disable_warnings = 1;
-    else if (arg_match(&arg, &disable_warning_prompt, argi))
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.disable_warning_prompt,
+                         argi)) {
       global->disable_warning_prompt = 1;
-    else
+    } else {
       argj++;
+    }
   }
 
   if (global->passes != 1)
@@ -1512,7 +1747,7 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       continue;
     }
 
-    if (arg_match(&arg, &outputfile, argi)) {
+    if (arg_match(&arg, &g_av1_codec_arg_defs.outputfile, argi)) {
       config->out_fn = arg.val;
       if (!webm_forced) {
         const size_t out_fn_len = strlen(config->out_fn);
@@ -1526,90 +1761,130 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
           config->write_ivf = 0;
         }
       }
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &use_webm, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.fpf_name, argi)) {
+      config->stats_fn = arg.val;
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_webm, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
 #if CONFIG_WEBM_IO
       config->write_webm = 1;
       webm_forced = 1;
 #else
       die("Error: --webm specified but webm is disabled.");
 #endif
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &reconfile, argi)) {
       config->recon_fn = arg.val;
     } else if (arg_match(&arg, &use_ivf, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_ivf, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       config->write_webm = 0;
       config->write_ivf = 1;
-    } else if (arg_match(&arg, &use_obu, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_obu, argi)) {
       config->write_webm = 0;
       config->write_ivf = 0;
-    } else if (arg_match(&arg, &threads, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.threads, argi)) {
       config->cfg.g_threads = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &profile, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.profile, argi)) {
       config->cfg.g_profile = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &width, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.width, argi)) {
       config->cfg.g_w = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &height, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.height, argi)) {
       config->cfg.g_h = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &forced_max_frame_width, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.forced_max_frame_width,
+                         argi)) {
       config->cfg.g_forced_max_frame_width = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &forced_max_frame_height, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.forced_max_frame_height,
+                         argi)) {
       config->cfg.g_forced_max_frame_height = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &bitdeptharg, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.bitdeptharg, argi)) {
       config->cfg.g_bit_depth = arg_parse_enum_or_int(&arg);
-    } else if (arg_match(&arg, &inbitdeptharg, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.inbitdeptharg, argi)) {
       config->cfg.g_input_bit_depth = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &input_chroma_subsampling_x, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.input_chroma_subsampling_x,
+                         argi)) {
       stream->chroma_subsampling_x = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &input_chroma_subsampling_y, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.input_chroma_subsampling_y,
+                         argi)) {
       stream->chroma_subsampling_y = arg_parse_uint(&arg);
 #if CONFIG_WEBM_IO
-    } else if (arg_match(&arg, &stereo_mode, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.stereo_mode, argi)) {
       config->stereo_fmt = arg_parse_enum_or_int(&arg);
 #endif
-    } else if (arg_match(&arg, &timebase, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.timebase, argi)) {
       config->cfg.g_timebase = arg_parse_rational(&arg);
       validate_positive_rational(arg.name, &config->cfg.g_timebase);
-    } else if (arg_match(&arg, &global_error_resilient, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.global_error_resilient,
+                         argi)) {
       config->cfg.g_error_resilient = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &lag_in_frames, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.lag_in_frames, argi)) {
       config->cfg.g_lag_in_frames = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &large_scale_tile, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.large_scale_tile, argi)) {
       config->cfg.large_scale_tile = arg_parse_uint(&arg);
       if (config->cfg.large_scale_tile) {
         global->codec = get_aom_encoder_by_short_name("av1");
       }
-    } else if (arg_match(&arg, &monochrome, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.monochrome, argi)) {
       config->cfg.monochrome = 1;
-    } else if (arg_match(&arg, &full_still_picture_hdr, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.full_still_picture_hdr,
+                         argi)) {
       config->cfg.full_still_picture_hdr = 1;
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &use_16bit_internal, argi)) {
       config->use_16bit_internal = 1;
       warn("%s option deprecated. default to 1 always.\n", arg.name);
     } else if (arg_match(&arg, &dropframe_thresh, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_16bit_internal,
+                         argi)) {
+      config->use_16bit_internal = CONFIG_AV1_HIGHBITDEPTH;
+      if (!config->use_16bit_internal) {
+        warn("%s option ignored with CONFIG_AV1_HIGHBITDEPTH=0.\n", arg.name);
+      }
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.dropframe_thresh, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       config->cfg.rc_dropframe_thresh = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &resize_mode, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.resize_mode, argi)) {
       config->cfg.rc_resize_mode = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &resize_denominator, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.resize_denominator,
+                         argi)) {
       config->cfg.rc_resize_denominator = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &resize_kf_denominator, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.resize_kf_denominator,
+                         argi)) {
       config->cfg.rc_resize_kf_denominator = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &superres_mode, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.superres_mode, argi)) {
       config->cfg.rc_superres_mode = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &superres_denominator, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.superres_denominator,
+                         argi)) {
       config->cfg.rc_superres_denominator = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &superres_kf_denominator, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.superres_kf_denominator,
+                         argi)) {
       config->cfg.rc_superres_kf_denominator = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &superres_qthresh, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.superres_qthresh, argi)) {
       config->cfg.rc_superres_qthresh = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &superres_kf_qthresh, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.superres_kf_qthresh,
+                         argi)) {
       config->cfg.rc_superres_kf_qthresh = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &end_usage, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.end_usage, argi)) {
       config->cfg.rc_end_usage = arg_parse_enum_or_int(&arg);
-    } else if (arg_match(&arg, &target_bitrate, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.target_bitrate, argi)) {
       config->cfg.rc_target_bitrate = arg_parse_uint(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &min_qp_level, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.min_quantizer, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       config->cfg.rc_min_quantizer = arg_parse_uint(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &max_qp_level, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.max_quantizer, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       config->cfg.rc_max_quantizer = arg_parse_uint(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &min_q_level, argi)) {
       const unsigned int min_q_val = arg_parse_uint(&arg);
       config->cfg.rc_min_quantizer =
@@ -1619,52 +1894,64 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       config->cfg.rc_max_quantizer =
           get_qindex_from_quantizer_and_warn(max_q_val, "max-q", "max-qp");
     } else if (arg_match(&arg, &undershoot_pct, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.undershoot_pct, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       config->cfg.rc_undershoot_pct = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &overshoot_pct, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.overshoot_pct, argi)) {
       config->cfg.rc_overshoot_pct = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &buf_sz, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.buf_sz, argi)) {
       config->cfg.rc_buf_sz = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &buf_initial_sz, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.buf_initial_sz, argi)) {
       config->cfg.rc_buf_initial_sz = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &buf_optimal_sz, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.buf_optimal_sz, argi)) {
       config->cfg.rc_buf_optimal_sz = arg_parse_uint(&arg);
+<<<<<<< HEAD   (be0be4 Fix some doxygen warnings)
     } else if (arg_match(&arg, &minsection_pct, argi)) {
+=======
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.bias_pct, argi)) {
+      config->cfg.rc_2pass_vbr_bias_pct = arg_parse_uint(&arg);
+      if (global->passes < 2)
+        warn("option %s ignored in one-pass mode.\n", arg.name);
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.minsection_pct, argi)) {
+>>>>>>> CHANGE (c1d42f Add a key & value API to the libaom library.)
       config->cfg.rc_2pass_vbr_minsection_pct = arg_parse_uint(&arg);
 
       if (global->passes < 2)
         warn("option %s ignored in one-pass mode.\n", arg.name);
-    } else if (arg_match(&arg, &maxsection_pct, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.maxsection_pct, argi)) {
       config->cfg.rc_2pass_vbr_maxsection_pct = arg_parse_uint(&arg);
 
       if (global->passes < 2)
         warn("option %s ignored in one-pass mode.\n", arg.name);
-    } else if (arg_match(&arg, &fwd_kf_enabled, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.fwd_kf_enabled, argi)) {
       config->cfg.fwd_kf_enabled = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &kf_min_dist, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.kf_min_dist, argi)) {
       config->cfg.kf_min_dist = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &kf_max_dist, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.kf_max_dist, argi)) {
       config->cfg.kf_max_dist = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &kf_disabled, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.kf_disabled, argi)) {
       config->cfg.kf_mode = AOM_KF_DISABLED;
-    } else if (arg_match(&arg, &sframe_dist, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.sframe_dist, argi)) {
       config->cfg.sframe_dist = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &sframe_mode, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.sframe_mode, argi)) {
       config->cfg.sframe_mode = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &save_as_annexb, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.save_as_annexb, argi)) {
       config->cfg.save_as_annexb = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &tile_width, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.tile_width, argi)) {
       config->cfg.tile_width_count =
           arg_parse_list(&arg, config->cfg.tile_widths, MAX_TILE_WIDTHS);
-    } else if (arg_match(&arg, &tile_height, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.tile_height, argi)) {
       config->cfg.tile_height_count =
           arg_parse_list(&arg, config->cfg.tile_heights, MAX_TILE_HEIGHTS);
 #if CONFIG_TUNE_VMAF
     } else if (arg_match(&arg, &vmaf_model_path, argi)) {
       config->vmaf_model_path = arg.val;
 #endif
-    } else if (arg_match(&arg, &use_fixed_qp_offsets, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_fixed_qp_offsets,
+                         argi)) {
       config->cfg.use_fixed_qp_offsets = arg_parse_uint(&arg);
-    } else if (arg_match(&arg, &fixed_qp_offsets, argi)) {
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.fixed_qp_offsets, argi)) {
       const int fixed_qp_offset_count = arg_parse_list(
           &arg, config->cfg.fixed_qp_offsets, FIXED_QP_OFFSET_COUNT);
       if (fixed_qp_offset_count < FIXED_QP_OFFSET_COUNT) {
@@ -1674,7 +1961,8 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       }
       config->cfg.use_fixed_qp_offsets = 1;
     } else if (global->usage == AOM_USAGE_REALTIME &&
-               arg_match(&arg, &enable_restoration, argi)) {
+               arg_match(&arg, &g_av1_codec_arg_defs.enable_restoration,
+                         argi)) {
       if (arg_parse_uint(&arg) == 1) {
         warn("non-zero %s option ignored in realtime mode.\n", arg.name);
       }
