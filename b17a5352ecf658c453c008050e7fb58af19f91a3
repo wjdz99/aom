@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77238020_ee0419d7",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-21T19:27:30Z",
+      "side": 1,
+      "message": "Nit: capitalize \"CPU\"",
+      "range": {
+        "startLine": 148,
+        "startChar": 13,
+        "endLine": 148,
+        "endChar": 16
+      },
+      "revId": "b17a5352ecf658c453c008050e7fb58af19f91a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "348440c7_ce726cd5",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-21T19:27:30Z",
+      "side": 1,
+      "message": "Nit/optional: We may want to say \"Rerun cmake\" instead of \"Reconfigure\".",
+      "range": {
+        "startLine": 149,
+        "startChar": 30,
+        "endLine": 149,
+        "endChar": 41
+      },
+      "revId": "b17a5352ecf658c453c008050e7fb58af19f91a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
