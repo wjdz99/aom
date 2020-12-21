@@ -149,7 +149,7 @@ extern "C" {
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures
  */
-#define AOM_CODEC_ABI_VERSION (5 + AOM_IMAGE_ABI_VERSION) /**<\hideinitializer*/
+#define AOM_CODEC_ABI_VERSION (6 + AOM_IMAGE_ABI_VERSION) /**<\hideinitializer*/
 
 /*!\brief Algorithm return codes */
 typedef enum {
@@ -489,6 +489,28 @@ aom_codec_caps_t aom_codec_get_caps(aom_codec_iface_t *iface);
  *     The data was not valid.
  */
 aom_codec_err_t aom_codec_control(aom_codec_ctx_t *ctx, int ctrl_id, ...);
+
+/*!\brief Key & Value API
+ *
+ * aom_codec_set_option takes a context, a key, a value and a string buffer for
+ * the error message. If the context is non-null and an error occurs, ctx->err
+ * will be set to the same value as the return value. The details of the error
+ * will be set to err_message, and also to ctx->err_detail and
+ * ctx->priv->err_detail.
+ *
+ * \param[in]     codec_ctx        Pointer to this instance's context
+ * \param[in]     name             The name of the option
+ * \param[in]     value            The value of the option
+ * \param[in]     err_message      Buffer for error message
+ *
+ * \retval #AOM_CODEC_OK
+ *     The control request was processed.
+ * \retval #AOM_CODEC_INVALID_PARAM
+ *     The data was not valid.
+ */
+aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *codec_ctx,
+                                     const char *name, const char *value,
+                                     char *err_message);
 
 /*!\brief aom_codec_control wrapper macro (adds type-checking, less flexible)
  *
