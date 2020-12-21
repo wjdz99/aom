@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include "common/tools_common.h"
+#include "aom_mem/aom_mem.h"
 
 #if CONFIG_AV1_ENCODER
 #include "aom/aomcx.h"
@@ -56,8 +57,9 @@ FILE *set_binary_mode(FILE *stream) {
   return stream;
 }
 
-void die(const char *fmt, ...) {
+void die(char *fmt, ...) {
   LOG_ERROR(NULL);
+  aom_free(fmt);
   usage_exit();
 }
 
