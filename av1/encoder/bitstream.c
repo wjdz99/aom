@@ -2787,9 +2787,14 @@ static AOM_INLINE void write_sequence_header(
 
 static AOM_INLINE void write_global_motion_params(
     const WarpedMotionParams *params, const WarpedMotionParams *ref_params,
-    struct aom_write_bit_buffer *wb, int allow_hp) {
+    struct aom_write_bit_buffer *wb, int allow_hp, int frame) {
+  uint16_t k;
+#if CONFIG_GM_MODEL_CODING
+  k = (frame != LAST_FRAME) ? GM_DIFF_SUBEXPFIN_K : SUBEXPFIN_K;
+#else
+  k = SUBEXPFIN_K;
+#endif  // CONFIG_GM_MODEL_CODING
   const TransformationType type = params->wmtype;
-
   aom_wb_write_bit(wb, type != IDENTITY);
   if (type != IDENTITY) {
     aom_wb_write_bit(wb, type == ROTZOOM);
@@ -2798,23 +2803,21 @@ static AOM_INLINE void write_global_motion_params(
 
   if (type >= ROTZOOM) {
     aom_wb_write_signed_primitive_refsubexpfin(
-        wb, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+        wb, GM_ALPHA_MAX + 1, k,
         (ref_params->wmmat[2] >> GM_ALPHA_PREC_DIFF) -
             (1 << GM_ALPHA_PREC_BITS),
         (params->wmmat[2] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
     aom_wb_write_signed_primitive_refsubexpfin(
-        wb, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
-        (ref_params->wmmat[3] >> GM_ALPHA_PREC_DIFF),
+        wb, GM_ALPHA_MAX + 1, k, (ref_params->wmmat[3] >> GM_ALPHA_PREC_DIFF),
         (params->wmmat[3] >> GM_ALPHA_PREC_DIFF));
   }
 
   if (type >= AFFINE) {
     aom_wb_write_signed_primitive_refsubexpfin(
-        wb, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
-        (ref_params->wmmat[4] >> GM_ALPHA_PREC_DIFF),
+        wb, GM_ALPHA_MAX + 1, k, (ref_params->wmmat[4] >> GM_ALPHA_PREC_DIFF),
         (params->wmmat[4] >> GM_ALPHA_PREC_DIFF));
     aom_wb_write_signed_primitive_refsubexpfin(
-        wb, GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+        wb, GM_ALPHA_MAX + 1, k,
         (ref_params->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
             (1 << GM_ALPHA_PREC_BITS),
         (params->wmmat[5] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
@@ -2828,12 +2831,10 @@ static AOM_INLINE void write_global_motion_params(
                                     ? GM_TRANS_ONLY_PREC_DIFF + !allow_hp
                                     : GM_TRANS_PREC_DIFF;
     aom_wb_write_signed_primitive_refsubexpfin(
-        wb, (1 << trans_bits) + 1, SUBEXPFIN_K,
-        (ref_params->wmmat[0] >> trans_prec_diff),
+        wb, (1 << trans_bits) + 1, k, (ref_params->wmmat[0] >> trans_prec_diff),
         (params->wmmat[0] >> trans_prec_diff));
     aom_wb_write_signed_primitive_refsubexpfin(
-        wb, (1 << trans_bits) + 1, SUBEXPFIN_K,
-        (ref_params->wmmat[1] >> trans_prec_diff),
+        wb, (1 << trans_bits) + 1, k, (ref_params->wmmat[1] >> trans_prec_diff),
         (params->wmmat[1] >> trans_prec_diff));
   }
 }
@@ -2861,7 +2862,7 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
                                 : &default_warp_params;
 #endif  // CONFIG_GM_MODEL_CODING
     write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
-                               cm->features.allow_high_precision_mv);
+                               cm->features.allow_high_precision_mv, frame);
     // TODO(sarahparker, debargha): The logic in the commented out code below
     // does not work currently and causes mismatches when resize is on.
     // Fix it before turning the optimization back on.
