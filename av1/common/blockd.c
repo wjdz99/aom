@@ -28,6 +28,34 @@ PREDICTION_MODE av1_above_block_mode(const MB_MODE_INFO *above_mi) {
   return above_mi->mode;
 }
 
+PARTITION_TREE *av1_alloc_ptree_node(void) {
+  PARTITION_TREE *ptree = NULL;
+  struct aom_internal_error_info error;
+
+  AOM_CHECK_MEM_ERROR(&error, ptree, aom_calloc(1, sizeof(*ptree)));
+
+  ptree->partition = PARTITION_NONE;
+  ptree->is_settled = 0;
+
+  for (int i = 0; i < 4; ++i) ptree->sub_tree[i] = NULL;
+
+  return ptree;
+}
+
+void av1_free_ptree_recursive(PARTITION_TREE *ptree) {
+  if (ptree == NULL) return;
+
+  for (int i = 0; i < 4; ++i) av1_free_ptree_recursive(ptree->sub_tree[i]);
+
+  aom_free(ptree);
+}
+
+void av1_reset_ptree_in_sbi(SB_INFO *sbi) {
+  if (sbi->ptree_root) av1_free_ptree_recursive(sbi->ptree_root);
+
+  sbi->ptree_root = av1_alloc_ptree_node();
+}
+
 void av1_set_entropy_contexts(const MACROBLOCKD *xd,
                               struct macroblockd_plane *pd, int plane,
                               BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
