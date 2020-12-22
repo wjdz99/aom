@@ -4223,7 +4223,16 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
 #if !CONFIG_REMOVE_DUAL_FILTER
     seq_params->enable_dual_filter = 0;
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
+#if CONFIG_NEW_REF_SIGNALING
+    seq_params->order_hint_info.enable_order_hint = 1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+    seq_params->order_hint_info.enable_dist_wtd_comp = aom_rb_read_bit(rb);
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
+    seq_params->order_hint_info.enable_ref_frame_mvs = aom_rb_read_bit(rb);
+    seq_params->order_hint_info.order_hint_bits_minus_1 = aom_rb_read_literal(rb, 3);
+#else
     seq_params->order_hint_info.enable_order_hint = 0;
+#endif
 #if !CONFIG_REMOVE_DIST_WTD_COMP
     seq_params->order_hint_info.enable_dist_wtd_comp = 0;
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
@@ -4239,7 +4248,11 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
     seq_params->enable_dual_filter = aom_rb_read_bit(rb);
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
 
+#if CONFIG_NEW_REF_SIGNALING
+    seq_params->order_hint_info.enable_order_hint = 1;
+#else
     seq_params->order_hint_info.enable_order_hint = aom_rb_read_bit(rb);
+#endif  // CONFIG_NEW_REF_SIGNALING
 #if !CONFIG_REMOVE_DIST_WTD_COMP
     seq_params->order_hint_info.enable_dist_wtd_comp =
         seq_params->order_hint_info.enable_order_hint ? aom_rb_read_bit(rb) : 0;

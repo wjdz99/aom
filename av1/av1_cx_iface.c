@@ -996,7 +996,11 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 #if !CONFIG_REMOVE_DUAL_FILTER
   tool_cfg->enable_dual_filter = extra_cfg->enable_dual_filter;
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
+#if CONFIG_NEW_REF_SIGNALING
+  tool_cfg->enable_order_hint = 1;
+#else
   tool_cfg->enable_order_hint = extra_cfg->enable_order_hint;
+#endif  // CONFIG_NEW_REF_SIGNALING
   tool_cfg->enable_interintra_comp = extra_cfg->enable_interintra_comp;
   tool_cfg->ref_frame_mvs_present =
       extra_cfg->enable_ref_frame_mvs & extra_cfg->enable_order_hint;

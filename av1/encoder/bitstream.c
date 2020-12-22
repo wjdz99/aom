@@ -2699,6 +2699,14 @@ static AOM_INLINE void write_sequence_header(
       aom_wb_write_literal(
           wb, seq_params->order_hint_info.order_hint_bits_minus_1, 3);
   }
+#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+      aom_wb_write_bit(wb, seq_params->order_hint_info.enable_dist_wtd_comp);
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
+      aom_wb_write_bit(wb, seq_params->order_hint_info.enable_ref_frame_mvs);
+      aom_wb_write_literal(
+          wb, seq_params->order_hint_info.order_hint_bits_minus_1, 3);
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   aom_wb_write_bit(wb, seq_params->enable_superres);
   aom_wb_write_bit(wb, seq_params->enable_cdef);
