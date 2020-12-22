@@ -2413,6 +2413,9 @@ static void encode_restoration_mode(AV1_COMMON *cm,
   }
 #endif  // CONFIG_DEBUG
   for (int p = plane_start; p < num_planes; ++p) {
+#if CONFIG_RST_MERGECOEFFS
+    aom_wb_write_bit(wb, cm->frame_contains_merge[p]);
+#endif  // CONFIG_RST_MERGECOEFFS
     RestorationInfo *rsi = &cm->rst_info[p];
     if (rsi->frame_restoration_type != RESTORE_NONE) {
       all_none = 0;
@@ -2506,12 +2509,18 @@ static void encode_restoration_mode(AV1_COMMON *cm,
 
 static void write_wiener_filter(MACROBLOCKD *xd, int wiener_win,
                                 const WienerInfo *wiener_info,
-                                WienerInfo *ref_wiener_info, aom_writer *wb) {
+                                WienerInfo *ref_wiener_info,
 #if CONFIG_RST_MERGECOEFFS
-  const int equal = check_wiener_eq(wiener_info, ref_wiener_info);
-  aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
-  if (equal) {
-    return;
+                                bool write_merge,
+#endif  // CONFIG_RST_MERGECOEFFS
+                                aom_writer *wb) {
+#if CONFIG_RST_MERGECOEFFS
+  if (write_merge) {
+    const int equal = check_wiener_eq(wiener_info, ref_wiener_info);
+    aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
+    if (equal) {
+      return;
+    }
   }
 #else
   (void)xd;
@@ -2560,13 +2569,17 @@ static void write_wiener_filter(MACROBLOCKD *xd, int wiener_win,
 static void write_sgrproj_filter(MACROBLOCKD *xd,
                                  const SgrprojInfo *sgrproj_info,
                                  SgrprojInfo *ref_sgrproj_info,
+#if CONFIG_RST_MERGECOEFFS
+                                 bool write_merge,
+#endif  // CONFIG_RST_MERGECOEFFS
                                  aom_writer *wb) {
 #if CONFIG_RST_MERGECOEFFS
-  const int equal = check_sgrproj_eq(sgrproj_info, ref_sgrproj_info);
-  aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
-  if (equal) {
-    memcpy(ref_sgrproj_info, sgrproj_info, sizeof(*sgrproj_info));
-    return;
+  if (write_merge) {
+    const int equal = check_sgrproj_eq(sgrproj_info, ref_sgrproj_info);
+    aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
+    if (equal) {
+      return;
+    }
   }
 #else
   (void)xd;
@@ -2603,13 +2616,18 @@ static void write_sgrproj_filter(MACROBLOCKD *xd,
 static void write_wiener_nsfilter(MACROBLOCKD *xd, int is_uv,
                                   const WienerNonsepInfo *wienerns_info,
                                   WienerNonsepInfo *ref_wienerns_info,
+#if CONFIG_RST_MERGECOEFFS
+                                  bool write_merge,
+#endif  // CONFIG_RST_MERGECOEFFS
                                   aom_writer *wb) {
 #if CONFIG_RST_MERGECOEFFS
-  const int equal = check_wienerns_eq(is_uv, wienerns_info, ref_wienerns_info);
-  aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
-  if (equal) {
-    memcpy(ref_wienerns_info, wienerns_info, sizeof(*wienerns_info));
-    return;
+  if (write_merge) {
+    const int equal =
+        check_wienerns_eq(is_uv, wienerns_info, ref_wienerns_info);
+    aom_write_symbol(wb, equal, xd->tile_ctx->merged_param_cdf, 2);
+    if (equal) {
+      return;
+    }
   }
 #else
   (void)xd;
@@ -2676,10 +2694,17 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
     switch (unit_rtype) {
       case RESTORE_WIENER:
         write_wiener_filter(xd, wiener_win, &rui->wiener_info, ref_wiener_info,
+#if CONFIG_RST_MERGECOEFFS
+                            cm->frame_contains_merge[plane],
+#endif  // CONFIG_RST_MERGECOEFFS
                             w);
         break;
       case RESTORE_SGRPROJ:
-        write_sgrproj_filter(xd, &rui->sgrproj_info, ref_sgrproj_info, w);
+        write_sgrproj_filter(xd, &rui->sgrproj_info, ref_sgrproj_info,
+#if CONFIG_RST_MERGECOEFFS
+                             cm->frame_contains_merge[plane],
+#endif  // CONFIG_RST_MERGECOEFFS
+                             w);
         break;
 #if CONFIG_LOOP_RESTORE_CNN
       case RESTORE_CNN: break;
@@ -2687,7 +2712,11 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 #if CONFIG_WIENER_NONSEP
       case RESTORE_WIENER_NONSEP:
         write_wiener_nsfilter(xd, is_uv, &rui->wiener_nonsep_info,
-                              ref_wiener_nonsep_info, w);
+                              ref_wiener_nonsep_info,
+#if CONFIG_RST_MERGECOEFFS
+                              cm->frame_contains_merge[plane],
+#endif  // CONFIG_RST_MERGECOEFFS
+                              w);
         break;
 #endif  // CONFIG_WIENER_NONSEP
       default: assert(unit_rtype == RESTORE_NONE); break;
@@ -2700,6 +2729,9 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 #endif
     if (unit_rtype != RESTORE_NONE) {
       write_wiener_filter(xd, wiener_win, &rui->wiener_info, ref_wiener_info,
+#if CONFIG_RST_MERGECOEFFS
+                          cm->frame_contains_merge[plane],
+#endif  // CONFIG_RST_MERGECOEFFS
                           w);
     }
   } else if (frame_rtype == RESTORE_SGRPROJ) {
@@ -2709,7 +2741,11 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
     ++counts->sgrproj_restore[unit_rtype != RESTORE_NONE];
 #endif
     if (unit_rtype != RESTORE_NONE) {
-      write_sgrproj_filter(xd, &rui->sgrproj_info, ref_sgrproj_info, w);
+      write_sgrproj_filter(xd, &rui->sgrproj_info, ref_sgrproj_info,
+#if CONFIG_RST_MERGECOEFFS
+                           cm->frame_contains_merge[plane],
+#endif  // CONFIG_RST_MERGECOEFFS
+                           w);
     }
   }
 #if CONFIG_LOOP_RESTORE_CNN
@@ -2730,7 +2766,11 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 #endif
     if (unit_rtype != RESTORE_NONE) {
       write_wiener_nsfilter(xd, is_uv, &rui->wiener_nonsep_info,
-                            ref_wiener_nonsep_info, w);
+                            ref_wiener_nonsep_info,
+#if CONFIG_RST_MERGECOEFFS
+                            cm->frame_contains_merge[plane],
+#endif  // CONFIG_RST_MERGECOEFFS
+                            w);
     }
   }
 #endif  // CONFIG_WIENER_NONSEP

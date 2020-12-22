@@ -148,6 +148,9 @@ typedef struct {
 #endif  // CONFIG_LOOP_RESTORE_CNN
 
 #if CONFIG_RST_MERGECOEFFS
+  // Indicates if any units in rtype are merged.
+  // Indices: WIENER, SGRPROJ, CNN, WIENER_NONSEP, SWITCHABLE.
+  bool rtype_merged[RESTORE_TYPES - 1];
   // This vector holds the most recent list of units with merged coefficients.
   Vector *unit_stack;
 #endif  // CONFIG_RST_MERGECOEFFS
@@ -208,6 +211,9 @@ static void init_rsc(const YV12_BUFFER_CONFIG *src, const AV1_COMMON *cm,
 #endif  // CONFIG_LOOP_RESTORE_CNN
 
 #if CONFIG_RST_MERGECOEFFS
+  // Set all merge indicators to false.
+  memset(rsc->rtype_merged, 0,
+         sizeof(*rsc->rtype_merged) * (RESTORE_TYPES - 1));
   rsc->unit_stack = unit_stack;
 #endif  // CONFIG_RST_MERGECOEFFS
 }
@@ -897,6 +903,7 @@ static void search_sgrproj(const RestorationTileLimits *limits,
     cost_merge *= dual_sgr_penalty_sf_mult;
   }
   if (cost_merge < cost_nomerge) {
+    rsc->rtype_merged[RESTORE_SGRPROJ - 1] = true;
     // Update data within the stack.
     VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
       RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
@@ -1667,6 +1674,7 @@ static void search_wiener(const RestorationTileLimits *limits,
         RDCOST_DBL(x->rdmult, old_unit->merge_bits >> 4, old_unit->merge_sse);
   }
   if (cost_merge < cost_nomerge) {
+    rsc->rtype_merged[RESTORE_WIENER - 1] = true;
     // Update data within the stack.
     VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
       RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
@@ -2116,6 +2124,11 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
     RestorationUnitInfo rui_temp;
     memset(&rui_temp, 0, sizeof(rui_temp));
     rui_temp.restoration_type = RESTORE_WIENER_NONSEP;
+    rui_temp.plane = rsc->plane;
+#if CONFIG_WIENER_NONSEP_CROSS_FILT
+    rui_temp.luma = rsc->luma;
+    rui_temp.luma_stride = rsc->luma_stride;
+#endif  // CONFIG_WIENER_NONSEP_CROSS_FILT
     int num_feat = is_uv ? wienerns_uv : wienerns_y;
     if (linsolve(num_feat, A_AVG, num_feat, b_AVG, merge_filter_stats)) {
       int beg_feat = is_uv ? wienerns_y : 0;
@@ -2161,6 +2174,7 @@ static void search_wiener_nonsep(const RestorationTileLimits *limits,
           RDCOST_DBL(x->rdmult, old_unit->merge_bits >> 4, old_unit->merge_sse);
     }
     if (cost_merge < cost_nomerge) {
+      rsc->rtype_merged[RESTORE_WIENER_NONSEP - 1] = true;
       // Update data within the stack.
       VECTOR_FOR_EACH(current_unit_stack, listed_unit) {
         RstUnitSnapshot *old_unit = (RstUnitSnapshot *)(listed_unit.pointer);
@@ -2323,6 +2337,28 @@ RestSearchCtxt switchable_update_refs(Vector *path, const RestSearchCtxt *rsc,
       rsc_dup.bits +=
           count_switchable_bits(visited_rtype, &rsc_dup, visited_rusi);
       visited_rusi->best_rtype[RESTORE_SWITCHABLE - 1] = visited_rtype;
+      int merged = 0;
+      switch (visited_rtype) {
+        case RESTORE_WIENER:
+          if (check_wiener_eq(&visited_rusi->wiener, &rsc_dup.wiener))
+            merged = 1;
+          break;
+        case RESTORE_SGRPROJ:
+          if (check_sgrproj_eq(&visited_rusi->sgrproj, &rsc_dup.sgrproj))
+            merged = 1;
+          break;
+#if CONFIG_WIENER_NONSEP
+        case RESTORE_WIENER_NONSEP: {
+          if (check_wienerns_eq(is_uv, &visited_rusi->wiener_nonsep,
+                                &rsc_dup.wiener_nonsep))
+            merged = 1;
+        } break;
+#endif  // CONFIG_WIENER_NONSEP
+        default: break;
+      }
+      if (merged == 1) {
+        rsc_dup.rtype_merged[RESTORE_SWITCHABLE - 1] = true;
+      }
     }
     switch (visited_rtype) {
       case RESTORE_NONE:
@@ -2703,6 +2739,9 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src,
 #endif  // CONFIG_WIENER_NONSEP
 
   for (int plane = plane_start; plane <= plane_end; ++plane) {
+#if CONFIG_RST_MERGECOEFFS
+    cm->frame_contains_merge[plane] = false;
+#endif  // CONFIG_RST_MERGECOEFFS
     init_rsc(src, &cpi->common, &cpi->td.mb, &cpi->sf, plane, rusi,
              &cpi->trial_frame_rst,
 #if CONFIG_LOOP_RESTORE_CNN
@@ -2745,6 +2784,10 @@ void av1_pick_filter_restoration(const YV12_BUFFER_CONFIG *src,
       assert(best_rtype == force_restore_type || best_rtype == RESTORE_NONE);
 
     if (best_rtype != RESTORE_NONE) {
+#if CONFIG_RST_MERGECOEFFS
+      cm->frame_contains_merge[plane] = rsc.rtype_merged[best_rtype - 1];
+#endif  // CONFIG_RST_MERGECOEFFS
+
       for (int u = 0; u < plane_ntiles; ++u) {
         copy_unit_info(best_rtype, &rusi[u], &cm->rst_info[plane].unit_info[u]);
       }
