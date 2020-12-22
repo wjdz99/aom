@@ -4223,6 +4223,9 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
 #if !CONFIG_REMOVE_DUAL_FILTER
     seq_params->enable_dual_filter = 0;
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
+#if CONFIG_NEW_REF_SIGNALING
+    assert(0 && "Reduced Still Picture Header Incompatible With NEW_REF_SIGNALING\n");
+#endif
     seq_params->order_hint_info.enable_order_hint = 0;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
     seq_params->order_hint_info.enable_dist_wtd_comp = 0;
@@ -4530,6 +4533,7 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   aom_s_frame_info *sframe_info = &pbi->sframe_info;
   sframe_info->is_s_frame = 0;
   sframe_info->is_s_frame_at_altref = 0;
+    printf("order hint %d\n", seq_params->order_hint_info.enable_order_hint);
 
   if (!pbi->sequence_header_ready) {
     aom_internal_error(&cm->error, AOM_CODEC_CORRUPT_FRAME,
