@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "154352d9_207ecc2d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Thanks for your review.",
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d442670_d8e5fea6",
@@ -14,6 +31,30 @@
       "writtenOn": "2020-12-21T22:25:20Z",
       "side": 1,
       "message": "const int",
+      "range": {
+        "startLine": 1861,
+        "startChar": 2,
+        "endLine": 1861,
+        "endChar": 5
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41e60a9e_63731528",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3d442670_d8e5fea6",
       "range": {
         "startLine": 1861,
         "startChar": 2,
@@ -49,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "47416123_209a8737",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "currently, SDP is only applied to intra frame, so for intra frame, both cm-\u003etree_type \u003d\u003d CHROMA_TYPE and (plane \u003e 0) has the same meaning. But for inter frame, cm-\u003etree_type is equal to SHARED_TYPE for luma and chroma component.",
+      "parentUuid": "2e9b486e_3103028d",
+      "range": {
+        "startLine": 199,
+        "startChar": 2,
+        "endLine": 199,
+        "endChar": 5
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "36c58aab_ef9c8e4c",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 17
@@ -60,6 +125,30 @@
       "writtenOn": "2020-12-21T22:25:20Z",
       "side": 1,
       "message": "The two #if..#else..#endif may be combined",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 6
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d2c2e64_c3b63389",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "36c58aab_ef9c8e4c",
       "range": {
         "startLine": 213,
         "startChar": 0,
@@ -95,6 +184,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8a9c9d13_0f3b8c38",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Same with previous answer.\n\ncurrently, SDP is only applied to intra frame, so for intra frame, both cm-\u003etree_type \u003d\u003d CHROMA_TYPE and (plane \u003e 0) has the same meaning. But for inter frame, cm-\u003etree_type is equal to SHARED_TYPE for luma and chroma component.",
+      "parentUuid": "b898b6f5_cb1dd4c9",
+      "range": {
+        "startLine": 301,
+        "startChar": 26,
+        "endLine": 301,
+        "endChar": 54
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4c295c41_3b037a72",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 17
@@ -118,6 +231,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1ca44122_18020fe9",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "See the above answer.",
+      "parentUuid": "4c295c41_3b037a72",
+      "range": {
+        "startLine": 322,
+        "startChar": 33,
+        "endLine": 322,
+        "endChar": 61
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "72eafde8_9f57402c",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 17
@@ -129,6 +266,30 @@
       "writtenOn": "2020-12-21T22:25:20Z",
       "side": 1,
       "message": "can directly use \"plane \u003e 0\"",
+      "range": {
+        "startLine": 329,
+        "startChar": 28,
+        "endLine": 329,
+        "endChar": 45
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb5811f3_4a716d3f",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "72eafde8_9f57402c",
       "range": {
         "startLine": 329,
         "startChar": 28,
@@ -164,6 +325,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7c7c34f5_7d48832a",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Originally, we want to have different tree for Y, U, and V components separately. And we haven\u0027t tired this yes. In this implementation, U and V share the same partition. I will change MAX_MB_PLANE is 2 in the next patch.",
+      "parentUuid": "1435adcf_c7a7a80f",
+      "range": {
+        "startLine": 242,
+        "startChar": 0,
+        "endLine": 249,
+        "endChar": 6
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e3557cc1_a20cd0f6",
         "filename": "av1/common/blockd.h",
         "patchSetId": 17
@@ -175,6 +360,30 @@
       "writtenOn": "2020-12-21T22:58:21Z",
       "side": 1,
       "message": "Maybe we only need 2 elements in skip_txfm[]?",
+      "range": {
+        "startLine": 260,
+        "startChar": 19,
+        "endLine": 260,
+        "endChar": 31
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3c8287e_11b16f2e",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e3557cc1_a20cd0f6",
       "range": {
         "startLine": 260,
         "startChar": 19,
@@ -208,6 +417,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd70157a_8855cf36",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6d604c87_45c4b46e",
+      "range": {
+        "startLine": 673,
+        "startChar": 0,
+        "endLine": 673,
+        "endChar": 0
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c86759c_7631bdf5",
@@ -231,6 +464,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "940e0911_0f2247c2",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 686,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1c86759c_7631bdf5",
+      "range": {
+        "startLine": 686,
+        "startChar": 28,
+        "endLine": 686,
+        "endChar": 31
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "63225310_22a55b2d",
@@ -244,6 +501,30 @@
       "writtenOn": "2020-12-21T22:58:21Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 693,
+        "startChar": 5,
+        "endLine": 693,
+        "endChar": 30
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15cb6591_c185b6e3",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-22T05:41:05Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "63225310_22a55b2d",
       "range": {
         "startLine": 693,
         "startChar": 5,
