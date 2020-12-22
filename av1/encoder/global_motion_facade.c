@@ -22,27 +22,39 @@
 
 // Computes the cost for the warp parameters.
 static int gm_get_params_cost(const WarpedMotionParams *gm,
-                              const WarpedMotionParams *ref_gm, int allow_hp) {
+                              const WarpedMotionParams *ref_gm, int allow_hp,
+                              int frame) {
+  uint16_t k, n;
+#if CONFIG_GM_MODEL_CODING
+  if (frame != LAST_FRAME) {
+    k = GM_DIFF_SUBEXPFIN_K;
+    n = GM_DIFF_ALPHA_MAX + 1;
+  } else {
+    k = SUBEXPFIN_K;
+    n = GM_ALPHA_MAX + 1;
+  }
+#else
+  k = SUBEXPFIN_K;
+  n = GM_ALPHA_MAX + 1;
+#endif  // CONFIG_GM_MODEL_CODING
   int params_cost = 0;
   int trans_bits, trans_prec_diff;
   switch (gm->wmtype) {
     case AFFINE:
     case ROTZOOM:
       params_cost += aom_count_signed_primitive_refsubexpfin(
-          GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+          n, k,
           (ref_gm->wmmat[2] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS),
           (gm->wmmat[2] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
       params_cost += aom_count_signed_primitive_refsubexpfin(
-          GM_ALPHA_MAX + 1, SUBEXPFIN_K,
-          (ref_gm->wmmat[3] >> GM_ALPHA_PREC_DIFF),
+          n, k, (ref_gm->wmmat[3] >> GM_ALPHA_PREC_DIFF),
           (gm->wmmat[3] >> GM_ALPHA_PREC_DIFF));
       if (gm->wmtype >= AFFINE) {
         params_cost += aom_count_signed_primitive_refsubexpfin(
-            GM_ALPHA_MAX + 1, SUBEXPFIN_K,
-            (ref_gm->wmmat[4] >> GM_ALPHA_PREC_DIFF),
+            n, k, (ref_gm->wmmat[4] >> GM_ALPHA_PREC_DIFF),
             (gm->wmmat[4] >> GM_ALPHA_PREC_DIFF));
         params_cost += aom_count_signed_primitive_refsubexpfin(
-            GM_ALPHA_MAX + 1, SUBEXPFIN_K,
+            n, k,
             (ref_gm->wmmat[5] >> GM_ALPHA_PREC_DIFF) -
                 (1 << GM_ALPHA_PREC_BITS),
             (gm->wmmat[5] >> GM_ALPHA_PREC_DIFF) - (1 << GM_ALPHA_PREC_BITS));
@@ -56,12 +68,10 @@ static int gm_get_params_cost(const WarpedMotionParams *gm,
                             ? GM_TRANS_ONLY_PREC_DIFF + !allow_hp
                             : GM_TRANS_PREC_DIFF;
       params_cost += aom_count_signed_primitive_refsubexpfin(
-          (1 << trans_bits) + 1, SUBEXPFIN_K,
-          (ref_gm->wmmat[0] >> trans_prec_diff),
+          (1 << trans_bits) + 1, k, (ref_gm->wmmat[0] >> trans_prec_diff),
           (gm->wmmat[0] >> trans_prec_diff));
       params_cost += aom_count_signed_primitive_refsubexpfin(
-          (1 << trans_bits) + 1, SUBEXPFIN_K,
-          (ref_gm->wmmat[1] >> trans_prec_diff),
+          (1 << trans_bits) + 1, k, (ref_gm->wmmat[1] >> trans_prec_diff),
           (gm->wmmat[1] >> trans_prec_diff));
       AOM_FALLTHROUGH_INTENDED;
     case IDENTITY: break;
@@ -229,7 +239,7 @@ void av1_compute_gm_for_valid_ref_frames(
 
   gm_info->params_cost[frame] =
       gm_get_params_cost(&cm->global_motion[frame], ref_params,
-                         cm->features.allow_high_precision_mv) +
+                         cm->features.allow_high_precision_mv, frame) +
       gm_info->type_cost[cm->global_motion[frame].wmtype] -
       gm_info->type_cost[IDENTITY];
 }
