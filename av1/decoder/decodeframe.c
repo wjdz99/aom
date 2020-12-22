@@ -4223,6 +4223,9 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
 #if !CONFIG_REMOVE_DUAL_FILTER
     seq_params->enable_dual_filter = 0;
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
+#if CONFIG_NEW_REF_SIGNALING
+    assert(0 && "Reduced Still Picture Header Incompatible With NEW_REF_SIGNALING\n");
+#endif
     seq_params->order_hint_info.enable_order_hint = 0;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
     seq_params->order_hint_info.enable_dist_wtd_comp = 0;
@@ -4239,7 +4242,11 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
     seq_params->enable_dual_filter = aom_rb_read_bit(rb);
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
 
+#if CONFIG_NEW_REF_SIGNALING
+    seq_params->order_hint_info.enable_order_hint = 1;
+#else
     seq_params->order_hint_info.enable_order_hint = aom_rb_read_bit(rb);
+#endif  // CONFIG_NEW_REF_SIGNALING
 #if !CONFIG_REMOVE_DIST_WTD_COMP
     seq_params->order_hint_info.enable_dist_wtd_comp =
         seq_params->order_hint_info.enable_order_hint ? aom_rb_read_bit(rb) : 0;
