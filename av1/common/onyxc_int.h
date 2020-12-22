@@ -510,6 +510,10 @@ typedef struct AV1Common {
   int superres_upscaled_width;
   int superres_upscaled_height;
   RestorationInfo rst_info[MAX_MB_PLANE];
+#if CONFIG_RST_MERGECOEFFS
+  // Indicates if there are any merged filters in frame.
+  bool frame_contains_merge;
+#endif  // CONFIG_RST_MERGECOEFFS
 
   // Pointer to a scratch buffer used by self-guided restoration
   int32_t *rst_tmpbuf;
