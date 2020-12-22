@@ -748,6 +748,22 @@ struct CommonContexts {
   int num_mi_cols;   /*!< Corresponds to cm->mi_params.mi_cols */
 };
 
+
+#if CONFIG_NEW_REF_SIGNALING
+typedef struct {
+  int ref_frame_map[REF_FRAMES]; 
+  int n_total_refs;
+  int future_refs[REF_FRAMES];
+  int n_future_refs;
+  int past_refs[REF_FRAMES];
+  int n_past_refs;
+
+  // These are temporary until the named references are fully removed
+  int named_ref_to_ref_frame_map[REF_FRAMES];
+  int ref_frame_map_to_named_ref[REF_FRAMES];
+} RefFrames;
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 /*!
  * \brief Top level common structure used by both encoder and decoder.
  */
@@ -864,6 +880,10 @@ typedef struct AV1Common {
    * have a remapped index for the same.
    */
   int remapped_ref_idx[REF_FRAMES];
+
+#if CONFIG_NEW_REF_SIGNALING
+  RefFrames new_ref_frame_map;
+#endif
 
   /*!
    * Scale of the current frame with respect to itself.
