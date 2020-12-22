@@ -270,17 +270,6 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
 }
 
-// On success, returns the frame header size. On failure, calls
-// aom_internal_error and does not return.
-static uint32_t read_frame_header_obu(AV1Decoder *pbi,
-                                      struct aom_read_bit_buffer *rb,
-                                      const uint8_t *data,
-                                      const uint8_t **p_data_end,
-                                      int trailing_bits_present) {
-  return av1_decode_frame_headers_and_setup(pbi, rb, data, p_data_end,
-                                            trailing_bits_present);
-}
-
 // On success, returns the tile group header size. On failure, calls
 // aom_internal_error() and returns -1.
 static int32_t read_tile_group_header(AV1Decoder *pbi,
@@ -961,8 +950,8 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         // Only decode first frame header received
         if (!pbi->seen_frame_header ||
             (cm->tiles.large_scale && !pbi->camera_frame_header_ready)) {
-          frame_header_size = read_frame_header_obu(
-              pbi, &rb, data, p_data_end, obu_header.type != OBU_FRAME);
+          frame_header_size = av1_decode_frame_headers_and_setup(
+              pbi, &rb, obu_header.type != OBU_FRAME);
           frame_header = data;
           pbi->seen_frame_header = 1;
           if (!pbi->ext_tile_debug && cm->tiles.large_scale)
