@@ -270,17 +270,6 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
   return ((rb->bit_offset - saved_bit_offset + 7) >> 3);
 }
 
-// On success, returns the frame header size. On failure, calls
-// aom_internal_error and does not return.
-static uint32_t read_frame_header_obu(AV1Decoder *pbi,
-                                      struct aom_read_bit_buffer *rb,
-                                      const uint8_t *data,
-                                      const uint8_t **p_data_end,
-                                      int trailing_bits_present) {
-  return av1_decode_frame_headers_and_setup(pbi, rb, data, p_data_end,
-                                            trailing_bits_present);
-}
-
 // On success, returns the tile group header size. On failure, calls
 // aom_internal_error() and returns -1.
 static int32_t read_tile_group_header(AV1Decoder *pbi,
@@ -837,6 +826,23 @@ static size_t read_padding(AV1_COMMON *const cm, const uint8_t *data,
     }
   }
   return sz;
+}
+
+// On success, returns the frame header size. On failure, calls
+// aom_internal_error and does not return. If show existing frame,
+// also marks the data processing to end after the frame header.
+static uint32_t read_frame_header_obu(AV1Decoder *pbi,
+                                      struct aom_read_bit_buffer *rb,
+                                      const uint8_t *data,
+                                      const uint8_t **p_data_end,
+                                      int trailing_bits_present) {
+  uint32_t result =
+      av1_decode_frame_headers_and_setup(pbi, rb, trailing_bits_present);
+  const AV1_COMMON *cm = &pbi->common;
+  if (cm->show_existing_frame) {
+    *p_data_end = data + result;
+  }
+  return result;
 }
 
 // On success, returns a boolean that indicates whether the decoding of the
