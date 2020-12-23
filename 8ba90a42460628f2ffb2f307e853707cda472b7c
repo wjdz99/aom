@@ -207,6 +207,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2988d83_515c8ee6",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-12-23T00:54:23Z",
+      "side": 1,
+      "message": "Sure",
+      "parentUuid": "b2d36e56_4217afcb",
+      "range": {
+        "startLine": 48,
+        "startChar": 11,
+        "endLine": 48,
+        "endChar": 25
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c09949f8_425ca47f",
@@ -268,6 +292,30 @@
       "side": 1,
       "message": "\"vert_tap !\u003d 12\" doesn\u0027t sound clear. Can you double check if this can be changed to \"vert_tap \u003d\u003d 8\"?\n\nOtherwise, the following style sounds better.\nif (4 taps)\n  ...\nelse if (6 taps)\n  ...\nelse if (12 taps)\n  ...\nelse\n  ...  // cover all other taps",
       "parentUuid": "25c87fdb_6e515c67",
+      "range": {
+        "startLine": 251,
+        "startChar": 13,
+        "endLine": 251,
+        "endChar": 27
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbde6983_4a385d4d",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-12-23T00:54:23Z",
+      "side": 1,
+      "message": "Sure. doing vert_tap\u003d\u003d8",
+      "parentUuid": "395f87a1_e7684f2e",
       "range": {
         "startLine": 251,
         "startChar": 13,
@@ -396,6 +444,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b0483de_9efe823d",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-12-23T00:54:23Z",
+      "side": 1,
+      "message": "4 and 8. will do if 12tap or else as in vert_tap",
+      "parentUuid": "112f6274_4dc8718c",
+      "range": {
+        "startLine": 555,
+        "startChar": 11,
+        "endLine": 555,
+        "endChar": 26
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "15281a2b_b6e1f629",
@@ -457,6 +529,30 @@
       "side": 1,
       "message": "same here",
       "parentUuid": "ccea5706_fc1ff2cf",
+      "range": {
+        "startLine": 704,
+        "startChar": 13,
+        "endLine": 704,
+        "endChar": 28
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2602449d_42b5ac24",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2020-12-23T00:54:23Z",
+      "side": 1,
+      "message": "will do horiz_tap \u003d\u003d 8",
+      "parentUuid": "d7add9c5_43630adf",
       "range": {
         "startLine": 704,
         "startChar": 13,
