@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e22eda6e_80644b9f",
+        "filename": "common/args.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-23T20:01:29Z",
+      "side": 1,
+      "message": "Do you mean something like this?\nchar err_msg[ERR_MSG_MAX_LEN] \u003d {\u0027\\0\u0027}\n\nJust wondering, what\u0027s the advantage of this over the current?\nchar err_msg[ERR_MSG_MAX_LEN] \u003d \"\"",
+      "parentUuid": "cb4f4e4e_cce1c07c",
+      "range": {
+        "startLine": 121,
+        "startChar": 34,
+        "endLine": 121,
+        "endChar": 37
+      },
+      "revId": "730b3862670bf93a763d53da63c1c1d140799487",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "07bbe64c_5e3b2a15",
         "filename": "common/args_helper.c",
         "patchSetId": 7
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-23T19:26:48Z",
       "side": 1,
       "message": "I think you want ERR_MSG_MAX_LEN - 1. A message of length ERR_MSG_MAX_LEN is going to overwrite the terminating 0, no?",
+      "range": {
+        "startLine": 25,
+        "startChar": 33,
+        "endLine": 25,
+        "endChar": 48
+      },
+      "revId": "730b3862670bf93a763d53da63c1c1d140799487",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "770efeec_a776ac55",
+        "filename": "common/args_helper.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-23T20:01:29Z",
+      "side": 1,
+      "message": "Yes, indeed. I\u0027ve corrected this in the new patch. Thanks for the correction!",
+      "parentUuid": "07bbe64c_5e3b2a15",
       "range": {
         "startLine": 25,
         "startChar": 33,
