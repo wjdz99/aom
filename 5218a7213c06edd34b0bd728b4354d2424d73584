@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "00d07bbf_b8219183",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: at \u003d\u003e in",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "51b40e4c_a5026fc5",
@@ -14,6 +31,279 @@
       "writtenOn": "2020-12-23T20:55:21Z",
       "side": 1,
       "message": "Hi Bohan. I will review this CL today.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2cddfc7_d13a688f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "This looks good. I suggest some changes (they are all about minor issues or comments).",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1a35074_e24ffeda",
+        "filename": "common/args.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: Delete this. This is already included by common/args.h.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc5ede01_23db55c7",
+        "filename": "common/args.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: Omit the \u003d \"\" initializer. This is taken care of by the helper functions. Did the static analyzer warn about this?\n\nPlease make the same change to all the helper functions.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8c1992e_effe2ea9",
+        "filename": "common/args.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit/optional: It is faster to test err_msg[0] !\u003d \u0027\\0\u0027 instead.\n\nI believe that current compilers recognize this pattern and will transform this to err_msg[0] !\u003d \u0027\\0\u0027 for us. So you can leave this unchanged if you think this is more readable.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0af69610_80beca2e",
+        "filename": "common/args_helper.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: Our Style Guide recommend that args_helper.c includes args_helper.h first. (If the style check warns about that, you can ignore the warning.)",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34b315b1_5021f690",
+        "filename": "common/args_helper.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: Delete these four headers. They are not needed.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 26
+      },
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdb8644d_aad694e0",
+        "filename": "common/args_helper.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "We can pass ERR_MSG_MAX_LEN as the second argument to snprintf().\n\nNote: If you use ERR_MSG_MAX_LEN - 1, you may be handling the _snprintf() function in Visual C++. That function does not null-terminate the output buffer if the error message is too long. Older versions of Visual C++ only has _snprintf(). Recent versions of Visual C++ have snprintf(), which always null-terminate the output buffer. See the Remarks section in this MSDN page for Visual Studio 2015:\n\nhttps://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/snprintf-snprintf-snprintf-l-snwprintf-snwprintf-l?view\u003dmsvc-140\n\n\"The snprintf function and the _snprintf family of functions format and store count or fewer characters in buffer. The snprintf function always stores a terminating null character, truncating the output if necessary. The _snprintf family of functions only appends a terminating null character if the formatted string length is strictly less than count characters.\"\n\n\"Beginning with the UCRT in Visual Studio 2015 and Windows 10, snprintf is no longer identical to _snprintf. The snprintf function behavior is now C99 standard compliant.\"",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a4fe69f_68825410",
+        "filename": "common/args_helper.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: It would look nicer to add a blank line to separate the variable declarations from this line, to preserve the formatting of the original code.\n\nPlease make the same change to all the helper functions.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f38af70_fa003767",
+        "filename": "common/args_helper.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "[Just a comment, no change requested] Because we have already set rat.num at line 146, we will not be returning { 0, 1 } from here and at line 170 on error. I think this is fine.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f6ba5fb_435b78cc",
+        "filename": "common/args_helper.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: change copyright year to 2020.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5383fb5c_782b7ff6",
+        "filename": "common/args_helper.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: Delete these three headers. They are not needed in this file.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 28
+      },
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f7bd7b0_308add4b",
+        "filename": "common/args_helper.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "1. Document this macro. I think it is the size of the err_msg buffer passed to the helper functions.\n\n2. Add the ARG_ prefix to the macro\u0027s name: ARG_ERR_MSG_MAX_LEN",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "148bd5de_d1c46def",
+        "filename": "common/args_helper.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "We need to document how these helper functions report an error. And the fact that err_msg is optional and, if provided, must be at least ERR_MSG_MAX_LEN bytes long.",
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "938c5f99_02c1ddb3",
+        "filename": "common/args_helper.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "These two functions are not used by args_helper.cc. So they should remain in args.c. In fact, they should become static functions; we don\u0027t need to declare them in args.h.",
+      "range": {
+        "startLine": 59,
+        "startChar": 0,
+        "endLine": 60,
+        "endChar": 34
+      },
+      "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8008b231_97d9d706",
+        "filename": "common/args_helper.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:41:41Z",
+      "side": 1,
+      "message": "Nit: Add a blank line after this line.",
       "revId": "5218a7213c06edd34b0bd728b4354d2424d73584",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
