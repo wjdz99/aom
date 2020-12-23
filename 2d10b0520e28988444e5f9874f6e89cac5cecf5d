@@ -34,6 +34,24 @@
       "parentUuid": "4e67e7bd_e3b8ce91",
       "revId": "2d10b0520e28988444e5f9874f6e89cac5cecf5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68e3922b_ad370c5c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 6379,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-23T23:54:09Z",
+      "side": 1,
+      "message": "Bohan: Sorry I forgot to reply. I explained this in https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d2872#c4.\n\nOne side effect of this av1_setup_frame_size(cpi) call is that it allocates the frame buffer cm-\u003ecur_frame-\u003ebuf.\n\nThe CL I want to merge requires another commit:\n  Disable TPL when lag in frames is 1\n  https://aomedia-review.googlesource.com/c/aom/+/114382\n\nIf we disable TPL when lag in frames is 1, then some tests crash because cm-\u003ecur_frame-\u003ebuf is not allocated and therefore contains null pointers. I did not get to the bottom of this, but I suspect the reason is that one side effect of TPL is to allocate cm-\u003ecur_frame-\u003ebuf. So, one way to make up for that is to add this av1_setup_frame_size(cpi) call.\n\nI believe the \"Disable TPL when lag in frames is 1\" commit implicitly depends on this av1_setup_frame_size(cpi) call, because those tests crash if I manually remove this av1_setup_frame_size(cpi) call.",
+      "parentUuid": "dbbbc800_c3f820ec",
+      "revId": "2d10b0520e28988444e5f9874f6e89cac5cecf5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
