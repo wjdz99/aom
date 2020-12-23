@@ -185,6 +185,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b2d36e56_4217afcb",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-23T00:37:23Z",
+      "side": 1,
+      "message": "yes. we use 8-tap filter too. just feel the code here can be refactored as follows:\nif (6 taps)\n  ...\nelse if (12 taps)\n  ...\nelse\n  ...  // cover all other taps",
+      "parentUuid": "5975d9ae_e698e428",
+      "range": {
+        "startLine": 48,
+        "startChar": 11,
+        "endLine": 48,
+        "endChar": 25
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c09949f8_425ca47f",
         "filename": "av1/common/x86/convolve_avx2.c",
         "patchSetId": 4
@@ -220,6 +244,30 @@
       "side": 1,
       "message": "Legacy code. I have added only the if condition to make sure it doesn\u0027t do 12-tap.",
       "parentUuid": "c09949f8_425ca47f",
+      "range": {
+        "startLine": 251,
+        "startChar": 13,
+        "endLine": 251,
+        "endChar": 27
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "395f87a1_e7684f2e",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-23T00:37:23Z",
+      "side": 1,
+      "message": "\"vert_tap !\u003d 12\" doesn\u0027t sound clear. Can you double check if this can be changed to \"vert_tap \u003d\u003d 8\"?\n\nOtherwise, the following style sounds better.\nif (4 taps)\n  ...\nelse if (6 taps)\n  ...\nelse if (12 taps)\n  ...\nelse\n  ...  // cover all other taps",
+      "parentUuid": "25c87fdb_6e515c67",
       "range": {
         "startLine": 251,
         "startChar": 13,
@@ -326,6 +374,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "112f6274_4dc8718c",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-23T00:37:23Z",
+      "side": 1,
+      "message": "see above comment.",
+      "parentUuid": "50d99377_16c0be32",
+      "range": {
+        "startLine": 555,
+        "startChar": 11,
+        "endLine": 555,
+        "endChar": 26
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "15281a2b_b6e1f629",
         "filename": "av1/common/x86/convolve_avx2.c",
         "patchSetId": 4
@@ -361,6 +433,30 @@
       "side": 1,
       "message": "Legacy code. same reason as above.",
       "parentUuid": "15281a2b_b6e1f629",
+      "range": {
+        "startLine": 704,
+        "startChar": 13,
+        "endLine": 704,
+        "endChar": 28
+      },
+      "revId": "8ba90a42460628f2ffb2f307e853707cda472b7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7add9c5_43630adf",
+        "filename": "av1/common/x86/convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2020-12-23T00:37:23Z",
+      "side": 1,
+      "message": "same here",
+      "parentUuid": "ccea5706_fc1ff2cf",
       "range": {
         "startLine": 704,
         "startChar": 13,
