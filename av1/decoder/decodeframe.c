@@ -5123,8 +5123,7 @@ static AOM_INLINE void superres_post_decode(AV1Decoder *pbi) {
 #endif
 
 uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
-                                            struct aom_read_bit_buffer *rb,
-                                            int trailing_bits_present) {
+                                            struct aom_read_bit_buffer *rb) {
   AV1_COMMON *const cm = &pbi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &pbi->dcb.xd;
@@ -5144,8 +5143,6 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
   xd->global_motion = cm->global_motion;
 
   read_uncompressed_header(pbi, rb);
-
-  if (trailing_bits_present) av1_check_trailing_bits(pbi, rb);
 
   if (!cm->tiles.single_tile_decoding &&
       (pbi->dec_tile_row >= 0 || pbi->dec_tile_col >= 0)) {

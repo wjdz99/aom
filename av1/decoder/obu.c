@@ -276,10 +276,8 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
 static uint32_t read_frame_header_obu(AV1Decoder *pbi,
                                       struct aom_read_bit_buffer *rb,
                                       const uint8_t *data,
-                                      const uint8_t **p_data_end,
-                                      int trailing_bits_present) {
-  const uint32_t hdr_size =
-      av1_decode_frame_headers_and_setup(pbi, rb, trailing_bits_present);
+                                      const uint8_t **p_data_end) {
+  const uint32_t hdr_size = av1_decode_frame_headers_and_setup(pbi, rb);
   const AV1_COMMON *cm = &pbi->common;
   if (cm->show_existing_frame) {
     *p_data_end = data + hdr_size;
@@ -967,8 +965,7 @@ int aom_decode_frame_from_obus(struct AV1Decoder *pbi, const uint8_t *data,
         // Only decode first frame header received
         if (!pbi->seen_frame_header ||
             (cm->tiles.large_scale && !pbi->camera_frame_header_ready)) {
-          frame_header_size = read_frame_header_obu(
-              pbi, &rb, data, p_data_end, obu_header.type != OBU_FRAME);
+          frame_header_size = read_frame_header_obu(pbi, &rb, data, p_data_end);
           frame_header = data;
           pbi->seen_frame_header = 1;
           if (!pbi->ext_tile_debug && cm->tiles.large_scale)
