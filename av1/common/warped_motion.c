@@ -859,13 +859,13 @@ void av1_warp_plane(WarpedMotionParams *wm, int use_hbd, int bd,
 // By setting LS_STEP = 8, the least 2 bits of every elements in A, Bx, By are
 // 0. So, we can reduce LS_MAT_RANGE_BITS(2) bits here.
 #define LS_SQUARE(a)                                          \
-  (((a) * (a)*4 + (a)*4 * LS_STEP + LS_STEP * LS_STEP * 2) >> \
+  (((a) * (a)*4) >> \
    (2 + LS_MAT_DOWN_BITS))
 #define LS_PRODUCT1(a, b)                                           \
-  (((a) * (b)*4 + ((a) + (b)) * 2 * LS_STEP + LS_STEP * LS_STEP) >> \
+  (((a) * (b)*4) >> \
    (2 + LS_MAT_DOWN_BITS))
 #define LS_PRODUCT2(a, b)                                               \
-  (((a) * (b)*4 + ((a) + (b)) * 2 * LS_STEP + LS_STEP * LS_STEP * 2) >> \
+  (((a) * (b)*4) >> \
    (2 + LS_MAT_DOWN_BITS))
 
 #define USE_LIMITED_PREC_MULT 0
@@ -1003,6 +1003,23 @@ static int find_affine_int(int np, const int *pts1, const int *pts2,
     }
   }
 
+  int64_t Det = (int64_t)A[0][0] * A[1][1] - (int64_t)A[0][1] * A[0][1];
+  if (Det == 0) return 1;
+
+  int64_t t = A[0][0] + A[1][1];
+  int64_t d = A[0][0] * A[1][1] - A[0][1] * A[0][1];
+  
+  int ev1 = (int)(t / 2 + sqrt((t * t) / 4 - d));
+  int ev2 = (int)(t / 2 - sqrt((t * t) / 4 - d));
+
+  int32_t norm = AOMMAX(8, AOMMIN(abs(ev1), abs(ev2)) / 64);
+
+  // fprintf(stderr, "(0, 0) = %d, (1, 1) = %d, lambda = (%d, %d)\n",
+  //     A[0][0], A[1][1], ev1, ev2);
+
+  A[0][0] += norm;
+  A[1][1] += norm;
+
   // Just for debugging, and can be removed later.
   assert(A[0][0] >= LS_MAT_MIN && A[0][0] <= LS_MAT_MAX);
   assert(A[0][1] >= LS_MAT_MIN && A[0][1] <= LS_MAT_MAX);
@@ -1013,7 +1030,7 @@ static int find_affine_int(int np, const int *pts1, const int *pts2,
   assert(By[1] >= LS_MAT_MIN && By[1] <= LS_MAT_MAX);
 
   // Compute Determinant of A
-  const int64_t Det = (int64_t)A[0][0] * A[1][1] - (int64_t)A[0][1] * A[0][1];
+  Det = (int64_t)A[0][0] * A[1][1] - (int64_t)A[0][1] * A[0][1];
   if (Det == 0) return 1;
 
   int16_t shift;
