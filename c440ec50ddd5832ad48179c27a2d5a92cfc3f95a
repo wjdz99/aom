@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7f2f0a46_cfbd3f78",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-23T18:09:55Z",
+      "side": 1,
+      "message": "The default values are not modified. In AV1, luma and chroma component share the same partition, so there is only one CDF for the entropy model of partition among three components. However, when SDP is on, there are two partition structures for luma and chroma components. Since the statistics for luma and chroma component is different, it\u0027s better to use different CDF for them.",
+      "parentUuid": "59bf36eb_be091fa3",
+      "range": {
+        "startLine": 185,
+        "startChar": 4,
+        "endLine": 185,
+        "endChar": 25
+      },
+      "revId": "c440ec50ddd5832ad48179c27a2d5a92cfc3f95a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "41bdb81c_358fdb3e",
         "filename": "av1/common/mvref_common.c",
         "patchSetId": 18
@@ -37,6 +61,30 @@
       "writtenOn": "2020-12-23T09:31:41Z",
       "side": 1,
       "message": "const int",
+      "range": {
+        "startLine": 161,
+        "startChar": 2,
+        "endLine": 161,
+        "endChar": 5
+      },
+      "revId": "c440ec50ddd5832ad48179c27a2d5a92cfc3f95a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7754bbf_a3ad9d41",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-23T18:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "41bdb81c_358fdb3e",
       "range": {
         "startLine": 161,
         "startChar": 2,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ee85892_d6e7a10e",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-23T18:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7eb02830_4edbbbe2",
+      "range": {
+        "startLine": 1602,
+        "startChar": 35,
+        "endLine": 1602,
+        "endChar": 52
+      },
+      "revId": "c440ec50ddd5832ad48179c27a2d5a92cfc3f95a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d126c768_bbb0a962",
@@ -83,6 +155,30 @@
       "writtenOn": "2020-12-23T09:31:41Z",
       "side": 1,
       "message": "directly use \"cm-\u003etree_type \u003d\u003d CHROMA_PART\"?",
+      "range": {
+        "startLine": 162,
+        "startChar": 23,
+        "endLine": 162,
+        "endChar": 59
+      },
+      "revId": "c440ec50ddd5832ad48179c27a2d5a92cfc3f95a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e168c85e_948c6b35",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-23T18:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d126c768_bbb0a962",
       "range": {
         "startLine": 162,
         "startChar": 23,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce422f2b_d4595292",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-23T18:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4ad8caf9_fa8547b5",
+      "range": {
+        "startLine": 298,
+        "startChar": 50,
+        "endLine": 298,
+        "endChar": 67
+      },
+      "revId": "c440ec50ddd5832ad48179c27a2d5a92cfc3f95a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df61244d_51565421",
@@ -139,6 +259,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1dcb810d_c3d9ea9f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-23T18:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "df61244d_51565421",
+      "range": {
+        "startLine": 940,
+        "startChar": 41,
+        "endLine": 940,
+        "endChar": 58
+      },
+      "revId": "c440ec50ddd5832ad48179c27a2d5a92cfc3f95a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "62b52647_02b3f073",
@@ -152,6 +296,30 @@
       "writtenOn": "2020-12-23T09:33:13Z",
       "side": 1,
       "message": "AV2 Semi...  \"AV2\" is a tag that is used for bypassing some jenkins test",
+      "range": {
+        "startLine": 141,
+        "startChar": 40,
+        "endLine": 141,
+        "endChar": 41
+      },
+      "revId": "c440ec50ddd5832ad48179c27a2d5a92cfc3f95a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67224854_d0898001",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 18
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-23T18:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "62b52647_02b3f073",
       "range": {
         "startLine": 141,
         "startChar": 40,
