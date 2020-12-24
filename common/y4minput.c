@@ -95,6 +95,28 @@ static bool parse_string(char *dst, size_t len, const char *buf) {
   return true;
 }
 
+// Stores the color range in the y4m_ctx, returning 1 if successfully parsed,
+// 0 otherwise.
+static int parse_color_range(y4m_input *y4m_ctx, const char *buf) {
+  // Note that default is studio range.
+  if (strcmp(buf, "LIMITED") == 0) {
+    return 1;
+  }
+  if (strcmp(buf, "FULL") == 0) {
+    y4m_ctx->color_range = AOM_CR_FULL_RANGE;
+    return 1;
+  }
+  fprintf(stderr, "Unknown color range value: %s\n", buf);
+  return 0;
+}
+
+static int parse_metadata(y4m_input *y4m_ctx, const char *buf) {
+  if (strncmp(buf, "COLORRANGE=", 11) == 0) {
+    return parse_color_range(y4m_ctx, buf + 11);
+  }
+  return 1;  // No support for other metadata, just ignore them.
+}
+
 // Returns 1 if there is no tag, or if the tag is parsed successfully;
 // 0 otherwise. Note that the tag ends at the first space or newline
 // character.
@@ -123,6 +145,8 @@ static int parse_single_tag(const char *buf, y4m_input *y4m_ctx) {
       assert(y4m_ctx->chroma_type[strlen(buf) - 1] == '\0');
       return 1;
       /*Ignore unknown tags.*/
+    case 'X': return parse_metadata(y4m_ctx, buf + 1);
+    default: return 1;  // Skip the tag.
   }
 }
 
@@ -176,6 +200,7 @@ static int parse_tags(y4m_input *y4m_ctx, FILE *file) {
   y4m_ctx->par_d = 0;
   y4m_ctx->interlace = '?';
   snprintf(y4m_ctx->chroma_type, sizeof(y4m_ctx->chroma_type), "420");
+  y4m_ctx->color_range = AOM_CR_STUDIO_RANGE;
 
   // Find one tag at a time.
   char tag[256];
