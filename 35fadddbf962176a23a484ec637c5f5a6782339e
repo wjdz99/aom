@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5630fae_f10ab798",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Thanks Yue for your great efforts during review. I will address your comments in the next patch.\n\nGood to know that there is no major conflicts between SDP and ERP. ",
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1bc2149c_8b3ca6f4",
@@ -31,6 +48,30 @@
       "writtenOn": "2020-12-23T23:33:13Z",
       "side": 1,
       "message": "combine the 3 #if #endif",
+      "range": {
+        "startLine": 1439,
+        "startChar": 0,
+        "endLine": 1448,
+        "endChar": 14
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84d3cc9a_0485eed3",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1bc2149c_8b3ca6f4",
       "range": {
         "startLine": 1439,
         "startChar": 0,
@@ -64,6 +105,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e80975cf_2396252a",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 933,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "51f67543_49697fcb",
+      "range": {
+        "startLine": 931,
+        "startChar": 0,
+        "endLine": 933,
+        "endChar": 6
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b371eb57_372247f6",
@@ -77,6 +142,30 @@
       "writtenOn": "2020-12-23T23:33:13Z",
       "side": 1,
       "message": "xd-\u003etree_type \u003d\u003d CHROMA_PART",
+      "range": {
+        "startLine": 1723,
+        "startChar": 20,
+        "endLine": 1723,
+        "endChar": 56
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecee4ba7_ba2c9305",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1723,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b371eb57_372247f6",
       "range": {
         "startLine": 1723,
         "startChar": 20,
@@ -112,6 +201,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c1ff7fd9_b4c7220c",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 873,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "If tree_type is equal to LUMA_PART, then num_planes will be set to 1, and uv_dc_pred is 0. Therefore, uv_dc_pred will only be true when tree_type is equal to Shared_part or chroma_part.",
+      "parentUuid": "0b82de40_75ff82d1",
+      "range": {
+        "startLine": 873,
+        "startChar": 2,
+        "endLine": 873,
+        "endChar": 19
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "942e7c77_bf873599",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 19
@@ -123,6 +236,30 @@
       "writtenOn": "2020-12-24T00:23:09Z",
       "side": 1,
       "message": "it would be better to use { } here since the code for the operation below is multi-line.",
+      "range": {
+        "startLine": 1013,
+        "startChar": 34,
+        "endLine": 1013,
+        "endChar": 35
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93fff36f_0f1136f7",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "942e7c77_bf873599",
       "range": {
         "startLine": 1013,
         "startChar": 34,
@@ -158,6 +295,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2c8fa246_0e3a70e4",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2709,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "blk_params-\u003ebsize_at_least_8x8 \u003d (bsize \u003e\u003d BLOCK_8X8), so they are different. \n\nIf current tree_type is Chroma_part and yuv format is yuv420, block_8x8 means that the block size of U and V component is 4x4. In this case, Block_8x8 is not allowed to further split for chroma block.",
+      "parentUuid": "0ed12e53_5820a175",
+      "range": {
+        "startLine": 2708,
+        "startChar": 6,
+        "endLine": 2709,
+        "endChar": 58
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "30c5c879_20b8fd2a",
         "filename": "av1/encoder/partition_search.c",
         "patchSetId": 19
@@ -181,6 +342,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a420bca8_a90202f1",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2722,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Same answer as above.",
+      "parentUuid": "30c5c879_20b8fd2a",
+      "range": {
+        "startLine": 2722,
+        "startChar": 6,
+        "endLine": 2722,
+        "endChar": 57
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d1065e74_01eecd88",
         "filename": "av1/encoder/partition_search.c",
         "patchSetId": 19
@@ -192,6 +377,30 @@
       "writtenOn": "2020-12-24T00:03:50Z",
       "side": 1,
       "message": "ditto",
+      "range": {
+        "startLine": 2728,
+        "startChar": 5,
+        "endLine": 2728,
+        "endChar": 57
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d226810_372dd538",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2728,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Same answer as above",
+      "parentUuid": "d1065e74_01eecd88",
       "range": {
         "startLine": 2728,
         "startChar": 5,
@@ -251,6 +460,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6cb1c754_387fa518",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 3919,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "Sure, I will do it in the next patch.",
+      "parentUuid": "d640cc8e_fee31c81",
+      "range": {
+        "startLine": 3889,
+        "startChar": 0,
+        "endLine": 3919,
+        "endChar": 3
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c0b05393_6388094d",
         "filename": "av1/encoder/pickcdef.c",
         "patchSetId": 19
@@ -262,6 +495,30 @@
       "writtenOn": "2020-12-24T00:23:09Z",
       "side": 1,
       "message": "Just curious, why the 3 sizes above needs to be treated differently?",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 596,
+        "endChar": 27
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d92e8a10_293aaf25",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-24T07:08:40Z",
+      "side": 1,
+      "message": "In my understanding, CDEF is processed at 64x64 block unit level, which means all the coding blocks within one 64x64 block level share the same CDEF strength. So if current block is greater than 64x64, then it covers multiple 64x64 block units, which needs to be handled differently.",
+      "parentUuid": "c0b05393_6388094d",
       "range": {
         "startLine": 591,
         "startChar": 0,
