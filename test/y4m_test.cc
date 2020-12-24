@@ -177,4 +177,30 @@ TEST_P(Y4mVideoWriteTest, WriteTest) {
 
 INSTANTIATE_TEST_SUITE_P(C, Y4mVideoWriteTest,
                          ::testing::ValuesIn(kY4mTestVectors));
+
+static const char kY4MLongHeader[] =
+    "YUV4MPEG2 W4 H4 F30:1 Ip A0:0 C420jpeg XYSCSS=420JPEG XCOLORRANGE=LIMITED "
+    "XSOMEUNKNOWNMETADATA\n"
+    "FRAME\n"
+    "012345678912345601230123";
+
+TEST(Y4MHeaderTest, LongHeader) {
+  libaom_test::TempOutFile tmpfile_;
+  FILE *f = tmpfile_.file();
+  fwrite(kY4MLongHeader, 1, sizeof(kY4MLongHeader), f);
+  fflush(f);
+  EXPECT_EQ(0, fseek(f, 0, 0));
+
+  y4m_input y4m;
+  EXPECT_EQ(0, y4m_input_open(&y4m, f, NULL, 0, AOM_CSP_UNKNOWN,
+                              /*only_420=*/0));
+  EXPECT_EQ(4, y4m.pic_w);
+  EXPECT_EQ(4, y4m.pic_h);
+  EXPECT_EQ(30, y4m.fps_n);
+  EXPECT_EQ(1, y4m.fps_d);
+  EXPECT_EQ('p', y4m.interlace);
+  EXPECT_EQ(0, strcmp("420jpeg", y4m.chroma_type));
+  y4m_input_close(&y4m);
+}
+
 }  // namespace
