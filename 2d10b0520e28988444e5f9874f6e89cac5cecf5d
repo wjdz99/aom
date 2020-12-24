@@ -52,6 +52,24 @@
       "parentUuid": "dbbbc800_c3f820ec",
       "revId": "2d10b0520e28988444e5f9874f6e89cac5cecf5d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0601104b_0eef0f37",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 6379,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-24T07:11:28Z",
+      "side": 1,
+      "message": "I see, this makes sense. I can also confirm this now because your explanation reminded me of the reason of why it was in that CL, too. It was the same reason, since I was refactoring this part and re-arranging the functions, and without this line sometimes when TPL is skipped that pointer would be NULL. \n\nThanks for your detailed explanation!",
+      "parentUuid": "68e3922b_ad370c5c",
+      "revId": "2d10b0520e28988444e5f9874f6e89cac5cecf5d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
