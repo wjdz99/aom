@@ -55,10 +55,11 @@ struct y4m_input {
   enum aom_img_fmt aom_fmt;
   int bps;
   unsigned int bit_depth;
+  aom_color_range_t color_range;
 };
 
 /**
- * Open the input file, treating it as Y4M. |y4m_input| is filled in after
+ * Open the input file, treating it as Y4M. |y4m_ctx| is filled in after
  * reading it. Note that |csp| should only be set for 420 input, and the input
  * chroma is shifted if necessary. The code does not support the conversion
  * from co-located to vertical. The |skip_buffer| indicates bytes that were
