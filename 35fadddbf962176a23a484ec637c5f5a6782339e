@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1271a127_32e4926e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-24T00:23:09Z",
+      "side": 1,
+      "message": "Hi Leo, I have finished my first-round code review, most of them are cosmetic, it would be great if the trivial issues can be covered by revision here. Looks like there should not be major conflicts with ERP, but we do need to design the algorithm to combine them. As I mentioned in the comments for partition_search.c, it would be helpful if you can add a brief description of how luma split flag is calculated and how much chroma partition is derived from luma partition. Thank you very much for porting this tool, that is an impressive project.",
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1bc2149c_8b3ca6f4",
@@ -95,6 +112,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "942e7c77_bf873599",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-24T00:23:09Z",
+      "side": 1,
+      "message": "it would be better to use { } here since the code for the operation below is multi-line.",
+      "range": {
+        "startLine": 1013,
+        "startChar": 34,
+        "endLine": 1013,
+        "endChar": 35
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0ed12e53_5820a175",
         "filename": "av1/encoder/partition_search.c",
         "patchSetId": 19
@@ -180,6 +220,53 @@
         "startChar": 0,
         "endLine": 3919,
         "endChar": 3
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d640cc8e_fee31c81",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 3919,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-24T00:23:09Z",
+      "side": 1,
+      "message": "Sorry, I meant how luma_split_flag is calculated.",
+      "parentUuid": "9934a41b_42cf52d7",
+      "range": {
+        "startLine": 3889,
+        "startChar": 0,
+        "endLine": 3919,
+        "endChar": 3
+      },
+      "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0b05393_6388094d",
+        "filename": "av1/encoder/pickcdef.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-24T00:23:09Z",
+      "side": 1,
+      "message": "Just curious, why the 3 sizes above needs to be treated differently?",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 596,
+        "endChar": 27
       },
       "revId": "35fadddbf962176a23a484ec637c5f5a6782339e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
