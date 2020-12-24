@@ -73,7 +73,7 @@ void cfl_get_dc(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 #if CONFIG_CFL_SEARCH_VERSION_1
 void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                 CFL_PRED_TYPE pred_plane,
-                TX_SIZE txsize) {  // plane为0是U分量，为1是V分量
+                TX_SIZE txsize) { 
 
   int width = tx_size_wide[txsize];
   int height = tx_size_high[txsize];
@@ -83,17 +83,16 @@ void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 
   CFL_CTX *const cfl = &xd->cfl;
 
-  uint16_t *recon = cfl->recon_buf_q3;  //亮度重建像素
-  NeiborPix *rec_nb = cfl->recon_Neighbor;  //亮度重建上一行和左一列像素
+  uint16_t *recon = cfl->recon_buf_q3;  
+  NeiborPix *rec_nb = cfl->recon_Neighbor;  
 
   int flag = 0;
   int DValue;
-  // 搜索最佳值
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
       DValue = 1024;
       if (cfl->use_up) {
-        for (int k = 0; k < width; k++)  //遍历上一行像素
+        for (int k = 0; k < width; k++)  
         {
           if (abs(recon[i] - rec_nb[k].LumaPixel) < DValue) {
             DValue = abs(recon[i] - rec_nb[k].LumaPixel);
@@ -114,7 +113,7 @@ void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
       }
 
       if (cfl->use_left) {
-        for (int k = 0; k < height; k++)  //遍历左一列像素
+        for (int k = 0; k < height; k++)  
         {
           if (abs(recon[i] - rec_nb[CFL_BUF_LINE + k].LumaPixel) < DValue) {
             DValue = abs(recon[i] - rec_nb[CFL_BUF_LINE + k].LumaPixel);
@@ -137,7 +136,7 @@ void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 
       if (pred_plane == CFL_PRED_U) {
         dst[i] = rec_nb[flag].ChromCbPixel;
-      } else  // 0是U分量
+      } else  
       {
         dst[i] = rec_nb[flag].ChromCrPixel;
       }
