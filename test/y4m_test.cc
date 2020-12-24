@@ -199,6 +199,30 @@ TEST(Y4MHeaderTest, LongHeader) {
   EXPECT_EQ(1, y4m.fps_d);
   EXPECT_EQ('p', y4m.interlace);
   EXPECT_EQ(0, strcmp("420jpeg", y4m.chroma_type));
+  EXPECT_EQ(AOM_CR_STUDIO_RANGE, y4m.color_range);
+}
+
+static const char kY4MFullRangeHeader[] =
+    "YUV4MPEG2 W4 H4 F30:1 Ip A0:0 C420jpeg XYSCSS=420JPEG XCOLORRANGE=FULL\n"
+    "FRAME\n"
+    "012345678912345601230123";
+
+TEST(Y4MHeaderTest, FullRangeHeader) {
+  libaom_test::TempOutFile f;
+  fwrite(kY4MFullRangeHeader, 1, sizeof(kY4MFullRangeHeader), f.file());
+  fflush(f.file());
+  EXPECT_EQ(0, fseek(f.file(), 0, 0));
+
+  y4m_input y4m;
+  EXPECT_EQ(0, y4m_input_open(&y4m, f.file(), NULL, 0, AOM_CSP_UNKNOWN,
+                              /*only_420=*/0));
+  EXPECT_EQ(4, y4m.pic_w);
+  EXPECT_EQ(4, y4m.pic_h);
+  EXPECT_EQ(30, y4m.fps_n);
+  EXPECT_EQ(1, y4m.fps_d);
+  EXPECT_EQ('p', y4m.interlace);
+  EXPECT_EQ(0, strcmp("420jpeg", y4m.chroma_type));
+  EXPECT_EQ(AOM_CR_FULL_RANGE, y4m.color_range);
 }
 
 TEST(Y4MHeaderTest, WriteStudioColorRange) {
