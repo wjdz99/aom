@@ -5498,7 +5498,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   return AOM_CODEC_OK;
 }
 
-#define DUMP_RECON_FRAMES 0
+#define DUMP_RECON_FRAMES 1
 
 #if DUMP_RECON_FRAMES == 1
 // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
@@ -5541,7 +5541,9 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
   }
 
   int h;
+
   char file_name[256] = "/tmp/enc_filtered_recon.yuv";
+  
   FILE *f_recon = NULL;
 
   if (current_frame->frame_number == 0) {

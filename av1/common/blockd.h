@@ -992,15 +992,7 @@ typedef struct {
   DECLARE_ALIGNED(16, InterpKernel, vfilter);
   DECLARE_ALIGNED(16, InterpKernel, hfilter);
 } WienerInfo;
-#if CONFIG_CFL_SEARCH_VERSION_1
-typedef struct NeighborPixel {
-  uint16_t LumaPixel;
-  uint8_t ChromCbPixel;
-  uint8_t ChromCrPixel;
-  int positionx;
-  int positiony;
-} NeiborPix;
-#endif
+
 typedef struct {
   int ep;
   int xqd[2];
@@ -1036,16 +1028,15 @@ typedef struct cfl_ctx {
   uint16_t recon_buf_q3[CFL_BUF_SQUARE];
   // Q3 AC contributions (reconstructed luma pixels - tx block avg)
   int16_t ac_buf_q3[CFL_BUF_SQUARE];
-#if CONFIG_CFL_SEARCH_VERSION_1
-  NeiborPix recon_Neighbor[CFL_BUF_LINE << 1];
-#endif
-#if CONFIG_CFL_SEARCH_VERSION_1
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+  uint16_t neighDicCb[256];
+  uint16_t neighDicCr[256];
+  int neighNumCb[256];
+  int neighNumCr[256];
   int search_res_is_cached[CFL_PRED_PLANES];
   int use_search_res_cache;
   int16_t search_res_cache[CFL_PRED_PLANES][CFL_BUF_SQUARE];
   bool use_dc;
-  bool use_left;
-  bool use_up;
 #else
   // Cache the DC_PRED when performing RDO, so it does not have to be recomputed
   // for every scaling parameter
