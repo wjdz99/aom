@@ -1387,7 +1387,6 @@ void av1_mc_flow_dispenser_mt(AV1_COMP *cpi) {
 // Computes num_workers for temporal filter multi-threading.
 //TODO(nithya): Increase the no. of workers based on tf mb rows for speed-up.
 static AOM_INLINE int compute_num_tf_workers(AV1_COMP *cpi) {
-#if 0
   const int frame_height = cpi->common.height;
 
   if (cpi->oxcf.max_threads <= 1) return 1;
@@ -1396,9 +1395,6 @@ static AOM_INLINE int compute_num_tf_workers(AV1_COMP *cpi) {
   const int mb_height = block_size_high[block_size];
   const int mb_rows = get_num_blocks(frame_height, mb_height);
   return AOMMIN(cpi->oxcf.max_threads, mb_rows);
-#else
-  return av1_compute_num_enc_workers(cpi, cpi->oxcf.max_threads);
-#endif
 }
 
 // Deallocate memory for temporal filter multi-thread synchronization.
@@ -1871,11 +1867,10 @@ int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
   int num_mod_workers = 0;
   switch (mod_name) {
     case MOD_FP:
-      if (cpi->oxcf.pass == 2) num_mod_workers = 0;
-      // TODO(nithya): Call av1_fp_compute_num_enc_workers() for speed-up
+      if (cpi->oxcf.pass == 2)
+        num_mod_workers = 0;
       else
-        num_mod_workers =
-            av1_compute_num_enc_workers(cpi, cpi->oxcf.max_threads);
+        num_mod_workers = av1_fp_compute_num_enc_workers(cpi);
       break;
     case MOD_TF: num_mod_workers = compute_num_tf_workers(cpi); break;
     case MOD_TPL: num_mod_workers = compute_num_tpl_workers(cpi); break;
