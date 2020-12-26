@@ -161,7 +161,8 @@ int main(int argc, char *argv[]) {
   if (argc > 2) bits = atoi(argv[2]);
 
   for (int k = 0; k < 2; ++k) {
-    if (!get_resample_filter(p, q, a[k], x0[k], ext, 1, bits, &rf[k])) {
+    if (!get_resample_filter(p, q, a[k], x0[k], ext, WIN_LANCZOS, 1, bits,
+                             &rf[k])) {
       fprintf(stderr, "Cannot generate filter, exiting!\n");
       exit(1);
     }
