@@ -1248,8 +1248,8 @@ static INLINE int get_relative_dist(const OrderHintInfo *oh, int a, int b) {
 }
 
 #if CONFIG_GM_MODEL_CODING
-static INLINE int calculate_gm_ref_params_scaling_distance(AV1_COMMON *const cm,
-                                                           int frame) {
+static INLINE int calculate_gm_ref_params_scaling_distance(
+    const AV1_COMMON *const cm, int frame) {
   const RefCntBuffer *const buf = get_ref_frame_buf(cm, frame);
   const int ref_order_hint = buf ? (int)buf->order_hint : -1;
   if (ref_order_hint < 0) return 0;
@@ -1258,8 +1258,10 @@ static INLINE int calculate_gm_ref_params_scaling_distance(AV1_COMMON *const cm,
 }
 
 static INLINE void find_gm_ref_params(WarpedMotionParams *ref_params,
-                                      AV1_COMMON *const cm, int distance,
-                                      int base) {
+                                      const AV1_COMMON *const cm, int cur_frame,
+                                      int base_frame) {
+  const int distance = calculate_gm_ref_params_scaling_distance(cm, cur_frame);
+  const int base = calculate_gm_ref_params_scaling_distance(cm, base_frame);
   if (cm->global_motion[LAST_FRAME].wmtype == IDENTITY) return;
   // TODO(raynewang): Change base ref_params instead of always using LAST_FRAME
   memcpy(ref_params, &cm->global_motion[LAST_FRAME],
