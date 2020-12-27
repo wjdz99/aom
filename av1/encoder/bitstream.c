@@ -2842,20 +2842,21 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
                                            struct aom_write_bit_buffer *wb) {
   AV1_COMMON *const cm = &cpi->common;
   int frame;
-#if CONFIG_GM_MODEL_CODING
-  const int base = calculate_gm_ref_params_scaling_distance(cm, LAST_FRAME);
-#endif  // CONFIG_GM_MODEL_CODING
+  FILE *fp;
+  fp = fopen("POC.txt", "a");
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     const WarpedMotionParams *ref_params;
 #if CONFIG_GM_MODEL_CODING
-    if (frame != LAST_FRAME) {
-      WarpedMotionParams params;
-      const int distance = calculate_gm_ref_params_scaling_distance(cm, frame);
-      bool updated_params = find_gm_ref_params(&params, cm, distance, base);
-      ref_params = updated_params ? &params : &default_warp_params;
-    } else {
+    if (frame == LAST_FRAME) {
       ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
                                   : &default_warp_params;
+    } else {
+      WarpedMotionParams params;
+      bool updated_params =
+          (frame <= BWDREF_FRAME)
+              ? find_gm_ref_params(&params, cm, frame, LAST_FRAME)
+              : find_gm_ref_params(&params, cm, frame, BWDREF_FRAME);
+      ref_params = updated_params ? &params : &default_warp_params;
     }
 #else
     ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
@@ -2886,6 +2887,7 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
            cm->global_motion[frame].wmmat[3]);
            */
   }
+  fclose(fp);
 }
 
 static int check_frame_refs_short_signaling(AV1_COMMON *const cm) {
