@@ -1235,17 +1235,23 @@ static INLINE int calculate_gm_ref_params_scaling_distance(AV1_COMMON *const cm,
   const int cur_poc = cm->cur_frame->absolute_poc;
   const RefCntBuffer *const buf = get_ref_frame_buf(cm, frame);
   const int ref_poc = buf ? (int)buf->absolute_poc : -1;
+  if (ref_poc < 0) {
+    return 0;
+  }
   return ref_poc - cur_poc;
 }
 
 static INLINE const WarpedMotionParams *find_gm_ref_params(AV1_COMMON *const cm,
-                                                           int distance,
-                                                           int base) {
+                                                           int cur_frame,
+                                                           int base_frame) {
+  const int distance = calculate_gm_ref_params_scaling_distance(cm, cur_frame);
+  const int base = calculate_gm_ref_params_scaling_distance(cm, base_frame);
   // TODO(raynewang): Change to floating number for better precision
   const int scale_factor = (base != 0 && distance != 0) ? (distance / base) : 1;
-  WarpedMotionParams *ref_params = &cm->cur_frame->global_motion[LAST_FRAME];
+  WarpedMotionParams *ref_params = &cm->cur_frame->global_motion[base_frame];
   // TODO(raynewang): Change base ref_params instead of always using LAST_FRAME
   if (ref_params->wmtype == IDENTITY) {
+    // printf("Identity found \n");
     return &default_warp_params;
   }
   for (int i = 0; i < 8; ++i) {
