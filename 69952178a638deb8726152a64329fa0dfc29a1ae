@@ -105,6 +105,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4f69e929_a1ee8f85",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-28T22:27:38Z",
+      "side": 1,
+      "message": "I was also debating on whether of not adding this parameter. The reason to add it was because I wanted to set ctx-\u003eerr_detail, but that would require memory allocation for the string, while other parts of the codec (as far as I know) just change to pointer to an internally allocated string, which results in potential memory leaks since the memory we allocate here is not freed.\n\nBut in this way, the memory is allocated out of libaom, and thus it is safe to just change the pointer to another address, since the memory should also be freed outside of libaom. \n\nNote ctx-\u003eerr_detail is a (const char *), so we cannot change the string directly, but have to change the pointer to a different location.",
+      "parentUuid": "bf2d085d_479cbef8",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7af40ae9_ea277168",
         "filename": "aom/aom_codec.h",
         "patchSetId": 5
@@ -249,6 +267,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9c619fce_35e903b3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3169,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-28T22:27:38Z",
+      "side": 1,
+      "message": "Makes sense. Or maybe we should change the name to aom_codec_set_encoder_option, and add another function for the decoder separately?",
+      "parentUuid": "01b4e509_0ace65e5",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2d242c39_d4530cf1",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 5
@@ -260,6 +296,30 @@
       "writtenOn": "2020-12-28T19:33:09Z",
       "side": 1,
       "message": "I suggest removing the err_msg output parameter and this entire if statement. This function does not need to return an error message. Also, it is risky to point codec_ctx-\u003eerr_detail and codec_ctx-\u003epriv-\u003eerr_detail to a buffer that is not owned by libaom, because libaom cannot control the lifetime of the error message buffer.",
+      "range": {
+        "startLine": 3388,
+        "startChar": 0,
+        "endLine": 3393,
+        "endChar": 3
+      },
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b78ed036_806a1738",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3393,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-28T22:27:38Z",
+      "side": 1,
+      "message": "As explained, the err_detail pointer is a const char *, and every time there is an error it is pointed to another memory location for the error string. I don\u0027t think it is directly used for allocating and freeing such buffers (?, since probably it is not a good idea to free a const pointer?). That is why I added this parameter, in order to avoid potential memory leaks.",
+      "parentUuid": "2d242c39_d4530cf1",
       "range": {
         "startLine": 3388,
         "startChar": 0,
