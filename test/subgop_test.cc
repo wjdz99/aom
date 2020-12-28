@@ -104,6 +104,7 @@ static const SubgopTestParams SubGopTestVectors[] = {
   { subgop_config_str_preset_map[DEFAULT].preset_tag,
     "pixel_capture_w320h240.yuv", 0, 16, 320, 240, 3 },
 
+  // Enhanced subgop config
   { subgop_config_str_preset_map[ENHANCE].preset_tag, "niklas_640_480_30.yuv",
     0, 15, 640, 480, 5 },
   { subgop_config_str_preset_map[ENHANCE].preset_tag, "paris_352_288_30.y4m", 0,
@@ -125,23 +126,23 @@ static const SubgopTestParams SubGopTestVectors[] = {
   { subgop_config_str_preset_map[ENHANCE].preset_tag,
     "pixel_capture_w320h240.yuv", 0, 8, 320, 240, 5 },
 
+  // Asymmetric subgop config
   { subgop_config_str_preset_map[ASYMMETRIC].preset_tag,
     "pixel_capture_w320h240.yuv", 0, 16, 320, 240, 5 },
   { subgop_config_str_preset_map[ASYMMETRIC].preset_tag, "desktop1.320_180.yuv",
     0, 16, 320, 180, 3 },
 
+  // Temporal scalable subgop config
   { subgop_config_str_preset_map[TEMPORAL_SCALABLE].preset_tag,
     "pixel_capture_w320h240.yuv", 0, 16, 320, 240, 3 },
   { subgop_config_str_preset_map[TEMPORAL_SCALABLE].preset_tag,
     "hantro_collage_w352h288.yuv", 0, 16, 352, 288, 5 },
 
-  // TODO(vishnu) : Enable ld config
-  // { subgop_config_str_preset_map[LOW_DELAY].preset_tag,
-  // "paris_352_288_30.y4m",
-  //   0, 16, 352, 288, 5 },
-  // { subgop_config_str_preset_map[LOW_DELAY].preset_tag,
-  // "desktop1.320_180.yuv",
-  //   0, 16, 320, 180, 3 },
+  // Low delay subgop config
+  { subgop_config_str_preset_map[LOW_DELAY].preset_tag, "paris_352_288_30.y4m",
+    0, 16, 352, 288, 5 },
+  { subgop_config_str_preset_map[LOW_DELAY].preset_tag, "desktop1.320_180.yuv",
+    0, 16, 320, 180, 3 },
 
   // Non-default subgop config
   { subgop_config_str_nondef[0], "pixel_capture_w320h240.yuv", 0, 4, 320, 240,
@@ -804,8 +805,7 @@ class SubGopSwitchingTest
   const char *last_subgop_str_;
 };
 
-// TODO(aomedia:2889): Enable this unit test after fix
-TEST_P(SubGopSwitchingTest, DISABLED_SubGopSwitching) {
+TEST_P(SubGopSwitchingTest, SubGopSwitching) {
   std::unique_ptr<libaom_test::VideoSource> video;
   const unsigned int kFrames = 200;
 
