@@ -114,6 +114,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3d9ee071_49330507",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-28T23:12:33Z",
+      "side": 1,
+      "message": "Thank you. I mean loop filter functions are called after the whole frame\u0027s partition rd is done. At that point, no matter the frame is intra or inter frame, tree_type will be SHARED_PART. Therefore, cm-\u003etree_type \u003d\u003d CHROMA_TYPE will always be 0. (If you trace the usage of there functions, it went all the way up to av1_loop_filter_frame(), at the encoder side, it is called after encode_with_recode_loop() in encode_with_recode_loop_and_filter(), the tree_type flag only loops between luma, chroma, and shared inside encode_with_recode_loop()).",
+      "parentUuid": "47416123_209a8737",
+      "range": {
+        "startLine": 199,
+        "startChar": 2,
+        "endLine": 199,
+        "endChar": 5
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "36c58aab_ef9c8e4c",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 17
@@ -337,6 +361,30 @@
       "side": 1,
       "message": "Originally, we want to have different tree for Y, U, and V components separately. And we haven\u0027t tired this yes. In this implementation, U and V share the same partition. I will change MAX_MB_PLANE is 2 in the next patch.",
       "parentUuid": "1435adcf_c7a7a80f",
+      "range": {
+        "startLine": 242,
+        "startChar": 0,
+        "endLine": 249,
+        "endChar": 6
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffec0d0f_e4a859a9",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2020-12-28T23:12:33Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7c7c34f5_7d48832a",
       "range": {
         "startLine": 242,
         "startChar": 0,
