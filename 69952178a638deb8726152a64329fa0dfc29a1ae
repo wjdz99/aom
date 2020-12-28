@@ -18,6 +18,148 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c11fe8c_78c8d179",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "Bohan: Here are my preliminary review comments. Please note my comment in aom_codec.h marked with \"DESIGN\". Please take a look and think about how we can set decoder or encoder options (which may be fields in the decoder or encoder cfg struct or aom_codec_control flags) using key/value pairs.\n\nAnother issue I did not consider is that some aom_codec_control flags can be used after we have encoded or decoded some frames. I will describe this use case as \"dynamic\". We need to decide whether we need to support changing decoder/encoder settings dynamically using key/value pairs.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf1238ba_808b8e00",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "Please bump AOM_CODEC_ABI_VERSION because we added a new public function in this header.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ea6616b_1c51505c",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "Nit/optional: We probably should not refer to this new function as \"Control\". I guess the word \"Control\" comes from the old CL where this was implemented as an option for the aom_codec_control() function.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e232a771_f9400258",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "Nit/optional: An alternative name for this parameter is \u0027name\u0027.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf2d085d_479cbef8",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "This function does not need to output an error message in an output parameter. I don\u0027t think any other libaom public function does this.\n\nNote: As you documented in lines 497-498, an optional error message is available in ctx-\u003eerr_detail, although I am not familiar with that.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7af40ae9_ea277168",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "DESIGN: Some of the command-line arguments for aomdec or aomenc are not aom_codec_control flags. For example, see the parse_stream_params() function in apps/aomenc.c, which sets some fields of config-\u003ecfg in response to certain command-line arguments.\n\nTherefore, we also need a new public function that allows us to sets aom_codec_enc_cfg struct fields by using key and value, and similarly for the aom_codec_dec_cfg struct. (apps/aomdec.c only uses the command-line arguments to set cfg.threads, so the new function for the aom_codec_dec_cfg struct will be much less useful.)\n\nSo, maybe a better design is to define a new struct that represents the parsed key/value pairs, and then somehow pass this struct to aom_codec_dec_init() and aom_codec_enc_init(). To avoid adding a new input parameter to aom_codec_dec_init() and aom_codec_enc_init(), we can add a new field to the aom_codec_dec_cfg and aom_codec_enc_cfg structs.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ff266e1_fdd10f65",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "Revert this change. We should bump AOM_CODEC_ABI_VERSION instead.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "454a2709_cea50cd8",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "We probably should move the new files args_helper.h and args_helper.c to another directory, such as ${AOM_ROOT}/av1/common/.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "de8519fc_b54e6d2a",
@@ -84,6 +226,69 @@
       "side": 1,
       "message": "That makes sense. I\u0027ll probably add some unit tests in a later CL then.",
       "parentUuid": "b0233e83_82c0d1ba",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01b4e509_0ace65e5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3169,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "IMPORTANT: Since aom_codec_set_option() can be called on either a decoder or an encoder, it needs to be defined in a file that is neutral to decoder and encoder. This file (av1/av1_cx_iface.c) is encoder only, so it is not the right place to define this function.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d242c39_d4530cf1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3393,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "I suggest removing the err_msg output parameter and this entire if statement. This function does not need to return an error message. Also, it is risky to point codec_ctx-\u003eerr_detail and codec_ctx-\u003epriv-\u003eerr_detail to a buffer that is not owned by libaom, because libaom cannot control the lifetime of the error message buffer.",
+      "range": {
+        "startLine": 3388,
+        "startChar": 0,
+        "endLine": 3393,
+        "endChar": 3
+      },
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c9a9f20_ac3e9c54",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3400,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2020-12-28T19:33:09Z",
+      "side": 1,
+      "message": "Nit: In general we should omit \"else\" after a return statement. So this can be rewritten as (if we handle error first):\n\n  if (!match) {\n    codec_ctx-\u003eerr \u003d AOM_CODEC_INVALID_PARAM;\n    return AOM_CODEC_INVALID_PARAM;\n  }\n  return update_extra_cfg(ctx, \u0026extra_cfg);",
+      "range": {
+        "startLine": 3395,
+        "startChar": 0,
+        "endLine": 3400,
+        "endChar": 3
+      },
       "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
