@@ -468,13 +468,9 @@ static void adjust_frame_rate(AV1_COMP *cpi, int64_t ts_start, int64_t ts_end) {
 }
 
 // Determine whether there is a forced keyframe pending in the lookahead buffer
-int get_forced_keyframe_position(struct lookahead_ctx *lookahead,
-                                 const int up_to_index,
-                                 const COMPRESSOR_STAGE compressor_stage) {
-  /* If the forced kf is not available or if the current frame is
-   * forced kf, then return -1. Else return the position of the
-   * forced kf.
-   */
+int is_forced_keyframe_pending(struct lookahead_ctx *lookahead,
+                               const int up_to_index,
+                               const COMPRESSOR_STAGE compressor_stage) {
   for (int i = 0; i <= up_to_index; i++) {
     const struct lookahead_entry *e =
         av1_lookahead_peek(lookahead, i, compressor_stage);
@@ -483,7 +479,7 @@ int get_forced_keyframe_position(struct lookahead_ctx *lookahead,
       // so there isn't a forced key-frame pending.
       return -1;
     } else if (e->flags == AOM_EFLAG_FORCE_KF) {
-      return (i > 0) ? i : -1;
+      return i;
     } else {
       continue;
     }
@@ -507,8 +503,8 @@ static struct lookahead_entry *choose_frame_source(
 
   // TODO(Aasaipriya): Forced key frames need to be fixed when rc_mode != AOM_Q
   if (src_index &&
-      (get_forced_keyframe_position(cpi->lookahead, src_index,
-                                    cpi->compressor_stage) != -1) &&
+      (is_forced_keyframe_pending(cpi->lookahead, src_index,
+                                  cpi->compressor_stage) != -1) &&
       cpi->oxcf.rc_cfg.mode != AOM_Q) {
     src_index = 0;
     *flush = 1;
