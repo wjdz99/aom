@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9a6fb74_238cb46b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2020-12-29T21:38:35Z",
+      "side": 1,
+      "message": "Thank you for this cleanup and API extension!",
+      "revId": "9036144d40fa33851f3789db20ae53ed9d3190a0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
