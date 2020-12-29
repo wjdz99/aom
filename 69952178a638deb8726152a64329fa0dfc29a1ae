@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cc11404_7f13d6c9",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-29T01:50:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf1238ba_808b8e00",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1ea6616b_1c51505c",
@@ -87,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac9c80a2_ef8580d3",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-29T01:50:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ea6616b_1c51505c",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e232a771_f9400258",
@@ -100,6 +136,24 @@
       "writtenOn": "2020-12-28T19:33:09Z",
       "side": 1,
       "message": "Nit/optional: An alternative name for this parameter is \u0027name\u0027.",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6dba92d_748f66ec",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-29T01:50:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e232a771_f9400258",
       "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -191,6 +245,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "84b4353b_134667fd",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-29T01:50:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ff266e1_fdd10f65",
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "454a2709_cea50cd8",
@@ -204,6 +276,30 @@
       "writtenOn": "2020-12-28T19:33:09Z",
       "side": 1,
       "message": "We probably should move the new files args_helper.h and args_helper.c to another directory, such as ${AOM_ROOT}/av1/common/.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 46
+      },
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53dc3700_ecdf3eee",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-29T01:50:02Z",
+      "side": 1,
+      "message": "Will do this in a separate CL.",
+      "parentUuid": "454a2709_cea50cd8",
       "range": {
         "startLine": 17,
         "startChar": 0,
@@ -379,6 +475,30 @@
       "writtenOn": "2020-12-28T19:33:09Z",
       "side": 1,
       "message": "Nit: In general we should omit \"else\" after a return statement. So this can be rewritten as (if we handle error first):\n\n  if (!match) {\n    codec_ctx-\u003eerr \u003d AOM_CODEC_INVALID_PARAM;\n    return AOM_CODEC_INVALID_PARAM;\n  }\n  return update_extra_cfg(ctx, \u0026extra_cfg);",
+      "range": {
+        "startLine": 3395,
+        "startChar": 0,
+        "endLine": 3400,
+        "endChar": 3
+      },
+      "revId": "69952178a638deb8726152a64329fa0dfc29a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "355e0492_fbc5a7a1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3400,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2020-12-29T01:50:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c9a9f20_ac3e9c54",
       "range": {
         "startLine": 3395,
         "startChar": 0,
