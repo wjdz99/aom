@@ -138,6 +138,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "061e2184_78255c31",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2020-12-29T01:53:56Z",
+      "side": 1,
+      "message": "Thank you. So if I understand your comment correctly, there is no need to change it since cm-\u003etree_type \u003d\u003d CHROMA_TYPE will always be 0.",
+      "parentUuid": "3d9ee071_49330507",
+      "range": {
+        "startLine": 199,
+        "startChar": 2,
+        "endLine": 199,
+        "endChar": 5
+      },
+      "revId": "1d7ef49f755a60b92d289fc9c787b9af00f9a69f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "36c58aab_ef9c8e4c",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 17
