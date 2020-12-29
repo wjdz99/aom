@@ -1813,7 +1813,14 @@ void av1_cdef_mse_calc_frame_mt(AV1_COMMON *cm, MultiThreadInfo *mt_info,
 
 // Computes num_workers for temporal filter multi-threading.
 static AOM_INLINE int compute_num_tf_workers(AV1_COMP *cpi) {
-  return compute_num_enc_workers(cpi, cpi->oxcf.max_threads);
+  const int frame_height = cpi->common.height;
+
+  if (cpi->oxcf.max_threads <= 1) return 1;
+
+  const BLOCK_SIZE block_size = TF_BLOCK_SIZE;
+  const int mb_height = block_size_high[block_size];
+  const int mb_rows = get_num_blocks(frame_height, mb_height);
+  return AOMMIN(cpi->oxcf.max_threads, mb_rows);
 }
 
 // Computes num_workers for tpl multi-threading.
@@ -1840,11 +1847,16 @@ int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
   int num_mod_workers = 0;
   switch (mod_name) {
     case MOD_FP:
+#if CONFIG_REALTIME_ONLY
+      num_mod_workers = 0;
+      break;
+#else
       if (cpi->oxcf.pass == 2)
         num_mod_workers = 0;
       else
-        num_mod_workers = compute_num_enc_workers(cpi, cpi->oxcf.max_threads);
+        num_mod_workers = av1_fp_compute_num_enc_workers(cpi);
       break;
+#endif
     case MOD_TF: num_mod_workers = compute_num_tf_workers(cpi); break;
     case MOD_TPL: num_mod_workers = compute_num_tpl_workers(cpi); break;
     case MOD_GME: num_mod_workers = 1; break;
