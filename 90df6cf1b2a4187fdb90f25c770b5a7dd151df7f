@@ -86,6 +86,24 @@
       "message": "Debargha,\n\nWe have collated results at three different commits,\n\n1. BEF_OVR_MVMT \u003d Parent to overlay movement. \"Disable MD5 tests that depend on AV1 compliance\" - \n9d085133af30532439d53b6d25c9ab89b62a70b5\"\n2. AT_OVR_MVMT \u003d At overlay movement patch. \"Move OVERLAY frame to the tail of previous sub-gop\" -\n8ddc23f81de010592f87472804df1d32e1dcd045\n3. LD_FIX \u003d Current low-delay fix patch. \"Fix low delay subgop configuration\" - \n90df6cf1b2a4187fdb90f25c770b5a7dd151df7f\n\nBelow are the quality results for –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d19,\nReference: Default encoder strategy path (No-subgop)\nTest: --subgop-config-str\u003denh\n\n               \n Test           Instruction count       BD-Rate Loss(%)\n                  Reduction(%)     avg.psnr   ovr.psnr   ssim\nBEF_OVR_MVMT       0.0590           -0.2018  -0.2463    -0.0052\nAT_OVR_MVMT        0.1956           -0.3105  -0.3653    -0.1049\nLD_FIX             0.2900           -0.2758  -0.3304    -0.0901\n\nBelow are the quality results for –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d0,\nReference: Default encoder strategy path (No-subgop)\nTest: --subgop-config-str\u003dld\n\nTest             Instruction count         BD-Rate Loss(%)\n                   Reduction(%)     avg.psnr   ovr.psnr   ssim\nBEF_OVR_MVMT        3.627          -8.3749    -8.6543   -11.4491\nAT_OVR_MVMT        -1.065          -0.3435     0.0229   -0.0469\nLD_FIX              3.634          -1.1209    -1.1236   -1.0676\n\nThe reason we are not seeing gains similar to BEF_OVR_MVMT at \nAT_OVR_MVMT and LD_FIX for low-delay configuration is because, \nthe default encoder strategy path (No-subgop) has gained in quality \nat AT_OVR_MVMT. \n\nBelow are the quality results for –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d0,\nReference: Default encoder strategy path (No-subgop), BEF_OVR_MVMT \nTest: Default encoder strategy path (No-subgop), AT_OVR_MVMT \n\n Test        Instruction count       BD-Rate Loss(%)\n               Reduction(%)     avg.psnr  ovr.psnr   ssim\nNo-subgop       0.908           -6.8661  -7.0769   -9.9100\n\nThanks.",
       "revId": "90df6cf1b2a4187fdb90f25c770b5a7dd151df7f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74a09b95_a74c8434",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2020-12-29T17:03:51Z",
+      "side": 1,
+      "message": "Hi Aasaipriya,\n\nThanks for generating the results.\nCan I ask you you present the results in a slightly different way. No need to rerun anything, just compute the BDRATE differently. This is just to make sure we did not lose anything inadvertently between BEF_OVR_MVMT and LD_FIX.\n\n[RA0] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d19, at LD_FIX (test) vs. at  BEF_OVR_MVMT (base).\n[RA1] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d19, --subgop-config-str\u003denh at LD_FIX (test) vs. at  BEF_OVR_MVMT (base).\n[LD0] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d0, --subgop-config-str\u003dld at LD_FIX (test) vs. at  BEF_OVR_MVMT (base).\n[LD1] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d0, --subgop-config-str\u003dld at LD_FIX (test) vs. at  BEF_OVR_MVMT (base).\n\nThanks and sorry for being picky.\nDebargha",
+      "parentUuid": "702f548b_d368ba11",
+      "revId": "90df6cf1b2a4187fdb90f25c770b5a7dd151df7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
