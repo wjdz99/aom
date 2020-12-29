@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5570a87_a8cbaf53",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2020-12-29T17:13:25Z",
+      "side": 1,
+      "message": "Hi Debargha, Sarah and Urvang,\nWe noticed that large gop size decision in av1_tpl_setup_stats() is not consumed by the encode stage. This code can be cleaned up if you are not planning to use in future. Please let us know your thoughts.\nThank you.",
+      "revId": "d34513bde18ef36a778327a02047ed6723bd4833",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
