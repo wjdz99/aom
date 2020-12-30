@@ -85,7 +85,8 @@ TEST_P(EncValidTest, NullMsg) {
 TEST_P(EncInvalidTest, NullCtx) {
   const char *key = std::get<0>(GetParam());
   const char *val = std::get<1>(GetParam());
-  EXPECT_EQ(AOM_CODEC_ERROR, aom_codec_set_option(NULL, key, val, NULL));
+  EXPECT_EQ(AOM_CODEC_INVALID_PARAM,
+            aom_codec_set_option(NULL, key, val, NULL));
 }
 TEST_P(EncInvalidTest, WithMsg) {
   const char *key = std::get<0>(GetParam());
@@ -101,12 +102,13 @@ TEST_P(EncInvalidTest, NullMsg) {
 }
 
 // No test for ratio / list for now since the API does not support any of the
-// parameters of these kinds.
+// parameters of these type.
+// The string type typically involves reading a path/file, which brings
+// potential fails.
 const key_val_param enc_valid_params[] = {
-  std::make_tuple("min-gf-interval", "10"),          // uint
-  std::make_tuple("min-partition-size", "4"),        // int
-  std::make_tuple("tune", "psnr"),                   // enum
-  std::make_tuple("film-grain-table", "table.txt"),  // string
+  std::make_tuple("min-gf-interval", "10"),    // uint
+  std::make_tuple("min-partition-size", "4"),  // int
+  std::make_tuple("tune", "psnr"),             // enum
 };
 
 const key_val_param enc_invalid_params[] = {
@@ -114,7 +116,7 @@ const key_val_param enc_invalid_params[] = {
   std::make_tuple("min-gf-interval", (const char *)NULL),
   std::make_tuple((const char *)NULL, "0"),
   std::make_tuple((const char *)NULL, (const char *)NULL),
-  // No match
+  // no match
   std::make_tuple("a-b-c", "10"),
   // uint
   std::make_tuple("min-gf-interval", "-1"),
@@ -125,6 +127,8 @@ const key_val_param enc_invalid_params[] = {
   std::make_tuple("min-partition-size", "abc"),
   // enum
   std::make_tuple("tune", "PsnR1"),
+  // out of range
+  std::make_tuple("cq-level", "1000"),
 };
 
 INSTANTIATE_TEST_SUITE_P(KeyValAPI, EncValidTest,
