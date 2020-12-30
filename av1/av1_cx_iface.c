@@ -2768,6 +2768,8 @@ static aom_codec_err_t ctrl_set_chroma_subsampling_y(aom_codec_alg_priv_t *ctx,
 aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *codec_ctx,
                                      const char *name, const char *value,
                                      char *err_msg) {
+  if (codec_ctx == NULL) return AOM_CODEC_ERROR;
+  if (name == NULL || value == NULL) return AOM_CODEC_INVALID_PARAM;
   aom_codec_alg_priv_t *ctx = (aom_codec_alg_priv_t *)codec_ctx->priv;
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   // Used to mock the argv with just one string "--{name}={value}"
