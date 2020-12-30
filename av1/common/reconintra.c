@@ -2776,6 +2776,26 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
     CFL_CTX *const cfl = &xd->cfl;
     CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+    if (cfl->search_res_is_cached[pred_plane] == 0) {
+      if (cfl->use_dc) {
+        av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
+                                angle_delta, use_palette, filter_intra_mode,
+                                dst, dst_stride, dst, dst_stride, blk_col,
+                                blk_row, plane);
+      } else {
+        cfl_search(xd, dst, dst_stride, pred_plane, tx_size);
+        cfl_get_dc(xd, dst, dst_stride, pred_plane, tx_size);
+      }
+
+      if (cfl->use_search_res_cache) {
+        cfl_store_search_res(xd, dst, dst_stride, pred_plane, tx_size);
+        cfl->search_res_is_cached[pred_plane] = 1;
+      }
+    } else {
+      cfl_load_search_res(xd, dst, dst_stride, tx_size, pred_plane);
+    }
+#else
     if (cfl->dc_pred_is_cached[pred_plane] == 0) {
       av1_predict_intra_block(
           cm, xd, pd->width, pd->height, tx_size, mode, angle_delta,
@@ -2794,6 +2814,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     } else {
       cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);
     }
+    #endif
     cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
     return;
   }
