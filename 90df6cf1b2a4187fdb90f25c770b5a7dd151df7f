@@ -122,6 +122,23 @@
       "parentUuid": "74a09b95_a74c8434",
       "revId": "90df6cf1b2a4187fdb90f25c770b5a7dd151df7f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29fb2583_a6233d7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2020-12-30T06:04:27Z",
+      "side": 1,
+      "message": "Debargha,\n\nBelow are the results in the suggested way,\n\nReference:   BEF_OVR_MVMT (Parent to overlay movement. \"Disable MD5 tests that depend on AV1 compliance\"   9d085133af30532439d53b6d25c9ab89b62a70b5\")\nTest:    LD_FIX (Current low-delay fix patch. \"Fix low delay subgop configuration\" - 90df6cf1b2a4187fdb90f25c770b5a7dd151df7f)\n\n[RA0] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d19, BEF_OVR_MVMT(ref) vs LD_FIX (test)\n[RA1] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d19, --subgop-config-str\u003denh, BEF_OVR_MVMT(ref) vs LD_FIX (test)\n[LD0] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d0, BEF_OVR_MVMT(ref) vs LD_FIX (test)\n[LD1] –cpu-used\u003d0, --end-usage\u003dq, --lag-in-frames\u003d0, --subgop-config-str\u003dld, BEF_OVR_MVMT(ref) vs LD_FIX (test)\n\n                                      BD-Rate Loss(%)     \n           Config               avg.psnr  ovr.psnr   ssim\nRA0       No-subgop             -0.3068   -0.2964   -0.2414\nRA1       enh                   -0.3829   -0.3831   -0.3303\nLD0       No-subgop             -6.8661   -7.0769   -9.9100\nLD1       ld                     0.1861    0.2268    0.1839\n\nIn LD1 there exist minor drop in quality, because in most of the clips at last sub-gop, BEF_OVR_MVMT is choosing “ld” sub-gop config (as baseline_gf_interval\u003d16) whereas LD_FIX is choosing default_encoder_strategy path (as baseline_gf_interval\u003d15). Since in default encoder strategy with low-delay configuration, within a sub-gop there is no difference in pyramid levels minor quality drop is observed.\n\nThanks",
+      "revId": "90df6cf1b2a4187fdb90f25c770b5a7dd151df7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
