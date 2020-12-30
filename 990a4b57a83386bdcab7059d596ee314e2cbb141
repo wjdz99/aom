@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "105610f7_aecd1631",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2020-12-30T10:53:17Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThe speed feature use_intra_txb_hash has been found to be non-performing for speed 1,2. This patch disable use_intra_txb_hash speed feature for these two speed.\n\nBelow are the detail borg result :\n                      Instruction Count        BD-Rate Loss(%)\ncpuused  Resolution    Reduction()     avg.psnr  ovr.psnr   ssim                                      \n   1       LOW RES        -0.000545    0.0031    0.0058     0.0302\n   1       MID RES        0.460        -0.0269   -0.0414    -0.0382\n   1        HD RES        -0.2649      -0.0458   -0.0408    -0.0889\n   1       Average        0.0446       -0.0206   -0.0222   -0.0504\n\n   2       LOW RES        -0.0716       0.0232    0.0227    0.0153\n   2       MID RES        -0.4092       -0.0382   -0.0371   -0.0113\n   2        HD RES        -0.5139       -0.0208   -0.0243   -0.0715\n   2       Average        -0.2663       -0.0082   -0.0091   -0.0189\n\n[-] indicates encode time increase. \n[+] indicates encode time reduction.\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\n\nPlease review the patch \nRegards\nAkshata",
+      "revId": "990a4b57a83386bdcab7059d596ee314e2cbb141",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
