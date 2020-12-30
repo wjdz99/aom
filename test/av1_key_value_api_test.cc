@@ -114,7 +114,7 @@ const key_val_param enc_invalid_params[] = {
   std::make_tuple("min-gf-interval", (const char *)NULL),
   std::make_tuple((const char *)NULL, "0"),
   std::make_tuple((const char *)NULL, (const char *)NULL),
-  // No match
+  // no match
   std::make_tuple("a-b-c", "10"),
   // uint
   std::make_tuple("min-gf-interval", "-1"),
@@ -125,6 +125,8 @@ const key_val_param enc_invalid_params[] = {
   std::make_tuple("min-partition-size", "abc"),
   // enum
   std::make_tuple("tune", "PsnR1"),
+  // out of range
+  std::make_tuple("cq-level", "1000"),
 };
 
 INSTANTIATE_TEST_SUITE_P(KeyValAPI, EncValidTest,
