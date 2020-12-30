@@ -2765,9 +2765,9 @@ static aom_codec_err_t ctrl_set_chroma_subsampling_y(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
-aom_codec_err_t aom_codec_set_option(aom_codec_ctx_t *codec_ctx,
-                                     const char *name, const char *value,
-                                     char *err_msg) {
+aom_codec_err_t aom_codec_set_option_cx(aom_codec_ctx_t *codec_ctx,
+                                        const char *name, const char *value,
+                                        char *err_msg) {
   if (codec_ctx == NULL) return AOM_CODEC_ERROR;
   if (name == NULL || value == NULL) return AOM_CODEC_INVALID_PARAM;
   aom_codec_alg_priv_t *ctx = (aom_codec_alg_priv_t *)codec_ctx->priv;
@@ -3418,7 +3418,8 @@ aom_codec_iface_t aom_codec_av1_cx_algo = {
       encoder_set_config,          // aom_codec_enc_config_set_fn_t
       encoder_get_global_headers,  // aom_codec_get_global_headers_fn_t
       encoder_get_preview          // aom_codec_get_preview_frame_fn_t
-  }
+  },
+  aom_codec_set_option_cx  // aom_codec_option_fn_t
 };
 
 aom_codec_iface_t *aom_codec_av1_cx(void) { return &aom_codec_av1_cx_algo; }
