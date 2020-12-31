@@ -227,13 +227,14 @@ static int is_alike_mv(int_mv candidate_mv, center_mv_t *center_mvs,
 static void get_rate_distortion(
     int *rate_cost, int64_t *recon_error, int16_t *src_diff, tran_low_t *coeff,
     tran_low_t *qcoeff, tran_low_t *dqcoeff, AV1_COMMON *cm, MACROBLOCK *x,
-    const YV12_BUFFER_CONFIG *ref_frame_ptr, uint8_t *rec_buffer_pool[3],
+    const YV12_BUFFER_CONFIG *ref_frame_ptr[2], uint8_t *rec_buffer_pool[3],
     int rec_stride_pool[3], TX_SIZE tx_size, PREDICTION_MODE best_mode,
-    int_mv best_mv, int mi_row, int mi_col) {
+    int mi_row, int mi_col) {
   *rate_cost = 0;
   *recon_error = 1;
 
   MACROBLOCKD *xd = &x->e_mbd;
+  int is_compound = (best_mode == NEW_NEWMV);
 
   uint8_t *src_buffer_pool[MAX_MB_PLANE] = {
     xd->cur_buf->y_buffer,
@@ -251,7 +252,6 @@ static void get_rate_distortion(
 
   for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
     struct macroblockd_plane *pd = &xd->plane[plane];
-
     BLOCK_SIZE bsize_plane =
         ss_size_lookup[txsize_to_bsize[tx_size]][pd->subsampling_x]
                       [pd->subsampling_y];
@@ -261,35 +261,41 @@ static void get_rate_distortion(
         (mi_row * MI_SIZE * dst_buffer_stride + mi_col * MI_SIZE) >>
         pd->subsampling_x;
     uint8_t *dst_buffer = rec_buffer_pool[plane] + dst_mb_offset;
-    if (!is_inter_mode(best_mode)) {
-      av1_predict_intra_block(
-          cm, xd, block_size_wide[bsize_plane], block_size_high[bsize_plane],
-          max_txsize_rect_lookup[bsize_plane], best_mode, 0, 0,
-          FILTER_INTRA_MODES, dst_buffer, dst_buffer_stride, dst_buffer,
-          dst_buffer_stride, 0, 0, plane);
-    } else {
-      uint8_t *ref_buffer_pool[MAX_MB_PLANE] = {
-        ref_frame_ptr->y_buffer,
-        ref_frame_ptr->u_buffer,
-        ref_frame_ptr->v_buffer,
-      };
-      InterPredParams inter_pred_params;
-      struct buf_2d ref_buf = {
-        NULL, ref_buffer_pool[plane],
-        plane ? ref_frame_ptr->uv_width : ref_frame_ptr->y_width,
-        plane ? ref_frame_ptr->uv_height : ref_frame_ptr->y_height,
-        plane ? ref_frame_ptr->uv_stride : ref_frame_ptr->y_stride
-      };
-      av1_init_inter_params(
-          &inter_pred_params, block_size_wide[bsize_plane],
-          block_size_high[bsize_plane], (mi_row * MI_SIZE) >> pd->subsampling_y,
-          (mi_col * MI_SIZE) >> pd->subsampling_x, pd->subsampling_x,
-          pd->subsampling_y, xd->bd, is_cur_buf_hbd(xd), 0,
-          xd->block_ref_scale_factors[0], &ref_buf, kernel);
-      inter_pred_params.conv_params = get_conv_params(0, plane, xd->bd);
+    for (int ref = 0; ref < 1 + is_compound; ++ref) {
+      if (!is_inter_mode(best_mode)) {
+        av1_predict_intra_block(
+            cm, xd, block_size_wide[bsize_plane], block_size_high[bsize_plane],
+            max_txsize_rect_lookup[bsize_plane], best_mode, 0, 0,
+            FILTER_INTRA_MODES, dst_buffer, dst_buffer_stride, dst_buffer,
+            dst_buffer_stride, 0, 0, plane);
+      } else {
+        int_mv best_mv = xd->mi[0]->mv[ref];
+        uint8_t *ref_buffer_pool[MAX_MB_PLANE] = {
+          ref_frame_ptr[ref]->y_buffer,
+          ref_frame_ptr[ref]->u_buffer,
+          ref_frame_ptr[ref]->v_buffer,
+        };
+        InterPredParams inter_pred_params;
+        struct buf_2d ref_buf = {
+          NULL, ref_buffer_pool[plane],
+          plane ? ref_frame_ptr[ref]->uv_width : ref_frame_ptr[ref]->y_width,
+          plane ? ref_frame_ptr[ref]->uv_height : ref_frame_ptr[ref]->y_height,
+          plane ? ref_frame_ptr[ref]->uv_stride : ref_frame_ptr[ref]->y_stride
+        };
+        av1_init_inter_params(&inter_pred_params, block_size_wide[bsize_plane],
+                              block_size_high[bsize_plane],
+                              (mi_row * MI_SIZE) >> pd->subsampling_y,
+                              (mi_col * MI_SIZE) >> pd->subsampling_x,
+                              pd->subsampling_x, pd->subsampling_y, xd->bd,
+                              is_cur_buf_hbd(xd), 0,
+                              xd->block_ref_scale_factors[0], &ref_buf, kernel);
+        if (is_compound) av1_init_comp_mode(&inter_pred_params);
+        inter_pred_params.conv_params = get_conv_params_no_round(
+            ref, plane, xd->tmp_conv_dst, MAX_SB_SIZE, is_compound, xd->bd);
 
-      av1_enc_build_one_inter_predictor(dst_buffer, dst_buffer_stride,
-                                        &best_mv.as_mv, &inter_pred_params);
+        av1_enc_build_one_inter_predictor(dst_buffer, dst_buffer_stride,
+                                          &best_mv.as_mv, &inter_pred_params);
+      }
     }
 
     int src_stride = src_stride_pool[plane];
@@ -579,7 +585,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 
   xd->mi_row = mi_row;
   xd->mi_col = mi_col;
-  for (int cmp_rf_idx = 0; cmp_rf_idx < 3; ++cmp_rf_idx) {
+  int best_cmp_rf_idx = -1;
+  for (int cmp_rf_idx = 0; cmp_rf_idx < 3 && 0; ++cmp_rf_idx) {
     int rf_idx0 = comp_ref_frames[cmp_rf_idx][0];
     int rf_idx1 = comp_ref_frames[cmp_rf_idx][1];
 
@@ -631,16 +638,32 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     }
     inter_cost = tpl_get_satd_cost(x, src_diff, bw, src_mb_buffer, src_stride,
                                    predictor, bw, coeff, bw, bh, tx_size);
+    if (inter_cost < best_inter_cost) {
+      best_cmp_rf_idx = cmp_rf_idx;
+      best_inter_cost = inter_cost;
+      if (best_inter_cost < best_intra_cost) {
+        best_mode = NEW_NEWMV;
+        xd->mi[0]->ref_frame[0] = rf_idx0 + LAST_FRAME;
+        xd->mi[0]->ref_frame[1] = rf_idx1 + LAST_FRAME;
+        xd->mi[0]->mv[0].as_int = tmp_mv[0].as_int;
+        xd->mi[0]->mv[1].as_int = tmp_mv[1].as_int;
+      }
+    }
   }
 
   if (best_inter_cost < INT64_MAX) {
-    const YV12_BUFFER_CONFIG *ref_frame_ptr =
-        tpl_data->src_ref_frame[best_rf_idx];
+    const YV12_BUFFER_CONFIG *ref_frame_ptr[2] = {
+      best_mode == NEW_NEWMV
+          ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
+          : tpl_data->src_ref_frame[best_rf_idx],
+      best_mode == NEW_NEWMV
+          ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
+          : NULL,
+    };
     int rate_cost = 1;
     get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
                         dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
-                        rec_stride_pool, tx_size, best_mode, best_mv, mi_row,
-                        mi_col);
+                        rec_stride_pool, tx_size, best_mode, mi_row, mi_col);
     tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
   }
 
@@ -653,11 +676,18 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 
   // Final encode
   int rate_cost = 0;
-  get_rate_distortion(
-      &rate_cost, &recon_error, src_diff, coeff, qcoeff, dqcoeff, cm, x,
-      best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL,
-      rec_buffer_pool, rec_stride_pool, tx_size, best_mode, best_mv, mi_row,
-      mi_col);
+
+  const YV12_BUFFER_CONFIG *ref_frame_ptr[2] = {
+    best_mode == NEW_NEWMV
+        ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
+        : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL,
+    best_mode == NEW_NEWMV
+        ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
+        : NULL,
+  };
+  get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
+                      dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
+                      rec_stride_pool, tx_size, best_mode, mi_row, mi_col);
 
   tpl_stats->recrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
   tpl_stats->recrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
