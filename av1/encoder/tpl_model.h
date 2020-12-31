@@ -92,7 +92,7 @@ typedef struct TplDepStats {
   int64_t mc_dep_rate;
   int64_t mc_dep_dist;
   int_mv mv[INTER_REFS_PER_FRAME];
-  int ref_frame_index;
+  int ref_frame_index[2];
   int64_t pred_error[INTER_REFS_PER_FRAME];
 } TplDepStats;
 
