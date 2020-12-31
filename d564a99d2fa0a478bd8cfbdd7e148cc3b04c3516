@@ -16,6 +16,24 @@
       "message": "Are the gains from these experiments additive now?",
       "revId": "d564a99d2fa0a478bd8cfbdd7e148cc3b04c3516",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c215c4c_1e1bd9d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2020-12-31T02:37:19Z",
+      "side": 1,
+      "message": "I cherry-picked this patch and then tested\n(baseline: NEW_INTER_MODES, 49 frames, const q):\n\n                     lowres2   midres2   hdres2\nopfl                 -2.066    -2.033    -2.129\nopfl + derived mv    -2.903    -3.008    -3.641\n\nHowever, with derived mv only, I got a \"Failed to decode\" error.\n\n./aomenc -o /tmp/output.webm city_cif.y4m --codec\u003dav1 --cpu-used\u003d0 --threads\u003d0 --profile\u003d0 --lag-in-frames\u003d19 --min-q\u003d0 --max-q\u003d63 --auto-alt-ref\u003d1 --passes\u003d2 --kf-max-dist\u003d160 --kf-min-dist\u003d0 --drop-frame\u003d0 --static-thresh\u003d0 --minsection-pct\u003d0 --maxsection-pct\u003d2000 --arnr-maxframes\u003d7 --arnr-strength\u003d5 --sharpness\u003d0 --undershoot-pct\u003d100 --overshoot-pct\u003d100 --tile-columns\u003d0 --frame-parallel\u003d0 --test-decode\u003dwarn -v --psnr --target-bitrate\u003d1000 --limit\u003d20\n\nPlease take a look. Thanks!",
+      "parentUuid": "f77e12e3_70297dd3",
+      "revId": "d564a99d2fa0a478bd8cfbdd7e148cc3b04c3516",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
