@@ -50,12 +50,16 @@ static INLINE CFL_PRED_TYPE get_cfl_pred_type(PLANE_TYPE plane) {
 
 void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                        TX_SIZE tx_size, int plane);
+
 #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
 void cfl_store_nb(MACROBLOCKD *const xd, BLOCK_SIZE bsize);
 #endif
+
+
 void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size);
 
 void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size);
+
 #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
 void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                 CFL_PRED_TYPE pred_plane, TX_SIZE txsize);
@@ -73,6 +77,7 @@ void cfl_store_dc_pred(MACROBLOCKD *const xd, const uint8_t *input,
 void cfl_load_dc_pred(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                       TX_SIZE tx_size, CFL_PRED_TYPE pred_plane);
 #endif
+
 // Allows the CFL_SUBSAMPLE function to switch types depending on the bitdepth.
 #define CFL_lbd_TYPE uint8_t *cfl_type
 #define CFL_hbd_TYPE uint16_t *cfl_type

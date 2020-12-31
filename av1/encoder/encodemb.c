@@ -822,7 +822,8 @@ void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
   }
   av1_foreach_transformed_block_in_plane(
       xd, bsize, plane, encode_block_intra_and_set_context, &arg);
-#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+
+  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
     const struct macroblockd_plane *const pd = &xd->plane[plane];
     const int ss_x = pd->subsampling_x;
@@ -831,4 +832,5 @@ void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
     cfl_store_nb(xd, plane_bsize);
   }
 #endif
+
 }

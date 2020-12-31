@@ -7539,7 +7539,8 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
     assert(block_size_high[plane_bsize] == tx_size_high[tx_size]);
   }
 #endif  // CONFIG_DEBUG
-#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+
+  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   xd->cfl.use_search_res_cache = 1;
 #else
   xd->cfl.use_dc_pred_cache = 1;
@@ -7639,11 +7640,13 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
 
   mbmi->cfl_alpha_idx = ind;
   mbmi->cfl_alpha_signs = best_joint_sign;
-#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+
+  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   xd->cfl.use_search_res_cache = 0;
   xd->cfl.search_res_is_cached[0] = 0;
   xd->cfl.search_res_is_cached[1] = 0;
 #else
+
   xd->cfl.use_dc_pred_cache = 0;
   xd->cfl.dc_pred_is_cached[0] = 0;
   xd->cfl.dc_pred_is_cached[1] = 0;
