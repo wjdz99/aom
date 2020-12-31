@@ -320,14 +320,13 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
             av1_subtract_plane(x, bsize, 0);
             RD_STATS this_rd_stats;
             av1_init_rd_stats(&this_rd_stats);
-            int64_t rd =
-                av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
-                                      max_txsize_rect_lookup[bsize]);
+            av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                                  max_txsize_rect_lookup[bsize]);
             int this_mv_rate = av1_mv_bit_cost(
                 &best_mv->as_mv, &ref_mv, mv_costs->nmv_joint_cost,
                 mv_costs->mv_cost_stack, MV_COST_WEIGHT);
-            rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
-                        this_rd_stats.dist);
+            int64_t rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
+                                this_rd_stats.dist);
 
             MV this_best_mv;
             subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
@@ -342,14 +341,14 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
               av1_subtract_plane(x, bsize, 0);
               RD_STATS tmp_rd_stats;
               av1_init_rd_stats(&tmp_rd_stats);
-              int64_t tmp_rd =
-                  av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
-                                        max_txsize_rect_lookup[bsize]);
+              av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
+                                    max_txsize_rect_lookup[bsize]);
               int tmp_mv_rate = av1_mv_bit_cost(
                   &this_best_mv, &ref_mv, mv_costs->nmv_joint_cost,
                   mv_costs->mv_cost_stack, MV_COST_WEIGHT);
-              tmp_rd = RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate,
-                              tmp_rd_stats.dist);
+              int64_t tmp_rd =
+                  RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate,
+                         tmp_rd_stats.dist);
               if (tmp_rd < rd) best_mv->as_mv = this_best_mv;
             }
           }
@@ -552,14 +551,13 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
         av1_subtract_plane(x, bsize, 0);
         RD_STATS this_rd_stats;
         av1_init_rd_stats(&this_rd_stats);
-        int64_t rd =
-            av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
-                                  max_txsize_rect_lookup[bsize]);
+        av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
+                              max_txsize_rect_lookup[bsize]);
         int this_mv_rate = av1_mv_bit_cost(
             &best_mv.as_mv, &ref_mv[id].as_mv, mv_costs->nmv_joint_cost,
             mv_costs->mv_cost_stack, MV_COST_WEIGHT);
-        rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
-                    this_rd_stats.dist);
+        int64_t rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
+                            this_rd_stats.dist);
 
         MV this_best_mv;
         MV subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
@@ -574,14 +572,13 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
           av1_subtract_plane(x, bsize, 0);
           RD_STATS tmp_rd_stats;
           av1_init_rd_stats(&tmp_rd_stats);
-          int64_t tmp_rd =
-              av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
-                                    max_txsize_rect_lookup[bsize]);
+          av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
+                                max_txsize_rect_lookup[bsize]);
           int tmp_mv_rate = av1_mv_bit_cost(
               &this_best_mv, &ref_mv[id].as_mv, mv_costs->nmv_joint_cost,
               mv_costs->mv_cost_stack, MV_COST_WEIGHT);
-          tmp_rd = RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate,
-                          tmp_rd_stats.dist);
+          int64_t tmp_rd = RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate,
+                                  tmp_rd_stats.dist);
           if (tmp_rd < rd) {
             best_mv.as_mv = this_best_mv;
             bestsme = AOMMIN(bestsme, this_var);
