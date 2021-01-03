@@ -384,10 +384,13 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO *mbmi = xd->mi[0];
   // This function should only ever be called for compound modes
   assert(has_second_ref(mbmi));
-  const int_mv init_mv[2] = { cur_mv[0], cur_mv[1] };
   const int refs[2] = { mbmi->ref_frame[0], mbmi->ref_frame[1] };
   const MvCosts *mv_costs = &x->mv_costs;
   int_mv ref_mv[2];
+  int_mv mv_state[2][2] = {
+    { cur_mv[0], cur_mv[0] },
+    { cur_mv[1], cur_mv[1] },
+  };
   int ite, ref;
 
   // Get the prediction block from the 'other' reference frame.
@@ -417,23 +420,25 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   for (ite = 0; ite < 4; ite++) {
     struct buf_2d ref_yv12[2];
     int bestsme = INT_MAX;
+    int thissme = INT_MAX;
+    int best_state_idx = 0;
     int id = ite % 2;  // Even iterations search in the first reference frame,
                        // odd iterations search in the second. The predictor
                        // found for the 'other' reference frame is factored in.
-    if (ite >= 2 && cur_mv[!id].as_int == init_mv[!id].as_int) {
-      if (cur_mv[id].as_int == init_mv[id].as_int) {
-        break;
-      } else {
-        int_mv cur_int_mv, init_int_mv;
-        cur_int_mv.as_mv.col = cur_mv[id].as_mv.col >> 3;
-        cur_int_mv.as_mv.row = cur_mv[id].as_mv.row >> 3;
-        init_int_mv.as_mv.row = init_mv[id].as_mv.row >> 3;
-        init_int_mv.as_mv.col = init_mv[id].as_mv.col >> 3;
-        if (cur_int_mv.as_int == init_int_mv.as_int) {
-          break;
-        }
-      }
-    }
+    // if (ite >= 2 && cur_mv[!id].as_int == init_mv[!id].as_int) {
+    //   if (cur_mv[id].as_int == init_mv[id].as_int) {
+    //     break;
+    //   } else {
+    //     int_mv cur_int_mv, init_int_mv;
+    //     cur_int_mv.as_mv.col = cur_mv[id].as_mv.col >> 3;
+    //     cur_int_mv.as_mv.row = cur_mv[id].as_mv.row >> 3;
+    //     init_int_mv.as_mv.row = init_mv[id].as_mv.row >> 3;
+    //     init_int_mv.as_mv.col = init_mv[id].as_mv.col >> 3;
+    //     if (cur_int_mv.as_int == init_int_mv.as_int) {
+    //       break;
+    //     }
+    //   }
+    // }
     for (ref = 0; ref < 2; ++ref) {
       ref_mv[ref] = av1_get_ref_mv(x, ref);
       // Swap out the reference frame for a version that's been scaled to
@@ -459,141 +464,152 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
     ref_yv12[0] = xd->plane[plane].pre[0];
     ref_yv12[1] = xd->plane[plane].pre[1];
 
-    av1_init_inter_params(&inter_pred_params, pw, ph, mi_row * MI_SIZE,
-                          mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd), 0,
-                          &cm->sf_identity, &ref_yv12[!id], interp_filters);
-    inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
+    for (int state_idx = 0; state_idx < 2; ++state_idx) {
+      av1_init_inter_params(&inter_pred_params, pw, ph, mi_row * MI_SIZE,
+                            mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd),
+                            0, &cm->sf_identity, &ref_yv12[!id],
+                            interp_filters);
+      inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
 
-    // Since we have scaled the reference frames to match the size of the
-    // current frame we must use a unit scaling factor during mode selection.
-    av1_enc_build_one_inter_predictor(second_pred, pw, &cur_mv[!id].as_mv,
-                                      &inter_pred_params);
+      // Since we have scaled the reference frames to match the size of the
+      // current frame we must use a unit scaling factor during mode selection.
+      av1_enc_build_one_inter_predictor(
+          second_pred, pw, &mv_state[!id][state_idx].as_mv, &inter_pred_params);
 
-    // Do full-pixel compound motion search on the current reference frame.
-    if (id) xd->plane[plane].pre[0] = ref_yv12[id];
+      // Do full-pixel compound motion search on the current reference frame.
+      if (id) xd->plane[plane].pre[0] = ref_yv12[id];
 
-    // Make motion search params
-    FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
-    const search_site_config *src_search_sites =
-        cpi->mv_search_params.search_site_cfg[SS_CFG_SRC];
-    av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
-                                       &ref_mv[id].as_mv, src_search_sites,
-                                       /*fine_search_interval=*/0);
+      // Make motion search params
+      FULLPEL_MOTION_SEARCH_PARAMS full_ms_params;
+      const search_site_config *src_search_sites =
+          cpi->mv_search_params.search_site_cfg[SS_CFG_SRC];
+      av1_make_default_fullpel_ms_params(&full_ms_params, cpi, x, bsize,
+                                         &ref_mv[id].as_mv, src_search_sites,
+                                         /*fine_search_interval=*/0);
 
-    av1_set_ms_compound_refs(&full_ms_params.ms_buffers, second_pred, mask,
-                             mask_stride, id);
+      av1_set_ms_compound_refs(&full_ms_params.ms_buffers, second_pred, mask,
+                               mask_stride, id);
 
-    // Use the mv result from the single mode as mv predictor.
-    const FULLPEL_MV start_fullmv = get_fullmv_from_mv(&cur_mv[id].as_mv);
+      // Use the mv result from the single mode as mv predictor.
+      const FULLPEL_MV start_fullmv = get_fullmv_from_mv(&cur_mv[id].as_mv);
 
-    // Small-range full-pixel motion search.
-    if (!cpi->sf.mv_sf.disable_extensive_joint_motion_search &&
-        mbmi->interinter_comp.type != COMPOUND_WEDGE) {
-      bestsme =
-          av1_full_pixel_search(start_fullmv, &full_ms_params, 5, NULL,
-                                &best_mv.as_fullmv, &second_best_mv.as_fullmv);
-    } else {
-      bestsme = av1_refining_search_8p_c(&full_ms_params, start_fullmv,
-                                         &best_mv.as_fullmv);
-      second_best_mv = best_mv;
-    }
-
-    const int try_second = second_best_mv.as_int != INVALID_MV &&
-                           second_best_mv.as_int != best_mv.as_int;
-
-    // Restore the pointer to the first (possibly scaled) prediction buffer.
-    if (id) xd->plane[plane].pre[0] = ref_yv12[0];
-
-    for (ref = 0; ref < 2; ++ref) {
-      if (scaled_ref_frame[ref]) {
-        // Swap back the original buffers for subpel motion search.
-        for (int i = 0; i < num_planes; i++) {
-          xd->plane[i].pre[ref] = backup_yv12[ref][i];
-        }
-        // Re-initialize based on unscaled prediction buffers.
-        ref_yv12[ref] = xd->plane[plane].pre[ref];
+      // Small-range full-pixel motion search.
+      if (!cpi->sf.mv_sf.disable_extensive_joint_motion_search &&
+          mbmi->interinter_comp.type != COMPOUND_WEDGE) {
+        thissme = av1_full_pixel_search(start_fullmv, &full_ms_params, 5, NULL,
+                                        &best_mv.as_fullmv,
+                                        &second_best_mv.as_fullmv);
+      } else {
+        thissme = av1_refining_search_8p_c(&full_ms_params, start_fullmv,
+                                           &best_mv.as_fullmv);
+        second_best_mv = best_mv;
       }
-    }
 
-    // Do sub-pixel compound motion search on the current reference frame.
-    if (id) xd->plane[plane].pre[0] = ref_yv12[id];
+      const int try_second = second_best_mv.as_int != INVALID_MV &&
+                             second_best_mv.as_int != best_mv.as_int;
 
-    if (cpi->common.features.cur_frame_force_integer_mv) {
-      convert_fullmv_to_mv(&best_mv);
-    }
-    if (bestsme < INT_MAX &&
-        cpi->common.features.cur_frame_force_integer_mv == 0) {
-      int dis; /* TODO: use dis in distortion calculation later. */
-      unsigned int sse;
-      SUBPEL_MOTION_SEARCH_PARAMS ms_params;
-      av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize,
-                                        &ref_mv[id].as_mv, NULL);
-      av1_set_ms_compound_refs(&ms_params.var_params.ms_buffers, second_pred,
-                               mask, mask_stride, id);
-      ms_params.forced_stop = EIGHTH_PEL;
-      MV start_mv = get_mv_from_fullmv(&best_mv.as_fullmv);
-      bestsme = cpi->mv_search_params.find_fractional_mv_step(
-          xd, cm, &ms_params, start_mv, &best_mv.as_mv, &dis, &sse, NULL);
+      // Restore the pointer to the first (possibly scaled) prediction buffer.
+      if (id) xd->plane[plane].pre[0] = ref_yv12[0];
 
-      if (try_second) {
-        struct macroblockd_plane *p = xd->plane;
-        const BUFFER_SET orig_dst = {
-          { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
-          { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
-        };
-        mbmi->mv[id].as_mv = best_mv.as_mv;
-        mbmi->mv[!id].as_mv = cur_mv[!id].as_mv;
+      for (ref = 0; ref < 2; ++ref) {
+        if (scaled_ref_frame[ref]) {
+          // Swap back the original buffers for subpel motion search.
+          for (int i = 0; i < num_planes; i++) {
+            xd->plane[i].pre[ref] = backup_yv12[ref][i];
+          }
+          // Re-initialize based on unscaled prediction buffers.
+          ref_yv12[ref] = xd->plane[plane].pre[ref];
+        }
+      }
 
-        xd->plane[plane].pre[0] = ref_yv12[0];
-        xd->plane[plane].pre[1] = ref_yv12[1];
+      // Do sub-pixel compound motion search on the current reference frame.
+      if (id) xd->plane[plane].pre[0] = ref_yv12[id];
 
-        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst, bsize,
-                                      0, 0);
-        av1_subtract_plane(x, bsize, 0);
-        RD_STATS this_rd_stats;
-        av1_init_rd_stats(&this_rd_stats);
-        int64_t rd =
-            av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
-                                  max_txsize_rect_lookup[bsize]);
-        int this_mv_rate = av1_mv_bit_cost(
-            &best_mv.as_mv, &ref_mv[id].as_mv, mv_costs->nmv_joint_cost,
-            mv_costs->mv_cost_stack, MV_COST_WEIGHT);
-        rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
-                    this_rd_stats.dist);
+      if (cpi->common.features.cur_frame_force_integer_mv) {
+        convert_fullmv_to_mv(&best_mv);
+      }
+      if (thissme < INT_MAX &&
+          cpi->common.features.cur_frame_force_integer_mv == 0) {
+        int dis; /* TODO: use dis in distortion calculation later. */
+        unsigned int sse;
+        SUBPEL_MOTION_SEARCH_PARAMS ms_params;
+        av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize,
+                                          &ref_mv[id].as_mv, NULL);
+        av1_set_ms_compound_refs(&ms_params.var_params.ms_buffers, second_pred,
+                                 mask, mask_stride, id);
+        ms_params.forced_stop = EIGHTH_PEL;
+        MV start_mv = get_mv_from_fullmv(&best_mv.as_fullmv);
+        thissme = cpi->mv_search_params.find_fractional_mv_step(
+            xd, cm, &ms_params, start_mv, &best_mv.as_mv, &dis, &sse, NULL);
 
-        MV this_best_mv;
-        MV subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
-        if (av1_is_subpelmv_in_range(&ms_params.mv_limits, subpel_start_mv)) {
-          const int this_var = cpi->mv_search_params.find_fractional_mv_step(
-              xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis, &sse,
-              NULL);
-          mbmi->mv[id].as_mv = this_best_mv;
-          mbmi->mv[!id].as_mv = cur_mv[!id].as_mv;
+        mv_state[id][state_idx] = best_mv;
+
+        if (try_second) {
+          struct macroblockd_plane *p = xd->plane;
+          const BUFFER_SET orig_dst = {
+            { p[0].dst.buf, p[1].dst.buf, p[2].dst.buf },
+            { p[0].dst.stride, p[1].dst.stride, p[2].dst.stride },
+          };
+          mbmi->mv[id].as_mv = best_mv.as_mv;
+          mbmi->mv[!id].as_mv = mv_state[!id][state_idx].as_mv;
+
+          xd->plane[plane].pre[0] = ref_yv12[0];
+          xd->plane[plane].pre[1] = ref_yv12[1];
+
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
                                         bsize, 0, 0);
           av1_subtract_plane(x, bsize, 0);
-          RD_STATS tmp_rd_stats;
-          av1_init_rd_stats(&tmp_rd_stats);
-          int64_t tmp_rd =
-              av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
+          RD_STATS this_rd_stats;
+          av1_init_rd_stats(&this_rd_stats);
+          int64_t rd =
+              av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
                                     max_txsize_rect_lookup[bsize]);
-          int tmp_mv_rate = av1_mv_bit_cost(
-              &this_best_mv, &ref_mv[id].as_mv, mv_costs->nmv_joint_cost,
+          int this_mv_rate = av1_mv_bit_cost(
+              &best_mv.as_mv, &ref_mv[id].as_mv, mv_costs->nmv_joint_cost,
               mv_costs->mv_cost_stack, MV_COST_WEIGHT);
-          tmp_rd = RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate,
-                          tmp_rd_stats.dist);
-          if (tmp_rd < rd) {
-            best_mv.as_mv = this_best_mv;
-            bestsme = AOMMIN(bestsme, this_var);
+          rd = RDCOST(x->rdmult, this_mv_rate + this_rd_stats.rate,
+                      this_rd_stats.dist);
+
+          MV this_best_mv;
+          MV subpel_start_mv = get_mv_from_fullmv(&second_best_mv.as_fullmv);
+          if (av1_is_subpelmv_in_range(&ms_params.mv_limits, subpel_start_mv)) {
+            const int this_var = cpi->mv_search_params.find_fractional_mv_step(
+                xd, cm, &ms_params, subpel_start_mv, &this_best_mv, &dis, &sse,
+                NULL);
+            mbmi->mv[id].as_mv = this_best_mv;
+            mbmi->mv[!id].as_mv = mv_state[!id][state_idx].as_mv;
+            av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, &orig_dst,
+                                          bsize, 0, 0);
+            av1_subtract_plane(x, bsize, 0);
+            RD_STATS tmp_rd_stats;
+            av1_init_rd_stats(&tmp_rd_stats);
+            int64_t tmp_rd =
+                av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
+                                      max_txsize_rect_lookup[bsize]);
+            int tmp_mv_rate = av1_mv_bit_cost(
+                &this_best_mv, &ref_mv[id].as_mv, mv_costs->nmv_joint_cost,
+                mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+            tmp_rd = RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate,
+                            tmp_rd_stats.dist);
+            if (tmp_rd < rd) {
+              best_mv.as_mv = this_best_mv;
+              thissme = AOMMIN(thissme, this_var);
+              mv_state[id][state_idx] = best_mv;
+            }
           }
         }
+      }
+      if (thissme < bestsme) {
+        bestsme = thissme;
+        best_state_idx = state_idx;
       }
     }
 
     // Restore the pointer to the first prediction buffer.
     if (id) xd->plane[plane].pre[0] = ref_yv12[0];
     if (bestsme < last_besterr[id]) {
-      cur_mv[id] = best_mv;
+      cur_mv[!id] = mv_state[!id][best_state_idx];
+      cur_mv[id] = mv_state[id][best_state_idx];
       last_besterr[id] = bestsme;
     } else {
       break;
