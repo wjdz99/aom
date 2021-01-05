@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46542349_7a3ebb89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-01-05T13:48:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch consolidate ML based prune partition speed features. We have introduced ml_prune_partition speed feature by combining ml_prune_rect_partition, ml_prune_ab_partition and ml_prune_4_partition.\n\nPlease review the patch and let us know your comments.\n\nThe changes are bit-exact and no impact on quality (verified locally).\n\nRegards\nAkshata",
+      "revId": "cbbaddebe5ad073364db74b7547d79ae1698dd4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
