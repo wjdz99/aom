@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f003e81a_9e61e959",
+        "filename": "tools/lanczos/lanczos_README.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-01-05T22:07:16Z",
+      "side": 1,
+      "message": "Could you please why this should be changed from 16 to 15?",
+      "revId": "ed1cbc084f78a5dbc50e400ad56b9b351d26cf1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd094acc_2d269963",
+        "filename": "tools/lanczos/lanczos_resample.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-01-05T22:07:16Z",
+      "side": 1,
+      "message": "Could you please why this should be changed from 16 to 15?",
+      "revId": "ed1cbc084f78a5dbc50e400ad56b9b351d26cf1e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
