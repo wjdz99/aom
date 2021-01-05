@@ -16,6 +16,115 @@
       "message": "Hi Yunqing,\n\nIn this patch, we have modified the multi-thread allocations for different modules so as to facilitate the independent derivation of number of workers for each MT module. Specifically, the following key changes are done.\n1. An array num_mod_workers[] is created inside MultiThreadInfo to store the number of workers needed for each MT module.\n2. The thread data specific to each MT module is allocated based on the workers needed for that module.\n3. The number of threads created for MT encode is based on the maximum value of num_mod_workers[] array (i.e., based on the module that will need the highest no. of threads).\n4. The relevant changes are done to the thread creation functions and associated initializations.\n\nPlease note that this is a facilitation patch and does not change the actual number of workers created for a module, hence it is a bit-exact change with no speed impact (verified locally).\n\nPlease review the patch.\n\nRegards,\nNithya",
       "revId": "1ee83becfe4f8f2809ee6f31c68cee7ddc7e9259",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc5d7004_8f8147ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-05T21:58:35Z",
+      "side": 1,
+      "message": "Allocating workers for each module is the right thing to do. Just added comments to see if the changes for first pass MT and second pass MT can be combined and handled in the same way. If you prefer to handle this later, we can check in this cl now. Let me know. Thanks.",
+      "revId": "1ee83becfe4f8f2809ee6f31c68cee7ddc7e9259",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b946f488_2a977011",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-05T21:58:35Z",
+      "side": 1,
+      "message": "Looks like the mutexes are always created without checking if these tools are enabled? What do you think? This don\u0027t have to be handled in this CL.",
+      "range": {
+        "startLine": 548,
+        "startChar": 2,
+        "endLine": 564,
+        "endChar": 3
+      },
+      "revId": "1ee83becfe4f8f2809ee6f31c68cee7ddc7e9259",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b94299ab_4d397f3e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-05T21:58:35Z",
+      "side": 1,
+      "message": "Since the first pass is treated as a MT module, maybe better to handle it the same way as second pass MT modules. Namely, moving threads creation to where av1_create_second_pass_workers is called?",
+      "range": {
+        "startLine": 693,
+        "startChar": 0,
+        "endLine": 695,
+        "endChar": 14
+      },
+      "revId": "1ee83becfe4f8f2809ee6f31c68cee7ddc7e9259",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c829b7ca_2240fd10",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-05T21:58:35Z",
+      "side": 1,
+      "message": "Is enc_mt_buf_init_done necessary? Can it use num_mod_workers[MOD_ENC] instead of enc_mt_buf_init_done here?",
+      "range": {
+        "startLine": 935,
+        "startChar": 15,
+        "endLine": 935,
+        "endChar": 35
+      },
+      "revId": "1ee83becfe4f8f2809ee6f31c68cee7ddc7e9259",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d70bc17_9963e148",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1846,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-05T21:58:35Z",
+      "side": 1,
+      "message": "Can we call av1_fp_compute_num_enc_workers here?",
+      "range": {
+        "startLine": 1843,
+        "startChar": 5,
+        "endLine": 1846,
+        "endChar": 78
+      },
+      "revId": "1ee83becfe4f8f2809ee6f31c68cee7ddc7e9259",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
