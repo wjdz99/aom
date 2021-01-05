@@ -16,6 +16,46 @@
       "message": "Hi Yunqing,\n\nThis patch allocates the no. of wrokers for temporal filtering stage to be based on the tf module\u0027s block size. \nIn the existing encoder, the no. of workers for tf is kept to be the same as that for encode stage. However, since tf operates on smaller block size than encode stage and does not need any top-rt sync, our tests have shown that more parallelism can be achieved for tf by increasing the no. of workers based on the tf block size constraints. This patch accomplishes this by making relevant changes to the function compute_num_tf_workers(). \n\nThis is a bit-exact change and gives the following encode time reduction for single-tile 2-pass encode (--cq-level\u003d\u003c20,55\u003e) for 720p (fourpeople, Netflix_RollerCoaster), 1080p (Wheat, AOV5, blue_sky) and 2160p (Netflix_ToddlerFountain, Netflix_TunnelFlag, crowd_run) for various speed levels (for speed 1, the tests were limited to 720p clips).\n\n                      Encode time reduction\ncpu-used    720p (10 threads)  1080p (16 threads)  2160p (24 threads)\n   1            0.22%               -                   -\n   2            0.58%              0.30%               0.31%\n   3            1.04%              0.72%               0.31%\n   4            1.59%              0.39%               0.22%\n   5            2.67%              0.82%               0.31%\n   6            2.85%              1.20%               0.89%\n\nThe changes are applicable for 2-pass encode.\n   \nPlease review the patch.\n\nRegards,\nNithya",
       "revId": "933ec44c945bf9949ea391ea3f55b6bfc9e8555c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "010d5a4a_7d402b63",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-05T22:04:50Z",
+      "side": 1,
+      "message": "Would this idea also apply to first pass?",
+      "revId": "933ec44c945bf9949ea391ea3f55b6bfc9e8555c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a17db67a_cab44e49",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1817,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-05T22:04:50Z",
+      "side": 1,
+      "message": "Is 1 pass case excluded? This should also help 1 pass case, right?",
+      "range": {
+        "startLine": 1816,
+        "startChar": 2,
+        "endLine": 1817,
+        "endChar": 65
+      },
+      "revId": "933ec44c945bf9949ea391ea3f55b6bfc9e8555c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
