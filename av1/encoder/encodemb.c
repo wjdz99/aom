@@ -822,12 +822,13 @@ void av1_encode_intra_block_plane(const struct AV1_COMP *cpi, MACROBLOCK *x,
   }
   av1_foreach_transformed_block_in_plane(
       xd, bsize, plane, encode_block_intra_and_set_context, &arg);
-#if CONFIG_CFL_SEARCH_VERSION_1
-  const struct macroblockd_plane *const pd = &xd->plane[plane];
-  const int ss_x = pd->subsampling_x;
-  const int ss_y = pd->subsampling_y;
-  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ss_x, ss_y);
+
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   if (plane == AOM_PLANE_Y && xd->cfl.store_y) {
+    const struct macroblockd_plane *const pd = &xd->plane[plane];
+    const int ss_x = pd->subsampling_x;
+    const int ss_y = pd->subsampling_y;
+    const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ss_x, ss_y);
     cfl_store_nb(xd, plane_bsize);
   }
 #endif
