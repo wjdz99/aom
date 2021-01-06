@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5bbf0cd_32aba4ca",
+        "filename": "common/y4minput.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-06T19:22:00Z",
+      "side": 1,
+      "message": "since libvpx is the basis of this implementation it might be good to avoid c99 and post the same update for that library",
+      "range": {
+        "startLine": 58,
+        "startChar": 7,
+        "endLine": 58,
+        "endChar": 11
+      },
+      "revId": "7f688ae9402c3139db418844265cbee57c59bcf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8027dba6_06c70118",
+        "filename": "common/y4minput.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-06T19:22:00Z",
+      "side": 1,
+      "message": "this is a big change due to the refactor. can you move the code to a function first and then follow with the bug fix so it\u0027s a little easier to review the progression?",
+      "revId": "7f688ae9402c3139db418844265cbee57c59bcf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
