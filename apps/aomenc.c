@@ -58,6 +58,17 @@
 #define ENV_BITS "unknown bit "
 #endif
 
+#if CONFIG_EXTQUANT
+#define MINQ 0
+#define MAXQ_OFFSET 24
+#define MAXQ (255 + 4 * MAXQ_OFFSET)
+#else
+#define MINQ 0
+#define MAXQ 255
+#endif
+
+#define QINDEX_RANGE (MAXQ - MINQ + 1)
+
 /* Swallow warnings about unused results of fread/fwrite */
 static size_t wrap_fread(void *ptr, size_t size, size_t nmemb, FILE *stream) {
   return fread(ptr, size, nmemb, stream);
@@ -1155,7 +1166,7 @@ struct stream_state {
   uint64_t psnr_samples_total;
   double psnr_totals[4];
   int psnr_count;
-  int counts[256];
+  int counts[QINDEX_RANGE];
   aom_codec_ctx_t encoder;
   unsigned int frames_out;
   uint64_t cx_time;
