@@ -1229,7 +1229,7 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
     for (i = 0; i < MAX_NUM_GF_INTERVALS; i++) {
       rc->gf_intervals[i] = AOMMIN(rc->max_gf_interval, max_gop_length);
       if (cpi->oxcf.gf_cfg.lag_in_frames > cpi->oxcf.kf_cfg.key_freq_max &&
-          (kf_cfg->key_freq_max > 1))
+          (kf_cfg->key_freq_max > 1) && (rc->frames_to_key > 1))
         rc->gf_intervals[i] = rc->gf_intervals[i] - 1;
     }
     rc->cur_gf_index = 0;
@@ -1259,7 +1259,7 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
     if (i >= rc->frames_to_key) {
       cut_pos[count_cuts] = AOMMIN(i, active_max_gf_interval);
       if (cpi->oxcf.gf_cfg.lag_in_frames > cpi->oxcf.kf_cfg.key_freq_max &&
-          (kf_cfg->key_freq_max > 1))
+          (kf_cfg->key_freq_max > 1) && (rc->frames_to_key > 1))
         cut_pos[count_cuts] = cut_pos[count_cuts] - 1;
       count_cuts++;
       break;
@@ -1516,6 +1516,7 @@ static INLINE void set_baseline_gf_interval(AV1_COMP *cpi, int arf_position,
   } else {
     rc->baseline_gf_interval = arf_position;
   }
+  assert(rc->baseline_gf_interval > 0);
 }
 
 // initialize GF_GROUP_STATS
