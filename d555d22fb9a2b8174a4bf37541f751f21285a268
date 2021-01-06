@@ -73,6 +73,30 @@
       },
       "revId": "d555d22fb9a2b8174a4bf37541f751f21285a268",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83231ed0_b6ca4823",
+        "filename": "av1/common/x86/convolve_2d_avx2.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2021-01-06T21:07:40Z",
+      "side": 1,
+      "message": "Reverted back. I was thinking to change it initially for different design.",
+      "parentUuid": "9fce48b8_bd54ad79",
+      "range": {
+        "startLine": 32,
+        "startChar": 27,
+        "endLine": 32,
+        "endChar": 75
+      },
+      "revId": "d555d22fb9a2b8174a4bf37541f751f21285a268",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
