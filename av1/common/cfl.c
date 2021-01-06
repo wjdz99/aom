@@ -21,12 +21,8 @@ void cfl_init(CFL_CTX *cfl, const SequenceHeader *seq_params) {
 
   memset(&cfl->recon_buf_q3, 0, sizeof(cfl->recon_buf_q3));
   memset(&cfl->ac_buf_q3, 0, sizeof(cfl->ac_buf_q3));
-
-#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
-  memset(&cfl->neighDicCb, 0, sizeof(cfl->neighDicCb));
-  memset(&cfl->neighDicCr, 0, sizeof(cfl->neighDicCr));
-  memset(&cfl->neighNumCb, 0, sizeof(cfl->neighNumCb));
-  memset(&cfl->neighNumCr, 0, sizeof(cfl->neighNumCr));
+#if CONFIG_CFL_SEARCH_VERSION_1
+  memset(&cfl->recon_Neighbor, 0, sizeof(NeiborPix) * (CFL_BUF_LINE << 1));
 #endif
 
   cfl->subsampling_x = seq_params->subsampling_x;
@@ -34,21 +30,49 @@ void cfl_init(CFL_CTX *cfl, const SequenceHeader *seq_params) {
   cfl->are_parameters_computed = 0;
   cfl->store_y = 0;
 
-#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+  // The DC_PRED cache is disabled by default and is only enabled in
+  // cfl_rd_pick_alpha
+#if CONFIG_CFL_SEARCH_VERSION_1
   cfl->use_search_res_cache = 0;
   cfl->search_res_is_cached[CFL_PRED_U] = 0;
   cfl->search_res_is_cached[CFL_PRED_V] = 0;
   cfl->use_dc = 0;
+  cfl->use_left = 0;
+  cfl->use_up = 0;
 #else
-  // The DC_PRED cache is disabled by default and is only enabled in
-  // cfl_rd_pick_alpha
   cfl->use_dc_pred_cache = 0;
   cfl->dc_pred_is_cached[CFL_PRED_U] = 0;
   cfl->dc_pred_is_cached[CFL_PRED_V] = 0;
 #endif
 }
+#if CONFIG_CFL_SEARCH_VERSION_1
+void cfl_get_dc(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
+                CFL_PRED_TYPE pred_plane, TX_SIZE txsize) {
+  int sum = 0;
+  uint8_t *pdst = dst;
+  const int width = tx_size_wide[txsize];
+  const int height = tx_size_high[txsize];
 
-#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+  for (int i = 0; i < height; i++) {
+    for (int j = 0; j < width; j++) {
+      sum += pdst[j];
+    }
+    pdst += dst_stride;
+  }
+
+  uint8_t shift = tx_size_wide_log2[txsize] + tx_size_high_log2[txsize];
+  uint8_t offset = 1 << (shift - 1);
+  uint8_t dc = (sum + offset) >> shift;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      dst[i] = dc;
+    }
+    dst += dst_stride;
+  }
+}
+
+#endif
+#if CONFIG_CFL_SEARCH_VERSION_1
 void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                 CFL_PRED_TYPE pred_plane, TX_SIZE txsize) {
   int width = tx_size_wide[txsize];
@@ -60,40 +84,59 @@ void cfl_search(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
   CFL_CTX *const cfl = &xd->cfl;
 
   uint16_t *recon = cfl->recon_buf_q3;
-  uint16_t *nbDic = NULL;
-  int *nbNum = NULL;
-  if (pred_plane == CFL_PRED_U) {
-    nbDic = cfl->neighDicCb;
-    nbNum = cfl->neighNumCb;
-  } else {
-    nbDic = cfl->neighDicCr;
-    nbNum = cfl->neighNumCr;
-  }
+  NeiborPix *rec_nb = cfl->recon_Neighbor;
 
-  int LumaPixel;
+  int flag = 0;
   int DValue;
-
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i++) {
-      LumaPixel = recon[i] >> 3;
-      DValue = 0;
-
-      while (true) {
-        if ((LumaPixel - DValue) >= 0 && (LumaPixel - DValue) <= 255) {
-          if (nbNum[(LumaPixel - DValue)] != 0) {
-            LumaPixel -= DValue;
-            break;
+      DValue = 1024 << 3;
+      if (cfl->use_up) {
+        for (int k = 0; k < width; k++) {
+          if (abs(recon[i] - rec_nb[k].LumaPixel) < DValue) {
+            DValue = abs(recon[i] - rec_nb[k].LumaPixel);
+            flag = k;
+          } else if (abs(recon[i] - rec_nb[k].LumaPixel) == DValue) {
+            if ((((i + 1) - rec_nb[k].positionx) *
+                     ((i + 1) - rec_nb[k].positionx) +
+                 ((j + 1) - rec_nb[k].positiony) *
+                     ((j + 1) - rec_nb[k].positiony)) <
+                (((i + 1) - rec_nb[flag].positionx) *
+                     ((i + 1) - rec_nb[flag].positionx) +
+                 ((j + 1) - rec_nb[flag].positiony) *
+                     ((j + 1) - rec_nb[flag].positiony))) {
+              flag = k;
+            }
           }
         }
-        if ((LumaPixel + DValue) >= 0 && (LumaPixel + DValue) <= 255) {
-          if (nbNum[(LumaPixel + DValue)] != 0) {
-            LumaPixel += DValue;
-            break;
-          }
-        }
-        DValue++;
       }
-      dst[i] = nbDic[LumaPixel] / nbNum[LumaPixel];
+
+      if (cfl->use_left) {
+        for (int k = 0; k < height; k++) {
+          if (abs(recon[i] - rec_nb[CFL_BUF_LINE + k].LumaPixel) < DValue) {
+            DValue = abs(recon[i] - rec_nb[CFL_BUF_LINE + k].LumaPixel);
+            flag = k + CFL_BUF_LINE;
+          } else if (abs(recon[i] - rec_nb[CFL_BUF_LINE + k].LumaPixel) ==
+                     DValue) {
+            if ((((i + 1) - rec_nb[CFL_BUF_LINE + k].positionx) *
+                     ((i + 1) - rec_nb[CFL_BUF_LINE + k].positionx) +
+                 ((j + 1) - rec_nb[CFL_BUF_LINE + k].positiony) *
+                     ((j + 1) - rec_nb[CFL_BUF_LINE + k].positiony)) <
+                (((i + 1) - rec_nb[flag].positionx) *
+                     ((i + 1) - rec_nb[flag].positionx) +
+                 ((j + 1) - rec_nb[flag].positiony) *
+                     ((j + 1) - rec_nb[flag].positiony))) {
+              flag = k + CFL_BUF_LINE;
+            }
+          }
+        }
+      }
+
+      if (pred_plane == CFL_PRED_U) {
+        dst[i] = rec_nb[flag].ChromCbPixel;
+      } else {
+        dst[i] = rec_nb[flag].ChromCrPixel;
+      }
     }
     recon += CFL_BUF_LINE;
     dst += dst_stride;
@@ -151,30 +194,6 @@ void cfl_load_search_res(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
   cfl_load_search_res_lbd(xd->cfl.search_res_cache[pred_plane], dst, dst_stride,
                           width, height);
 }
-void cfl_get_dc(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
-                CFL_PRED_TYPE pred_plane, TX_SIZE txsize) {
-  int sum = 0;
-  uint8_t *pdst = dst;
-  const int width = tx_size_wide[txsize];
-  const int height = tx_size_high[txsize];
-
-  for (int i = 0; i < height; i++) {
-    for (int j = 0; j < width; j++) {
-      sum += pdst[j];
-    }
-    pdst += dst_stride;
-  }
-
-  uint8_t shift = tx_size_wide_log2[txsize] + tx_size_high_log2[txsize];
-  uint8_t offset = 1 << (shift - 1);
-  uint8_t dc = (sum + offset) >> shift;
-  for (int j = 0; j < height; j++) {
-    for (int i = 0; i < width; i++) {
-      dst[i] = dc;
-    }
-    dst += dst_stride;
-  }
-}
 #else
 void cfl_store_dc_pred(MACROBLOCKD *const xd, const uint8_t *input,
                        CFL_PRED_TYPE pred_plane, int width) {
@@ -223,7 +242,6 @@ void cfl_load_dc_pred(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                        width, height);
 }
 #endif
-
 // Due to frame boundary issues, it is possible that the total area covered by
 // chroma exceeds that of luma. When this happens, we fill the missing pixels by
 // repeating the last columns and/or rows.
@@ -503,18 +521,13 @@ static void cfl_store(CFL_CTX *cfl, const uint8_t *input, int input_stride,
   }
 }
 
-#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+#if CONFIG_CFL_SEARCH_VERSION_1
 void cfl_store_nb(MACROBLOCKD *const xd, BLOCK_SIZE bsize) {
   CFL_CTX *const cfl = &xd->cfl;
   cfl->use_dc = 0;
-  if (!xd->chroma_up_available && !xd->chroma_left_available) {
-    cfl->use_dc = 1;
-    return;
-  }
-  memset(&cfl->neighDicCb, 0, sizeof(cfl->neighDicCb));
-  memset(&cfl->neighDicCr, 0, sizeof(cfl->neighDicCr));
-  memset(&cfl->neighNumCb, 0, sizeof(cfl->neighNumCb));
-  memset(&cfl->neighNumCr, 0, sizeof(cfl->neighNumCr));
+  cfl->use_left = 0;
+  cfl->use_up = 0;
+
   struct macroblockd_plane *const pd = &xd->plane[AOM_PLANE_Y];
   struct macroblockd_plane *const pdU = &xd->plane[AOM_PLANE_U];
   struct macroblockd_plane *const pdV = &xd->plane[AOM_PLANE_V];
@@ -522,11 +535,7 @@ void cfl_store_nb(MACROBLOCKD *const xd, BLOCK_SIZE bsize) {
   const int subWidth = pdU->width;
   const int subHeight = pdU->height;
 
-  uint16_t *nbdicCb = cfl->neighDicCb;
-  int *nbNumCb = cfl->neighNumCb;
-
-  uint16_t *nbdicCr = cfl->neighDicCr;
-  int *nbNumCr = cfl->neighNumCr;
+  NeiborPix *recNb = cfl->recon_Neighbor;
 
   uint8_t *dst = &pd->dst.buf[0];
   const int dst_stride = pd->dst.stride;
@@ -541,61 +550,66 @@ void cfl_store_nb(MACROBLOCKD *const xd, BLOCK_SIZE bsize) {
   const int pChromaCrStride = pdV->dst.stride;
   uint8_t *pCurrCb = NULL;
   uint8_t *pCurrCr = NULL;
-  int LumaPixel;
 
   if (xd->chroma_up_available) {
+    cfl->use_up = 1;
     pCurrCb = pChromaCbSrc - pChromaCbStride;
     pCurrCr = pChromaCrSrc - pChromaCrStride;
     if (block_size_wide[bsize] == 4) {
       for (int i = 0; i < subWidth; i++) {
-        LumaPixel = above_ref[i];
-        nbdicCb[LumaPixel] += pCurrCb[i];
-        nbNumCb[LumaPixel] += 1;
-        nbdicCr[LumaPixel] += pCurrCr[i];
-        nbNumCr[LumaPixel] += 1;
+        recNb[i].LumaPixel = above_ref[i] << 3;
+        recNb[i].positionx = i;
+        recNb[i].positiony = -1;
       }
     } else {
       for (int i = 0; i < subWidth; i++) {
-        LumaPixel = (above_ref[2 * i] + above_ref[2 * i + 1] +
-                     (above_ref - ref_stride)[2 * i] +
-                     (above_ref - ref_stride)[2 * i + 1]) >>
-                    2;
-        nbdicCb[LumaPixel] += pCurrCb[i];
-        nbNumCb[LumaPixel] += 1;
-        nbdicCr[LumaPixel] += pCurrCr[i];
-        nbNumCr[LumaPixel] += 1;
+        recNb[i].LumaPixel = (above_ref[2 * i] + above_ref[2 * i + 1] +
+                              (above_ref - ref_stride)[2 * i] +
+                              (above_ref - ref_stride)[2 * i + 1])
+                             << 1;
+        recNb[i].positionx = i;
+        recNb[i].positiony = -1;
       }
+    }
+    for (int i = 0; i < subWidth; i++) {
+      recNb[i].ChromCbPixel = pCurrCb[i];
+      recNb[i].ChromCrPixel = pCurrCr[i];
     }
   }
 
   if (xd->chroma_left_available) {
+    cfl->use_left = 1;
     pCurrCb = pChromaCbSrc - 1;
     pCurrCr = pChromaCrSrc - 1;
     if (block_size_high[bsize] == 4) {
       for (int i = 0; i < subHeight; i++) {
-        LumaPixel = left_ref[0];
-        nbdicCb[LumaPixel] += pCurrCb[0];
-        nbNumCb[LumaPixel] += 1;
-        nbdicCr[LumaPixel] += pCurrCr[0];
-        nbNumCr[LumaPixel] += 1;
+        recNb[CFL_BUF_LINE + i].LumaPixel = left_ref[0] << 3;
+        recNb[CFL_BUF_LINE + i].positionx = -1;
+        recNb[CFL_BUF_LINE + i].positiony = i;
         left_ref += ref_stride;
-        pCurrCb += pChromaCbStride;
-        pCurrCr += pChromaCrStride;
       }
     } else {
       for (int i = 0; i < subHeight; i++) {
-        LumaPixel = (left_ref[0] + (left_ref + ref_stride)[0] +
-                     (left_ref - 1)[0] + (left_ref + ref_stride - 1)[0]) >>
-                    2;
-        nbdicCb[LumaPixel] += pCurrCb[0];
-        nbNumCb[LumaPixel] += 1;
-        nbdicCr[LumaPixel] += pCurrCr[0];
-        nbNumCr[LumaPixel] += 1;
+        recNb[CFL_BUF_LINE + i].LumaPixel =
+            (left_ref[0] + (left_ref + ref_stride)[0] + (left_ref - 1)[0] +
+             (left_ref + ref_stride - 1)[0])
+            << 1;
+        recNb[CFL_BUF_LINE + i].positionx = -1;
+        recNb[CFL_BUF_LINE + i].positiony = i;
         left_ref += ref_stride << 1;
-        pCurrCb += pChromaCbStride;
-        pCurrCr += pChromaCrStride;
       }
     }
+
+    for (int i = 0; i < subHeight; i++) {
+      recNb[CFL_BUF_LINE + i].ChromCbPixel = pCurrCb[0];
+      recNb[CFL_BUF_LINE + i].ChromCrPixel = pCurrCr[0];
+      pCurrCb += pChromaCbStride;
+      pCurrCr += pChromaCrStride;
+    }
+  }
+
+  if (!cfl->use_left && !cfl->use_up) {
+    cfl->use_dc = 1;
   }
 }
 #endif
