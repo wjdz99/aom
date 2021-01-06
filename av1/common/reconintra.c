@@ -2788,7 +2788,6 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
         cfl_search(xd, dst, dst_stride, pred_plane, tx_size);
         cfl_get_dc(xd, dst, dst_stride, pred_plane, tx_size);
       }
-
       if (cfl->use_search_res_cache) {
         cfl_store_search_res(xd, dst, dst_stride, pred_plane, tx_size);
         cfl->search_res_is_cached[pred_plane] = 1;
@@ -2816,7 +2815,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     } else {
       cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);
     }
-    #endif
+#endif
     cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
     return;
   }

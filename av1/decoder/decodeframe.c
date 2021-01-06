@@ -1087,14 +1087,13 @@ static void decode_token_recon_block(AV1Decoder *const pbi,
             }
           }
 
-          #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
           if (plane == AOM_PLANE_Y && store_cfl_required(cm, xd)) {
             cfl_store_nb(xd,
                          get_plane_block_size(bsize, xd->plane[0].subsampling_x,
                                               xd->plane[0].subsampling_y));
           }
 #endif
-
         }
       }
     }

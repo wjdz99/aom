@@ -1033,8 +1033,7 @@ typedef struct cfl_ctx {
   // Q3 AC contributions (reconstructed luma pixels - tx block avg)
   int16_t ac_buf_q3[CFL_BUF_SQUARE];
 
-
-  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   uint16_t neighDicCb[256];
   uint16_t neighDicCr[256];
   int neighNumCb[256];
@@ -1051,7 +1050,7 @@ typedef struct cfl_ctx {
   int use_dc_pred_cache;
   // Only cache the first row of the DC_PRED
   int16_t dc_pred_cache[CFL_PRED_PLANES][CFL_BUF_LINE];
-  #endif
+#endif
 
   // Height and width currently used in the CfL prediction buffer.
   int buf_height, buf_width;

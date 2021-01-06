@@ -7540,11 +7540,11 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   }
 #endif  // CONFIG_DEBUG
 
-  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   xd->cfl.use_search_res_cache = 1;
 #else
   xd->cfl.use_dc_pred_cache = 1;
-  #endif
+#endif
   const int64_t mode_rd = RDCOST(x->rdmult, mode_cost, 0);
   int64_t best_rd_uv[CFL_JOINT_SIGNS][CFL_PRED_PLANES];
   int best_c[CFL_JOINT_SIGNS][CFL_PRED_PLANES];
@@ -7641,16 +7641,17 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   mbmi->cfl_alpha_idx = ind;
   mbmi->cfl_alpha_signs = best_joint_sign;
 
-  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   xd->cfl.use_search_res_cache = 0;
+
   xd->cfl.search_res_is_cached[0] = 0;
+
   xd->cfl.search_res_is_cached[1] = 0;
 #else
-
   xd->cfl.use_dc_pred_cache = 0;
   xd->cfl.dc_pred_is_cached[0] = 0;
   xd->cfl.dc_pred_is_cached[1] = 0;
-  #endif
+#endif
   return best_rate_overhead;
 }
 

@@ -55,7 +55,6 @@ void cfl_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
 void cfl_store_nb(MACROBLOCKD *const xd, BLOCK_SIZE bsize);
 #endif
 
-
 void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size);
 
 void cfl_store_tx(MACROBLOCKD *const xd, int row, int col, TX_SIZE tx_size);

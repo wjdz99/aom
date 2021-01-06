@@ -22,21 +22,19 @@ void cfl_init(CFL_CTX *cfl, const SequenceHeader *seq_params) {
   memset(&cfl->recon_buf_q3, 0, sizeof(cfl->recon_buf_q3));
   memset(&cfl->ac_buf_q3, 0, sizeof(cfl->ac_buf_q3));
 
-  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   memset(&cfl->neighDicCb, 0, sizeof(cfl->neighDicCb));
   memset(&cfl->neighDicCr, 0, sizeof(cfl->neighDicCr));
   memset(&cfl->neighNumCb, 0, sizeof(cfl->neighNumCb));
   memset(&cfl->neighNumCr, 0, sizeof(cfl->neighNumCr));
 #endif
 
-
   cfl->subsampling_x = seq_params->subsampling_x;
   cfl->subsampling_y = seq_params->subsampling_y;
   cfl->are_parameters_computed = 0;
   cfl->store_y = 0;
 
-
-  #if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
+#if CONFIG_CFL_SEARCH_VERSION_1_SIMPLIFIED
   cfl->use_search_res_cache = 0;
   cfl->search_res_is_cached[CFL_PRED_U] = 0;
   cfl->search_res_is_cached[CFL_PRED_V] = 0;
@@ -225,7 +223,6 @@ void cfl_load_dc_pred(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                        width, height);
 }
 #endif
-
 
 // Due to frame boundary issues, it is possible that the total area covered by
 // chroma exceeds that of luma. When this happens, we fill the missing pixels by
