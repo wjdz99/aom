@@ -1064,18 +1064,6 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   // Set two-pass stats configuration.
 
-  // Set Key frame configuration.
-  kf_cfg->fwd_kf_enabled = cfg->fwd_kf_enabled;
-  kf_cfg->auto_key =
-      cfg->kf_mode == AOM_KF_AUTO && cfg->kf_min_dist != cfg->kf_max_dist;
-  kf_cfg->key_freq_min = cfg->kf_min_dist;
-  kf_cfg->key_freq_max = cfg->kf_max_dist;
-  kf_cfg->sframe_dist = cfg->sframe_dist;
-  kf_cfg->sframe_mode = cfg->sframe_mode;
-  kf_cfg->enable_sframe = extra_cfg->s_frame_mode;
-  kf_cfg->enable_keyframe_filtering = extra_cfg->enable_keyframe_filtering;
-  kf_cfg->enable_intrabc = extra_cfg->enable_intrabc;
-
   oxcf->speed = extra_cfg->cpu_used;
 
   // Set Color related configuration.
@@ -1110,6 +1098,22 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
       }
     }
   }
+
+  // Set Key frame configuration.
+  kf_cfg->auto_key =
+      cfg->kf_mode == AOM_KF_AUTO && cfg->kf_min_dist != cfg->kf_max_dist;
+  kf_cfg->key_freq_min = cfg->kf_min_dist;
+  kf_cfg->key_freq_max = cfg->kf_max_dist;
+  kf_cfg->sframe_dist = cfg->sframe_dist;
+  kf_cfg->sframe_mode = cfg->sframe_mode;
+  kf_cfg->enable_sframe = extra_cfg->s_frame_mode;
+  kf_cfg->enable_keyframe_filtering = extra_cfg->enable_keyframe_filtering;
+  kf_cfg->enable_intrabc = extra_cfg->enable_intrabc;
+  // TODO(any): Fix and enable forward keyframe for SubGOP config
+  kf_cfg->fwd_kf_enabled =
+      (oxcf->subgop_config_str == NULL && oxcf->subgop_config_path == NULL)
+          ? cfg->fwd_kf_enabled
+          : 0;
 
   // Set tune related configuration.
   tune_cfg->tuning = extra_cfg->tuning;
