@@ -271,7 +271,16 @@ static BLOCK_SIZE get_bsize(const CommonModeInfoParams *const mi_params,
 
 static int find_fp_qindex(aom_bit_depth_t bit_depth) {
   aom_clear_system_state();
+#if CONFIG_EXTQUANT
+  return av1_find_qindex(FIRST_PASS_Q, bit_depth, 0,
+                         bit_depth == AOM_BITS_8
+                             ? QINDEX_RANGE_8_BITS - 1
+                             : bit_depth == AOM_BITS_10
+                                   ? QINDEX_RANGE_10_BITS - 1
+                                   : QINDEX_RANGE - 1);
+#else
   return av1_find_qindex(FIRST_PASS_Q, bit_depth, 0, QINDEX_RANGE - 1);
+#endif
 }
 
 static double raw_motion_error_stdev(int *raw_motion_err_list,
@@ -1104,9 +1113,9 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   // Do not use periodic key frames.
   cpi->rc.frames_to_key = INT_MAX;
 
-  av1_set_quantizer(cm, cpi->oxcf.q_cfg.qm_minlevel,
-                    cpi->oxcf.q_cfg.qm_maxlevel, qindex,
-                    cpi->oxcf.q_cfg.enable_chroma_deltaq);
+  av1_set_quantizer(
+      cm, cpi->oxcf.q_cfg.qm_minlevel, cpi->oxcf.q_cfg.qm_maxlevel, qindex,
+      cpi->oxcf.q_cfg.enable_chroma_deltaq, cpi->oxcf.q_cfg.deltaq_mode);
 
   av1_setup_block_planes(xd, seq_params->subsampling_x,
                          seq_params->subsampling_y, num_planes);
