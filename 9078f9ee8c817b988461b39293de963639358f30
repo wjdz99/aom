@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cef67203_c6a5ca56",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T19:38:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e0b3337_320b17f6",
+      "range": {
+        "startLine": 24,
+        "startChar": 47,
+        "endLine": 24,
+        "endChar": 60
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e1eca39_f6c007f6",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-07T02:06:10Z",
       "side": 1,
       "message": "1. Move the \"protected:\" section after the \"public:\" section. The Style Guide recommends the order of \"public\", \"protected\", \"private\".\n\n2. The data member names should have a trailing underscore: enc_ and _dec_.\n\n3. iface_cx, enc_cfg, iface_dx, and dec_cfg should be local variables in the SetUp() method, because they are only used in SetUp().",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 36
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "659dea81_5aaa0320",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T19:38:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e1eca39_f6c007f6",
       "range": {
         "startLine": 27,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90f471e2_ae1470c6",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T19:38:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b02842a_e821e4a5",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 36
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb75df91_93b5c26d",
@@ -87,6 +159,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e13de8f_5954b5af",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T19:38:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb75df91_93b5c26d",
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03a6a547_2f39fe14",
@@ -100,6 +190,24 @@
       "writtenOn": "2021-01-07T02:06:10Z",
       "side": 1,
       "message": "Nit/optional: In C++ we should use nullptr instead of NULL. If NULL is used in the other unit test files in libaom, then this is fine.",
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20ae6ea7_25aaf1a1",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T19:38:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03a6a547_2f39fe14",
       "revId": "9078f9ee8c817b988461b39293de963639358f30",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -127,6 +235,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44e2ce82_56c569f1",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T19:38:29Z",
+      "side": 1,
+      "message": "Yes, with NULL it threw some warnings. But now with nullptr I think it is fine.",
+      "parentUuid": "7549bef8_8c55659a",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 58
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "78241616_7c231903",
@@ -140,6 +272,30 @@
       "writtenOn": "2021-01-07T02:06:10Z",
       "side": 1,
       "message": "Delete these? They don\u0027t seem needed.",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 63
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6e87028_9ce9745b",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T19:38:29Z",
+      "side": 1,
+      "message": "When CONFIG_AV1_ENCODER is 0, it is possible that no tests were instantiated. However I mistakenly added these lines inside the macro #if #else checks. This is now corrected.",
+      "parentUuid": "78241616_7c231903",
       "range": {
         "startLine": 139,
         "startChar": 0,
