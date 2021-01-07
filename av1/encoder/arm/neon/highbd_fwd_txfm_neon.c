@@ -1793,6 +1793,7 @@ static const fwd_transform_1d_neon col_highbd_txfm8x8_arr[TX_TYPES] = {
   fadst8x8_neon,  // V_FLIPADST
   idtx8x8_neon    // H_FLIPADST
 };
+#if !CONFIG_REALTIME_ONLY
 static const fwd_transform_1d_neon row_highbd_txfm32x8_arr[TX_TYPES] = {
   fdct8x8_neon,   // DCT_DCT
   NULL,           // ADST_DCT
@@ -1811,6 +1812,7 @@ static const fwd_transform_1d_neon row_highbd_txfm32x8_arr[TX_TYPES] = {
   NULL,           // V_FLIPADST
   NULL,           // H_FLIPADST
 };
+#endif
 static const fwd_transform_1d_neon col_highbd_txfm4x8_arr[TX_TYPES] = {
   fdct4x8_neon,   // DCT_DCT
   fadst8x8_neon,  // ADST_DCT
@@ -3421,6 +3423,7 @@ static INLINE void transpose_8nx8n(const int32x4_t *input, int32x4_t *output,
   }
 }
 
+#if !CONFIG_REALTIME_ONLY
 void av1_fwd_txfm2d_4x16_neon(const int16_t *input, int32_t *coeff, int stride,
                               TX_TYPE tx_type, int bd) {
   (void)bd;
@@ -3452,6 +3455,7 @@ void av1_fwd_txfm2d_4x16_neon(const int16_t *input, int32_t *coeff, int stride,
     row_txfm(in + i, outcoeff128 + i * txfm_size_col, bitrow, txfm_size_col);
   }
 }
+#endif
 
 void av1_fwd_txfm2d_16x4_neon(const int16_t *input, int32_t *coeff, int stride,
                               TX_TYPE tx_type, int bd) {
@@ -3637,6 +3641,7 @@ void av1_fwd_txfm2d_32x16_neon(const int16_t *input, int32_t *coeff, int stride,
   (void)bd;
 }
 
+#if !CONFIG_REALTIME_ONLY
 void av1_fwd_txfm2d_8x32_neon(const int16_t *input, int32_t *coeff, int stride,
                               TX_TYPE tx_type, int bd) {
   int32x4_t in[64];
@@ -3707,6 +3712,7 @@ void av1_fwd_txfm2d_32x8_neon(const int16_t *input, int32_t *coeff, int stride,
   transpose_8nx8n(in, outcoef128, txfm_size_row, txfm_size_col);
   (void)bd;
 }
+#endif
 
 void av1_fwd_txfm2d_4x8_neon(const int16_t *input, int32_t *coeff, int stride,
                              TX_TYPE tx_type, int bd) {
@@ -3771,6 +3777,7 @@ void av1_fwd_txfm2d_8x4_neon(const int16_t *input, int32_t *coeff, int stride,
   (void)bd;
 }
 
+#if !CONFIG_REALTIME_ONLY
 void av1_fwd_txfm2d_16x64_neon(const int16_t *input, int32_t *coeff, int stride,
                                TX_TYPE tx_type, int bd) {
   int32x4_t in[256];
@@ -3855,6 +3862,7 @@ void av1_fwd_txfm2d_64x16_neon(const int16_t *input, int32_t *coeff, int stride,
   transpose_8nx8n(in, outcoeff128, txfm_size_row, 32);
   (void)bd;
 }
+#endif
 
 static void fdct64_new_neon(int32x4_t *input, int32x4_t *output,
                             const int8_t cos_bit, const int8_t *stage_range) {
