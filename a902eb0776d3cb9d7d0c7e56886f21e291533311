@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c65d1f1_5eef5208",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Thanks a lot for the detailed comments!",
+      "parentUuid": "d1ca4f52_d758ee88",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01d32fae_cf9db33a",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Nit: Perhaps call this the \"Name \u0026 Value API\", because the parameter is called \"name\" and \"value\"?",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0598974_e6aa8b39",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "It feels the term \"key \u0026 value\" or \"key\u003dvalue\" is the convention? I added more explanation to link the two terms in order to avoid confusion.",
+      "parentUuid": "01d32fae_cf9db33a",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "77dcd686_bcf78afe",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Please see above comment.",
+      "parentUuid": "bf585dfc_1a8b3309",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad178817_0f36f79a",
@@ -65,6 +119,30 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "1. Nit: set to err_message \u003d\u003e stored in err_message\n\n2. This function should not have the err_message output parameter. I don\u0027t think any other libaom public function has an err_message output parameter.\n\nIf we want to return an error message, we should store the error message in ctx-\u003eerr_detail. If the error message is fixed, we can just set ctx-\u003eerr_detail to a string literal, for example,\n\n  ctx-\u003eerr_detail \u003d \"Invalid value for option\";\n\nIf the error message needs to mention the \u0027name\u0027 or \u0027value\u0027 argument, then we need to point ctx-\u003eerr_detail to a buffer with a lifetime as long as \u0027ctx\u0027. A good option is the \u0027detail\u0027 buffer in ctx-\u003ecpi-\u003ecommon.error.detail (we will need to enlarge its size to ARG_ERR_MSG_MAX_LEN):\n\n  struct aom_internal_error_info {\n    aom_codec_err_t error_code;\n    int has_detail;\n    char detail[80];\n    int setjmp;  // Boolean: whether \u0027jmp\u0027 is valid.\n    jmp_buf jmp;\n  };\n\nSee also my next comment.",
+      "range": {
+        "startLine": 497,
+        "startChar": 54,
+        "endLine": 498,
+        "endChar": 29
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84c67fc1_b693f861",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "I see your point. I have discarded the parameter and use this detail buffer instead as suggested.",
+      "parentUuid": "ad178817_0f36f79a",
       "range": {
         "startLine": 497,
         "startChar": 54,
@@ -98,6 +176,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc693b95_266d2650",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dbd73d48_a5b76a59",
+      "range": {
+        "startLine": 498,
+        "startChar": 31,
+        "endLine": 499,
+        "endChar": 25
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06cb2ca5_0a988a4a",
@@ -111,6 +213,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Nit: codec_ctx \u003d\u003e ctx\n\n\"ctx\" is the name used in the other functions.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f38b3113_305b807f",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06cb2ca5_0a988a4a",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -132,6 +252,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "73760ab9_aca0096c",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dab39b65_1d65aec3",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2a8ff98_ae5d103c",
@@ -149,6 +287,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c72557c_146227a8",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2a8ff98_ae5d103c",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "378728aa_bed1030f",
@@ -162,6 +318,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Nit: AOM_CODEC_ERROR may also be returned.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de05f64d_34235341",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "378728aa_bed1030f",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -189,6 +363,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "443d7dc4_a1f55913",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed5bc3d7_a8a3b3fe",
+      "range": {
+        "startLine": 511,
+        "startChar": 54,
+        "endLine": 511,
+        "endChar": 63
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4aa8eab5_b8b8467e",
@@ -206,6 +404,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "54cfc6d8_344cf563",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Also added explanation.",
+      "parentUuid": "4aa8eab5_b8b8467e",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d0512a7_f3350937",
@@ -219,6 +435,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Nit: Copy the other error code from aom_codec.h?\n\n * \\retval #AOM_CODEC_INVALID_PARAM\n *     The data was not valid.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "216d2757_ac8d5001",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d0512a7_f3350937",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -263,6 +497,48 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2652c56_817f208e",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31e960ce_ff21ee5e",
+      "range": {
+        "startLine": 170,
+        "startChar": 49,
+        "endLine": 170,
+        "endChar": 75
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8af01664_693970e7",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d147742c_1ce2d251",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b46d1c42_c85cda91",
@@ -276,6 +552,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Nit: Name this \"set_option\". Most of the function pointer fields do not have \"_fn\" in their names.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "880bf75f_f3cd0965",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b46d1c42_c85cda91",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -315,6 +609,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a67aa249_36270b24",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "I agree. aomenc.c could definitely use this function, but currently we do not support as many options as recorded in aomenc.c. We could start \"porting\" these options into the key \u0026 val api, and then in the end just use this api.",
+      "parentUuid": "04ff4f92_c758ed73",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8df8c8f0_4026cdba",
@@ -328,6 +640,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Don\u0027t include this header in aomenc.h. Move this #include statement to aomenc.c.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e26cbd3_7b63747e",
+        "filename": "apps/aomenc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "I moved the enum TestDecodeFatality to arg_defs.h, and it is needed in the struct AvxEncoderConfig. That is why this is included here.",
+      "parentUuid": "8df8c8f0_4026cdba",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -349,6 +679,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d17167c_0cb2b177",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "690eb455_9203c90e",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2c21da3c_228d62e3",
@@ -362,6 +710,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Remove \u0027const\u0027 from the declarations of all the fields in struct CodecArgDefs.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "145d8a99_3657b3e6",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2c21da3c_228d62e3",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -383,6 +749,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a6e366d_05149312",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bf17bf7_49ebbfd9",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "858610da_b788efcd",
@@ -396,6 +780,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Declare this function as static.\n\nName this function \"encoder_set_option\". That\u0027s the naming convention for the other encoder functions.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0589100b_325009d1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2768,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "858610da_b788efcd",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -423,6 +825,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed01ea63_b41f4ef9",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2772,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a1f27c7_b58eb76d",
+      "range": {
+        "startLine": 2771,
+        "startChar": 0,
+        "endLine": 2772,
+        "endChar": 68
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fd9ddf4d_ad802a15",
@@ -436,6 +862,24 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Typo: err_msg \u003d\u003e err_string",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e9ec356_265e97a2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2839,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd9ddf4d_ad802a15",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -457,6 +901,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5fc8372_494d1668",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3086,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9f788b3a_0c1db017",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9d4d4a76_609a8f47",
@@ -470,6 +932,42 @@
       "writtenOn": "2021-01-07T01:48:24Z",
       "side": 1,
       "message": "Nit: Add a comment with the function pointer type. See lines 1595-1600 above.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd2f79c4_0452cc71",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d4d4a76_609a8f47",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5446f4ed_d5cb127c",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-07T18:59:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d4d4a76_609a8f47",
       "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
