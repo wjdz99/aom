@@ -1,0 +1,459 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1ca4f52_d758ee88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Hi Bohan: I suggest some changes. Some parts of this CL don\u0027t seem ideal, but I cannot come up with a better solution.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01d32fae_cf9db33a",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: Perhaps call this the \"Name \u0026 Value API\", because the parameter is called \"name\" and \"value\"?",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf585dfc_1a8b3309",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: key \u003d\u003e name ?",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad178817_0f36f79a",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "1. Nit: set to err_message \u003d\u003e stored in err_message\n\n2. This function should not have the err_message output parameter. I don\u0027t think any other libaom public function has an err_message output parameter.\n\nIf we want to return an error message, we should store the error message in ctx-\u003eerr_detail. If the error message is fixed, we can just set ctx-\u003eerr_detail to a string literal, for example,\n\n  ctx-\u003eerr_detail \u003d \"Invalid value for option\";\n\nIf the error message needs to mention the \u0027name\u0027 or \u0027value\u0027 argument, then we need to point ctx-\u003eerr_detail to a buffer with a lifetime as long as \u0027ctx\u0027. A good option is the \u0027detail\u0027 buffer in ctx-\u003ecpi-\u003ecommon.error.detail (we will need to enlarge its size to ARG_ERR_MSG_MAX_LEN):\n\n  struct aom_internal_error_info {\n    aom_codec_err_t error_code;\n    int has_detail;\n    char detail[80];\n    int setjmp;  // Boolean: whether \u0027jmp\u0027 is valid.\n    jmp_buf jmp;\n  };\n\nSee also my next comment.",
+      "range": {
+        "startLine": 497,
+        "startChar": 54,
+        "endLine": 498,
+        "endChar": 29
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbd73d48_a5b76a59",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "It is problematic to set ctx-\u003eerr_detail to a buffer with an unknown lifetime. I illustrate this problem with an example.\n\nSuppose someone writes a function to set the distortion metric (psnr, ssim, etc.) for which an encoder should be tuned:\n\n  aom_codec_err_t SetEncoderTuneMetric(aom_codec_ctx_t *codec_ctx, const char *metric) {\n    char err_message[ARG_ERR_MSG_MAX_LEN];\n    return aom_codec_set_option(codec_ctx, \"tune\", metric, err_message);\n  }\n\nIf the aom_codec_set_option() call fails and we set ctx-\u003eerr_detail to err_message, then when SetEncoderTuneMetric() returns, ctx-\u003eerr_detail will be pointing to invalid memory, because the local variable err_message is gone by then.",
+      "range": {
+        "startLine": 498,
+        "startChar": 31,
+        "endLine": 499,
+        "endChar": 25
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06cb2ca5_0a988a4a",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: codec_ctx \u003d\u003e ctx\n\n\"ctx\" is the name used in the other functions.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dab39b65_1d65aec3",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Assuming we keep the err_message parameter, we need to document that this needs to point to a buffer at least ARG_ERR_MSG_MAX_LEN bytes long, or set to NULL. You can copy the comment from aom_codec_internal.h.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2a8ff98_ae5d103c",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "This description should be updated. (This seems to be a comment for aom_codec_control().)",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "378728aa_bed1030f",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: AOM_CODEC_ERROR may also be returned.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed5bc3d7_a8a3b3fe",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: codec_ctx \u003d\u003e ctx",
+      "range": {
+        "startLine": 511,
+        "startChar": 54,
+        "endLine": 511,
+        "endChar": 63
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4aa8eab5_b8b8467e",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: key \u003d\u003e name ?",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d0512a7_f3350937",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: Copy the other error code from aom_codec.h?\n\n * \\retval #AOM_CODEC_INVALID_PARAM\n *     The data was not valid.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d147742c_1ce2d251",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: aom_codec_option_fn_t \u003d\u003e aom_codec_set_option_fn_t ?",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31e960ce_ff21ee5e",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "It seems that the first parameter should be declared as:\n\n    aom_codec_alg_priv_t *ctx\n\nPlease see the other codec function pointer types.",
+      "range": {
+        "startLine": 170,
+        "startChar": 49,
+        "endLine": 170,
+        "endChar": 75
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b46d1c42_c85cda91",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: Name this \"set_option\". Most of the function pointer fields do not have \"_fn\" in their names.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66c06ec4_e8f17374",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "IMPORTANT: Ideally, aomenc.c should call the new aom_codec_set_option() function. Can we do that?",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8df8c8f0_4026cdba",
+        "filename": "apps/aomenc.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Don\u0027t include this header in aomenc.h. Move this #include statement to aomenc.c.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "690eb455_9203c90e",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: 2020 \u003d\u003e 2021",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c21da3c_228d62e3",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Remove \u0027const\u0027 from the declarations of all the fields in struct CodecArgDefs.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bf17bf7_49ebbfd9",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Add an arg_defs.c file.\n\nVery likely, everything before line 151 can be moved to arg_defs.c.\n\nMove the definition of this const array to arg_defs.c. Remove the \"static\" keyword.\n\nAdd the \"av1\" prefix to the name of this const array.\n\nChange this declaration to:\n\n  extern const struct CodecArgDefs av1CodecArgDefs;",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "858610da_b788efcd",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2768,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Declare this function as static.\n\nName this function \"encoder_set_option\". That\u0027s the naming convention for the other encoder functions.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a1f27c7_b58eb76d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2772,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: merge these two if statements?",
+      "range": {
+        "startLine": 2771,
+        "startChar": 0,
+        "endLine": 2772,
+        "endChar": 68
+      },
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd9ddf4d_ad802a15",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2839,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Typo: err_msg \u003d\u003e err_string",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f788b3a_0c1db017",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3086,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: Here it is safe and simpler to use strcpy():\n\n      strcpy(err_msg, err_string);",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d4d4a76_609a8f47",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T01:48:24Z",
+      "side": 1,
+      "message": "Nit: Add a comment with the function pointer type. See lines 1595-1600 above.",
+      "revId": "a902eb0776d3cb9d7d0c7e56886f21e291533311",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
