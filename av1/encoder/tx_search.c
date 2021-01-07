@@ -409,70 +409,6 @@ static INLINE int64_t pixel_diff_stats(
   return sse;
 }
 
-// Uses simple features on top of DCT coefficients to quickly predict
-// whether optimal RD decision is to skip encoding the residual.
-// The sse value is stored in dist.
-static int predict_skip_txfm(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
-                             int reduced_tx_set) {
-  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  const int bw = block_size_wide[bsize];
-  const int bh = block_size_high[bsize];
-  const MACROBLOCKD *xd = &x->e_mbd;
-  const int16_t dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd);
-
-  *dist = pixel_diff_dist(x, 0, 0, 0, bsize, bsize, NULL);
-
-  const int64_t mse = *dist / bw / bh;
-  // Normalized quantizer takes the transform upscaling factor (8 for tx size
-  // smaller than 32) into account.
-  const int16_t normalized_dc_q = dc_q >> 3;
-  const int64_t mse_thresh = (int64_t)normalized_dc_q * normalized_dc_q / 8;
-  // For faster early skip decision, use dist to compare against threshold so
-  // that quality risk is less for the skip=1 decision. Otherwise, use mse
-  // since the fwd_txfm coeff checks will take care of quality
-  // TODO(any): Use dist to return 0 when skip_txfm_level is 1
-  int64_t pred_err = (txfm_params->skip_txfm_level >= 2) ? *dist : mse;
-  // Predict not to skip when error is larger than threshold.
-  if (pred_err > mse_thresh) return 0;
-  // Return as skip otherwise for aggressive early skip
-  else if (txfm_params->skip_txfm_level >= 2)
-    return 1;
-
-  const int max_tx_size = max_predict_sf_tx_size[bsize];
-  const int tx_h = tx_size_high[max_tx_size];
-  const int tx_w = tx_size_wide[max_tx_size];
-  DECLARE_ALIGNED(32, tran_low_t, coefs[32 * 32]);
-  TxfmParam param;
-  param.tx_type = DCT_DCT;
-  param.tx_size = max_tx_size;
-  param.bd = xd->bd;
-  param.is_hbd = is_cur_buf_hbd(xd);
-  param.lossless = 0;
-  param.tx_set_type = av1_get_ext_tx_set_type(
-      param.tx_size, is_inter_block(xd->mi[0]), reduced_tx_set);
-  const int bd_idx = (xd->bd == 8) ? 0 : ((xd->bd == 10) ? 1 : 2);
-  const uint32_t max_qcoef_thresh = skip_pred_threshold[bd_idx][bsize];
-  const int16_t *src_diff = x->plane[0].src_diff;
-  const int n_coeff = tx_w * tx_h;
-  const int16_t ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
-  const uint32_t dc_thresh = max_qcoef_thresh * dc_q;
-  const uint32_t ac_thresh = max_qcoef_thresh * ac_q;
-  for (int row = 0; row < bh; row += tx_h) {
-    for (int col = 0; col < bw; col += tx_w) {
-      av1_fwd_txfm(src_diff + col, coefs, bw, &param);
-      // Operating on TX domain, not pixels; we want the QTX quantizers
-      const uint32_t dc_coef = (((uint32_t)abs(coefs[0])) << 7);
-      if (dc_coef >= dc_thresh) return 0;
-      for (int i = 1; i < n_coeff; ++i) {
-        const uint32_t ac_coef = (((uint32_t)abs(coefs[i])) << 7);
-        if (ac_coef >= ac_thresh) return 0;
-      }
-    }
-    src_diff += tx_h * bw;
-  }
-  return 1;
-}
-
 // Used to set proper context for early termination with skip = 1.
 static AOM_INLINE void set_skip_txfm(MACROBLOCK *x, RD_STATS *rd_stats,
                                      int bsize, int64_t dist) {
@@ -1810,6 +1746,7 @@ static void prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
   *allowed_tx_mask = allow_bitmask;
 }
 
+
 #if !CONFIG_NEW_TX_PARTITION
 // lookup table for predict_skip_txfm
 // int max_tx_size = max_txsize_rect_lookup[bsize];
@@ -1837,6 +1774,71 @@ static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
       74, 74, 74, 74, 74, 90, 90, 90, 90, 74, 74,
   },
 };
+
+
+// Uses simple features on top of DCT coefficients to quickly predict
+// whether optimal RD decision is to skip encoding the residual.
+// The sse value is stored in dist.
+static int predict_skip_txfm(MACROBLOCK *x, BLOCK_SIZE bsize, int64_t *dist,
+                             int reduced_tx_set) {
+  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
+  const int bw = block_size_wide[bsize];
+  const int bh = block_size_high[bsize];
+  const MACROBLOCKD *xd = &x->e_mbd;
+  const int16_t dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd);
+
+  *dist = pixel_diff_dist(x, 0, 0, 0, bsize, bsize, NULL);
+
+  const int64_t mse = *dist / bw / bh;
+  // Normalized quantizer takes the transform upscaling factor (8 for tx size
+  // smaller than 32) into account.
+  const int16_t normalized_dc_q = dc_q >> 3;
+  const int64_t mse_thresh = (int64_t)normalized_dc_q * normalized_dc_q / 8;
+  // For faster early skip decision, use dist to compare against threshold so
+  // that quality risk is less for the skip=1 decision. Otherwise, use mse
+  // since the fwd_txfm coeff checks will take care of quality
+  // TODO(any): Use dist to return 0 when skip_txfm_level is 1
+  int64_t pred_err = (txfm_params->skip_txfm_level >= 2) ? *dist : mse;
+  // Predict not to skip when error is larger than threshold.
+  if (pred_err > mse_thresh) return 0;
+  // Return as skip otherwise for aggressive early skip
+  else if (txfm_params->skip_txfm_level >= 2)
+    return 1;
+
+  const int max_tx_size = max_predict_sf_tx_size[bsize];
+  const int tx_h = tx_size_high[max_tx_size];
+  const int tx_w = tx_size_wide[max_tx_size];
+  DECLARE_ALIGNED(32, tran_low_t, coefs[32 * 32]);
+  TxfmParam param;
+  param.tx_type = DCT_DCT;
+  param.tx_size = max_tx_size;
+  param.bd = xd->bd;
+  param.is_hbd = is_cur_buf_hbd(xd);
+  param.lossless = 0;
+  param.tx_set_type = av1_get_ext_tx_set_type(
+      param.tx_size, is_inter_block(xd->mi[0]), reduced_tx_set);
+  const int bd_idx = (xd->bd == 8) ? 0 : ((xd->bd == 10) ? 1 : 2);
+  const uint32_t max_qcoef_thresh = skip_pred_threshold[bd_idx][bsize];
+  const int16_t *src_diff = x->plane[0].src_diff;
+  const int n_coeff = tx_w * tx_h;
+  const int16_t ac_q = av1_ac_quant_QTX(x->qindex, 0, xd->bd);
+  const uint32_t dc_thresh = max_qcoef_thresh * dc_q;
+  const uint32_t ac_thresh = max_qcoef_thresh * ac_q;
+  for (int row = 0; row < bh; row += tx_h) {
+    for (int col = 0; col < bw; col += tx_w) {
+      av1_fwd_txfm(src_diff + col, coefs, bw, &param);
+      // Operating on TX domain, not pixels; we want the QTX quantizers
+      const uint32_t dc_coef = (((uint32_t)abs(coefs[0])) << 7);
+      if (dc_coef >= dc_thresh) return 0;
+      for (int i = 1; i < n_coeff; ++i) {
+        const uint32_t ac_coef = (((uint32_t)abs(coefs[i])) << 7);
+        if (ac_coef >= ac_thresh) return 0;
+      }
+    }
+    src_diff += tx_h * bw;
+  }
+  return 1;
+}
 
 static float get_dev(float mean, double x2_sum, int num) {
   const float e_x2 = (float)(x2_sum / num);
