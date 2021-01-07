@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e0b3337_320b17f6",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T02:06:10Z",
+      "side": 1,
+      "message": "Nit: key_val_param \u003d\u003e KeyValParam\n\nThat\u0027s the naming convention for types recommended by the Style Guide.",
+      "range": {
+        "startLine": 24,
+        "startChar": 47,
+        "endLine": 24,
+        "endChar": 60
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e1eca39_f6c007f6",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T02:06:10Z",
+      "side": 1,
+      "message": "1. Move the \"protected:\" section after the \"public:\" section. The Style Guide recommends the order of \"public\", \"protected\", \"private\".\n\n2. The data member names should have a trailing underscore: enc_ and _dec_.\n\n3. iface_cx, enc_cfg, iface_dx, and dec_cfg should be local variables in the SetUp() method, because they are only used in SetUp().",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 38,
+        "endChar": 36
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b02842a_e821e4a5",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T02:06:10Z",
+      "side": 1,
+      "message": "Nit: Omit \"virtual\". The \"override\" keyword is sufficient. From the Style Guide:\n\n\"Explicitly annotate overrides of virtual functions or virtual destructors with exactly one of an override or (less frequently) final specifier. Do not use virtual when declaring an override. Rationale: A function or destructor marked override or final that is not an override of a base class virtual function will not compile, and this helps catch common errors. The specifiers serve as documentation; if no specifier is present, the reader has to check all ancestors of the class in question to determine if the function or destructor is virtual or not.\"",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 36
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb75df91_93b5c26d",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T02:06:10Z",
+      "side": 1,
+      "message": "Nit: Add a blank line between functions. (multiple places)",
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03a6a547_2f39fe14",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T02:06:10Z",
+      "side": 1,
+      "message": "Nit/optional: In C++ we should use nullptr instead of NULL. If NULL is used in the other unit test files in libaom, then this is fine.",
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7549bef8_8c55659a",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T02:06:10Z",
+      "side": 1,
+      "message": "We should be able to omit the (const char *) casts for NULL. Does the compiler complain if we omit the casts?",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 58
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78241616_7c231903",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-07T02:06:10Z",
+      "side": 1,
+      "message": "Delete these? They don\u0027t seem needed.",
+      "range": {
+        "startLine": 139,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 63
+      },
+      "revId": "9078f9ee8c817b988461b39293de963639358f30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
