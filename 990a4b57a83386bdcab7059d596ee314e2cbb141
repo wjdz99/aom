@@ -52,6 +52,24 @@
       "parentUuid": "89479377_7cfaf603",
       "revId": "990a4b57a83386bdcab7059d596ee314e2cbb141",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0ee49c9_5935ee78",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-08T22:25:05Z",
+      "side": 1,
+      "message": "The above result was gotten with this sf enabled? e.g. with this sf, achieved 1.354% time reduction with 0.0419% BDrate loss? If yes, your plan (i.e. enable it at speed 1 \u0026 2 for intra-only) sounds reasonable to me.",
+      "parentUuid": "f69b1566_85846279",
+      "revId": "990a4b57a83386bdcab7059d596ee314e2cbb141",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
