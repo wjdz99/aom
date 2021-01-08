@@ -34,6 +34,24 @@
       "parentUuid": "105610f7_aecd1631",
       "revId": "990a4b57a83386bdcab7059d596ee314e2cbb141",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f69b1566_85846279",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-08T17:41:45Z",
+      "side": 1,
+      "message": "Copied Akshata\u0027s test results here. Thanks for the testing.\n\nPlease find below borg numbers generated for intra only  and  screen content.\n\nBorg result for intra only (--kf-max-dist\u003d0) :\n\n                       Instruction Count        BD-Rate Loss(%)\n\nCpu used  Resolution    Reduction()        avg.psnr    ovr.psnr       ssim                               \n\n   1       LOW RES        1.563        0.0456     0.0471      0.0383\n   1       MID RES        0.9220       0.0367     0.0351      0.0346\n   1       Average        1.354        0.0419     0.0421      0.0368\n\n   2       LOW RES        1.852        0.0229     0.0237      0.0486\n   2       MID RES        1.0406       0.000      0.0002      -0.0009 \n   2       Average        1.587        0.0122     0.0148      0.0256\n\n   3       LOW RES        0.7181       -0.0094   -0.0092      -0.0112\n   3       MID RES        0.0968       0.0060     0.0066      0.0177\n   3       Average        0.5149       -0.0030   -0.0026      0.0010\n\n   6       LOW RES        -0.212       0.0731    0.0704       0.0474\n   6       MID RES        -0.383       0.0254    0.0275      0.0244\n   6       Average        -0.268       0.0530    0.0523       0.0377\n\nBorg result for screen content  :\n\n                        Instruction Count        BD-Rate Loss(%)\n\nCpu used    Resolution    Reduction()       avg.psnr    ovr.psnr       ssim\n   1       LOW RES        -0.392       0.0323     -0.0619    0.6496\n   1       MID RES        -0.1012      0.1055     0.0993     -0.0552\n   1       Average        -0.187       0.0933     0.0725     0.0623\n\n   2       LOW RES        -0.194      -0.0050   -0.0236      -0.1677\n   2       MID RES        0.247       -0.2098   -0.2269      -0.1913\n   2       Average        0.116       -0.1757   -0.1930      -0.1874\n\n   3       LOW RES        -0.125      0.0233     0.0108      0.2296\n   3       MID RES        0.5899      0.1870     0.2361      0.4630\n   3       Average        0.3771      0.1597     0.1985      0.4241\n\n   6       LOW RES        -0.0634     0.0472     0.0541      -0.0220\n   6       MID RES        0.145       -0.0569    -0.0558     0.2456\n   6       Average        0.0835      -0.0396    -0.0375     0.2010\n\n[-] indicates encode time increase.\n[+] indicates encode time reduction.\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\n\nThe performance and quality numbers are good  for intra-only (--kf-max-dist\u003d0) across all speed . whereas numbers are good from speed 2 for screen content type.  We can modify this patch and  set this sf for speed 1 and 2 when input stream is intra-only (kf-max-dist \u003d 0). Please let us know your opinion.\n\nPlease note – In the past, experiments performed on transform hash (use_intra_txb_hash, use_inter_txb_hash etc) were not related  to disabling speed features.",
+      "parentUuid": "89479377_7cfaf603",
+      "revId": "990a4b57a83386bdcab7059d596ee314e2cbb141",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
