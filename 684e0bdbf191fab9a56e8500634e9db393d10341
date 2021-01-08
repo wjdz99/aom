@@ -34,6 +34,171 @@
       "parentUuid": "838d44fe_b4e7b2a9",
       "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ab7fce6_c2be133d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "I suggest one important change (error message buffer size) and a few small changes.",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1122344_8e55009f",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "This comment should say ctx-\u003eerr_detail. Or we can remove this comment; no other aom public functions document this.\n\nThe reason this comment can\u0027t mention ctx-\u003epriv-\u003eerr_detail is that it is a private data member.\n\n(Both the encoder and decoder init functions set ctx-\u003eerr_detail to ctx-\u003epriv-\u003eerr_detail.)",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7773717_8924110b",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "aom_codec_option_setter_fn_t \u003d\u003e aom_codec_set_option_fn_t\n\nThe convention is to name this type aom_codec_foo_fn_t, where aom_codec_foo is the name of the corresponding public function. For example, aom_codec_destroy_fn_t, aom_codec_control_fn_t, aom_codec_decode_fn_t, aom_codec_encode_fn_t.",
+      "range": {
+        "startLine": 170,
+        "startChar": 26,
+        "endLine": 170,
+        "endChar": 54
+      },
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09c4dd31_4f84b9fd",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "Remove the !ctx-\u003eiface-\u003eset_option check.\n\nI found that all the other aom codec functions assume their corresponding ctx-\u003eiface-\u003efoo function pointer is not null.",
+      "range": {
+        "startLine": 122,
+        "startChar": 32,
+        "endLine": 122,
+        "endChar": 58
+      },
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cf8f502_378ac6dd",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "My comment at line 3105 below will refer to this line.",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf6a92b7_dfd0d7f0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2776,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "1. IMPORTANT: ctx-\u003ecpi-\u003ecommon.error.detail is not big enough. It is defined as 80 bytes in aom/internal/aom_codec_internal.h:\n\n  struct aom_internal_error_info {\n    aom_codec_err_t error_code;\n    int has_detail;\n    char detail[80];\n    int setjmp;  // Boolean: whether \u0027jmp\u0027 is valid.\n    jmp_buf jmp;\n  };\n\nIt needs to be at least ARG_ERR_MSG_MAX_LEN bytes long.\n\nAlternatively, do you think we can define ARG_ERR_MSG_MAX_LEN as 80? ARG_ERR_MSG_MAX_LEN is currently defined as 200. How did you determine that value?\n\n2. Optional: It would be good to change arg_match_helper() to also take an err_string_size parameter to avoid this kind of bug. (Buffer overflow is public enemy No. 1.) This can be done in a separate CL.",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77ab890e_8993ef6b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 3105,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "I wonder if we should set ctx-\u003ebase.err_detail to NULL here or at line 3100. See line 341 above.",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e394e2d_6261cc9e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 3434,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "aom_codec_option_setter_fn_t \u003d\u003e aom_codec_set_option_fn_t",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "411a2f7b_65de3cd1",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-08T22:37:28Z",
+      "side": 1,
+      "message": "aom_codec_option_setter_fn_t \u003d\u003e aom_codec_set_option_fn_t",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
