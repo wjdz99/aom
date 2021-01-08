@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa511146_f6967bde",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Thanks for the suggestions!",
+      "parentUuid": "f7a353fd_0f0c68a8",
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f8edf137_ba660207",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-01-08T18:36:10Z",
       "side": 1,
       "message": "Add the () to the function name-- iirc doxygen won\u0027t linkify it otherwise.",
+      "range": {
+        "startLine": 495,
+        "startChar": 3,
+        "endLine": 495,
+        "endChar": 23
+      },
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5c7f568_24b20e45",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8edf137_ba660207",
       "range": {
         "startLine": 495,
         "startChar": 3,
@@ -64,6 +106,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "130cbc46_a03b18f2",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9206aff7_a019d8e2",
+      "range": {
+        "startLine": 157,
+        "startChar": 23,
+        "endLine": 157,
+        "endChar": 26
+      },
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9c0cefdb_fe20476b",
@@ -77,6 +143,30 @@
       "writtenOn": "2021-01-08T18:36:10Z",
       "side": 1,
       "message": "optional: aom_codec_option_setter_fn_t is a much clearer and more self explanatory name. You can ignore this comment, but since the type is used in very few places it wouldn\u0027t be a bad idea to change it now.\n\nNote: I\u0027m specifically referring to the function pointer type name. Function names do not need to change.",
+      "range": {
+        "startLine": 170,
+        "startChar": 26,
+        "endLine": 170,
+        "endChar": 51
+      },
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f942fc6_4ad2bba3",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c0cefdb_fe20476b",
       "range": {
         "startLine": 170,
         "startChar": 26,
@@ -110,6 +200,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2a56de3_02b47cec",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Good call. Seems like mostly just with underscores. Changed this as well.",
+      "parentUuid": "7e4e11c6_86e99805",
+      "range": {
+        "startLine": 228,
+        "startChar": 34,
+        "endLine": 228,
+        "endChar": 49
+      },
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2292b256_f138595b",
@@ -123,6 +237,30 @@
       "writtenOn": "2021-01-08T18:36:10Z",
       "side": 1,
       "message": "Based on the existing API entries this should be a typedef struct named av1_codec_arg_defitions with the typedef resulting in the name av1_codec_arg_definitions_t.",
+      "range": {
+        "startLine": 31,
+        "startChar": 7,
+        "endLine": 31,
+        "endChar": 19
+      },
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cdd567d_a5f3f671",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2292b256_f138595b",
       "range": {
         "startLine": 31,
         "startChar": 7,
@@ -150,6 +288,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b180828b_ed751d7d",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Much agreed. Done.",
+      "parentUuid": "59a1cb3d_4352032f",
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f6af0698_6c355a6f",
@@ -163,6 +319,30 @@
       "writtenOn": "2021-01-08T18:36:10Z",
       "side": 1,
       "message": "aom_codec_set_option_fn_t?",
+      "range": {
+        "startLine": 3423,
+        "startChar": 25,
+        "endLine": 3423,
+        "endChar": 46
+      },
+      "revId": "13d64c1182a083a9638b8f1d81b6465425b06dc5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cf19c0a_70713e64",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 3423,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-08T19:17:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6af0698_6c355a6f",
       "range": {
         "startLine": 3423,
         "startChar": 25,
