@@ -87,7 +87,6 @@ static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
     const int16_t zeromv_ctx =
         (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
     aom_write_symbol(w, mode != GLOBALMV, ec_ctx->zeromv_cdf[zeromv_ctx], 2);
-
     if (mode != GLOBALMV) {
       int16_t refmv_ctx = (mode_ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
       aom_write_symbol(w, mode != NEARESTMV, ec_ctx->refmv_cdf[refmv_ctx], 2);
@@ -2779,7 +2778,10 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
     ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
                                 : &default_warp_params;
 #endif  // CONFIG_GM_MODEL_CODING
-
+    printf("in bistream: cur_poc: %d, ref_frame: %d, wmtype: %d\n", 
+    cm->cur_frame->order_hint, frame, ref_params->wmtype);
+    printf("wmmat: %d, %d, %d, %d, %d, %d, %d, %d \n", ref_params->wmmat[0], ref_params->wmmat[1], ref_params->wmmat[2], 
+        ref_params->wmmat[3], ref_params->wmmat[4], ref_params->wmmat[5], ref_params->wmmat[6], ref_params->wmmat[7]);
     write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
                                cm->features.allow_high_precision_mv);
     // TODO(sarahparker, debargha): The logic in the commented out code below

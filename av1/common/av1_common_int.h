@@ -1232,9 +1232,10 @@ static INLINE RefCntBuffer *get_primary_ref_frame_buf(
 #if CONFIG_GM_MODEL_CODING
 static INLINE int calculate_gm_ref_params_scaling_distance(AV1_COMMON *const cm,
                                                            int frame) {
-  const int cur_poc = cm->cur_frame->absolute_poc;
+  const int cur_poc = cm->cur_frame->order_hint;
   const RefCntBuffer *const buf = get_ref_frame_buf(cm, frame);
-  const int ref_poc = buf ? (int)buf->absolute_poc : -1;
+  const int ref_poc = buf ? (int)buf->order_hint : -1;
+  printf("cur: %d, frame:%d, loc:%d \n", cur_poc, frame, ref_poc);
   return ref_poc - cur_poc;
 }
 
@@ -1243,7 +1244,9 @@ static INLINE const WarpedMotionParams *find_gm_ref_params(AV1_COMMON *const cm,
                                                            int base) {
   // TODO(raynewang): Change to floating number for better precision
   const int scale_factor = (base != 0 && distance != 0) ? (distance / base) : 1;
-  WarpedMotionParams *ref_params = &cm->cur_frame->global_motion[LAST_FRAME];
+  WarpedMotionParams *ref_params = &cm->global_motion[LAST_FRAME];
+  printf("global motion wmmat: %d, %d, %d, %d, %d, %d, %d, %d \n", ref_params->wmmat[0], ref_params->wmmat[1], ref_params->wmmat[2], 
+        ref_params->wmmat[3], ref_params->wmmat[4], ref_params->wmmat[5], ref_params->wmmat[6], ref_params->wmmat[7]);
   // TODO(raynewang): Change base ref_params instead of always using LAST_FRAME
   if (ref_params->wmtype == IDENTITY) {
     return &default_warp_params;

@@ -4365,6 +4365,10 @@ static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
     ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
                                 : &default_warp_params;
 #endif  // CONFIG_GM_MODEL_CODING
+    printf("in decodeframe: cur_poc: %d, ref_frame: %d, wmtype: %d\n", 
+    cm->cur_frame->order_hint, frame, ref_params->wmtype);
+    printf("wmmat: %d, %d, %d, %d, %d, %d, %d, %d \n", ref_params->wmmat[0], ref_params->wmmat[1], ref_params->wmmat[2], 
+    ref_params->wmmat[3], ref_params->wmmat[4], ref_params->wmmat[5], ref_params->wmmat[6], ref_params->wmmat[7]);
     int good_params =
         read_global_motion_params(&cm->global_motion[frame], ref_params, rb,
                                   cm->features.allow_high_precision_mv);

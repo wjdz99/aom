@@ -291,7 +291,6 @@ static INLINE int_mv gm_get_motion_vector(const WarpedMotionParams *gm,
 
   x = block_center_x(mi_col, bsize);
   y = block_center_y(mi_row, bsize);
-
   if (gm->wmtype == ROTZOOM) {
     assert(gm->wmmat[5] == gm->wmmat[2]);
     assert(gm->wmmat[4] == -gm->wmmat[3]);

@@ -545,7 +545,6 @@ static AOM_INLINE void setup_ref_mv_list(
     const int hoffset = AOMMAX(mi_size_wide[BLOCK_8X8], xd->width);
     const int blk_row_end = AOMMIN(xd->height, mi_size_high[BLOCK_64X64]);
     const int blk_col_end = AOMMIN(xd->width, mi_size_wide[BLOCK_64X64]);
-
     const int tpl_sample_pos[3][2] = {
       { voffset, -2 },
       { voffset, hoffset },
@@ -571,8 +570,9 @@ static AOM_INLINE void setup_ref_mv_list(
         if (blk_row == 0 && blk_col == 0) is_available = ret;
       }
     }
-
-    if (is_available == 0) mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
+    if (is_available == 0){
+      mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
+    }
 
     for (int i = 0; i < 3 && allow_extension; ++i) {
       const int blk_row = tpl_sample_pos[i][0];
