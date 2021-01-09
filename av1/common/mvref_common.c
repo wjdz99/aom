@@ -571,7 +571,6 @@ static AOM_INLINE void setup_ref_mv_list(
         if (blk_row == 0 && blk_col == 0) is_available = ret;
       }
     }
-
     if (is_available == 0) mode_context[ref_frame] |= (1 << GLOBALMV_OFFSET);
 
     for (int i = 0; i < 3 && allow_extension; ++i) {
