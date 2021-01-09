@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2eb0fb06_a203fba5",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-09T00:28:02Z",
+      "side": 1,
+      "message": "I deleted the comment. Or do you think it is better to state that the error is accessible from aom_codec_error_detail() ?",
+      "parentUuid": "c1122344_8e55009f",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7773717_8924110b",
@@ -189,6 +207,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a187f98c_7ef07edb",
+        "filename": "aom/internal/aom_codec_internal.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-09T00:28:02Z",
+      "side": 1,
+      "message": "No problem :) Good to see the discussion.",
+      "parentUuid": "8356a31b_20575380",
+      "range": {
+        "startLine": 170,
+        "startChar": 26,
+        "endLine": 170,
+        "endChar": 54
+      },
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "09c4dd31_4f84b9fd",
@@ -202,6 +244,30 @@
       "writtenOn": "2021-01-08T22:37:28Z",
       "side": 1,
       "message": "Remove the !ctx-\u003eiface-\u003eset_option check.\n\nI found that all the other aom codec functions assume their corresponding ctx-\u003eiface-\u003efoo function pointer is not null.",
+      "range": {
+        "startLine": 122,
+        "startChar": 32,
+        "endLine": 122,
+        "endChar": 58
+      },
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aae425f1_1c975732",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-09T00:28:02Z",
+      "side": 1,
+      "message": "I got this from the aom_codec_control function, where it checks ctx-\u003eiface-\u003ectrl_maps. I added this too since I was afraid that it is possible when, for example, the function is used for the decoder interface, where we do not have a function available now.",
+      "parentUuid": "09c4dd31_4f84b9fd",
       "range": {
         "startLine": 122,
         "startChar": 32,
@@ -282,6 +348,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb5a6514_7a9e0c8e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 2776,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-09T00:28:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61d169e1_a297037c",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "77ab890e_8993ef6b",
@@ -295,6 +379,24 @@
       "writtenOn": "2021-01-08T22:37:28Z",
       "side": 1,
       "message": "I wonder if we should set ctx-\u003ebase.err_detail to NULL here or at line 3100. See line 341 above.",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7c8d59d_614cadc3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 3105,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-09T00:28:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77ab890e_8993ef6b",
       "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -316,6 +418,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "efd08fd1_13f2d15f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 3434,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-09T00:28:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e394e2d_6261cc9e",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "411a2f7b_65de3cd1",
@@ -329,6 +449,24 @@
       "writtenOn": "2021-01-08T22:37:28Z",
       "side": 1,
       "message": "aom_codec_option_setter_fn_t \u003d\u003e aom_codec_set_option_fn_t",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "affd1e0e_3fed2188",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-09T00:28:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "411a2f7b_65de3cd1",
       "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
