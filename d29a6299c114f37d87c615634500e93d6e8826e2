@@ -16,6 +16,63 @@
       "message": "Just updated CL to address the comments. ",
       "revId": "d29a6299c114f37d87c615634500e93d6e8826e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98313351_8a748e6c",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-09T02:12:17Z",
+      "side": 1,
+      "message": "Optional: Maybe this test can be renamed \"NullArgument\" because now it does not only test a null ctx.",
+      "range": {
+        "startLine": 79,
+        "startChar": 23,
+        "endLine": 79,
+        "endChar": 30
+      },
+      "revId": "d29a6299c114f37d87c615634500e93d6e8826e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7926c1a_82b8e3e3",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-09T02:12:17Z",
+      "side": 1,
+      "message": "Nit: This one should be ASSERT_TRUE, or\n  ASSERT_NE(aom_codec_error_detail(\u0026enc_), nullptr);\n\nThe difference between ASSERT and EXPECT in gtest is that if ASSERT fails, the test is aborted where as if EXPECT fails, the test keeps going. In this case, if aom_codec_error_detail(\u0026enc_) returns nullptr and we keep going, the strlen() call in the next line may crash.",
+      "revId": "d29a6299c114f37d87c615634500e93d6e8826e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59e03222_96254474",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-09T02:12:17Z",
+      "side": 1,
+      "message": "Nit: Please change this to:\n  EXPECT_GT(strlen(aom_codec_error_detail(\u0026enc_)), 0);",
+      "revId": "d29a6299c114f37d87c615634500e93d6e8826e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
