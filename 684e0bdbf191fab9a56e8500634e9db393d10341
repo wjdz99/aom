@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a09deb4_08c7c9a8",
+        "filename": "aom/aom_codec.h",
+        "patchSetId": 19
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-09T00:37:23Z",
+      "side": 1,
+      "message": "It\u0027s fine to just delete the comment. The availability of an error message in aom_codec_error_detail() is not specific to this function. So we don\u0027t need to document that fact here.",
+      "parentUuid": "2eb0fb06_a203fba5",
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7773717_8924110b",
@@ -268,6 +286,30 @@
       "side": 1,
       "message": "I got this from the aom_codec_control function, where it checks ctx-\u003eiface-\u003ectrl_maps. I added this too since I was afraid that it is possible when, for example, the function is used for the decoder interface, where we do not have a function available now.",
       "parentUuid": "09c4dd31_4f84b9fd",
+      "range": {
+        "startLine": 122,
+        "startChar": 32,
+        "endLine": 122,
+        "endChar": 58
+      },
+      "revId": "684e0bdbf191fab9a56e8500634e9db393d10341",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7871d605_d29f4de5",
+        "filename": "aom/src/aom_codec.c",
+        "patchSetId": 19
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-09T00:37:23Z",
+      "side": 1,
+      "message": "Ah, you are right. This function pointer is null for the decoder instance, so we need the null pointer check here.\n\n(An alternative is to add a dummy set_option function for the decoder, which simply returns a \"not implemented\" error. Then we can delete this null pointer check. We can do that later.)",
+      "parentUuid": "aae425f1_1c975732",
       "range": {
         "startLine": 122,
         "startChar": 32,
