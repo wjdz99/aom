@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29abdb5e_c0a5ff2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-01-11T16:24:07Z",
+      "side": 1,
+      "message": "Debargha,\n\nThis patch fixes the BUG\u003daomedia:2918 and BUG\u003daomedia:2919. It fixes gf_interval and baseline_gf_interval appropriately. This also fixes the crash in non-LAP path when forward kf is enabled by introducing is_last_subgop(). This function checks if the subgop is the end of the clip and disables forward kf.\n\nWe have tested with undefined and address sanitizer for Large and non-large tests. We also tested borg runs with cpu0 and cpu3, for subgop\u003denh configuration and no-subgop path.\n\nThe quality gain in the result below is due to mobcal_720p50.y4m/Parkrun_720p50.y4m, where the first subgop contains only 2 frames. Here the gfu_boost is corrected properly with the change in baseline_gf_interval. These clips are also gaining in quality by 0.5dB-1.8dB. \nEvery other clip in the runs are bit exact with the parent commit.\n\nBorg results:\nVBR results, subgop\u003denh:\n cpu-used   Instruction count         BD-Rate Loss(%)\n               Reduction(%)     avg.psnr   ovr.psnr   ssim\n      0         -0.214          -0.0463   -0.0411    -0.0294              \n      3         -0.111          -0.0413   -0.0158    -0.0398      \n                                               \nVBR results, No-subgop:\n cpu-used   Instruction count         BD-Rate Loss(%)\n              Reduction(%)     avg.psnr   ovr.psnr     ssim\n    0          -0.112           -0.0468    -0.0413   -0.0311     \n    3          -0.133           -0.0383    -0.0117   -0.0435\n               \n\nPlease review.\nThanks",
+      "revId": "23815abeb4813bfb90946054c8fae56a04f570a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
