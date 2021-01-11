@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "80d7cd92_396c0e2a",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-01-11T19:05:07Z",
+      "side": 1,
+      "message": "seems unnecessary for coding performance, so saved some computations.",
+      "parentUuid": "6faf993a_6a8f2271",
+      "range": {
+        "startLine": 537,
+        "startChar": 9,
+        "endLine": 537,
+        "endChar": 17
+      },
+      "revId": "5c38705cb8abd6862d1ffecec700d8c9f8a2f149",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "273d20d7_20db275a",
         "filename": "av1/encoder/reconinter_enc.c",
         "patchSetId": 15
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-11T19:02:55Z",
       "side": 1,
       "message": "What is the effect of this parameter? It seems that in enc_calc_subpel_params the argument \"ref\" is not used.",
+      "range": {
+        "startLine": 80,
+        "startChar": 20,
+        "endLine": 80,
+        "endChar": 61
+      },
+      "revId": "5c38705cb8abd6862d1ffecec700d8c9f8a2f149",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "796c2689_236167bb",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-01-11T19:05:07Z",
+      "side": 1,
+      "message": "do_average flag allows us to directly use av1_enc_build_one_inter_predictor() to build both single and compound predictions.",
+      "parentUuid": "273d20d7_20db275a",
       "range": {
         "startLine": 80,
         "startChar": 20,
