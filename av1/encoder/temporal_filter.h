@@ -212,6 +212,7 @@ void av1_tf_do_filtering_row(struct AV1_COMP *cpi, struct ThreadData *td,
  */
 int av1_temporal_filter(struct AV1_COMP *cpi,
                         const int filter_frame_lookahead_idx,
+                        FRAME_UPDATE_TYPE update_type, int is_forward_keyframe,
                         int *show_existing_arf);
 
 /*!\cond */
