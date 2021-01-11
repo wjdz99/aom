@@ -70,6 +70,24 @@
       "parentUuid": "f69b1566_85846279",
       "revId": "990a4b57a83386bdcab7059d596ee314e2cbb141",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81d8b48f_a27931ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-01-11T13:57:29Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nYes, The above numbers are generated with sf enabled.\n\nAs per our discussion, We have modified the patch. This patch enable use_intra_txb_hash sf in speed 1, 2 for intra frame sequence.\n\nPlease review the patch.\n\nThanks and Regards\nAkshata",
+      "parentUuid": "e0ee49c9_5935ee78",
+      "revId": "990a4b57a83386bdcab7059d596ee314e2cbb141",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
