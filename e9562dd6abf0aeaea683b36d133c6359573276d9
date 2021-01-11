@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d33a5018_7b3d525b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-11T18:31:05Z",
+      "side": 1,
+      "message": "Just saw that this part is also refactored in the future CL. So maybe it would be easier to add the const if necessary in a new CL. ",
+      "revId": "e9562dd6abf0aeaea683b36d133c6359573276d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "906135c0_5527d7a6",
