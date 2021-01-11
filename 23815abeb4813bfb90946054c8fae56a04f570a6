@@ -71,6 +71,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f42a7d5c_10142c8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-01-11T18:01:06Z",
+      "side": 1,
+      "message": "Given the urgency, I will be okay with submitting the patch now and updating with the q mode results later when they are ready.",
+      "revId": "23815abeb4813bfb90946054c8fae56a04f570a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3e77838_fd47d3e7",
