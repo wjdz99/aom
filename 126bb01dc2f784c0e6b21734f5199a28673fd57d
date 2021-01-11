@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41321c8b_c8ba7019",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1363,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-11T18:18:49Z",
+      "side": 1,
+      "message": "Would this be enough? If we only encoder 1 frame (--limit), then \"cpi-\u003eoxcf.kf_cfg.key_freq_max \u003c 2\" wouldn\u0027t be true. We should have frame_is_intra_only as well.\nAlso, looks like \"cpi-\u003eoxcf.kf_cfg.key_freq_max \u003d1\" doesn\u0027t work correctly. PSNR output is always 100. Can you try?",
+      "range": {
+        "startLine": 1363,
+        "startChar": 6,
+        "endLine": 1363,
+        "endChar": 35
+      },
+      "revId": "126bb01dc2f784c0e6b21734f5199a28673fd57d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
