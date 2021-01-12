@@ -46,6 +46,30 @@
       },
       "revId": "126bb01dc2f784c0e6b21734f5199a28673fd57d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "723d5e50_0825f47b",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1363,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-01-12T13:47:07Z",
+      "side": 1,
+      "message": "This speed feature already using frame_is_intra_only. For 1 frame encoding , can we add g_limit condition along with \"cpi-\u003eoxcf.kf_cfg.key_freq_max \u003c 2\" ?.\n\nIn the local tests we performed for --kf-max-dist\u003d1(corresponding to “cpi-\u003eoxcf.kf_cfg.key_freq_max \u003d1”),  we were unable to reproduce the output PSNR 100 issue. In our tests, we were getting the correct PSNR numbers when “cpi-\u003eoxcf.kf_cfg.key_freq_max \u003d1.” We have used the below encoder recipe for the tests:\n\naomenc.exe --codec\u003dav1 --good --ivf --cpu-used\u003d1 --threads\u003d1 --profile\u003d0 --bit-depth\u003d8 --enable-cdef\u003d1 --end-usage\u003dvbr --limit\u003d100 --lag-in-frames\u003d19 --min-q\u003d0 --max-q\u003d63 --auto-alt-ref\u003d1 --passes\u003d2  --kf-max-dist\u003d1 --kf-min-dist\u003d0 --drop-frame\u003d0 --static-thresh\u003d0 --bias-pct\u003d50 --minsection-pct\u003d0 --maxsection-pct\u003d2000 --arnr-maxframes\u003d7 --arnr-strength\u003d5 --sharpness\u003d0 --undershoot-pct\u003d100 --overshoot-pct\u003d100 --frame-parallel\u003d0 --tile-columns\u003d0 --tile-rows\u003d0 --target-bitrate\u003d50 --fpf\u003dfile.stat -o out.ivf input.y4m \n \nCould you please share the test-case for which you observed the PSNR issue?\nRegards\nAkshata",
+      "parentUuid": "913158a4_b8daf1bc",
+      "range": {
+        "startLine": 1363,
+        "startChar": 6,
+        "endLine": 1363,
+        "endChar": 35
+      },
+      "revId": "126bb01dc2f784c0e6b21734f5199a28673fd57d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
