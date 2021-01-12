@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b1a7a92_90e99434",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2021-01-12T00:22:14Z",
+      "side": 1,
+      "message": "This patch lgtm. In the future, you may consider using get_relative_dist() (https://aomedia.googlesource.com/aom/+/refs/heads/research2/av1/common/mvref_common.h#37) to calculate the frame distances.",
+      "revId": "52a8543b19117c7b6fad11925c2439a224f0b3bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
