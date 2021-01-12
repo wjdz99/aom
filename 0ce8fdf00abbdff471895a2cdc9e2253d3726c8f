@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c69d440b_91909c12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-12T23:12:34Z",
+      "side": 1,
+      "message": "Hui: Thanks for the fix! I have a question about how the crash occurs.",
+      "revId": "0ce8fdf00abbdff471895a2cdc9e2253d3726c8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1ddea83_0b05f96b",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2328,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-12T23:12:34Z",
+      "side": 1,
+      "message": "Nit: I suggest moving the memset(\u0026raw, 0, sizeof(raw)) call right before this line, to preserve the original style (pre-C99) of this code.",
+      "revId": "0ce8fdf00abbdff471895a2cdc9e2253d3726c8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ea6144f_482be192",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2393,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-12T23:12:34Z",
+      "side": 1,
+      "message": "Does the crash occur because we never enter this for loop?\n\nOr do we enter this for loop but break out of the loop early at line 2409?\n\nIf we enter the for loop and make it to line 2602, then the original code will zero the \u0027raw\u0027 image struct in the Y4M case.",
+      "revId": "0ce8fdf00abbdff471895a2cdc9e2253d3726c8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
