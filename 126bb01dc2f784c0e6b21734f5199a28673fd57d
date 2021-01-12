@@ -70,6 +70,30 @@
       },
       "revId": "126bb01dc2f784c0e6b21734f5199a28673fd57d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa0c31b4_ae6b9338",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1363,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-12T23:35:17Z",
+      "side": 1,
+      "message": "If input file only has 1 frame (i.e. image encoding), we don\u0027t need to set \"--limit\". I didn\u0027t test, but doubt g_limit would help?\n\nRegarding --kf-max-dist\u003d1, your command is right. I used a very high target bitrate, and saw psnr 100. That doesn\u0027t matter. I should have said I saw different encoder results while using --kf-max-dist\u003d0 or 1. This can be dealt as a separate issue.\n\nNot sure how we can set good conditions for intra only encoding. Maybe for now, using cpi-\u003eoxcf.kf_cfg.key_freq_max \u003d\u003d 0? What do you think? Also, could you add a comment to state this feature is useful for intra only encoding, and may be useful for image encoding (this can be tested \u0026 enabled while working on image encoding later).",
+      "parentUuid": "723d5e50_0825f47b",
+      "range": {
+        "startLine": 1363,
+        "startChar": 6,
+        "endLine": 1363,
+        "endChar": 35
+      },
+      "revId": "126bb01dc2f784c0e6b21734f5199a28673fd57d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
