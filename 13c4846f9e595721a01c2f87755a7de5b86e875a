@@ -16,6 +16,24 @@
       "message": "I see Aasaipriya chandran also submitted another pull request for cosmetic fixes, but that is WIP.\nThe link to that pull request is https://aomedia-review.googlesource.com/c/aom/+/127321.\n\nI think Aasaipriya is doing some tests to verify the pull request, it may be better to hold on this pull request until the anchor has been tagged. What do you think?\n",
       "revId": "13c4846f9e595721a01c2f87755a7de5b86e875a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0f6de69_eaf47a56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-01-12T23:17:04Z",
+      "side": 1,
+      "message": "I just realized that the intention of this merge request is to trigger the nightly run of research branch, I will give +2 to this pull request.",
+      "parentUuid": "3d3d09ed_10845906",
+      "revId": "13c4846f9e595721a01c2f87755a7de5b86e875a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
