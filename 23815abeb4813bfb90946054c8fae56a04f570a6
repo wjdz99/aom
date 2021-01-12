@@ -88,6 +88,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f34812d2_682b4eab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-12T22:56:58Z",
+      "side": 1,
+      "message": "Couple of suggestions handled here: https://aomedia-review.googlesource.com/c/aom/+/127382",
+      "revId": "23815abeb4813bfb90946054c8fae56a04f570a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3e77838_fd47d3e7",
@@ -124,6 +141,30 @@
       "writtenOn": "2021-01-11T17:59:35Z",
       "side": 1,
       "message": "Please use single line comment format:\n// When there ....\n// gf_interval ....\n...",
+      "range": {
+        "startLine": 1262,
+        "startChar": 0,
+        "endLine": 1274,
+        "endChar": 9
+      },
+      "revId": "23815abeb4813bfb90946054c8fae56a04f570a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d920330f_a4074381",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1274,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-12T22:56:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d296b7dc_18bb6e39",
       "range": {
         "startLine": 1262,
         "startChar": 0,
@@ -193,6 +234,30 @@
       "writtenOn": "2021-01-11T17:59:35Z",
       "side": 1,
       "message": "const",
+      "range": {
+        "startLine": 1418,
+        "startChar": 2,
+        "endLine": 1418,
+        "endChar": 5
+      },
+      "revId": "23815abeb4813bfb90946054c8fae56a04f570a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0150e66a_94077ec7",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1418,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-12T22:56:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d10ffcf7_4d6c00d5",
       "range": {
         "startLine": 1418,
         "startChar": 2,
