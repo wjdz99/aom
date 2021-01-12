@@ -2309,6 +2309,7 @@ static void print_time(const char *label, int64_t etl) {
 int main(int argc, const char **argv_) {
   int pass;
   aom_image_t raw;
+  memset(&raw, 0, sizeof(raw));
   aom_image_t raw_shift;
   int allocated_raw_shift = 0;
   int do_16bit_internal = 0;
@@ -2599,14 +2600,10 @@ int main(int argc, const char **argv_) {
     }
 
     if (pass == (global.pass ? global.pass - 1 : 0)) {
-      if (input.file_type == FILE_TYPE_Y4M)
-        /*The Y4M reader does its own allocation.
-          Just initialize this here to avoid problems if we never read any
-          frames.*/
-        memset(&raw, 0, sizeof(raw));
-      else
+      // The Y4M reader does its own allocation.
+      if (input.file_type != FILE_TYPE_Y4M) {
         aom_img_alloc(&raw, input.fmt, input.width, input.height, 32);
-
+      }
       FOREACH_STREAM(stream, streams) {
         stream->rate_hist =
             init_rate_histogram(&stream->config.cfg, &global.framerate);
