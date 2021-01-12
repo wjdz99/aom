@@ -22,6 +22,30 @@
       },
       "revId": "6be6e14a9963dcf791a394c88d6b88254de306c4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39f71689_b02f8b67",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-01-12T22:57:25Z",
+      "side": 1,
+      "message": "These are passed in by value.\nIt\u0027s not recommended to add const based on google guide.\n\ngo/cstyle#Use_of_const\nFor a function parameter passed by value, const has no effect on the caller, thus is not recommended in function declarations. See TotW #109.",
+      "parentUuid": "588e29e7_b3988133",
+      "range": {
+        "startLine": 1171,
+        "startChar": 24,
+        "endLine": 1171,
+        "endChar": 79
+      },
+      "revId": "6be6e14a9963dcf791a394c88d6b88254de306c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
