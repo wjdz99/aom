@@ -2309,6 +2309,7 @@ static void print_time(const char *label, int64_t etl) {
 int main(int argc, const char **argv_) {
   int pass;
   aom_image_t raw;
+  memset(&raw, 0, sizeof(raw));
   aom_image_t raw_shift;
   int allocated_raw_shift = 0;
   int do_16bit_internal = 0;
