@@ -401,6 +401,8 @@ static void set_good_speed_features_framesize_independent(
   sf->inter_sf.reduce_inter_modes = boosted ? 1 : 2;
   sf->inter_sf.selective_ref_frame = 1;
   sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_SKIP_MV_SEARCH;
+  // Enable fast search only for COMPOUND_DIFFWTD type.
+  sf->inter_sf.enable_fast_compound_mode_search = 1;
 
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
 
@@ -416,6 +418,7 @@ static void set_good_speed_features_framesize_independent(
   sf->rt_sf.use_nonrd_pick_mode = 0;
   sf->rt_sf.use_real_time_ref_set = 0;
 
+  sf->mv_sf.disable_extensive_joint_motion_search = 1;
   if (cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION ||
       cpi->use_screen_content_tools) {
     sf->mv_sf.exhaustive_searches_thresh = (1 << 20);
@@ -486,7 +489,6 @@ static void set_good_speed_features_framesize_independent(
 
     sf->mv_sf.auto_mv_step_size = 1;
     sf->mv_sf.subpel_iters_per_step = 1;
-    sf->mv_sf.disable_extensive_joint_motion_search = 1;
 
     // TODO(chiyotsai@google.com): We can get 10% speed up if we move
     // adaptive_rd_thresh to speed 1. But currently it performs poorly on some
@@ -503,8 +505,6 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.reuse_best_prediction_for_part_ab = 1;
     sf->inter_sf.selective_ref_frame = 3;
     sf->inter_sf.use_dist_wtd_comp_flag = DIST_WTD_COMP_DISABLED;
-    // Enable fast search only for COMPOUND_DIFFWTD type.
-    sf->inter_sf.enable_fast_compound_mode_search = 1;
 
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->interp_sf.adaptive_interp_filter_search = 1;
