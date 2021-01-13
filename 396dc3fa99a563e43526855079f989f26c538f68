@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fca7408_bf320b40",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1228,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-01-13T14:01:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa73c29f_03f81972",
+      "range": {
+        "startLine": 1228,
+        "startChar": 26,
+        "endLine": 1228,
+        "endChar": 29
+      },
+      "revId": "396dc3fa99a563e43526855079f989f26c538f68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bbbd5f9e_fffd1ff1",
@@ -64,6 +88,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef3a0777_c319be05",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-01-13T14:01:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbbd5f9e_fffd1ff1",
+      "range": {
+        "startLine": 1229,
+        "startChar": 2,
+        "endLine": 1229,
+        "endChar": 5
+      },
+      "revId": "396dc3fa99a563e43526855079f989f26c538f68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2ccec23_4285c9a2",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-01-13T07:55:58Z",
       "side": 1,
       "message": "\"keyframe\"",
+      "range": {
+        "startLine": 1459,
+        "startChar": 69,
+        "endLine": 1459,
+        "endChar": 72
+      },
+      "revId": "396dc3fa99a563e43526855079f989f26c538f68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b19c25d_ba10dc85",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1459,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-01-13T14:01:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2ccec23_4285c9a2",
       "range": {
         "startLine": 1459,
         "startChar": 69,
