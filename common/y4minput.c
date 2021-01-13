@@ -11,6 +11,7 @@
  * Based on code from the OggTheora software codec source code,
  * Copyright (C) 2002-2010 The Xiph.Org Foundation and contributors.
  */
+#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
@@ -779,36 +780,45 @@ static void y4m_convert_null(y4m_input *_y4m, unsigned char *_dst,
   (void)_aux;
 }
 
+static const char TAG[] = "YUV4MPEG2";
+
 int y4m_input_open(y4m_input *_y4m, FILE *_fin, char *_skip, int _nskip,
                    aom_chroma_sample_position_t csp, int only_420) {
+  // File must start with TAG.
+  char tag_buffer[9];  // 9 == strlen(TAG)
+  // Read as much as possible from the skip-buffer, which were characters
+  // that were previously read from the file to do input-type detection.
+  assert(_nskip >= 0 && _nskip <= 8);
+  if (_nskip > 0) {
+    memcpy(tag_buffer, _skip, _nskip);
+  }
+  // Start reading from the file now that the skip buffer is depleted.
+  if (!file_read(tag_buffer + _nskip, 9 - _nskip, _fin)) {
+    return -1;
+  }
+  if (memcmp(TAG, tag_buffer, 9) != 0) {
+    fprintf(stderr, "Error parsing header: must start with %s\n", TAG);
+    return -1;
+  }
+  // Next character must be a space.
   char buffer[80] = { 0 };
+  if (!file_read(buffer, 1, _fin) || buffer[0] != ' ') {
+    fprintf(stderr, "Error parsing header: space must follow %s\n", TAG);
+    return -1;
+  }
   int ret;
   int i;
   /*Read until newline, or 80 cols, whichever happens first.*/
   for (i = 0; i < 79; i++) {
-    if (_nskip > 0) {
-      buffer[i] = *_skip++;
-      _nskip--;
-    } else {
-      if (!file_read(buffer + i, 1, _fin)) return -1;
-    }
+    if (!file_read(buffer + i, 1, _fin)) return -1;
     if (buffer[i] == '\n') break;
   }
-  /*We skipped too much header data.*/
-  if (_nskip > 0) return -1;
   if (i == 79) {
     fprintf(stderr, "Error parsing header; not a YUV2MPEG2 file?\n");
     return -1;
   }
   buffer[i] = '\0';
-  if (memcmp(buffer, "YUV4MPEG", 8)) {
-    fprintf(stderr, "Incomplete magic for YUV4MPEG file.\n");
-    return -1;
-  }
-  if (buffer[8] != '2') {
-    fprintf(stderr, "Incorrect YUV input file version; YUV4MPEG2 required.\n");
-  }
-  ret = y4m_parse_tags(_y4m, buffer + 5);
+  ret = y4m_parse_tags(_y4m, buffer);
   if (ret < 0) {
     fprintf(stderr, "Error parsing YUV4MPEG2 header.\n");
     return ret;
@@ -839,6 +849,8 @@ int y4m_input_open(y4m_input *_y4m, FILE *_fin, char *_skip, int _nskip,
   _y4m->aom_fmt = AOM_IMG_FMT_I420;
   _y4m->bps = 12;
   _y4m->bit_depth = 8;
+  _y4m->aux_buf = NULL;
+  _y4m->dst_buf = NULL;
   if (strcmp(_y4m->chroma_type, "420") == 0 ||
       strcmp(_y4m->chroma_type, "420jpeg") == 0) {
     _y4m->src_c_dec_h = _y4m->dst_c_dec_h = _y4m->src_c_dec_v =
