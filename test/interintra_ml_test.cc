@@ -2681,12 +2681,13 @@ class InterIntraMLTest : public testing::TestWithParam<Sample> {};
 
 TEST_P(InterIntraMLTest, Sample) {
   const auto &param = GetParam();
-  INTERINTRA_MODE mode = II_ML_PRED0 + param.Mode() - 1;
+  // INTERINTRA_MODE mode = II_ML_PRED0 + param.Mode() - 1;
+  INTERINTRA_MODE mode = 0;
   BLOCK_SIZE bsize = BLOCK_16X16;
   std::unique_ptr<uint8_t[]> comp_pred(
       new uint8_t[param.PredictorWidth() * param.PredictorHeight()]);
   av1_combine_interintra_ml(
-      mode, bsize, comp_pred.get(), param.PredictorWidth(),
+      mode, bsize, bsize, AOM_PLANE_Y, comp_pred.get(), param.PredictorWidth(),
       param.InterPredictor(),
       /*inter_stride=*/param.InterPredictorWidth(), param.IntraPredictor(),
       // Intra-predictor has same dimensions as inter-.
