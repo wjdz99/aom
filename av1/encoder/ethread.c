@@ -645,6 +645,8 @@ static AOM_INLINE void create_enc_workers(AV1_COMP *cpi, int num_workers) {
             cm, thread_data->td->vt64x64,
             aom_malloc(sizeof(*thread_data->td->vt64x64) * num_64x64_blocks));
       }
+    } else {
+      thread_data->td = &cpi->td;
     }
     if (cpi->oxcf.row_mt == 1)
       CHECK_MEM_ERROR(
