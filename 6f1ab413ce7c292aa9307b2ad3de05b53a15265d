@@ -57,6 +57,30 @@
       },
       "revId": "6f1ab413ce7c292aa9307b2ad3de05b53a15265d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e45ba34d_e5d74cb0",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-01-13T07:50:52Z",
+      "side": 1,
+      "message": "yes, but the default scan order doesn\u0027t include square transform block cases, which is triggered in 422 setting.",
+      "parentUuid": "64504299_418c7a14",
+      "range": {
+        "startLine": 46,
+        "startChar": 40,
+        "endLine": 46,
+        "endChar": 73
+      },
+      "revId": "6f1ab413ce7c292aa9307b2ad3de05b53a15265d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
