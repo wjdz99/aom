@@ -113,6 +113,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8bf4db9_28eb75b6",
+        "filename": "aom_dsp/x86/highbd_convolve_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-13T23:00:38Z",
+      "side": 1,
+      "message": "Please change to the preferred style. \nif (filter_params_y-\u003etaps \u003d\u003d 12) {\n\n  av1_highbd_convolve...\n  return;\n}\nSee following CL for reference.\nhttps://aomedia-review.googlesource.com/c/aom/+/126044",
+      "parentUuid": "aa40ac19_ab81f2a1",
+      "range": {
+        "startLine": 45,
+        "startChar": 2,
+        "endLine": 48,
+        "endChar": 10
+      },
+      "revId": "4ffda61aa4262e5f2e7fc4090f547e020dde11c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "797227da_8c7c5e11",
