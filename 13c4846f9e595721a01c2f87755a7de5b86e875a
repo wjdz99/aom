@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23e5e576_6449aa8b",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1233,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-13T07:55:58Z",
+      "side": 0,
+      "message": "\"curr_frame_type \u003d\u003d KEY_FRAME\" is redundant here, as it\u0027s always true given condition at #1231, right?\nIn other words, can we simplify to this?\n\nif (curr_frame_type \u003d\u003d KEY_FRAME \u0026\u0026 rc-\u003eframes_to_key \u003e 1 \u0026\u0026 rc-\u003egf_intervals[i] \u003e\u003d rc-\u003eframes_to_key)",
+      "range": {
+        "startLine": 1233,
+        "startChar": 38,
+        "endLine": 1233,
+        "endChar": 66
+      },
+      "revId": "13c4846f9e595721a01c2f87755a7de5b86e875a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55af48d0_ad311a57",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1274,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-13T07:55:58Z",
+      "side": 0,
+      "message": "As above, can we simplify to this?\n\"if (curr_frame_type \u003d\u003d KEY_FRAME \u0026\u0026 rc-\u003eframes_to_key \u003e 1)\"?\n\nIf so, this whole condition \"curr_frame_type \u003d\u003d KEY_FRAME \u0026\u0026 rc-\u003eframes_to_key \u003e 1\" can be refactored to a variable (as these two conditions are common with line#1233)",
+      "range": {
+        "startLine": 1274,
+        "startChar": 30,
+        "endLine": 1274,
+        "endChar": 31
+      },
+      "revId": "13c4846f9e595721a01c2f87755a7de5b86e875a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
