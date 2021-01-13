@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "734542be_03f9afe1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2021-01-13T17:00:37Z",
+      "side": 1,
+      "message": "Yunqing,\nWe found one missing initialization of thread_data-\u003etd in the recent changes to MT framework where each module was allocated no. of threads independently (commit https://aomedia-review.googlesource.com/c/aom/+/126051), which is necessary for single-pass encoding.\n\nIn single pass mode of operation, thread_data is shared between stats consumption stage and stats generation stage, and these two\nhave different copies of AV1_COMP, namely, cpi and cpi_lap respectively. The thread_data-\u003etd for thread 0 should correspond to cpi-\u003etd in the stats consumption stage, and has to be explicitly assigned during the corresponding module level processing. If not assigned correctly before using\nthread_data, create_enc_workers() may potentially end up receiving the thread_data-\u003etd corresponding to cpi_lap instead of that of cpi. In this patch, we have fixed this issue by correctly initializing this variable inside create_enc_workers(). This change is also seen to fix the following bug: https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d2925\u0026q\u003d\u0026can\u003d2.\n\nThis patch also handles the case in compute_gm_workers where num_gm_workers could become greater than mt_info-\u003enum_workers (occurs when more references are present than the mt_info-\u003enum_workers, but lower than configured thread count).\n\nPlease review. Thanks.",
+      "revId": "dc574b22ead8bae65dc502073c6a1c3302fc3049",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
