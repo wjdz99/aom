@@ -442,16 +442,14 @@ typedef struct {
    *
    * See the documentation for \ref WinnerModeParams for more detail.
    */
-  unsigned int coeff_opt_dist_threshold;
-  //! \copydoc coeff_opt_dist_threshold
-  unsigned int coeff_opt_satd_threshold;
-  //! \copydoc coeff_opt_dist_threshold
+  unsigned int coeff_opt_thresholds[2];
+  /*! \copydoc MACROBLOCK::tx_domain_dist_threshold */
   unsigned int tx_domain_dist_threshold;
-  //! \copydoc coeff_opt_dist_threshold
+  /*! \copydoc MACROBLOCK::tx_size_search_method */
   TX_SIZE_SEARCH_METHOD tx_size_search_method;
-  //! \copydoc coeff_opt_dist_threshold
+  /*! \copydoc MACROBLOCK::use_transform_domain_distortion */
   unsigned int use_transform_domain_distortion;
-  //! \copydoc coeff_opt_dist_threshold
+  /*! \copydoc MACROBLOCK::skip_txfm_level */
   unsigned int skip_txfm_level;
 
   /*! \brief How to search for the optimal tx_size
