@@ -33,6 +33,24 @@
       "message": "some negative tests may help, does this one exercise the problem noted in the bug?",
       "revId": "fdee110b103e06f3fd6ec3447b1596c2bf214875",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb2bf812_5e717b9f",
+        "filename": "test/y4m_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-14T18:41:45Z",
+      "side": 1,
+      "message": "\u003e some negative tests may help\n\n\u003e does this one exercise the problem noted in the bug?\n\nI forgot the state of this. I would expect this part to come in a follow up after the refactor.",
+      "parentUuid": "22591a5f_d7ed06be",
+      "revId": "fdee110b103e06f3fd6ec3447b1596c2bf214875",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
