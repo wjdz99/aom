@@ -104,6 +104,24 @@
       "parentUuid": "fb2bf812_5e717b9f",
       "revId": "fdee110b103e06f3fd6ec3447b1596c2bf214875",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28d6c5e3_1123b0f4",
+        "filename": "test/y4m_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-14T22:04:38Z",
+      "side": 1,
+      "message": "\u003e I\u0027m not sure I understand. Should I remove this?\n\nNo I was wondering if this satisfied the condition in the bug or whether this change was meant as a step towards fixing it. In the end I just wanted to make sure that the case in the bug had coverage. I asked for the split earlier because I don\u0027t like to have cosmetics mixed with bug fixes if at possible.",
+      "parentUuid": "c6078307_a4e94ab1",
+      "revId": "fdee110b103e06f3fd6ec3447b1596c2bf214875",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
