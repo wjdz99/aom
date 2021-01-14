@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "842342d4_d955cf4c",
+        "filename": "aom_dsp/x86/highbd_convolve_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2021-01-14T00:25:24Z",
+      "side": 1,
+      "message": "Got it . You want return and remove else. Right?",
+      "parentUuid": "2ced478f_54665425",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 10
+      },
+      "revId": "1b586476fec1ba45e0d5cff019f7c677a0b26e6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24190ac2_791dadf5",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-01-14T00:06:56Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 197,
+        "startChar": 4,
+        "endLine": 197,
+        "endChar": 10
+      },
+      "revId": "1b586476fec1ba45e0d5cff019f7c677a0b26e6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ad6e61a_2d5eb052",
+        "filename": "aom_dsp/x86/highbd_convolve_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2021-01-14T00:25:24Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "24190ac2_791dadf5",
       "range": {
         "startLine": 197,
         "startChar": 4,
