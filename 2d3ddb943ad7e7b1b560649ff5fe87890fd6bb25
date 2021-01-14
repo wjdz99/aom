@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c69a4577_9fb574f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-14T19:14:03Z",
+      "side": 1,
+      "message": "Rubber stamping +2, assuming this matches recommendations from Alexis.",
+      "revId": "2d3ddb943ad7e7b1b560649ff5fe87890fd6bb25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
