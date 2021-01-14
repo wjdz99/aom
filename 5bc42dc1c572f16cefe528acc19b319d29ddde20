@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40f78623_340857b0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-14T17:21:05Z",
+      "side": 1,
+      "message": "It seems the bug was fixed by https://aomedia-review.googlesource.com/c/aom/+/126924. My local tests showed no failure when enabling the test.  ",
+      "revId": "5bc42dc1c572f16cefe528acc19b319d29ddde20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
