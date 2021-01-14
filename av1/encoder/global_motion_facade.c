@@ -210,11 +210,13 @@ void av1_compute_gm_for_valid_ref_frames(
   AV1_COMMON *const cm = &cpi->common;
   GlobalMotionInfo *const gm_info = &cpi->gm_info;
   const WarpedMotionParams *ref_params;
+  bool free_ref_params = false;
 #if CONFIG_GM_MODEL_CODING
   if (frame != LAST_FRAME) {
     const int base = calculate_gm_ref_params_scaling_distance(cm, LAST_FRAME);
     const int distance = calculate_gm_ref_params_scaling_distance(cm, frame);
     ref_params = find_gm_ref_params(cm, distance, base);
+    if (ref_params->wmtype != IDENTITY) free_ref_params = true;
   } else {
     ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
                                 : &default_warp_params;
@@ -232,6 +234,7 @@ void av1_compute_gm_for_valid_ref_frames(
                          cm->features.allow_high_precision_mv) +
       gm_info->type_cost[cm->global_motion[frame].wmtype] -
       gm_info->type_cost[IDENTITY];
+  if (free_ref_params) aom_free((void *)ref_params);
 }
 
 // Loops over valid reference frames and computes global motion estimation.

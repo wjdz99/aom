@@ -4277,7 +4277,7 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
 static int read_global_motion_params(WarpedMotionParams *params,
                                      const WarpedMotionParams *ref_params,
                                      struct aom_read_bit_buffer *rb,
-                                     int allow_hp) {
+                                     int allow_hp, bool free_ref_params) {
   TransformationType type = aom_rb_read_bit(rb);
   if (type != IDENTITY) {
     if (aom_rb_read_bit(rb))
@@ -4337,6 +4337,7 @@ static int read_global_motion_params(WarpedMotionParams *params,
                            (ref_params->wmmat[1] >> trans_prec_diff)) *
                        trans_dec_factor;
   }
+  if (free_ref_params) aom_free((void *)ref_params);
 
   if (params->wmtype <= AFFINE) {
     int good_shear_params = av1_get_shear_params(params);
@@ -4353,10 +4354,12 @@ static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
 #endif  // CONFIG_GM_MODEL_CODING
   for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     const WarpedMotionParams *ref_params;
+    bool free_ref_params = false;
 #if CONFIG_GM_MODEL_CODING
     if (frame != LAST_FRAME) {
       const int distance = calculate_gm_ref_params_scaling_distance(cm, frame);
       ref_params = find_gm_ref_params(cm, distance, base);
+      if (ref_params->wmtype != IDENTITY) free_ref_params = true;
     } else {
       ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
                                   : &default_warp_params;
@@ -4365,9 +4368,9 @@ static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
     ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
                                 : &default_warp_params;
 #endif  // CONFIG_GM_MODEL_CODING
-    int good_params =
-        read_global_motion_params(&cm->global_motion[frame], ref_params, rb,
-                                  cm->features.allow_high_precision_mv);
+    int good_params = read_global_motion_params(
+        &cm->global_motion[frame], ref_params, rb,
+        cm->features.allow_high_precision_mv, free_ref_params);
     if (!good_params) {
 #if WARPED_MOTION_DEBUG
       printf("Warning: unexpected global motion shear params from aomenc\n");

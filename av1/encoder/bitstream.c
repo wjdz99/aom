@@ -2707,7 +2707,7 @@ static AOM_INLINE void write_sequence_header(
 
 static AOM_INLINE void write_global_motion_params(
     const WarpedMotionParams *params, const WarpedMotionParams *ref_params,
-    struct aom_write_bit_buffer *wb, int allow_hp) {
+    struct aom_write_bit_buffer *wb, int allow_hp, bool free_ref_params) {
   const TransformationType type = params->wmtype;
 
   aom_wb_write_bit(wb, type != IDENTITY);
@@ -2756,6 +2756,7 @@ static AOM_INLINE void write_global_motion_params(
         (ref_params->wmmat[1] >> trans_prec_diff),
         (params->wmmat[1] >> trans_prec_diff));
   }
+  if (free_ref_params) aom_free((void *)ref_params);
 }
 
 static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
@@ -2767,10 +2768,12 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
 #endif  // CONFIG_GM_MODEL_CODING
   for (frame = LAST_FRAME; frame <= ALTREF_FRAME; ++frame) {
     const WarpedMotionParams *ref_params;
+    bool free_ref_params = false;
 #if CONFIG_GM_MODEL_CODING
     if (frame != LAST_FRAME) {
       const int distance = calculate_gm_ref_params_scaling_distance(cm, frame);
       ref_params = find_gm_ref_params(cm, distance, base);
+      if (ref_params->wmtype != IDENTITY) free_ref_params = true;
     } else {
       ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
                                   : &default_warp_params;
@@ -2780,7 +2783,8 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
                                 : &default_warp_params;
 #endif  // CONFIG_GM_MODEL_CODING
     write_global_motion_params(&cm->global_motion[frame], ref_params, wb,
-                               cm->features.allow_high_precision_mv);
+                               cm->features.allow_high_precision_mv,
+                               free_ref_params);
     // TODO(sarahparker, debargha): The logic in the commented out code below
     // does not work currently and causes mismatches when resize is on.
     // Fix it before turning the optimization back on.

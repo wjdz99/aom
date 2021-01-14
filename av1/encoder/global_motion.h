@@ -106,6 +106,8 @@ static const double erroradv_prod_tr = 20000;
 
 int av1_is_enough_erroradvantage(double best_erroradvantage, int params_cost);
 
+void convert_to_params(const double *params, int32_t *model);
+
 void av1_compute_feature_segmentation_map(uint8_t *segment_map, int width,
                                           int height, int *inliers,
                                           int num_inliers);
