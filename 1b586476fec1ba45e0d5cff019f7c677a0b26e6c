@@ -72,6 +72,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e515f6c5_1c0b04a2",
+        "filename": "aom_dsp/x86/highbd_convolve_avx2.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 16147
+      },
+      "writtenOn": "2021-01-14T00:41:58Z",
+      "side": 1,
+      "message": "OK.",
+      "parentUuid": "6e533e2b_bcac6ce8",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 10
+      },
+      "revId": "1b586476fec1ba45e0d5cff019f7c677a0b26e6c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24190ac2_791dadf5",
