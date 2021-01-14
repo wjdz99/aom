@@ -1508,7 +1508,7 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
       }
     }
     beta[frame_idx - gf_group->arf_index] =
-        (double)mc_dep_cost_base / intra_cost_base;
+        (double)mc_dep_cost_base / DOUBLE_DIVIDE_CHECK((double)intra_cost_base);
   }
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
