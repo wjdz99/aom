@@ -641,6 +641,8 @@ int av1_compute_subpel_gradients_lowbd(
 // vx0, vy0: output high resolution mv offset for p0
 // vx1, vy1: output high resolution mv offset for p1
 
+#define MV_REFINE_QUINCUNX 1
+
 void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
                                   const uint8_t *p1, int pstride1,
                                   const int16_t *gx0, const int16_t *gy0,
@@ -655,6 +657,9 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
   int64_t svw = 0;
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
+#if MV_REFINE_QUINCUNX
+      if ((i + j) % 2 == 1) continue;
+#endif
       const int u = d0 * gx0[i * gstride + j] - d1 * gx1[i * gstride + j];
       const int v = d0 * gy0[i * gstride + j] - d1 * gy1[i * gstride + j];
       const int w = d0 * (p0[i * pstride0 + j] - p1[i * pstride1 + j]);
@@ -693,6 +698,9 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
   int64_t svw = 0;
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
+#if MV_REFINE_QUINCUNX
+      if ((i + j) % 2 == 1) continue;
+#endif
       const int u = d0 * gx0[i * gstride + j] - d1 * gx1[i * gstride + j];
       const int v = d0 * gy0[i * gstride + j] - d1 * gy1[i * gstride + j];
       const int w = d0 * (p0[i * pstride0 + j] - p1[i * pstride1 + j]);
