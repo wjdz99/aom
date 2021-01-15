@@ -69,7 +69,7 @@ int av1_is_enough_erroradvantage(double best_erroradvantage, int params_cost) {
          best_erroradvantage * params_cost < erroradv_prod_tr;
 }
 
-void convert_to_params(const double *params, int32_t *model) {
+static void convert_to_params(const double *params, int32_t *model) {
   int i;
   int alpha_present = 0;
   model[0] = (int32_t)floor(params[0] * (1 << GM_TRANS_PREC_BITS) + 0.5);

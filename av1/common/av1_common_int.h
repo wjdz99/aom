@@ -1250,20 +1250,14 @@ static INLINE const WarpedMotionParams *find_gm_ref_params(AV1_COMMON *const cm,
       (WarpedMotionParams *)aom_malloc(sizeof(WarpedMotionParams));
   memcpy(ref_params, &cm->global_motion[LAST_FRAME],
          sizeof(WarpedMotionParams));
-  double scale_factor;
-  if (base != 0 && distance != 0)
-    scale_factor = (double)distance / base;
-  else
-    scale_factor = 1.0;
-  double params[8];
+  const int scale_factor = (base != 0 && distance != 0) ? (distance / base) : 1;
   for (int i = 0; i < 8; ++i) {
-    params[i] = ref_params->wmmat[i] * scale_factor;
+    ref_params->wmmat[i] *= scale_factor;
   }
-  convert_to_params(params, ref_params->wmmat);
-  ref_params->alpha = (int)(ref_params->alpha * scale_factor);
-  ref_params->beta = (int)(ref_params->beta * scale_factor);
-  ref_params->gamma = (int)(ref_params->gamma * scale_factor);
-  ref_params->delta = (int)(ref_params->delta * scale_factor);
+  ref_params->alpha *= scale_factor;
+  ref_params->beta *= scale_factor;
+  ref_params->gamma *= scale_factor;
+  ref_params->delta *= scale_factor;
   return ref_params;
 }
 #endif  // CONFIG_GM_MODEL_CODING
