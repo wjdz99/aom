@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7830b980_68d9a6e7",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-15T19:05:20Z",
+      "side": 1,
+      "message": "Yes, updated it.",
+      "parentUuid": "ac977bca_04805455",
+      "revId": "743123ea2e8a81020fc093f9588e72bcceeff54e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0a0b5c2d_14dc5db2",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-01-15T01:11:56Z",
       "side": 1,
       "message": "Optional: It may be good to note whether the value 0 here has any significance or it is just a dummy value.",
+      "revId": "743123ea2e8a81020fc093f9588e72bcceeff54e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd91ed41_31a91733",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1512,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-01-15T19:05:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a0b5c2d_14dc5db2",
       "revId": "743123ea2e8a81020fc093f9588e72bcceeff54e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
