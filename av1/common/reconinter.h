@@ -246,6 +246,7 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 uint8_t *dst, int dst_stride, int border);
 
 #if CONFIG_OPTFLOW_REFINEMENT
+#define USE_OF_CHROMA 1
 void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
                                   const uint8_t *p1, int pstride1,
                                   const int16_t *gx0, const int16_t *gy0,
@@ -296,8 +297,8 @@ static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
   if (use_optflow_refinement) {
     // optflow refinement always returns MVs with 1/16 precision so it is not
     // necessary to shift the MV before clamping
-    clamped_mv.row = (int16_t)(src_mv->row);
-    clamped_mv.col = (int16_t)(src_mv->col);
+    clamped_mv.row = (int16_t)(src_mv->row >> ss_y);
+    clamped_mv.col = (int16_t)(src_mv->col >> ss_x);
 
   } else {
     clamped_mv.row = (int16_t)(src_mv->row * (1 << (1 - ss_y)));
