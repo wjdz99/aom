@@ -246,6 +246,7 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 uint8_t *dst, int dst_stride, int border);
 
 #if CONFIG_OPTFLOW_REFINEMENT
+#define USE_OF_CHROMA 1
 void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
                                   const uint8_t *p1, int pstride1,
                                   const int16_t *gx0, const int16_t *gy0,
