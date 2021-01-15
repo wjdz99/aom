@@ -33,6 +33,24 @@
       "message": "\u003e Patch Set 5: Code-Review-1\n\u003e \n\u003e Rebase first if necessary, otherwise:\n\u003e if the files are in your patchset, run clang-format on them or\n\u003e apply the diff in the console output:\n\u003e \n\u003e https://build.aomedia.org/jenkins/job/style-check/52455/\n\u003e https://build.aomedia.org/jenkins/job/style-check/52455/consoleText\n\u003e \n\u003e examples/svc_encoder_rtc.c\n\nHey Marco,\nTo avoid this I use pre-commit hook that applies clang-format before commit. It is like this:\n\ncat ~/source/aom/.git/hooks/pre-commit\n#!/bin/bash\necho \"Applying clang-format ...\"\nfor file in $(git diff-index --cached --name-only HEAD -- \"*.[hc]pp\" \"*.cc\" \"*.[ch]\") ; do\n  /opt/clang-7.0.1/bin/clang-format -i --style\u003dfile ${file}\n  git add ${file}\n  echo \"Formatted file: $file\"\ndone\necho \"Done.\"\n\n\n\n",
       "revId": "bf57700a6c2dac64afa41c52990a4e621d75c674",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a35fb186_193cf483",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-01-15T22:33:03Z",
+      "side": 1,
+      "message": "ok thanks, will use this hook",
+      "parentUuid": "b7d05a0d_c4925e24",
+      "revId": "bf57700a6c2dac64afa41c52990a4e621d75c674",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
