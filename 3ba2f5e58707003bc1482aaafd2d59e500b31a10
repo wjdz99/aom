@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f44ece0e_cd16e24b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-01-15T14:11:51Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nwe observed that disable_sb_level_coeff_cost_upd speed feature was unused. This patch cleaned up the speed feature.\n\nThe changes are bit-exact and no impact on quality (verified locally).\n\nThanks and Regards\nAkshata",
+      "revId": "3ba2f5e58707003bc1482aaafd2d59e500b31a10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
