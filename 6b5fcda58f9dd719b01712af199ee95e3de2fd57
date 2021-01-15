@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "367d0fe3_f49c75b0",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1481,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-01-15T19:36:51Z",
+      "side": 1,
+      "message": "Just curious: Is the test failure fixed by this change or the change in encode_strategy.c? Or do we need both changes to fix the test failure?",
+      "revId": "6b5fcda58f9dd719b01712af199ee95e3de2fd57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
