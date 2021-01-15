@@ -20,6 +20,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fc0ae503_dad39dfa",
+        "filename": "test/av1_convolve_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 848,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-15T23:26:08Z",
+      "side": 1,
+      "message": "I think we can merge 12-tap test here by adding a checking like\nif ((h_f is 12-tap \u0026\u0026 v_f \u003c 12 tap) || (v_f is 12-tap \u0026\u0026 h_f \u003c 12 tap))\n  continue;\nTry it.",
+      "range": {
+        "startLine": 847,
+        "startChar": 0,
+        "endLine": 848,
+        "endChar": 71
+      },
+      "revId": "39a477367e648330bb41f2c7a7351bddaa72fd62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "aec64559_00265467",
         "filename": "test/av1_convolve_test.cc",
         "patchSetId": 2
