@@ -66,10 +66,11 @@ static int compare_score_data_asc(const void *a, const void *b) {
     return -1;
   }
 }
-void av1_init_new_ref_frame_map(AV1_COMMON *const cm,
+void av1_init_new_ref_frame_map(AV1_COMMON *cm,
                                 RefFrameMapPair *ref_frame_map_pairs,
                                 int cur_frame_disp) {
   RefScoreData scores[REF_FRAMES];
+  memset(scores, 0, sizeof(RefScoreData) * REF_FRAMES);
   int n_ranked = 0;
   // Compute a score for each reference buffer
   for (int i = 0; i < REF_FRAMES; i++) {
