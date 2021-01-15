@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f3a493f_79adcde9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-01-15T20:44:06Z",
+      "side": 1,
+      "message": "Just a safety nitpick",
+      "revId": "13b57587b895f719ec2fba4cff8d092b3394de85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eac0120d_1cdb5fe9",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-01-15T20:44:06Z",
+      "side": 1,
+      "message": "For safety I would say :\ncfg.g_threads ? get_msb(cfg.g_threads) : 0;\n\nas theoretically g_threads could be 0 and this will result in overflow in get_msb()",
+      "revId": "13b57587b895f719ec2fba4cff8d092b3394de85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
