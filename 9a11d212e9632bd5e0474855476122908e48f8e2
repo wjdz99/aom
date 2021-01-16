@@ -16,6 +16,24 @@
       "message": "Hi, \n\nCan you help me merge this patch? I submitted using my personal email. ",
       "revId": "9a11d212e9632bd5e0474855476122908e48f8e2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b539b024_4f7b1048",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-16T06:20:37Z",
+      "side": 1,
+      "message": "I think personal email won\u0027t work unless you signed the CLA.\nOtherwise, re-create a patch from work email.\nSee the error here: https://build.aomedia.org/jenkins/job/libaom__commit_trigger/56225/console",
+      "parentUuid": "ff1e1370_5552c92e",
+      "revId": "9a11d212e9632bd5e0474855476122908e48f8e2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
