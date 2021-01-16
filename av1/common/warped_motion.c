@@ -1053,7 +1053,6 @@ static int find_affine_int(int np, const int *pts1, const int *pts2,
   wm->wmmat[1] =
       clamp(vy, -WARPEDMODEL_TRANS_CLAMP, WARPEDMODEL_TRANS_CLAMP - 1);
 
-  wm->wmmat[6] = wm->wmmat[7] = 0;
   return 0;
 }
 

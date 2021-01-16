@@ -87,12 +87,6 @@ static void convert_to_params(const double *params, int32_t *model) {
     alpha_present |= (model[i] != 0);
     model[i] = (model[i] + diag_value) * GM_ALPHA_DECODE_FACTOR;
   }
-  for (; i < 8; ++i) {
-    model[i] = (int32_t)floor(params[i] * (1 << GM_ROW3HOMO_PREC_BITS) + 0.5);
-    model[i] = (int32_t)clamp(model[i], GM_ROW3HOMO_MIN, GM_ROW3HOMO_MAX) *
-               GM_ROW3HOMO_DECODE_FACTOR;
-    alpha_present |= (model[i] != 0);
-  }
 
   if (!alpha_present) {
     if (abs(model[0]) < MIN_TRANS_THRESH && abs(model[1]) < MIN_TRANS_THRESH) {
@@ -153,7 +147,7 @@ static void force_wmtype(WarpedMotionParams *wm, TransformationType wmtype) {
       wm->wmmat[4] = -wm->wmmat[3];
       wm->wmmat[5] = wm->wmmat[2];
       AOM_FALLTHROUGH_INTENDED;
-    case AFFINE: wm->wmmat[6] = wm->wmmat[7] = 0; break;
+    case AFFINE: break;
     default: assert(0);
   }
   wm->wmtype = wmtype;
