@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ff7e270_bd02f7e0",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-01-17T08:10:04Z",
+      "side": 1,
+      "message": "I would prefer not to enable this model based rd decision in speed 1. Instead stick with the proper rd estimate to avoid any surprise in later compound mode optimizations.\n\nThere are several experiments planned to address the compound mode search space, which should reduce the impact of using a real rd estimate over heuristic models.",
+      "range": {
+        "startLine": 459,
+        "startChar": 17,
+        "endLine": 459,
+        "endChar": 49
+      },
+      "revId": "3cb3994b4af743f7021b25dad92ce60d0ad396e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
