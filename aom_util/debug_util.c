@@ -56,14 +56,17 @@ int bitstream_queue_get_write(void) { return queue_w; }
 int bitstream_queue_get_read(void) { return queue_r; }
 
 void bitstream_queue_pop(int *result, aom_cdf_prob *cdf, int *nsymbs) {
+  (void)result;
+  (void)cdf;
+  (void)nsymbs;
   if (!skip_r) {
-    if (queue_w == queue_r) {
+    /*if (queue_w == queue_r) {
       printf("buffer underflow queue_w %d queue_r %d\n", queue_w, queue_r);
       assert(0);
     }
     *result = result_queue[queue_r];
     *nsymbs = nsymbs_queue[queue_r];
-    memcpy(cdf, cdf_queue[queue_r], *nsymbs * sizeof(*cdf));
+    memcpy(cdf, cdf_queue[queue_r], *nsymbs * sizeof(*cdf));*/
     queue_r = (queue_r + 1) % QUEUE_MAX_SIZE;
   }
 }
