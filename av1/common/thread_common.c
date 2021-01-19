@@ -444,7 +444,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                   plane_start, plane_end);
 
   // Set up loopfilter thread data.
-  for (i = 0; i < num_workers; ++i) {
+  for (i = num_workers - 1; i >= 0; --i) {
     AVxWorker *const worker = &workers[i];
     LFWorkerData *const lf_data = &lf_sync->lfdata[i];
 
@@ -464,7 +464,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     loop_filter_data_reset(lf_data, frame, cm, xd);
 
     // Start loopfiltering
-    if (i == num_workers - 1) {
+    if (i == 0) {
       winterface->execute(worker);
     } else {
       winterface->launch(worker);
