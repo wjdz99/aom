@@ -16,6 +16,24 @@
       "message": "Hi Deepa/Ranjit, could you review this CL?",
       "revId": "cdb45e22c58488996b38d090f92c670b7131e54b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ccc95ab_baa189ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-01-20T15:02:32Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nThe patch looks correct. Similar change has to be done for loop restoration multi-threading in the function foreach_rest_unit_in_planes_mt(). However, either of these changes would cause issues in the decoder. The detailed explanation is as follows.\n\nIn encoder multi-threading, thread id 0 (first thread) is the master thread (commit https://aomedia-review.googlesource.com/c/aom/+/76341). Thus the following code snippet is correct.\n \nif (i \u003d\u003d 0) {\n  winterface-\u003eexecute(worker);\n} else {\n  winterface-\u003elaunch(worker);\n}\n\nHowever, in decoder multi-threading, master thread is the last thread (thread id \"num_workers - 1\"). Thus, the above code snippet would cause one of the workers to be unscheduled. Therefore, it is required to change the thread id 0 to be the master thread in decoder as well. \n\nWe plan to work on above changes in the coming days and shall submit the patches, accordingly.\n\nThank you",
+      "parentUuid": "ced939ff_c9e36a30",
+      "revId": "cdb45e22c58488996b38d090f92c670b7131e54b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
