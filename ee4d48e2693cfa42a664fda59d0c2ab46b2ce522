@@ -16,6 +16,52 @@
       "message": "Hi Yunqing,\nWe observed that disable_obmc and prune_obmc_prob_thresh speed features can be combine. This patch consolidate these two speed features. \n\nPlease review the patch\n\nThe changes are bit-exact and no impact on quality (verified locally).\n\nRegards\nAkshata",
       "revId": "ee4d48e2693cfa42a664fda59d0c2ab46b2ce522",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29866aa9_df75c024",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-20T00:56:50Z",
+      "side": 1,
+      "message": "The speed feature setting is called as follows:\n  av1_set_speed_features_framesize_independent(cpi, oxcf-\u003espeed);\n  av1_set_speed_features_framesize_dependent(cpi, oxcf-\u003espeed);\nThere are inconsistency in original code - The setting here \"sf-\u003einter_sf.prune_obmc_prob_thresh \u003d 16;\" may overwrite \"sf-\u003einter_sf.disable_obmc \u003d 1;\"\n\nSuspect that your change may not be bit exactness. Can you verify?",
+      "range": {
+        "startLine": 269,
+        "startChar": 41,
+        "endLine": 269,
+        "endChar": 50
+      },
+      "revId": "ee4d48e2693cfa42a664fda59d0c2ab46b2ce522",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8918ec53_8b28a7c5",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-20T00:56:50Z",
+      "side": 1,
+      "message": "Please add more information about meaning of threshold value - e.g. INT_MAX actually means disabling obmc.",
+      "range": {
+        "startLine": 687,
+        "startChar": 5,
+        "endLine": 687,
+        "endChar": 60
+      },
+      "revId": "ee4d48e2693cfa42a664fda59d0c2ab46b2ce522",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
