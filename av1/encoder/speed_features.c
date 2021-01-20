@@ -701,6 +701,7 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.prune_sub_8x8_partition_level =
         allow_screen_content_tools ? 0
                                    : frame_is_intra_only(&cpi->common) ? 1 : 2;
+    sf->part_sf.prune_ext_partition_types_search_level = 2;
 
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;
     sf->mv_sf.use_bsize_dependent_search_method = 1;

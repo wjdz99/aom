@@ -3699,7 +3699,7 @@ BEGIN_PARTITION_SEARCH:
 
   // Disable 4-way partition search flags for width less than twice the minimum
   // width.
-  if (blk_params.width < (blk_params.min_partition_size_1d << 2)) {
+  if (1 || blk_params.width < (blk_params.min_partition_size_1d << 2)) {
     part4_search_allowed[HORZ4] = 0;
     part4_search_allowed[VERT4] = 0;
   } else {
