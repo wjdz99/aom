@@ -2634,6 +2634,9 @@ void av1_gop_bit_allocation(const AV1_COMP *cpi, RATE_CONTROL *const rc,
 // ratio in the next frame.
 #define II_IMPROVEMENT_THRESHOLD 3.5
 #define KF_II_MAX 128.0
+// If a high pencentage of neutral blocks is seen, this frame might not
+// be a persuasive key frame.
+#define LOW_NEUTRAL_THRESH 0.35
 
 // Threshold for use of the lagging second reference frame. High second ref
 // usage may point to a transient event like a flash or occlusion rather than
@@ -2692,6 +2695,8 @@ static int test_candidate_kf(TWO_PASS *twopass,
       (next_frame->pcnt_second_ref < second_ref_usage_thresh) &&
       ((this_frame->pcnt_inter < VERY_LOW_INTER_THRESH) ||
        ((pcnt_intra > MIN_INTRA_LEVEL) &&
+        IMPLIES(this_frame->weight < 1.7,
+                this_frame->pcnt_neutral < LOW_NEUTRAL_THRESH) &&
         (pcnt_intra > (INTRA_VS_INTER_THRESH * modified_pcnt_inter)) &&
         ((this_frame->intra_error /
           DOUBLE_DIVIDE_CHECK(this_frame->coded_error)) <
