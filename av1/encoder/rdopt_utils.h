@@ -31,6 +31,27 @@ typedef struct {
   MV_REFERENCE_FRAME ref_frame[2];
 } MODE_DEFINITION;
 
+#if CONFIG_NEW_REF_SIGNALING
+// Temporary function to skip compound combinations that aren't
+// represented in av1_mode_defs. This will be needed until the bitstream
+// syntax is changed to support these combinations.
+int skip_compound_search(int ref1, int ref2) {
+
+  const ind1 = ref1 - LAST_FRAME;
+  const ind2 = ref2 - LAST_FRAME;
+
+  const int skip_comp[REF_FRAMES][REF_FRAMES] = {
+    { 1, 0, 0, 0, 0, 0, 0, },
+    { 1, 1, 1, 1, 0, 0, 0, },
+    { 1, 1, 1, 1, 0, 0, 0, },
+    { 1, 1, 1, 1, 0, 0, 0, },
+    { 1, 1, 1, 1, 1, 1, 0, },
+    { 1, 1, 1, 1, 1, 1, 1, },
+    { 1, 1, 1, 1, 1, 1, 1, }, 
+  }
+  return skip_comp[ind1][ind2];
+}
+#else
 // This array defines the mapping from the enums in THR_MODES to the actual
 // prediction modes and refrence frames
 static const MODE_DEFINITION av1_mode_defs[MAX_MODES] = {
@@ -229,6 +250,7 @@ static const MODE_DEFINITION av1_mode_defs[MAX_MODES] = {
   { D113_PRED, { INTRA_FRAME, NONE_FRAME } },
   { D45_PRED, { INTRA_FRAME, NONE_FRAME } },
 };
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 static AOM_INLINE void restore_dst_buf(MACROBLOCKD *xd, const BUFFER_SET dst,
                                        const int num_planes) {

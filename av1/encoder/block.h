@@ -93,6 +93,7 @@ typedef struct {
   uint8_t color_index_map[MAX_SB_SQUARE];
   //! The current winner mode.
   THR_MODES mode_index;
+  MV_REFERENCE_FRAME[2] refs;
 } WinnerModeStats;
 
 /*! \brief Each source plane of the current macroblock
