@@ -33,6 +33,10 @@ macro(fix_experiment_configs)
     change_config_and_warn(CONFIG_NEW_INTER_MODES 1 CONFIG_OPTFLOW_REFINEMENT)
   endif()
 
+  if(CONFIG_OPFL_SINGLEREF)
+    change_config_and_warn(CONFIG_OPTFLOW_REFINEMENT 1 CONFIG_OPFL_SINGLEREF)
+  endif()
+
   if(CONFIG_SB_FLEX_MVRES)
     change_config_and_warn(CONFIG_FLEX_MVRES 1 CONFIG_SB_FLEX_MVRES)
   endif()

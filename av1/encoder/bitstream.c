@@ -171,12 +171,20 @@ static void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
                              FRAME_CONTEXT *ec_ctx, const int16_t mode_ctx) {
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
 
-  aom_write_symbol(w, mode != NEWMV, ec_ctx->newmv_cdf[newmv_ctx], 2);
+#if CONFIG_OPFL_SINGLEREF
+  int newmv = (mode == NEWMV || mode == NEWMV_OPTFLOW);
+  int globalmv = (mode == GLOBALMV || mode == GLOBALMV_OPTFLOW);
+#else
+  int newmv = mode == NEWMV;
+  int globalmv = mode == GLOBALMV;
+#endif
 
-  if (mode != NEWMV) {
+  aom_write_symbol(w, !newmv, ec_ctx->newmv_cdf[newmv_ctx], 2);
+
+  if (!newmv) {
     const int16_t zeromv_ctx =
         (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
-    aom_write_symbol(w, mode != GLOBALMV, ec_ctx->zeromv_cdf[zeromv_ctx], 2);
+    aom_write_symbol(w, !globalmv, ec_ctx->zeromv_cdf[zeromv_ctx], 2);
 
 #if !CONFIG_NEW_INTER_MODES
     if (mode != GLOBALMV) {
@@ -1663,7 +1671,11 @@ static void pack_inter_mode_mvs(AV1_COMP *cpi, const int mi_row,
     }
 
 #if CONFIG_OPTFLOW_REFINEMENT
-    if (mode == NEWMV || mode == NEW_NEWMV || mode == NEW_NEWMV_OPTFLOW) {
+    if (mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+        mode == NEWMV_OPTFLOW ||
+#endif
+        mode == NEW_NEWMV || mode == NEW_NEWMV_OPTFLOW) {
 #else
     if (mode == NEWMV || mode == NEW_NEWMV) {
 #endif

@@ -246,6 +246,9 @@ static AOM_INLINE void collect_mv_stats_b(MV_STATS *mv_stats,
   const int is_compound = has_second_ref(mbmi);
 
   if (mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+      mode == NEWMV_OPTFLOW ||
+#endif
 #if CONFIG_OPTFLOW_REFINEMENT
       mode == NEW_NEWMV_OPTFLOW ||
 #endif  // CONFIG_OPTFLOW_REFINEMENT

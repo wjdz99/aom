@@ -1509,6 +1509,32 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   rd->thresh_mult[THR_GLOBALG] = 2000;
   rd->thresh_mult[THR_GLOBALA] = 2400;
 
+#if CONFIG_OPFL_SINGLEREF
+  rd->thresh_mult[THR_NEARMV_OPTFLOW] = 0;
+  rd->thresh_mult[THR_NEAR_OPTFLOWL2] = 0;
+  rd->thresh_mult[THR_NEAR_OPTFLOWL3] = 100;
+  rd->thresh_mult[THR_NEAR_OPTFLOWB] = 0;
+  rd->thresh_mult[THR_NEAR_OPTFLOWA2] = 0;
+  rd->thresh_mult[THR_NEAR_OPTFLOWA] = 0;
+  rd->thresh_mult[THR_NEAR_OPTFLOWG] = 0;
+
+  rd->thresh_mult[THR_GLOBALMV_OPTFLOW] = 2200;
+  rd->thresh_mult[THR_GLOBAL_OPTFLOWL2] = 2000;
+  rd->thresh_mult[THR_GLOBAL_OPTFLOWL3] = 2000;
+  rd->thresh_mult[THR_GLOBAL_OPTFLOWB] = 2400;
+  rd->thresh_mult[THR_GLOBAL_OPTFLOWA2] = 2000;
+  rd->thresh_mult[THR_GLOBAL_OPTFLOWG] = 2000;
+  rd->thresh_mult[THR_GLOBAL_OPTFLOWA] = 2400;
+
+  rd->thresh_mult[THR_NEWMV_OPTFLOW] = 1000;
+  rd->thresh_mult[THR_NEW_OPTFLOWL2] = 1000;
+  rd->thresh_mult[THR_NEW_OPTFLOWL3] = 1000;
+  rd->thresh_mult[THR_NEW_OPTFLOWB] = 1000;
+  rd->thresh_mult[THR_NEW_OPTFLOWA2] = 1100;
+  rd->thresh_mult[THR_NEW_OPTFLOWA] = 1000;
+  rd->thresh_mult[THR_NEW_OPTFLOWG] = 1000;
+#endif  // CONFIG_OPFL_SINGLEREF
+
 #if !CONFIG_NEW_INTER_MODES
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTLA] = 1100;
   rd->thresh_mult[THR_COMP_NEAREST_NEARESTL2A] = 1000;

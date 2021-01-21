@@ -1482,7 +1482,11 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
   BLOCK_SIZE bsize = mbmi->sb_type;
 
   switch (mode) {
-    case NEWMV: {
+    case NEWMV:
+#if CONFIG_OPFL_SINGLEREF
+    case NEWMV_OPTFLOW:
+#endif
+    {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
       break;
@@ -1493,11 +1497,19 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
 #endif  // !CONFIG_NEW_INTER_MODES
-    case NEARMV: {
+    case NEARMV:
+#if CONFIG_OPFL_SINGLEREF
+    case NEARMV_OPTFLOW:
+#endif
+    {
       mv[0].as_int = near_mv[0].as_int;
       break;
     }
-    case GLOBALMV: {
+    case GLOBALMV:
+#if CONFIG_OPFL_SINGLEREF
+    case GLOBALMV_OPTFLOW:
+#endif
+    {
       mv[0].as_int =
           gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                cm->fr_mv_precision, bsize, mi_col, mi_row)
@@ -1833,7 +1845,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                        mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
   }
 
-  if (!is_compound && mbmi->mode != GLOBALMV) {
+  if (!is_compound &&
+#if CONFIG_OPFL_SINGLEREF
+      mbmi->mode != GLOBALMV_OPTFLOW &&
+#endif
+      mbmi->mode != GLOBALMV) {
     av1_find_best_ref_mvs(cm->fr_mv_precision, ref_mvs[mbmi->ref_frame[0]],
                           &nearestmv[0], &nearmv[0]);
   }
@@ -1867,7 +1883,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     lower_mv_precision(&nearmv[0].as_mv, cm->fr_mv_precision);
     lower_mv_precision(&nearmv[1].as_mv, cm->fr_mv_precision);
 #if CONFIG_NEW_INTER_MODES
+#if CONFIG_OPFL_SINGLEREF
+  } else if (mbmi->mode == NEARMV || mbmi->mode == NEARMV_OPTFLOW) {
+#else
   } else if (mbmi->mode == NEARMV) {
+#endif
     nearmv[0] =
         xd->ref_mv_info.ref_mv_stack[mbmi->ref_frame[0]][mbmi->ref_mv_idx]
             .this_mv;

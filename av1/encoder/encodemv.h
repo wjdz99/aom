@@ -113,7 +113,11 @@ static INLINE int av1_check_newmv_joint_nonzero(const AV1_COMMON *cm,
     if (mbmi->mv[0].as_int == ref_mv_0.as_int) {
       return 0;
     }
+#if CONFIG_OPFL_SINGLEREF
+  } else if (this_mode == NEWMV || this_mode == NEWMV_OPTFLOW) {
+#else
   } else if (this_mode == NEWMV) {
+#endif
     int_mv ref_mv_0 = av1_get_ref_mv(x, 0);
     lower_mv_precision(&ref_mv_0.as_mv, precision);
     if (mbmi->mv[0].as_int == ref_mv_0.as_int) {

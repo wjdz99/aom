@@ -174,6 +174,11 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,           // NEARMV
     MB_MODE_COUNT,           // GLOBALMV
     MB_MODE_COUNT,           // NEWMV
+#if CONFIG_OPFL_SINGLEREF
+    MB_MODE_COUNT,  // NEARMV_OPTFLOW
+    MB_MODE_COUNT,  // GLOBALMV_OPTFLOW
+    MB_MODE_COUNT,  // NEWMV_OPTFLOW
+#endif
 #if !CONFIG_NEW_INTER_MODES  //
     NEARESTMV,               // NEAREST_NEARESTMV
 #endif                       // !CONFIG_NEW_INTER_MODES
@@ -220,6 +225,11 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,           // NEARMV
     MB_MODE_COUNT,           // GLOBALMV
     MB_MODE_COUNT,           // NEWMV
+#if CONFIG_OPFL_SINGLEREF
+    MB_MODE_COUNT,  // NEARMV_OPTFLOW
+    MB_MODE_COUNT,  // GLOBALMV_OPTFLOW
+    MB_MODE_COUNT,  // NEWMV_OPTFLOW
+#endif
 #if !CONFIG_NEW_INTER_MODES  //
     NEARESTMV,               // NEAREST_NEARESTMV
 #endif                       // !CONFIG_NEW_INTER_MODES
@@ -247,9 +257,13 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
 #if CONFIG_OPTFLOW_REFINEMENT
-  return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
-          mode == NEW_NEARMV || mode == NEAR_NEARMV_OPTFLOW ||
-          mode == NEAR_NEWMV_OPTFLOW || mode == NEW_NEARMV_OPTFLOW);
+  return (mode == NEARMV ||
+#if CONFIG_OPFL_SINGLEREF
+          mode == NEARMV_OPTFLOW ||
+#endif
+          mode == NEAR_NEARMV || mode == NEAR_NEWMV || mode == NEW_NEARMV ||
+          mode == NEAR_NEARMV_OPTFLOW || mode == NEAR_NEWMV_OPTFLOW ||
+          mode == NEW_NEARMV_OPTFLOW);
 #else
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
@@ -259,9 +273,13 @@ static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
 #if CONFIG_NEW_INTER_MODES
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
 #if CONFIG_OPTFLOW_REFINEMENT
-  return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAR_NEWMV ||
-          mode == NEW_NEARMV || mode == NEAR_NEWMV_OPTFLOW ||
-          mode == NEW_NEARMV_OPTFLOW || mode == NEW_NEWMV_OPTFLOW);
+  return (mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+          mode == NEWMV_OPTFLOW ||
+#endif
+          mode == NEW_NEWMV || mode == NEAR_NEWMV || mode == NEW_NEARMV ||
+          mode == NEAR_NEWMV_OPTFLOW || mode == NEW_NEARMV_OPTFLOW ||
+          mode == NEW_NEWMV_OPTFLOW);
 #else
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
@@ -2085,6 +2103,9 @@ static INLINE int av1_use_adjust_drl(const MB_MODE_INFO *mbmi) {
   if (mbmi->pb_mv_precision >= mbmi->max_mv_precision) return 0;
   const PREDICTION_MODE mode = mbmi->mode;
   return mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+         mode == NEWMV_OPTFLOW ||
+#endif
 #if CONFIG_OPTFLOW_REFINEMENT
          mode == NEW_NEWMV_OPTFLOW ||
 #endif  // CONFIG_OPTFLOW_REFINEMENT
