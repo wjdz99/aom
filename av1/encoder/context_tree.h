@@ -49,7 +49,7 @@ typedef struct PICK_MODE_CONTEXT {
   // For current partition, only if all Y, U, and V transform blocks'
   // coefficients are quantized to 0, skippable is set to 1.
   int skippable;
-#if CONFIG_INTERNAL_STATS
+#if CONFIG_INTERNAL_STATS && !CONFIG_NEW_REF_SIGNALING
   THR_MODES best_mode_index;
 #endif  // CONFIG_INTERNAL_STATS
   int hybrid_pred_diff;
