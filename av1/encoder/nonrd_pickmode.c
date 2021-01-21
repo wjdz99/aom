@@ -76,7 +76,6 @@ static const REF_MODE ref_mode_set[RT_INTER_MODES] = {
   { ALTREF_FRAME, NEWMV }
 };
 
-#if !CONFIG_NEW_REF_SIGNALING
 static const THR_MODES mode_idx[REF_FRAMES][4] = {
   { THR_DC, THR_V_PRED, THR_H_PRED, THR_SMOOTH },
   { THR_NEARESTMV, THR_NEARMV, THR_GLOBALMV, THR_NEWMV },
@@ -84,7 +83,6 @@ static const THR_MODES mode_idx[REF_FRAMES][4] = {
   { THR_NEARESTL3, THR_NEARL3, THR_GLOBALL3, THR_NEWL3 },
   { THR_NEARESTG, THR_NEARG, THR_GLOBALMV, THR_NEWG },
 };
-#endif  // !CONFIG_NEW_REF_SIGNALING
 
 static const PREDICTION_MODE intra_mode_list[] = { DC_PRED, V_PRED, H_PRED,
                                                    SMOOTH_PRED };
@@ -1259,18 +1257,11 @@ static void estimate_block_intra(int plane, int block, int row, int col,
 static INLINE void update_thresh_freq_fact(AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize,
                                            MV_REFERENCE_FRAME ref_frame,
-                                           PREDICTION_MODE mode,
-                                           MV_REFERENCE_FRAME best_ref_frame,
-                                           PREDICTION_MODE best_mode) {
-#if CONFIG_NEW_REF_SIGNALING
-  int *freq_fact = &x->thresh_freq_fact[bsize][mode];
-  if (ref_frame == best_ref_frame && mode == best_mode) {
-#else
+                                           THR_MODES best_mode_idx,
+                                           PREDICTION_MODE mode) {
   THR_MODES thr_mode_idx = mode_idx[ref_frame][mode_offset(mode)];
-  THR_MODES best_mode_idx = mode_idx[best_ref_frame][mode_offset(best_mode)];
   int *freq_fact = &x->thresh_freq_fact[bsize][thr_mode_idx];
   if (thr_mode_idx == best_mode_idx) {
-#endif  // CONFIG_NEW_REF_SIGNALING
     *freq_fact -= (*freq_fact >> 4);
   } else {
     *freq_fact =
@@ -1811,12 +1802,8 @@ static void estimate_intra_mode(
 
   for (int i = 0; i < 4; ++i) {
     const PREDICTION_MODE this_mode = intra_mode_list[i];
-#if CONFIG_NEW_REF_SIGNALING
-    const int mode_rd_thresh = rd_threshes[this_mode];
-#else
     const THR_MODES mode_index = mode_idx[INTRA_FRAME][mode_offset(this_mode)];
     const int mode_rd_thresh = rd_threshes[mode_index];
-#endif  // CONFIG_NEW_REF_SIGNALING
 
     // Only check DC for blocks >= 32X32.
     if (this_mode > 0 &&
@@ -1824,11 +1811,7 @@ static void estimate_intra_mode(
       continue;
 
     if (rd_less_than_thresh(best_rdc->rdcost, mode_rd_thresh,
-#if CONFIG_NEW_REF_SIGNALING
-                            rd_thresh_freq_fact[this_mode]) &&
-#else
                             rd_thresh_freq_fact[mode_index]) &&
-#endif  // CONFIG_NEW_REF_SIGNALING
         (do_early_exit_rdthresh || this_mode == SMOOTH_PRED)) {
       continue;
     }
@@ -1912,13 +1895,9 @@ static AOM_INLINE int skip_mode_by_threshold(
     int frames_since_golden, const int *const rd_threshes,
     const int *const rd_thresh_freq_fact, int64_t best_cost, int best_skip) {
   int skip_this_mode = 0;
-#if CONFIG_NEW_REF_SIGNALING
-  int mode_rd_thresh = best_skip ? rd_threshes[mode] << 1 : rd_threshes[mode];
-#else
   const THR_MODES mode_index = mode_idx[ref_frame][INTER_OFFSET(mode)];
   int mode_rd_thresh =
       best_skip ? rd_threshes[mode_index] << 1 : rd_threshes[mode_index];
-#endif  // CONFIG_NEW_REF_SIGNALING
 
   // Increase mode_rd_thresh value for non-LAST for improved encoding
   // speed
@@ -1928,12 +1907,8 @@ static AOM_INLINE int skip_mode_by_threshold(
       mode_rd_thresh = mode_rd_thresh << 1;
   }
 
-#if CONFIG_NEW_REF_SIGNALING
-  if (rd_less_than_thresh(best_cost, mode_rd_thresh, rd_thresh_freq_fact[mode]))
-#else
   if (rd_less_than_thresh(best_cost, mode_rd_thresh,
                           rd_thresh_freq_fact[mode_index]))
-#endif  // CONFIG_NEW_REF_SIGNALING
     if (mv.as_int != 0) skip_this_mode = 1;
 
   return skip_this_mode;
@@ -2396,19 +2371,20 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     }
   }
   if (cpi->sf.inter_sf.adaptive_rd_thresh) {
+    THR_MODES best_mode_idx =
+        mode_idx[best_pickmode.best_ref_frame][mode_offset(mi->mode)];
     if (best_pickmode.best_ref_frame == INTRA_FRAME) {
       // Only consider the modes that are included in the intra_mode_list.
       int intra_modes = sizeof(intra_mode_list) / sizeof(PREDICTION_MODE);
       for (int i = 0; i < intra_modes; i++) {
-        update_thresh_freq_fact(cpi, x, bsize, INTRA_FRAME, intra_mode_list[i],
-                                best_pickmode.best_ref_frame, mi->mode);
+        update_thresh_freq_fact(cpi, x, bsize, INTRA_FRAME, best_mode_idx,
+                                intra_mode_list[i]);
       }
     } else {
       PREDICTION_MODE this_mode;
       for (this_mode = NEARESTMV; this_mode <= NEWMV; ++this_mode) {
         update_thresh_freq_fact(cpi, x, bsize, best_pickmode.best_ref_frame,
-                                this_mode, best_pickmode.best_ref_frame,
-                                mi->mode);
+                                best_mode_idx, this_mode);
       }
     }
   }
