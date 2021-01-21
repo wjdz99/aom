@@ -998,7 +998,8 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE pred_mode,
 
 #if CONFIG_INTERNAL_STATS && !CONFIG_NEW_REF_SIGNALING
 static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx,
-                                 int mode_index) {
+                                 PREDICTION_MODE mode,
+                                 MV_REFERENCE_FRAME *refs) {
 #else
 static void store_coding_context(MACROBLOCK *x, PICK_MODE_CONTEXT *ctx) {
 #endif  // CONFIG_INTERNAL_STATS && !CONFIG_NEW_REF_SIGNALING
@@ -1620,7 +1621,11 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
   *rd_cost = best_rdc;
 
 #if CONFIG_INTERNAL_STATS && !CONFIG_NEW_REF_SIGNALING
+<<<<<<< HEAD
   store_coding_context(x, ctx, mi->mode);
+=======
+  store_coding_context(x, ctx, mi->mode, mi->ref_frame);
+>>>>>>> 668690220 (Refactor rd loop for NEW_REF_SIGNALING)
 #else
   store_coding_context(x, ctx);
 #endif  // CONFIG_INTERNAL_STATS && !CONFIG_NEW_REF_SIGNALING
@@ -2414,7 +2419,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   }
 
 #if CONFIG_INTERNAL_STATS && !CONFIG_NEW_REF_SIGNALING
+<<<<<<< HEAD
   store_coding_context(x, ctx, mi->mode);
+=======
+  store_coding_context(x, ctx, mi->mode, mi->ref_frame);
+>>>>>>> 668690220 (Refactor rd loop for NEW_REF_SIGNALING)
 #else
   store_coding_context(x, ctx);
 #endif  // CONFIG_INTERNAL_STATS && !CONFIG_NEW_REF_SIGNALING
