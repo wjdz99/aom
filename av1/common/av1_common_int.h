@@ -16,6 +16,9 @@
 #include "config/av1_rtcd.h"
 
 #include "aom/internal/aom_codec_internal.h"
+#if CONFIG_GM_MODEL_CODING
+#include "aom_ports/system_state.h"
+#endif  // CONFIG_GM_MODEL_CODING
 #include "aom_util/aom_thread.h"
 #include "av1/common/alloccommon.h"
 #include "av1/common/av1_loopfilter.h"
@@ -1311,6 +1314,7 @@ static INLINE bool find_gm_ref_params(WarpedMotionParams *ref_params,
   memcpy(ref_params, &cm->global_motion[base_frame],
          sizeof(WarpedMotionParams));
 
+  aom_clear_system_state();
   double scale_factor;
   const int distance = calculate_gm_ref_params_scaling_distance(cm, cur_frame);
   const int base = calculate_gm_ref_params_scaling_distance(cm, base_frame);
