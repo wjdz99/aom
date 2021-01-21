@@ -102,6 +102,7 @@ static const int mode_threshold_mul_factor[QINDEX_RANGE] = {
   4144,  4120,  4096
 };
 
+#if !CONFIG_NEW_REF_SIGNALING
 #if CONFIG_NEW_INTER_MODES
 static const THR_MODES av1_default_mode_order[MAX_MODES] = {
   THR_NEARMV,
@@ -434,6 +435,7 @@ static const THR_MODES av1_default_mode_order[MAX_MODES] = {
   THR_D45_PRED,
 };
 #endif  // CONFIG_NEW_INTER_MODES
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
 /*!\cond */
 typedef struct SingleInterModeState {
@@ -5443,20 +5445,29 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
 
   // This is the main loop of this function. It loops over all possible modes
   // and calls handle_inter_mode() to compute the RD for each.
-  // Here midx is just an iterator index that should not be used by itself
-  // except to keep track of the number of modes searched. It should be used
-  // with av1_default_mode_order to get the enum that defines the mode, which
-  // can be used with av1_mode_defs to get the prediction mode and the ref
-  // frames.
+#if CONFIG_NEW_REF_SIGNALING
+  for (PREDICTION_MODE this_mode = 0; this_mode < MB_MODE_COUNT; ++this_mode) {
+    for (MV_REFERENCE_FRAME ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
+      if (this_mode < INTRA_MODE_END && ref_frame != INTRA_FRAME) continue;
+      for (MV_REFERENCE_FRAME second_ref_frame = -1; second_ref_frame < REF_FRAMES; ++second_ref_frame) {
+        if (second_ref_frame == INTRA_FRAME) continue;
+        if (second_ref_frame != NONE_FRAME && this_mode < COMP_INTER_MODE_START)
+          continue;
+        if (this_mode >= COMP_INTER_MODE_START && this_mode < COMP_INTER_MODE_END &&
+            second_ref_frame <= INTRA_FRAME) continue;
+        if (skip_compound_search(ref_frame, second_ref_frame)) continue;
+        const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, second_ref_frame };
+#else
   for (THR_MODES midx = THR_MODE_START; midx < THR_MODE_END; ++midx) {
     // Get the actual prediction mode we are trying in this iteration
     const THR_MODES mode_enum = av1_default_mode_order[midx];
     const MODE_DEFINITION *mode_def = &av1_mode_defs[mode_enum];
     const PREDICTION_MODE this_mode = mode_def->mode;
     const MV_REFERENCE_FRAME *ref_frames = mode_def->ref_frame;
-
     const MV_REFERENCE_FRAME ref_frame = ref_frames[0];
     const MV_REFERENCE_FRAME second_ref_frame = ref_frames[1];
+#endif  // CONFIG_NEW_REF_SIGNALING
+
     const int is_single_pred =
         ref_frame > INTRA_FRAME && second_ref_frame == NONE_FRAME;
     const int comp_pred = second_ref_frame > INTRA_FRAME;
@@ -5558,7 +5569,11 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     /* keep record of best compound/single-only prediction */
     record_best_compound(cm->current_frame.reference_mode, &rd_stats, comp_pred,
                          x->rdmult, &search_state, compmode_cost);
-  }
+#if CONFIG_NEW_REF_SIGNALING
+      }  // end of ref1 loop
+    }  // end of ref0 loop 
+#endif  // CONFIG_NEW_REF_SIGNALING
+  }  // end of mode loop 
 
   if (cpi->sf.winner_mode_sf.motion_mode_for_winner_cand) {
     // For the single ref winner candidates, evaluate other motion modes (non
