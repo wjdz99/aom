@@ -31,6 +31,30 @@ typedef struct {
   MV_REFERENCE_FRAME ref_frame[2];
 } MODE_DEFINITION;
 
+#if CONFIG_NEW_REF_SIGNALING
+// Temporary function to skip compound combinations that aren't
+// represented in av1_mode_defs. This will be needed until the bitstream
+// syntax is changed to support these combinations.
+static AOM_INLINE int skip_compound_search(int ref1, int ref2) {
+  assert(ref1 >= 0);
+  // Single reference case
+  if (ref2 <= INTRA_FRAME) return 0;
+  const int ind1 = ref1 - LAST_FRAME;
+  const int ind2 = ref2 - LAST_FRAME;
+
+  const int skip_comp[REF_FRAMES][REF_FRAMES] = {
+    { 1, 0, 0, 0, 0, 0, 0, },
+    { 1, 1, 1, 1, 0, 0, 0, },
+    { 1, 1, 1, 1, 0, 0, 0, },
+    { 1, 1, 1, 1, 0, 0, 0, },
+    { 1, 1, 1, 1, 1, 1, 0, },
+    { 1, 1, 1, 1, 1, 1, 1, },
+    { 1, 1, 1, 1, 1, 1, 1, }, 
+  };
+  return skip_comp[ind1][ind2];
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 // This array defines the mapping from the enums in THR_MODES to the actual
 // prediction modes and refrence frames
 static const MODE_DEFINITION av1_mode_defs[MAX_MODES] = {
@@ -600,8 +624,9 @@ static AOM_INLINE void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
 static INLINE void store_winner_mode_stats(
     const AV1_COMMON *const cm, MACROBLOCK *x, const MB_MODE_INFO *mbmi,
     RD_STATS *rd_cost, RD_STATS *rd_cost_y, RD_STATS *rd_cost_uv,
-    const int *refs, PREDICTION_MODE mode, uint8_t *color_map, BLOCK_SIZE bsize,
-    int64_t this_rd, int multi_winner_mode_type, int txfm_search_done) {
+    const MV_REFERENCE_FRAME *refs, PREDICTION_MODE mode, uint8_t *color_map,
+    BLOCK_SIZE bsize, int64_t this_rd, int multi_winner_mode_type,
+    int txfm_search_done) {
   WinnerModeStats *winner_mode_stats = x->winner_mode_stats;
   int mode_idx = 0;
   int is_palette_mode = mbmi->palette_mode_info.palette_size[PLANE_TYPE_Y] > 0;
