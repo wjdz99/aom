@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "aom_dsp/aom_dsp_common.h"
+#include "av1/common/common_data.h"
 #include "av1/common/enums.h"
 #include "av1/common/interintra_ml.h"
 #include "av1/common/interintra_ml_model.h"
@@ -71,10 +72,11 @@ tflite::ErrorReporter *get_reporter() {
 }
 
 // Initialize the interpreter (only used for static initialization).
-tflite::Interpreter *init_interpreter_() {
+tflite::Interpreter *init_interpreter_(const unsigned char* data) {
   // auto model = tflite::GetModel(decode_17600647_009_tflite_data);
-  auto model = tflite::GetModel(decode_19283005_001_tflite_data);
+  // auto model = tflite::GetModel(decode_19283005_001_tflite_data);
   // auto model = tflite::GetModel(decode_19284263_001_tflite_data);
+  auto model = tflite::GetModel(data);
   tflite::MutableOpResolver resolver;
   add_resolver_builtins(&resolver);
   tflite::InterpreterBuilder builder(model, resolver);
@@ -105,10 +107,23 @@ tflite::Interpreter *init_interpreter_() {
 
 // Get the interpreter (initialized statically). Assumes entire program
 // is single threaded.
-tflite::Interpreter *get_interpreter() {
+tflite::Interpreter *get_interpreter(BLOCK_SIZE bsize) {
   // Assumes entire program is single-threaded.
-  static tflite::Interpreter *interpreter_ = init_interpreter_();
-  return interpreter_;
+  // static tflite::Interpreter *interpreter_ = init_interpreter_();
+  static tflite::Interpreter *interpreter_[BLOCK_SIZES_ALL] = {
+    nullptr,
+    nullptr,
+    nullptr,
+    init_interpreter_(decode_19708232_001_8x8_tflite_data),
+    init_interpreter_(decode_19708232_003_8x16_tflite_data),
+    init_interpreter_(decode_19708232_002_16x8_tflite_data),
+    init_interpreter_(decode_19708232_006_16x16_tflite_data),
+    init_interpreter_(decode_19708232_008_16x32_tflite_data),
+    init_interpreter_(decode_19708232_007_32x16_tflite_data),
+    init_interpreter_(decode_19708232_009_32x32_tflite_data),
+    nullptr
+  };
+  return interpreter_[bsize];
 }
 
 // Copy a blank square into the region. Needed as default behavior if
@@ -251,7 +266,10 @@ bool is_interintra_ml_supported(const MACROBLOCKD *xd, bool wedge) {
     return false;
   }
   // Only supported for block-sizes of 16x16.
-  if (bsize != BLOCK_16X16) {
+  // if (bsize != BLOCK_16X16) {
+  //   return false;
+  // }
+  if (get_interpreter(bsize) == nullptr) {
     return false;
   }
   // build-for-obmc is just used to check whether this is a sub-8x8 block or
@@ -272,13 +290,27 @@ void av1_combine_interintra_ml(INTERINTRA_MODE mode,
                                int border) {
   (void)border;
   assert(border >= INTERINTRA_ML_BORDER);
-  if (!((plane_bsize == BLOCK_16X16 && plane == AOM_PLANE_Y) ||
-        (plane_bsize == BLOCK_8X8 && plane != AOM_PLANE_Y))) {
+  bool is_supported_size = true;
+  if (plane == AOM_PLANE_Y) {
+    is_supported_size = (plane_bsize == bsize);
+  } else {
+    is_supported_size =
+        ((block_size_wide[bsize] == 2 * block_size_wide[plane_bsize]) &&
+         (block_size_high[bsize] == 2 * block_size_high[plane_bsize]));
+  }
+  // if (!((plane_bsize == BLOCK_16X16 && plane == AOM_PLANE_Y) ||
+  //       (plane_bsize == BLOCK_8X8 && plane != AOM_PLANE_Y))) {
+  //   // Not yet implemented. Just copy a blank square into the predictor.
+  //   copy_blank_square(comp_pred, comp_stride, plane_bsize, false);
+  //   return;
+  // }
+  tflite::Interpreter *interpreter = get_interpreter(bsize);
+  is_supported_size &= (interpreter != nullptr);
+  if (!is_supported_size) {
     // Not yet implemented. Just copy a blank square into the predictor.
     copy_blank_square(comp_pred, comp_stride, plane_bsize, false);
     return;
   }
-  tflite::Interpreter *interpreter = get_interpreter();
   // if (plane_bsize == BLOCK_16X16) {
   //   load_inputs(interpreter, mode, plane_bsize, inter_pred, inter_stride,
   //               intra_pred, intra_stride);
