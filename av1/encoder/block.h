@@ -486,6 +486,9 @@ struct macroblock {
   // Cost for signaling ref_frame[1] (ALTREF_FRAME, ALTREF2_FRAME, or
   // BWDREF_FRAME) in bidir-comp mode.
   int comp_bwdref_cost[REF_CONTEXTS][BWD_REFS - 1][2];
+#if CONFIG_OPFL_SINGLEREF
+  int is_opfl_mode_cost[2];
+#endif  // CONFIG_OPFL_SINGLEREF
   int inter_compound_mode_cost[INTER_MODE_CONTEXTS][INTER_COMPOUND_MODES];
   int compound_type_cost[BLOCK_SIZES_ALL][MASKED_COMPOUND_TYPES];
   int wedge_idx_cost[BLOCK_SIZES_ALL][16];

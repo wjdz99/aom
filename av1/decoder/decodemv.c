@@ -180,8 +180,18 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
 #else
   int is_newmv, is_zeromv, is_refmv;
 #endif  // CONFIG_NEW_INTER_MODES
+#if CONFIG_OPFL_SINGLEREF
+  // TODO(kslu): optimize entropy coding
+  int is_optflow_mode =
+      aom_read_symbol(r, ec_ctx->is_opfl_mode_cdf, 2, ACCT_STR);
+#endif  // CONFIG_OPFL_SINGLEREF
+
   is_newmv = aom_read_symbol(r, ec_ctx->newmv_cdf[mode_ctx], 2, ACCT_STR) == 0;
+#if CONFIG_OPFL_SINGLEREF
+  if (is_newmv) return is_optflow_mode ? NEWMV_OPTFLOW : NEWMV;
+#else
   if (is_newmv) return NEWMV;
+#endif
   // TODO(siroh): For some frames, the DRL will be "empty."
   // Under NEW_INTER_MODES, the frame GMV will be inserted to fix this.
   // Under the old process, get_this_mv inserts the frame GMV on-the-fly.
@@ -192,10 +202,18 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
   mode_ctx = (ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
   is_zeromv =
       aom_read_symbol(r, ec_ctx->zeromv_cdf[mode_ctx], 2, ACCT_STR) == 0;
+#if CONFIG_OPFL_SINGLEREF
+  if (is_zeromv) return is_optflow_mode ? GLOBALMV_OPTFLOW : GLOBALMV;
+#else
   if (is_zeromv) return GLOBALMV;
+#endif
 
 #if CONFIG_NEW_INTER_MODES
+#if CONFIG_OPFL_SINGLEREF
+  return is_optflow_mode ? NEARMV_OPTFLOW : NEARMV;
+#else
   return NEARMV;
+#endif
 #else
   mode_ctx = (ctx >> REFMV_OFFSET) & REFMV_CTX_MASK;
   is_refmv = aom_read_symbol(r, ec_ctx->refmv_cdf[mode_ctx], 2, ACCT_STR) == 0;
@@ -1482,7 +1500,11 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
   BLOCK_SIZE bsize = mbmi->sb_type;
 
   switch (mode) {
-    case NEWMV: {
+    case NEWMV:
+#if CONFIG_OPFL_SINGLEREF
+    case NEWMV_OPTFLOW:
+#endif
+    {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[0].as_mv, &ref_mv[0].as_mv, nmvc, precision);
       break;
@@ -1493,11 +1515,19 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
 #endif  // !CONFIG_NEW_INTER_MODES
-    case NEARMV: {
+    case NEARMV:
+#if CONFIG_OPFL_SINGLEREF
+    case NEARMV_OPTFLOW:
+#endif
+    {
       mv[0].as_int = near_mv[0].as_int;
       break;
     }
-    case GLOBALMV: {
+    case GLOBALMV:
+#if CONFIG_OPFL_SINGLEREF
+    case GLOBALMV_OPTFLOW:
+#endif
+    {
       mv[0].as_int =
           gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                cm->fr_mv_precision, bsize, mi_col, mi_row)
@@ -1833,7 +1863,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                        mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1]);
   }
 
-  if (!is_compound && mbmi->mode != GLOBALMV) {
+  if (!is_compound &&
+#if CONFIG_OPFL_SINGLEREF
+      mbmi->mode != GLOBALMV_OPTFLOW &&
+#endif
+      mbmi->mode != GLOBALMV) {
     av1_find_best_ref_mvs(cm->fr_mv_precision, ref_mvs[mbmi->ref_frame[0]],
                           &nearestmv[0], &nearmv[0]);
   }
@@ -1867,7 +1901,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     lower_mv_precision(&nearmv[0].as_mv, cm->fr_mv_precision);
     lower_mv_precision(&nearmv[1].as_mv, cm->fr_mv_precision);
 #if CONFIG_NEW_INTER_MODES
+#if CONFIG_OPFL_SINGLEREF
+  } else if (mbmi->mode == NEARMV || mbmi->mode == NEARMV_OPTFLOW) {
+#else
   } else if (mbmi->mode == NEARMV) {
+#endif
     nearmv[0] =
         xd->ref_mv_info.ref_mv_stack[mbmi->ref_frame[0]][mbmi->ref_mv_idx]
             .this_mv;
@@ -1910,7 +1948,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
     }
 #endif  // CONFIG_FLEX_MVRES && ADJUST_DRL_FLEX_MVRES
   } else {
+#if CONFIG_OPFL_SINGLEREF
+    if (mbmi->mode == NEWMV || mbmi->mode == NEWMV_OPTFLOW) {
+#else
     if (mbmi->mode == NEWMV) {
+#endif
 #if CONFIG_FLEX_MVRES && ADJUST_DRL_FLEX_MVRES
       if (av1_use_adjust_drl(mbmi)) {
         if (xd->ref_mv_info.ref_mv_count_adj > 0)

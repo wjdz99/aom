@@ -481,6 +481,14 @@ int main(int argc, const char **argv) {
                      "default_drl_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)]");
 #endif  // CONFIG_NEW_INTER_MODES
 
+  /* Single reference optical flow modes */
+#if CONFIG_OPFL_SINGLEREF
+  cts_each_dim[0] = 2;
+  optimize_cdf_table(&fc.is_opfl_mode[0], probsfile, 1, cts_each_dim,
+                     "static const aom_cdf_prob\n"
+                     "default_is_opfl_mode_cdf[CDF_SIZE(2)]");
+#endif  // CONFIG_OPFL_SINGLEREF
+
   /* ext_inter experiment */
   /* New compound mode */
   cts_each_dim[0] = INTER_MODE_CONTEXTS;

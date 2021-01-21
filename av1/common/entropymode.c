@@ -1052,6 +1052,12 @@ static const aom_cdf_prob default_drl2_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
 };
 
 #if CONFIG_OPTFLOW_REFINEMENT
+#if CONFIG_OPFL_SINGLEREF
+// TODO(kslu): more context (inter mode context, and mode)
+static const aom_cdf_prob default_is_opfl_mode_cdf[CDF_SIZE(2)] = {
+  AOM_CDF2(16384),
+};
+#endif  // CONFIG_OPFL_SINGLEREF
 static const aom_cdf_prob
     default_inter_compound_mode_cdf[INTER_MODE_CONTEXTS][CDF_SIZE(
         INTER_COMPOUND_MODES)] = {
@@ -2052,6 +2058,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->warp_cdf, default_warp_cdf);
 #endif  // CONFIG_EXT_WARP && CONFIG_SUB8X8_WARP
   av1_copy(fc->obmc_cdf, default_obmc_cdf);
+#if CONFIG_OPFL_SINGLEREF
+  av1_copy(fc->is_opfl_mode_cdf, default_is_opfl_mode_cdf);
+#endif  // CONFIG_OPFL_SINGLEREF
   av1_copy(fc->inter_compound_mode_cdf, default_inter_compound_mode_cdf);
   av1_copy(fc->compound_type_cdf, default_compound_type_cdf);
   av1_copy(fc->wedge_idx_cdf, default_wedge_idx_cdf);

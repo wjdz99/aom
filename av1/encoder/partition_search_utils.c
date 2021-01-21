@@ -1159,7 +1159,19 @@ static void update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
   (void)counts;
 
   int16_t mode_ctx = mode_context & NEWMV_CTX_MASK;
+#if CONFIG_OPFL_SINGLEREF
+#if CONFIG_ENTROPY_STATS
+  ++counts->is_opfl_mode[is_optflow_mode(mode)];
+#endif
+  if (allow_update_cdf)
+    update_cdf(fc->is_opfl_mode_cdf, is_optflow_mode(mode), 2);
+#endif
+
+#if CONFIG_OPFL_SINGLEREF
+  if (mode == NEWMV || mode == NEWMV_OPTFLOW) {
+#else
   if (mode == NEWMV) {
+#endif
 #if CONFIG_ENTROPY_STATS
     ++counts->newmv_mode[mode_ctx][0];
 #endif
@@ -1172,7 +1184,11 @@ static void update_inter_mode_stats(FRAME_CONTEXT *fc, FRAME_COUNTS *counts,
     if (allow_update_cdf) update_cdf(fc->newmv_cdf[mode_ctx], 1, 2);
 
     mode_ctx = (mode_context >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
+#if CONFIG_OPFL_SINGLEREF
+    if (mode == GLOBALMV || mode == GLOBALMV_OPTFLOW) {
+#else
     if (mode == GLOBALMV) {
+#endif
 #if CONFIG_ENTROPY_STATS
       ++counts->zeromv_mode[mode_ctx][0];
 #endif
@@ -1858,6 +1874,9 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
       update_inter_mode_stats(fc, counts, mode, mode_ctx, allow_update_cdf);
     }
     const int new_mv = mbmi->mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+                       mbmi->mode == NEWMV_OPTFLOW ||
+#endif
 #if CONFIG_OPTFLOW_REFINEMENT
                        mbmi->mode == NEW_NEWMV_OPTFLOW ||
 #endif  // CONFIG_OPTFLOW_REFINEMENT

@@ -32,6 +32,20 @@ typedef struct position {
 } POSITION;
 
 #if CONFIG_OPFL_SINGLEREF
+static INLINE int get_opfl_implicit_ref1_frame(const AV1_COMMON *const cm,
+                                               const MB_MODE_INFO *mbmi) {
+  MV_REFERENCE_FRAME ref0 = mbmi->ref_frame[0];
+  MV_REFERENCE_FRAME ref1 = ref0 <= GOLDEN_FRAME ? ALTREF_FRAME : LAST_FRAME;
+  const RefCntBuffer *r0 = get_ref_frame_buf(cm, ref0);
+  const RefCntBuffer *r1 = get_ref_frame_buf(cm, ref1);
+  if (r1 && r0->order_hint != r1->order_hint &&
+      cm->cur_frame->order_hint != r0->order_hint &&
+      cm->cur_frame->order_hint != r1->order_hint)
+    return ref1;
+  else
+    return NONE_FRAME;
+}
+
 void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
                        int this_ref, const MV_REFERENCE_FRAME rf[2],
                        int_mv *scaled_mv, int bw, int bh, int mi_row,
@@ -114,6 +128,7 @@ static INLINE int8_t get_uni_comp_ref_idx(const MV_REFERENCE_FRAME *const rf) {
 }
 
 static INLINE int8_t av1_ref_frame_type(const MV_REFERENCE_FRAME *const rf) {
+  // TODO(kslu): modify this function for CONFIG_OPFL_SINGLEREF
   if (rf[1] > INTRA_FRAME) {
     const int8_t uni_comp_ref_idx = get_uni_comp_ref_idx(rf);
     if (uni_comp_ref_idx >= 0) {

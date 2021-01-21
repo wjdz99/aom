@@ -240,6 +240,32 @@ static const MODE_DEFINITION av1_mode_order[MAX_MODES] = {
   { GLOBALMV, { GOLDEN_FRAME, NONE_FRAME } },
   { GLOBALMV, { ALTREF_FRAME, NONE_FRAME } },
 
+#if CONFIG_OPFL_SINGLEREF
+  { NEARMV_OPTFLOW, { LAST_FRAME, NONE_FRAME } },
+  { NEARMV_OPTFLOW, { LAST2_FRAME, NONE_FRAME } },
+  { NEARMV_OPTFLOW, { LAST3_FRAME, NONE_FRAME } },
+  { NEARMV_OPTFLOW, { BWDREF_FRAME, NONE_FRAME } },
+  { NEARMV_OPTFLOW, { ALTREF2_FRAME, NONE_FRAME } },
+  { NEARMV_OPTFLOW, { ALTREF_FRAME, NONE_FRAME } },
+  { NEARMV_OPTFLOW, { GOLDEN_FRAME, NONE_FRAME } },
+
+  { NEWMV_OPTFLOW, { LAST_FRAME, NONE_FRAME } },
+  { NEWMV_OPTFLOW, { LAST2_FRAME, NONE_FRAME } },
+  { NEWMV_OPTFLOW, { LAST3_FRAME, NONE_FRAME } },
+  { NEWMV_OPTFLOW, { BWDREF_FRAME, NONE_FRAME } },
+  { NEWMV_OPTFLOW, { ALTREF2_FRAME, NONE_FRAME } },
+  { NEWMV_OPTFLOW, { ALTREF_FRAME, NONE_FRAME } },
+  { NEWMV_OPTFLOW, { GOLDEN_FRAME, NONE_FRAME } },
+
+  { GLOBALMV_OPTFLOW, { LAST_FRAME, NONE_FRAME } },
+  { GLOBALMV_OPTFLOW, { LAST2_FRAME, NONE_FRAME } },
+  { GLOBALMV_OPTFLOW, { LAST3_FRAME, NONE_FRAME } },
+  { GLOBALMV_OPTFLOW, { BWDREF_FRAME, NONE_FRAME } },
+  { GLOBALMV_OPTFLOW, { ALTREF2_FRAME, NONE_FRAME } },
+  { GLOBALMV_OPTFLOW, { GOLDEN_FRAME, NONE_FRAME } },
+  { GLOBALMV_OPTFLOW, { ALTREF_FRAME, NONE_FRAME } },
+#endif  // CONFIG_OPFL_SINGLEREF
+
   // TODO(zoeliu): May need to reconsider the order on the modes to check
   { NEAR_NEARMV, { LAST_FRAME, ALTREF_FRAME } },
   { NEAR_NEARMV, { LAST2_FRAME, ALTREF_FRAME } },
@@ -698,6 +724,19 @@ static const int16_t single_inter_to_mode_idx[SINGLE_INTER_MODE_NUM]
   // NEWMV,
   { -1, THR_NEWMV, THR_NEWL2, THR_NEWL3,
     THR_NEWG, THR_NEWB, THR_NEWA2, THR_NEWA, },
+#if CONFIG_OPFL_SINGLEREF
+  // NEARMV_OPTFLOW,
+  { -1, THR_NEARMV_OPTFLOW, THR_NEAR_OPTFLOWL2, THR_NEAR_OPTFLOWL3,
+    THR_NEAR_OPTFLOWG, THR_NEAR_OPTFLOWB, THR_NEAR_OPTFLOWA2,
+    THR_NEAR_OPTFLOWA, },
+  // GLOBALMV_OPTFLOW,
+  { -1, THR_GLOBALMV_OPTFLOW, THR_GLOBAL_OPTFLOWL2, THR_GLOBAL_OPTFLOWL3,
+    THR_GLOBAL_OPTFLOWG, THR_GLOBAL_OPTFLOWB, THR_GLOBAL_OPTFLOWA2,
+    THR_GLOBAL_OPTFLOWA, },
+  // NEWMV_OPTFLOW,
+  { -1, THR_NEWMV_OPTFLOW, THR_NEW_OPTFLOWL2, THR_NEW_OPTFLOWL3,
+    THR_NEW_OPTFLOWG, THR_NEW_OPTFLOWB, THR_NEW_OPTFLOWA2, THR_NEW_OPTFLOWA, },
+#endif  // CONFIG_OPFL_SINGLEREF
 };
 /* clang-format on */
 
@@ -7840,14 +7879,27 @@ static int cost_mv_ref(const MACROBLOCK *const x, PREDICTION_MODE mode,
 
   assert(is_inter_mode(mode));
 
+#if CONFIG_OPFL_SINGLEREF
+  mode_cost += x->is_opfl_mode_cost[is_optflow_mode(mode)];
+#endif
+
+  // TODO(kslu): clean this up
+#if CONFIG_OPFL_SINGLEREF
+  if (mode == NEWMV || mode == NEWMV_OPTFLOW) {
+#else
   if (mode == NEWMV) {
-    mode_cost = x->newmv_mode_cost[mode_ctx][0];
+#endif
+    mode_cost += x->newmv_mode_cost[mode_ctx][0];
     return mode_cost;
   } else {
-    mode_cost = x->newmv_mode_cost[mode_ctx][1];
+    mode_cost += x->newmv_mode_cost[mode_ctx][1];
     mode_ctx = (mode_context >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
 
+#if CONFIG_OPFL_SINGLEREF
+    if (mode == GLOBALMV || mode == GLOBALMV_OPTFLOW) {
+#else
     if (mode == GLOBALMV) {
+#endif
       mode_cost += x->zeromv_mode_cost[mode_ctx][0];
       return mode_cost;
     } else {
@@ -7897,6 +7949,20 @@ static INLINE int mv_check_bounds(const MvLimits *mv_limits, const MV *mv) {
          (mv->col >> 3) > mv_limits->col_max;
 }
 
+#if CONFIG_OPFL_SINGLEREF
+static INLINE PREDICTION_MODE get_single_mode_no_of(PREDICTION_MODE mode) {
+  switch (mode) {
+    case NEARMV:
+    case NEARMV_OPTFLOW: return NEARMV;
+    case GLOBALMV:
+    case GLOBALMV_OPTFLOW: return GLOBALMV;
+    case NEWMV:
+    case NEWMV_OPTFLOW: return NEWMV;
+    default: assert(0); return 0;
+  }
+}
+#endif  // CONFIG_OPFL_SINGLEREF
+
 static INLINE PREDICTION_MODE get_single_mode(PREDICTION_MODE this_mode,
                                               int ref_idx, int is_comp_pred) {
   PREDICTION_MODE single_mode;
@@ -7904,7 +7970,11 @@ static INLINE PREDICTION_MODE get_single_mode(PREDICTION_MODE this_mode,
     single_mode =
         ref_idx ? compound_ref1_mode(this_mode) : compound_ref0_mode(this_mode);
   } else {
+#if CONFIG_OPFL_SINGLEREF
+    single_mode = get_single_mode_no_of(this_mode);
+#else
     single_mode = this_mode;
+#endif
   }
   return single_mode;
 }
@@ -9612,7 +9682,11 @@ static int check_mv_precision(const MB_MODE_INFO *const mbmi) {
   const PREDICTION_MODE mode = mbmi->mode;
   if (have_newmv_in_inter_mode(mode)) {
 #if CONFIG_OPTFLOW_REFINEMENT
-    if (mode == NEWMV || mode == NEW_NEWMV || mode == NEW_NEWMV_OPTFLOW) {
+    if (mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+        mode == NEWMV_OPTFLOW ||
+#endif
+        mode == NEW_NEWMV || mode == NEW_NEWMV_OPTFLOW) {
 #else
     if (mode == NEWMV || mode == NEW_NEWMV) {
 #endif  // CONFIG_OPTFLOW_REFINEMENT
@@ -12292,6 +12366,9 @@ static int get_drl_refmv_count(const MACROBLOCK *const x,
   if (!has_drl) {
 #if CONFIG_OPTFLOW_REFINEMENT
     assert(mode == GLOBALMV || mode == GLOBAL_GLOBALMV ||
+#if CONFIG_OPFL_SINGLEREF
+           mode == GLOBALMV_OPTFLOW ||
+#endif
            mode == GLOBAL_GLOBALMV_OPTFLOW);
 #else
     assert(mode == GLOBALMV || mode == GLOBAL_GLOBALMV);
@@ -12906,8 +12983,11 @@ static int64_t handle_inter_mode(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #if CONFIG_NEW_INTER_MODES
       const int like_nearest =
 #if CONFIG_OPTFLOW_REFINEMENT
-          (mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV ||
-           mbmi->mode == NEAR_NEARMV_OPTFLOW) &&
+          (mbmi->mode == NEARMV ||
+#if CONFIG_OPFL_SINGLEREF
+           mbmi->mode == NEARMV_OPTFLOW ||
+#endif
+           mbmi->mode == NEAR_NEARMV || mbmi->mode == NEAR_NEARMV_OPTFLOW) &&
 #else
           (mbmi->mode == NEARMV || mbmi->mode == NEAR_NEARMV) &&
 #endif
@@ -16131,6 +16211,9 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // using a mode which can support ref_mv_idx
   if (search_state.best_mbmode.ref_mv_idx != 0 &&
       !(search_state.best_mbmode.mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+        search_state.best_mbmode.mode == NEWMV_OPTFLOW ||
+#endif
         search_state.best_mbmode.mode == NEW_NEWMV ||
 #if CONFIG_OPTFLOW_REFINEMENT
         search_state.best_mbmode.mode == NEW_NEWMV_OPTFLOW ||

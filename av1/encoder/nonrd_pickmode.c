@@ -975,14 +975,27 @@ static int cost_mv_ref(const MACROBLOCK *const x, PREDICTION_MODE mode,
 
   assert(is_inter_mode(mode));
 
+#if CONFIG_OPFL_SINGLEREF
+  mode_cost += x->is_opfl_mode_cost[is_optflow_mode(mode)];
+#endif
+
+  // TODO(kslu): clean this up
+#if CONFIG_OPFL_SINGLEREF
+  if (mode == NEWMV || mode == NEWMV_OPTFLOW) {
+#else
   if (mode == NEWMV) {
+#endif
     mode_cost = x->newmv_mode_cost[mode_ctx][0];
     return mode_cost;
   } else {
     mode_cost = x->newmv_mode_cost[mode_ctx][1];
     mode_ctx = (mode_context >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
 
+#if CONFIG_OPFL_SINGLEREF
+    if (mode == GLOBALMV || mode == GLOBALMV_OPTFLOW) {
+#else
     if (mode == GLOBALMV) {
+#endif
       mode_cost += x->zeromv_mode_cost[mode_ctx][0];
       return mode_cost;
     } else {

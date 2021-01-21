@@ -309,6 +309,9 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->refmv_cdf, ctx_tr->refmv_cdf, 2);
   AVERAGE_CDF(ctx_left->drl_cdf, ctx_tr->drl_cdf, 2);
 #endif  // CONFIG_NEW_INTER_MODES
+#if CONFIG_OPFL_SINGLEREF
+  AVERAGE_CDF(ctx_left->is_opfl_mode_cdf, ctx_tr->is_opfl_mode_cdf, 2);
+#endif  // CONFIG_OPFL_SINGLEREF
   AVERAGE_CDF(ctx_left->inter_compound_mode_cdf,
               ctx_tr->inter_compound_mode_cdf, INTER_COMPOUND_MODES);
   AVERAGE_CDF(ctx_left->compound_type_cdf, ctx_tr->compound_type_cdf,

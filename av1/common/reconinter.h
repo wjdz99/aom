@@ -82,6 +82,13 @@ typedef struct SubpelParams {
   int subpel_y;
 } SubpelParams;
 
+#if CONFIG_OPFL_SINGLEREF
+typedef struct {
+  int ref_frame;
+  MV mv;
+} ImplicitRef1Info;
+#endif  // CONFIG_OPFL_SINGLEREF
+
 struct build_prediction_ctxt {
   const AV1_COMMON *cm;
   uint8_t **tmp_buf;

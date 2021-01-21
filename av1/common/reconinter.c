@@ -460,6 +460,9 @@ int av1_compute_subpel_gradients_lowbd(
     const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
     int build_for_obmc, int bw, int bh, int mi_x, int mi_y,
     CalcSubpelParamsFunc calc_subpel_params_func,
+#if CONFIG_OPFL_SINGLEREF
+    ImplicitRef1Info *impl_ref1_info,
+#endif  // CONFIG_OPFL_SINGLEREF
     const void *const calc_subpel_params_func_args, int ref, uint8_t *pred_dst,
     int *grad_prec_bits, int16_t *x_grad, int16_t *y_grad) {
   // Only do this for luma
@@ -469,7 +472,12 @@ int av1_compute_subpel_gradients_lowbd(
 
   // Compute distance between the current frame and reference
   const int cur_frame_index = cm->cur_frame->order_hint;
-  const RefCntBuffer *const ref_buf = get_ref_frame_buf(cm, mi->ref_frame[ref]);
+#if CONFIG_OPFL_SINGLEREF
+  int rf = impl_ref1_info ? impl_ref1_info->ref_frame : mi->ref_frame[ref];
+#else
+  int rf = mi->ref_frame[ref];
+#endif
+  const RefCntBuffer *const ref_buf = get_ref_frame_buf(cm, rf);
   assert(ref_buf != NULL);
   const int ref_index = ref_buf->order_hint;
   // Find the distance in display order between the current frame and each
@@ -492,17 +500,23 @@ int av1_compute_subpel_gradients_lowbd(
   uint8_t tmp_buf2[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
 
   int is_global[2] = { 0, 0 };
-  const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[ref]];
+  const WarpedMotionParams *const wm = &xd->global_motion[rf];
   is_global[ref] = is_global_mv_block(mi, wm->wmtype);
   const WarpTypesAllowed warp_types = { is_global[ref],
                                         mi->motion_mode == WARPED_CAUSAL };
+#if CONFIG_OPFL_SINGLEREF
+  const struct scale_factors *const sf =
+      is_intrabc ? &cm->sf_identity
+                 : (impl_ref1_info ? get_ref_scale_factors_const(cm, rf)
+                                   : xd->block_ref_scale_factors[ref]);
+#else
   const struct scale_factors *const sf =
       is_intrabc ? &cm->sf_identity : xd->block_ref_scale_factors[ref];
+#endif
   WarpedMotionParams final_warp_params;
-  const int do_warp =
-      (bw >= 8 && bh >= 8 &&
-       av1_allow_warp(mi, &warp_types, &xd->global_motion[mi->ref_frame[ref]],
-                      build_for_obmc, sf, &final_warp_params));
+  const int do_warp = (bw >= 8 && bh >= 8 &&
+                       av1_allow_warp(mi, &warp_types, &xd->global_motion[rf],
+                                      build_for_obmc, sf, &final_warp_params));
   // TODO(sarahparker) make compatible with warped modes
   if (do_warp || !r_dist) return 0;
 
@@ -524,8 +538,19 @@ int av1_compute_subpel_gradients_lowbd(
   const int pre_x = (mi_x + MI_SIZE * col_start) >> ss_x;
   const int pre_y = (mi_y + MI_SIZE * row_start) >> ss_y;
 
+#if CONFIG_OPFL_SINGLEREF
+  // Get implicitly defined second ref block in single ref mode
+  if (impl_ref1_info) {
+    av1_setup_pre_planes(xd, ref, &ref_buf->buf, xd->mi_row, xd->mi_col, sf,
+                         av1_num_planes(cm), &mi->chroma_ref_info);
+  }
+#endif
   struct buf_2d *const pre_buf = is_intrabc ? dst_buf : &pd->pre[ref];
+#if CONFIG_OPFL_SINGLEREF
+  const MV mv_orig = impl_ref1_info ? impl_ref1_info->mv : mi->mv[ref].as_mv;
+#else
   const MV mv_orig = mi->mv[ref].as_mv;
+#endif
   MV mv_modified = mv_orig;
 
   uint8_t *pre;
@@ -948,7 +973,9 @@ static int get_optflow_based_mv_highbd(
   if (d1 == 0) goto exit_refinement;
 
 #if USE_OF_NXN
-  int n = (bh <= 16 && bw <= 16) ? OF_MIN_BSIZE : OF_BSIZE;
+  int n = ((bh <= 16 && bw <= 16) || AOMMIN(bh, bw) <= OF_MIN_BSIZE)
+              ? OF_MIN_BSIZE
+              : OF_BSIZE;
   n_blocks = opfl_mv_refinement_nxn_highbd(
       dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw, bw, bh, n, d0, d1,
       grad_prec_bits, target_prec, vx0, vy0, vx1, vy1);
@@ -976,6 +1003,9 @@ exit_refinement:
 static int get_optflow_based_mv_lowbd(
     const AV1_COMMON *cm, MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
     int_mv *mv_refined, int bw, int bh, int mi_x, int mi_y, int build_for_obmc,
+#if CONFIG_OPFL_SINGLEREF
+    ImplicitRef1Info *impl_ref1_info,
+#endif  // CONFIG_OPFL_SINGLEREF
     CalcSubpelParamsFunc calc_subpel_params_func,
     const void *const calc_subpel_params_func_args) {
   // Arrays to hold optical flow offsets. If the experiment USE_OF_NXN is
@@ -1013,19 +1043,27 @@ static int get_optflow_based_mv_lowbd(
   // Compute gradients and predictor for P0
   int d0 = av1_compute_subpel_gradients_lowbd(
       cm, xd, 0, mbmi, build_for_obmc, bw, bh, mi_x, mi_y,
-      calc_subpel_params_func, calc_subpel_params_func_args, 0, dst0,
-      &grad_prec_bits, gx0, gy0);
+      calc_subpel_params_func,
+#if CONFIG_OPFL_SINGLEREF
+      NULL,
+#endif
+      calc_subpel_params_func_args, 0, dst0, &grad_prec_bits, gx0, gy0);
   if (d0 == 0) goto exit_refinement;
 
   // Compute gradients and predictor for P1
   int d1 = av1_compute_subpel_gradients_lowbd(
       cm, xd, 0, mbmi, build_for_obmc, bw, bh, mi_x, mi_y,
-      calc_subpel_params_func, calc_subpel_params_func_args, 1, dst1,
-      &grad_prec_bits, gx1, gy1);
+      calc_subpel_params_func,
+#if CONFIG_OPFL_SINGLEREF
+      impl_ref1_info,
+#endif
+      calc_subpel_params_func_args, 1, dst1, &grad_prec_bits, gx1, gy1);
   if (d1 == 0) goto exit_refinement;
 
 #if USE_OF_NXN
-  int n = (bh <= 16 && bw <= 16) ? OF_MIN_BSIZE : OF_BSIZE;
+  int n = ((bh <= 16 && bw <= 16) || AOMMIN(bh, bw) <= OF_MIN_BSIZE)
+              ? OF_MIN_BSIZE
+              : OF_BSIZE;
   n_blocks = opfl_mv_refinement_nxn_lowbd(
       dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw, bw, bh, n, d0, d1,
       grad_prec_bits, target_prec, vx0, vy0, vx1, vy1);
@@ -1056,6 +1094,9 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
                              const MB_MODE_INFO *mbmi, int_mv *mv_refined,
                              int bw, int bh, int mi_x, int mi_y,
                              int build_for_obmc,
+#if CONFIG_OPFL_SINGLEREF
+                             ImplicitRef1Info *impl_ref1_info,
+#endif  // CONFIG_OPFL_SINGLEREF
                              CalcSubpelParamsFunc calc_subpel_params_func,
                              const void *const calc_subpel_params_func_args) {
   if (is_cur_buf_hbd(xd))
@@ -1064,6 +1105,9 @@ int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd,
         calc_subpel_params_func, calc_subpel_params_func_args);
   return get_optflow_based_mv_lowbd(
       cm, xd, mbmi, mv_refined, bw, bh, mi_x, mi_y, build_for_obmc,
+#if CONFIG_OPFL_SINGLEREF
+                             impl_ref1_info,
+#endif  // CONFIG_OPFL_SINGLEREF
       calc_subpel_params_func, calc_subpel_params_func_args);
 }
 #endif  // CONFIG_OPTFLOW_REFINEMENT
@@ -1530,6 +1574,40 @@ static void build_inter_predictors(
 #endif  // CONFIG_DERIVED_MV
 #if CONFIG_OPTFLOW_REFINEMENT
   int_mv mv_refined[2 * N_OF_OFFSETS];
+
+#if CONFIG_OPFL_SINGLEREF
+  MV_REFERENCE_FRAME rf1 = NONE_FRAME;
+  // Single reference optical flow refinement
+  // TODO(kslu): better mode classification functions than is_optflow_mode
+  if (mi->mode >= NEARMV_OPTFLOW && mi->mode <= NEWMV_OPTFLOW && plane == 0) {
+    rf1 = get_opfl_implicit_ref1_frame(cm, mi);
+    const RefCntBuffer *r0 = get_ref_frame_buf(cm, mi->ref_frame[0]);
+    const RefCntBuffer *r1 = get_ref_frame_buf(cm, rf1);
+    // Do refinement if second reference frame is available
+    // TODO(kslu): switch it
+    if (rf1 != NONE_FRAME) {
+      // TODO(kslu): scale only once
+      for (int mvi = 0; mvi < N_OF_OFFSETS; ++mvi) {
+#if CONFIG_DERIVED_MV
+        mv_refined[mvi * 2].as_mv =
+            use_derived_mv ? mi->derived_mv[0] : mi->mv[0].as_mv;
+#else
+        mv_refined[mvi * 2].as_mv = mi->mv[0].as_mv;
+#endif  // CONFIG_DERIVED_MV
+        const MV_REFERENCE_FRAME rfs[2] = { mi->ref_frame[0], rf1 };
+        av1_get_scaled_mv(cm, mv_refined[mvi * 2], 0, rfs,
+                          &mv_refined[mvi * 2 + 1], bw, bh, xd->mi_row,
+                          xd->mi_col);
+      }
+      ImplicitRef1Info impl_ref1_info = { rf1, mv_refined[1].as_mv };
+      av1_get_optflow_based_mv(cm, xd, mi, mv_refined, bw, bh, mi_x, mi_y,
+                               build_for_obmc, &impl_ref1_info,
+                               calc_subpel_params_func,
+                               calc_subpel_params_func_args);
+    }
+  }
+#endif  // CONFIG_OPFL_SINGLEREF
+
   const int use_optflow_prec =
       (mi->mode > NEW_NEWMV) && is_compound && plane == 0;
 
@@ -1542,13 +1620,17 @@ static void build_inter_predictors(
     const MV mv0 = mi->mv[0].as_mv;
     const MV mv1 = mi->mv[1].as_mv;
 #endif  // CONFIG_DERIVED_MV
+    // TODO(kslu) correction of N_OFF_OFFSETS
     for (int mvi = 0; mvi < N_OF_OFFSETS; mvi++) {
       mv_refined[mvi * 2].as_mv = mv0;
       mv_refined[mvi * 2 + 1].as_mv = mv1;
     }
-    av1_get_optflow_based_mv(cm, xd, mi, mv_refined, bw, bh, mi_x, mi_y,
-                             build_for_obmc, calc_subpel_params_func,
-                             calc_subpel_params_func_args);
+    av1_get_optflow_based_mv(
+        cm, xd, mi, mv_refined, bw, bh, mi_x, mi_y, build_for_obmc,
+#if CONFIG_OPFL_SINGLEREF
+        NULL,
+#endif
+        calc_subpel_params_func, calc_subpel_params_func_args);
   }
 
 #endif  // CONFIG_OPTFLOW_REFINEMENT
@@ -1571,7 +1653,9 @@ static void build_inter_predictors(
     if (use_optflow_prec) {
       conv_params.do_average = ref;
 #if USE_OF_NXN
-      int n = (bh <= 16 && bw <= 16) ? OF_MIN_BSIZE : OF_BSIZE;
+      int n = ((bh <= 16 && bw <= 16) || AOMMIN(bh, bw) <= OF_MIN_BSIZE)
+                  ? OF_MIN_BSIZE
+                  : OF_BSIZE;
       make_inter_pred_of_nxn(
           dst, dst_buf->stride, &subpel_params, sf, bw, bh, &conv_params,
           mi->interp_filters, &warp_types, mi_x >> pd->subsampling_x,
@@ -1593,10 +1677,43 @@ static void build_inter_predictors(
         // Predictor already built
       continue;
     } else {
+#if CONFIG_OPFL_SINGLEREF
+      assert(conv_params.do_average == 0);
+      if (rf1 != NONE_FRAME) {
+#if USE_OF_NXN
+        int n = ((bh <= 16 && bw <= 16) || AOMMIN(bh, bw) <= OF_MIN_BSIZE)
+                    ? OF_MIN_BSIZE
+                    : OF_BSIZE;
+        make_inter_pred_of_nxn(
+            dst, dst_buf->stride, &subpel_params, sf, bw, bh, &conv_params,
+            mi->interp_filters, &warp_types, mi_x >> pd->subsampling_x,
+            mi_y >> pd->subsampling_y, plane, ref, mi, build_for_obmc, xd,
+            cm->allow_warped_motion, n, mv_refined, pre_x, pre_y, pre_buf,
+            calc_subpel_params_func, calc_subpel_params_func_args);
+#else
+        calc_subpel_params_func(xd, sf, &(mv_refined[ref].as_mv), plane, pre_x,
+                                pre_y, 0, 0, pre_buf, bw, bh, &warp_types, ref,
+                                1, calc_subpel_params_func_args, &pre,
+                                &subpel_params, &src_stride);
+        av1_make_inter_predictor(
+            pre, src_stride, dst, dst_buf->stride, &subpel_params, sf, bw, bh,
+            &conv_params, mi->interp_filters, &warp_types,
+            mi_x >> pd->subsampling_x, mi_y >> pd->subsampling_y, plane, ref,
+            mi, build_for_obmc, xd, cm->allow_warped_motion, 0 /* border */);
+#endif  // USE_OF_NXN
+        continue;
+      } else {
+        calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf,
+                                bw, bh, &warp_types, ref, 0,
+                                calc_subpel_params_func_args, &pre,
+                                &subpel_params, &src_stride);
+      }
+#else
       calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf,
                               bw, bh, &warp_types, ref, 0,
                               calc_subpel_params_func_args, &pre,
                               &subpel_params, &src_stride);
+#endif  // CONFIG_OPFL_SINGLEREF
     }
 #else
     calc_subpel_params_func(xd, sf, &mv, plane, pre_x, pre_y, 0, 0, pre_buf, bw,

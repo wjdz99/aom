@@ -174,6 +174,11 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,           // NEARMV
     MB_MODE_COUNT,           // GLOBALMV
     MB_MODE_COUNT,           // NEWMV
+#if CONFIG_OPFL_SINGLEREF
+    MB_MODE_COUNT,  // NEARMV_OPTFLOW
+    MB_MODE_COUNT,  // GLOBALMV_OPTFLOW
+    MB_MODE_COUNT,  // NEWMV_OPTFLOW
+#endif  // CONFIG_OPFL_SINGLEREF
 #if !CONFIG_NEW_INTER_MODES  //
     NEARESTMV,               // NEAREST_NEARESTMV
 #endif                       // !CONFIG_NEW_INTER_MODES
@@ -220,6 +225,11 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     MB_MODE_COUNT,           // NEARMV
     MB_MODE_COUNT,           // GLOBALMV
     MB_MODE_COUNT,           // NEWMV
+#if CONFIG_OPFL_SINGLEREF
+    MB_MODE_COUNT,  // NEARMV_OPTFLOW
+    MB_MODE_COUNT,  // GLOBALMV_OPTFLOW
+    MB_MODE_COUNT,  // NEWMV_OPTFLOW
+#endif  // CONFIG_OPFL_SINGLEREF
 #if !CONFIG_NEW_INTER_MODES  //
     NEARESTMV,               // NEAREST_NEARESTMV
 #endif                       // !CONFIG_NEW_INTER_MODES
@@ -247,9 +257,13 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
 #if CONFIG_OPTFLOW_REFINEMENT
-  return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
-          mode == NEW_NEARMV || mode == NEAR_NEARMV_OPTFLOW ||
-          mode == NEAR_NEWMV_OPTFLOW || mode == NEW_NEARMV_OPTFLOW);
+  return (mode == NEARMV ||
+#if CONFIG_OPFL_SINGLEREF
+          mode == NEARMV_OPTFLOW ||
+#endif
+          mode == NEAR_NEARMV || mode == NEAR_NEWMV || mode == NEW_NEARMV ||
+          mode == NEAR_NEARMV_OPTFLOW || mode == NEAR_NEWMV_OPTFLOW ||
+          mode == NEW_NEARMV_OPTFLOW);
 #else
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
@@ -259,9 +273,13 @@ static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
 #if CONFIG_NEW_INTER_MODES
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
 #if CONFIG_OPTFLOW_REFINEMENT
-  return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAR_NEWMV ||
-          mode == NEW_NEARMV || mode == NEAR_NEWMV_OPTFLOW ||
-          mode == NEW_NEARMV_OPTFLOW || mode == NEW_NEWMV_OPTFLOW);
+  return (mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+          mode == NEWMV_OPTFLOW ||
+#endif
+          mode == NEW_NEWMV || mode == NEAR_NEWMV || mode == NEW_NEARMV ||
+          mode == NEAR_NEWMV_OPTFLOW || mode == NEW_NEARMV_OPTFLOW ||
+          mode == NEW_NEWMV_OPTFLOW);
 #else
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAR_NEWMV ||
           mode == NEW_NEARMV);
@@ -1805,6 +1823,16 @@ static INLINE int check_num_overlappable_neighbors(const MB_MODE_INFO *mbmi) {
            mbmi->overlappable_neighbors[1] == 0);
 }
 
+#if CONFIG_OPTFLOW_REFINEMENT
+static INLINE int is_optflow_mode(const PREDICTION_MODE mode) {
+#if CONFIG_OPFL_SINGLEREF
+  return mode > NEW_NEWMV || (mode >= NEARMV_OPTFLOW && mode <= NEWMV_OPTFLOW);
+#else
+  return mode > NEW_NEWMV;
+#endif
+}
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+
 static INLINE MOTION_MODE_SET av1_get_allowed_motion_mode_set(
     const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
     const MB_MODE_INFO *mbmi, int allow_warped_motion) {
@@ -1813,6 +1841,10 @@ static INLINE MOTION_MODE_SET av1_get_allowed_motion_mode_set(
     if (is_global_mv_block(mbmi, gm_type)) return ONLY_SIMPLE_TRANSLATION;
   }
   if (!is_inter_mode(mbmi->mode) || mbmi->ref_frame[1] == INTRA_FRAME ||
+#if CONFIG_OPFL_SINGLEREF
+      // OBMC is not allowed in single reference optical flow modes
+      is_optflow_mode(mbmi->mode) ||
+#endif
       !is_motion_variation_allowed_compound(mbmi) ||
       !check_num_overlappable_neighbors(mbmi)) {
     return ONLY_SIMPLE_TRANSLATION;
@@ -2085,6 +2117,9 @@ static INLINE int av1_use_adjust_drl(const MB_MODE_INFO *mbmi) {
   if (mbmi->pb_mv_precision >= mbmi->max_mv_precision) return 0;
   const PREDICTION_MODE mode = mbmi->mode;
   return mode == NEWMV ||
+#if CONFIG_OPFL_SINGLEREF
+         mode == NEWMV_OPTFLOW ||
+#endif
 #if CONFIG_OPTFLOW_REFINEMENT
          mode == NEW_NEWMV_OPTFLOW ||
 #endif  // CONFIG_OPTFLOW_REFINEMENT
