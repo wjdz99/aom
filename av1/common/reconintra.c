@@ -1387,7 +1387,7 @@ void av1_predict_intra_block(
   BLOCK_SIZE bsize = mbmi->sb_type;
   // force 4x4 chroma component block size.
   if (ss_x || ss_y) {
-    bsize = scale_chroma_bsize(bsize, ss_x, ss_y);
+    bsize = mbmi->chroma_ref_info.bsize_base;
   }
 
   int px_top_right = 0;
