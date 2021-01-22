@@ -291,7 +291,7 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   assert(current_qindex > 0);
 
   x->delta_qindex = current_qindex - cm->quant_params.base_qindex;
-  av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+  av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size, NULL);
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
 
@@ -480,21 +480,21 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   // Set the partition
   if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
     // set a fixed-size partition
-    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size, NULL);
     const BLOCK_SIZE bsize =
         seg_skip ? sb_size : sf->part_sf.fixed_partition_size;
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
   } else if (cpi->partition_search_skippable_frame) {
     // set a fixed-size partition for which the size is determined by the source
     // variance
-    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size, NULL);
     const BLOCK_SIZE bsize =
         get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
   } else if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     // set a variance-based partition
     av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
-                                       sb_size);
+                                       sb_size, NULL);
     av1_choose_var_based_partitioning(cpi, tile_info, td, x, mi_row, mi_col);
   }
   assert(sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip ||
@@ -503,7 +503,9 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   td->mb.cb_offset = 0;
 
   // Adjust and encode the superblock
-  PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+  PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+      mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1,
+      cm->seq_params.subsampling_x, cm->seq_params.subsampling_y);
   av1_reset_ptree_in_sbi(xd->sbi);
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                           pc_root, xd->sbi->ptree_root);
@@ -589,6 +591,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   int64_t dummy_dist;
   RD_STATS dummy_rdc;
   SIMPLE_MOTION_DATA_TREE *const sms_root = td->sms_root;
+  const int ss_x = cm->seq_params.subsampling_x;
+  const int ss_y = cm->seq_params.subsampling_y;
 
 #if CONFIG_REALTIME_ONLY
   (void)seg_skip;
@@ -601,9 +605,10 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     // partition search starting from a variance-based partition
     av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
-                                       sb_size);
+                                       sb_size, NULL);
     av1_choose_var_based_partitioning(cpi, tile_info, td, x, mi_row, mi_col);
-    PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+    PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+        mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
     av1_rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                          &dummy_rate, &dummy_dist, 1, pc_root);
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
@@ -611,22 +616,24 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 #if !CONFIG_REALTIME_ONLY
   else if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
     // partition search by adjusting a fixed-size partition
-    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size, NULL);
     const BLOCK_SIZE bsize =
         seg_skip ? sb_size : sf->part_sf.fixed_partition_size;
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-    PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+    PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+        mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
     av1_rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                          &dummy_rate, &dummy_dist, 1, pc_root);
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
   } else if (cpi->partition_search_skippable_frame) {
     // partition search by adjusting a fixed-size partition for which the size
     // is determined by the source variance
-    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+    av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size, NULL);
     const BLOCK_SIZE bsize =
         get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-    PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+    PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+        mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
     av1_rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                          &dummy_rate, &dummy_dist, 1, pc_root);
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
@@ -654,7 +661,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
         cpi->oxcf.unit_test_cfg.sb_multipass_unit_test ? 2 : 1;
 
     if (num_passes == 1) {
-      PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+      PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+          mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
       av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                             &dummy_rdc, dummy_rdc, pc_root, sms_root, NULL,
                             SB_SINGLE_PASS, NULL);
@@ -662,7 +670,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
       // First pass
       SB_FIRST_PASS_STATS sb_fp_stats;
       av1_backup_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
-      PC_TREE *const pc_root_p0 = av1_alloc_pc_tree_node(sb_size);
+      PC_TREE *const pc_root_p0 = av1_alloc_pc_tree_node(
+          mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
       av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                             &dummy_rdc, dummy_rdc, pc_root_p0, sms_root, NULL,
                             SB_DRY_PASS, NULL);
@@ -675,7 +684,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 
       av1_restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
 
-      PC_TREE *const pc_root_p1 = av1_alloc_pc_tree_node(sb_size);
+      PC_TREE *const pc_root_p1 = av1_alloc_pc_tree_node(
+          mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
       av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                             &dummy_rdc, dummy_rdc, pc_root_p1, sms_root, NULL,
                             SB_WET_PASS, NULL);
