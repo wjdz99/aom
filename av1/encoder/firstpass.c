@@ -357,7 +357,7 @@ static int firstpass_intra_prediction(
   xd->mi[0]->ref_frame[0] = INTRA_FRAME;
   set_mi_row_col(xd, tile, mb_row * mb_scale, mi_size_high[bsize],
                  mb_col * mb_scale, mi_size_wide[bsize], mi_params->mi_rows,
-                 mi_params->mi_cols);
+                 mi_params->mi_cols, NULL);
   set_plane_n4(xd, mi_size_wide[bsize], mi_size_high[bsize], num_planes);
   xd->mi[0]->segment_id = 0;
   xd->lossless[xd->mi[0]->segment_id] = (qindex == 0);
