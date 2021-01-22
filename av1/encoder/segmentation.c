@@ -54,7 +54,7 @@ static void count_segs(const AV1_COMMON *cm, MACROBLOCKD *xd,
 
   xd->mi = mi;
   set_mi_row_col(xd, tile, mi_row, bh, mi_col, bw, mi_params->mi_rows,
-                 mi_params->mi_cols);
+                 mi_params->mi_cols, NULL);
 
   // Count the number of hits on each segment with no prediction
   const int segment_id = xd->mi[0]->segment_id;
