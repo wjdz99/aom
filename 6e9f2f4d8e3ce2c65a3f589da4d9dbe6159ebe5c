@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "701333f4_fe0e2478",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-01-22T19:29:24Z",
+      "side": 1,
+      "message": "Thanks for the reminder!",
+      "parentUuid": "13c9a8f2_82ce7346",
+      "revId": "6e9f2f4d8e3ce2c65a3f589da4d9dbe6159ebe5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0f71d501_03c6c71c",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-01-22T06:09:42Z",
       "side": 1,
       "message": "Please remove this empty line.",
+      "revId": "6e9f2f4d8e3ce2c65a3f589da4d9dbe6159ebe5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67c8e603_5f77ae5d",
+        "filename": "av1/common/blockd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-01-22T19:29:24Z",
+      "side": 1,
+      "message": "It was added just to separate the two functions",
+      "parentUuid": "0f71d501_03c6c71c",
       "revId": "6e9f2f4d8e3ce2c65a3f589da4d9dbe6159ebe5c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -65,6 +101,24 @@
       "writtenOn": "2021-01-22T06:09:42Z",
       "side": 1,
       "message": "Please add some comments to explain why this additional has_top_right function is needed? Is this function only used for intra prediction? Is it possible to combine these two has_top_right function together?",
+      "revId": "6e9f2f4d8e3ce2c65a3f589da4d9dbe6159ebe5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f33876a5_7e3b3db7",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-01-22T19:29:24Z",
+      "side": 1,
+      "message": "There are separate has_top_right() functions for inter and intra case because for intra, prediction is done at transform block level, therefore the result also depends on transform size and the location of the transform block.",
+      "parentUuid": "cb7b82e9_91540f33",
       "revId": "6e9f2f4d8e3ce2c65a3f589da4d9dbe6159ebe5c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
