@@ -657,7 +657,7 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
   }
 
   const InterpFilterParams *filter = av1_get_filter(subpel_search);
-  int filter_taps = (subpel_search <= USE_4_TAPS) ? 4 : SUBPEL_TAPS;
+  int filter_taps = (subpel_search <= FILTER_4_TAPS) ? 4 : SUBPEL_TAPS;
   if (!subpel_x_q3 && !subpel_y_q3) {
     uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
     uint16_t *comp_pred = CONVERT_TO_SHORTPTR(comp_pred8);
@@ -706,7 +706,7 @@ void aom_highbd_upsampled_pred_sse2(MACROBLOCKD *xd,
     const int16_t *const kernel_y =
         av1_get_interp_filter_subpel_kernel(filter, subpel_y_q3 << 1);
     const uint8_t *ref_start = ref8 - ref_stride * ((filter_taps >> 1) - 1);
-    uint16_t *temp_start_horiz = (subpel_search <= USE_4_TAPS)
+    uint16_t *temp_start_horiz = (subpel_search <= FILTER_4_TAPS)
                                      ? temp + (filter_taps >> 1) * MAX_SB_SIZE
                                      : temp;
     uint16_t *temp_start_vert = temp + MAX_SB_SIZE * ((filter->taps >> 1) - 1);

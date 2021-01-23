@@ -538,7 +538,7 @@ void aom_upsampled_pred_sse2(MACROBLOCKD *xd, const struct AV1Common *const cm,
   const InterpFilterParams *filter = av1_get_filter(subpel_search);
   // (TODO:yunqing) 2-tap case uses 4-tap functions since there is no SIMD for
   // 2-tap yet.
-  int filter_taps = (subpel_search <= USE_4_TAPS) ? 4 : SUBPEL_TAPS;
+  int filter_taps = (subpel_search <= FILTER_4_TAPS) ? 4 : SUBPEL_TAPS;
 
   if (!subpel_x_q3 && !subpel_y_q3) {
     if (width >= 16) {
@@ -601,7 +601,7 @@ void aom_upsampled_pred_sse2(MACROBLOCKD *xd, const struct AV1Common *const cm,
     const int16_t *const kernel_y =
         av1_get_interp_filter_subpel_kernel(filter, subpel_y_q3 << 1);
     const uint8_t *ref_start = ref - ref_stride * ((filter_taps >> 1) - 1);
-    uint8_t *temp_start_horiz = (subpel_search <= USE_4_TAPS)
+    uint8_t *temp_start_horiz = (subpel_search <= FILTER_4_TAPS)
                                     ? temp + (filter_taps >> 1) * MAX_SB_SIZE
                                     : temp;
     uint8_t *temp_start_vert = temp + MAX_SB_SIZE * ((filter->taps >> 1) - 1);
