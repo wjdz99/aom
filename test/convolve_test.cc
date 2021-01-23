@@ -483,7 +483,7 @@ const int kNumFilters = 16;
 
 TEST(ConvolveTest, FiltersWontSaturateWhenAddedPairwise) {
   int subpel_search;
-  for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS;
+  for (subpel_search = FILTER_4_TAPS; subpel_search <= FILTER_8_TAPS;
        ++subpel_search) {
     for (int filter_bank = 0; filter_bank < kNumFilterBanks; ++filter_bank) {
       const InterpFilter filter = (InterpFilter)filter_bank;
@@ -520,7 +520,7 @@ TEST_P(ConvolveTest, MatchesReferenceSubpixelFilter) {
     ref = CONVERT_TO_BYTEPTR(ref16_);
   }
   int subpel_search;
-  for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS;
+  for (subpel_search = FILTER_4_TAPS; subpel_search <= FILTER_8_TAPS;
        ++subpel_search) {
     for (int filter_bank = 0; filter_bank < kNumFilterBanks; ++filter_bank) {
       const InterpFilter filter = (InterpFilter)filter_bank;
@@ -602,7 +602,7 @@ TEST_P(ConvolveTest, FilterExtremes) {
       }
       if (axis) seed_val += 8;
       int subpel_search;
-      for (subpel_search = USE_4_TAPS; subpel_search <= USE_8_TAPS;
+      for (subpel_search = FILTER_4_TAPS; subpel_search <= FILTER_8_TAPS;
            ++subpel_search) {
         for (int filter_bank = 0; filter_bank < kNumFilterBanks;
              ++filter_bank) {
@@ -670,7 +670,7 @@ TEST_P(ConvolveTest, DISABLED_Speed) {
 
   const InterpFilter filter = (InterpFilter)1;
   const InterpKernel *filters =
-      (const InterpKernel *)av1_get_interp_filter_kernel(filter, USE_8_TAPS);
+      (const InterpKernel *)av1_get_interp_filter_kernel(filter, FILTER_8_TAPS);
   wrapper_filter_average_block2d_8_c(in, kInputStride, filters[1], filters[1],
                                      out, kOutputStride, Width(), Height());
 
@@ -683,7 +683,7 @@ TEST_P(ConvolveTest, DISABLED_Speed) {
       const InterpFilter filter = (InterpFilter)filter_bank;
       const InterpKernel *filters =
           (const InterpKernel *)av1_get_interp_filter_kernel(filter,
-                                                             USE_8_TAPS);
+                                                             FILTER_8_TAPS);
       for (int filter_x = 0; filter_x < kNumFilters; ++filter_x) {
         for (int filter_y = 0; filter_y < kNumFilters; ++filter_y) {
           if (filter_x && filter_y) continue;

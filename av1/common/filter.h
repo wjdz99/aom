@@ -43,10 +43,10 @@ typedef enum ATTRIBUTE_PACKED {
 } InterpFilter;
 
 enum {
-  USE_2_TAPS_ORIG = 0,  // This is used in temporal filtering.
-  USE_2_TAPS,
-  USE_4_TAPS,
-  USE_8_TAPS,
+  FILTER_UNUSED = 0,  // No longer used
+  FILTER_2_TAPS,
+  FILTER_4_TAPS,
+  FILTER_8_TAPS,
 } UENUM1BYTE(SUBPEL_SEARCH_TYPE);
 
 enum {
@@ -256,10 +256,10 @@ av1_get_interp_filter_params_with_block_size(const InterpFilter interp_filter,
 
 static INLINE const int16_t *av1_get_interp_filter_kernel(
     const InterpFilter interp_filter, int subpel_search) {
-  assert(subpel_search >= USE_2_TAPS);
-  return (subpel_search == USE_2_TAPS)
+  assert(subpel_search >= FILTER_2_TAPS);
+  return (subpel_search == FILTER_2_TAPS)
              ? av1_interp_4tap[BILINEAR].filter_ptr
-             : ((subpel_search == USE_4_TAPS)
+             : ((subpel_search == FILTER_4_TAPS)
                     ? av1_interp_4tap[interp_filter].filter_ptr
                     : av1_interp_filter_params_list[interp_filter].filter_ptr);
 }
@@ -270,12 +270,12 @@ static INLINE const int16_t *av1_get_interp_filter_subpel_kernel(
 }
 
 static INLINE const InterpFilterParams *av1_get_filter(int subpel_search) {
-  assert(subpel_search >= USE_2_TAPS);
+  assert(subpel_search >= FILTER_2_TAPS);
 
   switch (subpel_search) {
-    case USE_2_TAPS: return &av1_interp_4tap[BILINEAR];
-    case USE_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
-    case USE_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
+    case FILTER_2_TAPS: return &av1_interp_4tap[BILINEAR];
+    case FILTER_4_TAPS: return &av1_interp_4tap[EIGHTTAP_REGULAR];
+    case FILTER_8_TAPS: return &av1_interp_filter_params_list[EIGHTTAP_REGULAR];
     default: assert(0); return NULL;
   }
 }
