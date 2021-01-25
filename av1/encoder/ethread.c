@@ -441,6 +441,14 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
 
   const BLOCK_SIZE fp_block_size = cpi->fp_block_size;
   int end_of_frame = 0;
+  const int num_planes = av1_num_planes(cm);
+  MACROBLOCK *x = &thread_data->td->mb;
+
+  av1_fill_coeff_costs(&x->coeff_costs, cm->fc, num_planes);
+  av1_fill_mode_rates(cm, &x->mode_costs, cm->fc);
+  av1_fill_mv_costs(cm->fc, cm->features.cur_frame_force_integer_mv,
+                    cm->features.allow_high_precision_mv, &x->mv_costs);
+
   while (1) {
     int current_mi_row = -1;
 #if CONFIG_MULTITHREAD
