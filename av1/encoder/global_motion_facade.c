@@ -221,9 +221,7 @@ void av1_compute_gm_for_valid_ref_frames(
     WarpedMotionParams params;
     aom_clear_system_state();
     const bool updated_params =
-        (frame <= BWDREF_FRAME)
-            ? find_gm_ref_params(&params, cm, frame, LAST_FRAME)
-            : find_gm_ref_params(&params, cm, frame, BWDREF_FRAME);
+        find_gm_ref_params(&params, cm, frame, frame - 1);
     ref_params = updated_params ? &params : &default_warp_params;
   }
 #else
