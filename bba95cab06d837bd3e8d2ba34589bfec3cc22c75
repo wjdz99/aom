@@ -33,6 +33,24 @@
       "message": "I agree with one thread, but not sure about tiles... There may be other reasons to use multiple tiles - should we allow to use it?",
       "revId": "bba95cab06d837bd3e8d2ba34589bfec3cc22c75",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac5e2db0_21fd9fa7",
+        "filename": "av1/encoder/svc_layercontext.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-01-25T21:52:29Z",
+      "side": 1,
+      "message": "the control (to be added later) will allow user to set #tiles as they wish, but for now prefer to keep it 1 tile as default (also we\u0027ve only used #tiles \u003e 1 with multi-threads in the past for rtc).",
+      "parentUuid": "d861bee6_92bc127f",
+      "revId": "bba95cab06d837bd3e8d2ba34589bfec3cc22c75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
