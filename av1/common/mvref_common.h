@@ -31,6 +31,13 @@ typedef struct position {
   int col;
 } POSITION;
 
+#if CONFIG_OPFL_SINGLEREF
+void av1_get_scaled_mv(const AV1_COMMON *const cm, const int_mv refmv,
+                       int this_ref, const MV_REFERENCE_FRAME rf[2],
+                       int_mv *scaled_mv, int bw, int bh, int mi_row,
+                       int mi_col);
+#endif  // CONFIG_OPFL_SINGLEREF
+
 // clamp_mv_ref
 #define MV_BORDER (16 << 3)  // Allow 16 pels in 1/8th pel units
 
