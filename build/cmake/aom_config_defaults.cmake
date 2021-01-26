@@ -169,6 +169,8 @@ set_aom_config_var(CONFIG_SKIP_INTERP_FILTER 0 NUMBER
                    "full pel MV")
 set_aom_config_var(CONFIG_NEW_TX_PARTITION 0 NUMBER
                    "AV2 new transform partitions experiment flag")
+set_aom_config_var(CONFIG_OPFL_SINGLEREF 0 NUMBER
+                   "AV2 single ref optical flow refinement experiment flag")
 set_aom_config_var(CONFIG_OPTFLOW_REFINEMENT 0 NUMBER
                    "AV2 optical flow based MV refinement experiment flag")
 set_aom_config_var(CONFIG_EXT_COMPOUND_REFMV 0 NUMBER
