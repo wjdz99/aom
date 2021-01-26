@@ -841,6 +841,9 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   MvCosts *mv_costs = &x->mv_costs;
   av1_set_error_per_bit(mv_costs, rdmult);
   av1_set_sad_per_bit(cpi, mv_costs, base_qindex);
+  av1_fill_mv_costs(cpi->common.fc,
+                    cpi->common.features.cur_frame_force_integer_mv,
+                    cpi->common.features.allow_high_precision_mv, mv_costs);
 
   tpl_frame->is_valid = 1;
 
