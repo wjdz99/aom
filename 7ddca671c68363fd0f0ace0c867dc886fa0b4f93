@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis CL removes the structures LevelDownStats and ENCODE_TXB_ARGS from encodetxb.c,\nand TxbInfo from encodetxb.h. The change has been verified to be bitexact locally\nwith no impact on speed. Please note that this change is dependent on the patch:\nhttps://aomedia-review.googlesource.com/c/aom/+/128321\n\nKindly review the change.\n\nRegards,\nVishesh",
       "revId": "7ddca671c68363fd0f0ace0c867dc886fa0b4f93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "982c906d_3e1f114d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-27T23:19:23Z",
+      "side": 1,
+      "message": "looks good.",
+      "revId": "7ddca671c68363fd0f0ace0c867dc886fa0b4f93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
