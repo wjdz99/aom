@@ -345,6 +345,8 @@ static AOM_INLINE void alloc_altref_frame_buffer(AV1_COMP *cpi) {
   const SequenceHeader *const seq_params = &cm->seq_params;
   const AV1EncoderConfig *oxcf = &cpi->oxcf;
 
+  if (oxcf->gf_cfg.lag_in_frames <= 1) return;
+
   // TODO(agrange) Check if ARF is enabled and skip allocation if not.
   if (aom_realloc_frame_buffer(
           &cpi->alt_ref_buffer, oxcf->frm_dim_cfg.width,
