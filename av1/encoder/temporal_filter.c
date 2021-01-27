@@ -1003,7 +1003,7 @@ static void tf_setup_filtering_buffer(AV1_COMP *cpi,
 
   if (frame_type == KEY_FRAME && !is_forward_keyframe) {
     num_before = 0;
-    num_after = AOMMIN(num_frames - 1, max_after);
+    num_after = AOMMIN(4 - 1, max_after);
   } else if (is_forward_keyframe) {  // Key frame in one-pass mode.
     num_before = AOMMIN(num_frames - 1, max_before);
     num_after = 0;
