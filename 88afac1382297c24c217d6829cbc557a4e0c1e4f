@@ -51,6 +51,24 @@
       "parentUuid": "fa7f1a7e_8817fcca",
       "revId": "88afac1382297c24c217d6829cbc557a4e0c1e4f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8487efb_510fd7be",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2641,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-01-27T05:52:15Z",
+      "side": 1,
+      "message": "Ok. Probably doesn\u0027t matter, but should we be setting something for \"target\" for _Q mode, currently it will take values meant for VBR mode.\n\nAlso active_worst/best_quality is set via av1_rc_pick_q_and_bounds() for different RC modes, not sure if we should move this there. Not important so ok to leave it as is.",
+      "parentUuid": "f2e4c015_469892ac",
+      "revId": "88afac1382297c24c217d6829cbc557a4e0c1e4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
