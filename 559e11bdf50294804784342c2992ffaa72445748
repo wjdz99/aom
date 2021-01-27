@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cc2fbb5_1b2e6ed6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-01-27T23:43:03Z",
+      "side": 1,
+      "message": "\u003e Friendly ping to jzern@\n\nI had an open comment about the location of char tag[..] in the latest patchset",
+      "parentUuid": "d7e94dd3_8195bddf",
+      "revId": "559e11bdf50294804784342c2992ffaa72445748",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "f387f61a_cc96da28",
