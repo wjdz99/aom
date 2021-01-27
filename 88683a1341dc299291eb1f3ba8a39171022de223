@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f5de72c_7f4169b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2021-01-27T18:30:34Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have moved all utility functions for RD operations from txb_rdopt.c into a new file \ntxb_rdopt_utils.h. The corresponding global arrays have also been moved. The change\nhas been verified to be bitexact locally with no impact on speed.\n\nKindly review this patch.\n\nRegards,\nVishesh",
+      "revId": "88683a1341dc299291eb1f3ba8a39171022de223",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
