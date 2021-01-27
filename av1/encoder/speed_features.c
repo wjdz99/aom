@@ -660,6 +660,8 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 5) {
+    sf->hl_sf.second_alt_ref_filtering = 0;
+
     sf->part_sf.simple_motion_search_prune_agg = 3;
     sf->part_sf.ext_partition_eval_thresh =
         allow_screen_content_tools ? BLOCK_8X8 : BLOCK_16X16;
@@ -690,7 +692,6 @@ static void set_good_speed_features_framesize_independent(
 
   if (speed >= 6) {
     sf->hl_sf.disable_extra_sc_testing = 1;
-    sf->hl_sf.second_alt_ref_filtering = 0;
     sf->hl_sf.recode_tolerance = 55;
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 3;
