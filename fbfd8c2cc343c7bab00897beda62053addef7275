@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98eb6100_a8d31bad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-01-27T17:04:15Z",
+      "side": 1,
+      "message": "Hi Yunqing,\ndo_gm_search_logic() function is skipping LAST2_FRAME and LAST3_FRAME, and selective_ref_gm speed feature was unused. This patch cleaned-up the speed feature and related code.\n\nPlease review the patch.\nThe changes are bit-exact and no impact on quality.(verified locally)\nThanks and Regards\nAkshata",
+      "revId": "fbfd8c2cc343c7bab00897beda62053addef7275",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
