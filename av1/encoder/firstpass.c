@@ -253,10 +253,11 @@ static int get_search_range(const InitialDimensions *initial_dimensions) {
 
 static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                                 const MV *ref_mv,
+                                                const MV *start_mv_ref,
                                                 FULLPEL_MV *best_mv,
                                                 int *best_motion_err) {
   MACROBLOCKD *const xd = &x->e_mbd;
-  FULLPEL_MV start_mv = get_fullmv_from_mv(ref_mv);
+  FULLPEL_MV start_mv = get_fullmv_from_mv(start_mv_ref);
   int tmp_err;
   const BLOCK_SIZE bsize = xd->mi[0]->bsize;
   const int new_mv_mode_penalty = NEW_MV_MODE_PENALTY;
@@ -638,13 +639,15 @@ static int firstpass_inter_prediction(
   if (raw_motion_error > LOW_MOTION_ERROR_THRESH) {
     // Test last reference frame using the previous best mv as the
     // starting point (best reference) for the search.
-    first_pass_motion_search(cpi, x, best_ref_mv, &mv, &motion_error);
+    MV last_ref_mv = *best_ref_mv;
+    first_pass_motion_search(cpi, x, best_ref_mv, best_ref_mv, &mv,
+                             &motion_error);
 
     // If the current best reference mv is not centered on 0,0 then do a
     // 0,0 based search as well.
     if (!is_zero_mv(best_ref_mv)) {
       int tmp_err = INT_MAX;
-      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &tmp_err);
+      first_pass_motion_search(cpi, x, &kZeroMv, &kZeroMv, &tmp_mv, &tmp_err);
 
       if (tmp_err < motion_error) {
         motion_error = tmp_err;
@@ -661,7 +664,10 @@ static int firstpass_inter_prediction(
       gf_motion_error =
           get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
                                         &x->plane[0].src, &xd->plane[0].pre[0]);
-      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &gf_motion_error);
+
+      MV start_mv = get_mv_from_fullmv(&mv);
+      first_pass_motion_search(cpi, x, &last_ref_mv, &start_mv, &tmp_mv,
+                               &gf_motion_error);
     }
     if (gf_motion_error < motion_error && gf_motion_error < this_intra_error) {
       ++stats->second_ref_count;
@@ -686,7 +692,8 @@ static int firstpass_inter_prediction(
       alt_motion_error =
           get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
                                         &x->plane[0].src, &xd->plane[0].pre[0]);
-      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &alt_motion_error);
+      first_pass_motion_search(cpi, x, &kZeroMv, &kZeroMv, &tmp_mv,
+                               &alt_motion_error);
     }
     if (alt_motion_error < motion_error && alt_motion_error < gf_motion_error &&
         alt_motion_error < this_intra_error) {
