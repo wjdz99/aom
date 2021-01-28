@@ -487,8 +487,10 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
                            &td->mb.e_mbd);
 
     cfl_init(&td->mb.e_mbd.cfl, &cm->seq_params);
-    av1_crc32c_calculator_init(
-        &td->mb.txfm_search_info.mb_rd_record.crc_calculator);
+    if (td->mb.txfm_search_info.txb_rd_records != NULL) {
+      av1_crc32c_calculator_init(
+          &td->mb.txfm_search_info.txb_rd_records->mb_rd_record.crc_calculator);
+    }
 
     av1_encode_sb_row(cpi, td, tile_row, tile_col, current_mi_row);
 #if CONFIG_MULTITHREAD
@@ -777,6 +779,10 @@ static AOM_INLINE void accumulate_counters_enc_workers(AV1_COMP *cpi,
     EncWorkerData *const thread_data = (EncWorkerData *)worker->data1;
     cpi->intrabc_used |= thread_data->td->intrabc_used;
     cpi->deltaq_used |= thread_data->td->deltaq_used;
+    if (thread_data->td->mb.txfm_search_info.txb_rd_records) {
+      aom_free(thread_data->td->mb.txfm_search_info.txb_rd_records);
+      thread_data->td->mb.txfm_search_info.txb_rd_records = NULL;
+    }
 
     // Accumulate counters.
     if (i > 0) {
@@ -829,6 +835,11 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
         }
       }
     }
+    if (!cpi->sf.rt_sf.use_nonrd_pick_mode) {
+      thread_data->td->mb.txfm_search_info.txb_rd_records =
+          (TxbRdRecords *)aom_malloc(sizeof(TxbRdRecords));
+    }
+
     if (thread_data->td->counts != &cpi->counts) {
       memcpy(thread_data->td->counts, &cpi->counts, sizeof(cpi->counts));
     }
@@ -871,6 +882,10 @@ static AOM_INLINE void fp_prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
     // Before encoding a frame, copy the thread data from cpi.
     if (thread_data->td != &cpi->td) {
       thread_data->td->mb = cpi->td.mb;
+    }
+    if (!cpi->sf.rt_sf.use_nonrd_pick_mode) {
+      thread_data->td->mb.txfm_search_info.txb_rd_records =
+          (TxbRdRecords *)aom_malloc(sizeof(TxbRdRecords));
     }
   }
 }
@@ -1152,6 +1167,12 @@ void av1_fp_encode_tiles_row_mt(AV1_COMP *cpi) {
   fp_prepare_enc_workers(cpi, fp_enc_row_mt_worker_hook, num_workers);
   launch_workers(&cpi->mt_info, num_workers);
   sync_enc_workers(&cpi->mt_info, cm, num_workers);
+  for (int i = num_workers - 1; i >= 0; i--) {
+    EncWorkerData *const thread_data = &cpi->mt_info.tile_thr_data[i];
+    if (thread_data->td->mb.txfm_search_info.txb_rd_records) {
+      aom_free(thread_data->td->mb.txfm_search_info.txb_rd_records);
+    }
+  }
 }
 
 void av1_tpl_row_mt_sync_read_dummy(AV1TplRowMultiThreadSync *tpl_mt_sync,
