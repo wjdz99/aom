@@ -578,7 +578,8 @@ typedef struct {
   /**@{*/
   //! Cost for coding the partition.
 #if CONFIG_SDP
-  int partition_cost[3][PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
+  int partition_cost[PARTITION_STRUCTURE_NUM][PARTITION_CONTEXTS]
+                    [EXT_PARTITION_TYPES];
 #else
   int partition_cost[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
 #endif
@@ -1237,8 +1238,9 @@ static INLINE void set_blk_skip(uint8_t txb_skip[], int plane, int blk_idx,
 static INLINE int is_blk_skip(uint8_t *txb_skip, int plane, int blk_idx) {
 #ifndef NDEBUG
   // Check if this is initialized
+#if !CONFIG_SDP
   assert(!(txb_skip[blk_idx] & (1UL << (plane + 4))));
-
+#endif
   // The magic number is 0x77, this is to test if there is garbage data
   assert((txb_skip[blk_idx] & 0x88) == 0);
 #endif
