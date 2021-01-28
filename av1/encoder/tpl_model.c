@@ -1244,6 +1244,11 @@ static AOM_INLINE void init_gop_frames_for_tpl(
   int cur_frame_idx = cpi->gf_frame_index;
   *pframe_qindex = 0;
 
+#if FP_ENABLED
+  RefFrameMapPair ref_frame_map_pairs[REF_FRAMES];
+  init_ref_map_pair(cpi, ref_frame_map_pairs);
+#endif
+
   RefBufferStack ref_buffer_stack = cpi->ref_buffer_stack;
   EncodeFrameParams frame_params = *init_frame_params;
   TplParams *const tpl_data = &cpi->tpl_data;
@@ -1326,15 +1331,39 @@ static AOM_INLINE void init_gop_frames_for_tpl(
       tpl_frame->tpl_stats_ptr = tpl_data->tpl_stats_pool[process_frame_count];
       ++process_frame_count;
     }
+#if FP_ENABLED
+    const int true_disp = (int)(tpl_frame->frame_display_index);
+#endif  // FP_ENABLED
 
-    av1_get_ref_frames(&ref_buffer_stack, cm->remapped_ref_idx);
-    int refresh_mask = av1_get_refresh_frame_flags(
-        cpi, &frame_params, frame_update_type, &ref_buffer_stack);
+    av1_get_ref_frames(&ref_buffer_stack,
+#if FP_ENABLED
+                       cpi, ref_frame_map_pairs, true_disp,
+#endif  // FP_ENABLED
+                       cm->remapped_ref_idx);
+
+    int refresh_mask =
+        av1_get_refresh_frame_flags(cpi, &frame_params, frame_update_type,
+#if FP_ENABLED
+                                    true_disp, ref_frame_map_pairs,
+#endif  // FP_ENABLED
+                                    &ref_buffer_stack);
 
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
+#if !FP_ENABLED
     av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
                              frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
+#endif  // FP_ENABLED
+
+#if FP_ENABLED
+    if (refresh_frame_map_index < REF_FRAMES) {
+      ref_frame_map_pairs[refresh_frame_map_index].disp_order =
+          AOMMAX(0, true_disp);
+      ref_frame_map_pairs[refresh_frame_map_index].pyr_level =
+          get_true_pyr_level(gf_group->layer_depth[gf_index], true_disp,
+                             cpi->ppi->gf_group.max_layer_depth);
+    }
+#endif  // FP_ENABLED
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       tpl_frame->ref_map_index[i - LAST_FRAME] =
@@ -1389,14 +1418,36 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
     gf_group->update_type[gf_index] = LF_UPDATE;
     gf_group->q_val[gf_index] = *pframe_qindex;
-
-    av1_get_ref_frames(&ref_buffer_stack, cm->remapped_ref_idx);
-    int refresh_mask = av1_get_refresh_frame_flags(
-        cpi, &frame_params, frame_update_type, &ref_buffer_stack);
+#if FP_ENABLED
+    const int true_disp = (int)(tpl_frame->frame_display_index);
+#endif  // FP_ENABLED
+    av1_get_ref_frames(&ref_buffer_stack,
+#if FP_ENABLED
+                       cpi, ref_frame_map_pairs, true_disp,
+#endif  // FP_ENABLED
+                       cm->remapped_ref_idx);
+    int refresh_mask =
+        av1_get_refresh_frame_flags(cpi, &frame_params, frame_update_type,
+#if FP_ENABLED
+                                    true_disp, ref_frame_map_pairs,
+#endif  // FP_ENABLED
+                                    &ref_buffer_stack);
     int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
+#if !FP_ENABLED
     av1_update_ref_frame_map(cpi, frame_update_type, frame_params.frame_type,
                              frame_params.show_existing_frame,
                              refresh_frame_map_index, &ref_buffer_stack);
+#endif  // FP_ENABLED
+
+#if FP_ENABLED
+    if (refresh_frame_map_index < REF_FRAMES) {
+      ref_frame_map_pairs[refresh_frame_map_index].disp_order =
+          AOMMAX(0, true_disp);
+      ref_frame_map_pairs[refresh_frame_map_index].pyr_level =
+          get_true_pyr_level(gf_group->layer_depth[gf_index], true_disp,
+                             cpi->ppi->gf_group.max_layer_depth);
+    }
+#endif  // FP_ENABLED
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       tpl_frame->ref_map_index[i - LAST_FRAME] =
@@ -1413,8 +1464,16 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     ++extend_frame_count;
     ++frame_display_index;
   }
-
-  av1_get_ref_frames(&cpi->ref_buffer_stack, cm->remapped_ref_idx);
+#if FP_ENABLED
+  TplDepFrame *tpl_frame = &tpl_data->tpl_frame[cur_frame_idx];
+  const int true_disp = (int)(tpl_frame->frame_display_index);
+  init_ref_map_pair(cpi, ref_frame_map_pairs);
+#endif  // FP_ENABLED
+  av1_get_ref_frames(&cpi->ref_buffer_stack,
+#if FP_ENABLED
+                     cpi, ref_frame_map_pairs, true_disp,
+#endif  // FP_ENABLED
+                     cm->remapped_ref_idx);
 }
 
 void av1_init_tpl_stats(TplParams *const tpl_data) {

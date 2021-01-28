@@ -13,6 +13,7 @@
 #define AOM_AV1_COMMON_ALLOCCOMMON_H_
 
 #define INVALID_IDX -1  // Invalid buffer index.
+#define FP_ENABLED 1    // Macro to enable FPMT code.
 
 #include "config/aom_config.h"
 
