@@ -91,12 +91,6 @@ static const PREDICTION_MODE interintra_to_intra_mode[INTERINTRA_MODES] = {
       DC_PRED,
   DC_PRED,
   DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
-  DC_PRED,
   DC_PRED
 #endif  // CONFIG_INTERINTRA_ML
 };

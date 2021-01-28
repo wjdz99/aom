@@ -11025,7 +11025,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
 #if CONFIG_INTERINTRA_ML
         assert(mbmi->use_wedge_interintra);
         // Wedge mode not supported for interintra-ML modes.
-        if (j >= II_ML_PRED0 && j <= II_ML_PRED9) {
+        if (j >= II_ML_PRED0 && j <= II_ML_PRED3) {
           continue;
         }
 #endif  // CONFIG_INTERINTRA_ML

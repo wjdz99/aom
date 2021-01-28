@@ -2952,12 +2952,6 @@ static void build_smooth_interintra_mask(uint8_t *mask, int stride,
     case II_ML_PRED1:
     case II_ML_PRED2:
     case II_ML_PRED3:
-    case II_ML_PRED4:
-    case II_ML_PRED5:
-    case II_ML_PRED6:
-    case II_ML_PRED7:
-    case II_ML_PRED8:
-    case II_ML_PRED9:
 #endif  // CONFIG_INTERINTRA_ML
     default:
       for (i = 0; i < bh; ++i) {
@@ -3249,7 +3243,7 @@ static void combine_interintra(INTERINTRA_MODE mode,
   }
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED3) {
     assert(!use_wedge_interintra);
     av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
                               interpred, interstride, intrapred, intrastride,
@@ -3298,7 +3292,7 @@ static void combine_interintra_highbd(
   }
 #endif  // CONFIG_ILLUM_MCOMP
 #if CONFIG_INTERINTRA_ML
-  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED9) {
+  if (mode >= II_ML_PRED0 && mode <= II_ML_PRED3) {
     assert(!use_wedge_interintra);
     av1_combine_interintra_ml_highbd(mode, plane_bsize, comppred8, compstride,
                                      interpred8, interstride, intrapred8,
