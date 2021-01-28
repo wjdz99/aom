@@ -12,7 +12,7 @@
 #ifndef INTERINTRA_ML_MODEL_H_
 #define INTERINTRA_ML_MODEL_H_
 
-extern const unsigned char decode_17600647_009_tflite_data[];
-extern const int decode_17600647_009_tflite_data_len;
+extern const unsigned char decode_19284263_001_tflite_data[];
+extern const int decode_19284263_001_tflite_data_len;
 
 #endif  // INTERINTRA_ML_MODEL_H_

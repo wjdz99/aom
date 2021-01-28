@@ -8,7 +8,7 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
-
+// Some changes provided by sjhwang@
 #include <assert.h>
 #include <stdio.h>
 #include <limits.h>
@@ -3224,13 +3224,11 @@ static void illum_combine_interintra_highbd(
 }
 #endif  // CONFIG_ILLUM_MCOMP
 
-static void combine_interintra(INTERINTRA_MODE mode,
-                               int8_t use_wedge_interintra, int8_t wedge_index,
-                               int8_t wedge_sign, BLOCK_SIZE bsize,
-                               BLOCK_SIZE plane_bsize, uint8_t *comppred,
-                               int compstride, const uint8_t *interpred,
-                               int interstride, const uint8_t *intrapred,
-                               int intrastride, int border) {
+static void combine_interintra(
+    INTERINTRA_MODE mode, int8_t use_wedge_interintra, int8_t wedge_index,
+    int8_t wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize, int plane,
+    uint8_t *comppred, int compstride, const uint8_t *interpred,
+    int interstride, const uint8_t *intrapred, int intrastride, int border) {
   assert(plane_bsize < BLOCK_SIZES_ALL);
   (void)border;
 #if CONFIG_ILLUM_MCOMP
@@ -3245,9 +3243,9 @@ static void combine_interintra(INTERINTRA_MODE mode,
 #if CONFIG_INTERINTRA_ML
   if (mode >= II_ML_PRED0 && mode <= II_ML_PRED3) {
     assert(!use_wedge_interintra);
-    av1_combine_interintra_ml(mode, plane_bsize, comppred, compstride,
-                              interpred, interstride, intrapred, intrastride,
-                              border);
+    av1_combine_interintra_ml(mode, bsize, plane_bsize, plane, comppred,
+                              compstride, interpred, interstride, intrapred,
+                              intrastride, border);
     return;
   }
 #endif  // CONFIG_INTERINTRA_ML
@@ -3276,7 +3274,7 @@ static void combine_interintra(INTERINTRA_MODE mode,
 
 static void combine_interintra_highbd(
     INTERINTRA_MODE mode, int8_t use_wedge_interintra, int8_t wedge_index,
-    int8_t wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize,
+    int8_t wedge_sign, BLOCK_SIZE bsize, BLOCK_SIZE plane_bsize, int plane,
     uint8_t *comppred8, int compstride, const uint8_t *interpred8,
     int interstride, const uint8_t *intrapred8, int intrastride, int bd,
     int border) {
@@ -3294,9 +3292,9 @@ static void combine_interintra_highbd(
 #if CONFIG_INTERINTRA_ML
   if (mode >= II_ML_PRED0 && mode <= II_ML_PRED3) {
     assert(!use_wedge_interintra);
-    av1_combine_interintra_ml_highbd(mode, plane_bsize, comppred8, compstride,
-                                     interpred8, interstride, intrapred8,
-                                     intrastride, bd, border);
+    av1_combine_interintra_ml_highbd(mode, bsize, plane_bsize, plane, comppred8,
+                                     compstride, interpred8, interstride,
+                                     intrapred8, intrastride, bd, border);
     return;
   }
 #endif  // CONFIG_INTERINTRA_ML
@@ -3384,13 +3382,14 @@ void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
     combine_interintra_highbd(
         mode, xd->mi[0]->use_wedge_interintra,
         xd->mi[0]->interintra_wedge_index, INTERINTRA_WEDGE_SIGN, bsize,
-        plane_bsize, xd->plane[plane].dst.buf, xd->plane[plane].dst.stride,
-        inter_pred, inter_stride, intra_pred, intra_stride, xd->bd, border);
+        plane_bsize, plane, xd->plane[plane].dst.buf,
+        xd->plane[plane].dst.stride, inter_pred, inter_stride, intra_pred,
+        intra_stride, xd->bd, border);
     return;
   }
   combine_interintra(mode, xd->mi[0]->use_wedge_interintra,
                      xd->mi[0]->interintra_wedge_index, INTERINTRA_WEDGE_SIGN,
-                     bsize, plane_bsize, xd->plane[plane].dst.buf,
+                     bsize, plane_bsize, plane, xd->plane[plane].dst.buf,
                      xd->plane[plane].dst.stride, inter_pred, inter_stride,
                      intra_pred, intra_stride, border);
 }
