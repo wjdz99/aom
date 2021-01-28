@@ -482,22 +482,14 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
     av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
     const BLOCK_SIZE bsize =
         seg_skip ? sb_size : sf->part_sf.fixed_partition_size;
-#if CONFIG_SDP
-    av1_set_fixed_partitioning(cpi, tile_info, x, mi, mi_row, mi_col, bsize);
-#else
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-#endif
   } else if (cpi->partition_search_skippable_frame) {
     // set a fixed-size partition for which the size is determined by the source
     // variance
     av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
     const BLOCK_SIZE bsize =
         get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
-#if CONFIG_SDP
-    av1_set_fixed_partitioning(cpi, tile_info, x, mi, mi_row, mi_col, bsize);
-#else
     av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-#endif
   } else if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     // set a variance-based partition
     av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
@@ -650,11 +642,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
       av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
       const BLOCK_SIZE bsize =
           seg_skip ? sb_size : sf->part_sf.fixed_partition_size;
-#if CONFIG_SDP
-      av1_set_fixed_partitioning(cpi, tile_info, x, mi, mi_row, mi_col, bsize);
-#else
       av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-#endif
       PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
       av1_rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                            &dummy_rate, &dummy_dist, 1, pc_root);
@@ -665,11 +653,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
       av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
       const BLOCK_SIZE bsize =
           get_rd_var_based_fixed_partition(cpi, x, mi_row, mi_col);
-#if CONFIG_SDP
-      av1_set_fixed_partitioning(cpi, tile_info, x, mi, mi_row, mi_col, bsize);
-#else
       av1_set_fixed_partitioning(cpi, tile_info, mi, mi_row, mi_col, bsize);
-#endif
       PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
       av1_rd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                            &dummy_rate, &dummy_dist, 1, pc_root);
@@ -770,6 +754,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
   const int mib_size = cm->seq_params.mib_size;
   const int mib_size_log2 = cm->seq_params.mib_size_log2;
   const int sb_row = (mi_row - tile_info->mi_row_start) >> mib_size_log2;
+
   const int use_nonrd_mode = cpi->sf.rt_sf.use_nonrd_pick_mode;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
