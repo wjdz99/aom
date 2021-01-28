@@ -746,9 +746,9 @@ static void set_partial_sb_partition(const AV1_COMMON *const cm,
       const int mi_index = get_alloc_mi_idx(&cm->mi_params, r, c);
       mib[grid_index] = mi + mi_index;
 #if CONFIG_SDP
-      mib[grid_index]->sb_type[xd->tree_type == CHROMA_PART] =
-          find_partition_size(bsize, mi_rows_remaining - r,
-                              mi_cols_remaining - c, &bh, &bw);
+      mib[grid_index]->sb_type[PLANE_TYPE_Y] =
+          mib[grid_index]->sb_type[PLANE_TYPE_UV] = find_partition_size(
+              bsize, mi_rows_remaining - r, mi_cols_remaining - c, &bh, &bw);
 #else
       mib[grid_index]->sb_type = find_partition_size(
           bsize, mi_rows_remaining - r, mi_cols_remaining - c, &bh, &bw);
@@ -796,7 +796,8 @@ void av1_set_fixed_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
         const int mi_index = get_alloc_mi_idx(mi_params, block_row, block_col);
         mib[grid_index] = mi_upper_left + mi_index;
 #if CONFIG_SDP
-        mib[grid_index]->sb_type[xd->tree_type == CHROMA_PART] = bsize;
+        mib[grid_index]->sb_type[PLANE_TYPE_Y] = bsize;
+        mib[grid_index]->sb_type[PLANE_TYPE_UV] = bsize;
 #else
         mib[grid_index]->sb_type = bsize;
 #endif
