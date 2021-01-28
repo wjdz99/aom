@@ -3433,7 +3433,7 @@ static void setup_target_rate(AV1_COMP *cpi) {
 
 void av1_get_second_pass_params(AV1_COMP *cpi,
                                 EncodeFrameParams *const frame_params,
-                                const EncodeFrameInput *const frame_input,
+                                EncodeFrameInput *const frame_input,
                                 unsigned int frame_flags) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
@@ -3629,6 +3629,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
                               is_forward_keyframe, NULL);
           aom_extend_frame_borders(&cpi->alt_ref_buffer,
                                    av1_num_planes(&cpi->common));
+          frame_input->source = &cpi->alt_ref_buffer;
         }
         if (!av1_tpl_setup_stats(cpi, 1, frame_params, frame_input)) {
           // Tpl decides that a shorter gf interval is better.

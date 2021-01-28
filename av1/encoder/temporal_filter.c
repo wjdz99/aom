@@ -13,6 +13,7 @@
 #include <limits.h>
 
 #include "config/aom_config.h"
+#include "config/aom_scale_rtcd.h"
 
 #include "av1/common/alloccommon.h"
 #include "av1/common/av1_common_int.h"
@@ -928,7 +929,7 @@ static void tf_setup_filtering_buffer(AV1_COMP *cpi,
                                       const int filter_frame_lookahead_idx,
                                       const int is_second_arf,
                                       FRAME_UPDATE_TYPE update_type,
-                                      int is_forward_keyframe) {
+                                      int is_forward_keyframe, int init_arf_ready) {
   TemporalFilterCtx *tf_ctx = &cpi->tf_ctx;
   YV12_BUFFER_CONFIG **frames = tf_ctx->frames;
   // Number of frames used for filtering. Set `arnr_max_frames` as 1 to disable
@@ -1046,9 +1047,12 @@ static void tf_setup_filtering_buffer(AV1_COMP *cpi,
     assert(buf != NULL);
     frames[frame] = &buf->img;
   }
+
+  if (init_arf_ready)
+    frames[tf_ctx->filter_frame_idx] = &cpi->alt_ref_buffer;
   tf_ctx->num_frames = num_frames;
   tf_ctx->filter_frame_idx = num_before;
-  assert(frames[tf_ctx->filter_frame_idx] == to_filter_frame);
+  // assert(frames[tf_ctx->filter_frame_idx] == to_filter_frame);
 
   av1_setup_src_planes(&cpi->td.mb, &to_filter_buf->img, 0, 0, num_planes,
                        cpi->common.seq_params.sb_size);
@@ -1117,14 +1121,14 @@ double av1_estimate_noise_from_single_plane(const YV12_BUFFER_CONFIG *frame,
 //   Nothing will be returned. But the contents of cpi->tf_ctx will be modified.
 static void init_tf_ctx(AV1_COMP *cpi, int filter_frame_lookahead_idx,
                         int is_second_arf, FRAME_UPDATE_TYPE update_type,
-                        int is_forward_keyframe) {
+                        int is_forward_keyframe, int init_arf_ready) {
   TemporalFilterCtx *tf_ctx = &cpi->tf_ctx;
   // Setup frame buffer for filtering.
   YV12_BUFFER_CONFIG **frames = tf_ctx->frames;
   tf_ctx->num_frames = 0;
   tf_ctx->filter_frame_idx = -1;
   tf_setup_filtering_buffer(cpi, filter_frame_lookahead_idx, is_second_arf,
-                            update_type, is_forward_keyframe);
+                            update_type, is_forward_keyframe, init_arf_ready);
   assert(tf_ctx->num_frames > 0);
   assert(tf_ctx->filter_frame_idx < tf_ctx->num_frames);
 
@@ -1203,7 +1207,7 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
 
   // Initialize temporal filter context structure.
   init_tf_ctx(cpi, filter_frame_lookahead_idx, is_second_arf, update_type,
-              is_forward_keyframe);
+              is_forward_keyframe, 0);
 
   // Set showable frame.
   if (is_forward_keyframe == 0 && update_type != KF_UPDATE) {
@@ -1214,6 +1218,17 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   // Allocate and reset temporal filter buffers.
   const int is_highbitdepth = tf_ctx->is_highbitdepth;
   tf_alloc_and_reset_data(tf_data, tf_ctx->num_pels, is_highbitdepth);
+
+  // Perform temporal filtering process.
+  if (mt_info->num_workers > 1)
+    av1_tf_do_filtering_mt(cpi);
+  else
+    tf_do_filtering(cpi);
+
+  aom_extend_frame_borders(&cpi->alt_ref_buffer, av1_num_planes(&cpi->common));
+
+  init_tf_ctx(cpi, filter_frame_lookahead_idx, is_second_arf, update_type,
+              is_forward_keyframe, 1);
 
   // Perform temporal filtering process.
   if (mt_info->num_workers > 1)
