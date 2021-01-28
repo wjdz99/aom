@@ -738,9 +738,6 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // 1: Reuse the compound type decision
   int reuse_compound_type_decision;
 
-  // Enable/disable masked compound.
-  int disable_masked_comp;
-
   // Reuse the best prediction modes found in PARTITION_SPLIT and PARTITION_RECT
   // when encoding PARTITION_AB.
   int reuse_best_prediction_for_part_ab;

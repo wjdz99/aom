@@ -288,10 +288,6 @@ static void set_good_speed_feature_framesize_dependent(
       sf->part_sf.default_min_partition_size = BLOCK_8X8;
     }
 
-    if (is_720p_or_larger) {
-      sf->inter_sf.disable_masked_comp = 1;
-    }
-
     if (!is_720p_or_larger) {
       sf->inter_sf.mv_cost_upd_level = 2;
     }
@@ -1165,7 +1161,6 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->reuse_compound_type_decision = 0;
   inter_sf->txfm_rd_gate_level = 0;
   inter_sf->prune_inter_modes_if_skippable = 0;
-  inter_sf->disable_masked_comp = 0;
   inter_sf->reuse_best_prediction_for_part_ab = 0;
   inter_sf->enable_fast_compound_mode_search = 0;
 }
@@ -1337,8 +1332,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
         !sf->interp_sf.disable_dual_filter;
     cpi->common.seq_params.enable_restoration &= !sf->lpf_sf.disable_lr_filter;
 
-    cpi->common.seq_params.enable_masked_compound &=
-        !sf->inter_sf.disable_masked_comp;
     cpi->common.seq_params.enable_interintra_compound &=
         (sf->inter_sf.disable_interintra_wedge_var_thresh != UINT_MAX);
   }
