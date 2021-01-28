@@ -196,7 +196,7 @@ function(setup_tensorflow_lite)
     PREFIX "${CMAKE_BINARY_DIR}/tensorflow_lite"
     BINARY_DIR "${CMAKE_BINARY_DIR}/tensorflow_lite"
     DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/tensorflow_lite"
-    CMAKE_ARGS "-DCMAKE_BUILD_TYPE=Release"
+    CMAKE_ARGS "-DCMAKE_BUILD_TYPE=Release -DTFLITE_ENABLE_XNNPACK=ON"
     LOG_BUILD 1)
 
   # TF-Lite uses dlsym and dlopen for delegation, but linking with -ldl is not

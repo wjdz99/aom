@@ -99,6 +99,18 @@ static std::unique_ptr<tflite::Interpreter> get_tflite_interpreter(
     reporter->Report("Failed at tensor allocation");
     return nullptr;
   }
+
+  TfLiteXNNPackDelegateOptions xnnpack_options =
+    TfLiteXNNPackDelegateOptionsDefault();
+  xnnpack_options.num_threads = AOMMAX(num_threads, 1);
+
+  TfLiteDelegate* xnnpack_delegate =
+      TfLiteXNNPackDelegateCreate(&xnnpack_options);
+  if (interpreter->ModifyGraphWithDelegate(xnnpack_delegate) != kTfLiteOk) {
+    reporter->Report("Failed at modifying graph with XNNPack delegate");
+    return nullptr;
+  }
+
   return interpreter;
 }
 
@@ -140,6 +152,12 @@ extern "C" int av1_restore_cnn_img_tflite(int qindex, const uint8_t *dgd,
       rst[r * rst_stride + c] = clip_pixel(dgd[r * dgd_stride + c] + residue);
     }
   }
+
+  // TODO(now): Create a function to call these.
+  // IMPORTANT: release the interpreter before destroying the delegate
+  // interpreter.reset();
+  // TfLiteXNNPackDelegateDelete(xnnpack_delegate);
+
   return 1;
 }
 
