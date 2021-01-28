@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2b5d3ae_def9ff0e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-01-28T14:05:07Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThe speed feature disable_masked_comp is set in set_good_speed_feature_framesize_dependent() function and used to disable enable_masked_compound in set_good_speed_feature_framesize_independent(), but it does not get updated sf value. The speed feature disable_masked_comp was unused. This patch clean-up the speed feature. \n\nPlease review the patch.\nThe changes are bit-exact and no impact on quality(verified locally).\n\nThanks and Regards\nAkshata",
+      "revId": "7c0077d481089216d5fc1ddb6d7e32d20c477240",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
