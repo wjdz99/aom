@@ -135,7 +135,10 @@ typedef struct RefCntBuffer {
   // distance when a very old frame is used as a reference.
   unsigned int display_order_hint;
   unsigned int ref_display_order_hint[INTER_REFS_PER_FRAME];
-
+#if FP_ENABLED
+  // Frame's level within the hierarchical structure
+  unsigned int pyramid_level;
+#endif  // FP_ENABLED
   MV_REF *mvs;
   uint8_t *seg_map;
   struct segmentation seg;
@@ -331,6 +334,10 @@ typedef struct {
 
   unsigned int order_hint;
   unsigned int display_order_hint;
+#if FP_ENABLED
+  // Frame's level within the hierarchical structure
+  unsigned int pyramid_level;
+#endif  // FP_ENABLED
   unsigned int frame_number;
   SkipModeInfo skip_mode_info;
   int refresh_frame_flags;  // Which ref frames are overwritten by this frame

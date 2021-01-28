@@ -3444,6 +3444,11 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   current_frame->order_hint %=
       (1 << (cm->seq_params.order_hint_info.order_hint_bits_minus_1 + 1));
 
+#if FP_ENABLED
+  current_frame->pyramid_level = get_true_pyr_level(
+      cpi->ppi->gf_group.layer_depth[cpi->gf_frame_index],
+      current_frame->display_order_hint, cpi->ppi->gf_group.max_layer_depth);
+#endif  // FP_ENABLED
   if (is_stat_generation_stage(cpi)) {
 #if !CONFIG_REALTIME_ONLY
     av1_first_pass(cpi, frame_input->ts_duration);
