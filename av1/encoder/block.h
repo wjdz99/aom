@@ -578,7 +578,8 @@ typedef struct {
   /**@{*/
   //! Cost for coding the partition.
 #if CONFIG_SDP
-  int partition_cost[3][PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
+  int partition_cost[PARTITION_STRUCTURE_NUM][PARTITION_CONTEXTS]
+                    [EXT_PARTITION_TYPES];
 #else
   int partition_cost[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
 #endif
