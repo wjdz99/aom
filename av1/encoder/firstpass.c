@@ -91,6 +91,7 @@ void av1_twopass_zero_stats(FIRSTPASS_STATS *section) {
   section->frame_avg_wavelet_energy = 0.0;
   section->coded_error = 0.0;
   section->sr_coded_error = 0.0;
+  section->comp_coded_error = 0.0;
   section->pcnt_inter = 0.0;
   section->pcnt_motion = 0.0;
   section->pcnt_second_ref = 0.0;
@@ -117,6 +118,7 @@ void av1_accumulate_stats(FIRSTPASS_STATS *section,
   section->intra_error += frame->intra_error;
   section->frame_avg_wavelet_energy += frame->frame_avg_wavelet_energy;
   section->coded_error += frame->coded_error;
+  section->comp_coded_error += frame->comp_coded_error;
   section->sr_coded_error += frame->sr_coded_error;
   section->pcnt_inter += frame->pcnt_inter;
   section->pcnt_motion += frame->pcnt_motion;
@@ -255,6 +257,7 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                                                 const MV *ref_mv,
                                                 FULLPEL_MV *best_mv,
                                                 int *best_motion_err) {
+  const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   FULLPEL_MV start_mv = get_fullmv_from_mv(ref_mv);
   int tmp_err;
@@ -280,11 +283,30 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   tmp_err = av1_full_pixel_search(start_mv, &ms_params, step_param, NULL,
                                   &this_best_mv, NULL);
 
+  // if (tmp_err < INT_MAX) {
+  //   aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[bsize];
+  //   const MSBuffers *ms_buffers = &ms_params.ms_buffers;
+  //   tmp_err = av1_get_mvpred_sse(&ms_params.mv_cost_params, this_best_mv,
+  //                                &v_fn_ptr, ms_buffers->src, ms_buffers->ref)
+  //                                +
+  //             new_mv_mode_penalty;
+  // }
+  // (void) cm;
+
   if (tmp_err < INT_MAX) {
-    aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[bsize];
-    const MSBuffers *ms_buffers = &ms_params.ms_buffers;
-    tmp_err = av1_get_mvpred_sse(&ms_params.mv_cost_params, this_best_mv,
-                                 &v_fn_ptr, ms_buffers->src, ms_buffers->ref) +
+    SUBPEL_MOTION_SEARCH_PARAMS ms_sub_params;
+    av1_make_default_subpel_ms_params(&ms_sub_params, cpi, x, bsize, ref_mv,
+                                      NULL);
+    ms_sub_params.var_params.subpel_search_type = USE_2_TAPS_ORIG;
+    ms_sub_params.forced_stop = QUARTER_PEL;
+    ms_sub_params.iters_per_step = 1;
+    MV subpel_start_mv = get_mv_from_fullmv(&this_best_mv);
+    int dis;
+    unsigned int sse;
+    MV best_sub_mv;
+    tmp_err = av1_find_best_sub_pixel_tree(
+                  xd, cm, &ms_sub_params, subpel_start_mv, &best_sub_mv, &dis,
+                  &sse, NULL) +
               new_mv_mode_penalty;
   }
 
@@ -292,6 +314,85 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
     *best_motion_err = tmp_err;
     *best_mv = this_best_mv;
   }
+}
+
+static AOM_INLINE void first_pass_compound_search(AV1_COMP *cpi, MACROBLOCK *x,
+                                                  const FULLPEL_MV *other_mv,
+                                                  const MV *ref_other_mv,
+                                                  const MV *ref_mv,
+                                                  FULLPEL_MV *best_mv,
+                                                  int *best_motion_err) {
+  const AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  FULLPEL_MV start_mv = get_fullmv_from_mv(ref_mv);
+  int tmp_err;
+  const BLOCK_SIZE bsize = xd->mi[0]->bsize;
+  const int new_mv_mode_penalty = NEW_MV_MODE_PENALTY;
+  const int sr = get_search_range(&cpi->initial_dimensions);
+  const int step_param = 3 + sr;
+  struct buf_2d ref_yv12[2];
+  ref_yv12[0] = xd->plane[0].pre[0];
+  ref_yv12[1] = xd->plane[0].pre[1];
+  DECLARE_ALIGNED(16, uint8_t, second_pred16[MAX_SB_SQUARE * sizeof(uint16_t)]);
+  uint8_t *second_pred = get_buf_by_bd(xd, second_pred16);
+
+  const int pw = block_size_wide[bsize];
+  const int ph = block_size_high[bsize];
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  const int_interpfilters interp_filters =
+      av1_broadcast_interp_filter(BILINEAR);
+  InterPredParams inter_pred_params;
+  av1_init_inter_params(&inter_pred_params, pw, ph, mi_row * MI_SIZE,
+                        mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd), 0,
+                        &cm->sf_identity, &ref_yv12[0], interp_filters);
+  inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
+  MV other_mv_sub = get_mv_from_fullmv(other_mv);
+  // Since we have scaled the reference frames to match the size of the
+  // current frame we must use a unit scaling factor during mode selection.
+  av1_enc_build_one_inter_predictor(second_pred, pw, &other_mv_sub,
+                                    &inter_pred_params);
+
+  // Do full-pixel compound motion search on the current reference frame.
+  xd->plane[0].pre[0] = ref_yv12[1];
+
+  const search_site_config *first_pass_search_sites =
+      cpi->mv_search_params.search_site_cfg[SS_CFG_FPF];
+  const int fine_search_interval =
+      cpi->is_screen_content_type && cpi->common.features.allow_intrabc;
+  if (fine_search_interval) {
+    av1_set_speed_features_framesize_independent(cpi, cpi->oxcf.speed);
+  }
+  FULLPEL_MOTION_SEARCH_PARAMS ms_params;
+  av1_make_default_fullpel_ms_params(&ms_params, cpi, x, bsize, ref_mv,
+                                     first_pass_search_sites,
+                                     fine_search_interval);
+  av1_set_mv_search_method(&ms_params, first_pass_search_sites, NSTEP);
+  av1_set_ms_compound_refs(&ms_params.ms_buffers, second_pred, NULL, -1, 1);
+
+  FULLPEL_MV this_best_mv, temp_other_mv = *other_mv;
+  tmp_err = av1_full_pixel_search(start_mv, &ms_params, step_param, NULL,
+                                  &this_best_mv, &temp_other_mv);
+
+  if (tmp_err < INT_MAX) {
+    aom_variance_fn_ptr_t v_fn_ptr = cpi->fn_ptr[bsize];
+    const MSBuffers *ms_buffers = &ms_params.ms_buffers;
+
+    tmp_err = av1_get_mvpred_compound_sse(
+                  &ms_params.mv_cost_params, this_best_mv, second_pred, NULL,
+                  -1, 1, &v_fn_ptr, ms_buffers->src, ms_buffers->ref) +
+              new_mv_mode_penalty;
+    av1_make_default_fullpel_ms_params(&ms_params, cpi, x, bsize, ref_other_mv,
+                                       first_pass_search_sites,
+                                       fine_search_interval);
+    tmp_err += av1_mv_err_cost(&other_mv_sub, &ms_params.mv_cost_params);
+  }
+
+  if (tmp_err < *best_motion_err) {
+    *best_motion_err = tmp_err;
+    *best_mv = this_best_mv;
+  }
+  xd->plane[0].pre[0] = ref_yv12[0];
 }
 
 static BLOCK_SIZE get_bsize(const CommonModeInfoParams *const mi_params,
@@ -587,7 +688,8 @@ static void accumulate_mv_stats(const MV best_mv, const FULLPEL_MV mv,
 static int firstpass_inter_prediction(
     AV1_COMP *cpi, ThreadData *td, const YV12_BUFFER_CONFIG *const last_frame,
     const YV12_BUFFER_CONFIG *const golden_frame,
-    const YV12_BUFFER_CONFIG *const alt_ref_frame, const int unit_row,
+    const YV12_BUFFER_CONFIG *const alt_ref_frame,
+    const YV12_BUFFER_CONFIG *const bwd_ref_frame, const int unit_row,
     const int unit_col, const int recon_yoffset, const int recon_uvoffset,
     const int src_yoffset, const int alt_ref_frame_yoffset,
     const BLOCK_SIZE fp_block_size, const int this_intra_error,
@@ -638,6 +740,7 @@ static int firstpass_inter_prediction(
   if (raw_motion_error > LOW_MOTION_ERROR_THRESH) {
     // Test last reference frame using the previous best mv as the
     // starting point (best reference) for the search.
+    MV last_ref_mv = *best_ref_mv;
     first_pass_motion_search(cpi, x, best_ref_mv, &mv, &motion_error);
 
     // If the current best reference mv is not centered on 0,0 then do a
@@ -649,7 +752,25 @@ static int firstpass_inter_prediction(
       if (tmp_err < motion_error) {
         motion_error = tmp_err;
         mv = tmp_mv;
+        last_ref_mv = kZeroMv;
       }
+    }
+
+    int bwd_motion_error = INT_MAX;
+    if (bwd_ref_frame != NULL) {
+      // Get compound inter prediction error with the last frame and bwd frame
+      xd->plane[0].pre[1].buf = bwd_ref_frame->y_buffer + recon_yoffset;
+      xd->plane[0].pre[1].stride = bwd_ref_frame->y_stride;
+      FULLPEL_MV rev_mv;
+      rev_mv.col = -mv.col;
+      rev_mv.row = -mv.row;
+      MV ref_mv = get_mv_from_fullmv(&rev_mv);
+      first_pass_compound_search(cpi, x, &mv, &last_ref_mv, &ref_mv, &tmp_mv,
+                                 &bwd_motion_error);
+      stats->comp_coded_error += AOMMIN(bwd_motion_error, this_intra_error);
+      xd->plane[0].pre[1].buf = NULL;
+    } else {
+      stats->comp_coded_error += this_intra_error;
     }
 
     // Motion search in 2nd reference frame.
@@ -804,6 +925,7 @@ static void update_firstpass_stats(AV1_COMP *cpi,
   fps.coded_error = (double)(stats->coded_error >> 8) + min_err;
   fps.sr_coded_error = (double)(stats->sr_coded_error >> 8) + min_err;
   fps.tr_coded_error = (double)(stats->tr_coded_error >> 8) + min_err;
+  fps.comp_coded_error = (double)(stats->comp_coded_error >> 8) + min_err;
   fps.intra_error = (double)(stats->intra_error >> 8) + min_err;
   fps.frame_avg_wavelet_energy = (double)stats->frame_avg_wavelet_energy;
   fps.count = 1.0;
@@ -917,6 +1039,7 @@ static FRAME_STATS accumulate_frame_stats(FRAME_STATS *mb_stats, int mb_rows,
       stats.sum_mvrs += mb_stat.sum_mvrs;
       stats.third_ref_count += mb_stat.third_ref_count;
       stats.tr_coded_error += mb_stat.tr_coded_error;
+      stats.comp_coded_error += mb_stat.comp_coded_error;
     }
   }
   return stats;
@@ -1030,6 +1153,14 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       alt_ref_frame = &alt_ref_frame_buffer->img;
     }
   }
+
+  const YV12_BUFFER_CONFIG *bwd_ref_frame = NULL;
+  const struct lookahead_entry *const bwd_ref_frame_buffer =
+      av1_lookahead_peek(cpi->lookahead, 1, cpi->compressor_stage);
+  if (bwd_ref_frame_buffer != NULL) {
+    bwd_ref_frame = &bwd_ref_frame_buffer->img;
+  }
+
   YV12_BUFFER_CONFIG *const this_frame = &cm->cur_frame->buf;
 
   PICK_MODE_CONTEXT *ctx = td->firstpass_ctx;
@@ -1100,10 +1231,11 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
     if (!frame_is_intra_only(cm)) {
       const int this_inter_error = firstpass_inter_prediction(
-          cpi, td, last_frame, golden_frame, alt_ref_frame, unit_row, unit_col,
-          recon_yoffset, recon_uvoffset, src_yoffset, alt_ref_frame_yoffset,
-          fp_block_size, this_intra_error, raw_motion_err_counts,
-          raw_motion_err_list, &best_ref_mv, &last_mv, mb_stats);
+          cpi, td, last_frame, golden_frame, alt_ref_frame, bwd_ref_frame,
+          unit_row, unit_col, recon_yoffset, recon_uvoffset, src_yoffset,
+          alt_ref_frame_yoffset, fp_block_size, this_intra_error,
+          raw_motion_err_counts, raw_motion_err_list, &best_ref_mv, &last_mv,
+          mb_stats);
       if (unit_col_in_tile == 0) {
         *first_top_mv = last_mv;
       }

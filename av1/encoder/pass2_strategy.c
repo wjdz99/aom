@@ -1037,6 +1037,8 @@ static void smooth_filter_stats(const FIRSTPASS_STATS *stats, const int *ignore,
     }
   }
   for (i = start_idx; i <= last_idx; i++) {
+    printf("\ncoded: %.2f, compound: %.2f\n", stats[i].coded_error,
+           stats[i].comp_coded_error);
     double total_wt = 0;
     for (j = -HALF_FILT_LEN; j <= HALF_FILT_LEN; j++) {
       int idx = AOMMIN(AOMMAX(i + j, start_idx), last_idx);

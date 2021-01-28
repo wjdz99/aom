@@ -66,6 +66,10 @@ typedef struct {
    */
   double tr_coded_error;
   /*!
+   * Best of intra pred error and compound inter pred error.
+   */
+  double comp_coded_error;
+  /*!
    * Percentage of blocks with inter pred error < intra pred error.
    */
   double pcnt_inter;
@@ -272,6 +276,8 @@ typedef struct {
   int64_t sr_coded_error;
   // Best of intra pred error and inter pred error using altref frame as ref.
   int64_t tr_coded_error;
+  // Best of intra pred error and compound inter pred error.
+  int64_t comp_coded_error;
   // Count of motion vector.
   int mv_count;
   // Count of blocks that pick inter prediction (inter pred error is smaller

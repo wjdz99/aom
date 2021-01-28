@@ -96,6 +96,14 @@ int av1_get_mvpred_compound_var(const MV_COST_PARAMS *ms_params,
                                 const aom_variance_fn_ptr_t *vfp,
                                 const struct buf_2d *src,
                                 const struct buf_2d *pre);
+int av1_get_mvpred_compound_sse(const MV_COST_PARAMS *ms_params,
+                                const FULLPEL_MV best_mv,
+                                const uint8_t *second_pred, const uint8_t *mask,
+                                int mask_stride, int invert_mask,
+                                const aom_variance_fn_ptr_t *vfp,
+                                const struct buf_2d *src,
+                                const struct buf_2d *pre);
+int av1_mv_err_cost(const MV *mv, const MV_COST_PARAMS *mv_cost_params);
 
 // =============================================================================
 //  Motion Search

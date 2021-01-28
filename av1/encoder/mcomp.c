@@ -3631,6 +3631,36 @@ static INLINE int get_mvpred_mask_var(
          mv_err_cost_(&mv, mv_cost_params);
 }
 
+static INLINE int get_mvpred_av_sse(const MV_COST_PARAMS *mv_cost_params,
+                                    const FULLPEL_MV best_mv,
+                                    const uint8_t *second_pred,
+                                    const aom_variance_fn_ptr_t *vfp,
+                                    const struct buf_2d *src,
+                                    const struct buf_2d *pre) {
+  const MV mv = get_mv_from_fullmv(&best_mv);
+  unsigned int sse;
+
+  int var = vfp->svaf(get_buf_from_fullmv(pre, &best_mv), pre->stride, 0, 0,
+                      src->buf, src->stride, &sse, second_pred);
+  (void) var;
+  return sse + mv_err_cost_(&mv, mv_cost_params);
+}
+
+static INLINE int get_mvpred_mask_sse(
+    const MV_COST_PARAMS *mv_cost_params, const FULLPEL_MV best_mv,
+    const uint8_t *second_pred, const uint8_t *mask, int mask_stride,
+    int invert_mask, const aom_variance_fn_ptr_t *vfp, const struct buf_2d *src,
+    const struct buf_2d *pre) {
+  const MV mv = get_mv_from_fullmv(&best_mv);
+  unsigned int sse;
+
+  int var =
+      vfp->msvf(get_buf_from_fullmv(pre, &best_mv), pre->stride, 0, 0, src->buf,
+                src->stride, second_pred, mask, mask_stride, invert_mask, &sse);
+  (void) var;
+  return sse + mv_err_cost_(&mv, mv_cost_params);
+}
+
 int av1_get_mvpred_compound_var(const MV_COST_PARAMS *mv_cost_params,
                                 const FULLPEL_MV best_mv,
                                 const uint8_t *second_pred, const uint8_t *mask,
@@ -3645,4 +3675,26 @@ int av1_get_mvpred_compound_var(const MV_COST_PARAMS *mv_cost_params,
     return get_mvpred_av_var(mv_cost_params, best_mv, second_pred, vfp, src,
                              pre);
   }
+}
+
+int av1_get_mvpred_compound_sse(const MV_COST_PARAMS *mv_cost_params,
+                                const FULLPEL_MV best_mv,
+                                const uint8_t *second_pred, const uint8_t *mask,
+                                int mask_stride, int invert_mask,
+                                const aom_variance_fn_ptr_t *vfp,
+                                const struct buf_2d *src,
+                                const struct buf_2d *pre) {
+  if (mask) {
+    return get_mvpred_mask_sse(mv_cost_params, best_mv, second_pred, mask,
+                               mask_stride, invert_mask, vfp, src, pre);
+  } else {
+    return get_mvpred_av_sse(mv_cost_params, best_mv, second_pred, vfp, src,
+                             pre);
+  }
+}
+
+int av1_mv_err_cost(const MV *mv, const MV_COST_PARAMS *mv_cost_params) {
+  return mv_err_cost(mv, mv_cost_params->ref_mv, mv_cost_params->mvjcost,
+                     mv_cost_params->mvcost, mv_cost_params->error_per_bit,
+                     mv_cost_params->mv_cost_type);
 }
