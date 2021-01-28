@@ -69,7 +69,7 @@ tflite::ErrorReporter *get_reporter() {
 
 // Initialize the interpreter (only used for static initialization).
 tflite::Interpreter *init_interpreter_() {
-  auto model = tflite::GetModel(decode_13759197_5_tflite_data);
+  auto model = tflite::GetModel(decode_17600647_009_tflite_data);
   tflite::MutableOpResolver resolver;
   add_resolver_builtins(&resolver);
   tflite::InterpreterBuilder builder(model, resolver);
