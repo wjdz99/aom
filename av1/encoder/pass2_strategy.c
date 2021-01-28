@@ -3433,7 +3433,7 @@ static void setup_target_rate(AV1_COMP *cpi) {
 
 void av1_get_second_pass_params(AV1_COMP *cpi,
                                 EncodeFrameParams *const frame_params,
-                                const EncodeFrameInput *const frame_input,
+                                EncodeFrameInput *const frame_input,
                                 unsigned int frame_flags) {
   RATE_CONTROL *const rc = &cpi->rc;
   TWO_PASS *const twopass = &cpi->twopass;
@@ -3618,8 +3618,8 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
         // max_gop_length = 32 with look-ahead gf intervals.
         define_gf_group(cpi, &this_frame, frame_params, max_gop_length, 0);
         this_frame = this_frame_copy;
-        int is_temporal_filter_enabled =
-            (rc->frames_since_key > 0 && gf_group->arf_index > -1);
+        int is_temporal_filter_enabled = 1;
+//            (rc->frames_since_key > 0 && gf_group->arf_index > -1);
         if (is_temporal_filter_enabled) {
           int arf_src_index = gf_group->arf_src_offset[gf_group->arf_index];
           FRAME_UPDATE_TYPE arf_update_type =
@@ -3629,6 +3629,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
                               is_forward_keyframe, NULL);
           aom_extend_frame_borders(&cpi->alt_ref_buffer,
                                    av1_num_planes(&cpi->common));
+          frame_input->source = &cpi->alt_ref_buffer;
         }
         if (!av1_tpl_setup_stats(cpi, 1, frame_params, frame_input)) {
           // Tpl decides that a shorter gf interval is better.

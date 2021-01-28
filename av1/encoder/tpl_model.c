@@ -1257,7 +1257,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     if (gf_index == cur_frame_idx) {
       buf = av1_lookahead_peek(cpi->lookahead, lookahead_index,
                                cpi->compressor_stage);
-      tpl_frame->gf_picture = gop_eval ? &buf->img : frame_input->source;
+      tpl_frame->gf_picture = frame_input->source;
     } else {
       buf = av1_lookahead_peek(cpi->lookahead, lookahead_index,
                                cpi->compressor_stage);
