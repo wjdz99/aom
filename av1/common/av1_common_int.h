@@ -180,6 +180,13 @@ typedef struct RefCntBuffer {
   int8_t mode_deltas[MAX_MODE_LF_DELTAS];
 
   FRAME_CONTEXT frame_context;
+
+  // unit GM model
+#if CONFIG_GM_MODEL_CODING
+  WarpedMotionParams unit_gm;
+  double error_advantage;
+  int unit_gm_valid;
+#endif  // CONFIG_GM_MODEL_CODING
 } RefCntBuffer;
 
 typedef struct BufferPool {
@@ -1244,6 +1251,9 @@ static INLINE RefCntBuffer *assign_cur_frame_new_fb(AV1_COMMON *const cm) {
   cm->cur_frame = &cm->buffer_pool->frame_bufs[new_fb_idx];
   cm->cur_frame->buf.buf_8bit_valid = 0;
   av1_zero(cm->cur_frame->interp_filter_selected);
+#if CONFIG_GM_MODEL_CODING
+  cm->cur_frame->unit_gm_valid = 0;
+#endif  // CONFIG_GM_MODEL_CODING
   return cm->cur_frame;
 }
 
