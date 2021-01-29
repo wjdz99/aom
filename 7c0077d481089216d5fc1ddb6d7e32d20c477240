@@ -34,6 +34,24 @@
       "parentUuid": "c2b5d3ae_def9ff0e",
       "revId": "7c0077d481089216d5fc1ddb6d7e32d20c477240",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09d4f61e_f600d369",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-01-29T18:05:21Z",
+      "side": 1,
+      "message": "I found my original CL, and this one should work. Could you check?\n\ncommit 537eec11db9cba5aeb87f2b30a9fa27e38a56b35\nAuthor: Yunqing Wang \u003cyunqingwang@google.com\u003e\nDate:   Mon Jun 15 11:40:32 2020 -0700\n\n    Disable masked compound at speed 6",
+      "parentUuid": "b0fb74c6_85544e3e",
+      "revId": "7c0077d481089216d5fc1ddb6d7e32d20c477240",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
