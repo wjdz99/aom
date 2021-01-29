@@ -195,8 +195,9 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
 
     // If the best error advantage found doesn't meet the threshold for
     // this motion type, revert to IDENTITY.
+    double error_advantage = (double)best_warp_error / ref_frame_error;
     if (!av1_is_enough_erroradvantage(
-            (double)best_warp_error / ref_frame_error,
+            error_advantage,
             gm_get_params_cost(&cm->global_motion[frame], ref_params,
 #if CONFIG_GM_MODEL_CODING
                                frame,
@@ -205,7 +206,22 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
       cm->global_motion[frame] = default_warp_params;
     }
 
-    if (cm->global_motion[frame].wmtype != IDENTITY) break;
+    if (cm->global_motion[frame].wmtype != IDENTITY) {
+#if CONFIG_GM_MODEL_CODING
+      // save unit GM model
+      if (!cm->cur_frame->unit_gm_valid ||
+          error_advantage < cm->cur_frame->error_advantage) {
+        cm->cur_frame->error_advantage = error_advantage;
+        memcpy(&cm->cur_frame->unit_gm, &cm->global_motion[frame],
+               sizeof(WarpedMotionParams));
+        int distance = calculate_gm_ref_params_scaling_distance(cm, frame);
+        for (int ind = 0; ind < 8; ++ind) {
+          cm->cur_frame->unit_gm.wmmat[ind] /= distance;
+        }
+      }
+#endif  // CONFIG_GM_MODEL_CODING
+      break;
+    }
   }
 
   aom_clear_system_state();
