@@ -3201,7 +3201,7 @@ static AOM_INLINE void block_rd_txfm(int plane, int block, int blk_row,
 
 int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                               RD_STATS *rd_stats, int64_t ref_best_rd,
-                              BLOCK_SIZE bs, TX_SIZE tx_size) {
+                              BLOCK_SIZE bs, TX_SIZE tx_size, int plane) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
@@ -3226,8 +3226,8 @@ int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   const uint8_t txw_unit = tx_size_wide_unit[tx_size];
   const uint8_t txh_unit = tx_size_high_unit[tx_size];
   const int step = txw_unit * txh_unit;
-  const int max_blocks_wide = max_block_wide(xd, bs, 0);
-  const int max_blocks_high = max_block_high(xd, bs, 0);
+  const int max_blocks_wide = max_block_wide(xd, bs, plane);
+  const int max_blocks_high = max_block_high(xd, bs, plane);
 
   struct rdcost_block_args args;
   av1_zero(args);
@@ -3236,7 +3236,7 @@ int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   args.best_rd = ref_best_rd;
   args.current_rd = AOMMIN(no_this_rd, skip_txfm_rd);
   av1_init_rd_stats(&args.rd_stats);
-  av1_get_entropy_contexts(bs, &xd->plane[0], args.t_above, args.t_left);
+  av1_get_entropy_contexts(bs, &xd->plane[plane], args.t_above, args.t_left);
   int i = 0;
   for (int blk_row = 0; blk_row < max_blocks_high && !args.incomplete_exit;
        blk_row += txh_unit) {
@@ -3252,27 +3252,27 @@ int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
       ENTROPY_CONTEXT *a = args.t_above + blk_col;
       ENTROPY_CONTEXT *l = args.t_left + blk_row;
       TXB_CTX txb_ctx;
-      get_txb_ctx(bs, tx_size, 0, a, l, &txb_ctx);
+      get_txb_ctx(bs, tx_size, plane, a, l, &txb_ctx);
 
       TxfmParam txfm_param;
       QUANT_PARAM quant_param;
       av1_setup_xform(&cpi->common, x, tx_size, DCT_DCT, &txfm_param);
       av1_setup_quant(tx_size, 0, AV1_XFORM_QUANT_B, 0, &quant_param);
 
-      av1_xform(x, 0, i, blk_row, blk_col, bs, &txfm_param);
-      av1_quant(x, 0, i, &txfm_param, &quant_param);
+      av1_xform(x, plane, i, blk_row, blk_col, bs, &txfm_param);
+      av1_quant(x, plane, i, &txfm_param, &quant_param);
 
       this_rd_stats.rate =
-          cost_coeffs(x, 0, i, tx_size, txfm_param.tx_type, &txb_ctx, 0);
+          cost_coeffs(x, plane, i, tx_size, txfm_param.tx_type, &txb_ctx, 0);
 
-      dist_block_tx_domain(x, 0, i, tx_size, &this_rd_stats.dist,
+      dist_block_tx_domain(x, plane, i, tx_size, &this_rd_stats.dist,
                            &this_rd_stats.sse);
 
       const int64_t no_skip_txfm_rd =
           RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
       const int64_t skip_rd = RDCOST(x->rdmult, 0, this_rd_stats.sse);
 
-      this_rd_stats.skip_txfm &= !x->plane[0].eobs[i];
+      this_rd_stats.skip_txfm &= !x->plane[plane].eobs[i];
 
       av1_merge_rd_stats(&args.rd_stats, &this_rd_stats);
       args.current_rd += AOMMIN(no_skip_txfm_rd, skip_rd);
@@ -3282,7 +3282,7 @@ int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
         break;
       }
 
-      av1_set_txb_context(x, 0, i, tx_size, a, l);
+      av1_set_txb_context(x, plane, i, tx_size, a, l);
       i += step;
     }
   }
