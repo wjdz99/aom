@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15eaa8e5_6f1f5131",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-01-29T18:12:34Z",
+      "side": 1,
+      "message": "Fine for now, but in future: pls make first line of commit message more informative / specific, for example \"ctc script: separate still image test\".\nIn many of the logs, you may only see the first line of commit messages, so this is more helpful than seeing same first line for multiple commits.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 17
+      },
+      "revId": "5c2a8037eed28a242738fef7e2b1b8e0f7c1e75d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
