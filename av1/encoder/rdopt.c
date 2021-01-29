@@ -4582,7 +4582,12 @@ typedef struct {
   int skip_ref_frame_mask;
   int reach_first_comp_mode;
   int mode_thresh_mul_fact;
+#if CONFIG_NEW_REF_SIGNALING
+  PREDICTION_MODE *intra_mode_idx_ls;
+  MV_REFERENCE_FRAME (*intra_mode_ref_frames)[2];
+#else
   int *intra_mode_idx_ls;
+#endif  // CONFIG_NEW_REF_SIGNALING
   int *intra_mode_num;
   int *num_single_modes_processed;
   int prune_cpd_using_sr_stats_ready;
@@ -4653,7 +4658,14 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
 
     // Intra modes will be handled in another loop later.
     assert(*args->intra_mode_num < INTRA_MODES);
+#if CONFIG_NEW_REF_SIGNALING
+    args->intra_mode_idx_ls[(*args->intra_mode_num)] = this_mode;
+    args->intra_mode_ref_frames[(*args->intra_mode_num)][0] = ref_frames[0];
+    args->intra_mode_ref_frames[(*args->intra_mode_num)][1] = ref_frames[1];
+    (*args->intra_mode_num)++;
+#else
     args->intra_mode_idx_ls[(*args->intra_mode_num)++] = mode_enum;
+#endif  // CONFIG_NEW_REF_SIGNALING
     return 1;
   }
 
@@ -4977,7 +4989,12 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
 
   int intra_mode_num = 0;
   int num_single_modes_processed = 0;
+#if CONFIG_NEW_REF_SIGNALING
+  PREDICTION_MODE intra_mode_idx_ls[INTRA_MODES];
+  MV_REFERENCE_FRAME intra_mode_ref_frames[INTRA_MODES][2];
+#else
   int intra_mode_idx_ls[INTRA_MODES];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   // Temporary buffers used by handle_inter_mode().
   uint8_t *const tmp_buf = get_buf_by_bd(xd, x->tmp_pred_bufs[0]);
@@ -5075,6 +5092,9 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
                               0,
                               mode_thresh_mul_fact,
                               intra_mode_idx_ls,
+#if CONFIG_NEW_REF_SIGNALING
+                              intra_mode_ref_frames,
+#endif  // CONFIG_NEW_REF_SIGNALING
                               &intra_mode_num,
                               &num_single_modes_processed,
                               0 };
@@ -5256,6 +5276,15 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     if (sf->intra_sf.skip_intra_in_interframe &&
         search_state.intra_search_state.skip_intra_modes)
       break;
+#if CONFIG_NEW_REF_SIGNALING
+    const PREDICTION_MODE this_mode = intra_mode_idx_ls[j];
+    MV_REFERENCE_FRAME refs[2] = { intra_mode_ref_frames[j][0],
+                                   intra_mode_ref_frames[j][1] };
+
+    assert(refs[0] == INTRA_FRAME);
+    assert(refs[1] == NONE_FRAME);
+    init_mbmi(mbmi, this_mode, refs, cm);
+#else
     const THR_MODES mode_enum = intra_mode_idx_ls[j];
     const MODE_DEFINITION *mode_def = &av1_mode_defs[mode_enum];
     const PREDICTION_MODE this_mode = mode_def->mode;
@@ -5265,6 +5294,7 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     assert(av1_mode_defs[mode_enum].ref_frame[0] == INTRA_FRAME);
     assert(av1_mode_defs[mode_enum].ref_frame[1] == NONE_FRAME);
     init_mbmi(mbmi, this_mode, av1_mode_defs[mode_enum].ref_frame, cm);
+#endif  // CONFIG_NEW_REF_SIGNALING
     txfm_info->skip_txfm = 0;
 
     if (this_mode != DC_PRED) {
