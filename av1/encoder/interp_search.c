@@ -320,14 +320,12 @@ static DUAL_FILTER_TYPE find_best_interp_rd_facade(
     const int skip_pred, uint16_t allow_interp_mask, int is_w4_or_h4) {
   int tmp_skip_pred = skip_pred;
   DUAL_FILTER_TYPE best_filt_type = REG_REG;
-
   // If no filter are set to be evaluated, return from function
   if (allow_interp_mask == 0x0) return best_filt_type;
   // For block width or height is 4, skip the pred evaluation of SHARP_SHARP
   tmp_skip_pred = is_w4_or_h4
                       ? cpi->interp_search_flags.default_interp_skip_flags
                       : skip_pred;
-
   // Loop over the all filter types and evaluate for only allowed filter types
   for (int filt_type = SHARP_SHARP; filt_type >= REG_REG; --filt_type) {
     const int is_filter_allowed =
@@ -338,7 +336,6 @@ static DUAL_FILTER_TYPE find_best_interp_rd_facade(
                                   dst_bufs, filt_type, switchable_ctx,
                                   tmp_skip_pred))
         best_filt_type = filt_type;
-    tmp_skip_pred = skip_pred;
   }
   return best_filt_type;
 }
@@ -750,12 +747,10 @@ int64_t av1_interpolation_filter_search(
                                  &rd_stats_luma, &rd_stats, switchable_rate,
                                  dst_bufs, switchable_ctx, skip_hor, skip_ver);
     } else {
+      int64_t tmp_rd = INT64_MAX;
       // Use full interpolation filter search
       uint16_t allowed_interp_mask = ALLOW_ALL_INTERP_FILT_MASK;
-      // REG_REG filter type is evaluated beforehand, so loop is repeated over
-      // REG_SMOOTH to SHARP_SHARP for full interpolation filter search
-      reset_interp_filter_allowed_mask(&allowed_interp_mask, REG_REG);
-      find_best_interp_rd_facade(x, cpi, tile_data, bsize, orig_dst, rd,
+      find_best_interp_rd_facade(x, cpi, tile_data, bsize, orig_dst, &tmp_rd,
                                  &rd_stats_luma, &rd_stats, switchable_rate,
                                  dst_bufs, switchable_ctx,
                                  (skip_hor & skip_ver), allowed_interp_mask, 0);
