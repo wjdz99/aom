@@ -321,7 +321,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
             RD_STATS this_rd_stats;
             av1_init_rd_stats(&this_rd_stats);
             av1_estimate_txfm_yrd(cpi, x, &this_rd_stats, INT64_MAX, bsize,
-                                  max_txsize_rect_lookup[bsize]);
+                                  max_txsize_rect_lookup[bsize], 0);
             int this_mv_rate = av1_mv_bit_cost(
                 &best_mv->as_mv, &ref_mv, mv_costs->nmv_joint_cost,
                 mv_costs->mv_cost_stack, MV_COST_WEIGHT);
@@ -342,7 +342,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
               RD_STATS tmp_rd_stats;
               av1_init_rd_stats(&tmp_rd_stats);
               av1_estimate_txfm_yrd(cpi, x, &tmp_rd_stats, INT64_MAX, bsize,
-                                    max_txsize_rect_lookup[bsize]);
+                                    max_txsize_rect_lookup[bsize], 0);
               int tmp_mv_rate = av1_mv_bit_cost(
                   &this_best_mv, &ref_mv, mv_costs->nmv_joint_cost,
                   mv_costs->mv_cost_stack, MV_COST_WEIGHT);

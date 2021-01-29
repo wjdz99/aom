@@ -484,7 +484,7 @@ static int64_t estimate_yrd_for_sb(const AV1_COMP *const cpi, BLOCK_SIZE bs,
   if (ref_best_rd < 0) return INT64_MAX;
   av1_subtract_plane(x, bs, 0);
   const int64_t rd = av1_estimate_txfm_yrd(cpi, x, rd_stats, ref_best_rd, bs,
-                                           max_txsize_rect_lookup[bs]);
+                                           max_txsize_rect_lookup[bs], 0);
   if (rd != INT64_MAX) {
     const int skip_ctx = av1_get_skip_txfm_context(xd);
     if (rd_stats->skip_txfm) {

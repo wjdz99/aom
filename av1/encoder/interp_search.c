@@ -14,6 +14,7 @@
 #include "av1/encoder/model_rd.h"
 #include "av1/encoder/rdopt_utils.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/tx_search.h"
 
 // return mv_diff
 static INLINE int is_interp_filter_good_match(
@@ -223,6 +224,7 @@ static INLINE int64_t interpolation_filter_rd(
       PrintPredictionUnitStats(cpi, tile_data, x, &rd_stats_y, bsize);
 #endif  // CONFIG_COLLECT_RD_STATS == 3
       AOM_FALLTHROUGH_INTENDED;
+      break;
     case INTERP_SKIP_LUMA_EVAL_CHROMA:
       // skip_pred = 1: skip luma evaluation (retain previous best luma stats)
       // and do chroma evaluation.
@@ -318,6 +320,10 @@ static DUAL_FILTER_TYPE find_best_interp_rd_facade(
     RD_STATS *rd_stats, int *const switchable_rate,
     const BUFFER_SET *dst_bufs[2], const int switchable_ctx[2],
     const int skip_pred, uint16_t allow_interp_mask, int is_w4_or_h4) {
+  const AV1_COMMON *cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+
   int tmp_skip_pred = skip_pred;
   DUAL_FILTER_TYPE best_filt_type = REG_REG;
   // If no filter are set to be evaluated, return from function
@@ -327,16 +333,45 @@ static DUAL_FILTER_TYPE find_best_interp_rd_facade(
                       ? cpi->interp_search_flags.default_interp_skip_flags
                       : skip_pred;
   // Loop over the all filter types and evaluate for only allowed filter types
-  for (int filt_type = SHARP_SHARP; filt_type >= REG_REG; --filt_type) {
+  for (int filt_type = REG_REG; filt_type <= SHARP_SHARP; ++filt_type) {
     const int is_filter_allowed =
         get_interp_filter_allowed_mask(allow_interp_mask, filt_type);
-    if (is_filter_allowed)
-      if (interpolation_filter_rd(x, cpi, tile_data, bsize, orig_dst, rd,
-                                  rd_stats_y, rd_stats, switchable_rate,
-                                  dst_bufs, filt_type, switchable_ctx,
-                                  tmp_skip_pred))
+    if (is_filter_allowed) {
+      mbmi->interp_filters = filter_sets[filt_type];
+      const int tmp_rs =
+          get_switchable_rate(x, mbmi->interp_filters, switchable_ctx,
+                              cm->seq_params.enable_dual_filter);
+
+      RD_STATS cur_rd_stats;
+      av1_init_rd_stats(&cur_rd_stats);
+      for (int plane = AOM_PLANE_Y; plane <= AOM_PLANE_V; ++plane) {
+        av1_enc_build_inter_predictor(cm, xd, xd->mi_row, xd->mi_col, orig_dst,
+                                      bsize, plane, plane);
+        av1_subtract_plane(x, bsize, plane);
+        RD_STATS est_rd_stats;
+        av1_estimate_txfm_yrd(cpi, x, &est_rd_stats, INT64_MAX, bsize,
+                              max_txsize_rect_lookup[bsize], plane);
+        av1_merge_rd_stats(&cur_rd_stats, &est_rd_stats);
+      }
+
+      cur_rd_stats.rdcost =
+          RDCOST(x->rdmult, tmp_rs + cur_rd_stats.rate, cur_rd_stats.dist);
+
+      if (cur_rd_stats.rdcost < *rd) {
+        *rd = cur_rd_stats.rdcost;
         best_filt_type = filt_type;
+      }
+
+      // if (interpolation_filter_rd(x, cpi, tile_data, bsize, orig_dst, rd,
+      //                             rd_stats_y, rd_stats, switchable_rate,
+      //                             dst_bufs, filt_type, switchable_ctx,
+      //                             tmp_skip_pred)) {
+      //   best_filt_type = filt_type;
+      // }
+    }
   }
+
+  mbmi->interp_filters = filter_sets[best_filt_type];
   return best_filt_type;
 }
 
@@ -763,7 +798,7 @@ int64_t av1_interpolation_filter_search(
   }
   swap_dst_buf(xd, dst_bufs, num_planes);
   // Recompute final MC data if required
-  if (x->recalc_luma_mc_data == 1) {
+  if (x->recalc_luma_mc_data == 1 || 1) {
     // Recomputing final luma MC data is required only if the same was skipped
     // in either of the directions  Condition below is necessary, but not
     // sufficient
@@ -773,7 +808,7 @@ int64_t av1_interpolation_filter_search(
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst, bsize,
                                   AOM_PLANE_Y, AOM_PLANE_Y);
   }
-  x->pred_sse[ref_frame] = (unsigned int)(rd_stats_luma.sse >> 4);
+  // x->pred_sse[ref_frame] = (unsigned int)(rd_stats_luma.sse >> 4);
 
   // save search results
   if (cpi->sf.interp_sf.use_interp_filter) {
