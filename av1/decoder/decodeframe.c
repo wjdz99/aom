@@ -4484,12 +4484,7 @@ static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
     aom_clear_system_state();
     const bool updated_params =
         find_gm_ref_params(&params, cm, frame, base_frame);
-    if (updated_params) {
-      ref_params = &params;
-    } else {
-      ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
-                                  : &default_warp_params;
-    }
+    ref_params = updated_params ? &params : &default_warp_params;
     if (ref_params->wmtype != IDENTITY) base_frame = frame;
 #else
     ref_params = cm->prev_frame ? &cm->prev_frame->global_motion[frame]
@@ -4507,7 +4502,6 @@ static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
 #endif
       cm->global_motion[frame].invalid = 1;
     }
-
     // TODO(sarahparker, debargha): The logic in the commented out code below
     // does not work currently and causes mismatches when resize is on. Fix it
     // before turning the optimization back on.

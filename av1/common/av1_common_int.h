@@ -180,6 +180,10 @@ typedef struct RefCntBuffer {
   int8_t mode_deltas[MAX_MODE_LF_DELTAS];
 
   FRAME_CONTEXT frame_context;
+
+#if CONFIG_GM_MODEL_CODING
+  int ref_distance[REF_FRAMES];
+#endif  // CONFIG_GM_MODEL_CODING
 } RefCntBuffer;
 
 typedef struct BufferPool {
@@ -1352,14 +1356,24 @@ static INLINE int calculate_gm_ref_params_scaling_distance(
 static INLINE bool find_gm_ref_params(WarpedMotionParams *ref_params,
                                       const AV1_COMMON *const cm, int cur_frame,
                                       int base_frame) {
-  if (base_frame < 0) return false;
+  const int distance = calculate_gm_ref_params_scaling_distance(cm, cur_frame);
+  cm->cur_frame->ref_distance[cur_frame] = distance;
 
-  memcpy(ref_params, &cm->global_motion[base_frame],
-         sizeof(WarpedMotionParams));
+  int base;
+  if (base_frame < 0) {
+    if (!cm->prev_frame ||
+        cm->prev_frame->global_motion[cur_frame].wmtype == IDENTITY)
+      return false;
+    base = cm->prev_frame->ref_distance[cur_frame];
+    memcpy(ref_params, &cm->prev_frame->global_motion[cur_frame],
+           sizeof(WarpedMotionParams));
+  } else {
+    base = calculate_gm_ref_params_scaling_distance(cm, base_frame);
+    memcpy(ref_params, &cm->global_motion[base_frame],
+           sizeof(WarpedMotionParams));
+  }
 
   double scale_factor;
-  const int distance = calculate_gm_ref_params_scaling_distance(cm, cur_frame);
-  const int base = calculate_gm_ref_params_scaling_distance(cm, base_frame);
   if (base != 0 && distance != 0)
     scale_factor = (double)distance / base;
   else
