@@ -2013,7 +2013,8 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
         }
 
         // if the found scenecut is very close to the end, ignore it.
-        if (regions[num_regions - 1].last - regions[scenecut_idx].last < 4) {
+        if (scenecut_idx != -1 &&
+            rc->frames_to_key - regions[scenecut_idx].last + offset <= 4) {
           scenecut_idx = -1;
         }
 
@@ -2024,8 +2025,10 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
           int is_minor_sc = (regions[scenecut_idx].avg_cor_coeff > 0.6);
           cur_last = regions[scenecut_idx].last - offset - !is_minor_sc;
         } else {
-          int is_last_analysed = (k_last == num_regions - 1) &&
-                                 (cur_last + offset == regions[k_last].last);
+          int is_last_analysed =
+              ((k_last == num_regions - 1) &&
+               (cur_last + offset == regions[k_last].last)) ||
+              cut_here > 1;
           int not_enough_regions =
               k_last - k_start <=
               1 + (regions[k_start].type == SCENECUT_REGION);
@@ -3478,13 +3481,47 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     rc->active_worst_quality = oxcf->rc_cfg.cq_level;
   }
 
+  int max_gop_length =
+      (oxcf->gf_cfg.lag_in_frames >= 32 &&
+       is_stat_consumption_stage_twopass(cpi))
+          ? AOMMIN(MAX_GF_INTERVAL, oxcf->gf_cfg.lag_in_frames -
+                                        oxcf->algo_cfg.arnr_max_frames / 2)
+          : MAX_GF_LENGTH_LAP;
+
   // Keyframe and section processing.
   FIRSTPASS_STATS this_frame_copy;
   this_frame_copy = this_frame;
   int is_overlay_forward_kf =
       rc->frames_to_key == 0 &&
       gf_group->update_type[gf_group->index] == OVERLAY_UPDATE;
-  if (rc->frames_to_key <= 0 && !is_overlay_forward_kf) {
+  int need_next_kf = rc->frames_to_key <= 0 && !is_overlay_forward_kf;
+
+  // Identify regions if we are at the next key frame, or the
+  // rest of available info may not be enough for the next gf group.
+  if (need_next_kf ||
+      (rc->num_frames_analyzed - rc->frames_since_key < rc->frames_to_key &&
+       rc->num_frames_analyzed - rc->frames_since_key < max_gop_length + 1)) {
+    int is_first_stat =
+        twopass->stats_in == twopass->stats_buf_ctx->stats_in_start;
+    const FIRSTPASS_STATS *stats_start = twopass->stats_in + is_first_stat;
+    // offset of stats_start from the current frame
+    int offset = is_first_stat || need_next_kf;
+    // offset of the region indices from the previous key frame
+    rc->regions_offset = need_next_kf ? 0 : rc->frames_since_key;
+    // how many frames we can analyze from this frame
+    int rest_frames = AOMMIN(
+        MAX_FIRSTPASS_ANALYSIS_FRAMES,
+        (int)(twopass->stats_buf_ctx->stats_in_end - stats_start) + offset);
+    rest_frames =
+        AOMMIN(rest_frames, oxcf->kf_cfg.key_freq_max + 1 - rc->regions_offset);
+
+    rc->num_frames_analyzed = rest_frames;
+
+    identify_regions(stats_start, rest_frames - offset, offset, rc->regions,
+                     &rc->num_regions, rc->cor_coeff);
+  }
+
+  if (need_next_kf) {
     assert(rc->frames_to_key >= -1);
     // Define next KF group and assign bits to it.
     int kf_offset = rc->frames_to_key;
@@ -3548,40 +3585,6 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     }
 
     reset_fpf_position(twopass, start_position);
-
-    int max_gop_length =
-        (oxcf->gf_cfg.lag_in_frames >= 32 &&
-         is_stat_consumption_stage_twopass(cpi))
-            ? AOMMIN(MAX_GF_INTERVAL, oxcf->gf_cfg.lag_in_frames -
-                                          oxcf->algo_cfg.arnr_max_frames / 2)
-            : MAX_GF_LENGTH_LAP;
-
-    // Identify regions if needed.
-    if (rc->frames_since_key == 0 || rc->frames_since_key == 1 ||
-        (rc->frames_till_regions_update - rc->frames_since_key <
-             rc->frames_to_key &&
-         rc->frames_till_regions_update - rc->frames_since_key <
-             max_gop_length + 1)) {
-      int is_first_stat =
-          twopass->stats_in == twopass->stats_buf_ctx->stats_in_start;
-      const FIRSTPASS_STATS *stats_start = twopass->stats_in + is_first_stat;
-      // offset of stats_start from the current frame
-      int offset = is_first_stat || (rc->frames_since_key == 0);
-      // offset of the region indices from the previous key frame
-      rc->regions_offset = rc->frames_since_key;
-      // how many frames we can analyze from this frame
-      int rest_frames = AOMMIN(rc->frames_to_key + rc->next_is_fwd_key,
-                               MAX_FIRSTPASS_ANALYSIS_FRAMES);
-      rest_frames =
-          AOMMIN(rest_frames,
-                 (int)(twopass->stats_buf_ctx->stats_in_end - stats_start + 1) +
-                     offset);
-
-      rc->frames_till_regions_update = rest_frames;
-
-      identify_regions(stats_start, rest_frames - offset, offset, rc->regions,
-                       &rc->num_regions, rc->cor_coeff);
-    }
 
     int cur_region_idx =
         find_regions_index(rc->regions, rc->num_regions,
