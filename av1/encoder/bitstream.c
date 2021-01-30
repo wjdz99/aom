@@ -588,6 +588,45 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
                        2);
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
+#if USE_NEW_REF_SIG_UNI_EXPT //&& CONFIG_NEW_REF_SIGNALING
+        const int is_future = mbmi->ref_frame[0] >= BWDREF_FRAME;
+        WRITE_REF_BIT(is_future, uni_comp_ref_p); // uni_comp_ref_p
+        
+        if (is_future) {
+
+          const int bit1 = mbmi->ref_frame[0] == BWDREF_FRAME;
+          WRITE_REF_BIT(bit1, future_uni_comp_ref_p1); // uni_comp_ref_p1
+          if (bit1) {
+            const int bit2 = mbmi->ref_frame[1] == ALTREF2_FRAME;
+            WRITE_REF_BIT(bit2, future_uni_comp_ref_p2); // uni_comp_ref_p2
+          }
+
+        } else {
+
+          const int is_last = mbmi->ref_frame[0] == LAST_FRAME;
+          WRITE_REF_BIT(is_last, past_uni_comp_ref_p1); // past_uni_comp_ref_p
+          if (is_last) {
+            const int bit1 = mbmi->ref_frame[1] == LAST3_FRAME ||
+                             mbmi->ref_frame[1] == GOLDEN_FRAME;
+            WRITE_REF_BIT(bit1, past_uni_comp_ref_p2); // Past_uni_comp_ref_p1
+            if (bit1) {
+              const int bit2 = mbmi->ref_frame[1] == GOLDEN_FRAME;
+              WRITE_REF_BIT(bit2, past_uni_comp_ref_p3);  // past_uni_comp_ref_p2
+            }
+          } else {
+          
+            const int is_last2 = mbmi->ref_frame[0] == LAST2_FRAME;
+            WRITE_REF_BIT(is_last2, past_uni_comp_ref_p4); // past_uni_comp_ref_pl2
+            if (is_last2) {
+              const int bit1 = mbmi->ref_frame[1] == LAST3_FRAME; 
+              WRITE_REF_BIT(bit1, past_uni_comp_ref_p5); // past_uni_comp_ref_pl3
+
+            } else {
+              assert(mbmi->ref_frame[0] == GOLDEN_FRAME);
+            }
+          }
+        }
+#else
         const int bit = mbmi->ref_frame[0] == BWDREF_FRAME;
         WRITE_REF_BIT(bit, uni_comp_ref_p);
 
@@ -603,6 +642,7 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
         } else {
           assert(mbmi->ref_frame[1] == ALTREF_FRAME);
         }
+#endif  // USE_NEW_REF_SIG_UNI_EXPT && CONFIG_NEW_REF_SIGNALING
 
         return;
       }
