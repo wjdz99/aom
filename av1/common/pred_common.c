@@ -540,6 +540,134 @@ int av1_get_comp_reference_type_context(const MACROBLOCKD *xd) {
   return pred_context;
 }
 
+#if USE_NEW_REF_SIG_UNI_EXPT
+int av1_get_pred_context_uni_comp_ref_p(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count of forward references (L, L2, L3, or G)
+  const int frf_count = ref_counts[LAST_FRAME] + ref_counts[LAST2_FRAME] +
+                        ref_counts[LAST3_FRAME] + ref_counts[GOLDEN_FRAME];
+  // Count of backward references (B or A)
+  const int brf_count = ref_counts[BWDREF_FRAME] + ref_counts[ALTREF2_FRAME] +
+                        ref_counts[ALTREF_FRAME];
+
+  const int pred_context =
+      (frf_count == brf_count) ? 1 : ((frf_count < brf_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+int av1_get_pred_context_future_uni_comp_ref_p1(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count number of B
+  const int bwd_count = ref_counts[BWDREF_FRAME];
+  // Count number of A
+  const int arf2_count = ref_counts[ALTREF2_FRAME];
+
+  const int pred_context = 
+      (bwd_count == arf2_count) ? 1 : ((bwd_count < arf2_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+int av1_get_pred_context_future_uni_comp_ref_p2(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count number of A 
+  const int arf_count = ref_counts[ALTREF_FRAME];
+  // Count number of A2
+  const int arf2_count = ref_counts[ALTREF2_FRAME];
+
+  const int pred_context = 
+      (arf_count == arf2_count) ? 1 : ((arf_count < arf2_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+int av1_get_pred_context_past_uni_comp_ref_p1(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count number of L 
+  const int last_count = ref_counts[LAST_FRAME];
+  // Count number of L2 + L3 + G 
+  const int non_last_count = ref_counts[LAST2_FRAME] + 
+                         ref_counts[LAST3_FRAME] + 
+                         ref_counts[GOLDEN_FRAME];
+
+  const int pred_context = 
+      (last_count == non_last_count) ? 1 : ((last_count < non_last_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+int av1_get_pred_context_past_uni_comp_ref_p2(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count number of L3 + G
+  const int l3g_count = ref_counts[GOLDEN_FRAME] +
+                        ref_counts[LAST3_FRAME];
+  // Count number of L2 
+  const int last2_count = ref_counts[LAST2_FRAME];
+
+  const int pred_context = 
+      (l3g_count == last2_count) ? 1 : ((l3g_count < last2_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+int av1_get_pred_context_past_uni_comp_ref_p3(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count number of G
+  const int golden_count = ref_counts[GOLDEN_FRAME];
+  // Count number of L3 
+  const int last3_count = ref_counts[LAST3_FRAME];
+
+  const int pred_context = 
+      (golden_count == last3_count) ? 1 : ((golden_count < last3_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+int av1_get_pred_context_past_uni_comp_ref_p4(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count number of L2
+  const int last2_count = ref_counts[LAST2_FRAME];
+  // Count number of L3 
+  const int last3_count = ref_counts[LAST3_FRAME];
+
+  const int pred_context = 
+      (last2_count == last3_count) ? 1 : ((last2_count < last3_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+int av1_get_pred_context_past_uni_comp_ref_p5(const MACROBLOCKD *xd) {
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts[0];
+
+  // Count number of L3
+  const int last3_count = ref_counts[LAST3_FRAME];
+  // Count number of G 
+  const int golden_count = ref_counts[GOLDEN_FRAME];
+
+  const int pred_context = 
+      (last3_count == golden_count) ? 1 : ((last3_count < golden_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
+  return pred_context;
+}
+
+#else
+
 // Returns a context number for the given MB prediction signal
 //
 // Signal the uni-directional compound reference frame pair as either
@@ -612,6 +740,7 @@ int av1_get_pred_context_uni_comp_ref_p2(const MACROBLOCKD *xd) {
   assert(pred_context >= 0 && pred_context < UNI_COMP_REF_CONTEXTS);
   return pred_context;
 }
+#endif  // USE_NEW_REF_SIG_UNI_EXPT
 
 // == Common context functions for both comp and single ref ==
 //

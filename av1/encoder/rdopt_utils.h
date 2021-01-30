@@ -42,6 +42,24 @@ static AOM_INLINE int skip_compound_search(int ref1, int ref2) {
   const int ind1 = ref1 - LAST_FRAME;
   const int ind2 = ref2 - LAST_FRAME;
 
+//const int skip_comp[REF_FRAMES][REF_FRAMES] = {
+//  { 1, 0, 0, 0, 0, 0, 0, },
+//  { 1, 1, 0, 1/*seg*/, 0, 0, 0, },
+//  { 1, 1, 1, 0, 0, 0, 0, },
+//  { 1, 1, 1, 1, 0, 0, 0, },
+//  { 1, 1, 1, 1, 1, 0, 0, },
+//  { 1, 1, 1, 1, 1, 1, 0, },
+//  { 1, 1, 1, 1, 1, 1, 1, }, 
+//};
+//const int skip_comp[REF_FRAMES][REF_FRAMES] = {
+//  { 1, 0, 0, 0, 0, 0, 0, },
+//  { 1, 1, 1, 0/*s*/, 0, 0, 0, },
+//  { 1, 1, 1, 1, 0, 0, 0, },
+//  { 1, 1, 1, 1, 0, 0, 0, },
+//  { 1, 1, 1, 1, 1, 1, 0, },
+//  { 1, 1, 1, 1, 1, 1, 1, },
+//  { 1, 1, 1, 1, 1, 1, 1, }, 
+//};
   const int skip_comp[REF_FRAMES][REF_FRAMES] = {
     { 1, 0, 0, 0, 0, 0, 0, },
     { 1, 1, 1, 1, 0, 0, 0, },
@@ -51,6 +69,15 @@ static AOM_INLINE int skip_compound_search(int ref1, int ref2) {
     { 1, 1, 1, 1, 1, 1, 1, },
     { 1, 1, 1, 1, 1, 1, 1, }, 
   };
+//const int skip_comp[REF_FRAMES][REF_FRAMES] = {
+//  { 1, 0, 0, 0, 0, 0, 0, },
+//  { 1, 1, 0, 0, 0, 0, 0, },
+//  { 1, 1, 1, 0, 0, 0, 0, },
+//  { 1, 1, 1, 1, 0, 0, 0, },
+//  { 1, 1, 1, 1, 1, 0, 0, },
+//  { 1, 1, 1, 1, 1, 1, 0, },
+//  { 1, 1, 1, 1, 1, 1, 1, }, 
+//};
   return skip_comp[ind1][ind2];
 }
 #endif  // CONFIG_NEW_REF_SIGNALING

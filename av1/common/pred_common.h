@@ -308,17 +308,76 @@ int av1_get_comp_reference_type_context(const MACROBLOCKD *xd);
 
 // == Uni-directional contexts ==
 
-int av1_get_pred_context_uni_comp_ref_p(const MACROBLOCKD *xd);
-
-int av1_get_pred_context_uni_comp_ref_p1(const MACROBLOCKD *xd);
-
-int av1_get_pred_context_uni_comp_ref_p2(const MACROBLOCKD *xd);
-
 static INLINE aom_cdf_prob *av1_get_comp_reference_type_cdf(
     const MACROBLOCKD *xd) {
   const int pred_context = av1_get_comp_reference_type_context(xd);
   return xd->tile_ctx->comp_ref_type_cdf[pred_context];
 }
+
+
+#if USE_NEW_REF_SIG_UNI_EXPT
+int av1_get_pred_context_uni_comp_ref_p(const MACROBLOCKD *xd);
+
+int av1_get_pred_context_future_uni_comp_ref_p1(const MACROBLOCKD *xd);
+int av1_get_pred_context_future_uni_comp_ref_p2(const MACROBLOCKD *xd);
+
+int av1_get_pred_context_past_uni_comp_ref_p1(const MACROBLOCKD *xd);
+int av1_get_pred_context_past_uni_comp_ref_p2(const MACROBLOCKD *xd);
+int av1_get_pred_context_past_uni_comp_ref_p3(const MACROBLOCKD *xd);
+int av1_get_pred_context_past_uni_comp_ref_p4(const MACROBLOCKD *xd);
+int av1_get_pred_context_past_uni_comp_ref_p5(const MACROBLOCKD *xd);
+
+static INLINE aom_cdf_prob *av1_get_pred_cdf_uni_comp_ref_p(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_uni_comp_ref_p(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][0];
+}
+
+// FUTURE
+static INLINE aom_cdf_prob *av1_get_pred_cdf_future_uni_comp_ref_p1(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_future_uni_comp_ref_p1(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][1];
+}
+
+static INLINE aom_cdf_prob *av1_get_pred_cdf_future_uni_comp_ref_p2(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_future_uni_comp_ref_p2(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][2];
+}
+
+// PAST
+static INLINE aom_cdf_prob *av1_get_pred_cdf_past_uni_comp_ref_p1(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_past_uni_comp_ref_p1(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][3];
+}
+static INLINE aom_cdf_prob *av1_get_pred_cdf_past_uni_comp_ref_p2(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_past_uni_comp_ref_p2(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][4];
+}
+static INLINE aom_cdf_prob *av1_get_pred_cdf_past_uni_comp_ref_p3(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_past_uni_comp_ref_p3(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][5];
+}
+static INLINE aom_cdf_prob *av1_get_pred_cdf_past_uni_comp_ref_p4(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_past_uni_comp_ref_p4(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][6];
+}
+static INLINE aom_cdf_prob *av1_get_pred_cdf_past_uni_comp_ref_p5(
+    const MACROBLOCKD *xd) {
+  const int pred_context = av1_get_pred_context_past_uni_comp_ref_p5(xd);
+  return xd->tile_ctx->uni_comp_ref_cdf[pred_context][7];
+}
+#else
+int av1_get_pred_context_uni_comp_ref_p(const MACROBLOCKD *xd);
+
+int av1_get_pred_context_uni_comp_ref_p1(const MACROBLOCKD *xd);
+
+int av1_get_pred_context_uni_comp_ref_p2(const MACROBLOCKD *xd);
 
 static INLINE aom_cdf_prob *av1_get_pred_cdf_uni_comp_ref_p(
     const MACROBLOCKD *xd) {
@@ -337,6 +396,7 @@ static INLINE aom_cdf_prob *av1_get_pred_cdf_uni_comp_ref_p2(
   const int pred_context = av1_get_pred_context_uni_comp_ref_p2(xd);
   return xd->tile_ctx->uni_comp_ref_cdf[pred_context][2];
 }
+#endif  // USE_NEW_REF_SIG_UNI_EXPT
 
 // == Bi-directional contexts ==
 
