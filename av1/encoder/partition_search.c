@@ -913,6 +913,49 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 #endif  // CONFIG_ENTROPY_STATS
 
         if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
+#if USE_NEW_REF_SIG_UNI_EXPT
+          // TODO(sarahparker) update entropy stats
+
+          const int is_future = ref0 >= BWDREF_FRAME;
+          update_cdf(av1_get_pred_cdf_uni_comp_ref_p(xd), is_future, 2);
+          
+          if (is_future) {
+  
+            const int bit1 = ref0 == BWDREF_FRAME;
+            update_cdf(av1_get_pred_cdf_future_uni_comp_ref_p1(xd), bit1, 2);
+            if (bit1) {
+              const int bit2 = ref1 == ALTREF2_FRAME;
+              update_cdf(av1_get_pred_cdf_future_uni_comp_ref_p2(xd), bit2, 2);
+            }
+  
+          } else {
+            const int is_last = ref0 == LAST_FRAME;
+            update_cdf(av1_get_pred_cdf_past_uni_comp_ref_p1(xd), is_last, 2);
+            if (is_last) {
+              const int bit1 = ref1 == LAST3_FRAME ||
+                               ref1 == GOLDEN_FRAME;
+              update_cdf(av1_get_pred_cdf_past_uni_comp_ref_p2(xd), bit1, 2);
+              if (bit1) {
+                const int bit2 = ref1 == GOLDEN_FRAME;
+                update_cdf(av1_get_pred_cdf_past_uni_comp_ref_p3(xd), bit2, 2);
+              }
+            } else {
+              const int is_last2 = ref0 == LAST2_FRAME;
+              update_cdf(av1_get_pred_cdf_past_uni_comp_ref_p4(xd), is_last2, 2);
+              if (is_last2) {
+                const int bit1 = ref1 == LAST3_FRAME; 
+                update_cdf(av1_get_pred_cdf_past_uni_comp_ref_p5(xd), bit1, 2);
+              } else {
+                assert(ref0 == GOLDEN_FRAME);
+              }
+            }
+          }
+
+
+
+
+
+#else  // USE_NEW_REF_SIG_UNI_EXPT
           const int bit = (ref0 == BWDREF_FRAME);
           update_cdf(av1_get_pred_cdf_uni_comp_ref_p(xd), bit, 2);
 #if CONFIG_ENTROPY_STATS
@@ -935,6 +978,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 #endif  // CONFIG_ENTROPY_STATS
             }
           }
+#endif  // USE_NEW_REF_SIG_UNI_EXPT
         } else {
           const int bit = (ref0 == GOLDEN_FRAME || ref0 == LAST3_FRAME);
           update_cdf(av1_get_pred_cdf_comp_ref_p(xd), bit, 2);
