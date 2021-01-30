@@ -855,6 +855,67 @@ static AOM_INLINE void estimate_ref_frame_costs(
         }
       }
 
+#if USE_NEW_REF_SIG_UNI_EXPT
+      const int uni_comp_ref_ctx_p = av1_get_pred_context_uni_comp_ref_p(xd);
+      // Future
+      const int future_uni_comp_ref_ctx_p1 = av1_get_pred_context_future_uni_comp_ref_p1(xd);
+      const int future_uni_comp_ref_ctx_p2 = av1_get_pred_context_future_uni_comp_ref_p2(xd);
+      ref_costs_comp[BWDREF_FRAME][ALTREF2_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][1] +
+          mode_costs->uni_comp_ref_cost[future_uni_comp_ref_ctx_p1][1][1] +
+          mode_costs->uni_comp_ref_cost[future_uni_comp_ref_ctx_p2][2][1];
+      ref_costs_comp[BWDREF_FRAME][ALTREF_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][1] +
+          mode_costs->uni_comp_ref_cost[future_uni_comp_ref_ctx_p1][1][1] +
+          mode_costs->uni_comp_ref_cost[future_uni_comp_ref_ctx_p2][2][0];
+      ref_costs_comp[ALTREF2_FRAME][ALTREF_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] + 
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][1] +
+          mode_costs->uni_comp_ref_cost[future_uni_comp_ref_ctx_p1][1][0];
+
+      // Past
+      const int past_uni_comp_ref_ctx_p1 = av1_get_pred_context_past_uni_comp_ref_p1(xd);
+      const int past_uni_comp_ref_ctx_p2 = av1_get_pred_context_past_uni_comp_ref_p2(xd);
+      const int past_uni_comp_ref_ctx_p3 = av1_get_pred_context_past_uni_comp_ref_p3(xd);
+      const int past_uni_comp_ref_ctx_p4 = av1_get_pred_context_past_uni_comp_ref_p4(xd);
+      const int past_uni_comp_ref_ctx_p5 = av1_get_pred_context_past_uni_comp_ref_p5(xd);
+      ref_costs_comp[LAST_FRAME][LAST2_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p1][3][1] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p2][4][0];
+      ref_costs_comp[LAST_FRAME][LAST3_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p1][3][1] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p2][4][1] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p3][5][0];
+      ref_costs_comp[LAST_FRAME][GOLDEN_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p1][3][1] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p2][4][1] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p3][5][1];
+      ref_costs_comp[LAST2_FRAME][LAST3_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p1][3][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p4][6][1] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p5][7][1];
+      ref_costs_comp[LAST2_FRAME][GOLDEN_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p1][3][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p4][6][1] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p5][7][0];
+      ref_costs_comp[LAST3_FRAME][GOLDEN_FRAME] =
+          base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
+          mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p1][3][0] +
+          mode_costs->uni_comp_ref_cost[past_uni_comp_ref_ctx_p4][6][0];
+#else
       // cost: if both ref frames are the same side.
       const int uni_comp_ref_ctx_p = av1_get_pred_context_uni_comp_ref_p(xd);
       const int uni_comp_ref_ctx_p1 = av1_get_pred_context_uni_comp_ref_p1(xd);
@@ -876,6 +937,7 @@ static AOM_INLINE void estimate_ref_frame_costs(
       ref_costs_comp[BWDREF_FRAME][ALTREF_FRAME] =
           base_cost + mode_costs->comp_ref_type_cost[comp_ref_type_ctx][0] +
           mode_costs->uni_comp_ref_cost[uni_comp_ref_ctx_p][0][1];
+#endif  // USE_NEW_REF_SIG_UNI_EXPT
     } else {
       int ref0, ref1;
       for (ref0 = LAST_FRAME; ref0 <= GOLDEN_FRAME; ++ref0) {
@@ -5126,16 +5188,20 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   // and calls handle_inter_mode() to compute the RD for each.
 #if CONFIG_NEW_REF_SIGNALING
   for (PREDICTION_MODE this_mode = 0; this_mode < MB_MODE_COUNT; ++this_mode) {
-    for (MV_REFERENCE_FRAME ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
+    for (MV_REFERENCE_FRAME r0 = 0; r0 < REF_FRAMES; ++r0) {
+      MV_REFERENCE_FRAME ref_frame = r0; 
       if (this_mode < INTRA_MODE_END && ref_frame != INTRA_FRAME) continue;
-      for (MV_REFERENCE_FRAME second_ref_frame = -1; second_ref_frame < REF_FRAMES; ++second_ref_frame) {
+      for (MV_REFERENCE_FRAME r1 = -1; r1 < REF_FRAMES; ++r1) {
+        MV_REFERENCE_FRAME second_ref_frame = r1; 
         if (second_ref_frame == INTRA_FRAME) continue;
         if (second_ref_frame != NONE_FRAME && this_mode < COMP_INTER_MODE_START)
           continue;
         if (this_mode >= COMP_INTER_MODE_START && this_mode < COMP_INTER_MODE_END &&
             second_ref_frame <= INTRA_FRAME) continue;
+        //printf("r %d r %d\n", ref_frame, second_ref_frame);
         if (skip_compound_search(ref_frame, second_ref_frame)) continue;
         const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, second_ref_frame };
+     //   printf("here\n");
 #else
   for (THR_MODES midx = THR_MODE_START; midx < THR_MODE_END; ++midx) {
     // Get the actual prediction mode we are trying in this iteration
@@ -5227,6 +5293,8 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
       ref_frame_rd[ref_frame] = this_rd;
     }
 
+//HERE sarahparker
+      //if (ref_frame == LAST2_FRAME && second_ref_frame == GOLDEN_FRAME) continue;
     // Did this mode help, i.e., is it the new best mode
     if (this_rd < search_state.best_rd) {
       assert(IMPLIES(comp_pred,

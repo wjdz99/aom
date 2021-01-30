@@ -77,6 +77,8 @@ extern "C" {
 #define DIST_PRECISION_BITS 4
 #define DIST_PRECISION (1 << DIST_PRECISION_BITS)  // 16
 
+#define USE_NEW_REF_SIG_UNI_EXPT 1
+
 #define PROFILE_BITS 3
 // The following three profiles are currently defined.
 // Profile 0.  8-bit and 10-bit 4:2:0 and 4:0:0 only.
@@ -679,9 +681,13 @@ enum {
   BWDREF_ALTREF2_FRAMES,  // { BWDREF_FRAME, ALTREF2_FRAME }
   ALTREF2_ALTREF_FRAMES,  // { ALTREF2_FRAME, ALTREF_FRAME }
   TOTAL_UNIDIR_COMP_REFS,
+#if USE_NEW_REF_SIG_UNI_EXPT //&& CONFIG_NEW_REF_SIGNALING
+  UNIDIR_COMP_REFS = TOTAL_UNIDIR_COMP_REFS, 
+#else
   // NOTE: UNIDIR_COMP_REFS is the number of uni-directional reference pairs
   //       that are explicitly signaled.
   UNIDIR_COMP_REFS = BWDREF_ALTREF_FRAMES + 1,
+#endif  // USE_NEW_REF_SIG_UNI_EXPT //&& CONFIG_NEW_REF_SIGNALING
 } UENUM1BYTE(UNIDIR_COMP_REF);
 
 #define TOTAL_COMP_REFS (FWD_REFS * BWD_REFS + TOTAL_UNIDIR_COMP_REFS)
