@@ -44,11 +44,11 @@ static AOM_INLINE int skip_compound_search(int ref1, int ref2) {
 
   const int skip_comp[REF_FRAMES][REF_FRAMES] = {
     { 1, 0, 0, 0, 0, 0, 0, },
+    { 1, 1, 0, 0, 0, 0, 0, },
+    { 1, 1, 1, 0, 0, 0, 0, },
     { 1, 1, 1, 1, 0, 0, 0, },
-    { 1, 1, 1, 1, 0, 0, 0, },
-    { 1, 1, 1, 1, 0, 0, 0, },
+    { 1, 1, 1, 1, 1, 0, 0, },
     { 1, 1, 1, 1, 1, 1, 0, },
-    { 1, 1, 1, 1, 1, 1, 1, },
     { 1, 1, 1, 1, 1, 1, 1, }, 
   };
   return skip_comp[ind1][ind2];
