@@ -967,6 +967,57 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       const COMP_REFERENCE_TYPE comp_ref_type = read_comp_reference_type(xd, r);
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
+#if USE_NEW_REF_SIG_UNI_EXPT //&& CONFIG_NEW_REF_SIGNALING
+
+        const int is_future = READ_REF_BIT(uni_comp_ref_p);
+        
+        if (is_future) {
+          const int bit1 = READ_REF_BIT(future_uni_comp_ref_p1);
+          if (bit1) {
+            ref_frame[0] = BWDREF_FRAME;
+            const int bit2 = READ_REF_BIT(future_uni_comp_ref_p2);
+            if (bit2) {
+              ref_frame[1] = ALTREF2_FRAME;
+            } else {
+              ref_frame[1] = ALTREF_FRAME;
+            }
+          } else {
+            ref_frame[0] = ALTREF2_FRAME;
+            ref_frame[0] = ALTREF_FRAME;
+          }
+        } else {
+          const int is_last = READ_REF_BIT(past_uni_comp_ref_p1);
+          if (is_last) {
+            ref_frame[0] = LAST_FRAME;
+            const int bit1 = READ_REF_BIT(past_uni_comp_ref_p2);
+            if (bit1) {
+              // LAST3 or GOLDEN
+              const int bit2 = READ_REF_BIT(past_uni_comp_ref_p3);
+              if (bit2) {
+                ref_frame[1] = GOLDEN_FRAME;
+              } else {
+                ref_frame[1] = LAST3_FRAME;
+              }
+            } else {
+              ref_frame[1] = LAST2_FRAME;
+            }
+          } else {
+            const int is_last2 = READ_REF_BIT(past_uni_comp_ref_p4);
+            if (is_last2) {
+              ref_frame[0] = LAST2_FRAME;
+              const int bit1 = READ_REF_BIT(past_uni_comp_ref_p5);
+              if (bit1) {
+                ref_frame[1] = LAST3_FRAME;
+              } else {
+                ref_frame[1] = GOLDEN_FRAME;
+              }
+            } else {
+              ref_frame[0] = LAST3_FRAME;
+              ref_frame[1] = GOLDEN_FRAME;
+            }
+          }
+        }
+#else
         const int bit = READ_REF_BIT(uni_comp_ref_p);
         if (bit) {
           ref_frame[0] = BWDREF_FRAME;
@@ -987,6 +1038,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
             ref_frame[1] = LAST2_FRAME;
           }
         }
+#endif  // USE_NEW_REF_SIG_UNI_EXPT //&& CONFIG_NEW_REF_SIGNALING
 
         return;
       }
