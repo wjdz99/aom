@@ -60,8 +60,10 @@ def EncodeWithAOM_AV1(clip, test_cfg, QP, framenum, outfile, preset, enc_perf,
     if (EnableTimingInfo):
         if Platform == "Windows":
             cmd = "ptime " + cmd + " >%s"%enc_perf
+        elif Platform == "Darwin":
+            cmd = "gtime --verbose --output=%s"%enc_perf + cmd
         else:
-            cmd = "/usr/bin/time --verbose --output=%s "%enc_perf + cmd
+            cmd = "/usr/bin/time --verbose --output=%s"%enc_perf + cmd
     ExecuteCmd(cmd, LogCmdOnly)
 
 def EncodeWithSVT_AV1(clip, test_cfg, QP, framenum, outfile, preset, enc_perf,
@@ -75,6 +77,8 @@ def EncodeWithSVT_AV1(clip, test_cfg, QP, framenum, outfile, preset, enc_perf,
     if EnableTimingInfo:
         if Platform == "Windows":
             cmd = "ptime " + cmd + " >%s"%enc_perf
+        elif Platform == "Darwin":
+            cmd = "gtime --verbose --output=%s"%enc_perf + cmd
         else:
             cmd = "/usr/bin/time --verbose --output=%s"%enc_perf + cmd
     ExecuteCmd(cmd, LogCmdOnly)
