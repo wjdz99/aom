@@ -99,7 +99,7 @@ def GatherPerfInfo(bsfile, Path_TimingLog):
         if Platform == "Windows":
             m = re.search(r"Execution time:\s+(\d+\.?\d*)", line)
         else:
-            m = re.search(r"User time (seconds):\s+(\d+\.?\d*)", line)
+            m = re.search(r"User time \(seconds\):\s+(\d+\.?\d*)", line)
         if m:
             enc_time = float(m.group(1))
     flog.close()
@@ -109,7 +109,7 @@ def GatherPerfInfo(bsfile, Path_TimingLog):
         if Platform == "Windows":
             m = re.search(r"Execution time:\s+(\d+\.?\d*)", line)
         else:
-            m = re.search(r"User time (seconds):\s+(\d+\.?\d*)", line)
+            m = re.search(r"User time \(seconds\):\s+(\d+\.?\d*)", line)
         if m:
             dec_time = float(m.group(1))
     flog.close()
