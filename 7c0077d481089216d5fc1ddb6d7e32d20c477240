@@ -52,6 +52,24 @@
       "parentUuid": "b0fb74c6_85544e3e",
       "revId": "7c0077d481089216d5fc1ddb6d7e32d20c477240",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a40edf8_89a58476",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-02-01T14:34:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThanks for providing the original CL. We ran the SF on-off test on the same. We noticed that the speed feature doesn’t have any effect on the original commit as well, and the output is bit-exact with no change in encode time. This is because disable_masked_comp is set to 1 in set_good_speed_feature_framesize_dependent() function for hdres, while enable_masked_compound is updated in av1_set_speed_features_framesize_independent(), resulting in the speed feature having no impact.\n\nWe checked the speed-quality performance on hdres for speed 6 by updating enable_masked_compound based on the speed feature value in set_good_speed_feature_framesize_dependent(), this has resulted in encode time reduction of 1.8%. We shall modify the patch to have this fix (rather than clean-up of the speed feature).\n\nThanks and Regards\nAkshata",
+      "parentUuid": "09d4f61e_f600d369",
+      "revId": "7c0077d481089216d5fc1ddb6d7e32d20c477240",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
