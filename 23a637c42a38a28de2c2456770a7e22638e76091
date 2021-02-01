@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \n\nWhen COST_UPDATE_TYPE is COST_UPD_TILE, multi-thread run to run mismatch was observed with row-mt\u003d1. The issue was caused as thread specific variables like ‘coeff_costs’, ‘mode_costs’ and ‘mv costs’ were not being initialized for all the threads. This patch fixes the issue by initializing these costs. \n\nAlso, this patch correctly initializes the ‘coeff_costs’ and ‘mode_costs’ when COST_UPDATE_TYPE is COST_UPD_OFF (earlier it was set to zero). The BD-Rate results for rt –cpu-used\u003d7 preset (single thread), with COST_UPDATE_TYPE set to COST_UPD_OFF, i.e., --coeff-cost-upd-freq\u003d3 --mode-cost-upd-freq\u003d3 --mv-cost-upd-freq\u003d3 is as follows:\n                      Instruction Count       BD-Rate Loss %\ncpu-used  Resolution    Reduction %      avg.psnr     ovr.psnr     ssim\n  7          LOW RES      -0.413         -2.0027      -1.6927     -1.8802\n  7          MID RES      -0.248         -0.8902      -0.6788     -0.6717 \n  7           HD RES      -0.574         -2.3863      -2.304      -2.7143 \n  7          Average      -0.584         -3.103       -2.4443     -2.6748\n\nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc ... \n\nAlso, coeff and mode probabilities have to be initialized in first pass as av1_initialize_rd_consts() (which initializes mode, coeff and mv costs) is also called in first pass. \n\nPlease review the patch.\n\nThanks. ",
       "revId": "23a637c42a38a28de2c2456770a7e22638e76091",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e89dc39_d051d2e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-01T22:40:24Z",
+      "side": 1,
+      "message": "Hi Deepa, thanks for fixing this tricky bug. Is there any way that we can include this to ethread unit test, so this will be caught by unit test later?\n\nNice BDrate gain for RTC encoding. By the way, \"Average\" gain seems larger than each resolution?",
+      "parentUuid": "a20cea07_dd73073f",
+      "revId": "23a637c42a38a28de2c2456770a7e22638e76091",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
