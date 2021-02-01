@@ -3590,6 +3590,50 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
       xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
   av1_save_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
 
+#if 1
+  DECLARE_ALIGNED(32, int16_t, residue[MAX_SB_SQUARE]);
+  DECLARE_ALIGNED(32, uint8_t, source[MAX_SB_SQUARE]);
+  int data_ready = 0;
+  do {
+    if (frame_is_intra_only((cm))) break;
+    if (bsize == BLOCK_4X4 ||
+        mi_row + mi_size_high[bsize] > cm->mi_params.mi_rows ||
+        mi_col + mi_size_wide[bsize] > cm->mi_params.mi_cols)
+      break;
+    if (!(cpi->ref_frame_flags & av1_ref_frame_flag_list[LAST_FRAME])) break;
+    // Randomly choose whether to save data.
+    srand((unsigned)time(0));
+    if ((rand() % 100) > 5) break;
+
+    // Motion search for the whole block.
+    av1_simple_motion_search(cpi, x, mi_row, mi_col, bsize, LAST_FRAME,
+                             sms_tree->start_mvs[LAST_FRAME], 1, 1);
+
+    // Calculate residue block.
+    struct macroblock_plane* const p = &x->plane[0];
+    const struct macroblockd_plane* const pd = &x->e_mbd.plane[0];
+    assert(plane_bsize < BLOCK_SIZES_ALL);
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    av1_subtract_block(xd, bh, bw, p->src_diff, bw, p->src.buf, p->src.stride,
+                       pd->dst.buf, pd->dst.stride);
+
+    // Save source and residue to local buffers.
+    for (int i = 0; i < bh; ++i) {
+      for (int j = 0; j < bw; ++j) {
+        residue[i * MAX_SB_SIZE + j] = p->src_diff[i * bw + j];
+      }
+    }
+    for (int i = 0; i < bh; ++i) {
+      for (int j = 0; j < bw; ++j) {
+        source[i * MAX_SB_SIZE + j] = p->src.buf[i * p->src.stride + j];
+      }
+    }
+
+    data_ready = 1;
+  } while (0);
+#endif
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, av1_prune_partitions_time);
 #endif
@@ -3760,6 +3804,32 @@ BEGIN_PARTITION_SEARCH:
 
   // Store the final rd cost
   *rd_cost = best_rdc;
+
+#if 1
+  do {
+    if (!data_ready) break;
+    if (!part_search_state.found_best_partition) break;
+
+    const int bw = block_size_wide[bsize];
+    const int bh = block_size_high[bsize];
+    FILE *fp = fopen("part_data.txt", "a");
+    fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,",
+            cm->current_frame.order_hint, cm->quant_params.base_qindex,
+            mi_row, mi_col, bw, bh, pc_tree->partitioning);
+    for (int i = 0; i < bh; ++i) {
+      for (int j = 0; j < bw; ++j) {
+        fprintf(fp, "%3d,", residue[i * MAX_SB_SIZE + j]);
+      }
+    }
+    for (int i = 0; i < bh; ++i) {
+      for (int j = 0; j < bw; ++j) {
+        fprintf(fp, "%3d,", source[i * MAX_SB_SIZE + j]);
+      }
+    }
+    fprintf(fp, "\n");
+    fclose(fp);
+  } while (0);
+#endif
 
   // Also record the best partition in simple motion data tree because it is
   // necessary for the related speed features.
