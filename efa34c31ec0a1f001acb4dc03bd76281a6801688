@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45e583fc_a2733603",
+        "filename": "tools/convexhull_framework/src/AV2CTCTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-02-01T18:38:11Z",
+      "side": 1,
+      "message": "This inference is actually not always correct: \n- For LD config vs RA config, the temporal layer of nth frame will be different.\n- Also, even withing a given config (LD or RA), first and/last mini-gop may have special structure and their layer assignment may be different. \nThe actual layer assignments come from \"LD\" and \"RA\" subgop config strings in libaom.\n\nGiven that, I\u0027d just remove this part of your script.",
+      "range": {
+        "startLine": 121,
+        "startChar": 4,
+        "endLine": 121,
+        "endChar": 18
+      },
+      "revId": "efa34c31ec0a1f001acb4dc03bd76281a6801688",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
