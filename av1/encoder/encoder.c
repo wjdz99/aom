@@ -2502,7 +2502,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (oxcf->tune_cfg.tuning >= AOM_TUNE_VMAF_WITH_PREPROCESSING &&
         oxcf->tune_cfg.tuning <= AOM_TUNE_VMAF_NEG_MAX_GAIN) {
       cpi->vmaf_info.original_qindex = q;
-      q = av1_get_vmaf_base_qindex(cpi, q);
+      // q = av1_get_vmaf_base_qindex(cpi, q);
     }
 #endif
     av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
@@ -3096,11 +3096,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     av1_set_mb_ssim_rdmult_scaling(cpi);
 
 #if CONFIG_TUNE_VMAF
-  if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
-      oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_MAX_GAIN ||
-      oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
-    av1_set_mb_vmaf_rdmult_scaling(cpi);
-  }
+    /*if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
+        oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_MAX_GAIN ||
+        oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN) {
+      av1_set_mb_vmaf_rdmult_scaling(cpi);
+    }*/
 #endif
 
   aom_clear_system_state();
@@ -3364,14 +3364,14 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   const int use_highbitdepth = (sd->flags & YV12_FLAG_HIGHBITDEPTH) != 0;
 
 #if CONFIG_TUNE_VMAF
-  if (!is_stat_generation_stage(cpi) &&
+  /*if (!is_stat_generation_stage(cpi) &&
       cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_WITH_PREPROCESSING) {
     av1_vmaf_frame_preprocessing(cpi, sd);
   }
   if (!is_stat_generation_stage(cpi) &&
       cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_MAX_GAIN) {
     av1_vmaf_blk_preprocessing(cpi, sd);
-  }
+  }*/
 #endif
 
 #if CONFIG_INTERNAL_STATS

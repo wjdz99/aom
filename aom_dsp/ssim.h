@@ -72,6 +72,9 @@ void aom_calc_ssim(const YV12_BUFFER_CONFIG *source,
                    const YV12_BUFFER_CONFIG *dest, double *weight,
                    double *fast_ssim);
 
+double aom_calc_ssim_y(const YV12_BUFFER_CONFIG *source,
+                       const YV12_BUFFER_CONFIG *dest);
+
 double aom_calc_fastssim(const YV12_BUFFER_CONFIG *source,
                          const YV12_BUFFER_CONFIG *dest, double *ssim_y,
                          double *ssim_u, double *ssim_v, uint32_t bd,

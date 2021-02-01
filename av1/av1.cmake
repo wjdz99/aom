@@ -560,6 +560,9 @@ function(setup_av1_targets)
   endif()
 
   if(CONFIG_AV1_ENCODER)
+    # set_source_files_properties(${AOM_AV1_ENCODER_SOURCES} PROPERTIES LANGUAGE
+    #                            CXX)
+
     add_library(aom_av1_encoder OBJECT ${AOM_AV1_ENCODER_SOURCES})
     set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_encoder)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_av1_encoder>)
