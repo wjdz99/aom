@@ -2203,6 +2203,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   const int qbs_h = mi_size_high[bsize] / 4;
   const PARTITION_TYPE partition = ptree->partition;
   const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
+  const int num_planes = av1_num_planes(cm);
 
   if (mi_row >= cm->mi_rows || mi_col >= cm->mi_cols) return;
 
@@ -2214,13 +2215,11 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
   }
 #endif  // CONFIG_FLEX_MVRES
 
+  for (int plane = 0; plane < num_planes; ++plane) {
 #if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
-  const int plane_start = cm->use_cnn ? AOM_PLANE_U : AOM_PLANE_Y;
-#else
-  const int plane_start = AOM_PLANE_Y;
+    if ((plane == 0 && cm->use_cnn_y) || (plane > 0 && cm->use_cnn_uv))
+      continue;
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
-  const int num_planes = av1_num_planes(cm);
-  for (int plane = plane_start; plane < num_planes; ++plane) {
     int rcol0, rcol1, rrow0, rrow1;
     if (av1_loop_restoration_corners_in_sb(cm, plane, mi_row, mi_col, bsize,
                                            &rcol0, &rcol1, &rrow0, &rrow1)) {
@@ -2399,20 +2398,14 @@ static void encode_restoration_mode(AV1_COMMON *cm,
   const int num_planes = av1_num_planes(cm);
   int all_none = 1, chroma_none = 1;
 
+  for (int p = 0; p < num_planes; ++p) {
+    RestorationInfo *rsi = &cm->rst_info[p];
 #if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
-  const int plane_start = cm->use_cnn ? AOM_PLANE_U : AOM_PLANE_Y;
-#else
-  const int plane_start = AOM_PLANE_Y;
+    if ((p == 0 && cm->use_cnn_y) || (p > 0 && cm->use_cnn_uv)) {
+      assert(rsi->frame_restoration_type == RESTORE_NONE);
+      continue;
+    }
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
-
-#if CONFIG_DEBUG
-  for (int p = 0; p < plane_start; ++p) {
-    RestorationInfo *rsi = &cm->rst_info[p];
-    assert(rsi->frame_restoration_type == RESTORE_NONE);
-  }
-#endif  // CONFIG_DEBUG
-  for (int p = plane_start; p < num_planes; ++p) {
-    RestorationInfo *rsi = &cm->rst_info[p];
     if (rsi->frame_restoration_type != RESTORE_NONE) {
       all_none = 0;
       chroma_none &= p == 0;
@@ -2738,9 +2731,11 @@ static void loop_restoration_write_sb_coeffs(const AV1_COMMON *const cm,
 #if CONFIG_CNN_RESTORATION || CONFIG_LOOP_RESTORE_CNN
 static void encode_cnn(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   if (av1_use_cnn(cm)) {
-    aom_wb_write_bit(wb, cm->use_cnn);
+    aom_wb_write_bit(wb, cm->use_cnn_y);
+    aom_wb_write_bit(wb, cm->use_cnn_uv);
   } else {
-    assert(!cm->use_cnn);
+    assert(!cm->use_cnn_y);
+    assert(!cm->use_cnn_uv);
   }
 }
 #endif  // CONFIG_CNN_RESTORATION || CONFIG_LOOP_RESTORE_CNN
@@ -2813,9 +2808,13 @@ static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   if (cm->allow_intrabc) return;
 
 #if CONFIG_CNN_RESTORATION || CONFIG_LOOP_RESTORE_CNN
-  const bool filter_y_plane = !cm->use_cnn;
-#else
-  const bool filter_y_plane = true;
+  if (cm->use_cnn_y && cm->use_cnn_uv) {
+    assert(cm->cdef_info.cdef_bits == 0);
+    assert(cm->cdef_info.nb_cdef_strengths == 1);
+    assert(cm->cdef_info.cdef_strengths[0] == 0);
+    assert(cm->cdef_info.cdef_uv_strengths[0] == 0);
+    return;
+  }
 #endif  // CONFIG_CNN_RESTORATION || CONFIG_LOOP_RESTORE_CNN
 
   const int num_planes = av1_num_planes(cm);
@@ -2823,15 +2822,20 @@ static void encode_cdef(const AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   aom_wb_write_literal(wb, cm->cdef_info.cdef_damping - 3, 2);
   aom_wb_write_literal(wb, cm->cdef_info.cdef_bits, 2);
   for (i = 0; i < cm->cdef_info.nb_cdef_strengths; i++) {
-    if (filter_y_plane) {
+#if CONFIG_CNN_RESTORATION
+    assert(IMPLIES(cm->use_cnn_y, cm->cdef_info.cdef_strengths[i] == 0));
+    if (!cm->use_cnn_y)
+#endif  // CONFIG_CNN_RESTORATION
       aom_wb_write_literal(wb, cm->cdef_info.cdef_strengths[i],
                            CDEF_STRENGTH_BITS);
-    } else {
-      assert(cm->cdef_info.cdef_strengths[i] == 0);
+    if (num_planes > 1) {
+#if CONFIG_CNN_RESTORATION
+      assert(IMPLIES(cm->use_cnn_uv, cm->cdef_info.cdef_uv_strengths[i] == 0));
+      if (!cm->use_cnn_uv)
+#endif  // CONFIG_CNN_RESTORATION
+        aom_wb_write_literal(wb, cm->cdef_info.cdef_uv_strengths[i],
+                             CDEF_STRENGTH_BITS);
     }
-    if (num_planes > 1)
-      aom_wb_write_literal(wb, cm->cdef_info.cdef_uv_strengths[i],
-                           CDEF_STRENGTH_BITS);
   }
 }
 
