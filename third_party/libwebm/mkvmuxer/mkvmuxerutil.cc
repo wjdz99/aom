@@ -32,7 +32,7 @@ namespace {
 // Date elements are always 8 octets in size.
 const int kDateElementSize = 8;
 
-uint64 WriteBlock(IMkvWriter* writer, const Frame* const frame, int64 timecode,
+uint64 WriteBlock(IMkvWriter *writer, const Frame *const frame, int64 timecode,
                   uint64 timecode_scale) {
   uint64 block_additional_elem_size = 0;
   uint64 block_addid_elem_size = 0;
@@ -97,15 +97,12 @@ uint64 WriteBlock(IMkvWriter* writer, const Frame* const frame, int64 timecode,
   if (!WriteEbmlMasterElement(writer, libwebm::kMkvBlock, block_payload_size))
     return 0;
 
-  if (WriteUInt(writer, frame->track_number()))
-    return 0;
+  if (WriteUInt(writer, frame->track_number())) return 0;
 
-  if (SerializeInt(writer, timecode, 2))
-    return 0;
+  if (SerializeInt(writer, timecode, 2)) return 0;
 
   // For a Block, flags is always 0.
-  if (SerializeInt(writer, 0, 1))
-    return 0;
+  if (SerializeInt(writer, 0, 1)) return 0;
 
   if (writer->Write(frame->frame(), static_cast<uint32>(frame->length())))
     return 0;
@@ -150,27 +147,21 @@ uint64 WriteBlock(IMkvWriter* writer, const Frame* const frame, int64 timecode,
          block_group_payload_size;
 }
 
-uint64 WriteSimpleBlock(IMkvWriter* writer, const Frame* const frame,
+uint64 WriteSimpleBlock(IMkvWriter *writer, const Frame *const frame,
                         int64 timecode) {
-  if (WriteID(writer, libwebm::kMkvSimpleBlock))
-    return 0;
+  if (WriteID(writer, libwebm::kMkvSimpleBlock)) return 0;
 
   const int32 size = static_cast<int32>(frame->length()) + 4;
-  if (WriteUInt(writer, size))
-    return 0;
+  if (WriteUInt(writer, size)) return 0;
 
-  if (WriteUInt(writer, static_cast<uint64>(frame->track_number())))
-    return 0;
+  if (WriteUInt(writer, static_cast<uint64>(frame->track_number()))) return 0;
 
-  if (SerializeInt(writer, timecode, 2))
-    return 0;
+  if (SerializeInt(writer, timecode, 2)) return 0;
 
   uint64 flags = 0;
-  if (frame->is_key())
-    flags |= 0x80;
+  if (frame->is_key()) flags |= 0x80;
 
-  if (SerializeInt(writer, flags, 1))
-    return 0;
+  if (SerializeInt(writer, flags, 1)) return 0;
 
   if (writer->Write(frame->frame(), static_cast<uint32>(frame->length())))
     return 0;
@@ -277,9 +268,8 @@ uint64 EbmlElementSize(uint64 type, float /* value */) {
   return ebml_size;
 }
 
-uint64 EbmlElementSize(uint64 type, const char* value) {
-  if (!value)
-    return 0;
+uint64 EbmlElementSize(uint64 type, const char *value) {
+  if (!value) return 0;
 
   // Size of EBML ID
   uint64 ebml_size = GetUIntSize(type);
@@ -293,9 +283,8 @@ uint64 EbmlElementSize(uint64 type, const char* value) {
   return ebml_size;
 }
 
-uint64 EbmlElementSize(uint64 type, const uint8* value, uint64 size) {
-  if (!value)
-    return 0;
+uint64 EbmlElementSize(uint64 type, const uint8 *value, uint64 size) {
+  if (!value) return 0;
 
   // Size of EBML ID
   uint64 ebml_size = GetUIntSize(type);
@@ -322,9 +311,8 @@ uint64 EbmlDateElementSize(uint64 type) {
   return ebml_size;
 }
 
-int32 SerializeInt(IMkvWriter* writer, int64 value, int32 size) {
-  if (!writer || size < 1 || size > 8)
-    return -1;
+int32 SerializeInt(IMkvWriter *writer, int64 value, int32 size) {
+  if (!writer || size < 1 || size > 8) return -1;
 
   for (int32 i = 1; i <= size; ++i) {
     const int32 byte_count = size - i;
@@ -335,16 +323,14 @@ int32 SerializeInt(IMkvWriter* writer, int64 value, int32 size) {
 
     const int32 status = writer->Write(&b, 1);
 
-    if (status < 0)
-      return status;
+    if (status < 0) return status;
   }
 
   return 0;
 }
 
-int32 SerializeFloat(IMkvWriter* writer, float f) {
-  if (!writer)
-    return -1;
+int32 SerializeFloat(IMkvWriter *writer, float f) {
+  if (!writer) return -1;
 
   assert(sizeof(uint32) == sizeof(float));
   // This union is merely used to avoid a reinterpret_cast from float& to
@@ -363,31 +349,27 @@ int32 SerializeFloat(IMkvWriter* writer, float f) {
 
     const int32 status = writer->Write(&byte, 1);
 
-    if (status < 0)
-      return status;
+    if (status < 0) return status;
   }
 
   return 0;
 }
 
-int32 WriteUInt(IMkvWriter* writer, uint64 value) {
-  if (!writer)
-    return -1;
+int32 WriteUInt(IMkvWriter *writer, uint64 value) {
+  if (!writer) return -1;
 
   int32 size = GetCodedUIntSize(value);
 
   return WriteUIntSize(writer, value, size);
 }
 
-int32 WriteUIntSize(IMkvWriter* writer, uint64 value, int32 size) {
-  if (!writer || size < 0 || size > 8)
-    return -1;
+int32 WriteUIntSize(IMkvWriter *writer, uint64 value, int32 size) {
+  if (!writer || size < 0 || size > 8) return -1;
 
   if (size > 0) {
     const uint64 bit = 1LL << (size * 7);
 
-    if (value > (bit - 2))
-      return -1;
+    if (value > (bit - 2)) return -1;
 
     value |= bit;
   } else {
@@ -398,14 +380,12 @@ int32 WriteUIntSize(IMkvWriter* writer, uint64 value, int32 size) {
       bit = 1LL << (size * 7);
       const uint64 max = bit - 2;
 
-      if (value <= max)
-        break;
+      if (value <= max) break;
 
       ++size;
     }
 
-    if (size > 8)
-      return false;
+    if (size > 8) return false;
 
     value |= bit;
   }
@@ -413,9 +393,8 @@ int32 WriteUIntSize(IMkvWriter* writer, uint64 value, int32 size) {
   return SerializeInt(writer, value, size);
 }
 
-int32 WriteID(IMkvWriter* writer, uint64 type) {
-  if (!writer)
-    return -1;
+int32 WriteID(IMkvWriter *writer, uint64 type) {
+  if (!writer) return -1;
 
   writer->ElementStartNotify(type, writer->Position());
 
@@ -424,131 +403,103 @@ int32 WriteID(IMkvWriter* writer, uint64 type) {
   return SerializeInt(writer, type, size);
 }
 
-bool WriteEbmlMasterElement(IMkvWriter* writer, uint64 type, uint64 size) {
-  if (!writer)
-    return false;
+bool WriteEbmlMasterElement(IMkvWriter *writer, uint64 type, uint64 size) {
+  if (!writer) return false;
 
-  if (WriteID(writer, type))
-    return false;
+  if (WriteID(writer, type)) return false;
 
-  if (WriteUInt(writer, size))
-    return false;
+  if (WriteUInt(writer, size)) return false;
 
   return true;
 }
 
-bool WriteEbmlElement(IMkvWriter* writer, uint64 type, uint64 value) {
+bool WriteEbmlElement(IMkvWriter *writer, uint64 type, uint64 value) {
   return WriteEbmlElement(writer, type, value, 0);
 }
 
-bool WriteEbmlElement(IMkvWriter* writer, uint64 type, uint64 value,
+bool WriteEbmlElement(IMkvWriter *writer, uint64 type, uint64 value,
                       uint64 fixed_size) {
-  if (!writer)
-    return false;
+  if (!writer) return false;
 
-  if (WriteID(writer, type))
-    return false;
+  if (WriteID(writer, type)) return false;
 
   uint64 size = GetUIntSize(value);
   if (fixed_size > 0) {
-    if (size > fixed_size)
-      return false;
+    if (size > fixed_size) return false;
     size = fixed_size;
   }
-  if (WriteUInt(writer, size))
-    return false;
+  if (WriteUInt(writer, size)) return false;
 
-  if (SerializeInt(writer, value, static_cast<int32>(size)))
-    return false;
+  if (SerializeInt(writer, value, static_cast<int32>(size))) return false;
 
   return true;
 }
 
-bool WriteEbmlElement(IMkvWriter* writer, uint64 type, int64 value) {
-  if (!writer)
-    return false;
+bool WriteEbmlElement(IMkvWriter *writer, uint64 type, int64 value) {
+  if (!writer) return false;
 
-  if (WriteID(writer, type))
-    return 0;
+  if (WriteID(writer, type)) return 0;
 
   const uint64 size = GetIntSize(value);
-  if (WriteUInt(writer, size))
-    return false;
+  if (WriteUInt(writer, size)) return false;
 
-  if (SerializeInt(writer, value, static_cast<int32>(size)))
-    return false;
+  if (SerializeInt(writer, value, static_cast<int32>(size))) return false;
 
   return true;
 }
 
-bool WriteEbmlElement(IMkvWriter* writer, uint64 type, float value) {
-  if (!writer)
-    return false;
+bool WriteEbmlElement(IMkvWriter *writer, uint64 type, float value) {
+  if (!writer) return false;
 
-  if (WriteID(writer, type))
-    return false;
+  if (WriteID(writer, type)) return false;
 
-  if (WriteUInt(writer, 4))
-    return false;
+  if (WriteUInt(writer, 4)) return false;
 
-  if (SerializeFloat(writer, value))
-    return false;
+  if (SerializeFloat(writer, value)) return false;
 
   return true;
 }
 
-bool WriteEbmlElement(IMkvWriter* writer, uint64 type, const char* value) {
-  if (!writer || !value)
-    return false;
+bool WriteEbmlElement(IMkvWriter *writer, uint64 type, const char *value) {
+  if (!writer || !value) return false;
 
-  if (WriteID(writer, type))
-    return false;
+  if (WriteID(writer, type)) return false;
 
   const uint64 length = strlen(value);
-  if (WriteUInt(writer, length))
-    return false;
+  if (WriteUInt(writer, length)) return false;
 
-  if (writer->Write(value, static_cast<const uint32>(length)))
-    return false;
+  if (writer->Write(value, static_cast<uint32>(length))) return false;
 
   return true;
 }
 
-bool WriteEbmlElement(IMkvWriter* writer, uint64 type, const uint8* value,
+bool WriteEbmlElement(IMkvWriter *writer, uint64 type, const uint8 *value,
                       uint64 size) {
-  if (!writer || !value || size < 1)
-    return false;
+  if (!writer || !value || size < 1) return false;
 
-  if (WriteID(writer, type))
-    return false;
+  if (WriteID(writer, type)) return false;
 
-  if (WriteUInt(writer, size))
-    return false;
+  if (WriteUInt(writer, size)) return false;
 
-  if (writer->Write(value, static_cast<uint32>(size)))
-    return false;
+  if (writer->Write(value, static_cast<uint32>(size))) return false;
 
   return true;
 }
 
-bool WriteEbmlDateElement(IMkvWriter* writer, uint64 type, int64 value) {
-  if (!writer)
-    return false;
+bool WriteEbmlDateElement(IMkvWriter *writer, uint64 type, int64 value) {
+  if (!writer) return false;
 
-  if (WriteID(writer, type))
-    return false;
+  if (WriteID(writer, type)) return false;
 
-  if (WriteUInt(writer, kDateElementSize))
-    return false;
+  if (WriteUInt(writer, kDateElementSize)) return false;
 
-  if (SerializeInt(writer, value, kDateElementSize))
-    return false;
+  if (SerializeInt(writer, value, kDateElementSize)) return false;
 
   return true;
 }
 
-uint64 WriteFrame(IMkvWriter* writer, const Frame* const frame,
-                  Cluster* cluster) {
+uint64 WriteFrame(IMkvWriter *writer, const Frame *const frame,
+                  Cluster *cluster) {
   if (!writer || !frame || !frame->IsValid() || !cluster ||
       !cluster->timecode_scale())
     return 0;
@@ -559,8 +510,7 @@ uint64 WriteFrame(IMkvWriter* writer, const Frame* const frame,
   //  only permit non-negative cluster-relative timecodes for blocks.
   const int64 relative_timecode = cluster->GetRelativeTimecode(
       frame->timestamp() / cluster->timecode_scale());
-  if (relative_timecode < 0 || relative_timecode > kMaxBlockTimecode)
-    return 0;
+  if (relative_timecode < 0 || relative_timecode > kMaxBlockTimecode) return 0;
 
   return frame->CanBeSimpleBlock()
              ? WriteSimpleBlock(writer, frame, relative_timecode)
@@ -568,32 +518,26 @@ uint64 WriteFrame(IMkvWriter* writer, const Frame* const frame,
                           cluster->timecode_scale());
 }
 
-uint64 WriteVoidElement(IMkvWriter* writer, uint64 size) {
-  if (!writer)
-    return false;
+uint64 WriteVoidElement(IMkvWriter *writer, uint64 size) {
+  if (!writer) return false;
 
   // Subtract one for the void ID and the coded size.
   uint64 void_entry_size = size - 1 - GetCodedUIntSize(size - 1);
   uint64 void_size = EbmlMasterElementSize(libwebm::kMkvVoid, void_entry_size) +
                      void_entry_size;
 
-  if (void_size != size)
-    return 0;
+  if (void_size != size) return 0;
 
   const int64 payload_position = writer->Position();
-  if (payload_position < 0)
-    return 0;
+  if (payload_position < 0) return 0;
 
-  if (WriteID(writer, libwebm::kMkvVoid))
-    return 0;
+  if (WriteID(writer, libwebm::kMkvVoid)) return 0;
 
-  if (WriteUInt(writer, void_entry_size))
-    return 0;
+  if (WriteUInt(writer, void_entry_size)) return 0;
 
   const uint8 value = 0;
   for (int32 i = 0; i < static_cast<int32>(void_entry_size); ++i) {
-    if (writer->Write(&value, 1))
-      return 0;
+    if (writer->Write(&value, 1)) return 0;
   }
 
   const int64 stop_position = writer->Position();
@@ -604,14 +548,14 @@ uint64 WriteVoidElement(IMkvWriter* writer, uint64 size) {
   return void_size;
 }
 
-void GetVersion(int32* major, int32* minor, int32* build, int32* revision) {
+void GetVersion(int32 *major, int32 *minor, int32 *build, int32 *revision) {
   *major = 0;
   *minor = 2;
   *build = 1;
   *revision = 0;
 }
 
-uint64 MakeUID(unsigned int* seed) {
+uint64 MakeUID(unsigned int *seed) {
   uint64 uid = 0;
 
 #ifdef __MINGW32__
@@ -659,8 +603,7 @@ bool IsMatrixCoefficientsValueValid(uint64_t value) {
     case mkvmuxer::Colour::kSmpte240MMc:
     case mkvmuxer::Colour::kYcocg:
     case mkvmuxer::Colour::kBt2020NonConstantLuminance:
-    case mkvmuxer::Colour::kBt2020ConstantLuminance:
-      return true;
+    case mkvmuxer::Colour::kBt2020ConstantLuminance: return true;
   }
   return false;
 }
@@ -669,8 +612,7 @@ bool IsChromaSitingHorzValueValid(uint64_t value) {
   switch (value) {
     case mkvmuxer::Colour::kUnspecifiedCsh:
     case mkvmuxer::Colour::kLeftCollocated:
-    case mkvmuxer::Colour::kHalfCsh:
-      return true;
+    case mkvmuxer::Colour::kHalfCsh: return true;
   }
   return false;
 }
@@ -679,8 +621,7 @@ bool IsChromaSitingVertValueValid(uint64_t value) {
   switch (value) {
     case mkvmuxer::Colour::kUnspecifiedCsv:
     case mkvmuxer::Colour::kTopCollocated:
-    case mkvmuxer::Colour::kHalfCsv:
-      return true;
+    case mkvmuxer::Colour::kHalfCsv: return true;
   }
   return false;
 }
@@ -690,8 +631,7 @@ bool IsColourRangeValueValid(uint64_t value) {
     case mkvmuxer::Colour::kUnspecifiedCr:
     case mkvmuxer::Colour::kBroadcastRange:
     case mkvmuxer::Colour::kFullRange:
-    case mkvmuxer::Colour::kMcTcDefined:
-      return true;
+    case mkvmuxer::Colour::kMcTcDefined: return true;
   }
   return false;
 }
@@ -715,8 +655,7 @@ bool IsTransferCharacteristicsValueValid(uint64_t value) {
     case mkvmuxer::Colour::kIturBt202012bit:
     case mkvmuxer::Colour::kSmpteSt2084:
     case mkvmuxer::Colour::kSmpteSt4281Tc:
-    case mkvmuxer::Colour::kAribStdB67Hlg:
-      return true;
+    case mkvmuxer::Colour::kAribStdB67Hlg: return true;
   }
   return false;
 }
@@ -734,8 +673,7 @@ bool IsPrimariesValueValid(uint64_t value) {
     case mkvmuxer::Colour::kFilm:
     case mkvmuxer::Colour::kIturBt2020:
     case mkvmuxer::Colour::kSmpteSt4281P:
-    case mkvmuxer::Colour::kJedecP22Phosphors:
-      return true;
+    case mkvmuxer::Colour::kJedecP22Phosphors: return true;
   }
   return false;
 }
