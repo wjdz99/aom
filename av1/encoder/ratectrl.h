@@ -92,7 +92,7 @@ typedef enum {
 
 typedef enum { ORIG = 0, THREE_QUARTER = 1, ONE_HALF = 2 } RESIZE_STATE;
 
-#define MAX_FIRSTPASS_ANALYSIS_FRAMES 150
+#define MAX_FIRSTPASS_ANALYSIS_FRAMES 300
 typedef enum region_types {
   STABLE_REGION = 0,
   HIGH_VAR_REGION = 1,

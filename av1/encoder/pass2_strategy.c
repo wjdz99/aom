@@ -2861,12 +2861,26 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
       double loop_decay_rate;
 
       // Check for a scene cut.
-      if (frames_since_key >= kf_cfg->key_freq_min &&
-          test_candidate_kf(twopass, &last_frame, this_frame, twopass->stats_in,
-                            frames_since_key, oxcf->rc_cfg.mode,
-                            cpi->rc.enable_scenecut_detection)) {
-        scenecut_detected = 1;
-        break;
+      if (frames_since_key >= kf_cfg->key_freq_min) {
+        if (frames_since_key <
+            cpi->rc.regions_offset + cpi->rc.num_frames_analyzed) {
+          int offset = frames_since_key - cpi->rc.regions_offset;
+          int cur_region_idx =
+              find_regions_index(cpi->rc.regions, cpi->rc.num_regions, offset);
+          if (cur_region_idx >= 0 &&
+              cpi->rc.regions[cur_region_idx].type == SCENECUT_REGION) {
+            scenecut_detected =
+                (cpi->rc.regions[cur_region_idx].avg_cor_coeff < 0.5);
+          } else {
+            scenecut_detected = 0;
+          }
+        } else {
+          scenecut_detected = test_candidate_kf(
+              twopass, &last_frame, this_frame, twopass->stats_in,
+              frames_since_key, oxcf->rc_cfg.mode,
+              cpi->rc.enable_scenecut_detection);
+        }
+        if (scenecut_detected) break;
       }
 
       // How fast is the prediction quality decaying?
