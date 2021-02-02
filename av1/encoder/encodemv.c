@@ -65,7 +65,11 @@ void av1_update_mv_stats(const MV *mv, const MV *ref, nmv_context *mvctx,
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
 
+#if CONFIG_NEW_INTER_MODES
+  update_cdf(mvctx->joints_cdf - 1, j, MV_JOINTS - 1);
+#else
   update_cdf(mvctx->joints_cdf, j, MV_JOINTS);
+#endif  // CONFIG_NEW_INTER_MODES
 
   if (mv_joint_vertical(j))
     update_mv_component_stats(diff.row, &mvctx->comps[0], precision);
@@ -177,12 +181,18 @@ void av1_encode_mv(AV1_COMP *cpi, aom_writer *w, const MV *mv, const MV *ref,
                    nmv_context *mvctx, int usehp) {
   const MV diff = { mv->row - ref->row, mv->col - ref->col };
   const MV_JOINT_TYPE j = av1_get_mv_joint(&diff);
+#if !CONFIG_NEW_INTER_MODES
   // If the mv_diff is zero, then we should have used near or nearest instead.
+#endif  // CONFIG_NEW_INTER_MODES
   assert(j != MV_JOINT_ZERO);
   if (cpi->common.features.cur_frame_force_integer_mv) {
     usehp = MV_SUBPEL_NONE;
   }
+#if CONFIG_NEW_INTER_MODES
+  aom_write_symbol(w, j - 1, mvctx->joints_cdf, MV_JOINTS - 1);
+#else
   aom_write_symbol(w, j, mvctx->joints_cdf, MV_JOINTS);
+#endif  // CONFIG_NEW_INTER_MODES
   if (mv_joint_vertical(j))
     encode_mv_component(w, diff.row, &mvctx->comps[0], usehp);
 
@@ -219,7 +229,12 @@ void av1_encode_dv(aom_writer *w, const MV *mv, const MV *ref,
 void av1_build_nmv_cost_table(int *mvjoint, int *mvcost[2],
                               const nmv_context *ctx,
                               MvSubpelPrecision precision) {
+#if CONFIG_NEW_INTER_MODES
+  av1_cost_tokens_from_cdf(mvjoint + 1, ctx->joints_cdf, NULL);
+  mvjoint[MV_JOINT_ZERO] = mvjoint[MV_JOINT_HZVNZ];
+#else
   av1_cost_tokens_from_cdf(mvjoint, ctx->joints_cdf, NULL);
+#endif  // CONFIG_NEW_INTER_MODES
   build_nmv_component_cost_table(mvcost[0], &ctx->comps[0], precision);
   build_nmv_component_cost_table(mvcost[1], &ctx->comps[1], precision);
 }
@@ -250,12 +265,47 @@ int_mv av1_get_ref_mv(const MACROBLOCK *x, int ref_idx) {
   int ref_mv_idx = mbmi->ref_mv_idx;
   if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
     assert(has_second_ref(mbmi));
+#if !CONFIG_NEW_INTER_MODES
     ref_mv_idx += 1;
+#endif  // !CONFIG_NEW_INTER_MODES
   }
   return av1_get_ref_mv_from_stack(ref_idx, mbmi->ref_frame, ref_mv_idx,
                                    x->mbmi_ext);
 }
 
+#if CONFIG_NEW_INTER_MODES
+/**
+ * Get the best reference MV (for use with intrabc) from the refmv stack.
+ * This function will search all available references and return the first one
+ * that is not zero or invalid.
+ *
+ * @param precision The MV precision to use.  The returned MV will be reduced to
+ * match.
+ * @param mbmi_ext The MB ext struct.  Used in get_ref_mv_from_stack.
+ * @param ref_frame The reference frame to find motion vectors from.
+ * @return The best MV, or INVALID_MV if none exists.
+ */
+int_mv av1_find_best_ref_mv_from_stack(int allow_hp,
+                                       const MB_MODE_INFO_EXT *mbmi_ext,
+                                       MV_REFERENCE_FRAME ref_frame,
+                                       int is_integer) {
+  int_mv mv;
+  bool found_ref_mv = false;
+  MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, NONE_FRAME };
+  int range = AOMMIN(mbmi_ext->ref_mv_info.ref_mv_count[ref_frame],
+                     MAX_REF_MV_STACK_SIZE);
+  for (int i = 0; i < range; i++) {
+    mv = av1_get_ref_mv_from_stack(0, ref_frames, i, mbmi_ext);
+    if (mv.as_int != 0 && mv.as_int != INVALID_MV) {
+      found_ref_mv = true;
+      break;
+    }
+  }
+  lower_mv_precision(&mv.as_mv, allow_hp, is_integer);
+  if (!found_ref_mv) mv.as_int = INVALID_MV;
+  return mv;
+}
+#else
 void av1_find_best_ref_mvs_from_stack(int allow_hp,
                                       const MB_MODE_INFO_EXT *mbmi_ext,
                                       MV_REFERENCE_FRAME ref_frame,
@@ -268,3 +318,4 @@ void av1_find_best_ref_mvs_from_stack(int allow_hp,
   *near_mv = av1_get_ref_mv_from_stack(ref_idx, ref_frames, 1, mbmi_ext);
   lower_mv_precision(&near_mv->as_mv, allow_hp, is_integer);
 }
+#endif  // CONFIG_NEW_INTER_MODES
