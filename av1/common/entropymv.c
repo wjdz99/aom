@@ -13,7 +13,11 @@
 #include "av1/common/entropymv.h"
 
 static const nmv_context default_nmv_context = {
+#if CONFIG_NEW_INTER_MODES
+  { AOM_CDF3(8192, 17408) },  // joints_cdf
+#else
   { AOM_CDF4(4096, 11264, 19328) },  // joints_cdf
+#endif  // CONFIG_NEW_INTER_MODES
   { {
         // Vertical component
         { AOM_CDF11(28672, 30976, 31858, 32320, 32551, 32656, 32740, 32757,
