@@ -34,6 +34,24 @@
       "parentUuid": "a20cea07_dd73073f",
       "revId": "23a637c42a38a28de2c2456770a7e22638e76091",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04fc8bfa_c6377b79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-02-02T13:44:37Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nSorry for the mistake in the results. The labels (LOW RES, MID RES, HD RES, Average) corresponding to each row were jumbled. Please find the correct results below : \n\n                      Instruction Count       BD-Rate Loss %\ncpu-used   Resolution    Reduction %      avg.psnr     ovr.psnr     ssim\n  7          LOW RES      -0.248         -0.8902      -0.6788     -0.6717 \n  7          MID RES      -0.574         -2.3863      -2.3040     -2.7143 \n  7          HD RES       -0.584         -3.1030      -2.4443     -2.6748\n  7          Average      -0.413         -2.0027      -1.6927     -1.8802\n\n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc ...\n\nAlso, as per your suggestion, we shall plan to add unit tests so that multi-thread issues in real time preset could be caught in the future. \n\nThanks",
+      "parentUuid": "0e89dc39_d051d2e8",
+      "revId": "23a637c42a38a28de2c2456770a7e22638e76091",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
