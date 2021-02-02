@@ -16,6 +16,80 @@
       "message": "Hi Wan-Teh,\n\nWhen lag-in-frames \u003c\u003d 1, alt-ref buffer is not being used. In this case, temporal filtering for key-frames can be disabled as well. Hence, the memory allocation for alt-ref buffer is avoided.\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for few videos for the following cases.\n1) Good Quality (--good): speed presets 1, 3 and 6 with different configurations.\n2) Realtime (--rt): speed presets 1, 4, 7 and 9 with different configurations.\n\nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset.\n\nFollowing are memory reduction results when AVIF encode was tested for ‘building.jpg’ (4032x3024) image at cq_level\u003d18.\n\n   Speed                 HEAP  Memory\n   preset                Reduction(%)\n     6           ~3.5 (from 593.7 MB to 572.9 MB)\n\nAs this change is also applicable to RT path, we have measured the memory reduction for a 1280x720 content.\n   Speed                 HEAP  Memory\n   preset                Reduction(%)\n     7           ~3.4 (from 69.03 MB to 66.66 MB)\n\nHEAP memory reduction was measured using the command below.\n$valgrind --tool\u003dmassif ./avifenc ...\n\nRegards,\nJayasanker.",
       "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f2d1bef_0a9a3bb0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-02T02:25:56Z",
+      "side": 1,
+      "message": "Jingning: Could you review this CL? Thanks!\n\nJayasanker: Please wait for Jingning\u0027s review.",
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23ec498c_4c4f3ae6",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-02T02:25:56Z",
+      "side": 1,
+      "message": "Nit: lowercase \"ref\".",
+      "range": {
+        "startLine": 348,
+        "startChar": 34,
+        "endLine": 348,
+        "endChar": 37
+      },
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03b72d27_3fc80599",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-02T02:25:56Z",
+      "side": 1,
+      "message": "Nit: can disabled \u003d\u003e can be disabled\n\nActually, should we say \"is disabled\"? The other change in this CL disables temporal filtering of key frames in this case, right?",
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b95ae620_61aadd86",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-02T02:25:56Z",
+      "side": 1,
+      "message": "Can we delete this TODO comment now?",
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
