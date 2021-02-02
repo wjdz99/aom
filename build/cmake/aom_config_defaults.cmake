@@ -151,6 +151,8 @@ set_aom_config_var(
 set_aom_config_var(
   CONFIG_ORIP 1
   "AV2 experiment flag to enable offset based refinement of intra prediction.")
+set_aom_config_var(CONFIG_NEW_INTER_MODES 0 NUMBER
+                   "AV2 inter mode consolidation experiment flag")
 
 #
 # Variables in this section control optional features of the build system.
