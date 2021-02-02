@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "959fa34f_324d095c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-02T15:38:26Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have modified the comments as suggested. Please review the same.\n\nRegards,\nJayasanker.",
+      "parentUuid": "7f2d1bef_0a9a3bb0",
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23ec498c_4c4f3ae6",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-02-02T02:25:56Z",
       "side": 1,
       "message": "Nit: lowercase \"ref\".",
+      "range": {
+        "startLine": 348,
+        "startChar": 34,
+        "endLine": 348,
+        "endChar": 37
+      },
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0e944d8_d83ac29f",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-02T15:38:26Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "23ec498c_4c4f3ae6",
       "range": {
         "startLine": 348,
         "startChar": 34,
@@ -75,6 +117,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "279df739_462e1360",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-02T15:38:26Z",
+      "side": 1,
+      "message": "Yes. It is related to the other change. Comment has been updated.",
+      "parentUuid": "03b72d27_3fc80599",
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b95ae620_61aadd86",
@@ -88,6 +148,24 @@
       "writtenOn": "2021-02-02T02:25:56Z",
       "side": 1,
       "message": "Can we delete this TODO comment now?",
+      "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aad67921_eb8950cc",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-02T15:38:26Z",
+      "side": 1,
+      "message": "The logic in this patch does not explicitly check whether alt-ref frame is enabled or disabled. Hence this comment is retained.",
+      "parentUuid": "b95ae620_61aadd86",
       "revId": "5d4bd9281a88a51829941dbf15921e899d4d5c78",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
