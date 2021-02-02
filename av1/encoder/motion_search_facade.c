@@ -698,7 +698,11 @@ int av1_interinter_compound_motion_search(const AV1_COMP *const cpi,
                                     tmp_mv, &tmp_rate_mv, 2);
     mbmi->mv[0].as_int = tmp_mv[0].as_int;
     mbmi->mv[1].as_int = tmp_mv[1].as_int;
+#if CONFIG_NEW_INTER_MODES
+  } else if (this_mode == NEAR_NEWMV || this_mode == NEW_NEARMV) {
+#else
   } else if (this_mode >= NEAREST_NEWMV && this_mode <= NEW_NEARMV) {
+#endif  // CONFIG_NEW_INTER_MODES
     // which = 1 if this_mode == NEAREST_NEWMV || this_mode == NEAR_NEWMV
     // which = 0 if this_mode == NEW_NEARESTMV || this_mode == NEW_NEARMV
     int which = (NEWMV == compound_ref1_mode(this_mode));
