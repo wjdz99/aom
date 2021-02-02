@@ -1380,8 +1380,6 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   }
 
   av1_frame_init_quantizer(cpi);
-  av1_initialize_rd_consts(cpi);
-  av1_set_sad_per_bit(cpi, &x->mv_costs, quant_params->base_qindex);
 
   init_encode_frame_mb_context(cpi);
   set_default_interp_skip_flags(cm, &cpi->interp_search_flags);
@@ -1431,6 +1429,9 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
 
   cm->current_frame.skip_mode_info.skip_mode_flag =
       check_skip_mode_enabled(cpi);
+
+  av1_initialize_rd_consts(cpi);
+  av1_set_sad_per_bit(cpi, &x->mv_costs, quant_params->base_qindex);
 
   enc_row_mt->sync_read_ptr = av1_row_mt_sync_read_dummy;
   enc_row_mt->sync_write_ptr = av1_row_mt_sync_write_dummy;
