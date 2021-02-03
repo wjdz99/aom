@@ -38,7 +38,7 @@ Platform = platform.system()
 ContentPath = "D://YUVs//AV2-CTC"
 ############## Scaling settings ############################################
 # down scaling ratio
-DnScaleRatio = [1.0, 1.5, 2.0, 3.0, 4.0, 6.0]  # downscale ratio
+DnScaleRatio = [1.5, 2.0, 3.0, 4.0, 6.0] #[1.0, 1.5, 2.0, 3.0, 4.0, 6.0]  # downscale ratio
 #down and up scaling algorithm, the 2 lists should be of same size
 DnScalingAlgos = ['lanczos'] #['bicubic', 'bilinear', 'gauss', 'lanczos', 'sinc']
 UpScalingAlgos = ['lanczos'] #['bicubic', 'bilinear', 'gauss', 'lanczos', 'sinc']
@@ -52,7 +52,8 @@ HDRConvert = os.path.join(BinPath, 'HDRConvert.exe')
 ##################### Encode Config ########################################
 EncodeMethods = ["aom", "svt"]
 CodecNames = ["av1"]
-SUFFIX = {"av1": ".ivf"}
+SUFFIX = {"av1": ".obu"}
+DEC_SUFFIX = ".yuv"
 FFMPEG = os.path.join(BinPath, 'ffmpeg.exe')
 AOMENC = os.path.join(BinPath, 'aomenc.exe')
 SVTAV1 = os.path.join(BinPath, 'SvtAv1EncApp.exe')
