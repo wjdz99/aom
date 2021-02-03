@@ -1261,8 +1261,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     av1_cyclic_refresh_update_parameters(cpi);
   } else if (is_stat_generation_stage(cpi)) {
     cpi->td.mb.e_mbd.lossless[0] = is_lossless_requested(&oxcf->rc_cfg);
-    const int kf_requested = (cm->current_frame.frame_number == 0 ||
-                              (*frame_flags & FRAMEFLAGS_KEY));
+    // Request key-frame when kf-max-dist <= 1. This is to avoid first pass
+    // inter prediction for all-intra encode.
+    const int kf_requested =
+        (cm->current_frame.frame_number == 0 ||
+         oxcf->kf_cfg.key_freq_max <= 1 || (*frame_flags & FRAMEFLAGS_KEY));
     if (kf_requested && frame_update_type != OVERLAY_UPDATE &&
         frame_update_type != INTNL_OVERLAY_UPDATE) {
       frame_params.frame_type = KEY_FRAME;

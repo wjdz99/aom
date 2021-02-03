@@ -508,7 +508,7 @@ static void set_good_speed_features_framesize_independent(
     sf->interp_sf.disable_dual_filter = 1;
 
     sf->intra_sf.disable_smooth_intra =
-        !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
+        !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key > 1);
     sf->intra_sf.intra_pruning_with_hog = 2;
 
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 3 : 4;
@@ -1346,9 +1346,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   }
 
   // TODO(any) Currently use_intra_txb_hash is enabled in speed 1,2 for
-  // intra-only encoding (key_freq_max == 0). Experiment with this speed feature
+  // intra-only encoding (key_freq_max <= 1). Experiment with this speed feature
   // by enabling for image encoding in speed 1 and 2.
-  if (cpi->oxcf.kf_cfg.key_freq_max == 0 && speed >= 1 && speed <= 2) {
+  if (cpi->oxcf.kf_cfg.key_freq_max <= 1 && speed >= 1 && speed <= 2) {
     sf->tx_sf.use_intra_txb_hash = 1;
   }
 
