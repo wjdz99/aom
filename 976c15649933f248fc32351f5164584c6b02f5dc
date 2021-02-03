@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "036e6860_f3407241",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-02-03T19:15:47Z",
+      "side": 1,
+      "message": "Is there any reason to move this out of MvCosts struct?\nI would prefer keeping this in MvCosts to better encapsulate the variables.",
+      "range": {
+        "startLine": 952,
+        "startChar": 0,
+        "endLine": 960,
+        "endChar": 9
+      },
+      "revId": "976c15649933f248fc32351f5164584c6b02f5dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
