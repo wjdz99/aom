@@ -449,7 +449,32 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/av1_get_horver_correlation_full sse4_1 avx2 neon/;
 
   add_proto qw/void av1_nn_predict/, " const float *input_nodes, const NN_CONFIG *const nn_config, int reduce_prec, float *const output";
+<<<<<<< HEAD   (098800 Bugfix for global motion with 16bit internal.)
   specialize qw/av1_nn_predict sse3 neon/;
+=======
+  if (aom_config("CONFIG_EXCLUDE_SIMD_MISMATCH") ne "yes") {
+    specialize qw/av1_nn_predict sse3 neon/;
+  }
+
+  # CNN functions
+  if (aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
+    add_proto qw/void av1_cnn_activate/, " float **input, int channels, int width, int height, int stride, ACTIVATION layer_activation";
+    add_proto qw/void av1_cnn_add/, " float **input, int channels, int width, int height, int stride, const float **add";
+    add_proto qw/void av1_cnn_predict/, " const float **input, int in_width, int in_height, int in_stride, const CNN_CONFIG *cnn_config, const CNN_THREAD_DATA *thread_data, CNN_MULTI_OUT *output_struct";
+    add_proto qw/void av1_cnn_convolve_no_maxpool_padding_valid/, " const float **input, int in_width, int in_height, int in_stride, const CNN_LAYER_CONFIG *layer_config, float **output, int out_stride, int start_idx, int cstep, int channel_step";
+    if (aom_config("CONFIG_EXCLUDE_SIMD_MISMATCH") ne "yes") {
+      specialize qw/av1_cnn_convolve_no_maxpool_padding_valid avx2/;
+    }
+    add_proto qw/void av1_cnn_deconvolve/, " const float **input, int in_width, int in_height, int in_stride, const CNN_LAYER_CONFIG *layer_config, float **output, int out_stride";
+    add_proto qw/void av1_cnn_batchnorm/, "float **image, int channels, int width, int height, int stride, const float *gamma, const float *beta, const float *mean, const float *std";
+  }
+
+  # Temporal Denoiser
+  if (aom_config("CONFIG_AV1_TEMPORAL_DENOISING") eq "yes") {
+    add_proto qw/int av1_denoiser_filter/, "const uint8_t *sig, int sig_stride, const uint8_t *mc_avg, int mc_avg_stride, uint8_t *avg, int avg_stride, int increase_denoising, BLOCK_SIZE bs, int motion_magnitude";
+    specialize qw/av1_denoiser_filter neon sse2/;
+  }
+>>>>>>> CHANGE (3ef12a Add a config flag CONFIG_EXCLUDE_SIMD_MISMATCH)
 }
 # end encoder functions
 
