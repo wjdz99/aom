@@ -52,7 +52,7 @@ HDRConvert = os.path.join(BinPath, 'HDRConvert.exe')
 ##################### Encode Config ########################################
 EncodeMethods = ["aom", "svt"]
 CodecNames = ["av1"]
-SUFFIX = {"av1": ".ivf"}
+SUFFIX = {"av1": ".obu"}
 FFMPEG = os.path.join(BinPath, 'ffmpeg.exe')
 AOMENC = os.path.join(BinPath, 'aomenc.exe')
 SVTAV1 = os.path.join(BinPath, 'SvtAv1EncApp.exe')
