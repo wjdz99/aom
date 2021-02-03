@@ -94,6 +94,30 @@
       },
       "revId": "efa34c31ec0a1f001acb4dc03bd76281a6801688",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5123604_84e99374",
+        "filename": "tools/convexhull_framework/src/AV2CTCTest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2021-02-03T00:07:47Z",
+      "side": 1,
+      "message": "Hi, Leo\nThe question for you is that is it possible to add the temporal layer id for each frame in the dump out log you added before. so that I don\u0027t have to derive it from the python code.",
+      "parentUuid": "0b1d810e_7bf2f6be",
+      "range": {
+        "startLine": 121,
+        "startChar": 4,
+        "endLine": 121,
+        "endChar": 18
+      },
+      "revId": "efa34c31ec0a1f001acb4dc03bd76281a6801688",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
