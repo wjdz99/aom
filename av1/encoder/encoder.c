@@ -2729,7 +2729,7 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
   // Special case code to reduce pulsing when key frames are forced at a
   // fixed interval. Note the reconstruction error if it is the frame before
   // the force key frame
-  if (cpi->rc.next_key_frame_forced && cpi->rc.frames_to_key == 1) {
+  if (cpi->rc.next_key_frame_forced && cpi->rc.frames_to_key <= 1) {
 #if CONFIG_AV1_HIGHBITDEPTH
     if (seq_params->use_highbitdepth) {
       cpi->ambient_err = aom_highbd_get_y_sse(cpi->source, &cm->cur_frame->buf);
