@@ -2947,7 +2947,8 @@ static int64_t get_kf_group_bits(AV1_COMP *cpi, double kf_group_err,
   TWO_PASS *const twopass = &cpi->twopass;
   int64_t kf_group_bits;
   if (cpi->lap_enabled) {
-    kf_group_bits = (int64_t)rc->frames_to_key * rc->avg_frame_bandwidth;
+    kf_group_bits =
+        (int64_t)AOMMAX(rc->frames_to_key, 1) * rc->avg_frame_bandwidth;
     if (cpi->oxcf.rc_cfg.vbr_corpus_complexity_lap) {
       const int num_mbs = (cpi->oxcf.resize_cfg.resize_mode != RESIZE_NONE)
                               ? cpi->initial_mbs
@@ -3209,7 +3210,7 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     twopass->kf_group_bits =
         get_kf_group_bits(cpi, kf_group_err, kf_group_avg_error);
     // Clip based on maximum per frame rate defined by the user.
-    max_grp_bits = (int64_t)max_bits * (int64_t)rc->frames_to_key;
+    max_grp_bits = (int64_t)max_bits * (int64_t)AOMMAX(rc->frames_to_key, 1);
     if (twopass->kf_group_bits > max_grp_bits)
       twopass->kf_group_bits = max_grp_bits;
   } else {
