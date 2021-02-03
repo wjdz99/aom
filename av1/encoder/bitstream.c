@@ -1173,7 +1173,7 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
   const PREDICTION_MODE mode = mbmi->mode;
   const int segment_id = mbmi->segment_id;
   const BLOCK_SIZE bsize = mbmi->sb_type;
-  const MvSubpelPrecision fr_mv_precision = cm->features.fr_mv_precision;
+  const MvSubpelPrecision pb_mv_precision = mbmi->pb_mv_precision;
   const int is_inter = is_inter_block(mbmi);
   const int is_compound = has_second_ref(mbmi);
   int ref;
@@ -1226,18 +1226,18 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
         nmv_context *nmvc = &ec_ctx->nmvc;
         const int_mv ref_mv = get_ref_mv(x, ref);
         av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
-                      fr_mv_precision);
+                      pb_mv_precision);
       }
     } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = get_ref_mv(x, 1);
       av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv, &ref_mv.as_mv, nmvc,
-                    fr_mv_precision);
+                    pb_mv_precision);
     } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = get_ref_mv(x, 0);
       av1_encode_mv(cpi, w, &mbmi->mv[0].as_mv, &ref_mv.as_mv, nmvc,
-                    fr_mv_precision);
+                    pb_mv_precision);
     }
 
     if (cpi->common.current_frame.reference_mode != COMPOUND_REFERENCE &&
