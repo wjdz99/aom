@@ -16,6 +16,46 @@
       "message": "Hi Yunqing,\n\nIn this patch we have corrected the initialization of \u0027skip_mode_cost\u0027 (in av1_fill_mode_rates()) by moving the function av1_initialize_rd_consts() after the variable \u0027skip_mode_flag\u0027 is initialized.\n\nThis change is bit-exact for single thread case, as av1_fill_mode_rates() is called again in av1_set_cost_upd_freq(). However, this change fixes the run to run mismatch observed in the multi-thread scenario when mode-cost-upd-freq is 2 (tile level).\n\nAlso, code related to the unused variable \u0027type_cost\u0027 in \u0027GlobalMotionInfo\u0027 structure is cleaned up.\n\nPlease review.\n\nThanks",
       "revId": "e18a601c96d56f6b1284811914cb71fc767853a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e75e64ae_d7c42e47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-03T22:14:01Z",
+      "side": 1,
+      "message": "Thanks for fixing the initialization!",
+      "revId": "e18a601c96d56f6b1284811914cb71fc767853a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc7f09db_70b0acd2",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-03T22:14:01Z",
+      "side": 1,
+      "message": "Could we add a note/comment to state the dependency that this needs to be done after skip_mode_flag is set?",
+      "range": {
+        "startLine": 1433,
+        "startChar": 2,
+        "endLine": 1434,
+        "endChar": 68
+      },
+      "revId": "e18a601c96d56f6b1284811914cb71fc767853a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
