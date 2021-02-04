@@ -503,8 +503,10 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   td->mb.cb_offset = 0;
 
   // Adjust and encode the superblock
-  PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
   av1_reset_ptree_in_sbi(xd->sbi);
+  xd->sbi->sb_mv_precision = cm->features.fr_mv_precision;
+
+  PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
                           pc_root, xd->sbi->ptree_root);
   av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
@@ -519,6 +521,8 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   const AV1_COMMON *cm = &cpi->common;
   const TileInfo *tile_info = &tile_data->tile_info;
   MACROBLOCK *x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  SB_INFO *sbi = xd->sbi;
 
   const SPEED_FEATURES *sf = &cpi->sf;
   const int use_simple_motion_search =
@@ -530,6 +534,8 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   if (use_simple_motion_search) {
     init_simple_motion_search_mvs(sms_root);
   }
+
+  sbi->sb_mv_precision = cm->features.fr_mv_precision;
 
 #if !CONFIG_REALTIME_ONLY
   if (has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
