@@ -2129,8 +2129,32 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   if (img != NULL) {
     res = validate_img(ctx, img);
     if (res == AOM_CODEC_OK) {
-      size_t data_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
-                       ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) * get_image_bps(img);
+      // Worst case buffer size needed to hold bit stream corresponding
+      // to one frame.
+      size_t frame_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
+                        ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) *
+                        get_image_bps(img) / 8;
+
+      // Due to the presence of no-show frames, bit stream buffer constitutes
+      // data corresponding to multiple frames. Hence bit stream buffer size
+      // needs to be more than frame_sz and should be allocated based on maximum
+      // number of successive no-show frames possible. Bit stream buffer size
+      // should be frame_sz * max_successive_arfs_plus_1, where
+      // max_successive_arfs_plus_1 is one more than the maximum number of
+      // successive no-show frames. The maximum number of successive no-show
+      // frames is derived as below.
+      // 1) When lag_in_frames <= 1, alt-ref frames are not enabled. Hence
+      // maximum number of successive no-show frames is zero or
+      // max_successive_arfs_plus_1 = 1.
+      // 2) For lag_in_frames > 1, pyramid height and lag_in_frames can be used
+      // to decide the maximum number of successive no-show frames.
+      const int max_successive_arfs_plus_1 =
+          ctx->cpi->oxcf.gf_cfg.lag_in_frames <= 1
+              ? 1
+              : AOMMIN(ctx->cpi->oxcf.gf_cfg.lag_in_frames,
+                       ctx->cpi->oxcf.gf_cfg.gf_max_pyr_height + 1);
+      size_t data_sz = frame_sz * max_successive_arfs_plus_1;
+
       if (data_sz < kMinCompressedSize) data_sz = kMinCompressedSize;
       if (ctx->cx_data == NULL || ctx->cx_data_sz < data_sz) {
         ctx->cx_data_sz = data_sz;
