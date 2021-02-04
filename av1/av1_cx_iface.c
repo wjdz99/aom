@@ -422,7 +422,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
               SCALE_NUMERATOR << 1);
   RANGE_CHECK(cfg, rc_superres_qthresh, 1, 63);
   RANGE_CHECK(cfg, rc_superres_kf_qthresh, 1, 63);
-  RANGE_CHECK_HI(extra_cfg, cdf_update_mode, 2);
+  RANGE_CHECK_HI(extra_cfg, cdf_update_mode, 3);
 
   RANGE_CHECK_HI(extra_cfg, motion_vector_unit_test, 2);
   RANGE_CHECK_HI(extra_cfg, sb_multipass_unit_test, 1);
