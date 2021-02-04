@@ -56,6 +56,30 @@
       },
       "revId": "e18a601c96d56f6b1284811914cb71fc767853a5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cd45d6f_ac0595f8",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-02-04T09:41:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc7f09db_70b0acd2",
+      "range": {
+        "startLine": 1433,
+        "startChar": 2,
+        "endLine": 1434,
+        "endChar": 68
+      },
+      "revId": "e18a601c96d56f6b1284811914cb71fc767853a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
