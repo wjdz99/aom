@@ -1392,11 +1392,22 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
   }
 }
 
+// Read the superblock level parameters
+static void read_sb_info(SB_INFO *sbi, AV1Decoder *const pbi,
+                         ThreadData *const td, aom_reader *reader) {
+  AV1_COMMON *const cm = &pbi->common;
+  sbi->sb_mv_precision = cm->features.fr_mv_precision;
+
+  (void)reader;
+  (void)td;
+}
+
 // TODO(slavarnway): eliminate bsize and subsize in future commits
 static AOM_INLINE void decode_partition(AV1Decoder *const pbi,
                                         ThreadData *const td, int mi_row,
                                         int mi_col, aom_reader *reader,
-                                        BLOCK_SIZE bsize, PARTITION_TREE *ptree,
+                                        BLOCK_SIZE bsize, SB_INFO *sbi,
+                                        PARTITION_TREE *ptree,
                                         int parse_decode_flag) {
   assert(bsize < BLOCK_SIZES_ALL);
   AV1_COMMON *const cm = &pbi->common;
@@ -1424,7 +1435,13 @@ static AOM_INLINE void decode_partition(AV1Decoder *const pbi,
 
   assert(ptree);
 
+  const int is_sb_root = bsize == cm->seq_params.sb_size;
+
   if (parse_decode_flag & 1) {
+    if (is_sb_root) {
+      read_sb_info(sbi, pbi, td, reader);
+    }
+
     const int num_planes = av1_num_planes(cm);
     for (int plane = 0; plane < num_planes; ++plane) {
       int rcol0, rcol1, rrow0, rrow1;
@@ -1481,7 +1498,8 @@ static AOM_INLINE void decode_partition(AV1Decoder *const pbi,
                                  reader, DEC_BLOCK_EPT_ARG(db_subsize))
 #define DEC_PARTITION(db_r, db_c, db_subsize, index)                 \
   decode_partition(pbi, td, DEC_BLOCK_STX_ARG(db_r), (db_c), reader, \
-                   (db_subsize), ptree->sub_tree[(index)], parse_decode_flag)
+                   (db_subsize), sbi, ptree->sub_tree[(index)],      \
+                   parse_decode_flag)
 
   switch (partition) {
     case PARTITION_NONE: DEC_BLOCK(mi_row, mi_col, subsize); break;
@@ -2764,7 +2782,8 @@ static AOM_INLINE void decode_tile_sb_row(AV1Decoder *pbi, ThreadData *const td,
 
     // Decoding of the super-block
     decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                     cm->seq_params.sb_size, td->dcb.xd.sbi->ptree_root, 0x2);
+                     cm->seq_params.sb_size, td->dcb.xd.sbi,
+                     td->dcb.xd.sbi->ptree_root, 0x2);
 
     sync_write(&tile_data->dec_row_mt_sync, sb_row_in_tile, sb_col_in_tile,
                sb_cols_in_tile);
@@ -2846,7 +2865,8 @@ static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
 
       // Bit-stream parsing and decoding of the superblock
       decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                       cm->seq_params.sb_size, xd->sbi->ptree_root, 0x3);
+                       cm->seq_params.sb_size, xd->sbi, xd->sbi->ptree_root,
+                       0x3);
 
       if (aom_reader_has_overflowed(td->bit_reader)) {
         aom_merge_corrupted_flag(&dcb->corrupted, 1);
@@ -3286,7 +3306,8 @@ static AOM_INLINE void parse_tile_row_mt(AV1Decoder *pbi, ThreadData *const td,
 
       // Bit-stream parsing of the superblock
       decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
-                       cm->seq_params.sb_size, xd->sbi->ptree_root, 0x1);
+                       cm->seq_params.sb_size, xd->sbi, xd->sbi->ptree_root,
+                       0x1);
 
       if (aom_reader_has_overflowed(td->bit_reader)) {
         aom_merge_corrupted_flag(&dcb->corrupted, 1);
