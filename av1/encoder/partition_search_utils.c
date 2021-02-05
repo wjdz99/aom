@@ -12,6 +12,10 @@
 
 #include "aom_ports/system_state.h"
 
+#if CONFIG_BITSTREAM_DEBUG || CONFIG_MISMATCH_DEBUG
+#include "aom_util/debug_util.h"
+#endif  // CONFIG_BITSTREAM_DEBUG || CONFIG_MISMATCH_DEBUG
+
 #include "av1/common/cfl.h"
 #if CONFIG_INTERINTRA_ML
 #include "av1/common/interintra_ml.h"
