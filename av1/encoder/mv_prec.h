@@ -36,6 +36,9 @@ static AOM_INLINE void av1_set_high_precision_mv(AV1_COMP *cpi,
   features->fr_mv_precision = precision;
   assert(IMPLIES(features->cur_frame_force_integer_mv,
                  precision == MV_SUBPEL_NONE));
+#if CONFIG_FLEX_MVRES
+  features->use_sb_mv_precision = 0;
+#endif  // CONFIG_FLEX_MVRES
 }
 
 void av1_pick_and_set_high_precision_mv(AV1_COMP *cpi, int qindex);
