@@ -1258,6 +1258,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
           &cpi->sf, ref_frame_buf, ext_flags->ref_frame_flags);
     }
 
+#if CONFIG_NEW_REF_SIGNALING
+    av1_init_new_ref_frame_map(&cpi->common, ref_frame_map_pairs,
+                               cur_frame_disp);
+#endif  // CONFIG_NEW_REF_SIGNALING
+
     frame_params.primary_ref_frame =
         choose_primary_ref_frame(cpi, &frame_params);
     frame_params.order_offset = gf_group->arf_src_offset[gf_group->index];
@@ -1296,9 +1301,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // cm->remapped_ref_idx then update_ref_frame_map() will have no effect.
   memcpy(frame_params.remapped_ref_idx, cm->remapped_ref_idx,
          REF_FRAMES * sizeof(*cm->remapped_ref_idx));
-#if CONFIG_NEW_REF_SIGNALING
-  av1_init_new_ref_frame_map(&cpi->common, ref_frame_map_pairs, cur_frame_disp);
-#endif  // CONFIG_NEW_REF_SIGNALING
 
   cpi->td.mb.delta_qindex = 0;
 
