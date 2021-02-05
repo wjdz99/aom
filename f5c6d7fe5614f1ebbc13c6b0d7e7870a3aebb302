@@ -16,6 +16,24 @@
       "message": "If this masks the underlying bug, it might be better to not submit this until after that is resolved. Maybe hold this for now?",
       "revId": "f5c6d7fe5614f1ebbc13c6b0d7e7870a3aebb302",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "faba4b8a_a3e0af9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-02-05T16:03:58Z",
+      "side": 1,
+      "message": "I would say let\u0027s submit it.\nThe bug is not related to this patch and we will not be any worse off if we submitted this one.",
+      "parentUuid": "7767eee0_97e0487e",
+      "revId": "f5c6d7fe5614f1ebbc13c6b0d7e7870a3aebb302",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
