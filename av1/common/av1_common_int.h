@@ -373,6 +373,10 @@ typedef struct {
    */
   bool cur_frame_force_integer_mv;
   /*!
+   * If true, allow the mv precision to be changed at the superblock level.
+   */
+  bool use_sb_mv_precision;
+  /*!
    * If true, palette tool and/or intra block copy tools may be used.
    */
   bool allow_screen_content_tools;
