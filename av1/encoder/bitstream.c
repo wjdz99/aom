@@ -3268,7 +3268,7 @@ static AOM_INLINE void write_uncompressed_header_obu(
       } else {
         assert(!features->use_sb_mv_precision);
       }
-      assert(IMPLIES(features->cur_frame_froce_integer_mv,
+      assert(IMPLIES(features->cur_frame_force_integer_mv,
                      features->fr_mv_precision == MV_SUBPEL_NONE));
 
       write_frame_interp_filter(features->interp_filter, wb);
