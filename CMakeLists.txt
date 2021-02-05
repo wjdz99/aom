@@ -152,6 +152,8 @@ list(APPEND AOM_DECODER_APP_UTIL_SOURCES "${AOM_ROOT}/common/ivfdec.c"
             "${AOM_ROOT}/common/video_reader.h")
 
 list(APPEND AOM_ENCODER_APP_UTIL_SOURCES
+            "${AOM_ROOT}/aom/src/aom_codec.c"
+            "${AOM_ROOT}/aom/aom_codec.h"
             "${AOM_ROOT}/common/ivfenc.c"
             "${AOM_ROOT}/common/ivfenc.h"
             "${AOM_ROOT}/common/video_writer.c"
