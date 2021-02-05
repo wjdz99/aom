@@ -122,6 +122,7 @@ void mismatch_move_frame_idx_r() {
 void mismatch_record_block_pre(const uint8_t *src, int src_stride,
                                int frame_offset, int plane, int pixel_c,
                                int pixel_r, int blk_w, int blk_h, int highbd) {
+  (void)frame_offset;
   if (pixel_c + blk_w >= frame_stride || pixel_r + blk_h >= frame_height) {
     printf("frame_buf undersized\n");
     assert(0);
@@ -155,6 +156,7 @@ void mismatch_record_block_pre(const uint8_t *src, int src_stride,
 void mismatch_record_block_tx(const uint8_t *src, int src_stride,
                               int frame_offset, int plane, int pixel_c,
                               int pixel_r, int blk_w, int blk_h, int highbd) {
+  (void)frame_offset;
   if (pixel_c + blk_w >= frame_stride || pixel_r + blk_h >= frame_height) {
     printf("frame_buf undersized\n");
     assert(0);

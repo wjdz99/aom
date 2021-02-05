@@ -280,7 +280,7 @@ static void inverse_transform_inter_block(const AV1_COMMON *const cm,
   BLOCK_SIZE bsize = txsize_to_bsize[tx_size];
   int blk_w = block_size_wide[bsize];
   int blk_h = block_size_high[bsize];
-  mi_to_pixel_loc(&pixel_c, &pixel_r, mi_col, mi_row, blk_col, blk_row,
+  mi_to_pixel_loc(&pixel_c, &pixel_r, xd->mi_col, xd->mi_row, blk_col, blk_row,
                   pd->subsampling_x, pd->subsampling_y);
   mismatch_check_block_tx(dst, pd->dst.stride, cm->current_frame.order_hint,
                           plane, pixel_c, pixel_r, blk_w, blk_h,
