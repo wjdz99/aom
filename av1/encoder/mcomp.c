@@ -229,13 +229,17 @@ static INLINE int mv_cost(const MV *mv, const int *joint_cost,
 
 #define CONVERT_TO_CONST_MVCOST(ptr) ((const int *const *)(ptr))
 
-static INLINE int get_mv_cost_with_precision(const MV diff,
-                                             const MvSubpelPrecision precision,
+static INLINE int get_mv_cost_with_precision(MV mv, MV ref_mv,
+                                             MvSubpelPrecision max_precision,
                                              const MvCosts *mv_costs,
                                              int weight, int round_bits) {
   const int *mvjcost = mv_costs->nmv_joint_cost;
   const int *const *mvcost =
-      CONVERT_TO_CONST_MVCOST(mv_costs->nmv_costs[precision]);
+      CONVERT_TO_CONST_MVCOST(mv_costs->nmv_costs[max_precision]);
+#if CONFIG_FLEX_MVRES
+  lower_mv_precision(&ref_mv, max_precision);
+#endif  // CONFIG_FLEX_MVRES
+  const MV diff = { mv.row - ref_mv.row, mv.col - ref_mv.col };
 
   if (mvcost) {
     return (int)ROUND_POWER_OF_TWO_64(
@@ -263,8 +267,8 @@ static INLINE int get_intrabc_mv_cost_with_precision(
 int av1_mv_bit_cost(const MV *mv, const MV *ref_mv,
                     const MvSubpelPrecision precision, const MvCosts *mv_costs,
                     int weight) {
-  const MV diff = { mv->row - ref_mv->row, mv->col - ref_mv->col };
-  return get_mv_cost_with_precision(diff, precision, mv_costs, weight, 7);
+  return get_mv_cost_with_precision(*mv, *ref_mv, precision, mv_costs, weight,
+                                    7);
 }
 
 int av1_intrabc_mv_bit_cost(const MV *mv, const MV *ref_mv,
@@ -289,7 +293,7 @@ static INLINE int mv_err_cost(const MV mv,
   switch (mv_cost_type) {
     case MV_COST_ENTROPY:
       return get_mv_cost_with_precision(
-          diff, precision, mv_costs, mv_costs->errorperbit,
+          mv, ref_mv, precision, mv_costs, mv_costs->errorperbit,
           RDDIV_BITS + AV1_PROB_COST_SHIFT - RD_EPB_SHIFT +
               PIXEL_TRANSFORM_ERROR_SCALE);
     case MV_COST_L1_LOWRES:
