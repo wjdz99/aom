@@ -44,6 +44,15 @@ int av1_restore_cnn_img_tflite(int qindex, const uint8_t *dgd, int width,
                                int rst_stride, int num_threads,
                                int is_intra_only);
 
+#if CONFIG_CNN_CRLC_GUIDED
+int av1_restore_cnn_guided_img_tflite(int qindex, const uint8_t *dgd, int width,
+                                      int height, int dgd_stride, uint8_t *rst,
+                                      int rst_stride, int num_threads,
+                                      int is_intra_only, const uint8_t *src,
+                                      int src_stride, CRLCInfo *ci,
+                                      int frameType);
+#endif  // CONFIG_CNN_CRLC_GUIDED
+
 // Same as 'av1_restore_cnn_img_tflite' for highbd.
 int av1_restore_cnn_img_tflite_highbd(int qindex, const uint16_t *dgd,
                                       int width, int height, int dgd_stride,
@@ -55,6 +64,12 @@ struct AV1Common;
 
 // Restore current frame buffer in 'cm' in-place with a CNN model using TFlite.
 void av1_restore_cnn_tflite(const struct AV1Common *cm, int num_threads);
+
+#if CONFIG_CNN_CRLC_GUIDED
+void av1_restore_cnn_guided_tflite(AV1_COMMON *cm, int num_threads,
+                                   YV12_BUFFER_CONFIG *source_frame);
+void av1_restore_cnn_guided_decode_tflite(AV1_COMMON *cm, int num_threads);
+#endif  // CONFIG_CNN_CRLC_GUIDED
 
 // Uses CNN model for txfm reconstruction
 int av1_cnn_recon_tflite(uint8_t *dst, int dst_stride, int height, int width);
