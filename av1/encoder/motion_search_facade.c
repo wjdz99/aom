@@ -333,9 +333,13 @@ void av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
   MB_MODE_INFO *mbmi = xd->mi[0];
   // This function should only ever be called for compound modes
   assert(has_second_ref(mbmi));
+  MvSubpelPrecision max_mv_precision = mbmi->max_mv_precision;
+#if CONFIG_FLEX_MVRES
+  lower_mv_precision(&cur_mv[0].as_mv, max_mv_precision);
+  lower_mv_precision(&cur_mv[1].as_mv, max_mv_precision);
+#endif  // CONFIG_FLEX_MVRES
   const int_mv init_mv[2] = { cur_mv[0], cur_mv[1] };
   const int refs[2] = { mbmi->ref_frame[0], mbmi->ref_frame[1] };
-  MvSubpelPrecision max_mv_precision = mbmi->max_mv_precision;
   const MvCosts *mv_costs = &x->mv_costs;
   int_mv ref_mv[2];
   int ite, ref;
