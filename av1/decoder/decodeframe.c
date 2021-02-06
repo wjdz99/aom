@@ -132,6 +132,12 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
                                             aom_reader *const r, int plane,
                                             int runit_idx);
 
+#if CONFIG_CNN_CRLC_GUIDED
+static void crlc_guided_read_coeffs(AV1_COMMON *const cm, MACROBLOCKD *xd,
+                                    aom_reader *const r, int plane,
+                                    int runit_idx);
+#endif  // CONFIG_CNN_CRLC_GUIDED
+
 static void setup_compound_reference_mode(AV1_COMMON *cm) {
   cm->comp_fwd_ref[0] = LAST_FRAME;
   cm->comp_fwd_ref[1] = LAST2_FRAME;
@@ -1639,6 +1645,62 @@ static void read_sb_info(SB_INFO *sbi, AV1Decoder *const pbi,
 #endif  // CONFIG_FLEX_MVRES
   }
 }
+#if CONFIG_CNN_CRLC_GUIDED
+static void read_filter_crlc(AV1_COMMON *const cm, MACROBLOCKD *xd, int qp,
+                             CRLCInfo *ci, int i, aom_reader *rb) {
+  if (i == 0) {
+    int channels = 2;
+    int A0_min;
+    int A1_min;
+    qp = qp / 4;
+    if (qp < 17) {
+      A0_min = -7;
+      A1_min = -5;
+    }
+    if (16 < qp && qp < 26) {
+      A0_min = -12;
+      A1_min = -7;
+    }
+    if (25 < qp && qp < 31) {
+      A0_min = -12;
+      A1_min = -3;
+    }
+    if (30 < qp && qp < 36) {
+      A0_min = -13;
+      A1_min = -10;
+    }
+    if (35 < qp && qp < 46) {
+      A0_min = -13;
+      A1_min = -10;
+    }
+    if (45 < qp && qp < 56) {
+      A0_min = -13;
+      A1_min = -10;
+    }
+    if (qp > 56) {
+      A0_min = -15;
+      A1_min = -6;
+    }
+    ci->crlc_unit_size = 256;
+
+    int height = (&cm->cur_frame->buf)->y_crop_height;
+    int width = (&cm->cur_frame->buf)->y_crop_width;
+    int cols = ceil((float)height / (ci->crlc_unit_size));
+    int rows = ceil((float)width / ci->crlc_unit_size);
+    ci->num_crlc_unit = cols * rows;
+    ci->units_per_tile = cols * rows;
+    int p = 0;
+    av1_alloc_CRLC_struct(cm, &cm->crlc_info[p], p > 0);
+
+    for (int i = 0; i < ci->num_crlc_unit; i++) {
+      ci->unit_info[i].xqd[0] =
+          aom_read_primitive_refsubexpfin(rb, 16, 1, 1, ACCT_STR) + A0_min;
+      ci->unit_info[i].xqd[1] =
+          aom_read_primitive_refsubexpfin(rb, 16, 1, 1, ACCT_STR) + A1_min;
+    }
+  }
+}
+#endif  // CONFIG_CNN_CRLC_GUIDED
 
 // TODO(slavarnway): eliminate bsize and subsize in future commits
 static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
@@ -1679,6 +1741,9 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
 #else
     const int plane_start = AOM_PLANE_Y;
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
+#if CONFIG_CNN_CRLC_GUIDED
+    cm->use_full_crlc = 0;
+#endif  // CONFIG_CNN_CRLC_GUIDED
     const int num_planes = av1_num_planes(cm);
     for (int plane = plane_start; plane < num_planes; ++plane) {
       int rcol0, rcol1, rrow0, rrow1;
@@ -1693,6 +1758,23 @@ static void decode_partition(AV1Decoder *const pbi, ThreadData *const td,
         }
       }
     }
+
+#if CONFIG_CNN_CRLC_GUIDED
+    if (cm->use_guided_cnn) {
+      int rcol0, rcol1, rrow0, rrow1;
+      if (av1_CRLC_corners_in_sb(cm, 0, mi_row, mi_col, bsize, &rcol0, &rcol1,
+                                 &rrow0, &rrow1) &&
+          (mi_row == 0) && (mi_col == 0)) {
+        const int rstride = cm->crlc_info[0].horz_units_per_tile;
+        for (int rrow = rrow0; rrow < rrow1; ++rrow) {
+          for (int rcol = rcol0; rcol < rcol1; ++rcol) {
+            const int runit_idx = rcol + rrow * rstride;
+            crlc_guided_read_coeffs(cm, xd, reader, 0, runit_idx);
+          }
+        }
+      }
+    }
+#endif  // CONFIG_CNN_CRLC_GUIDED
 
     partition =
         read_partition(xd, mi_row, mi_col, reader, has_rows, has_cols, bsize);
@@ -1951,6 +2033,9 @@ static void setup_segmentation(AV1_COMMON *const cm,
 static void decode_cnn(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   if (av1_use_cnn(cm)) {
     cm->use_cnn = aom_rb_read_bit(rb);
+#if CONFIG_CNN_CRLC_GUIDED
+    cm->use_guided_cnn = aom_rb_read_bit(rb);
+#endif  // CONFIG_CNN_CRLC_GUIDED
   } else {
     cm->use_cnn = 0;
   }
@@ -2285,6 +2370,15 @@ static void loop_restoration_read_sb_coeffs(const AV1_COMMON *const cm,
   }
 #endif  // CONFIG_WIENER_NONSEP
 }
+
+#if CONFIG_CNN_CRLC_GUIDED
+static void crlc_guided_read_coeffs(AV1_COMMON *const cm, MACROBLOCKD *xd,
+                                    aom_reader *const r, int plane,
+                                    int runit_idx) {
+  CRLCInfo *const ci = &cm->crlc_info[0];
+  read_filter_crlc(cm, xd, cm->base_qindex, ci, plane, r);
+}
+#endif  // CONFIG_CNN_CRLC_GUIDED
 
 static void setup_loopfilter(AV1_COMMON *cm, struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
@@ -5952,12 +6046,19 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
     }
 
 #if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
+#if CONFIG_CNN_CRLC_GUIDED
+    if (cm->use_guided_cnn) {
+      assert(cm->rst_info[0].frame_restoration_type == RESTORE_NONE);
+      assert(cm->cdef_info.cdef_strengths[0] == 0);
+      av1_restore_cnn_guided_decode_tflite(cm, pbi->num_workers);
+    }
+#else
     if (cm->use_cnn) {
       assert(cm->rst_info[0].frame_restoration_type == RESTORE_NONE);
       assert(cm->cdef_info.cdef_strengths[0] == 0);
       av1_restore_cnn_tflite(cm, pbi->num_workers);
     }
-#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
+#endif  // CONFIG_CNN_CRLC_GUIDED
 
     const int do_loop_restoration =
         cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
@@ -6025,6 +6126,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       }
     }
   }
+#endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
 
 #if CONFIG_LPF_MASK
   av1_zero_array(cm->lf.lfm, cm->lf.lfm_num);
