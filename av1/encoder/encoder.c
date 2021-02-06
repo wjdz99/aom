@@ -569,6 +569,11 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 #if CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
   aom_free_frame_buffer(&cpi->cnn_buffer);
 #endif  // CONFIG_CNN_RESTORATION && !CONFIG_LOOP_RESTORE_CNN
+
+#if CONFIG_CNN_CRLC_GUIDED
+  av1_free_CRLC_buffers(cm);
+#endif  // CONFIG_CNN_CRLC_GUIDED
+
   av1_free_restoration_buffers(cm);
   aom_free_frame_buffer(&cpi->trial_frame_rst);
   aom_free_frame_buffer(&cpi->scaled_source);
@@ -4276,6 +4281,40 @@ static void set_restoration_unit_size(int width, int height, int sx, int sy,
   rst[2].restoration_unit_size = rst[1].restoration_unit_size;
 }
 
+#if CONFIG_CNN_CRLC_GUIDED
+static void set_CRLC_unit_size(int width, int height, int sx, int sy,
+                               CRLCInfo *ci) {
+  (void)width;
+  (void)height;
+  (void)sx;
+  (void)sy;
+#if COUPLED_CHROMA_FROM_LUMA_RESTORATION
+  int s = AOMMIN(sx, sy);
+#else
+  int s = 0;
+#endif  // !COUPLED_CHROMA_FROM_LUMA_RESTORATION
+
+  ci[0].crlc_unit_size = 256;
+  ci[1].crlc_unit_size = ci[0].crlc_unit_size >> s;
+  ci[2].crlc_unit_size = ci[1].crlc_unit_size;
+}
+static void set_CRLC_unit_size_128(int width, int height, int sx, int sy,
+                                   CRLCInfo *ci) {
+  (void)width;
+  (void)height;
+  (void)sx;
+  (void)sy;
+#if COUPLED_CHROMA_FROM_LUMA_RESTORATION
+  int s = AOMMIN(sx, sy);
+#else
+  int s = 0;
+#endif  // !COUPLED_CHROMA_FROM_LUMA_RESTORATION
+  ci[0].crlc_unit_size = 128;
+  ci[1].crlc_unit_size = ci[0].crlc_unit_size >> s;
+  ci[2].crlc_unit_size = ci[1].crlc_unit_size;
+}
+#endif  // CONFIG_CNN_CRLC_GUIDED
+
 static void init_ref_frame_bufs(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   int i;
@@ -4395,9 +4434,22 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
     cm->rst_info[i].frame_restoration_type = RESTORE_NONE;
 
   av1_alloc_restoration_buffers(cm);
+#if CONFIG_CNN_CRLC_GUIDED
+  if (cm->use_guided_level == 0) {
+    set_CRLC_unit_size(frame_width, frame_height, seq_params->subsampling_x,
+                       seq_params->subsampling_y, cm->crlc_info);
+  } else if (cm->use_guided_level == 1) {
+    set_CRLC_unit_size_128(frame_width, frame_height, seq_params->subsampling_x,
+                           seq_params->subsampling_y, cm->crlc_info);
+  } else {
+    set_CRLC_unit_size(frame_width, frame_height, seq_params->subsampling_x,
+                       seq_params->subsampling_y, cm->crlc_info);
+    cm->use_guided_level = 0;
+  }
+  av1_alloc_CRLC_buffers(cm);
+#endif  // CONFIG_CNN_CRLC_GUIDED
   alloc_util_frame_buffers(cpi);
   init_motion_estimation(cpi);
-
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
     if (buf != NULL) {
@@ -4891,6 +4943,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 
 #if CONFIG_CNN_RESTORATION
   cm->use_cnn = 0;
+#if CONFIG_CNN_CRLC_GUIDED
+  cm->use_guided_cnn = 0;
+  cm->use_full_crlc = 0;
+#endif  // CONFIG_CNN_CRLC_GUIDED
   if (av1_use_cnn_encode(cm, cpi->gf_group.update_type[cpi->gf_group.index])) {
     int64_t dgd_error = INT64_MAX;
     int64_t cnn_error = INT64_MAX;
@@ -4909,12 +4965,15 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     dgd_error = aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
                                   cm->seq_params.use_highbitdepth);
 
+#if CONFIG_CNN_CRLC_GUIDED
+    av1_restore_cnn_guided_tflite(cm, cpi->num_workers, cpi->source);
+#else
     av1_restore_cnn_tflite(cm, cpi->num_workers);
+#endif  // CONFIG_CNN_CRLC_GUIDED
 
     // Find the error of the plane from source after applying cnn.
     cnn_error = aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
                                   cm->seq_params.use_highbitdepth);
-
     if (cnn_error < dgd_error)
       aom_yv12_copy_y(&cm->cur_frame->buf, &cpi->cnn_buffer);
     aom_yv12_copy_y(&cpi->last_frame_uf, &cm->cur_frame->buf);
@@ -4925,7 +4984,13 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
     res_error = aom_get_sse_plane(cpi->source, &cm->cur_frame->buf, plane,
                                   cm->seq_params.use_highbitdepth);
     if (cnn_error < res_error && cnn_error < dgd_error) {
+#if CONFIG_CNN_CRLC_GUIDED
+      cm->use_guided_cnn = 1;
       cm->use_cnn = 1;
+#else
+      cm->use_cnn = 1;
+#endif  // CONFIG_CNN_CRLC_GUIDED
+
       aom_yv12_copy_y(&cpi->cnn_buffer, &cm->cur_frame->buf);
       if (num_planes > 1)
         aom_yv12_copy_u(&cpi->last_frame_uf, &cm->cur_frame->buf);
@@ -5502,7 +5567,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   return AOM_CODEC_OK;
 }
 
-#define DUMP_RECON_FRAMES 0
+#define DUMP_RECON_FRAMES 1
 
 #if DUMP_RECON_FRAMES == 1
 // NOTE(zoeliu): For debug - Output the filtered reconstructed video.
@@ -5524,41 +5589,41 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
                                              AOM_BWD_FLAG,
                                              AOM_ALT2_FLAG,
                                              AOM_ALT_FLAG };
-  printf(
+  /*printf(
       "\n***Frame=%d (frame_offset=%d, show_frame=%d, "
       "show_existing_frame=%d) "
       "[LAST LAST2 LAST3 GOLDEN BWD ALT2 ALT]=[",
       current_frame->frame_number, current_frame->order_hint, cm->show_frame,
-      cm->show_existing_frame);
+      cm->show_existing_frame);*/
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
     const int ref_offset = buf != NULL ? (int)buf->order_hint : -1;
-    printf(" %d(%c)", ref_offset,
-           (cpi->ref_frame_flags & flag_list[ref_frame]) ? 'Y' : 'N');
+    /*printf(" %d(%c)", ref_offset,
+           (cpi->ref_frame_flags & flag_list[ref_frame]) ? 'Y' : 'N');*/
   }
-  printf(" ]\n");
+  // printf(" ]\n");
 
   if (!cm->show_frame) {
-    printf("Frame %d is a no show frame, so no image dump.\n",
-           current_frame->frame_number);
+    // printf("Frame %d is a no show frame, so no image
+    // dump.\n",current_frame->frame_number);
     return;
   }
 
   int h;
-  char file_name[256] = "/tmp/enc_filtered_recon.yuv";
+  char file_name[256] = "./enc_filtered_recon.yuv";
   FILE *f_recon = NULL;
 
-  if (current_frame->frame_number == 0) {
+  /*if (current_frame->frame_number == 0) {
     if ((f_recon = fopen(file_name, "wb")) == NULL) {
       printf("Unable to open file %s to write.\n", file_name);
       return;
     }
-  } else {
-    if ((f_recon = fopen(file_name, "ab")) == NULL) {
-      printf("Unable to open file %s to append.\n", file_name);
-      return;
-    }
+  } else {*/
+  if ((f_recon = fopen(file_name, "ab")) == NULL) {
+    printf("Unable to open file %s to append.\n", file_name);
+    return;
   }
+  /*}
   printf(
       "\nFrame=%5d, encode_update_type[%5d]=%1d, frame_offset=%d, "
       "show_frame=%d, show_existing_frame=%d, source_alt_ref_active=%d, "
@@ -5568,7 +5633,7 @@ static void dump_filtered_recon_frames(AV1_COMP *cpi) {
       cpi->gf_group.update_type[cpi->gf_group.index], current_frame->order_hint,
       cm->show_frame, cm->show_existing_frame, cpi->rc.source_alt_ref_active,
       cpi->refresh_alt_ref_frame, recon_buf->y_stride, recon_buf->uv_stride,
-      cm->width, cm->height);
+      cm->width, cm->height);*/
 #if 0
   int ref_frame;
   printf("get_ref_frame_map_idx: [");
@@ -5911,6 +5976,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, encode_frame_to_data_rate_time);
 #endif
+#if CONFIG_CNN_CRLC_GUIDED
+  cm->use_cnn = 0;
+#endif  // CONFIG_CNN_CRLC_GUIDED
 
   // frame type has been decided outside of this function call
   cm->cur_frame->frame_type = current_frame->frame_type;
