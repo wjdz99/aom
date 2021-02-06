@@ -720,16 +720,11 @@ void av1_fill_mv_costs(const FRAME_CONTEXT *fc, int integer_mv,
        prec++) {
     mv_costs->nmv_costs[prec][0] = &mv_costs->nmv_costs_alloc[prec][0][MV_MAX];
     mv_costs->nmv_costs[prec][1] = &mv_costs->nmv_costs_alloc[prec][1][MV_MAX];
-  }
 
-  if (integer_mv) {
     av1_build_nmv_cost_table(mv_costs->nmv_joint_cost,
-                             mv_costs->nmv_costs[MV_SUBPEL_NONE], &fc->nmvc,
-                             MV_SUBPEL_NONE);
-  } else {
-    av1_build_nmv_cost_table(mv_costs->nmv_joint_cost,
-                             mv_costs->nmv_costs[precision], &fc->nmvc,
-                             precision);
+                             mv_costs->nmv_costs[prec], &fc->nmvc, prec);
+    (void)integer_mv;
+    (void)precision;
   }
 }
 
