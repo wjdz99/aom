@@ -22,6 +22,30 @@
       },
       "revId": "af47cec994727515b03a426d340b1b4cf83e6276",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dd5a092_0fa957b4",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2434,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-07T06:24:12Z",
+      "side": 0,
+      "message": "I guess need_search and this function were here due to its legacy use in single reference frame cases. The compound mode decision never searches for interpolation filter type.\n\nIn principle, it makes sense to use the regular filter type for compound mode directly too, as the compound combination will likely wipe out most high frequency components.",
+      "parentUuid": "e2d06fc0_6cf757db",
+      "range": {
+        "startLine": 2434,
+        "startChar": 2,
+        "endLine": 2434,
+        "endChar": 30
+      },
+      "revId": "af47cec994727515b03a426d340b1b4cf83e6276",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
