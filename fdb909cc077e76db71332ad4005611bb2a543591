@@ -96,6 +96,29 @@
       "message": "Please add comments to address the following two points:\n\n1. Why do we need to multiply data_sz by the maximum number of successive ARFs plus 1 (i.e., line 2144)?\n\n2. Why is max_successive_arfs_plus_1 calculated this way? For example, you may want to describe how max_successive_arfs_plus_1 is related to the maximum number of no-show frames (which is mentioned in the commit message).\n\nI think you can just adapt your description below for a good comment here:\n\n  As per our understanding, the buffer size can be reduced when\n  lag-in-frames \u003c\u003d 1 as alt-ref frames are not enabled for this case.\n  Also, pyramid height can be used to decide the maximum number of\n  successive no-show frames, when lag-in-frames \u003e 1. The current patch\n  limits the allocated stream size based on above, to reduce the HEAP\n  memory requirements of AVIF encode.",
       "revId": "fdb909cc077e76db71332ad4005611bb2a543591",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f06ef137_6ec94142",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2143,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-08T20:09:34Z",
+      "side": 1,
+      "message": "This parameter is deprecated and shall no longer have effect on the actual ARF numbers within a GOP.",
+      "range": {
+        "startLine": 2143,
+        "startChar": 45,
+        "endLine": 2143,
+        "endChar": 62
+      },
+      "revId": "fdb909cc077e76db71332ad4005611bb2a543591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
