@@ -719,7 +719,7 @@ static AOM_INLINE void fp_create_enc_workers(AV1_COMP *cpi, int num_workers) {
     if (i > 0) {
       // Set up firstpass PICK_MODE_CONTEXT.
       thread_data->td->firstpass_ctx =
-          av1_alloc_pmc(cm, BLOCK_16X16, &thread_data->td->shared_coeff_buf);
+          av1_alloc_pmc(cpi, BLOCK_16X16, &thread_data->td->shared_coeff_buf);
 
       if (create_workers) {
         // Create threads
@@ -1060,7 +1060,6 @@ void av1_encode_tiles_row_mt(AV1_COMP *cpi) {
   int *thread_id_to_tile_id = enc_row_mt->thread_id_to_tile_id;
   int max_sb_rows = 0, max_sb_cols = 0;
   int num_workers = mt_info->num_mod_workers[MOD_ENC];
-
   assert(IMPLIES(cpi->tile_data == NULL,
                  cpi->allocated_tiles < tile_cols * tile_rows));
   if (cpi->allocated_tiles < tile_cols * tile_rows) {
