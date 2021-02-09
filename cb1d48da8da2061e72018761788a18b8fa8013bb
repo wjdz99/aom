@@ -105,6 +105,24 @@
       "parentUuid": "d4db2346_23e5cd2a",
       "revId": "cb1d48da8da2061e72018761788a18b8fa8013bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d79b206_551700a8",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-09T21:18:43Z",
+      "side": 1,
+      "message": "I can write a CL to update the comment on the master branch.",
+      "parentUuid": "11c08fa7_ff0d36c4",
+      "revId": "cb1d48da8da2061e72018761788a18b8fa8013bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
