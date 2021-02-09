@@ -229,7 +229,7 @@ static void get_rate_distortion(
     tran_low_t *qcoeff, tran_low_t *dqcoeff, AV1_COMMON *cm, MACROBLOCK *x,
     const YV12_BUFFER_CONFIG *ref_frame_ptr[2], uint8_t *rec_buffer_pool[3],
     const int rec_stride_pool[3], TX_SIZE tx_size, PREDICTION_MODE best_mode,
-    int mi_row, int mi_col) {
+    const int_interpfilters kernel, int mi_row, int mi_col) {
   *rate_cost = 0;
   *recon_error = 1;
 
@@ -246,9 +246,6 @@ static void get_rate_distortion(
     xd->cur_buf->uv_stride,
     xd->cur_buf->uv_stride,
   };
-
-  const int_interpfilters kernel =
-      av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 
   for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
     struct macroblockd_plane *pd = &xd->plane[plane];
@@ -333,12 +330,12 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 
   const int bw = 4 << mi_size_wide_log2[bsize];
   const int bh = 4 << mi_size_high_log2[bsize];
-  const int_interpfilters kernel =
-      av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
+  int_interpfilters kernel = av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 
   int64_t best_intra_cost = INT64_MAX;
   int64_t intra_cost;
   PREDICTION_MODE best_mode = DC_PRED;
+  InterpFilter best_filter = EIGHTTAP_REGULAR;
 
   int mb_y_offset = mi_row * MI_SIZE * xd->cur_buf->y_stride + mi_col * MI_SIZE;
   uint8_t *src_mb_buffer = xd->cur_buf->y_buffer + mb_y_offset;
@@ -552,28 +549,32 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                               ref_frame_ptr->y_width, ref_frame_ptr->y_height,
                               ref_frame_ptr->y_stride };
     InterPredParams inter_pred_params;
-    av1_init_inter_params(&inter_pred_params, bw, bh, mi_row * MI_SIZE,
-                          mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd), 0,
-                          &tpl_data->sf, &ref_buf, kernel);
-    inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
+    for (InterpFilter filter_type = EIGHTTAP_REGULAR;
+         filter_type <= MULTITAP_SHARP; ++filter_type) {
+      kernel = av1_broadcast_interp_filter(filter_type);
+      av1_init_inter_params(&inter_pred_params, bw, bh, mi_row * MI_SIZE,
+                            mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd),
+                            0, &tpl_data->sf, &ref_buf, kernel);
+      inter_pred_params.conv_params = get_conv_params(0, 0, xd->bd);
 
-    av1_enc_build_one_inter_predictor(predictor, bw, &best_rfidx_mv.as_mv,
-                                      &inter_pred_params);
+      av1_enc_build_one_inter_predictor(predictor, bw, &best_rfidx_mv.as_mv,
+                                        &inter_pred_params);
 
-    inter_cost = tpl_get_satd_cost(x, src_diff, bw, src_mb_buffer, src_stride,
-                                   predictor, bw, coeff, bw, bh, tx_size);
-    // Store inter cost for each ref frame
-    tpl_stats->pred_error[rf_idx] = AOMMAX(1, inter_cost);
+      inter_cost = tpl_get_satd_cost(x, src_diff, bw, src_mb_buffer, src_stride,
+                                     predictor, bw, coeff, bw, bh, tx_size);
+      // Store inter cost for each ref frame
+      tpl_stats->pred_error[rf_idx] = AOMMAX(1, inter_cost);
 
-    if (inter_cost < best_inter_cost) {
-      best_rf_idx = rf_idx;
-
-      best_inter_cost = inter_cost;
-      best_mv[0].as_int = best_rfidx_mv.as_int;
-      if (best_inter_cost < best_intra_cost) {
-        best_mode = NEWMV;
-        xd->mi[0]->ref_frame[0] = best_rf_idx + LAST_FRAME;
-        xd->mi[0]->mv[0].as_int = best_mv[0].as_int;
+      if (inter_cost < best_inter_cost) {
+        best_rf_idx = rf_idx;
+        best_inter_cost = inter_cost;
+        best_mv[0].as_int = best_rfidx_mv.as_int;
+        best_filter = filter_type;
+        if (best_inter_cost < best_intra_cost) {
+          best_mode = NEWMV;
+          xd->mi[0]->ref_frame[0] = best_rf_idx + LAST_FRAME;
+          xd->mi[0]->mv[0].as_int = best_mv[0].as_int;
+        }
       }
     }
   }
@@ -627,6 +628,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                                 ref_frame_ptr[ref]->y_height,
                                 ref_frame_ptr[ref]->y_stride };
       InterPredParams inter_pred_params;
+      kernel = av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
       av1_init_inter_params(&inter_pred_params, bw, bh, mi_row * MI_SIZE,
                             mi_col * MI_SIZE, 0, 0, xd->bd, is_cur_buf_hbd(xd),
                             0, &tpl_data->sf, &ref_buf, kernel);
@@ -648,6 +650,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 
       if (best_inter_cost < best_intra_cost) {
         best_mode = NEW_NEWMV;
+        best_filter = EIGHTTAP_REGULAR;
         xd->mi[0]->ref_frame[0] = rf_idx0 + LAST_FRAME;
         xd->mi[0]->ref_frame[1] = rf_idx1 + LAST_FRAME;
       }
@@ -666,9 +669,10 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
           : NULL,
     };
     int rate_cost = 1;
-    get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
-                        dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
-                        rec_stride_pool, tx_size, best_mode, mi_row, mi_col);
+    get_rate_distortion(
+        &rate_cost, &recon_error, src_diff, coeff, qcoeff, dqcoeff, cm, x,
+        ref_frame_ptr, rec_buffer_pool, rec_stride_pool, tx_size, best_mode,
+        av1_broadcast_interp_filter(best_filter), mi_row, mi_col);
     tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
   }
 
@@ -686,14 +690,16 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
+      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
+                         : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
           : NULL;
-  get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
-                      dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
-                      rec_stride_pool, tx_size, best_mode, mi_row, mi_col);
+  get_rate_distortion(
+      &rate_cost, &recon_error, src_diff, coeff, qcoeff, dqcoeff, cm, x,
+      ref_frame_ptr, rec_buffer_pool, rec_stride_pool, tx_size, best_mode,
+      av1_broadcast_interp_filter(best_filter), mi_row, mi_col);
 
   tpl_stats->recrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
   tpl_stats->recrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
@@ -709,9 +715,10 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     ref_frame_ptr[0] = tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]];
     ref_frame_ptr[1] =
         tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][1]];
-    get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
-                        dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
-                        rec_stride_pool, tx_size, best_mode, mi_row, mi_col);
+    get_rate_distortion(
+        &rate_cost, &recon_error, src_diff, coeff, qcoeff, dqcoeff, cm, x,
+        ref_frame_ptr, rec_buffer_pool, rec_stride_pool, tx_size, best_mode,
+        av1_broadcast_interp_filter(EIGHTTAP_REGULAR), mi_row, mi_col);
     tpl_stats->cmp_recrf_dist[0] = recon_error << TPL_DEP_COST_SCALE_LOG2;
     tpl_stats->cmp_recrf_rate[0] = rate_cost << TPL_DEP_COST_SCALE_LOG2;
 
@@ -729,9 +736,10 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     ref_frame_ptr[0] =
         tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][0]];
     ref_frame_ptr[1] = tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]];
-    get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
-                        dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
-                        rec_stride_pool, tx_size, best_mode, mi_row, mi_col);
+    get_rate_distortion(
+        &rate_cost, &recon_error, src_diff, coeff, qcoeff, dqcoeff, cm, x,
+        ref_frame_ptr, rec_buffer_pool, rec_stride_pool, tx_size, best_mode,
+        av1_broadcast_interp_filter(EIGHTTAP_REGULAR), mi_row, mi_col);
     tpl_stats->cmp_recrf_dist[1] = recon_error << TPL_DEP_COST_SCALE_LOG2;
     tpl_stats->cmp_recrf_rate[1] = rate_cost << TPL_DEP_COST_SCALE_LOG2;
 
