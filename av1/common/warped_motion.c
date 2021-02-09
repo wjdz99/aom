@@ -1064,3 +1064,61 @@ int av1_find_projection(int np, const int *pts1, const int *pts2,
 
   return 0;
 }
+
+#if CONFIG_EXT_ROTATION
+// rotation is in 0.2 degree increments and between +/- 12.6 degrees
+void av1_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int mi_x, int mi_y,
+                       int32_t *output_wmmat) {
+  int sine_val = sine_values[rotation];
+  int cosine_val =
+      (rotation < 0) ? -cosine_values[rotation] : cosine_values[rotation];
+
+  if (mi->wm_params.wmtype != IDENTITY) {
+    int32_t *matrix = mi->wm_params.wmmat;
+    int32_t wmmat[8] = {
+      (int32_t)(((((matrix[2] * mi_y) - (matrix[3] * mi_x)) * sine_val) +
+                 (((matrix[2] * mi_x) + (matrix[3] * mi_y)) *
+                  ((1 << SINE_PRECISION_BITS) - cosine_val))) >>
+                SINE_PRECISION_BITS) +
+          matrix[0],
+      (int32_t)(((((matrix[4] * mi_y) - (matrix[5] * mi_x)) * sine_val) +
+                 (((matrix[4] * mi_x) + (matrix[5] * mi_y)) *
+                  ((1 << SINE_PRECISION_BITS) - cosine_val))) >>
+                SINE_PRECISION_BITS) +
+          matrix[1],
+      (int32_t)((matrix[2] * cosine_val) + (matrix[3] * sine_val)) >>
+          SINE_PRECISION_BITS,
+      (int32_t)((-matrix[2] * sine_val) + (matrix[3] * cosine_val)) >>
+          SINE_PRECISION_BITS,
+      (int32_t)((matrix[4] * cosine_val) + (matrix[5] * sine_val)) >>
+          SINE_PRECISION_BITS,
+      (int32_t)((-matrix[4] * sine_val) + (matrix[5] * cosine_val)) >>
+          SINE_PRECISION_BITS,
+      0,
+      0
+    };
+    memcpy(output_wmmat, wmmat, sizeof(int32_t) * 8);
+    return;
+  }
+
+  MV mv = mi->mv[0].as_mv;
+  // mv is 1/8 pixel precision and wmmat is 1/(2^16) pixel precision
+  int32_t wmmat[8] = {
+    (int32_t)((-mi_x * cosine_val) + (mi_y * sine_val) +
+              (mi_x << SINE_PRECISION_BITS) +
+              ((mv.col << SINE_PRECISION_BITS) / 8))
+        << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS),
+    (int32_t)((-mi_x * sine_val) - (mi_y * cosine_val) +
+              (mi_y << SINE_PRECISION_BITS) +
+              ((mv.row << SINE_PRECISION_BITS) / 8))
+        << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS),
+    (int32_t)cosine_val << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS),
+    (int32_t)-sine_val << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS),
+    (int32_t)sine_val << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS),
+    (int32_t)cosine_val << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS),
+    0,
+    0
+  };
+  memcpy(output_wmmat, wmmat, sizeof(int32_t) * 8);
+}
+#endif  // CONFIG_EXT_ROTATION
