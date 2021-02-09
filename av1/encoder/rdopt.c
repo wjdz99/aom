@@ -477,7 +477,12 @@ static AOM_INLINE void inter_modes_info_push(InterModesInfo *inter_modes_info,
 
 static int compare_rd_idx_pair(const void *a, const void *b) {
   if (((RdIdxPair *)a)->rd == ((RdIdxPair *)b)->rd) {
-    return 0;
+    if (((RdIdxPair *)a)->idx == ((RdIdxPair *)b)->idx)
+      return 0;
+    else if (((RdIdxPair *)a)->idx > ((RdIdxPair *)b)->idx)
+      return 1;
+    else
+      return -1;
   } else if (((const RdIdxPair *)a)->rd > ((const RdIdxPair *)b)->rd) {
     return 1;
   } else {
