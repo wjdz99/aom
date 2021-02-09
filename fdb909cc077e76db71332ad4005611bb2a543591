@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a394163a_32a14898",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2132,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-09T18:19:49Z",
+      "side": 1,
+      "message": "Rebased the patch to latest.",
+      "parentUuid": "1cf48d0e_42084387",
+      "range": {
+        "startLine": 2131,
+        "startChar": 0,
+        "endLine": 2132,
+        "endChar": 74
+      },
+      "revId": "fdb909cc077e76db71332ad4005611bb2a543591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cb4a98d_52274b3a",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-02-08T20:04:53Z",
       "side": 1,
       "message": "Nit/optional: We can add a comment to note that this is the frame size. Alternatively, we can add a frame_sz variable:\n\n      size_t frame_sz \u003d ALIGN_POWER_OF_TWO(ctx-\u003ecfg.g_w, 5) *\n                        ALIGN_POWER_OF_TWO(ctx-\u003ecfg.g_h, 5) *\n                        get_image_bps(img) / 8;\n\nand change line 2144 to:\n\n      size_t data_sz \u003d frame_sz * max_successive_arfs_plus_1;",
+      "range": {
+        "startLine": 2134,
+        "startChar": 0,
+        "endLine": 2136,
+        "endChar": 46
+      },
+      "revId": "fdb909cc077e76db71332ad4005611bb2a543591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b475b2fb_144cae10",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2136,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-09T18:19:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0cb4a98d_52274b3a",
       "range": {
         "startLine": 2134,
         "startChar": 0,
@@ -98,6 +146,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f2c0cdb_4bf24f86",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2138,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-09T18:19:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "cb537f4a_0cde5703",
+      "revId": "fdb909cc077e76db71332ad4005611bb2a543591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f06ef137_6ec94142",
@@ -111,6 +177,30 @@
       "writtenOn": "2021-02-08T20:09:34Z",
       "side": 1,
       "message": "This parameter is deprecated and shall no longer have effect on the actual ARF numbers within a GOP.",
+      "range": {
+        "startLine": 2143,
+        "startChar": 45,
+        "endLine": 2143,
+        "endChar": 62
+      },
+      "revId": "fdb909cc077e76db71332ad4005611bb2a543591",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01f87eec_cacd2848",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2143,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-09T18:19:49Z",
+      "side": 1,
+      "message": "As per our understanding, gf_max_pyr_height is being used by the encoder and not deprecated. Specifically, max_layer_depth_allowed in define_gf_group() is populated based on gf_max_pyr_height, if gf interval is allowed to have alt-ref frames. The variable max_layer_depth_allowed controls the layer depth, which in turn effects the maximum number of successive no-show frames. We verified the same by using different gf_max_pyr_height values. Hence we feel that bit stream buffer size can be calculated using gf_max_pyr_height. Please let us know if our understanding is correct.",
+      "parentUuid": "f06ef137_6ec94142",
       "range": {
         "startLine": 2143,
         "startChar": 45,
