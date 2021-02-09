@@ -223,6 +223,26 @@ static const uint16_t div_lut[DIV_LUT_NUM + 1] = {
   8240,  8224,  8208,  8192,
 };
 
+#if CONFIG_EXT_ROTATION
+#define SINE_PRECISION_BITS 12  // for both sine_values and cosine_values
+
+static const int sine_values[64] = {
+  0,   14,  29,  43,  51,  71,  86,  100, 114, 129, 143, 157, 172,
+  186, 200, 214, 229, 243, 257, 271, 286, 300, 314, 328, 343, 357,
+  371, 385, 400, 414, 428, 441, 457, 471, 485, 499, 513, 528, 542,
+  556, 570, 584, 598, 612, 627, 641, 655, 669, 683, 697, 711, 725,
+  739, 753, 768, 782, 796, 810, 824, 838, 852, 866, 880, 894
+};
+
+static const int cosine_values[64] = {
+  4096, 4096, 4096, 4096, 4096, 4095, 4095, 4095, 4094, 4094, 4094, 4093, 4092,
+  4092, 4091, 4090, 4090, 4089, 4088, 4087, 4086, 4085, 4084, 4083, 4082, 4080,
+  4079, 4078, 4076, 4075, 4074, 4072, 4070, 4069, 4067, 4065, 4064, 4062, 4060,
+  4058, 4056, 4054, 4052, 4050, 4048, 4046, 4043, 4041, 4039, 4036, 4034, 4031,
+  4029, 4026, 4023, 4020, 4018, 4015, 4012, 4009, 4006, 4003, 4000, 3997
+};
+#endif  // CONFIG_EXT_ROTATION
+
 // Decomposes a divisor D such that 1/D = y/2^shift, where y is returned
 // at precision of DIV_LUT_PREC_BITS along with the shift.
 static int16_t resolve_divisor_64(uint64_t D, int16_t *shift) {
@@ -1064,3 +1084,66 @@ int av1_find_projection(int np, const int *pts1, const int *pts2,
 
   return 0;
 }
+
+#if CONFIG_EXT_ROTATION
+int av1_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int mi_x, int mi_y) {
+  const int sine_val = sine_values[rotation];
+  const int cosine_val =
+      (rotation < 0) ? -cosine_values[rotation] : cosine_values[rotation];
+
+  if (mi->wm_params.wmtype == IDENTITY) return 0;
+
+  int32_t *matrix = mi->wm_params.wmmat;
+  int32_t wmmat[8] = {
+    (int32_t)(((((matrix[2] * mi_y) - (matrix[3] * mi_x)) * sine_val) +
+               (((matrix[2] * mi_x) + (matrix[3] * mi_y)) *
+                ((1 << SINE_PRECISION_BITS) - cosine_val))) >>
+              SINE_PRECISION_BITS) +
+        matrix[0],
+    (int32_t)(((((matrix[4] * mi_y) - (matrix[5] * mi_x)) * sine_val) +
+               (((matrix[4] * mi_x) + (matrix[5] * mi_y)) *
+                ((1 << SINE_PRECISION_BITS) - cosine_val))) >>
+              SINE_PRECISION_BITS) +
+        matrix[1],
+    (int32_t)((matrix[2] * cosine_val) + (matrix[3] * sine_val)) >>
+        SINE_PRECISION_BITS,
+    (int32_t)((-matrix[2] * sine_val) + (matrix[3] * cosine_val)) >>
+        SINE_PRECISION_BITS,
+    (int32_t)((matrix[4] * cosine_val) + (matrix[5] * sine_val)) >>
+        SINE_PRECISION_BITS,
+    (int32_t)((-matrix[4] * sine_val) + (matrix[5] * cosine_val)) >>
+        SINE_PRECISION_BITS,
+    0,
+    0
+  };
+  memcpy(mi->wm_params.wmmat, wmmat, sizeof(int32_t) * 8);
+  return 1;
+}
+
+void av1_translational_rotation(MB_MODE_INFO *mi, int8_t rotation, int mi_x,
+                                int mi_y, int32_t *output_wmmat) {
+  const int sine_val = sine_values[rotation];
+  const int cosine_val =
+      (rotation < 0) ? -cosine_values[rotation] : cosine_values[rotation];
+
+  MV mv = mi->mv[0].as_mv;
+  // mv is 1/8 pixel precision and wmmat is 1/(2^16) pixel precision
+  output_wmmat[0] = (int32_t)((-mi_x * cosine_val) + (mi_y * sine_val) +
+                              (mi_x << SINE_PRECISION_BITS) +
+                              ((mv.col << SINE_PRECISION_BITS) / 8))
+                    << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS);
+  output_wmmat[1] = (int32_t)((-mi_x * sine_val) - (mi_y * cosine_val) +
+                              (mi_y << SINE_PRECISION_BITS) +
+                              ((mv.row << SINE_PRECISION_BITS) / 8))
+                    << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS);
+  output_wmmat[2] = (int32_t)cosine_val
+                    << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS);
+  output_wmmat[3] = (int32_t)-sine_val
+                    << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS);
+  output_wmmat[4] = (int32_t)sine_val
+                    << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS);
+  output_wmmat[5] = (int32_t)cosine_val
+                    << (WARPEDMODEL_PREC_BITS - SINE_PRECISION_BITS);
+  output_wmmat[6] = output_wmmat[7] = 0;
+}
+#endif  // CONFIG_EXT_ROTATION
