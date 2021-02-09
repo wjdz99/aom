@@ -87,6 +87,24 @@
       "parentUuid": "073db0ae_b1e0c612",
       "revId": "cb1d48da8da2061e72018761788a18b8fa8013bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11c08fa7_ff0d36c4",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-09T20:50:07Z",
+      "side": 1,
+      "message": "\u003e Thanks for the reply!\n\u003e  \n\u003e \u003e 3. If the library source code has changed at all since the last update, then increment revision (‘c:r:a’ becomes ‘c:r+1:a’).\n\u003e \u003e \n\u003e \u003e v2.0.1 should have been 2.(0 + 1).0 at this stage; to allow potential patches\n\u003e \u003e to that tag we can make this 2.2.0.\n\u003e \n\u003e I assume you suggested setting ‘c:r:a’ to ‘2:2:0’. I passed -version-info 2:2:0 to libtool, and it produced an output file with \"2.0.2\" in the file name.\n\u003e \n\nyes I think you\u0027re right, I forgot we weren\u0027t forming things for libtool here. The comment then is a bit misleading. It seems we should note the order if we\u0027re linking the libtool docs. The origin of this is from webp where we pass -version-info and the values are reordered.",
+      "parentUuid": "d4db2346_23e5cd2a",
+      "revId": "cb1d48da8da2061e72018761788a18b8fa8013bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
