@@ -1064,3 +1064,28 @@ int av1_find_projection(int np, const int *pts1, const int *pts2,
 
   return 0;
 }
+
+#if CONFIG_ENABLE_WARP_ROTATION
+// rotation is in 0.2 degree increments and between +/- 12.6 degrees
+int32_t *av2_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int mi_x,
+                           int mi_y) {
+  MV mv = mi->mv[0].as_mv;
+  double rotation_radians = (rotation * 0.2) * (PI / 180.0);
+
+  // mv is 1/8 pixel precision and wmmat is 1/16 pixel precision
+  int32_t wmmat[8] = {
+    (int32_t)16 * ((-mi_x) * cos(rotation_radians) +
+                   mi_y * sin(rotation_radians) + mi_x + (mv.col / 8)),
+    (int32_t)16 * ((-mi_x) * sin(rotation_radians) -
+                   mi_y * cos(rotation_radians) + mi_y + (mv.row / 8)),
+    (int32_t)16 * cos(rotation_radians),
+    (int32_t)-16 * sin(rotation_radians),
+    (int32_t)16 * sin(rotation_radians),
+    (int32_t)16 * cos(rotation_radians),
+    0,
+    0
+  };
+
+  return wmmat;
+}
+#endif  // CONFIG_ENABLE_WARP_ROTATION
