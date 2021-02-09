@@ -250,7 +250,7 @@ static void get_rate_distortion(
   const int_interpfilters kernel =
       av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
 
-  for (int plane = 0; plane < MAX_MB_PLANE; ++plane) {
+  for (int plane = 0; plane < 1 /*MAX_MB_PLANE*/; ++plane) {
     struct macroblockd_plane *pd = &xd->plane[plane];
     BLOCK_SIZE bsize_plane =
         ss_size_lookup[txsize_to_bsize[tx_size]][pd->subsampling_x]
