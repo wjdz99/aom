@@ -33,6 +33,24 @@
       "message": "this is incorrect, the revision should change, though you might want to keep a gap for local patches to v2.0.1:\n\nhttps://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info\n3. If the library source code has changed at all since the last update, then increment revision (‘c:r:a’ becomes ‘c:r+1:a’).",
       "revId": "cb1d48da8da2061e72018761788a18b8fa8013bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93b32a84_5c7df82d",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-09T02:28:05Z",
+      "side": 1,
+      "message": "I am afraid that I don\u0027t understand libtool\u0027s versioning system. Please suggest a value and I will change it to that value. Thanks!",
+      "parentUuid": "e9c12489_33efb6db",
+      "revId": "cb1d48da8da2061e72018761788a18b8fa8013bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
