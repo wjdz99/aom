@@ -1355,6 +1355,7 @@ static int64_t motion_mode_rd(
   // transform search.
   for (int mode_index = mode_index_start; mode_index <= mode_index_end;
        mode_index++) {
+    av1_warp_rotation(mbmi, -10, 2, 3);
     if (args->skip_motion_mode && mode_index) continue;
     int tmp_rate2 = rate2_nocoeff;
     const int is_interintra_mode = mode_index > (int)last_motion_mode_allowed;
