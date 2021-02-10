@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "afae4c7a_ec3d6f03",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2134,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-10T06:23:08Z",
+      "side": 1,
+      "message": "Declared frame_sz as const. As data_sz is modified based kMinCompressedSize, did not declare it as const.",
+      "parentUuid": "2239fb0d_89af0574",
+      "revId": "cce90a0ce3b967338f88de19d157113f33edce9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b45777da_b323fe5d",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 8
@@ -65,6 +83,30 @@
       "writtenOn": "2021-02-10T00:04:17Z",
       "side": 1,
       "message": "Nit: Please shorten this sentence to:\n\n  Hence bit stream buffer needs to be allocated based on maximum number of successive no-show frames possible.",
+      "range": {
+        "startLine": 2139,
+        "startChar": 48,
+        "endLine": 2141,
+        "endChar": 62
+      },
+      "revId": "cce90a0ce3b967338f88de19d157113f33edce9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a8bd262_14796b7b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2141,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-10T06:23:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b45777da_b323fe5d",
       "range": {
         "startLine": 2139,
         "startChar": 48,
@@ -100,6 +142,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9009c8b4_4330e59f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2144,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-10T06:23:08Z",
+      "side": 1,
+      "message": "Changed variable name as \"max_successive_no_show_frames_plus_1\" for consistency.",
+      "parentUuid": "386de8f8_58b8949f",
+      "range": {
+        "startLine": 2141,
+        "startChar": 63,
+        "endLine": 2144,
+        "endChar": 35
+      },
+      "revId": "cce90a0ce3b967338f88de19d157113f33edce9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "612ea509_ce535155",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 8
@@ -111,6 +177,30 @@
       "writtenOn": "2021-02-10T00:04:17Z",
       "side": 1,
       "message": "Nit: Omit \"or max_successive_arfs_plus_1 \u003d 1\".",
+      "range": {
+        "startLine": 2147,
+        "startChar": 60,
+        "endLine": 2148,
+        "endChar": 40
+      },
+      "revId": "cce90a0ce3b967338f88de19d157113f33edce9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d5976f0_458429d6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2148,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-10T06:23:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "612ea509_ce535155",
       "range": {
         "startLine": 2147,
         "startChar": 60,
