@@ -1073,6 +1073,22 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   }
 #endif
 
+#if CONFIG_TUNE_BUTTERAUGLI
+  {
+    const int bsize = BLOCK_8X8;
+    const int w = mi_size_wide[bsize];
+    const int h = mi_size_high[bsize];
+    const int num_cols = (mi_params->mi_cols + w - 1) / w;
+    const int num_rows = (mi_params->mi_rows + h - 1) / h;
+    CHECK_MEM_ERROR(
+        cm, cpi->butteraugli_info.rdmult_scaling_factors,
+        aom_calloc(num_rows * num_cols,
+                   sizeof(*cpi->butteraugli_info.rdmult_scaling_factors)));
+    memset(&cpi->butteraugli_info.recon, 0,
+           sizeof(cpi->butteraugli_info.recon));
+  }
+#endif
+
   if (!is_stat_generation_stage(cpi)) {
     setup_tpl_buffers(cm, &cpi->tpl_data, cpi->oxcf.gf_cfg.lag_in_frames);
   }
@@ -2466,6 +2482,11 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   }
 #endif
 
+#if CONFIG_TUNE_BUTTERAUGLI
+  cpi->butteraugli_info.recon_set = false;
+  int original_q = 0;
+#endif
+
   // Loop variables
   int loop = 0;
   int loop_count = 0;
@@ -2507,6 +2528,15 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         oxcf->tune_cfg.tuning <= AOM_TUNE_VMAF_NEG_MAX_GAIN) {
       cpi->vmaf_info.original_qindex = q;
       q = av1_get_vmaf_base_qindex(cpi, q);
+    }
+#endif
+#if CONFIG_TUNE_BUTTERAUGLI
+    if (oxcf->tune_cfg.tuning == AOM_TUNE_BUTTERAUGLI) {
+      if (loop_count == 0) {
+        original_q = q;
+        q = 96;
+      } else
+        q = original_q;
     }
 #endif
     av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
@@ -2568,6 +2598,12 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       last_loop_allow_hp = cm->features.allow_high_precision_mv;
     }
 
+#if CONFIG_TUNE_BUTTERAUGLI
+    if (oxcf->tune_cfg.tuning == AOM_TUNE_BUTTERAUGLI) {
+      av1_set_mb_butteraugli_rdmult_scaling(cpi);
+    }
+#endif
+
     // transform / motion compensation build reconstruction frame
     av1_encode_frame(cpi);
 
@@ -2619,6 +2655,13 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
                            bottom_index, &undershoot_seen, &overshoot_seen,
                            &low_cr_seen, loop_count);
     }
+
+#ifdef CONFIG_TUNE_BUTTERAUGLI
+    if (loop_count == 0) {
+      loop = 1;
+      av1_setup_butteraugli_recon(cpi, &cm->cur_frame->buf);
+    }
+#endif
 
     if (loop) {
       ++loop_count;
@@ -3125,8 +3168,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
     }
   }
 
-  if (oxcf->tune_cfg.tuning == AOM_TUNE_SSIM)
+  if (oxcf->tune_cfg.tuning == AOM_TUNE_SSIM) {
     av1_set_mb_ssim_rdmult_scaling(cpi);
+  }
 
 #if CONFIG_TUNE_VMAF
   if (oxcf->tune_cfg.tuning == AOM_TUNE_VMAF_WITHOUT_PREPROCESSING ||
