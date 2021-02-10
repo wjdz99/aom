@@ -85,6 +85,24 @@
       "parentUuid": "fd0da466_3e13da50",
       "revId": "181dc71d186014704aba8443847424e4c0a32263",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d096bc1_b77ea910",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2021-02-10T13:13:51Z",
+      "side": 1,
+      "message": "But I think that the background could be and often is a colour other than black. The fact that it is black here is just chance. Consider screen share videos of presentations or other cases like the mixed format where a user creates a slide show of various photos for a wedding or holiday or whatever (not uncommon). They may choose to set the photos in a background of any colour.",
+      "parentUuid": "5b7eef36_1ba596fc",
+      "revId": "181dc71d186014704aba8443847424e4c0a32263",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
