@@ -74,6 +74,10 @@
 #include "av1/encoder/tune_vmaf.h"
 #endif
 
+#if CONFIG_TUNE_BUTTERAUGLI
+#include "av1/encoder/tune_butteraugli.h"
+#endif
+
 /*!\cond */
 // This is used as a reference when computing the source variance for the
 //  purposes of activity masking.

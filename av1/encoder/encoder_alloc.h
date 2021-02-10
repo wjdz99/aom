@@ -259,6 +259,15 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
 #endif
 #endif
 
+#if CONFIG_TUNE_BUTTERAUGLI
+  aom_free(cpi->butteraugli_info.rdmult_scaling_factors);
+  cpi->butteraugli_info.rdmult_scaling_factors = NULL;
+  YV12_BUFFER_CONFIG *recon = &cpi->butteraugli_info.recon;
+  if (recon->buffer_alloc_sz) {
+    aom_free_frame_buffer(recon);
+  }
+#endif
+
   release_obmc_buffers(&cpi->td.mb.obmc_buffer);
 
   if (cpi->td.mb.mv_costs) {
