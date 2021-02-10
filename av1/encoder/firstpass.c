@@ -586,6 +586,7 @@ static void accumulate_mv_stats(const MV best_mv, const FULLPEL_MV mv,
 //    this_inter_error
 static int firstpass_inter_prediction(
     AV1_COMP *cpi, ThreadData *td, const YV12_BUFFER_CONFIG *const last_frame,
+    const YV12_BUFFER_CONFIG *const sec_last_frame,
     const YV12_BUFFER_CONFIG *const golden_frame,
     const YV12_BUFFER_CONFIG *const alt_ref_frame, const int unit_row,
     const int unit_col, const int recon_yoffset, const int recon_uvoffset,
@@ -608,6 +609,9 @@ static int firstpass_inter_prediction(
   const int unit_width = mi_size_wide[fp_block_size];
   const int unit_rows = get_unit_rows(fp_block_size, mi_params->mb_rows);
   const int unit_cols = get_unit_cols(fp_block_size, mi_params->mb_cols);
+
+  (void)sec_last_frame;
+
   // Assume 0,0 motion with no mv overhead.
   FULLPEL_MV mv = kZeroFullMv;
   FULLPEL_MV tmp_mv = kZeroFullMv;
@@ -649,6 +653,18 @@ static int firstpass_inter_prediction(
       if (tmp_err < motion_error) {
         motion_error = tmp_err;
         mv = tmp_mv;
+      }
+    }
+
+    if (sec_last_frame != NULL) {
+      xd->plane[0].pre[0].buf = sec_last_frame->y_buffer + recon_yoffset;
+      xd->plane[0].pre[0].stride = sec_last_frame->y_stride;
+      int sec_motion_error =
+          get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
+                                        &x->plane[0].src, &xd->plane[0].pre[0]);
+      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &sec_motion_error);
+      if (sec_motion_error < motion_error) {
+        motion_error = sec_motion_error;
       }
     }
 
@@ -1016,6 +1032,8 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
   const YV12_BUFFER_CONFIG *const last_frame =
       get_ref_frame_yv12_buf(cm, LAST_FRAME);
+  const YV12_BUFFER_CONFIG *const sec_last_frame =
+      get_ref_frame_yv12_buf(cm, LAST2_FRAME);
   const YV12_BUFFER_CONFIG *golden_frame =
       get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
   const YV12_BUFFER_CONFIG *alt_ref_frame = NULL;
@@ -1100,10 +1118,11 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 
     if (!frame_is_intra_only(cm)) {
       const int this_inter_error = firstpass_inter_prediction(
-          cpi, td, last_frame, golden_frame, alt_ref_frame, unit_row, unit_col,
-          recon_yoffset, recon_uvoffset, src_yoffset, alt_ref_frame_yoffset,
-          fp_block_size, this_intra_error, raw_motion_err_counts,
-          raw_motion_err_list, &best_ref_mv, &last_mv, mb_stats);
+          cpi, td, last_frame, sec_last_frame, golden_frame, alt_ref_frame,
+          unit_row, unit_col, recon_yoffset, recon_uvoffset, src_yoffset,
+          alt_ref_frame_yoffset, fp_block_size, this_intra_error,
+          raw_motion_err_counts, raw_motion_err_list, &best_ref_mv, &last_mv,
+          mb_stats);
       if (unit_col_in_tile == 0) {
         *first_top_mv = last_mv;
       }
@@ -1175,6 +1194,12 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
   const YV12_BUFFER_CONFIG *const last_frame =
       get_ref_frame_yv12_buf(cm, LAST_FRAME);
+
+  const YV12_BUFFER_CONFIG *sec_last_frame =
+      get_ref_frame_yv12_buf(cm, LAST2_FRAME);
+
+  (void)sec_last_frame;
+
   const YV12_BUFFER_CONFIG *golden_frame =
       get_ref_frame_yv12_buf(cm, GOLDEN_FRAME);
   YV12_BUFFER_CONFIG *const this_frame = &cm->cur_frame->buf;
@@ -1262,6 +1287,14 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
                          current_frame->frame_number, ts_duration,
                          fp_block_size);
 
+  if (current_frame->frame_number > 1) {
+    if (last_frame != NULL) {
+      assign_frame_buffer_p(
+          &cm->ref_frame_map[get_ref_frame_map_idx(cm, GOLDEN_FRAME)],
+          cm->ref_frame_map[get_ref_frame_map_idx(cm, LAST_FRAME)]);
+    }
+  }
+
   // Copy the previous Last Frame back into gf buffer if the prediction is good
   // enough... but also don't allow it to lag too far.
   if ((twopass->sr_update_lag > 3) ||
@@ -1282,6 +1315,12 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   aom_extend_frame_borders(this_frame, num_planes);
 
   // The frame we just compressed now becomes the last frame.
+
+  if (last_frame != NULL) {
+    assign_frame_buffer_p(
+        &cm->ref_frame_map[get_ref_frame_map_idx(cm, LAST2_FRAME)],
+        cm->ref_frame_map[get_ref_frame_map_idx(cm, LAST_FRAME)]);
+  }
   assign_frame_buffer_p(
       &cm->ref_frame_map[get_ref_frame_map_idx(cm, LAST_FRAME)], cm->cur_frame);
 
