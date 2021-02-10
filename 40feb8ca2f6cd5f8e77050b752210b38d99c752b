@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f09e940e_8d45f4b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-10T19:25:48Z",
+      "side": 1,
+      "message": "Thanks for the review! I posted some debugging output.",
+      "revId": "40feb8ca2f6cd5f8e77050b752210b38d99c752b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36323792_b972328a",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-10T19:25:48Z",
+      "side": 1,
+      "message": "I added the following printf statement after this line:\n\n    fprintf(stderr, \"WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d %d, disable_smooth_intra \u003d %d\\n\",\n            cpi-\u003erc.frames_to_key, sf-\u003eintra_sf.disable_smooth_intra);\n\nHere are the test outputs for kf-max-dist\u003d1 and kf-max-dist\u003d0 (all key frame encoding):\n\n$ ./aomenc --cpu-used\u003d2 --kf-max-dist\u003d1 niklas_1280_720_30.y4m -o out.ivf\nPass 1/2 frame    1/0          0B       0 us 0.00 fpm [ETA  unknown] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 1/2 frame   60/61     12688B    1691b/f   50730b/s 2527779 us (23.74 fps)\nPass 2/2 frame    1/0          0B 2527794 us 23.74 fpm [ETA  unknown] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 2/2 frame   19/0          0B 2566436 us 7.40 fps [ETA  unknown] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 1, disable_smooth_intra \u003d 0\nPass 2/2 frame   20/1       8471B 7579764 us 2.64 fps [ETA  0:07:27] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 1, disable_smooth_intra \u003d 0\nPass 2/2 frame   21/2      16868B   12541 ms 1.67 fps [ETA  0:07:08] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 1, disable_smooth_intra \u003d 0\nPass 2/2 frame   22/3      25199B   17487 ms 1.26 fps [ETA  0:06:47] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 1, disable_smooth_intra \u003d 0\nPass 2/2 frame   23/4      33546B   22440 ms 1.02 fps [ETA  0:06:27] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 1, disable_smooth_intra \u003d 0\nPass 2/2 frame   24/5      42417B   27572 ms 52.23 fpm [ETA  0:06:08] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 1, disable_smooth_intra \u003d 0\n^C\n$ ./aomenc --cpu-used\u003d2 --kf-max-dist\u003d0 niklas_1280_720_30.y4m -o out.ivf\nPass 1/2 frame    1/0          0B       0 us 0.00 fpm [ETA  unknown] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 1/2 frame   60/61     12688B    1691b/f   50730b/s  961659 us (62.39 fps)\nPass 2/2 frame    1/0          0B  961668 us 1.04 fps [ETA  unknown] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 2/2 frame   19/0          0B  996315 us 19.07 fps [ETA  unknown] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 2/2 frame   20/1       6816B 5504770 us 3.63 fps [ETA  0:05:24] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 2/2 frame   21/2      13531B 9956427 us 2.11 fps [ETA  0:05:15] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 2/2 frame   22/3      20307B   14474 ms 1.52 fps [ETA  0:05:04] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 2/2 frame   23/4      27054B   18916 ms 1.22 fps [ETA  0:04:54] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\nPass 2/2 frame   24/5      34260B   23628 ms 1.02 fps [ETA  0:04:45] WTC WTC WTC: cpi-\u003erc.frames_to_key \u003d 0, disable_smooth_intra \u003d 0\n^C",
+      "revId": "40feb8ca2f6cd5f8e77050b752210b38d99c752b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
