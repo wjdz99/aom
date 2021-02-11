@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25266320_c63ab242",
+        "filename": "av1/encoder/context_tree.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-11T13:48:29Z",
+      "side": 1,
+      "message": "Fyodor: Visual Studio 2017 warns that the \u0027cpi\u0027 parameter\u0027s types in declaration and definition are different:\n\n\u003d\u003d\u003e tests_aom::cmake_VS15_x64 is unstable (1)\n         C:\\...\\av1\\encoder\\context_tree.c(69): warning C4028: formal parameter 1 different from declaration [C:\\...\\build-cmake-x64\\aom_av1_encoder.vcxproj]\n\nI will let you decide whether to remove a \u0027const\u0027 here or add a \u0027const\u0027 to the definition.",
+      "range": {
+        "startLine": 112,
+        "startChar": 56,
+        "endLine": 112,
+        "endChar": 61
+      },
+      "revId": "6c1b9bdd67c501e7575528580bfd2c290a308771",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
