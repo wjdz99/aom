@@ -33,6 +33,29 @@
       "message": "Jingning: PTAL. Thanks!",
       "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73ae2d57_272ae35b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-11T01:40:50Z",
+      "side": 1,
+      "message": "Venkata: I discussed this CL with Jingning. He suggested that we replace\n\n    ctx-\u003ecpi-\u003eoxcf.gf_cfg.gf_max_pyr_height + 1\n\nwith 8 (which is the maximum number of reference frames in AV1). He said in principle one can use more than gf_max_pyr_height. Maybe it\u0027s not a good idea for typical compression performance but it does exist.\n\nI have a question: if SVC is enabled, do we need to consider the number of spatial layers?\n\nI know you aim for a general solution that will benefit not only image encoding but also RTC and all keyframe video encoding. But I suggest we use a conservative, partial solution first.\n\nAlso, it may be better to pursue a dynamic approach (in a separate CL). Instead of estimating the maximum bitstream buffer size, we can start with a small size, say one frame, and grow the buffer when it is too small.",
+      "range": {
+        "startLine": 2151,
+        "startChar": 23,
+        "endLine": 2151,
+        "endChar": 66
+      },
+      "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
