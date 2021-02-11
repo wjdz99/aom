@@ -642,11 +642,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
                                           struct av1_extracfg *extra_cfg) {
   extra_cfg->enable_cdef = (cfg->disable_cdef == 0);
   extra_cfg->enable_restoration = (cfg->disable_lr == 0);
-  extra_cfg->superblock_size = (cfg->super_block_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->super_block_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->super_block_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->super_block_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                       : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = (cfg->disable_warp_motion == 0);
   extra_cfg->enable_dist_wtd_comp = (cfg->disable_dist_wtd_comp == 0);
   extra_cfg->enable_diff_wtd_comp = (cfg->disable_diff_wtd_comp == 0);
@@ -2668,6 +2667,9 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
         lc->layer_target_bitrate = 1000 * params->layer_target_bitrate[layer];
         lc->framerate_factor = params->framerate_factor[tl];
       }
+      cpi->svc.max_threads[sl] = params->max_threads[sl];
+      cpi->svc.tile_columns[sl] = params->tile_columns[sl];
+      cpi->svc.tile_rows[sl] = params->tile_rows[sl];
     }
     if (cm->current_frame.frame_number == 0) {
       if (!cpi->seq_params_locked) {
@@ -2681,6 +2683,20 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
     av1_update_layer_context_change_config(cpi,
                                            cpi->oxcf.rc_cfg.target_bandwidth);
   }
+  return AOM_CODEC_OK;
+}
+
+static ctrl_set_svc_per_layer_mt(aom_codec_alg_priv_t *ctx, va_list args) {
+  AV1_COMP *const cpi = ctx->cpi;
+  AV1_COMMON *const cm = &cpi->common;
+  aom_svc_per_layer_mt_config_t *const params =
+      va_arg(args, aom_svc_per_layer_mt_config_t *);
+  for (int sl = 0; sl < cm->number_spatial_layers; ++sl) {
+    cpi->svc.max_threads[sl] = params->max_threads[sl];
+    cpi->svc.tile_columns[sl] = params->tile_columns[sl];
+    cpi->svc.tile_rows[sl] = params->tile_rows[sl];
+  }
+  cpi->svc.is_per_layer_mt_set = 1;
   return AOM_CODEC_OK;
 }
 
@@ -3268,6 +3284,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_SVC_LAYER_ID, ctrl_set_layer_id },
   { AV1E_SET_SVC_PARAMS, ctrl_set_svc_params },
   { AV1E_SET_SVC_REF_FRAME_CONFIG, ctrl_set_svc_ref_frame_config },
+  { AV1E_SET_SVC_PER_LAYER_MT, ctrl_set_svc_per_layer_mt },
   { AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, ctrl_set_vbr_corpus_complexity_lap },
   { AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, ctrl_enable_sb_multipass_unit_test },
 
