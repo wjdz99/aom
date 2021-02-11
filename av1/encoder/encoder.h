@@ -100,7 +100,9 @@ enum {
   GOOD,
   // Realtime Fast Encoding. Will force some restrictions on bitrate
   // constraints.
-  REALTIME
+  REALTIME,
+  // All intra mode. All the frames are coded as images.
+  ALLINTRA
 } UENUM1BYTE(MODE);
 
 enum {
