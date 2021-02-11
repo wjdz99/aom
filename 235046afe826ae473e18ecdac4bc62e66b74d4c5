@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a257a1e4_6f5bcb2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-11T19:04:35Z",
+      "side": 1,
+      "message": "Borg results for ps1 and ps2:\n\nps1: prune_comp_using_best_single_mode_ref \u003d 1 for sp 2 \u0026 3\n   avg_psnr:\tovr_psnr:\tssim:  speedup:\nsp2\nlowres2   0.133\t0.123\t0.120  4.7\nmidres2  0.122\t0.146\t0.141  4.0\n\nsp3\nlowres2   0.173\t0.175\t0.182  4.6\nmidres2   0.093\t0.096\t0.061  4.3\n\n\nps2: prune_comp_using_best_single_mode_ref \u003d 2 for sp 2 \u0026 3\navg_psnr:\tovr_psnr:\tssim:  speedup:\nsp2\nlowres2   0.191\t0.184\t0.156  7.4\nmidres2  0.133\t0.150\t0.117   6.1\n\nsp3\nlowres2  0.270\t0.270\t0.185   8.6\nmidres2  0.262\t0.268\t0.186   8.0\n",
+      "revId": "235046afe826ae473e18ecdac4bc62e66b74d4c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
