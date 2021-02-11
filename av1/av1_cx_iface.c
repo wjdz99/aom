@@ -2684,6 +2684,21 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
+static aom_codec_err_t ctrl_set_svc_per_layer_mt(aom_codec_alg_priv_t *ctx,
+                                                 va_list args) {
+  AV1_COMP *const cpi = ctx->cpi;
+  AV1_COMMON *const cm = &cpi->common;
+  aom_svc_per_layer_mt_config_t *const params =
+      va_arg(args, aom_svc_per_layer_mt_config_t *);
+  for (unsigned int sl = 0; sl < cm->number_spatial_layers; ++sl) {
+    cpi->svc.max_threads[sl] = params->max_threads[sl];
+    cpi->svc.tile_columns[sl] = params->tile_columns[sl];
+    cpi->svc.tile_rows[sl] = params->tile_rows[sl];
+  }
+  cpi->svc.is_per_layer_mt_set = 1;
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
                                                      va_list args) {
   AV1_COMP *const cpi = ctx->cpi;
@@ -3268,6 +3283,7 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_SVC_LAYER_ID, ctrl_set_layer_id },
   { AV1E_SET_SVC_PARAMS, ctrl_set_svc_params },
   { AV1E_SET_SVC_REF_FRAME_CONFIG, ctrl_set_svc_ref_frame_config },
+  { AV1E_SET_SVC_PER_LAYER_MT, ctrl_set_svc_per_layer_mt },
   { AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, ctrl_set_vbr_corpus_complexity_lap },
   { AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, ctrl_enable_sb_multipass_unit_test },
 
