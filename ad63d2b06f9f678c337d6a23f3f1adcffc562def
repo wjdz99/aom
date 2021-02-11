@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b85d158b_bf3f3204",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-02-11T13:19:18Z",
+      "side": 1,
+      "message": "Debargha and Urvang,\n\nThis patch fixes the BUG\u003daomedia:2928. The patch fixes the qsort() \ninconsistency existed in function compare_rd_idx_pair() between \nlinux and windows platforms. The qsort at this function was causing \nthe bit mismatch, we have taken care of this by fixing the compare \nfunction of this qsort().\n\nBut such inconsistency issue can come up in encoder at different functions, \nsince there are multiple qsort() exists in the encoder.\n\nPlease review.\nThanks.\n ",
+      "revId": "ad63d2b06f9f678c337d6a23f3f1adcffc562def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
