@@ -22,6 +22,30 @@
       },
       "revId": "a224b3b02cb7db609723f14407ca4445d8698e60",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aaa7ddd9_4a48683b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2340,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-11T15:40:32Z",
+      "side": 1,
+      "message": "Good news. I proved that ctx-\u003epending_frame_count \u003d\u003d 0 if and only if ctx-\u003epending_frame_count, so we can also remove the ctx-\u003epending_frame_count field.",
+      "parentUuid": "7376bd4e_18eb2d2e",
+      "range": {
+        "startLine": 2340,
+        "startChar": 45,
+        "endLine": 2340,
+        "endChar": 70
+      },
+      "revId": "a224b3b02cb7db609723f14407ca4445d8698e60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
