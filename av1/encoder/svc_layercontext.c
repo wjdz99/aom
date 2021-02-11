@@ -126,16 +126,28 @@ void av1_update_layer_context_change_config(AV1_COMP *const cpi,
       lrc->worst_quality = av1_quantizer_to_qindex(lc->max_q);
       lrc->best_quality = av1_quantizer_to_qindex(lc->min_q);
     }
-    // The user settings of mult-threading are only applied to top
-    // spatial layer for now, keep lower spatial layers at 1 thread.
-    if (sl == svc->number_spatial_layers - 1) {
-      svc->max_threads[sl] = cpi->oxcf.max_threads;
-      svc->tile_columns[sl] = cpi->oxcf.tile_cfg.tile_columns;
-      svc->tile_rows[sl] = cpi->oxcf.tile_cfg.tile_rows;
-    } else {
-      svc->max_threads[sl] = 1;
-      svc->tile_columns[sl] = 0;
-      svc->tile_rows[sl] = 0;
+  }
+
+  int user_set_layer_mt = 0;
+  for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
+    if (svc->max_threads[sl] > 1) {
+      user_set_layer_mt = 1;
+      break;
+    }
+  }
+  if (!user_set_layer_mt) {
+    for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
+      // The user settings of mult-threading are only applied to top
+      // spatial layer for now, keep lower spatial layers at 1 thread.
+      if (sl == svc->number_spatial_layers - 1) {
+        svc->max_threads[sl] = cpi->oxcf.max_threads;
+        svc->tile_columns[sl] = cpi->oxcf.tile_cfg.tile_columns;
+        svc->tile_rows[sl] = cpi->oxcf.tile_cfg.tile_rows;
+      } else {
+        svc->max_threads[sl] = 1;
+        svc->tile_columns[sl] = 0;
+        svc->tile_rows[sl] = 0;
+      }
     }
   }
 }

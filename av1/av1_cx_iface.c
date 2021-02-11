@@ -2668,6 +2668,9 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
         lc->layer_target_bitrate = 1000 * params->layer_target_bitrate[layer];
         lc->framerate_factor = params->framerate_factor[tl];
       }
+      cpi->svc.max_threads[sl] = params->max_threads[sl];
+      cpi->svc.tile_columns[sl] = params->tile_columns[sl];
+      cpi->svc.tile_rows[sl] = params->tile_rows[sl];
     }
     if (cm->current_frame.frame_number == 0) {
       if (!cpi->seq_params_locked) {
