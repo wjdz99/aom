@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7376bd4e_18eb2d2e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2340,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-11T14:34:29Z",
+      "side": 1,
+      "message": "In the current code, ctx-\u003epending_frame_count is used here.\n\nWe may be able to remove ctx-\u003epending_frame_count because we are only checking whether ctx-\u003epending_frame_count is zero here. We may be able to check ctx-\u003epending_cx_data_sz \u003d\u003d 0 instead. I will look into this.",
+      "range": {
+        "startLine": 2340,
+        "startChar": 45,
+        "endLine": 2340,
+        "endChar": 70
+      },
+      "revId": "a224b3b02cb7db609723f14407ca4445d8698e60",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
