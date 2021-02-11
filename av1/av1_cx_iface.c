@@ -3452,7 +3452,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
 
       AOM_RC_ONE_PASS,  // g_pass
 
-      19,  // g_lag_in_frames
+      0,  // g_lag_in_frames
 
       0,                // rc_dropframe_thresh
       RESIZE_NONE,      // rc_resize_mode
@@ -3465,7 +3465,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       63,                 // rc_superres_qthresh
       32,                 // rc_superres_kf_qthresh
 
-      AOM_VBR,      // rc_end_usage
+      AOM_Q,      // rc_end_usage
       { NULL, 0 },  // rc_twopass_stats_in
       { NULL, 0 },  // rc_firstpass_mb_stats_in
       256,          // rc_target_bandwidth
