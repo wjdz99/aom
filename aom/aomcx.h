@@ -1309,6 +1309,10 @@ enum aome_enc_control_id {
   /*!\brief Control to get baseline gf interval
    */
   AV1E_GET_BASELINE_GF_INTERVAL = 158,
+
+  /*!\brief Codec control function to set multi-threading per spatial layer.
+   */
+  AV1E_SET_SVC_PER_SPATIAL_LAYER_MT = 159,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1438,6 +1442,16 @@ typedef struct aom_svc_ref_frame_config {
   int ref_idx[7];
   int refresh[8]; /**< Refresh flag for each of the 8 slots. */
 } aom_svc_ref_frame_config_t;
+
+/*!brief Parameters for setting multi-threading per spatial layer */
+typedef struct aom_svc_per_layer_mt_config {
+  /*! Max threads per spatial layer. */
+  int max_threads[AOM_MAX_SS_LAYERS];
+  /*! Tile columns per spatial layer. */
+  int tile_columns[AOM_MAX_SS_LAYERS];
+  /*! tile rows per spatial layer. */
+  int tile_rows[AOM_MAX_SS_LAYERS];
+} aom_svc_per_layer_mt_config_t;
 
 /*!\cond */
 /*!\brief Encoder control function parameter type
@@ -1825,6 +1839,10 @@ AOM_CTRL_USE_TYPE(AV1E_SET_SVC_PARAMS, aom_svc_params_t *)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_SVC_REF_FRAME_CONFIG, aom_svc_ref_frame_config_t *)
 #define AOME_CTRL_AV1E_SET_SVC_REF_FRAME_CONFIG
+
+AOM_CTRL_USE_TYPE(AV1E_SET_SVC_PER_SPATIAL_LAYER_MT,
+                  aom_svc_per_layer_mt_config_t *)
+#define AOME_CTRL_AV1E_SET_SVC_PER_SPATIAL_LAYER_MT
 
 AOM_CTRL_USE_TYPE(AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, unsigned int)
 #define AOM_CTRL_AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST

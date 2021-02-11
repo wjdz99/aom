@@ -1091,6 +1091,20 @@ int main(int argc, const char **argv) {
 
   aom_codec_control(&codec, AV1E_SET_SVC_PARAMS, &svc_params);
 
+  aom_svc_per_layer_mt_config_t per_layer_mt;
+  for (i = 0; i < ss_number_layers; ++i) {
+    if (i == ss_number_layers - 1) {
+      per_layer_mt.max_threads[i] = cfg.g_threads;
+      per_layer_mt.tile_columns[i] = cfg.g_threads ? get_msb(cfg.g_threads) : 0;
+      per_layer_mt.tile_rows[i] = 0;
+    } else {
+      per_layer_mt.max_threads[i] = 1;
+      per_layer_mt.tile_columns[i] = 0;
+      per_layer_mt.tile_rows[i] = 0;
+    }
+  }
+  aom_codec_control(&codec, AV1E_SET_SVC_PER_SPATIAL_LAYER_MT, &per_layer_mt);
+
   // This controls the maximum target size of the key frame.
   // For generating smaller key frames, use a smaller max_intra_size_pct
   // value, like 100 or 200.
