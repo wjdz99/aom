@@ -52,6 +52,24 @@
       "parentUuid": "fd56c255_a7799bbd",
       "revId": "b2d82581086077468ccb33491dac1ddeea386436",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "578d59ef_5fd7f0e3",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-11T00:48:58Z",
+      "side": 0,
+      "message": "I am not familiar with the bitstream formats of HEVC and AVC. I took a quick look at the Annex B in H.265. It seems different from the Annex B in the AV1 spec. For example, the Annex B in H.265 uses a start code prefix, whereas the Annex B in the AV1 spec uses extra length fields. The common property is that they both specify an alternative bitstream format (one of the two bitstream formats in each standard) and this alternative bitstream format makes it easy to find the beginning of the next \"unit\" (using different techniques).\n\nI would leave this option in the \"AV1 Specific Options\" section in the help message. To address the issue of having no matching entry in av1_arg_ctrl_map[], we can add a comment similar to the comment I added to libvpx:\n\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/2420734\n\nAlternatively, we can add a new array for AV1 args that are not set using the aom_codec_control() function, and add a new call here:\n\n #if CONFIG_AV1_ENCODER\n   fprintf(fout, \"\\nAV1 Specific Options:\\n\");\n   arg_show_usage(fout, av1_args);\n+  arg_show_usage(fout, av1_args_2);  // Choose a better name.\n #endif",
+      "parentUuid": "3503d00b_83b907a0",
+      "revId": "b2d82581086077468ccb33491dac1ddeea386436",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
