@@ -225,6 +225,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c2d412d0_59b76616",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T01:55:37Z",
+      "side": 1,
+      "message": "IMPORTANT: Please check av1/encoder/speed_features.c and av1/av1_cx_iface.c. We need to make sure ALLINTRA is treated in the same way as GOOD.\n\nA good way to do that is to search for \"mode \u003d\u003d GOOD\" and \"mode !\u003d GOOD\" in the source tree and inspect the search results. (You can also use Code Search to do that.)",
+      "revId": "fbe55502d49e93d72bc14eebbadc1e69c2bc0ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "173c67e1_74787abd",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 4
@@ -236,6 +253,24 @@
       "writtenOn": "2021-02-12T00:22:25Z",
       "side": 1,
       "message": "Is this currently a copy of the defaults for AOM_USAGE_GOOD_QUALITY?",
+      "revId": "fbe55502d49e93d72bc14eebbadc1e69c2bc0ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bf55225_e6167953",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3436,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T01:55:37Z",
+      "side": 1,
+      "message": "I answered my own question: this is a copy of the defaults for AOM_USAGE_GOOD_QUALITY.",
+      "parentUuid": "173c67e1_74787abd",
       "revId": "fbe55502d49e93d72bc14eebbadc1e69c2bc0ed0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
