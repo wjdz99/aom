@@ -78,7 +78,7 @@ typedef struct tx_size_rd_info_node {
   struct tx_size_rd_info_node *children[4];
 } TXB_RD_INFO_NODE;
 
-#if !CONFIG_NEW_TX_PARTITION
+#if 0 && !CONFIG_NEW_TX_PARTITION
 typedef struct {
   int leaf;
   int8_t children[4];
@@ -1756,7 +1756,7 @@ static void prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
   *allowed_tx_mask = allow_bitmask;
 }
 
-#if !CONFIG_NEW_TX_PARTITION
+#if 0 && !CONFIG_NEW_TX_PARTITION
 // lookup table for predict_skip_txfm
 // int max_tx_size = max_txsize_rect_lookup[bsize];
 // if (tx_size_high[max_tx_size] > 16 || tx_size_wide[max_tx_size] > 16)
@@ -2607,7 +2607,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
   const int tx_type_map_idx = blk_row * xd->tx_type_map_stride + blk_col;
   // Look up RD and terminate early in case when we've already processed exactly
   // the same residue with exactly the same entropy context.
-  if (rd_info_array != NULL && rd_info_array->valid &&
+  if (0 && rd_info_array != NULL && rd_info_array->valid &&
       rd_info_array->entropy_context == cur_joint_ctx) {
     xd->tx_type_map[tx_type_map_idx] = rd_info_array->tx_type;
     const TX_TYPE ref_tx_type =
@@ -2632,7 +2632,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_merge_rd_stats(rd_stats, &this_rd_stats);
 
-#if !CONFIG_NEW_TX_PARTITION
+#if 0 && !CONFIG_NEW_TX_PARTITION
   // Save RD results for possible reuse in future.
   if (rd_info_array != NULL) {
     rd_info_array->valid = 1;
@@ -2997,16 +2997,16 @@ static AOM_INLINE void select_tx_block(
     }
   }
 
-  // ML based speed feature to skip searching for split transform blocks.
-  if (x->e_mbd.bd == 8 && try_split &&
-      !(ref_best_rd == INT64_MAX && no_split.rd == INT64_MAX)) {
-    const int threshold = cpi->sf.tx_sf.tx_type_search.ml_tx_split_thresh;
-    if (threshold >= 0) {
-      const int split_score =
-          ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, tx_size);
-      if (split_score < -threshold) try_split = 0;
-    }
-  }
+//// ML based speed feature to skip searching for split transform blocks.
+//if (x->e_mbd.bd == 8 && try_split &&
+//    !(ref_best_rd == INT64_MAX && no_split.rd == INT64_MAX)) {
+//  const int threshold = cpi->sf.tx_sf.tx_type_search.ml_tx_split_thresh;
+//  if (threshold >= 0) {
+//    const int split_score =
+//        ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, tx_size);
+//    if (split_score < -threshold) try_split = 0;
+//  }
+//}
 
   RD_STATS split_rd_stats;
   split_rd_stats.rdcost = INT64_MAX;
@@ -3659,7 +3659,7 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
 
   rd_stats->skip_txfm = (skip_txfm_rd <= no_skip_txfm_rd);
 
-#if !CONFIG_NEW_TX_PARTITION
+#if 0 && !CONFIG_NEW_TX_PARTITION
   // If fast_tx_search is true, only DCT and 1D DCT were tested in
   // select_inter_block_yrd() above. Do a better search for tx type with
   // tx sizes already decided.
@@ -3750,7 +3750,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
-#if !CONFIG_NEW_TX_PARTITION
+#if 0 && !CONFIG_NEW_TX_PARTITION
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
@@ -3773,7 +3773,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // up TX size/type search.
   TXB_RD_INFO_NODE matched_rd_info[4 + 16 + 64];
   int found_rd_info = 0;
-#if !CONFIG_NEW_TX_PARTITION
+#if 0 && !CONFIG_NEW_TX_PARTITION
   if (ref_best_rd != INT64_MAX && within_border &&
       cpi->sf.tx_sf.use_inter_txb_hash) {
     found_rd_info = find_tx_size_rd_records(x, bsize, matched_rd_info);
@@ -3837,7 +3837,7 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-#if !CONFIG_NEW_TX_PARTITION
+#if 0 && !CONFIG_NEW_TX_PARTITION
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
