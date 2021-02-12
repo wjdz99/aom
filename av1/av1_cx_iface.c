@@ -747,6 +747,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   switch (cfg->g_usage) {
     case AOM_USAGE_REALTIME: oxcf->mode = REALTIME; break;
+    case AOM_USAGE_ALL_INTRA: oxcf->mode = ALLINTRA; break;
     default: oxcf->mode = GOOD; break;
   }
 
