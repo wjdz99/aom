@@ -584,10 +584,9 @@ static void set_good_speed_features_framesize_independent(
         frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->winner_mode_sf.enable_winner_mode_for_use_tx_domain_dist = 1;
     sf->winner_mode_sf.motion_mode_for_winner_cand =
-        boosted
-            ? 0
-            : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
-                                                                         : 2;
+        boosted                                                      ? 0
+        : gf_group->update_type[gf_group->index] == INTNL_ARF_UPDATE ? 1
+                                                                     : 2;
 
     // TODO(any): evaluate if these lpf features can be moved to speed 2.
     // For screen content, "prune_sgr_based_on_wiener = 2" cause large quality
@@ -702,8 +701,9 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.prune_rectangular_split_based_on_qidx =
         boosted || allow_screen_content_tools ? 0 : 1;
     sf->part_sf.prune_sub_8x8_partition_level =
-        allow_screen_content_tools ? 0
-                                   : frame_is_intra_only(&cpi->common) ? 1 : 2;
+        allow_screen_content_tools          ? 0
+        : frame_is_intra_only(&cpi->common) ? 1
+                                            : 2;
     sf->part_sf.prune_part4_search = 3;
 
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;
@@ -1286,7 +1286,7 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
   SPEED_FEATURES *const sf = &cpi->sf;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
 
-  if (oxcf->mode == GOOD) {
+  if (oxcf->mode == GOOD || oxcf->mode == ALLINTRA) {
     set_good_speed_feature_framesize_dependent(cpi, sf, speed);
   } else if (oxcf->mode == REALTIME) {
     set_rt_speed_feature_framesize_dependent(cpi, sf, speed);
@@ -1331,7 +1331,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   init_lpf_sf(&sf->lpf_sf);
   init_rt_sf(&sf->rt_sf);
 
-  if (oxcf->mode == GOOD)
+  if (oxcf->mode == GOOD || oxcf->mode == ALLINTRA)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
   else if (oxcf->mode == REALTIME)
     set_rt_speed_features_framesize_independent(cpi, sf, speed);
