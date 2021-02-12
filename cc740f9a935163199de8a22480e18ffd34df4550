@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3defc3c_972c5514",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T16:25:55Z",
+      "side": 1,
+      "message": "Just a preliminary general comment: I am still new to the libaom encoder code base. I recently analyzed the code related to kf_max_dist, key_freq_max, and frames_to_key. Although it is documented in aom/aom_encoder.h that kf_max_dist \u003d\u003d 0 means all intra frame encoding:\n\n  /*!\\brief Keyframe maximum interval\n   *\n   * This value, expressed as a number of frames, forces the encoder to code\n   * a keyframe if one has not been coded in the last kf_max_dist frames.\n   * A value of 0 implies all frames will be keyframes. Set kf_min_dist\n   * equal to kf_max_dist for a fixed interval.\n   */\n  unsigned int kf_max_dist;\n\nI saw both \u003d\u003d 0 and \u003c\u003d 1 used in the tests for all intra frame encoding. Therefore I suspect there is an off-by-one misinterpretation. The source of this off-by-one error is that it is not clear whether this distance, in the number of frames, includes the next key frame. The comment for kf_min_dist says this distance does not include the next key frame:\n\n  /*!\\brief Keyframe minimum interval\n   *\n   * This value, expressed as a number of frames, prevents the encoder from\n   * placing a keyframe nearer than kf_min_dist to the previous keyframe. At\n   * least kf_min_dist frames non-keyframes will be coded before the next\n   * keyframe. Set kf_min_dist equal to kf_max_dist for a fixed interval.\n   */\n  unsigned int kf_min_dist;\n\nNote that it says \"kf_min_dist frames non-keyframes\". By analogy, we would conclude that kf_max_dist is also the number of non-keyframes.\n\nOf course, it is always a tricky situation when the code contradicts the documentation, because the documentation could also be wrong. I just wanted to remind us of this issue and be careful with how we check for the all intra frame condition.",
+      "revId": "cc740f9a935163199de8a22480e18ffd34df4550",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52fe44ec_164c77f4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2732,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T16:25:55Z",
+      "side": 1,
+      "message": "We need to be careful about this test. Note that the original test uses \u003d\u003d 1. This is not one of the two checks (\u003d\u003d 0 and \u003c\u003d 1) most commonly used with frames_to_key. So the \u003d\u003d 1 check could be a bug, or it could be intentional (note that the comment says \"it is the frame before the force key frame\").",
+      "revId": "cc740f9a935163199de8a22480e18ffd34df4550",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20b775e7_2bdd1068",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1351,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T16:25:55Z",
+      "side": 1,
+      "message": "Here I recommend against changing \u003d\u003d 0 to \u003c\u003d 1. The \u003d\u003d 0 check matches the documentation, and if we have been happy with the \u003d\u003d 0 check, we should continue to conform to the documentation.",
+      "range": {
+        "startLine": 1348,
+        "startChar": 0,
+        "endLine": 1351,
+        "endChar": 71
+      },
+      "revId": "cc740f9a935163199de8a22480e18ffd34df4550",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
