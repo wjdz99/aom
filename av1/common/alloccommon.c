@@ -54,6 +54,10 @@ void av1_free_ref_frame_buffers(BufferPool *pool) {
 #if !CONFIG_REALTIME_ONLY
 // Assumes cm->rst_info[p].restoration_unit_size is already initialized
 void av1_alloc_restoration_buffers(AV1_COMMON *cm) {
+  // Do not allocate loop restoration buffers required for filtering if loop
+  // restoration is disabled.
+  if (!cm->seq_params.enable_restoration) return;
+
   const int num_planes = av1_num_planes(cm);
   for (int p = 0; p < num_planes; ++p)
     av1_alloc_restoration_struct(cm, &cm->rst_info[p], p > 0);
