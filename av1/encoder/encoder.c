@@ -2052,16 +2052,19 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
     aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                        "Failed to allocate frame buffer");
 
-  const int frame_width = cm->superres_upscaled_width;
-  const int frame_height = cm->superres_upscaled_height;
-  set_restoration_unit_size(frame_width, frame_height,
-                            seq_params->subsampling_x,
-                            seq_params->subsampling_y, cm->rst_info);
-  for (int i = 0; i < num_planes; ++i)
-    cm->rst_info[i].frame_restoration_type = RESTORE_NONE;
-
 #if !CONFIG_REALTIME_ONLY
-  av1_alloc_restoration_buffers(cm);
+  if (cm->seq_params.enable_restoration && !cm->features.all_lossless &&
+      !cm->tiles.large_scale) {
+    const int frame_width = cm->superres_upscaled_width;
+    const int frame_height = cm->superres_upscaled_height;
+    set_restoration_unit_size(frame_width, frame_height,
+                              seq_params->subsampling_x,
+                              seq_params->subsampling_y, cm->rst_info);
+    for (int i = 0; i < num_planes; ++i)
+      cm->rst_info[i].frame_restoration_type = RESTORE_NONE;
+
+    av1_alloc_restoration_buffers(cm);
+  }
 #endif
   if (!is_stat_generation_stage(cpi)) alloc_util_frame_buffers(cpi);
   init_motion_estimation(cpi);
