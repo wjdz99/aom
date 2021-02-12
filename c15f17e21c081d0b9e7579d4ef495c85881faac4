@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f289d790_c4cb694a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-02-12T15:22:12Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch prunes the number of modes for which exhaustive searches for mask and sign of masked compound type are performed for speed 3 and 4. The best mask and sign from the search results of the first mode are saved and reused for the subsequent modes, when the speed feature reuse_mask_search_results is enabled.\n\nSince COMPOUND_DIFFWTD uses fast search in speed 3 and 4 (enable_fast_compound_mode_search\u003d1), the gains from the speed feature reuse_mask_search_results come from saving the search for COMPOUND_WEDGE.\n\nPlease find below the detailed borg results.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |  LOW RES   |      29.527       |  0.2720    0.2803    0.3116  |\n   3     |  MID RES   |      27.997       |  0.2946    0.3008    0.2948  |\n   3     |   HD RES   |      23.984       |  0.1491    0.1559    0.1048  |\n   3     |  Average   |      27.745       |  0.2411    0.2484    0.2436  |\n         |            |                   |                              |\n   4     |  LOW RES   |      33.788       |  0.3779    0.3911    0.5111  |\n   4     |  MID RES   |      28.125       |  0.3613    0.3870    0.3112  |\n   4     |   HD RES   |      26.240       |  0.2629    0.2657    0.2523  |\n   4     |  Average   |      30.489       |  0.3380    0.3517    0.3737  |\n   \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks.",
+      "revId": "c15f17e21c081d0b9e7579d4ef495c85881faac4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
