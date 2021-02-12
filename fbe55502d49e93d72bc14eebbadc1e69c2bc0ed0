@@ -260,6 +260,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5ae14845_210b5bb8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T14:51:35Z",
+      "side": 1,
+      "message": "This CL doesn\u0027t need to change speed features based on oxcf-\u003emode, but this CL needs to leave libaom in a consistent state if someone uses the new AOM_USAGE_ALL_INTRA.\n\nA simple way to do that is to map AOM_USAGE_ALL_INTRA to oxcf-\u003emode \u003d GOOD in this CL. Then code like the following will automatically treat AOM_USAGE_ALL_INTRA in the same way as AOM_USAGE_GOOD_QUALITY:\n\n  if (oxcf-\u003emode \u003d\u003d GOOD) {\n    set_good_speed_feature_framesize_dependent(cpi, sf, speed);\n  } else if (oxcf-\u003emode \u003d\u003d REALTIME) {\n    set_rt_speed_feature_framesize_dependent(cpi, sf, speed);\n  }\n\nIn a follow-up CL, we map AOM_USAGE_ALL_INTRA to oxcf-\u003emode \u003d ALLINTRA here and update the code in speed_features.c and av1_cx_iface.c to handle oxcf-\u003emode \u003d\u003d ALLINTRA.\n\nDoes this sound good?",
+      "parentUuid": "27fb6121_1fa5c86f",
+      "revId": "fbe55502d49e93d72bc14eebbadc1e69c2bc0ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "173c67e1_74787abd",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 4
@@ -307,6 +325,24 @@
       "side": 1,
       "message": "This is used as a preload to good/rt/allintra configurations.",
       "parentUuid": "9bf55225_e6167953",
+      "revId": "fbe55502d49e93d72bc14eebbadc1e69c2bc0ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98861cc4_a59de3a1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3436,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T14:51:35Z",
+      "side": 1,
+      "message": "Thanks. I understand the purpose of this array. I was just trying to determine if the new AOM_USAGE_ALL_INTRA block is the same as the AOM_USAGE_GOOD_QUALITY block, because that info helps me understand exactly what this CL does. (This is related to my other comment in the commit message.)",
+      "parentUuid": "70f36fde_f97afa85",
       "revId": "fbe55502d49e93d72bc14eebbadc1e69c2bc0ed0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },

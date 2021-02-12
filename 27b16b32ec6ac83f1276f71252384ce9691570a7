@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e413855_5e91c132",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T14:51:35Z",
+      "side": 1,
+      "message": "I see my previous comment is confusing. Sorry about that! This is what I wanted to suggest:\n\nThe commit message should point out that this CL merely adds the --allintra configuration and --allintra behaves in exactly the same way as --good in this commit. We will change the behavior of the all intra mode in future CLs.\n\nNote: The representative use cases you gave for the three usages look good. We can add \"still images\" to --allintra.",
+      "parentUuid": "fc8397f8_be910eaf",
+      "revId": "27b16b32ec6ac83f1276f71252384ce9691570a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "9e4d81a0_ff141305",
