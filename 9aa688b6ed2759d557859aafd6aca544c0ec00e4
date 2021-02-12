@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac0a5702_0ec82636",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T00:20:10Z",
+      "side": 1,
+      "message": "Please add:\nBUG\u003daomedia:2959",
+      "revId": "9aa688b6ed2759d557859aafd6aca544c0ec00e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff54c552_92813c79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T00:20:10Z",
+      "side": 1,
+      "message": "Thanks for writing this CL! I think this CL can be merged into the parent CL, unless you prefer to keep them separate.",
+      "revId": "9aa688b6ed2759d557859aafd6aca544c0ec00e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03147de9_a35c8bd6",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T00:20:10Z",
+      "side": 1,
+      "message": "Nit: add \"maximum\" or \"max\" before \"distance\"?",
+      "range": {
+        "startLine": 1063,
+        "startChar": 31,
+        "endLine": 1063,
+        "endChar": 39
+      },
+      "revId": "9aa688b6ed2759d557859aafd6aca544c0ec00e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ba09da9_52a70a69",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3486,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T00:20:10Z",
+      "side": 1,
+      "message": "Should we change this to AOM_KF_DISABLED?",
+      "revId": "9aa688b6ed2759d557859aafd6aca544c0ec00e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c6267a3_92ca9774",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3488,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-12T00:20:10Z",
+      "side": 1,
+      "message": "Set kf_max_dist to 0.",
+      "revId": "9aa688b6ed2759d557859aafd6aca544c0ec00e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
