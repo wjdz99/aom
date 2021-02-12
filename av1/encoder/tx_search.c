@@ -2604,6 +2604,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
                                   FAST_TX_SEARCH_MODE ftxs_mode,
                                   int64_t ref_rdcost,
                                   TXB_RD_INFO *rd_info_array) {
+/*
 #if CONFIG_NEW_TX_PARTITION
   (void)rd_info_array;
 #else
@@ -2632,6 +2633,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 #endif  // CONFIG_NEW_TX_PARTITION
+*/
 
   RD_STATS this_rd_stats;
   const int skip_trellis = 0;
@@ -2640,6 +2642,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_merge_rd_stats(rd_stats, &this_rd_stats);
 
+/*
 #if !CONFIG_NEW_TX_PARTITION
   // Save RD results for possible reuse in future.
   if (rd_info_array != NULL) {
@@ -2653,6 +2656,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
     rd_info_array->tx_type = xd->tx_type_map[tx_type_map_idx];
   }
 #endif  // !CONFIG_NEW_TX_PARTITION
+*/
 }
 
 static AOM_INLINE void try_tx_block_no_split(
@@ -3001,15 +3005,15 @@ static AOM_INLINE void select_tx_block(
   }
 
   // ML based speed feature to skip searching for split transform blocks.
-  if (x->e_mbd.bd == 8 && try_split &&
-      !(ref_best_rd == INT64_MAX && no_split.rd == INT64_MAX)) {
-    const int threshold = cpi->sf.tx_sf.tx_type_search.ml_tx_split_thresh;
-    if (threshold >= 0) {
-      const int split_score =
-          ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, tx_size);
-      if (split_score < -threshold) try_split = 0;
-    }
-  }
+//if (x->e_mbd.bd == 8 && try_split &&
+//    !(ref_best_rd == INT64_MAX && no_split.rd == INT64_MAX)) {
+//  const int threshold = cpi->sf.tx_sf.tx_type_search.ml_tx_split_thresh;
+//  if (threshold >= 0) {
+//    const int split_score =
+//        ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, tx_size);
+//    if (split_score < -threshold) try_split = 0;
+//  }
+//}
 
   RD_STATS split_rd_stats;
   split_rd_stats.rdcost = INT64_MAX;
@@ -3415,6 +3419,7 @@ int64_t av1_uniform_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   return rd;
 }
 
+/*
 #if !CONFIG_NEW_TX_PARTITION
 // Search for the best transform type for a luma inter-predicted block, given
 // the transform block partitions.
@@ -3582,6 +3587,7 @@ static int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   return is_cost_valid;
 }
 #endif  // !CONFIG_NEW_TX_PARTITION
+*/
 
 // Search for the best transform size and type for current inter-predicted
 // luma block with recursive transform block partitioning. The obtained
@@ -3665,6 +3671,7 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
 
   rd_stats->skip_txfm = (skip_txfm_rd <= no_skip_txfm_rd);
 
+/*
 #if !CONFIG_NEW_TX_PARTITION
   // If fast_tx_search is true, only DCT and 1D DCT were tested in
   // select_inter_block_yrd() above. Do a better search for tx type with
@@ -3674,6 +3681,7 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
       return INT64_MAX;
   }
 #endif
+*/
 
   int64_t final_rd;
   if (rd_stats->skip_txfm) {
