@@ -2061,7 +2061,9 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
     cm->rst_info[i].frame_restoration_type = RESTORE_NONE;
 
 #if !CONFIG_REALTIME_ONLY
-  av1_alloc_restoration_buffers(cm);
+  // Allocate loop restoration buffers that are required for filtering, if loop
+  // restoration is enabled.
+  if (cm->seq_params.enable_restoration) av1_alloc_restoration_buffers(cm);
 #endif
   if (!is_stat_generation_stage(cpi)) alloc_util_frame_buffers(cpi);
   init_motion_estimation(cpi);
