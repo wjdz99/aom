@@ -877,6 +877,15 @@ struct scale_factors;
 
 /*!\endcond */
 
+#if CONFIG_REF_MV_BANK
+#define REF_MV_BANK_SIZE 4
+typedef struct {
+  int rmb_queue_count[MODE_CTX_REF_FRAMES];
+  int rmb_queue_start_idx[MODE_CTX_REF_FRAMES];
+  CANDIDATE_MV rmb_queue_buffer[MODE_CTX_REF_FRAMES][REF_MV_BANK_SIZE];
+} REF_MV_BANK;
+#endif  // CONFIG_REF_MV_BANK
+
 /*! \brief Variables related to current coding block.
  *
  * This is a common set of variables used by both encoder and decoder.
@@ -896,6 +905,15 @@ typedef struct macroblockd {
    * Same as cm->mi_params.mi_stride, copied here for convenience.
    */
   int mi_stride;
+
+#if CONFIG_REF_MV_BANK
+  REF_MV_BANK ref_mv_bank_left;
+  // TODO(anyone): 32 is enough to support frame width up to 32 * 128 = 4096.
+  // Ideally this should be allocated dynamically based on frame size.
+  REF_MV_BANK ref_mv_bank_above[32];
+  REF_MV_BANK *ref_mv_bank_left_pt;
+  REF_MV_BANK *ref_mv_bank_above_pt;
+#endif  // CONFIG_REF_MV_BANK
 
   /*!
    * True if current block transmits chroma information.
