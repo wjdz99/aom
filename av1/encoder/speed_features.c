@@ -670,8 +670,7 @@ static void set_allintra_speed_features_framesize_independent(
     sf->part_sf.prune_rectangular_split_based_on_qidx =
         allow_screen_content_tools ? 0 : 1;
     sf->part_sf.prune_sub_8x8_partition_level =
-        allow_screen_content_tools ? 0
-                                   : frame_is_intra_only(&cpi->common) ? 1 : 2;
+        allow_screen_content_tools ? 0 : 1;
     sf->part_sf.prune_part4_search = 3;
 
     sf->mv_sf.use_bsize_dependent_search_method = 1;
