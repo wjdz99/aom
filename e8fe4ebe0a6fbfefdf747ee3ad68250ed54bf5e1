@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "7889ff87_ce11a783",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3246c808_47a4ea44",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7d38f9a8_90ee289a",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c92cd869_163bf547",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2026,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Not necessarily, as we have forced look ahead buffer to be 0 in all intra mode.",
+      "parentUuid": "41de60fb_4a81c2ac",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2095440e_159ba4aa",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 4
@@ -65,6 +101,24 @@
       "writtenOn": "2021-02-12T23:41:54Z",
       "side": 1,
       "message": "We need to update this check. Actually, I wonder if we can just remove this entire if statement. Since we set ctx-\u003eoxcf.mode, its value must be one of the valid values.",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e13afb2_0935e59e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2153,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "indeed. removed.",
+      "parentUuid": "2095440e_159ba4aa",
       "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12567d45_3ac403df",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1619,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16eeac80_38242e59",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "417c94d8_92bdd39b",
@@ -99,6 +171,24 @@
       "writtenOn": "2021-02-12T23:41:54Z",
       "side": 1,
       "message": "Optional: Same here. Should we use a switch statement?",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6147df4_86e65723",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1665,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "417c94d8_92bdd39b",
       "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +210,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f42a8ca6_f5ed57a8",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1789,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8e3574e_b23ac9fd",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ea69d655_8c4228fc",
@@ -133,6 +241,24 @@
       "writtenOn": "2021-02-12T23:41:54Z",
       "side": 1,
       "message": "Should we update this?",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dd1cfff_c73987ff",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1799,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea69d655_8c4228fc",
       "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +280,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f6b239d_0e008f3e",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1837,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8265ad5d_896b937f",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3c4bac1_4dc19db2",
@@ -167,6 +311,24 @@
       "writtenOn": "2021-02-12T23:41:54Z",
       "side": 1,
       "message": "Should we update this?",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c4a71c1_a03ccf90",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1846,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3c4bac1_4dc19db2",
       "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -188,6 +350,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a8eba53_3b991105",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1855,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "807aa726_228d9a7e",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e0cb9a04_43a3f1ab",
@@ -201,6 +381,24 @@
       "writtenOn": "2021-02-12T23:41:54Z",
       "side": 1,
       "message": "Should we update this?",
+      "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c416503_f9a0900e",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1863,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-13T04:15:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0cb9a04_43a3f1ab",
       "revId": "e8fe4ebe0a6fbfefdf747ee3ad68250ed54bf5e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
