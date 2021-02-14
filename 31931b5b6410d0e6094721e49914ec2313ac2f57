@@ -33,6 +33,24 @@
       "message": "The ABI check in the change would have warned for the addition, but currently it\u0027s up to the reviewers to make the connection. Adding coverage for using of the shared object should be easy enough.",
       "revId": "31931b5b6410d0e6094721e49914ec2313ac2f57",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d179bf7_befc9a03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-14T00:47:57Z",
+      "side": 1,
+      "message": "Thank you, James!\n\nI also found that av1_key_value_api_test.cc is not used if BUILD_SHARED_LIBS is enabled. I will look into that.",
+      "parentUuid": "f02754be_860156e4",
+      "revId": "31931b5b6410d0e6094721e49914ec2313ac2f57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
