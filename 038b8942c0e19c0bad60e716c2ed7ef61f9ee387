@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "620f9ede_4c4620ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-14T00:41:01Z",
+      "side": 1,
+      "message": "Jerome: I\u0027m reporting a compiler warning. I also found some comments that need to be updated.",
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db644d92_253a50bd",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-14T00:41:01Z",
+      "side": 1,
+      "message": "Should this say \"case 9\" now?",
+      "range": {
+        "startLine": 568,
+        "startChar": 23,
+        "endLine": 568,
+        "endChar": 29
+      },
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "affaf0a1_4f443987",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-14T00:41:01Z",
+      "side": 1,
+      "message": "Jerome: GCC 10.2.1 warns that we may fall through to case 8 here:\n\n[427/480] Building C object CMakeFiles/svc_encoder_rtc.dir/examples/svc_encoder_rtc.c.o\naom/examples/svc_encoder_rtc.c: In function ‘set_layer_pattern’:\naom/examples/svc_encoder_rtc.c:839:10: warning: this statement may fall through [-Wimplicit-fallthrough\u003d]\n  839 |       if (layer_id-\u003espatial_layer_id \u003e 0 \u0026\u0026 !ksvc_mode)\n      |          ^\naom/examples/svc_encoder_rtc.c:842:5: note: here\n  842 |     case 8:\n      |     ^~~~\n\nI also suggest adding curly braces to this if statement because the if statement\u0027s body has two lines (a comment and a statement).",
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca470368_e063eded",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-14T00:41:01Z",
+      "side": 1,
+      "message": "case 8 \u003d\u003e case 9\n\nOr perhaps \"the next case\".",
+      "range": {
+        "startLine": 844,
+        "startChar": 17,
+        "endLine": 844,
+        "endChar": 23
+      },
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed887ef9_0e881b81",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-14T00:41:01Z",
+      "side": 1,
+      "message": "This \"case 7\" probably should become \"case 8\". See the layering_mode \u003d\u003d 8 check at line 978.",
+      "range": {
+        "startLine": 973,
+        "startChar": 29,
+        "endLine": 973,
+        "endChar": 35
+      },
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
