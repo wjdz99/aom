@@ -84,6 +84,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "039a33ab_bf587aca",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-15T15:24:39Z",
+      "side": 1,
+      "message": "Hi Jingning and Wan-Teh,\n\nPlease find our understanding/options below for the optimization.\n1) In vp9 encoder, the allocation size is calculated as mentioned below.\n   data_sz \u003d ctx-\u003ecfg.g_w * ctx-\u003ecfg.g_h * get_image_bps(img) / 8 *\n         (cpi-\u003emulti_layer_arf ? 8 : 2);\n\n\nAs per our understanding, when multi_layer_arf\u003d0, the buffer size should have been 4 * frame_size. But it seemed to use 2 * frame_size (corresponding to one non-show frame + one show frame). We proposed similar approach in current patch set, based on above understanding.\nNow, we understand the worst case scenario as per the standard though the current encoder code does not support the same.\n\n2) From the recent changes added to support ALLINTRA mode in libaom, the change can be modified as below.\n   int max_pending_frames \u003d 8;\n   If ((cpi-\u003eoxcf.mode \u003d\u003d ALLINTRA \u0026\u0026 !cpi-\u003eoxcf.kf_cfg.fwd_kf_enabled) || \n                          (cpi-\u003eoxcf.gf_cfg.enable_auto_arf\u003d\u003d0))\n          max_pending_frames \u003d 1;\n   size_t data_sz \u003d frame_sz * max_pending_frames;\n\n\nAs per our understanding, when encoding mode is ALLINTRA with fwd_kf_enabled\u003d1, there can be no-show frames(as per the standard). Hence, the first part of the condition takes care of populating max_pending_frames accordingly (assuming libavif sets encoding mode as AOM_USAGE_ALL_INTRA).\nThis optimization is applicable when enable_auto_arf\u003d0 as well, as no-show frames will be absent in this case.\n\n3) Following is the approach given by you in one of your earlier messages.\n   int max_pending_frames \u003d 8; \n   if (cpi-\u003eoxcf.input_cfg.limit !\u003d 0) \n      max_pending_frames \u003d AOMMIN(max_pending_frames,cpi-\u003eoxcf.input_cfg.limit); \n   size_t data_sz \u003d frame_sz * max_pending_frames;\n\nWe are planning to follow the approach as in (2) as this can help low-delay encode as well (assuming –auto-alt-ref\u003d0). Please let us know in case (3) preferred over (2).\n\nRegards,\nVenkata.",
+      "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "73ae2d57_272ae35b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 9
