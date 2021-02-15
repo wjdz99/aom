@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh,\n\nIn the parent version, the buffers required for loop restoration are allocated unconditionally (i.e., even though loop restoration filter is disabled). In this patch, we modified the code such that the buffers are allocated conditionally, based on \u0027seq_params.enable_restoration\u0027 flag. Please note that \u0027seq_params.enable_restoration\u0027 accounts for speed feature (\u0027disable_lr_filter\u0027) settings as well.\n\nAs the function \u0027av1_alloc_restoration_buffers()\u0027 is common to both encoder and decoder, we called the function \u0027av1_alloc_restoration_buffers()\u0027 under the relevant condition in the encoder. We have not modified the decoder code as \u0027av1_alloc_restoration_buffers()\u0027 is already invoked based on frame header information (read from bit-stream) in the decoder.\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for few videos with different video encoding configurations.\nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset.\n\nFollowing are memory reduction results when AVIF encode was tested for ‘building.jpg’ (4032x3024) image at cq_level\u003d18. This change is applicable for speed \u003e\u003d 5.\n\n   Speed                 HEAP Memory\n   preset                Reduction(%)\n     6           ~4.15 (from 568.6 MB to 545 MB)\n\nAs this change is also applicable to both ‘good’ (with –lag-in-frames\u003d35, speed \u003e\u003d 5) and ‘real-time’ (with –lag-in-frames\u003d0) configurations, we have measured the memory reduction for a 1280x720 content.\n\n   Encoding           Speed                 HEAP Memory\n   Configuration     preset                Reduction(%)\n     GOOD              6           ~1.10 (from 244.90 MB to 242.20 MB)\n     RT                7           ~4.52 (from 63.66 MB to 60.78 MB)\n\t \nHEAP memory reduction was measured using the command below.\n$valgrind --tool\u003dmassif ./avifenc ...\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "3952bf513b3a8b67997f59720bd300e2caf161da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed82fe6a_9ec30f7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-15T15:03:26Z",
+      "side": 1,
+      "message": "Hi Wan-teh,\n\nThis patch gives heap memory reduction as loop restoration filter is disabled for speed presets \u003e\u003d 5 through the speed feature ‘disable_lr_filter’.\nHence, this optimization is applicable for both image coding (AVIF) and video coding (‘good’ encoding mode) for speed \u003e\u003d 5. Also, this optimization should be applicable for all presets in case of ‘real-time’ encoding mode as loop restoration is disabled for all presets in this case.\n\nRegards,\nVenkata",
+      "revId": "3952bf513b3a8b67997f59720bd300e2caf161da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
