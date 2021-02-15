@@ -810,6 +810,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
                                     xd->plane[0].pre[0].stride);
   }
 
+  aom_clear_system_state();
   // Pick the ref frame for partitioning, use golden frame only if its
   // lower sad.
   if (*y_sad_g < 0.9 * *y_sad) {
