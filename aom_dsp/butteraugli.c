@@ -29,9 +29,9 @@ void aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
   const int width = source->y_width;
   const int height = source->y_height;
   double butteraugli_diffvalue;
-  const int ret = JxlCalcButteraugliYuv420(
-      width, height, src_y, source->y_stride, src_u, src_v, source->uv_stride,
-      distorted_y, distorted->y_stride, distorted_u, distorted_v,
-      distorted->uv_stride, dist_map, &butteraugli_diffvalue);
-  assert(ret == 0);
+  JxlCalcButteraugliYuv420(width, height, src_y, source->y_stride, src_u, src_v,
+                           source->uv_stride, distorted_y, distorted->y_stride,
+                           distorted_u, distorted_v, distorted->uv_stride,
+                           dist_map, &butteraugli_diffvalue);
+  (void)bit_depth;
 }
