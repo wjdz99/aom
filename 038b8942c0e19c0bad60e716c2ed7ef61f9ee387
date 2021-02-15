@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f68f137f_8f88e013",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-02-15T17:45:13Z",
+      "side": 1,
+      "message": "Thank you Wan-Teh. I fixed those in a new CL\n\nhttps://aomedia-review.googlesource.com/c/aom/+/130161",
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db644d92_253a50bd",
@@ -31,6 +48,30 @@
       "writtenOn": "2021-02-14T00:41:01Z",
       "side": 1,
       "message": "Should this say \"case 9\" now?",
+      "range": {
+        "startLine": 568,
+        "startChar": 23,
+        "endLine": 568,
+        "endChar": 29
+      },
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d4d5ae7_4b3430e1",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-02-15T17:45:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db644d92_253a50bd",
       "range": {
         "startLine": 568,
         "startChar": 23,
@@ -58,6 +99,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba714b44_0ec44d96",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-02-15T17:45:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "affaf0a1_4f443987",
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca470368_e063eded",
@@ -81,6 +140,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b71733ca_4acc2ccd",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-02-15T17:45:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca470368_e063eded",
+      "range": {
+        "startLine": 844,
+        "startChar": 17,
+        "endLine": 844,
+        "endChar": 23
+      },
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ed887ef9_0e881b81",
@@ -94,6 +177,30 @@
       "writtenOn": "2021-02-14T00:41:01Z",
       "side": 1,
       "message": "This \"case 7\" probably should become \"case 8\". See the layering_mode \u003d\u003d 8 check at line 978.",
+      "range": {
+        "startLine": 973,
+        "startChar": 29,
+        "endLine": 973,
+        "endChar": 35
+      },
+      "revId": "038b8942c0e19c0bad60e716c2ed7ef61f9ee387",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0aba3b6c_8009f3e4",
+        "filename": "examples/svc_encoder_rtc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-02-15T17:45:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed887ef9_0e881b81",
       "range": {
         "startLine": 973,
         "startChar": 29,
