@@ -34,6 +34,24 @@
       "parentUuid": "4ae58615_f7500470",
       "revId": "4e9ef45b6478d40ace9e05d6ffdafd6b8185fdbb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e696ffb_9ec2592a",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-16T22:00:25Z",
+      "side": 1,
+      "message": "\u003e Operating point doesn\u0027t allow me to only decode top spatial layer(highest/largest spatial layer). Here is a screenshot from the bitstream analyzer:\n\u003e \n\u003e https://screenshot.googleplex.com/7SL5psU92dskJJD\n\u003e \n\u003e What we want is to compute PSNR against the source, so we need all temporal layers (0, 1, 2) and top spatial layer (2). No operating point gives us that option.\n\nI guess it\u0027s worth checking the expected behavior that Wan-Teh mentioned and adjusting that if there\u0027s a bug. Otherwise making this generic might be the most future proof option.",
+      "parentUuid": "8c71c297_c53acd85",
+      "revId": "4e9ef45b6478d40ace9e05d6ffdafd6b8185fdbb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
