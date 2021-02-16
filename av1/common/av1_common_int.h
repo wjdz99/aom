@@ -237,7 +237,7 @@ typedef struct {
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   int enable_dist_wtd_comp;  // 0 - disable dist-wtd compound modes
                              // 1 - enable it
-#endif                       // !CONFIG_REMOVE_DIST_WTD_COMP
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   int enable_ref_frame_mvs;  // 0 - disable ref frame mvs
                              // 1 - enable it
 } OrderHintInfo;
@@ -279,9 +279,9 @@ typedef struct SequenceHeader {
   uint8_t enable_interintra_compound;  // enables/disables interintra_compound
   uint8_t enable_masked_compound;      // enables/disables masked compound
 #if !CONFIG_REMOVE_DUAL_FILTER
-  uint8_t enable_dual_filter;    // 0 - disable dual interpolation filter
-#endif                           // !CONFIG_REMOVE_DUAL_FILTER
-                                 // 1 - enable vert/horz filter selection
+  uint8_t enable_dual_filter;  // 0 - disable dual interpolation filter
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        // 1 - enable vert/horz filter selection
   uint8_t enable_warped_motion;  // 0 - disable warp for the sequence
                                  // 1 - enable warp for the sequence
   uint8_t enable_superres;       // 0 - Disable superres for the sequence
@@ -327,7 +327,7 @@ typedef struct SequenceHeader {
   int template_table_idx[MAX_NUM_Q_STEP_INTERVALS];
   int table_start_region_idx[MAX_NUM_Q_STEP_VAL];
   int num_qsteps_in_table[MAX_NUM_Q_STEP_INTERVALS];
-#endif // CONFIG_FLEX_STEPS
+#endif  // CONFIG_FLEX_STEPS
 
   uint8_t film_grain_params_present;
 
