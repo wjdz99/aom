@@ -1856,6 +1856,28 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
   const AQ_MODE aq_mode = cpi->oxcf.q_cfg.aq_mode;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
   int i;
+
+  const AV1EncRowMultiThreadInfo *const enc_row_mt = &cpi->mt_info.enc_row_mt;
+  const AV1EncRowMultiThreadSync *const row_mt_sync = &tile_data->row_mt_sync;
+  const SequenceHeader *const seq_params = &cm->seq_params;
+  const TileInfo *const tile_info = &tile_data->tile_info;
+  const int sb_row_in_tile =
+      (mi_row - tile_info->mi_row_start) >> seq_params->mib_size_log2;
+  const int sb_col_in_tile =
+      (mi_col - tile_info->mi_col_start) >> seq_params->mib_size_log2;
+
+  const int sb_mi_size = mi_size_high[seq_params->sb_size];
+  const int blk_row_in_sb = (mi_row & (sb_mi_size - 1));
+  const int blk_col_in_sb = (mi_col & (sb_mi_size - 1));
+  const int bw_in_mi = mi_size_wide[bsize];
+  const int is_top_right_block_in_sb =
+      (blk_row_in_sb == 0) && (blk_col_in_sb + bw_in_mi >= sb_mi_size);
+
+  // Wait for the top-right superblock to finish encoding if the block
+  // is the top-right block in the superblock.
+  if (is_top_right_block_in_sb)
+    (*(enc_row_mt->sync_read_ptr))(row_mt_sync, sb_row_in_tile, sb_col_in_tile);
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, rd_pick_sb_modes_time);
 #endif
