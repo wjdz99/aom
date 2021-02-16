@@ -229,7 +229,7 @@ typedef struct {
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   int enable_dist_wtd_comp;  // 0 - disable dist-wtd compound modes
                              // 1 - enable it
-#endif                       // !CONFIG_REMOVE_DIST_WTD_COMP
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   int enable_ref_frame_mvs;  // 0 - disable ref frame mvs
                              // 1 - enable it
 } OrderHintInfo;
@@ -266,14 +266,17 @@ typedef struct SequenceHeader {
   uint8_t force_integer_mv;            // 0 - Don't force. MV can use subpel
                                        // 1 - force to integer
                                        // 2 - adaptive
+#if CONFIG_SDP
+  uint8_t enable_sdp;  // enables/disables semi-decoupled partitioning
+#endif
   uint8_t enable_filter_intra;         // enables/disables filterintra
   uint8_t enable_intra_edge_filter;    // enables/disables edge upsampling
   uint8_t enable_interintra_compound;  // enables/disables interintra_compound
   uint8_t enable_masked_compound;      // enables/disables masked compound
 #if !CONFIG_REMOVE_DUAL_FILTER
-  uint8_t enable_dual_filter;    // 0 - disable dual interpolation filter
-#endif                           // !CONFIG_REMOVE_DUAL_FILTER
-                                 // 1 - enable vert/horz filter selection
+  uint8_t enable_dual_filter;  // 0 - disable dual interpolation filter
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        // 1 - enable vert/horz filter selection
   uint8_t enable_warped_motion;  // 0 - disable warp for the sequence
                                  // 1 - enable warp for the sequence
   uint8_t enable_superres;       // 0 - Disable superres for the sequence
