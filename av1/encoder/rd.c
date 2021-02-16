@@ -219,7 +219,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
     }
   }
 #if CONFIG_SDP
-  for (i = 0; i < 3; ++i) {
+  for (i = 0; i < 2; ++i) {
     for (j = 0; j < DIRECTIONAL_MODES; ++j) {
       av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost[i][j],
                                fc->angle_delta_cdf[i][j], NULL);

@@ -102,9 +102,12 @@ struct av1_extracfg {
   const char *film_grain_table_filename;
   unsigned int motion_vector_unit_test;
   unsigned int cdf_update_mode;
-  int enable_rect_partitions;    // enable rectangular partitions for sequence
-  int enable_ab_partitions;      // enable AB partitions for sequence
-  int enable_1to4_partitions;    // enable 1:4 and 4:1 partitions for sequence
+  int enable_rect_partitions;  // enable rectangular partitions for sequence
+  int enable_ab_partitions;    // enable AB partitions for sequence
+  int enable_1to4_partitions;  // enable 1:4 and 4:1 partitions for sequence
+#if CONFIG_SDP
+  int enable_sdp;  // enable semi-decoupled partitioning
+#endif
   int min_partition_size;        // min partition size [4,8,16,32,64,128]
   int max_partition_size;        // max partition size [4,8,16,32,64,128]
   int enable_intra_edge_filter;  // enable intra-edge filter for sequence
@@ -112,8 +115,8 @@ struct av1_extracfg {
   int enable_tx64;               // enable 64-pt transform usage for sequence
   int enable_flip_idtx;          // enable flip and identity transform types
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  int enable_dist_wtd_comp;          // enable dist wtd compound for sequence
-#endif                               // !CONFIG_REMOVE_DIST_WTD_COMP
+  int enable_dist_wtd_comp;  // enable dist wtd compound for sequence
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   int max_reference_frames;          // maximum number of references per frame
   int enable_reduced_reference_set;  // enable reduced set of references
   int enable_ref_frame_mvs;          // sequence level
@@ -320,8 +323,8 @@ static struct av1_extracfg default_extra_cfg = {
   AOM_TIMING_UNSPECIFIED,  // No picture timing signaling in bitstream
   0,                       // frame_parallel_decoding_mode
 #if !CONFIG_REMOVE_DUAL_FILTER
-  1,                            // enable dual filter
-#endif                          // !CONFIG_REMOVE_DUAL_FILTER
+  1,  // enable dual filter
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
   0,                            // enable delta quant in chroma planes
   NO_AQ,                        // aq_mode
   DELTA_Q_OBJECTIVE,            // deltaq_mode
@@ -347,15 +350,18 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // enable rectangular partitions
   1,                            // enable ab shape partitions
   1,                            // enable 1:4 and 4:1 partitions
-  4,                            // min_partition_size
-  128,                          // max_partition_size
-  1,                            // enable intra edge filter
-  1,                            // frame order hint
-  1,                            // enable 64-pt transform usage
-  1,                            // enable flip and identity transform
+#if CONFIG_SDP
+  1,  // enable semi-decoupled partitioning
+#endif
+  4,    // min_partition_size
+  128,  // max_partition_size
+  1,    // enable intra edge filter
+  1,    // frame order hint
+  1,    // enable 64-pt transform usage
+  1,    // enable flip and identity transform
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  1,                       // dist-wtd compound
-#endif                     // !CONFIG_REMOVE_DIST_WTD_COMP
+  1,  // dist-wtd compound
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   7,                       // max_reference_frames
   0,                       // enable_reduced_reference_set
   1,                       // enable_ref_frame_mvs sequence level
@@ -743,10 +749,9 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->enable_cdef = extra_cfg->enable_cdef;
   cfg->enable_restoration = extra_cfg->enable_restoration;
   cfg->superblock_size =
-      (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)
-          ? 64
-          : (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_128X128) ? 128
-                                                                        : 0;
+      (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)     ? 64
+      : (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_128X128) ? 128
+                                                                    : 0;
   cfg->enable_warped_motion = extra_cfg->enable_warped_motion;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   cfg->enable_dist_wtd_comp = extra_cfg->enable_dist_wtd_comp;
@@ -759,6 +764,9 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->enable_rect_partitions = extra_cfg->enable_rect_partitions;
   cfg->enable_ab_partitions = extra_cfg->enable_ab_partitions;
   cfg->enable_1to4_partitions = extra_cfg->enable_1to4_partitions;
+#if CONFIG_SDP
+  cfg->enable_sdp = extra_cfg->enable_sdp;
+#endif
   cfg->max_partition_size = extra_cfg->max_partition_size;
   cfg->min_partition_size = extra_cfg->min_partition_size;
   cfg->enable_intra_edge_filter = extra_cfg->enable_intra_edge_filter;
@@ -790,11 +798,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->enable_deblocking = cfg->enable_deblocking;
   extra_cfg->enable_cdef = cfg->enable_cdef;
   extra_cfg->enable_restoration = cfg->enable_restoration;
-  extra_cfg->superblock_size = (cfg->superblock_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->superblock_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->superblock_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->superblock_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                      : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = cfg->enable_warped_motion;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   extra_cfg->enable_dist_wtd_comp = cfg->enable_dist_wtd_comp;
@@ -807,6 +814,9 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->enable_rect_partitions = cfg->enable_rect_partitions;
   extra_cfg->enable_ab_partitions = cfg->enable_ab_partitions;
   extra_cfg->enable_1to4_partitions = cfg->enable_1to4_partitions;
+#if CONFIG_SDP
+  extra_cfg->enable_sdp = cfg->enable_sdp;
+#endif
   extra_cfg->max_partition_size = cfg->max_partition_size;
   extra_cfg->min_partition_size = cfg->min_partition_size;
   extra_cfg->enable_intra_edge_filter = cfg->enable_intra_edge_filter;
@@ -1178,6 +1188,9 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   part_cfg->enable_rect_partitions = extra_cfg->enable_rect_partitions;
   part_cfg->enable_ab_partitions = extra_cfg->enable_ab_partitions;
   part_cfg->enable_1to4_partitions = extra_cfg->enable_1to4_partitions;
+#if CONFIG_SDP
+  part_cfg->enable_sdp = extra_cfg->enable_sdp;
+#endif
   part_cfg->min_partition_size = extra_cfg->min_partition_size;
   part_cfg->max_partition_size = extra_cfg->max_partition_size;
 
@@ -1850,6 +1863,14 @@ static aom_codec_err_t ctrl_set_enable_filter_intra(aom_codec_alg_priv_t *ctx,
   extra_cfg.enable_filter_intra = CAST(AV1E_SET_ENABLE_FILTER_INTRA, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+#if CONFIG_SDP
+static aom_codec_err_t ctrl_set_enable_sdp(aom_codec_alg_priv_t *ctx,
+                                           va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_sdp = CAST(AV1E_SET_ENABLE_SDP, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
 
 static aom_codec_err_t ctrl_set_enable_smooth_intra(aom_codec_alg_priv_t *ctx,
                                                     va_list args) {
@@ -3185,6 +3206,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_ENABLE_GLOBAL_MOTION, ctrl_set_enable_global_motion },
   { AV1E_SET_ENABLE_WARPED_MOTION, ctrl_set_enable_warped_motion },
   { AV1E_SET_ALLOW_WARPED_MOTION, ctrl_set_allow_warped_motion },
+#if CONFIG_SDP
+  { AV1E_SET_ENABLE_SDP, ctrl_set_enable_sdp },
+#endif
   { AV1E_SET_ENABLE_FILTER_INTRA, ctrl_set_enable_filter_intra },
   { AV1E_SET_ENABLE_SMOOTH_INTRA, ctrl_set_enable_smooth_intra },
   { AV1E_SET_ENABLE_PAETH_INTRA, ctrl_set_enable_paeth_intra },
@@ -3323,14 +3347,18 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
+#if CONFIG_SDP
+      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+#else
       { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+#endif
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
         1, 1,   1,   0, 0, 1, 1, 1, 1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
         1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
   },
   {
@@ -3398,14 +3426,18 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
+#if CONFIG_SDP
+      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+#else
       { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+#endif
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
         1, 1,   1,   0, 0, 1, 1, 1, 1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
         1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
   },
 };
