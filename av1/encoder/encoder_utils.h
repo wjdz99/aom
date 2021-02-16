@@ -952,9 +952,10 @@ void av1_update_film_grain_parameters(struct AV1_COMP *cpi,
                                       const AV1EncoderConfig *oxcf);
 
 #if CONFIG_FLEX_STEPS
-int process_qStep_config_from_file(const char *paramfile, AV1EncoderConfig *oxcf);
+int process_qStep_config_from_file(const char *paramfile,
+                                   AV1EncoderConfig *oxcf);
 void update_qstep_parameters(struct AV1_COMP *cpi,
-                                      const AV1EncoderConfig *oxcf);
+                             const AV1EncoderConfig *oxcf);
 #endif
 
 void av1_scale_references(AV1_COMP *cpi, const InterpFilter filter,

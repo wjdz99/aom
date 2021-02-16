@@ -713,7 +713,7 @@ typedef struct {
   int table_start_region_idx[MAX_NUM_Q_STEP_VAL];
   int num_qsteps_in_table[MAX_NUM_Q_STEP_INTERVALS];
 
-#endif // CONFIG_FLEX_STEPS
+#endif  // CONFIG_FLEX_STEPS
 } QuantizationCfg;
 
 /*!\endcond */
@@ -2360,10 +2360,10 @@ typedef struct AV1_COMP {
   char *subgop_config_path;
 
 #if CONFIG_FLEX_STEPS
-   /*!
-    * SubGOP configuration file path
-    */
-   char *qstep_config_path;
+  /*!
+   * SubGOP configuration file path
+   */
+  char *qstep_config_path;
 #endif
 
   /*!
@@ -2786,8 +2786,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
 
 #if CONFIG_FLEX_STEPS
 void set_enc_qstep_table(const AV1EncoderConfig *oxcf);
-void initialize_qstep_param(const char *qStep_fname,
-                                AV1EncoderConfig *oxcf);
+void initialize_qstep_param(const char *qStep_fname, AV1EncoderConfig *oxcf);
 #endif
 
 /*!\endcond */
