@@ -70,6 +70,24 @@
       "parentUuid": "8d26404d_edc9524b",
       "revId": "7abfae15de13859cebf3cb94cb1ca1760495e2c1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9571d87_1ddf2f24",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-16T21:40:46Z",
+      "side": 1,
+      "message": "I also doubt that libaom will work if the encode config struct is all zeros.\n\nI believe it is possible to change aom_codec_enc_init() to take a NULL \u0027cfg\u0027 argument; we will need to use the encode config struct for the GOOD_QUALITY usage. In any case we should not do that in this CL.\n\n\u003e Anyways it seems the docs are only used by aomenc (?)\n\nYou mean the public API does not provide access to these strings? I suggested adding a public API function that returns all the key-value pairs, to help the users of the Key \u0026 Value API to construct their own help messages.",
+      "parentUuid": "7f53b495_1753c5ca",
+      "revId": "7abfae15de13859cebf3cb94cb1ca1760495e2c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
