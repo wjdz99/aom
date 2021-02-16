@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74c5bad3_7c9a32ad",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2003,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-16T21:52:21Z",
+      "side": 1,
+      "message": "Here is the relevant code from aom/src/aom_encoder.c:\n\n  aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,\n                                         aom_codec_iface_t *iface,\n                                         const aom_codec_enc_cfg_t *cfg,\n                                         aom_codec_flags_t flags, int ver) {\n    aom_codec_err_t res;\n\n    if (ver !\u003d AOM_ENCODER_ABI_VERSION)\n      res \u003d AOM_CODEC_ABI_MISMATCH;\n    else if (!ctx || !iface || !cfg)\n      res \u003d AOM_CODEC_INVALID_PARAM;\n    ...\n    else {\n      ...\n      ctx-\u003econfig.enc \u003d cfg;\n      res \u003d ctx-\u003eiface-\u003einit(ctx);\n\n      if (res) {\n        ctx-\u003eerr_detail \u003d ctx-\u003epriv ? ctx-\u003epriv-\u003eerr_detail : NULL;\n        aom_codec_destroy(ctx);\n      }\n    }\n\n    return SAVE_STATUS(ctx, res);\n  }\n\nNote the !cfg check for AOM_CODEC_INVALID_PARAM. So if aom_codec_enc_init_ver() returns AOM_CODEC_OK, then it must have set ctx-\u003econfig.enc to a non-null \u0027cfg\u0027 argument.",
+      "revId": "ffb8733f557f4abe5657361a94fa709d94b8c525",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
