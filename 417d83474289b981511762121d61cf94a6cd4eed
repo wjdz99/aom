@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a230e281_450417ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-02-16T21:52:50Z",
+      "side": 1,
+      "message": "Looks like patch set #14 from Krishna was a spurious one that reverted some of the changes until #13. I have reinstated #15 to be same as #13. \n\nAlso, question for the SWCs: since there is a new flag (FLEX_STEPS) coming into this research branch, will it be okay to merge EXTQUANT and FLEX_STEPS when ready into this branch? Since all changes are in config flags it should be easy to track them.  ",
+      "revId": "417d83474289b981511762121d61cf94a6cd4eed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
