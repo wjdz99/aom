@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30ffc1ac_8b154bff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-16T23:47:46Z",
+      "side": 1,
+      "message": "Nice compression/speed trade-off! I suggest adding a comment and combining nested if statements (unless you think the nested if statements are clearer).",
+      "revId": "6490c260a1dfeb70d664d71068a271b8b9e71e6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7bc9d8e_2b035124",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1078,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-16T23:47:46Z",
+      "side": 1,
+      "message": "I highly recommend adding some comments to explain two subtle points about the following if statements:\n\n1. Why is SMOOTH_PRED treated differently from SMOOTH_H_PRED and SMOOTH_V_PRED?\n\n2. WHy does the if statement at lines 1085-1086 consider not only disable_smooth_intra but also disable_filter_intra? To someone unfamiliar with the code like me, disable_filter_intra seems unrelated to SMOOTH_PRED.\n\nThanks.",
+      "revId": "6490c260a1dfeb70d664d71068a271b8b9e71e6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea7cff35_d847461b",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-16T23:47:46Z",
+      "side": 1,
+      "message": "The nested if statements can be combined using \u0026\u0026:\n\n    if (!cpi-\u003eoxcf.intra_mode_cfg.enable_smooth_intra \u0026\u0026 mbmi-\u003emode \u003d\u003d SMOOTH_PRED)\n      continue;",
+      "range": {
+        "startLine": 1083,
+        "startChar": 0,
+        "endLine": 1084,
+        "endChar": 46
+      },
+      "revId": "6490c260a1dfeb70d664d71068a271b8b9e71e6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15eb6b01_1eb9d531",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1087,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-16T23:47:46Z",
+      "side": 1,
+      "message": "Similarly, the nested if statements here can be combined using \u0026\u0026.",
+      "range": {
+        "startLine": 1085,
+        "startChar": 0,
+        "endLine": 1087,
+        "endChar": 46
+      },
+      "revId": "6490c260a1dfeb70d664d71068a271b8b9e71e6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
