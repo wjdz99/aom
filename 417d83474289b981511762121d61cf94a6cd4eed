@@ -140,6 +140,24 @@
       "parentUuid": "f575bf6f_36c4ac36",
       "revId": "417d83474289b981511762121d61cf94a6cd4eed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42e1d0e3_e289b381",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-02-16T23:02:18Z",
+      "side": 1,
+      "message": "@Debargha, Yes, currently FLEX_STEPS depends EXT_QUANT to be enabled as it is re-using some mandatory code needed for any changes (such as the data_type increase (16-bit to 32-bit), for functions related to QP and internal bit-depth increase (3+4 bits) etc).  If you think it is desirable to make it independent, I can wrap those code changes with EXTQUANT || FLEX_STEPS. I am open for any suggestions and either ways is Ok to me (I don\u0027t have any strong preference). Personally, it maybe easy to test trade-off\u0027s of each change if they are in one-branch, but I guess it is also possible to evaluate separately.",
+      "parentUuid": "b0c7b243_65dfa42d",
+      "revId": "417d83474289b981511762121d61cf94a6cd4eed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
