@@ -601,8 +601,12 @@ typedef struct {
   int filter_intra_mode_cost[FILTER_INTRA_MODES];
   //! angle_delta_cost
 #if CONFIG_SDP
+<<<<<<< HEAD   (05c772 Encoder bugfix for SDP)
   int angle_delta_cost[PARTITION_STRUCTURE_NUM][DIRECTIONAL_MODES]
                       [2 * MAX_ANGLE_DELTA + 1];
+=======
+  int angle_delta_cost[2][DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
+>>>>>>> CHANGE (55f1db Add run-time flag for SDP (Semi-Decoupled Partitioning))
 #else
   int angle_delta_cost[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
 #endif

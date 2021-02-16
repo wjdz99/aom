@@ -505,8 +505,10 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 
   // Adjust and encode the superblock
 #if CONFIG_SDP
-  int totalLoopNum =
-      (frame_is_intra_only(cm) && !cm->seq_params.monochrome) ? 2 : 1;
+  int totalLoopNum = (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
+                      cm->seq_params.enable_sdp)
+                         ? 2
+                         : 1;
   MACROBLOCKD *const xd = &x->e_mbd;
   for (int loopIdx = 0; loopIdx < totalLoopNum; loopIdx++) {
     xd->tree_type =
@@ -601,6 +603,16 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   MB_MODE_INFO **mi = cm->mi_params.mi_grid_base +
                       get_mi_grid_idx(&cm->mi_params, mi_row, mi_col);
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+<<<<<<< HEAD   (05c772 Encoder bugfix for SDP)
+=======
+#if CONFIG_SDP
+  int totalLoopNum = (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
+                      cm->seq_params.enable_sdp)
+                         ? 2
+                         : 1;
+  MACROBLOCKD *const xd = &x->e_mbd;
+#else
+>>>>>>> CHANGE (55f1db Add run-time flag for SDP (Semi-Decoupled Partitioning))
   const int num_planes = av1_num_planes(cm);
   int dummy_rate;
   int64_t dummy_dist;
