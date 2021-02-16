@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nIn this patch, we have added a speed feature which calculates the rate and distortion based on only Y plane during tpl model estimation, i.e., the rate and distortion calculations of U and V components are skipped. The speed feature is enabled for speed 5 and speed 6. \n\n                     Instruction Count       BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)      avg.psnr  ovr.psnr   ssim \n    5       LOW RES       1.296           0.0881   0.0821    -0.0084 \n    5       MID RES       1.466           0.0177  -0.0113    -0.2586 \n    5       HD RES        1.553           0.1675   0.1786    -0.0412 \n    5       Average       1.403           0.0917   0.0842    -0.0917 \n\t\n    6       LOWRES        0.921           0.1390   0.1208     0.0192 \n    6       MIDRES        0.897           0.0188  -0.0027    -0.0992 \n    6       HDRES         1.167           0.0633   0.0687    -0.0545 \n    6       Average       0.978           0.0807   0.0687    -0.0379      \n       \nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThank you.",
       "revId": "81c66eeeb96a79dea56a5bc6d0faaf7c0b7d5300",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac2adb3c_164cfc2c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-16T23:46:07Z",
+      "side": 1,
+      "message": "Good optimization! Thanks.",
+      "revId": "81c66eeeb96a79dea56a5bc6d0faaf7c0b7d5300",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
