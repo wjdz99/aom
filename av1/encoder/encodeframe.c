@@ -505,8 +505,10 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 
   // Adjust and encode the superblock
 #if CONFIG_SDP
-  int totalLoopNum =
-      (frame_is_intra_only(cm) && !cm->seq_params.monochrome) ? 2 : 1;
+  int totalLoopNum = (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
+                      cm->seq_params.enable_sdp)
+                         ? 2
+                         : 1;
   MACROBLOCKD *const xd = &x->e_mbd;
   for (int loopIdx = 0; loopIdx < totalLoopNum; loopIdx++) {
     xd->tree_type =
@@ -612,8 +614,10 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 #endif  // CONFIG_REALTIME_ONLY
 
 #if CONFIG_SDP
-  int totalLoopNum =
-      (frame_is_intra_only(cm) && !cm->seq_params.monochrome) ? 2 : 1;
+  int totalLoopNum = (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
+                      cm->seq_params.enable_sdp)
+                         ? 2
+                         : 1;
   MACROBLOCKD *const xd = &x->e_mbd;
 #endif
 
