@@ -2706,47 +2706,51 @@ static AOM_INLINE void write_sequence_header(
 }
 
 #if CONFIG_FLEX_STEPS
-static AOM_INLINE void write_qStepinfo(
-        const SequenceHeader *const seq_params, struct aom_write_bit_buffer *wb) {
-    aom_wb_write_literal(wb, seq_params->qStep_mode, 2);
-    if(seq_params->qStep_mode == 0 || seq_params->qStep_mode == 1) {
-        aom_wb_write_literal(wb, seq_params->num_qStep_intervals, 4);
-        aom_wb_write_uvlc(wb, seq_params->num_qsteps_in_interval[0]);
-        for (int idx = 1; idx <= seq_params->num_qStep_intervals; idx++) {
-            int delta_qsteps = seq_params->num_qsteps_in_interval[idx] - seq_params->num_qsteps_in_interval[idx - 1];
-            assert(delta_qsteps >= 0);
-            //int delta_qsteps_sign = (delta_qsteps <  0) ? 1 : 0;
-            //aom_wb_write_bit(wb, delta_qsteps_sign);
-            aom_wb_write_uvlc(wb, abs(delta_qsteps));
-        }
-    } else if (seq_params->qStep_mode == 2) {
-        aom_wb_write_literal(wb, seq_params->num_qStep_levels, 8);
-        aom_wb_write_uvlc(wb, seq_params->qSteps_level[0]);
-        for (int idx = 1; idx <= seq_params->num_qStep_levels; idx++) {
-            int delta_qsteps = seq_params->qSteps_level[idx] - seq_params->qSteps_level[idx - 1];
-            int delta_qsteps_sign = (delta_qsteps <  0) ? 1 : 0;
-            aom_wb_write_bit(wb, delta_qsteps_sign);
-            aom_wb_write_uvlc(wb, abs(delta_qsteps));
-        }
-    } else if (seq_params->qStep_mode == 3) {
-        aom_wb_write_literal(wb, seq_params->num_table_templates_minus1, 2);
-        for (int i = 0; i <= seq_params->num_table_templates_minus1; i++) {
-            aom_wb_write_literal(wb, seq_params->num_entries_in_table_minus1[i], 8);
-            aom_wb_write_uvlc(wb, seq_params->qSteps_level_in_table[i][0]);
-            for (int idx = 1; idx <= seq_params->num_entries_in_table_minus1[i]; idx++) {
-                int delta_qsteps = seq_params->qSteps_level_in_table[i][idx] - seq_params->qSteps_level_in_table[i][idx - 1];
-                int delta_qsteps_sign = (delta_qsteps <  0) ? 1 : 0;
-                aom_wb_write_bit(wb, delta_qsteps_sign);
-                aom_wb_write_uvlc(wb, abs(delta_qsteps));
-            }
-        }
-        aom_wb_write_literal(wb, seq_params->num_qStep_intervals, 4);
-        for (int idx = 0; idx <= seq_params->num_qStep_intervals; idx++) {
-            aom_wb_write_literal(wb, seq_params->template_table_idx[idx], 2);
-            aom_wb_write_literal(wb, seq_params->num_qsteps_in_table[idx], 8);
-            aom_wb_write_literal(wb, seq_params->table_start_region_idx[idx], 8);
-        }
+static AOM_INLINE void write_qStepinfo(const SequenceHeader *const seq_params,
+                                       struct aom_write_bit_buffer *wb) {
+  aom_wb_write_literal(wb, seq_params->qStep_mode, 2);
+  if (seq_params->qStep_mode == 0 || seq_params->qStep_mode == 1) {
+    aom_wb_write_literal(wb, seq_params->num_qStep_intervals, 4);
+    aom_wb_write_uvlc(wb, seq_params->num_qsteps_in_interval[0]);
+    for (int idx = 1; idx <= seq_params->num_qStep_intervals; idx++) {
+      int delta_qsteps = seq_params->num_qsteps_in_interval[idx] -
+                         seq_params->num_qsteps_in_interval[idx - 1];
+      assert(delta_qsteps >= 0);
+      // int delta_qsteps_sign = (delta_qsteps <  0) ? 1 : 0;
+      // aom_wb_write_bit(wb, delta_qsteps_sign);
+      aom_wb_write_uvlc(wb, abs(delta_qsteps));
     }
+  } else if (seq_params->qStep_mode == 2) {
+    aom_wb_write_literal(wb, seq_params->num_qStep_levels, 8);
+    aom_wb_write_uvlc(wb, seq_params->qSteps_level[0]);
+    for (int idx = 1; idx <= seq_params->num_qStep_levels; idx++) {
+      int delta_qsteps =
+          seq_params->qSteps_level[idx] - seq_params->qSteps_level[idx - 1];
+      int delta_qsteps_sign = (delta_qsteps < 0) ? 1 : 0;
+      aom_wb_write_bit(wb, delta_qsteps_sign);
+      aom_wb_write_uvlc(wb, abs(delta_qsteps));
+    }
+  } else if (seq_params->qStep_mode == 3) {
+    aom_wb_write_literal(wb, seq_params->num_table_templates_minus1, 2);
+    for (int i = 0; i <= seq_params->num_table_templates_minus1; i++) {
+      aom_wb_write_literal(wb, seq_params->num_entries_in_table_minus1[i], 8);
+      aom_wb_write_uvlc(wb, seq_params->qSteps_level_in_table[i][0]);
+      for (int idx = 1; idx <= seq_params->num_entries_in_table_minus1[i];
+           idx++) {
+        int delta_qsteps = seq_params->qSteps_level_in_table[i][idx] -
+                           seq_params->qSteps_level_in_table[i][idx - 1];
+        int delta_qsteps_sign = (delta_qsteps < 0) ? 1 : 0;
+        aom_wb_write_bit(wb, delta_qsteps_sign);
+        aom_wb_write_uvlc(wb, abs(delta_qsteps));
+      }
+    }
+    aom_wb_write_literal(wb, seq_params->num_qStep_intervals, 4);
+    for (int idx = 0; idx <= seq_params->num_qStep_intervals; idx++) {
+      aom_wb_write_literal(wb, seq_params->template_table_idx[idx], 2);
+      aom_wb_write_literal(wb, seq_params->num_qsteps_in_table[idx], 8);
+      aom_wb_write_literal(wb, seq_params->table_start_region_idx[idx], 8);
+    }
+  }
 }
 
 #endif
@@ -2892,7 +2896,7 @@ static int check_frame_refs_short_signaling(AV1_COMMON *const cm) {
     }
   }
 
-#if 0   // For debug
+#if 0  // For debug
   printf("\nFrame=%d: \n", cm->current_frame.frame_number);
   printf("***frame_refs_short_signaling=%d\n", frame_refs_short_signaling);
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {

@@ -55,15 +55,20 @@ struct CommonQuantParams;
 struct macroblockd;
 
 #if CONFIG_FLEX_STEPS
-#define MAX_NUM_Q_STEP_INTERVALS     16
-#define MAX_NUM_TABLES                8
-#define MAX_NUM_Q_STEP_VAL           256
+#define MAX_NUM_Q_STEP_INTERVALS 16
+#define MAX_NUM_TABLES 8
+#define MAX_NUM_Q_STEP_VAL 256
 
-void set_qStep_table_mode_0_1(int qStep_mode, int num_qStep_intervals, int *num_qsteps_in_interval);
-void set_qStep_table_mode_2(int qStep_mode, int num_qStep_levels, int *qSteps_level);
-void set_qStep_table_mode_3(int qStep_mode, int num_qStep_intervals, int *template_table_idx,
-                            int *table_start_region_idx, int *num_qsteps_in_table, int *qSteps_level_in_table);
-void dump_qStep_table(int mode, int expt); //kk delete
+void set_qStep_table_mode_0_1(int qStep_mode, int num_qStep_intervals,
+                              int *num_qsteps_in_interval);
+void set_qStep_table_mode_2(int qStep_mode, int num_qStep_levels,
+                            int *qSteps_level);
+void set_qStep_table_mode_3(int qStep_mode, int num_qStep_intervals,
+                            int *template_table_idx,
+                            int *table_start_region_idx,
+                            int *num_qsteps_in_table,
+                            int *qSteps_level_in_table);
+void dump_qStep_table(int mode, int expt);  // kk delete
 #endif
 
 #if CONFIG_EXTQUANT
@@ -97,10 +102,9 @@ static INLINE int aom_get_qmlevel(int qindex, int first, int last
 ) {
 #if CONFIG_EXTQUANT
   return first + (qindex * (last + 1 - first)) /
-                     (bit_depth == AOM_BITS_8
-                          ? QINDEX_RANGE_8_BITS
-                          : bit_depth == AOM_BITS_10 ? QINDEX_RANGE_10_BITS
-                                                     : QINDEX_RANGE);
+                     (bit_depth == AOM_BITS_8    ? QINDEX_RANGE_8_BITS
+                      : bit_depth == AOM_BITS_10 ? QINDEX_RANGE_10_BITS
+                                                 : QINDEX_RANGE);
 #else
   return first + (qindex * (last + 1 - first)) / QINDEX_RANGE;
 #endif

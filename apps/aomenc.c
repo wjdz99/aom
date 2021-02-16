@@ -1448,7 +1448,7 @@ static void set_config_arg_ctrls(struct stream_config *config, int key,
   if (key == AV1E_SET_QSTEP_CONFIG_PATH) {
     config->qstep_config_path = arg->val;
     return;
-    }
+  }
 #endif
 
   // For target level, the settings should accumulate rather than overwrite,
@@ -1960,8 +1960,8 @@ static void show_stream_config(struct stream_state *stream,
           encoder_cfg->enable_deblocking, encoder_cfg->enable_cdef,
           encoder_cfg->enable_restoration);
 #if CONFIG_FLEX_STEPS
-  fprintf(stdout,
-          "Tool setting (Quantization)    : Mode (%d)\n", encoder_cfg->qstep_mode);
+  fprintf(stdout, "Tool setting (Quantization)    : Mode (%d)\n",
+          encoder_cfg->qstep_mode);
 #endif
   fprintf(stdout,
           "Tool setting (Others)          : Palette (%d), IntraBC (%d)\n",
@@ -2053,13 +2053,14 @@ static void initialize_encoder(struct stream_state *stream,
   flags |= global->quiet ? 0 : AOM_CODEC_USE_PER_FRAME_STATS;
 
 #if CONFIG_FLEX_STEPS
-    struct stream_config *sc_cfg = &stream->config;
-    if (sc_cfg->qstep_config_path != NULL) {
-        sc_cfg->cfg.encoder_cfg.qstep_config_path =
+  struct stream_config *sc_cfg = &stream->config;
+  if (sc_cfg->qstep_config_path != NULL) {
+    sc_cfg->cfg.encoder_cfg.qstep_config_path =
         (char *)aom_malloc((strlen(sc_cfg->qstep_config_path) + 1) *
                            sizeof(*sc_cfg->qstep_config_path));
-        strcpy((char *)sc_cfg->cfg.encoder_cfg.qstep_config_path, sc_cfg->qstep_config_path);
-    }
+    strcpy((char *)sc_cfg->cfg.encoder_cfg.qstep_config_path,
+           sc_cfg->qstep_config_path);
+  }
 #endif
   /* Construct Encoder Context */
   aom_codec_enc_init(&stream->encoder, global->codec, &stream->config.cfg,
