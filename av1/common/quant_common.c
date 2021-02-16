@@ -93,6 +93,9 @@ static const int16_t dc_qlookup_12_QTX[QINDEX_RANGE] = {
 #if CONFIG_EXTQUANT
 //           32,                                q_index = 0
 //  qstep =  40 * 2^((q_index - 1)/24)          q_index in [1, 255]
+#if CONFIG_FLEX_STEPS
+static uint16_t ac_qlookup_QTX[QINDEX_RANGE_8_BITS];
+#else
 static const uint16_t ac_qlookup_QTX[QINDEX_RANGE_8_BITS] = {
   32,    40,    41,    42,    44,    45,    46,    48,    49,    50,    52,
   53,    55,    57,    58,    60,    62,    63,    65,    67,    69,    71,
@@ -119,6 +122,7 @@ static const uint16_t ac_qlookup_QTX[QINDEX_RANGE_8_BITS] = {
   42160, 43396, 44667, 45976, 47323, 48710, 50137, 51606, 53119, 54675, 56277,
   57926, 59624, 61371
 };
+#endif
 #else
 static const int16_t ac_qlookup_QTX[QINDEX_RANGE] = {
   4,    8,    9,    10,   11,   12,   13,   14,   15,   16,   17,   18,   19,
@@ -224,6 +228,110 @@ static const int16_t ac_qlookup_12_QTX[QINDEX_RANGE] = {
 // expects quantizers to be larger for higher-bitdepth input.  In
 // addition, the minimum allowable quantizer is 4; smaller values will
 // underflow to 0 in the actual quantization routines.
+
+#if CONFIG_FLEX_STEPS
+int getShiftVal(int val) {
+  int logVal = 0;
+  while (val > 0) {
+    val >>= 1;
+    logVal++;
+  }
+  return logVal - 1;
+}
+void set_qStep_table_mode_0_1(int qStep_mode, int num_qStep_intervals,
+                              int *num_qsteps_in_interval) {
+  int mask = (1 << 16) - 1;
+  assert(qStep_mode == 0 || qStep_mode == 1);
+  assert(num_qStep_intervals >= 1);
+
+  (void)qStep_mode;
+
+  ac_qlookup_QTX[0] = 32;
+  int qIdx = 1;
+  int Initial_qIdx_factor = 32;
+
+  for (int i = 0; i <= num_qStep_intervals && (qIdx < QINDEX_RANGE_8_BITS);
+       i++) {
+    int idx = 1;
+    int log_val = getShiftVal(num_qsteps_in_interval[i]);
+    while (idx <= num_qsteps_in_interval[i]) {
+      ac_qlookup_QTX[qIdx] = CLIP(
+          ((Initial_qIdx_factor *
+            ((num_qsteps_in_interval[i] + (idx % num_qsteps_in_interval[i]))
+             << (idx >> log_val))) >>
+           log_val),
+          0, mask);
+      qIdx++;
+      idx++;
+    }
+    Initial_qIdx_factor = ac_qlookup_QTX[qIdx - 1];
+  }
+}
+
+void set_qStep_table_mode_2(int qStep_mode, int num_qStep_levels,
+                            int *qSteps_level) {
+  int mask = (1 << 16) - 1;
+  assert(qStep_mode == 2);
+  (void)qStep_mode;
+
+  int qIdx = 0;
+  num_qStep_levels = num_qStep_levels + 1;
+  int num_periods = (int)(QINDEX_RANGE_8_BITS / num_qStep_levels);
+  if ((QINDEX_RANGE_8_BITS - (num_periods * num_qStep_levels)) > 0)
+    num_periods = num_periods + 1;
+
+  for (int i = 0; i < num_periods; i++) {
+    int idx = 0;
+    while ((idx < num_qStep_levels) && (qIdx < QINDEX_RANGE_8_BITS)) {
+      ac_qlookup_QTX[qIdx] = CLIP((qSteps_level[idx] << i), 0, mask);
+      qIdx++;
+      idx++;
+    }
+  }
+}
+
+void set_qStep_table_mode_3(int qStep_mode, int num_qStep_intervals,
+                            int *template_table_idx,
+                            int *table_start_region_idx,
+                            int *num_qsteps_in_table,
+                            int *qSteps_level_in_table) {
+  int mask = (1 << 16) - 1;
+  assert(qStep_mode == 3);
+  (void)qStep_mode;
+
+  int qIdx = 0;
+  // int Initial_qIdx_factor = 0;
+
+  for (int k = 0; k <= num_qStep_intervals && (qIdx < QINDEX_RANGE_8_BITS);
+       k++) {
+    for (int idx = table_start_region_idx[k];
+         idx <= num_qsteps_in_table[k] + table_start_region_idx[k]; idx++) {
+      ac_qlookup_QTX[qIdx] =
+          CLIP(*(qSteps_level_in_table +
+                 template_table_idx[k] * (MAX_NUM_Q_STEP_VAL) + idx),
+               0, mask);
+      qIdx++;
+    }
+    // Initial_qIdx_factor =  ac_qlookup_QTX[qIdx-1];
+  }
+}
+
+#if 0
+void dump_qStep_table(int mode, int expt) {
+    FILE *fp;
+    char fname[500];
+    snprintf(fname, sizeof(fname), "/Users/krapaka/Documents/Work/1_debug_log/kk_log_QMatrix_mode%d_expt_%d",mode, expt);
+    fp = fopen(fname, "wb");
+    for(int ii = 0; ii < 256; ii++) {
+        fprintf(fp,"%d,", ac_qlookup_QTX[ii]);
+        if (ii % 8 == 0) {
+            fprintf(fp,"\n");
+        }
+    }
+    fclose(fp);
+}
+#endif
+#endif
 
 #if CONFIG_EXTQUANT
 int32_t av1_dc_quant_QTX(int qindex, int delta, int base_dc_delta_q,
