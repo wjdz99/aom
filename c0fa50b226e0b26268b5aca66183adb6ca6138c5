@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0a9cb6b_86beecd2",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-02-17T20:11:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "709277c5_74c4bf88",
+      "revId": "c0fa50b226e0b26268b5aca66183adb6ca6138c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29acd250_6de5e50d",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-02-17T18:46:20Z",
       "side": 1,
       "message": "These flags should be off by default, IMHO.",
+      "revId": "c0fa50b226e0b26268b5aca66183adb6ca6138c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4350651_d839e54e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-02-17T20:11:14Z",
+      "side": 1,
+      "message": "For the run-time flag, we can turn it on when merging the code to the research branch or wait until the next tagged anchor. Either one looks good to me. But for small changes which only have macro in the code, for example, improvement for warped motion, I think it is better to turn it on when merging to research branch. In this way, all the code changes will go throgh per-commit test and nightly-run. What do you think?",
+      "parentUuid": "29acd250_6de5e50d",
       "revId": "c0fa50b226e0b26268b5aca66183adb6ca6138c5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1501e371_5d26e28a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3356,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-02-17T20:11:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b5aefbf9_679d1e15",
+      "revId": "c0fa50b226e0b26268b5aca66183adb6ca6138c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "448fa104_b631211c",
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2c20074_514c7220",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 3431,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-02-17T20:11:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "448fa104_b631211c",
+      "revId": "c0fa50b226e0b26268b5aca66183adb6ca6138c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c0ad62d_89817558",
@@ -99,6 +171,30 @@
       "writtenOn": "2021-02-17T18:46:20Z",
       "side": 1,
       "message": "This change seems unrelated?\nAlso, there should be a #define for the constant (3 or 2) to make it clear what that number is (and also make it easier to change in future).\nI also see more uses of this constant in other files.",
+      "range": {
+        "startLine": 155,
+        "startChar": 31,
+        "endLine": 155,
+        "endChar": 32
+      },
+      "revId": "c0fa50b226e0b26268b5aca66183adb6ca6138c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08bade80_00ec8168",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-02-17T20:11:14Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4c0ad62d_89817558",
       "range": {
         "startLine": 155,
         "startChar": 31,
