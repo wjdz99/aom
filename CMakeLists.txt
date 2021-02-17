@@ -438,26 +438,28 @@ if(CONFIG_AV1_ENCODER)
               ${AOM_ENCODER_TOOL_TARGETS})
 
   if(CONFIG_TUNE_BUTTERAUGLI)
-    find_package(PkgConfig)
-    pkg_check_modules(LIBJXL REQUIRED libjxl)
-    target_link_libraries(aom PRIVATE ${LIBJXL_LDFLAGS} ${LIBJXL_LIBRARIES})
+    find_library(LIBJXL_LIBRARIES libjxl.a)
+    find_library(LIBHWY_LIBRARIES libhwy.a)
+    find_library(LIBSKCMS_LIBRARIES libskcms.a)
+    find_path(LIBJXL_INCLUDE_DIRS butteraugli.h PATH_SUFFIXES jxl)
+    if(LIBJXL_LIBRARIES
+       AND LIBHWY_LIBRARIES
+       AND LIBSKCMS_LIBRARIES
+       AND LIBJXL_INCLUDE_DIRS)
+      message(STATUS "Found JXL library: ${LIBJXL_LIBRARIES} "
+                     "${LIBHWY_LIBRARIES} ${LIBJXLT_LIBRARIES} "
+                     "${LIBSKCMS_LIBRARIES}")
+      message(STATUS "Found JXL include: ${LIBJXL_INCLUDE_DIRS}")
+    else()
+      message(FATAL_ERROR "JXL library not found.")
+    endif()
+    target_link_libraries(aom
+                          PRIVATE ${LIBJXL_LDFLAGS} ${LIBJXL_LIBRARIES}
+                                  ${LIBHWY_LIBRARIES} ${LIBJXLT_LIBRARIES}
+                                  ${LIBSKCMS_LIBRARIES})
     target_include_directories(aom PRIVATE ${LIBJXL_INCLUDE_DIRS})
     if(LIBJXL_CFLAGS)
       append_compiler_flag("${LIBJXL_CFLAGS}")
-    endif()
-
-    pkg_check_modules(LIBHWY REQUIRED libhwy)
-    target_link_libraries(aom PRIVATE ${LIBHWY_LDFLAGS} ${LIBHWY_LIBRARIES})
-    target_include_directories(aom PRIVATE ${LIBLIBHWY_INCLUDE_DIRS})
-    if(LIBHWY_CFLAGS)
-      append_compiler_flag("${LIBHWY_CFLAGS}")
-    endif()
-
-    pkg_check_modules(LIBJXLT REQUIRED libjxl_threads)
-    target_link_libraries(aom PRIVATE ${LIBJXLT_LDFLAGS} ${LIBJXLT_LIBRARIES})
-    target_include_directories(aom PRIVATE ${LIBJXLT_INCLUDE_DIRS})
-    if(LIBJXLT_CFLAGS)
-      append_compiler_flag("${LIBJXLT_CFLAGS}")
     endif()
 
     set_target_properties(aom PROPERTIES LINKER_LANGUAGE CXX)
