@@ -34,6 +34,24 @@
       "parentUuid": "bd30ed55_ededf677",
       "revId": "bf3581ee9ecacb691280911f837b071cbcce7e3d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92c7dbd3_fb6acc57",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-02-17T20:25:19Z",
+      "side": 0,
+      "message": "Generally better to separate into small patches: avoids bugs, easier to review, easier to revert smaller patches if required etc.\n\nIn this case, if you really want to have a combined patch, it\u0027s ok. But pls add a this info in commit message.",
+      "parentUuid": "a29d1d03_38b45b04",
+      "revId": "bf3581ee9ecacb691280911f837b071cbcce7e3d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
