@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch should fix the issue reported in BUG\u003daomedia:2956. We have verified that the issue was reproducible with gcc versions 4.8.5 and 5.5.0 and this patch resolves the issue. \n\nWe have also created a revert patch of \"Disable AV1/AVxEncoderThreadRTTest for speed 9\"   (https://aomedia-review.googlesource.com/c/aom/+/130342) with this patch as the parent. \n\nPlease review.\n\nThanks ",
       "revId": "c0b3cd930977e821b7ee1c82ad60a3ff14d136cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ea59f8a_c147621a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-17T16:56:12Z",
+      "side": 1,
+      "message": "Thanks for debugging and fixing it! Looks good.\n\nWe had this type of issues several times recently. Debugging it must not be easy. Maybe we can handle this in a more systematic way, namely, adding it in all SIMD functions instead? Would it be a better way to prevent this? We can discuss about it.",
+      "parentUuid": "e809235d_a234cd24",
+      "revId": "c0b3cd930977e821b7ee1c82ad60a3ff14d136cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
