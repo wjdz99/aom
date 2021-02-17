@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bb77629_ec3478b4",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1072,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2021-02-17T19:11:24Z",
+      "side": 1,
+      "message": "this will boost chroma quality and bit rate, is this what we want?",
+      "range": {
+        "startLine": 1072,
+        "startChar": 40,
+        "endLine": 1072,
+        "endChar": 43
+      },
+      "revId": "89b31235f90e301206bbac8852601642940c11f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "492e8a1c_b43c64f4",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2021-02-17T19:11:24Z",
+      "side": 1,
+      "message": "when EXTQUANT is enabled, for INTER frame, do we enable_chroma_deltaq?",
+      "range": {
+        "startLine": 1077,
+        "startChar": 25,
+        "endLine": 1077,
+        "endChar": 26
+      },
+      "revId": "89b31235f90e301206bbac8852601642940c11f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
