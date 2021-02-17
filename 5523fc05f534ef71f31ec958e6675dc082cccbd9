@@ -46,6 +46,30 @@
       },
       "revId": "5523fc05f534ef71f31ec958e6675dc082cccbd9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25ef294b_ba839138",
+        "filename": "apps/aomdec.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T23:37:26Z",
+      "side": 1,
+      "message": "I inspected the bitstream (out_2.av1). It has three operating points. Operating point 0 has one temporal layer and three spatial layers. The problem with out_2.av1 is that each AV1 temporal unit is split into three IVF frames, but libaom assumes an IVF frame contains one AV1 temporal unit and does not rely on the AV1 temporal delimiters to determine the temporal unit boundaries.\n\nIf you fix the encoder program to put one temporal unit (consisting of three AV1 frames) in an IVF frame, then aomdec should be able to decode the highest spatial layers automatically (without the --all-layers option).",
+      "parentUuid": "f9874fc4_ea56d3a8",
+      "range": {
+        "startLine": 104,
+        "startChar": 11,
+        "endLine": 104,
+        "endChar": 21
+      },
+      "revId": "5523fc05f534ef71f31ec958e6675dc082cccbd9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
