@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "141aab51_4e56e722",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1072,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-02-17T20:13:03Z",
+      "side": 1,
+      "message": "No this is for consistency with what is there in the parent.\nWhether enable_chroma_deltaq is on or not should determine whether u and v dc deltas are used at all. But for extquant, it is always turned on (see line 1056).\nThis change is done to make the results same as the parent while making the structure more accurate. Starting from this patch, we can then modify the deltas.",
+      "parentUuid": "0bb77629_ec3478b4",
+      "range": {
+        "startLine": 1072,
+        "startChar": 40,
+        "endLine": 1072,
+        "endChar": 43
+      },
+      "revId": "89b31235f90e301206bbac8852601642940c11f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "492e8a1c_b43c64f4",
         "filename": "av1/encoder/av1_quantize.c",
         "patchSetId": 6
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-17T19:11:24Z",
       "side": 1,
       "message": "when EXTQUANT is enabled, for INTER frame, do we enable_chroma_deltaq?",
+      "range": {
+        "startLine": 1077,
+        "startChar": 25,
+        "endLine": 1077,
+        "endChar": 26
+      },
+      "revId": "89b31235f90e301206bbac8852601642940c11f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42ada2de_700bb98e",
+        "filename": "av1/encoder/av1_quantize.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-02-17T20:13:03Z",
+      "side": 1,
+      "message": "enable_chroma_deltaq is a command line / api level parameter which should be honored. Currently it is not (because of line 1056), which I added so that the results do not change from the parent patch.",
+      "parentUuid": "492e8a1c_b43c64f4",
       "range": {
         "startLine": 1077,
         "startChar": 25,
