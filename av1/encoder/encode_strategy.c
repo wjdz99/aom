@@ -918,6 +918,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       // fwd kf
       is_forward_keyframe = 1;
     }
+<<<<<<< HEAD   (4dfcf8 Revert "Disable AV1/AVxEncoderThreadRTTest for speed 9")
     const int code_arf =
         av1_temporal_filter(cpi, arf_src_index, update_type,
                             is_forward_keyframe, &show_existing_alt_ref);
@@ -935,7 +936,18 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   if (cpi->oxcf.pass == 2) end_timing(cpi, apply_filtering_time);
 #endif
+=======
+    aom_extend_frame_borders(&cpi->alt_ref_buffer, av1_num_planes(cm));
+    // Use the filtered frame for encoding.
+    frame_input->source = &cpi->alt_ref_buffer;
+    // Copy metadata info to alt-ref buffer.
+    aom_remove_metadata_from_frame_buffer(frame_input->source);
+    aom_copy_metadata_to_frame_buffer(frame_input->source,
+                                      source_kf_buffer->metadata);
+  }
+>>>>>>> BRANCH (cb1d48 Prepare for the libaom v2.0.2 release)
 
+<<<<<<< HEAD   (4dfcf8 Revert "Disable AV1/AVxEncoderThreadRTTest for speed 9")
   // perform tpl after filtering
   int allow_tpl = oxcf->gf_cfg.lag_in_frames > 1 &&
                   !is_stat_generation_stage(cpi) &&
@@ -966,6 +978,12 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   } else {
     if (!cpi->tpl_data.skip_tpl_setup_stats)
       av1_tpl_setup_stats(cpi, 0, frame_params, frame_input);
+=======
+  if (frame_params->frame_type == KEY_FRAME && !is_stat_generation_stage(cpi) &&
+      oxcf->enable_tpl_model && oxcf->lag_in_frames > 0 &&
+      frame_params->show_frame) {
+    av1_tpl_setup_stats(cpi, 0, frame_params, frame_input);
+>>>>>>> BRANCH (cb1d48 Prepare for the libaom v2.0.2 release)
   }
 
   if (av1_encode(cpi, dest, frame_input, frame_params, frame_results) !=

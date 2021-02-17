@@ -130,12 +130,23 @@ static AOM_FORCE_INLINE int32_t xx_mask_and_hadd(__m256i vsum, int i) {
 static void apply_temporal_filter(
     const uint8_t *frame1, const unsigned int stride, const uint8_t *frame2,
     const unsigned int stride2, const int block_width, const int block_height,
+<<<<<<< HEAD   (4dfcf8 Revert "Disable AV1/AVxEncoderThreadRTTest for speed 9")
     const int *subblock_mses, unsigned int *accumulator, uint16_t *count,
     uint16_t *frame_sse, uint32_t *luma_sse_sum,
     const double inv_num_ref_pixels, const double decay_factor,
     const double inv_factor, const double weight_factor, double *d_factor) {
   assert(((block_width == 16) || (block_width == 32)) &&
          ((block_height == 16) || (block_height == 32)));
+=======
+    const double sigma, const int decay_control, const int use_subblock,
+    const int block_mse, const int *subblock_mses, const int q_factor,
+    unsigned int *accumulator, uint16_t *count, uint16_t *luma_sq_error,
+    uint16_t *chroma_sq_error, int plane, int ss_x_shift, int ss_y_shift) {
+  assert(TF_PLANEWISE_FILTER_WINDOW_LENGTH == 5);
+  assert(((block_width == 16) || (block_width == 32)) &&
+         ((block_height == 16) || (block_height == 32)));
+  if (plane > PLANE_TYPE_Y) assert(chroma_sq_error != NULL);
+>>>>>>> BRANCH (cb1d48 Prepare for the libaom v2.0.2 release)
 
   uint32_t acc_5x5_sse[BH][BW];
 
