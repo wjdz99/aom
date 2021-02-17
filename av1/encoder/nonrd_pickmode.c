@@ -48,6 +48,7 @@ typedef struct {
   PREDICTION_MODE best_mode;
   TX_SIZE best_tx_size;
   MV_REFERENCE_FRAME best_ref_frame;
+  int best_ref_mv_idx;
   uint8_t best_mode_skip_txfm;
   uint8_t best_mode_initial_skip_flag;
   int_interpfilters best_pred_filter;
@@ -124,6 +125,7 @@ static INLINE void init_best_pickmode(BEST_PICKMODE *bp) {
   bp->best_mode_skip_txfm = 0;
   bp->best_mode_initial_skip_flag = 0;
   bp->best_pred = NULL;
+  bp->best_ref_mv_idx = 0;
 }
 
 /*!\brief Runs Motion Estimation for a specific block and specific ref frame.
@@ -164,7 +166,7 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
                        : cpi->mv_search_params.mv_step_param;
   FULLPEL_MV start_mv;
   const int ref = mi->ref_frame[0];
-  const MV ref_mv = av1_get_ref_mv(x, mi->ref_mv_idx).as_mv;
+  const MV ref_mv = av1_get_ref_mv(x, 0).as_mv;
   MV center_mv;
   int dis;
   int rv = 0;
@@ -279,7 +281,7 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
 
     tmp_sad = av1_int_pro_motion_estimation(
         cpi, x, bsize, mi_row, mi_col,
-        &x->mbmi_ext.ref_mv_stack[ref_frame][0].this_mv.as_mv);
+        &x->mbmi_ext.ref_mv_stack[ref_frame][mi->ref_mv_idx].this_mv.as_mv);
 
     if (tmp_sad > x->pred_mv_sad[LAST_FRAME]) return -1;
 
@@ -303,6 +305,9 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
         xd, cm, &ms_params, start_mv, &best_mv.as_mv, &dis,
         &x->pred_sse[ref_frame], NULL);
     frame_mv[NEWMV][ref_frame].as_int = best_mv.as_int;
+
+    if (best_mv.as_int == av1_get_ref_mv(x, 0).as_int) return -1;
+
   } else if (!combined_motion_search(cpi, x, bsize, mi_row, mi_col,
                                      &frame_mv[NEWMV][ref_frame], rate_mv,
                                      best_rdc->rdcost, 0)) {
@@ -353,6 +358,7 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
   (void)tile_data;
 
   x->pred_mv_sad[ref_frame] = INT_MAX;
+  x->best_ref_mv_index[ref_frame] = -1;
   frame_mv[NEWMV][ref_frame].as_int = INVALID_MV;
   // TODO(kyslov) this needs various further optimizations. to be continued..
   assert(yv12 != NULL);
@@ -2315,9 +2321,14 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     mi->ref_frame[0] = ref_frame;
     mi->ref_frame[1] = NONE_FRAME;
+    mi->ref_mv_idx = 0;
     set_ref_ptrs(cm, xd, ref_frame, NONE_FRAME);
 
     if (this_mode == NEWMV && !force_mv_inter_layer) {
+      if (x->best_ref_mv_index[ref_frame] != -1 &&
+          x->best_ref_mv_index[ref_frame] < mbmi_ext->ref_mv_count[ref_frame]) {
+        mi->ref_mv_idx = x->best_ref_mv_index[ref_frame];
+      }
       if (search_new_mv(cpi, x, frame_mv, ref_frame, gf_temporal_ref, bsize,
                         mi_row, mi_col, &rate_mv, &best_rdc))
         continue;
@@ -2478,6 +2489,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       best_pickmode.best_pred_filter = mi->interp_filters;
       best_pickmode.best_tx_size = mi->tx_size;
       best_pickmode.best_ref_frame = ref_frame;
+      best_pickmode.best_ref_mv_idx = mi->ref_mv_idx;
       best_pickmode.best_mode_skip_txfm = this_rdc.skip_txfm;
       best_pickmode.best_mode_initial_skip_flag =
           (nonskip_rdc.rate == INT_MAX && this_rdc.skip_txfm);
@@ -2517,6 +2529,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   pd->dst = orig_dst;
   mi->mode = best_pickmode.best_mode;
   mi->ref_frame[0] = best_pickmode.best_ref_frame;
+  mi->ref_mv_idx = best_pickmode.best_ref_mv_idx;
   txfm_info->skip_txfm = best_rdc.skip_txfm;
 
   if (!is_inter_block(mi)) {

@@ -999,6 +999,9 @@ typedef struct macroblock {
   //! The minimum of \ref pred_mv_sad.
   int best_pred_mv_sad;
 
+  //! The best reference MV index.
+  int best_ref_mv_index[REF_FRAMES];
+
   /*! \brief Disables certain ref frame pruning based on tpl.
    *
    * Determines whether a given ref frame is "good" based on data from the TPL

@@ -1003,6 +1003,7 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   int zero_seen = 0;
   int best_sad = INT_MAX;
   int max_mv = 0;
+  int best_index = 0;
   // Get the sad for each candidate reference mv.
   for (int i = 0; i < num_mv_refs; ++i) {
     const MV *this_mv = &pred_mv[i];
@@ -1021,12 +1022,14 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
     // Note if it is the best so far.
     if (this_sad < best_sad) {
       best_sad = this_sad;
+      best_index = i;
     }
   }
 
   // Note the index of the mv that worked best in the reference list.
   x->max_mv_context[ref_frame] = max_mv;
   x->pred_mv_sad[ref_frame] = best_sad;
+  x->best_ref_mv_index[ref_frame] = best_index;
 }
 
 void av1_setup_pred_block(const MACROBLOCKD *xd,
