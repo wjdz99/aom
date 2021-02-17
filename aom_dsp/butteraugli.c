@@ -34,4 +34,18 @@ void aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
       distorted_y, distorted->y_stride, distorted_u, distorted_v,
       distorted->uv_stride, dist_map, &butteraugli_diffvalue);
   assert(ret == 0);
+
+
+  JxlPixelFormat pixel_format = {3, JXL_TYPE_UINT8, JXL_NATIVE_ENDIAN, 0};
+
+  JxlButteraugliApiStruct* api = JxlButteraugliApiCreate(nullptr);
+  JxlButteraugliApiSetHFAsymmetry(api, 0.8f);
+
+  JxlButteraugliResult* result = JxlButteraugliCompute(
+      api, width, height, &pixel_format, src_y,
+      buffer_size, &pixel_format, distorted_y, buffer_size);
+
+  double distance_p = JxlButteraugliResultGetDistance(result.get(),
+                                                      /*pnorm=*/6);
+
 }
