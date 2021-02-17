@@ -249,6 +249,11 @@ typedef struct MB_MODE_INFO {
   TX_PARTITION_TYPE partition_type[INTER_TX_SIZE_BUF_LEN];
 #endif  // CONFIG_NEW_TX_PARTITION
   MOTION_MODE motion_mode;
+#if CONFIG_EXT_ROTATION
+  // the degree of rotation is within range +/- 12.6 degree with an interval of
+  // 0.2 degree
+  int8_t rotation;
+#endif  // CONFIG_EXT_ROTATION
   PARTITION_TYPE partition;
   MV_REFERENCE_FRAME ref_frame[2];
   FILTER_INTRA_MODE_INFO filter_intra_mode_info;

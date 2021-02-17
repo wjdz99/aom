@@ -1458,9 +1458,44 @@ static int64_t motion_mode_rd(
           }
         }
 
+#if CONFIG_EXT_ROTATION
+        // keep track of original wmmat
+        int32_t matrix[8];
+        memcpy(matrix, mbmi->wm_params.wmmat, sizeof(int32_t) * 8);
+        // keep track of best rotation degree
+        int64_t rdcost = INT64_MAX;
+        int best_rot = 0;
+        // check all rotations
+        for (int rot = -63; rot <= 63; rot++) {
+          if (av1_warp_rotation(mbmi, rot, mi_col * MI_SIZE,
+                                mi_row * MI_SIZE)) {
+            // Build the warped predictor
+            av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
+                                          0, av1_num_planes(cm) - 1);
+
+            // calculate cost
+            if (av1_txfm_search(cpi, x, bsize, rd_stats, rd_stats_y,
+                                rd_stats_uv, tmp_rate2 + 7, ref_best_rd)) {
+              if (rd_stats->rdcost < rdcost) {
+                rdcost = rd_stats->rdcost;
+                best_rot = rot;
+              }
+            }
+            memcpy(mbmi->wm_params.wmmat, matrix,
+                   sizeof(int32_t) * 8);  // rever wmmat to original
+          }
+        }
+        // update wmmat using the best rotation
+        // printf("rdcost: %ld, best_rot: %d \n", rdcost, best_rot);
+        av1_warp_rotation(mbmi, best_rot, mi_col * MI_SIZE, mi_row * MI_SIZE);
+        mbmi->rotation = best_rot;
+        tmp_rate2 += 7;  // update rate cost
+#endif                   // CONFIG_EXT_ROTATION
+
         // Build the warped predictor
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                       av1_num_planes(cm) - 1);
+
       } else {
         continue;
       }
