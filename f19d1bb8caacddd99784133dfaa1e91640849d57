@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3149b1ef_8873adb4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "PTAL. Thanks!",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "602f2aff_79f180c9",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2283,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "is_frame_visible is initialized to 0 (false) here. This fact will be used below.",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f2ae903_14e7d30b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2339,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "Here we ensure ctx-\u003epending_cx_data is not null. So after this point, until line 2394, ctx-\u003epending_cx_data cannot be null, because it is only reset to null at line 2436.",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "354bf9aa_599637d8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2350,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "Here I changed 1 to obu_header_size. 1 refers to the OBU header size (one byte).",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70982643_ceddf9e6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2355,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "I removed the obu_header_offset variable because it is always 0.",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21d371c0_1075ec35",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2389,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "is_frame_visible is only updated here. Therefore, if is_frame_visible ever becomes 1 (true), we must have executed this statement. Since this statement follows line 2339, we conclude that ctx-\u003epending_cx_data cannot be null.",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c36589b_393dc178",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2405,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "Here we know is_frame_visible is true (line 2396). Therefore ctx-\u003epending_cx_data cannot be null (see my comment at line 2389).",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bbcb141_a7fe33ff",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2436,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-17T02:42:31Z",
+      "side": 1,
+      "message": "ctx-\u003epending_cx_data is only reset to null here.",
+      "revId": "f19d1bb8caacddd99784133dfaa1e91640849d57",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
