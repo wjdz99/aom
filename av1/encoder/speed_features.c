@@ -529,6 +529,7 @@ static void set_allintra_speed_features_framesize_independent(
 
   sf->rd_sf.perform_coeff_opt = 1;
   sf->hl_sf.superres_auto_search_type = SUPERRES_AUTO_DUAL;
+  sf->tx_sf.use_intra_txb_hash = 0;
 
   if (speed >= 1) {
     sf->part_sf.intra_cnn_split = 1;
@@ -679,7 +680,6 @@ static void set_allintra_speed_features_framesize_independent(
     sf->tx_sf.tx_type_search.prune_tx_type_est_rd = 0;
 
     sf->rd_sf.perform_coeff_opt = 6;
-
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL4;
   }
 }
@@ -1680,13 +1680,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
 
     cpi->common.seq_params.enable_interintra_compound &=
         (sf->inter_sf.disable_interintra_wedge_var_thresh != UINT_MAX);
-  }
-
-  // TODO(any) Currently use_intra_txb_hash is enabled in speed 1,2 for
-  // intra-only encoding (key_freq_max == 0). Experiment with this speed feature
-  // by enabling for image encoding in speed 1 and 2.
-  if (cpi->oxcf.kf_cfg.key_freq_max == 0 && speed >= 1 && speed <= 2) {
-    sf->tx_sf.use_intra_txb_hash = 1;
   }
 
   // sf->part_sf.partition_search_breakout_dist_thr is set assuming max 64x64
