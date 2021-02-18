@@ -294,6 +294,7 @@ struct aom_codec_alg_priv {
   unsigned char pts_offset_initialized;
   AV1EncoderConfig oxcf;
   AV1_COMP *cpi;
+  size_t max_frame_sz;
   unsigned char *cx_data;
   size_t cx_data_sz;
   size_t pending_cx_data_sz;
@@ -2166,18 +2167,11 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   if (img != NULL) {
     res = validate_img(ctx, img);
     if (res == AOM_CODEC_OK) {
-      size_t data_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
-                       ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) * get_image_bps(img);
-      if (data_sz < kMinCompressedSize) data_sz = kMinCompressedSize;
-      if (ctx->cx_data == NULL || ctx->cx_data_sz < data_sz) {
-        ctx->cx_data_sz = data_sz;
-        free(ctx->cx_data);
-        ctx->cx_data = (unsigned char *)malloc(ctx->cx_data_sz);
-        if (ctx->cx_data == NULL) {
-          ctx->cx_data_sz = 0;
-          return AOM_CODEC_MEM_ERROR;
-        }
-      }
+      ctx->max_frame_sz = ALIGN_POWER_OF_TWO(ctx->cfg.g_w, 5) *
+                          ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) *
+                          get_image_bps(img) / 8;
+      if (ctx->max_frame_sz < kMinCompressedSize)
+        ctx->max_frame_sz = kMinCompressedSize;
     }
   }
 
@@ -2290,20 +2284,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     unsigned char *cx_data = ctx->cx_data;
     size_t cx_data_sz = ctx->cx_data_sz;
 
-    /* Any pending invisible frames? */
-    if (ctx->pending_cx_data_sz) {
-      cx_data += ctx->pending_cx_data_sz;
-      cx_data_sz -= ctx->pending_cx_data_sz;
-
-      /* TODO: this is a minimal check, the underlying codec doesn't respect
-       * the buffer size anyway.
-       */
-      if (cx_data_sz < ctx->cx_data_sz / 2) {
-        aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR,
-                           "Compressed data buffer too small");
-      }
-    }
-
     size_t frame_size = 0;
     unsigned int lib_flags = 0;
     int is_frame_visible = 0;
@@ -2351,7 +2331,29 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     // visible frame.
     int64_t dst_time_stamp;
     int64_t dst_end_time_stamp;
-    while (cx_data_sz >= ctx->cx_data_sz / 2 && !is_frame_visible) {
+    int frame_count = 0;
+    while (!is_frame_visible) {
+      if (cx_data_sz < ctx->max_frame_sz) {
+        const size_t new_cx_data_sz = ctx->cx_data_sz + ctx->max_frame_sz;
+        unsigned char *new_cx_data =
+            (unsigned char *)realloc(ctx->cx_data, new_cx_data_sz);
+        if (new_cx_data == NULL) {
+          aom_internal_error(&cpi->common.error, AOM_CODEC_MEM_ERROR, NULL);
+        }
+        fprintf(stderr,
+                "WTC WTC WTC: Increased ctx->cx_data_sz from %u to %u\n",
+                (unsigned)ctx->cx_data_sz, (unsigned)new_cx_data_sz);
+        cx_data = new_cx_data + (cx_data - ctx->cx_data);
+        cx_data_sz += ctx->max_frame_sz;
+        ctx->cx_data = new_cx_data;
+        ctx->cx_data_sz = new_cx_data_sz;
+        if (ctx->pending_cx_data != NULL) ctx->pending_cx_data = ctx->cx_data;
+      }
+      if (cx_data == NULL) {
+        fprintf(stderr,
+                "WTC WTC WTC: Passing a null cx_data to "
+                "av1_get_compressed_data()!!!\n");
+      }
       const int status = av1_get_compressed_data(
           cpi, &lib_flags, &frame_size, cx_data, &dst_time_stamp,
           &dst_end_time_stamp, !img, timestamp_ratio);
@@ -2408,6 +2410,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
 
         cx_data += frame_size;
         cx_data_sz -= frame_size;
+        frame_count++;
 
         is_frame_visible = cpi->common.show_frame;
 
@@ -2416,6 +2419,11 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
              cpi->common.current_frame.frame_type == KEY_FRAME);
       }
     }
+    fprintf(
+        stderr, "WTC WTC WTC: frame_count = %d, cx_data_sz = %u frames\n",
+        frame_count,
+        (unsigned)(ctx->cx_data_sz == 0 ? 0
+                                        : ctx->cx_data_sz / ctx->max_frame_sz));
     if (is_frame_visible) {
       // Add the frame packet to the list of returned packets.
       aom_codec_cx_pkt_t pkt;
