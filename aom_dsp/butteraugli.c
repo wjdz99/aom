@@ -11,6 +11,7 @@
 
 #include <assert.h>
 #include <jxl/butteraugli.h>
+#include <stdio.h>
 
 #include "aom_dsp/butteraugli.h"
 #include "aom_mem/aom_mem.h"
@@ -49,11 +50,16 @@ void aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
   uint32_t row_stride;
   JxlButteraugliResultGetDistmap(result, &distmap, &row_stride);
 
+  float maxmap = 0.0;
   for (int j = 0; j < height; ++j) {
     for (int i = 0; i < width; ++i) {
       dist_map[j * width + i] = distmap[j * row_stride + i];
+      maxmap = AOMMAX(maxmap, dist_map[j * width + i]);
     }
   }
+
+  const float max_dist = JxlButteraugliResultGetMaxDistance(result);
+  // printf("Butteraugli max max p6: %f, %f, %f, %d\n", max_dist, maxmap, p6, row_stride);
 
   JxlButteraugliResultDestroy(result);
   aom_free(src_rgb);

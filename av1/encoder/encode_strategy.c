@@ -1402,6 +1402,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     av1_update_vmaf_curve(cpi);
   }
 #endif
+  if (!is_stat_generation_stage(cpi)) av1_update_b_curve(cpi);
   if (pop_lookahead == 1) {
     av1_lookahead_pop(cpi->lookahead, flush, cpi->compressor_stage);
   }
