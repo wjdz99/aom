@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74321764_1e3a3e4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-18T17:35:51Z",
+      "side": 1,
+      "message": "LGTM. Thanks!\n\nI edited the comment slightly (changed \"enabled\" to \"used\") and introduced the \u0027use_restoration\u0027 variable so that the same pattern is used in all three places that check the condition.",
+      "revId": "3ded6ec99b14cb2d22a4137e3b5c4571d6f6c9e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d590ed0d_462635e2",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2181,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-18T17:35:51Z",
+      "side": 1,
+      "message": "Venkata: I copied the use_restoration variable from here so that the same pattern is used.",
+      "range": {
+        "startLine": 2179,
+        "startChar": 0,
+        "endLine": 2181,
+        "endChar": 53
+      },
+      "revId": "3ded6ec99b14cb2d22a4137e3b5c4571d6f6c9e6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
