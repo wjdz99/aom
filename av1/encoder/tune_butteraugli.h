@@ -37,4 +37,6 @@ void av1_set_butteraugli_rdmult(const AV1_COMP *cpi, MACROBLOCK *x,
 void av1_setup_butteraugli_recon(AV1_COMP *cpi,
                                  const YV12_BUFFER_CONFIG *recon);
 
+void av1_update_b_curve(AV1_COMP *cpi);
+
 #endif  // AOM_AV1_ENCODER_TUNE_BUTTERAUGLI_H_
