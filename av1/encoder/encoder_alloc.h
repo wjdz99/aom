@@ -138,6 +138,9 @@ static AOM_INLINE void setup_tpl_buffers(AV1_COMMON *const cm,
         tpl_data->tpl_stats_buffer[frame].width;
     tpl_data->tpl_stats_buffer[frame].mi_rows = mi_params->mi_rows;
     tpl_data->tpl_stats_buffer[frame].mi_cols = mi_params->mi_cols;
+    const int coeff_num = tpl_data->tpl_bsize_1d * tpl_data->tpl_bsize_1d;
+    av1_tpl_stats_init_txfm_stats(&tpl_data->tpl_stats_buffer[frame],
+                                  coeff_num);
   }
   tpl_data->tpl_frame = &tpl_data->tpl_stats_buffer[REF_FRAMES + 1];
 
