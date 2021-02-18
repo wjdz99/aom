@@ -119,6 +119,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "694abc66_ff9070d8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-18T15:47:12Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nIn this patch, we made modifications to optimize the allocation of bit-stream buffer using approach 2.\n\nPlease check the following variables to track the population of show_frame flag\nuse_arf_in_this_kf_group -\u003e use_alt_ref -\u003e max_layer_depth_allowed -\u003e gf_group-\u003eupdate_type(ARF_UPDATE)/frame_type -\u003e frame_params.show_frame\n\nWe validated the current patch for video and still-image encode. Specifically, we configured libaom in ALLINTRA mode (in libavif) for AVIF encode. \nFollowing are memory reduction results when AVIF encode was tested for ‘building.jpg’ (4032x3024) image at cq_level\u003d18.\n\n   Speed                 HEAP Memory\n   preset                Reduction(%)\n     6          ~23.7 (from 518.3 MB to 395.2 MB)\n\n \n\nAs this change is also applicable ‘real-time’ (with –auto-alt-ref\u003d0) configuration, we have measured the memory reduction for a 1280x720 content.\n\n   Encoding           Speed                 HEAP Memory\n   Configuration      preset                Reduction(%)\n     RT                7           ~14.8 (from 63.66 MB to 54.21 MB)\n\n\nWe thought of the dynamic approach for allocating the stream buffer earlier, but did not pursue the same as it might involve allocations during run-time depending on the number of no-show frames. While encoding a video with --lag-in-frames\u003d35, there might be up to 5 additional realloc() over the complete video. Hence we tried picking the approach as suited for image encode, at the same time optimizing for video encode (though not dynamic).\n\nPlease let us know how we can take forward the optimization.\n\nRegards,\nvenkata.",
+      "parentUuid": "f46cd93d_448b3ef5",
+      "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "73ae2d57_272ae35b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 9
