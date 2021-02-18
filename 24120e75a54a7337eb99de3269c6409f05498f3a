@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8381200_ecb6f432",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-18T23:27:54Z",
+      "side": 1,
+      "message": "LGTM. It would be good to wait for Yunqing or Akshata\u0027s review of the change to av1_set_speed_features_framesize_independent().",
+      "revId": "24120e75a54a7337eb99de3269c6409f05498f3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
