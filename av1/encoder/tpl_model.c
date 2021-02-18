@@ -35,6 +35,32 @@
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/tpl_model.h"
 
+static AOM_INLINE void tpl_stats_record_txfm_block(TplDepFrame *tpl_frame,
+                                                   const tran_low_t *coeff) {
+  aom_clear_system_state();
+  for (int i = 0; i < tpl_frame->coeff_num; ++i) {
+    tpl_frame->abs_coeff_sum[i] += abs(coeff[i]) / (double)LOSSLESS_Q_STEP;
+  }
+  ++tpl_frame->txfm_block_count;
+}
+
+static AOM_INLINE void tpl_stats_update_abs_coeff_mean(TplDepFrame *tpl_frame) {
+  aom_clear_system_state();
+  for (int i = 0; i < tpl_frame->coeff_num; ++i) {
+    tpl_frame->abs_coeff_mean[i] =
+        tpl_frame->abs_coeff_sum[i] / tpl_frame->txfm_block_count;
+  }
+}
+
+void av1_tpl_stats_init_txfm_stats(TplDepFrame *tpl_frame, int coeff_num) {
+  aom_clear_system_state();
+  tpl_frame->txfm_block_count = 0;
+  tpl_frame->coeff_num = coeff_num;
+  assert(sizeof(tpl_frame->abs_coeff_mean) /
+             sizeof(tpl_frame->abs_coeff_mean[0]) ==
+         tpl_frame->coeff_num);
+}
+
 static AOM_INLINE void get_quantize_error(const MACROBLOCK *x, int plane,
                                           const tran_low_t *coeff,
                                           tran_low_t *qcoeff,
@@ -98,14 +124,15 @@ void av1_setup_tpl_buffers(AV1_COMMON *const cm, TplParams *const tpl_data,
         ALIGN_POWER_OF_TWO(mi_params->mi_cols, MAX_MIB_SIZE_LOG2);
     const int mi_rows =
         ALIGN_POWER_OF_TWO(mi_params->mi_rows, MAX_MIB_SIZE_LOG2);
-
-    tpl_data->tpl_stats_buffer[frame].is_valid = 0;
-    tpl_data->tpl_stats_buffer[frame].width = mi_cols >> block_mis_log2;
-    tpl_data->tpl_stats_buffer[frame].height = mi_rows >> block_mis_log2;
-    tpl_data->tpl_stats_buffer[frame].stride =
-        tpl_data->tpl_stats_buffer[frame].width;
-    tpl_data->tpl_stats_buffer[frame].mi_rows = mi_params->mi_rows;
-    tpl_data->tpl_stats_buffer[frame].mi_cols = mi_params->mi_cols;
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_data->frame_idx];
+    tpl_frame->is_valid = 0;
+    tpl_frame->width = mi_cols >> block_mis_log2;
+    tpl_frame->height = mi_rows >> block_mis_log2;
+    tpl_frame->stride = tpl_data->tpl_stats_buffer[frame].width;
+    tpl_frame->mi_rows = mi_params->mi_rows;
+    tpl_frame->mi_cols = mi_params->mi_cols;
+    int coeff_num = tpl_data->tpl_bsize_1d * tpl_data->tpl_bsize_1d;
+    av1_tpl_stats_init_txfm_stats(tpl_frame, coeff_num);
   }
   tpl_data->tpl_frame = &tpl_data->tpl_stats_buffer[REF_FRAMES + 1];
 
@@ -756,6 +783,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                       rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
                       use_y_only_rate_distortion);
 
+  tpl_stats_record_txfm_block(tpl_frame, coeff);
+
   tpl_stats->recrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
   tpl_stats->recrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
   if (!is_inter_mode(best_mode)) {
@@ -1236,6 +1265,8 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi) {
         GET_MV_SUBPEL((mi_params->mi_rows - mi_height - mi_row) * MI_SIZE);
     av1_mc_flow_dispenser_row(cpi, x, mi_row, bsize, tx_size);
   }
+  TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[cpi->tpl_data.frame_idx];
+  tpl_stats_update_abs_coeff_mean(tpl_frame);
 }
 
 static void mc_flow_synthesizer(AV1_COMP *cpi, int frame_idx) {
