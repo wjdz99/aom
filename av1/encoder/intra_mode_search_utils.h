@@ -396,19 +396,50 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   int64_t temp_sse, this_rd;
   const ModeCosts *mode_costs = &x->mode_costs;
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  TX_SIZE tx_size =
-      tx_size_from_tx_mode(bsize, txfm_params->tx_mode_search_type);
+  // TX_SIZE tx_size =
+  //     tx_size_from_tx_mode(bsize, txfm_params->tx_mode_search_type);
+  TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup[bsize]);
+
+
   const int stepr = tx_size_high_unit[tx_size];
   const int stepc = tx_size_wide_unit[tx_size];
+  const int txbw = tx_size_wide[tx_size];
+  const int txbh = tx_size_high[tx_size];
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
   const int max_blocks_high = max_block_high(xd, bsize, 0);
   mbmi->tx_size = tx_size;
+  int64_t satd_cost = 0;
+  struct macroblock_plane *p = &x->plane[0];
+  struct macroblockd_plane *pd = &xd->plane[0];
   // Prediction.
   for (row = 0; row < max_blocks_high; row += stepr) {
     for (col = 0; col < max_blocks_wide; col += stepc) {
       av1_predict_intra_block_facade(cm, xd, 0, col, row, tx_size);
+      av1_subtract_block(
+          xd, txbh, txbw, p->src_diff, block_size_wide[bsize],
+          p->src.buf + (((row * p->src.stride) + col) << 2), p->src.stride,
+          pd->dst.buf + (((row * p->src.stride) + col) << 2), pd->dst.stride);
+      switch (tx_size) {
+        case TX_4X4:
+          aom_hadamard_4x4(p->src_diff, block_size_wide[bsize], p->coeff);
+          break;
+        case TX_8X8:
+          aom_hadamard_8x8(p->src_diff, block_size_wide[bsize], p->coeff);
+          break;
+        case TX_16X16:
+          aom_hadamard_16x16(p->src_diff, block_size_wide[bsize], p->coeff);
+          break;
+        case TX_32X32:
+          aom_hadamard_32x32(p->src_diff, block_size_wide[bsize], p->coeff);
+          break;
+        default: exit(0);
+      }
+
+      satd_cost += aom_satd(p->coeff, tx_size_2d[tx_size]);
     }
   }
+  return satd_cost;
+
   // RD estimation.
   model_rd_sb_fn[cpi->sf.rt_sf.use_simple_rd_model ? MODELRD_LEGACY
                                                    : MODELRD_TYPE_INTRA](
