@@ -16,6 +16,24 @@
       "message": "Hi Elliott,\n\nCan you take a look?\n\nAlso is there a way to trigger sanitizer builds again? Looking at the log, it looks like the failed one was killed in the middle of the run.",
       "revId": "04395d9b2b4ff458c3cd4a36c77db5e97f797234",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f8f46ce_c3bb3d30",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10034
+      },
+      "writtenOn": "2021-02-18T04:20:12Z",
+      "side": 1,
+      "message": "I\u0027ll restart the job.",
+      "parentUuid": "6351a55f_b0e6f3d6",
+      "revId": "04395d9b2b4ff458c3cd4a36c77db5e97f797234",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
