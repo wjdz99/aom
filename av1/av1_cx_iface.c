@@ -27,6 +27,10 @@
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/firstpass.h"
 
+#if CONFIG_FLEX_STEPS
+#include "av1/encoder/encoder_utils.h"
+#endif
+
 #include "aom_dsp/psnr.h"
 #include "aom_ports/aom_timer.h"
 
@@ -54,6 +58,9 @@ struct av1_extracfg {
   const char *vmaf_model_path;
   const char *subgop_config_str;
   const char *subgop_config_path;
+#if CONFIG_FLEX_STEPS
+  const char *qstep_config_path;
+#endif
   unsigned int qp;  // constant/constrained quality level
   unsigned int rc_max_intra_bitrate_pct;
   unsigned int rc_max_inter_bitrate_pct;
@@ -112,8 +119,8 @@ struct av1_extracfg {
   int enable_tx64;               // enable 64-pt transform usage for sequence
   int enable_flip_idtx;          // enable flip and identity transform types
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  int enable_dist_wtd_comp;          // enable dist wtd compound for sequence
-#endif                               // !CONFIG_REMOVE_DIST_WTD_COMP
+  int enable_dist_wtd_comp;  // enable dist wtd compound for sequence
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   int max_reference_frames;          // maximum number of references per frame
   int enable_reduced_reference_set;  // enable reduced set of references
   int enable_ref_frame_mvs;          // sequence level
@@ -298,30 +305,33 @@ static struct av1_extracfg default_extra_cfg = {
   "/usr/local/share/model/vmaf_v0.6.1.pkl",  // VMAF model path
   NULL,                                      // subgop_config_str
   NULL,                                      // subgop_config_path
-  40,                                        // qp
-  0,                                         // rc_max_intra_bitrate_pct
-  0,                                         // rc_max_inter_bitrate_pct
-  0,                                         // gf_cbr_boost_pct
-  0,                                         // lossless
-  1,                                         // enable_deblocking
-  1,                                         // enable_cdef
-  1,                                         // enable_restoration
-  0,                                         // force_video_mode
-  1,                                         // enable_obmc
-  3,                                         // enable_trellis_quant
-  0,                                         // enable_qm
-  DEFAULT_QM_Y,                              // qm_y
-  DEFAULT_QM_U,                              // qm_u
-  DEFAULT_QM_V,                              // qm_v
-  DEFAULT_QM_FIRST,                          // qm_min
-  DEFAULT_QM_LAST,                           // qm_max
-  1,                                         // max number of tile groups
-  0,                                         // mtu_size
+#if CONFIG_FLEX_STEPS
+  NULL,  // qstep_config_path
+#endif
+  40,                      // qp
+  0,                       // rc_max_intra_bitrate_pct
+  0,                       // rc_max_inter_bitrate_pct
+  0,                       // gf_cbr_boost_pct
+  0,                       // lossless
+  1,                       // enable_deblocking
+  1,                       // enable_cdef
+  1,                       // enable_restoration
+  0,                       // force_video_mode
+  1,                       // enable_obmc
+  3,                       // enable_trellis_quant
+  0,                       // enable_qm
+  DEFAULT_QM_Y,            // qm_y
+  DEFAULT_QM_U,            // qm_u
+  DEFAULT_QM_V,            // qm_v
+  DEFAULT_QM_FIRST,        // qm_min
+  DEFAULT_QM_LAST,         // qm_max
+  1,                       // max number of tile groups
+  0,                       // mtu_size
   AOM_TIMING_UNSPECIFIED,  // No picture timing signaling in bitstream
   0,                       // frame_parallel_decoding_mode
 #if !CONFIG_REMOVE_DUAL_FILTER
-  1,                            // enable dual filter
-#endif                          // !CONFIG_REMOVE_DUAL_FILTER
+  1,  // enable dual filter
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
   0,                            // enable delta quant in chroma planes
   NO_AQ,                        // aq_mode
   DELTA_Q_OBJECTIVE,            // deltaq_mode
@@ -354,8 +364,8 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // enable 64-pt transform usage
   1,                            // enable flip and identity transform
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  1,                       // dist-wtd compound
-#endif                     // !CONFIG_REMOVE_DIST_WTD_COMP
+  1,  // dist-wtd compound
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   7,                       // max_reference_frames
   0,                       // enable_reduced_reference_set
   1,                       // enable_ref_frame_mvs sequence level
@@ -743,10 +753,9 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->enable_cdef = extra_cfg->enable_cdef;
   cfg->enable_restoration = extra_cfg->enable_restoration;
   cfg->superblock_size =
-      (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)
-          ? 64
-          : (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_128X128) ? 128
-                                                                        : 0;
+      (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)     ? 64
+      : (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_128X128) ? 128
+                                                                    : 0;
   cfg->enable_warped_motion = extra_cfg->enable_warped_motion;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   cfg->enable_dist_wtd_comp = extra_cfg->enable_dist_wtd_comp;
@@ -790,11 +799,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->enable_deblocking = cfg->enable_deblocking;
   extra_cfg->enable_cdef = cfg->enable_cdef;
   extra_cfg->enable_restoration = cfg->enable_restoration;
-  extra_cfg->superblock_size = (cfg->superblock_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->superblock_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->superblock_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->superblock_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                      : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = cfg->enable_warped_motion;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   extra_cfg->enable_dist_wtd_comp = cfg->enable_dist_wtd_comp;
@@ -967,6 +975,37 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   rc_cfg->worst_allowed_q = extra_cfg->lossless ? 0 : cfg->rc_max_quantizer;
   rc_cfg->qp = extra_cfg->qp;
 
+#if CONFIG_EXTQUANT
+  int offset_best_allowed_q;
+  int offset_worst_allowed_q;
+  int offset_qp;
+  switch (cfg->g_bit_depth) {
+    case AOM_BITS_8:
+      offset_best_allowed_q = 0;
+      offset_worst_allowed_q = 0;
+      offset_qp = 0;
+      break;
+    case AOM_BITS_10:
+      offset_best_allowed_q = qindex_10b_offset[rc_cfg->best_allowed_q != 0];
+      offset_worst_allowed_q = qindex_10b_offset[rc_cfg->worst_allowed_q != 0];
+      offset_qp = qindex_10b_offset[rc_cfg->qp != 0];
+      break;
+    case AOM_BITS_12:
+      offset_best_allowed_q = qindex_12b_offset[rc_cfg->best_allowed_q != 0];
+      offset_worst_allowed_q = qindex_12b_offset[rc_cfg->worst_allowed_q != 0];
+      offset_qp = qindex_12b_offset[rc_cfg->qp != 0];
+      break;
+    default:
+      offset_best_allowed_q = 0;
+      offset_worst_allowed_q = 0;
+      offset_qp = 0;
+      break;
+  }
+  rc_cfg->best_allowed_q += offset_best_allowed_q;
+  rc_cfg->worst_allowed_q += offset_worst_allowed_q;
+  rc_cfg->qp += offset_qp;
+#endif
+
   rc_cfg->under_shoot_pct = cfg->rc_undershoot_pct;
   rc_cfg->over_shoot_pct = cfg->rc_overshoot_pct;
   rc_cfg->maximum_buffer_size_ms = is_vbr ? 240000 : cfg->rc_buf_sz;
@@ -1111,6 +1150,9 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
     }
   }
 
+#if CONFIG_FLEX_STEPS
+  oxcf->qstep_config_path = extra_cfg->qstep_config_path;
+#endif
   // Set tune related configuration.
   tune_cfg->tuning = extra_cfg->tuning;
   tune_cfg->vmaf_model_path = extra_cfg->vmaf_model_path;
@@ -1224,6 +1266,34 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
         (uint8_t)cfg->rc_superres_kf_denominator;
     superres_cfg->superres_qthresh = cfg->rc_superres_qthresh;
     superres_cfg->superres_kf_qthresh = cfg->rc_superres_kf_qthresh;
+#if CONFIG_EXTQUANT
+    int offset_superres_qthresh;
+    int offset_superres_kf_qthresh;
+    switch (cfg->g_bit_depth) {
+      case AOM_BITS_8:
+        offset_superres_qthresh = 0;
+        offset_superres_kf_qthresh = 0;
+        break;
+      case AOM_BITS_10:
+        offset_superres_qthresh =
+            qindex_10b_offset[superres_cfg->superres_qthresh != 0];
+        offset_superres_kf_qthresh =
+            qindex_10b_offset[superres_cfg->superres_kf_qthresh != 0];
+        break;
+      case AOM_BITS_12:
+        offset_superres_qthresh =
+            qindex_12b_offset[superres_cfg->superres_qthresh != 0];
+        offset_superres_kf_qthresh =
+            qindex_12b_offset[superres_cfg->superres_kf_qthresh != 0];
+        break;
+      default:
+        offset_superres_qthresh = 0;
+        offset_superres_kf_qthresh = 0;
+        break;
+    }
+    superres_cfg->superres_qthresh += offset_superres_qthresh;
+    superres_cfg->superres_kf_qthresh += offset_superres_kf_qthresh;
+#endif
     if (superres_cfg->superres_mode == AOM_SUPERRES_FIXED &&
         superres_cfg->superres_scale_denominator == SCALE_NUMERATOR &&
         superres_cfg->superres_kf_scale_denominator == SCALE_NUMERATOR) {
@@ -2028,6 +2098,15 @@ static aom_codec_err_t ctrl_set_subgop_config_path(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+#if CONFIG_FLEX_STEPS
+static aom_codec_err_t ctrl_set_qstep_config_path(aom_codec_alg_priv_t *ctx,
+                                                  va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.qstep_config_path = CAST(AV1E_SET_QSTEP_CONFIG_PATH, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
+
 static aom_codec_err_t ctrl_set_film_grain_test_vector(
     aom_codec_alg_priv_t *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -2244,6 +2323,29 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
       priv->cfg = *ctx->config.enc;
       ctx->config.enc = &priv->cfg;
     }
+#if CONFIG_FLEX_STEPS
+    QuantizationCfg *q_cfg = &priv->oxcf.q_cfg;
+    // initialize defualt mode
+    q_cfg->qStep_mode = 0;
+    q_cfg->num_qStep_intervals = 9;
+    int defaultQSteps[] = { 8, 8, 16, 32, 32, 32, 32, 32, 32, 32 };
+    for (int idx = 0; idx <= q_cfg->num_qStep_intervals; idx++) {
+      q_cfg->num_qsteps_in_interval[idx] = defaultQSteps[idx];
+    }
+
+    if (ctx->config.enc->encoder_cfg.qstep_config_path != NULL) {
+      priv->oxcf.qstep_config_path = (char *)aom_malloc(
+          (strlen(ctx->config.enc->encoder_cfg.qstep_config_path) + 1) *
+          sizeof(*ctx->config.enc->encoder_cfg.qstep_config_path));
+      strcpy((char *)priv->oxcf.qstep_config_path,
+             ctx->config.enc->encoder_cfg.qstep_config_path);
+      initialize_qstep_param(priv->oxcf.qstep_config_path, &priv->oxcf);
+    }
+
+    set_enc_qstep_table(&priv->oxcf);
+    priv->cfg.encoder_cfg.qstep_mode = q_cfg->qStep_mode;
+    // dump_qStep_table(q_cfg->qStep_mode, 0);
+#endif
 
     priv->extra_cfg = default_extra_cfg;
     aom_once(av1_initialize_enc);
@@ -2258,6 +2360,7 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
       priv->timestamp_ratio.num =
           (int64_t)priv->cfg.g_timebase.num * TICKS_PER_SEC;
       reduce_ratio(&priv->timestamp_ratio);
+
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg, 0);
       if (priv->oxcf.rc_cfg.mode != AOM_CBR && priv->oxcf.mode == GOOD) {
         // Enable look ahead - enabled for AOM_Q, AOM_CQ, AOM_VBR
@@ -2285,6 +2388,16 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
           priv->frame_stats_buffer, ENCODE_STAGE, *num_lap_buffers, -1,
           &priv->stats_buf_context);
 
+#if CONFIG_FLEX_STEPS
+      if (res == AOM_CODEC_OK) {
+        if (priv->oxcf.qstep_config_path != NULL) {
+          priv->cpi->qstep_config_path =
+              (char *)aom_malloc((strlen(priv->oxcf.qstep_config_path) + 1) *
+                                 sizeof(*priv->oxcf.qstep_config_path));
+          strcpy(priv->cpi->qstep_config_path, priv->oxcf.qstep_config_path);
+        }
+      }
+#endif
       // Create another compressor if look ahead is enabled
       if (res == AOM_CODEC_OK && *num_lap_buffers) {
         res = create_context_and_bufferpool(
@@ -3239,6 +3352,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, ctrl_set_vbr_corpus_complexity_lap },
   { AV1E_ENABLE_SB_MULTIPASS_UNIT_TEST, ctrl_enable_sb_multipass_unit_test },
   { AV1E_ENABLE_SUBGOP_STATS, ctrl_enable_subgop_stats },
+#if CONFIG_FLEX_STEPS
+  { AV1E_SET_QSTEP_CONFIG_PATH, ctrl_set_qstep_config_path },
+#endif
 
   // Getters
   { AOME_GET_LAST_QUANTIZER, ctrl_get_quantizer },
@@ -3323,15 +3439,15 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1,   1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
         1, 1,   1,   0, 0, 1, 1, 1, 1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0, 0, NULL },  // cfg
   },
   {
       // NOLINT
@@ -3398,15 +3514,15 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1,   1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
         1, 1,   1,   0, 0, 1, 1, 1, 1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0, 0, NULL },  // cfg
   },
 };
 

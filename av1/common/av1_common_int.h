@@ -59,6 +59,14 @@ extern "C" {
 #define FRAME_ID_LENGTH 15
 #define DELTA_FRAME_ID_LENGTH 14
 
+#if CONFIG_EXTQUANT
+#define DELTA_DCQUANT_BITS 5
+#define DELTA_DCQUANT_MIN (-(1 << (DELTA_DCQUANT_BITS - 2)))
+#define DELTA_DCQUANT_MAX (DELTA_DCQUANT_MIN + (1 << DELTA_DCQUANT_BITS) - 1)
+#endif  // CONFIG_EXTQUANT
+
+#define DEBUG_EXTQUANT 0
+
 #define FRAME_CONTEXTS (FRAME_BUFFERS + 1)
 // Extra frame context which is always kept at default values
 #define FRAME_CONTEXT_DEFAULTS (FRAME_CONTEXTS - 1)
@@ -229,7 +237,7 @@ typedef struct {
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   int enable_dist_wtd_comp;  // 0 - disable dist-wtd compound modes
                              // 1 - enable it
-#endif                       // !CONFIG_REMOVE_DIST_WTD_COMP
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   int enable_ref_frame_mvs;  // 0 - disable ref frame mvs
                              // 1 - enable it
 } OrderHintInfo;
@@ -271,9 +279,9 @@ typedef struct SequenceHeader {
   uint8_t enable_interintra_compound;  // enables/disables interintra_compound
   uint8_t enable_masked_compound;      // enables/disables masked compound
 #if !CONFIG_REMOVE_DUAL_FILTER
-  uint8_t enable_dual_filter;    // 0 - disable dual interpolation filter
-#endif                           // !CONFIG_REMOVE_DUAL_FILTER
-                                 // 1 - enable vert/horz filter selection
+  uint8_t enable_dual_filter;  // 0 - disable dual interpolation filter
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        // 1 - enable vert/horz filter selection
   uint8_t enable_warped_motion;  // 0 - disable warp for the sequence
                                  // 1 - enable warp for the sequence
   uint8_t enable_superres;       // 0 - Disable superres for the sequence
@@ -297,6 +305,30 @@ typedef struct SequenceHeader {
   int subsampling_y;  // Chroma subsampling for y
   aom_chroma_sample_position_t chroma_sample_position;
   uint8_t separate_uv_delta_q;
+#if CONFIG_EXTQUANT
+  int8_t base_y_dc_delta_q;
+  int8_t base_uv_dc_delta_q;
+#endif  // CONFIG_EXTQUANT
+#if CONFIG_FLEX_STEPS
+  int qStep_mode;
+  // mode 0,1,2
+  int num_qStep_intervals;
+  // mode 0, 1
+  int num_qsteps_in_interval[MAX_NUM_Q_STEP_INTERVALS];
+  // mode 2
+  int num_qStep_levels;
+  int qSteps_level[MAX_NUM_Q_STEP_VAL];
+  // For mode 3
+  // template tables
+  int num_table_templates_minus1;
+  int num_entries_in_table_minus1[MAX_NUM_Q_STEP_VAL];
+  int qSteps_level_in_table[MAX_NUM_TABLES][MAX_NUM_Q_STEP_VAL];
+  // derivation
+  int template_table_idx[MAX_NUM_Q_STEP_INTERVALS];
+  int table_start_region_idx[MAX_NUM_Q_STEP_VAL];
+  int num_qsteps_in_table[MAX_NUM_Q_STEP_INTERVALS];
+#endif  // CONFIG_FLEX_STEPS
+
   uint8_t film_grain_params_present;
 
   // Operating point info.
@@ -636,9 +668,15 @@ struct CommonQuantParams {
    * shift/scale as TX.
    */
   /**@{*/
+#if CONFIG_EXTQUANT
+  int32_t y_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for Y plane */
+  int32_t u_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for U plane */
+  int32_t v_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for V plane */
+#else
   int16_t y_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for Y plane */
   int16_t u_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for U plane */
   int16_t v_dequant_QTX[MAX_SEGMENTS][2]; /*!< Dequant for V plane */
+#endif
   /**@}*/
 
   /**
@@ -1061,6 +1099,11 @@ typedef struct AV1Common {
 #if CONFIG_LPF_MASK
   int is_decoding;
 #endif  // CONFIG_LPF_MASK
+
+#if DEBUG_EXTQUANT
+  FILE *fEncCoeffLog;
+  FILE *fDecCoeffLog;
+#endif
 } AV1_COMMON;
 
 /*!\cond */

@@ -354,6 +354,11 @@ typedef struct cfg_options {
    *
    */
   unsigned int reduced_tx_type_set;
+
+#if CONFIG_FLEX_STEPS
+  unsigned int qstep_mode;
+  const char *qstep_config_path;
+#endif
 } cfg_options_t;
 
 /*!\brief Encoded Frame Flags

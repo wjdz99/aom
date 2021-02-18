@@ -137,7 +137,10 @@ set_aom_config_var(CONFIG_REMOVE_DIST_WTD_COMP 1
                    "AV2 experiment flag to remove dist_wtd_comp tool.")
 set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
                    "AV2 experiment flag to remove dual filter.")
-
+set_aom_config_var(CONFIG_EXTQUANT 0
+                   "AV2 extended quantization experiment flag")
+set_aom_config_var(CONFIG_FLEX_STEPS 0
+                   "AV2 flexible quantization experiment flag (enable with CONFIG_EXTQUANT")
 #
 # Variables in this section control optional features of the build system.
 #
