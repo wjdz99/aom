@@ -16,6 +16,23 @@
       "message": "LGTM. It would be good to wait for Yunqing or Akshata\u0027s review of the change to av1_set_speed_features_framesize_independent().",
       "revId": "24120e75a54a7337eb99de3269c6409f05498f3a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cce69bbf_5eaa98b8",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-18T23:32:57Z",
+      "side": 1,
+      "message": "The original logic for use_intra_txb_hash looks unusual to me. It is enabled in speed 3, disabled in speeds 4 and 5, and enabled in speed 6, and also enabled in speeds 1 and 2 for key_freq_max \u003d\u003d 0 only. Is it common for a speed feature to change multiple times across the range?",
+      "revId": "24120e75a54a7337eb99de3269c6409f05498f3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
