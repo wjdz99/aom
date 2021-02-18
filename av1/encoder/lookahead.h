@@ -36,9 +36,6 @@ struct lookahead_entry {
   aom_enc_frame_flags_t flags;
 };
 
-// The max of past frames we want to keep in the queue.
-#define MAX_PRE_FRAMES 1
-
 enum { ENCODE_STAGE, LAP_STAGE, MAX_STAGES } UENUM1BYTE(COMPRESSOR_STAGE);
 
 struct read_ctx {
@@ -54,6 +51,8 @@ struct lookahead_ctx {
   struct read_ctx read_ctxs[MAX_STAGES]; /* Read context */
   struct lookahead_entry *buf;           /* Buffer list */
   int push_frame_count; /* Number of frames has been pushed in the queue*/
+  uint8_t
+      max_pre_frames; /* Maximum number of past frames allowed in the queue */
 };
 /*!\endcond */
 
@@ -65,7 +64,8 @@ struct lookahead_ctx {
 struct lookahead_ctx *av1_lookahead_init(
     unsigned int width, unsigned int height, unsigned int subsampling_x,
     unsigned int subsampling_y, int use_highbitdepth, unsigned int depth,
-    const int border_in_pixels, int byte_alignment, int num_lap_buffers);
+    const int border_in_pixels, int byte_alignment, int num_lap_buffers,
+    const bool allocate_pre_frame_buffer);
 
 /**\brief Destroys the lookahead stage
  */
