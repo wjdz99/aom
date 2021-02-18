@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "347f3982_5578f561",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-18T23:02:12Z",
+      "side": 0,
+      "message": "I added this raw_motion_error long time ago. The purpose was to speed up first pass for still image like videos (e.g. slide shows - kind of a popular type in YT) where the first pass encoding cost was quite high compared to 2nd pass encoding. You may want to test the first pass speed change with you CL for those type of clips.",
+      "range": {
+        "startLine": 638,
+        "startChar": 6,
+        "endLine": 638,
+        "endChar": 22
+      },
+      "revId": "d029bcfdaf3c5d77d71f8f61461ce79794a79e01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
