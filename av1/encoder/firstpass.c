@@ -634,84 +634,78 @@ static int firstpass_inter_prediction(
       &unscaled_last_source_buf_2d);
   raw_motion_err_list[raw_motion_err_counts] = raw_motion_error;
 
-  // TODO(pengchong): Replace the hard-coded threshold
-  if (raw_motion_error > LOW_MOTION_ERROR_THRESH) {
-    // Test last reference frame using the previous best mv as the
-    // starting point (best reference) for the search.
-    first_pass_motion_search(cpi, x, best_ref_mv, &mv, &motion_error);
+  // Test last reference frame using the previous best mv as the
+  // starting point (best reference) for the search.
+  first_pass_motion_search(cpi, x, best_ref_mv, &mv, &motion_error);
 
-    // If the current best reference mv is not centered on 0,0 then do a
-    // 0,0 based search as well.
-    if (!is_zero_mv(best_ref_mv)) {
-      int tmp_err = INT_MAX;
-      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &tmp_err);
+  // If the current best reference mv is not centered on 0,0 then do a
+  // 0,0 based search as well.
+  if (!is_zero_mv(best_ref_mv)) {
+    int tmp_err = INT_MAX;
+    first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &tmp_err);
 
-      if (tmp_err < motion_error) {
-        motion_error = tmp_err;
-        mv = tmp_mv;
-      }
+    if (tmp_err < motion_error) {
+      motion_error = tmp_err;
+      mv = tmp_mv;
     }
+  }
 
-    // Motion search in 2nd reference frame.
-    int gf_motion_error = motion_error;
-    if ((current_frame->frame_number > 1) && golden_frame != NULL) {
-      // Assume 0,0 motion with no mv overhead.
-      xd->plane[0].pre[0].buf = golden_frame->y_buffer + recon_yoffset;
-      xd->plane[0].pre[0].stride = golden_frame->y_stride;
-      gf_motion_error =
-          get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
-                                        &x->plane[0].src, &xd->plane[0].pre[0]);
-      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &gf_motion_error);
-    }
-    if (gf_motion_error < motion_error && gf_motion_error < this_intra_error) {
-      ++stats->second_ref_count;
-    }
-    // In accumulating a score for the 2nd reference frame take the
-    // best of the motion predicted score and the intra coded error
-    // (just as will be done for) accumulation of "coded_error" for
-    // the last frame.
-    if ((current_frame->frame_number > 1) && golden_frame != NULL) {
-      stats->sr_coded_error += AOMMIN(gf_motion_error, this_intra_error);
-    } else {
-      // TODO(chengchen): I believe logically this should also be changed to
-      // stats->sr_coded_error += AOMMIN(gf_motion_error, this_intra_error).
-      stats->sr_coded_error += motion_error;
-    }
-
-    // Motion search in 3rd reference frame.
-    int alt_motion_error = motion_error;
-    if (alt_ref_frame != NULL) {
-      xd->plane[0].pre[0].buf = alt_ref_frame->y_buffer + alt_ref_frame_yoffset;
-      xd->plane[0].pre[0].stride = alt_ref_frame->y_stride;
-      alt_motion_error =
-          get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
-                                        &x->plane[0].src, &xd->plane[0].pre[0]);
-      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &alt_motion_error);
-    }
-    if (alt_motion_error < motion_error && alt_motion_error < gf_motion_error &&
-        alt_motion_error < this_intra_error) {
-      ++stats->third_ref_count;
-    }
-    // In accumulating a score for the 3rd reference frame take the
-    // best of the motion predicted score and the intra coded error
-    // (just as will be done for) accumulation of "coded_error" for
-    // the last frame.
-    if (alt_ref_frame != NULL) {
-      stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
-    } else {
-      // TODO(chengchen): I believe logically this should also be changed to
-      // stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error).
-      stats->tr_coded_error += motion_error;
-    }
-
-    // Reset to last frame as reference buffer.
-    xd->plane[0].pre[0].buf = last_frame->y_buffer + recon_yoffset;
-    xd->plane[1].pre[0].buf = last_frame->u_buffer + recon_uvoffset;
-    xd->plane[2].pre[0].buf = last_frame->v_buffer + recon_uvoffset;
+  // Motion search in 2nd reference frame.
+  int gf_motion_error = motion_error;
+  if ((current_frame->frame_number > 1) && golden_frame != NULL) {
+    // Assume 0,0 motion with no mv overhead.
+    xd->plane[0].pre[0].buf = golden_frame->y_buffer + recon_yoffset;
+    xd->plane[0].pre[0].stride = golden_frame->y_stride;
+    gf_motion_error =
+        get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
+                                      &x->plane[0].src, &xd->plane[0].pre[0]);
+    first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &gf_motion_error);
+  }
+  if (gf_motion_error < motion_error && gf_motion_error < this_intra_error) {
+    ++stats->second_ref_count;
+  }
+  // In accumulating a score for the 2nd reference frame take the
+  // best of the motion predicted score and the intra coded error
+  // (just as will be done for) accumulation of "coded_error" for
+  // the last frame.
+  if ((current_frame->frame_number > 1) && golden_frame != NULL) {
+    stats->sr_coded_error += AOMMIN(gf_motion_error, this_intra_error);
   } else {
+    // TODO(chengchen): I believe logically this should also be changed to
+    // stats->sr_coded_error += AOMMIN(gf_motion_error, this_intra_error).
     stats->sr_coded_error += motion_error;
+  }
+
+  // Motion search in 3rd reference frame.
+  int alt_motion_error = motion_error;
+  if (alt_ref_frame != NULL) {
+    xd->plane[0].pre[0].buf = alt_ref_frame->y_buffer + alt_ref_frame_yoffset;
+    xd->plane[0].pre[0].stride = alt_ref_frame->y_stride;
+    alt_motion_error =
+        get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
+                                      &x->plane[0].src, &xd->plane[0].pre[0]);
+    first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &alt_motion_error);
+  }
+  if (alt_motion_error < motion_error && alt_motion_error < gf_motion_error &&
+      alt_motion_error < this_intra_error) {
+    ++stats->third_ref_count;
+  }
+  // In accumulating a score for the 3rd reference frame take the
+  // best of the motion predicted score and the intra coded error
+  // (just as will be done for) accumulation of "coded_error" for
+  // the last frame.
+  if (alt_ref_frame != NULL) {
+    stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
+  } else {
+    // TODO(chengchen): I believe logically this should also be changed to
+    // stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error).
     stats->tr_coded_error += motion_error;
   }
+
+  // Reset to last frame as reference buffer.
+  xd->plane[0].pre[0].buf = last_frame->y_buffer + recon_yoffset;
+  xd->plane[1].pre[0].buf = last_frame->u_buffer + recon_uvoffset;
+  xd->plane[2].pre[0].buf = last_frame->v_buffer + recon_uvoffset;
 
   // Start by assuming that intra mode is best.
   best_ref_mv->row = 0;
