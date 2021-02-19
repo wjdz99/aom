@@ -137,6 +137,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "076a8e02_43b872c0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T03:29:22Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nMy dynamic buffer prototye https://aomedia-review.googlesource.com/c/aom/+/130406 prints diagnostic messages, so you can try it and see how many realloc() calls are actually called. When I run test_libaom, I see two worst-case frame sizes are large enough to hold 4 to 5 frames. So the number of realloc() calls is small and it should consume less memory in practice.\n\nWe can easily change the prototype to do at most one realloc() by growing from one worst-case frame size to 8 worst-case frame sizes directly.",
+      "parentUuid": "694abc66_ff9070d8",
+      "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "73ae2d57_272ae35b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 9
