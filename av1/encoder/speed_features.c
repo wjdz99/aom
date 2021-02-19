@@ -684,6 +684,7 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.disable_lr_filter = 1;
 
     sf->mv_sf.prune_mesh_search = 1;
+    sf->mv_sf.disable_second_mv_search = 1;
 
     sf->tpl_sf.prune_starting_mv = 3;
 
@@ -1129,6 +1130,7 @@ static AOM_INLINE void init_mv_sf(MV_SPEED_FEATURES *mv_sf) {
   mv_sf->use_fullpel_costlist = 0;
   mv_sf->use_downsampled_sad = 0;
   mv_sf->disable_extensive_joint_motion_search = 0;
+  mv_sf->disable_second_mv_search = 0;
 }
 
 static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {

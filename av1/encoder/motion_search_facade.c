@@ -302,7 +302,8 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     switch (mbmi->motion_mode) {
       case SIMPLE_TRANSLATION:
         if (cpi->sf.mv_sf.use_accurate_subpel_search) {
-          const int try_second = second_best_mv.as_int != INVALID_MV &&
+          const int try_second = !cpi->sf.mv_sf.disable_second_mv_search &&
+                                 second_best_mv.as_int != INVALID_MV &&
                                  second_best_mv.as_int != best_mv->as_int;
           mv_search_params->find_fractional_mv_step(
               xd, cm, &ms_params, subpel_start_mv, &best_mv->as_mv, &dis,
@@ -497,7 +498,8 @@ int av1_joint_motion_search(const AV1_COMP *cpi, MACROBLOCK *x,
       second_best_mv = best_mv;
     }
 
-    const int try_second = second_best_mv.as_int != INVALID_MV &&
+    const int try_second = !cpi->sf.mv_sf.disable_second_mv_search &&
+                           second_best_mv.as_int != INVALID_MV &&
                            second_best_mv.as_int != best_mv.as_int;
 
     // Restore the pointer to the first (possibly scaled) prediction buffer.
