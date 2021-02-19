@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fa7e1a5_32ef8873",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-19T16:23:40Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Jingning,\n\nAs per our understanding, the last source frame buffer present in the queue of cpi-\u003elookahead and cpi-\u003escaled_last_source are not required for all-intra frame encoding (kf-max-dist\u003d0). Hence, we introduced a conditional allocation for these buffers based on key-freq-max\u003d0.\n \nIt was observed that for single-pass encoding mode with LAP enabled (\u0027good\u0027 preset), firstpass_inter_prediction() was being called in LAP stage, even though kf-max-dist was set to 0. This is not expected as per our understanding.\n\nThis issue could be solved by either of following approaches:\n1) By using fixed_kf_cntr logic to populate frame_flags\n2) Populating kf_requested flag based on kf-max-dist\u003d0\n\nWe did not pursue approach (1) as that piece of code is under the check \"kf_mode \u003d\u003d AOM_KF_AUTO\". The value of kf_mode is set to AOM_KF_DISABLED for the newly added --allintra mode. Hence, we thought that approach (2) would be better as it would handle kf-max-dist\u003d0 for all kf_mode values (AOM_KF_DISABLED/AOM_KF_AUTO). \n\nWith the current patch in all-intra frame encoding, we observed better bit-rate adherence as active_worst_quality is populated appropriately after the modification (coded_error -\u003e section_error -\u003e active_worst_quality). As a specific example, for \"rush_hour_1080p25\" content with target-bitrate\u003d5700kbps, the achieved bit-rate reduced from 29.2Mbps (parent version) to 8.55Mbps (with the current patch).\n\nWe validated the current patch for video and still-image encode. Specifically, we configured libaom in ALLINTRA mode (in libavif) for AVIF encode.\n \nIt was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset.  \n\nFollowing are memory reduction results when AVIF encode was tested for ‘building.jpg’ (4032x3024) image at cq_level\u003d18.\n   Speed                 HEAP Memory\n   preset                Reduction(%)\n     6          ~8.04 (from 518.3 MB to 476.6 MB)\n     \nHEAP memory reduction was measured using the command below.\n$valgrind --tool\u003dmassif ./avifenc ...\n\nRegards,\nJayasanker.",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
