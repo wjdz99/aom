@@ -139,7 +139,10 @@ set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
                    "AV2 experiment flag to remove dual filter.")
 set_aom_config_var(CONFIG_EXTQUANT 0
                    "AV2 extended quantization experiment flag")
-
+# Generic CPU test in Jenkins enables CONFIG_FLEX_STEPS independent of
+# CONFIG_EXTQUANT uncomment below when CONFIG_EXTQUANT = 1 set_aom_config_var(
+# CONFIG_FLEX_STEPS 1 "AV2 flexible quantization experiment flag (enable with
+# CONFIG_EXTQUANT")
 #
 # Variables in this section control optional features of the build system.
 #
