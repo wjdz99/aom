@@ -80,6 +80,8 @@ extern "C" {
 // Number of frames required to test for scene cut detection
 #define SCENE_CUT_KEY_TEST_INTERVAL 16
 
+#define PARTITION_SEARCH_ORDER 0
+
 // Rational number with an int64 numerator
 // This structure holds a fractional value
 typedef struct aom_rational64 {
@@ -2694,6 +2696,12 @@ typedef struct AV1_COMP {
    * Block size of first pass encoding
    */
   BLOCK_SIZE fp_block_size;
+
+  /*!
+   * The counter of encoded super block, used to differentiate block names.
+   * This number starts from 0 and increases whenever a super block is encoded.
+   */
+  int sb_counter;
 } AV1_COMP;
 
 /*!
