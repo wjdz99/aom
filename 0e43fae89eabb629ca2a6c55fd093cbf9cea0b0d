@@ -189,6 +189,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd513dee_efe995a0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-19T12:26:43Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs per our understanding, the current logic (of dynamic buffer prototype) allocates buffer in steps of max_frame_sz. Hence, we feel that the number of realloc() calls would be lesser for typical video encode.\nconst size_t new_cx_data_sz \u003d ctx-\u003ecx_data_sz + ctx-\u003emax_frame_sz;\n\nIt is possible to reduce the requirement further as below. However in this case, the number of realloc() calls will be more, but buffer size would be lesser than the above. \nconst size_t new_cx_data_sz \u003d ctx-\u003epending_cx_data_sz + ctx-\u003emax_frame_sz;\n\nPlease let us know your opinion on our understanding.",
+      "parentUuid": "5a74a665_52c2d5b7",
+      "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "73ae2d57_272ae35b",
