@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3215f258_e526d9aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T03:43:14Z",
+      "side": 1,
+      "message": "There are a lot of files in this CL, but there are only three kinds of changes.\n\n1. Please review test/encode_test_driver.{h,cc} first. The SetMode() method is subsumed by the InitializeConfig() method.\n\n2. Replace the InitializeConfig() + SetMode(mode) call sequence with InitializeConfig(mode). A representative example is test/active_map_test.cc.\n\n3. Remove the assignments that set g_lag_in_frames and rc_end_usage to their current values, just set by InitializeConfig(mode). A representative example is test/arf_freq_test.cc. Please let me know if you prefer to keep the explicit assignments for clarity or emphasis.\n\nThank you!",
+      "revId": "126b4437e53910cfe2a9d145956c2eb02884aa11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
