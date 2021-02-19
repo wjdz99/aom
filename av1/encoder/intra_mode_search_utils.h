@@ -391,16 +391,9 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   assert(!is_inter_block(mbmi));
-  RD_STATS this_rd_stats;
   int row, col;
-  int64_t temp_sse, this_rd;
-  const ModeCosts *mode_costs = &x->mode_costs;
-  const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  // TX_SIZE tx_size =
-  //     tx_size_from_tx_mode(bsize, txfm_params->tx_mode_search_type);
+  (void)mode_cost;
   TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup[bsize]);
-
-
   const int stepr = tx_size_high_unit[tx_size];
   const int stepc = tx_size_wide_unit[tx_size];
   const int txbw = tx_size_wide[tx_size];
@@ -439,30 +432,6 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
     }
   }
   return satd_cost;
-
-  // RD estimation.
-  model_rd_sb_fn[cpi->sf.rt_sf.use_simple_rd_model ? MODELRD_LEGACY
-                                                   : MODELRD_TYPE_INTRA](
-      cpi, bsize, x, xd, 0, 0, &this_rd_stats.rate, &this_rd_stats.dist,
-      &this_rd_stats.skip_txfm, &temp_sse, NULL, NULL, NULL);
-  if (av1_is_directional_mode(mbmi->mode) && av1_use_angle_delta(bsize)) {
-    mode_cost += mode_costs->angle_delta_cost[mbmi->mode - V_PRED]
-                                             [MAX_ANGLE_DELTA +
-                                              mbmi->angle_delta[PLANE_TYPE_Y]];
-  }
-  if (mbmi->mode == DC_PRED &&
-      av1_filter_intra_allowed_bsize(cm, mbmi->bsize)) {
-    if (mbmi->filter_intra_mode_info.use_filter_intra) {
-      const int mode = mbmi->filter_intra_mode_info.filter_intra_mode;
-      mode_cost += mode_costs->filter_intra_cost[mbmi->bsize][1] +
-                   mode_costs->filter_intra_mode_cost[mode];
-    } else {
-      mode_cost += mode_costs->filter_intra_cost[mbmi->bsize][0];
-    }
-  }
-  this_rd =
-      RDCOST(x->rdmult, this_rd_stats.rate + mode_cost, this_rd_stats.dist);
-  return this_rd;
 }
 /*!\endcond */
 
@@ -482,7 +451,7 @@ static AOM_INLINE int model_intra_yrd_and_prune(const AV1_COMP *const cpi,
                                                 int64_t *best_model_rd) {
   const int64_t this_model_rd = intra_model_yrd(cpi, x, bsize, mode_info_cost);
   if (*best_model_rd != INT64_MAX &&
-      this_model_rd > *best_model_rd + (*best_model_rd >> 1)) {
+      this_model_rd > *best_model_rd + (*best_model_rd >> 2)) {
     return 1;
   } else if (this_model_rd < *best_model_rd) {
     *best_model_rd = this_model_rd;
