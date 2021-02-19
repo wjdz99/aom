@@ -94,6 +94,30 @@
       },
       "revId": "d029bcfdaf3c5d77d71f8f61461ce79794a79e01",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d156c82_2f6282b3",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-19T18:23:52Z",
+      "side": 0,
+      "message": "So, for this type of videos, this change causes 30% 1st pass time increase (6% encoder time increase at speed 6). May want to know the impact. If there are other types except slideshows were affected, 30% 1st pass time increase can be significant. What do you think? For example, how about screen contents?",
+      "parentUuid": "1e04441d_8573dcf0",
+      "range": {
+        "startLine": 638,
+        "startChar": 6,
+        "endLine": 638,
+        "endChar": 22
+      },
+      "revId": "d029bcfdaf3c5d77d71f8f61461ce79794a79e01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
