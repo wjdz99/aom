@@ -1,0 +1,163 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "669f0edb_dcf5de75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "Sai: We need to first decide whether we want to use a third-party color conversion library like libyuv or write our own color conversion functions. I still post some review comments on the code below, but it would be better to use libyuv.",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abb710a2_6b75edb6",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "Should we remove the TODO comment now?",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6c24509_a688d745",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "I suggest we use a third-party library such as libyuv for color conversion. I found third_party/libyuv in the libaom source tree. Can we use that?",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "557dc655_a6ced41e",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "The 16 in RGBtoYUVMatrixAdd[] means this is limited range, not full range. We should get the range from the image. Here are the relevant fields in the aom_image struct:\n\n  typedef struct aom_image {\n    aom_img_fmt_t fmt;                 /**\u003c Image Format */\n    aom_color_primaries_t cp;          /**\u003c CICP Color Primaries */\n    aom_transfer_characteristics_t tc; /**\u003c CICP Transfer Characteristics */\n    aom_matrix_coefficients_t mc;      /**\u003c CICP Matrix Coefficients */\n    int monochrome;                    /**\u003c Whether image is monochrome */\n    aom_chroma_sample_position_t csp;  /**\u003c chroma sample position */\n    aom_color_range_t range;           /**\u003c Color Range */\n\nThe \u0027range\u0027 field tells us whether the image is limited range or full range. The \u0027mc\u0027 field tells us which matrix coefficients to use. It is not always BT.709. BT.601 matrix coefficients are very common and are the default in AVIF if matrix coefficients are unspecified.\n\nWe should ask Jyrki and Luca which matrix coefficients should be the default.",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6321ec7_711a757b",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "IMPORTANT: The denominator should be 255., not 256., right?",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59f2e7fe_56054d6f",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "Nit/optional: I don\u0027t know if libaom follows the naming convention for constants in the Google C++ Style Guide. If it does, then these constants should be named with a leading \"k\": kRGBtoYUVMatrixAdd and kYUVtoRGBMatrix",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fe59fa1_9f79c519",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "This may not really matter, but in standards we usually round first and then clamp. I suggest we perform these two operations in that order.",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b434a550_5e38e611",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "Nit: It is safer to use \u0027j\u0027 instead of \u0027y_index\u0027 here, in the unlikely case that row_stride_y is an odd number.",
+      "range": {
+        "startLine": 87,
+        "startChar": 10,
+        "endLine": 87,
+        "endChar": 17
+      },
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a60551f4_1ebe8b5c",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T19:49:05Z",
+      "side": 1,
+      "message": "Nit: Please move this to the beginning of the function.",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
