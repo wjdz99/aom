@@ -155,6 +155,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c5bbb67d_50f6845f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-02-19T04:05:46Z",
+      "side": 1,
+      "message": "Hi Wan-teh,\n\nIn our message, 4-5 realloc() calls is based on the worst case number of no-show frames. This can happen at higher bit-rates depending on the complexity of the content. When we tested for higher bit-rates, we were seeing up to 3 calls. Hence we accept that it should consume less memory than static allocation for video encode.",
+      "parentUuid": "076a8e02_43b872c0",
+      "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "73ae2d57_272ae35b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 9
