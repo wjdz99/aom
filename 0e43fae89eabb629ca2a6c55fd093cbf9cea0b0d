@@ -207,6 +207,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0296f9a_981189c4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-19T14:28:04Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nYes, you understand it correctly. There are several strategies to grow the ctx-\u003ecx_data buffer. The change you asked about:\n\n  const size_t new_cx_data_sz \u003d ctx-\u003epending_cx_data_sz + ctx-\u003emax_frame_sz;\n\nis the smallest buffer size increase. It is also common to grow the buffer size exponentially, or we can use a mixture of exponential and linear growth, e.g., 1, 2, 4, 6, 8.\n\nSince you have a deeper understanding of the internals of the encoder, you are in a better position to fine-tune the buffer growth strategy for the best trade-off.\n\nI tested my prototype under AddressSanitizer and test_libaom just finished successfully. So there is more empirical support for the dynamic buffer approach. To avoid buffer overflow we must be absolutely certain that the worse-case frame size is large enough. (This is also required for a static approach like this CL.) Intuitively, the uncompressed frame size (possibly plus a few hundred extra bytes for overhead such as the temporal delimiter and sequence header) should be safe.",
+      "parentUuid": "dd513dee_efe995a0",
+      "revId": "0e43fae89eabb629ca2a6c55fd093cbf9cea0b0d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "73ae2d57_272ae35b",
