@@ -910,8 +910,9 @@ static int get_overlap_area(int grid_pos_row, int grid_pos_col, int ref_pos_row,
       break;
     default: assert(0);
   }
-
-  return width * height;
+  int overlap_area = width * height;
+  assert(overlap_area >= 0);
+  return overlap_area;
 }
 
 int av1_tpl_ptr_pos(int mi_row, int mi_col, int stride, uint8_t right_shift) {
@@ -950,6 +951,7 @@ static int64_t delta_rate_cost(int64_t delta_rate, int64_t recrf_dist,
 static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
                                           int mi_col, const BLOCK_SIZE bsize,
                                           int frame_idx, int ref) {
+  aom_clear_system_state();
   TplDepFrame *tpl_frame_ptr = &tpl_data->tpl_frame[frame_idx];
   TplDepStats *tpl_ptr = tpl_frame_ptr->tpl_stats_ptr;
   TplDepFrame *tpl_frame = tpl_data->tpl_frame;
@@ -1008,21 +1010,14 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
           grid_pos_row, grid_pos_col, ref_pos_row, ref_pos_col, block, bsize);
       int ref_mi_row = round_floor(grid_pos_row, bh) * mi_height;
       int ref_mi_col = round_floor(grid_pos_col, bw) * mi_width;
-      const int step = 1 << block_mis_log2;
-
-      for (int idy = 0; idy < mi_height; idy += step) {
-        for (int idx = 0; idx < mi_width; idx += step) {
-          TplDepStats *des_stats = &ref_stats_ptr[av1_tpl_ptr_pos(
-              ref_mi_row + idy, ref_mi_col + idx, ref_tpl_frame->stride,
-              block_mis_log2)];
-          des_stats->mc_dep_dist +=
-              ((cur_dep_dist + mc_dep_dist) * overlap_area) / pix_num;
-          des_stats->mc_dep_rate +=
-              ((delta_rate + mc_dep_rate) * overlap_area) / pix_num;
-
-          assert(overlap_area >= 0);
-        }
-      }
+      assert((1 << block_mis_log2) == mi_height);
+      assert((1 << block_mis_log2) == mi_width);
+      TplDepStats *des_stats = &ref_stats_ptr[av1_tpl_ptr_pos(
+          ref_mi_row, ref_mi_col, ref_tpl_frame->stride, block_mis_log2)];
+      des_stats->mc_dep_dist +=
+          ((cur_dep_dist + mc_dep_dist) * overlap_area) / pix_num;
+      des_stats->mc_dep_rate +=
+          ((delta_rate + mc_dep_rate) * overlap_area) / pix_num;
     }
   }
 }
@@ -1047,14 +1042,9 @@ static AOM_INLINE void tpl_model_update(TplParams *const tpl_data, int mi_row,
 }
 
 static AOM_INLINE void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row,
-                                       int mi_col, BLOCK_SIZE bsize, int stride,
+                                       int mi_col, int stride,
                                        const TplDepStats *src_stats,
                                        uint8_t block_mis_log2) {
-  const int mi_height = mi_size_high[bsize];
-  const int mi_width = mi_size_wide[bsize];
-  assert((mi_height >> block_mis_log2) == 1);
-  assert((mi_width >> block_mis_log2) == 1);
-
   int index = av1_tpl_ptr_pos(mi_row, mi_col, stride, block_mis_log2);
   TplDepStats *tpl_ptr = &tpl_stats_ptr[index];
   *tpl_ptr = *src_stats;
@@ -1197,6 +1187,8 @@ void av1_mc_flow_dispenser_row(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   const int tplb_cols_in_tile =
       ROUND_POWER_OF_TWO(mi_params->mi_cols, mi_size_wide_log2[bsize]);
   const int tplb_row = ROUND_POWER_OF_TWO(mi_row, mi_size_high_log2[bsize]);
+  assert(mi_size_high[bsize] == (1 << tpl_data->tpl_stats_block_mis_log2));
+  assert(mi_size_wide[bsize] == (1 << tpl_data->tpl_stats_block_mis_log2));
 
   for (int mi_col = 0, tplb_col_in_tile = 0; mi_col < mi_params->mi_cols;
        mi_col += mi_width, tplb_col_in_tile++) {
@@ -1213,9 +1205,8 @@ void av1_mc_flow_dispenser_row(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     mode_estimation(cpi, x, mi_row, mi_col, bsize, tx_size, &tpl_stats);
 
     // Motion flow dependency dispenser.
-    tpl_model_store(tpl_frame->tpl_stats_ptr, mi_row, mi_col, bsize,
-                    tpl_frame->stride, &tpl_stats,
-                    tpl_data->tpl_stats_block_mis_log2);
+    tpl_model_store(tpl_frame->tpl_stats_ptr, mi_row, mi_col, tpl_frame->stride,
+                    &tpl_stats, tpl_data->tpl_stats_block_mis_log2);
     (*tpl_row_mt->sync_write_ptr)(&tpl_data->tpl_mt_sync, tplb_row,
                                   tplb_col_in_tile, tplb_cols_in_tile);
   }
