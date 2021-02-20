@@ -22,6 +22,30 @@
       },
       "revId": "e5119e17c49b94fa8a802a658553714008b48c76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea05c42f_1fef59d5",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-02-20T00:29:19Z",
+      "side": 1,
+      "message": "I verified the speed is set in the first pass.",
+      "parentUuid": "a5f796d7_4fbbe9a7",
+      "range": {
+        "startLine": 638,
+        "startChar": 52,
+        "endLine": 638,
+        "endChar": 71
+      },
+      "revId": "e5119e17c49b94fa8a802a658553714008b48c76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
