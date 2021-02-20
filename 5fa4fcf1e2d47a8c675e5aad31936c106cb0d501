@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d7da8fd_cd7ab0bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-02-20T02:04:36Z",
+      "side": 1,
+      "message": "Currently setting --enable-chroma-deltaq\u003d1 results in a mismatch unless --deltaq-mode\u003d1. This is a solution for the issue.",
+      "revId": "5fa4fcf1e2d47a8c675e5aad31936c106cb0d501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
