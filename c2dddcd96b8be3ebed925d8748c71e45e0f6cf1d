@@ -193,6 +193,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bca93eb_788eca4a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1085,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:27:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "563736bf_2fcc8a62",
+      "range": {
+        "startLine": 1085,
+        "startChar": 8,
+        "endLine": 1085,
+        "endChar": 18
+      },
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "20c44081_a5fbc9a7",
@@ -206,6 +230,24 @@
       "writtenOn": "2021-02-19T20:33:29Z",
       "side": 1,
       "message": "Do we need to set cpi-\u003ebutteraugli_info.recon_set to false here?",
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31cc3dd1_7cbec261",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1088,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:27:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20c44081_a5fbc9a7",
       "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
