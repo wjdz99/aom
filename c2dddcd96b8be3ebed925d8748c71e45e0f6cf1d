@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a38430d8_98cb00ba",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "Not used.",
+      "parentUuid": "d89ab6b8_48df1bea",
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "228ffdb0_a3d955b2",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-02-19T20:33:29Z",
       "side": 1,
       "message": "This asserts not only that the YUV format is 4:2:0 or 4:2:2, but also that y_width is an even number. Does JxlCalcButteraugliYuv420() require y_width be even?\n\nTo assert YUV 4:2:0, it is better to assert source-\u003ex_chroma_shift \u003d\u003d 1 \u0026\u0026 source-\u003ey_chroma_shift \u003d\u003d 1.",
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddd97ff3_f84eab39",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "Added the check in av1_cx_iface.c",
+      "parentUuid": "228ffdb0_a3d955b2",
       "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d334aeb_cec72968",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "Removed in the following cl",
+      "parentUuid": "6e567d07_f64ddec7",
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b55d5c0f_f393f45b",
@@ -82,6 +136,30 @@
       "writtenOn": "2021-02-19T20:33:29Z",
       "side": 1,
       "message": "The YV12_BUFFER_CONFIG struct has a bit_depth field:\n\n  unsigned int bit_depth;\n\nDoes this function still need a bit_depth parameter?",
+      "range": {
+        "startLine": 18,
+        "startChar": 63,
+        "endLine": 18,
+        "endChar": 76
+      },
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e97db23a_7d1a48f9",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "For some reason I do not know, this field is not being used.",
+      "parentUuid": "b55d5c0f_f393f45b",
       "range": {
         "startLine": 18,
         "startChar": 63,
@@ -155,6 +233,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57dd2102_0ef475ab",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afc380ce_9b46fa22",
+      "range": {
+        "startLine": 19,
+        "startChar": 48,
+        "endLine": 19,
+        "endChar": 73
+      },
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5de96f7b_7962cd13",
@@ -168,6 +270,30 @@
       "writtenOn": "2021-02-19T20:33:29Z",
       "side": 1,
       "message": "If we don\u0027t need to zero-initialize diffmap, we can use aom_malloc instead of aom_calloc",
+      "range": {
+        "startLine": 47,
+        "startChar": 31,
+        "endLine": 47,
+        "endChar": 41
+      },
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80273286_ac01c849",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5de96f7b_7962cd13",
       "range": {
         "startLine": 47,
         "startChar": 31,
@@ -195,6 +321,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ae7c56e_64f03444",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "245681f9_8393cf71",
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cff8c33a_8b19e2bf",
@@ -208,6 +352,30 @@
       "writtenOn": "2021-02-19T20:33:29Z",
       "side": 1,
       "message": "Nit: BUTTERAUGLI \u003d\u003e Butteraugli ?",
+      "range": {
+        "startLine": 120,
+        "startChar": 47,
+        "endLine": 120,
+        "endChar": 58
+      },
+      "revId": "c2dddcd96b8be3ebed925d8748c71e45e0f6cf1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b30aa23a_881a436f",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 13
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:03:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cff8c33a_8b19e2bf",
       "range": {
         "startLine": 120,
         "startChar": 47,
