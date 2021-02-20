@@ -757,7 +757,7 @@ static AOM_INLINE void do_masked_motion_search_indexed(
                                                  mask_stride, rate_mv, which);
   } else if (which == 2) {
     av1_joint_motion_search(cpi, x, bsize, tmp_mv, mask, mask_stride, rate_mv,
-                            1);
+                            !cpi->sf.mv_sf.disable_second_mv);
   }
 }
 
