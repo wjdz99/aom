@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4aedac5f_5e98d425",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abb710a2_6b75edb6",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e6c24509_a688d745",
@@ -66,6 +84,24 @@
       "writtenOn": "2021-02-19T19:49:05Z",
       "side": 1,
       "message": "I suggest we use a third-party library such as libyuv for color conversion. I found third_party/libyuv in the libaom source tree. Can we use that?",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cbfeeea_7e2ce239",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6c24509_a688d745",
       "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -89,6 +125,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f7db6a04_8910bdb3",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "I think by default it is the sRGB color space.\nI cannot find yuv-\u003esrgb conversion function in the lib.\nI added a TODO and I think we are good for now since they are very close.",
+      "parentUuid": "557dc655_a6ced41e",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d6321ec7_711a757b",
         "filename": "aom_dsp/butteraugli.c",
         "patchSetId": 11
@@ -100,6 +154,24 @@
       "writtenOn": "2021-02-19T19:49:05Z",
       "side": 1,
       "message": "IMPORTANT: The denominator should be 255., not 256., right?",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ab0b101_3502351b",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "I copied the code from our img eval.  I think we should make modifications there.",
+      "parentUuid": "d6321ec7_711a757b",
       "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -121,6 +193,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "11e3a5ef_13cea7cf",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "59f2e7fe_56054d6f",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4fe59fa1_9f79c519",
@@ -134,6 +224,24 @@
       "writtenOn": "2021-02-19T19:49:05Z",
       "side": 1,
       "message": "This may not really matter, but in standards we usually round first and then clamp. I suggest we perform these two operations in that order.",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f90d981b_36a56c48",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "4fe59fa1_9f79c519",
       "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -161,6 +269,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "446f1f16_95fc73e2",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "ack",
+      "parentUuid": "b434a550_5e38e611",
+      "range": {
+        "startLine": 87,
+        "startChar": 10,
+        "endLine": 87,
+        "endChar": 17
+      },
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a60551f4_1ebe8b5c",
@@ -174,6 +306,24 @@
       "writtenOn": "2021-02-19T19:49:05Z",
       "side": 1,
       "message": "Nit: Please move this to the beginning of the function.",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d42f2b7b_1ec765b0",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T04:09:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a60551f4_1ebe8b5c",
       "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
