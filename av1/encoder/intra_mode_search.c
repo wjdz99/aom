@@ -1066,6 +1066,8 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   // Set params for mode evaluation
   set_mode_eval_params(cpi, x, MODE_EVAL);
 
+  mbmi->init_tx_size = TX_SIZES;
+
   MB_MODE_INFO best_mbmi = *mbmi;
   av1_zero(x->winner_mode_stats);
   x->winner_mode_count = 0;
@@ -1174,6 +1176,8 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       best_mbmi = *mbmi;
     }
   }
+
+  best_mbmi.init_tx_size = best_mbmi.tx_size;
 
   // No mode is identified with less rd value than best_rd passed to this
   // function. In such cases winner mode processing is not necessary and return

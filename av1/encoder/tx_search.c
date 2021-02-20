@@ -3087,6 +3087,11 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
     init_depth = MAX_TX_DEPTH;
   }
 
+  if (mbmi->init_tx_size != TX_SIZES) {
+    start_tx = mbmi->init_tx_size;
+    init_depth = MAX_TX_DEPTH;
+  }
+
   const int skip_trellis = 0;
   uint8_t best_txk_type_map[MAX_MIB_SIZE * MAX_MIB_SIZE];
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];

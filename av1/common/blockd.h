@@ -289,6 +289,8 @@ typedef struct MB_MODE_INFO {
   TX_SIZE tx_size;
   /*! \brief Transform size when recursive txfm tree is on. */
   TX_SIZE inter_tx_size[INTER_TX_SIZE_BUF_LEN];
+  /*! \brief Transform size init */
+  TX_SIZE init_tx_size;
   /**@}*/
 
   /*****************************************************************************
