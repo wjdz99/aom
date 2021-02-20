@@ -143,6 +143,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "05d00d8c_4028d7ab",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-20T19:27:33Z",
+      "side": 1,
+      "message": "I tested these fields. In my test files (.y4m), all of them are 0:\nmatrix_coefficients, transfer_characteristics, color_range, transfer_characteristics\nI added checks in av1_cx_iface.c. Please take a look",
+      "parentUuid": "f7db6a04_8910bdb3",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d6321ec7_711a757b",
         "filename": "aom_dsp/butteraugli.c",
         "patchSetId": 11
