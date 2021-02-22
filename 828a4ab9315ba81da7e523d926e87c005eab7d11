@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05237de9_76428f62",
+        "filename": "test/active_map_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T20:31:55Z",
+      "side": 0,
+      "message": "The InitializeConfig() and SetMode() methods are always called together and in this order. Therefore, they can be combined into one method.\n\nThe real CL (https://aomedia-review.googlesource.com/c/aom/+/130445) has many changes like this.",
+      "revId": "828a4ab9315ba81da7e523d926e87c005eab7d11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58d734d1_d9b71e03",
+        "filename": "test/arf_freq_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T20:31:55Z",
+      "side": 0,
+      "message": "In the new code, InitializeConfig() passes a correct usage argument (AOM_USAGE_GOOD_QUALITY or AOM_USAGE_REALTIME) to aom_codec_enc_config_default(), which sets cfg_.rc_end_usage and cfg_.g_lag_in_frames to the values set here. Therefore these lines can be deleted.\n\nThe real CL (https://aomedia-review.googlesource.com/c/aom/+/130445) has several changes like this.",
+      "revId": "828a4ab9315ba81da7e523d926e87c005eab7d11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
