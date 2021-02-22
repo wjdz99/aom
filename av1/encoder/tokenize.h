@@ -20,9 +20,20 @@
 extern "C" {
 #endif
 
+// The variables color_ctx and token, present in TokenExtra structure, are used
+// to store index of the color context and color index used for each pixel in
+// case of palette mode.
+// 1) color_ctx can take 5 (PALETTE_COLOR_INDEX_CONTEXTS) valid values, i.e.,
+// from 0 to 4. As per the current implementation it can take values in the
+// range of [-1, 4]. Here -1 corresponds to invalid color index context and is
+// used for default initialization.
+// 2) token can take values in the range of [0, 7] as maximum number of possible
+// colors is 8 (PALETTE_MAX_SIZE).
+// Hence, each of color_ctx and token requires only 4 bits to represent the
+// above range of values.
 typedef struct {
-  int8_t color_ctx;
-  uint8_t token;
+  int8_t color_ctx : 4;
+  uint8_t token : 4;
 } TokenExtra;
 
 typedef struct {
