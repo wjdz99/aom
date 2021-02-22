@@ -355,7 +355,8 @@ static const int rd_layer_depth_factor[7] = {
 };
 
 int av1_compute_rd_mult_based_on_qindex(const AV1_COMP *cpi, int qindex) {
-  const int q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
+  const int q = av1_dc_quant_QTX(qindex, cpi->common.quant_params.y_dc_delta_q,
+                                 cpi->common.seq_params.bit_depth);
   int rdmult = (int)(((int64_t)88 * q * q) / 24);
 
   switch (cpi->common.seq_params.bit_depth) {
@@ -388,18 +389,18 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
 
 int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
   assert(beta > 0.0);
-  int q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
+  int q = av1_dc_quant_QTX(qindex, cpi->common.quant_params.y_dc_delta_q, cpi->common.seq_params.bit_depth);
   int newq = (int)rint(q / sqrt(beta));
   int orig_qindex = qindex;
   if (newq < q) {
     do {
       qindex--;
-      q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
+      q = av1_dc_quant_QTX(qindex, cpi->common.quant_params.y_dc_delta_q, cpi->common.seq_params.bit_depth);
     } while (newq < q && qindex > 0);
   } else {
     do {
       qindex++;
-      q = av1_dc_quant_QTX(qindex, 0, cpi->common.seq_params.bit_depth);
+      q = av1_dc_quant_QTX(qindex, cpi->common.quant_params.y_dc_delta_q, cpi->common.seq_params.bit_depth);
     } while (newq > q && qindex < MAXQ);
   }
   return qindex - orig_qindex;
@@ -408,7 +409,8 @@ int av1_get_deltaq_offset(const AV1_COMP *cpi, int qindex, double beta) {
 int av1_get_adaptive_rdmult(const AV1_COMP *cpi, double beta) {
   assert(beta > 0.0);
   const AV1_COMMON *cm = &cpi->common;
-  int q = av1_dc_quant_QTX(cm->quant_params.base_qindex, 0,
+  int q = av1_dc_quant_QTX(cm->quant_params.base_qindex,
+                            cpi->common.quant_params.y_dc_delta_q,
                            cm->seq_params.bit_depth);
 
   return (int)(av1_compute_rd_mult(cpi, q) / beta);

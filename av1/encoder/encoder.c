@@ -2333,6 +2333,16 @@ static int encode_without_recode(AV1_COMP *cpi) {
 
   av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                     q_cfg->enable_chroma_deltaq);
+
+  int delta_dc_q = 0;
+  int16_t ac_step = av1_ac_quant_QTX(q, 0, cm->seq_params.bit_depth);
+  for (; delta_dc_q + q < MAXQ; ++delta_dc_q) {
+    int16_t dc_step = av1_dc_quant_QTX(q, delta_dc_q, cm->seq_params.bit_depth);
+    if (dc_step >= ac_step) break;
+  }
+  if (delta_dc_q > 0) --delta_dc_q;
+  cm->quant_params.y_dc_delta_q = delta_dc_q;
+
   av1_set_speed_features_qindex_dependent(cpi, cpi->oxcf.speed);
   if (q_cfg->deltaq_mode != NO_DELTA_Q)
     av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,

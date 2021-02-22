@@ -3921,7 +3921,8 @@ static int ml_predict_var_paritioning(AV1_COMP *cpi, MACROBLOCK *x,
   {
     const float thresh = cpi->oxcf.speed <= 5 ? 1.25f : 0.0f;
     float features[FEATURES] = { 0.0f };
-    const int dc_q = av1_dc_quant_QTX(cm->quant_params.base_qindex, 0,
+    const int dc_q = av1_dc_quant_QTX(cm->quant_params.base_qindex,
+                                      cpi->common.quant_params.y_dc_delta_q,
                                       cm->seq_params.bit_depth);
     int feature_idx = 0;
     float score[LABELS];
@@ -4001,7 +4002,8 @@ static int store_partition_data(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize,
   aom_clear_system_state();
 
   {
-    const int dc_q = av1_dc_quant_QTX(cm->quant_params.base_qindex, 0,
+    const int dc_q = av1_dc_quant_QTX(cm->quant_params.base_qindex,
+                                      cpi->common.quant_params.y_dc_delta_q,
                                       cm->seq_params.bit_depth);
     int feature_idx = 0;
 
