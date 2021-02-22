@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59204fca_e84dd5c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T18:22:33Z",
+      "side": 1,
+      "message": "Jingning: Please note the two comments marked with \"IMPORTANT\". I also have some questions. (I don\u0027t really understand the code, but I am very curious about it.) Thanks!",
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a95b99d3_4019b311",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T18:22:33Z",
+      "side": 1,
+      "message": "I am curious about this change. Is this a bug fix?",
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dccadbdc_dd38adf3",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T18:22:33Z",
+      "side": 1,
+      "message": "Should we remove the \u0027mode_cost\u0027 parameter if it is unused? There is only one caller, at line 451.",
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5efe0e3_9305a51a",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T18:22:33Z",
+      "side": 1,
+      "message": "The switch statement you added (at lines 415-429) implies bsize must be a square block. Is this true?\n\nIf this is true, it would be good to document the square-block assumption. Also, that means the table lookups below just need to look up the widths because the heights must be the same.",
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cdc70c62_1175c0dd",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T18:22:33Z",
+      "side": 1,
+      "message": "IMPORTANT: should the first stride (highlighted) be pd-\u003edst.stride instead of p-\u003esrc.stride?",
+      "range": {
+        "startLine": 414,
+        "startChar": 33,
+        "endLine": 414,
+        "endChar": 46
+      },
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4ca7f3c_5121eb7a",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T18:22:33Z",
+      "side": 1,
+      "message": "IMPORTANT: Change 1.5 to 1.25 to reflect the new code: *best_model_rd + (*best_model_rd \u003e\u003e 2)",
+      "range": {
+        "startLine": 443,
+        "startChar": 35,
+        "endLine": 443,
+        "endChar": 38
+      },
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
