@@ -16,6 +16,46 @@
       "message": "I debated on this speed feature for a while as the coding performance loss is large. As we need another 2x speed-up on top of where we are, this change might come with a lot simpler code flow for that.",
       "revId": "19e9479b5c9d109a2108fb6ceec49b51388852cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31c71038_614be0ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T23:00:36Z",
+      "side": 1,
+      "message": "LGTM. I suggest adding a comment. Thanks a lot for speeding up image encoding!",
+      "revId": "19e9479b5c9d109a2108fb6ceec49b51388852cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5b338cc_43d02c19",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T23:00:36Z",
+      "side": 1,
+      "message": "Nit: I suggest adding the following from your commit message as a comment here:\n\n  // Use largest txfm block size.\n\nThis will help readers like me to understand the purpose of setting these two fields to 2.",
+      "range": {
+        "startLine": 672,
+        "startChar": 0,
+        "endLine": 673,
+        "endChar": 55
+      },
+      "revId": "19e9479b5c9d109a2108fb6ceec49b51388852cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
