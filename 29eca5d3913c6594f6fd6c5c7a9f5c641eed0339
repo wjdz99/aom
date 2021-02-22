@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fda9c0dc_95b063fe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-22T21:49:18Z",
+      "side": 1,
+      "message": "historically this was deferred because the instruction was costly so each call of block-wise assembly, etc. would be impacted.",
+      "revId": "29eca5d3913c6594f6fd6c5c7a9f5c641eed0339",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
