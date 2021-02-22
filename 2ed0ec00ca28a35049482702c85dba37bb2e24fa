@@ -52,6 +52,24 @@
       "parentUuid": "70e4e6d5_865edb90",
       "revId": "2ed0ec00ca28a35049482702c85dba37bb2e24fa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de846f30_64a5b3b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-22T17:17:09Z",
+      "side": 1,
+      "message": "In speed 1, 150 frames,\nlowres 0.012% (PSNR), 0.009% (SSIM)\nmidres 0.048% (PSNR), 0.074% (SSIM)\n\nBoth sets have clips with slight gains and losses. Worst case drop is 0.2%. All within noise range.",
+      "parentUuid": "b835ffbb_2e69d98b",
+      "revId": "2ed0ec00ca28a35049482702c85dba37bb2e24fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
