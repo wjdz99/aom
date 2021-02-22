@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e039976e_0aa17942",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T23:42:30Z",
+      "side": 1,
+      "message": "Jingning: Thank you for writing the CL! I suggest adding some comments. (Some of the suggested comments are optional and are intended to help readers like me.)",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dddef45_bca78dee",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T23:42:30Z",
+      "side": 1,
+      "message": "It would be good to document the meaning of the bitmasks in these three arrays.\n\nIt is also not clear to me what \"derived\" and \"reduced\" means.\n\nFor a concrete example of a comment that will help me: it would be helpful to say av1_derived_intra_tx_used_flag is used when use_reduced_intra_txset \u003d\u003d 2 as an additional filter to rule out more transform types. The result is to \"search the transform kernels that are derived from residual stats model\" (quoted from your commit message).",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93d6f438_80652a8d",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T23:42:30Z",
+      "side": 1,
+      "message": "Nit/optional: These three static const arrays are only used in av1/encoder/tx_search.c. They should be moved to that file. (This will simplify code analysis.)\n\n(If you agree with this, we can do this in a separate CL.)",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb9be168_49153c63",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T23:42:30Z",
+      "side": 1,
+      "message": "Please add a comment for use_reduced_intra_txset in av1/encoder/speed_features.h.\n\nThis field is declared as an \u0027int\u0027 but is currently used as a boolean:\n\n$ find . -name \"*\" -a -type f | xargs grep use_reduced_intra_txset\n./av1/encoder/speed_features.c:  sf-\u003etx_sf.tx_type_search.use_reduced_intra_txset \u003d 1;\n./av1/encoder/speed_features.c:  sf-\u003etx_sf.tx_type_search.use_reduced_intra_txset \u003d 1;\n./av1/encoder/speed_features.c:  sf-\u003etx_sf.tx_type_search.use_reduced_intra_txset \u003d 1;\n./av1/encoder/speed_features.c:  tx_sf-\u003etx_type_search.use_reduced_intra_txset \u003d 0;\n./av1/encoder/speed_features.h:  int use_reduced_intra_txset;\n./av1/encoder/tx_search.c:      cpi-\u003esf.tx_sf.tx_type_search.use_reduced_intra_txset \u0026\u0026\n\nAfter this CL, this field will have three possible values: 0, 1, and 2. Their meanings should be documented. The current comment is:\n\n  // prune two least frequently chosen transforms for each intra mode\n  int use_reduced_intra_txset;",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e96acf0f_2619ab0f",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1998,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-22T23:42:30Z",
+      "side": 1,
+      "message": "Nit/optional: It may be a good idea to change this test to the !\u003d 0 form to make it clear the use_reduced_intra_txset field is not a boolean:\n\n      cpi-\u003esf.tx_sf.tx_type_search.use_reduced_intra_txset !\u003d 0 \u0026\u0026",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
