@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6157230_94590b4d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-22T03:24:30Z",
+      "side": 1,
+      "message": "ps1: no change in both quality and speed. so second_mv search is not enabled\nin joint motion search.\n\nps2\n   avg_psnr:\tovr_psnr:\tssim:  speedup:\nsp2\nhdres2  0.170\t0.173\t0.372  4.9%\nmidres2  0.210\t0.215\t0.143  4.7%\n\nsp3\nhdres2   0.077\t0.063\t0.071  5.3%\nmidres2   0.184\t0.180\t0.076  5.1%\n\nsp5\nhdres2    0.093\t0.096\t0.096  6.2%\nmidres2   0.192\t0.206\t0.143  5.6%\n\n\n",
+      "revId": "54731dd2f164400e39018114c380a703627adbbe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
