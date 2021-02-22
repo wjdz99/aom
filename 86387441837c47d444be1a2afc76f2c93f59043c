@@ -52,6 +52,24 @@
       "parentUuid": "cbd00041_e132149b",
       "revId": "86387441837c47d444be1a2afc76f2c93f59043c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fd10e80_f15d9c13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-02-22T20:13:18Z",
+      "side": 1,
+      "message": "@Urvang.  Sounds good and Agreed. I propose to move in couple of days and abandon this branch. The research-quant branch has recently undergone some changes to the EXTQUANT functionality. This may need some alignment for FLEX_STEPS, once things are working in the research-quant branch similar to this branch and as expected, this branch can be abandoned. What do you think?",
+      "parentUuid": "db8471f6_3e5f930a",
+      "revId": "86387441837c47d444be1a2afc76f2c93f59043c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
