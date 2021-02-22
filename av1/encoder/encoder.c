@@ -2283,7 +2283,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
   aom_clear_system_state();
 
   cpi->source = av1_scale_if_required(cm, unscaled, &cpi->scaled_source,
-                                      filter_scaler, phase_scaler, true, false);
+                                      filter_scaler, phase_scaler,
+                                      cpi->oxcf.border_in_pixels, true, false);
   if (frame_is_intra_only(cm) || resize_pending != 0) {
     memset(cpi->consec_zero_mv, 0,
            ((cm->mi_params.mi_rows * cm->mi_params.mi_cols) >> 2) *
@@ -2293,7 +2294,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
   if (cpi->unscaled_last_source != NULL) {
     cpi->last_source = av1_scale_if_required(
         cm, cpi->unscaled_last_source, &cpi->scaled_last_source, filter_scaler,
-        phase_scaler, true, false);
+        phase_scaler, cpi->oxcf.border_in_pixels, true, false);
   }
 
   if (cpi->sf.rt_sf.use_temporal_noise_estimate) {
@@ -2495,14 +2496,14 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         gm_info->search_done = 0;
       }
     }
-    cpi->source =
-        av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source,
-                              EIGHTTAP_REGULAR, 0, false, false);
+    cpi->source = av1_scale_if_required(
+        cm, cpi->unscaled_source, &cpi->scaled_source, EIGHTTAP_REGULAR, 0,
+        cpi->oxcf.border_in_pixels, false, false);
 
     if (cpi->unscaled_last_source != NULL) {
       cpi->last_source = av1_scale_if_required(
           cm, cpi->unscaled_last_source, &cpi->scaled_last_source,
-          EIGHTTAP_REGULAR, 0, false, false);
+          EIGHTTAP_REGULAR, 0, cpi->oxcf.border_in_pixels, false, false);
     }
 
     if (!frame_is_intra_only(cm)) {
