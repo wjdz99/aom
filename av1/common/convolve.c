@@ -228,6 +228,11 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
   const int bd = 8;
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   // horizontal filter
   const uint8_t *src_horiz = src - fo_vert * src_stride;
@@ -261,7 +266,7 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -297,6 +302,11 @@ void av1_dist_wtd_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst,
                            (1 << (offset_bits - conv_params->round_1 - 1));
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   // vertical filter
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
@@ -313,7 +323,7 @@ void av1_dist_wtd_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst,
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -348,6 +358,11 @@ void av1_dist_wtd_convolve_x_c(const uint8_t *src, int src_stride, uint8_t *dst,
                            (1 << (offset_bits - conv_params->round_1 - 1));
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   // horizontal filter
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
@@ -364,7 +379,7 @@ void av1_dist_wtd_convolve_x_c(const uint8_t *src, int src_stride, uint8_t *dst,
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -395,6 +410,11 @@ void av1_dist_wtd_convolve_2d_copy_c(const uint8_t *src, int src_stride,
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   const int round_offset = (1 << (offset_bits - conv_params->round_1)) +
                            (1 << (offset_bits - conv_params->round_1 - 1));
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
@@ -404,7 +424,7 @@ void av1_dist_wtd_convolve_2d_copy_c(const uint8_t *src, int src_stride,
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -442,6 +462,11 @@ void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride, uint8_t *dst,
   const int fo_vert = filter_params_y->taps / 2 - 1;
   const int fo_horiz = filter_params_x->taps / 2 - 1;
   const int bd = 8;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   // horizontal filter
   const uint8_t *src_horiz = src - fo_vert * src_stride;
@@ -485,7 +510,7 @@ void av1_convolve_2d_scale_c(const uint8_t *src, int src_stride, uint8_t *dst,
         if (conv_params->do_average) {
           int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-          if (conv_params->use_dist_wtd_comp_avg) {
+          if (use_wtd_comp_avg) {
             tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
             tmp = tmp >> DIST_PRECISION_BITS;
           } else {
@@ -761,6 +786,11 @@ void av1_highbd_dist_wtd_convolve_2d_c(
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   assert(round_bits >= 0);
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   // horizontal filter
   const uint16_t *src_horiz = src - fo_vert * src_stride;
@@ -795,7 +825,7 @@ void av1_highbd_dist_wtd_convolve_2d_c(
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -831,8 +861,14 @@ void av1_highbd_dist_wtd_convolve_x_c(const uint16_t *src, int src_stride,
                            (1 << (offset_bits - conv_params->round_1 - 1));
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   assert(round_bits >= 0);
   assert(bits >= 0);
+
   // horizontal filter
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
       filter_params_x, subpel_x_qn & SUBPEL_MASK);
@@ -848,7 +884,7 @@ void av1_highbd_dist_wtd_convolve_x_c(const uint16_t *src, int src_stride,
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -883,6 +919,11 @@ void av1_highbd_dist_wtd_convolve_y_c(const uint16_t *src, int src_stride,
                            (1 << (offset_bits - conv_params->round_1 - 1));
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   assert(round_bits >= 0);
   assert(bits >= 0);
   // vertical filter
@@ -900,7 +941,7 @@ void av1_highbd_dist_wtd_convolve_y_c(const uint16_t *src, int src_stride,
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -932,6 +973,11 @@ void av1_highbd_dist_wtd_convolve_2d_copy_c(const uint16_t *src, int src_stride,
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   const int round_offset = (1 << (offset_bits - conv_params->round_1)) +
                            (1 << (offset_bits - conv_params->round_1 - 1));
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   assert(bits >= 0);
 
   for (int y = 0; y < h; ++y) {
@@ -941,7 +987,7 @@ void av1_highbd_dist_wtd_convolve_2d_copy_c(const uint16_t *src, int src_stride,
       if (conv_params->do_average) {
         int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
           tmp = tmp >> DIST_PRECISION_BITS;
         } else {
@@ -978,6 +1024,11 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
   const int dst16_stride = conv_params->dst_stride;
   const int bits =
       FILTER_BITS * 2 - conv_params->round_0 - conv_params->round_1;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   assert(bits >= 0);
   // horizontal filter
   const uint16_t *src_horiz = src - fo_vert * src_stride;
@@ -1021,7 +1072,7 @@ void av1_highbd_convolve_2d_scale_c(const uint16_t *src, int src_stride,
         if (conv_params->do_average) {
           int32_t tmp = dst16[y * dst16_stride + x];
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-          if (conv_params->use_dist_wtd_comp_avg) {
+          if (use_wtd_comp_avg) {
             tmp = tmp * conv_params->fwd_offset + res * conv_params->bck_offset;
             tmp = tmp >> DIST_PRECISION_BITS;
           } else {

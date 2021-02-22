@@ -334,6 +334,9 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
   const int w1 = conv_params->bck_offset;
   const __m128i wt0 = _mm_set1_epi32(w0);
   const __m128i wt1 = _mm_set1_epi32(w1);
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
   /* Note: For this code to work, the left/right frame borders need to be
@@ -548,7 +551,7 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
             __m128i p_32 = _mm_cvtepu16_epi32(_mm_loadl_epi64(p));
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-            if (conv_params->use_dist_wtd_comp_avg) {
+            if (use_wtd_comp_avg) {
               res_lo = _mm_add_epi32(_mm_mullo_epi32(p_32, wt0),
                                      _mm_mullo_epi32(res_lo, wt1));
               res_lo = _mm_srai_epi32(res_lo, DIST_PRECISION_BITS);
@@ -585,7 +588,7 @@ void av1_highbd_warp_affine_sse4_1(const int32_t *mat, const uint16_t *ref,
               __m128i p4_32 = _mm_cvtepu16_epi32(_mm_loadl_epi64(p4));
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-              if (conv_params->use_dist_wtd_comp_avg) {
+              if (use_wtd_comp_avg) {
                 res_hi = _mm_add_epi32(_mm_mullo_epi32(p4_32, wt0),
                                        _mm_mullo_epi32(res_hi, wt1));
                 res_hi = _mm_srai_epi32(res_hi, DIST_PRECISION_BITS);

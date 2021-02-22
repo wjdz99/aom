@@ -338,6 +338,11 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   (void)max_bits_horiz;
   assert(IMPLIES(conv_params->is_compound, conv_params->dst != NULL));
 
@@ -414,7 +419,7 @@ void av1_highbd_warp_affine_c(const int32_t *mat, const uint16_t *ref,
                   &pred[(i - p_row + k + 4) * p_stride + (j - p_col + l + 4)];
               int32_t tmp32 = *p;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-              if (conv_params->use_dist_wtd_comp_avg) {
+              if (use_wtd_comp_avg) {
                 tmp32 = tmp32 * conv_params->fwd_offset +
                         sum * conv_params->bck_offset;
                 tmp32 = tmp32 >> DIST_PRECISION_BITS;
@@ -611,6 +616,11 @@ void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   (void)max_bits_horiz;
   assert(IMPLIES(conv_params->is_compound, conv_params->dst != NULL));
   assert(IMPLIES(conv_params->do_average, conv_params->is_compound));
@@ -694,7 +704,7 @@ void av1_warp_affine_c(const int32_t *mat, const uint8_t *ref, int width,
                   &pred[(i - p_row + k + 4) * p_stride + (j - p_col + l + 4)];
               int32_t tmp32 = *p;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-              if (conv_params->use_dist_wtd_comp_avg) {
+              if (use_wtd_comp_avg) {
                 tmp32 = tmp32 * conv_params->fwd_offset +
                         sum * conv_params->bck_offset;
                 tmp32 = tmp32 >> DIST_PRECISION_BITS;

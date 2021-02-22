@@ -34,7 +34,9 @@ void av1_highbd_dist_wtd_convolve_2d_copy_sse4_1(const uint16_t *src,
   const __m128i left_shift = _mm_cvtsi32_si128(bits);
   const int do_average = conv_params->do_average;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  const int use_dist_wtd_comp_avg = conv_params->use_dist_wtd_comp_avg;
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
   const int w0 = conv_params->fwd_offset;
   const int w1 = conv_params->bck_offset;
   const __m128i wt0 = _mm_set1_epi32(w0);
@@ -42,7 +44,7 @@ void av1_highbd_dist_wtd_convolve_2d_copy_sse4_1(const uint16_t *src,
 #else
   const __m128i wt0 = _mm_set1_epi32(1 << (DIST_PRECISION_BITS - 1));
   const __m128i wt1 = _mm_set1_epi32(1 << (DIST_PRECISION_BITS - 1));
-  const int use_dist_wtd_comp_avg = 0;
+  const int use_wtd_comp_avg = 0;
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   const __m128i zero = _mm_setzero_si128();
   int i, j;
@@ -77,17 +79,15 @@ void av1_highbd_dist_wtd_convolve_2d_copy_sse4_1(const uint16_t *src,
           const __m128i res_unsigned_lo =
               _mm_add_epi32(res_32b_lo, offset_const);
 
-          const __m128i comp_avg_res_lo =
-              highbd_comp_avg_sse4_1(&data_ref_0_lo, &res_unsigned_lo, &wt0,
-                                     &wt1, use_dist_wtd_comp_avg);
+          const __m128i comp_avg_res_lo = highbd_comp_avg_sse4_1(
+              &data_ref_0_lo, &res_unsigned_lo, &wt0, &wt1, use_wtd_comp_avg);
 
           const __m128i res_32b_hi = _mm_unpackhi_epi16(res, zero);
           const __m128i res_unsigned_hi =
               _mm_add_epi32(res_32b_hi, offset_const);
 
-          const __m128i comp_avg_res_hi =
-              highbd_comp_avg_sse4_1(&data_ref_0_hi, &res_unsigned_hi, &wt0,
-                                     &wt1, use_dist_wtd_comp_avg);
+          const __m128i comp_avg_res_hi = highbd_comp_avg_sse4_1(
+              &data_ref_0_hi, &res_unsigned_hi, &wt0, &wt1, use_wtd_comp_avg);
 
           const __m128i round_result_lo = highbd_convolve_rounding_sse2(
               &comp_avg_res_lo, &offset_const, &rounding_const, rounding_shift);
@@ -136,9 +136,9 @@ void av1_highbd_dist_wtd_convolve_2d_copy_sse4_1(const uint16_t *src,
               _mm_add_epi32(res_32b_hi, offset_const);
 
           const __m128i comp_avg_res_lo = highbd_comp_avg_sse4_1(
-              &data_ref_0, &res_unsigned_lo, &wt0, &wt1, use_dist_wtd_comp_avg);
+              &data_ref_0, &res_unsigned_lo, &wt0, &wt1, use_wtd_comp_avg);
           const __m128i comp_avg_res_hi = highbd_comp_avg_sse4_1(
-              &data_ref_1, &res_unsigned_hi, &wt0, &wt1, use_dist_wtd_comp_avg);
+              &data_ref_1, &res_unsigned_hi, &wt0, &wt1, use_wtd_comp_avg);
 
           const __m128i round_result_lo = highbd_convolve_rounding_sse2(
               &comp_avg_res_lo, &offset_const, &rounding_const, rounding_shift);
@@ -184,13 +184,15 @@ void av1_highbd_dist_wtd_convolve_2d_sse4_1(
   int i, j;
   const int do_average = conv_params->do_average;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  const int use_dist_wtd_comp_avg = conv_params->use_dist_wtd_comp_avg;
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
   const int w0 = conv_params->fwd_offset;
   const int w1 = conv_params->bck_offset;
   const __m128i wt0 = _mm_set1_epi32(w0);
   const __m128i wt1 = _mm_set1_epi32(w1);
 #else
-  const int use_dist_wtd_comp_avg = 0;
+  const int use_wtd_comp_avg = 0;
   const __m128i wt0 = _mm_set1_epi32(1 << (DIST_PRECISION_BITS - 1));
   const __m128i wt1 = _mm_set1_epi32(1 << (DIST_PRECISION_BITS - 1));
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
@@ -368,9 +370,8 @@ void av1_highbd_dist_wtd_convolve_2d_sse4_1(
 
             const __m128i data_ref_0 = _mm_cvtepu16_epi32(data_0);
 
-            const __m128i comp_avg_res =
-                highbd_comp_avg_sse4_1(&data_ref_0, &res_unsigned_lo, &wt0,
-                                       &wt1, use_dist_wtd_comp_avg);
+            const __m128i comp_avg_res = highbd_comp_avg_sse4_1(
+                &data_ref_0, &res_unsigned_lo, &wt0, &wt1, use_wtd_comp_avg);
 
             const __m128i round_result = highbd_convolve_rounding_sse2(
                 &comp_avg_res, &offset_const, &rounding_const, rounding_shift);
@@ -401,12 +402,10 @@ void av1_highbd_dist_wtd_convolve_2d_sse4_1(
             const __m128i data_ref_0_lo = _mm_cvtepu16_epi32(data_lo);
             const __m128i data_ref_0_hi = _mm_cvtepu16_epi32(data_hi);
 
-            const __m128i comp_avg_res_lo =
-                highbd_comp_avg_sse4_1(&data_ref_0_lo, &res_unsigned_lo, &wt0,
-                                       &wt1, use_dist_wtd_comp_avg);
-            const __m128i comp_avg_res_hi =
-                highbd_comp_avg_sse4_1(&data_ref_0_hi, &res_unsigned_hi, &wt0,
-                                       &wt1, use_dist_wtd_comp_avg);
+            const __m128i comp_avg_res_lo = highbd_comp_avg_sse4_1(
+                &data_ref_0_lo, &res_unsigned_lo, &wt0, &wt1, use_wtd_comp_avg);
+            const __m128i comp_avg_res_hi = highbd_comp_avg_sse4_1(
+                &data_ref_0_hi, &res_unsigned_hi, &wt0, &wt1, use_wtd_comp_avg);
 
             const __m128i round_result_lo =
                 highbd_convolve_rounding_sse2(&comp_avg_res_lo, &offset_const,

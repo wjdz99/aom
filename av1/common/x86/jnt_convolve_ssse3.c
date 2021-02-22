@@ -34,13 +34,15 @@ void av1_dist_wtd_convolve_2d_ssse3(
   const int fo_horiz = filter_params_x->taps / 2 - 1;
   const int do_average = conv_params->do_average;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  const int use_dist_wtd_comp_avg = conv_params->use_dist_wtd_comp_avg;
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
   const int w0 = conv_params->fwd_offset;
   const int w1 = conv_params->bck_offset;
   const __m128i wt0 = _mm_set1_epi16(w0);
   const __m128i wt1 = _mm_set1_epi16(w1);
 #else
-  const int use_dist_wtd_comp_avg = 0;
+  const int use_wtd_comp_avg = 0;
   const __m128i wt0 = _mm_set1_epi16(1 << (DIST_PRECISION_BITS - 1));
   const __m128i wt1 = _mm_set1_epi16(1 << (DIST_PRECISION_BITS - 1));
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
@@ -216,7 +218,7 @@ void av1_dist_wtd_convolve_2d_ssse3(
               _mm_loadu_si128((__m128i *)(&dst[i * dst_stride + j]));
 
           const __m128i comp_avg_res =
-              comp_avg(&data_ref_0, &res_unsigned, &wt, use_dist_wtd_comp_avg);
+              comp_avg(&data_ref_0, &res_unsigned, &wt, use_wtd_comp_avg);
 
           const __m128i round_result = convolve_rounding(
               &comp_avg_res, &offset_const, &rounding_const, rounding_shift);

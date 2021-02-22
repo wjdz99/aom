@@ -590,6 +590,11 @@ static INLINE void store_vertical_filter_output(
     uint8_t *pred, ConvolveParams *conv_params, int i, int j, int k,
     const int reduce_bits_vert, int p_stride, int p_width,
     const int round_bits) {
+#if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   (void)wt;
   __m128i res_lo_1 = *res_lo;
   __m128i res_hi_1 = *res_hi;
@@ -606,7 +611,7 @@ static INLINE void store_vertical_filter_output(
       const __m128i p_16 = _mm_loadl_epi64(p);
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-      if (conv_params->use_dist_wtd_comp_avg) {
+      if (use_wtd_comp_avg) {
         const __m128i p_16_lo = _mm_unpacklo_epi16(p_16, temp_lo_16);
         const __m128i wt_res_lo = _mm_madd_epi16(p_16_lo, *wt);
         const __m128i shifted_32 =
@@ -643,7 +648,7 @@ static INLINE void store_vertical_filter_output(
         const __m128i p4_16 = _mm_loadl_epi64(p4);
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-        if (conv_params->use_dist_wtd_comp_avg) {
+        if (use_wtd_comp_avg) {
           const __m128i p_16_hi = _mm_unpacklo_epi16(p4_16, temp_hi_16);
           const __m128i wt_res_hi = _mm_madd_epi16(p_16_hi, *wt);
           const __m128i shifted_32 =

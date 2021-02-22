@@ -50,6 +50,9 @@ void av1_highbd_warp_affine_avx2(const int32_t *mat, const uint16_t *ref,
   __m256i round_bits_const = _mm256_set1_epi32(((1 << round_bits) >> 1));
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
+  const int use_wtd_comp_avg =
+      (conv_params->fwd_offset != (1 << (DIST_PRECISION_BITS - 1)) ||
+       conv_params->bck_offset != (1 << (DIST_PRECISION_BITS - 1)));
   const int w0 = conv_params->fwd_offset;
   const int w1 = conv_params->bck_offset;
   const __m256i wt0 = _mm256_set1_epi32(w0);
@@ -608,7 +611,7 @@ void av1_highbd_warp_affine_avx2(const int32_t *mat, const uint16_t *ref,
             __m256i p_32 = _mm256_cvtepu16_epi32(_mm_loadu_si128(p));
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-            if (conv_params->use_dist_wtd_comp_avg) {
+            if (use_wtd_comp_avg) {
               v_sum = _mm256_add_epi32(_mm256_mullo_epi32(p_32, wt0),
                                        _mm256_mullo_epi32(v_sum, wt1));
               v_sum = _mm256_srai_epi32(v_sum, DIST_PRECISION_BITS);
