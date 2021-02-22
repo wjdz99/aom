@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5973fedf_6b498229",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-22T18:31:38Z",
+      "side": 1,
+      "message": "the complier complained about left shift of negative numbers, although in practice the operating range is small enough to avoid changing the sign.\n\nThe scale doesn\u0027t matter as we compares the same transform block size.",
+      "parentUuid": "a95b99d3_4019b311",
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dccadbdc_dd38adf3",
         "filename": "av1/encoder/intra_mode_search_utils.h",
         "patchSetId": 9
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d28b196b_ca843960",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-22T18:31:38Z",
+      "side": 1,
+      "message": "this might be useful to add, but need some parameter tuning to find the proper ratio between mode_cost and satd.",
+      "parentUuid": "dccadbdc_dd38adf3",
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c5efe0e3_9305a51a",
         "filename": "av1/encoder/intra_mode_search_utils.h",
         "patchSetId": 9
@@ -65,6 +101,24 @@
       "writtenOn": "2021-02-22T18:22:33Z",
       "side": 1,
       "message": "The switch statement you added (at lines 415-429) implies bsize must be a square block. Is this true?\n\nIf this is true, it would be good to document the square-block assumption. Also, that means the table lookups below just need to look up the widths because the heights must be the same.",
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "806aa37f_a56b5895",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-22T18:31:38Z",
+      "side": 1,
+      "message": "Yes, as we only have square Hadamard transforms implemented. Probably sufficient for the performance per se.",
+      "parentUuid": "c5efe0e3_9305a51a",
       "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -94,6 +148,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "72390c2a_7e1aec09",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-22T18:31:38Z",
+      "side": 1,
+      "message": "Right, this should be pd-\u003edst.stride for safe. I will fix this.",
+      "parentUuid": "cdc70c62_1175c0dd",
+      "range": {
+        "startLine": 414,
+        "startChar": 33,
+        "endLine": 414,
+        "endChar": 46
+      },
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e4ca7f3c_5121eb7a",
         "filename": "av1/encoder/intra_mode_search_utils.h",
         "patchSetId": 9
@@ -105,6 +183,30 @@
       "writtenOn": "2021-02-22T18:22:33Z",
       "side": 1,
       "message": "IMPORTANT: Change 1.5 to 1.25 to reflect the new code: *best_model_rd + (*best_model_rd \u003e\u003e 2)",
+      "range": {
+        "startLine": 443,
+        "startChar": 35,
+        "endLine": 443,
+        "endChar": 38
+      },
+      "revId": "0d6b23c939ae38bceba1e41e1951be353842ba33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "646398de_ee686744",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-22T18:31:38Z",
+      "side": 1,
+      "message": "will update the comment.",
+      "parentUuid": "e4ca7f3c_5121eb7a",
       "range": {
         "startLine": 443,
         "startChar": 35,
