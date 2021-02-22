@@ -34,6 +34,24 @@
       "parentUuid": "81f46bc8_11d0d680",
       "revId": "86387441837c47d444be1a2afc76f2c93f59043c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db8471f6_3e5f930a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-02-22T18:47:07Z",
+      "side": 1,
+      "message": "Yes, I\u0027d suggest keeping just one patch in research-quant for now, and abandoning the other.",
+      "parentUuid": "cbd00041_e132149b",
+      "revId": "86387441837c47d444be1a2afc76f2c93f59043c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
