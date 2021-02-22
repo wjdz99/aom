@@ -1020,6 +1020,22 @@ static const int av1_ext_tx_used[EXT_TX_SET_TYPES][TX_TYPES] = {
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 };
 
+static const uint16_t av1_derived_intra_tx_used_flag[INTRA_MODES] = {
+  0x0209,  // DC_PRED:       0000 0010 0000 1001
+  0x0403,  // V_PRED:        0000 0100 0000 0011
+  0x0805,  // H_PRED:        0000 1000 0000 0101
+  0x020F,  // D45_PRED:      0000 0010 0000 1111
+  0x0009,  // D135_PRED:     0000 0000 0000 1001
+  0x0009,  // D113_PRED:     0000 0000 0000 1001
+  0x0009,  // D157_PRED:     0000 0000 0000 1001
+  0x0805,  // D203_PRED:     0000 1000 0000 0101
+  0x0403,  // D67_PRED:      0000 0100 0000 0011
+  0x0205,  // SMOOTH_PRED:   0000 0010 0000 1001
+  0x0403,  // SMOOTH_V_PRED: 0000 0100 0000 0011
+  0x0805,  // SMOOTH_H_PRED: 0000 1000 0000 0101
+  0x0209,  // PAETH_PRED:    0000 0010 0000 1001
+};
+
 static const uint16_t av1_reduced_intra_tx_used_flag[INTRA_MODES] = {
   0x080F,  // DC_PRED:       0000 1000 0000 1111
   0x040F,  // V_PRED:        0000 0100 0000 1111
