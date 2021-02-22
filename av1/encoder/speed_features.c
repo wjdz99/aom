@@ -799,6 +799,7 @@ static void set_good_speed_features_framesize_independent(
     sf->mv_sf.auto_mv_step_size = 1;
     sf->mv_sf.simple_motion_subpel_force_stop = QUARTER_PEL;
     sf->mv_sf.subpel_iters_per_step = 1;
+    sf->mv_sf.disable_second_mv = 1;
 
     // TODO(chiyotsai@google.com): We can get 10% speed up if we move
     // adaptive_rd_thresh to speed 1. But currently it performs poorly on some
@@ -855,7 +856,7 @@ static void set_good_speed_features_framesize_independent(
     sf->mv_sf.full_pixel_search_level = 1;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
     sf->mv_sf.search_method = DIAMOND;
-    sf->mv_sf.disable_second_mv = 1;
+    sf->mv_sf.disable_second_mv = 2;
 
     sf->inter_sf.mv_cost_upd_level = 1;
     sf->inter_sf.disable_onesided_comp = 1;
