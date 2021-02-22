@@ -16,6 +16,24 @@
       "message": "historically this was deferred because the instruction was costly so each call of block-wise assembly, etc. would be impacted.",
       "revId": "29eca5d3913c6594f6fd6c5c7a9f5c641eed0339",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b76879ff_18b8aaad",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-02-22T22:55:18Z",
+      "side": 1,
+      "message": "That makes sense.\nNowadays I don\u0027t think the instruction has a high overhead. I\u0027ve tested versions with and without the emms instruction, and I did not observe encoding speed difference.\nThe fact that it\u0027s only used for a single function likely helped as well.\n\nInterestingly, I also tried to migrate the MMX codes to SSE2 and ditch the emms, but the result is quite a bit slower.",
+      "parentUuid": "fda9c0dc_95b063fe",
+      "revId": "29eca5d3913c6594f6fd6c5c7a9f5c641eed0339",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
