@@ -339,21 +339,6 @@ static AOM_INLINE void alloc_util_frame_buffers(AV1_COMP *cpi) {
       aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                          "Failed to allocate trial restored frame buffer");
   }
-
-  if (aom_realloc_frame_buffer(
-          &cpi->scaled_source, cm->width, cm->height, seq_params->subsampling_x,
-          seq_params->subsampling_y, seq_params->use_highbitdepth,
-          cpi->oxcf.border_in_pixels, byte_alignment, NULL, NULL, NULL))
-    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
-                       "Failed to allocate scaled source buffer");
-
-  if (aom_realloc_frame_buffer(
-          &cpi->scaled_last_source, cm->width, cm->height,
-          seq_params->subsampling_x, seq_params->subsampling_y,
-          seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
-          byte_alignment, NULL, NULL, NULL))
-    aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
-                       "Failed to allocate scaled last source buffer");
 }
 
 static AOM_INLINE YV12_BUFFER_CONFIG *realloc_and_scale_source(
