@@ -70,7 +70,7 @@ typedef struct PC_TREE {
   PARTITION_TYPE partitioning;
   BLOCK_SIZE block_size;
   PICK_MODE_CONTEXT *none;
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   struct PC_TREE *horizontal[2];
   struct PC_TREE *vertical[2];
   struct PC_TREE *horizontal3[3];
@@ -84,7 +84,7 @@ typedef struct PC_TREE {
   PICK_MODE_CONTEXT *verticalb[3];
   PICK_MODE_CONTEXT *horizontal4[4];
   PICK_MODE_CONTEXT *vertical4[4];
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
   struct PC_TREE *split[4];
   struct PC_TREE *parent;
   int mi_row;
@@ -108,9 +108,9 @@ typedef struct SIMPLE_MOTION_DATA_TREE {
   int sms_rect_valid;
 } SIMPLE_MOTION_DATA_TREE;
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 PC_TREE *av1_look_for_counterpart_block(PC_TREE *pc_tree);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 void av1_setup_shared_coeff_buffer(AV1_COMMON *cm,
                                    PC_TREE_SHARED_BUFFERS *shared_bufs);
@@ -123,12 +123,12 @@ PC_TREE *av1_alloc_pc_tree_node(int mi_row, int mi_col, BLOCK_SIZE bsize,
                                 int subsampling_y);
 void av1_free_pc_tree_recursive(PC_TREE *tree, int num_planes, int keep_best,
                                 int keep_none);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 void av1_copy_pc_tree_recursive(const AV1_COMMON *cm, PC_TREE *dst,
                                 PC_TREE *src, int ss_x, int ss_y,
                                 PC_TREE_SHARED_BUFFERS *shared_bufs,
                                 int num_planes);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 PICK_MODE_CONTEXT *av1_alloc_pmc(const AV1_COMMON *cm, int mi_row, int mi_col,
                                  BLOCK_SIZE bsize, PC_TREE *parent,
@@ -142,10 +142,10 @@ void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
 
 void av1_setup_sms_tree(struct AV1Common *cm, struct ThreadData *td);
 void av1_free_sms_tree(struct ThreadData *td);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 void av1_setup_sms_bufs(struct AV1Common *cm, struct ThreadData *td);
 void av1_free_sms_bufs(struct ThreadData *td);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -2132,15 +2132,15 @@ static void write_partition(const AV1_COMMON *const cm,
 
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   if (is_square_block(bsize)) {
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
     const int hbs_w = mi_size_wide[bsize] / 2;
     const int hbs_h = mi_size_high[bsize] / 2;
     const int has_rows = (mi_row + hbs_h) < cm->mi_rows;
     const int has_cols = (mi_col + hbs_w) < cm->mi_cols;
 
-#if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#if CONFIG_ERP && !KEEP_PARTITION_SPLIT
     if (has_rows && has_cols) {
       aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx],
                        partition_cdf_length(bsize));
@@ -2153,7 +2153,7 @@ static void write_partition(const AV1_COMMON *const cm,
       aom_cdf_prob cdf[2] = { 16384, AOM_ICDF(CDF_PROB_TOP) };
       aom_write_cdf(w, p == PARTITION_VERT, cdf, 2);
     }
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else   // CONFIG_ERP && !KEEP_PARTITION_SPLIT
   if (!has_rows && !has_cols) {
     assert(p == PARTITION_SPLIT);
     return;
@@ -2176,15 +2176,15 @@ static void write_partition(const AV1_COMMON *const cm,
     partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
     aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_SPLIT_PARTITION
-#if CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP && !KEEP_SPLIT_PARTITION
+#if CONFIG_ERP
   } else {  // 1:2 or 2:1 rectangular blocks
     const PARTITION_TYPE_REC symbol =
         get_symbol_from_partition_rec_block(bsize, p);
     aom_write_symbol(w, symbol, ec_ctx->partition_rec_cdf[ctx],
                      partition_rec_cdf_length(bsize));
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 }
 
 static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
@@ -2243,28 +2243,28 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
       break;
     case PARTITION_HORZ:
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
       write_modes_sb(cpi, tile, w, tok, tok_end, ptree->sub_tree[0], mi_row,
                      mi_col, subsize);
       if (mi_row + hbs_h < cm->mi_rows) {
         write_modes_sb(cpi, tile, w, tok, tok_end, ptree->sub_tree[1],
                        mi_row + hbs_h, mi_col, subsize);
       }
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else   // CONFIG_ERP
       write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
       if (mi_row + hbs_h < cm->mi_rows)
         write_modes_b(cpi, tile, w, tok, tok_end, mi_row + hbs_h, mi_col);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
       break;
     case PARTITION_VERT:
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
       write_modes_sb(cpi, tile, w, tok, tok_end, ptree->sub_tree[0], mi_row,
                      mi_col, subsize);
       if (mi_col + hbs_w < cm->mi_cols) {
         write_modes_sb(cpi, tile, w, tok, tok_end, ptree->sub_tree[1], mi_row,
                        mi_col + hbs_w, subsize);
       }
-#else  // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_ERP
       write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col);
       if (mi_col + hbs_w < cm->mi_cols)
         write_modes_b(cpi, tile, w, tok, tok_end, mi_row, mi_col + hbs_w);
@@ -2280,7 +2280,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
       write_modes_sb(cpi, tile, w, tok, tok_end, ptree->sub_tree[3],
                      mi_row + hbs_h, mi_col + hbs_w, subsize);
       break;
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
     case PARTITION_HORZ_3:
       write_modes_sb(cpi, tile, w, tok, tok_end, ptree->sub_tree[0], mi_row,
                      mi_col, subsize);
@@ -2340,7 +2340,7 @@ static void write_modes_sb(AV1_COMP *const cpi, const TileInfo *const tile,
         write_modes_b(cpi, tile, w, tok, tok_end, mi_row, this_mi_col);
       }
       break;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
     default: assert(0); break;
   }
 

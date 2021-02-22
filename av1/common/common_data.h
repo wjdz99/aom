@@ -89,7 +89,7 @@ static const uint8_t num_pels_log2_lookup[BLOCK_SIZES_ALL] = {
 #endif  // CONFIG_FLEX_PARTITION
 };
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 static const PARTITION_TYPE
     partition_map_from_symbol_block_wgth[PARTITION_TYPES_REC] = {
       PARTITION_NONE,   PARTITION_VERT, PARTITION_VERT_3, PARTITION_HORZ,
@@ -246,7 +246,7 @@ static const BLOCK_SIZE
 #endif  // !KEEP_PARTITION_SPLIT
   },
 };
-#else  // CONFIG_EXT_RECUR_PARTITIONS
+#else  // CONFIG_ERP
 /* clang-format off */
 // A compressed version of the Partition_Subsize table in the spec (9.3.
 // Conversion tables), for square block sizes only.
@@ -283,7 +283,7 @@ static const BLOCK_SIZE subsize_lookup[EXT_PARTITION_TYPES][SQR_BLOCK_SIZES] = {
     BLOCK_8X32, BLOCK_16X64, BLOCK_INVALID
   }
 };
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 static const TX_SIZE max_txsize_lookup[BLOCK_SIZES_ALL] = {
   //                   4X4

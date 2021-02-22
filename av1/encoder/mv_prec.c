@@ -358,7 +358,7 @@ static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
       collect_mv_stats_sb(mv_stats, cpi, mi_row + hbs, mi_col, subsize);
       collect_mv_stats_sb(mv_stats, cpi, mi_row + hbs, mi_col + hbs, subsize);
       break;
-#if !CONFIG_EXT_RECUR_PARTITIONS
+#if !CONFIG_ERP
     case PARTITION_HORZ_A:
       collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
       collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col + hbs);
@@ -379,8 +379,8 @@ static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
       collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col + hbs);
       collect_mv_stats_b(mv_stats, cpi, mi_row + hbs, mi_col + hbs);
       break;
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
-#if CONFIG_EXT_RECUR_PARTITIONS
+#endif  // !CONFIG_ERP
+#if CONFIG_ERP
     case PARTITION_HORZ_3: {
       collect_mv_stats_b(mv_stats, cpi, mi_row, mi_col);
       collect_mv_stats_b(mv_stats, cpi, mi_row + qbs, mi_col);
@@ -406,7 +406,7 @@ static AOM_INLINE void collect_mv_stats_sb(MV_STATS *mv_stats,
         collect_mv_stats_b(mv_stats, cpi, mi_row, this_mi_col);
       }
       break;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
     default: assert(0);
   }
 }

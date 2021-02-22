@@ -37,12 +37,12 @@ void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
   dst_ctx->rd_mode_is_ready = src_ctx->rd_mode_is_ready;
 
   memcpy(dst_ctx->pred_mv, src_ctx->pred_mv, sizeof(MV) * REF_FRAMES);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   for (int i = 0; i < 2; ++i) {
     memcpy(dst_ctx->color_index_map[i], src_ctx->color_index_map[i],
            sizeof(src_ctx->color_index_map[i][0]) * src_ctx->num_4x4_blk * 16);
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 }
 
 void av1_setup_shared_coeff_buffer(AV1_COMMON *cm,
@@ -172,7 +172,7 @@ PC_TREE *av1_alloc_pc_tree_node(int mi_row, int mi_col, BLOCK_SIZE bsize,
     pc_tree->horizontal[i] = NULL;
     pc_tree->vertical[i] = NULL;
   }
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   for (int i = 0; i < 3; ++i) {
     pc_tree->horizontal3[i] = NULL;
     pc_tree->vertical3[i] = NULL;
@@ -184,12 +184,12 @@ PC_TREE *av1_alloc_pc_tree_node(int mi_row, int mi_col, BLOCK_SIZE bsize,
     pc_tree->verticala[i] = NULL;
     pc_tree->verticalb[i] = NULL;
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
   for (int i = 0; i < 4; ++i) {
-#if !CONFIG_EXT_RECUR_PARTITIONS
+#if !CONFIG_ERP
     pc_tree->horizontal4[i] = NULL;
     pc_tree->vertical4[i] = NULL;
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
+#endif  // !CONFIG_ERP
     pc_tree->split[i] = NULL;
   }
 
@@ -212,7 +212,7 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
     FREE_PMC_NODE(pc_tree->none);
 
   for (int i = 0; i < 2; ++i) {
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
     if ((!keep_best || (partition != PARTITION_HORZ)) &&
         pc_tree->horizontal[i] != NULL) {
       av1_free_pc_tree_recursive(pc_tree->horizontal[i], num_planes, 0, 0);
@@ -228,9 +228,9 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
       FREE_PMC_NODE(pc_tree->horizontal[i]);
     if (!keep_best || (partition != PARTITION_VERT))
       FREE_PMC_NODE(pc_tree->vertical[i]);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
   }
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   for (int i = 0; i < 3; ++i) {
     if ((!keep_best || (partition != PARTITION_HORZ_3)) &&
         pc_tree->horizontal3[i] != NULL) {
@@ -260,7 +260,7 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
     if (!keep_best || (partition != PARTITION_VERT_4))
       FREE_PMC_NODE(pc_tree->vertical4[i]);
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   if (!keep_best || (partition != PARTITION_SPLIT)) {
     for (int i = 0; i < 4; ++i) {
@@ -275,7 +275,7 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
   if (!keep_best && !keep_none) aom_free(pc_tree);
 }
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 void av1_copy_pc_tree_recursive(const AV1_COMMON *cm, PC_TREE *dst,
                                 PC_TREE *src, int ss_x, int ss_y,
                                 PC_TREE_SHARED_BUFFERS *shared_bufs,
@@ -411,7 +411,7 @@ void av1_copy_pc_tree_recursive(const AV1_COMMON *cm, PC_TREE *dst,
     default: assert(0 && "Not a valid partition."); break;
   }
 }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 void av1_setup_sms_tree(AV1_COMMON *cm, ThreadData *td) {
   const int tree_nodes_inc = 1024;
@@ -460,7 +460,7 @@ void av1_free_sms_tree(ThreadData *td) {
   }
 }
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 void av1_setup_sms_bufs(AV1_COMMON *cm, ThreadData *td) {
   CHECK_MEM_ERROR(cm, td->sms_bufs, aom_malloc(sizeof(*td->sms_bufs)));
 }
@@ -523,4 +523,4 @@ PC_TREE *av1_look_for_counterpart_block(PC_TREE *pc_tree) {
   // Search from the highest common ancester
   return counterpart_from_different_partition(current, pc_tree);
 }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP

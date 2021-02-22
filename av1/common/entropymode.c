@@ -344,7 +344,7 @@ static const aom_cdf_prob
     };
 #endif  // !CONFIG_INTRA_ENTROPY
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 #if KEEP_PARTITION_SPLIT
 static const aom_cdf_prob
     default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(EXT_PARTITION_TYPES)] = {
@@ -404,7 +404,7 @@ static const aom_cdf_prob
       { AOM_CDF3(1736, 12989) },
     };
 #endif  // KEEP_PARTITION_SPLIT
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else   // CONFIG_ERP
 static const aom_cdf_prob default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(
     EXT_PARTITION_TYPES)] = {
   { AOM_CDF4(19132, 25510, 30392) },
@@ -428,9 +428,9 @@ static const aom_cdf_prob default_partition_cdf[PARTITION_CONTEXTS][CDF_SIZE(
   { AOM_CDF8(5429, 6676, 7122, 32027, 32227, 32531, 32582) },
   { AOM_CDF8(711, 966, 1172, 32448, 32538, 32617, 32664) },
 };
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 static const aom_cdf_prob
     default_partition_rec_cdf[PARTITION_CONTEXTS_REC]
                              [CDF_SIZE(PARTITION_TYPES_REC)] = {
@@ -505,7 +505,7 @@ static const aom_cdf_prob
                                { AOM_CDF3(10676, 22283) },
 #endif  // CONFIG_FLEX_PARTITION
                              };
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 #if CONFIG_MODE_DEP_INTRA_TX || CONFIG_MODE_DEP_INTER_TX
 static const aom_cdf_prob default_intra_ext_tx_cdf
@@ -2095,9 +2095,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->pb_mv_precision_cdf, default_pb_mv_precision_cdf);
 #endif  // CONFIG_FLEX_MVRES
   av1_copy(fc->partition_cdf, default_partition_cdf);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   av1_copy(fc->partition_rec_cdf, default_partition_rec_cdf);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
   av1_copy(fc->intra_ext_tx_cdf, default_intra_ext_tx_cdf);
   av1_copy(fc->inter_ext_tx_cdf, default_inter_ext_tx_cdf);
 #if CONFIG_MODE_DEP_INTER_TX

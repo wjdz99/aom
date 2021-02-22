@@ -1334,17 +1334,17 @@ static void build_inter_predictors_sub8x8(
     int col = col_start;
     for (int x = 0; x < b8_w; x += b4_w) {
       MB_MODE_INFO *this_mbmi = xd->mi[row * xd->mi_stride + col];
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
       // TODO(yuec): enabling compound prediction in none sub8x8 mbs in the
       // group
       bool is_compound = 0;
 #else
       bool is_compound = has_second_ref(this_mbmi);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
       const int tmp_dst_stride = 8;
-#if !CONFIG_EXT_RECUR_PARTITIONS
+#if !CONFIG_ERP
       assert(bw < 8 || bh < 8);
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
+#endif  // !CONFIG_ERP
       ConvolveParams conv_params = get_conv_params_no_round(
           0, plane, xd->tmp_conv_dst, tmp_dst_stride, is_compound, xd->bd);
       conv_params.use_dist_wtd_comp_avg = 0;

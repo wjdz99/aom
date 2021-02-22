@@ -222,7 +222,7 @@ enum {
   MV_COST_NONE        // Use 0 as as cost irrespective of the current mv
 } UENUM1BYTE(MV_COST_TYPE);
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 #define kSMSMaxStartMVs 1
 typedef struct SimpleMotionData {
   MV mv_ref;
@@ -312,7 +312,7 @@ typedef struct SimpleMotionDataBufs {
 } SimpleMotionDataBufs;
 
 #undef MAKE_SM_DATA_BUF
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 struct inter_modes_info;
 typedef struct macroblock MACROBLOCK;
@@ -536,9 +536,9 @@ struct macroblock {
 #endif  // DISALLOW_ONE_DOWN_FLEX_MVRES
 #endif  // CONFIG_FLEX_MVRES
   int partition_cost[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   int partition_rec_cost[PARTITION_CONTEXTS_REC][PARTITION_TYPES_REC];
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
   int palette_y_size_cost[PALATTE_BSIZE_CTXS][PALETTE_SIZES];
   int palette_uv_size_cost[PALATTE_BSIZE_CTXS][PALETTE_SIZES];
   int palette_y_color_cost[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]
@@ -665,7 +665,7 @@ struct macroblock {
   // The type of mv cost used during motion search
   MV_COST_TYPE mv_cost_type;
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   SimpleMotionDataBufs *sms_bufs;
 
   /*! \brief Determines what encoding decision should be reused. */
@@ -673,7 +673,7 @@ struct macroblock {
 
   /*! \brief The mode to reuse during \ref av1_rd_pick_inter_mode_sb. */
   MB_MODE_INFO *inter_mode_cache;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 };
 
 static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
@@ -725,14 +725,14 @@ static INLINE int is_rect_tx_allowed_bsize(BLOCK_SIZE bsize) {
     1,  // BLOCK_16X64
     1,  // BLOCK_64X16
 #endif  // CONFIG_NEW_TX_PARTITION
-#if CONFIG_EXT_RECUR_PARTITIONS && CONFIG_FLEX_PARTITION
+#if CONFIG_ERP && CONFIG_FLEX_PARTITION
     1,  // BLOCK_4X32
     1,  // BLOCK_32X4
     1,  // BLOCK_8X64
     1,  // BLOCK_64X8
     1,  // BLOCK_4X64
     1,  // BLOCK_64X4
-#endif  // CONFIG_EXT_RECUR_PARTITIONS && CONFIG_FLEX_PARTITION
+#endif  // CONFIG_ERP && CONFIG_FLEX_PARTITION
   };
 
   return LUT[bsize];
@@ -804,11 +804,11 @@ static INLINE void av1_validate_interp_filter(const AV1_COMMON *cm,
 }
 #endif  // CONFIG_SKIP_INTERP_FILTER
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 static INLINE int should_reuse_mode(const MACROBLOCK *x, int mode_flag) {
   return x->reuse_inter_mode_cache_type & mode_flag;
 }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS && CONFIG_FLEX_PARTITION
+#endif  // CONFIG_ERP && CONFIG_FLEX_PARTITION
 
 #ifdef __cplusplus
 }  // extern "C"

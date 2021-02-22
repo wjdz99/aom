@@ -80,7 +80,7 @@ typedef struct {
 
   // Array holding partition type cost.
   int tmp_partition_cost[PARTITION_TYPES];
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   int partition_cost_table[EXT_PARTITION_TYPES];
 #endif
 
@@ -95,10 +95,10 @@ typedef struct {
   // rect_part_rd[1][i] is the RD cost of ith partition index of PARTITION_VERT.
   int64_t rect_part_rd[NUM_RECT_PARTS][SUB_PARTITIONS_RECT];
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   // New Simple Motion Result for PARTITION_NONE
   SMSPartitionStats none_data;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   // Flags indicating if the corresponding partition was winner or not.
   // Used to bypass similar blocks during AB partition evaluation.
@@ -109,16 +109,16 @@ typedef struct {
   int terminate_partition_search;
   int partition_none_allowed;
   int partition_rect_allowed[NUM_RECT_PARTS];
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   int partition_3_allowed[NUM_RECT_PARTS];
 #else
   int partition_ab_allowed[NUM_RECT_PARTS][NUM_AB_TYPES];
   int partition_4_allowed[NUM_RECT_PARTS];
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
   int do_rectangular_split;
-#if !(CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT)
+#if !(CONFIG_ERP && !KEEP_PARTITION_SPLIT)
   int do_square_split;
-#endif  // !(CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT)
+#endif  // !(CONFIG_ERP && !KEEP_PARTITION_SPLIT)
   int prune_rect_part[NUM_RECT_PARTS];
 
   // Partition plane context index.
@@ -240,25 +240,25 @@ static INLINE void init_partition_allowed(PartitionSearchState *search_state,
   search_state->terminate_partition_search = 0;
   search_state->partition_none_allowed = has_rows && has_cols;
   search_state->partition_rect_allowed[HORZ] =
-#if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#if CONFIG_ERP && !KEEP_PARTITION_SPLIT
       (has_cols || (!has_rows && !has_cols)) &&
       is_partition_valid(bsize, PARTITION_HORZ) &&
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else   // CONFIG_ERP && !KEEP_PARTITION_SPLIT
       blk_params->has_cols && is_partition_valid(bsize, PARTITION_HORZ) &&
-#endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#endif  // CONFIG_ERP && !KEEP_PARTITION_SPLIT
       cpi->oxcf.enable_rect_partitions && is_chroma_size_valid_horz;
   search_state->partition_rect_allowed[VERT] =
-#if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#if CONFIG_ERP && !KEEP_PARTITION_SPLIT
       (has_rows || (!has_rows && !has_cols)) &&
       is_partition_valid(bsize, PARTITION_VERT) &&
-#else   // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#else   // CONFIG_ERP && !KEEP_PARTITION_SPLIT
       blk_params->has_rows && is_partition_valid(bsize, PARTITION_VERT) &&
-#endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#endif  // CONFIG_ERP && !KEEP_PARTITION_SPLIT
       cpi->oxcf.enable_rect_partitions && is_chroma_size_valid_vert;
-#if !(CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT)
+#if !(CONFIG_ERP && !KEEP_PARTITION_SPLIT)
   search_state->do_square_split =
       search_state->is_block_splittable && is_square_block(bsize);
-#endif  // !(CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT)
+#endif  // !(CONFIG_ERP && !KEEP_PARTITION_SPLIT)
 }
 #endif  // !CONFIG_REALTIME_ONLY
 #ifdef __cplusplus

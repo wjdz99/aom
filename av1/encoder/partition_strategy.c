@@ -23,10 +23,10 @@
 #include "av1/encoder/partition_model_weights.h"
 #include "av1/encoder/partition_cnn_weights.h"
 #endif
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 #include "av1/common/idct.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 #include "av1/encoder/encoder.h"
 
 #include "av1/encoder/partition_search_utils.h"
@@ -853,11 +853,11 @@ static void get_min_bsize(const SIMPLE_MOTION_DATA_TREE *sms_tree, int *min_bw,
       get_min_bsize(sms_tree->split[i], min_bw, min_bh);
     }
   } else {
-#if !CONFIG_EXT_RECUR_PARTITIONS
+#if !CONFIG_ERP
     if (part_type == PARTITION_HORZ_A || part_type == PARTITION_HORZ_B ||
         part_type == PARTITION_VERT_A || part_type == PARTITION_VERT_B)
       part_type = PARTITION_SPLIT;
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
+#endif  // !CONFIG_ERP
     const BLOCK_SIZE subsize = get_partition_subsize(bsize, part_type);
     if (subsize != BLOCK_INVALID) {
       *min_bw = AOMMIN(*min_bw, mi_size_wide_log2[subsize]);
@@ -1209,13 +1209,13 @@ void av1_ml_prune_4_partition(const AV1_COMP *const cpi, MACROBLOCK *const x,
   unsigned int horz_4_source_var[4] = { 0 };
   unsigned int vert_4_source_var[4] = { 0 };
   {
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
     BLOCK_SIZE horz_4_bs = get_partition_subsize(bsize, PARTITION_HORZ_3);
     BLOCK_SIZE vert_4_bs = get_partition_subsize(bsize, PARTITION_VERT_3);
 #else
     BLOCK_SIZE horz_4_bs = get_partition_subsize(bsize, PARTITION_HORZ_4);
     BLOCK_SIZE vert_4_bs = get_partition_subsize(bsize, PARTITION_VERT_4);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
     CHROMA_REF_INFO chr_ref_info = { 1, 0, mi_row, mi_col, bsize, bsize };
     av1_setup_src_planes(x, cpi->source, mi_row, mi_col,
                          av1_num_planes(&cpi->common), &chr_ref_info);
@@ -1359,7 +1359,7 @@ int av1_ml_predict_breakout(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
 }
 #undef FEATURES
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 // Gets the number of sms data in a single dimension
 static INLINE int get_sms_count_from_length(int mi_length) {
   switch (mi_length) {
@@ -1792,7 +1792,7 @@ int av1_prune_new_part(const SMSPartitionStats *old_part,
 
   return old_rd_stat.rdcost < (int)(1.001 * new_rd_stat.rdcost);
 }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 void av1_get_max_min_partition_size(AV1_COMP *cpi, ThreadData *td,
                                     BLOCK_SIZE *max_sq_size,

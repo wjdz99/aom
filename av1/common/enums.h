@@ -167,7 +167,7 @@ typedef enum {
 // 4X4, 8X8, 16X16, 32X32, 64X64, 128X128
 #define SQR_BLOCK_SIZES 6
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 #define KEEP_PARTITION_SPLIT 0
 
 /*! \brief Used with \ref MACROBLOCK::reuse_inter_mode_cache_type to determine
@@ -191,7 +191,7 @@ typedef enum {
 /*! \brief Whether to use simple_motion_search to prune partitions. */
 #define ENABLE_FAST_RECUR_PARTITION 0
 #define USE_EST_TXFM 0
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 //  Block partition types.  R: Recursive
 //
@@ -209,7 +209,7 @@ typedef enum {
 //  |       |     |   |   |     |   |   |     |   |   |
 //  +-------+     +---+---+     +---+---+     +---+---+
 //
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 //  HORZ_3                 VERT_3
 //  +--------------+       +---+------+---+
 //  |              |       |   |      |   |
@@ -225,8 +225,8 @@ typedef enum {
 //  +-----+       | | | |
 //  +-----+       | | | |
 //  +-----+       +-+-+-+
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
-#if CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
+#if CONFIG_ERP
 #if KEEP_PARTITION_SPLIT
 enum {
   PARTITION_NONE,
@@ -252,7 +252,7 @@ enum {
   PARTITION_INVALID = 255
 } UENUM1BYTE(PARTITION_TYPE);
 #endif  // KEEP_PARTITION_SPLIT
-#else   // CONFIG_EXT_RECUR_PARTITIONS
+#else   // CONFIG_ERP
 enum {
   PARTITION_NONE,
   PARTITION_HORZ,
@@ -268,14 +268,14 @@ enum {
   PARTITION_TYPES = PARTITION_SPLIT + 1,
   PARTITION_INVALID = 255
 } UENUM1BYTE(PARTITION_TYPE);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 typedef char PARTITION_CONTEXT;
 #define PARTITION_PLOFFSET 4  // number of probability models per block size
 #define PARTITION_BLOCK_SIZES 5
 #define PARTITION_CONTEXTS (PARTITION_BLOCK_SIZES * PARTITION_PLOFFSET)
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 enum {
   PARTITION_NONE_REC,
   PARTITION_LONG_SIDE_2_REC,
@@ -303,7 +303,7 @@ enum {
 #endif                               // CONFIG_FLEX_PARTITION
 
 #define PARTITION_CONTEXTS_REC (PARTITION_BLOCK_SIZES_REC * PARTITION_PLOFFSET)
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 // block transform size
 enum {

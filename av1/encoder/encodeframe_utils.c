@@ -450,9 +450,9 @@ void av1_init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     init_simple_motion_search_mvs(sms_root);
   }
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   av1_init_sms_data_bufs(x->sms_bufs);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 }
 
 #endif  // !CONFIG_REALTIME_ONLY
@@ -490,9 +490,9 @@ void av1_set_offsets_without_segment_id(const AV1_COMP *const cpi,
   set_plane_n4(xd, bsize, num_planes, chr_ref_info);
 
   // Set up distance of MB to edge of frame in 1/8th pel units.
-#if !CONFIG_EXT_RECUR_PARTITIONS
+#if !CONFIG_ERP
   assert(!(mi_col & (mi_width - 1)) && !(mi_row & (mi_height - 1)));
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
+#endif  // !CONFIG_ERP
   set_mi_row_col(xd, tile, mi_row, mi_height, mi_col, mi_width, cm->mi_rows,
                  cm->mi_cols, chr_ref_info);
 

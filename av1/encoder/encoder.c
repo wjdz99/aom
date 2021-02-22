@@ -585,9 +585,9 @@ static void dealloc_compressor_data(AV1_COMP *cpi) {
 
   av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
   av1_free_sms_tree(&cpi->td);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   av1_free_sms_bufs(&cpi->td);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   aom_free(cpi->td.mb.palette_buffer);
   av1_release_compound_type_rd_buffers(&cpi->td.mb.comp_rd_buffer);
@@ -888,9 +888,9 @@ static void alloc_compressor_data(AV1_COMP *cpi) {
 
   av1_setup_shared_coeff_buffer(&cpi->common, &cpi->td.shared_coeff_buf);
   av1_setup_sms_tree(&cpi->common, &cpi->td);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   av1_setup_sms_bufs(&cpi->common, &cpi->td);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 }
 
 void av1_new_framerate(AV1_COMP *cpi, double framerate) {
@@ -3126,9 +3126,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
                   (int32_t *)aom_memalign(
                       16, MAX_SB_SQUARE * sizeof(*cpi->td.mb.mask_buf)));
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   cpi->td.mb.reuse_inter_mode_cache_type = REUSE_MODE_FLAG;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   av1_set_speed_features_framesize_independent(cpi, oxcf->speed);
   av1_set_speed_features_framesize_dependent(cpi, oxcf->speed);
@@ -3610,9 +3610,9 @@ void av1_remove_compressor(AV1_COMP *cpi) {
       aom_free(thread_data->td->counts);
       av1_free_shared_coeff_buffer(&thread_data->td->shared_coeff_buf);
       av1_free_sms_tree(thread_data->td);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
       av1_free_sms_bufs(thread_data->td);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
       aom_free(thread_data->td);
     }
   }
@@ -4335,9 +4335,9 @@ static int set_size_literal(AV1_COMP *cpi, int width, int height) {
     av1_free_context_buffers(cm);
     av1_free_shared_coeff_buffer(&cpi->td.shared_coeff_buf);
     av1_free_sms_tree(&cpi->td);
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
     av1_free_sms_bufs(&cpi->td);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
     alloc_compressor_data(cpi);
     realloc_segmentation_maps(cpi);
     cpi->initial_width = cpi->initial_height = 0;

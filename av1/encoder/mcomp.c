@@ -3520,7 +3520,7 @@ void av1_simple_motion_search(AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
   }
 }
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 void av1_simple_motion_search_ext(AV1_COMP *const cpi,
                                   const TileInfo *const tile, MACROBLOCK *x,
                                   int mi_row, int mi_col, BLOCK_SIZE bsize,
@@ -3642,7 +3642,7 @@ void av1_simple_motion_search_ext(AV1_COMP *const cpi,
     xd->plane[AOM_PLANE_Y].pre[ref_idx] = backup_yv12;
   }
 }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 void av1_simple_motion_sse_var(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
                                int mi_col, BLOCK_SIZE bsize,

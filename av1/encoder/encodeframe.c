@@ -438,12 +438,12 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
                      CDF_SIZE(10));
     }
   }
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   for (int i = 0; i < PARTITION_CONTEXTS_REC; ++i) {
     AVERAGE_CDF(ctx_left->partition_rec_cdf[i], ctx_tr->partition_rec_cdf[i],
                 4);
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
   AVERAGE_CDF(ctx_left->switchable_interp_cdf, ctx_tr->switchable_interp_cdf,
               SWITCHABLE_FILTERS);
 #if CONFIG_FLEX_MVRES
@@ -546,9 +546,9 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                                     CHROMA_REF_INFO *sb_chr_ref_info) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
-#if !(CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT)
+#if !(CONFIG_ERP && !KEEP_PARTITION_SPLIT)
   const SPEED_FEATURES *const sf = &cpi->sf;
-#endif  // !(CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT)
+#endif  // !(CONFIG_ERP && !KEEP_PARTITION_SPLIT)
   const TileInfo *const tile_info = &tile_data->tile_info;
   MB_MODE_INFO **mi = cm->mi_grid_base + get_mi_grid_idx(cm, mi_row, mi_col);
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
@@ -564,17 +564,17 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   int64_t dummy_dist;
   RD_STATS dummy_rdc;
 
-#if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#if CONFIG_ERP && !KEEP_PARTITION_SPLIT
   (void)seg_skip;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
-#if CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP && !KEEP_PARTITION_SPLIT
+#if CONFIG_ERP
   x->sms_bufs = td->sms_bufs;
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   av1_init_encode_rd_sb(cpi, td, tile_data, &pc_root, sms_root, &dummy_rdc,
                         mi_row, mi_col, 1);
 
-#if CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#if CONFIG_ERP && !KEEP_PARTITION_SPLIT
 
   // TODO(yuec): incorporate the new partition syntax into rd_use_partition()
   if (0) {
@@ -588,7 +588,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                          &dummy_rate, &dummy_dist, 1, pc_root);
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
   } else if (cpi->partition_search_skippable_frame) {
-#endif  // CONFIG_EXT_RECUR_PARTITIONS && !KEEP_PARTITION_SPLIT
+#endif  // CONFIG_ERP && !KEEP_PARTITION_SPLIT
     av1_enc_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size,
                         sb_chr_ref_info);
     const BLOCK_SIZE bsize =
@@ -599,7 +599,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
   } else {
     // Note: since rd_pick_partition searches all blocks recursively under
-    // CONFIG_EXT_RECUR_PARTITIONS, we deallocate the memory inside
+    // CONFIG_ERP, we deallocate the memory inside
     // rd_pick_partition instead of outside.
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, rd_pick_partition_time);

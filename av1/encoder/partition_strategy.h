@@ -138,7 +138,7 @@ void av1_get_max_min_partition_size(AV1_COMP *cpi, ThreadData *td,
                                     int mi_col);
 #endif  // !CONFIG_REALTIME_ONLY
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 SimpleMotionData *av1_get_sms_data_entry(SimpleMotionDataBufs *sms_bufs,
                                          int mi_row, int mi_col,
                                          BLOCK_SIZE bsize, BLOCK_SIZE sb_size);
@@ -185,7 +185,7 @@ static INLINE void init_sms_partition_stats(SMSPartitionStats *stats) {
 int av1_prune_new_part(const SMSPartitionStats *old_part,
                        const SMSPartitionStats *new_part, int rdmult,
                        BLOCK_SIZE bsize);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 // A simplified version of set_offsets meant to be used for
 // simple_motion_search.
@@ -250,11 +250,11 @@ static INLINE void init_simple_motion_search_mvs(
 PARTITION_TYPE av1_get_prev_partition(AV1_COMP *const cpi, MACROBLOCK *x,
                                       int mi_row, int mi_col, BLOCK_SIZE bsize);
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 static INLINE void av1_init_sms_data_bufs(SimpleMotionDataBufs *data_bufs) {
   memset(data_bufs, 0, sizeof(*data_bufs));
 }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 static INLINE int is_full_sb(AV1_COMMON *const cm, int mi_row, int mi_col,
                              BLOCK_SIZE sb_size) {

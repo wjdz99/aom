@@ -112,11 +112,11 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, MACROBLOCK *x,
   for (i = 0; i < PARTITION_CONTEXTS; ++i)
     av1_cost_tokens_from_cdf(x->partition_cost[i], fc->partition_cdf[i], NULL);
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   for (i = 0; i < PARTITION_CONTEXTS_REC; ++i)
     av1_cost_tokens_from_cdf(x->partition_rec_cost[i], fc->partition_rec_cdf[i],
                              NULL);
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   if (cm->current_frame.skip_mode_info.skip_mode_flag) {
     for (i = 0; i < SKIP_CONTEXTS; ++i) {

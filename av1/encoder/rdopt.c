@@ -14192,7 +14192,7 @@ static AOM_INLINE int is_ref_frame_used_by_compound_ref(
 }
 
 #if !CONFIG_REALTIME_ONLY
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 static AOM_INLINE int is_ref_frame_used_in_cache(MV_REFERENCE_FRAME ref_frame,
                                                  const MB_MODE_INFO *mi_cache) {
   if (!mi_cache) {
@@ -14208,7 +14208,7 @@ static AOM_INLINE int is_ref_frame_used_in_cache(MV_REFERENCE_FRAME ref_frame,
   MV_REFERENCE_FRAME cached_ref_type = av1_ref_frame_type(mi_cache->ref_frame);
   return ref_frame == cached_ref_type;
 }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 // Please add/modify parameter setting in this function, making it consistent
 // and easy to read and maintain.
@@ -14266,10 +14266,10 @@ static void set_params_rd_pick_inter_mode(
       // compound ref.
       if (skip_ref_frame_mask & (1 << ref_frame) &&
           !is_ref_frame_used_by_compound_ref(ref_frame, skip_ref_frame_mask)
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
           && !(should_reuse_mode(x, REUSE_INTER_MODE_IN_INTERFRAME_FLAG) &&
                is_ref_frame_used_in_cache(ref_frame, x->inter_mode_cache))
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
       ) {
         continue;
       }
@@ -14294,10 +14294,10 @@ static void set_params_rd_pick_inter_mode(
     }
 
     if (skip_ref_frame_mask & (1 << ref_frame)
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
         && !(should_reuse_mode(x, REUSE_INTER_MODE_IN_INTERFRAME_FLAG) &&
              is_ref_frame_used_in_cache(ref_frame, x->inter_mode_cache))
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
     ) {
       continue;
     }
@@ -14723,7 +14723,7 @@ static int fetch_picked_ref_frames_mask(const MACROBLOCK *const x,
   return picked_ref_frames_mask;
 }
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
 static INLINE int is_mode_intra(PREDICTION_MODE mode) {
   return mode < INTRA_MODE_END;
 }
@@ -14792,7 +14792,7 @@ static INLINE int skip_inter_mode_with_cached_mode(
   return 0;
 }
 
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
 // Case 1: return 0, means don't skip this mode
 // Case 2: return 1, means skip this mode completely
@@ -14816,13 +14816,13 @@ static int inter_mode_search_order_independent_skip(
   }
 #endif  // !CONFIG_NEW_INTER_MODES
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   const int cached_skip_ret =
       skip_inter_mode_with_cached_mode(x, mode, ref_frame);
   if (cached_skip_ret > 0) {
     return cached_skip_ret;
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   const int comp_pred = ref_frame[1] > INTRA_FRAME;
   if (!cpi->oxcf.enable_onesided_comp && comp_pred && cpi->all_one_sided_refs) {
@@ -14854,7 +14854,7 @@ static int inter_mode_search_order_independent_skip(
         skip_ref = 0;
       }
     }
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
     // If we are reusing the prediction from cache, and the current frame is
     // required by the cache, then we cannot prune it.
     if (should_reuse_mode(x, REUSE_INTER_MODE_IN_INTERFRAME_FLAG) &&
@@ -14865,7 +14865,7 @@ static int inter_mode_search_order_independent_skip(
       skip_motion_mode = (ref_type <= ALTREF_FRAME &&
                           x->inter_mode_cache->ref_frame[1] > INTRA_FRAME);
     }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
     if (skip_ref) return 1;
   }
 
@@ -15010,7 +15010,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
     } else {
       try_filter_intra = !search_state->best_mbmode.skip;
     }
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
     const MB_MODE_INFO *cached_mode = x->inter_mode_cache;
     const FILTER_INTRA_MODE_INFO *cached_fi_mode =
         cached_mode ? &cached_mode->filter_intra_mode_info : NULL;
@@ -15020,7 +15020,7 @@ static int64_t handle_intra_mode(InterModeSearchState *search_state,
       assert(cached_mode->mode == DC_PRED);
       try_filter_intra = 0;
     }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
     if (try_filter_intra) {
       RD_STATS rd_stats_y_fi;
@@ -16094,7 +16094,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       av1_allow_palette(cm->allow_screen_content_tools, mbmi->sb_type) &&
       !is_inter_mode(search_state.best_mbmode.mode) && rd_cost->rate < INT_MAX;
 
-#if CONFIG_EXT_RECUR_PARTITIONS
+#if CONFIG_ERP
   const MB_MODE_INFO *cached_mode = x->inter_mode_cache;
   if (should_reuse_mode(x, REUSE_INTRA_MODE_IN_INTERFRAME_FLAG) &&
       cached_mode &&
@@ -16102,7 +16102,7 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         cached_mode->palette_mode_info.palette_size[0] > 0)) {
     try_palette = 0;
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS
+#endif  // CONFIG_ERP
 
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   if (try_palette) {
