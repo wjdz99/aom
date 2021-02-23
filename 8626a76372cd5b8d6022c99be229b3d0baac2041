@@ -72,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "71c1edef_ac4eaf7d",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-23T04:43:12Z",
+      "side": 1,
+      "message": "I found that you described this change in one of your comments. This change fixes the following problem:\n\n  ... for single-pass encoding mode with LAP enabled (\u0027good\u0027 preset),\n  firstpass_inter_prediction() was being called in LAP stage, even\n  though kf-max-dist was set to 0. ...\n\nIf this change can be separated from the other changes in this CL, please do that. We can review this change separately.",
+      "parentUuid": "efb5c89e_7d9f6b90",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "63fd9757_7b611054",
         "filename": "av1/encoder/encoder_alloc.h",
         "patchSetId": 2
