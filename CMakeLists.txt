@@ -34,8 +34,10 @@ endif()
 
 # Updating version info.
 # https://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info
+# SO_FILE_VERSION is mapped to <current>.<age>.<revision> here rather than
+# libtool ordering in the link.
 set(SO_VERSION 2)
-set(SO_FILE_VERSION 2.0.2)
+set(SO_FILE_VERSION 2.0.3)
 
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")
