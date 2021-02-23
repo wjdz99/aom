@@ -354,7 +354,7 @@ void av1_setup_qmatrix(const CommonQuantParams *quant_params,
 
 static void encode_block(int plane, int block, int blk_row, int blk_col,
                          BLOCK_SIZE plane_bsize, TX_SIZE tx_size, void *arg,
-                         RUN_TYPE dry_run) {
+                         RUN_TYPE dry_run, int64_t *rate_cost) {
   (void)dry_run;
   struct encode_b_args *const args = arg;
   const AV1_COMP *const cpi = args->cpi;
@@ -404,15 +404,20 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
     const bool do_dropout = INTER_BLOCK_OPT_TYPE == DROPOUT_OPT ||
                             INTER_BLOCK_OPT_TYPE == TRELLIS_DROPOUT_OPT;
 
+    TXB_CTX txb_ctx;
+    get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
     if (quant_param.use_optimize_b && do_trellis) {
-      TXB_CTX txb_ctx;
-      get_txb_ctx(plane_bsize, tx_size, plane, a, l, &txb_ctx);
       av1_optimize_b(args->cpi, x, plane, block, tx_size, tx_type, &txb_ctx,
                      &dummy_rate_cost);
     }
     if (!quant_param.use_optimize_b && do_dropout) {
       av1_dropout_qcoeff(x, plane, block, tx_size, tx_type,
                          cm->quant_params.base_qindex);
+    }
+    if (rate_cost) {
+      *rate_cost +=
+          av1_cost_coeffs_txb(x, plane, block, tx_size, tx_type, &txb_ctx,
+                              cm->features.reduced_tx_set_used);
     }
   } else {
     p->eobs[block] = 0;
@@ -466,7 +471,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
 
 static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
                                BLOCK_SIZE plane_bsize, TX_SIZE tx_size,
-                               void *arg, RUN_TYPE dry_run) {
+                               void *arg, RUN_TYPE dry_run,
+                               int64_t *rate_cost) {
   struct encode_b_args *const args = arg;
   MACROBLOCK *const x = args->x;
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -489,7 +495,7 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
   if (tx_size == plane_tx_size || plane) {
     encode_block(plane, block, blk_row, blk_col, plane_bsize, tx_size, arg,
-                 dry_run);
+                 dry_run, rate_cost);
   } else {
 #if CONFIG_NEW_TX_PARTITION
     TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
@@ -531,7 +537,7 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
         if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
 
         encode_block_inter(plane, block, offsetr, offsetc, plane_bsize, sub_txs,
-                           arg, dry_run);
+                           arg, dry_run, rate_cost);
         block += step;
       }
     }
@@ -630,8 +636,8 @@ void av1_encode_sby_pass1(AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bsize) {
                                          encode_block_pass1, &args);
 }
 
-void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x,
-                   RUN_TYPE dry_run) {
+void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, RUN_TYPE dry_run,
+                   int64_t *rate_cost) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   mbmi->skip_txfm = 1;
@@ -683,7 +689,7 @@ void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x,
         for (blk_row = idy; blk_row < unit_height; blk_row += bh) {
           for (blk_col = idx; blk_col < unit_width; blk_col += bw) {
             encode_block_inter(plane, block, blk_row, blk_col, plane_bsize,
-                               max_tx_size, &arg, dry_run);
+                               max_tx_size, &arg, dry_run, rate_cost);
             block += step;
           }
         }

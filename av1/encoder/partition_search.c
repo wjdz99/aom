@@ -11,8 +11,10 @@
 
 #include "aom_ports/system_state.h"
 
+#include "av1/common/av1_common_int.h"
 #include "av1/common/blockd.h"
 #include "av1/common/enums.h"
+#include "av1/common/mv.h"
 #include "av1/common/reconintra.h"
 
 #include "av1/encoder/aq_complexity.h"
@@ -389,7 +391,8 @@ static void update_zeromv_cnt(const AV1_COMP *const cpi,
 
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TokenExtra **t, RUN_TYPE dry_run,
-                              BLOCK_SIZE bsize, int *rate) {
+                              BLOCK_SIZE bsize, int *rate,
+                              int64_t *inter_rate_cost, int64_t *inter_dist) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCK *const x = &td->mb;
@@ -483,9 +486,31 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     (void)num_planes;
 #endif
 
-    av1_encode_sb(cpi, x, dry_run);
+    av1_encode_sb(cpi, x, dry_run, inter_rate_cost);
     av1_tokenize_sb_tx_size(cpi, td, dry_run, bsize, rate,
                             tile_data->allow_update_cdf);
+    for (int plane = AOM_PLANE_Y; plane < num_planes && inter_dist; plane++) {
+      struct macroblock_plane *const p = &x->plane[plane];
+      const struct macroblockd_plane *const pd = &x->e_mbd.plane[plane];
+
+      if (plane != AOM_PLANE_Y && !xd->is_chroma_ref) {
+        continue;
+      }
+
+      const BLOCK_SIZE plane_bsize =
+          get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+      assert(plane_bsize < BLOCK_SIZES_ALL);
+
+      if (is_cur_buf_hbd(xd)) {
+        *inter_dist += aom_highbd_sse(
+            p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
+            block_size_wide[plane_bsize], block_size_high[plane_bsize]);
+      } else {
+        *inter_dist +=
+            aom_sse(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
+                    block_size_wide[plane_bsize], block_size_high[plane_bsize]);
+      }
+    }
   }
 
   if (!dry_run) {
@@ -1377,6 +1402,248 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
   }
 }
 
+static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
+    const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
+    int ref_idx) {
+  int ref_mv_idx = mbmi->ref_mv_idx;
+  if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
+    assert(has_second_ref(mbmi));
+    ref_mv_idx += 1;
+  }
+
+  const MV_REFERENCE_FRAME *ref_frames = mbmi->ref_frame;
+  const int8_t ref_frame_type = av1_ref_frame_type(ref_frames);
+  const CANDIDATE_MV *curr_ref_mv_stack = mbmi_ext_frame->ref_mv_stack;
+
+  if (ref_frames[1] > INTRA_FRAME) {
+    assert(ref_idx == 0 || ref_idx == 1);
+    return ref_idx ? curr_ref_mv_stack[ref_mv_idx].comp_mv
+                   : curr_ref_mv_stack[ref_mv_idx].this_mv;
+  }
+
+  assert(ref_idx == 0);
+  return ref_mv_idx < mbmi_ext_frame->ref_mv_count
+             ? curr_ref_mv_stack[ref_mv_idx].this_mv
+             : mbmi_ext_frame->global_mvs[ref_frame_type];
+}
+
+typedef enum {
+  MVRES_READ_MODE,
+  MVRES_MODIFY_MODE,
+  MVRES_DEBUG_MODE
+} ANALYZE_MVRES_MODE;
+
+static void analyze_mvres_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+                            ThreadData *td, int mi_row, int mi_col,
+                            BLOCK_SIZE bsize, PARTITION_TYPE partition,
+                            PICK_MODE_CONTEXT *const ctx,
+                            int_mv original_mvs[2], int64_t *mv_rate,
+                            ANALYZE_MVRES_MODE analyze_mode) {
+  TileInfo *const tile = &tile_data->tile_info;
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *xd = &x->e_mbd;
+
+  av1_set_offsets_without_segment_id(cpi, tile, x, mi_row, mi_col, bsize,
+                                     &ctx->chroma_ref_info);
+  const int origin_mult = x->rdmult;
+  setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  mbmi->partition = partition;
+  av1_update_state(cpi, td, ctx, mi_row, mi_col, bsize, DRY_RUN_NORMAL);
+
+  const int is_inter = is_inter_block(mbmi);
+  const PREDICTION_MODE mode = mbmi->mode;
+  const int is_compound = has_second_ref(mbmi);
+  int_mv *cur_mvs = mbmi->mv;
+
+  if (!is_inter) {
+    x->rdmult = origin_mult;
+    return;
+  }
+
+  if (analyze_mode == MVRES_DEBUG_MODE) {
+    assert(original_mvs[0].as_int == cur_mvs[0].as_int);
+    assert(original_mvs[1].as_int == cur_mvs[1].as_int);
+    x->rdmult = origin_mult;
+    return;
+  }
+
+  if (analyze_mode == MVRES_READ_MODE) {
+    original_mvs[0].as_int = cur_mvs[0].as_int;
+    original_mvs[1].as_int = cur_mvs[1].as_int;
+  }
+
+  // Get rate needed to encode the mv diff
+  const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame = &ctx->mbmi_ext_best;
+  const MvSubpelPrecision max_precision = xd->sbi->sb_mv_precision;
+
+  uint8_t new_mv_flag = 0;
+
+  if (mode == NEWMV || mode == NEW_NEWMV || mode == NEW_NEARESTMV ||
+      mode == NEW_NEARMV) {
+    new_mv_flag |= (1 << 0);
+  }
+  if (mode == NEW_NEWMV || mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
+    new_mv_flag |= (1 << 1);
+  }
+
+  for (int ref_idx = 0; ref_idx < 1 + is_compound; ++ref_idx) {
+    MV ref_mv = get_ref_mv_for_mv_stats(mbmi, mbmi_ext_frame, ref_idx).as_mv;
+    MV *cur_mv = &mbmi->mv[ref_idx].as_mv;
+
+    if (analyze_mode == MVRES_MODIFY_MODE) {
+      lower_mv_precision(&ref_mv, max_precision);
+      *cur_mv = original_mvs[ref_idx].as_mv;
+      lower_mv_precision(cur_mv, max_precision);
+    }
+
+    if (new_mv_flag & ref_idx) {
+      *mv_rate += av1_mv_bit_cost(cur_mv, &ref_mv, max_precision, &x->mv_costs,
+                                  MV_COST_WEIGHT);
+    }
+  }
+
+  x->rdmult = origin_mult;
+}
+
+static void analyze_mvres_sb(const AV1_COMP *const cpi, ThreadData *td,
+                             TileDataEnc *tile_data, int mi_row, int mi_col,
+                             BLOCK_SIZE bsize, PC_TREE *pc_tree,
+                             int_mv (*original_mvs)[4][2], int tree_idx,
+                             int64_t *mv_rate,
+                             ANALYZE_MVRES_MODE analyze_mode) {
+  assert(bsize < BLOCK_SIZES_ALL);
+  const AV1_COMMON *const cm = &cpi->common;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+
+  if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) return;
+
+  assert(bsize < BLOCK_SIZES_ALL);
+  const int hbs = mi_size_wide[bsize] / 2;
+  const PARTITION_TYPE partition = pc_tree->partitioning;
+  const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
+  int quarter_step = mi_size_wide[bsize] / 4;
+  BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
+
+  if (subsize == BLOCK_INVALID) return;
+
+  switch (partition) {
+    case PARTITION_NONE:
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col, subsize, partition,
+                      pc_tree->none, original_mvs[tree_idx][0], mv_rate,
+                      analyze_mode);
+      break;
+    case PARTITION_VERT:
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col, subsize, partition,
+                      pc_tree->vertical[0], original_mvs[tree_idx][0], mv_rate,
+                      analyze_mode);
+      if (mi_col + hbs < mi_params->mi_cols) {
+        analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col + hbs, subsize,
+                        partition, pc_tree->vertical[1],
+                        original_mvs[tree_idx][1], mv_rate, analyze_mode);
+      }
+      break;
+    case PARTITION_HORZ:
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col, subsize, partition,
+                      pc_tree->horizontal[0], original_mvs[tree_idx][0],
+                      mv_rate, analyze_mode);
+      if (mi_row + hbs < mi_params->mi_rows) {
+        analyze_mvres_b(cpi, tile_data, td, mi_row + hbs, mi_col, subsize,
+                        partition, pc_tree->horizontal[1],
+                        original_mvs[tree_idx][1], mv_rate, analyze_mode);
+      }
+      break;
+    case PARTITION_SPLIT:
+      analyze_mvres_sb(cpi, td, tile_data, mi_row, mi_col, subsize,
+                       pc_tree->split[0], original_mvs, 4 * tree_idx + 1,
+                       mv_rate, analyze_mode);
+      analyze_mvres_sb(cpi, td, tile_data, mi_row, mi_col + hbs, subsize,
+                       pc_tree->split[1], original_mvs, 4 * tree_idx + 2,
+                       mv_rate, analyze_mode);
+      analyze_mvres_sb(cpi, td, tile_data, mi_row + hbs, mi_col, subsize,
+                       pc_tree->split[2], original_mvs, 4 * tree_idx + 3,
+                       mv_rate, analyze_mode);
+      analyze_mvres_sb(cpi, td, tile_data, mi_row + hbs, mi_col + hbs, subsize,
+                       pc_tree->split[3], original_mvs, 4 * tree_idx + 4,
+                       mv_rate, analyze_mode);
+      break;
+
+    case PARTITION_HORZ_A:
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col, bsize2, partition,
+                      pc_tree->horizontala[0], original_mvs[tree_idx][0],
+                      mv_rate, analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col + hbs, bsize2,
+                      partition, pc_tree->horizontala[1],
+                      original_mvs[tree_idx][1], mv_rate, analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row + hbs, mi_col, subsize,
+                      partition, pc_tree->horizontala[2],
+                      original_mvs[tree_idx][2], mv_rate, analyze_mode);
+      break;
+    case PARTITION_HORZ_B:
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col, subsize, partition,
+                      pc_tree->horizontalb[0], original_mvs[tree_idx][0],
+                      mv_rate, analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row + hbs, mi_col, bsize2,
+                      partition, pc_tree->horizontalb[1],
+                      original_mvs[tree_idx][1], mv_rate, analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row + hbs, mi_col + hbs, bsize2,
+                      partition, pc_tree->horizontalb[2],
+                      original_mvs[tree_idx][2], mv_rate, analyze_mode);
+      break;
+    case PARTITION_VERT_A:
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col, bsize2, partition,
+                      pc_tree->verticala[0], original_mvs[tree_idx][0], mv_rate,
+                      analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row + hbs, mi_col, bsize2,
+                      partition, pc_tree->verticala[1],
+                      original_mvs[tree_idx][1], mv_rate, analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col + hbs, subsize,
+                      partition, pc_tree->verticala[2],
+                      original_mvs[tree_idx][2], mv_rate, analyze_mode);
+
+      break;
+    case PARTITION_VERT_B:
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col, subsize, partition,
+                      pc_tree->verticalb[0], original_mvs[tree_idx][0], mv_rate,
+                      analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row, mi_col + hbs, bsize2,
+                      partition, pc_tree->verticalb[1],
+                      original_mvs[tree_idx][1], mv_rate, analyze_mode);
+      analyze_mvres_b(cpi, tile_data, td, mi_row + hbs, mi_col + hbs, bsize2,
+                      partition, pc_tree->verticalb[2],
+                      original_mvs[tree_idx][2], mv_rate, analyze_mode);
+      break;
+    case PARTITION_HORZ_4:
+      for (int i = 0; i < SUB_PARTITIONS_PART4; ++i) {
+        int this_mi_row = mi_row + i * quarter_step;
+        if (i > 0 && this_mi_row >= mi_params->mi_rows) break;
+
+        analyze_mvres_b(cpi, tile_data, td, this_mi_row, mi_col, subsize,
+                        partition, pc_tree->horizontal4[i],
+                        original_mvs[tree_idx][i], mv_rate, analyze_mode);
+      }
+      break;
+    case PARTITION_VERT_4:
+      for (int i = 0; i < SUB_PARTITIONS_PART4; ++i) {
+        int this_mi_col = mi_col + i * quarter_step;
+        if (i > 0 && this_mi_col >= mi_params->mi_cols) break;
+        analyze_mvres_b(cpi, tile_data, td, mi_row, this_mi_col, subsize,
+                        partition, pc_tree->vertical4[i],
+                        original_mvs[tree_idx][i], mv_rate, analyze_mode);
+      }
+      break;
+    default: assert(0 && "Invalid partition type."); break;
+  }
+}
+static void analyze_mvres(const AV1_COMP *const cpi, ThreadData *td,
+                          TileDataEnc *tile_data, int mi_row, int mi_col,
+                          BLOCK_SIZE bsize, PC_TREE *pc_tree,
+                          int_mv (*original_mvs)[4][2], int64_t *mv_rate,
+                          ANALYZE_MVRES_MODE analyze_mode) {
+  analyze_mvres_sb(cpi, td, tile_data, mi_row, mi_col, bsize, pc_tree,
+                   original_mvs, 0, mv_rate, analyze_mode);
+}
+
 /*!\brief Reconstructs an individual coding block
  *
  * \ingroup partition_search
@@ -1407,7 +1674,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                      ThreadData *td, TokenExtra **tp, int mi_row, int mi_col,
                      RUN_TYPE dry_run, BLOCK_SIZE bsize,
                      PARTITION_TYPE partition, PICK_MODE_CONTEXT *const ctx,
-                     int *rate) {
+                     int *rate, int64_t *inter_rate, int64_t *inter_dist) {
   TileInfo *const tile = &tile_data->tile_info;
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *xd = &x->e_mbd;
@@ -1426,7 +1693,8 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
            (1 << num_pels_log2_lookup[cpi->common.seq_params.sb_size]));
   }
 
-  encode_superblock(cpi, tile_data, td, tp, dry_run, bsize, rate);
+  encode_superblock(cpi, tile_data, td, tp, dry_run, bsize, rate, inter_rate,
+                    inter_dist);
 
   if (!dry_run) {
     const AV1_COMMON *const cm = &cpi->common;
@@ -1562,10 +1830,12 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
  * \return Nothing is returned. Instead, reconstructions (w/o in-loop filters)
  * will be updated in the pixel buffers in td->mb.e_mbd.
  */
-static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
-                      TileDataEnc *tile_data, TokenExtra **tp, int mi_row,
-                      int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
-                      PC_TREE *pc_tree, PARTITION_TREE *ptree, int *rate) {
+void av1_encode_partition_sb(const AV1_COMP *const cpi, ThreadData *td,
+                             TileDataEnc *tile_data, TokenExtra **tp,
+                             int mi_row, int mi_col, RUN_TYPE dry_run,
+                             BLOCK_SIZE bsize, PC_TREE *pc_tree,
+                             PARTITION_TREE *ptree, int *rate,
+                             int64_t *inter_rate, int64_t *inter_dist) {
   assert(bsize < BLOCK_SIZES_ALL);
   const AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
@@ -1673,51 +1943,61 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
   switch (partition) {
     case PARTITION_NONE:
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
-               partition, pc_tree->none, rate);
+               partition, pc_tree->none, rate, inter_rate, inter_dist);
       break;
     case PARTITION_VERT:
 #if CONFIG_EXT_RECUR_PARTITIONS
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, dry_run, subsize,
-                pc_tree->vertical[0], sub_tree[0], rate);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col, dry_run,
+                              subsize, pc_tree->vertical[0], sub_tree[0], rate);
       if (mi_col + hbs_w < cm->mi_params.mi_cols) {
-        encode_sb(cpi, td, tile_data, tp, mi_row, mi_col + hbs_w, dry_run,
-                  subsize, pc_tree->vertical[1], sub_tree[1], rate);
+        av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col + hbs_w,
+                                dry_run, subsize, pc_tree->vertical[1],
+                                sub_tree[1], rate);
       }
 #else   // CONFIG_EXT_RECUR_PARTITIONS
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
-               partition, pc_tree->vertical[0], rate);
+               partition, pc_tree->vertical[0], rate, inter_rate, inter_dist);
       if (mi_col + hbs_w < mi_params->mi_cols) {
         encode_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs_w, dry_run,
-                 subsize, partition, pc_tree->vertical[1], rate);
+                 subsize, partition, pc_tree->vertical[1], rate, inter_rate,
+                 inter_dist);
       }
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
       break;
     case PARTITION_HORZ:
 #if CONFIG_EXT_RECUR_PARTITIONS
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, dry_run, subsize,
-                pc_tree->horizontal[0], sub_tree[0], rate);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col, dry_run,
+                              subsize, pc_tree->horizontal[0], sub_tree[0],
+                              rate);
       if (mi_row + hbs_h < cm->mi_params.mi_rows) {
-        encode_sb(cpi, td, tile_data, tp, mi_row + hbs_h, mi_col, dry_run,
-                  subsize, pc_tree->horizontal[1], sub_tree[1], rate);
+        av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row + hbs_h, mi_col,
+                                dry_run, subsize, pc_tree->horizontal[1],
+                                sub_tree[1], rate);
       }
 #else   // CONFIG_EXT_RECUR_PARTITIONS
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
-               partition, pc_tree->horizontal[0], rate);
+               partition, pc_tree->horizontal[0], rate, inter_rate, inter_dist);
       if (mi_row + hbs_h < mi_params->mi_rows) {
         encode_b(cpi, tile_data, td, tp, mi_row + hbs_h, mi_col, dry_run,
-                 subsize, partition, pc_tree->horizontal[1], rate);
+                 subsize, partition, pc_tree->horizontal[1], rate, inter_rate,
+                 inter_dist);
       }
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
       break;
     case PARTITION_SPLIT:
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, dry_run, subsize,
-                pc_tree->split[0], sub_tree[0], rate);
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col + hbs_w, dry_run,
-                subsize, pc_tree->split[1], sub_tree[1], rate);
-      encode_sb(cpi, td, tile_data, tp, mi_row + hbs_h, mi_col, dry_run,
-                subsize, pc_tree->split[2], sub_tree[2], rate);
-      encode_sb(cpi, td, tile_data, tp, mi_row + hbs_h, mi_col + hbs_w, dry_run,
-                subsize, pc_tree->split[3], sub_tree[3], rate);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col, dry_run,
+                              subsize, pc_tree->split[0], sub_tree[0], rate,
+                              inter_rate, inter_dist);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col + hbs_w,
+                              dry_run, subsize, pc_tree->split[1], sub_tree[1],
+                              rate, inter_rate, inter_dist);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row + hbs_h, mi_col,
+                              dry_run, subsize, pc_tree->split[2], sub_tree[2],
+                              rate, inter_rate, inter_dist);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row + hbs_h,
+                              mi_col + hbs_w, dry_run, subsize,
+                              pc_tree->split[3], sub_tree[3], rate, inter_rate,
+                              inter_dist);
       break;
 #if CONFIG_EXT_RECUR_PARTITIONS
     case PARTITION_HORZ_3: {
@@ -1747,36 +2027,43 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
 #else   // CONFIG_EXT_RECUR_PARTITIONS
     case PARTITION_HORZ_A:
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, bsize2,
-               partition, pc_tree->horizontala[0], rate);
+               partition, pc_tree->horizontala[0], rate, inter_rate,
+               inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs_w, dry_run, bsize2,
-               partition, pc_tree->horizontala[1], rate);
+               partition, pc_tree->horizontala[1], rate, inter_rate,
+               inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row + hbs_h, mi_col, dry_run, subsize,
-               partition, pc_tree->horizontala[2], rate);
+               partition, pc_tree->horizontala[2], rate, inter_rate,
+               inter_dist);
       break;
     case PARTITION_HORZ_B:
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
-               partition, pc_tree->horizontalb[0], rate);
+               partition, pc_tree->horizontalb[0], rate, inter_rate,
+               inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row + hbs_h, mi_col, dry_run, bsize2,
-               partition, pc_tree->horizontalb[1], rate);
+               partition, pc_tree->horizontalb[1], rate, inter_rate,
+               inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row + hbs_h, mi_col + hbs_w, dry_run,
-               bsize2, partition, pc_tree->horizontalb[2], rate);
+               bsize2, partition, pc_tree->horizontalb[2], rate, inter_rate,
+               inter_dist);
       break;
     case PARTITION_VERT_A:
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, bsize2,
-               partition, pc_tree->verticala[0], rate);
+               partition, pc_tree->verticala[0], rate, inter_rate, inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row + hbs_h, mi_col, dry_run, bsize2,
-               partition, pc_tree->verticala[1], rate);
+               partition, pc_tree->verticala[1], rate, inter_rate, inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs_w, dry_run, subsize,
-               partition, pc_tree->verticala[2], rate);
+               partition, pc_tree->verticala[2], rate, inter_rate, inter_dist);
 
       break;
     case PARTITION_VERT_B:
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
-               partition, pc_tree->verticalb[0], rate);
+               partition, pc_tree->verticalb[0], rate, inter_rate, inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs_w, dry_run, bsize2,
-               partition, pc_tree->verticalb[1], rate);
+               partition, pc_tree->verticalb[1], rate, inter_rate, inter_dist);
       encode_b(cpi, tile_data, td, tp, mi_row + hbs_h, mi_col + hbs_w, dry_run,
-               bsize2, partition, pc_tree->verticalb[2], rate);
+               bsize2, partition, pc_tree->verticalb[2], rate, inter_rate,
+               inter_dist);
       break;
     case PARTITION_HORZ_4:
       for (int i = 0; i < SUB_PARTITIONS_PART4; ++i) {
@@ -1784,7 +2071,8 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
         if (i > 0 && this_mi_row >= mi_params->mi_rows) break;
 
         encode_b(cpi, tile_data, td, tp, this_mi_row, mi_col, dry_run, subsize,
-                 partition, pc_tree->horizontal4[i], rate);
+                 partition, pc_tree->horizontal4[i], rate, inter_rate,
+                 inter_dist);
       }
       break;
     case PARTITION_VERT_4:
@@ -1792,7 +2080,8 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
         int this_mi_col = mi_col + i * qbs_w;
         if (i > 0 && this_mi_col >= mi_params->mi_cols) break;
         encode_b(cpi, tile_data, td, tp, mi_row, this_mi_col, dry_run, subsize,
-                 partition, pc_tree->vertical4[i], rate);
+                 partition, pc_tree->vertical4[i], rate, inter_rate,
+                 inter_dist);
       }
       break;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
@@ -1989,8 +2278,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 #else   // CONFIG_EXT_RECUR_PARTITIONS
         const PICK_MODE_CONTEXT *const ctx_h = pc_tree->horizontal[0];
         av1_update_state(cpi, td, ctx_h, mi_row, mi_col, subsize, 1);
-        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize,
-                          NULL);
+        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL,
+                          NULL, NULL);
         pick_sb_modes(cpi, tile_data, x, mi_row + hbs, mi_col, &tmp_rdc,
                       PARTITION_HORZ, subsize, pc_tree->horizontal[1],
                       invalid_rdc, PICK_MODE_RD);
@@ -2035,8 +2324,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 #else   // CONFIG_EXT_RECUR_PARTITIONS
         const PICK_MODE_CONTEXT *const ctx_v = pc_tree->vertical[0];
         av1_update_state(cpi, td, ctx_v, mi_row, mi_col, subsize, 1);
-        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize,
-                          NULL);
+        encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL,
+                          NULL, NULL);
         pick_sb_modes(cpi, tile_data, x, mi_row, mi_col + hbs, &tmp_rdc,
                       PARTITION_VERT, subsize,
                       pc_tree->vertical[bsize > BLOCK_8X8], invalid_rdc,
@@ -2148,8 +2437,9 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       chosen_rdc.dist += tmp_rdc.dist;
 
       if (i != SUB_PARTITIONS_SPLIT - 1)
-        encode_sb(cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx,
-                  DRY_RUN_NORMAL, split_subsize, pc_tree->split[i], NULL, NULL);
+        av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row + y_idx,
+                                mi_col + x_idx, DRY_RUN_NORMAL, split_subsize,
+                                pc_tree->split[i], NULL, NULL, NULL, NULL);
 
       chosen_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
     }
@@ -2188,11 +2478,13 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       //           bsize, pc_tree, &rate_coeffs);
       x->cb_offset = 0;
       av1_reset_ptree_in_sbi(xd->sbi);
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
-                pc_tree, xd->sbi->ptree_root, NULL);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col,
+                              OUTPUT_ENABLED, bsize, pc_tree,
+                              xd->sbi->ptree_root, NULL, NULL, NULL);
     } else {
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
-                pc_tree, NULL, NULL);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col,
+                              DRY_RUN_NORMAL, bsize, pc_tree, NULL, NULL, NULL,
+                              NULL);
     }
   }
 
@@ -2223,7 +2515,7 @@ static void encode_b_nonrd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     assert(x->cb_offset <
            (1 << num_pels_log2_lookup[cpi->common.seq_params.sb_size]));
   }
-  encode_superblock(cpi, tile_data, td, tp, dry_run, bsize, rate);
+  encode_superblock(cpi, tile_data, td, tp, dry_run, bsize, rate, NULL, NULL);
   if (!dry_run) {
     x->cb_offset += block_size_wide[bsize] * block_size_high[bsize];
     if (tile_data->allow_update_cdf) update_stats(&cpi->common, td);
@@ -2777,7 +3069,8 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
 
   if (!is_last) {
     av1_update_state(cpi, td, this_ctx, mi_row, mi_col, subsize, 1);
-    encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL);
+    encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, subsize, NULL,
+                      NULL, NULL);
   }
 
   x->rdmult = orig_mult;
@@ -3522,7 +3815,7 @@ static void rectangular_partition_search(
       av1_update_state(cpi, td, cur_ctx[i][sub_part_idx][0], blk_params.mi_row,
                        blk_params.mi_col, blk_params.subsize, DRY_RUN_NORMAL);
       encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL,
-                        blk_params.subsize, NULL);
+                        blk_params.subsize, NULL, NULL, NULL);
 
       // Second sub-partition evaluation in HORZ / VERT partition type.
       sub_part_idx = 1;
@@ -4291,7 +4584,8 @@ static void split_partition_search(
             cpi, td, tile_data, tp, mi_row + y_idx, mi_col + x_idx, subsize,
             &part_search_state->this_rdc, best_remain_rdcost,
             pc_tree->split[idx], sms_tree->split[idx], p_split_rd,
-            multi_pass_mode, &part_search_state->split_part_rect_win[idx])) {
+            multi_pass_mode, &part_search_state->split_part_rect_win[idx],
+            NULL)) {
       av1_invalid_rd_stats(&sum_rdc);
       break;
     }
@@ -4422,7 +4716,8 @@ static int rd_try_subblock_new(AV1_COMP *const cpi, ThreadData *td,
 
   if (!rdo_data->is_last_subblock && !rdo_data->is_splittable) {
     av1_update_state(cpi, td, rdo_data->ctx, mi_row, mi_col, bsize, 1);
-    encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, bsize, NULL);
+    encode_superblock(cpi, tile_data, td, tp, DRY_RUN_NORMAL, bsize, NULL, NULL,
+                      NULL);
   }
 
   x->rdmult = orig_mult;
@@ -4714,6 +5009,10 @@ static INLINE void search_partition_vert_3(PartitionSearchState *search_state,
 }
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 
+#define RDCOST_SIGNED(RM, R, D)                                            \
+  (ROUND_POWER_OF_TWO_SIGNED(((int64_t)(R)) * (RM), AV1_PROB_COST_SHIFT) + \
+   ((D) * (1 << RDDIV_BITS)))
+
 /*!\brief AV1 block partition search (full search).
 *
 * \ingroup partition_search
@@ -4759,7 +5058,8 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                            RD_STATS best_rdc, PC_TREE *pc_tree,
                            SIMPLE_MOTION_DATA_TREE *sms_tree, int64_t *none_rd,
                            SB_MULTI_PASS_MODE multi_pass_mode,
-                           RD_RECT_PART_WIN_INFO *rect_part_win_info) {
+                           RD_RECT_PART_WIN_INFO *rect_part_win_info,
+                           MvSubpelPrecision *best_precision) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -5138,18 +5438,82 @@ BEGIN_PARTITION_SEARCH:
       // Encode the superblock.
       const int emit_output = multi_pass_mode != SB_DRY_PASS;
       const RUN_TYPE run_type = emit_output ? OUTPUT_ENABLED : DRY_RUN_NORMAL;
+#if CONFIG_FLEX_MVRES
+      if (!frame_is_intra_only(cm) && best_precision) {
+        int64_t inter_mv_rate[MV_SUBPEL_PRECISIONS] = { 0 };
+        int64_t inter_coeff_rate[MV_SUBPEL_PRECISIONS] = { 0 };
+        int64_t inter_dist[MV_SUBPEL_PRECISIONS] = { 0 };
+        int64_t base_mv_rate = 0, base_coeff_rate = 0, base_dist = 0;
+        int_mv original_mvs[1 + 4 + 16 + 64 + 256][4][2];
+
+        analyze_mvres(cpi, td, tile_data, mi_row, mi_col, bsize, pc_tree,
+                      original_mvs, &base_mv_rate, MVRES_READ_MODE);
+        analyze_mvres(cpi, td, tile_data, mi_row, mi_col, bsize, pc_tree,
+                      original_mvs, &base_mv_rate, MVRES_DEBUG_MODE);
+        av1_encode_partition_sb(
+            cpi, td, tile_data, tp, mi_row, mi_col, run_type, bsize, pc_tree,
+            run_type == OUTPUT_ENABLED ? xd->sbi->ptree_root : NULL, NULL,
+            &base_coeff_rate, &base_dist);
+        av1_restore_context(cm, x, &x_ctx, mi_row, mi_col, bsize, num_planes);
+
+        int64_t best_inter_rd =
+            RDCOST(x->rdmult, base_mv_rate + base_coeff_rate, base_dist);
+
+        const MvSubpelPrecision max_precision = xd->sbi->sb_mv_precision;
+        // printf("fr: %d, mi: (%d, %d)\n", cm->current_frame.order_hint,
+        //        mi_row, mi_col);
+        // printf("  base: %d, mv_rate: %ld, coeff_rate: %ld, dist: %ld, rd:
+        // %ld\n",
+        //        max_precision, base_mv_rate, base_coeff_rate, base_dist,
+        //        best_inter_rd);
+        for (MvSubpelPrecision precision = MV_SUBPEL_NONE;
+             precision < max_precision; precision++) {
+          xd->sbi->sb_mv_precision = precision;
+          analyze_mvres(cpi, td, tile_data, mi_row, mi_col, bsize, pc_tree,
+                        original_mvs, &inter_mv_rate[precision],
+                        MVRES_MODIFY_MODE);
+          av1_encode_partition_sb(
+              cpi, td, tile_data, tp, mi_row, mi_col, run_type, bsize, pc_tree,
+              run_type == OUTPUT_ENABLED ? xd->sbi->ptree_root : NULL, NULL,
+              &inter_coeff_rate[precision], &inter_dist[precision]);
+          av1_restore_context(cm, x, &x_ctx, mi_row, mi_col, bsize, num_planes);
+
+          const int64_t this_rd = RDCOST(
+              x->rdmult, inter_mv_rate[precision] + inter_coeff_rate[precision],
+              inter_dist[precision]);
+          if (this_rd < best_inter_rd) {
+            best_inter_rd = this_rd;
+            *best_precision = precision;
+          }
+          // printf("  prec: %d, mv_rate: %ld, coeff_rate: %ld, dist: %ld, rd:
+          // %ld\n",
+          //        precision, inter_mv_rate[precision],
+          //        inter_coeff_rate[precision], inter_dist[precision],
+          //        this_rd);
+        }
+        // printf("fr: %d, mi: (%d, %d), base_prec: %d, best_pred: %d\n",
+        //        cm->current_frame.order_hint, mi_row, mi_col,
+        //        max_precision, *best_precision);
+        xd->sbi->sb_mv_precision = max_precision;
+      }
+#endif  // CONFIG_FLEX_MVRES
 
       x->cb_offset = 0;
       av1_reset_ptree_in_sbi(xd->sbi);
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, run_type, bsize,
-                pc_tree, xd->sbi->ptree_root, NULL);
+      av1_encode_partition_sb(
+          cpi, td, tile_data, tp, mi_row, mi_col, run_type, bsize, pc_tree,
+          run_type == OUTPUT_ENABLED ? xd->sbi->ptree_root : NULL, NULL, NULL,
+          NULL);
       // Dealloc the whole PC_TREE after a superblock is done.
+      // if (emit_output) {
       av1_free_pc_tree_recursive(pc_tree, num_planes, 0, 0);
+      // }
       pc_tree_dealloc = 1;
     } else {
       // Encode the smaller blocks in DRY_RUN mode.
-      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, DRY_RUN_NORMAL, bsize,
-                pc_tree, NULL, NULL);
+      av1_encode_partition_sb(cpi, td, tile_data, tp, mi_row, mi_col,
+                              DRY_RUN_NORMAL, bsize, pc_tree, NULL, NULL, NULL,
+                              NULL);
     }
   }
 

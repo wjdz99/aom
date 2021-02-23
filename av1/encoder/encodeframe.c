@@ -614,7 +614,7 @@ static AOM_INLINE MvSubpelPrecision determine_best_sb_mv_precision(
 
     av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                           &this_rdc, this_rdc, pc_root, sms_root, NULL,
-                          SB_DRY_PASS, NULL);
+                          SB_DRY_PASS, NULL, NULL);
     if (this_rdc.rdcost < best_rdc) {
       best_rdc = this_rdc.rdcost;
       best_prec = mv_prec;
@@ -735,17 +735,46 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
         cpi->oxcf.unit_test_cfg.sb_multipass_unit_test ? 2 : 1;
 
 #if CONFIG_FLEX_MVRES
+    MACROBLOCKD *xd = &x->e_mbd;
     // Sets the sb_mv_precision
-    x->e_mbd.sbi->sb_mv_precision = determine_best_sb_mv_precision(
-        cpi, td, tile_data, tp, mi_row, mi_col, sms_root);
+    // x->e_mbd.sbi->sb_mv_precision = determine_best_sb_mv_precision(
+    //     cpi, td, tile_data, tp, mi_row, mi_col, sms_root);
+    xd->sbi->sb_mv_precision = cm->features.fr_mv_precision;
 #endif  // CONFIG_FLEX_MVRES
 
-    if (num_passes == 1) {
-      PC_TREE *const pc_root = av1_alloc_pc_tree_node(
+    if (num_passes == 1 && frame_is_intra_only(cm)) {
+      PC_TREE *pc_root = av1_alloc_pc_tree_node(
           mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
       av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                             &dummy_rdc, dummy_rdc, pc_root, sms_root, NULL,
-                            SB_SINGLE_PASS, NULL);
+                            SB_SINGLE_PASS, NULL, NULL);
+    } else if (num_passes == 1) {
+      RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
+      av1_save_context(x, &x_ctx, mi_row, mi_col, sb_size, num_planes);
+      MvSubpelPrecision best_precision = cm->features.fr_mv_precision;
+      SB_FIRST_PASS_STATS sb_fp_stats;
+      av1_backup_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+      PC_TREE *pc_root = av1_alloc_pc_tree_node(
+          mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
+      av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                            &dummy_rdc, dummy_rdc, pc_root, sms_root, NULL,
+                            SB_DRY_PASS, NULL, &best_precision);
+
+      // av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
+
+      init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row,
+                        mi_col, 0);
+      av1_reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
+      av1_reset_simple_motion_tree_partition(sms_root, sb_size);
+
+      av1_restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+
+      pc_root = av1_alloc_pc_tree_node(mi_row, mi_col, sb_size, NULL,
+                                       PARTITION_NONE, 0, 1, ss_x, ss_y);
+      x->e_mbd.sbi->sb_mv_precision = best_precision;
+      av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                            &dummy_rdc, dummy_rdc, pc_root, sms_root, NULL,
+                            SB_WET_PASS, NULL, NULL);
     } else {
       // First pass
       SB_FIRST_PASS_STATS sb_fp_stats;
@@ -754,7 +783,8 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
           mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
       av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                             &dummy_rdc, dummy_rdc, pc_root_p0, sms_root, NULL,
-                            SB_DRY_PASS, NULL);
+                            SB_DRY_PASS, NULL, NULL);
+      // av1_free_pc_tree_recursive(pc_root_p0, num_planes, 0, 0);
 
       // Second pass
       init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row,
@@ -768,7 +798,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
           mi_row, mi_col, sb_size, NULL, PARTITION_NONE, 0, 1, ss_x, ss_y);
       av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                             &dummy_rdc, dummy_rdc, pc_root_p1, sms_root, NULL,
-                            SB_WET_PASS, NULL);
+                            SB_WET_PASS, NULL, NULL);
     }
     // Reset to 0 so that it wouldn't be used elsewhere mistakenly.
     sb_enc->tpl_data_count = 0;

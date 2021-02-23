@@ -63,7 +63,8 @@ struct encode_b_args {
   TRELLIS_OPT_TYPE enable_optimize_b;
 };
 
-void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, RUN_TYPE dry_run);
+void av1_encode_sb(const struct AV1_COMP *cpi, MACROBLOCK *x, RUN_TYPE dry_run,
+                   int64_t *rate_cost);
 
 void av1_foreach_transformed_block_in_plane(
     const MACROBLOCKD *const xd, BLOCK_SIZE plane_bsize, int plane,
