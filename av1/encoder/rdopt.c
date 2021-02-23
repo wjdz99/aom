@@ -1422,12 +1422,82 @@ static int64_t motion_mode_rd(
         mbmi->num_proj_ref = av1_selectSamples(
             &mbmi->mv[0].as_mv, pts, pts_inref, mbmi->num_proj_ref, bsize);
       }
+#if CONFIG_EXT_ROTATION
+      // keep track of original wmmat
+      const int_mv mv = mbmi->mv[0];
+      const WarpedMotionParams wm_params = mbmi->wm_params;
+      const int num_proj_ref = mbmi->num_proj_ref;
+      // keep track of best rotation degree
+      int64_t rdcost = INT64_MAX;
+      int best_rot = 0;
+
+      const int center_x = (mi_col + (xd->width / 2)) * MI_SIZE;
+      const int center_y = (mi_row - (xd->height / 2)) * MI_SIZE;
+
+      // check all rotations
+      for (int rot = -63; rot <= 63; rot += 5) {
+        mbmi->rotation = rot;
+        if (!av1_find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize,
+                                 mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+                                 &mbmi->wm_params, xd, mi_row, mi_col)) {
+          assert(!is_comp_pred);
+          if (have_newmv_in_inter_mode(this_mode)) {
+            // Refine MV for NEWMV mode
+            const int_mv mv0 = mbmi->mv[0];
+            const WarpedMotionParams wm_params0 = mbmi->wm_params;
+            const int num_proj_ref0 = mbmi->num_proj_ref;
+
+            const int_mv ref_mv = av1_get_ref_mv(x, 0);
+            SUBPEL_MOTION_SEARCH_PARAMS ms_params;
+            av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize,
+                                              &ref_mv.as_mv, NULL);
+
+            // Refine MV in a small range.
+            av1_refine_warped_mv(xd, cm, &ms_params, bsize, pts0, pts_inref0,
+                                 total_samples);
+
+            if (mv0.as_int != mbmi->mv[0].as_int) {
+              // Keep the refined MV and WM parameters.
+              tmp_rate_mv = av1_mv_bit_cost(
+                  &mbmi->mv[0].as_mv, &ref_mv.as_mv, x->mv_costs.nmv_joint_cost,
+                  x->mv_costs.mv_cost_stack, MV_COST_WEIGHT);
+              tmp_rate2 = rate2_nocoeff - rate_mv0 + tmp_rate_mv;
+            } else {
+              // Restore the old MV and WM parameters.
+              mbmi->mv[0] = mv0;
+              mbmi->wm_params = wm_params0;
+              mbmi->num_proj_ref = num_proj_ref0;
+            }
+          }
+          // Build the warped predictor
+          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
+                                        av1_num_planes(cm) - 1);
+        }
+        tmp_rate2 += 7 << AV1_PROB_COST_SHIFT;  // update rate cost
+        if (av1_txfm_search(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
+                            tmp_rate2, ref_best_rd)) {
+          if (rd_stats->rdcost < rdcost) {
+            rdcost = rd_stats->rdcost;
+            best_rot = rot;
+          }
+        }
+        mbmi->mv[0] = mv;
+        mbmi->wm_params = wm_params;
+        mbmi->num_proj_ref = num_proj_ref;
+      }
+      // update wmmat using the best rotation
+      mbmi->rotation = best_rot;
+#endif  // CONFIG_EXT_ROTATION
 
       // Compute the warped motion parameters with a least squares fit
       //  using the collected samples
       if (!av1_find_projection(mbmi->num_proj_ref, pts, pts_inref, bsize,
                                mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
-                               &mbmi->wm_params, mi_row, mi_col)) {
+                               &mbmi->wm_params,
+#if CONFIG_EXT_ROTATION
+                               xd,
+#endif  // CONFIG_EXT_ROTATION
+                               mi_row, mi_col)) {
         assert(!is_comp_pred);
         if (have_newmv_in_inter_mode(this_mode)) {
           // Refine MV for NEWMV mode
@@ -1457,40 +1527,6 @@ static int64_t motion_mode_rd(
             mbmi->num_proj_ref = num_proj_ref0;
           }
         }
-
-#if CONFIG_EXT_ROTATION
-        // keep track of original wmmat
-        int32_t matrix[8];
-        memcpy(matrix, mbmi->wm_params.wmmat, sizeof(int32_t) * 8);
-        // keep track of best rotation degree
-        int64_t rdcost = INT64_MAX;
-        int best_rot = 0;
-
-        const int center_x = (mi_col + (xd->width / 2)) * MI_SIZE;
-        const int center_y = (mi_row - (xd->height / 2)) * MI_SIZE;
-        tmp_rate2 += 7 << AV1_PROB_COST_SHIFT;  // update rate cost
-        // check all rotations
-        for (int rot = -63; rot <= 63; rot += 5) {
-          av1_warp_rotation(mbmi, rot, center_x, center_y);
-          // Build the warped predictor
-          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
-                                        av1_num_planes(cm) - 1);
-
-          // calculate cost
-          if (av1_txfm_search(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
-                              tmp_rate2, ref_best_rd)) {
-            if (rd_stats->rdcost < rdcost) {
-              rdcost = rd_stats->rdcost;
-              best_rot = rot;
-            }
-          }
-          memcpy(mbmi->wm_params.wmmat, matrix,
-                 sizeof(int32_t) * 8);  // revert wmmat to original
-        }
-        // update wmmat using the best rotation
-        av1_warp_rotation(mbmi, best_rot, center_x, center_y);
-        mbmi->rotation = best_rot;
-#endif  // CONFIG_EXT_ROTATION
         // Build the warped predictor
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                       av1_num_planes(cm) - 1);
