@@ -37,6 +37,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "8bb0a21e_f5f06bea",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-23T00:35:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5dddef45_bca78dee",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "93d6f438_80652a8d",
         "filename": "av1/common/blockd.h",
         "patchSetId": 2
@@ -48,6 +66,24 @@
       "writtenOn": "2021-02-22T23:42:30Z",
       "side": 1,
       "message": "Nit/optional: These three static const arrays are only used in av1/encoder/tx_search.c. They should be moved to that file. (This will simplify code analysis.)\n\n(If you agree with this, we can do this in a separate CL.)",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bfb8387a_46e54d8a",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-23T00:35:27Z",
+      "side": 1,
+      "message": "There are a few tables in this file that need to be moved to encoder/ folder. I will do it in a separate cl.",
+      "parentUuid": "93d6f438_80652a8d",
       "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "86c85324_d3ac6fb5",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-23T00:35:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb9be168_49153c63",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e96acf0f_2619ab0f",
@@ -82,6 +136,24 @@
       "writtenOn": "2021-02-22T23:42:30Z",
       "side": 1,
       "message": "Nit/optional: It may be a good idea to change this test to the !\u003d 0 form to make it clear the use_reduced_intra_txset field is not a boolean:\n\n      cpi-\u003esf.tx_sf.tx_type_search.use_reduced_intra_txset !\u003d 0 \u0026\u0026",
+      "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "309fb22e_cd626bca",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1998,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-23T00:35:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e96acf0f_2619ab0f",
       "revId": "934af86a7d3c090ad1c20b7544fed92c95b6953a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
