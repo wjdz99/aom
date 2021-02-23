@@ -1059,18 +1059,53 @@ static void read_tx_partition(MACROBLOCKD *xd, MB_MODE_INFO *mbmi,
   const int bw_log2 = mi_size_wide_log2[bsize];
   const int stride_log2 = bw_log2 - tx_w_log2;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-  const int ctx = txfm_partition_context(xd->above_txfm_context + blk_col,
-                                         xd->left_txfm_context + blk_row,
-                                         mbmi->sb_type, max_tx_size);
   const int is_rect = is_rect_tx(max_tx_size);
-  const TX_PARTITION_TYPE partition =
-      aom_read_symbol(r, ec_ctx->txfm_partition_cdf[is_rect][ctx],
-                      TX_PARTITION_TYPES, ACCT_STR);
+  const int allow_horz = allow_tx_horz_split(max_tx_size);
+  const int allow_vert = allow_tx_vert_split(max_tx_size);
+  const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
+  const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+//printf("DEC horz %d vert %d horz2 %d vert2 %d tx %d\n", allow_horz, allow_vert, 
+//        allow_horz2, allow_vert2, max_tx_size);
+  TX_PARTITION_TYPE partition = 0;
+  if (allow_horz && allow_vert) {
+    const int split4_ctx = txfm_partition_split4_inter_context(
+        xd->above_txfm_context + blk_col, xd->left_txfm_context + blk_row,
+        mbmi->sb_type, max_tx_size);
+    const TX_PARTITION_TYPE split4_partition =
+    aom_read_symbol(r,
+                    ec_ctx->inter_4way_txfm_partition_cdf[is_rect][split4_ctx],
+                    4, ACCT_STR);
+    partition = split4_partition;
+    if (((split4_partition == TX_PARTITION_VERT) && allow_vert2) ||
+        ((split4_partition == TX_PARTITION_HORZ) && allow_horz2)) {
+      const int further_split = aom_read_bit(r, ACCT_STR);
+      if (further_split)
+        partition = (split4_partition == TX_PARTITION_VERT)
+                        ? TX_PARTITION_VERT4
+                        : TX_PARTITION_HORZ4;
+    }
+  } else if (allow_horz || allow_vert) {
+    const int has_first_split = aom_read_bit(r, ACCT_STR);
+    if (has_first_split) {
+      const int has_second_split =
+          (allow_horz2 || allow_vert2) ? aom_read_bit(r, ACCT_STR) : 0;
+      if (has_second_split)
+        partition = allow_horz ? TX_PARTITION_HORZ4 : TX_PARTITION_VERT4;
+      else
+        partition = allow_horz ? TX_PARTITION_HORZ : TX_PARTITION_VERT;
+    } else {
+      partition = TX_PARTITION_NONE;
+    }
+  } else {
+    assert(!allow_horz && !allow_vert);
+    partition = TX_PARTITION_NONE;
+  }
   TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
   get_tx_partition_sizes(partition, max_tx_size, sub_txs);
   // TODO(sarahparker) This assumes all of the tx sizes in the partition scheme
   // are the same size. This will need to be adjusted to deal with the case
   // where they can be different.
+//printf("dec partition %d tx %d\n", partition, sub_txs[0]);
   mbmi->tx_size = sub_txs[0];
   const int index = av1_get_txb_size_index(bsize, blk_row, blk_col);
   mbmi->partition_type[index] = partition;

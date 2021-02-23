@@ -742,8 +742,8 @@ typedef struct {
 #if CONFIG_NEW_TX_PARTITION
   //! tx_size_cost
   int tx_size_cost[2][TX_SIZE_CONTEXTS][TX_PARTITION_TYPES_INTRA];
-  //! txfm_partition_cost
-  int txfm_partition_cost[2][TXFM_PARTITION_CONTEXTS][TX_PARTITION_TYPES];
+  //! inter_4way_txfm_partition_cost
+  int inter_4way_txfm_partition_cost[2][TXFM_PARTITION_INTER_CONTEXTS][4];
 #else   // CONFIG_NEW_TX_PARTITION
   //! tx_size_cost
   int tx_size_cost[TX_SIZES - 1][TX_SIZE_CONTEXTS][TX_SIZES];
