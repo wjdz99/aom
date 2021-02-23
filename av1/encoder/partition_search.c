@@ -1313,6 +1313,244 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
   }
 }
 
+static AOM_INLINE int_mv get_ref_mv_for_mv_stats(
+    const MB_MODE_INFO *mbmi, const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
+    int ref_idx) {
+  int ref_mv_idx = mbmi->ref_mv_idx;
+  if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
+    assert(has_second_ref(mbmi));
+    ref_mv_idx += 1;
+  }
+
+  const MV_REFERENCE_FRAME *ref_frames = mbmi->ref_frame;
+  const int8_t ref_frame_type = av1_ref_frame_type(ref_frames);
+  const CANDIDATE_MV *curr_ref_mv_stack = mbmi_ext_frame->ref_mv_stack;
+
+  if (ref_frames[1] > INTRA_FRAME) {
+    assert(ref_idx == 0 || ref_idx == 1);
+    return ref_idx ? curr_ref_mv_stack[ref_mv_idx].comp_mv
+                   : curr_ref_mv_stack[ref_mv_idx].this_mv;
+  }
+
+  assert(ref_idx == 0);
+  return ref_mv_idx < mbmi_ext_frame->ref_mv_count
+             ? curr_ref_mv_stack[ref_mv_idx].this_mv
+             : mbmi_ext_frame->global_mvs[ref_frame_type];
+}
+
+static void check_mvres_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+                          ThreadData *td, TokenExtra **tp, int mi_row,
+                          int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+                          PARTITION_TYPE partition,
+                          PICK_MODE_CONTEXT *const ctx, int *rate) {
+  TileInfo *const tile = &tile_data->tile_info;
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *xd = &x->e_mbd;
+
+  av1_set_offsets_without_segment_id(cpi, tile, x, mi_row, mi_col, bsize,
+                                     &ctx->chroma_ref_info);
+  const int origin_mult = x->rdmult;
+  setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  mbmi->partition = partition;
+  av1_update_state(cpi, td, ctx, mi_row, mi_col, bsize, dry_run);
+
+  const AV1_COMMON *const cm = &cpi->common;
+  const int num_planes = av1_num_planes(cm);
+  const int is_inter = is_inter_block(mbmi);
+  const PREDICTION_MODE mode = mbmi->mode;
+
+  if (!is_inter || !have_newmv_in_inter_mode(mode)) {
+    return;
+  }
+
+  // Build predictor
+  set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
+  const int is_compound = has_second_ref(mbmi);
+  for (int ref = 0; ref < 1 + is_compound; ++ref) {
+    const YV12_BUFFER_CONFIG *cfg =
+        get_ref_frame_yv12_buf(cm, mbmi->ref_frame[ref]);
+    assert(IMPLIES(!is_intrabc_block(mbmi), cfg));
+    av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
+                         xd->block_ref_scale_factors[ref], num_planes,
+                         &mbmi->chroma_ref_info);
+  }
+  int start_plane = (cpi->sf.rt_sf.reuse_inter_pred_nonrd) ? 1 : 0;
+  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
+                                start_plane, av1_num_planes(cm) - 1);
+  if (mbmi->motion_mode == OBMC_CAUSAL) {
+    assert(cpi->oxcf.motion_mode_cfg.enable_obmc);
+    av1_build_obmc_inter_predictors_sb(cm, xd);
+  }
+
+  int64_t mv_rate_diff[MV_SUBPEL_PRECISIONS] = { 0 };
+
+  // Get rate needed to encode the mv diff
+  const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame = &ctx->mbmi_ext_best;
+  MvSubpelPrecision max_precision = xd->sbi->sb_mv_precision;
+
+  if (mode == NEWMV || mode == NEW_NEWMV) {
+    // All mvs are new
+    for (int ref_idx = 0; ref_idx < 1 + is_compound; ++ref_idx) {
+      const MV ref_mv =
+          get_ref_mv_for_mv_stats(mbmi, mbmi_ext_frame, ref_idx).as_mv;
+      const MV cur_mv = mbmi->mv[ref_idx].as_mv;
+
+      const int64_t base_mv_cost = av1_mv_bit_cost(
+          &cur_mv, &ref_mv, max_precision, &x->mv_costs, MV_COST_WEIGHT);
+
+      for (MvSubpelPrecision precision = MV_SUBPEL_NONE;
+           precision < max_precision; precision++) {
+        MV tmp_mv = cur_mv;
+        lower_mv_precision(&tmp_mv, precision);
+        mv_rate_diff[precision] +=
+            av1_mv_bit_cost(&tmp_mv, &ref_mv, precision, &x->mv_costs,
+                            MV_COST_WEIGHT) -
+            base_mv_cost;
+      }
+    }
+  } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV ||
+             mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
+    const int ref_idx = (mode == NEAREST_NEWMV || mode == NEAR_NEWMV);
+    const MV ref_mv =
+        get_ref_mv_for_mv_stats(mbmi, mbmi_ext_frame, ref_idx).as_mv;
+    const MV cur_mv = mbmi->mv[ref_idx].as_mv;
+
+    const int64_t base_mv_cost = av1_mv_bit_cost(
+        &cur_mv, &ref_mv, max_precision, &x->mv_costs, MV_COST_WEIGHT);
+
+    for (MvSubpelPrecision precision = MV_SUBPEL_NONE;
+         precision < max_precision; precision++) {
+      MV tmp_mv = cur_mv;
+      lower_mv_precision(&tmp_mv, precision);
+      mv_rate_diff[precision] += av1_mv_bit_cost(&tmp_mv, &ref_mv, precision,
+                                                 &x->mv_costs, MV_COST_WEIGHT) -
+                                 base_mv_cost;
+    }
+  } else {
+    assert(0);
+  }
+
+  // TODO(chiyotsai@google.com): Replace the following with code to calculate
+  // the sse.
+  int64_t sse_diff[MV_SUBPEL_PRECISIONS] = { 0 };
+  for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
+    struct macroblock_plane *const p = &x->plane[plane];
+    const struct macroblockd_plane *const pd = &x->e_mbd.plane[plane];
+    assert(plane_bsize < BLOCK_SIZES_ALL);
+    const MACROBLOCKD *xd = &x->e_mbd;
+    p->src.buf, p->src.stride;
+    pd->dst.buf, pd->dst.stride;
+  }
+
+  x->rdmult = origin_mult;
+}
+
+static void check_mvres_sb(const AV1_COMP *const cpi, ThreadData *td,
+                           TileDataEnc *tile_data, TokenExtra **tp, int mi_row,
+                           int mi_col, RUN_TYPE dry_run, BLOCK_SIZE bsize,
+                           PC_TREE *pc_tree, int *rate) {
+  assert(bsize < BLOCK_SIZES_ALL);
+  const AV1_COMMON *const cm = &cpi->common;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+
+  if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) return;
+
+  assert(bsize < BLOCK_SIZES_ALL);
+  const int hbs = mi_size_wide[bsize] / 2;
+  const PARTITION_TYPE partition = pc_tree->partitioning;
+  const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
+  int quarter_step = mi_size_wide[bsize] / 4;
+  BLOCK_SIZE bsize2 = get_partition_subsize(bsize, PARTITION_SPLIT);
+
+  if (subsize == BLOCK_INVALID) return;
+
+  switch (partition) {
+    case PARTITION_NONE:
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
+                    partition, pc_tree->none, rate);
+      break;
+    case PARTITION_VERT:
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
+                    partition, pc_tree->vertical[0], rate);
+      if (mi_col + hbs < mi_params->mi_cols) {
+        check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs, dry_run,
+                      subsize, partition, pc_tree->vertical[1], rate);
+      }
+      break;
+    case PARTITION_HORZ:
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
+                    partition, pc_tree->horizontal[0], rate);
+      if (mi_row + hbs < mi_params->mi_rows) {
+        check_mvres_b(cpi, tile_data, td, tp, mi_row + hbs, mi_col, dry_run,
+                      subsize, partition, pc_tree->horizontal[1], rate);
+      }
+      break;
+    case PARTITION_SPLIT:
+      check_mvres_sb(cpi, td, tile_data, tp, mi_row, mi_col, dry_run, subsize,
+                     pc_tree->split[0], rate);
+      check_mvres_sb(cpi, td, tile_data, tp, mi_row, mi_col + hbs, dry_run,
+                     subsize, pc_tree->split[1], rate);
+      check_mvres_sb(cpi, td, tile_data, tp, mi_row + hbs, mi_col, dry_run,
+                     subsize, pc_tree->split[2], rate);
+      check_mvres_sb(cpi, td, tile_data, tp, mi_row + hbs, mi_col + hbs,
+                     dry_run, subsize, pc_tree->split[3], rate);
+      break;
+
+    case PARTITION_HORZ_A:
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, bsize2,
+                    partition, pc_tree->horizontala[0], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs, dry_run,
+                    bsize2, partition, pc_tree->horizontala[1], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row + hbs, mi_col, dry_run,
+                    subsize, partition, pc_tree->horizontala[2], rate);
+      break;
+    case PARTITION_HORZ_B:
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
+                    partition, pc_tree->horizontalb[0], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row + hbs, mi_col, dry_run,
+                    bsize2, partition, pc_tree->horizontalb[1], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row + hbs, mi_col + hbs, dry_run,
+                    bsize2, partition, pc_tree->horizontalb[2], rate);
+      break;
+    case PARTITION_VERT_A:
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, bsize2,
+                    partition, pc_tree->verticala[0], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row + hbs, mi_col, dry_run,
+                    bsize2, partition, pc_tree->verticala[1], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs, dry_run,
+                    subsize, partition, pc_tree->verticala[2], rate);
+
+      break;
+    case PARTITION_VERT_B:
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col, dry_run, subsize,
+                    partition, pc_tree->verticalb[0], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row, mi_col + hbs, dry_run,
+                    bsize2, partition, pc_tree->verticalb[1], rate);
+      check_mvres_b(cpi, tile_data, td, tp, mi_row + hbs, mi_col + hbs, dry_run,
+                    bsize2, partition, pc_tree->verticalb[2], rate);
+      break;
+    case PARTITION_HORZ_4:
+      for (int i = 0; i < SUB_PARTITIONS_PART4; ++i) {
+        int this_mi_row = mi_row + i * quarter_step;
+        if (i > 0 && this_mi_row >= mi_params->mi_rows) break;
+
+        check_mvres_b(cpi, tile_data, td, tp, this_mi_row, mi_col, dry_run,
+                      subsize, partition, pc_tree->horizontal4[i], rate);
+      }
+      break;
+    case PARTITION_VERT_4:
+      for (int i = 0; i < SUB_PARTITIONS_PART4; ++i) {
+        int this_mi_col = mi_col + i * quarter_step;
+        if (i > 0 && this_mi_col >= mi_params->mi_cols) break;
+        check_mvres_b(cpi, tile_data, td, tp, mi_row, this_mi_col, dry_run,
+                      subsize, partition, pc_tree->vertical4[i], rate);
+      }
+      break;
+    default: assert(0 && "Invalid partition type."); break;
+  }
+}
+
 /*!\brief Reconstructs an individual coding block
  *
  * \ingroup partition_search
