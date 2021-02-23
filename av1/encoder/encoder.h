@@ -2088,6 +2088,11 @@ typedef struct AV1_PRIMARY {
    * Information related to a gf group.
    */
   GF_GROUP gf_group;
+
+  /*!
+   * Track prior gf group state.
+   */
+  GF_STATE gf_state;
 } AV1_PRIMARY;
 
 /*!
@@ -2356,11 +2361,6 @@ typedef struct AV1_COMP {
    * The frame processing order within a GOP.
    */
   unsigned char cur_gf_index;
-
-  /*!
-   * Track prior gf group state.
-   */
-  GF_STATE gf_state;
 
   /*!
    * To control the reference frame buffer and selection.
