@@ -33,6 +33,24 @@
       "message": "Jingning: PTAL. Thanks!",
       "revId": "e2dc369332305d80a7f4f6213b46422689edbb26",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c44ff801_e2a01fb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-23T23:35:34Z",
+      "side": 1,
+      "message": "Hi Jayasanker,\n\nI also think approach (2) is better.\n\nNote that the default value of kf_mode \u003d\u003d AOM_KF_DISABLED in the all intra mode is a somewhat arbitrary decision. I suggested AOM_KF_DISABLED to Jingning mainly to make it clear we want to disable scene cut detection in all intra mode. It is very likely that scene cut detection is disabled as long as key_freq_max \u003d\u003d 0, regardless of the value of kf_mode.",
+      "parentUuid": "eb2e7540_ed07ebe3",
+      "revId": "e2dc369332305d80a7f4f6213b46422689edbb26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
