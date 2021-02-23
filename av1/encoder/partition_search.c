@@ -40,9 +40,6 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
   const BLOCK_SIZE bsize = mbmi->sb_type;
   const int max_blocks_high = max_block_high(xd, bsize, 0);
   const int max_blocks_wide = max_block_wide(xd, bsize, 0);
-  int ctx = txfm_partition_context(xd->above_txfm_context + blk_col,
-                                   xd->left_txfm_context + blk_row,
-                                   mbmi->sb_type, tx_size);
   const int txb_size_index = av1_get_txb_size_index(bsize, blk_row, blk_col);
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
@@ -50,6 +47,9 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
 #if CONFIG_NEW_TX_PARTITION
   (void)depth;
   (void)counts;
+  const int split4_ctx = txfm_partition_split4_inter_context(
+      xd->above_txfm_context + blk_col, xd->left_txfm_context + blk_row,
+      mbmi->sb_type, tx_size);
   TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
   get_tx_partition_sizes(mbmi->partition_type[txb_size_index], tx_size,
                          sub_txs);
@@ -62,17 +62,22 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
     ++x->txfm_search_info.txb_split_count;
 
   const int is_rect = is_rect_tx(tx_size);
+  const TX_PARTITION_TYPE split4_partition =
+      get_split4_partition(mbmi->partition_type[txb_size_index]);
 #if CONFIG_ENTROPY_STATS
-  ++counts->txfm_partition[is_rect][ctx][mbmi->partition_type[txb_size_index]];
+  ++counts->inter_4way_txfm_partition[is_rect][split4_ctx][split4_partition];
 #endif  // CONFIG_ENTROPY_STATS
   if (allow_update_cdf)
-    update_cdf(xd->tile_ctx->txfm_partition_cdf[is_rect][ctx],
-               mbmi->partition_type[txb_size_index], TX_PARTITION_TYPES);
+    update_cdf(xd->tile_ctx->inter_4way_txfm_partition_cdf[is_rect][split4_ctx],
+               split4_partition, 4);
 
   mbmi->tx_size = this_size;
   txfm_partition_update(xd->above_txfm_context + blk_col,
                         xd->left_txfm_context + blk_row, this_size, tx_size);
 #else  // CONFIG_NEW_TX_PARTITION
+  int ctx = txfm_partition_context(xd->above_txfm_context + blk_col,
+                                   xd->left_txfm_context + blk_row,
+                                   mbmi->sb_type, tx_size);
   const TX_SIZE plane_tx_size = mbmi->inter_tx_size[txb_size_index];
   if (depth == MAX_VARTX_DEPTH) {
     // Don't add to counts in this case
