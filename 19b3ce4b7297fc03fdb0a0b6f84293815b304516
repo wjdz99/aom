@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60c9f316_59d83e5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-02-23T15:35:42Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Jingning,\n\nWhile doing the analysis of HEAP memory map (AVIF encoder), we found that the \u0027tile_tok\u0027 buffer (of type TokenExtra) that is used to store palette tokens can be optimized.\n\nThe variables color_ctx and token, present in TokenExtra structure, are used to store index of the color context and color index used for each pixel in case of palette mode. In the parent version, ‘color_ctx\u0027 is declared as int8_t (signed 8 bit) and \u0027token\u0027 is declared as uint8_t (unsigned 8 bit).\n\nAs per our understanding, the range of values for each of color_ctx and token can be as below:\n1) color_ctx can take 5 (PALETTE_COLOR_INDEX_CONTEXTS) valid values, i.e., from 0 to 4. As per the current implementation, it can take values in the range of [-1, 4]. Here -1 corresponds to default initialization. Hence color_ctx requires only 4 bits(signed). It is possible to reduce the size to 3 bits, by mapping above range to unsigned range. However we preferred 4 bits for better readability.\n\n2) token can take values in the range of [0, 7] as maximum number of possible colors is 8 (PALETTE_MAX_SIZE). Hence token requires only 3 bits (unsigned).\n\nIn this patch, we optimized the above using bit-fields. We validated the current patch for video and still-image encode. Specifically, we configured libaom in ALLINTRA mode (in libavif) for AVIF encode. We also ran tests on screen contents (wikipedia, screendata) and did not observe any encode time impact because of this change.\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for few videos with different video encoding configurations. It was verified that output of AVIF encode is bit-exact with parent version for a typical image dataset.\n\nFollowing are memory reduction results when AVIF encode was tested for ‘building.jpg’ (4032x3024) image at cq_level\u003d18.\n\n       Speed                 HEAP Memory \n       preset                Reduction(%) \n         6           ~6.03 (from 374.6MB to 352MB) \n\nAs this change is also applicable to both ‘good’ (with –lag-in-frames\u003d35) and ‘real-time’ (with –lag-in-frames\u003d0) configurations, we have measured the memory reduction for a 1280x720 content.\n\n      Encoding           \tSpeed                    HEAP Memory\n    Configuration        \tpreset                   Reduction(%) \n        GOOD              \t  6            ~0.78 (from 242.3 MB to 240.4 MB)\n         RT                       7             ~3.0 (from 61.08 MB to 59.2 MB)\n         \nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./avifenc ...\n\nThanks \u0026 Regards,\nAniket.\n\n",
+      "revId": "19b3ce4b7297fc03fdb0a0b6f84293815b304516",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
