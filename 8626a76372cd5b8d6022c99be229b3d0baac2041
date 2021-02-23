@@ -153,6 +153,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bcc445c_27958abd",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-23T16:08:11Z",
+      "side": 1,
+      "message": "We corrected the last paragraph. Please read it as below:\n\nFrom the above, it is observed that the consumption of noise_estimate model happens only for inter frames. Thus, setting last_source \u003d NULL will avoid the population of the noise estimate model (due to the early exit for last_source\u003d\u003dNULL in av1_update_noise_estimate). Hence it is ensured that there will be no change in the encoder behavior for all-intra frame encoding with this change.",
+      "parentUuid": "c57e3fb0_541f07ac",
+      "range": {
+        "startLine": 402,
+        "startChar": 31,
+        "endLine": 403,
+        "endChar": 59
+      },
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cb51f05_0e43edcd",
@@ -219,6 +243,24 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "b3e09be7_5947d98d",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e60127c_899b3483",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-23T16:08:11Z",
+      "side": 1,
+      "message": "As we missed adding \u0027#include \u003cstdbool.h\u003e\u0027 in patch-set 3, we took care of the same in the current patch-set.",
+      "parentUuid": "2848424d_3939cdd9",
       "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
