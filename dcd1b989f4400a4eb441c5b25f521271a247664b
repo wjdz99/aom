@@ -50,6 +50,24 @@
       "message": "IMPORTANT: It seems that this should be is_720p_or_larger?",
       "revId": "dcd1b989f4400a4eb441c5b25f521271a247664b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c12c79c_156f9010",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-02-23T21:11:33Z",
+      "side": 1,
+      "message": "4k\n\nFor 4k and below, skip non-square coding block partition at levels above 16x16, as they are less effective, especially in higher quality range.\n\nfor 4k and above, skip those at 32x32 or above.",
+      "parentUuid": "2ee6d9b7_cf579db4",
+      "revId": "dcd1b989f4400a4eb441c5b25f521271a247664b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
