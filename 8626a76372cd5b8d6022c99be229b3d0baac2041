@@ -88,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd477f84_bcbabaca",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-23T14:40:13Z",
+      "side": 1,
+      "message": "The other changes in this CL are dependent on this change. Without this change, there would be inter frames present in first-pass/LAP stage. Hence there will be a crash in firstpass_inter_prediction() as it uses last_source buffer. We also feel that current change is recommended as first pass should code all the frames as key-frames to be consistent with encoding stage.\n\nAs you suggested, we have prepared a separate patch for this change:\nhttps://aomedia-review.googlesource.com/c/aom/+/130703\n\nPlease review the same.",
+      "parentUuid": "71c1edef_ac4eaf7d",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "63fd9757_7b611054",
@@ -101,6 +119,30 @@
       "writtenOn": "2021-02-23T04:31:41Z",
       "side": 1,
       "message": "Could you explain how you concluded cpi-\u003escaled_last_source is not used for all-intra frame encoding?\n\nMy code analysis shows this eventually becomes cpi-\u003elast_source. cpi-\u003elast_source is used in two funcitons.\n\n1. av1_source_content_sb(): This function is not called for key frames.\n\n2. av1_update_noise_estimate(): It seems that this function may be called for key frames.",
+      "range": {
+        "startLine": 402,
+        "startChar": 31,
+        "endLine": 403,
+        "endChar": 59
+      },
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c57e3fb0_541f07ac",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-23T14:40:13Z",
+      "side": 1,
+      "message": "As per our understanding, the encoder populates the noise_estimate model by making use of last_source buffer, but the consumption of the noise_estimate model happens at the following functions:\n\n1. update_zeromv_cnt() - noise_estimate is used under the condition \u0027ref_frame[0] \u003d\u003d LAST_FRAME \u0026\u0026 is_inter_block(mi)\u0027\n2. set_vbp_thresholds() - noise_estimate is consumed under \u0027!is_key_frame\u0027\n3. av1_choose_var_based_partitioning() - noise_level (derived from noise_estimate) is consumed under \u0027!is_key_frame\u0027\n4. recheck_zeromv_after_denoising() - called from av1_nonrd_pick_inter_mode_sb(), which is not called for intra frames\n\nFrom the above, it is observed that the consumption of noise_estimate model happens only for inter frames. Thus, setting last_source \u003d NULL will avoid the population of the noise estimate model (due to --- check --fn). Hence it is ensured that there will be no change in the encoder behaviour for all-intra frame encoding with this change.",
+      "parentUuid": "63fd9757_7b611054",
       "range": {
         "startLine": 402,
         "startChar": 31,
@@ -128,6 +170,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "896c2c7d_737e7542",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-23T14:40:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0cb51f05_0e43edcd",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b3e09be7_5947d98d",
@@ -141,6 +201,24 @@
       "writtenOn": "2021-02-23T04:31:41Z",
       "side": 1,
       "message": "I suggest we include \u003cstdbool.h\u003e and declare this parameter as the \u0027bool\u0027 type.\n\nIt is fine to use the C99 \u0027bool\u0027 type internally in libaom.",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2848424d_3939cdd9",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-02-23T14:40:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b3e09be7_5947d98d",
       "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
