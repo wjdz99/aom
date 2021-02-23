@@ -34,6 +34,97 @@
       "parentUuid": "2fa7e1a5_32ef8873",
       "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7f93bb1_c3e8b681",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-23T04:31:41Z",
+      "side": 1,
+      "message": "Hi Jayasanker, thanks a lot for the CL. I have some questions.",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efb5c89e_7d9f6b90",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-23T04:31:41Z",
+      "side": 1,
+      "message": "Just curious: Does any of the other changes in this CL depend on this change? This change seems independent of the other changes.",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63fd9757_7b611054",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-23T04:31:41Z",
+      "side": 1,
+      "message": "Could you explain how you concluded cpi-\u003escaled_last_source is not used for all-intra frame encoding?\n\nMy code analysis shows this eventually becomes cpi-\u003elast_source. cpi-\u003elast_source is used in two funcitons.\n\n1. av1_source_content_sb(): This function is not called for key frames.\n\n2. av1_update_noise_estimate(): It seems that this function may be called for key frames.",
+      "range": {
+        "startLine": 402,
+        "startChar": 31,
+        "endLine": 403,
+        "endChar": 59
+      },
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cb51f05_0e43edcd",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-23T04:31:41Z",
+      "side": 1,
+      "message": "This needs to be done after the null check for \u0027ctx\u0027, which is currently at line 66 below.\n\nA good solution is to add, after line 54, the following:\n\n  if (!ctx) return ctx;\n\nand delete line 66 and line 86.\n\nAlternatively, you can declare a local variable named max_pre_frames here, and use it until you have allocated \u0027ctx\u0027 and set ctx-\u003emax_pre_frames to this local variable:\n\n  // For all-intra frame encode, previous source frames are not used. Hence\n  // max_pre_frames is set to 0 in this case. \n  uint8_t max_pre_frames \u003d is_all_intra ? 0 : MAX_PRE_FRAMES;\n\n  // Add the lags to depth and clamp\n  depth +\u003d num_lap_buffers;\n  depth \u003d clamp(depth, 1, MAX_TOTAL_BUFFERS);\n\n  // Allocate memory to keep previous source frames available.\n  depth +\u003d max_pre_frames;\n\n  // Allocate the lookahead structures\n  ctx \u003d calloc(1, sizeof(*ctx));\n  if (ctx) {\n    unsigned int i;\n    ctx-\u003emax_sz \u003d depth;\n    ctx-\u003epush_frame_count \u003d 0;\n    ctx-\u003emax_pre_frames \u003d max_pre_frames;\n    ...",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3e09be7_5947d98d",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-23T04:31:41Z",
+      "side": 1,
+      "message": "I suggest we include \u003cstdbool.h\u003e and declare this parameter as the \u0027bool\u0027 type.\n\nIt is fine to use the C99 \u0027bool\u0027 type internally in libaom.",
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
