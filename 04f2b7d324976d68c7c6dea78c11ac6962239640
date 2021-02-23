@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18b6472a_d763fe16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-02-23T13:12:23Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch introduces the skip rd based gating of transform search (based on the setting of txfm_rd_gate_level speed feature) in av1_compound_type_rd() for cases where fast compound search is disabled. The changes are thus applicable for speed 3 and 4.\n\nPlease find the detailed borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |  LOW RES   |       2.049       |  0.0248    0.0225    0.0816  |\n   3     |  MID RES   |       1.118       | -0.0315   -0.0317   -0.0790  |\n   3     |   HD RES   |       1.200       | -0.0194   -0.0202   -0.0200  |\n   3     |  Average   |       1.606       | -0.0052   -0.0064    0.0036  |\n         |            |                   |                              |\n   4     |  LOW RES   |       6.899       |  0.1790    0.1854    0.0878  |\n   4     |  MID RES   |       4.464       |  0.1951    0.2050    0.2651  |\n   4     |   HD RES   |       4.739       |  0.0651    0.0591    0.1015  |\n   4     |  Average   |       5.757       |  0.1490    0.1526    0.1439  |\n  \n\n   \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks,\nNithya\n",
+      "revId": "04f2b7d324976d68c7c6dea78c11ac6962239640",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
