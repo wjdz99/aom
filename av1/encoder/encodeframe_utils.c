@@ -1081,11 +1081,11 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->comp_bwdref_cdf, ctx_tr->comp_bwdref_cdf, 2);
 #if CONFIG_NEW_TX_PARTITION
   // Square blocks
-  AVERAGE_CDF(ctx_left->txfm_partition_cdf[0], ctx_tr->txfm_partition_cdf[0],
-              TX_PARTITION_TYPES);
+  AVERAGE_CDF(ctx_left->inter_4way_txfm_partition_cdf[0], ctx_tr->inter_4way_txfm_partition_cdf[0],
+              4);
   // Rectangular blocks
-  AVERAGE_CDF(ctx_left->txfm_partition_cdf[1], ctx_tr->txfm_partition_cdf[1],
-              TX_PARTITION_TYPES);
+  AVERAGE_CDF(ctx_left->inter_4way_txfm_partition_cdf[1], ctx_tr->inter_4way_txfm_partition_cdf[1],
+              4);
 #else   // CONFIG_NEW_TX_PARTITION
   AVERAGE_CDF(ctx_left->txfm_partition_cdf, ctx_tr->txfm_partition_cdf, 2);
 #endif  // CONFIG_NEW_TX_PARTITION
@@ -1131,10 +1131,10 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->angle_delta_cdf, ctx_tr->angle_delta_cdf,
               2 * MAX_ANGLE_DELTA + 1);
 #if CONFIG_NEW_TX_PARTITION
-  AVERAGE_CDF(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0],
-              TX_PARTITION_TYPES_INTRA);
-  AVERAGE_CDF(ctx_left->tx_size_cdf[1], ctx_tr->tx_size_cdf[1],
-              TX_PARTITION_TYPES_INTRA);
+  AVERAGE_CDF(ctx_left->intra_4way_txfm_partition_cdf[0], ctx_tr->intra_4way_txfm_partition_cdf[0],
+              4);
+  AVERAGE_CDF(ctx_left->intra_4way_txfm_partition_cdf[1], ctx_tr->intra_4way_txfm_partition_cdf[1],
+              4);
 #else
   AVG_CDF_STRIDE(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0], MAX_TX_DEPTH,
                  CDF_SIZE(MAX_TX_DEPTH + 1));

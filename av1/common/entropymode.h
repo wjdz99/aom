@@ -129,8 +129,10 @@ typedef struct frame_contexts {
   aom_cdf_prob comp_ref_cdf[REF_CONTEXTS][FWD_REFS - 1][CDF_SIZE(2)];
   aom_cdf_prob comp_bwdref_cdf[REF_CONTEXTS][BWD_REFS - 1][CDF_SIZE(2)];
 #if CONFIG_NEW_TX_PARTITION
-  aom_cdf_prob txfm_partition_cdf[2][TXFM_PARTITION_CONTEXTS]
-                                 [CDF_SIZE(TX_PARTITION_TYPES)];
+  aom_cdf_prob inter_4way_txfm_partition_cdf[2][TXFM_PARTITION_INTER_CONTEXTS]
+                                 [CDF_SIZE(4)];
+  aom_cdf_prob intra_4way_txfm_partition_cdf[2][TXFM_PARTITION_INTRA_CONTEXTS]
+                                 [CDF_SIZE(4)];
 #else   // CONFIG_NEW_TX_PARTITION
   aom_cdf_prob txfm_partition_cdf[TXFM_PARTITION_CONTEXTS][CDF_SIZE(2)];
 #endif  // CONFIG_NEW_TX_PARTITION
@@ -164,10 +166,7 @@ typedef struct frame_contexts {
   aom_cdf_prob angle_delta_cdf[DIRECTIONAL_MODES]
                               [CDF_SIZE(2 * MAX_ANGLE_DELTA + 1)];
 
-#if CONFIG_NEW_TX_PARTITION
-  aom_cdf_prob tx_size_cdf[2][TX_SIZE_CONTEXTS]
-                          [CDF_SIZE(TX_PARTITION_TYPES_INTRA)];
-#else
+#if !CONFIG_NEW_TX_PARTITION
   aom_cdf_prob tx_size_cdf[MAX_TX_CATS][TX_SIZE_CONTEXTS]
                           [CDF_SIZE(MAX_TX_DEPTH + 1)];
 #endif  // CONFIG_NEW_TX_PARTITION

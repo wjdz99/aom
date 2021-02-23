@@ -668,7 +668,12 @@ enum {
 #define COMP_REF_TYPE_CONTEXTS 5
 #define UNI_COMP_REF_CONTEXTS 3
 
+#if CONFIG_NEW_TX_PARTITION
+#define TXFM_PARTITION_INTER_CONTEXTS 1
+#define TXFM_PARTITION_INTRA_CONTEXTS 1
+#else
 #define TXFM_PARTITION_CONTEXTS ((TX_SIZES - TX_8X8) * 6 - 3)
+#endif  // CONFIG_NEW_TX_PARTITION
 typedef uint8_t TXFM_CONTEXT;
 
 // An enum for single reference types (and some derived values).
