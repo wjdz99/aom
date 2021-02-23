@@ -33,6 +33,17 @@ enum {
   FTXS_USE_TRANSFORM_DOMAIN = 1 << 2
 } UENUM1BYTE(FAST_TX_SEARCH_MODE);
 
+#if CONFIG_NEW_TX_PARTITION
+static AOM_INLINE int inter_tx_partition_cost(int is_rect, TX_PARTITION_TYPE partition, 
+                                         const TXFM_CONTEXT *const above_ctx,
+                                         const TXFM_CONTEXT *const left_ctx,
+                                         BLOCK_SIZE bsize, TX_SIZE tx_size) {
+  const int split4_ctx_0 = txfm_partition_split4_inter_context(
+      above_ctx, left_ctx, bsize, tx_size);
+
+}
+#endif  // CONFIG_NEW_TX_PARTITION
+
 static AOM_INLINE int tx_size_cost(const MACROBLOCK *const x, BLOCK_SIZE bsize,
                                    TX_SIZE tx_size) {
   assert(bsize == x->e_mbd.mi[0]->sb_type);

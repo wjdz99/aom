@@ -2801,8 +2801,6 @@ static void select_tx_partition_type(
   TX_PARTITION_TYPE best_partition = -1;
   uint8_t best_partition_entropy_ctxs[MAX_TX_PARTITIONS] = { 0 };
   uint8_t best_partition_tx_types[MAX_TX_PARTITIONS] = { 0 };
-  const int ctx_0 = txfm_partition_context(
-      tx_above + blk_col, tx_left + blk_row, mbmi->sb_type, max_tx_size);
   uint8_t full_blk_skip[MAX_TX_PARTITIONS] = { 0 };
 
   // TODO(sarahparker) Add back all of the tx search speed features.
@@ -2825,8 +2823,8 @@ static void select_tx_partition_type(
     // Add rate cost of signalling this partition type
     if (max_tx_size > TX_4X4) {
       const int is_rect = is_rect_tx(max_tx_size);
-      partition_rd_stats.rate +=
-          x->mode_costs.txfm_partition_cost[is_rect][ctx_0][type];
+      partition_rd_stats.rate += inter_tx_partition_cost(is_rect, type,
+      tx_above + blk_col, tx_left + blk_row, mbmi->sb_type, max_tx_size);
     }
 
     // Get transform sizes created by this partition type
