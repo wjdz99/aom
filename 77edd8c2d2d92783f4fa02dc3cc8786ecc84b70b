@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ef514c9_063fc116",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:14:09Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nI am still reviewing aomenc.c. Let me send you the first round of comments.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23f27415_a500272e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:14:09Z",
+      "side": 1,
+      "message": "This comment should be in its own line, like so:\n\n#if CONFIG_TUNE_VMAF\n  \u0026g_av1_codec_arg_defs.vmaf_model_path,\n#endif\n  // Option that supports the control ID API ends here.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7066910a_87976439",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 858,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:14:09Z",
+      "side": 1,
+      "message": "Nit: This (int) cast is not necessary. Here are the relevant macro definitions:\n\n#define NELEMENTS(x) (int)(sizeof(x) / sizeof(x[0]))\n\n#define ARG_CTRL_CNT_MAX NELEMENTS(av1_arg_ctrl_map)",
+      "range": {
+        "startLine": 858,
+        "startChar": 13,
+        "endLine": 858,
+        "endChar": 18
+      },
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7966614_615da5de",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1084,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:14:09Z",
+      "side": 1,
+      "message": "This check is now always true because of the ctrl_args_map check at line 1081. Delete this check.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "891d68d8_cd75c24d",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1119,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:14:09Z",
+      "side": 1,
+      "message": "I think the special handling for\n\n     warn(\"auto-alt-ref \u003e 1 is deprecated... setting auto-alt-ref\u003d1\\n\");\n\nshould be done here. Please see my comment in av1_cx_iface.c.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23e705c9_526ca568",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:14:09Z",
+      "side": 1,
+      "message": "I believe the \"tools\" in \"tools_common.h\" refers to the aomdec and aomenc tools. So this header is not intended for the libaom library. More on this issue in my comment at line 2847 below.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef5386c8_59f3ab9c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2847,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:14:09Z",
+      "side": 1,
+      "message": "It seems inappropriate for the libaom library (as opposed to a command such as aomenc) to print warning or error messages. It would be good to ask James Zern about his opinion on this.\n\nI think it would be better to move this code to aomenc.c. I suspect it is simpler to do this here, but it does not seem right.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
