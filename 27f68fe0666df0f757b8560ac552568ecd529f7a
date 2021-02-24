@@ -22,6 +22,30 @@
       },
       "revId": "27f68fe0666df0f757b8560ac552568ecd529f7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6a11180_1dba5cac",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-02-24T18:09:57Z",
+      "side": 1,
+      "message": "Thanks! Could you let me know what aom_clear_system_state() achieves for floating point operations? I\u0027m not very familiar with this function.",
+      "parentUuid": "6d3243e9_e9014c86",
+      "range": {
+        "startLine": 156,
+        "startChar": 2,
+        "endLine": 156,
+        "endChar": 20
+      },
+      "revId": "27f68fe0666df0f757b8560ac552568ecd529f7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
