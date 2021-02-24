@@ -85,6 +85,41 @@
       "message": "Nice cleanup. I think this is left over from when there was a deadline parameter in the encode call.",
       "revId": "126b4437e53910cfe2a9d145956c2eb02884aa11",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dad924cc_904a0984",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T14:33:27Z",
+      "side": 1,
+      "message": "Thanks for the info! I took a look at libvpx. The encode function does have a deadline parameter:\n\n  /*!\\brief deadline parameter analogous to VPx REALTIME mode. */\n  #define VPX_DL_REALTIME (1)\n  /*!\\brief deadline parameter analogous to  VPx GOOD QUALITY mode. */\n  #define VPX_DL_GOOD_QUALITY (1000000)\n  /*!\\brief deadline parameter analogous to VPx BEST QUALITY mode. */\n  #define VPX_DL_BEST_QUALITY (0)\n\n  vpx_codec_err_t vpx_codec_encode(vpx_codec_ctx_t *ctx, const vpx_image_t *img,\n                                   vpx_codec_pts_t pts, unsigned long duration,\n                                   vpx_enc_frame_flags_t flags,\n                                   unsigned long deadline);\n\nThis is the prototype of aom_codec_encode:\n\n  aom_codec_err_t aom_codec_encode(aom_codec_ctx_t *ctx, const aom_image_t *img,\n                                   aom_codec_pts_t pts, unsigned long duration,\n                                   aom_enc_frame_flags_t flags);\n\nThis explains why aomenc has command-line argument definitions named \"good_dl\" and \"rt_dl\":\n\n  .good_dl \u003d ARG_DEF(NULL, \"good\", 0, \"Use Good Quality Deadline\"),\n  .rt_dl \u003d ARG_DEF(NULL, \"rt\", 0, \"Use Realtime Quality Deadline\"),\n\nThe argument definition names and messages should be updated because the deadline parameter of the encode function became the \u0027usage\u0027 parameter of aom_codec_enc_config_default():\n\n  aom_codec_err_t aom_codec_enc_config_default(aom_codec_iface_t *iface,\n                                               aom_codec_enc_cfg_t *cfg,\n                                               unsigned int usage);\n\n  /*!\\brief usage parameter analogous to AV1 GOOD QUALITY mode. */\n  #define AOM_USAGE_GOOD_QUALITY (0)\n  /*!\\brief usage parameter analogous to AV1 REALTIME mode. */\n  #define AOM_USAGE_REALTIME (1)\n\nvpx_codec_enc_config_default() has the same prototype but its \u0027usage\u0027 parameter must be set to 0:\n\n  vpx_codec_err_t vpx_codec_enc_config_default(vpx_codec_iface_t *iface,\n                                               vpx_codec_enc_cfg_t *cfg,\n                                               unsigned int usage) {\n    vpx_codec_err_t res;\n\n    if (!iface || !cfg || usage !\u003d 0)\n      res \u003d VPX_CODEC_INVALID_PARAM;\n    else if ...",
+      "parentUuid": "fc07c7b8_3e033314",
+      "revId": "126b4437e53910cfe2a9d145956c2eb02884aa11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53b19a3b_1b9c5037",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T14:33:27Z",
+      "side": 1,
+      "message": "Bohan, Jingning: Just FYI. I found some useful info on the key \u0026 value argument definitions named \"good_dl\" and \"rt_dl\" in libaom.",
+      "revId": "126b4437e53910cfe2a9d145956c2eb02884aa11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
