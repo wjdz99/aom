@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "12a2162c_021b14c4",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 18
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-24T03:31:21Z",
+      "side": 1,
+      "message": "I tried to use pkgconfig but cannot get jpeg-xl static link working.",
+      "parentUuid": "3b8edf50_38221aa8",
+      "revId": "285a54746239e5108852154ac7f052d73f45ca34",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "69288205_a35edfb3",
         "filename": "aom_dsp/butteraugli.c",
         "patchSetId": 18
