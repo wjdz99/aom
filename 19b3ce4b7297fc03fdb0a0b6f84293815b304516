@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14b33ea5_f203ee4e",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-02-24T09:13:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "020ea634_0c6a6602",
+      "revId": "19b3ce4b7297fc03fdb0a0b6f84293815b304516",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06679bec_e60a2cf0",
@@ -75,6 +93,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "993d591b_2d53e2d3",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-02-24T09:13:27Z",
+      "side": 1,
+      "message": "Yes, we corrected the assertion in the current patch to be consistent with our changes.",
+      "parentUuid": "06679bec_e60a2cf0",
+      "range": {
+        "startLine": 26,
+        "startChar": 28,
+        "endLine": 26,
+        "endChar": 56
+      },
+      "revId": "19b3ce4b7297fc03fdb0a0b6f84293815b304516",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ade36fa1_5508584d",
@@ -88,6 +130,24 @@
       "writtenOn": "2021-02-24T03:05:58Z",
       "side": 1,
       "message": "Nit: PALETTE_MAX_SIZE \u003d\u003e PALETTE_COLORS\n\nThe two macros have the same value (8), but PALETTE_COLORS is more closely tied to the \u0027token\u0027 field when I analyze the code, the third dimension of ColorCost:\n\n  typedef const int (*ColorCost)[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]\n                                [PALETTE_COLORS];",
+      "revId": "19b3ce4b7297fc03fdb0a0b6f84293815b304516",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0da7c5f_4822679d",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-02-24T09:13:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ade36fa1_5508584d",
       "revId": "19b3ce4b7297fc03fdb0a0b6f84293815b304516",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
