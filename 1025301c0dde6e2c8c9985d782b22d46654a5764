@@ -161,6 +161,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3a0c42cb_69f751da",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 21182
+      },
+      "writtenOn": "2021-02-24T00:44:07Z",
+      "side": 1,
+      "message": "So, I\u0027ve found an issue in this commit.\nIt seems to remove the pkgconfig setup and hardcodes static library names for some reason, making it extremely hard to include tune\u003dbutteraugli support even with both static and dynamic libraries of the latest JXL 0.3.2 build installed on my system.\n\nRemoving the cmakelists.txt hardcoded library names fixes the issue, so this would probably be the way to go. The libyuv stuff is fine however. Everything else in the commit is fine.",
+      "parentUuid": "05d00d8c_4028d7ab",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d6321ec7_711a757b",
         "filename": "aom_dsp/butteraugli.c",
         "patchSetId": 11
