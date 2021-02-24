@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c187e590_01084762",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:59:21Z",
+      "side": 1,
+      "message": "Bohan: I finished aomenc.c. Some more comments.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23f27415_a500272e",
@@ -31,6 +48,29 @@
       "writtenOn": "2021-02-24T00:14:09Z",
       "side": 1,
       "message": "This comment should be in its own line, like so:\n\n#if CONFIG_TUNE_VMAF\n  \u0026g_av1_codec_arg_defs.vmaf_model_path,\n#endif\n  // Option that supports the control ID API ends here.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "382172ec_aea8c6be",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 844,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:59:21Z",
+      "side": 1,
+      "message": "Nit: Delete this (int) cast.",
+      "range": {
+        "startLine": 844,
+        "startChar": 15,
+        "endLine": 844,
+        "endChar": 20
+      },
       "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -60,6 +100,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7d89f1a0_cc9cce68",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1080,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:59:21Z",
+      "side": 1,
+      "message": "Nit: ctrl APIs \u003d\u003e control ID API",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7585d210_1eb9a5be",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:59:21Z",
+      "side": 1,
+      "message": "Nit: We probably should put this for loop inside an if (ctrl_args_map) block, and remove the ctrl_args_map check from the for loop\u0027s condition:\n\n    if (ctrl_args_map) {\n      for (i \u003d 0; ctrl_args_map[i] \u0026\u0026 args_list[i]; i++) {",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e7966614_615da5de",
         "filename": "apps/aomenc.c",
         "patchSetId": 9
@@ -71,6 +145,23 @@
       "writtenOn": "2021-02-24T00:14:09Z",
       "side": 1,
       "message": "This check is now always true because of the ctrl_args_map check at line 1081. Delete this check.",
+      "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "248ea728_aa552924",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1091,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T00:59:21Z",
+      "side": 1,
+      "message": "Nit: put this for loop inside if (!match) and remove the !match check from the for loop\u0027s condition:\n\n    if (!match) {\n      for (i \u003d 0; args_list[i]; i++) {",
       "revId": "77edd8c2d2d92783f4fa02dc3cc8786ecc84b70b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
