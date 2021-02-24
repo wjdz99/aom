@@ -34,6 +34,24 @@
       "parentUuid": "275c99ee_b7daf34e",
       "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed8a5cfd_ed1f0081",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-24T02:35:01Z",
+      "side": 1,
+      "message": "\u003e does it make difference? (submitting this one vs picking up v2.0.2 then rebasing this one) ideally 2.0.2 should be precedent of 2.1.0?\n\npart of that change included an update to the changelog so I\u0027d think you\u0027d want it and it will save you one merge conflict",
+      "parentUuid": "4c916213_b8fc3de6",
+      "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
