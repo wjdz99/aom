@@ -16,6 +16,126 @@
       "message": "Please review.",
       "revId": "808eccadac2fa0671157d9d016152cb4c78b4c11",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bef0afe0_cae4a4ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T01:27:45Z",
+      "side": 1,
+      "message": "Jingning: PTAL.\n\nJayasanker: I think this CL is correct and I wrote down my understanding of how this CL works. Please check my understanding. Thanks.",
+      "revId": "808eccadac2fa0671157d9d016152cb4c78b4c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a157325_17a0211d",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T01:27:45Z",
+      "side": 1,
+      "message": "The way we cause this buffer to be not used for all intra encoding is very subtle. I described my understanding in a comment at av1/encoder/lookahead.c:54. If my understanding is correct, it would be good to document it.\n\nThe reason I find the current comment slightly inadequate is that every frame except the first frame has a previous source frame, so it is not obvious why the previous source frame is not used for all intra encoding.",
+      "range": {
+        "startLine": 402,
+        "startChar": 31,
+        "endLine": 403,
+        "endChar": 19
+      },
+      "revId": "808eccadac2fa0671157d9d016152cb4c78b4c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5112f98_387ec73f",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T01:27:45Z",
+      "side": 1,
+      "message": "Nit: Remove this \u0027const\u0027.",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 9
+      },
+      "revId": "808eccadac2fa0671157d9d016152cb4c78b4c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5e5e552_eb2c65bb",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T01:27:45Z",
+      "side": 1,
+      "message": "It would be good to point out that setting max_pre_frames to 0 causes av1_lookahead_peek() to return NULL for any negative index. That NULL return value ultimately causes cpi-\u003eunscaled_last_source to be NULL. If cpi-\u003eunscaled_last_source is NULL, then cpi-\u003escaled_last_source is not used, and cpi-\u003elast_source stays NULL (the initial value).\n\nI hope I described this chain of events correctly. I obtained it by analyzing the code.",
+      "revId": "808eccadac2fa0671157d9d016152cb4c78b4c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22adc243_faa4cf23",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T01:27:45Z",
+      "side": 1,
+      "message": "Nit: Please add a blank line after this line, to separate system headers from libaom headers.",
+      "revId": "808eccadac2fa0671157d9d016152cb4c78b4c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f3cb029_01be1021",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-24T01:27:45Z",
+      "side": 1,
+      "message": "Nit: I suggest removing the \u0027const\u0027 from this parameter.\n\nNote: In this header file, \u0027border_in_pixels\u0027 is the only parameter declared as \u0027const\u0027. It is better to be consistent with the prevalent style (no const).",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 9
+      },
+      "revId": "808eccadac2fa0671157d9d016152cb4c78b4c11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
