@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \nThis patch disables LAST2_FRAME and ALTREF2_FRAME  reference frames in speed 6.\nPlease find the detailed Borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)      |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim   |\n-------- | ---------- | ----------------- | --------  --------  --------|\n   6     |  LOW RES   |       1.570       |  0.1674   0.1739   0.1432   |\n   6     |  MID RES   |       1.617       |  0.0965   0.1112   0.1136   |\n   6     |   HD RES   |       1.110       | -0.0009   0.0089   0.0030   |\n   6     |  Average   |       1.465       |  0.0953   0.1053   0.0918   |\n\n\nCurrently the speed feature is slightly beyond trade-off for speed 5 and we plan to do some experiments to improve the trade-off. We shall submit a patch for the same depending on progress.\n\nIn the commit message, BD rate impact column: [+] sign is for BD-Rate drop [-] sign is for BD-Rate improvement. The instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc … \nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally on a few test cases). Please review the patch.\n",
       "revId": "f7402c38b7076f9ddf7b78778df21f67551735e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46c608bd_4c9ca943",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-24T19:02:51Z",
+      "side": 1,
+      "message": "Thanks! Looks good. What is the result for speed 5?",
+      "parentUuid": "0b712061_50f92def",
+      "revId": "f7402c38b7076f9ddf7b78778df21f67551735e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
