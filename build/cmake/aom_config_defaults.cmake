@@ -139,7 +139,8 @@ set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
                    "AV2 experiment flag to remove dual filter.")
 # Partitioning
 set_aom_config_var(CONFIG_SDP 0 NUMBER "AV2 Semi-Decoupled Partitioning.")
-
+# Intra Secondary Transform
+set_aom_config_var(CONFIG_IST 1 NUMBER "AV2 IST experiment flag.")
 #
 # Variables in this section control optional features of the build system.
 #
