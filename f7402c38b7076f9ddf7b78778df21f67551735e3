@@ -51,6 +51,24 @@
       "message": "Hi Yunqing, \nThanks for merging. Please find detailed Borg results for CPU5  below . LOW RES and MID RES are out of trade off.\n         |            | Instruction Count |        BD-Rate Loss(%)      |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim   |\n-------- | ---------- | ----------------- | --------  --------  --------|\n   5     |  LOW RES   |       1.815       |  0.2365   0.2405   0.2750   |\n   5     |  MID RES   |       2.032       |  0.2629   0.2645   0.1197   |\n   5     |   HD RES   |       1.642       |  0.1012   0.0871   0.1445   |\n   5     |  Average   |       1.555       |  0.2030   0.2008   0.1898   |",
       "revId": "f7402c38b7076f9ddf7b78778df21f67551735e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3b5b6ba_ecb87fee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-02-25T17:32:02Z",
+      "side": 1,
+      "message": "Thanks. Agree that performance on midres \u0026 lowres can be improved.",
+      "parentUuid": "62fb523c_ee58644a",
+      "revId": "f7402c38b7076f9ddf7b78778df21f67551735e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
