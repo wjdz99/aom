@@ -32,6 +32,7 @@ FrameNum = {
     "STILL" : 1,
 }
 EnableTimingInfo = True
+UsePerfUtil = False
 Platform = platform.system()
 
 ############ test contents #######################################

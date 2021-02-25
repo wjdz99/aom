@@ -151,7 +151,7 @@ def CreateChart_Scatter(wb, title, xaxis_name, yaxis_name):
     chart.set_y_axis({'name': yaxis_name, 'name_font': {'color': 'white'},
                       'num_font': {'color': 'white'}})
     chart.set_style(12)
-    chart.set_size({'x_scale': 1.5, 'y_scale': 1.5})
+    chart.set_size({'x_scale': 1.5, 'y_scale': 2.0})
     chart.set_chartarea({"fill": {'color': '#505050'}})
     chart.set_plotarea({"fill": {'color': '#505050'}})
     chart.set_legend({'position': 'bottom', 'font': {'color': 'white'}})
@@ -162,7 +162,7 @@ def CreateChart_Line(wb, titlename, yaxis_name):
     chart.set_title({'name': titlename})
     chart.set_x_axis({'text_axis': True})
     chart.set_y_axis({'name': yaxis_name, 'name_font': {'size': 11}})
-    chart.set_size({'x_scale': 1.4, 'y_scale': 1.5})
+    chart.set_size({'x_scale': 1.5, 'y_scale': 2.0})
     chart.set_legend({'position': 'right', 'font': {'size': 10.5}})
     chart.set_high_low_lines(
         {'line': {'color': 'black', 'size': 2}}
@@ -226,7 +226,7 @@ def UpdateChart(chart, ymin, ymax, margin, yaxis_name, precsn):
                       'min': finalmin, 'max': finalmax})
 
 def InsertChartsToSheet(sht, startrow, startcol, charts):
-    height = 22
+    height = 30
     width = 12
     num = len(charts)
     row = startrow
@@ -274,6 +274,32 @@ def md5(fname):
         for chunk in iter(lambda: f.read(4096), b""):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
+
+def GatherInstrCycleInfo(bsfile, Path_TimingLog):
+    assert(Platform != "Windows" and Platform != "Darwin")
+    enc_perf = GetEncPerfFile(bsfile, Path_TimingLog)
+    dec_perf = GetDecPerfFile(bsfile, Path_TimingLog)
+    enc_instr = 0; enc_cycles = 0; dec_instr = 0; dec_cycles = 0
+    flog = open(enc_perf, 'r')
+    for line in flog:
+        m = re.search(r"(\S+)\s+instructions", line)
+        if m:
+            enc_instr = int(m.group(1))
+        m = re.search(r"(\S+)\s+cycles", line)
+        if m:
+            enc_cycles = int(m.group(1))
+    flog.close()
+
+    flog = open(dec_perf, 'r')
+    for line in flog:
+        m = re.search(r"(\S+)\s+instructions", line)
+        if m:
+            dec_instr = int(m.group(1))
+        m = re.search(r"(\S+)\s+cycles", line)
+        if m:
+            dec_cycles = int(m.group(1))
+    flog.close()
+    return enc_instr, enc_cycles, dec_instr, dec_cycles
 
 def GatherPerfInfo(bsfile, Path_TimingLog):
     enc_perf = GetEncPerfFile(bsfile, Path_TimingLog)
@@ -337,6 +363,6 @@ def GatherPerframeStat(test_cfg,EncodeMethod,CodecName,EncodePreset,clip, name, 
 
     for i in range(len(enc_list)):
         #"TestCfg,EncodeMethod,CodecName,EncodePreset,Class,Res,Name,FPS,BitDepth,QP,POC,TempLayerId,FrameType,qindex,FrameSize")
-        perframe_csv.write("%s,%s,%s,%s,%s,%s,%s,%s,%d,%s,%d,%s,%s\n"
+        perframe_csv.write("%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%s,%s\n"
                            %(test_cfg,EncodeMethod,CodecName,EncodePreset,clip.file_class,str(clip.width)+"x"+str(clip.height),
-                             name,clip.fps,clip.bit_depth,str(width)+"x"+str(height),qp,enc_list[i],perframe_vmaf_log[i]))
+                             name,clip.fps,clip.bit_depth,qp,enc_list[i],perframe_vmaf_log[i]))
