@@ -924,12 +924,74 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
             fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode];
       else
         intra_dir = mbmi->mode;
+
+#if CONFIG_IST
+      uint8_t stx_flag = (tx_type >> 4);
+
+      assert(stx_flag <= 3);
+
+      aom_write_symbol(
+          w, av1_ext_tx_ind[tx_set_type][tx_type & 0xf],
+          ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_dir],
+          av1_num_ext_tx_set[tx_set_type]);
+
+#if CONFIG_SDP
+      const BLOCK_SIZE bs = mbmi->sb_type[PLANE_TYPE_Y];
+#else
+      const BLOCK_SIZE bs = mbmi->sb_type;
+#endif
+      if ((((tx_type & 0xf) == DCT_DCT) || ((tx_type & 0xf) == ADST_ADST)) &&
+          ((intra_dir < PAETH_PRED) &&
+           !(mbmi->filter_intra_mode_info.use_filter_intra))) {
+        const TX_SIZE max_rect_txsize = max_txsize_rect_lookup[bs];
+        int max_ht = tx_size_high[max_rect_txsize];
+        int max_wd = tx_size_wide[max_rect_txsize];
+        int ht = tx_size_high[tx_size];
+        int wd = tx_size_wide[tx_size];
+        if ((ht == max_ht) && (wd == max_wd)) {
+          aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
+        }
+      }
+#else
       aom_write_symbol(
           w, av1_ext_tx_ind[tx_set_type][tx_type],
           ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_dir],
           av1_num_ext_tx_set[tx_set_type]);
+#endif
     }
   }
+#if CONFIG_IST
+  else if (!is_inter) {
+    uint8_t stx_flag = (tx_type >> 4);
+    FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+    const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
+    PREDICTION_MODE intra_dir;
+    if (mbmi->filter_intra_mode_info.use_filter_intra)
+      intra_dir =
+          fimode_to_intradir[mbmi->filter_intra_mode_info.filter_intra_mode];
+    else
+      intra_dir = mbmi->mode;
+
+    assert(stx_flag <= 3);
+
+#if CONFIG_SDP
+    const BLOCK_SIZE bs = mbmi->sb_type[PLANE_TYPE_Y];
+#else
+    const BLOCK_SIZE bs = mbmi->sb_type;
+#endif
+    const TX_SIZE max_rect_txsize = max_txsize_rect_lookup[bs];
+    int max_ht = tx_size_high[max_rect_txsize];
+    int max_wd = tx_size_wide[max_rect_txsize];
+    int ht = tx_size_high[tx_size];
+    int wd = tx_size_wide[tx_size];
+    if ((ht == max_ht) && (wd == max_wd)) {
+      if ((intra_dir < PAETH_PRED) &&
+          !(mbmi->filter_intra_mode_info.use_filter_intra)) {
+        aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
+      }
+    }
+  }
+#endif
 }
 
 static AOM_INLINE void write_intra_y_mode_nonkf(FRAME_CONTEXT *frame_ctx,
