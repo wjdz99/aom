@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "160b9c78_1df58cc2",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T02:38:41Z",
+      "side": 0,
+      "message": "MapCdf points to three-dimensional arrays like this:\n  aom_cdf_prob palette_y_color_index_cdf[PALETTE_SIZES]\n                                        [PALETTE_COLOR_INDEX_CONTEXTS]\n                                        [CDF_SIZE(PALETTE_COLORS)];\n\nColorCost points to three-dimensional arrays like this:\n  int palette_y_color_cost[PALETTE_SIZES][PALETTE_COLOR_INDEX_CONTEXTS]\n                          [PALETTE_COLORS];\n\nWhile reviewing https://aomedia-review.googlesource.com/c/aom/+/130704, I was wondering why MapCdf and ColorCost both point to three-dimensional arrays but their definitions look different. Eventually I figured it out.",
+      "revId": "4f9f7b62c0739d6c58502eb11e2199d49c18675e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
