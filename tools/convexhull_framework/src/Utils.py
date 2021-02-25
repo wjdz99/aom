@@ -151,7 +151,7 @@ def CreateChart_Scatter(wb, title, xaxis_name, yaxis_name):
     chart.set_y_axis({'name': yaxis_name, 'name_font': {'color': 'white'},
                       'num_font': {'color': 'white'}})
     chart.set_style(12)
-    chart.set_size({'x_scale': 1.5, 'y_scale': 1.5})
+    chart.set_size({'x_scale': 1.5, 'y_scale': 2.0})
     chart.set_chartarea({"fill": {'color': '#505050'}})
     chart.set_plotarea({"fill": {'color': '#505050'}})
     chart.set_legend({'position': 'bottom', 'font': {'color': 'white'}})
@@ -162,7 +162,7 @@ def CreateChart_Line(wb, titlename, yaxis_name):
     chart.set_title({'name': titlename})
     chart.set_x_axis({'text_axis': True})
     chart.set_y_axis({'name': yaxis_name, 'name_font': {'size': 11}})
-    chart.set_size({'x_scale': 1.4, 'y_scale': 1.5})
+    chart.set_size({'x_scale': 1.5, 'y_scale': 2.0})
     chart.set_legend({'position': 'right', 'font': {'size': 10.5}})
     chart.set_high_low_lines(
         {'line': {'color': 'black', 'size': 2}}
@@ -226,7 +226,7 @@ def UpdateChart(chart, ymin, ymax, margin, yaxis_name, precsn):
                       'min': finalmin, 'max': finalmax})
 
 def InsertChartsToSheet(sht, startrow, startcol, charts):
-    height = 22
+    height = 30
     width = 12
     num = len(charts)
     row = startrow

@@ -262,36 +262,49 @@ def Run_ConvexHull_Test(clip, dnScalAlgo, upScalAlgo, LogCmdOnly = False):
         Utils.Logger.info("finish running encode test.")
     Utils.Logger.info("finish running encode test.")
 
-def Interpolate(RDPoints):
+def Interpolate(RDPoints, QPs):
     '''
     generate interpolated points on a RD curve.
     input is list of existing RD points as (bitrate, quality) tuple
     total number of interpolated points depends on the min and max QP
+    this version interpolate over the bitrate and quality range piece by
+    piece, so all input RD data points are guaranteed in the output
     '''
     # sort the pair based on bitrate in increasing order
     # if bitrate is the same, then sort based on quality in increasing order
     RDPoints.sort(key = itemgetter(0, 1))
     br = [RDPoints[i][0] for i in range(len(RDPoints))]
     qty = [RDPoints[i][1] for i in range(len(RDPoints))]
+    # sort QPs in decreasing order
+    QPs.sort(reverse=True)
+    int_points = []
 
-    # generate samples between max and min of quality metrics
-    min_br = min(br); max_br = max(br)
-    min_qp = min(QPs['AS']); max_qp = max(QPs['AS'])
-    lin = np.linspace(min_br, max_br, num = (max_qp - min_qp + 1), retstep = True)
-    int_br = lin[0]
+    for i in range(1, len(QPs)):
+        # generate samples between max and min of quality metrics
+        max_qp = QPs[i - 1]; min_qp = QPs[i]
+        lin = np.linspace(br[i-1], br[i], num = (max_qp - min_qp + 1), retstep = True)
+        int_br = lin[0]
 
-    # interpolation using pchip
-    int_qty = scipy.interpolate.pchip_interpolate(br, qty, int_br)
+        # interpolation using pchip
+        int_qty = scipy.interpolate.pchip_interpolate(br, qty, int_br)
+        int_points += [(int_br[i], int_qty[i]) for i in range(len(int_br) - 1)]
 
+    # add the last rd points from the input
+    int_points += [(br[-1], qty[-1])]
     '''
     print("before interpolation:")
     for i in range(len(br)):
         print("%f, %f"%(br[i], qty[i]))
     print("after interpolation:")
-    for i in range(len(int_br)):
-        print("%f, %f"%(int_br[i], int_qty[i]))
+    for i in range(len(int_points)):
+        print("%f, %f"%(int_points[i][0], int_points[i][1]))
+
+    result = all(elem in int_points for elem in RDPoints)
+    if result:
+        print("Yes, Interpolation contains all elements in the input")
+    else:
+        print("No, Interpolation does not contain all elements in the input")
     '''
-    int_points = [(int_br[i], int_qty[i]) for i in range(len(int_br))]
     return int_points
 
 def SaveConvexHullResultsToExcel(content, dnScAlgos, upScAlgos, csv, perframe_csv,
@@ -374,7 +387,7 @@ def SaveConvexHullResultsToExcel(content, dnScAlgos, upScAlgos, csv, perframe_cs
                 rdpnts = [(brt, qty) for brt, qty in zip(bitratesKbps, qs)]
                 RDPoints[x] = RDPoints[x] + rdpnts
                 if EnablePreInterpolation:
-                    int_rdpnts = Interpolate(rdpnts)
+                    int_rdpnts = Interpolate(rdpnts, QPs['AS'][:])
                     Int_RDPoints[x] = Int_RDPoints[x] + int_rdpnts
 
         # add convexhull curve to charts
