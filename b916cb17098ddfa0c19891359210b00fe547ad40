@@ -56,6 +56,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "40663e28_d225b6d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T15:48:39Z",
+      "side": 1,
+      "message": "I don\u0027t know how to trigger Jenkins verification build of patchset 3. Since patchset 2 has been verified and patchset 3 contains only two small changes (correcting an assertion and editing a comment), I built patchset 3 locally (with assertions enabled) and set the Verified+1 flag. I am going to submit the CL now.",
+      "revId": "b916cb17098ddfa0c19891359210b00fe547ad40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1ea7ebf2_6ef0acbb",
         "filename": "av1/encoder/tokenize.h",
         "patchSetId": 3
