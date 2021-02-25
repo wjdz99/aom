@@ -16,6 +16,279 @@
       "message": "Test",
       "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f86fdd0f_837266e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Bohan: Thank you for writing the CL! I suggest some changes.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f078ffda_f75cd7c6",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "(I have several comments in this CL related to splitting the av1_args[] array into two arrays, one for the control ID API and the other for the Key \u0026 Value API.. This is the first one. Let\u0027s do this in a separate CL.)\n\nRename this array \"av1_ctrl_args\".\n\nAdd a new array named \"av1_key_val_args\". Options supported by the key \u0026 value API should be added to the av1_key_val_args array instead.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4037e9f_b69b5fbf",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Change this line to:\n\n  arg_show_usage(fout, av1_ctrl_args);\n  arg_show_usage(fout, av1_key_val_args);",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d20105da_253d9a91",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Define a new macro:\n\n  #define ARG_KEY_VAL_CNT_MAX NELEMENTS(av1_key_val_args)",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8e0d792_7ad5ca58",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Use ARG_KEY_VAL_CNT_MAX instead of ARG_CTRL_CNT_MAX as the first dimension of this array.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab9bd835_d121fc29",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Nit: Please remove this (int) cast.",
+      "range": {
+        "startLine": 812,
+        "startChar": 15,
+        "endLine": 812,
+        "endChar": 20
+      },
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16745a6b_1d9412e7",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Nit: Please remove this (int) cast.",
+      "range": {
+        "startLine": 826,
+        "startChar": 13,
+        "endLine": 826,
+        "endChar": 18
+      },
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1d74531_c194b597",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 839,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "IMPORTANT: Let\u0027s deal with this issue separately. If the user passes a large number of --target-seq-level-idx\u003d0 options, we can overflow the config-\u003earg_key_vals array.\n\n(The set_config_arg_ctrls() function above has the same problem.)\n\nWe should impose a maximum number of --target-seq-level-idx options and add that to the values of the ARG_CTRL_CNT_MAX and ARG_KEY_VAL_CNT_MAX macros.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6db3cffa_b3c263ff",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Use ARG_KEY_VAL_CNT_MAX instead of ARG_CTRL_CNT_MAX in this assertion.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70732e64_7c6af8d4",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 855,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Use ARG_KEY_VAL_CNT_MAX instead of ARG_CTRL_CNT_MAX in this assertion.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1aaad011_df9a61e6",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "We may want to change this variable name back to \"ctrl_args\", and add a new variable named \"key_val_args\".",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cac00fa_52fbb3c0",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Set the new key_val_args variable to av1_key_val_args here.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5218d1b2_de51b1ee",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Nit: APIs \u003d\u003e API",
+      "range": {
+        "startLine": 1077,
+        "startChar": 33,
+        "endLine": 1077,
+        "endChar": 37
+      },
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f278eb58_931daca9",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1089,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "Use the new key_val_args variable instead of args_list in this for loop.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fabe4241_d3e2cbef",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1121,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 1,
+      "message": "I suggest we continue to rewrite the value of auto-alt-ref in set_config_arg_ctrls().\n\nIn my review of the previous CL, I suggested doing it here. But I was mistaken. I didn\u0027t realize we need to search in the config-\u003earg_ctrls[] or config-\u003earg_key_vals[] array for auto-alt-ref.",
+      "revId": "c7aafa7f8fc9032a84f23135d272269d3aba454b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

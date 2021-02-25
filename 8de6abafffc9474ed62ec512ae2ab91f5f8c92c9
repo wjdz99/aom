@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff75c1d5_5db91937",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 832,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:20:09Z",
+      "side": 0,
+      "message": "Hmm... It seems that we can just keep this code. Since \u0026g_av1_codec_arg_defs.auto_altref is the second element in av1_args[], it will be handled by this function, so we can just rewrite its value here.",
+      "revId": "8de6abafffc9474ed62ec512ae2ab91f5f8c92c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
