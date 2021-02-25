@@ -242,6 +242,30 @@
       },
       "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1db78233_dcb77fb2",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-02-25T20:28:57Z",
+      "side": 1,
+      "message": "\u003e 2.0.3 is incorrect. In the unlikely case that we make another release from the applejack branch, that release will have the 2.0.3 SO_FILE_VERSION.\n\u003e \n\u003e What are the \u0027current\u0027, \u0027age\u0027, and \u0027revision\u0027 for the libaom 2.0.0 release? From that, we can work out the\u0027current\u0027, \u0027age\u0027, and \u0027revision\u0027 for this release, and then we can use the following libtool source code to generate the SO_FILE_VERSION value:\n\u003e \n\u003e         linux) # correct to gnu/linux during the next big refactor\n\u003e           func_arith $current - $age\n\u003e           major\u003d.$func_arith_result\n\u003e           versuffix\u003d$major.$age.$revision\n\u003e           ;;\n\u003e \n\u003e The result should be 2.1.0, otherwise something is wrong with the libtool versioning scheme.\n\nYes it is incorrect. I forgot about the addition of aom_codec_set_option.",
+      "parentUuid": "857dd7c0_a84dfc06",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 25
+      },
+      "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
