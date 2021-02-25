@@ -46,6 +46,30 @@
       },
       "revId": "27f68fe0666df0f757b8560ac552568ecd529f7a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ce05843_805be7c5",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-02-25T03:15:42Z",
+      "side": 1,
+      "message": "We need this because intel has a cpu bug.\nThe rough idea is SIMD and floating point share the same register and they will interfere with each other.\nWhen we switch from SIMD computation to floating point computation, we need to call aom_clear_system_state().\nSo the best practice is to always add aom_clear_system_state() before floating point operation.\nMaybe Yunqing and Jzern will know more about this. You can add them as reviewer for the followup patch.",
+      "parentUuid": "f6a11180_1dba5cac",
+      "range": {
+        "startLine": 156,
+        "startChar": 2,
+        "endLine": 156,
+        "endChar": 20
+      },
+      "revId": "27f68fe0666df0f757b8560ac552568ecd529f7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
