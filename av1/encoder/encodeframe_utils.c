@@ -1312,6 +1312,9 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->cfl_sign_cdf, ctx_tr->cfl_sign_cdf, CFL_JOINT_SIGNS);
   AVERAGE_CDF(ctx_left->cfl_alpha_cdf, ctx_tr->cfl_alpha_cdf,
               CFL_ALPHABET_SIZE);
+#if CONFIG_IST
+  AVG_CDF_STRIDE(ctx_left->stx_cdf, ctx_tr->stx_cdf, 4, CDF_SIZE(4));
+#endif
 }
 
 // Grade the temporal variation of the source by comparing the current sb and

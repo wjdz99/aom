@@ -616,6 +616,10 @@ typedef struct {
   //! intrabc_cost
   int intrabc_cost[2];
 
+#if CONFIG_IST
+  int stx_flag_cost[5][4];
+#endif
+
   //! palette_y_size_cost
   int palette_y_size_cost[PALATTE_BSIZE_CTXS][PALETTE_SIZES];
   //! palette_uv_size_cost
