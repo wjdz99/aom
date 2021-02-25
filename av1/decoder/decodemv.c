@@ -731,8 +731,60 @@ void av1_read_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
       *tx_type = av1_ext_tx_inv[tx_set_type][aom_read_symbol(
           r, ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_mode],
           av1_num_ext_tx_set[tx_set_type], ACCT_STR)];
+#if CONFIG_IST
+#if CONFIG_SDP
+      const BLOCK_SIZE bs = mbmi->sb_type[PLANE_TYPE_Y];
+#else
+      const BLOCK_SIZE bs = mbmi->sb_type;
+#endif
+      if ((*tx_type == DCT_DCT || *tx_type == ADST_ADST) && ((intra_mode < PAETH_PRED) && !(mbmi->filter_intra_mode_info.use_filter_intra)))
+      {
+        const TX_SIZE max_rect_txsize = max_txsize_rect_lookup[bs];
+        int max_ht = tx_size_high[max_rect_txsize];
+        int max_wd = tx_size_wide[max_rect_txsize];
+        int ht = tx_size_high[tx_size];
+        int wd = tx_size_wide[tx_size];
+        if ((ht == max_ht) && (wd == max_wd))
+        {
+          uint8_t stx_flag;
+          stx_flag = aom_read_symbol(r, ec_ctx->stx_cdf[square_tx_size], 4, ACCT_STR);
+          * tx_type += (stx_flag << 4);
+        }
+      }
+#endif
     }
   }
+#if CONFIG_IST
+  else if (!is_inter_block(mbmi))
+  {
+    uint8_t  stx_flag = 0;
+    FRAME_CONTEXT* ec_ctx = xd->tile_ctx;
+    const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
+    const PREDICTION_MODE intra_mode =
+      mbmi->filter_intra_mode_info.use_filter_intra
+      ? fimode_to_intradir[mbmi->filter_intra_mode_info
+      .filter_intra_mode]
+      : mbmi->mode;
+#if CONFIG_SDP
+    const BLOCK_SIZE bs = mbmi->sb_type[PLANE_TYPE_Y];
+#else
+    const BLOCK_SIZE bs = mbmi->sb_type;
+#endif
+    const TX_SIZE max_rect_txsize = max_txsize_rect_lookup[bs];
+    int max_ht = tx_size_high[max_rect_txsize];
+    int max_wd = tx_size_wide[max_rect_txsize];
+    int ht = tx_size_high[tx_size];
+    int wd = tx_size_wide[tx_size];
+    if ((ht == max_ht) && (wd == max_wd))
+    {
+      if ((intra_mode < PAETH_PRED) && !(mbmi->filter_intra_mode_info.use_filter_intra))
+      {
+          stx_flag = aom_read_symbol(r, ec_ctx->stx_cdf[square_tx_size], 4, ACCT_STR);
+      }
+      * tx_type = (stx_flag << 4);
+    }
+  }
+#endif
 }
 
 static INLINE void read_mv(aom_reader *r, MV *mv, const MV *ref,

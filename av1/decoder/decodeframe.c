@@ -145,13 +145,26 @@ static AOM_INLINE void inverse_transform_block(DecoderCodingBlock *dcb,
                                                const TX_SIZE tx_size,
                                                uint8_t *dst, int stride,
                                                int reduced_tx_set) {
+#if CONFIG_IST
+  tran_low_t* dqcoeff = dcb->dqcoeff_block[plane] + dcb->cb_offset[plane];
+#else
   tran_low_t *const dqcoeff = dcb->dqcoeff_block[plane] + dcb->cb_offset[plane];
+#endif
   eob_info *eob_data = dcb->eob_data[plane] + dcb->txb_offset[plane];
   uint16_t scan_line = eob_data->max_scan_line;
   uint16_t eob = eob_data->eob;
   av1_inverse_transform_block(&dcb->xd, dqcoeff, plane, tx_type, tx_size, dst,
                               stride, eob, reduced_tx_set);
+#if CONFIG_IST
+  const int width = tx_size_wide[tx_size] <= 32 ? tx_size_wide[tx_size] : 32;
+  const int height = tx_size_high[tx_size] <= 32 ? tx_size_high[tx_size] : 32;
+  const int sbSize = (width >= 8 && height >= 8) ? 8 : 4;
+  int32_t nz0 = (sbSize - 1) * tx_size_wide[tx_size] + sbSize;
+  int32_t nz1 = (scan_line + 1);
+  memset(dqcoeff, 0, (nz0 > nz1 ? nz0 : nz1) * sizeof(dqcoeff[0]));
+#else
   memset(dqcoeff, 0, (scan_line + 1) * sizeof(dqcoeff[0]));
+#endif
 }
 
 static AOM_INLINE void read_coeffs_tx_intra_block(

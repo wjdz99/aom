@@ -1142,7 +1142,11 @@ static INLINE void recon_intra(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (do_quant) {
       TxfmParam txfm_param_intra;
       QUANT_PARAM quant_param_intra;
-      av1_setup_xform(cm, x, tx_size, best_tx_type, &txfm_param_intra);
+      av1_setup_xform(cm, x, 
+#if CONFIG_IST
+        plane,
+#endif
+        tx_size, best_tx_type, &txfm_param_intra);
       av1_setup_quant(tx_size, !skip_trellis,
                       skip_trellis
                           ? (USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B
@@ -1238,7 +1242,11 @@ static INLINE int64_t dist_block_px_domain(const AV1_COMP *cpi, MACROBLOCK *x,
   const int dst_idx = (blk_row * dst_stride + blk_col) << MI_SIZE_LOG2;
   const uint8_t *src = &x->plane[plane].src.buf[src_idx];
   const uint8_t *dst = &xd->plane[plane].dst.buf[dst_idx];
+#if CONFIG_IST
+  tran_low_t* dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
+#else
   const tran_low_t *dqcoeff = p->dqcoeff + BLOCK_OFFSET(block);
+#endif
 
   assert(cpi != NULL);
   assert(tx_size_wide_log2[0] == tx_size_high_log2[0]);
@@ -1408,7 +1416,11 @@ uint16_t prune_txk_type_separ(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   QUANT_PARAM quant_param;
   TxfmParam txfm_param;
-  av1_setup_xform(cm, x, tx_size, DCT_DCT, &txfm_param);
+  av1_setup_xform(cm, x, 
+#if CONFIG_IST
+    plane,
+#endif
+    tx_size, DCT_DCT, &txfm_param);
   av1_setup_quant(tx_size, 1, AV1_XFORM_QUANT_B, cpi->oxcf.q_cfg.quant_b_adapt,
                   &quant_param);
   int tx_type;
@@ -1523,7 +1535,11 @@ uint16_t prune_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   TxfmParam txfm_param;
   QUANT_PARAM quant_param;
-  av1_setup_xform(cm, x, tx_size, DCT_DCT, &txfm_param);
+  av1_setup_xform(cm, x,
+#if CONFIG_IST
+    plane,
+#endif
+    tx_size, DCT_DCT, &txfm_param);
   av1_setup_quant(tx_size, 1, AV1_XFORM_QUANT_B, cpi->oxcf.q_cfg.quant_b_adapt,
                   &quant_param);
 
@@ -2366,7 +2382,11 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   TxfmParam txfm_param;
   QUANT_PARAM quant_param;
   int skip_trellis_based_on_satd[TX_TYPES] = { 0 };
-  av1_setup_xform(cm, x, tx_size, DCT_DCT, &txfm_param);
+  av1_setup_xform(cm, x,
+#if CONFIG_IST
+    plane,
+#endif
+    tx_size, DCT_DCT, &txfm_param);
   av1_setup_quant(tx_size, !skip_trellis,
                   skip_trellis ? (USE_B_QUANT_NO_TRELLIS ? AV1_XFORM_QUANT_B
                                                          : AV1_XFORM_QUANT_FP)
@@ -2375,9 +2395,34 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
 
   // Iterate through all transform type candidates.
   for (int idx = 0; idx < TX_TYPES; ++idx) {
+#if CONFIG_IST
+    for (int stx = 0; stx < 4; ++stx) {
+      TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
+      if (!(allowed_tx_mask & (1 << tx_type))) continue;
+      if (((tx_type != DCT_DCT && tx_type != ADST_ADST) || plane != 0 || is_inter_block(mbmi) || dc_only_blk) && stx)
+        continue;
+      const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[plane_bsize];
+      int max_txsize_ht = tx_size_high[max_rect_tx_size];
+      int max_txsize_wd = tx_size_wide[max_rect_tx_size];
+      int tx_ht = tx_size_high[tx_size];
+      int tx_wd = tx_size_wide[tx_size];
+      if (((tx_ht < max_txsize_ht) || (tx_wd < max_txsize_wd)) &&
+        stx)
+        continue;
+      PREDICTION_MODE intra_mode = (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
+      const int filter = mbmi->filter_intra_mode_info.use_filter_intra;
+      if ((intra_mode >= PAETH_PRED || filter) && stx) continue;
+      tx_type += (stx << 4);
+      txfm_param.tx_type = (tx_type & 0xf);
+      txfm_param.stx_type = stx;
+      if (txfm_param.tx_type == ADST_ADST) {
+        txfm_param.intra_mode = mbmi->mode + 12;
+      }
+#else
     const TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
     if (!(allowed_tx_mask & (1 << tx_type))) continue;
     txfm_param.tx_type = tx_type;
+#endif
     if (av1_use_qmatrix(&cm->quant_params, xd, mbmi->segment_id)) {
       av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
                         &quant_param);
@@ -2387,11 +2432,19 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     av1_invalid_rd_stats(&this_rd_stats);
 
     if (!dc_only_blk)
-      av1_xform(x, plane, block, blk_row, blk_col, plane_bsize, &txfm_param);
+      av1_xform(x, plane, block, blk_row, blk_col, plane_bsize, &txfm_param
+#if CONFIG_IST
+        , 1
+#endif
+      );
     else
       av1_xform_dc_only(x, plane, block, &txfm_param, per_px_mean);
 
+#if CONFIG_IST
+    skip_trellis_based_on_satd[txfm_param.tx_type] = skip_trellis_opt_based_on_satd(
+#else
     skip_trellis_based_on_satd[tx_type] = skip_trellis_opt_based_on_satd(
+#endif
         x, &quant_param, plane, block, tx_size, cpi->oxcf.q_cfg.quant_b_adapt,
         qstep, txfm_params->coeff_opt_satd_threshold, skip_trellis,
         dc_only_blk);
@@ -2530,6 +2583,9 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     // Terminate transform type search if the block has been quantized to
     // all zero.
     if (cpi->sf.tx_sf.tx_type_search.skip_tx_search && !best_eob) break;
+#if CONFIG_IST
+    }
+#endif
   }
 
   assert(best_rd != INT64_MAX);

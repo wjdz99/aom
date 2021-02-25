@@ -233,6 +233,15 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
 #endif  // CONFIG_SDP
   av1_cost_tokens_from_cdf(mode_costs->intrabc_cost, fc->intrabc_cdf, NULL);
 
+#if CONFIG_IST
+  for (i = TX_4X4; i <= TX_64X64; ++i) {
+    av1_cost_tokens_from_cdf(
+      mode_costs->stx_flag_cost[i],
+      fc->stx_cdf[i],
+      NULL);
+  }
+#endif
+
   if (!frame_is_intra_only(cm)) {
     for (i = 0; i < COMP_INTER_CONTEXTS; ++i) {
       av1_cost_tokens_from_cdf(mode_costs->comp_inter_cost[i],

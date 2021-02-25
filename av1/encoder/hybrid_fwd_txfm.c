@@ -15,6 +15,9 @@
 
 #include "av1/common/idct.h"
 #include "av1/encoder/hybrid_fwd_txfm.h"
+#if CONFIG_IST
+#include "av1/common/scan.h"
+#endif
 
 /* 4-point reversible, orthonormal Walsh-Hadamard in 3.5 adds, 0.5 shifts per
    pixel. */
@@ -306,3 +309,59 @@ void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
     default: assert(0); break;
   }
 }
+
+#if CONFIG_IST
+void fwd_stxfm(tran_low_t* src, tran_low_t* dst, const PREDICTION_MODE mode, const int8_t stx_idx, const int size) {
+  
+  const int* kernel = (size == 4) ? g_stx4x4[mode][stx_idx][0] : g_stx8x8[mode][stx_idx][0];
+  int coef;
+  int* out = dst;
+
+  assert(mode < 24);
+  assert(stx_idx < 4);
+
+  for (int j = 0; j < size * size; j++)
+  {
+    int* srcPtr = src;
+    const int* kernel_tmp = kernel;
+    coef = 0;
+    for (int i = 0; i < size * size; i++)
+    {
+      coef += *srcPtr++ * *kernel_tmp++;
+    }
+    *out++ = (coef + 64) >> 7;
+    kernel += (size * size);
+  }
+}
+
+void av1_fwd_stxfm(tran_low_t* coeff, TxfmParam* txfm_param) {
+  const TX_TYPE stx_type = txfm_param->stx_type;
+
+  const int width = tx_size_wide[txfm_param->tx_size] <= 32 ? tx_size_wide[txfm_param->tx_size] : 32;
+  const int height = tx_size_high[txfm_param->tx_size] <= 32 ? tx_size_high[txfm_param->tx_size] : 32;
+
+  if ((width >= 4 && height >= 4) && txfm_param->stx_type)
+  {
+    PREDICTION_MODE intra_mode = txfm_param->intra_mode;
+    const int log2width = tx_size_wide_log2[txfm_param->tx_size];
+    tran_low_t buf0[64] = { 0 }, buf1[64] = { 0 };
+    int sbSize = (width >= 8 && height >= 8) ? 8 : 4;
+    const int16_t* scan_order_out = (sbSize == 4) ? g_stx_scan_orders_4x4[log2width - 2] : g_stx_scan_orders_8x8[log2width - 2];
+    tran_low_t* tmp = buf0;
+    tran_low_t* src = coeff;
+    for (int r = 0; r < sbSize * sbSize; r++)
+    {
+      *tmp = src[scan_order_out[r]];
+      tmp++;
+    }
+    fwd_stxfm(buf0, buf1, intra_mode, (int8_t)(stx_type - 1), sbSize);
+
+    tmp = buf1;
+    src = coeff;
+    for (int i = 0; i < sbSize * sbSize; i++)
+    {
+      coeff[scan_order_out[i]] = *tmp++;
+    }
+  }
+}
+#endif
