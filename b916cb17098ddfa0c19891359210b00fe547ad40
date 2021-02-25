@@ -69,6 +69,24 @@
       "message": "Hi Aniket,\n\nJust FYI. I was curious about how bitfields are implemented. So I did some experiments with clang on x86-64 CPUs. The results are quite interesting.\n\nEither of the following two definitions of the struct generates the most compact code to read the members (one instruction each):\n\n  typedef struct {\n    uint8_t token : 3;\n    uint8_t reserved : 1;\n    int8_t color_ctx : 4;\n  } TokenExtra;\n\nor\n\n  typedef struct {\n    uint8_t token : 4;\n    int8_t color_ctx : 4;\n  } TokenExtra;\n\n1. color_ctx should be the last member so that it occupies the most significant four bits and an arithmetic right-shift by four bits will suffice because of the sign extension.\n\n2. The three bits of \u0027token\u0027 should occupy the least significant three bits so that they can be extracted with an AND instruction. This can be done by declaring \u0027token\u0027 as four bits or by inserting an unused bit.\n\nHere is my test file. Compile it with gcc or clang and inspect the assembly code in bitfield.s. Compare it with the current TokenExtra struct definition, which requires two instructions to read each member.\n\n$ cat bitfield.c\n#include \u003cstdint.h\u003e\n\ntypedef struct {\n  uint8_t token : 3;\n  uint8_t reserved : 1;\n  int8_t color_ctx : 4;\n} TokenExtra;\n\nint8_t GetColorCtx(const TokenExtra *t) {\n  return t-\u003ecolor_ctx;\n}\n\nuint8_t GetToken(const TokenExtra *t) {\n  return t-\u003etoken;\n}\n$ gcc -std\u003dc99 -Wall -Wextra -O3 -S -c bitfield.c",
       "revId": "b916cb17098ddfa0c19891359210b00fe547ad40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f724114_1de7f735",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-02-25T15:33:25Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nBuilding on the observations shared by you, we have done few more experiments on writing the members of the structure. Either of the definitions of the TokenExtra structure (given above) seem to generate compact code for write access as well.\n\nIn case of the TokenExtra structure used in the current patch, 6/7 instructions are generated to write color_ctx/token (one extra instruction is required for masking \u0027x\u0027, appropriately in case of ‘token’ write). \n\nWe used the code snippet below for analysis.\n\nvoid SetColorCtx(TokenExtra *t, int x) {\nt-\u003ecolor_ctx \u003d x;\n}\nvoid SetToken(TokenExtra *t, int x) {\nt-\u003etoken \u003d x;\n}\n\nIn case of 2 structure definitions shared above, 6 instructions are generated to write each of token and color_ctx. There is a saving of one instruction as no masking required on x, while writing to color_ctx (left shift by 4 is sufficient in this case).\n\nGiven above observations, please let us know if we need to submit the patch using either of the above 2 structure definitions.\n\nThanks \u0026 Regards,\nAniket",
+      "parentUuid": "1ea7ebf2_6ef0acbb",
+      "revId": "b916cb17098ddfa0c19891359210b00fe547ad40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
