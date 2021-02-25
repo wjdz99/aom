@@ -266,6 +266,30 @@
       },
       "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "767d223a_625e95bd",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-02-25T20:31:06Z",
+      "side": 1,
+      "message": "The libtool versioning doc says:\n\n\"If any interfaces have been added, removed, or changed since the last update, increment current, and set revision to 0.\"\n\nfor 2.0.0 the \"current\" is 2 and others are 0. we added new APIs from 2.0.0 to 2.1.0, so if we follow libtool versioning scheme, we should bump up current and set it to 3.0.0",
+      "parentUuid": "1db78233_dcb77fb2",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 25
+      },
+      "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
