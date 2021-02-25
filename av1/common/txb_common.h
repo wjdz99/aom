@@ -27,6 +27,10 @@ extern const int8_t av1_coeff_band_32x32[1024];
 
 extern const int8_t *av1_nz_map_ctx_offset[TX_SIZES_ALL];
 
+#if CONFIG_IST
+extern tran_low_t tempCoeff[4096];
+#endif
+
 typedef struct txb_ctx {
   int txb_skip_ctx;
   int dc_sign_ctx;
@@ -36,6 +40,60 @@ static const int base_level_count_to_index[13] = {
   0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
 };
 
+#if CONFIG_IST
+static const TX_CLASS tx_type_to_class[TX_TYPES * 3] = {
+  TX_CLASS_2D,     // DCT_DCT
+  TX_CLASS_2D,     // ADST_DCT
+  TX_CLASS_2D,     // DCT_ADST
+  TX_CLASS_2D,     // ADST_ADST
+  TX_CLASS_2D,     // FLIPADST_DCT
+  TX_CLASS_2D,     // DCT_FLIPADST
+  TX_CLASS_2D,     // FLIPADST_FLIPADST
+  TX_CLASS_2D,     // ADST_FLIPADST
+  TX_CLASS_2D,     // FLIPADST_ADST
+  TX_CLASS_2D,     // IDTX
+  TX_CLASS_VERT,   // V_DCT
+  TX_CLASS_HORIZ,  // H_DCT
+  TX_CLASS_VERT,   // V_ADST
+  TX_CLASS_HORIZ,  // H_ADST
+  TX_CLASS_VERT,   // V_FLIPADST
+  TX_CLASS_HORIZ,  // H_FLIPADST
+
+  TX_CLASS_2D,     // DCT_DCT
+  TX_CLASS_2D,     // ADST_DCT
+  TX_CLASS_2D,     // DCT_ADST
+  TX_CLASS_2D,     // ADST_ADST
+  TX_CLASS_2D,     // FLIPADST_DCT
+  TX_CLASS_2D,     // DCT_FLIPADST
+  TX_CLASS_2D,     // FLIPADST_FLIPADST
+  TX_CLASS_2D,     // ADST_FLIPADST
+  TX_CLASS_2D,     // FLIPADST_ADST
+  TX_CLASS_2D,     // IDTX
+  TX_CLASS_VERT,   // V_DCT
+  TX_CLASS_HORIZ,  // H_DCT
+  TX_CLASS_VERT,   // V_ADST
+  TX_CLASS_HORIZ,  // H_ADST
+  TX_CLASS_VERT,   // V_FLIPADST
+  TX_CLASS_HORIZ,  // H_FLIPADST
+
+  TX_CLASS_2D,     // DCT_DCT
+  TX_CLASS_2D,     // ADST_DCT
+  TX_CLASS_2D,     // DCT_ADST
+  TX_CLASS_2D,     // ADST_ADST
+  TX_CLASS_2D,     // FLIPADST_DCT
+  TX_CLASS_2D,     // DCT_FLIPADST
+  TX_CLASS_2D,     // FLIPADST_FLIPADST
+  TX_CLASS_2D,     // ADST_FLIPADST
+  TX_CLASS_2D,     // FLIPADST_ADST
+  TX_CLASS_2D,     // IDTX
+  TX_CLASS_VERT,   // V_DCT
+  TX_CLASS_HORIZ,  // H_DCT
+  TX_CLASS_VERT,   // V_ADST
+  TX_CLASS_HORIZ,  // H_ADST
+  TX_CLASS_VERT,   // V_FLIPADST
+  TX_CLASS_HORIZ,  // H_FLIPADST
+};
+#else
 static const TX_CLASS tx_type_to_class[TX_TYPES] = {
   TX_CLASS_2D,     // DCT_DCT
   TX_CLASS_2D,     // ADST_DCT
@@ -54,6 +112,7 @@ static const TX_CLASS tx_type_to_class[TX_TYPES] = {
   TX_CLASS_VERT,   // V_FLIPADST
   TX_CLASS_HORIZ,  // H_FLIPADST
 };
+#endif
 
 static INLINE int get_txb_bwl(TX_SIZE tx_size) {
   tx_size = av1_get_adjusted_tx_size(tx_size);
