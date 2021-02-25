@@ -362,6 +362,30 @@
       },
       "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d31c334d_734dceee",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T23:36:50Z",
+      "side": 1,
+      "message": "If c:r:a is 3:0:1, then libtool generates the following file names:\n  libhello.so.2.1.0\n  libhello.so.2 (a symlink)\n  libhello.so (a symlink)\n\nHere is the transcript of my experiment:\n\n$ libtool --version\nlibtool (GNU libtool) 2.4.6\nWritten by Gordon Matzigkeit, 1996\n\nCopyright (C) 2014 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n$ ls -la\ntotal 128\ndrwxr-x--- 2 wtc xxx   4096 Feb 25 15:29 .\ndrwxr-xr-x 6 wtc xxx 118784 Feb 25 15:29 ..\n-rw-r----- 1 wtc xxx     71 Feb 25 15:29 hello.c\n$ cat hello.c\n#include \u003cstdio.h\u003e\n\nvoid Hello(void) {\n\n  printf(\"Hello, world!\\n\");\n}\n$ libtool compile gcc -c hello.c\nlibtool: compile:  gcc -c hello.c  -fPIC -DPIC -o .libs/hello.o\nlibtool: compile:  gcc -c hello.c -o hello.o \u003e/dev/null 2\u003e\u00261\n$ ls -la\ntotal 140\ndrwxr-x--- 3 wtc xxx   4096 Feb 25 15:29 .\ndrwxr-xr-x 6 wtc xxx 118784 Feb 25 15:29 ..\n-rw-r----- 1 wtc xxx     71 Feb 25 15:29 hello.c\n-rw-r----- 1 wtc xxx    283 Feb 25 15:29 hello.lo\n-rw-r----- 1 wtc xxx   1544 Feb 25 15:29 hello.o\ndrwxr-x--- 2 wtc xxx   4096 Feb 25 15:29 .libs\n$ ls -la .libs\ntotal 12\ndrwxr-x--- 2 wtc xxx 4096 Feb 25 15:29 .\ndrwxr-x--- 3 wtc xxx 4096 Feb 25 15:29 ..\n-rw-r----- 1 wtc xxx 1544 Feb 25 15:29 hello.o\n$ libtool --mode\u003dlink gcc -version-info 3:0:1 hello.lo -o libhello.la -rpath /usr/local/lib\nlibtool: link: gcc -shared  -fPIC -DPIC  .libs/hello.o      -Wl,-soname -Wl,libhello.so.2 -o .libs/libhello.so.2.1.0\nlibtool: link: (cd \".libs\" \u0026\u0026 rm -f \"libhello.so.2\" \u0026\u0026 ln -s \"libhello.so.2.1.0\" \"libhello.so.2\")\nlibtool: link: (cd \".libs\" \u0026\u0026 rm -f \"libhello.so\" \u0026\u0026 ln -s \"libhello.so.2.1.0\" \"libhello.so\")\nlibtool: link: ar cr .libs/libhello.a  hello.o\nlibtool: link: ranlib .libs/libhello.a\nlibtool: link: ( cd \".libs\" \u0026\u0026 rm -f \"libhello.la\" \u0026\u0026 ln -s \"../libhello.la\" \"libhello.la\" )\n$ ls -la\ntotal 144\ndrwxr-x--- 3 wtc xxx   4096 Feb 25 15:30 .\ndrwxr-xr-x 6 wtc xxx 118784 Feb 25 15:29 ..\n-rw-r----- 1 wtc xxx     71 Feb 25 15:29 hello.c\n-rw-r----- 1 wtc xxx    283 Feb 25 15:29 hello.lo\n-rw-r----- 1 wtc xxx   1544 Feb 25 15:29 hello.o\n-rw-r----- 1 wtc xxx    938 Feb 25 15:30 libhello.la\ndrwxr-x--- 2 wtc xxx   4096 Feb 25 15:30 .libs\n$ ls -la .libs\ntotal 36\ndrwxr-x--- 2 wtc xxx  4096 Feb 25 15:30 .\ndrwxr-x--- 3 wtc xxx  4096 Feb 25 15:30 ..\n-rw-r----- 1 wtc xxx  1544 Feb 25 15:29 hello.o\n-rw-r----- 1 wtc xxx  1686 Feb 25 15:30 libhello.a\nlrwxrwxrwx 1 wtc xxx    14 Feb 25 15:30 libhello.la -\u003e ../libhello.la\n-rw-r----- 1 wtc xxx   939 Feb 25 15:30 libhello.lai\nlrwxrwxrwx 1 wtc xxx    17 Feb 25 15:30 libhello.so -\u003e libhello.so.2.1.0\nlrwxrwxrwx 1 wtc xxx    17 Feb 25 15:30 libhello.so.2 -\u003e libhello.so.2.1.0\n-rwxr-x--- 1 wtc xxx 15992 Feb 25 15:30 libhello.so.2.1.0",
+      "parentUuid": "481b7347_65aa91d0",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 25
+      },
+      "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
