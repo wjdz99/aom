@@ -616,6 +616,10 @@ typedef struct {
   //! intrabc_cost
   int intrabc_cost[2];
 
+#if CONFIG_IST
+  int stx_flag_cost[5][4];
+#endif
+
   //! palette_y_size_cost
   int palette_y_size_cost[PALATTE_BSIZE_CTXS][PALETTE_SIZES];
   //! palette_uv_size_cost
@@ -1204,6 +1208,7 @@ static INLINE int is_rect_tx_allowed(const MACROBLOCKD *xd,
 #endif
 }
 
+#if !CONFIG_IST
 static INLINE int tx_size_to_depth(TX_SIZE tx_size, BLOCK_SIZE bsize) {
   TX_SIZE ctx_size = max_txsize_rect_lookup[bsize];
   int depth = 0;
@@ -1214,6 +1219,7 @@ static INLINE int tx_size_to_depth(TX_SIZE tx_size, BLOCK_SIZE bsize) {
   }
   return depth;
 }
+#endif
 
 static INLINE void set_blk_skip(uint8_t txb_skip[], int plane, int blk_idx,
                                 int skip) {
