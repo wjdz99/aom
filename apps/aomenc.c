@@ -424,8 +424,9 @@ const arg_def_t *av1_args[] = {
   &g_av1_codec_arg_defs.input_chroma_subsampling_y,
 #if CONFIG_TUNE_VMAF
   &g_av1_codec_arg_defs.vmaf_model_path,
-#endif  // Option that supports the control ID API ends here.
-  NULL
+#endif
+  // Option that supports the control ID API ends here.
+  NULL,
 };
 
 static const arg_def_t *no_args[] = { NULL };
@@ -826,10 +827,6 @@ static void set_config_arg_ctrls(struct stream_config *config, int key,
   config->arg_ctrls[j][0] = key;
   config->arg_ctrls[j][1] = arg_parse_enum_or_int(arg);
 
-  if (key == AOME_SET_ENABLEAUTOALTREF && config->arg_ctrls[j][1] > 1) {
-    warn("auto-alt-ref > 1 is deprecated... setting auto-alt-ref=1\n");
-    config->arg_ctrls[j][1] = 1;
-  }
   if (j == config->arg_ctrl_cnt) config->arg_ctrl_cnt++;
 }
 
@@ -841,7 +838,7 @@ static void set_config_arg_key_vals(struct stream_config *config,
   // so we simply append it.
   if (strcmp(name, "target-seq-level-idx") == 0) {
     j = config->arg_key_val_cnt;
-    assert(j < (int)ARG_CTRL_CNT_MAX);
+    assert(j < ARG_CTRL_CNT_MAX);
     config->arg_key_vals[j][0] = name;
     config->arg_key_vals[j][1] = val;
     ++config->arg_key_val_cnt;
@@ -855,7 +852,7 @@ static void set_config_arg_key_vals(struct stream_config *config,
     if (strcmp(name, config->arg_key_vals[j][0]) == 0) break;
 
   /* Update/insert */
-  assert(j < (int)ARG_CTRL_CNT_MAX);
+  assert(j < ARG_CTRL_CNT_MAX);
   config->arg_key_vals[j][0] = name;
   config->arg_key_vals[j][1] = val;
 
@@ -1077,28 +1074,51 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       }
     } else {
       int i, match = 0;
-      // check if the ctrl APIs supports this arg
-      for (i = 0; ctrl_args_map && ctrl_args_map[i] && args_list[i]; i++) {
-        if (arg_match(&arg, args_list[i], argi)) {
-          match = 1;
-          if (ctrl_args_map) {
+      // check if the control ID APIs supports this arg
+      if (ctrl_args_map) {
+        for (i = 0; ctrl_args_map[i] && args_list[i]; i++) {
+          if (arg_match(&arg, args_list[i], argi)) {
+            match = 1;
             set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
+            break;
           }
-          break;
         }
       }
-      // check if the key & value API supports this arg
-      for (i = 0; !match && args_list[i]; i++) {
-        if (arg_match(&arg, args_list[i], argi)) {
-          match = 1;
-          set_config_arg_key_vals(config, args_list[i]->long_name, arg.val);
-          break;
+      if (!match) {
+        // check if the key & value API supports this arg
+        for (i = 0; args_list[i]; i++) {
+          if (arg_match(&arg, args_list[i], argi)) {
+            match = 1;
+            set_config_arg_key_vals(config, args_list[i]->long_name, arg.val);
+            break;
+          }
         }
       }
       if (!match) argj++;
     }
   }
   config->use_16bit_internal |= config->cfg.g_bit_depth > AOM_BITS_8;
+
+  if (arg_match(&arg, &g_av1_codec_arg_defs.auto_altref, argi)) {
+    int auto_altref = arg_parse_int(&arg);
+    if (auto_altref > 1) {
+      int i;
+      warn("auto-alt-ref > 1 is deprecated... setting auto-alt-ref=1\n");
+      for (i = config->arg_ctrl_cnt - 1; i >= 0; i--) {
+        if (config->arg_ctrls[i][0] == AOME_SET_ENABLEAUTOALTREF) {
+          config->arg_ctrls[i][1] = 1;
+          break;
+        }
+      }
+      for (i = config->arg_key_val_cnt - 1; i >= 0; i--) {
+        if (strcmp(config->arg_key_vals[i][0],
+                   g_av1_codec_arg_defs.auto_altref.long_name) == 0) {
+          config->arg_key_vals[i][1] = "1";
+          break;
+        }
+      }
+    }
+  }
 
   if (global->usage == AOM_USAGE_REALTIME && config->cfg.g_lag_in_frames != 0) {
     warn("non-zero lag-in-frames option ignored in realtime mode.\n");
