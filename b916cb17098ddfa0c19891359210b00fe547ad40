@@ -34,6 +34,23 @@
       "parentUuid": "fe27b7ff_ee6d4f2e",
       "revId": "b916cb17098ddfa0c19891359210b00fe547ad40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ea7ebf2_6ef0acbb",
+        "filename": "av1/encoder/tokenize.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-25T01:37:08Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nJust FYI. I was curious about how bitfields are implemented. So I did some experiments with clang on x86-64 CPUs. The results are quite interesting.\n\nEither of the following two definitions of the struct generates the most compact code to read the members (one instruction each):\n\n  typedef struct {\n    uint8_t token : 3;\n    uint8_t reserved : 1;\n    int8_t color_ctx : 4;\n  } TokenExtra;\n\nor\n\n  typedef struct {\n    uint8_t token : 4;\n    int8_t color_ctx : 4;\n  } TokenExtra;\n\n1. color_ctx should be the last member so that it occupies the most significant four bits and an arithmetic right-shift by four bits will suffice because of the sign extension.\n\n2. The three bits of \u0027token\u0027 should occupy the least significant three bits so that they can be extracted with an AND instruction. This can be done by declaring \u0027token\u0027 as four bits or by inserting an unused bit.\n\nHere is my test file. Compile it with gcc or clang and inspect the assembly code in bitfield.s. Compare it with the current TokenExtra struct definition, which requires two instructions to read each member.\n\n$ cat bitfield.c\n#include \u003cstdint.h\u003e\n\ntypedef struct {\n  uint8_t token : 3;\n  uint8_t reserved : 1;\n  int8_t color_ctx : 4;\n} TokenExtra;\n\nint8_t GetColorCtx(const TokenExtra *t) {\n  return t-\u003ecolor_ctx;\n}\n\nuint8_t GetToken(const TokenExtra *t) {\n  return t-\u003etoken;\n}\n$ gcc -std\u003dc99 -Wall -Wextra -O3 -S -c bitfield.c",
+      "revId": "b916cb17098ddfa0c19891359210b00fe547ad40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
