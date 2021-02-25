@@ -1213,7 +1213,11 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
                                       int blk_col, TX_SIZE tx_size,
                                       int reduced_tx_set) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
+#if CONFIG_IST
+  if (xd->lossless[mbmi->segment_id]) {
+#else
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_up_map[tx_size] > TX_32X32) {
+#endif
     return DCT_DCT;
   }
 
@@ -1227,6 +1231,9 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
       blk_row <<= pd->subsampling_y;
       blk_col <<= pd->subsampling_x;
       tx_type = xd->tx_type_map[blk_row * xd->tx_type_map_stride + blk_col];
+#if CONFIG_IST
+      tx_type &= 0x0f;
+#endif
     } else {
       // In intra mode, uv planes don't share the same prediction mode as y
       // plane, so the tx_type should not be shared
@@ -1236,9 +1243,17 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
         av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi), reduced_tx_set);
     if (!av1_ext_tx_used[tx_set_type][tx_type]) tx_type = DCT_DCT;
   }
+#if CONFIG_IST
+  if (txsize_sqr_up_map[tx_size] > TX_32X32) {
+    return tx_type &= 0xf0;
+  }
+  assert(av1_ext_tx_used[av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(mbmi), reduced_tx_set)][tx_type & 0xf]);
+#else
   assert(tx_type < TX_TYPES);
   assert(av1_ext_tx_used[av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                  reduced_tx_set)][tx_type]);
+#endif
   return tx_type;
 }
 
@@ -1555,6 +1570,19 @@ static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
   }
   return tx_size_2d[tx_size];
 }
+
+#if CONFIG_IST
+static INLINE int tx_size_to_depth(TX_SIZE tx_size, BLOCK_SIZE bsize) {
+  TX_SIZE ctx_size = max_txsize_rect_lookup[bsize];
+  int depth = 0;
+  while (tx_size != ctx_size) {
+    depth++;
+    ctx_size = sub_tx_size_map[ctx_size];
+    assert(depth <= MAX_TX_DEPTH);
+  }
+  return depth;
+}
+#endif
 
 /*!\endcond */
 
