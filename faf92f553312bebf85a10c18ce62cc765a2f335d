@@ -16,6 +16,24 @@
       "message": "I\u0027m afraid this won\u0027t make the M90 branching which happens today...",
       "revId": "faf92f553312bebf85a10c18ce62cc765a2f335d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8953a997_ca366c33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-02-25T18:21:56Z",
+      "side": 1,
+      "message": "This is speed 6 for rtc set (vga, 720p), we currently don\u0027t use speed 6 above qvga, so no need to make the cut.",
+      "parentUuid": "57ae63ba_03f3002c",
+      "revId": "faf92f553312bebf85a10c18ce62cc765a2f335d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
