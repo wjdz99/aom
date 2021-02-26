@@ -940,18 +940,13 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #else
       const BLOCK_SIZE bs = mbmi->sb_type;
 #endif
-      if ((((tx_type & 0xf) == DCT_DCT) || ((tx_type & 0xf) == ADST_ADST)) &&
-          ((intra_dir < PAETH_PRED) &&
-           !(mbmi->filter_intra_mode_info.use_filter_intra))) {
-        const TX_SIZE max_rect_txsize = max_txsize_rect_lookup[bs];
-        int max_ht = tx_size_high[max_rect_txsize];
-        int max_wd = tx_size_wide[max_rect_txsize];
-        int ht = tx_size_high[tx_size];
-        int wd = tx_size_wide[tx_size];
-        if ((ht == max_ht) && (wd == max_wd)) {
-          aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
-        }
-      }
+      int depth = tx_size_to_depth(tx_size, bs);
+      bool code_stx =
+          ((((tx_type & 0xf) == DCT_DCT) || ((tx_type & 0xf) == ADST_ADST)) &&
+           (intra_dir < PAETH_PRED) &&
+           !(mbmi->filter_intra_mode_info.use_filter_intra) && !(depth));
+      if (code_stx)
+        aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
 #else
       aom_write_symbol(
           w, av1_ext_tx_ind[tx_set_type][tx_type],
@@ -979,17 +974,12 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
 #else
     const BLOCK_SIZE bs = mbmi->sb_type;
 #endif
-    const TX_SIZE max_rect_txsize = max_txsize_rect_lookup[bs];
-    int max_ht = tx_size_high[max_rect_txsize];
-    int max_wd = tx_size_wide[max_rect_txsize];
-    int ht = tx_size_high[tx_size];
-    int wd = tx_size_wide[tx_size];
-    if ((ht == max_ht) && (wd == max_wd)) {
-      if ((intra_dir < PAETH_PRED) &&
-          !(mbmi->filter_intra_mode_info.use_filter_intra)) {
-        aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
-      }
-    }
+    int depth = tx_size_to_depth(tx_size, bs);
+    bool code_stx =
+        (((intra_dir < PAETH_PRED) &&
+          !(mbmi->filter_intra_mode_info.use_filter_intra) && !(depth)));
+    if (code_stx)
+      aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
   }
 #endif
 }

@@ -2399,20 +2399,14 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     for (int stx = 0; stx < 4; ++stx) {
       TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
       if (!(allowed_tx_mask & (1 << tx_type))) continue;
-      if (((tx_type != DCT_DCT && tx_type != ADST_ADST) || plane != 0 ||
-           is_inter_block(mbmi) || dc_only_blk) &&
-          stx)
-        continue;
-      const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[plane_bsize];
-      int max_txsize_ht = tx_size_high[max_rect_tx_size];
-      int max_txsize_wd = tx_size_wide[max_rect_tx_size];
-      int tx_ht = tx_size_high[tx_size];
-      int tx_wd = tx_size_wide[tx_size];
-      if (((tx_ht < max_txsize_ht) || (tx_wd < max_txsize_wd)) && stx) continue;
       PREDICTION_MODE intra_mode =
           (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
       const int filter = mbmi->filter_intra_mode_info.use_filter_intra;
-      if ((intra_mode >= PAETH_PRED || filter) && stx) continue;
+      int depth = tx_size_to_depth(tx_size, plane_bsize);
+      bool skip_stx = ((tx_type != DCT_DCT && tx_type != ADST_ADST) ||
+                       plane != 0 || is_inter_block(mbmi) || dc_only_blk ||
+                       intra_mode >= PAETH_PRED || filter || depth > 0);
+      if (skip_stx && stx) continue;
       tx_type += (stx << 4);
       txfm_param.tx_type = (tx_type & 0xf);
       txfm_param.stx_type = stx;

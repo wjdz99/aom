@@ -1208,6 +1208,7 @@ static INLINE int is_rect_tx_allowed(const MACROBLOCKD *xd,
 #endif
 }
 
+#if !CONFIG_IST
 static INLINE int tx_size_to_depth(TX_SIZE tx_size, BLOCK_SIZE bsize) {
   TX_SIZE ctx_size = max_txsize_rect_lookup[bsize];
   int depth = 0;
@@ -1218,6 +1219,7 @@ static INLINE int tx_size_to_depth(TX_SIZE tx_size, BLOCK_SIZE bsize) {
   }
   return depth;
 }
+#endif
 
 static INLINE void set_blk_skip(uint8_t txb_skip[], int plane, int blk_idx,
                                 int skip) {

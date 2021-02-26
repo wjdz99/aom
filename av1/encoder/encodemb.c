@@ -314,18 +314,9 @@ void av1_xform(MACROBLOCK *x, int plane, int block, int blk_row, int blk_col,
   const PREDICTION_MODE intra_mode =
       (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
   const int filter = mbmi->filter_intra_mode_info.use_filter_intra;
-  const TX_TYPE stx_type = txfm_param->stx_type;
-  const TX_SIZE tx_size = txfm_param->tx_size;
-  const TX_SIZE max_rect_tx_size = max_txsize_rect_lookup[plane_bsize];
-  int max_txsize_ht = tx_size_high[max_rect_tx_size];
-  int max_txsize_wd = tx_size_wide[max_rect_tx_size];
-  int tx_ht = tx_size_high[tx_size];
-  int tx_wd = tx_size_wide[tx_size];
-  if ((tx_ht < max_txsize_ht) || (tx_wd < max_txsize_wd)) assert(stx_type == 0);
-  (void)stx_type;
-  assert(((intra_mode >= PAETH_PRED || filter) && txfm_param->stx_type) == 0);
-  (void)intra_mode;
-  (void)filter;
+  const int depth = tx_size_to_depth(txfm_param->tx_size, plane_bsize);
+  assert(((intra_mode >= PAETH_PRED || filter || depth) &&
+          txfm_param->stx_type) == 0);
   av1_fwd_stxfm(coeff, txfm_param);
 #else
   av1_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);

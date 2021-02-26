@@ -1571,6 +1571,19 @@ static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
   return tx_size_2d[tx_size];
 }
 
+#if CONFIG_IST
+static INLINE int tx_size_to_depth(TX_SIZE tx_size, BLOCK_SIZE bsize) {
+  TX_SIZE ctx_size = max_txsize_rect_lookup[bsize];
+  int depth = 0;
+  while (tx_size != ctx_size) {
+    depth++;
+    ctx_size = sub_tx_size_map[ctx_size];
+    assert(depth <= MAX_TX_DEPTH);
+  }
+  return depth;
+}
+#endif
+
 /*!\endcond */
 
 #ifdef __cplusplus
