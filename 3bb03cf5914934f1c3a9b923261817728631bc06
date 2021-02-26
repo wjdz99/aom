@@ -434,6 +434,30 @@
       },
       "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfcbcbb1_3fa40fae",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T00:50:31Z",
+      "side": 1,
+      "message": "Hi Jerome,\n\n\u003e So whatever c:r:a we set here, the file name would be \"libaom.so.c.r.a\" [...]\n\nIn earlier comments, I quoted the relevant libtool source code and actually ran libtool to show the file name is not \"libaom.so.c.r.a\".\n\nFor c:r:a, the file name is \"libaom.so.(c-a).a.r\". Here is the libtool source code again:\n\n        linux) # correct to gnu/linux during the next big refactor\n          func_arith $current - $age\n          major\u003d.$func_arith_result\n          versuffix\u003d$major.$age.$revision\n          ;;\n\nFor libaom, the file name produced by libtool ends up being equal to libaom.so.MAJOR.MINOR.PATCH, where MAJOR, MINOR, PATCH are determined by Semantic Versioning. Therefore, we can bypass the libtool versioning scheme, follow the Semantic Versioning scheme, and use libaom.so.MAJOR.MINOR.PATCH as the file name.",
+      "parentUuid": "75770b48_6c3b1a04",
+      "range": {
+        "startLine": 38,
+        "startChar": 20,
+        "endLine": 38,
+        "endChar": 25
+      },
+      "revId": "3bb03cf5914934f1c3a9b923261817728631bc06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
