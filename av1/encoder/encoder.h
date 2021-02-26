@@ -1102,6 +1102,9 @@ typedef struct FRAME_COUNTS {
                                      [PALETTE_COLOR_INDEX_CONTEXTS]
                                      [PALETTE_COLORS];
   unsigned int partition[PARTITION_CONTEXTS][EXT_PARTITION_TYPES];
+#if CONFIG_ERP
+  unsigned int partition_rec[PARTITION_CONTEXTS_REC][PARTITION_TYPES_REC];
+#endif  // CONFIG_ERP
   unsigned int txb_skip[TOKEN_CDF_Q_CTXS][TX_SIZES][TXB_SKIP_CONTEXTS][2];
   unsigned int eob_extra[TOKEN_CDF_Q_CTXS][TX_SIZES][PLANE_TYPES]
                         [EOB_COEF_CONTEXTS][2];

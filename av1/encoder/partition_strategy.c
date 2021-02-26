@@ -832,9 +832,11 @@ static AOM_INLINE void get_min_bsize(const SIMPLE_MOTION_DATA_TREE *sms_tree,
       get_min_bsize(sms_tree->split[i], min_bw, min_bh);
     }
   } else {
+#if !CONFIG_EXT_RECUR_PARTITIONS
     if (part_type == PARTITION_HORZ_A || part_type == PARTITION_HORZ_B ||
         part_type == PARTITION_VERT_A || part_type == PARTITION_VERT_B)
       part_type = PARTITION_SPLIT;
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
     const BLOCK_SIZE subsize = get_partition_subsize(bsize, part_type);
     if (subsize != BLOCK_INVALID) {
       *min_bw = AOMMIN(*min_bw, mi_size_wide_log2[subsize]);
@@ -1190,8 +1192,13 @@ void av1_ml_prune_4_partition(
   unsigned int horz_4_source_var[SUB_PARTITIONS_PART4] = { 0 };
   unsigned int vert_4_source_var[SUB_PARTITIONS_PART4] = { 0 };
   {
+#if CONFIG_EXT_RECUR_PARTITIONS
+    BLOCK_SIZE horz_4_bs = get_partition_subsize(bsize, PARTITION_HORZ_3);
+    BLOCK_SIZE vert_4_bs = get_partition_subsize(bsize, PARTITION_VERT_3);
+#else   // CONFIG_EXT_RECUR_PARTITIONS
     BLOCK_SIZE horz_4_bs = get_partition_subsize(bsize, PARTITION_HORZ_4);
     BLOCK_SIZE vert_4_bs = get_partition_subsize(bsize, PARTITION_VERT_4);
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
     av1_setup_src_planes(x, cpi->source, mi_row, mi_col,
                          av1_num_planes(&cpi->common), NULL);
     const int src_stride = x->plane[0].src.stride;
