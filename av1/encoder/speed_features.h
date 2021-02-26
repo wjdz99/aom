@@ -378,6 +378,9 @@ typedef struct TPL_SPEED_FEATURES {
 
   // Calculate rate and distortion based on Y plane only.
   int use_y_only_rate_distortion;
+
+  // Simplify tpl stats calculation.
+  int simplified_tpl_stats_calc;
 } TPL_SPEED_FEATURES;
 
 typedef struct GLOBAL_MOTION_SPEED_FEATURES {
