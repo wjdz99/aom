@@ -1756,7 +1756,6 @@ static void prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
   *allowed_tx_mask = allow_bitmask;
 }
 
-#if !CONFIG_NEW_TX_PARTITION
 // lookup table for predict_skip_txfm
 // int max_tx_size = max_txsize_rect_lookup[bsize];
 // if (tx_size_high[max_tx_size] > 16 || tx_size_wide[max_tx_size] > 16)
@@ -1866,6 +1865,7 @@ static int predict_skip_txfm(const AV1_COMMON *cm, MACROBLOCK *x,
   return 1;
 }
 
+#if !CONFIG_NEW_TX_PARTITION
 static float get_dev(float mean, double x2_sum, int num) {
   const float e_x2 = (float)(x2_sum / num);
   const float diff = e_x2 - mean * mean;
@@ -3710,9 +3710,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                          RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                          int64_t ref_best_rd) {
   MACROBLOCKD *const xd = &x->e_mbd;
-#if !CONFIG_NEW_TX_PARTITION
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-#endif  // CONFIG_NEW_TX_PARTITION
   assert(is_inter_block(xd->mi[0]));
 
   av1_invalid_rd_stats(rd_stats);
@@ -3748,7 +3746,6 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
-#if !CONFIG_NEW_TX_PARTITION
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
@@ -3756,12 +3753,13 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       predict_skip_txfm(&cpi->common, x, bsize, &dist,
                         cpi->common.features.reduced_tx_set_used)) {
     set_skip_txfm(x, rd_stats, bsize, dist);
+#if !CONFIG_NEW_TX_PARTITION
     // Save the RD search results into tx_rd_record.
     if (is_mb_rd_hash_enabled)
       save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
+#endif  // !CONFIG_NEW_TX_PARTITION
     return;
   }
-#endif  // !CONFIG_NEW_TX_PARTITION
 #if CONFIG_SPEED_STATS
   ++x->txfm_search_info.tx_search_count;
 #endif  // CONFIG_SPEED_STATS
@@ -3835,7 +3833,6 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-#if !CONFIG_NEW_TX_PARTITION
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
@@ -3845,13 +3842,14 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
                         cpi->common.features.reduced_tx_set_used)) {
     // Populate rdstats as per skip decision
     set_skip_txfm(x, rd_stats, bs, dist);
+#if !CONFIG_NEW_TX_PARTITION
     // Save the RD search results into tx_rd_record.
     if (mb_rd_record) {
       save_tx_rd_info(num_blks, hash, x, rd_stats, mb_rd_record);
     }
+#endif  // !CONFIG_NEW_TX_PARTITION
     return;
   }
-#endif  // !CONFIG_NEW_TX_PARTITION
 
   if (xd->lossless[mbmi->segment_id]) {
     // Lossless mode can only pick the smallest (4x4) transform size.
