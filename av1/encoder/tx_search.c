@@ -227,7 +227,6 @@ static INLINE void init_rd_record_tree(TXB_RD_INFO_NODE *tree,
   }
 }
 
-#if !CONFIG_NEW_TX_PARTITION
 // Go through all TX blocks that could be used in TX size search, compute
 // residual hash values for them and find matching RD info that stores previous
 // RD search results for these TX blocks. The idea is to prevent repeated
@@ -305,7 +304,6 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize,
   }
   return 1;
 }
-#endif  // !CONFIG_NEW_TX_PARTITION
 
 static INLINE uint32_t get_block_residue_hash(MACROBLOCK *x, BLOCK_SIZE bsize) {
   const int rows = block_size_high[bsize];
@@ -345,6 +343,9 @@ static AOM_INLINE void fetch_tx_rd_info(int n4,
   memcpy(x->txfm_search_info.blk_skip, tx_rd_info->blk_skip,
          sizeof(tx_rd_info->blk_skip[0]) * n4);
   av1_copy(mbmi->inter_tx_size, tx_rd_info->inter_tx_size);
+#if CONFIG_NEW_TX_PARTITION
+  av1_copy(mbmi->partition_type, tx_rd_info->partition_type);
+#endif  // CONFIG_NEW_TX_PARTITION
   av1_copy_array(xd->tx_type_map, tx_rd_info->tx_type_map, n4);
   *rd_stats = tx_rd_info->rd_stats;
 }
@@ -417,6 +418,9 @@ static AOM_INLINE void set_skip_txfm(MACROBLOCK *x, RD_STATS *rd_stats,
   const TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
   memset(xd->tx_type_map, DCT_DCT, sizeof(xd->tx_type_map[0]) * n4);
   memset(mbmi->inter_tx_size, tx_size, sizeof(mbmi->inter_tx_size));
+#if CONFIG_NEW_TX_PARTITION
+  memset(mbmi->partition_type, TX_PARTITION_NONE, sizeof(mbmi->partition_type));
+#endif  // CONFIG_NEW_TX_PARTITION
   mbmi->tx_size = tx_size;
   for (int i = 0; i < n4; ++i)
     set_blk_skip(x->txfm_search_info.blk_skip, 0, i, 1);
@@ -471,6 +475,9 @@ static AOM_INLINE void save_tx_rd_info(int n4, uint32_t hash,
   memcpy(tx_rd_info->blk_skip, x->txfm_search_info.blk_skip,
          sizeof(tx_rd_info->blk_skip[0]) * n4);
   av1_copy(tx_rd_info->inter_tx_size, mbmi->inter_tx_size);
+#if CONFIG_NEW_TX_PARTITION
+  av1_copy(tx_rd_info->partition_type, mbmi->partition_type);
+#endif  // CONFIG_NEW_TX_PARTITION
   av1_copy_array(tx_rd_info->tx_type_map, xd->tx_type_map, n4);
   tx_rd_info->rd_stats = *rd_stats;
 }
@@ -1864,6 +1871,7 @@ static int predict_skip_txfm(const AV1_COMMON *cm, MACROBLOCK *x,
   return 1;
 }
 
+#if !CONFIG_NEW_TX_PARTITION
 static float get_dev(float mean, double x2_sum, int num) {
   const float e_x2 = (float)(x2_sum / num);
   const float diff = e_x2 - mean * mean;
@@ -1920,7 +1928,6 @@ static AOM_INLINE void get_mean_dev_features(const int16_t *data, int stride,
   }
 }
 
-#if !CONFIG_NEW_TX_PARTITION
 static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
                                int blk_col, TX_SIZE tx_size) {
   const NN_CONFIG *nn_config = av1_tx_split_nnconfig_map[tx_size];
@@ -2595,9 +2602,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
                                   FAST_TX_SEARCH_MODE ftxs_mode,
                                   int64_t ref_rdcost,
                                   TXB_RD_INFO *rd_info_array) {
-#if CONFIG_NEW_TX_PARTITION
-  (void)rd_info_array;
-#else
+#if  !CONFIG_NEW_TX_PARTITION
   const struct macroblock_plane *const p = &x->plane[0];
   const uint16_t cur_joint_ctx =
       (txb_ctx->dc_sign_ctx << 8) + txb_ctx->txb_skip_ctx;
@@ -2630,7 +2635,6 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
                  txb_ctx, ftxs_mode, skip_trellis, ref_rdcost, &this_rd_stats);
 
   av1_merge_rd_stats(rd_stats, &this_rd_stats);
-
 #if !CONFIG_NEW_TX_PARTITION
   // Save RD results for possible reuse in future.
   if (rd_info_array != NULL) {
@@ -3766,12 +3770,10 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // up TX size/type search.
   TXB_RD_INFO_NODE matched_rd_info[4 + 16 + 64];
   int found_rd_info = 0;
-#if !CONFIG_NEW_TX_PARTITION
   if (ref_best_rd != INT64_MAX && within_border &&
       cpi->sf.tx_sf.use_inter_txb_hash) {
     found_rd_info = find_tx_size_rd_records(x, bsize, matched_rd_info);
   }
-#endif  // !CONFIG_NEW_TX_PARTITION
 
   const int64_t rd =
       select_tx_size_and_type(cpi, x, rd_stats, bsize, ref_best_rd,
