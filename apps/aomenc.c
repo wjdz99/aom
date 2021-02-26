@@ -428,6 +428,7 @@ const arg_def_t *av1_key_val_args[] = {
 };
 
 static const arg_def_t *no_args[] = { NULL };
+static const int no_args_map[] = { 0 };
 
 static void show_help(FILE *fout, int shorthelp) {
   fprintf(fout, "Usage: %s <options> -o dst_filename src_filename \n",
@@ -876,9 +877,9 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
                                struct stream_state *stream, char **argv) {
   char **argi, **argj;
   struct arg arg;
-  static const arg_def_t **ctrl_args = no_args;
-  static const arg_def_t **key_val_args = no_args;
-  static const int *ctrl_args_map = NULL;
+  const arg_def_t **ctrl_args = no_args;
+  const arg_def_t **key_val_args = no_args;
+  const int *ctrl_args_map = no_args_map;
   struct stream_config *config = &stream->config;
   int eos_mark_found = 0;
   int webm_forced = 0;
@@ -1090,13 +1091,11 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else {
       int i, match = 0;
       // check if the control ID API supports this arg
-      if (ctrl_args_map) {
-        for (i = 0; ctrl_args[i]; i++) {
-          if (arg_match(&arg, ctrl_args[i], argi)) {
-            match = 1;
-            set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
-            break;
-          }
+      for (i = 0; ctrl_args[i]; i++) {
+        if (arg_match(&arg, ctrl_args[i], argi)) {
+          match = 1;
+          set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
+          break;
         }
       }
       if (!match) {
