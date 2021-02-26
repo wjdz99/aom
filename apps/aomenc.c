@@ -1090,13 +1090,11 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else {
       int i, match = 0;
       // check if the control ID API supports this arg
-      if (ctrl_args_map) {
-        for (i = 0; ctrl_args[i]; i++) {
-          if (arg_match(&arg, ctrl_args[i], argi)) {
-            match = 1;
-            set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
-            break;
-          }
+      for (i = 0; ctrl_args[i]; i++) {
+        if (arg_match(&arg, ctrl_args[i], argi)) {
+          match = 1;
+          set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
+          break;
         }
       }
       if (!match) {
