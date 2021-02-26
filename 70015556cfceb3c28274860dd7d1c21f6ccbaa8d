@@ -39,6 +39,30 @@
       },
       "revId": "70015556cfceb3c28274860dd7d1c21f6ccbaa8d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41709461_3c8f1541",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T21:10:42Z",
+      "side": 1,
+      "message": "Tom: Thank you for the comments.\n\nI did first try to fix the underlying problem. We need to enhance aom_dsp/bitwriter_buffer and aom_dsp/bitwriter.h to take a \u0027bit_buffer_end\u0027 and \u0027error_handler\u0027 argument, similar to aom_dsp/bitreader_buffer.h. After an hour\u0027s work I realized it\u0027s going to be a lot of work. That\u0027s why I came up with the \"guard page\" idea, which is used in thread stacks to detect stack overflow.\n\nI expect that this code can be ported to macOS and iOS with minor changes (maybe just need to change MAP_ANONYMOUS to MAP_ANON). I can add a Windows implementation if there is interest. So two implementations (Unix + Windows) should suffice to cover the major platforms.\n\nThe performance implications should be negligible. alloc_cx_data() makes three system calls. I read in Robert Love\u0027s Linux System Programming book that malloc() or calloc() in glibc also calls mmap() for allocations larger than 128KB, so the sysconf(_SC_PAGESIZE) and mprotect() calls are the overhead of this approach. Are you concerned about these one-time calls? Or are you worried that it is slower to access an anonymous memory mapping? (But memory returned by malloc() and calloc() may also come from anonymous memory mappings for large allocation sizes.)\n\nNOTE: The size of the ctx-\u003ecx_data buffer is 8 times the uncompressed frame size. For 480p (640x480) YUV 4:2:0, that is 8 * 640 * 480 * 1.5 \u003d 3686400 \u003d 3600KB, well above the 128KB threshold for glibc\u0027s malloc() and calloc() to use anonymous memory mapping. Some of our clients use tcmalloc or jemalloc, so the threshold may be different for them.",
+      "parentUuid": "46b286dc_db5f100c",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 9
+      },
+      "revId": "70015556cfceb3c28274860dd7d1c21f6ccbaa8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
