@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0e1d8b1_ef0a754c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-02-26T16:55:15Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nFor real time mode with row-mt enabled multi-threaded encoding, we have avoided copying the top-right superblock context to the tile context for the first superblock column in a tile. The thread specific tile context is initialized with frame context for every superblock row. Also, after encoding a superblock, copy of tile context to row context is avoided. This patch facilitates the changes required to delay top-right sync wait in rtc mode. \n\nThe \"assert(tplist !\u003d NULL)\" is added to silence a static analyzer warning reported by jenkins build. \n\nThe patch is verified to be bit-exact and the encode time reduction for rt preset with threads 4, tile cols 4, row-mt 1 (averaged over 360p, 480p, 720p, 1080p) is as follows:\n\n            Encode time\ncpu-used    Reduction (%)\n   7            0.336\n   8            0.518  \n   9            0.675\n   \n\nPlease review. ",
+      "revId": "9ef3d8517eeb01110ec58189c4e2218baef00edb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
