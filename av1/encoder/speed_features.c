@@ -153,7 +153,11 @@ static void set_good_speed_feature_framesize_dependent(
     else
       sf->part_sf.auto_max_partition_based_on_simple_motion = RELAXED_PRED;
   } else {
+#if CONFIG_EXT_RECUR_PARTITIONS
+    sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
+#else   // CONFIG_EXT_RECUR_PARTITIONS
     sf->part_sf.use_square_partition_only_threshold = BLOCK_64X64;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
     sf->part_sf.auto_max_partition_based_on_simple_motion = DIRECT_PRED;
   }
 
@@ -181,9 +185,17 @@ static void set_good_speed_feature_framesize_dependent(
     if (is_720p_or_larger) {
       sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
     } else if (is_480p_or_larger) {
+#if CONFIG_EXT_RECUR_PARTITIONS
+      sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
+#else   // CONFIG_EXT_RECUR_PARTITIONS
       sf->part_sf.use_square_partition_only_threshold = BLOCK_64X64;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
     } else {
+#if CONFIG_EXT_RECUR_PARTITIONS
+      sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
+#else   // CONFIG_EXT_RECUR_PARTITIONS
       sf->part_sf.use_square_partition_only_threshold = BLOCK_32X32;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
     }
 
     if (!is_720p_or_larger) {
@@ -197,6 +209,9 @@ static void set_good_speed_feature_framesize_dependent(
   }
 
   if (speed >= 2) {
+#if CONFIG_EXT_RECUR_PARTITIONS
+    sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
+#else   // CONFIG_EXT_RECUR_PARTITIONS
     if (is_720p_or_larger) {
       sf->part_sf.use_square_partition_only_threshold = BLOCK_64X64;
     } else if (is_480p_or_larger) {
@@ -204,6 +219,7 @@ static void set_good_speed_feature_framesize_dependent(
     } else {
       sf->part_sf.use_square_partition_only_threshold = BLOCK_32X32;
     }
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
 
     if (is_720p_or_larger) {
       sf->part_sf.partition_search_breakout_dist_thr = (1 << 24);
@@ -352,8 +368,13 @@ static void set_good_speed_features_framesize_independent(
   sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
 
   sf->part_sf.less_rectangular_check_level = 1;
+#if CONFIG_EXT_RECUR_PARTITIONS
+  sf->part_sf.ml_prune_4_partition = 0;
+  sf->part_sf.ml_prune_ab_partition = 0;
+#else   // CONFIG_EXT_RECUR_PARTITIONS
   sf->part_sf.ml_prune_4_partition = 1;
   sf->part_sf.ml_prune_ab_partition = 1;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
   sf->part_sf.ml_prune_rect_partition = 1;
   sf->part_sf.prune_ext_partition_types_search_level = 1;
   sf->part_sf.simple_motion_search_prune_rect = 1;
@@ -410,7 +431,11 @@ static void set_good_speed_features_framesize_independent(
     sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2;
     sf->gm_sf.prune_ref_frame_for_gm_search = boosted ? 0 : 1;
 
+#if CONFIG_EXT_RECUR_PARTITIONS
+    sf->part_sf.intra_cnn_split = 0;
+#else   // CONFIG_EXT_RECUR_PARTITIONS
     sf->part_sf.intra_cnn_split = 1;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
     sf->part_sf.simple_motion_search_early_term_none = 1;
     // TODO(Venkat): Clean-up frame type dependency for
     // simple_motion_search_split in partition search function and set the
@@ -706,7 +731,11 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->gm_sf.gm_search_type = GM_REDUCED_REF_SEARCH_SKIP_L2_L3;
 
   sf->part_sf.less_rectangular_check_level = 1;
+#if CONFIG_EXT_RECUR_PARTITIONS
+  sf->part_sf.ml_prune_4_partition = 0;
+#else   // CONFIG_EXT_RECUR_PARTITIONS
   sf->part_sf.ml_prune_4_partition = 1;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
   sf->part_sf.ml_prune_ab_partition = 1;
   sf->part_sf.ml_prune_rect_partition = 1;
   sf->part_sf.prune_ext_partition_types_search_level = 1;

@@ -1118,6 +1118,12 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
                      CDF_SIZE(10));
     }
   }
+#if CONFIG_EXT_RECUR_PARTITIONS
+  for (int i = 0; i < PARTITION_CONTEXTS_REC; ++i) {
+    AVERAGE_CDF(ctx_left->partition_rec_cdf[i], ctx_tr->partition_rec_cdf[i],
+                4);
+  }
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
   AVERAGE_CDF(ctx_left->switchable_interp_cdf, ctx_tr->switchable_interp_cdf,
               SWITCHABLE_FILTERS);
   AVERAGE_CDF(ctx_left->kf_y_cdf, ctx_tr->kf_y_cdf, INTRA_MODES);
