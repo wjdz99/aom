@@ -877,8 +877,8 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
   char **argi, **argj;
   struct arg arg;
   static const arg_def_t **ctrl_args = no_args;
-  static const arg_def_t **key_val_args = no_args;
   static const int *ctrl_args_map = NULL;
+  static const arg_def_t **key_val_args = no_args;
   struct stream_config *config = &stream->config;
   int eos_mark_found = 0;
   int webm_forced = 0;
@@ -1090,13 +1090,13 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else {
       int i, match = 0;
       // check if the control ID API supports this arg
-      if (ctrl_args_map) {
-        for (i = 0; ctrl_args[i]; i++) {
-          if (arg_match(&arg, ctrl_args[i], argi)) {
-            match = 1;
+      for (i = 0; ctrl_args[i]; i++) {
+        if (arg_match(&arg, ctrl_args[i], argi)) {
+          match = 1;
+          if (ctrl_args_map) {
             set_config_arg_ctrls(config, ctrl_args_map[i], &arg);
-            break;
           }
+          break;
         }
       }
       if (!match) {
