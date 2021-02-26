@@ -119,6 +119,9 @@ typedef struct {
 
   // Array holding partition type cost.
   int tmp_partition_cost[PARTITION_TYPES];
+#if CONFIG_EXT_RECUR_PARTITIONS
+  int partition_cost_table[EXT_PARTITION_TYPES];
+#endif
 
   // Pointer to partition cost buffer
   int *partition_cost;
@@ -141,7 +144,9 @@ typedef struct {
   int partition_none_allowed;
   int partition_rect_allowed[NUM_RECT_PARTS];
   int do_rectangular_split;
+#if !CONFIG_EXT_RECUR_PARTITIONS
   int do_square_split;
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
   int prune_rect_part[NUM_RECT_PARTS];
 
   // Chroma subsampling in x and y directions.
