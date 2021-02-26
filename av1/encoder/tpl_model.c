@@ -469,7 +469,6 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   tran_low_t *dqcoeff = aom_memalign(32, tpl_block_pels * sizeof(tran_low_t));
   uint8_t *predictor =
       is_cur_buf_hbd(xd) ? CONVERT_TO_BYTEPTR(predictor8) : predictor8;
-  int64_t recon_error = 1;
 
   memset(tpl_stats, 0, sizeof(*tpl_stats));
   tpl_stats->ref_frame_index[0] = -1;
@@ -747,23 +746,33 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
     }
   }
 
+  int64_t recon_error = 1;
+  int rate_cost = 1;
+  tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
+  tpl_stats->srcrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
   if (best_inter_cost < INT64_MAX) {
     xd->mi[0]->mv[0].as_int = best_mv[0].as_int;
     xd->mi[0]->mv[1].as_int = best_mv[1].as_int;
-    const YV12_BUFFER_CONFIG *ref_frame_ptr[2] = {
-      best_cmp_rf_idx >= 0
-          ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : tpl_data->src_ref_frame[best_rf_idx],
-      best_cmp_rf_idx >= 0
-          ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
-          : NULL,
-    };
-    int rate_cost = 1;
-    get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
-                        dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
-                        rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
-                        use_y_only_rate_distortion);
-    tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
+
+    // When allow_compound_pred = 0, allow skip following calculation on source
+    // ref.
+    if (!cpi->sf.tpl_sf.simplified_tpl_stats_calc) {
+      const YV12_BUFFER_CONFIG *ref_frame_ptr[2] = {
+        best_cmp_rf_idx >= 0
+            ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
+            : tpl_data->src_ref_frame[best_rf_idx],
+        best_cmp_rf_idx >= 0
+            ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
+            : NULL,
+      };
+
+      get_rate_distortion(&rate_cost, &recon_error, src_diff, coeff, qcoeff,
+                          dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
+                          rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
+                          use_y_only_rate_distortion);
+      tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
+      tpl_stats->srcrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
+    }
   }
 
   best_intra_cost = AOMMAX(best_intra_cost, 1);
@@ -771,10 +780,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
   tpl_stats->inter_cost = best_inter_cost << TPL_DEP_COST_SCALE_LOG2;
   tpl_stats->intra_cost = best_intra_cost << TPL_DEP_COST_SCALE_LOG2;
 
-  tpl_stats->srcrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
-
   // Final encode
-  int rate_cost = 0;
+  rate_cost = 0;
   const YV12_BUFFER_CONFIG *ref_frame_ptr[2];
 
   ref_frame_ptr[0] =

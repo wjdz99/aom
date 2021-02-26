@@ -1001,6 +1001,9 @@ static void set_good_speed_features_framesize_independent(
 
     sf->tpl_sf.prune_starting_mv = 3;
     sf->tpl_sf.use_y_only_rate_distortion = 1;
+    // sf->tpl_sf.simplified_tpl_stats_calc can be 1 only if
+    // sf->tpl_sf.allow_compound_pred = 0.
+    sf->tpl_sf.simplified_tpl_stats_calc = 1;
 
     sf->winner_mode_sf.dc_blk_pred_level = 1;
   }
@@ -1048,6 +1051,11 @@ static void set_good_speed_features_framesize_independent(
   assert(IMPLIES(
       sf->winner_mode_sf.multi_winner_mode_type != MULTI_WINNER_MODE_OFF,
       !sf->tx_sf.use_intra_txb_hash));
+
+  // sf->tpl_sf.simplified_tpl_stats_calc can be 1 only if
+  // sf->tpl_sf.allow_compound_pred = 0.
+  assert(IMPLIES(sf->tpl_sf.simplified_tpl_stats_calc,
+                 !sf->tpl_sf.allow_compound_pred));
 }
 
 // TODO(kyslov): now this is very similar to
@@ -1383,6 +1391,7 @@ static AOM_INLINE void init_tpl_sf(TPL_SPEED_FEATURES *tpl_sf) {
   tpl_sf->prune_ref_frames_in_tpl = 0;
   tpl_sf->allow_compound_pred = 1;
   tpl_sf->use_y_only_rate_distortion = 0;
+  tpl_sf->simplified_tpl_stats_calc = 0;
 }
 
 static AOM_INLINE void init_gm_sf(GLOBAL_MOTION_SPEED_FEATURES *gm_sf) {
