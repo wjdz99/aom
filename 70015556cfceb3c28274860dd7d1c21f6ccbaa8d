@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2471089a_3f3bc085",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-02-26T20:36:04Z",
+      "side": 1,
+      "message": "The code looks fine at this point, but I have other concerns (see comment). ",
+      "revId": "70015556cfceb3c28274860dd7d1c21f6ccbaa8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46b286dc_db5f100c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-02-26T20:36:04Z",
+      "side": 1,
+      "message": "Using mprotect() instead of fixing the underlying problem of blindly writing data into a memory buffer of unknown size does not seem like the right solution. It does seem reasonable as a short term fix.\n\nI hate making the slippery slope argument, but it seems to me that this will lead directly to an extreme level of ifdeffery in this module-- is the plan to follow this up with use of VirtualProtect() for Windows builds? What about macos... does this work there with a more generic guard?\n\nI haven\u0027t examined the situation: Does fixing the underlying problem present as such a herculean task that it\u0027s just not feasible?\n\nI\u0027m a little concerned about the potential performance implications here. It might be better for this behavior to be behind a build flag specific to still image encoding. I also wonder how this will impact webrtc\u0027s AV1 usage... Anyway, do you have any comparison numbers for encoding with and without this change enabled?",
+      "range": {
+        "startLine": 358,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 9
+      },
+      "revId": "70015556cfceb3c28274860dd7d1c21f6ccbaa8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
