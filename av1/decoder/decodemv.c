@@ -1237,7 +1237,11 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                          .as_int;
       break;
     }
-    case NEW_NEWMV: {
+    case NEW_NEWMV:
+#if CONFIG_OPTFLOW_REFINEMENT
+    case NEW_NEWMV_OPTFLOW:
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    {
       assert(is_compound);
       for (int i = 0; i < 2; ++i) {
         nmv_context *const nmvc = &ec_ctx->nmvc;
@@ -1253,7 +1257,11 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
 #endif  // !CONFIG_NEW_INTER_MODES
-    case NEAR_NEARMV: {
+    case NEAR_NEARMV:
+#if CONFIG_OPTFLOW_REFINEMENT
+    case NEAR_NEARMV_OPTFLOW:
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    {
       assert(is_compound);
       mv[0].as_int = near_mv[0].as_int;
       mv[1].as_int = near_mv[1].as_int;
@@ -1275,21 +1283,33 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
 #endif  // !CONFIG_NEW_INTER_MODES
-    case NEAR_NEWMV: {
+    case NEAR_NEWMV:
+#if CONFIG_OPTFLOW_REFINEMENT
+    case NEAR_NEWMV_OPTFLOW:
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       mv[0].as_int = near_mv[0].as_int;
       read_mv(r, &mv[1].as_mv, ref_mv[1].as_mv, nmvc, precision);
       assert(is_compound);
       break;
     }
-    case NEW_NEARMV: {
+    case NEW_NEARMV:
+#if CONFIG_OPTFLOW_REFINEMENT
+    case NEW_NEARMV_OPTFLOW:
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    {
       nmv_context *const nmvc = &ec_ctx->nmvc;
       read_mv(r, &mv[0].as_mv, ref_mv[0].as_mv, nmvc, precision);
       assert(is_compound);
       mv[1].as_int = near_mv[1].as_int;
       break;
     }
-    case GLOBAL_GLOBALMV: {
+    case GLOBAL_GLOBALMV:
+#if CONFIG_OPTFLOW_REFINEMENT
+    case GLOBAL_GLOBALMV_OPTFLOW:
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    {
       assert(is_compound);
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           features->fr_mv_precision, bsize,
@@ -1542,7 +1562,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   mbmi->compound_idx = 1;
   mbmi->interinter_comp.type = COMPOUND_AVERAGE;
 
-  if (has_second_ref(mbmi) && !mbmi->skip_mode) {
+  if (has_second_ref(mbmi) &&
+#if CONFIG_OPTFLOW_REFINEMENT
+      mbmi->mode <= NEW_NEWMV &&
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+      !mbmi->skip_mode) {
     // Read idx to indicate current compound inter prediction mode group
     const int masked_compound_used = is_any_masked_compound_used(bsize) &&
                                      cm->seq_params.enable_masked_compound;

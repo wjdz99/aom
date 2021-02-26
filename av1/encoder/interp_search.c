@@ -634,8 +634,12 @@ static INLINE void calc_interp_skip_pred_flag(MACROBLOCK *const x,
       struct macroblockd_plane *const pd = &xd->plane[plane_idx];
       const int bw = pd->width;
       const int bh = pd->height;
-      const MV mv_q4 = clamp_mv_to_umv_border_sb(
-          xd, &mv, bw, bh, pd->subsampling_x, pd->subsampling_y);
+      const MV mv_q4 =
+          clamp_mv_to_umv_border_sb(xd, &mv, bw, bh,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                    0,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                                    pd->subsampling_x, pd->subsampling_y);
       const int sub_x = (mv_q4.col & SUBPEL_MASK) << SCALE_EXTRA_BITS;
       const int sub_y = (mv_q4.row & SUBPEL_MASK) << SCALE_EXTRA_BITS;
       skip_hor_plane |= ((sub_x == 0) << plane_idx);
@@ -782,7 +786,11 @@ int64_t av1_interpolation_filter_search(
     return 0;
   }
   if (args->modelled_rd != NULL) {
+#if CONFIG_OPTFLOW_REFINEMENT
+    if (has_second_ref(mbmi) && mbmi->mode <= NEW_NEWMV) {
+#else
     if (has_second_ref(mbmi)) {
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       const int ref_mv_idx = mbmi->ref_mv_idx;
       MV_REFERENCE_FRAME *refs = mbmi->ref_frame;
       const int mode0 = compound_ref0_mode(mbmi->mode);

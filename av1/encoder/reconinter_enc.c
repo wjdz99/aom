@@ -31,6 +31,9 @@
 static void enc_calc_subpel_params(const MV *const src_mv,
                                    InterPredParams *const inter_pred_params,
                                    MACROBLOCKD *xd, int mi_x, int mi_y, int ref,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                   int use_optflow_refinement,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
                                    uint8_t **mc_buf, uint8_t **pre,
                                    SubpelParams *subpel_params,
                                    int *src_stride) {
@@ -48,8 +51,19 @@ static void enc_calc_subpel_params(const MV *const src_mv,
   int ssx = inter_pred_params->subsampling_x;
   int ssy = inter_pred_params->subsampling_y;
   int orig_pos_y = inter_pred_params->pix_row << SUBPEL_BITS;
-  orig_pos_y += src_mv->row * (1 << (1 - ssy));
   int orig_pos_x = inter_pred_params->pix_col << SUBPEL_BITS;
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (use_optflow_refinement) {
+    orig_pos_y += src_mv->row / (1 << ssy);
+    orig_pos_x += src_mv->col / (1 << ssx);
+  } else {
+    orig_pos_y += src_mv->row * (1 << (1 - ssy));
+    orig_pos_x += src_mv->col * (1 << (1 - ssx));
+  }
+#else
+  orig_pos_y += src_mv->row * (1 << (1 - ssy));
+  orig_pos_x += src_mv->col * (1 << (1 - ssx));
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   orig_pos_x += src_mv->col * (1 << (1 - ssx));
   int pos_y = sf->scale_value_y(orig_pos_y, sf);
   int pos_x = sf->scale_value_x(orig_pos_x, sf);

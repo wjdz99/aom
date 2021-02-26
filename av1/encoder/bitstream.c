@@ -1309,7 +1309,11 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
         assert(mbmi->ref_mv_idx == 0);
     }
 
+#if CONFIG_OPTFLOW_REFINEMENT
+    if (mode == NEWMV || mode == NEW_NEWMV || mode == NEW_NEWMV_OPTFLOW) {
+#else
     if (mode == NEWMV || mode == NEW_NEWMV) {
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       for (ref = 0; ref < 1 + is_compound; ++ref) {
         nmv_context *nmvc = &ec_ctx->nmvc;
         const int_mv ref_mv = get_ref_mv(x, ref);
@@ -1317,12 +1321,20 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
                       pb_mv_precision);
       }
 #if CONFIG_NEW_INTER_MODES
+#if CONFIG_OPTFLOW_REFINEMENT
+    } else if (mode == NEAR_NEWMV || mode == NEAR_NEWMV_OPTFLOW) {
+#else
     } else if (mode == NEAR_NEWMV) {
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = get_ref_mv(x, 1);
       av1_encode_mv(cpi, w, mbmi->mv[1].as_mv, ref_mv.as_mv, nmvc,
                     pb_mv_precision);
+#if CONFIG_OPTFLOW_REFINEMENT
+    } else if (mode == NEW_NEARMV || mode == NEW_NEARMV_OPTFLOW) {
+#else
     } else if (mode == NEW_NEARMV) {
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = get_ref_mv(x, 0);
       av1_encode_mv(cpi, w, mbmi->mv[0].as_mv, ref_mv.as_mv, nmvc,
@@ -1368,7 +1380,11 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
     // First write idx to indicate current compound inter prediction mode group
     // Group A (0): dist_wtd_comp, compound_average
     // Group B (1): interintra, compound_diffwtd, wedge
+#if CONFIG_OPTFLOW_REFINEMENT
+    if (has_second_ref(mbmi) && (mbmi->mode <= NEW_NEWMV)) {
+#else
     if (has_second_ref(mbmi)) {
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       const int masked_compound_used = is_any_masked_compound_used(bsize) &&
                                        cm->seq_params.enable_masked_compound;
 
