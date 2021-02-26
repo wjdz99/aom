@@ -343,6 +343,9 @@ static AOM_INLINE void fetch_tx_rd_info(int n4,
   memcpy(x->txfm_search_info.blk_skip, tx_rd_info->blk_skip,
          sizeof(tx_rd_info->blk_skip[0]) * n4);
   av1_copy(mbmi->inter_tx_size, tx_rd_info->inter_tx_size);
+#if CONFIG_NEW_TX_PARTITION
+  av1_copy(mbmi->partition_type, tx_rd_info->partition_type);
+#endif  // CONFIG_NEW_TX_PARTITION
   av1_copy_array(xd->tx_type_map, tx_rd_info->tx_type_map, n4);
   *rd_stats = tx_rd_info->rd_stats;
 }
@@ -415,6 +418,9 @@ static AOM_INLINE void set_skip_txfm(MACROBLOCK *x, RD_STATS *rd_stats,
   const TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
   memset(xd->tx_type_map, DCT_DCT, sizeof(xd->tx_type_map[0]) * n4);
   memset(mbmi->inter_tx_size, tx_size, sizeof(mbmi->inter_tx_size));
+#if CONFIG_NEW_TX_PARTITION
+  memset(mbmi->partition_type, TX_PARTITION_NONE, sizeof(mbmi->partition_type));
+#endif  // CONFIG_NEW_TX_PARTITION
   mbmi->tx_size = tx_size;
   for (int i = 0; i < n4; ++i)
     set_blk_skip(x->txfm_search_info.blk_skip, 0, i, 1);
@@ -469,6 +475,9 @@ static AOM_INLINE void save_tx_rd_info(int n4, uint32_t hash,
   memcpy(tx_rd_info->blk_skip, x->txfm_search_info.blk_skip,
          sizeof(tx_rd_info->blk_skip[0]) * n4);
   av1_copy(tx_rd_info->inter_tx_size, mbmi->inter_tx_size);
+#if CONFIG_NEW_TX_PARTITION
+  av1_copy(tx_rd_info->partition_type, mbmi->partition_type);
+#endif  // CONFIG_NEW_TX_PARTITION
   av1_copy_array(tx_rd_info->tx_type_map, xd->tx_type_map, n4);
   tx_rd_info->rd_stats = *rd_stats;
 }
@@ -1862,6 +1871,7 @@ static int predict_skip_txfm(const AV1_COMMON *cm, MACROBLOCK *x,
   return 1;
 }
 
+#if !CONFIG_NEW_TX_PARTITION
 static float get_dev(float mean, double x2_sum, int num) {
   const float e_x2 = (float)(x2_sum / num);
   const float diff = e_x2 - mean * mean;
