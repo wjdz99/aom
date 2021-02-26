@@ -78,7 +78,6 @@ typedef struct tx_size_rd_info_node {
   struct tx_size_rd_info_node *children[4];
 } TXB_RD_INFO_NODE;
 
-#if !CONFIG_NEW_TX_PARTITION
 typedef struct {
   int leaf;
   int8_t children[4];
@@ -306,7 +305,6 @@ static int find_tx_size_rd_records(MACROBLOCK *x, BLOCK_SIZE bsize,
   return 1;
 }
 
-#endif  // !CONFIG_NEW_TX_PARTITION
 
 static INLINE uint32_t get_block_residue_hash(MACROBLOCK *x, BLOCK_SIZE bsize) {
   const int rows = block_size_high[bsize];
@@ -3771,12 +3769,10 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // up TX size/type search.
   TXB_RD_INFO_NODE matched_rd_info[4 + 16 + 64];
   int found_rd_info = 0;
-#if !CONFIG_NEW_TX_PARTITION
   if (ref_best_rd != INT64_MAX && within_border &&
       cpi->sf.tx_sf.use_inter_txb_hash) {
     found_rd_info = find_tx_size_rd_records(x, bsize, matched_rd_info);
   }
-#endif  // !CONFIG_NEW_TX_PARTITION
 
   const int64_t rd =
       select_tx_size_and_type(cpi, x, rd_stats, bsize, ref_best_rd,
