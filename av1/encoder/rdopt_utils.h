@@ -366,9 +366,11 @@ static INLINE int check_txfm_eval(MACROBLOCK *const x, BLOCK_SIZE bsize,
   return eval_txfm;
 }
 
-static TX_MODE select_tx_mode(
-    const AV1_COMMON *cm, const TX_SIZE_SEARCH_METHOD tx_size_search_method) {
+static TX_MODE select_tx_mode(const AV1_COMMON *cm,
+                              const TX_SIZE_SEARCH_METHOD tx_size_search_method,
+                              int force_select_mode) {
   if (cm->features.coded_lossless) return ONLY_4X4;
+  if (force_select_mode) return TX_MODE_SELECT;
   if (tx_size_search_method == USE_LARGESTALL) {
     return TX_MODE_LARGEST;
   } else {
@@ -422,7 +424,7 @@ static INLINE void set_tx_size_search_method(
           winner_mode_params->tx_size_search_methods[MODE_EVAL];
   }
   txfm_params->tx_mode_search_type =
-      select_tx_mode(cm, txfm_params->tx_size_search_method);
+      select_tx_mode(cm, txfm_params->tx_size_search_method, 0);
 }
 
 static INLINE void set_tx_type_prune(const SPEED_FEATURES *sf,

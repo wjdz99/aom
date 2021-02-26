@@ -1474,7 +1474,11 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   const TX_SIZE_SEARCH_METHOD tx_search_type =
       cpi->winner_mode_params.tx_size_search_methods[eval_type];
   assert(oxcf->txfm_cfg.enable_tx64 || tx_search_type != USE_LARGESTALL);
-  features->tx_mode = select_tx_mode(cm, tx_search_type);
+
+  // We can not signal TX_MODE_LARGEST in REALTIME mode because it changes frame
+  // by frame
+  features->tx_mode =
+      select_tx_mode(cm, tx_search_type, oxcf->mode == REALTIME);
 
   if (cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats) {
     const FRAME_UPDATE_TYPE update_type = get_frame_update_type(&cpi->gf_group);
