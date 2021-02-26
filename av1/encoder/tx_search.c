@@ -1928,7 +1928,6 @@ static AOM_INLINE void get_mean_dev_features(const int16_t *data, int stride,
   }
 }
 
-#if !CONFIG_NEW_TX_PARTITION
 static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
                                int blk_col, TX_SIZE tx_size) {
   const NN_CONFIG *nn_config = av1_tx_split_nnconfig_map[tx_size];
