@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0f063da_16415386",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-02-26T16:40:19Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch fixes the rate calculation in av1_nonrd_pick_intra_mode() function. \n\nWhen cost update frequency is COST_UPD_TILE/COST_UPD_OFF, costs are updated at tile level/not updated, whereas cdfs are updated at block level. Thus, when cost update frequency is COST_UPD_TILE/COST_UPD_OFF it would be incorrect to derive the costs from the updated cdfs. The rate calculation in  av1_nonrd_pick_intra_mode() function used the \u0027skip_txfm_cost\u0027 derived from \u0027skip_txfm_cdfs\u0027 (which is updated at block level). \n\nIn this patch we have used the pre-calculated value of skip_txfm_cost in rate calculation. This is also consistent with other functions like av1_rd_pick_intra_mode_sb(), av1_nonrd_pick_inter_mode_sb() etc. where pre-calculated value of skip_txfm_cost is used in rate calculation.\n\nAlso, as per our understanding, the earlier cost calculation was slightly wrong. In order to get the cost from cdf, the function get_symbol_cost() has to be used, av1_cost_symbol() was used instead. \n\nThe results for rt –cpu-used\u003d7, 8, 9  presets are as follows:\n\n                      Instruction Count\t   BD-Rate loss (%)\t\t\ncpu-used  Resolution   Reduction (%)    avg.psnr ovr.psnr  ssim\n   7\t     LOWRES\t  0.00\t        0.0082\t 0.0079\t  0.0096\n   7\t     MIDRES\t  0.00\t       -0.0299\t-0.0249\t -0.0461\n   7\t     HDRES\t  0.00          0.0220   0.0201  -0.0296\n   7\t     Average\t  0.00\t       -0.0034\t-0.0021\t -0.0208\n\t\t\t\t\t\t\t       \n   8\t     LOWRES\t  0.00\t       -0.0221\t-0.0210\t -0.0191\n   8\t     MIDRES\t  0.00\t       -0.0037\t-0.0014\t -0.0074\n   8\t     HDRES\t  0.00\t        0.0170\t 0.0206\t -0.0109\n   8\t     Average\t  0.00\t       -0.0062\t-0.0040\t -0.0127\n\t\t\t\t\t\t\t       \n   9\t     LOWRES\t  0.00\t       -0.0008\t-0.0025\t -0.0081\n   9\t     MIDRES\t  0.00         -0.0130\t-0.0138\t -0.0488\n   9\t     HDRES\t  0.00         -0.0331\t-0.0337\t  0.0411\n   9\t     Average\t  0.00\t       -0.0128\t-0.0139\t -0.0128\n\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nThe change is applicable to rt cpu-used \u003e\u003d7 presets only. All other speed presets are verified to be bit-exact. \n\nPlease review. ",
+      "revId": "14e8a4d5aa04b48df0061a332c418b7afc557b91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
