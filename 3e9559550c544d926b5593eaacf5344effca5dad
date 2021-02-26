@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbce8298_3520495c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T22:47:46Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "3e9559550c544d926b5593eaacf5344effca5dad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f58e31f_2c1c17d1",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T22:47:46Z",
+      "side": 1,
+      "message": "I think libaom clients don\u0027t allocate this struct. Instead, they call aom_codec_get_cx_data(), which returns a (const) pointer to this struct. So the size of this struct should not matter.",
+      "revId": "3e9559550c544d926b5593eaacf5344effca5dad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
