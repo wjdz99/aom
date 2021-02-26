@@ -2596,9 +2596,6 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
                                   FAST_TX_SEARCH_MODE ftxs_mode,
                                   int64_t ref_rdcost,
                                   TXB_RD_INFO *rd_info_array) {
-#if CONFIG_NEW_TX_PARTITION
-  (void)rd_info_array;
-#else
   const struct macroblock_plane *const p = &x->plane[0];
   const uint16_t cur_joint_ctx =
       (txb_ctx->dc_sign_ctx << 8) + txb_ctx->txb_skip_ctx;
@@ -2623,7 +2620,6 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
       return;
     }
   }
-#endif  // CONFIG_NEW_TX_PARTITION
 
   RD_STATS this_rd_stats;
   const int skip_trellis = 0;
@@ -2632,7 +2628,6 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   av1_merge_rd_stats(rd_stats, &this_rd_stats);
 
-#if !CONFIG_NEW_TX_PARTITION
   // Save RD results for possible reuse in future.
   if (rd_info_array != NULL) {
     rd_info_array->valid = 1;
@@ -2644,7 +2639,6 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
     rd_info_array->txb_entropy_ctx = p->txb_entropy_ctx[block];
     rd_info_array->tx_type = xd->tx_type_map[tx_type_map_idx];
   }
-#endif  // !CONFIG_NEW_TX_PARTITION
 }
 
 static AOM_INLINE void try_tx_block_no_split(
