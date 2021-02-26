@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43ea6480_5e6b97b2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T05:47:23Z",
+      "side": 1,
+      "message": "This should be 3.0.0 now. More on this in CHANGELOG.",
+      "range": {
+        "startLine": 7,
+        "startChar": 27,
+        "endLine": 7,
+        "endChar": 32
+      },
+      "revId": "5c5525d671bbedfc928490607c5edeb7908c5e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca3bd70a_5ed52b41",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T05:47:23Z",
+      "side": 1,
+      "message": "It would be good to link to the CL (https://aomedia-review.googlesource.com/c/aom/+/116721) or the commit (https://aomedia.googlesource.com/aom/+/4c2b30effc114f32e98a93d5fdb6ce02d19da04d).",
+      "range": {
+        "startLine": 9,
+        "startChar": 24,
+        "endLine": 9,
+        "endChar": 33
+      },
+      "revId": "5c5525d671bbedfc928490607c5edeb7908c5e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2494c3ef_1c176980",
+        "filename": "CHANGELOG",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T05:47:23Z",
+      "side": 1,
+      "message": "The version should be v3.0.0.\n\nChanging the value of AOME_ONETWO (a public enum) from 3 to 6 is an incompatible API change and therefore requires incrementing the MAJOR version in the Semantic Versioning scheme. The current value of the VERSION_MAJOR macro in config/aom_version.h is 2.",
+      "range": {
+        "startLine": 1,
+        "startChar": 11,
+        "endLine": 1,
+        "endChar": 17
+      },
+      "revId": "5c5525d671bbedfc928490607c5edeb7908c5e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d73e1595_41a38889",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 11
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T05:47:23Z",
+      "side": 1,
+      "message": "\u003ccurrent\u003e.\u003cage\u003e.\u003crevision\u003e is incorrect. See the correct expression in line 42.",
+      "range": {
+        "startLine": 37,
+        "startChar": 31,
+        "endLine": 37,
+        "endChar": 57
+      },
+      "revId": "5c5525d671bbedfc928490607c5edeb7908c5e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b99030e7_8dace401",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-26T05:47:23Z",
+      "side": 1,
+      "message": "This line seems to imply the aom_codec_cx_pkt_t struct should be 128 bytes. There are two problems.\n\n1. Old problem: The size of the \u0027pad\u0027 array does not take into account the gap between the \u0027kind\u0027 and \u0027data\u0027 members. The gap is required to align \u0027data\u0027 on a pointer-size boundary (see line 114, which is a pointer). I don\u0027t know how to fix this.\n\n2. New problem: I think the \u0027psnr\u0027 union member is more than 128 bytes now.",
+      "revId": "5c5525d671bbedfc928490607c5edeb7908c5e25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
