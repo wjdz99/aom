@@ -2844,7 +2844,7 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                               err_string)) {
     extra_cfg.enable_auto_alt_ref = arg_parse_uint_helper(&arg, err_string);
     if (strlen(err_string) == 0 && extra_cfg.enable_auto_alt_ref > 1) {
-      warn("auto-alt-ref > 1 is deprecated... setting auto-alt-ref=1\n");
+      // warn("auto-alt-ref > 1 is deprecated... setting auto-alt-ref=1\n");
       extra_cfg.enable_auto_alt_ref = 1;
     }
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.noise_sens, argv,
