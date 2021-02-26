@@ -346,6 +346,9 @@ static AOM_INLINE void fetch_tx_rd_info(int n4,
   memcpy(x->txfm_search_info.blk_skip, tx_rd_info->blk_skip,
          sizeof(tx_rd_info->blk_skip[0]) * n4);
   av1_copy(mbmi->inter_tx_size, tx_rd_info->inter_tx_size);
+#if CONFIG_NEW_TX_PARTITION
+  av1_copy(mbmi->partition_type, tx_rd_info->partition_type);
+#endif  // CONFIG_NEW_TX_PARTITION
   av1_copy_array(xd->tx_type_map, tx_rd_info->tx_type_map, n4);
   *rd_stats = tx_rd_info->rd_stats;
 }
@@ -418,6 +421,9 @@ static AOM_INLINE void set_skip_txfm(MACROBLOCK *x, RD_STATS *rd_stats,
   const TX_SIZE tx_size = max_txsize_rect_lookup[bsize];
   memset(xd->tx_type_map, DCT_DCT, sizeof(xd->tx_type_map[0]) * n4);
   memset(mbmi->inter_tx_size, tx_size, sizeof(mbmi->inter_tx_size));
+#if CONFIG_NEW_TX_PARTITION
+  memset(mbmi->partition_type, TX_PARTITION_NONE, sizeof(mbmi->partition_type));
+#endif  // CONFIG_NEW_TX_PARTITION
   mbmi->tx_size = tx_size;
   for (int i = 0; i < n4; ++i)
     set_blk_skip(x->txfm_search_info.blk_skip, 0, i, 1);
@@ -472,6 +478,9 @@ static AOM_INLINE void save_tx_rd_info(int n4, uint32_t hash,
   memcpy(tx_rd_info->blk_skip, x->txfm_search_info.blk_skip,
          sizeof(tx_rd_info->blk_skip[0]) * n4);
   av1_copy(tx_rd_info->inter_tx_size, mbmi->inter_tx_size);
+#if CONFIG_NEW_TX_PARTITION
+  av1_copy(tx_rd_info->partition_type, mbmi->partition_type);
+#endif  // CONFIG_NEW_TX_PARTITION
   av1_copy_array(tx_rd_info->tx_type_map, xd->tx_type_map, n4);
   tx_rd_info->rd_stats = *rd_stats;
 }
@@ -1756,7 +1765,6 @@ static void prune_tx_2D(MACROBLOCK *x, BLOCK_SIZE bsize, TX_SIZE tx_size,
   *allowed_tx_mask = allow_bitmask;
 }
 
-#if !CONFIG_NEW_TX_PARTITION
 // lookup table for predict_skip_txfm
 // int max_tx_size = max_txsize_rect_lookup[bsize];
 // if (tx_size_high[max_tx_size] > 16 || tx_size_wide[max_tx_size] > 16)
@@ -1866,6 +1874,7 @@ static int predict_skip_txfm(const AV1_COMMON *cm, MACROBLOCK *x,
   return 1;
 }
 
+#if !CONFIG_NEW_TX_PARTITION
 static float get_dev(float mean, double x2_sum, int num) {
   const float e_x2 = (float)(x2_sum / num);
   const float diff = e_x2 - mean * mean;
@@ -3710,9 +3719,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
                                          RD_STATS *rd_stats, BLOCK_SIZE bsize,
                                          int64_t ref_best_rd) {
   MACROBLOCKD *const xd = &x->e_mbd;
-#if !CONFIG_NEW_TX_PARTITION
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-#endif  // CONFIG_NEW_TX_PARTITION
   assert(is_inter_block(xd->mi[0]));
 
   av1_invalid_rd_stats(rd_stats);
@@ -3748,7 +3755,6 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
-#if !CONFIG_NEW_TX_PARTITION
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
@@ -3761,7 +3767,6 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
       save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
     return;
   }
-#endif  // !CONFIG_NEW_TX_PARTITION
 #if CONFIG_SPEED_STATS
   ++x->txfm_search_info.tx_search_count;
 #endif  // CONFIG_SPEED_STATS
@@ -3835,7 +3840,6 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-#if !CONFIG_NEW_TX_PARTITION
   // If we predict that skip is the optimal RD decision - set the respective
   // context and terminate early.
   int64_t dist;
@@ -3851,7 +3855,6 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
     return;
   }
-#endif  // !CONFIG_NEW_TX_PARTITION
 
   if (xd->lossless[mbmi->segment_id]) {
     // Lossless mode can only pick the smallest (4x4) transform size.

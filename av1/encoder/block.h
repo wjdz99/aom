@@ -252,6 +252,10 @@ typedef struct {
 typedef struct {
   //! Txfm size used if the current mode is intra mode.
   TX_SIZE tx_size;
+#if CONFIG_NEW_TX_PARTITION
+  //! Txfm partitions used if the current mode is inter mode.
+  TX_PARTITION_TYPE partition_type[INTER_TX_SIZE_BUF_LEN];
+#endif  // CONFIG_NEW_TX_PARTITION
   //! Txfm sizes used if the current mode is inter mode.
   TX_SIZE inter_tx_size[INTER_TX_SIZE_BUF_LEN];
   //! Map showing which txfm block skips the txfm process.
