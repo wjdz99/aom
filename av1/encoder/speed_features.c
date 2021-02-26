@@ -619,6 +619,7 @@ static void set_allintra_speed_features_framesize_independent(
     sf->intra_sf.intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
     sf->intra_sf.intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
     sf->intra_sf.intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
+    sf->intra_sf.prune_chroma_modes_based_on_luma_winner_mode = 1;
 
     sf->mv_sf.simple_motion_subpel_force_stop = HALF_PEL;
 
@@ -1515,6 +1516,7 @@ static AOM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
   }
   intra_sf->disable_smooth_intra = 0;
   intra_sf->disable_filter_intra = 0;
+  intra_sf->prune_chroma_modes_based_on_luma_winner_mode = 0;
 }
 
 static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {

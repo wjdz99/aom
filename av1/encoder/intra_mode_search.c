@@ -492,6 +492,10 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
 
     if (!intra_mode_cfg->enable_paeth_intra && mode == UV_PAETH_PRED) continue;
 
+    if (cpi->sf.intra_sf.prune_chroma_modes_based_on_luma_winner_mode &&
+        !(av1_derived_chroma_intra_mode_used_flag[mbmi->mode] & (1 << mode)))
+      continue;
+
     mbmi->uv_mode = mode;
 
     // Init variables for cfl and angle delta

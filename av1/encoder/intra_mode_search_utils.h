@@ -95,6 +95,29 @@ static const NN_CONFIG av1_intra_hog_model_nnconfig = {
   },
 };
 
+// The bitmask corresponds to the chroma intra modes as defined in enums.h
+// UV_PREDICTION_MODE enumeration type. Setting a bit to 0 in the mask means to
+// disable the evaluation of corresponding chroma intra mode. The
+// av1_derived_chroma_intra_mode_used_flag table is used when speed feature
+// prune_chroma_modes_based_on_luma_winner_mode is enabled. The evaluated chroma
+// intra modes are union of UV_DC_PRED, UV_SMOOTH_PRED, UV_CFL_PRED and luma
+// intra mode winner.
+static const uint16_t av1_derived_chroma_intra_mode_used_flag[INTRA_MODES] = {
+  0x2201,  // DC_PRED:           0010 0010 0000 0001
+  0x2203,  // V_PRED:            0010 0010 0000 0011
+  0x2205,  // H_PRED:            0010 0010 0000 0101
+  0x2209,  // D45_PRED:          0010 0010 0000 1001
+  0x2211,  // D135_PRED:         0010 0010 0001 0001
+  0x2221,  // D113_PRED:         0010 0010 0010 0001
+  0x2241,  // D157_PRED:         0010 0010 0100 0001
+  0x2281,  // D203_PRED:         0010 0010 1000 0001
+  0x2301,  // D67_PRED:          0010 0011 0000 0001
+  0x2201,  // SMOOTH_PRED:       0010 0010 0000 0001
+  0x2601,  // SMOOTH_V_PRED:     0010 0110 0000 0001
+  0x2a01,  // SMOOTH_H_PRED:     0010 1010 0000 0001
+  0x3201   // PAETH_PRED:        0011 0010 0000 0001
+};
+
 #define FIX_PREC_BITS (16)
 static AOM_INLINE int get_hist_bin_idx(int dx, int dy) {
   const int32_t ratio = (dy * (1 << FIX_PREC_BITS)) / dx;
