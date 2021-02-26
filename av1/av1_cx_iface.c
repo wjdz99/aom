@@ -8,8 +8,19 @@
  * Media Patent License 1.0 was not distributed with this source code in the
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
+// Enable GNU extensions in glibc so that we can use MAP_ANONYMOUS.
+// This must be before any #include statements.
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <stdlib.h>
 #include <string.h>
+
+#if defined(__linux__)
+#include <sys/mman.h>
+#include <unistd.h>
+#endif
 
 #include "aom_mem/aom_mem.h"
 #include "config/aom_config.h"
@@ -295,7 +306,11 @@ struct aom_codec_alg_priv {
   AV1EncoderConfig oxcf;
   AV1_COMP *cpi;
   unsigned char *cx_data;
+  // The capacity (usable size) of the cx_data buffer. There may be a guard page
+  // after cx_data_sz to detect buffer overflow.
   size_t cx_data_sz;
+  // Pass cx_data_mmap_sz as the 'len' argument to free_cx_data().
+  size_t cx_data_mmap_sz;
   unsigned char *pending_cx_data;
   size_t pending_cx_data_sz;
   aom_image_t preview_img;
@@ -330,6 +345,61 @@ static INLINE void reduce_ratio(aom_rational64_t *ratio) {
   ratio->num /= denom;
   ratio->den /= denom;
 }
+
+// alloc_cx_data(): Allocates a buffer with at least 'size' bytes, plus a guard
+// page at the end. The guard page cannot be accessed. Any access to the guard
+// page results in a segmentation fault. This is used to detect buffer overflow.
+// On success, returns the buffer and sets *usable_size and *mmap_size.
+// *usable_size is the number of bytes in the buffer that can be used; it may be
+// greater than 'size'. *mmap_size should be passed as the 'len' argument to
+// free_cx_data(). On failure, returns NULL.
+//
+// NOTE: alloc_cx_data() is used to allocate the ctx->cx_data buffer. The
+// The ctx->cx_data buffer is passed to the encode functions without the buffer
+// size. Therefore the encode functions cannot prevent buffer overflow and must
+// rely on a safe estimate of the worst-case buffer size. The guard page makes
+// buffer overwrite result in an immediate crash rather than corrupt memory and
+// crash at an unrelated place later.
+//
+// free_cx_data(): Frees a buffer allocated with an alloc_cx_data() call.
+#if defined(__linux__)
+static void *alloc_cx_data(size_t size, size_t *usable_size,
+                           size_t *mmap_size) {
+  size_t page_size = (size_t)sysconf(_SC_PAGESIZE);
+  // Round up 'size' to the next multiple of page size.
+  size = (size + page_size - 1) & ~(page_size - 1);
+  // Create an anonymous memory mapping. The pages are filled with zeros, even
+  // though we don't need that.
+  void *addr = mmap(NULL, size + page_size, PROT_READ | PROT_WRITE,
+                    MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+  if (addr == MAP_FAILED) return NULL;
+  // Do not permit any access to the guard page.
+  if (mprotect((char *)addr + size, page_size, PROT_NONE) != 0) {
+    munmap(addr, size + page_size);
+    return NULL;
+  }
+  *usable_size = size;
+  *mmap_size = size + page_size;
+  return addr;
+}
+
+static void free_cx_data(void *addr, size_t len) { munmap(addr, len); }
+#else
+// The default implementation does not add a guard page.
+static void *alloc_cx_data(size_t size, size_t *usable_size,
+                           size_t *mmap_size) {
+  void *addr = malloc(size);
+  if (addr != NULL) {
+    *usable_size = *mmap_size = size;
+  }
+  return addr;
+}
+
+static void free_cx_data(void *addr, size_t len) {
+  (void)len;
+  free(addr);
+}
+#endif
 
 static aom_codec_err_t update_error_state(
     aom_codec_alg_priv_t *ctx, const struct aom_internal_error_info *error) {
@@ -2110,7 +2180,7 @@ static void destroy_stats_buffer(STATS_BUFFER_CTX *stats_buf_context,
 }
 
 static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
-  free(ctx->cx_data);
+  free_cx_data(ctx->cx_data, ctx->cx_data_mmap_sz);
   destroy_context_and_bufferpool(ctx->cpi, ctx->buffer_pool);
   if (ctx->cpi_lap) {
     // As both cpi and cpi_lap have the same lookahead_ctx, it is already freed
@@ -2171,11 +2241,11 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
                        ALIGN_POWER_OF_TWO(ctx->cfg.g_h, 5) * get_image_bps(img);
       if (data_sz < kMinCompressedSize) data_sz = kMinCompressedSize;
       if (ctx->cx_data == NULL || ctx->cx_data_sz < data_sz) {
-        ctx->cx_data_sz = data_sz;
-        free(ctx->cx_data);
-        ctx->cx_data = (unsigned char *)malloc(ctx->cx_data_sz);
+        free_cx_data(ctx->cx_data, ctx->cx_data_mmap_sz);
+        ctx->cx_data = (unsigned char *)alloc_cx_data(data_sz, &ctx->cx_data_sz,
+                                                      &ctx->cx_data_mmap_sz);
         if (ctx->cx_data == NULL) {
-          ctx->cx_data_sz = 0;
+          ctx->cx_data_sz = ctx->cx_data_mmap_sz = 0;
           return AOM_CODEC_MEM_ERROR;
         }
       }
