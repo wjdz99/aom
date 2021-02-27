@@ -10,6 +10,8 @@
  */
 
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <jxl/butteraugli.h>
 
 #include "aom_dsp/butteraugli.h"
@@ -28,7 +30,11 @@ void aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
   size_t buffer_size = width * height * 3;
   uint8_t *src_rgb = (uint8_t *)aom_malloc(buffer_size);
   uint8_t *distorted_rgb = (uint8_t *)aom_malloc(buffer_size);
-  // TODO(sdeng): Convert them to sRGB.
+  if (!src_rgb || !distorted_rgb) {
+    fprintf(stderr, "Fatal error: Butteraugli calculation failed.\n");
+    exit(EXIT_FAILURE);
+  }
+
   I420ToRGB24Matrix(source->y_buffer, source->y_stride, source->u_buffer,
                     source->uv_stride, source->v_buffer, source->uv_stride,
                     src_rgb, width * 3, &kYuvH709Constants, width, height);
