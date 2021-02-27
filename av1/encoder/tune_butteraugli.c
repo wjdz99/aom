@@ -10,6 +10,8 @@
  */
 
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "av1/encoder/tune_butteraugli.h"
 
@@ -48,7 +50,10 @@ void av1_set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi) {
   const YV12_BUFFER_CONFIG *recon = &cpi->butteraugli_info.recon;
   float *diffmap;
   CHECK_MEM_ERROR(cm, diffmap, aom_malloc(width * height * sizeof(*diffmap)));
-  aom_calc_butteraugli(source, recon, bit_depth, diffmap);
+  if (!aom_calc_butteraugli(source, recon, bit_depth, diffmap)) {
+    fprintf(stderr, "Fatal error: Butteraugli calculation failed.\n");
+    exit(EXIT_FAILURE);
+  }
 
   const int block_size = BLOCK_16X16;
   const int num_mi_w = mi_size_wide[block_size];
