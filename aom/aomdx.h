@@ -381,8 +381,6 @@ enum aom_dec_control_id {
    */
   AV1D_SET_SKIP_FILM_GRAIN,
 
-  AOM_DECODER_CTRL_ID_MAX,
-
   /*!\brief Codec control function to check the presence of forward key frames
    */
   AOMD_GET_FWD_KF_PRESENT,
