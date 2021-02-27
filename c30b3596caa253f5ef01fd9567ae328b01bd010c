@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2c01658_64e49a8c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2364,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-02-27T02:27:22Z",
+      "side": 1,
+      "message": "The code looked this way before https://aomedia-review.googlesource.com/c/aom/+/17140.\n\nThe if statement was initially very short but eventually grew to be this long.",
+      "revId": "c30b3596caa253f5ef01fd9567ae328b01bd010c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
