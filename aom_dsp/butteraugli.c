@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <jxl/butteraugli.h>
 
+#include "aom/internal/aom_codec_internal.h"
 #include "aom_dsp/butteraugli.h"
 #include "aom_mem/aom_mem.h"
 #include "third_party/libyuv/include/libyuv/convert_argb.h"
@@ -25,10 +26,12 @@ void aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
   const int width = source->y_width;
   const int height = source->y_height;
 
+  struct aom_internal_error_info error;
   size_t buffer_size = width * height * 3;
-  uint8_t *src_rgb = (uint8_t *)aom_malloc(buffer_size);
-  uint8_t *distorted_rgb = (uint8_t *)aom_malloc(buffer_size);
-  // TODO(sdeng): Convert them to sRGB.
+  uint8_t *src_rgb, *distorted_rgb;
+  AOM_CHECK_MEM_ERROR(&error, src_rgb, aom_malloc(buffer_size));
+  AOM_CHECK_MEM_ERROR(&error, distorted_rgb, aom_malloc(buffer_size));
+
   I420ToRGB24Matrix(source->y_buffer, source->y_stride, source->u_buffer,
                     source->uv_stride, source->v_buffer, source->uv_stride,
                     src_rgb, width * 3, &kYuvH709Constants, width, height);
