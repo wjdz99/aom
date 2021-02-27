@@ -323,6 +323,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2ed32f1f_7e8f00fc",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 21182
+      },
+      "writtenOn": "2021-02-27T16:20:25Z",
+      "side": 1,
+      "message": "Sorry for not responding earlier, but to the 1st question, I do not know how to make it work build it with a static JXL build. I\u0027ve tried it multiple ways, but none seemed to work.\n\nYour current patch seems to work well, it manages to build with butteraugli support just fine, and with the speed fix patch, both --tune\u003dpsnr is the same speed with DCONFIG_TUNE_BUTTERAUGLI\u003d1 as with DCONFIG_TUNE_BUTTERAUGLI\u003d0, and --tune\u003dbutteraugli isn\u0027t nearly as slow as before.\n\nGreat job.",
+      "parentUuid": "c52bebd1_e0779f44",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d6321ec7_711a757b",
         "filename": "aom_dsp/butteraugli.c",
         "patchSetId": 11
