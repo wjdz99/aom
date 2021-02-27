@@ -305,6 +305,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c52bebd1_e0779f44",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-02-27T04:39:53Z",
+      "side": 1,
+      "message": "Hi Zak,\n\nI added a cmake flag -DSTATIC_LINK_JXL for a static link of libjxl.\nAnd reverted the default mode to use pkg-config.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/131503/4\nLet me know if you have better ideas.",
+      "parentUuid": "6046bc0f_be507cac",
+      "revId": "1025301c0dde6e2c8c9985d782b22d46654a5764",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d6321ec7_711a757b",
         "filename": "aom_dsp/butteraugli.c",
         "patchSetId": 11
