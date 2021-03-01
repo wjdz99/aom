@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e89b5ae_d8dece4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-01T17:55:06Z",
+      "side": 1,
+      "message": "Could you run some borg tests to verify that these speeds work for all-intra cases? And what are the speed/quality tradeoffs?",
+      "parentUuid": "3084616f_5d2ffa80",
+      "revId": "50af41e28f9d6736c017d3cd6618363745fc134e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd1d23cf_be0f778c",
