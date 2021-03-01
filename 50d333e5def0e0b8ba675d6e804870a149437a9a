@@ -3,6 +3,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cffa221b_9dd37832",
+        "filename": "CHANGELOG",
+        "patchSetId": 13
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-01T23:58:27Z",
+      "side": 1,
+      "message": "NOTE: Since aomenc is an important tool, it would be good to document the new command-line options for aomenc in this release. (Same for aomdec, but it\u0027s not as heavily used as aomenc.)\n\nBy inspecting the changes to public headers, I found the following new features:\n\n1. The new feature in https://aomedia-review.googlesource.com/c/aom/+/116721 that added the _hbd fields to the \u0027psnr\u0027 member of struct aom_codec_cx_pkt. This feature can be detected by testing:\n\n#if AOM_ENCODER_ABI_VERSION \u003e\u003d (9 + AOM_CODEC_ABI_VERSION)\n\n2. Not sure if this needs to be documented: Symbolic constants were added for the rc_superres_mode field in struct aom_codec_enc_cfg:\n\n+typedef enum {\n+  /**\u003c Frame super-resolution is disabled for all frames. */\n+  AOM_SUPERRES_NONE,\n+  /**\u003c All frames are coded at the specified scale and super-resolved. */\n+  AOM_SUPERRES_FIXED,\n+  /**\u003c All frames are coded at a random scale and super-resolved. */\n+  AOM_SUPERRES_RANDOM,\n+  /**\u003c Super-resolution scale for each frame is determined based on the q index\n+     of that frame. */\n+  AOM_SUPERRES_QTHRESH,\n+  /**\u003c Full-resolution or super-resolution and the scale (in case of\n+     super-resolution) are automatically selected for each frame. */\n+  AOM_SUPERRES_AUTO,\n+} aom_superres_mode;\n\n3. New encoder control IDs:\n   AV1E_SET_ENABLE_RECT_TX\n   AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP\n   AV1E_GET_BASELINE_GF_INTERVAL\n   AV1E_SET_ENABLE_DNL_DENOISING\n\n4. New aom_tune_content enum value:\n   AOM_CONTENT_FILM\n\n5. New aom_tune_metric enum value:\n   AOM_TUNE_VMAF_NEG_MAX_GAIN\n\n6. New decoder control IDs:\n   AOMD_GET_FWD_KF_PRESENT,\n   AOMD_GET_FRAME_FLAGS,\n   AOMD_GET_ALTREF_PRESENT,\n   AOMD_GET_TILE_INFO,\n   AOMD_GET_SCREEN_CONTENT_TOOLS_INFO,\n   AOMD_GET_STILL_PICTURE,\n   AOMD_GET_SB_SIZE,\n   AOMD_GET_SHOW_EXISTING_FRAME_FLAG,\n   AOMD_GET_S_FRAME_INFO,\n\n7. I would also mention that the documentation (in the form of Doxygen comments) was improved.",
+      "revId": "50d333e5def0e0b8ba675d6e804870a149437a9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d18c2019_6c87698d",
+        "filename": "CHANGELOG",
+        "patchSetId": 13
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-01T23:58:27Z",
+      "side": 1,
+      "message": "AV1E_SET_COEFF_COST_UPD_FREQ and AV1E_SET_MODE_COST_UPD_FREQ are in the libaom 2.0.0 release. It would be good to confirm these are new features in this release.",
+      "revId": "50d333e5def0e0b8ba675d6e804870a149437a9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb7f9508_0a76bbc3",
         "filename": "CHANGELOG",
         "patchSetId": 13
@@ -14,6 +48,40 @@
       "writtenOn": "2021-02-27T00:24:34Z",
       "side": 1,
       "message": "you might want to say this is available with aom_codec_set_option() function",
+      "revId": "50d333e5def0e0b8ba675d6e804870a149437a9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e513e98b_f4fa81d6",
+        "filename": "CHANGELOG",
+        "patchSetId": 13
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-01T23:58:27Z",
+      "side": 1,
+      "message": "Nit: This item most likely refers to AOM_USAGE_GOOD_QUALITY rather than AOM_USAGE_REAL_TIME. It might be good to clarify this.",
+      "revId": "50d333e5def0e0b8ba675d6e804870a149437a9a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd581233_6c3d77e0",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 13
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-01T23:58:27Z",
+      "side": 1,
+      "message": "Optional: It would be good to emphasize that even though we pass -version-info c:r:a to libtool, the shared library name suffix that libtool generates is not .so.c.r.a.",
       "revId": "50d333e5def0e0b8ba675d6e804870a149437a9a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
