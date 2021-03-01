@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \n\nFor real time row-mt enabled multi-threaded encoding with cost update frequency set to COST_UPD_TILE/COST_UPD_OFF, tile ctxt is not updated at superblock level. Thus, it is not required for the encoding of top-right superblock be complete for updating the tile ctxt. However, when encoding a block whose right edge is also the superblock edge, intra and inter mode evaluation (ref mv list population) require the encoding of the top-right superblock to be complete. In this patch , we have delayed the waiting of threads until the need for the data from the top-right superblock region.\n\nThe patch is verified to be bit-exact and the encode time reduction for rt preset with threads 4, tile cols 4, row-mt 1 (averaged over 360p, 480p, 720p, 1080p) is as follows:\n\n            Encode time\ncpu-used    Reduction (%)\n   7            4.05 \n   8            3.87 \n   9            2.98 \n   \n\nPlease review.",
       "revId": "b2228d30f72b54a8bcb1f3e391dcf28f23f8aa9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0356b063_01af9f60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-01T19:14:50Z",
+      "side": 1,
+      "message": "This is a nice optimization, giving good speedups without any quality loss!",
+      "parentUuid": "546d8a05_61f44bc4",
+      "revId": "b2228d30f72b54a8bcb1f3e391dcf28f23f8aa9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
