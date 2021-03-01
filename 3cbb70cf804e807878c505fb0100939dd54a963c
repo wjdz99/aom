@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f22633ae_2c27da57",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-01T22:10:23Z",
+      "side": 1,
+      "message": "rotation is converted to an index to fetch the appropriate sine and cosine values which takes rotation into consideration.",
+      "parentUuid": "5378d6b7_574427f5",
+      "range": {
+        "startLine": 289,
+        "startChar": 2,
+        "endLine": 290,
+        "endChar": 35
+      },
+      "revId": "3cbb70cf804e807878c505fb0100939dd54a963c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "522e26f2_d7b7f22b",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-02-26T19:22:34Z",
       "side": 1,
       "message": "Use {}",
+      "range": {
+        "startLine": 281,
+        "startChar": 6,
+        "endLine": 282,
+        "endChar": 73
+      },
+      "revId": "3cbb70cf804e807878c505fb0100939dd54a963c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "037a0d9d_b3d84666",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-01T22:10:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "522e26f2_d7b7f22b",
       "range": {
         "startLine": 281,
         "startChar": 6,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cd098ee_4a8e193e",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-01T22:10:23Z",
+      "side": 1,
+      "message": "Yes, I\u0027m assuming (mi_col, mi_row) is the top-left corner. However, it\u0027s computer coordinates so both x and y need to increase to get to the center.",
+      "parentUuid": "c6f11cb7_e229f20d",
+      "range": {
+        "startLine": 1602,
+        "startChar": 26,
+        "endLine": 1602,
+        "endChar": 32
+      },
+      "revId": "3cbb70cf804e807878c505fb0100939dd54a963c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7970066a_c75702ec",
@@ -93,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98862775_cccafe96",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1625,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-01T22:10:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7970066a_c75702ec",
+      "range": {
+        "startLine": 1625,
+        "startChar": 21,
+        "endLine": 1625,
+        "endChar": 22
+      },
+      "revId": "3cbb70cf804e807878c505fb0100939dd54a963c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "de539b90_ec6f6810",
@@ -106,6 +202,30 @@
       "writtenOn": "2021-02-26T19:22:34Z",
       "side": 1,
       "message": "You may define a macro, e.g. ROTATION_STEP. If you assume the rotation degree can only be multiples of 5, then you only need to signal rot / 5. Then you only need to use 5 bits instead of 7.",
+      "range": {
+        "startLine": 1627,
+        "startChar": 46,
+        "endLine": 1627,
+        "endChar": 47
+      },
+      "revId": "3cbb70cf804e807878c505fb0100939dd54a963c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebdc678f_bcc5e0b8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1627,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-01T22:10:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "de539b90_ec6f6810",
       "range": {
         "startLine": 1627,
         "startChar": 46,
