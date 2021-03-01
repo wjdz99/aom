@@ -16,6 +16,57 @@
       "message": "This parameter was by default set to 1.\n\nI explicitly set it to be 0 for prior performance tests. It is important to set it to be 0 all the time for all intra mode.",
       "revId": "5a24e5dc7b990f211d10d5b997c3affd66ee38a7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65515e44_18a21f76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-01T17:52:19Z",
+      "side": 1,
+      "message": "Jingning: Thanks a lot for reviewing the code for all intra mode! I just have two minor comments.",
+      "revId": "5a24e5dc7b990f211d10d5b997c3affd66ee38a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "754973db_1e7b9a22",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-01T17:52:19Z",
+      "side": 1,
+      "message": "Can we test the more general condition cfg-\u003ekf_max_dist \u003d\u003d 0 instead?",
+      "revId": "5a24e5dc7b990f211d10d5b997c3affd66ee38a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89d68d8c_5fe69e53",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-01T17:52:19Z",
+      "side": 1,
+      "message": "Nit/optional: It would be good to delete the blank line (955) so that all the kf_cfg setup code is contiguous visually.",
+      "revId": "5a24e5dc7b990f211d10d5b997c3affd66ee38a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
