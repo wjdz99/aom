@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca47fb3e_38f4cc26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-03-01T11:53:19Z",
+      "side": 1,
+      "message": "\nHi Wan-Teh,\n\nIn this patch, we have added a unit test AV1LosslessFrameSizeTests.LosslessEncode to validate the allocated size of bit stream buffer by feeding pseudo random input to the encoder in ALLINTRA lossless mode. \n\nWe modified the data_sz calculation (locally) as below, to check the behavior of this unit test.\n\n    int multiplicative_factor \u003d 8;\n    size_t data_sz \u003d ALIGN_POWER_OF_TWO(ctx-\u003ecfg.g_w, 5) *\n                     ALIGN_POWER_OF_TWO(ctx-\u003ecfg.g_h, 5) * get_image_bps(img) / 8;\n    data_sz \u003d data_sz * multiplicative_factor;\n\nThe following are the observations when tested the unit test for different values of \u0027multiplicative_factor\u0027.\n     multiplicative_factor     status of unit test\n             8                   pass\n             2                   pass\n             1\t                 failed (ERROR: Segmentation fault)\n\nAs expected, we observed a segmentation fault when ctx-\u003ecx_data is small (i.e., when data_sz is equal to one uncompressed frame size).\nThe same behavior is seen when we validated the unit test with the following patch (i.e., with \u0027guard page at the end\u0027)\nhttps://aomedia-review.googlesource.com/c/aom/+/131321\n\nWe also verified address sanitizer for this unit test and the following are the observations.\n     multiplicative_factor     status of unit test\n             8                   pass\n             2                   pass\n             1\t                 failed (ERROR: heap-buffer-overflow)\n\nWhen we tested using address sanitizer with \u0027guard page at the end\u0027, the following error is seen for multiplicative_factor equal to 1 and no issues were seen for multiplicative_factor 8 and 4.\n          AddressSanitizer:DEADLYSIGNAL  --  ERROR: SEGV on unknown address\n\nPlease review the patch\n\nThanks \u0026 Regards, \nAniket.\n",
+      "revId": "b3db5e97facf694346579e7c71796af53ea41e11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
