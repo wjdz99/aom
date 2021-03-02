@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a2227a8_9a3b5243",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-02T21:08:06Z",
+      "side": 1,
+      "message": "thanks for following up",
+      "revId": "ef819662c83b6d878ea40cc00e886dda7032baf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96aafedd_56cff21e",
+        "filename": "av1/encoder/txb_rdopt.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-02T21:08:06Z",
+      "side": 1,
+      "message": "OPTIMIZE_ should be removed",
+      "range": {
+        "startLine": 12,
+        "startChar": 24,
+        "endLine": 12,
+        "endChar": 33
+      },
+      "revId": "ef819662c83b6d878ea40cc00e886dda7032baf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
