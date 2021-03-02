@@ -911,6 +911,9 @@ void av1_init_tile_data(AV1_COMP *cpi) {
   TokenList *tplist = token_info->tplist[0][0];
   unsigned int tile_tok = 0;
   int tplist_count = 0;
+  const int use_nonrd_mode = cpi->sf.rt_sf.use_nonrd_pick_mode;
+  const CostUpdateFreq *const cost_upd_freq = &cpi->oxcf.cost_upd_freq;
+  const int rtc_mode = is_rtc_mode(cost_upd_freq, use_nonrd_mode);
 
   for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
     for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
@@ -931,8 +934,9 @@ void av1_init_tile_data(AV1_COMP *cpi) {
         tplist_count = av1_get_sb_rows_in_tile(cm, tile_data->tile_info);
       }
       tile_data->allow_update_cdf = !cm->tiles.large_scale;
-      tile_data->allow_update_cdf =
-          tile_data->allow_update_cdf && !cm->features.disable_cdf_update;
+      tile_data->allow_update_cdf = tile_data->allow_update_cdf &&
+                                    !cm->features.disable_cdf_update &&
+                                    !rtc_mode;
       tile_data->tctx = *cm->fc;
     }
   }
