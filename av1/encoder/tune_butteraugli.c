@@ -42,24 +42,42 @@ void av1_set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   YV12_BUFFER_CONFIG *source = cpi->source;
-  const int width = source->y_width;
-  const int height = source->y_height;
   const int bit_depth = cpi->td.mb.e_mbd.bd;
+  const int resize_factor = 2;
+  const int width = source->y_width / resize_factor;
+  const int height = source->y_height / resize_factor;
 
   aom_clear_system_state();
-  const YV12_BUFFER_CONFIG *recon = &cpi->butteraugli_info.recon;
+  YV12_BUFFER_CONFIG resized_source, resized_recon;
+  memset(&resized_source, 0, sizeof(resized_source));
+  memset(&resized_recon, 0, sizeof(resized_recon));
+  aom_alloc_frame_buffer(
+      &resized_source, width, height, 1, 1, cm->seq_params.use_highbitdepth,
+      cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
+  aom_alloc_frame_buffer(
+      &resized_recon, width, height, 1, 1, cm->seq_params.use_highbitdepth,
+      cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
+  av1_resize_and_extend_frame_nonnormative(cpi->source, &resized_source,
+                                           bit_depth, av1_num_planes(cm));
+  av1_resize_and_extend_frame_nonnormative(&cpi->butteraugli_info.recon,
+                                           &resized_recon, bit_depth,
+                                           av1_num_planes(cm));
+
   float *diffmap;
   CHECK_MEM_ERROR(cm, diffmap, aom_malloc(width * height * sizeof(*diffmap)));
-  if (!aom_calc_butteraugli(source, recon, bit_depth, diffmap)) {
+  if (!aom_calc_butteraugli(&resized_source, &resized_recon, bit_depth,
+                            diffmap)) {
     fprintf(stderr, "Fatal error: Butteraugli calculation failed.\n");
     exit(EXIT_FAILURE);
   }
 
   const int block_size = BLOCK_16X16;
-  const int num_mi_w = mi_size_wide[block_size];
-  const int num_mi_h = mi_size_high[block_size];
-  const int num_cols = (mi_params->mi_cols + num_mi_w - 1) / num_mi_w;
-  const int num_rows = (mi_params->mi_rows + num_mi_h - 1) / num_mi_h;
+  const int num_mi_w = mi_size_wide[block_size] / resize_factor;
+  const int num_mi_h = mi_size_high[block_size] / resize_factor;
+  const int num_cols =
+      (mi_params->mi_cols / resize_factor + num_mi_w - 1) / num_mi_w;
+  const int num_rows =
+      (mi_params->mi_rows / resize_factor + num_mi_h - 1) / num_mi_h;
   const int block_w = num_mi_w << 2;
   const int block_h = num_mi_h << 2;
   double log_sum = 0.0;
@@ -78,18 +96,22 @@ void av1_set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi) {
       for (int y = y_start; y < y_start + block_h && y < height; y++) {
         for (int x = x_start; x < x_start + block_w && x < width; x++) {
           dbutteraugli += powf(diffmap[y * width + x], 6.0f);
-          float px_diff = source->y_buffer[y * source->y_stride + x] -
-                          recon->y_buffer[y * recon->y_stride + x];
+          float px_diff =
+              resized_source.y_buffer[y * resized_source.y_stride + x] -
+              resized_recon.y_buffer[y * resized_recon.y_stride + x];
           dmse += px_diff * px_diff;
         }
       }
       for (int y = y_start; y < y_start + block_h && y < height; y += 2) {
         for (int x = x_start; x < x_start + block_w && x < width; x += 2) {
-          const int px_index = y / 2 * source->uv_stride + x / 2;
+          const int src_px_index = y / 2 * resized_source.uv_stride + x / 2;
+          const int recon_px_index = y / 2 * resized_recon.uv_stride + x / 2;
           const float px_diff_u =
-              source->u_buffer[px_index] - recon->u_buffer[px_index];
+              (float)(resized_source.u_buffer[src_px_index] -
+                      resized_recon.u_buffer[recon_px_index]);
           const float px_diff_v =
-              source->v_buffer[px_index] - recon->v_buffer[px_index];
+              (float)(resized_source.v_buffer[src_px_index] -
+                      resized_recon.v_buffer[recon_px_index]);
           dmse += px_diff_u * px_diff_u + px_diff_v * px_diff_v;
         }
       }
