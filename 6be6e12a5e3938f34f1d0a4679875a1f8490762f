@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "009bf307_7e97f1f5",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "I will add it",
+      "parentUuid": "69ba73c5_733cf93c",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6d3ac9a4_2c13b394",
         "filename": "av1/common/blockd.h",
         "patchSetId": 8
@@ -48,6 +66,24 @@
       "writtenOn": "2021-03-02T00:38:51Z",
       "side": 1,
       "message": "Please add one comment to explain the logic.",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a35eaec_56077fe7",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "Will add",
+      "parentUuid": "6d3ac9a4_2c13b394",
       "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -71,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c064be1a_6ee9adc9",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "26aaad81_e6f2460c",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "17585f6d_b32f81e1",
         "filename": "av1/common/entropymode.c",
         "patchSetId": 8
@@ -82,6 +136,24 @@
       "writtenOn": "2021-03-02T00:38:51Z",
       "side": 1,
       "message": "Please use constant variable",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "089e2af6_64c3059c",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "17585f6d_b32f81e1",
       "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -105,6 +177,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "97d45447_c4255631",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a7fbf99f_f9dbc392",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "584af726_a486d253",
         "filename": "av1/common/idct.c",
         "patchSetId": 8
@@ -116,6 +206,24 @@
       "writtenOn": "2021-03-02T00:38:51Z",
       "side": 1,
       "message": "Please use constant value rather than \"12\". Also, please add one comment to explain the logic.",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8d7f8ae_c017b94d",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "584af726_a486d253",
       "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -139,6 +247,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fdf30bab_86364107",
+        "filename": "av1/common/txb_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4847e99a_b104fdb2",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8bb6df0c_9e51479f",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 8
@@ -150,6 +276,24 @@
       "writtenOn": "2021-03-02T05:04:59Z",
       "side": 1,
       "message": "It looks like there are some extra spaces added in the beginning of each line here and below. This makes the code have a different indent than the code above and also add this code lines as to git diff.",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1ced2a8_503dd6b9",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 2421,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-03-02T14:04:13Z",
+      "side": 1,
+      "message": "Thanks Andrey for the comment. There is an additional for loop involved for CONFIG_IST (Line 2399) which creates the indent.",
+      "parentUuid": "8bb6df0c_9e51479f",
       "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
