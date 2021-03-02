@@ -34,6 +34,24 @@
       "parentUuid": "97055079_8d55ab9e",
       "revId": "6a1e0ba144d9345c8bc31c2a915e4677600fcc2b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbfeafec_b04c624a",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-02T22:06:59Z",
+      "side": 1,
+      "message": "\u003e I tried using it, but it did not work.\n\nthanks for trying. were they empty or did you still end up linking to the shared object? It would be good to add a comment about LIBJXL_STATIC_* not working before the if() statement at line 451.",
+      "parentUuid": "74f5d563_d4bcca68",
+      "revId": "6a1e0ba144d9345c8bc31c2a915e4677600fcc2b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
