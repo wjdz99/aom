@@ -27,6 +27,7 @@ typedef struct {
 } TuneButteraugliInfo;
 
 typedef struct AV1_COMP AV1_COMP;
+static const BLOCK_SIZE butteraugli_rdo_bsize = BLOCK_32X32;
 
 void av1_set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi);
 
