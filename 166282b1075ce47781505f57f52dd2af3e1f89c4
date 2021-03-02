@@ -34,6 +34,24 @@
       "parentUuid": "c66fe970_9bf3b781",
       "revId": "166282b1075ce47781505f57f52dd2af3e1f89c4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac79eba0_dfa4713d",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-02T03:07:10Z",
+      "side": 1,
+      "message": "\u003e I don\u0027t like it either. Could you give me an example?\n\u003e Return error and fatal exit in tune_butteraugli.c?\n\nYes I think at that level you could set an internal error and exit the library gracefully. That seems to be better than ignoring it and setting extreme butteraugli values since that would affect the encode.",
+      "parentUuid": "44910019_5d3a3044",
+      "revId": "166282b1075ce47781505f57f52dd2af3e1f89c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
