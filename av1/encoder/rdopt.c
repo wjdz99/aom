@@ -1628,6 +1628,7 @@ static int64_t motion_mode_rd(
       int64_t rdcost = INT64_MAX;
       int best_rot = 0;
 
+      mbmi->rot_flag = 1;
       // check all rotations
       for (int rot = -ROTATION_RANGE; rot <= ROTATION_RANGE;
            rot += ROTATION_STEP) {
@@ -1646,7 +1647,9 @@ static int64_t motion_mode_rd(
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                         av1_num_planes(cm) - 1);
         }
-        tmp_rate2 += ROTATION_BITS << AV1_PROB_COST_SHIFT;  // update rate cost
+        tmp_rate2 += (rot == 0) ? x->mode_costs.warp_rotation_cost[0]
+                                : ((ROTATION_BITS << AV1_PROB_COST_SHIFT) +
+                                   x->mode_costs.warp_rotation_cost[1]);
         if (av1_txfm_search(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
                             tmp_rate2, ref_best_rd)) {
           if (rd_stats->rdcost < rdcost) {
@@ -1660,9 +1663,11 @@ static int64_t motion_mode_rd(
         mbmi->num_proj_ref = num_proj_ref;
         tmp_rate2 = tmp_rate2_0;
       }
-      mbmi->rotation = best_rot;
-      tmp_rate2 += ROTATION_BITS
-                   << AV1_PROB_COST_SHIFT;  // update rate cost again
+      if (best_rot != 0) {
+        mbmi->rotation = best_rot;
+      } else {
+        mbmi->rot_flag = 0;
+      }
 #endif  // CONFIG_EXT_ROTATION
 
       // Compute the warped motion parameters with a least squares fit
@@ -1681,6 +1686,14 @@ static int64_t motion_mode_rd(
                                           total_samples, tmp_rate2,
                                           rate2_nocoeff, rate_mv0);
         }
+#if CONFIG_EXT_ROTATION
+        // Update cost again based on rot_flag
+        tmp_rate2 += (mbmi->rot_flag)
+                         ? ((ROTATION_BITS << AV1_PROB_COST_SHIFT) +
+                            x->mode_costs.warp_rotation_cost[1])
+                         : x->mode_costs.warp_rotation_cost[0];
+#endif  // CONFIG_EXT_ROTATION
+
         // Build the warped predictor
         av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                       av1_num_planes(cm) - 1);

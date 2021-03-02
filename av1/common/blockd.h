@@ -297,6 +297,7 @@ typedef struct MB_MODE_INFO {
   // the degree of rotation is within range +/- 12.6 degree
   // with an interval of 0.2 degree
   int8_t rotation;
+  int8_t rot_flag;  // whether rotation is used
 #endif  // CONFIG_EXT_ROTATION
   PARTITION_TYPE partition;
   MV_REFERENCE_FRAME ref_frame[2];
