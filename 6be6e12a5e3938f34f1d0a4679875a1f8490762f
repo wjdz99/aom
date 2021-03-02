@@ -16,6 +16,125 @@
       "message": "This is the patch for Intra Secondary Transforms (CONFIG_IST). Please review",
       "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "69ba73c5_733cf93c",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1235,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-02T00:38:51Z",
+      "side": 1,
+      "message": "Please add one comment to explain the logic.",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d3ac9a4_2c13b394",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1247,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-02T00:38:51Z",
+      "side": 1,
+      "message": "Please add one comment to explain the logic.",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26aaad81_e6f2460c",
+        "filename": "av1/common/entropy.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-02T00:38:51Z",
+      "side": 1,
+      "message": "Please use constant variable.",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17585f6d_b32f81e1",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1000,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-02T00:38:51Z",
+      "side": 1,
+      "message": "Please use constant variable",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7fbf99f_f9dbc392",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-02T00:38:51Z",
+      "side": 1,
+      "message": "please use constant variable",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "584af726_a486d253",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-02T00:38:51Z",
+      "side": 1,
+      "message": "Please use constant value rather than \"12\". Also, please add one comment to explain the logic.",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4847e99a_b104fdb2",
+        "filename": "av1/common/txb_common.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-02T00:38:51Z",
+      "side": 1,
+      "message": "please use constant variable",
+      "revId": "6be6e12a5e3938f34f1d0a4679875a1f8490762f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
