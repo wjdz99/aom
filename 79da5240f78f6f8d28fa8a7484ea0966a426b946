@@ -16,6 +16,24 @@
       "message": "It would be good to say a little more about the Doxygen-based documentation. If Doxygen (version 1.8.10 or later) is installed on the system, the build system generates documentation in the docs/html/ and docs/latex/ directories inside the build directory. Install the DOT tool (available in the graphviz package on Linux) to generate include dependency graphs, call graphs, etc.",
       "revId": "79da5240f78f6f8d28fa8a7484ea0966a426b946",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa79d005_c0fe8633",
+        "filename": "CHANGELOG",
+        "patchSetId": 16
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-02T19:58:17Z",
+      "side": 1,
+      "message": "The above statement sounds good to me.",
+      "parentUuid": "6a0eb1cb_31e7b66a",
+      "revId": "79da5240f78f6f8d28fa8a7484ea0966a426b946",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
