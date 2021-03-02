@@ -1307,6 +1307,16 @@ enum aome_enc_control_id {
   /*!\brief Control to get frame info
    */
   AV1E_GET_FRAME_INFO = 165,
+#if CONFIG_NEW_TX_PARTITION
+  /*!\brief Control to set 4way tx splits for inter
+   */
+  AV1E_SET_USE_INTER_4WAY_TX_SPLIT = 166,
+  /*!\brief Control to set 4way tx splits for intra
+   */
+  AV1E_SET_USE_INTRA_4WAY_TX_SPLIT = 167,
+#else
+/* Note: enum value 166 and 167 unused */
+#endif  // CONFIG_NEW_TX_PARTITION
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1790,6 +1800,14 @@ AOM_CTRL_USE_TYPE(AV1E_SET_INTRA_DCT_ONLY, int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_INTER_DCT_ONLY, int)
 #define AOM_CTRL_AV1E_SET_INTER_DCT_ONLY
+
+#if CONFIG_NEW_TX_PARTITION
+AOM_CTRL_USE_TYPE(AV1E_SET_USE_INTER_4WAY_TX_SPLIT, int)
+#define AOM_CTRL_AV1E_SET_USE_INTER_4WAY_TX_SPLIT
+
+AOM_CTRL_USE_TYPE(AV1E_SET_USE_INTRA_4WAY_TX_SPLIT, int)
+#define AOM_CTRL_AV1E_SET_USE_INTRA_4WAY_TX_SPLIT
+#endif  // CONFIG_NEW_TX_PARTITION
 
 AOM_CTRL_USE_TYPE(AV1E_SET_INTRA_DEFAULT_TX_ONLY, int)
 #define AOM_CTRL_AV1E_SET_INTRA_DEFAULT_TX_ONLY

@@ -2814,7 +2814,10 @@ static void select_tx_partition_type(
   // TODO(sarahparker) Add back all of the tx search speed features.
   for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES; ++type) {
     // Skip any illegal partitions for this block size
-    if (!use_tx_partition(type, max_tx_size)) continue;
+    if (!use_tx_partition(cpi->common.features.use_inter_4way_tx_split, 
+                          cpi->common.features.use_intra_4way_tx_split,
+                          is_inter_block(mbmi),
+                          type, max_tx_size)) continue;
     RD_STATS partition_rd_stats;
     av1_init_rd_stats(&partition_rd_stats);
     int64_t tmp_rd = 0;
@@ -2833,7 +2836,7 @@ static void select_tx_partition_type(
       const int is_rect = is_rect_tx(max_tx_size);
       partition_rd_stats.rate += inter_tx_partition_cost(
           x, is_rect, type, tx_above + blk_col, tx_left + blk_row,
-          mbmi->sb_type, max_tx_size);
+          mbmi->sb_type, max_tx_size, cpi->common.features.use_inter_4way_tx_split);
     }
 
     // Get transform sizes created by this partition type
@@ -3138,7 +3141,9 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   int64_t cur_rd = INT64_MAX;
   for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES_INTRA; ++type) {
     // Skip any illegal partitions for this block size
-    if (!use_tx_partition(type, max_tx_size)) continue;
+    if (!use_tx_partition(cpi->common.features.use_inter_4way_tx_split, 
+                          cpi->common.features.use_intra_4way_tx_split,
+                          is_inter_block(mbmi), type, max_tx_size)) continue;
     mbmi->partition_type[0] = type;
     TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
     get_tx_partition_sizes(type, max_tx_size, sub_txs);
@@ -3364,8 +3369,9 @@ int64_t av1_uniform_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     tx_size_rate = is_inter
                        ? inter_tx_partition_cost(
                              x, is_rect, 0, xd->above_txfm_context,
-                             xd->left_txfm_context, mbmi->sb_type, max_tx_size)
-                       : tx_size_cost(x, bs, tx_size);
+                             xd->left_txfm_context, mbmi->sb_type, max_tx_size, 
+                             cpi->common.features.use_inter_4way_tx_split)
+                       : tx_size_cost(x, bs, cpi->common.features.use_inter_4way_tx_split, tx_size);
 #else   // CONFIG_NEW_TX_PARTITION
     const int ctx = txfm_partition_context(
         xd->above_txfm_context, xd->left_txfm_context, mbmi->sb_type, tx_size);
