@@ -52,16 +52,13 @@ struct lookahead_ctx *av1_lookahead_init(
   depth += num_lap_buffers;
   depth = clamp(depth, 1, MAX_TOTAL_BUFFERS);
 
-  // Allocate memory to keep previous source frames available.
-  depth += MAX_PRE_FRAMES;
-
   // Allocate the lookahead structures
   struct lookahead_ctx *ctx = calloc(1, sizeof(*ctx));
   if (ctx) {
     unsigned int i;
     ctx->max_sz = depth;
     ctx->push_frame_count = 0;
-    ctx->read_ctxs[ENCODE_STAGE].pop_sz = ctx->max_sz - MAX_PRE_FRAMES;
+    ctx->read_ctxs[ENCODE_STAGE].pop_sz = ctx->max_sz;
     ctx->read_ctxs[ENCODE_STAGE].valid = 1;
     if (num_lap_buffers) {
       ctx->read_ctxs[LAP_STAGE].pop_sz = lag_in_frames;
@@ -95,8 +92,7 @@ int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
   int larger_dimensions, new_dimensions;
 
   assert(ctx->read_ctxs[ENCODE_STAGE].valid == 1);
-  if (ctx->read_ctxs[ENCODE_STAGE].sz + 1 + MAX_PRE_FRAMES > ctx->max_sz)
-    return 1;
+  if (ctx->read_ctxs[ENCODE_STAGE].sz + 1 > ctx->max_sz) return 1;
   ctx->read_ctxs[ENCODE_STAGE].sz++;
   if (ctx->read_ctxs[LAP_STAGE].valid) {
     ctx->read_ctxs[LAP_STAGE].sz++;
