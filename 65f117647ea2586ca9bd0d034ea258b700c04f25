@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "165f88ed_ced19bca",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-03-02T19:09:55Z",
+      "side": 1,
+      "message": "Hi Jingning,\n\nWe have updated commit message with BD-rate data of Cb and Cr. However, we updated all the data (speed and BD-rate data) by excluding the data of \u00272048x1320_mika-ruusunen-683.png\u0027 image content in this patch.\n\nWe observed that \u00272048x1320_mika-ruusunen-683.png\u0027 has non-monotonic R-D plot in the parent version for PSNR cb and cr (speed\u003d4, 5 presets). Though our change has same psnrs as parent version for cb and cr, non-monotonic nature of R-D plot seems to have led to invalid BD-rate. Hence we excluded the data of the same in all the metrics. We shall file an issue for the same.\n\nP.S. \u00272048x1320_mika-ruusunen-683.png\u0027 has 3 planes and seems to have all cb and cr values near 128.",
+      "parentUuid": "7abe3f32_a704c24c",
+      "range": {
+        "startLine": 14,
+        "startChar": 31,
+        "endLine": 14,
+        "endChar": 38
+      },
+      "revId": "65f117647ea2586ca9bd0d034ea258b700c04f25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "ce264fd6_84bc3471",
@@ -78,6 +102,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9630f7d1_53a0bb01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-03-02T19:09:55Z",
+      "side": 1,
+      "message": "As this optimization is for intra frames we have enabled it for all intra encoding for now. Once the patch is merged, we will try to introduce this optimization to other encoding modes and shall submit the patch based on the results.",
+      "parentUuid": "a5a22b81_712ede23",
+      "revId": "65f117647ea2586ca9bd0d034ea258b700c04f25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2c4a111a_bec99b8f",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 6
@@ -89,6 +131,30 @@
       "writtenOn": "2021-03-02T02:04:33Z",
       "side": 1,
       "message": "IMPORTANT: The av1_derived_chroma_intra_mode_used_flag array has 13 (\u003d INTRA_MODES) elements. Is mbmi-\u003emode always \u003c 13 here?",
+      "range": {
+        "startLine": 496,
+        "startChar": 50,
+        "endLine": 496,
+        "endChar": 60
+      },
+      "revId": "65f117647ea2586ca9bd0d034ea258b700c04f25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b70febe6_a4ce0487",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-03-02T19:09:55Z",
+      "side": 1,
+      "message": "mbmi-\u003emode is of enum type PREDICTION_MODE, which includes all possible intra and inter prediction modes. As the function av1_rd_pick_intra_sbuv_mode() is specific to chroma intra prediction and chroma intra prediction is coupled with luma intra prediction, it is ensured that the value of mbmi-\u003emode will be less than 13 (DC_PRED(0) to PAETH_PRED(12)). However, we have added an assert for the same. Also please refer to the code given below to check mbmi-\u003emode possible values to this function.\n\n  // Search through angle delta\n    const int rate_overhead \u003d\n       mode_costs-\u003eintra_uv_mode_cost[is_cfl_allowed(xd)][mbmi-\u003emode][mode];\n    if (!rd_pick_intra_angle_sbuv(cpi, x, bsize, rate_overhead, best_rd,\n                                  \u0026this_rate, \u0026tokenonly_rd_stats))\n       continue;",
+      "parentUuid": "2c4a111a_bec99b8f",
       "range": {
         "startLine": 496,
         "startChar": 50,
@@ -122,6 +188,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5577592a_a3caff7d",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-03-02T19:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2367eaf4_383ae164",
+      "range": {
+        "startLine": 100,
+        "startChar": 62,
+        "endLine": 101,
+        "endChar": 48
+      },
+      "revId": "65f117647ea2586ca9bd0d034ea258b700c04f25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "99eac796_2a7f44b1",
@@ -135,6 +225,24 @@
       "writtenOn": "2021-03-02T02:04:33Z",
       "side": 1,
       "message": "Since this table is only used in av1/encoder/intra_mode_search.c, I would move this table to that file.",
+      "revId": "65f117647ea2586ca9bd0d034ea258b700c04f25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f69760d7_e3619439",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-03-02T19:09:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "99eac796_2a7f44b1",
       "revId": "65f117647ea2586ca9bd0d034ea258b700c04f25",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
