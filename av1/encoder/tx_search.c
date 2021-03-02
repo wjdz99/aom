@@ -2791,6 +2791,8 @@ static void select_tx_partition_type(
     *is_cost_valid = 0;
     return;
   }
+  printf("inter %d intra %d\n", cpi->oxcf.txfm_cfg.use_inter_4way_tx_split, 
+                                cpi->oxcf.txfm_cfg.use_intra_4way_tx_split);
   MACROBLOCKD *const xd = &x->e_mbd;
   const struct macroblockd_plane *const pd = &xd->plane[0];
   const int max_blocks_high = max_block_high(xd, plane_bsize, 0);

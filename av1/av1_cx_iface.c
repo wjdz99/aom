@@ -147,6 +147,10 @@ struct av1_extracfg {
   int reduced_tx_type_set;
   int use_intra_dct_only;
   int use_inter_dct_only;
+#if CONFIG_NEW_TX_PARTITION
+  int use_inter_4way_tx_split;
+  int use_intra_4way_tx_split;
+#endif  // CONFIG_NEW_TX_PARTITION
   int use_intra_default_tx_only;
   int quant_b_adapt;
   unsigned int vbr_corpus_complexity_lap;
@@ -388,6 +392,10 @@ static struct av1_extracfg default_extra_cfg = {
   0,  // reduced_tx_type_set
   0,  // use_intra_dct_only
   0,  // use_inter_dct_only
+#if CONFIG_NEW_TX_PARTITION
+  0, 
+  0,
+#endif  // CONFIG_NEW_TX_PARTITION
   0,  // use_intra_default_tx_only
   0,  // quant_b_adapt
   0,  // vbr_corpus_complexity_lap
@@ -1228,6 +1236,10 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   txfm_cfg->reduced_tx_type_set = extra_cfg->reduced_tx_type_set;
   txfm_cfg->use_intra_dct_only = extra_cfg->use_intra_dct_only;
   txfm_cfg->use_inter_dct_only = extra_cfg->use_inter_dct_only;
+#if CONFIG_NEW_TX_PARTITION
+  txfm_cfg->use_inter_4way_tx_split = extra_cfg->use_inter_4way_tx_split;
+  txfm_cfg->use_intra_4way_tx_split = extra_cfg->use_intra_4way_tx_split;
+#endif  // CONFIG_NEW_TX_PARTITION
   txfm_cfg->use_intra_default_tx_only = extra_cfg->use_intra_default_tx_only;
 
   // Set compound type configuration.
@@ -2023,6 +2035,22 @@ static aom_codec_err_t ctrl_set_inter_dct_only(aom_codec_alg_priv_t *ctx,
   extra_cfg.use_inter_dct_only = CAST(AV1E_SET_INTER_DCT_ONLY, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+
+#if CONFIG_NEW_TX_PARTITION
+static aom_codec_err_t ctrl_set_use_inter_4way_tx_split(aom_codec_alg_priv_t *ctx,
+                                               va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.use_inter_4way_tx_split = CAST(AV1E_SET_USE_INTER_4WAY_TX_SPLIT, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_use_intra_4way_tx_split(aom_codec_alg_priv_t *ctx,
+                                               va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.use_intra_4way_tx_split = CAST(AV1E_SET_USE_INTRA_4WAY_TX_SPLIT, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif  // CONFIG_NEW_TX_PARTITION
 
 static aom_codec_err_t ctrl_set_intra_default_tx_only(aom_codec_alg_priv_t *ctx,
                                                       va_list args) {
@@ -3258,6 +3286,10 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_REDUCED_TX_TYPE_SET, ctrl_set_reduced_tx_type_set },
   { AV1E_SET_INTRA_DCT_ONLY, ctrl_set_intra_dct_only },
   { AV1E_SET_INTER_DCT_ONLY, ctrl_set_inter_dct_only },
+#if CONFIG_NEW_TX_PARTITION
+  { AV1E_SET_USE_INTER_4WAY_TX_SPLIT, ctrl_set_use_inter_4way_tx_split },
+  { AV1E_SET_USE_INTRA_4WAY_TX_SPLIT, ctrl_set_use_intra_4way_tx_split },
+#endif  // CONFIG_NEW_TX_PARTITION
   { AV1E_SET_INTRA_DEFAULT_TX_ONLY, ctrl_set_intra_default_tx_only },
   { AV1E_SET_QUANT_B_ADAPT, ctrl_set_quant_b_adapt },
   { AV1E_SET_COEFF_COST_UPD_FREQ, ctrl_set_coeff_cost_upd_freq },
