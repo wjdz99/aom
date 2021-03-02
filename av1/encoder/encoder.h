@@ -295,6 +295,18 @@ typedef struct {
    * (mode-dependent) only.
    */
   bool use_intra_default_tx_only;
+
+#if CONFIG_NEW_TX_PARTITION
+  /*!
+   * Flag to enable 4way split transform partition for inter
+   */
+  bool use_inter_4way_tx_split;
+
+  /*!
+   * Flag to enable 4way split transform partition for intra
+   */
+  bool use_intra_4way_tx_split;
+#endif  // CONFIG_NEW_TX_PARTITION
 } TxfmSizeTypeCfg;
 
 /*!

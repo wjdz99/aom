@@ -165,7 +165,7 @@ static AOM_INLINE void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
 #if CONFIG_NEW_TX_PARTITION
 static void write_tx_partition(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
                                TX_SIZE max_tx_size, int blk_row, int blk_col,
-                               aom_writer *w) {
+                               aom_writer *w, int use_inter_4way) {
   const int bsize = mbmi->sb_type;
   const int txb_size_index = av1_get_txb_size_index(bsize, blk_row, blk_col);
   const TX_SIZE tx_size = mbmi->inter_tx_size[txb_size_index];
@@ -177,8 +177,8 @@ static void write_tx_partition(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
   const int is_rect = is_rect_tx(max_tx_size);
   const int allow_horz = allow_tx_horz_split(max_tx_size);
   const int allow_vert = allow_tx_vert_split(max_tx_size);
-  const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
-  const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+  const int allow_horz2 = allow_tx_horz2_split(use_inter_4way, 0, 1, max_tx_size);
+  const int allow_vert2 = allow_tx_vert2_split(use_inter_4way, 0, 1, max_tx_size);
   if (allow_horz && allow_vert) {
     const int split4_ctx = txfm_partition_split4_inter_context(
         xd->above_txfm_context + blk_col, xd->left_txfm_context + blk_row,
@@ -213,7 +213,7 @@ static void write_tx_partition(MACROBLOCKD *xd, const MB_MODE_INFO *mbmi,
 }
 
 static void write_tx_partition_intra(const MACROBLOCKD *xd, aom_writer *w,
-                                     TX_SIZE max_tx_size) {
+                                     TX_SIZE max_tx_size, int use_intra_4way) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const BLOCK_SIZE bsize = mbmi->sb_type;
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
@@ -224,8 +224,8 @@ static void write_tx_partition_intra(const MACROBLOCKD *xd, aom_writer *w,
 
     const int allow_horz = allow_tx_horz_split(max_tx_size);
     const int allow_vert = allow_tx_vert_split(max_tx_size);
-    const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
-    const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+    const int allow_horz2 = allow_tx_horz2_split(0, use_intra_4way, 0, max_tx_size);
+    const int allow_vert2 = allow_tx_vert2_split(0, use_intra_4way, 0, max_tx_size);
     if (allow_horz && allow_vert) {
       const int split4_ctx = get_tx_size_context(xd);
       const TX_PARTITION_TYPE split4_partition =
@@ -1731,7 +1731,7 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
       for (int idy = 0; idy < height; idy += txbh) {
         for (int idx = 0; idx < width; idx += txbw) {
 #if CONFIG_NEW_TX_PARTITION
-          write_tx_partition(xd, mbmi, max_tx_size, idy, idx, w);
+          write_tx_partition(xd, mbmi, max_tx_size, idy, idx, w, cm->features.use_inter_4way_tx_split);
 #else
           write_tx_size_vartx(xd, mbmi, max_tx_size, 0, idy, idx, w);
 #endif  // CONFIG_NEW_TX_PARTITION
@@ -1739,7 +1739,7 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
       }
     } else {
 #if CONFIG_NEW_TX_PARTITION
-      write_tx_partition_intra(xd, w, max_tx_size);
+      write_tx_partition_intra(xd, w, max_tx_size, cm->features.use_intra_4way_tx_split);
 #else
       write_selected_tx_size(xd, w);
 #endif
@@ -3409,6 +3409,11 @@ static AOM_INLINE void write_uncompressed_header_obu(
     assert(!features->allow_warped_motion);
 
   aom_wb_write_bit(wb, features->reduced_tx_set_used);
+
+#if CONFIG_NEW_TX_PARTITION
+  aom_wb_write_bit(wb, features->use_inter_4way_tx_split);
+  aom_wb_write_bit(wb, features->use_intra_4way_tx_split);
+#endif  // CONFIG_NEW_TX_PARTITION
 
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 
