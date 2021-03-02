@@ -1075,9 +1075,8 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
 
 #if CONFIG_TUNE_BUTTERAUGLI
   {
-    const int bsize = BLOCK_16X16;
-    const int w = mi_size_wide[bsize];
-    const int h = mi_size_high[bsize];
+    const int w = mi_size_wide[butteraugli_rdo_bsize];
+    const int h = mi_size_high[butteraugli_rdo_bsize];
     const int num_cols = (mi_params->mi_cols + w - 1) / w;
     const int num_rows = (mi_params->mi_rows + h - 1) / h;
     CHECK_MEM_ERROR(
@@ -2545,8 +2544,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       if (loop_count == 0) {
         original_q = q;
         // TODO(sdeng): different q here does not make big difference. Use a
-        //  faster pass instead.
-        q = 96;
+        // faster pass instead.
+        q = 192;
       } else {
         q = original_q;
       }
