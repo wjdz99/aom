@@ -22,7 +22,7 @@ typedef struct {
   // rdmult_scaling_factors[row * num_cols + col] stores the scaling factors for
   // 4x4 block at (row, col).
   double *rdmult_scaling_factors;
-  YV12_BUFFER_CONFIG recon;
+  YV12_BUFFER_CONFIG source;
   bool recon_set;
 } TuneButteraugliInfo;
 
@@ -34,7 +34,8 @@ void av1_set_butteraugli_rdmult(const AV1_COMP *cpi, MACROBLOCK *x,
                                 BLOCK_SIZE bsize, int mi_row, int mi_col,
                                 int *rdmult);
 
-void av1_setup_butteraugli_recon(AV1_COMP *cpi,
-                                 const YV12_BUFFER_CONFIG *recon);
+void av1_setup_butteraugli_source(AV1_COMP *cpi);
+
+void av1_restore_butteraugli_source(AV1_COMP *cpi);
 
 #endif  // AOM_AV1_ENCODER_TUNE_BUTTERAUGLI_H_

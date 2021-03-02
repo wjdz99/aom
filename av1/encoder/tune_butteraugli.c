@@ -20,21 +20,6 @@
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/extend.h"
 
-void av1_setup_butteraugli_recon(AV1_COMP *cpi,
-                                 const YV12_BUFFER_CONFIG *recon) {
-  YV12_BUFFER_CONFIG *const dst = &cpi->butteraugli_info.recon;
-  AV1_COMMON *const cm = &cpi->common;
-  const int width = recon->y_width;
-  const int height = recon->y_height;
-  if (dst->buffer_alloc_sz == 0) {
-    aom_alloc_frame_buffer(
-        dst, width, height, 1, 1, cm->seq_params.use_highbitdepth,
-        cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
-  }
-  av1_copy_and_extend_frame(recon, dst);
-  cpi->butteraugli_info.recon_set = true;
-}
-
 void av1_set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi) {
   if (!cpi->butteraugli_info.recon_set) {
     return;
@@ -168,4 +153,51 @@ void av1_set_butteraugli_rdmult(const AV1_COMP *cpi, MACROBLOCK *x,
   *rdmult = AOMMAX(*rdmult, 0);
   av1_set_error_per_bit(&x->errorperbit, *rdmult);
   aom_clear_system_state();
+}
+
+static void copy_plane(const uint8_t *src, int src_stride, uint8_t *dst,
+                       int dst_stride, int w, int h) {
+  for (int row = 0; row < h; row++) {
+    memcpy(dst, src, w);
+    src += src_stride;
+    dst += dst_stride;
+  }
+}
+
+static void zero_plane(uint8_t *dst, int dst_stride, int h) {
+  for (int row = 0; row < h; row++) {
+    memset(dst, 0, dst_stride);
+    dst += dst_stride;
+  }
+}
+
+void av1_setup_butteraugli_source(AV1_COMP *cpi) {
+  YV12_BUFFER_CONFIG *const dst = &cpi->butteraugli_info.source;
+  AV1_COMMON *const cm = &cpi->common;
+  const int width = cpi->source->y_width;
+  const int height = cpi->source->y_height;
+  const int bit_depth = cpi->td.mb.e_mbd.bd;
+  if (dst->buffer_alloc_sz == 0) {
+    aom_alloc_frame_buffer(
+        dst, width, height, 1, 1, cm->seq_params.use_highbitdepth,
+        cpi->oxcf.border_in_pixels, cm->features.byte_alignment);
+    zero_plane(dst->y_buffer, dst->y_stride, height);
+    zero_plane(dst->u_buffer, dst->uv_stride, height);
+    zero_plane(dst->v_buffer, dst->uv_stride, height);
+  }
+  av1_copy_and_extend_frame(cpi->source, dst);
+
+  YV12_BUFFER_CONFIG resized_source;
+  memset(&resized_source, 0, sizeof(resized_source));
+  aom_alloc_frame_buffer(&resized_source, width / 2, height / 2, 1, 1,
+                         cm->seq_params.use_highbitdepth,
+                         cpi->oxcf.border_in_pixels,
+                         cm->features.byte_alignment);
+  av1_resize_and_extend_frame_nonnormative(cpi->source, &resized_source,
+                                           bit_depth, av1_num_planes(cm));
+}
+
+void av1_restore_butteraugli_source(AV1_COMP *cpi) {
+  av1_copy_and_extend_frame(&cpi->butteraugli_info.source, cpi->source);
+  cpi->butteraugli_info.recon_set = true;
 }

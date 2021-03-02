@@ -1084,9 +1084,9 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
         cm, cpi->butteraugli_info.rdmult_scaling_factors,
         aom_malloc(num_rows * num_cols *
                    sizeof(*cpi->butteraugli_info.rdmult_scaling_factors)));
-    memset(&cpi->butteraugli_info.recon, 0,
-           sizeof(cpi->butteraugli_info.recon));
     cpi->butteraugli_info.recon_set = false;
+    memset(&cpi->butteraugli_info.source, 0,
+           sizeof(cpi->butteraugli_info.source));
   }
 #endif
 
