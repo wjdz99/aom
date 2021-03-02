@@ -37,12 +37,14 @@ enum {
 static AOM_INLINE int inter_tx_partition_cost(
     const MACROBLOCK *const x, int is_rect, TX_PARTITION_TYPE partition,
     const TXFM_CONTEXT *const above_ctx, const TXFM_CONTEXT *const left_ctx,
-    BLOCK_SIZE bsize, TX_SIZE max_tx_size) {
+    BLOCK_SIZE bsize, TX_SIZE max_tx_size, int use_inter_4way) {
   int cost = 0;
   const int allow_horz = allow_tx_horz_split(max_tx_size);
   const int allow_vert = allow_tx_vert_split(max_tx_size);
-  const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
-  const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+  const int allow_horz2 =
+      allow_tx_horz2_split(use_inter_4way, 0, 1, max_tx_size);
+  const int allow_vert2 =
+      allow_tx_vert2_split(use_inter_4way, 0, 1, max_tx_size);
   if (allow_horz && allow_vert) {
     const int split4_ctx_0 = txfm_partition_split4_inter_context(
         above_ctx, left_ctx, bsize, max_tx_size);
@@ -74,13 +76,16 @@ static AOM_INLINE int inter_tx_partition_cost(
 static AOM_INLINE int intra_tx_partition_cost(const MACROBLOCK *const x,
                                               int is_rect,
                                               TX_PARTITION_TYPE partition,
-                                              TX_SIZE max_tx_size) {
+                                              TX_SIZE max_tx_size,
+                                              int use_intra_4way) {
   int cost = 0;
   const MACROBLOCKD *const xd = &x->e_mbd;
   const int allow_horz = allow_tx_horz_split(max_tx_size);
   const int allow_vert = allow_tx_vert_split(max_tx_size);
-  const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
-  const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+  const int allow_horz2 =
+      allow_tx_horz2_split(0, use_intra_4way, 0, max_tx_size);
+  const int allow_vert2 =
+      allow_tx_vert2_split(0, use_intra_4way, 0, max_tx_size);
   if (allow_horz && allow_vert) {
     const int split4_ctx_0 = get_tx_size_context(xd);
     const TX_PARTITION_TYPE split4_partition = get_split4_partition(partition);
@@ -110,6 +115,9 @@ static AOM_INLINE int intra_tx_partition_cost(const MACROBLOCK *const x,
 #endif  // CONFIG_NEW_TX_PARTITION
 
 static AOM_INLINE int tx_size_cost(const MACROBLOCK *const x, BLOCK_SIZE bsize,
+#if CONFIG_NEW_TX_PARTITION
+                                   int use_intra_4way,
+#endif  // CONFIG_NEW_TX_PARTITION
                                    TX_SIZE tx_size) {
   assert(bsize == x->e_mbd.mi[0]->sb_type);
   if (x->txfm_search_params.tx_mode_search_type != TX_MODE_SELECT ||
@@ -123,7 +131,7 @@ static AOM_INLINE int tx_size_cost(const MACROBLOCK *const x, BLOCK_SIZE bsize,
   const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
   const int is_rect = is_rect_tx(max_tx_size);
   return intra_tx_partition_cost(x, is_rect, mbmi->partition_type[0],
-                                 max_tx_size);
+                                 max_tx_size, use_intra_4way);
 #else
   const int32_t tx_size_cat = bsize_to_tx_size_cat(bsize);
   const int depth = tx_size_to_depth(tx_size, bsize);

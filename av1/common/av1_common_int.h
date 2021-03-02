@@ -422,6 +422,16 @@ typedef struct {
    * a frame decode.
    */
   REFRESH_FRAME_CONTEXT_MODE refresh_frame_context;
+#if CONFIG_NEW_TX_PARTITION
+  /*!
+   * Use 4way split partitions for inter transforms.
+   */
+  int use_inter_4way_tx_split;
+  /*!
+   * Use 4way split partitions for intra transforms.
+   */
+  int use_intra_4way_tx_split;
+#endif  // CONFIG_NEW_TX_PARTITION
 } FeatureFlags;
 
 /*!
@@ -2008,26 +2018,39 @@ static INLINE int allow_tx_vert_split(TX_SIZE max_tx_size) {
   return sub_tx_size != TX_INVALID;
 }
 
-static INLINE int allow_tx_horz2_split(TX_SIZE max_tx_size) {
+static INLINE int allow_tx_horz2_split(int use_inter_4way, int use_intra_4way,
+                                       int is_inter, TX_SIZE max_tx_size) {
+  if (is_inter && !use_inter_4way)
+    return 0;
+  else if (!is_inter && !use_intra_4way)
+    return 0;
   const int sub_txw = tx_size_wide[max_tx_size];
   const int sub_txh = tx_size_high[max_tx_size] >> 2;
   const TX_SIZE sub_tx_size = get_tx_size(sub_txw, sub_txh);
   return sub_tx_size != TX_INVALID;
 }
 
-static INLINE int allow_tx_vert2_split(TX_SIZE max_tx_size) {
+static INLINE int allow_tx_vert2_split(int use_inter_4way, int use_intra_4way,
+                                       int is_inter, TX_SIZE max_tx_size) {
+  if (is_inter && !use_inter_4way)
+    return 0;
+  else if (!is_inter && !use_intra_4way)
+    return 0;
   const int sub_txw = tx_size_wide[max_tx_size] >> 2;
   const int sub_txh = tx_size_high[max_tx_size];
   const TX_SIZE sub_tx_size = get_tx_size(sub_txw, sub_txh);
   return sub_tx_size != TX_INVALID;
 }
 
-static INLINE int use_tx_partition(TX_PARTITION_TYPE partition,
+static INLINE int use_tx_partition(int use_inter_4way, int use_intra_4way,
+                                   int is_inter, TX_PARTITION_TYPE partition,
                                    TX_SIZE max_tx_size) {
   const int allow_horz = allow_tx_horz_split(max_tx_size);
   const int allow_vert = allow_tx_vert_split(max_tx_size);
-  const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
-  const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+  const int allow_horz2 = allow_tx_horz2_split(use_inter_4way, use_intra_4way,
+                                               is_inter, max_tx_size);
+  const int allow_vert2 = allow_tx_vert2_split(use_inter_4way, use_intra_4way,
+                                               is_inter, max_tx_size);
   switch (partition) {
     case TX_PARTITION_NONE: return 1;
     case TX_PARTITION_SPLIT: return (allow_horz && allow_vert);

@@ -1533,6 +1533,12 @@ void av1_encode_frame(AV1_COMP *cpi) {
   // Indicates whether or not to use a default reduced set for ext-tx
   // rather than the potential full set of 16 transforms
   features->reduced_tx_set_used = cpi->oxcf.txfm_cfg.reduced_tx_type_set;
+#if CONFIG_NEW_TX_PARTITION
+  features->use_inter_4way_tx_split =
+      cpi->oxcf.txfm_cfg.use_inter_4way_tx_split;
+  features->use_intra_4way_tx_split =
+      cpi->oxcf.txfm_cfg.use_intra_4way_tx_split;
+#endif  // CONFIG_NEW_TX_PARTITION
 
   // Make sure segment_id is no larger than last_active_segid.
   if (cm->seg.enabled && cm->seg.update_map) {

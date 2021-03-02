@@ -33,11 +33,9 @@
 #endif
 
 #if CONFIG_NEW_TX_PARTITION
-static void update_inter_partition_cdfs_and_counts(MACROBLOCKD *xd, int blk_col,
-                                                   int blk_row,
-                                                   TX_SIZE max_tx_size,
-                                                   int allow_update_cdf,
-                                                   FRAME_COUNTS *counts) {
+static void update_inter_partition_cdfs_and_counts(
+    MACROBLOCKD *xd, int blk_col, int blk_row, TX_SIZE max_tx_size,
+    int allow_update_cdf, FRAME_COUNTS *counts, int use_inter_4way) {
   (void)counts;
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int txb_size_index =
@@ -46,8 +44,10 @@ static void update_inter_partition_cdfs_and_counts(MACROBLOCKD *xd, int blk_col,
   const TX_PARTITION_TYPE partition = mbmi->partition_type[txb_size_index];
   const int allow_horz = allow_tx_horz_split(max_tx_size);
   const int allow_vert = allow_tx_vert_split(max_tx_size);
-  const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
-  const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+  const int allow_horz2 =
+      allow_tx_horz2_split(use_inter_4way, 0, 1, max_tx_size);
+  const int allow_vert2 =
+      allow_tx_vert2_split(use_inter_4way, 0, 1, max_tx_size);
   if (allow_horz && allow_vert) {
     const TX_PARTITION_TYPE split4_partition = get_split4_partition(partition);
     const int split4_ctx = txfm_partition_split4_inter_context(
@@ -106,15 +106,18 @@ static void update_inter_partition_cdfs_and_counts(MACROBLOCKD *xd, int blk_col,
 static void update_intra_partition_cdfs_and_counts(MACROBLOCKD *xd,
                                                    TX_SIZE max_tx_size,
                                                    int allow_update_cdf,
-                                                   FRAME_COUNTS *counts) {
+                                                   FRAME_COUNTS *counts,
+                                                   int use_intra_4way) {
   (void)counts;
   MB_MODE_INFO *mbmi = xd->mi[0];
   const int is_rect = is_rect_tx(max_tx_size);
   const TX_PARTITION_TYPE partition = mbmi->partition_type[0];
   const int allow_horz = allow_tx_horz_split(max_tx_size);
   const int allow_vert = allow_tx_vert_split(max_tx_size);
-  const int allow_horz2 = allow_tx_horz2_split(max_tx_size);
-  const int allow_vert2 = allow_tx_vert2_split(max_tx_size);
+  const int allow_horz2 =
+      allow_tx_horz2_split(0, use_intra_4way, 0, max_tx_size);
+  const int allow_vert2 =
+      allow_tx_vert2_split(0, use_intra_4way, 0, max_tx_size);
   if (allow_horz && allow_vert) {
     const TX_PARTITION_TYPE split4_partition = get_split4_partition(partition);
     const int split4_ctx = get_tx_size_context(xd);
@@ -172,6 +175,9 @@ static void update_intra_partition_cdfs_and_counts(MACROBLOCKD *xd,
 static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
                               FRAME_COUNTS *counts, TX_SIZE tx_size, int depth,
                               int blk_row, int blk_col,
+#if CONFIG_NEW_TX_PARTITION
+                              int use_inter_4way,
+#endif  // CONFIG_NEW_TX_PARTITION
                               uint8_t allow_update_cdf) {
   MB_MODE_INFO *mbmi = xd->mi[0];
   const BLOCK_SIZE bsize = mbmi->sb_type;
@@ -194,8 +200,8 @@ static void update_txfm_count(MACROBLOCK *x, MACROBLOCKD *xd,
   if (mbmi->partition_type[txb_size_index] != TX_PARTITION_NONE)
     ++x->txfm_search_info.txb_split_count;
 
-  update_inter_partition_cdfs_and_counts(xd, blk_col, blk_row, tx_size,
-                                         allow_update_cdf, counts);
+  update_inter_partition_cdfs_and_counts(
+      xd, blk_col, blk_row, tx_size, allow_update_cdf, counts, use_inter_4way);
   mbmi->tx_size = this_size;
   txfm_partition_update(xd->above_txfm_context + blk_col,
                         xd->left_txfm_context + blk_row, this_size, tx_size);
@@ -273,6 +279,9 @@ static void tx_partition_count_update(const AV1_COMMON *const cm, MACROBLOCK *x,
   for (int idy = 0; idy < mi_height; idy += bh) {
     for (int idx = 0; idx < mi_width; idx += bw) {
       update_txfm_count(x, xd, td_counts, max_tx_size, 0, idy, idx,
+#if CONFIG_NEW_TX_PARTITION
+                        cm->features.use_inter_4way_tx_split,
+#endif  // CONFIG_NEW_TX_PARTITION
                         allow_update_cdf);
     }
   }
@@ -500,7 +509,8 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         if (block_signals_txsize(bsize)) {
 #if CONFIG_NEW_TX_PARTITION
           update_intra_partition_cdfs_and_counts(
-              xd, max_tx_size, tile_data->allow_update_cdf, td->counts);
+              xd, max_tx_size, tile_data->allow_update_cdf, td->counts,
+              cm->features.use_intra_4way_tx_split);
 #else  // CONFIG_NEW_TX_PARTITION
           const int tx_size_ctx = get_tx_size_context(xd);
           const int32_t tx_size_cat = bsize_to_tx_size_cat(bsize);

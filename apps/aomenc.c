@@ -592,6 +592,14 @@ static const arg_def_t use_intra_dct_only =
     ARG_DEF(NULL, "use-intra-dct-only", 1, "Use DCT only for INTRA modes");
 static const arg_def_t use_inter_dct_only =
     ARG_DEF(NULL, "use-inter-dct-only", 1, "Use DCT only for INTER modes");
+#if CONFIG_NEW_TX_PARTITION
+static const arg_def_t use_inter_4way_tx_split =
+    ARG_DEF(NULL, "use-inter-4way-tx-split", 1,
+            "Use 4 way split for inter tx partition");
+static const arg_def_t use_intra_4way_tx_split =
+    ARG_DEF(NULL, "use-intra-4way-tx-split", 1,
+            "Use 4 way split for intra tx partition");
+#endif  // CONFIG_NEW_TX_PARTITION
 static const arg_def_t use_intra_default_tx_only =
     ARG_DEF(NULL, "use-intra-default-tx-only", 1,
             "Use Default-transform only for INTRA modes");
@@ -914,6 +922,10 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &reduced_tx_type_set,
                                        &use_intra_dct_only,
                                        &use_inter_dct_only,
+#if CONFIG_NEW_TX_PARTITION
+                                       &use_inter_4way_tx_split,
+                                       &use_intra_4way_tx_split,
+#endif  // CONFIG_NEW_TX_PARTITION
                                        &use_intra_default_tx_only,
                                        &quant_b_adapt,
                                        &coeff_cost_upd_freq,
@@ -1021,6 +1033,10 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_REDUCED_TX_TYPE_SET,
                                         AV1E_SET_INTRA_DCT_ONLY,
                                         AV1E_SET_INTER_DCT_ONLY,
+#if CONFIG_NEW_TX_PARTITION
+                                        AV1E_SET_USE_INTER_4WAY_TX_SPLIT,
+                                        AV1E_SET_USE_INTRA_4WAY_TX_SPLIT,
+#endif  // CONFIG_NEW_TX_PARTITION
                                         AV1E_SET_INTRA_DEFAULT_TX_ONLY,
                                         AV1E_SET_QUANT_B_ADAPT,
                                         AV1E_SET_COEFF_COST_UPD_FREQ,
