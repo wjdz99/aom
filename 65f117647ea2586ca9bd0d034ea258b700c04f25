@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a5a22b81_712ede23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-02T02:08:32Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nThank you for the CL! I am wondering why this change is restricted to all intra mode. Is it inappropriate for the intra frames in the good-quality or real-time mode?",
+      "parentUuid": "ce264fd6_84bc3471",
+      "revId": "65f117647ea2586ca9bd0d034ea258b700c04f25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2c4a111a_bec99b8f",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 6
