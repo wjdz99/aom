@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97055079_8d55ab9e",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-02T21:25:12Z",
+      "side": 1,
+      "message": "you could respect the STATIC_LINK_JXL option here since this should return _STATIC variants\nhttps://cmake.org/cmake/help/v3.19/module/FindPkgConfig.html?highlight\u003dpkg_check_modules#command:pkg_check_modules",
+      "revId": "6a1e0ba144d9345c8bc31c2a915e4677600fcc2b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
