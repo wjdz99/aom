@@ -702,7 +702,12 @@ static AOM_INLINE int intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     // in the tokenonly rate, but for intra blocks, tx_size is always coded
     // (prediction granularity), so we account for it in the full rate,
     // not the tokenonly rate.
-    this_rate_tokenonly -= tx_size_cost(x, bsize, mbmi->tx_size);
+    this_rate_tokenonly -=
+        tx_size_cost(x, bsize,
+#if CONFIG_NEW_TX_PARTITION
+                     cpi->common.seq_params.use_intra_4way_tx_split,
+#endif  // CONFIG_NEW_TX_PARTITION
+                     mbmi->tx_size);
   }
   const int this_rate =
       rd_stats.rate +
@@ -1043,7 +1048,12 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
     // in the tokenonly rate, but for intra blocks, tx_size is always coded
     // (prediction granularity), so we account for it in the full rate,
     // not the tokenonly rate.
-    rd_stats_y->rate -= tx_size_cost(x, bsize, mbmi->tx_size);
+    rd_stats_y->rate -=
+        tx_size_cost(x, bsize,
+#if CONFIG_NEW_TX_PARTITION
+                     cpi->common.seq_params.use_intra_4way_tx_split,
+#endif  // CONFIG_NEW_TX_PARTITION
+                     mbmi->tx_size);
   }
   if (num_planes > 1 && xd->is_chroma_ref) {
     const int uv_mode_cost =
@@ -1178,7 +1188,12 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       // tx_size in the tokenonly rate, but for intra blocks, tx_size is always
       // coded (prediction granularity), so we account for it in the full rate,
       // not the tokenonly rate.
-      this_rate_tokenonly -= tx_size_cost(x, bsize, mbmi->tx_size);
+      this_rate_tokenonly -=
+          tx_size_cost(x, bsize,
+#if CONFIG_NEW_TX_PARTITION
+                       cpi->common.seq_params.use_intra_4way_tx_split,
+#endif  // CONFIG_NEW_TX_PARTITION
+                       mbmi->tx_size);
     }
     this_rate =
         this_rd_stats.rate +
