@@ -16,6 +16,24 @@
       "message": "Please help take a look.\n\nWhen cherry picking this CL into research branch, there is an building error below.\n\naomenc: /var/jenkins/workspace/libaom__example_test@2/arch/x86_64-linux-gcc/shard/3/aom/common/args_helper.c:40: arg_match_helper: Assertion `def-\u003ehas_val \u003d\u003d 0 || def-\u003ehas_val \u003d\u003d 1 || def-\u003ehas_val \u003d\u003d -1\u0027 failed.",
       "revId": "145254d8f333025bc85aa6649fb8507fac1070a1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f58b203_84c5be89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-03T20:42:45Z",
+      "side": 1,
+      "message": "@Bohan: can you pls help?\n\nI can repro the issue as follows:\ncmake ../aom -DENABLE_WERROR\u003d1 -DCMAKE_BUILD_TYPE\u003dDebug -DENABLE_CCACHE\u003d1   \u0026\u0026 make -j32\nmake testdata -j2\nsh ../aom/test/examples.sh --bin-path examples --verbose --show-program-output --filter \u0027\\baomenc_av1_obu_annexb\\b\u0027\n\n(Fails with this patch, but passes at tip-of-tree research branch).\n\nIs it possible that master branch has some changes / fixes in preparation for this change?",
+      "parentUuid": "aa4856ab_6a6fc7ed",
+      "revId": "145254d8f333025bc85aa6649fb8507fac1070a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
