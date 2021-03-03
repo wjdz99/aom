@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "acad4e81_53067622",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-03T01:50:57Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nI did some experiments.\n\nIf I change the multiplicative_factor to 1, the test crashes in malloc():\n\n#0  0x00007ffff7b076ff in unlink_chunk (p\u003dp@entry\u003d0x555557d33b90, av\u003d\u003coptimized out\u003e) at malloc.c:1453\n#1  0x00007ffff7b0a07a in _int_malloc (av\u003dav@entry\u003d0x7ffff7c3fb80 \u003cmain_arena\u003e, bytes\u003dbytes@entry\u003d1175) at malloc.c:4038\n#2  0x00007ffff7b0b164 in __GI___libc_malloc (bytes\u003d1175) at malloc.c:3058\n#3  0x0000555556273271 in aom_calloc ()\n#4  0x00005555562d5459 in setup_frame_size ()\n#5  0x00005555562de36c in av1_decode_frame_headers_and_setup ()\n#6  0x00005555562f8bf8 in aom_decode_frame_from_obus ()\n#7  0x00005555562f3edb in av1_receive_compressed_data ()\n#8  0x00005555562cf042 in frame_worker_hook ()\n#9  0x00005555562733b7 in execute ()\n#10 0x00005555562d0236 in decoder_decode ()\n#11 0x0000555556519b84 in aom_codec_decode ()\n\nIf I apply the \"guard page at the end\" CL, the test crashes in aom_stop_encode():\n\n#0  __memmove_avx_unaligned_erms () at ../sysdeps/x86_64/multiarch/memmove-vec-unaligned-erms.S:262\n#1  0x0000555555f086bc in aom_stop_encode ()\n#2  0x0000555556329412 in write_tiles_in_tg_obus ()\n#3  0x000055555632b6a6 in av1_pack_bitstream ()\n#4  0x000055555633f6cb in encode_with_recode_loop_and_filter ()\n#5  0x00005555563486ed in av1_encode ()\n#6  0x000055555656e263 in av1_encode_strategy ()\n#7  0x000055555634a7cb in av1_get_compressed_data ()\n#8  0x00005555562fd6a7 in encoder_encode ()\n#9  0x0000555556519f04 in aom_codec_encode ()\n\nSo the guard page makes the stack trace pinpoint the culprit.\n\nI also tested with kOnePassGood and kTwoPassGood. I added an encoder-\u003eControl(AV1E_SET_GF_MIN_PYRAMID_HEIGHT, 5) call. I can only make libaom write at most 5 frames to the ctx-\u003ecx_data buffer. The current ctx-\u003ecx_data buffer size is large enough, but this buffer half-full check will kick in first:\n\n    while (cx_data_sz \u003e\u003d ctx-\u003ecx_data_sz / 2 \u0026\u0026 !is_frame_visible) {",
+      "parentUuid": "ca47fb3e_38f4cc26",
+      "revId": "b3db5e97facf694346579e7c71796af53ea41e11",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9501788_140f3492",
