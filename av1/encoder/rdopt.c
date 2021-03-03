@@ -3050,6 +3050,10 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
     memset(&mbmi->palette_mode_info, 0, sizeof(mbmi->palette_mode_info));
     mbmi->filter_intra_mode_info.use_filter_intra = 0;
     mbmi->use_intrabc = 1;
+#if CONFIG_ORIP
+	mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+	mbmi->angle_delta[PLANE_TYPE_UV] = 0;
+#endif
     mbmi->mode = DC_PRED;
     mbmi->uv_mode = UV_DC_PRED;
     mbmi->motion_mode = SIMPLE_TRANSLATION;

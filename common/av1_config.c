@@ -378,6 +378,10 @@ static int parse_sequence_header(const uint8_t *const buffer, size_t length,
   AV1C_READ_BIT_OR_RETURN_ERROR(enable_cdef);
   AV1C_READ_BIT_OR_RETURN_ERROR(enable_restoration);
 
+#if CONFIG_ORIP
+  AV1C_READ_BIT_OR_RETURN_ERROR(enable_orip);
+#endif
+
   if (parse_color_config(reader, config) != 0) {
     fprintf(stderr, "av1c: color_config() parse failed.\n");
     return -1;
