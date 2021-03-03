@@ -473,6 +473,7 @@ static void set_good_speed_feature_framesize_dependent(
   const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
   const int is_4k_or_larger = AOMMIN(cm->width, cm->height) >= 2160;
   const bool use_hbd = cpi->oxcf.use_highbitdepth;
+  const int boosted = frame_is_boosted(cpi);
 
   if (is_480p_or_larger) {
     sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
@@ -617,7 +618,8 @@ static void set_good_speed_feature_framesize_dependent(
     if (is_4k_or_larger) {
       sf->part_sf.use_square_partition_only_threshold = BLOCK_64X64;
     } else if (is_720p_or_larger) {
-      sf->part_sf.use_square_partition_only_threshold = BLOCK_32X32;
+      sf->part_sf.use_square_partition_only_threshold =
+          boosted ? BLOCK_32X32 : BLOCK_16X16;
     } else {
       sf->part_sf.use_square_partition_only_threshold = BLOCK_16X16;
     }
