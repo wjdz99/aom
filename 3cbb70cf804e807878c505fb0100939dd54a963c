@@ -142,6 +142,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "43a98092_7da17242",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2021-03-03T00:11:45Z",
+      "side": 1,
+      "message": "I think the warp matrix used by the AV1 warped motion mode assumes the top-left of the block (instead of the frame) as the origin.",
+      "parentUuid": "5cd098ee_4a8e193e",
+      "range": {
+        "startLine": 1602,
+        "startChar": 26,
+        "endLine": 1602,
+        "endChar": 32
+      },
+      "revId": "3cbb70cf804e807878c505fb0100939dd54a963c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7970066a_c75702ec",
