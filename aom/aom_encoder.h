@@ -354,6 +354,10 @@ typedef struct cfg_options {
    *
    */
   unsigned int reduced_tx_type_set;
+
+#if CONFIG_ORIP
+  unsigned int enable_orip;
+#endif
 } cfg_options_t;
 
 /*!\brief Encoded Frame Flags
