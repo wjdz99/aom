@@ -177,6 +177,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a053f8a2_0b024347",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-03T05:30:13Z",
+      "side": 1,
+      "message": "Jayasanker,\n\nThanks a lot for the info! I find this rather difficult to follow, but I think I found and verified all the code you mentioned.\n\n1. You wrote:\n\u003e 1. update_zeromv_cnt() - noise_estimate is used under the condition \u0027ref_frame[0] \u003d\u003d LAST_FRAME \u0026\u0026 is_inter_block(mi)\u0027\n\nDid you mean cpi-\u003econsec_zero_mv instead of noise_estimate?\n\n2. I wonder if it would be clearer if we don\u0027t set sf-\u003ert_sf.use_temporal_noise_estimate to 1 in all intra encoding here in speed_features.c: \n\n    if (cm-\u003ewidth * cm-\u003eheight \u003e 640 * 480)\n      sf-\u003ert_sf.use_temporal_noise_estimate \u003d 1;\n\nI.e., perhaps we should change this if statement to:\n\n    if (cpi-\u003eoxcf.kf_cfg.key_freq_max !\u003d 0 \u0026\u0026 cm-\u003ewidth * cm-\u003eheight \u003e 640 * 480)\n      sf-\u003ert_sf.use_temporal_noise_estimate \u003d 1;",
+      "parentUuid": "6bcc445c_27958abd",
+      "range": {
+        "startLine": 402,
+        "startChar": 31,
+        "endLine": 403,
+        "endChar": 59
+      },
+      "revId": "8626a76372cd5b8d6022c99be229b3d0baac2041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cb51f05_0e43edcd",
