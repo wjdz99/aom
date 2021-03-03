@@ -488,7 +488,7 @@ typedef struct {
  *   Since this operates on the partition block level, this can give us a
  *   whole txfm partition tree.
  * - TXB_RD_RECORD: records a txfm search result within a transform block
- *   itself. This operates on txb level only and only appplies to square
+ *   itself. This operates on txb level only and only applies to square
  *   txfms.
  */
 typedef struct {
