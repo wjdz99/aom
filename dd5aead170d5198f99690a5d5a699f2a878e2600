@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f6d58ac_659803e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-03-03T09:34:04Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have submitted a patch to refactor av1_cyclic_refresh_postencode() function to reduce post-encode stage overhead. This patch moves the accumulation of cyclic refresh counters to encode stage, so that the computation can be performed by relevant threads.\n\nThe patch is verified to be bit-exact (single-thread and multi-thread runs for few contents) and the encode time reduction for rt preset with threads\u003d4, num-tile-cols\u003d4, row-mt\u003d1 (averaged over 360p, 480p, 720p, 1080p) is as below.\n            Encode time\ncpu-used    Reduction (%)\n   7           0.26\n   8           0.62\n   9           1.04\n\nPlease review the patch.\nThank you.",
+      "revId": "dd5aead170d5198f99690a5d5a699f2a878e2600",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
