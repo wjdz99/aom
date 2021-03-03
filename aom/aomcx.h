@@ -1307,6 +1307,10 @@ enum aome_enc_control_id {
   /*!\brief Control to get frame info
    */
   AV1E_GET_FRAME_INFO = 165,
+
+#if CONFIG_ORIP
+  AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER = 166,
+#endif
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1528,6 +1532,11 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DEBLOCKING, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_CDEF, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_CDEF
+
+#if CONFIG_ORIP
+AOM_CTRL_USE_TYPE(AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER, unsigned int)
+#define AOM_CTRL_AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER
+#endif
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_RESTORATION, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_RESTORATION

@@ -1535,10 +1535,20 @@ static void compute_intra_yprediction(const AV1_COMMON *cm,
     for (col = 0; col < max_blocks_wide; col += (1 << tx_size)) {
       p->src.buf = &src_buf_base[4 * (row * (int64_t)src_stride + col)];
       pd->dst.buf = &dst_buf_base[4 * (row * (int64_t)dst_stride + col)];
+
+#if CONFIG_ORIP
+	  av1_predict_intra_block(cm, xd, block_size_wide[bsize],
+							  block_size_high[bsize], tx_size, mode, 0, 0,
+		                      FILTER_INTRA_MODES, pd->dst.buf, dst_stride,
+		                      pd->dst.buf, dst_stride, 0, 0, plane, 0);
+#else
       av1_predict_intra_block(cm, xd, block_size_wide[bsize],
                               block_size_high[bsize], tx_size, mode, 0, 0,
                               FILTER_INTRA_MODES, pd->dst.buf, dst_stride,
                               pd->dst.buf, dst_stride, 0, 0, plane);
+#endif
+
+
     }
   }
   p->src.buf = src_buf_base;
@@ -1829,8 +1839,15 @@ static void estimate_intra_mode(
 
     int mode_cost = 0;
     if (av1_is_directional_mode(this_mode) && av1_use_angle_delta(bsize)) {
-      mode_cost +=
-          x->mode_costs.angle_delta_cost[this_mode - V_PRED]
+#if CONFIG_ORIP
+		int signal_intra_filter = av1_signal_intra_pred_filter_for_dir_mode_bsize(cm, mi, PLANE_TYPE_Y, bsize);
+		if (signal_intra_filter)
+			mode_cost += x->mode_costs.angle_delta_cost_hv[this_mode - V_PRED]
+														  [get_angle_delta_to_idx(mi->angle_delta[PLANE_TYPE_Y])];
+		else
+#endif
+			mode_cost +=
+				x->mode_costs.angle_delta_cost[this_mode - V_PRED]
                                         [MAX_ANGLE_DELTA +
                                          mi->angle_delta[PLANE_TYPE_Y]];
     }
