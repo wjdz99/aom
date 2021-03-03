@@ -600,6 +600,14 @@ static AOM_INLINE void write_filter_intra_mode_info(
   }
 }
 
+#if CONFIG_ORIP
+static AOM_INLINE void write_angle_delta_hv(aom_writer *w, int angle_delta,
+                                            aom_cdf_prob *cdf) {
+  aom_write_symbol(w, get_angle_delta_to_idx(angle_delta), cdf,
+                   2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA);
+}
+#endif
+
 static AOM_INLINE void write_angle_delta(aom_writer *w, int angle_delta,
                                          aom_cdf_prob *cdf) {
   aom_write_symbol(w, angle_delta + MAX_ANGLE_DELTA, cdf,
@@ -1022,8 +1030,23 @@ static AOM_INLINE void write_intra_prediction_modes(AV1_COMP *cpi,
   // Y angle delta.
   const int use_angle_delta = av1_use_angle_delta(bsize);
   if (use_angle_delta && av1_is_directional_mode(mode)) {
+#if CONFIG_ORIP
+    int signal_intra_filter = av1_signal_intra_pred_filter_for_dir_mode_bsize(
+        cm, mbmi, PLANE_TYPE_Y, bsize);
+    aom_cdf_prob *cdf_angle = signal_intra_filter
+                                  ? ec_ctx->angle_delta_cdf_hv[mode - V_PRED]
+                                  : ec_ctx->angle_delta_cdf[mode - V_PRED];
+    CHECK(mbmi->angle_delta[PLANE_TYPE_Y] < -3 ||
+              mbmi->angle_delta[PLANE_TYPE_Y] > ANGLE_DELTA_FOR_FILTER,
+          " incorrect value of angle delta");
+    if (signal_intra_filter)
+      write_angle_delta_hv(w, mbmi->angle_delta[PLANE_TYPE_Y], cdf_angle);
+    else
+      write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y], cdf_angle);
+#else
     write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
                       ec_ctx->angle_delta_cdf[mode - V_PRED]);
+#endif
   }
 
   // UV mode and UV angle delta.
@@ -1285,6 +1308,22 @@ static AOM_INLINE void write_mb_modes_kf(
   write_cdef(cm, xd, w, skip);
 
   write_delta_q_params(cpi, skip, w);
+
+#if CONFIG_ORIP
+  int disable_intra_pred_filter_for_hor_ver_mode =
+      (mbmi->angle_delta[PLANE_TYPE_Y] == ANGLE_DELTA_FOR_FILTER) ? 1 : 0;
+  CHECK((!av1_signal_intra_pred_filter_for_dir_mode_bsize(
+             cm, mbmi, PLANE_TYPE_Y, mbmi->sb_type) &&
+         disable_intra_pred_filter_for_hor_ver_mode),
+        " Intra filter is wronly selected for disallowed mode");
+
+  int disable_intra_pred_filter_uv =
+      (mbmi->angle_delta[PLANE_TYPE_UV] == ANGLE_DELTA_FOR_FILTER) ? 1 : 0;
+  CHECK((!av1_signal_intra_pred_filter_for_dir_mode_bsize(
+             cm, mbmi, PLANE_TYPE_UV, mbmi->sb_type) &&
+         disable_intra_pred_filter_uv),
+        " Intra filter is wronly selected for disallowed mode");
+#endif
 
   if (av1_allow_intrabc(cm)) {
     write_intrabc_info(xd, mbmi_ext_frame, w);
@@ -2645,6 +2684,10 @@ static AOM_INLINE void write_sequence_header(
   aom_wb_write_bit(wb, seq_params->enable_filter_intra);
   aom_wb_write_bit(wb, seq_params->enable_intra_edge_filter);
 
+#if CONFIG_ORIP
+  aom_wb_write_bit(wb, seq_params->enable_orip);
+#endif
+
   if (!seq_params->reduced_still_picture_hdr) {
     aom_wb_write_bit(wb, seq_params->enable_interintra_compound);
     aom_wb_write_bit(wb, seq_params->enable_masked_compound);
@@ -2828,7 +2871,7 @@ static int check_frame_refs_short_signaling(AV1_COMMON *const cm) {
     }
   }
 
-#if 0   // For debug
+#if 0  // For debug
   printf("\nFrame=%d: \n", cm->current_frame.frame_number);
   printf("***frame_refs_short_signaling=%d\n", frame_refs_short_signaling);
   for (int ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
