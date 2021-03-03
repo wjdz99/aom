@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "46994517_2851e444",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-03T11:25:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6159db5d_9900023c",
+      "revId": "08411702596a868fab9964a0619f62a1e326faba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c5f89f53_67e79871",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-03-03T05:30:13Z",
       "side": 1,
       "message": "Nit: Please add \"for a negative index\" after \"return NULL\".",
+      "revId": "08411702596a868fab9964a0619f62a1e326faba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54a2ae1d_59229aeb",
+        "filename": "av1/encoder/lookahead.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-03T11:25:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5f89f53_67e79871",
       "revId": "08411702596a868fab9964a0619f62a1e326faba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
