@@ -63,10 +63,25 @@ static int64_t calc_rd_given_intra_angle(
                                     best_rd_in);
   if (tokenonly_rd_stats.rate == INT_MAX) return INT64_MAX;
 
+#if CONFIG_ORIP
+  int signal_intra_filter = av1_signal_intra_pred_filter_for_dir_mode_bsize(
+      &cpi->common, mbmi, PLANE_TYPE_Y, bsize);
+  int angle_delta_cost =
+      signal_intra_filter
+          ? x->mode_costs
+                .angle_delta_cost_hv[mbmi->mode - V_PRED]
+                                    [get_angle_delta_to_idx(angle_delta)]
+          : x->mode_costs.angle_delta_cost[mbmi->mode - V_PRED]
+                                          [max_angle_delta + angle_delta];
+
+  int this_rate = mode_cost + tokenonly_rd_stats.rate + angle_delta_cost;
+#else
   int this_rate =
       mode_cost + tokenonly_rd_stats.rate +
       x->mode_costs
           .angle_delta_cost[mbmi->mode - V_PRED][max_angle_delta + angle_delta];
+#endif
+
   this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
 
   if (this_rd < *best_rd) {
@@ -111,6 +126,11 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->mode = DC_PRED;
   mbmi->palette_mode_info.palette_size[0] = 0;
 
+#if CONFIG_ORIP
+  mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+  mbmi->angle_delta[PLANE_TYPE_UV] = 0;
+#endif
+
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     int64_t this_rd;
     RD_STATS tokenonly_rd_stats;
@@ -152,6 +172,10 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->tx_size = best_tx_size;
     mbmi->filter_intra_mode_info = filter_intra_mode_info;
     av1_copy_array(ctx->tx_type_map, best_tx_type_map, ctx->num_4x4_blk);
+#if CONFIG_ORIP
+    mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+    mbmi->angle_delta[PLANE_TYPE_UV] = 0;
+#endif
     return 1;
   } else {
     return 0;
@@ -767,6 +791,22 @@ static int64_t rd_pick_intra_angle_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
+#if CONFIG_ORIP
+  if (av1_signal_intra_pred_filter_for_dir_mode_bsize(&cpi->common, mbmi,
+                                                      PLANE_TYPE_Y, bsize)) {
+    calc_rd_given_intra_angle(
+        cpi, x, bsize, mode_cost, best_rd, ANGLE_DELTA_FOR_FILTER,
+        MAX_ANGLE_DELTA, rate, rd_stats, &best_angle_delta, &best_tx_size,
+        &best_rd, best_model_rd, best_tx_type_map, best_blk_skip, 0);
+  }
+  int disable_intra_pred_filter_for_hor_ver_mode =
+      (best_angle_delta == ANGLE_DELTA_FOR_FILTER) ? 1 : 0;
+  CHECK((!av1_signal_intra_pred_filter_for_dir_mode_bsize(
+             &cpi->common, mbmi, PLANE_TYPE_Y, bsize) &&
+         disable_intra_pred_filter_for_hor_ver_mode),
+        " Intra filter is wronly selected for disallowed mode");
+#endif
+
   if (rd_stats->rate != INT_MAX) {
     mbmi->tx_size = best_tx_size;
     mbmi->angle_delta[PLANE_TYPE_Y] = best_angle_delta;
@@ -841,6 +881,10 @@ static INLINE void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
   if (filter_intra_selected_flag) {
     mbmi->filter_intra_mode_info.use_filter_intra = 1;
     mbmi->filter_intra_mode_info.filter_intra_mode = best_fi_mode;
+#if CONFIG_ORIP
+    mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+    mbmi->angle_delta[PLANE_TYPE_UV] = 0;
+#endif
   } else {
     mbmi->filter_intra_mode_info.use_filter_intra = 0;
   }

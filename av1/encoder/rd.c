@@ -209,6 +209,12 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
     av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost[i],
                              fc->angle_delta_cdf[i], NULL);
   }
+#if CONFIG_ORIP
+  for (i = 0; i < NUMBER_OF_ADDITIONAL_MODES; ++i) {
+    av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost_hv[i],
+                             fc->angle_delta_cdf_hv[i], NULL);
+  }
+#endif
   av1_cost_tokens_from_cdf(mode_costs->intrabc_cost, fc->intrabc_cdf, NULL);
 
   if (!frame_is_intra_only(cm)) {

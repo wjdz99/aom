@@ -591,6 +591,10 @@ typedef struct {
   //! filter_intra_mode_cost
   int filter_intra_mode_cost[FILTER_INTRA_MODES];
   //! angle_delta_cost
+#if CONFIG_ORIP
+  int angle_delta_cost_hv[NUMBER_OF_ADDITIONAL_MODES]
+                         [2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA];
+#endif
   int angle_delta_cost[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
 
   //! Rate rate associated with each alpha codeword
