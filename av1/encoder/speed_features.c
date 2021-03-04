@@ -616,7 +616,7 @@ static void set_good_speed_feature_framesize_dependent(
 
     // TODO(yunqing): use BLOCK_32X32 for >= 4k.
     if (is_4k_or_larger) {
-      sf->part_sf.use_square_partition_only_threshold = BLOCK_64X64;
+      sf->part_sf.use_square_partition_only_threshold = BLOCK_32X32;
     } else if (is_720p_or_larger) {
       sf->part_sf.use_square_partition_only_threshold =
           boosted ? BLOCK_32X32 : BLOCK_16X16;
