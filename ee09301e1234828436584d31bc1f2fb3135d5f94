@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da513cc4_143e4024",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T03:23:27Z",
+      "side": 1,
+      "message": "LGTM. Thanks! I renamed the variables and edited the commit message and comments slightly.",
+      "revId": "ee09301e1234828436584d31bc1f2fb3135d5f94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
