@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be6006f8_34b1461f",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-04T06:23:31Z",
+      "side": 1,
+      "message": "Thanks, well understood.\n\nI think it\u0027s also good to have that comment in research branch. Let me cherry pick that patch after this one has been merged.",
+      "parentUuid": "fdee1f60_f680aaa5",
+      "revId": "5c4997ca1dc4d8067316da35e575144b74348623",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33cb61e6_5e21a97f",
