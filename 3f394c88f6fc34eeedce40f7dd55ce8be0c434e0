@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3b4f9c1d_acd6ebe6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-04T01:30:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "550d159d_8112d7b8",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fdcc6c49_cb779c53",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 8
@@ -87,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f3904b4_cae88f87",
+        "filename": "aom/aom.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-04T01:30:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a922b57_88423103",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3856991b_74b417ef",
@@ -100,6 +136,30 @@
       "writtenOn": "2021-03-04T00:17:33Z",
       "side": 1,
       "message": "Nit: In aom/aomcx.h and aom/aomdx.h, the comments say \"Codec control function\". It would be good to be consistent.",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 19
+      },
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e5a51f6_eff774f3",
+        "filename": "aom/aom.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-04T01:30:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3856991b_74b417ef",
       "range": {
         "startLine": 50,
         "startChar": 12,
@@ -127,6 +187,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "81e4432a_c8b13388",
+        "filename": "aom/aom.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-04T01:30:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f6911f8_6b871956",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c765d0dd_684d1dc0",
@@ -140,6 +218,24 @@
       "writtenOn": "2021-03-04T00:17:33Z",
       "side": 1,
       "message": "The enum AOM_COMMON_CTRL_ID_START is defined but not used. I think the comment is sufficient.",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7238eccd_252cbc23",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1322,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-04T01:30:49Z",
+      "side": 1,
+      "message": "aomcx.h already includes aom.h for other macros probably, so I can\u0027t include aomcx.h in aom.h to use this enum... that\u0027s also the reason why I have another macro in aom.h for this purpose......",
+      "parentUuid": "c765d0dd_684d1dc0",
       "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
