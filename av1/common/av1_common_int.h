@@ -2012,6 +2012,7 @@ static INLINE int allow_tx_horz2_split(TX_SIZE max_tx_size) {
   const int sub_txw = tx_size_wide[max_tx_size];
   const int sub_txh = tx_size_high[max_tx_size] >> 2;
   const TX_SIZE sub_tx_size = get_tx_size(sub_txw, sub_txh);
+  return 0;
   return sub_tx_size != TX_INVALID;
 }
 
@@ -2019,6 +2020,7 @@ static INLINE int allow_tx_vert2_split(TX_SIZE max_tx_size) {
   const int sub_txw = tx_size_wide[max_tx_size] >> 2;
   const int sub_txh = tx_size_high[max_tx_size];
   const TX_SIZE sub_tx_size = get_tx_size(sub_txw, sub_txh);
+  return 0;
   return sub_tx_size != TX_INVALID;
 }
 
