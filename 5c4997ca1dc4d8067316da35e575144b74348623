@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdee1f60_f680aaa5",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-04T06:15:45Z",
+      "side": 1,
+      "message": "The ARG_DEF macro is initializing members of \"struct arg_def\".\n\nThe value \u00271\u0027 is assigned to \"has_val\" member, which just means that this command-line argument needs a value. In other words, it\u0027s used in the form \"--min-partition-size\u003dVALUE\" in the command-line.\n\nSome other arguments may have \u00270\u0027 value for \"has_val\", e.g. \"--quiet\". So, it\u0027s an argument \"--quiet\" by itself (and that means it doesn\u0027t need any \"\u003dVALUE\" in the command-line).\n\nDocumentation for this was added in master branch: https://aomedia-review.googlesource.com/c/aom/+/119503\n\nSo, I just cherry-picked that one to research.",
+      "parentUuid": "3747ca09_50f07e12",
+      "revId": "5c4997ca1dc4d8067316da35e575144b74348623",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "33cb61e6_5e21a97f",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-03-04T05:59:52Z",
       "side": 1,
       "message": "same as above comment",
+      "revId": "5c4997ca1dc4d8067316da35e575144b74348623",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f640acef_190b5cd2",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-04T06:15:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33cb61e6_5e21a97f",
       "revId": "5c4997ca1dc4d8067316da35e575144b74348623",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
