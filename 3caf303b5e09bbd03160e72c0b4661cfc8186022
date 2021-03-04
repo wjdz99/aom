@@ -34,6 +34,24 @@
       "parentUuid": "097a6b0c_1d4ca8c2",
       "revId": "3caf303b5e09bbd03160e72c0b4661cfc8186022",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44d30b17_a5539bf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-04T22:48:06Z",
+      "side": 1,
+      "message": "Thanks Urvang for your advice, I tried it, but seems that simply replace cq_level with qp does not work in my local machine. \n\nIn addition, there are still other variable undefined, such as stats_fn, CONFIG_AV1_HIGHBITDEPTH, rc_2pass_vbr_bias_pct.",
+      "parentUuid": "a7ef9ab2_7e11bc3f",
+      "revId": "3caf303b5e09bbd03160e72c0b4661cfc8186022",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
