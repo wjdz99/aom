@@ -141,7 +141,7 @@ set_aom_config_var(CONFIG_EXTQUANT 0
                    "AV2 extended quantization experiment flag")
 set_aom_config_var(CONFIG_FLEX_STEPS 0
                    "AV2 flexible quantization experiment flag (enable with
- CONFIG_EXTQUANT")
+                    CONFIG_EXTQUANT")
 #
 # Variables in this section control optional features of the build system.
 #

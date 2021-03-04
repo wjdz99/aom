@@ -1059,17 +1059,17 @@ void set_frame_dc_delta_q(const AV1_COMMON *const cm, int *y_dc_delta_q,
     if (!is_360p_or_larger) {
       *y_dc_delta_q = 0;
       if (enable_chroma_deltaq) {
-        *u_dc_delta_q = *v_dc_delta_q = 0;
+        *u_dc_delta_q = *v_dc_delta_q = -4;
       }
     } else if (!is_720p_or_larger) {
-      *y_dc_delta_q = -2;
+      *y_dc_delta_q = 0;
       if (enable_chroma_deltaq) {
-        *u_dc_delta_q = *v_dc_delta_q = -1;
+        *u_dc_delta_q = *v_dc_delta_q = -4;
       }
     } else {
-      *y_dc_delta_q = -4;
+      *y_dc_delta_q = 0;
       if (enable_chroma_deltaq) {
-        *u_dc_delta_q = *v_dc_delta_q = -2;
+        *u_dc_delta_q = *v_dc_delta_q = -4;
       }
     }
   }
