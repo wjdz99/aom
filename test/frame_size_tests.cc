@@ -80,6 +80,8 @@ typedef struct {
 
 const FrameSizeParam FrameSizeTestParams[] = { { 96, 96 }, { 176, 144 } };
 
+// This unit-test is used to validate the allocated size of bit stream buffer,
+// by feeding pseudo random input to the encoder, in lossless encoding mode.
 class AV1LosslessFrameSizeTests
     : public ::libaom_test::CodecTestWith2Params<FrameSizeParam,
                                                  ::libaom_test::TestMode>,
@@ -120,6 +122,7 @@ TEST_P(AV1LosslessFrameSizeTests, LosslessEncode) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
 
+// Test ALLINTRA encoding mode.
 AV1_INSTANTIATE_TEST_SUITE(AV1LosslessFrameSizeTests,
                            ::testing::ValuesIn(FrameSizeTestParams),
                            testing::Values(::libaom_test::kAllIntra));
