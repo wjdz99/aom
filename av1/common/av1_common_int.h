@@ -309,6 +309,7 @@ typedef struct SequenceHeader {
   int8_t base_y_dc_delta_q;
   int8_t base_uv_dc_delta_q;
 #endif  // CONFIG_EXTQUANT
+<<<<<<< HEAD   (091984 Add FLEX_STEPS experiment to research-quant)
 #if CONFIG_FLEX_STEPS
   int qStep_mode;
   // mode 0,1,2
@@ -329,6 +330,8 @@ typedef struct SequenceHeader {
   int num_qsteps_in_table[MAX_NUM_Q_STEP_INTERVALS];
 #endif  // CONFIG_FLEX_STEPS
 
+=======
+>>>>>>> BRANCH (7e4978 Comply qindex based speed features with EXTQUANT)
   uint8_t film_grain_params_present;
 
   // Operating point info.
