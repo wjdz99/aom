@@ -1195,7 +1195,11 @@ void av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
     av1_init_mv_probs(cm);
   }
   av1_fill_mv_costs(cm->fc, cm->features.cur_frame_force_integer_mv,
+<<<<<<< HEAD   (b653fc Incorporate rotation into WARPED_CAUSAL motion mode)
                     cm->features.fr_mv_precision, &cpi->td.mb.mv_costs);
+=======
+                    cm->features.allow_high_precision_mv, &cpi->td.mb.mv_costs);
+>>>>>>> BRANCH (1579a4 hash_sse42.c: Fix static analysis error.)
 
   // Backward propagation from tpl_group_frames to 1.
   for (int frame_idx = gf_group->index; frame_idx < tpl_gf_group_frames;
