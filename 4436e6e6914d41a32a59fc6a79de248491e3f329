@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch refactors the function check_txfm_eval() to use ROUND_POWER_OF_TWO() macro. Also, the value of 3 for the speed feature txfm_rd_gate_level was unused, and is cleaned up - the speed feature now takes values from 0 to 4.\n\nBit-exactness was verified locally for speed 2 to 6.\n\nPlease review the patch.\n\nThanks,\nNithya",
       "revId": "4436e6e6914d41a32a59fc6a79de248491e3f329",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8719b152_a4c8a803",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-04T17:03:31Z",
+      "side": 1,
+      "message": "Looks good.",
+      "revId": "4436e6e6914d41a32a59fc6a79de248491e3f329",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
