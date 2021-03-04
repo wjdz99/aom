@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "550d159d_8112d7b8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T00:17:33Z",
+      "side": 1,
+      "message": "This sentence is confusing. It seems to suggest that some encoder and common control IDs overlap. But it is the ranges that partially overlapped.",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "fdcc6c49_cb779c53",
@@ -14,6 +31,115 @@
       "writtenOn": "2021-03-03T22:35:27Z",
       "side": 1,
       "message": "James and Wan-teh,\n\ncould you please take a look again? I\u0027m putting the other one on hold until this one gets in. Thanks.",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a98c56d9_1418e6d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T00:17:33Z",
+      "side": 1,
+      "message": "I suggest some small changes.",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16d6ccf7_bca54fc6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T00:17:33Z",
+      "side": 1,
+      "message": "Hi Jerome: I can review this CL for correctness. Although I like the cleanup, I would prefer to not renumber the codec control IDs so late in the release process. I will let you and James decide that.\n\nI also found that it should actually be okay for the encoder and decoder control IDs to overlap, because they are used in different maps: encoder_ctrl_maps in av1_cx_iface.c and decoder_ctrl_maps in av1_dx_iface.c.",
+      "parentUuid": "fdcc6c49_cb779c53",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a922b57_88423103",
+        "filename": "aom/aom.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T00:17:33Z",
+      "side": 1,
+      "message": "1. Nit: Add a blank line after this line.\n\n2. The purpose of this macro is subtle. It took me a while to figure out what this is used for. Also, it is confusing why there are the enum AOM_COMMON_CTRL_ID_START and the macro AOM_COM_CONTROL_ID_START because they look almost the same.\n\nI probably would get rid of this macro and just use 230 directly.",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3856991b_74b417ef",
+        "filename": "aom/aom.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T00:17:33Z",
+      "side": 1,
+      "message": "Nit: In aom/aomcx.h and aom/aomdx.h, the comments say \"Codec control function\". It would be good to be consistent.",
+      "range": {
+        "startLine": 50,
+        "startChar": 12,
+        "endLine": 50,
+        "endChar": 19
+      },
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f6911f8_6b871956",
+        "filename": "aom/aom.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T00:17:33Z",
+      "side": 1,
+      "message": "Nit: I suggest adding a blank line between these control IDs.",
+      "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c765d0dd_684d1dc0",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 1322,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-04T00:17:33Z",
+      "side": 1,
+      "message": "The enum AOM_COMMON_CTRL_ID_START is defined but not used. I think the comment is sufficient.",
       "revId": "3f394c88f6fc34eeedce40f7dd55ce8be0c434e0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
