@@ -1059,6 +1059,7 @@ void set_frame_dc_delta_q(const AV1_COMMON *const cm, int *y_dc_delta_q,
     if (!is_360p_or_larger) {
       *y_dc_delta_q = 0;
       if (enable_chroma_deltaq) {
+<<<<<<< HEAD   (091984 Add FLEX_STEPS experiment to research-quant)
         *u_dc_delta_q = *v_dc_delta_q = 0;
       }
     } else if (!is_720p_or_larger) {
@@ -1070,6 +1071,19 @@ void set_frame_dc_delta_q(const AV1_COMMON *const cm, int *y_dc_delta_q,
       *y_dc_delta_q = -4;
       if (enable_chroma_deltaq) {
         *u_dc_delta_q = *v_dc_delta_q = -2;
+=======
+        *u_dc_delta_q = *v_dc_delta_q = -4;
+      }
+    } else if (!is_720p_or_larger) {
+      *y_dc_delta_q = 0;
+      if (enable_chroma_deltaq) {
+        *u_dc_delta_q = *v_dc_delta_q = -4;
+      }
+    } else {
+      *y_dc_delta_q = 0;
+      if (enable_chroma_deltaq) {
+        *u_dc_delta_q = *v_dc_delta_q = -4;
+>>>>>>> BRANCH (7e4978 Comply qindex based speed features with EXTQUANT)
       }
     }
   }
