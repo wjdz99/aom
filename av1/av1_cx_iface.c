@@ -162,6 +162,10 @@ struct av1_extracfg {
   unsigned int ext_tile_debug;
   unsigned int sb_multipass_unit_test;
   unsigned int enable_subgop_stats;
+
+#if CONFIG_ORIP
+  unsigned int enable_orip;
+#endif
 };
 
 // Example subgop configs. Currently not used by default.
@@ -408,6 +412,10 @@ static struct av1_extracfg default_extra_cfg = {
   0,            // ext_tile_debug
   0,            // sb_multipass_unit_test
   0,            // enable_subgop_stats
+
+#if CONFIG_ORIP
+  1,
+#endif
 };
 
 struct aom_codec_alg_priv {
@@ -741,6 +749,7 @@ static void update_encoder_config(cfg_options_t *cfg,
                                   struct av1_extracfg *extra_cfg) {
   cfg->enable_deblocking = extra_cfg->enable_deblocking;
   cfg->enable_cdef = extra_cfg->enable_cdef;
+
   cfg->enable_restoration = extra_cfg->enable_restoration;
   cfg->superblock_size =
       (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)
@@ -762,6 +771,9 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->max_partition_size = extra_cfg->max_partition_size;
   cfg->min_partition_size = extra_cfg->min_partition_size;
   cfg->enable_intra_edge_filter = extra_cfg->enable_intra_edge_filter;
+#if CONFIG_ORIP
+  cfg->enable_orip = extra_cfg->enable_orip;
+#endif
   cfg->enable_tx64 = extra_cfg->enable_tx64;
   cfg->enable_flip_idtx = extra_cfg->enable_flip_idtx;
   cfg->enable_masked_comp = extra_cfg->enable_masked_comp;
@@ -789,6 +801,7 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
                                           struct av1_extracfg *extra_cfg) {
   extra_cfg->enable_deblocking = cfg->enable_deblocking;
   extra_cfg->enable_cdef = cfg->enable_cdef;
+
   extra_cfg->enable_restoration = cfg->enable_restoration;
   extra_cfg->superblock_size = (cfg->superblock_size == 64)
                                    ? AOM_SUPERBLOCK_SIZE_64X64
@@ -810,6 +823,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->max_partition_size = cfg->max_partition_size;
   extra_cfg->min_partition_size = cfg->min_partition_size;
   extra_cfg->enable_intra_edge_filter = cfg->enable_intra_edge_filter;
+#if CONFIG_ORIP
+  extra_cfg->enable_orip = cfg->enable_orip;
+#endif
+
   extra_cfg->enable_tx64 = cfg->enable_tx64;
   extra_cfg->enable_flip_idtx = cfg->enable_flip_idtx;
   extra_cfg->enable_masked_comp = cfg->enable_masked_comp;
@@ -983,6 +1000,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   tool_cfg->bit_depth = cfg->g_bit_depth;
   tool_cfg->enable_deblocking = extra_cfg->enable_deblocking;
   tool_cfg->enable_cdef = extra_cfg->enable_cdef;
+
   tool_cfg->enable_restoration =
       (cfg->g_usage == AOM_USAGE_REALTIME) ? 0 : extra_cfg->enable_restoration;
   tool_cfg->force_video_mode = extra_cfg->force_video_mode;
@@ -1189,6 +1207,10 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   intra_mode_cfg->enable_smooth_intra = extra_cfg->enable_smooth_intra;
   intra_mode_cfg->enable_paeth_intra = extra_cfg->enable_paeth_intra;
   intra_mode_cfg->enable_cfl_intra = extra_cfg->enable_cfl_intra;
+
+#if CONFIG_ORIP
+  intra_mode_cfg->enable_orip = extra_cfg->enable_orip;
+#endif
 
   // Set transform size/type configuration.
   txfm_cfg->enable_tx64 = extra_cfg->enable_tx64;
@@ -1567,6 +1589,15 @@ static aom_codec_err_t ctrl_set_enable_cdef(aom_codec_alg_priv_t *ctx,
   extra_cfg.enable_cdef = CAST(AV1E_SET_ENABLE_CDEF, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+
+#if CONFIG_ORIP
+static aom_codec_err_t ctrl_set_enable_orip(aom_codec_alg_priv_t *ctx,
+                                            va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_orip = CAST(AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+#endif
 
 static aom_codec_err_t ctrl_set_enable_restoration(aom_codec_alg_priv_t *ctx,
                                                    va_list args) {
@@ -3254,6 +3285,10 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_GET_FRAME_TYPE, ctrl_get_frame_type },
   { AV1E_GET_FRAME_INFO, ctrl_get_enc_frame_info },
 
+#if CONFIG_ORIP
+  { AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER, ctrl_set_enable_orip },
+#endif
+
   CTRL_MAP_END,
 };
 
@@ -3323,15 +3358,51 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0,
+        128,
+        128,
+        4,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
-        1, 1,   1,   0, 0, 1, 1, 1, 1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        0
+#if CONFIG_ORIP
+        ,
+        1
+#endif
+      },  // cfg
   },
   {
       // NOLINT
@@ -3398,15 +3469,53 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0,
+        128,
+        128,
+        4,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
-        1, 1,   1,   0, 0, 1, 1, 1, 1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        0
+
+#if CONFIG_ORIP
+        ,
+        1
+#endif
+
+      },  // cfg
   },
 };
 
