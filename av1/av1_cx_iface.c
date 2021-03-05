@@ -741,6 +741,7 @@ static void update_encoder_config(cfg_options_t *cfg,
                                   struct av1_extracfg *extra_cfg) {
   cfg->enable_deblocking = extra_cfg->enable_deblocking;
   cfg->enable_cdef = extra_cfg->enable_cdef;
+
   cfg->enable_restoration = extra_cfg->enable_restoration;
   cfg->superblock_size =
       (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)
@@ -789,6 +790,7 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
                                           struct av1_extracfg *extra_cfg) {
   extra_cfg->enable_deblocking = cfg->enable_deblocking;
   extra_cfg->enable_cdef = cfg->enable_cdef;
+
   extra_cfg->enable_restoration = cfg->enable_restoration;
   extra_cfg->superblock_size = (cfg->superblock_size == 64)
                                    ? AOM_SUPERBLOCK_SIZE_64X64
@@ -983,6 +985,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   tool_cfg->bit_depth = cfg->g_bit_depth;
   tool_cfg->enable_deblocking = extra_cfg->enable_deblocking;
   tool_cfg->enable_cdef = extra_cfg->enable_cdef;
+
   tool_cfg->enable_restoration =
       (cfg->g_usage == AOM_USAGE_REALTIME) ? 0 : extra_cfg->enable_restoration;
   tool_cfg->force_video_mode = extra_cfg->force_video_mode;
@@ -3253,7 +3256,6 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_GET_SUB_GOP_CONFIG, ctrl_get_enc_sub_gop_config },
   { AV1E_GET_FRAME_TYPE, ctrl_get_frame_type },
   { AV1E_GET_FRAME_INFO, ctrl_get_enc_frame_info },
-
   CTRL_MAP_END,
 };
 
