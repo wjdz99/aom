@@ -152,8 +152,8 @@ static void set_txfm_context(MACROBLOCKD *xd, TX_SIZE tx_size, int blk_row,
     const int bsw = tx_size_wide_unit[sub_txs];
     const int bsh = tx_size_high_unit[sub_txs];
     for (int row = 0; row < tx_size_high_unit[tx_size]; row += bsh) {
+      const int offsetr = blk_row + row;
       for (int col = 0; col < tx_size_wide_unit[tx_size]; col += bsw) {
-        const int offsetr = blk_row + row;
         const int offsetc = blk_col + col;
         if (offsetr >= max_blocks_high || offsetc >= max_blocks_wide) continue;
         set_txfm_context(xd, sub_txs, offsetr, offsetc);
@@ -185,20 +185,21 @@ static void tx_partition_set_contexts(const AV1_COMMON *const cm,
 static void update_zeromv_cnt(const AV1_COMP *const cpi,
                               const MB_MODE_INFO *const mi, int mi_row,
                               int mi_col, BLOCK_SIZE bsize) {
-  const AV1_COMMON *const cm = &cpi->common;
-  MV mv = mi->mv[0].as_mv;
-  const int bw = mi_size_wide[bsize] >> 1;
-  const int bh = mi_size_high[bsize] >> 1;
-  const int xmis = AOMMIN((cm->mi_params.mi_cols - mi_col) >> 1, bw);
-  const int ymis = AOMMIN((cm->mi_params.mi_rows - mi_row) >> 1, bh);
-  const int block_index =
-      (mi_row >> 1) * (cm->mi_params.mi_cols >> 1) + (mi_col >> 1);
-  for (int y = 0; y < ymis; y++)
-    for (int x = 0; x < xmis; x++) {
-      // consec_zero_mv is in the scale of 8x8 blocks
-      const int map_offset = block_index + y * (cm->mi_params.mi_cols >> 1) + x;
-      if (mi->ref_frame[0] == LAST_FRAME && is_inter_block(mi) &&
-          mi->segment_id <= CR_SEGMENT_ID_BOOST2) {
+  if (mi->ref_frame[0] == LAST_FRAME && is_inter_block(mi) &&
+      mi->segment_id <= CR_SEGMENT_ID_BOOST2) {
+    const AV1_COMMON *const cm = &cpi->common;
+    const MV mv = mi->mv[0].as_mv;
+    const int bw = mi_size_wide[bsize] >> 1;
+    const int bh = mi_size_high[bsize] >> 1;
+    const int xmis = AOMMIN((cm->mi_params.mi_cols - mi_col) >> 1, bw);
+    const int ymis = AOMMIN((cm->mi_params.mi_rows - mi_row) >> 1, bh);
+    const int block_index =
+        (mi_row >> 1) * (cm->mi_params.mi_cols >> 1) + (mi_col >> 1);
+    for (int y = 0; y < ymis; y++) {
+      for (int x = 0; x < xmis; x++) {
+        // consec_zero_mv is in the scale of 8x8 blocks
+        const int map_offset =
+            block_index + y * (cm->mi_params.mi_cols >> 1) + x;
         if (abs(mv.row) < 10 && abs(mv.col) < 10) {
           if (cpi->consec_zero_mv[map_offset] < 255)
             cpi->consec_zero_mv[map_offset]++;
@@ -207,6 +208,7 @@ static void update_zeromv_cnt(const AV1_COMP *const cpi,
         }
       }
     }
+  }
 }
 
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
