@@ -72,6 +72,16 @@ static const aom_cdf_prob
                     31355, 31802, 32593) } }
     };
 
+#if CONFIG_ORIP
+static const aom_cdf_prob
+    default_angle_delta_cdf_hv[NUMBER_OF_ADDITIONAL_MODES][CDF_SIZE(
+        2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA)] = {
+      { AOM_CDF8(1180, 3032, 4567, 19776, 22989, 25217, 26639) },
+      { AOM_CDF8(1301, 3608, 5801, 20487, 22974, 25330, 26371) },
+    };
+
+#endif
+
 static const aom_cdf_prob default_angle_delta_cdf[DIRECTIONAL_MODES][CDF_SIZE(
     2 * MAX_ANGLE_DELTA + 1)] = {
   { AOM_CDF7(2180, 5032, 7567, 22776, 26989, 30217) },
@@ -1099,6 +1109,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->palette_y_color_index_cdf, default_palette_y_color_index_cdf);
   av1_copy(fc->palette_uv_color_index_cdf, default_palette_uv_color_index_cdf);
   av1_copy(fc->kf_y_cdf, default_kf_y_mode_cdf);
+#if CONFIG_ORIP
+  av1_copy(fc->angle_delta_cdf_hv, default_angle_delta_cdf_hv);
+#endif
   av1_copy(fc->angle_delta_cdf, default_angle_delta_cdf);
   av1_copy(fc->comp_inter_cdf, default_comp_inter_cdf);
   av1_copy(fc->comp_ref_type_cdf, default_comp_ref_type_cdf);
