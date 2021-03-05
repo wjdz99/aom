@@ -1878,7 +1878,6 @@ void av1_init_intra_predictors(void) {
 
 DECLARE_ALIGNED(16, const int8_t,
                 av1_sub_block_filter_intra_taps_4x4[16][9]) = {
-
   // similar weights for top and left
   // was used for the previous test
   // P0 P1  P2  P3  P4  P5  P6 P7 P8
@@ -1893,7 +1892,6 @@ DECLARE_ALIGNED(16, const int8_t,
 
   { 0, 0, 1, 0, 0, 0, 2, 4, 16 },  { 0, 0, 0, 1, 0, 0, 1, 2, 8 },
   { 0, 0, 1, 2, 1, 0, 0, 1, 4 },   { 0, 0, 0, 1, 2, 0, 0, 1, 2 },
-
 };
 
 void av1_apply_orip_4x4subblock(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
@@ -1957,7 +1955,6 @@ void av1_apply_orip_4x4subblock(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
         int filteredpixelValue = predvalue + offset;
         dst[stride * r_pos + c_pos] = clip_pixel(filteredpixelValue);
       }
-
     }  // End of the subblock
 
     memcpy(&ref_samples_sb_row[num_top_ref], &left_ref_tmp_for_next_sb[0],
@@ -2069,7 +2066,6 @@ void av1_apply_orip_4x4subblock_hbd(uint16_t *dst, ptrdiff_t stride,
         int filteredpixelValue = predvalue + offset;
         dst[stride * r_pos + c_pos] = clip_pixel_highbd(filteredpixelValue, bd);
       }
-
     }  // End of the subblock
 
     memcpy(&ref_samples_sb_row[num_top_ref], &left_ref_tmp_for_next_sb[0],

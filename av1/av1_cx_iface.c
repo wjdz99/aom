@@ -3512,7 +3512,6 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
         ,
         1
 #endif
-
       },  // cfg
   },
 };
