@@ -1290,6 +1290,10 @@ typedef struct macroblock {
 #if CONFIG_EXT_RECUR_PARTITIONS
   //! Simple motion search buffers.
   SimpleMotionDataBufs *sms_bufs;
+  /*! \brief Determines what encoding decision should be reused. */
+  int reuse_inter_mode_cache_type;
+  /*! \brief The mode to reuse during \ref av1_rd_pick_inter_mode_sb. */
+  MB_MODE_INFO *inter_mode_cache;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
   /**@}*/
 } MACROBLOCK;
