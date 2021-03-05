@@ -50,6 +50,23 @@
       "message": "I added curly braces {} to the outer for loop.",
       "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "062e0d3a_e337e458",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-05T00:31:45Z",
+      "side": 1,
+      "message": "This if statement is also loop-invariant, but I did not bother to move it outside the for loops because that will require duplicating the for loops.",
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
