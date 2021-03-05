@@ -16,6 +16,23 @@
       "message": "PTAL. Thanks! The CL now only modifies the update_zeromv_cnt() function.",
       "revId": "845bea0b0dd95a0fcefdf100406ca38c4521dd7c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "426bdc07_d0fb2551",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-05T15:51:11Z",
+      "side": 1,
+      "message": "If abs(mv.row) \u003c 10 \u0026\u0026 abs(mv.col) \u003c 10 is false, the inner for loop can be replaced by a memset(..., 0, ...) call. I did not attempt that for fear of making a mistake.",
+      "revId": "845bea0b0dd95a0fcefdf100406ca38c4521dd7c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
