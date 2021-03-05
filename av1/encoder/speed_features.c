@@ -1869,6 +1869,13 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
     }
   }
 
+  if (speed >= 6) {
+    const int qindex_thresh = boosted ? 100 : 180;
+    if (cm->quant_params.base_qindex <= qindex_thresh && is_720p_or_larger) {
+      sf->part_sf.use_square_partition_only_threshold = BLOCK_16X16;
+    }
+  }
+
   if (speed <= 2) {
     if (!is_stat_generation_stage(cpi)) {
       // Use faster full-pel motion search for high quantizers.
