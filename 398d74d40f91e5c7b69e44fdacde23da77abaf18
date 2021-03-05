@@ -58,6 +58,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbba9706_e351c455",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-05T05:43:59Z",
+      "side": 1,
+      "message": "I think this is within scope for the release given the ABI is already broken (In the worst case it would be the same amount of ABI changes were this to get deferred or a broken release is made). After it lands Jerome will be able to test integrations with Chrome/WebRTC and ffmpeg. I would suggest letting the rc period extend a little longer, however.\n\nI\u0027ll make another pass on this after the latest round of comments are addressed.",
+      "revId": "398d74d40f91e5c7b69e44fdacde23da77abaf18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa05006a_7fac8f14",
