@@ -1946,18 +1946,18 @@ static const TX_PARTITION_BIT_SHIFT
       // Square
       {
           { { 0 }, { 0 }, 1 },                    // TX_PARTITION_NONE
-          { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, 4 },  // TX_PARTITION_SPLIT
           { { 1, 1 }, { 0, 0 }, 2 },              // TX_PARTITION_HORZ
           { { 0, 0 }, { 1, 1 }, 2 },              // TX_PARTITION_VERT
+          { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, 4 },  // TX_PARTITION_SPLIT
           { { 2, 2, 2, 2 }, { 0, 0, 0, 0 }, 4 },  // TX_PARTITION_HORZ4
           { { 0, 0, 0, 0 }, { 2, 2, 2, 2 }, 4 },  // TX_PARTITION_VERT4
       },
       // Rectangular
       {
           { { 0 }, { 0 }, 1 },                    // TX_PARTITION_NONE
-          { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, 4 },  // TX_PARTITION_SPLIT
           { { 1, 1 }, { 0, 0 }, 2 },              // TX_PARTITION_HORZ
           { { 0, 0 }, { 1, 1 }, 2 },              // TX_PARTITION_VERT
+          { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, 4 },  // TX_PARTITION_SPLIT
           { { 2, 2, 2, 2 }, { 0, 0, 0, 0 }, 4 },  // TX_PARTITION_HORZ4
           { { 0, 0, 0, 0 }, { 2, 2, 2, 2 }, 4 },  // TX_PARTITION_VERT4
 
@@ -1977,6 +1977,8 @@ static INLINE int get_tx_partition_sizes(TX_PARTITION_TYPE partition,
     sub_txw = txw >> subtx_shift.cols[i];
     sub_txh = txh >> subtx_shift.rows[i];
     sub_txs[i] = get_tx_size(sub_txw, sub_txh);
+    if (sub_txs[i] == TX_INVALID)
+      printf("debug\n");
     assert(sub_txs[i] != TX_INVALID);
   }
   return n_partitions;
