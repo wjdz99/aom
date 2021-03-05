@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f503890a_31b6b53f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T06:16:27Z",
+      "side": 1,
+      "message": "Please correct as \u0027invariant\u0027",
+      "range": {
+        "startLine": 7,
+        "startChar": 10,
+        "endLine": 7,
+        "endChar": 20
+      },
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "ce54066a_64952ca6",
@@ -14,6 +37,69 @@
       "writtenOn": "2021-03-05T00:27:32Z",
       "side": 1,
       "message": "Please review. I noticed this issue while reviewing Jayasanker\u0027s https://aomedia-review.googlesource.com/c/aom/+/130522.",
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6d374e4_fbbdd0b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T06:16:27Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nPlease check our comments.\n\nRegards,\nRanjit",
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3cd88b1_c30fb29a",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T06:16:27Z",
+      "side": 1,
+      "message": "Optional : This part of condition can be removed here and moved to outer for loop as below.\n\n if (offsetr \u003e\u003d max_blocks_high) continue;",
+      "range": {
+        "startLine": 158,
+        "startChar": 12,
+        "endLine": 158,
+        "endChar": 38
+      },
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "507fc20c_3fe64b8a",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T06:16:27Z",
+      "side": 1,
+      "message": "Optional : This code can be modified as below:\n\n if (!(mi-\u003eref_frame[0] \u003d\u003d LAST_FRAME \u0026\u0026 is_inter_block(mi) \u0026\u0026 \n       mi-\u003esegment_id \u003c\u003d CR_SEGMENT_ID_BOOST2))\n    return;\n\nThe code following, will be outside the condition in this case.",
+      "range": {
+        "startLine": 188,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 45
+      },
       "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -37,6 +123,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "15470fc2_d6d818c3",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T06:16:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d0769acf_8ad2e3ef",
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "9e37058c_23b465c7",
         "filename": "av1/encoder/partition_search.c",
         "patchSetId": 1
@@ -54,6 +158,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "9ead5935_d3508d3f",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T06:16:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9e37058c_23b465c7",
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "062e0d3a_e337e458",
         "filename": "av1/encoder/partition_search.c",
         "patchSetId": 1
@@ -65,6 +187,24 @@
       "writtenOn": "2021-03-05T00:31:45Z",
       "side": 1,
       "message": "This if statement is also loop-invariant, but I did not bother to move it outside the for loops because that will require duplicating the for loops.",
+      "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1676b2f_5708cf0d",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T06:16:27Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "062e0d3a_e337e458",
       "revId": "999e6022e891b2b1653de2f5efcf8f34f3a67b95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
