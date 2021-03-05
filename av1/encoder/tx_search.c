@@ -2779,6 +2779,13 @@ static AOM_INLINE void try_tx_block_split(
 #endif  // !CONFIG_NEW_TX_PARTITION
 
 #if CONFIG_NEW_TX_PARTITION
+const TX_PARTITION_TYPE type_search_order[6] = { TX_PARTITION_NONE, 
+                                                 TX_PARTITION_HORZ,
+                                                 TX_PARTITION_VERT,
+                                                 TX_PARTITION_SPLIT,
+                                                 TX_PARTITION_HORZ4,
+                                                 TX_PARTITION_VERT4 };
+                                              
 // Search for the best tx partition type for a given luma block.
 static void select_tx_partition_type(
     const AV1_COMP *cpi, MACROBLOCK *x, int blk_row, int blk_col, int block,
@@ -2806,15 +2813,20 @@ static void select_tx_partition_type(
   TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
 
   int64_t best_rd = INT64_MAX;
+  int64_t rds_so_far[6] = { INT64_MAX };
   TX_PARTITION_TYPE best_partition = -1;
   uint8_t best_partition_entropy_ctxs[MAX_TX_PARTITIONS] = { 0 };
   uint8_t best_partition_tx_types[MAX_TX_PARTITIONS] = { 0 };
   uint8_t full_blk_skip[MAX_TX_PARTITIONS] = { 0 };
 
   // TODO(sarahparker) Add back all of the tx search speed features.
-  for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES; ++type) {
+  for (int type_ind = 0; type_ind < TX_PARTITION_TYPES; ++type_ind) {
+    TX_PARTITION_TYPE type = type_search_order[type_ind];
     // Skip any illegal partitions for this block size
     if (!use_tx_partition(type, max_tx_size)) continue;
+    if (type == TX_PARTITION_VERT4 && best_partition != TX_PARTITION_VERT) continue;
+    if (type == TX_PARTITION_HORZ4 && best_partition != TX_PARTITION_HORZ) continue;
+    if (type == TX_PARTITION_SPLIT && ((rds_so_far[TX_PARTITION_NONE] > rds_so_far[TX_PARTITION_VERT]) && (rds_so_far[TX_PARTITION_NONE] > rds_so_far[TX_PARTITION_HORZ]))) continue;
     RD_STATS partition_rd_stats;
     av1_init_rd_stats(&partition_rd_stats);
     int64_t tmp_rd = 0;
@@ -2877,10 +2889,13 @@ static void select_tx_partition_type(
         tmp_rd =
             RDCOST(x->rdmult, partition_rd_stats.rate, partition_rd_stats.dist);
 
+        rds_so_far[type] = tmp_rd;
         // Terminate early if the rd cost is higher than the best so far
+        if (!(type == TX_PARTITION_VERT && best_partition == TX_PARTITION_HORZ)) {
         if (tmp_rd > best_rd) {
           tmp_rd = INT64_MAX;
           continue;
+        }
         }
 
         p->txb_entropy_ctx[cur_block] = no_split.txb_entropy_ctx;
@@ -3136,9 +3151,12 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   int64_t best_rd = INT64_MAX;
   x->rd_model = FULL_TXFM_RD;
   int64_t cur_rd = INT64_MAX;
-  for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES_INTRA; ++type) {
+  for (int type_ind = 0; type_ind < TX_PARTITION_TYPES; ++type_ind) {
+    TX_PARTITION_TYPE type = type_search_order[type_ind];
     // Skip any illegal partitions for this block size
     if (!use_tx_partition(type, max_tx_size)) continue;
+    if (type == TX_PARTITION_VERT4 && best_partition_type != TX_PARTITION_VERT) continue;
+    if (type == TX_PARTITION_HORZ4 && best_partition_type != TX_PARTITION_HORZ) continue;
     mbmi->partition_type[0] = type;
     TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
     get_tx_partition_sizes(type, max_tx_size, sub_txs);
