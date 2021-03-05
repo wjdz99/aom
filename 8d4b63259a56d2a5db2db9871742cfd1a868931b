@@ -68,6 +68,24 @@
       "message": "Hi Leo and all,\nI am struggling with the format issue. I have applied clang-format of all of my changes before push my changes but some files stills did not pass. I am trying to figure-out the issue. Do you have any suggestions? \n\nBest regards,\nMohammed",
       "revId": "8d4b63259a56d2a5db2db9871742cfd1a868931b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "852af8f4_2504c536",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-05T19:11:57Z",
+      "side": 1,
+      "message": "Which version of clang-format do you use? The version of clang-format in Jekins is clang-format 7.0.1. \n\nYou need to use the same clang-format version as Jekins.",
+      "parentUuid": "dd81d77a_1ad65840",
+      "revId": "8d4b63259a56d2a5db2db9871742cfd1a868931b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
