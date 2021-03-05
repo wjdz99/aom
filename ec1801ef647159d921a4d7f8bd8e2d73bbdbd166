@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a09181e6_67df7635",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T09:44:33Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nPlease find our opinion below.\n\nRegards,\nRanjit",
+      "revId": "ec1801ef647159d921a4d7f8bd8e2d73bbdbd166",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "646c71f9_529da203",
@@ -31,6 +48,24 @@
       "writtenOn": "2021-03-05T09:06:47Z",
       "side": 1,
       "message": "I think this can be changed to a break statement:\n\n      if (offsetr \u003e\u003d max_blocks_high) break;\n\nor integrated into the for loop\u0027s conditional in line 154:\n\n    const int row_end \u003d AOMMIN(tx_size_high_unit[tx_size],\n                               max_blocks_high - blk_row);\n    for (int row \u003d 0; row \u003c row_end; row +\u003d bsh) {\n\nWhat do you think?",
+      "revId": "ec1801ef647159d921a4d7f8bd8e2d73bbdbd166",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2a94726_3ceda9f6",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-03-05T09:44:33Z",
+      "side": 1,
+      "message": "We feel second approach might be optimal in terms of speed (though minimal) as the computations/comparisons, inside the loop, are avoided. This would save one addition and comparison per iteration at an expense of one subtraction and one minimum calculation (outside the loop). \nSame logic can be applied for column loop as well by calculating col_end along with row_end.",
+      "parentUuid": "646c71f9_529da203",
       "revId": "ec1801ef647159d921a4d7f8bd8e2d73bbdbd166",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
