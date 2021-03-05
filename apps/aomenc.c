@@ -852,6 +852,13 @@ static const arg_def_t subgop_config_path =
             "If this option is not specified (default), the configurations "
             "are chosen by the encoder using a default algorithm.");
 
+#if CONFIG_ORIP
+static const arg_def_t enable_orip =
+    ARG_DEF(NULL, "enable-orip", 1,
+            "Enable sub-block based ORIP (0: false, "
+            "1: true (default))");
+#endif
+
 static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &auto_altref,
                                        &sharpness,
@@ -958,6 +965,10 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
 #endif
                                        &subgop_config_str,
                                        &subgop_config_path,
+#if CONFIG_ORIP
+                                       &enable_orip,
+#endif
+
                                        NULL };
 static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AOME_SET_ENABLEAUTOALTREF,
@@ -1065,6 +1076,10 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
 #endif
                                         AV1E_SET_SUBGOP_CONFIG_STR,
                                         AV1E_SET_SUBGOP_CONFIG_PATH,
+
+#if CONFIG_ORIP
+                                        AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER,
+#endif
                                         0 };
 #endif  // CONFIG_AV1_ENCODER
 
@@ -1886,11 +1901,20 @@ static void show_stream_config(struct stream_state *stream,
           "(%d)\n",
           encoder_cfg->enable_dual_filter, encoder_cfg->enable_angle_delta);
 #endif  // CONFIG_REMOVE_DUAL_FILTER
+
+#if CONFIG_ORIP
+  fprintf(stdout,
+          "                               : "
+          "EdgeFilter (%d), PaethPredictor (%d), ORIP  (%d) \n",
+          encoder_cfg->enable_intra_edge_filter,
+          encoder_cfg->enable_paeth_intra, encoder_cfg->enable_orip);
+#else
   fprintf(stdout,
           "                               : "
           "EdgeFilter (%d), PaethPredictor (%d)\n",
           encoder_cfg->enable_intra_edge_filter,
           encoder_cfg->enable_paeth_intra);
+#endif
 
   fprintf(stdout,
           "Tool setting (Inter)           : OBMC (%d), WarpMotion (%d), "

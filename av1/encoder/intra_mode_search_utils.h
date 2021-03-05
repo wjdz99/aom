@@ -290,10 +290,20 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
   }
   if (av1_is_directional_mode(mbmi->mode)) {
     if (av1_use_angle_delta(bsize)) {
-      total_rate +=
-          mode_costs->angle_delta_cost[mbmi->mode - V_PRED]
-                                      [MAX_ANGLE_DELTA +
-                                       mbmi->angle_delta[PLANE_TYPE_Y]];
+#if CONFIG_ORIP
+      int signal_intra_filter = av1_signal_intra_pred_filter_for_dir_mode_bsize(
+          &cpi->common, mbmi, PLANE_TYPE_Y, bsize);
+      if (signal_intra_filter)
+        total_rate +=
+            mode_costs->angle_delta_cost_hv[mbmi->mode -
+                                            V_PRED][get_angle_delta_to_idx(
+                mbmi->angle_delta[PLANE_TYPE_Y])];
+      else
+#endif
+        total_rate +=
+            mode_costs->angle_delta_cost[mbmi->mode - V_PRED]
+                                        [MAX_ANGLE_DELTA +
+                                         mbmi->angle_delta[PLANE_TYPE_Y]];
     }
   }
   if (av1_allow_intrabc(&cpi->common))
@@ -384,9 +394,20 @@ static int64_t intra_model_yrd(const AV1_COMP *const cpi, MACROBLOCK *const x,
       cpi, bsize, x, xd, 0, 0, &this_rd_stats.rate, &this_rd_stats.dist,
       &this_rd_stats.skip_txfm, &temp_sse, NULL, NULL, NULL);
   if (av1_is_directional_mode(mbmi->mode) && av1_use_angle_delta(bsize)) {
-    mode_cost += mode_costs->angle_delta_cost[mbmi->mode - V_PRED]
-                                             [MAX_ANGLE_DELTA +
-                                              mbmi->angle_delta[PLANE_TYPE_Y]];
+#if CONFIG_ORIP
+    int signal_intra_filter = av1_signal_intra_pred_filter_for_dir_mode_bsize(
+        cm, mbmi, PLANE_TYPE_Y, bsize);
+    if (signal_intra_filter)
+      mode_cost +=
+          mode_costs
+              ->angle_delta_cost_hv[mbmi->mode - V_PRED][get_angle_delta_to_idx(
+                  mbmi->angle_delta[PLANE_TYPE_Y])];
+    else
+#endif
+      mode_cost +=
+          mode_costs->angle_delta_cost[mbmi->mode - V_PRED]
+                                      [MAX_ANGLE_DELTA +
+                                       mbmi->angle_delta[PLANE_TYPE_Y]];
   }
   if (mbmi->mode == DC_PRED &&
       av1_filter_intra_allowed_bsize(cm, mbmi->sb_type)) {

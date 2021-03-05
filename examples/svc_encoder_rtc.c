@@ -789,6 +789,10 @@ int main(int argc, char **argv) {
   aom_codec_control(&codec, AV1E_SET_AQ_MODE, 3);
   aom_codec_control(&codec, AV1E_SET_GF_CBR_BOOST_PCT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_CDEF, 1);
+
+#if CONFIG_ORIP
+  aom_codec_control(&codec, AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER, 1);
+#endif
   aom_codec_control(&codec, AV1E_SET_ENABLE_ORDER_HINT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_TPL_MODEL, 0);
   aom_codec_control(&codec, AV1E_SET_DELTAQ_MODE, 0);
