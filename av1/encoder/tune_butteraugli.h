@@ -20,7 +20,7 @@
 typedef struct {
   // Stores the scaling factors for rdmult when tuning for Butteraugli.
   // rdmult_scaling_factors[row * num_cols + col] stores the scaling factors for
-  // 4x4 block at (row, col).
+  // 16x16 block at (row, col).
   double *rdmult_scaling_factors;
   YV12_BUFFER_CONFIG source, resized_source;
   bool recon_set;
