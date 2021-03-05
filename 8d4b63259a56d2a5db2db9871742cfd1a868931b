@@ -33,6 +33,41 @@
       "message": "\u003e Patch Set 3: Verified-1 -Code-Review\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://build.aomedia.org/jenkins/job/libaom__commit_trigger/57682/ : FAILURE\n\nPlease run clang-format to the files listed in the error message of the following websit.\n\nhttps://build.aomedia.org/jenkins/job/style-check/53787/console\n\nBtw, based on my understanding, code review will begin after the building of the code patch has passed the per-commit test. Please correct me if you have different opinion. @Urvang @Krishana",
       "revId": "8d4b63259a56d2a5db2db9871742cfd1a868931b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c20705bf_909d3250",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-03-05T19:08:38Z",
+      "side": 1,
+      "message": "Hi Leo,\nI am struggling with the format issue. I have applied clang-format of all of my changes before push my changes but some files stills did not pass. I am trying to figure-out the issue. Do you have any suggestions? \n\nBest regards,\nMohammed",
+      "parentUuid": "394a6b88_657d4857",
+      "revId": "8d4b63259a56d2a5db2db9871742cfd1a868931b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd81d77a_1ad65840",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-03-05T19:08:38Z",
+      "side": 1,
+      "message": "Hi Leo and all,\nI am struggling with the format issue. I have applied clang-format of all of my changes before push my changes but some files stills did not pass. I am trying to figure-out the issue. Do you have any suggestions? \n\nBest regards,\nMohammed",
+      "revId": "8d4b63259a56d2a5db2db9871742cfd1a868931b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
