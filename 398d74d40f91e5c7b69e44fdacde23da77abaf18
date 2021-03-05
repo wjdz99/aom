@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bb31d90_06430509",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-05T18:16:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6e1f61a_460f828f",
+      "range": {
+        "startLine": 14,
+        "startChar": 12,
+        "endLine": 14,
+        "endChar": 17
+      },
+      "revId": "398d74d40f91e5c7b69e44fdacde23da77abaf18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba0c6752_e724f572",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-03-04T21:47:19Z",
       "side": 1,
       "message": "It would be good to document all three ranges in the source code. We can either list the three ranges in aom/aom.h, and list one range in the respective header (aom/aom.h, aom/aomcx.h, and aom/aomdx.h).\n\nNote that 1-6 are not used. (We should reserve 0 as an invalid codec control ID.)",
+      "revId": "398d74d40f91e5c7b69e44fdacde23da77abaf18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4887e8c8_eb9a0cb8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-05T18:16:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba0c6752_e724f572",
       "revId": "398d74d40f91e5c7b69e44fdacde23da77abaf18",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -88,6 +130,24 @@
       "writtenOn": "2021-03-04T21:47:19Z",
       "side": 1,
       "message": "Optional: I suggest we assign values explicitly to all common control IDs, otherwise it will not be obvious when we reach 255. (I doubt it will ever happen, but it\u0027s good to avoid this problem.)\n\nThis can be done later.",
+      "revId": "398d74d40f91e5c7b69e44fdacde23da77abaf18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16b073db_539ee238",
+        "filename": "aom/aom.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-05T18:16:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa05006a_7fac8f14",
       "revId": "398d74d40f91e5c7b69e44fdacde23da77abaf18",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
