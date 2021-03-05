@@ -28,6 +28,23 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#ifdef CONFIG_ORIP
+
+#define CHECK(c, err)                                                    \
+  if (c) {                                                               \
+    printf("The assertion failed on line %d, in file %s %s\n", __LINE__, \
+           __FILE__, err);                                               \
+    exit(1);                                                             \
+  }
+
+#if CONFIG_ORIP
+#define NUMBER_OF_ADDITIONAL_MODES 2
+#define ADDITIONAL_ANGLE_DELTA 1
+#define ANGLE_DELTA_FOR_FILTER (MAX_ANGLE_DELTA + 1)
+#endif
+
+#endif
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
