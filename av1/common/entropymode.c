@@ -73,14 +73,14 @@ static const aom_cdf_prob
     };
 
 #if CONFIG_ORIP
-static const aom_cdf_prob default_angle_delta_cdf_hv[NUMBER_OF_ADDITIONAL_MODES][CDF_SIZE(
-	2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA)] = {
-  { AOM_CDF8(1180, 3032, 4567, 19776, 22989, 25217, 26639) },
-  { AOM_CDF8(1301, 3608, 5801, 20487, 22974, 25330, 26371) },
-};
+static const aom_cdf_prob
+    default_angle_delta_cdf_hv[NUMBER_OF_ADDITIONAL_MODES][CDF_SIZE(
+        2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA)] = {
+      { AOM_CDF8(1180, 3032, 4567, 19776, 22989, 25217, 26639) },
+      { AOM_CDF8(1301, 3608, 5801, 20487, 22974, 25330, 26371) },
+    };
 
 #endif
-
 
 static const aom_cdf_prob default_angle_delta_cdf[DIRECTIONAL_MODES][CDF_SIZE(
     2 * MAX_ANGLE_DELTA + 1)] = {

@@ -28,10 +28,11 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                     TX_SIZE tx_size);
 #if CONFIG_ORIP
 void av1_predict_intra_block(
-	const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
-	TX_SIZE tx_size, PREDICTION_MODE mode, int angle_delta, int use_palette,
-	FILTER_INTRA_MODE filter_intra_mode, const uint8_t *ref, int ref_stride,
-	uint8_t *dst, int dst_stride, int col_off, int row_off, int plane, const int disable_intra_pred_filter_for_hor_ver_mode);
+    const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
+    TX_SIZE tx_size, PREDICTION_MODE mode, int angle_delta, int use_palette,
+    FILTER_INTRA_MODE filter_intra_mode, const uint8_t *ref, int ref_stride,
+    uint8_t *dst, int dst_stride, int col_off, int row_off, int plane,
+    const int disable_intra_pred_filter_for_hor_ver_mode);
 #else
 void av1_predict_intra_block(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
@@ -41,10 +42,13 @@ void av1_predict_intra_block(
 #endif
 
 #if CONFIG_ORIP
-void av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock_hbd(uint16_t *dst, ptrdiff_t stride,
-	TX_SIZE tx_size, const uint16_t *above, const uint16_t *left, PREDICTION_MODE mode, int bd);
-void av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock(uint8_t *dst, ptrdiff_t stride,
-	TX_SIZE tx_size, const uint8_t *above, const uint8_t *left, PREDICTION_MODE mode);
+void av1_apply_orip_4x4subblock_hbd(uint16_t *dst, ptrdiff_t stride,
+                                    TX_SIZE tx_size, const uint16_t *above,
+                                    const uint16_t *left, PREDICTION_MODE mode,
+                                    int bd);
+void av1_apply_orip_4x4subblock(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
+                                const uint8_t *above, const uint8_t *left,
+                                PREDICTION_MODE mode);
 #endif
 
 // Mapping of interintra to intra mode for use in the intra component
@@ -163,113 +167,40 @@ static INLINE int av1_use_intra_edge_upsample(int bs0, int bs1, int delta,
 
 #if CONFIG_ORIP
 static INLINE int av1_signal_intra_pred_filter_for_dir_mode(
-	const MB_MODE_INFO *mbmi, PLANE_TYPE plane) {
-	//return 0;
+    const MB_MODE_INFO *mbmi, PLANE_TYPE plane) {
+  const int is_inter = is_inter_block(mbmi);
+  const int use_intrabc = mbmi->use_intrabc;
+  if (plane != PLANE_TYPE_Y || is_inter || use_intrabc) return 0;
 
+  if (mbmi->mode == V_PRED || mbmi->mode == H_PRED) return 1;
 
-	const int is_inter = is_inter_block(mbmi);
-	const int use_intrabc = mbmi->use_intrabc;
-#if 0
-	const int use_palette = mbmi->palette_mode_info.palette_size[plane] > 0;
-	const int use_filter_intra = mbmi->filter_intra_mode_info.use_filter_intra;
-
-
-	if (use_palette || use_filter_intra || is_inter || plane != PLANE_TYPE_Y || use_intrabc)
-		return 0;
-#endif
-
-	if (plane != PLANE_TYPE_Y || is_inter || use_intrabc)
-		return 0;
-
-	if (mbmi->mode == V_PRED || mbmi->mode == H_PRED)
-		return 1;
-
-
-	return  0;
+  return 0;
 }
-
 
 static INLINE int av1_signal_intra_pred_filter_for_dir_mode_bsize(
-	const AV1_COMMON *cm,
-	const MB_MODE_INFO *mbmi, PLANE_TYPE plane, BLOCK_SIZE bsize) {
+    const AV1_COMMON *cm, const MB_MODE_INFO *mbmi, PLANE_TYPE plane,
+    BLOCK_SIZE bsize) {
+  if (!cm->seq_params.enable_orip) return 0;
 
-	if (!cm->seq_params.enable_orip)
-		return 0;
+  const int is_inter = is_inter_block(mbmi);
+  const int use_intrabc = mbmi->use_intrabc;
 
-	const int is_inter = is_inter_block(mbmi);
-	const int use_intrabc = mbmi->use_intrabc;
+  if (plane != PLANE_TYPE_Y || is_inter || use_intrabc) return 0;
+  if (!av1_use_angle_delta(bsize)) return 0;
 
-	if (plane != PLANE_TYPE_Y || is_inter || use_intrabc)
-		return 0;
-	if (!av1_use_angle_delta(bsize))
-		return 0;
+  if (mbmi->mode == V_PRED || mbmi->mode == H_PRED) return 1;
 
-	if (mbmi->mode == V_PRED || mbmi->mode == H_PRED)
-		return 1;
-
-
-	return  0;
+  return 0;
 }
 
-
 static INLINE int get_angle_delta_to_idx(int angle_delta) {
-	return (MAX_ANGLE_DELTA + angle_delta);
-
-
-#if 0
-	int idx = (MAX_ANGLE_DELTA + angle_delta);
-	if (angle_delta == 0)
-		return 7;
-	if (angle_delta == 4)
-		return 3;
-	return idx;
-
-
-#endif
-
-
-#if 0
-	if (angle_delta == 4)
-		return 3;
-	else
-		return
-		(MAX_ANGLE_DELTA + angle_delta);
-#endif
-#if 0
-	int idx = MAX_ANGLE_DELTA + angle_delta;
-
-	if (idx > 3)
-	{
-		if (idx == 7)
-			return 4;
-		else
-			return idx + 1;
-	}
-	return idx;
-#endif
+  return (MAX_ANGLE_DELTA + angle_delta);
 }
 
 static INLINE int get_idx_to_angle_delta(int index) {
-	return (index - MAX_ANGLE_DELTA);
-
-#if 0
-	int index2 = index;
-
-	if (index > 3)
-	{
-		index2 = (index == 4) ? 7 : index - 1;
-
-	}
-
-	return (index2 - MAX_ANGLE_DELTA);
-#endif
-
+  return (index - MAX_ANGLE_DELTA);
 }
-
 #endif
-
-
-
 
 #ifdef __cplusplus
 }  // extern "C"

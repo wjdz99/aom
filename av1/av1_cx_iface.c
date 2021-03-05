@@ -112,8 +112,8 @@ struct av1_extracfg {
   int enable_tx64;               // enable 64-pt transform usage for sequence
   int enable_flip_idtx;          // enable flip and identity transform types
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  int enable_dist_wtd_comp;          // enable dist wtd compound for sequence
-#endif                               // !CONFIG_REMOVE_DIST_WTD_COMP
+  int enable_dist_wtd_comp;  // enable dist wtd compound for sequence
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   int max_reference_frames;          // maximum number of references per frame
   int enable_reduced_reference_set;  // enable reduced set of references
   int enable_ref_frame_mvs;          // sequence level
@@ -166,7 +166,6 @@ struct av1_extracfg {
 #if CONFIG_ORIP
   unsigned int enable_orip;
 #endif
-
 };
 
 // Example subgop configs. Currently not used by default.
@@ -325,8 +324,8 @@ static struct av1_extracfg default_extra_cfg = {
   AOM_TIMING_UNSPECIFIED,  // No picture timing signaling in bitstream
   0,                       // frame_parallel_decoding_mode
 #if !CONFIG_REMOVE_DUAL_FILTER
-  1,                            // enable dual filter
-#endif                          // !CONFIG_REMOVE_DUAL_FILTER
+  1,  // enable dual filter
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
   0,                            // enable delta quant in chroma planes
   NO_AQ,                        // aq_mode
   DELTA_Q_OBJECTIVE,            // deltaq_mode
@@ -359,8 +358,8 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // enable 64-pt transform usage
   1,                            // enable flip and identity transform
 #if !CONFIG_REMOVE_DIST_WTD_COMP
-  1,                       // dist-wtd compound
-#endif                     // !CONFIG_REMOVE_DIST_WTD_COMP
+  1,  // dist-wtd compound
+#endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   7,                       // max_reference_frames
   0,                       // enable_reduced_reference_set
   1,                       // enable_ref_frame_mvs sequence level
@@ -753,10 +752,9 @@ static void update_encoder_config(cfg_options_t *cfg,
 
   cfg->enable_restoration = extra_cfg->enable_restoration;
   cfg->superblock_size =
-      (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)
-          ? 64
-          : (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_128X128) ? 128
-                                                                        : 0;
+      (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_64X64)     ? 64
+      : (extra_cfg->superblock_size == AOM_SUPERBLOCK_SIZE_128X128) ? 128
+                                                                    : 0;
   cfg->enable_warped_motion = extra_cfg->enable_warped_motion;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   cfg->enable_dist_wtd_comp = extra_cfg->enable_dist_wtd_comp;
@@ -803,13 +801,11 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->enable_deblocking = cfg->enable_deblocking;
   extra_cfg->enable_cdef = cfg->enable_cdef;
 
-
   extra_cfg->enable_restoration = cfg->enable_restoration;
-  extra_cfg->superblock_size = (cfg->superblock_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->superblock_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->superblock_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->superblock_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                      : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = cfg->enable_warped_motion;
 #if !CONFIG_REMOVE_DIST_WTD_COMP
   extra_cfg->enable_dist_wtd_comp = cfg->enable_dist_wtd_comp;
@@ -1002,7 +998,6 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   tool_cfg->bit_depth = cfg->g_bit_depth;
   tool_cfg->enable_deblocking = extra_cfg->enable_deblocking;
   tool_cfg->enable_cdef = extra_cfg->enable_cdef;
-
 
   tool_cfg->enable_restoration =
       (cfg->g_usage == AOM_USAGE_REALTIME) ? 0 : extra_cfg->enable_restoration;
@@ -1214,7 +1209,6 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 #if CONFIG_ORIP
   intra_mode_cfg->enable_orip = extra_cfg->enable_orip;
 #endif
-
 
   // Set transform size/type configuration.
   txfm_cfg->enable_tx64 = extra_cfg->enable_tx64;
@@ -1596,10 +1590,10 @@ static aom_codec_err_t ctrl_set_enable_cdef(aom_codec_alg_priv_t *ctx,
 
 #if CONFIG_ORIP
 static aom_codec_err_t ctrl_set_enable_orip(aom_codec_alg_priv_t *ctx,
-	va_list args) {
-	struct av1_extracfg extra_cfg = ctx->extra_cfg;
-	extra_cfg.enable_orip = CAST(AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER, args);
-	return update_extra_cfg(ctx, &extra_cfg);
+                                            va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.enable_orip = CAST(AV1E_ENABLE_SUB_BLOCK_INTRA_FILTER, args);
+  return update_extra_cfg(ctx, &extra_cfg);
 }
 #endif
 
@@ -3362,21 +3356,51 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0,
+        128,
+        128,
+        4,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
-        1, 1,   1,   0, 0, 1, 1, 1, 1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 
-
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        0
 #if CONFIG_ORIP
-		, 1
+        ,
+        1
 #endif
-
-},  // cfg
+      },  // cfg
   },
   {
       // NOLINT
@@ -3443,21 +3467,52 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0,
+        128,
+        128,
+        4,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
-        1, 1,   1,   0, 0, 1, 1, 1, 1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        0
 
 #if CONFIG_ORIP
-		, 1
+        ,
+        1
 #endif
-	  
-	  },  // cfg
+      },  // cfg
   },
 };
 

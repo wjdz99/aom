@@ -127,7 +127,7 @@ int parse_cfg(const char *file, cfg_options_t *config) {
     GET_PARAMS(reduced_tx_type_set);
 
 #if CONFIG_ORIP
-	GET_PARAMS(enable_orip);
+    GET_PARAMS(enable_orip);
 #endif
 
     fprintf(stderr, "\nInvalid parameter: %s", left);

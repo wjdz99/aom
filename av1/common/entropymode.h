@@ -147,8 +147,8 @@ typedef struct frame_contexts {
                        [CDF_SIZE(INTRA_MODES)];
 
 #if CONFIG_ORIP
-  aom_cdf_prob angle_delta_cdf_hv[NUMBER_OF_ADDITIONAL_MODES]
-	  [CDF_SIZE(2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA)];
+  aom_cdf_prob angle_delta_cdf_hv[NUMBER_OF_ADDITIONAL_MODES][CDF_SIZE(
+      2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA)];
 #endif
 
   aom_cdf_prob angle_delta_cdf[DIRECTIONAL_MODES]

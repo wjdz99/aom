@@ -1365,9 +1365,9 @@ void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
 
 #if CONFIG_ORIP
   av1_predict_intra_block(cm, xd, pd->width, pd->height,
-						  max_txsize_rect_lookup[plane_bsize], mode, 0, 0,
-		                  FILTER_INTRA_MODES, ctx->plane[plane],
-	                      ctx->stride[plane], dst, dst_stride, 0, 0, plane, 0);
+                          max_txsize_rect_lookup[plane_bsize], mode, 0, 0,
+                          FILTER_INTRA_MODES, ctx->plane[plane],
+                          ctx->stride[plane], dst, dst_stride, 0, 0, plane, 0);
 #else
 
   av1_predict_intra_block(cm, xd, pd->width, pd->height,

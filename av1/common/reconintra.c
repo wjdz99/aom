@@ -38,10 +38,10 @@ enum {
 #define NUM_INTRA_NEIGHBOUR_PIXELS (MAX_TX_SIZE * 2 + 32)
 
 static const uint8_t extend_modes[INTRA_MODES] = {
-#if CONFIG_ORIP 
+#if CONFIG_ORIP
   NEED_ABOVE | NEED_LEFT | NEED_ABOVELEFT,  // DC
 #else
-  NEED_ABOVE | NEED_LEFT,                   // DC
+  NEED_ABOVE | NEED_LEFT,  // DC
 #endif
 
   NEED_ABOVE,                               // V
@@ -54,13 +54,13 @@ static const uint8_t extend_modes[INTRA_MODES] = {
   NEED_ABOVE | NEED_ABOVERIGHT,             // D67
 
 #if CONFIG_ORIP
-  NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT, // SMOOTH
+  NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // SMOOTH
 #else
-  NEED_LEFT | NEED_ABOVE,                   // SMOOTH
+  NEED_LEFT | NEED_ABOVE,  // SMOOTH
 #endif
 
-  NEED_LEFT | NEED_ABOVE, // SMOOTH_V
-  NEED_LEFT | NEED_ABOVE, // SMOOTH_H
+  NEED_LEFT | NEED_ABOVE,  // SMOOTH_V
+  NEED_LEFT | NEED_ABOVE,  // SMOOTH_H
 
   NEED_LEFT | NEED_ABOVE | NEED_ABOVELEFT,  // PAETH
 };
@@ -1137,11 +1137,13 @@ void av1_upsample_intra_edge_high_c(uint16_t *p, int sz, int bd) {
 }
 #if CONFIG_ORIP
 static void build_intra_predictors_high(
-	const MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
-	int dst_stride, PREDICTION_MODE mode, int angle_delta,
-	FILTER_INTRA_MODE filter_intra_mode, TX_SIZE tx_size,
-	int disable_edge_filter, int n_top_px, int n_topright_px, int n_left_px,
-	int n_bottomleft_px, int plane, const int disable_intra_pred_filter_for_hor_ver_mode, const int seq_intra_pred_filter_flag) {
+    const MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
+    int dst_stride, PREDICTION_MODE mode, int angle_delta,
+    FILTER_INTRA_MODE filter_intra_mode, TX_SIZE tx_size,
+    int disable_edge_filter, int n_top_px, int n_topright_px, int n_left_px,
+    int n_bottomleft_px, int plane,
+    const int disable_intra_pred_filter_for_hor_ver_mode,
+    const int seq_intra_pred_filter_flag) {
 #else
 static void build_intra_predictors_high(
     const MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
@@ -1186,7 +1188,6 @@ static void build_intra_predictors_high(
   int apply_sub_block_based_refinement_filter = seq_intra_pred_filter_flag;
 #endif
 
-
   if (is_dr_mode) {
     p_angle = mode_to_angle_map[mode] + angle_delta;
     if (p_angle <= 90)
@@ -1197,14 +1198,13 @@ static void build_intra_predictors_high(
       need_above = 0, need_left = 1, need_above_left = 1;
 
 #if CONFIG_ORIP
-	if (apply_sub_block_based_refinement_filter && (p_angle == 90 || p_angle == 180)) {
-		need_above = 1;
-		need_left = 1;
-		need_above_left = 1;
-	}
+    if (apply_sub_block_based_refinement_filter &&
+        (p_angle == 90 || p_angle == 180)) {
+      need_above = 1;
+      need_left = 1;
+      need_above_left = 1;
+    }
 #endif
-
-
   }
   if (use_filter_intra) need_left = need_above = need_above_left = 1;
 
@@ -1333,15 +1333,17 @@ static void build_intra_predictors_high(
                         upsample_above, upsample_left, p_angle, xd->bd);
 
 #if CONFIG_ORIP
-	// Apply sub-block based filter for horizontal/vertical intra mode
-	apply_sub_block_based_refinement_filter &= !disable_intra_pred_filter_for_hor_ver_mode;
-	apply_sub_block_based_refinement_filter &= (p_angle == 90 || p_angle == 180);
+    // Apply sub-block based filter for horizontal/vertical intra mode
+    apply_sub_block_based_refinement_filter &=
+        !disable_intra_pred_filter_for_hor_ver_mode;
+    apply_sub_block_based_refinement_filter &=
+        (p_angle == 90 || p_angle == 180);
 
-	if (apply_sub_block_based_refinement_filter) {
-		av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock_hbd(dst, dst_stride, tx_size, above_row, left_col, mode, xd->bd);
-	}
+    if (apply_sub_block_based_refinement_filter) {
+      av1_apply_orip_4x4subblock_hbd(dst, dst_stride, tx_size, above_row,
+                                     left_col, mode, xd->bd);
+    }
 #endif
-
 
     return;
   }
@@ -1354,33 +1356,31 @@ static void build_intra_predictors_high(
     pred_high[mode][tx_size](dst, dst_stride, above_row, left_col, xd->bd);
   }
 
-
 #if CONFIG_ORIP
   // Apply sub-block based filter for DC/smooth intra mode
 
   if (plane == AOM_PLANE_Y)
-	  apply_sub_block_based_refinement_filter &=  (mode == SMOOTH_PRED || mode == DC_PRED);
+    apply_sub_block_based_refinement_filter &=
+        (mode == SMOOTH_PRED || mode == DC_PRED);
   else
-	  apply_sub_block_based_refinement_filter &=  (mode == UV_SMOOTH_PRED);
+    apply_sub_block_based_refinement_filter &= (mode == UV_SMOOTH_PRED);
 
   if (apply_sub_block_based_refinement_filter) {
-	  av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock_hbd(dst, dst_stride, tx_size, above_row, left_col, mode, xd->bd);
+    av1_apply_orip_4x4subblock_hbd(dst, dst_stride, tx_size, above_row,
+                                   left_col, mode, xd->bd);
   }
 #endif
-
-
 }
 
 #if CONFIG_ORIP
-static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
-								   int ref_stride, uint8_t *dst, int dst_stride,
-								   PREDICTION_MODE mode, int angle_delta,
-						           FILTER_INTRA_MODE filter_intra_mode,
-								   TX_SIZE tx_size, int disable_edge_filter,
-							       int n_top_px, int n_topright_px,
-								   int n_left_px, int n_bottomleft_px,
-								   int plane, const int disable_intra_pred_filter_for_hor_ver_mode,
-	                               const int seq_intra_pred_filter_flag) {
+static void build_intra_predictors(
+    const MACROBLOCKD *xd, const uint8_t *ref, int ref_stride, uint8_t *dst,
+    int dst_stride, PREDICTION_MODE mode, int angle_delta,
+    FILTER_INTRA_MODE filter_intra_mode, TX_SIZE tx_size,
+    int disable_edge_filter, int n_top_px, int n_topright_px, int n_left_px,
+    int n_bottomleft_px, int plane,
+    const int disable_intra_pred_filter_for_hor_ver_mode,
+    const int seq_intra_pred_filter_flag) {
 #else
 static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
                                    int ref_stride, uint8_t *dst, int dst_stride,
@@ -1425,7 +1425,6 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   int apply_sub_block_based_refinement_filter = seq_intra_pred_filter_flag;
 #endif
 
-
   if (is_dr_mode) {
     p_angle = mode_to_angle_map[mode] + angle_delta;
     if (p_angle <= 90)
@@ -1436,13 +1435,13 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
       need_above = 0, need_left = 1, need_above_left = 1;
 
 #if CONFIG_ORIP
-	if (apply_sub_block_based_refinement_filter && (p_angle == 90 || p_angle == 180)) {
-		need_above = 1;
-		need_left = 1;
-		need_above_left = 1;
-	}
+    if (apply_sub_block_based_refinement_filter &&
+        (p_angle == 90 || p_angle == 180)) {
+      need_above = 1;
+      need_left = 1;
+      need_above_left = 1;
+    }
 #endif
-
   }
   if (use_filter_intra) need_left = need_above = need_above_left = 1;
 
@@ -1569,13 +1568,16 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
                  upsample_left, p_angle);
 
 #if CONFIG_ORIP
-	// Apply sub-block based filter for horizontal/vertical intra mode
-	apply_sub_block_based_refinement_filter &= !disable_intra_pred_filter_for_hor_ver_mode;
-	apply_sub_block_based_refinement_filter &= (p_angle == 90 || p_angle == 180);
+    // Apply sub-block based filter for horizontal/vertical intra mode
+    apply_sub_block_based_refinement_filter &=
+        !disable_intra_pred_filter_for_hor_ver_mode;
+    apply_sub_block_based_refinement_filter &=
+        (p_angle == 90 || p_angle == 180);
 
-	if (apply_sub_block_based_refinement_filter) {
-		av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock(dst, dst_stride, tx_size, above_row, left_col, mode);
-	}
+    if (apply_sub_block_based_refinement_filter) {
+      av1_apply_orip_4x4subblock(dst, dst_stride, tx_size, above_row, left_col,
+                                 mode);
+    }
 #endif
     return;
   }
@@ -1591,15 +1593,16 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
 #if CONFIG_ORIP
 
   if (plane == AOM_PLANE_Y)
-	  apply_sub_block_based_refinement_filter &=  (mode == SMOOTH_PRED || mode == DC_PRED);
+    apply_sub_block_based_refinement_filter &=
+        (mode == SMOOTH_PRED || mode == DC_PRED);
   else
-	  apply_sub_block_based_refinement_filter &=   (mode == UV_SMOOTH_PRED);
+    apply_sub_block_based_refinement_filter &= (mode == UV_SMOOTH_PRED);
 
   if (apply_sub_block_based_refinement_filter) {
-	  av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock(dst, dst_stride, tx_size, above_row, left_col, mode);
+    av1_apply_orip_4x4subblock(dst, dst_stride, tx_size, above_row, left_col,
+                               mode);
   }
 #endif
-
 }
 
 static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
@@ -1655,10 +1658,11 @@ static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
 
 #if CONFIG_ORIP
 void av1_predict_intra_block(
-	const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
-	TX_SIZE tx_size, PREDICTION_MODE mode, int angle_delta, int use_palette,
-	FILTER_INTRA_MODE filter_intra_mode, const uint8_t *ref, int ref_stride,
-	uint8_t *dst, int dst_stride, int col_off, int row_off, int plane, const int disable_intra_pred_filter_for_hor_ver_mode) {
+    const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
+    TX_SIZE tx_size, PREDICTION_MODE mode, int angle_delta, int use_palette,
+    FILTER_INTRA_MODE filter_intra_mode, const uint8_t *ref, int ref_stride,
+    uint8_t *dst, int dst_stride, int col_off, int row_off, int plane,
+    const int disable_intra_pred_filter_for_hor_ver_mode) {
 #else
 void av1_predict_intra_block(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
@@ -1738,15 +1742,14 @@ void av1_predict_intra_block(
 
   if (is_cur_buf_hbd(xd)) {
 #if CONFIG_ORIP
-	 build_intra_predictors_high(
-		  xd, ref, ref_stride, dst, dst_stride, mode, angle_delta,
-		  filter_intra_mode, tx_size, disable_edge_filter,
-		  have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
-		  have_top_right ? AOMMIN(txwpx, xr) : 0,
-		  have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-		  have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane, 
-		  disable_intra_pred_filter_for_hor_ver_mode, 
-		  cm->seq_params.enable_orip);
+    build_intra_predictors_high(
+        xd, ref, ref_stride, dst, dst_stride, mode, angle_delta,
+        filter_intra_mode, tx_size, disable_edge_filter,
+        have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
+        have_top_right ? AOMMIN(txwpx, xr) : 0,
+        have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
+        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane,
+        disable_intra_pred_filter_for_hor_ver_mode, cm->seq_params.enable_orip);
 #else
     build_intra_predictors_high(
         xd, ref, ref_stride, dst, dst_stride, mode, angle_delta,
@@ -1760,13 +1763,14 @@ void av1_predict_intra_block(
   }
 
 #if CONFIG_ORIP
-  build_intra_predictors(xd, ref, ref_stride, dst, dst_stride, mode,
-						 angle_delta, filter_intra_mode, tx_size,
-						 disable_edge_filter,
-						 have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
-						 have_top_right ? AOMMIN(txwpx, xr) : 0,
-						 have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-						 have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane, disable_intra_pred_filter_for_hor_ver_mode, cm->seq_params.enable_orip);
+  build_intra_predictors(
+      xd, ref, ref_stride, dst, dst_stride, mode, angle_delta,
+      filter_intra_mode, tx_size, disable_edge_filter,
+      have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
+      have_top_right ? AOMMIN(txwpx, xr) : 0,
+      have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
+      have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane,
+      disable_intra_pred_filter_for_hor_ver_mode, cm->seq_params.enable_orip);
 #else
   build_intra_predictors(xd, ref, ref_stride, dst, dst_stride, mode,
                          angle_delta, filter_intra_mode, tx_size,
@@ -1794,18 +1798,26 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
           : FILTER_INTRA_MODES;
 
 #if CONFIG_ORIP
-  const int angle_delta = cm->seq_params.enable_orip?
-	  ((mbmi->angle_delta[plane != AOM_PLANE_Y] == ANGLE_DELTA_FOR_FILTER) ? 0 
-		  : mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP) 
-	  : mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
-  const int disable_intra_pred_filter_for_hor_ver_mode = cm->seq_params.enable_orip ? 
-	  ((mbmi->angle_delta[plane != AOM_PLANE_Y] == ANGLE_DELTA_FOR_FILTER) ? 1 : 0) : 1;
+  const int angle_delta =
+      cm->seq_params.enable_orip
+          ? ((mbmi->angle_delta[plane != AOM_PLANE_Y] == ANGLE_DELTA_FOR_FILTER)
+                 ? 0
+                 : mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP)
+          : mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
+  const int disable_intra_pred_filter_for_hor_ver_mode =
+      cm->seq_params.enable_orip
+          ? ((mbmi->angle_delta[plane != AOM_PLANE_Y] == ANGLE_DELTA_FOR_FILTER)
+                 ? 1
+                 : 0)
+          : 1;
   if (cm->seq_params.enable_orip)
-	CHECK((!av1_signal_intra_pred_filter_for_dir_mode_bsize(cm, mbmi, plane != AOM_PLANE_Y, mbmi->sb_type) && disable_intra_pred_filter_for_hor_ver_mode), " Intra filter is wronly selected for disallowed mode");
+    CHECK((!av1_signal_intra_pred_filter_for_dir_mode_bsize(
+               cm, mbmi, plane != AOM_PLANE_Y, mbmi->sb_type) &&
+           disable_intra_pred_filter_for_hor_ver_mode),
+          " Intra filter is wronly selected for disallowed mode");
 #else
   const int angle_delta = mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
 #endif
-
 
   if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
 #if CONFIG_DEBUG
@@ -1824,19 +1836,17 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
     CFL_CTX *const cfl = &xd->cfl;
     CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
     if (cfl->dc_pred_is_cached[pred_plane] == 0) {
-
 #if CONFIG_ORIP
-		av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
-								angle_delta, use_palette, filter_intra_mode, dst,
-								dst_stride, dst, dst_stride, blk_col, blk_row,
-								plane, disable_intra_pred_filter_for_hor_ver_mode);
+      av1_predict_intra_block(
+          cm, xd, pd->width, pd->height, tx_size, mode, angle_delta,
+          use_palette, filter_intra_mode, dst, dst_stride, dst, dst_stride,
+          blk_col, blk_row, plane, disable_intra_pred_filter_for_hor_ver_mode);
 #else
       av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
                               angle_delta, use_palette, filter_intra_mode, dst,
                               dst_stride, dst, dst_stride, blk_col, blk_row,
                               plane);
 #endif
-
 
       if (cfl->use_dc_pred_cache) {
         cfl_store_dc_pred(xd, dst, pred_plane, tx_size_wide[tx_size]);
@@ -1850,8 +1860,9 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
   }
 #if CONFIG_ORIP
   av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
-						  angle_delta, use_palette, filter_intra_mode, dst,
-						  dst_stride, dst, dst_stride, blk_col, blk_row, plane, disable_intra_pred_filter_for_hor_ver_mode);
+                          angle_delta, use_palette, filter_intra_mode, dst,
+                          dst_stride, dst, dst_stride, blk_col, blk_row, plane,
+                          disable_intra_pred_filter_for_hor_ver_mode);
 #else
   av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
                           angle_delta, use_palette, filter_intra_mode, dst,
@@ -1866,251 +1877,242 @@ void av1_init_intra_predictors(void) {
 #if CONFIG_ORIP
 
 DECLARE_ALIGNED(16, const int8_t,
-av1_sub_block_filter_intra_taps_4x4[16][9]) = {
+                av1_sub_block_filter_intra_taps_4x4[16][9]) = {
+  // similar weights for top and left
+  // was used for the previous test
+  // P0 P1  P2  P3  P4  P5  P6 P7 P8
+  { 4, 16, 4, 0, 0, 16, 4, 0, 0 }, { 2, 4, 16, 4, 0, 8, 2, 0, 0 },
+  { 1, 0, 4, 16, 4, 4, 1, 0, 0 },  { 0, 0, 2, 4, 16, 2, 0, 0, 0 },
 
-		// similar weights for top and left
-			// was used for the previous test
-		//P0 P1  P2  P3  P4  P5  P6 P7 P8
-		{ 4, 16, 4,  0,  0,  16, 4, 0, 0 },
-		{ 2, 4,  16, 4,  0,  8,  2, 0, 0 },
-		{ 1, 0,  4,  16, 4,  4,  1, 0, 0 },
-		{ 0, 0,  2,  4, 16,  2,  0, 0, 0 },
+  { 2, 8, 2, 0, 0, 4, 16, 4, 0 },  { 0, 2, 8, 2, 0, 2, 8, 2, 0 },
+  { 0, 0, 2, 8, 2, 1, 4, 1, 0 },   { 0, 0, 0, 2, 8, 1, 2, 0, 0 },
 
-		{ 2, 8,  2,  0, 0,  4,  16, 4, 0 },
-		{ 0, 2,  8,  2, 0,  2,  8,  2, 0 },
-		{ 0, 0,  2,  8, 2,  1,  4,  1, 0 },
-		{ 0, 0,  0,  2, 8,  1,  2,  0, 0 },
+  { 0, 4, 0, 0, 0, 0, 4, 16, 4 },  { 0, 0, 4, 0, 0, 0, 2, 8, 2 },
+  { 0, 0, 1, 4, 1, 0, 1, 4, 1 },   { 0, 0, 0, 2, 4, 0, 0, 4, 0 },
 
-		{ 0, 4,  0,  0, 0,  0,  4, 16, 4 },
-		{ 0, 0,  4,  0, 0,  0,  2, 8,  2 },
-		{ 0, 0,  1,  4, 1,  0,  1, 4,  1 },
-		{ 0, 0,  0,  2, 4,  0,  0, 4,  0 },
+  { 0, 0, 1, 0, 0, 0, 2, 4, 16 },  { 0, 0, 0, 1, 0, 0, 1, 2, 8 },
+  { 0, 0, 1, 2, 1, 0, 0, 1, 4 },   { 0, 0, 0, 1, 2, 0, 0, 1, 2 },
+};
 
-		{ 0, 0,  1,  0, 0,  0,  2, 4, 16 },
-		{ 0, 0,  0,  1, 0,  0,  1, 2, 8 },
-		{ 0, 0,  1,  2, 1,  0,  0, 1, 4 },
-		{ 0, 0,  0,  1, 2,  0,  0, 1, 2 },
+void av1_apply_orip_4x4subblock(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
+                                const uint8_t *above, const uint8_t *left,
+                                PREDICTION_MODE mode) {
+  // initialize references for the first row
+  uint8_t ref_samples_sb_row[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  uint8_t left_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
+  uint8_t ref_samples_sb_col[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  uint8_t top_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
 
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
+  int num_vertical_sb = (bh >> 2);
+  int num_top_ref = 5;
+  int num_left_ref = 4;
 
-	};
+  uint8_t widthThreshold = (mode == H_PRED) ? 0 : AOMMIN((bw >> 2), 4);
+  uint8_t heightThreshold = (mode == V_PRED) ? 0 : AOMMIN((bh >> 2), 4);
 
-void av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock(uint8_t *dst, ptrdiff_t stride,
-	TX_SIZE tx_size, const uint8_t *above, const uint8_t *left, PREDICTION_MODE mode)
-{
-	// initialize references for the first row
-	uint8_t ref_samples_sb_row[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint8_t left_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
-	uint8_t ref_samples_sb_col[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint8_t top_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
+  memcpy(&ref_samples_sb_row[0], &above[-1],
+         num_top_ref * sizeof(uint8_t));  // copy top reference
+  memcpy(&ref_samples_sb_row[num_top_ref], &left[0],
+         num_left_ref * sizeof(uint8_t));  // copy left reference
 
-	const int bw = tx_size_wide[tx_size];
-	const int bh = tx_size_high[tx_size];
-	int num_vertical_sb = (bh >> 2);
-	int num_top_ref = 5;
-	int num_left_ref = 4;
+  // initialize references for the column
+  if (num_vertical_sb > 1) {
+    ref_samples_sb_col[0] = left[3];
+    memcpy(&ref_samples_sb_col[1], &dst[3 * stride],
+           (num_top_ref - 1) * sizeof(uint8_t));  // copy top reference
+    memcpy(&ref_samples_sb_col[5], &left[4],
+           num_left_ref * sizeof(uint8_t));  // copy left reference
+  }
 
-	uint8_t widthThreshold = (mode == H_PRED ) ? 0 : AOMMIN((bw >> 2), 4);
-	uint8_t heightThreshold = (mode == V_PRED ) ? 0 : AOMMIN((bh >> 2), 4);
+  // loop to process first row of sub-blocks
+  for (int n = 0; n < (bw >> 2); n++) {
+    int r_sb = 0;
+    int c_sb = (n << 2);
 
+    memcpy(&ref_samples_sb_row[0], &above[c_sb - 1],
+           num_top_ref * sizeof(uint8_t));  // copy top reference
+    // copy left reference for the next sub-blocks
+    for (int q = 0; q < 4; q++)
+      left_ref_tmp_for_next_sb[q] = dst[(r_sb + q) * stride + c_sb + 3];
 
-	memcpy(&ref_samples_sb_row[0], &above[-1], num_top_ref * sizeof(uint8_t)); // copy top reference
-	memcpy(&ref_samples_sb_row[num_top_ref], &left[0], num_left_ref * sizeof(uint8_t)); // copy left reference
+    for (int k = 0; k < 16; ++k) {
+      int r_pos = r_sb + (k >> 2);
+      int c_pos = c_sb + (k & 0x03);
 
-	// initialize references for the column
-	if (num_vertical_sb > 1) {
-		ref_samples_sb_col[0] = left[3];
-		memcpy(&ref_samples_sb_col[1], &dst[3 * stride], (num_top_ref - 1) * sizeof(uint8_t)); // copy top reference
-		memcpy(&ref_samples_sb_col[5], &left[4], num_left_ref * sizeof(uint8_t)); // copy left reference
-	}
+      if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)) {
+        int predvalue = (int)dst[stride * r_pos + c_pos];
 
+        int offset = 0;
+        for (int tap = 0; tap < 9; tap++) {
+          int diff = (int)ref_samples_sb_row[tap] - predvalue;
+          offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
+        }
 
-	// loop to process first row of sub-blocks
-	for (int n = 0; n < (bw >> 2); n++) {
-		int r_sb = 0;
-		int c_sb = (n << 2);
+        offset = (offset + 32) >> 6;
 
-		memcpy(&ref_samples_sb_row[0], &above[c_sb - 1], num_top_ref * sizeof(uint8_t)); // copy top reference
-		// copy left reference for the next sub-blocks
-		for (int q = 0; q < 4; q++)
-			left_ref_tmp_for_next_sb[q] = dst[(r_sb + q) * stride + c_sb + 3];
+        int filteredpixelValue = predvalue + offset;
+        dst[stride * r_pos + c_pos] = clip_pixel(filteredpixelValue);
+      }
+    }  // End of the subblock
 
-		for (int k = 0; k < 16; ++k) {
-			int r_pos = r_sb + (k >> 2);
-			int c_pos = c_sb + (k & 0x03);
+    memcpy(&ref_samples_sb_row[num_top_ref], &left_ref_tmp_for_next_sb[0],
+           num_left_ref *
+               sizeof(uint8_t));  // copy left reference for the next sub-block
+  }
 
-			if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)){
-				int predvalue = (int)dst[stride * r_pos + c_pos];
+  // process first column
+  // loop to process first column of sub-blocks
+  if (num_vertical_sb > 1) {
+    for (int m = 1; m < num_vertical_sb; m++) {
+      int r_sb = (m << 2);
+      int c_sb = 0;
 
-				int offset = 0;
-				for (int tap = 0; tap < 9; tap++) {
-					int diff = (int)ref_samples_sb_row[tap] - predvalue;
-					offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
-				}
+      ref_samples_sb_col[0] = left[r_sb - 1];
+      memcpy(&ref_samples_sb_col[5], &left[r_sb],
+             (num_top_ref - 1) * sizeof(uint8_t));  // copy left reference
 
-				offset = (offset + 32) >> 6;
+      memcpy(&top_ref_tmp_for_next_sb[0], &dst[(r_sb + 3) * stride],
+             num_left_ref * sizeof(uint8_t));  // copy top reference
 
-				int filteredpixelValue = predvalue + offset;
-				dst[stride * r_pos + c_pos] = clip_pixel(filteredpixelValue);
+      for (int k = 0; k < 16; ++k) {
+        int r_pos = r_sb + (k >> 2);
+        int c_pos = c_sb + (k & 0x03);
 
-			}
+        if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)) {
+          int predvalue = (int)dst[stride * r_pos + c_pos];
 
-		} // End of the subblock
+          int offset = 0;
 
-		memcpy(&ref_samples_sb_row[num_top_ref], &left_ref_tmp_for_next_sb[0], num_left_ref * sizeof(uint8_t)); // copy left reference for the next sub-block
+          for (int tap = 0; tap < 9; tap++) {
+            int diff = (int)ref_samples_sb_col[tap] - predvalue;
+            offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
+          }
 
-	}
+          offset = (offset + 32) >> 6;
 
-
-	// process first column
-	// loop to process first column of sub-blocks
-	if (num_vertical_sb > 1) {
-		for (int m = 1; m < num_vertical_sb; m++) {
-			int r_sb = (m << 2);
-			int c_sb = 0;
-
-			ref_samples_sb_col[0] = left[r_sb - 1];
-			memcpy(&ref_samples_sb_col[5], &left[r_sb], (num_top_ref - 1) * sizeof(uint8_t)); // copy left reference
-
-			memcpy(&top_ref_tmp_for_next_sb[0], &dst[(r_sb + 3) * stride], num_left_ref * sizeof(uint8_t)); // copy top reference
-
-			for (int k = 0; k < 16; ++k) {
-				int r_pos = r_sb + (k >> 2);
-				int c_pos = c_sb + (k & 0x03);
-
-				if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)){
-
-					int predvalue = (int)dst[stride * r_pos + c_pos];
-
-					int offset = 0;
-
-					for (int tap = 0; tap < 9; tap++) {
-						int diff = (int)ref_samples_sb_col[tap] - predvalue;
-						offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
-					}
-
-					offset = (offset + 32) >> 6;
-
-					int filteredpixelValue = predvalue + offset;
-					dst[stride * r_pos + c_pos] = clip_pixel(filteredpixelValue);
-
-				}
-
-			} // End of the subblock
-
-			memcpy(&ref_samples_sb_col[1], &top_ref_tmp_for_next_sb[0], (num_top_ref - 1) * sizeof(uint8_t)); // copy top reference for the next sub-block
-		}
-	}
-
+          int filteredpixelValue = predvalue + offset;
+          dst[stride * r_pos + c_pos] = clip_pixel(filteredpixelValue);
+        }
+      }  // End of the subblock
+      memcpy(&ref_samples_sb_col[1], &top_ref_tmp_for_next_sb[0],
+             (num_top_ref - 1) *
+                 sizeof(uint8_t));  // copy top reference for the next sub-block
+    }
+  }
 }
 
+void av1_apply_orip_4x4subblock_hbd(uint16_t *dst, ptrdiff_t stride,
+                                    TX_SIZE tx_size, const uint16_t *above,
+                                    const uint16_t *left, PREDICTION_MODE mode,
+                                    int bd) {
+  const int bw = tx_size_wide[tx_size];
+  const int bh = tx_size_high[tx_size];
 
-void av1_apply_sub_block_based_intra_boundary_filter_both_direction_4x4subblock_hbd(uint16_t *dst, ptrdiff_t stride,
-	TX_SIZE tx_size, const uint16_t *above, const uint16_t *left, PREDICTION_MODE mode, int bd)
-{
+  // initialize references for the first row
+  uint16_t ref_samples_sb_row[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  uint16_t left_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
+  uint16_t ref_samples_sb_col[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  uint16_t top_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
 
-	const int bw = tx_size_wide[tx_size];
-	const int bh = tx_size_high[tx_size];
+  int num_vertical_sb = (bh >> 2);
+  int num_top_ref = 5;
+  int num_left_ref = 4;
 
-	// initialize references for the first row
-	uint16_t ref_samples_sb_row[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint16_t left_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
-	uint16_t ref_samples_sb_col[9] = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-	uint16_t top_ref_tmp_for_next_sb[5] = { 0, 0, 0, 0, 0 };
+  uint8_t widthThreshold = (mode == H_PRED) ? 0 : AOMMIN((bw >> 2), 4);
+  uint8_t heightThreshold = (mode == V_PRED) ? 0 : AOMMIN((bh >> 2), 4);
 
-	int num_vertical_sb = (bh >> 2);
-	int num_top_ref = 5;
-	int num_left_ref = 4;
+  memcpy(&ref_samples_sb_row[0], &above[-1],
+         num_top_ref * sizeof(uint16_t));  // copy top reference
+  memcpy(&ref_samples_sb_row[num_top_ref], &left[0],
+         num_left_ref * sizeof(uint16_t));  // copy left reference
 
-	uint8_t widthThreshold = (mode == H_PRED ) ? 0 : AOMMIN((bw >> 2), 4);
-	uint8_t heightThreshold = (mode == V_PRED ) ? 0 : AOMMIN((bh >> 2), 4);
+  // initialize references for the column
+  if (num_vertical_sb > 1) {
+    ref_samples_sb_col[0] = left[3];
+    memcpy(&ref_samples_sb_col[1], &dst[3 * stride],
+           (num_top_ref - 1) * sizeof(uint16_t));  // copy top reference
+    memcpy(&ref_samples_sb_col[5], &left[4],
+           num_left_ref * sizeof(uint16_t));  // copy left reference
+  }
 
+  // loop to process first row of sub-blocks
+  for (int n = 0; n < (bw >> 2); n++) {
+    int r_sb = 0;
+    int c_sb = (n << 2);
 
-	memcpy(&ref_samples_sb_row[0], &above[-1], num_top_ref * sizeof(uint16_t)); // copy top reference
-	memcpy(&ref_samples_sb_row[num_top_ref], &left[0], num_left_ref * sizeof(uint16_t)); // copy left reference
+    memcpy(&ref_samples_sb_row[0], &above[c_sb - 1],
+           num_top_ref * sizeof(uint16_t));  // copy top reference
+    // copy left reference for the next sub-blocks
+    for (int q = 0; q < 4; q++)
+      left_ref_tmp_for_next_sb[q] = dst[(r_sb + q) * stride + c_sb + 3];
 
-	// initialize references for the column
-	if (num_vertical_sb > 1) {
-		ref_samples_sb_col[0] = left[3];
-		memcpy(&ref_samples_sb_col[1], &dst[3 * stride], (num_top_ref - 1) * sizeof(uint16_t)); // copy top reference
-		memcpy(&ref_samples_sb_col[5], &left[4], num_left_ref * sizeof(uint16_t)); // copy left reference
-	}
+    for (int k = 0; k < 16; ++k) {
+      int r_pos = r_sb + (k >> 2);
+      int c_pos = c_sb + (k & 0x03);
 
+      if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)) {
+        int predvalue = (int)dst[stride * r_pos + c_pos];
 
-	// loop to process first row of sub-blocks
-	for (int n = 0; n < (bw >> 2); n++) {
-		int r_sb = 0;
-		int c_sb = (n << 2);
+        int offset = 0;
+        for (int tap = 0; tap < 9; tap++) {
+          int diff = (int)ref_samples_sb_row[tap] - predvalue;
+          offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
+        }
 
-		memcpy(&ref_samples_sb_row[0], &above[c_sb - 1], num_top_ref * sizeof(uint16_t)); // copy top reference
-		// copy left reference for the next sub-blocks
-		for (int q = 0; q < 4; q++)
-			left_ref_tmp_for_next_sb[q] = dst[(r_sb + q) * stride + c_sb + 3];
+        offset = (offset + 32) >> 6;
 
-		for (int k = 0; k < 16; ++k) {
-			int r_pos = r_sb + (k >> 2);
-			int c_pos = c_sb + (k & 0x03);
+        int filteredpixelValue = predvalue + offset;
+        dst[stride * r_pos + c_pos] = clip_pixel_highbd(filteredpixelValue, bd);
+      }
+    }  // End of the subblock
 
-			if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)) {
-				int predvalue = (int)dst[stride * r_pos + c_pos];
+    memcpy(&ref_samples_sb_row[num_top_ref], &left_ref_tmp_for_next_sb[0],
+           num_left_ref *
+               sizeof(uint16_t));  // copy left reference for the next sub-block
+  }
 
-				int offset = 0;
-				for (int tap = 0; tap < 9; tap++) {
-					int diff = (int)ref_samples_sb_row[tap] - predvalue;
-					offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
-				}
+  // process first column
+  // loop to process first column of sub-blocks
+  if (num_vertical_sb > 1) {
+    for (int m = 1; m < num_vertical_sb; m++) {
+      int r_sb = (m << 2);
+      int c_sb = 0;
 
-				offset = (offset + 32) >> 6;
+      ref_samples_sb_col[0] = left[r_sb - 1];
+      memcpy(&ref_samples_sb_col[5], &left[r_sb],
+             (num_top_ref - 1) * sizeof(uint16_t));  // copy left reference
 
-				int filteredpixelValue = predvalue + offset;
-				dst[stride * r_pos + c_pos] = clip_pixel_highbd(filteredpixelValue, bd);
+      memcpy(&top_ref_tmp_for_next_sb[0], &dst[(r_sb + 3) * stride],
+             num_left_ref * sizeof(uint16_t));  // copy top reference
 
-			}
+      for (int k = 0; k < 16; ++k) {
+        int r_pos = r_sb + (k >> 2);
+        int c_pos = c_sb + (k & 0x03);
 
-		} // End of the subblock
+        if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)) {
+          int predvalue = (int)dst[stride * r_pos + c_pos];
 
-		memcpy(&ref_samples_sb_row[num_top_ref], &left_ref_tmp_for_next_sb[0], num_left_ref * sizeof(uint16_t)); // copy left reference for the next sub-block
-	}
+          int offset = 0;
 
+          for (int tap = 0; tap < 9; tap++) {
+            int diff = (int)ref_samples_sb_col[tap] - predvalue;
+            offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
+          }
 
-	// process first column
-	// loop to process first column of sub-blocks
-	if (num_vertical_sb > 1) {
-		for (int m = 1; m < num_vertical_sb; m++) {
-			int r_sb = (m << 2);
-			int c_sb = 0;
+          offset = (offset + 32) >> 6;
 
-			ref_samples_sb_col[0] = left[r_sb - 1];
-			memcpy(&ref_samples_sb_col[5], &left[r_sb], (num_top_ref - 1) * sizeof(uint16_t)); // copy left reference
-
-			memcpy(&top_ref_tmp_for_next_sb[0], &dst[(r_sb + 3) * stride], num_left_ref * sizeof(uint16_t)); // copy top reference
-
-			for (int k = 0; k < 16; ++k) {
-				int r_pos = r_sb + (k >> 2);
-				int c_pos = c_sb + (k & 0x03);
-
-				if (!(c_pos >= widthThreshold && r_pos >= heightThreshold)) {
-
-					int predvalue = (int)dst[stride * r_pos + c_pos];
-
-					int offset = 0;
-
-					for (int tap = 0; tap < 9; tap++) {
-						int diff = (int)ref_samples_sb_col[tap] - predvalue;
-						offset += av1_sub_block_filter_intra_taps_4x4[k][tap] * diff;
-					}
-
-					offset = (offset + 32) >> 6;
-
-					int filteredpixelValue = predvalue + offset;
-					dst[stride * r_pos + c_pos] = clip_pixel_highbd(filteredpixelValue, bd);
-
-				}
-
-			} // End of the subblock
-
-			memcpy(&ref_samples_sb_col[1], &top_ref_tmp_for_next_sb[0], (num_top_ref - 1) * sizeof(uint16_t)); // copy top reference for the next sub-block
-		}
-	}
-
+          int filteredpixelValue = predvalue + offset;
+          dst[stride * r_pos + c_pos] =
+              clip_pixel_highbd(filteredpixelValue, bd);
+        }
+      }  // End of the subblock
+      memcpy(
+          &ref_samples_sb_col[1], &top_ref_tmp_for_next_sb[0],
+          (num_top_ref - 1) *
+              sizeof(uint16_t));  // copy top reference for the next sub-block
+    }
+  }
 }
 #endif

@@ -4185,7 +4185,6 @@ void av1_read_sequence_header(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
   seq_params->enable_orip = aom_rb_read_bit(rb);
 #endif
 
-
   if (seq_params->reduced_still_picture_hdr) {
     seq_params->enable_interintra_compound = 0;
     seq_params->enable_masked_compound = 0;
