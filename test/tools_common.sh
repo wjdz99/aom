@@ -91,7 +91,7 @@ cmake_version() {
 source_version() {
   if git --version > /dev/null 2>&1; then
     (cd "$(dirname "${0}")"
-    git describe)
+    git describe | sed 's/.*-v/v/')
   else
     cmake_version
   fi
