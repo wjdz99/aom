@@ -16,6 +16,23 @@
       "message": "PTAL. Thanks for the review!",
       "revId": "ec1801ef647159d921a4d7f8bd8e2d73bbdbd166",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "646c71f9_529da203",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-05T09:06:47Z",
+      "side": 1,
+      "message": "I think this can be changed to a break statement:\n\n      if (offsetr \u003e\u003d max_blocks_high) break;\n\nor integrated into the for loop\u0027s conditional in line 154:\n\n    const int row_end \u003d AOMMIN(tx_size_high_unit[tx_size],\n                               max_blocks_high - blk_row);\n    for (int row \u003d 0; row \u003c row_end; row +\u003d bsh) {\n\nWhat do you think?",
+      "revId": "ec1801ef647159d921a4d7f8bd8e2d73bbdbd166",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
