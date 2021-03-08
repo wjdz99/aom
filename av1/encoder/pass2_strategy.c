@@ -642,11 +642,12 @@ static int get_projected_gfu_boost(const RATE_CONTROL *rc, int gfu_boost,
 }
 
 #define GF_MAX_BOOST 90.0
+#define GF_MIN_BOOST 50
 #define MIN_DECAY_FACTOR 0.01
 int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
                        FRAME_INFO *frame_info, int offset, int f_frames,
                        int b_frames, int *num_fpstats_used,
-                       int *num_fpstats_required) {
+                       int *num_fpstats_required, int project_gfu_boost) {
   int i;
   GF_GROUP_STATS gf_stats;
   init_gf_stats(&gf_stats);
@@ -719,16 +720,16 @@ int av1_calc_arf_boost(const TWO_PASS *twopass, const RATE_CONTROL *rc,
   }
   arf_boost += (int)boost_score;
 
-  if (num_fpstats_required) {
+  if (project_gfu_boost) {
+    assert(num_fpstats_required != NULL);
+    assert(num_fpstats_used != NULL);
     *num_fpstats_required = f_frames + b_frames;
-    if (num_fpstats_used) {
-      arf_boost = get_projected_gfu_boost(rc, arf_boost, *num_fpstats_required,
-                                          *num_fpstats_used);
-    }
+    arf_boost = get_projected_gfu_boost(rc, arf_boost, *num_fpstats_required,
+                                        *num_fpstats_used);
   }
 
-  if (arf_boost < ((b_frames + f_frames) * 50))
-    arf_boost = ((b_frames + f_frames) * 50);
+  if (arf_boost < ((b_frames + f_frames) * GF_MIN_BOOST))
+    arf_boost = ((b_frames + f_frames) * GF_MIN_BOOST);
 
   return arf_boost;
 }
@@ -2487,20 +2488,20 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     // Calculate the boost for alt ref.
     rc->gfu_boost = av1_calc_arf_boost(
         twopass, rc, frame_info, alt_offset, forward_frames, ext_len,
-        cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
-        cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL);
+        &rc->num_stats_used_for_gfu_boost,
+        &rc->num_stats_required_for_gfu_boost, cpi->lap_enabled);
   } else {
     reset_fpf_position(twopass, start_pos);
     gf_group->max_layer_depth_allowed = 0;
     set_baseline_gf_interval(cpi, i, active_max_gf_interval, use_alt_ref,
                              is_final_pass);
 
-    rc->gfu_boost = AOMMIN(
-        MAX_GF_BOOST,
-        av1_calc_arf_boost(
-            twopass, rc, frame_info, alt_offset, ext_len, 0,
-            cpi->lap_enabled ? &rc->num_stats_used_for_gfu_boost : NULL,
-            cpi->lap_enabled ? &rc->num_stats_required_for_gfu_boost : NULL));
+    rc->gfu_boost =
+        AOMMIN(MAX_GF_BOOST,
+               av1_calc_arf_boost(twopass, rc, frame_info, alt_offset, ext_len,
+                                  0, &rc->num_stats_used_for_gfu_boost,
+                                  &rc->num_stats_required_for_gfu_boost,
+                                  cpi->lap_enabled));
   }
 
 #define LAST_ALR_BOOST_FACTOR 0.2f
@@ -3621,7 +3622,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     }
 
     if (max_gop_length > 16 && oxcf->algo_cfg.enable_tpl_model &&
-        !cpi->sf.tpl_sf.disable_gop_length_decision) {
+        !(cpi->sf.tpl_sf.gop_length_decision_method == 2)) {
       int this_idx = rc->frames_since_key + rc->gf_intervals[rc->cur_gf_index] -
                      rc->regions_offset - 1;
       int this_region =
@@ -3639,20 +3640,33 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
         // max_gop_length = 32 with look-ahead gf intervals.
         define_gf_group(cpi, &this_frame, frame_params, max_gop_length, 0);
         this_frame = this_frame_copy;
-        int is_temporal_filter_enabled =
-            (rc->frames_since_key > 0 && gf_group->arf_index > -1);
-        if (is_temporal_filter_enabled) {
-          int arf_src_index = gf_group->arf_src_offset[gf_group->arf_index];
-          FRAME_UPDATE_TYPE arf_update_type =
-              gf_group->update_type[gf_group->arf_index];
-          int is_forward_keyframe = 0;
-          av1_temporal_filter(cpi, arf_src_index, arf_update_type,
-                              is_forward_keyframe, NULL);
-          aom_extend_frame_borders(&cpi->alt_ref_buffer,
-                                   av1_num_planes(&cpi->common));
+
+        int is_temporal_filter_enabled = 0;
+        int shorten_gf_interval = 0;
+        if (!cpi->sf.tpl_sf.gop_length_decision_method) {
+          is_temporal_filter_enabled =
+              (rc->frames_since_key > 0 && gf_group->arf_index > -1);
+          if (is_temporal_filter_enabled) {
+            int arf_src_index = gf_group->arf_src_offset[gf_group->arf_index];
+            FRAME_UPDATE_TYPE arf_update_type =
+                gf_group->update_type[gf_group->arf_index];
+            int is_forward_keyframe = 0;
+            av1_temporal_filter(cpi, arf_src_index, arf_update_type,
+                                is_forward_keyframe, NULL);
+            aom_extend_frame_borders(&cpi->alt_ref_buffer,
+                                     av1_num_planes(&cpi->common));
+          }
+          shorten_gf_interval =
+              !av1_tpl_setup_stats(cpi, 1, frame_params, frame_input);
+        } else {
+          // GOP length is decided based on GF boost and approximate tpl model
+          shorten_gf_interval =
+              (rc->gfu_boost <
+               rc->num_stats_used_for_gfu_boost * GF_MIN_BOOST * 1.4) &&
+              !av1_tpl_setup_stats(cpi, 2, frame_params, frame_input);
         }
-        if (!av1_tpl_setup_stats(cpi, 1, frame_params, frame_input)) {
-          // Tpl decides that a shorter gf interval is better.
+        if (shorten_gf_interval) {
+          // A shorter gf interval is better.
           // TODO(jingning): Remove redundant computations here.
           max_gop_length = 16;
           calculate_gf_length(cpi, max_gop_length, 1);
