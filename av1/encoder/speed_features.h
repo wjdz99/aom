@@ -338,6 +338,11 @@ typedef struct HIGH_LEVEL_SPEED_FEATURES {
    * Enable/disable second_alt_ref temporal filtering.
    */
   int second_alt_ref_filtering;
+
+  /*!
+   * Enable approx gop length decision.
+   */
+  int approx_gop_size_decision;
 } HIGH_LEVEL_SPEED_FEATURES;
 
 /*!\cond */
