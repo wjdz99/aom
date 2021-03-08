@@ -1853,10 +1853,6 @@ static void compute_sms_data(AV1_COMP *const cpi, const TileInfo *const tile,
                                             dst_stride, &sms_data->sse);
       sms_data->dist = 16 * sms_data->sse;
       sms_data->rate = 0;
-      if (USE_EST_TXFM) {
-        compute_sms_txfm_data(x, bsize, cpi->fn_ptr, &sms_data->rate,
-                              &sms_data->dist);
-      }
       sms_data->rdcost = RDCOST(x->rdmult, sms_data->rate, sms_data->dist);
       if (sms_data->rdcost <= best_data.rdcost) {
         best_data = *sms_data;
