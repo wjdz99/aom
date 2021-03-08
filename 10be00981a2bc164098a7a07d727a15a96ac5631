@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6eb017c8_8a5f8766",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-08T23:20:28Z",
+      "side": 1,
+      "message": "I will do this in a follow up CL",
+      "parentUuid": "740a75bf_3df9eaf4",
+      "range": {
+        "startLine": 386,
+        "startChar": 17,
+        "endLine": 386,
+        "endChar": 32
+      },
+      "revId": "10be00981a2bc164098a7a07d727a15a96ac5631",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1c9c0e87_cd80d22f",
         "filename": "av1/encoder/palette.c",
         "patchSetId": 4
@@ -54,6 +78,30 @@
       "writtenOn": "2021-03-06T16:26:26Z",
       "side": 1,
       "message": "Now that palette_mode_cost is not needed until line 264, can we move the calculation of palette_mode_cost after line 263? I am wondering if we can save some unneeded calculation if we return early from line 257 or line 263.",
+      "range": {
+        "startLine": 254,
+        "startChar": 0,
+        "endLine": 255,
+        "endChar": 64
+      },
+      "revId": "10be00981a2bc164098a7a07d727a15a96ac5631",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "437bf2b5_a7cc0b20",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-08T23:20:28Z",
+      "side": 1,
+      "message": "Yep I will check in another CL to do this.",
+      "parentUuid": "1c9c0e87_cd80d22f",
       "range": {
         "startLine": 254,
         "startChar": 0,
