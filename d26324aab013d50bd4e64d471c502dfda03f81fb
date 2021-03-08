@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7be9c38_2aa7629c",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-08T18:05:06Z",
+      "side": 1,
+      "message": "Codes related to this option can be removed, but it\u0027s not urgent.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 22
+      },
+      "revId": "d26324aab013d50bd4e64d471c502dfda03f81fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1ac0d4d_026fecb0",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-08T18:05:06Z",
+      "side": 1,
+      "message": "Not needed.",
+      "range": {
+        "startLine": 602,
+        "startChar": 0,
+        "endLine": 604,
+        "endChar": 11
+      },
+      "revId": "d26324aab013d50bd4e64d471c502dfda03f81fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
