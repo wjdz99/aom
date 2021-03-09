@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "735804b6_043d0ce2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-03-09T15:31:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nDuring our code study we have identified that 2 pixel lines are sufficient for line buffer used in CDEF filtering. Because primary and secondary stages of CDEF uses 4-tap filter. Hence, this patch will reduce CDEF_VBORDER to 2 pixel lines.\n\nThe change is bit-exact (verified locally). Please review the same and let us know your thoughts.\nThank you.",
+      "revId": "5681cf82babee04e072ce9cdbc285eb518ee8a76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
