@@ -139,9 +139,13 @@ set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
                    "AV2 experiment flag to remove dual filter.")
 set_aom_config_var(CONFIG_EXTQUANT 0
                    "AV2 extended quantization experiment flag")
+<<<<<<< HEAD   (091984 Add FLEX_STEPS experiment to research-quant)
 set_aom_config_var(CONFIG_FLEX_STEPS 0
                    "AV2 flexible quantization experiment flag (enable with
  CONFIG_EXTQUANT")
+=======
+
+>>>>>>> BRANCH (21a95e port ext_quant experiment into research branch)
 #
 # Variables in this section control optional features of the build system.
 #
