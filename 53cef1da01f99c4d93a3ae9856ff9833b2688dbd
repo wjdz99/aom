@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a73df932_7cb392de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2021-03-09T17:28:30Z",
+      "side": 1,
+      "message": "Can you have a look at the impact of this on rate accuracy?\n\nWhilst this still may well be what we want to do if it is giving such a marked speed up, I suspect fewer recodes may be trading a reduction in rate accuracy for some improvement in metrics.",
+      "revId": "53cef1da01f99c4d93a3ae9856ff9833b2688dbd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
