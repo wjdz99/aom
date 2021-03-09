@@ -63,6 +63,30 @@
       },
       "revId": "4731373ad6e32f69492cc3ccbfb2f1e390f3caf6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8d8145c_72185438",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-09T11:52:26Z",
+      "side": 1,
+      "message": "Hi Jingning,\n\nThe current patch avoids the calculation of mv cost table (x-\u003emv_costs) for intra frames, calculated in av1_fill_mv_costs(). This calculation is based on cm-\u003efc-\u003enmvc.\n\nIn the case of intraBC, following mv cost tables are used:\n\n1. For intraBC ME, x-\u003emv_costs is used which is already calculated at frame level in av1_initialize_rd_consts(). As cm-\u003efc-\u003enmvc is not updated at block level during the encode stage, x-\u003emv_costs need not be recalculated.\n\n2. For rd evaluation of intraBC mode, cpi-\u003edv_costs is used. The same is calculated based on cm-\u003efc-\u003endvc, at frame level in av1_initialize_rd_consts(). As per our understanding, cm-\u003efc-\u003endvc is not currently updated and dv_costs is not calculated at block level during the encode stage.\n\nHence the current change does not have any dependency on intraBC.\n\nPlease let us know your opinion on the above.\n\nRegards,\nJayasanker",
+      "parentUuid": "1e766068_6913d9cf",
+      "range": {
+        "startLine": 1290,
+        "startChar": 6,
+        "endLine": 1290,
+        "endChar": 39
+      },
+      "revId": "4731373ad6e32f69492cc3ccbfb2f1e390f3caf6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
