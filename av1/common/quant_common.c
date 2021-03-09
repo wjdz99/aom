@@ -309,6 +309,25 @@ void set_qStep_table_mode_0_1(int qStep_mode, int num_qStep_intervals,
   }
 }
 
+#if 0  // Supplemental study in B011
+void set_qStep_table_mode_0_new(int qStep_mode, int num_qStep_levels,
+                                int *qSteps_level) {
+    int mask = (1 << 16) - 1;
+    assert(qStep_mode == 0);
+    (void)qStep_mode;
+    
+    num_qStep_levels = 24;
+    int qIdx = 0;
+    while (qIdx < QINDEX_RANGE_8_BITS) {
+        int scale_factor = qIdx/num_qStep_levels;
+        int offset = ((1 << scale_factor) - 1) << 3;
+        ac_qlookup_QTX[qIdx] = CLIP(
+                                    (qSteps_level[qIdx % num_qStep_levels] << scale_factor) + offset, 0, mask);
+        qIdx++;
+    }
+}
+#endif
+
 void set_qStep_table_mode_2(int qStep_mode, int num_qStep_levels,
                             int *qSteps_level) {
   int mask = (1 << 16) - 1;
