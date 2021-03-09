@@ -4279,7 +4279,23 @@ void av1_read_qStep_config(AV1_COMMON *cm, struct aom_read_bit_buffer *rb,
                            SequenceHeader *seq_params) {
   (void)cm;
   seq_params->qStep_mode = aom_rb_read_literal(rb, 2);
-  if (seq_params->qStep_mode == 0 || seq_params->qStep_mode == 1) {
+
+  if (seq_params->qStep_mode == 0) {
+#if 0  // Supplemental study in B011
+      seq_params->num_qStep_levels = 23;
+      int defaultQSteps[] = {32, 33, 35, 36, 37, 39, 40, 41, 43, 44, 46,
+          47, 49, 51, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70};
+      for (int idx = 0; idx <= seq_params->num_qStep_levels; idx++) {
+          seq_params->qSteps_level[idx] = defaultQSteps[idx];
+      }
+#else
+    seq_params->num_qStep_intervals = 9;
+    int defaultQSteps[] = { 8, 8, 16, 32, 32, 32, 32, 32, 32, 32 };
+    for (int idx = 0; idx <= seq_params->num_qStep_intervals; idx++) {
+      seq_params->num_qsteps_in_interval[idx] = defaultQSteps[idx];
+    }
+#endif
+  } else if (seq_params->qStep_mode == 1) {
     seq_params->num_qStep_intervals = aom_rb_read_literal(rb, 4);
     seq_params->num_qsteps_in_interval[0] = aom_rb_read_uvlc(rb);
     for (int idx = 1; idx <= seq_params->num_qStep_intervals; idx++) {
@@ -5226,6 +5242,27 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
 
 #if CONFIG_FLEX_STEPS
   SequenceHeader *const seq_params = &cm->seq_params;
+#if 0  // Supplemental study in B011
+    if (seq_params->qStep_mode == 0) {
+        set_qStep_table_mode_0_new(seq_params->qStep_mode,
+                                   seq_params->num_qStep_levels,
+                                   &seq_params->qSteps_level[0]);
+    } else if (seq_params->qStep_mode == 1) {
+        set_qStep_table_mode_0_1(seq_params->qStep_mode,
+                                 seq_params->num_qStep_intervals,
+                                 &seq_params->num_qsteps_in_interval[0]);
+    } else if (seq_params->qStep_mode == 2) {
+        set_qStep_table_mode_2(seq_params->qStep_mode, seq_params->num_qStep_levels,
+                               &seq_params->qSteps_level[0]);
+    } else if (seq_params->qStep_mode == 3) {
+        set_qStep_table_mode_3(seq_params->qStep_mode,
+                               seq_params->num_qStep_intervals,
+                               &seq_params->template_table_idx[0],
+                               &seq_params->table_start_region_idx[0],
+                               &seq_params->num_qsteps_in_table[0],
+                               (int *)seq_params->qSteps_level_in_table);
+    }
+#else
   if ((seq_params->qStep_mode == 0) || (seq_params->qStep_mode == 1)) {
     set_qStep_table_mode_0_1(seq_params->qStep_mode,
                              seq_params->num_qStep_intervals,
@@ -5241,6 +5278,7 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
                            &seq_params->num_qsteps_in_table[0],
                            (int *)seq_params->qSteps_level_in_table);
   }
+#endif
   // dump_qStep_table(seq_params->qStep_mode, 1);
 #endif
 
