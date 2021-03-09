@@ -16,6 +16,41 @@
       "message": "Hi Yunqing,\nDuring our code study we have identified that 2 pixel lines are sufficient for line buffer used in CDEF filtering. Because primary and secondary stages of CDEF uses 4-tap filter. Hence, this patch will reduce CDEF_VBORDER to 2 pixel lines.\n\nThe change is bit-exact (verified locally). Please review the same and let us know your thoughts.\nThank you.",
       "revId": "5681cf82babee04e072ce9cdbc285eb518ee8a76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d722749c_adcbf754",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-09T21:04:08Z",
+      "side": 1,
+      "message": "\"primary and secondary stages of CDEF uses 4-tap filter\" - is this in the spec? If so, why 3 lines were used in the first place? Want to make sure this works correctly for decoder?",
+      "parentUuid": "735804b6_043d0ce2",
+      "revId": "5681cf82babee04e072ce9cdbc285eb518ee8a76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59a6a6ff_5b83aa90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-09T21:04:08Z",
+      "side": 1,
+      "message": "Hi Deb,could you take a look?",
+      "revId": "5681cf82babee04e072ce9cdbc285eb518ee8a76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
