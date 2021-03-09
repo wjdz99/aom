@@ -20,7 +20,7 @@
 #define CDEF_SB_SHIFT (MAX_SB_SIZE_LOG2 - CDEF_BLOCKSIZE_LOG2)
 
 /* We need to buffer three vertical lines. */
-#define CDEF_VBORDER (3)
+#define CDEF_VBORDER (2)
 /* We only need to buffer three horizontal pixels too, but let's align to
    16 bytes (8 x 16 bits) to make vectorization easier. */
 #define CDEF_HBORDER (8)
