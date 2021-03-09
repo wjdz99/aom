@@ -2709,7 +2709,7 @@ static AOM_INLINE void write_sequence_header(
 static AOM_INLINE void write_qStepinfo(const SequenceHeader *const seq_params,
                                        struct aom_write_bit_buffer *wb) {
   aom_wb_write_literal(wb, seq_params->qStep_mode, 2);
-  if (seq_params->qStep_mode == 0 || seq_params->qStep_mode == 1) {
+  if (seq_params->qStep_mode == 1) {
     aom_wb_write_literal(wb, seq_params->num_qStep_intervals, 4);
     aom_wb_write_uvlc(wb, seq_params->num_qsteps_in_interval[0]);
     for (int idx = 1; idx <= seq_params->num_qStep_intervals; idx++) {
