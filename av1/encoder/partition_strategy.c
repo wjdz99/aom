@@ -793,11 +793,15 @@ void av1_get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
                                         float *features) {
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
   const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
 
   // Currently this only allows 128X128 SB size. May extend it to 64X64 SB size.
   assert(sb_size == BLOCK_128X128);
 
+=======
+  const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+>>>>>>> CHANGE (2a5c8c wip: Disable auto_max_partition_based_on_simple_motion at sp)
   int f_idx = 0;
 
   const int dc_q = av1_dc_quant_QTX(x->qindex, 0, xd->bd) >> (xd->bd - 8);
@@ -856,6 +860,10 @@ void av1_get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
       if (log_sse < min_log_sse) min_log_sse = log_sse;
       if (log_sse > max_log_sse) max_log_sse = log_sse;
     }
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
+=======
+  aom_clear_system_state();
+>>>>>>> CHANGE (2a5c8c wip: Disable auto_max_partition_based_on_simple_motion at sp)
   const int blks = mb_rows * mb_cols;
   const float avg_mv_row = sum_mv_row / (float)blks;
   const float var_mv_row =
@@ -918,7 +926,11 @@ BLOCK_SIZE av1_predict_max_partition(const AV1_COMP *const cpi,
         result = i;
       }
     }
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
     return get_block_size(result);
+=======
+    return (BLOCK_SIZE)((result + 2) * 3);
+>>>>>>> CHANGE (2a5c8c wip: Disable auto_max_partition_based_on_simple_motion at sp)
   }
 
   float probs[MAX_NUM_CLASSES_MAX_MIN_PART_PRED] = { 0.0f };

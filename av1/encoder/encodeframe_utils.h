@@ -324,6 +324,69 @@ static AOM_INLINE const FIRSTPASS_STATS *read_one_frame_stats(const TWO_PASS *p,
   return &p->stats_buf_ctx->stats_in_start[frm];
 }
 
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
+=======
+static BLOCK_SIZE dim_to_size(int dim) {
+  switch (dim) {
+    case 4: return BLOCK_4X4;
+    case 8: return BLOCK_8X8;
+    case 16: return BLOCK_16X16;
+    case 32: return BLOCK_32X32;
+    case 64: return BLOCK_64X64;
+    case 128: return BLOCK_128X128;
+    default: assert(0); return 0;
+  }
+}
+
+static AOM_INLINE void set_max_min_partition_size(SuperBlockEnc *sb_enc,
+                                                  AV1_COMP *cpi, MACROBLOCK *x,
+                                                  const SPEED_FEATURES *sf,
+                                                  BLOCK_SIZE sb_size,
+                                                  int mi_row, int mi_col) {
+  const AV1_COMMON *cm = &cpi->common;
+
+  sb_enc->max_partition_size =
+      AOMMIN(sf->part_sf.default_max_partition_size,
+             dim_to_size(cpi->oxcf.part_cfg.max_partition_size));
+  sb_enc->min_partition_size =
+      AOMMAX(sf->part_sf.default_min_partition_size,
+             dim_to_size(cpi->oxcf.part_cfg.min_partition_size));
+  sb_enc->max_partition_size =
+      AOMMIN(sb_enc->max_partition_size, cm->seq_params.sb_size);
+  sb_enc->min_partition_size =
+      AOMMIN(sb_enc->min_partition_size, cm->seq_params.sb_size);
+
+  if (use_auto_max_partition(cpi, sb_size, mi_row, mi_col)) {
+    int do_predict_max_partition = 1;
+    if (cpi->sf.part_sf.auto_max_partition_based_on_simple_motion ==
+        DIRECT_PRED) {
+      int64_t sum_dist = 0;
+      int64_t sum_dist_square = 0;
+      for (int idx = 0; idx < sb_enc->tpl_data_count; idx++) {
+        sum_dist += sb_enc->recrf_dist[idx];
+        sum_dist_square += sb_enc->recrf_dist[idx] * sb_enc->recrf_dist[idx];
+      }
+      const int64_t avg_dist = sum_dist / sb_enc->tpl_data_count;
+      const int64_t var_dist =
+          sum_dist_square / sb_enc->tpl_data_count - avg_dist * avg_dist;
+      const int64_t thr = 1 << 33;
+
+      if (var_dist < thr) do_predict_max_partition = 0;
+    }
+
+    if (do_predict_max_partition) {
+      float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
+      av1_get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
+
+      BLOCK_SIZE pred_max_par = av1_predict_max_partition(cpi, x, features);
+      sb_enc->max_partition_size =
+          AOMMAX(AOMMIN(pred_max_par, sb_enc->max_partition_size),
+                 sb_enc->min_partition_size);
+    }
+  }
+}
+
+>>>>>>> CHANGE (2a5c8c wip: Disable auto_max_partition_based_on_simple_motion at sp)
 int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
                          int mi_col, int orig_rdmult);
 

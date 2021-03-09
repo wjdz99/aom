@@ -213,7 +213,11 @@ static INLINE int use_auto_max_partition(const AV1_COMP *const cpi,
   return !frame_is_intra_only(cm) && !cpi->use_screen_content_tools &&
          cpi->sf.part_sf.auto_max_partition_based_on_simple_motion !=
              NOT_IN_USE &&
-         sb_size == BLOCK_128X128 &&
+         // Extend the max partition evaluation to 64x64 SB. Only tested and
+         // therefore allowed it for DIRECT_PRED for now.
+         (sb_size == BLOCK_128X128 ||
+          cpi->sf.part_sf.auto_max_partition_based_on_simple_motion ==
+              DIRECT_PRED) &&
          is_full_sb(&cm->mi_params, mi_row, mi_col, sb_size) &&
          cpi->ppi->gf_group.update_type[cpi->gf_frame_index] !=
              OVERLAY_UPDATE &&

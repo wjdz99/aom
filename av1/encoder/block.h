@@ -70,6 +70,8 @@ typedef struct {
   int64_t tpl_inter_cost[MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB];
   //! TPL's estimate of tpl cost for each tpl block.
   int64_t tpl_intra_cost[MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB];
+  //! TPL's estimate of dist on reconstructed ref frames.
+  int64_t recrf_dist[MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB];
   //! Motion vectors found by TPL model for each tpl block.
   int_mv tpl_mv[MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB][INTER_REFS_PER_FRAME];
   //! TPL's stride for the arrays in this struct.

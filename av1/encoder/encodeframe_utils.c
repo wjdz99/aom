@@ -861,6 +861,7 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) {
         sb_enc->tpl_inter_cost[count] = INT64_MAX;
         sb_enc->tpl_intra_cost[count] = INT64_MAX;
+        sb_enc->recrf_dist[count] = INT64_MAX;
         for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
           sb_enc->tpl_mv[count][i].as_int = INVALID_MV;
         }
@@ -872,6 +873,7 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
           row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
       sb_enc->tpl_inter_cost[count] = this_stats->inter_cost;
       sb_enc->tpl_intra_cost[count] = this_stats->intra_cost;
+      sb_enc->recrf_dist[count] = this_stats->recrf_dist;
       memcpy(sb_enc->tpl_mv[count], this_stats->mv, sizeof(this_stats->mv));
       mi_count++;
       count++;
