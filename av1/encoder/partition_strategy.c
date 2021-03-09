@@ -730,8 +730,7 @@ void av1_get_max_min_partition_features(AV1_COMP *const cpi, MACROBLOCK *x,
 BLOCK_SIZE av1_predict_max_partition(const AV1_COMP *const cpi,
                                      const MACROBLOCK *const x,
                                      const float *features) {
-  float scores[MAX_NUM_CLASSES_MAX_MIN_PART_PRED] = { 0.0f },
-        probs[MAX_NUM_CLASSES_MAX_MIN_PART_PRED] = { 0.0f };
+  float scores[MAX_NUM_CLASSES_MAX_MIN_PART_PRED] = { 0.0f };
   const NN_CONFIG *nn_config = &av1_max_part_pred_nn_config;
 
   assert(cpi->sf.part_sf.auto_max_partition_based_on_simple_motion !=
@@ -739,20 +738,25 @@ BLOCK_SIZE av1_predict_max_partition(const AV1_COMP *const cpi,
 
   aom_clear_system_state();
   av1_nn_predict(features, nn_config, 1, scores);
-  av1_nn_softmax(scores, probs, MAX_NUM_CLASSES_MAX_MIN_PART_PRED);
 
   int result = MAX_NUM_CLASSES_MAX_MIN_PART_PRED - 1;
   if (cpi->sf.part_sf.auto_max_partition_based_on_simple_motion ==
       DIRECT_PRED) {
     result = 0;
-    float max_prob = probs[0];
+    float max_prob = scores[0];
     for (int i = 1; i < MAX_NUM_CLASSES_MAX_MIN_PART_PRED; ++i) {
-      if (probs[i] > max_prob) {
-        max_prob = probs[i];
+      if (scores[i] > max_prob) {
+        max_prob = scores[i];
         result = i;
       }
     }
-  } else if (cpi->sf.part_sf.auto_max_partition_based_on_simple_motion ==
+    return (BLOCK_SIZE)((result + 2) * 3);
+  }
+
+  float probs[MAX_NUM_CLASSES_MAX_MIN_PART_PRED] = { 0.0f };
+  av1_nn_softmax(scores, probs, MAX_NUM_CLASSES_MAX_MIN_PART_PRED);
+
+  if (cpi->sf.part_sf.auto_max_partition_based_on_simple_motion ==
              RELAXED_PRED) {
     for (result = MAX_NUM_CLASSES_MAX_MIN_PART_PRED - 1; result >= 0;
          --result) {
