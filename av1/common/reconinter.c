@@ -626,9 +626,6 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 
 #if CONFIG_OPTFLOW_REFINEMENT
 
-// Precision of refined MV returned, 0 being integer pel.
-#define MV_REFINE_PREC_BITS 3  // (1/8-pel)
-
 // Delta to use for computing gradients in bits, with 0 referring to
 // integer-pel. The actual delta value used from the 1/8-pel original MVs
 // is 2^(3 - SUBPEL_GRAD_DELTA_BITS). The max value of this macro is 3.
@@ -1004,6 +1001,13 @@ static int get_optflow_based_mv_highbd(
   int vy0[N_OF_OFFSETS] = { 0 };
   int vy1[N_OF_OFFSETS] = { 0 };
   const int target_prec = MV_REFINE_PREC_BITS;
+  // Convert output MV to 1/16th pel
+  for (int mvi = 0; mvi < N_OF_OFFSETS; mvi++) {
+    mv_refined[mvi * 2].as_mv.row *= 1 << (MV_REFINE_PREC_BITS - 3);
+    mv_refined[mvi * 2].as_mv.col *= 1 << (MV_REFINE_PREC_BITS - 3);
+    mv_refined[mvi * 2 + 1].as_mv.row *= 1 << (MV_REFINE_PREC_BITS - 3);
+    mv_refined[mvi * 2 + 1].as_mv.col *= 1 << (MV_REFINE_PREC_BITS - 3);
+  }
 
   // Allocate gradient and prediction buffers
   int16_t *g0 = aom_malloc(2 * MAX_SB_SIZE * MAX_SB_SIZE * sizeof(*g0));
@@ -1062,6 +1066,13 @@ static int get_optflow_based_mv_lowbd(
   int vy0[N_OF_OFFSETS] = { 0 };
   int vy1[N_OF_OFFSETS] = { 0 };
   const int target_prec = MV_REFINE_PREC_BITS;
+  // Convert output MV to 1/16th pel
+  for (int mvi = 0; mvi < N_OF_OFFSETS; mvi++) {
+    mv_refined[mvi * 2].as_mv.row *= 1 << (MV_REFINE_PREC_BITS - 3);
+    mv_refined[mvi * 2].as_mv.col *= 1 << (MV_REFINE_PREC_BITS - 3);
+    mv_refined[mvi * 2 + 1].as_mv.row *= 1 << (MV_REFINE_PREC_BITS - 3);
+    mv_refined[mvi * 2 + 1].as_mv.col *= 1 << (MV_REFINE_PREC_BITS - 3);
+  }
 
   // Allocate gradient and prediction buffers
   int16_t *g0 = aom_malloc(2 * MAX_SB_SIZE * MAX_SB_SIZE * sizeof(*g0));
@@ -1135,7 +1146,8 @@ void av1_build_optflow_inter_predictor(
   uint8_t *src;
   int src_stride;
   calc_subpel_params_func(&(mv_refined[ref].as_mv), inter_pred_params, xd, mi_x,
-                          mi_y, ref, mc_buf, &src, &subpel_params, &src_stride);
+                          mi_y, ref, 1, mc_buf, &src, &subpel_params,
+                          &src_stride);
   av1_make_inter_predictor(src, src_stride, dst, dst_stride, inter_pred_params,
                            &subpel_params);
 }
@@ -1218,6 +1230,9 @@ void av1_build_one_inter_predictor(
   uint8_t *src;
   int src_stride;
   calc_subpel_params_func(src_mv, inter_pred_params, xd, mi_x, mi_y, ref,
+#if CONFIG_OPTFLOW_REFINEMENT
+                          0, /* use_optflow_refinement */
+#endif                       // CONFIG_OPTFLOW_REFINEMENT
                           mc_buf, &src, &subpel_params, &src_stride);
 
   if (inter_pred_params->comp_mode == UNIFORM_SINGLE ||
