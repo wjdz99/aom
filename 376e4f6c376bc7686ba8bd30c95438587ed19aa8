@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3b156df_f35b23ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-09T04:37:22Z",
+      "side": 1,
+      "message": "The code patch is ready to review. Please take a look.",
+      "revId": "376e4f6c376bc7686ba8bd30c95438587ed19aa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
