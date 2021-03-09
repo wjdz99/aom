@@ -249,13 +249,32 @@ static AOM_INLINE void set_max_min_partition_size(SuperBlockEnc *sb_enc,
       AOMMIN(sb_enc->min_partition_size, cm->seq_params.sb_size);
 
   if (use_auto_max_partition(cpi, sb_size, mi_row, mi_col)) {
-    float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
+    int do_predict_max_partition = 1;
+    if (cpi->sf.part_sf.auto_max_partition_based_on_simple_motion ==
+        DIRECT_PRED) {
+      int64_t sum_dist = 0;
+      int64_t sum_dist_square = 0;
+      for (int idx = 0; idx < sb_enc->tpl_data_count; idx++) {
+        sum_dist += sb_enc->recrf_dist[idx];
+        sum_dist_square += sb_enc->recrf_dist[idx] * sb_enc->recrf_dist[idx];
+      }
+      const int64_t avg_dist = sum_dist / sb_enc->tpl_data_count;
+      const int64_t var_dist =
+          sum_dist_square / sb_enc->tpl_data_count - avg_dist * avg_dist;
+      const int64_t thr = 1 << 30;
 
-    av1_get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
-    sb_enc->max_partition_size =
-        AOMMAX(AOMMIN(av1_predict_max_partition(cpi, x, features),
-                      sb_enc->max_partition_size),
-               sb_enc->min_partition_size);
+      if (var_dist < thr) do_predict_max_partition = 0;
+    }
+
+    if (do_predict_max_partition) {
+      float features[FEATURE_SIZE_MAX_MIN_PART_PRED] = { 0.0f };
+      av1_get_max_min_partition_features(cpi, x, mi_row, mi_col, features);
+
+      BLOCK_SIZE pred_max_par = av1_predict_max_partition(cpi, x, features);
+      sb_enc->max_partition_size =
+          AOMMAX(AOMMIN(pred_max_par, sb_enc->max_partition_size),
+                 sb_enc->min_partition_size);
+    }
   }
 }
 
