@@ -611,14 +611,25 @@ int aom_strcmp(const char *a, const char *b) {
 #if CONFIG_FLEX_STEPS
 void set_enc_qstep_table(const AV1EncoderConfig *oxcf) {
   QuantizationCfg *q_cfg = (QuantizationCfg *)&oxcf->q_cfg;
-
+#if 0  // Supplemental study in B011
+    if (q_cfg->qStep_mode == 0) {
+        set_qStep_table_mode_0_new(q_cfg->qStep_mode, q_cfg->num_qStep_levels,
+                               &q_cfg->qSteps_level[0]);
+    } else if (q_cfg->qStep_mode == 1) {
+      set_qStep_table_mode_0_1(q_cfg->qStep_mode, q_cfg->num_qStep_intervals,
+                               &q_cfg->num_qsteps_in_interval[0]);
+    }
+#else
   if ((q_cfg->qStep_mode == 0) || (q_cfg->qStep_mode == 1)) {
     set_qStep_table_mode_0_1(q_cfg->qStep_mode, q_cfg->num_qStep_intervals,
                              &q_cfg->num_qsteps_in_interval[0]);
-  } else if (q_cfg->qStep_mode == 2) {
+  }
+#endif
+  else if (q_cfg->qStep_mode == 2) {
     set_qStep_table_mode_2(q_cfg->qStep_mode, q_cfg->num_qStep_levels,
                            &q_cfg->qSteps_level[0]);
-  } else if (q_cfg->qStep_mode == 3) {
+  }
+  else if (q_cfg->qStep_mode == 3) {
     set_qStep_table_mode_3(
         q_cfg->qStep_mode, q_cfg->num_qStep_intervals,
         &q_cfg->template_table_idx[0], &q_cfg->table_start_region_idx[0],
