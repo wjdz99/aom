@@ -59,6 +59,10 @@ struct macroblockd;
 #define MAX_NUM_TABLES 8
 #define MAX_NUM_Q_STEP_VAL 256
 
+#if 0  // Supplemental study in B011
+void set_qStep_table_mode_0_new(int qStep_mode, int num_qStep_levels,
+                            int *qSteps_level);
+#endif
 void set_qStep_table_mode_0_1(int qStep_mode, int num_qStep_intervals,
                               int *num_qsteps_in_interval);
 void set_qStep_table_mode_2(int qStep_mode, int num_qStep_levels,
