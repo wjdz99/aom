@@ -2329,12 +2329,19 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
     QuantizationCfg *q_cfg = &priv->oxcf.q_cfg;
     // initialize defualt mode
     q_cfg->qStep_mode = 0;
+#if 0  // Supplemental study in B011
+      q_cfg->num_qStep_levels = 23;
+      int defaultQSteps[] = { 32,33,35,36,37,39,40,41,43,44,46,47,49,51,52,54,56,58,60,62,64,66,68,70};
+      for (int idx = 0; idx <= q_cfg->num_qStep_levels; idx++) {
+          q_cfg->qSteps_level[idx] = defaultQSteps[idx];
+      }
+#else
     q_cfg->num_qStep_intervals = 9;
     int defaultQSteps[] = { 8, 8, 16, 32, 32, 32, 32, 32, 32, 32 };
     for (int idx = 0; idx <= q_cfg->num_qStep_intervals; idx++) {
       q_cfg->num_qsteps_in_interval[idx] = defaultQSteps[idx];
     }
-
+#endif
     if (ctx->config.enc->encoder_cfg.qstep_config_path != NULL) {
       priv->oxcf.qstep_config_path = (char *)aom_malloc(
           (strlen(ctx->config.enc->encoder_cfg.qstep_config_path) + 1) *
