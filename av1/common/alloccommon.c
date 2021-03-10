@@ -55,10 +55,15 @@ void av1_free_ref_frame_buffers(BufferPool *pool) {
 void av1_free_cdef_linebuf(AV1_COMMON *const cm) {
   const int num_planes = av1_num_planes(cm);
 
+  if (cm->cdef_info.srcbuf != NULL) aom_free(cm->cdef_info.srcbuf);
+  cm->cdef_info.srcbuf = NULL;
   for (uint8_t plane = 0; plane < num_planes; plane++) {
     if (cm->cdef_info.linebuf[plane] != NULL)
       aom_free(cm->cdef_info.linebuf[plane]);
+    if (cm->cdef_info.colbuf[plane] != NULL)
+      aom_free(cm->cdef_info.colbuf[plane]);
     cm->cdef_info.linebuf[plane] = NULL;
+    cm->cdef_info.colbuf[plane] = NULL;
   }
 }
 
@@ -83,6 +88,23 @@ void av1_alloc_cdef_linebuf(AV1_COMMON *const cm) {
                       aom_malloc(sizeof(*cm->cdef_info.linebuf) * num_bufs *
                                  (CDEF_VBORDER << 1) * stride));
     }
+  }
+  if (cm->cdef_info.srcbuf == NULL)
+    CHECK_MEM_ERROR(
+        cm, cm->cdef_info.srcbuf,
+        aom_malloc(sizeof(*cm->cdef_info.srcbuf) * CDEF_INBUF_SIZE));
+
+  for (uint8_t plane = 0; plane < num_planes; plane++) {
+    if (cm->cdef_info.colbuf[plane] == NULL)
+      CHECK_MEM_ERROR(cm, cm->cdef_info.colbuf[plane],
+                      aom_malloc(sizeof(*cm->cdef_info.colbuf[plane]) *
+                                 ((CDEF_BLOCKSIZE
+                                   << (MI_SIZE_LOG2 -
+                                       (plane == AOM_PLANE_Y
+                                            ? 0
+                                            : cm->seq_params.subsampling_x))) +
+                                  2 * CDEF_VBORDER) *
+                                 CDEF_HBORDER));
   }
   cm->cdef_info.allocated_mi_cols = cm->mi_params.mi_cols;
   cm->cdef_info.allocated_mi_rows = cm->mi_params.mi_rows;
