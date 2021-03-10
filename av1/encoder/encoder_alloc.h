@@ -252,6 +252,8 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
 #if !CONFIG_REALTIME_ONLY
   av1_free_restoration_buffers(cm);
 #endif
+  av1_free_cdef_linebuf(cm);
+
   aom_free_frame_buffer(&cpi->trial_frame_rst);
   aom_free_frame_buffer(&cpi->scaled_source);
   aom_free_frame_buffer(&cpi->scaled_last_source);
