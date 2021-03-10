@@ -134,7 +134,8 @@ typedef enum ATTRIBUTE_PACKED {
 
 /*! \brief Used with \ref MACROBLOCK::reuse_inter_mode_cache_type to determine
  * whether partition mode is reused. */
-#define REUSE_PARTITION_MODE_FLAG (1 << 0)
+//#define REUSE_PARTITION_MODE_FLAG (1 << 0)
+#define REUSE_PARTITION_MODE_FLAG 0
 
 /*! \brief Used with \ref MACROBLOCK::reuse_inter_mode_cache_type to determine
  * whether the intra prediction_mode is reused. */
