@@ -19,6 +19,30 @@
 extern "C" {
 #endif
 
+static AOM_INLINE void alloc_cdef_linebuf(AV1_COMMON *const cm) {
+  const int num_planes = av1_num_planes(cm);
+  const int luma_stride = cm->mi_params.mi_cols << MI_SIZE_LOG2;
+  // num-bufs=2 represents ping-pong buffers for top linebuf.
+  // this is to avoid linebuf over-write by consecutive row.
+  int num_bufs = 2;
+
+  for (uint8_t plane = 0; plane < num_planes; plane++) {
+    int stride = luma_stride >>
+                 (plane == AOM_PLANE_Y ? 0 : cm->seq_params.subsampling_x);
+    if (cm->cdef_info.linebuf[plane] == NULL)
+      CHECK_MEM_ERROR(cm, cm->cdef_info.linebuf[plane],
+                      aom_malloc(sizeof(*cm->cdef_info.linebuf) * num_bufs *
+                                 (CDEF_VBORDER << 1) * stride));
+  }
+}
+
+static AOM_INLINE void free_cdef_linebuf(AV1_COMMON *const cm) {
+  const int num_planes = av1_num_planes(cm);
+
+  for (uint8_t plane = 0; plane < num_planes; plane++)
+    aom_free(cm->cdef_info.linebuf[plane]);
+}
+
 static AOM_INLINE void dealloc_context_buffers_ext(
     MBMIExtFrameBufferInfo *mbmi_ext_info) {
   if (mbmi_ext_info->frame_base) {
@@ -89,6 +113,8 @@ static AOM_INLINE void alloc_compressor_data(AV1_COMP *cpi) {
   av1_setup_sms_tree(cpi, &cpi->td);
   cpi->td.firstpass_ctx =
       av1_alloc_pmc(cpi, BLOCK_16X16, &cpi->td.shared_coeff_buf);
+
+  if (!is_stat_generation_stage(cpi)) alloc_cdef_linebuf(cm);
 }
 
 static AOM_INLINE void realloc_segmentation_maps(AV1_COMP *cpi) {
@@ -252,6 +278,7 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
 #if !CONFIG_REALTIME_ONLY
   av1_free_restoration_buffers(cm);
 #endif
+  if (!is_stat_generation_stage(cpi)) free_cdef_linebuf(cm);
   aom_free_frame_buffer(&cpi->trial_frame_rst);
   aom_free_frame_buffer(&cpi->scaled_source);
   aom_free_frame_buffer(&cpi->scaled_last_source);
