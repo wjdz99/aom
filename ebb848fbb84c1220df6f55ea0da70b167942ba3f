@@ -51,6 +51,24 @@
       "message": "I will check in this CL.",
       "revId": "ebb848fbb84c1220df6f55ea0da70b167942ba3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a35ed90_025782b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25661
+      },
+      "writtenOn": "2021-03-10T16:44:56Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThank you for the code review.\n\nThe 8-bit buffer of Global motion (y_buffer_8bit) is allocated irrespective of speed feature gm_sf.gm_search_type. Because y_buffer_8bit buffer is being allocated before speed feature initialization. Hence the speed feature is not considered in allocating memory for y_buffer_8bit buffer. Also, encoder needs y_buffer_8bit buffer, if application changes the cpu preset at runtime (i.e, changing from speed level 3 to lower speed levels).\n\nHowever, if application disables the global motion tool (oxcf.tool_cfg.enable_global_motion \u003d 0), y_buffer_8bit buffer is not allocated.\nWe have triggered the memory tests for single-tile/single thread configuration and speed 1, 2. We shall update you as soon as the data is available.",
+      "parentUuid": "e4b2afcb_924020e8",
+      "revId": "ebb848fbb84c1220df6f55ea0da70b167942ba3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
