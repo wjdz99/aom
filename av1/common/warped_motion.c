@@ -1121,29 +1121,28 @@ void av1_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int center_x,
   } else {
     int32_t matrix[8];
     memcpy(matrix, mi->wm_params.wmmat, sizeof(int32_t) * 8);
-    mi->wm_params.wmmat[0] =
-        ROUND_POWER_OF_TWO_SIGNED(
-            (((matrix[2] * center_y) - (matrix[3] * center_x)) * sine_val) +
-                (((matrix[2] * center_x) + (matrix[3] * center_y)) *
-                 ((1 << SINE_PRECISION_BITS) - cosine_val)),
-            SINE_PRECISION_BITS) +
-        matrix[0];
-    mi->wm_params.wmmat[1] =
-        ROUND_POWER_OF_TWO_SIGNED(
-            (((matrix[4] * center_y) - (matrix[5] * center_x)) * sine_val) +
-                (((matrix[4] * center_x) + (matrix[5] * center_y)) *
-                 ((1 << SINE_PRECISION_BITS) - cosine_val)),
-            SINE_PRECISION_BITS) +
-        matrix[1];
+    int new_x = (center_x * matrix[2]) + (center_y * matrix[3]) + matrix[0];
+    int new_y = (center_x * matrix[4]) + (center_y * matrix[5]) + matrix[1];
+
+    mi->wm_params.wmmat[0] = ROUND_POWER_OF_TWO_SIGNED(
+        (matrix[0] * cosine_val) - (matrix[1] * sine_val) +
+            (-new_x * cosine_val) + (new_y * sine_val) +
+            (new_x << SINE_PRECISION_BITS),
+        SINE_PRECISION_BITS);
+    mi->wm_params.wmmat[1] = ROUND_POWER_OF_TWO_SIGNED(
+        (matrix[0] * sine_val) + (matrix[1] * cosine_val) +
+            (-new_x * sine_val) - (new_y * cosine_val) +
+            (new_y << SINE_PRECISION_BITS),
+        SINE_PRECISION_BITS);
     mi->wm_params.wmmat[2] = ROUND_POWER_OF_TWO(
-        (matrix[2] * cosine_val) + (matrix[3] * sine_val), SINE_PRECISION_BITS);
+        (matrix[2] * cosine_val) - (matrix[4] * sine_val), SINE_PRECISION_BITS);
     mi->wm_params.wmmat[3] = ROUND_POWER_OF_TWO_SIGNED(
-        (-matrix[2] * sine_val) + (matrix[3] * cosine_val),
+        (-matrix[3] * cosine_val) - (matrix[5] * sine_val),
         SINE_PRECISION_BITS);
     mi->wm_params.wmmat[4] = ROUND_POWER_OF_TWO_SIGNED(
-        (matrix[4] * cosine_val) + (matrix[5] * sine_val), SINE_PRECISION_BITS);
+        (matrix[2] * sine_val) + (matrix[4] * cosine_val), SINE_PRECISION_BITS);
     mi->wm_params.wmmat[5] = ROUND_POWER_OF_TWO_SIGNED(
-        (-matrix[4] * sine_val) + (matrix[5] * cosine_val),
+        (-matrix[3] * sine_val) + (matrix[5] * cosine_val),
         SINE_PRECISION_BITS);
   }
 }

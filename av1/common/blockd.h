@@ -42,10 +42,10 @@ extern "C" {
 #if CONFIG_EXT_ROTATION
 // actual range is from [-ROTATION_RANGE, ROTATION_RANGE]
 // this is also used as the offset to keep rotation value unsigned
-#define ROTATION_RANGE 10
+#define ROTATION_RANGE 9
 
-#define ROTATION_STEP 2
-#define ROTATION_BITS 4
+#define ROTATION_STEP 3
+#define ROTATION_BITS 3
 #endif  // CONFIG_EXT_ROTATION
 
 /*!\cond */
