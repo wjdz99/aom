@@ -107,8 +107,8 @@ specialize qw/aom_dc_left_predictor_8x4 sse2/;
 specialize qw/aom_dc_left_predictor_8x8 neon msa sse2/;
 specialize qw/aom_dc_left_predictor_8x16 sse2/;
 specialize qw/aom_dc_left_predictor_8x32 sse2/;
-specialize qw/aom_dc_left_predictor_16x4 sse2/;
 if (aom_config("CONFIG_EXT_RECUR_PARTITIONS") eq "") {
+  specialize qw/aom_dc_left_predictor_16x4 sse2/;
   specialize qw/aom_dc_left_predictor_16x8 sse2/;
   specialize qw/aom_dc_left_predictor_16x16 neon msa sse2/;
   specialize qw/aom_dc_left_predictor_16x32 sse2/;
@@ -303,11 +303,11 @@ specialize qw/aom_highbd_v_predictor_32x32 sse2/;
 # by multiply and shift.
 specialize qw/aom_highbd_dc_predictor_4x4 sse2 neon/;
 specialize qw/aom_highbd_dc_predictor_4x8 sse2/;
-specialize qw/aom_highbd_dc_predictor_8x4 sse2/;;
 if (aom_config("CONFIG_EXT_RECUR_PARTITIONS") eq "") {
+  specialize qw/aom_highbd_dc_predictor_8x4 sse2/;;
   specialize qw/aom_highbd_dc_predictor_8x8 sse2 neon/;;
+  specialize qw/aom_highbd_dc_predictor_8x16 sse2/;;
 } # CONFIG_EXT_RECUR_PARTITIONS
-specialize qw/aom_highbd_dc_predictor_8x16 sse2/;;
 specialize qw/aom_highbd_dc_predictor_16x8 sse2/;
 if (aom_config("CONFIG_EXT_RECUR_PARTITIONS") eq "") {
   specialize qw/aom_highbd_dc_predictor_16x16 sse2 neon/;
@@ -320,7 +320,9 @@ specialize qw/aom_highbd_dc_predictor_64x64 neon/;
 specialize qw/aom_highbd_h_predictor_4x4 sse2/;
 specialize qw/aom_highbd_h_predictor_4x8 sse2/;
 specialize qw/aom_highbd_h_predictor_8x4 sse2/;
+if (aom_config("CONFIG_EXT_RECUR_PARTITIONS") eq "") {
 specialize qw/aom_highbd_h_predictor_8x8 sse2/;
+} # CONFIG_EXT_RECUR_PARTITIONS
 specialize qw/aom_highbd_h_predictor_8x16 sse2/;
 specialize qw/aom_highbd_h_predictor_16x8 sse2/;
 specialize qw/aom_highbd_h_predictor_16x16 sse2/;
