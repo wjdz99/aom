@@ -192,6 +192,9 @@ typedef struct BufferPool {
 
 /*!\brief Parameters related to CDEF */
 typedef struct {
+  uint16_t *colbuf[MAX_MB_PLANE];         /*!< CDEF column line buffer */
+  uint16_t *linebuf[MAX_MB_PLANE];        /*!< CDEF top & bottom line buffer */
+  uint16_t *srcbuf;                       /*!< CDEF intermediate buffer */
   int cdef_damping;                       /*!< CDEF damping factor */
   int nb_cdef_strengths;                  /*!< Number of CDEF strength values */
   int cdef_strengths[CDEF_MAX_STRENGTHS]; /*!< CDEF strength values for luma */
