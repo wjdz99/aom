@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d56d711a_ac35762c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-03-10T15:57:05Z",
+      "side": 1,
+      "message": "Hi Wan-Teh and Jingning,\n\nWhile analyzing the speed features present in allintra usage, we observed that speed features which are related to winner mode evaluation, are not enabled for allintra encode. Hence, we introduced the following speed features for \u0027allintra\u0027 encode.\n1. enable_winner_mode_for_coeff_opt\n2. enable_winner_mode_for_use_tx_domain_dist\n3. enable_winner_mode_for_tx_size_srch\n4. multi_winner_mode_type\n\nWe validated the current patch for video and still-image encode. Specifically, we configured libaom in ALLINTRA mode (in libavif) for AVIF encode.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset. Bit match is verified for presets \u003c\u003d 3.\n\n              Instruction Count           BD-Rate Loss(%)\n    cpu-used     Reduction(%)     psnr     psnrCb   psnrCr   ssim\n       4           16.775         0.3118   0.9665   1.0637   0.3965\n       5           22.750         0.5559   1.0946   0.9724   0.5730\n       6           7.771          0.5332   0.9001   0.7253   0.6243\n\nFollowing are instruction count reduction results when tested libaom with all intra frame encoding for a borg setup. Bit match is verified for presets \u003c\u003d 3.\novr.psnr  ssim\n\n              Instruction Count                BD-Rate Loss(%)\n    cpu-used     Reduction(%)    avg.psnr  avg.psnrCb  avg.psnrCr  ovr.psnr  ssim     \n       4\t   14.062\t 0.3043\t   1.2939      1.4488      0.3035    0.3612\t \n       5\t   21.344\t 0.5780\t   1.3285      1.3977      0.5775    0.6052\t \n       6           8.357         0.5423    0.8393      0.9278      0.5397    0.6575   \n   \n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nHowever, the above speed features are not enabled for speed\u003d3 in the current patch though the same are enabled for \u0027good\u0027 usage, speed\u003d3. Also, we have not considered \u0027dc_blk_pred_level\u0027 sf in the current patch. \nWe shall experiment with above and submit the same in subsequent patches (based on the BD rate/speed data).\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "d5432bdb7c0e1a499fb458ee6df3839c7d3bf2ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
