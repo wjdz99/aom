@@ -1135,7 +1135,7 @@ void av1_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int center_x,
                  ((1 << SINE_PRECISION_BITS) - cosine_val)),
             SINE_PRECISION_BITS) +
         matrix[1];
-    mi->wm_params.wmmat[2] = ROUND_POWER_OF_TWO(
+    mi->wm_params.wmmat[2] = ROUND_POWER_OF_TWO_SIGNED(
         (matrix[2] * cosine_val) + (matrix[3] * sine_val), SINE_PRECISION_BITS);
     mi->wm_params.wmmat[3] = ROUND_POWER_OF_TWO_SIGNED(
         (-matrix[2] * sine_val) + (matrix[3] * cosine_val),
