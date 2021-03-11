@@ -658,7 +658,12 @@ static const aom_cdf_prob default_motion_mode_cdf[BLOCK_SIZES_ALL][CDF_SIZE(
 
 #if CONFIG_EXT_ROTATION
 static const aom_cdf_prob default_warp_rotation_cdf[CDF_SIZE(2)] = { AOM_CDF2(
-    31500) };
+    28477) };
+
+static const aom_cdf_prob
+    default_rotation_degree_cdf[CDF_SIZE(ROTATION_COUNT)] = { AOM_CDF15(
+        1041, 1203, 1414, 1847, 3245, 8271, 30701, 30705, 32180, 32522, 32672,
+        32676, 32680, 32684) };
 #endif  // CONFIG_EXT_ROTATION
 
 static const aom_cdf_prob default_obmc_cdf[BLOCK_SIZES_ALL][CDF_SIZE(2)] = {
@@ -1303,6 +1308,7 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->motion_mode_cdf, default_motion_mode_cdf);
 #if CONFIG_EXT_ROTATION
   av1_copy(fc->warp_rotation_cdf, default_warp_rotation_cdf);
+  av1_copy(fc->rotation_degree_cdf, default_rotation_degree_cdf);
 #endif  // CONFIG_EXT_ROTATION
   av1_copy(fc->obmc_cdf, default_obmc_cdf);
   av1_copy(fc->inter_compound_mode_cdf, default_inter_compound_mode_cdf);
