@@ -1145,7 +1145,7 @@ void av1_get_ref_frames(AV1_COMP *const cpi, int cur_frame_disp,
           remapped_ref_idx[GOLDEN_FRAME - LAST_FRAME] == INVALID_IDX) {
         // Save index for GOLDEN
         golden_idx = i;
-      } else if (buffer_map[i].disp_order > cur_frame_disp &&
+      } else if (buffer_map[i].disp_order >= cur_frame_disp &&
                  altref_idx == -1 &&
                  remapped_ref_idx[ALTREF_FRAME - LAST_FRAME] == INVALID_IDX) {
         // Save index for ALTREF
@@ -1182,6 +1182,16 @@ void av1_get_ref_frames(AV1_COMP *const cpi, int cur_frame_disp,
   set_unmapped_ref(buffer_map, n_bufs, n_min_level_refs, min_level,
                    cur_frame_disp);
 
+  // Map BWDREF_FRAME if unmapped
+  if (remapped_ref_idx[BWDREF_FRAME - LAST_FRAME] == INVALID_IDX) {
+    buf_map_idx = closest_past_ref + 1;
+    for (; buf_map_idx < n_bufs; buf_map_idx++) {
+      if (buffer_map[buf_map_idx].used) continue;
+      add_ref_to_slot(&buffer_map[buf_map_idx], remapped_ref_idx, BWDREF_FRAME);
+      break;
+    }
+  }
+
   // Map LAST3_FRAME
   if (n_bufs >= ALTREF_FRAME) {
     const int use_low_level_last3 =
@@ -1210,8 +1220,8 @@ void av1_get_ref_frames(AV1_COMP *const cpi, int cur_frame_disp,
     add_ref_to_slot(&buffer_map[buf_map_idx], remapped_ref_idx, frame);
   }
 
-  // Place remaining future frames
   buf_map_idx = n_bufs - 1;
+  // Place remaining future frames
   for (int frame = ALTREF_FRAME; frame >= LAST_FRAME; frame--) {
     // Continue if the current ref slot is already full
     if (remapped_ref_idx[frame - LAST_FRAME] != INVALID_IDX) continue;
