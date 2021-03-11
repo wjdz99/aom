@@ -126,6 +126,19 @@ static INLINE void lower_mv_precision(MV *mv, MvSubpelPrecision precision) {
   }
 }
 
+#if CONFIG_EXT_ROTATION
+// actual range is from [-ROTATION_RANGE/10, ROTATION_RANGE/10] with
+// (ROTATION_STEP/10) increments this is also used as the offset to keep
+// rotation value unsigned
+#define ROTATION_RANGE 28
+#define ROTATION_STEP 4
+
+#define ROTATION_BITS 4
+
+// number of possible rotations
+#define ROTATION_COUNT (((ROTATION_RANGE * 2) / ROTATION_STEP) + 1)
+#endif  // CONFIG_EXT_ROTATION
+
 // Bits of precision used for the model
 #define WARPEDMODEL_PREC_BITS 16
 #define WARPEDMODEL_ROW3HOMO_PREC_BITS 16
