@@ -690,6 +690,10 @@ typedef struct {
   // Indicates if delta quantization should be enabled in chroma planes.
   bool enable_chroma_deltaq;
   // Indicates if encoding with quantization matrices should be enabled.
+  int chroma_qp_offset_u;
+  // Chroma QP offset for U
+  int chroma_qp_offset_v;
+  // Chroma QP offset for V
   bool using_qm;
 } QuantizationCfg;
 

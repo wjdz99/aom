@@ -1307,6 +1307,14 @@ enum aome_enc_control_id {
   /*!\brief Control to get frame info
    */
   AV1E_GET_FRAME_INFO = 165,
+
+  /*!\brief Control to get frame info
+   */
+  AV1E_SET_CHROMA_QP_OFFSET_U = 166,
+
+  /*!\brief Control to get frame info
+   */
+  AV1E_SET_CHROMA_QP_OFFSET_V = 167,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1616,6 +1624,12 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DUAL_FILTER, int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_CHROMA_DELTAQ, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_CHROMA_DELTAQ
+
+AOM_CTRL_USE_TYPE(AV1E_SET_CHROMA_QP_OFFSET_U, int)
+#define AOM_CTRL_AV1E_SET_CHROMA_QP_OFFSET_U
+
+AOM_CTRL_USE_TYPE(AV1E_SET_CHROMA_QP_OFFSET_V, int)
+#define AOM_CTRL_AV1E_SET_CHROMA_QP_OFFSET_V
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_MASKED_COMP, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_MASKED_COMP

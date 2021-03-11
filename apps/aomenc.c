@@ -481,6 +481,12 @@ static const arg_def_t enable_chroma_deltaq =
     ARG_DEF(NULL, "enable-chroma-deltaq", 1,
             "Enable chroma delta quant "
             "(0: false (default), 1: true)");
+static const arg_def_t chroma_qp_offset_u =
+    ARG_DEF(NULL, "chroma-qp-offset-u", 1,
+            "Chroma QP offset for U");
+static const arg_def_t chroma_qp_offset_v =
+    ARG_DEF(NULL, "chroma-qp-offset-v", 1,
+            "Chroma QP offset for V");
 static const arg_def_t enable_intra_edge_filter =
     ARG_DEF(NULL, "enable-intra-edge-filter", 1,
             "Enable intra edge filtering "
@@ -881,6 +887,8 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &enable_dual_filter,
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
                                        &enable_chroma_deltaq,
+                                       &chroma_qp_offset_u,
+                                       &chroma_qp_offset_v,
                                        &enable_intra_edge_filter,
                                        &enable_order_hint,
                                        &enable_tx64,
@@ -988,6 +996,8 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_DUAL_FILTER,
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
                                         AV1E_SET_ENABLE_CHROMA_DELTAQ,
+                                        AV1E_SET_CHROMA_QP_OFFSET_U,
+                                        AV1E_SET_CHROMA_QP_OFFSET_V,
                                         AV1E_SET_ENABLE_INTRA_EDGE_FILTER,
                                         AV1E_SET_ENABLE_ORDER_HINT,
                                         AV1E_SET_ENABLE_TX64,
