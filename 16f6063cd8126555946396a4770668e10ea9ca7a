@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aacc3624_f78e833d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-11T19:26:06Z",
+      "side": 1,
+      "message": "The crash mentioned in the bug report was introduced in https://aomedia-review.googlesource.com/c/aom/+/130444 when the initialization of the TPL structure was moved to tpl_model.c, which is completely excluded from REALTIME ONLY build.\n\nChrome and Duo is using real-time only build to reduce binary size, so that change affects speed 6 which Duo is using for low resolution.",
+      "revId": "16f6063cd8126555946396a4770668e10ea9ca7a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
