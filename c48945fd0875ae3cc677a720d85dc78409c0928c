@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "375b9fef_23c24762",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-03-11T18:29:30Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch introduces a speed feature “simple_motion_search_rect_split” to disable rectangular split flag using existing simple motion search based split/no_split score. Our study showed that when the simple motion search based score for split/no_split is very small, NONE partition is more likely to win over rectangular partitions. Hence we have introduced the logic to prune rectangular partitions when the score is very much lower than no_split_thresh. The change is applicable for speed \u003e\u003d 3. \n\nCPU    Resolution  Instruction Count       BD-Rate Impact %\n                     Reduction %       avg.psnr   ovr.psnr   ssim\n  3    LOW RES         4.917           0.1627     0.1612     0.1772\n  3    HD RES          1.247           0.0272     0.0217     0.0863\n  3    MID RES         0.449           -0.0216    -0.0151    -0.0023\n  3    AVERAGE         2.895           0.0674     0.0671     0.0969\n\n  4    LOW RES         0.725           0.0817     0.0860     0.0636\n  4    HD RES          0.332           -0.0216    -0.0218    -0.0661\n  4    MID RES         0.413           0.0138     0.0129     -0.0148\n  4    AVERAGE         0.549           0.0303     0.0318     0.0011\n\n  5    LOW RES         0.192           -0.0107   -0.0131     -0.0405\n  5    HD RES          -0.008          -0.0290   -0.0230     -0.0145\n  5    MID RES         0.242           0.0639    0.0618      0.0857\n  5    AVERAGE         0.154           0.0055    0.0058      0.0044\n\n  6    LOW RES         0.037           0.0063    0.0097      0.0146\n  6    HD RES          0.096           0.0250    0.0294      0.0200\n  6    MID RES         0.211           -0.0230   -0.0160     -0.0239\n  6    AVERAGE         0.094           0.0034    0.0082      0.0050\n\nIn the commit message :\n[-] indicates encode time increase. \n[+] indicates encode time reduction. \n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks and Regards,\nAkshata\n",
+      "revId": "c48945fd0875ae3cc677a720d85dc78409c0928c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
