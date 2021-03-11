@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89e3517c_49aa1683",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-03-11T15:55:16Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn the current codebase, tpl model was used to decide if a shorter gf interval is better. In this patch, we have considered using GF boost and an approximate tpl model to shorten the gop length, i.e., GF interval is shortened when both the conditions listed below are satisfied. \n\n1. GF boost is low : Smaller boost indicates lesser predictability of other frames from the base layer ARF.\n2. The dependency factor of base layer ARF by only the next layer ARF is low : TPL stats calculation is done only for base layer and the next layer ARF. The dependency factor of base layer ARF by the next layer ARF is calculated and compared against a threshold. \n\nThe above conditions are generally true for temporally complex contents and in such cases it is preferred to have a shorter gf interval. \n\nWe have renamed the already existing speed feature \u0027disable_gop_length_decision\u0027 to \u0027gop_length_decision_method\u0027 which takes a value of 0, 1, 2.  When gop_length_decision_method \u003d 2, gop length decision is disabled. When set to 0, the original tpl model decides the gop length. When set to 1, the approximate gop length decision as in this patch is enabled. Currently, this feature is enabled for speed 5. \n\nAlso, some refactoring changes are done in the function av1_calc_arf_boost(). Previously, the number of frames over which boost is calculated, i.e., \u0027num_fpstats_used\u0027 was populated only in case of single pass encoding with lap enabled. As, \u0027num_fpstats_used\u0027 is required for approximate gop length decision in two pass case, we are populating the variable \u0027num_fpstats_used\u0027 always. \n\n                      Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution    Reduction(%)    avg.psnr  ovr.psnr   ssim \n    5        LOWRES        8.608        0.3984     0.3431   0.2461 \n    5        MIDRES        8.931        0.0179    -0.0542  -0.4531 \n    5        HDRES         7.812       -0.2034    -0.1683  -0.1581 \n    5        Average       8.485        0.1036     0.0709  -0.0818 \n\t\nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nWe tried extending this sf to speed 4. The results are as follows: \n\n                      Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution    Reduction(%)    avg.psnr  ovr.psnr   ssim \n    4      LOWRES           5.911        0.3155    0.2743   0.1329\n    4      MIDRES           6.284        0.1436    0.0990  -0.2690 \n    4      HDRES            5.214       -0.1607   -0.1097  -0.2006\n    4      Average          5.825        0.1200    0.1059  -0.0864\n        \n\nFrom the data above we see that lowres is not as per trade-off for avg.psnr, i.e., the BD-Rate to instruction count reduction ratio is 1 / 18.73 (expected ratio is 1 / 20). However, on an average (lowres, midres and hdres) the BD-Rate to instruction count reduction ratio is 1 / 48.54. Please let us know if we should extend this sf to speed 4 as well.\n\nPlease review this patch. \n\nThanks           ",
+      "revId": "fc175888a9eddcd53fe3f640fbcf67bc6162706b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
