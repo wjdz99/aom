@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c7d193e_a34ba2bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-11T02:21:50Z",
+      "side": 1,
+      "message": "James: I ran into this bug when I tested libavif with libaom 2.0.2 today. Not sure if we will ever make a libaom 2.0.3 release, but it\u0027s good to have this bug fix ready.",
+      "revId": "d54876dd5ae8ffd689f3bbbcfdbffa76330e0fc0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
