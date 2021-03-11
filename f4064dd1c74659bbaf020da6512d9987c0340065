@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f752caa_c1515853",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-03-11T19:58:16Z",
+      "side": 1,
+      "message": "The crash mentioned in the bug report was introduced in https://aomedia-review.googlesource.com/c/aom/+/130444 when the initialization of the TPL structure was moved to tpl_model.c, which is completely excluded from REALTIME ONLY build.\n\nRTC is using real-time only build to reduce binary size, so that change affects speed 6 which is used for low resolution.",
+      "revId": "f4064dd1c74659bbaf020da6512d9987c0340065",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
