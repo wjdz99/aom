@@ -74,9 +74,10 @@ void av1_alloc_cdef_linebuf(AV1_COMMON *const cm) {
   const int is_frame_scaled =
       (cm->cdef_info.allocated_mi_cols != cm->mi_params.mi_cols ||
        cm->cdef_info.allocated_mi_rows != cm->mi_params.mi_rows);
-  // num-bufs=2 represents ping-pong buffers for top linebuf.
-  // this is to avoid linebuf over-write by consecutive row.
-  int num_bufs = 2;
+  // num-bufs=3 represents ping-pong buffers for top linebuf,
+  // followed by bottom linebuf.
+  // ping-pong is to avoid top linebuf over-write by consecutive row.
+  int num_bufs = 3;
 
   if (is_frame_scaled) av1_free_cdef_linebuf(cm);
 
