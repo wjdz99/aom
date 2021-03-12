@@ -1995,8 +1995,6 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   const ModeCosts *mode_costs = &x->mode_costs;
-  // Only square blocks from 8x8 to 128x128 are supported
-  assert(bsize >= BLOCK_8X8 && bsize <= BLOCK_128X128);
   const int bs = mi_size_wide[bsize];
   const int hbs = bs / 2;
   const PARTITION_TYPE partition =
