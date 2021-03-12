@@ -1873,7 +1873,6 @@ static int predict_skip_txfm(const AV1_COMMON *cm, MACROBLOCK *x,
   return 1;
 }
 
-#if !CONFIG_NEW_TX_PARTITION
 static float get_dev(float mean, double x2_sum, int num) {
   const float e_x2 = (float)(x2_sum / num);
   const float diff = e_x2 - mean * mean;
@@ -1930,6 +1929,51 @@ static AOM_INLINE void get_mean_dev_features(const int16_t *data, int stride,
   }
 }
 
+#if CONFIG_NEW_TX_PARTITION
+static void ml_predict_tx_partition(const AV1_COMP *cpi, MACROBLOCK *x, 
+                               BLOCK_SIZE bsize, int blk_row,
+                               int blk_col, TX_SIZE max_tx_size, int *skip_partition_mask) {
+  const NN_CONFIG *nn_config = av1_tx_split_nnconfig_map[max_tx_size];
+  const int diff_stride = block_size_wide[bsize];
+  const int16_t *diff =
+      x->plane[0].src_diff + 4 * blk_row * diff_stride + 4 * blk_col;
+  const int bw = tx_size_wide[max_tx_size];
+  const int bh = tx_size_high[max_tx_size];
+  aom_clear_system_state();
+  int int_score = 0;
+  const int threshold = cpi->sf.tx_sf.tx_type_search.ml_tx_split_thresh;
+  const int is_vert_rect = (bh > bw);
+  const int is_rect = is_rect_tx(max_tx_size);
+
+  float features[64] = { 0.0f };
+  get_mean_dev_features(diff, diff_stride, bw, bh, features);
+
+  if (nn_config && threshold >= 0) {
+  }
+  for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES; ++type) {
+    if (!use_tx_partition(type, max_tx_size)) {
+      skip_partition_mask[type] = 1;
+      continue;
+    }
+
+    if (x->e_mbd.bd == 8 && nn_config && threshold >= 0 && 
+         ((!is_rect && type == TX_PARTITION_SPLIT) ||
+         (is_rect && is_vert_rect && type == TX_PARTITION_HORZ) ||
+         (is_rect && !is_vert_rect && type == TX_PARTITION_VERT))) {
+      float score = 0.0f;
+      av1_nn_predict(features, nn_config, 1, &score);
+      aom_clear_system_state();
+    
+      int_score = (int)(score * 10000);
+      int split_score = clamp(int_score, -80000, 80000);
+      if (split_score < -threshold)  {
+        skip_partition_mask[type] = 1; 
+        continue;
+      }
+    }
+  }
+}
+#else
 static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
                                int blk_col, TX_SIZE tx_size) {
   const NN_CONFIG *nn_config = av1_tx_split_nnconfig_map[tx_size];
@@ -1952,7 +1996,7 @@ static int ml_predict_tx_split(MACROBLOCK *x, BLOCK_SIZE bsize, int blk_row,
   int int_score = (int)(score * 10000);
   return clamp(int_score, -80000, 80000);
 }
-#endif  // !CONFIG_NEW_TX_PARTITION
+#endif  // CONFIG_NEW_TX_PARTITION
 
 static INLINE uint16_t
 get_tx_mask(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
@@ -2802,6 +2846,7 @@ static void select_tx_partition_type(
   const TX_SIZE max_tx_size = max_txsize_rect_lookup[plane_bsize];
   const int mi_width = mi_size_wide[plane_bsize];
   const int mi_height = mi_size_high[plane_bsize];
+  const int is_rect = is_rect_tx(max_tx_size);
   assert(max_tx_size < TX_SIZES_ALL);
   TX_SIZE sub_txs[MAX_TX_PARTITIONS] = { 0 };
 
@@ -2810,11 +2855,16 @@ static void select_tx_partition_type(
   uint8_t best_partition_entropy_ctxs[MAX_TX_PARTITIONS] = { 0 };
   uint8_t best_partition_tx_types[MAX_TX_PARTITIONS] = { 0 };
   uint8_t full_blk_skip[MAX_TX_PARTITIONS] = { 0 };
+  int skip_partition_mask[TX_PARTITION_TYPES] = { 0 };
+  ml_predict_tx_partition(cpi, x, 
+                               plane_bsize, blk_row,
+                               blk_col, max_tx_size, skip_partition_mask);
 
   // TODO(sarahparker) Add back all of the tx search speed features.
   for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES; ++type) {
     // Skip any illegal partitions for this block size
-    if (!use_tx_partition(type, max_tx_size)) continue;
+    if (skip_partition_mask[type]) continue;
+
     RD_STATS partition_rd_stats;
     av1_init_rd_stats(&partition_rd_stats);
     int64_t tmp_rd = 0;
@@ -2830,7 +2880,6 @@ static void select_tx_partition_type(
 
     // Add rate cost of signalling this partition type
     if (max_tx_size > TX_4X4) {
-      const int is_rect = is_rect_tx(max_tx_size);
       partition_rd_stats.rate += inter_tx_partition_cost(
           x, is_rect, type, tx_above + blk_col, tx_left + blk_row,
           mbmi->sb_type, max_tx_size);
