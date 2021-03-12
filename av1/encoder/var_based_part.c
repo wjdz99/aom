@@ -350,6 +350,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
                 cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[q][1]);
   const int current_qindex = cm->quant_params.base_qindex;
 
+  thresholds[4] = threshold_base >> 1;  // INT64_MAX;
   if (is_key_frame) {
     thresholds[0] = threshold_base;
     thresholds[1] = threshold_base;
@@ -360,7 +361,6 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
       thresholds[2] = threshold_base >> 2;
       thresholds[3] = threshold_base >> 2;
     }
-    thresholds[4] = threshold_base << 2;
   } else {
     // Increase partition thresholds for noisy content. Apply it only for
     // superblocks where sumdiff is low, as we assume the sumdiff of superblock
@@ -845,7 +845,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   MACROBLOCKD *xd = &x->e_mbd;
   const int64_t *const vbp_thresholds = cpi->vbp_info.thresholds;
 
-  int i, j, k, m;
+  int i, j, k, m, l;
   VP128x128 *vt;
   VP16x16 *vt2 = NULL;
   unsigned char force_split[85];
@@ -892,6 +892,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                             vbp_thresholds[2], vbp_thresholds[3],
                             vbp_thresholds[4] };
 
+  // Only use 4x4 partition on key frame.
+  const int use_4x4_partition = frame_is_intra_only(cm);
   const int low_res = (cm->width <= 352 && cm->height <= 288);
   int variance4x4downsample[64];
   const int segment_id = xd->mi[0]->segment_id;
@@ -1090,11 +1092,30 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                 for (k = 0; k < 4; ++k) {
                   const int x8_idx = (k & 1) << 1;
                   const int y8_idx = (k >> 1) << 1;
-                  set_block_size(
-                      cpi, x, xd,
-                      (mi_row + y64_idx + y32_idx + y16_idx + y8_idx),
-                      (mi_col + x64_idx + x32_idx + x16_idx + x8_idx),
-                      BLOCK_8X8);
+                  if (use_4x4_partition) {
+                    if (!set_vt_partitioning(
+                            cpi, x, xd, tile, &vtemp->split[k], BLOCK_8X8,
+                            mi_row + y64_idx + y32_idx + y16_idx + y8_idx,
+                            mi_col + x64_idx + x32_idx + x16_idx + x8_idx,
+                            thresholds[4], BLOCK_4X4, 0)) {
+                      for (l = 0; l < 4; ++l) {
+                        const int x4_idx = (l & 1);
+                        const int y4_idx = (l >> 1);
+                        set_block_size(
+                            cpi, x, xd,
+                            (mi_row + y64_idx + y32_idx + y16_idx +
+                             y8_idx + y4_idx),
+                            (mi_col + x64_idx + x32_idx + x16_idx +
+                             x8_idx + x4_idx), BLOCK_4X4);
+                      }
+                    }
+                  } else {
+                    set_block_size(
+                        cpi, x, xd,
+                        (mi_row + y64_idx + y32_idx + y16_idx + y8_idx),
+                        (mi_col + x64_idx + x32_idx + x16_idx + x8_idx),
+                        BLOCK_8X8);
+                  }
                 }
               }
             }
