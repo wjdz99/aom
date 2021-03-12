@@ -892,6 +892,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                             vbp_thresholds[2], vbp_thresholds[3],
                             vbp_thresholds[4] };
 
+  // Only use 4x4 partition on key frame.
+  const int use_4x4_partition = frame_is_intra_only(cm);
   const int low_res = (cm->width <= 352 && cm->height <= 288);
   int variance4x4downsample[64];
   const int segment_id = xd->mi[0]->segment_id;
@@ -1090,11 +1092,25 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                 for (k = 0; k < 4; ++k) {
                   const int x8_idx = (k & 1) << 1;
                   const int y8_idx = (k >> 1) << 1;
-                  set_block_size(
-                      cpi, x, xd,
-                      (mi_row + y64_idx + y32_idx + y16_idx + y8_idx),
-                      (mi_col + x64_idx + x32_idx + x16_idx + x8_idx),
-                      BLOCK_8X8);
+                  if (use_4x4_partition) {
+                    if (!set_vt_partitioning(cpi, x, xd, tile, &vtemp->split[k],
+                                             BLOCK_8X8, mi_row + y64_idx +
+                                             y32_idx + y16_idx + y8_idx,
+                                             mi_col + x64_idx + x32_idx +
+                                             x16_idx + x8_idx, thresholds[4],
+                                             BLOCK_8X8, 0)) {
+                      set_block_size(
+                          cpi, x, xd, (mi_row + y64_idx + y32_idx + y16_idx +
+                          y8_idx), (mi_col + x64_idx + x32_idx + x16_idx + x8_idx),
+                          BLOCK_4X4);
+                    }
+                  } else {
+                    set_block_size(
+                        cpi, x, xd,
+                        (mi_row + y64_idx + y32_idx + y16_idx + y8_idx),
+                        (mi_col + x64_idx + x32_idx + x16_idx + x8_idx),
+                        BLOCK_8X8);
+                  }
                 }
               }
             }
