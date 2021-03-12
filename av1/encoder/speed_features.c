@@ -464,7 +464,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_sf.inter_tx_size_search_init_depth_sqr = 1;
     sf->tx_sf.intra_tx_size_search_init_depth_rect = 1;
     sf->tx_sf.model_based_prune_tx_search_level = 0;
-    sf->tx_sf.tx_type_search.ml_tx_split_thresh = 4000;
+    sf->tx_sf.tx_type_search.ml_tx_split_thresh = 400;
     sf->tx_sf.tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_2;
     sf->tx_sf.tx_type_search.skip_tx_search = 1;
     sf->tx_sf.use_intra_txb_hash = 1;
@@ -794,7 +794,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->tx_sf.adaptive_txb_search_level = 2;
     sf->tx_sf.intra_tx_size_search_init_depth_rect = 1;
     sf->tx_sf.tx_size_search_lgr_block = 1;
-    sf->tx_sf.tx_type_search.ml_tx_split_thresh = 4000;
+    sf->tx_sf.tx_type_search.ml_tx_split_thresh = 400;
     sf->tx_sf.tx_type_search.skip_tx_search = 1;
     sf->tx_sf.use_intra_txb_hash = 1;
 
@@ -1186,7 +1186,7 @@ static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
   tx_sf->tx_size_search_lgr_block = 0;
   tx_sf->model_based_prune_tx_search_level = 0;
   tx_sf->tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_1;
-  tx_sf->tx_type_search.ml_tx_split_thresh = 8500;
+  tx_sf->tx_type_search.ml_tx_split_thresh = 400;
   tx_sf->tx_type_search.use_skip_flag_prediction = 1;
   tx_sf->tx_type_search.use_reduced_intra_txset = 0;
   tx_sf->tx_type_search.fast_intra_tx_type_search = 0;
@@ -1488,7 +1488,7 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
         sf->part_sf.simple_motion_search_early_term_none = 1;
         sf->part_sf.simple_motion_search_split =
             cm->features.allow_screen_content_tools ? 1 : 2;
-        sf->tx_sf.tx_type_search.ml_tx_split_thresh = 4000;
+        sf->tx_sf.tx_type_search.ml_tx_split_thresh = 400;
         sf->interp_sf.cb_pred_filter_search = 0;
         sf->tx_sf.tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_2;
         sf->tx_sf.tx_type_search.skip_tx_search = 1;
