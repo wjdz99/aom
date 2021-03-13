@@ -2495,6 +2495,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
 #if CONFIG_TUNE_BUTTERAUGLI
   cpi->butteraugli_info.recon_set = false;
+  int original_q = 0;
 #endif
 
   // Loop variables
@@ -2522,8 +2523,16 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
                               EIGHTTAP_REGULAR, 0, false, false);
 
 #if CONFIG_TUNE_BUTTERAUGLI
-    if (oxcf->tune_cfg.tuning == AOM_TUNE_BUTTERAUGLI && loop_count == 0) {
-      av1_setup_butteraugli_source(cpi);
+    if (oxcf->tune_cfg.tuning == AOM_TUNE_BUTTERAUGLI) {
+      if (loop_count == 0) {
+        original_q = q;
+        // TODO(sdeng): different q here does not make big difference. Use a
+        // faster pass instead.
+        q = 96;
+        av1_setup_butteraugli_source(cpi);
+      } else {
+        q = original_q;
+      }
     }
 #endif
 

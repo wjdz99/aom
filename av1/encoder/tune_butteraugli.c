@@ -45,8 +45,8 @@ static void update_scaling_factors(const int blk_count,
   for (int i = 0; i < blk_count; ++i) {
     if (scaling_factors[i] > 0.0) {
       new_scaling_facotrs[i] /= log_sum;
-      // new_scaling_facotrs[i] = AOMMIN(new_scaling_facotrs[i], 2.5);
-      // new_scaling_facotrs[i] = AOMMAX(new_scaling_facotrs[i], 0.4);
+      new_scaling_facotrs[i] = AOMMIN(new_scaling_facotrs[i], 2.5);
+      new_scaling_facotrs[i] = AOMMAX(new_scaling_facotrs[i], 0.4);
     } else {
       new_scaling_facotrs[i] = 1.0;
     }
@@ -84,36 +84,30 @@ static double find_optimal_k(AV1_COMMON *const cm, const int blk_count,
                              const double distortion_limit,
                              const struct block_rd_info *rds,
                              const double orig_rdmult,
-                             const double *const scaling_factors) {
+                             const double *const scaling_factors,
+                             const double baseline_distortion) {
   const double step_size = 0.1;
   const double max_k = 3.0;
-  double k = -step_size, baseline_frame_rate, frame_rate, *new_scaling_factors;
+  double k = 0.1, baseline_frame_rate, frame_rate, *new_scaling_factors;
   CHECK_MEM_ERROR(cm, new_scaling_factors,
                   aom_malloc(blk_count * sizeof(*new_scaling_factors)));
+  double frame_distortion;
 
   do {
+    frame_distortion = 0.0;
     k += step_size;
     update_scaling_factors(blk_count, scaling_factors, new_scaling_factors, k);
-    frame_rate = 0.0;
-    double frame_distortion = 0.0;
-    double debug_distortion = 0.0;
     // Solve frame_rate and distortion with scaling_factors.
     for (int i = 0; i < blk_count; ++i) {
       const double rdmult = new_scaling_factors[i] * orig_rdmult;
-      if (rdmult > 0.0 && rds[i].alpha > 0.0) {
-        const double d = rdmult * rds[i].alpha;
-        const double r = rds[i].alpha * log(rds[i].var / d);
-        frame_rate += AOMMAX(0.0, r);
-        frame_distortion += d;
-        debug_distortion += orig_rdmult * rds[i].alpha;
-      }
+      frame_distortion += rdmult * rds[i].alpha;
     }
 
-    baseline_frame_rate = solve_baseline_frame_rate(blk_count, rds, orig_rdmult,
-                                                    frame_distortion);
-    printf("k=%f,baseline_frame_rate=%f,pred_frame_rate=%f,ratio=%f\n", k,
-           baseline_frame_rate, frame_rate, frame_rate / baseline_frame_rate);
-  } while (k < max_k && frame_rate > distortion_limit * baseline_frame_rate);
+    // printf("\nk=%f,baseline_distortion=%f,frame_distortion=%f,ratio=%f\n", k,
+    //       baseline_distortion, frame_distortion,
+    //       frame_distortion / baseline_distortion);
+  } while (k < max_k &&
+           frame_distortion > distortion_limit * baseline_distortion);
   return k;
 }
 
@@ -147,6 +141,7 @@ static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
   struct block_rd_info *rds;
   CHECK_MEM_ERROR(cm, rds, aom_malloc(num_rows * num_cols * sizeof(*rds)));
   double *const scaling_factors = cpi->butteraugli_info.rdmult_scaling_factors;
+  double baseline_distortion = 0.0;
 
   // for (int i = 0; i < num_rows * num_cols; ++i) {
   //   diffmap[i] = (float)i / (num_rows * num_cols / 2) + 0.01f;
@@ -193,9 +188,10 @@ static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
         }
       }
 
+      baseline_distortion += dmse;
       dbutteraugli = powf(dbutteraugli, 1.0f / 12.0f);
-      dmse = dmse / px_count;
       rds[index].alpha = dmse / (double)rdmult;
+      dmse = dmse / px_count;
       rds[index].var = src_px_sd / px_count - powf(src_px_d / px_count, 2.0f);
 
       const float eps = 0.001f;
@@ -212,11 +208,12 @@ static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
     }
   }
 
-  const double distortion_limit = 1.02;
+  const double distortion_limit = 2.0;
   // 'K' is used to balance the rate-distortion distribution between PSNR
   // and Butteraugli.
-  const double k = find_optimal_k(cm, num_rows * num_cols, distortion_limit,
-                                  rds, rdmult, scaling_factors);
+  const double k =
+      find_optimal_k(cm, num_rows * num_cols, distortion_limit, rds, rdmult,
+                     scaling_factors, baseline_distortion);
 
   update_scaling_factors(num_rows * num_cols, scaling_factors, scaling_factors,
                          k);
