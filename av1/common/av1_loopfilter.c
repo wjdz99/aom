@@ -304,9 +304,10 @@ static TX_SIZE set_lpf_parameters(
 
           const int pv_skip_txfm =
               mi_prev->skip_txfm && is_inter_block(mi_prev);
-          const BLOCK_SIZE bsize =
-              get_plane_block_size(mbmi->sb_type, plane_ptr->subsampling_x,
-                                   plane_ptr->subsampling_y);
+          const BLOCK_SIZE bsize_base =
+              plane ? mbmi->chroma_ref_info.bsize_base : mbmi->sb_type;
+          const BLOCK_SIZE bsize = get_plane_block_size(
+              bsize_base, plane_ptr->subsampling_x, plane_ptr->subsampling_y);
           assert(bsize < BLOCK_SIZES_ALL);
           const int prediction_masks = edge_dir == VERT_EDGE
                                            ? block_size_wide[bsize] - 1

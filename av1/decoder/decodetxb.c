@@ -365,10 +365,11 @@ void av1_read_coeffs_txb_facade(const AV1_COMMON *const cm,
   MB_MODE_INFO *const mbmi = xd->mi[0];
   struct macroblockd_plane *const pd = &xd->plane[plane];
 
-  const BLOCK_SIZE bsize = mbmi->sb_type;
-  assert(bsize < BLOCK_SIZES_ALL);
+  const BLOCK_SIZE bsize_base =
+      plane ? mbmi->chroma_ref_info.bsize_base : mbmi->sb_type;
+  assert(bsize_base < BLOCK_SIZES_ALL);
   const BLOCK_SIZE plane_bsize =
-      get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+      get_plane_block_size(bsize_base, pd->subsampling_x, pd->subsampling_y);
 
   TXB_CTX txb_ctx;
   get_txb_ctx(plane_bsize, tx_size, plane, pd->above_entropy_context + col,
