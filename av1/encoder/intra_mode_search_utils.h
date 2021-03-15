@@ -399,7 +399,7 @@ static void av1_quick_txfm(int use_hadamard, TX_SIZE tx_size, int is_hbd,
       default: assert(0);
     }
   } else {
-    assert(IMPLIES(is_hbd == 0, bd == 8));
+    assert(IMPLIES(!is_hbd, bd == 8));
     TxfmParam txfm_param;
     txfm_param.tx_type = DCT_DCT;
     txfm_param.tx_size = tx_size;
