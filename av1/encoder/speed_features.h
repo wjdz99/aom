@@ -795,10 +795,14 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
 
   // Prune intra mode candidates based on source block histogram of gradient.
   // Applies to luma plane only.
+  // 0: No pruning
+  // 1,2,3,4: Controls the threshold for pruning
   int intra_pruning_with_hog;
 
   // Prune intra mode candidates based on source block histogram of gradient.
   // Applies to chroma plane only.
+  // 0: No pruning
+  // 1,2,3,4: Controls the threshold for pruning
   int chroma_intra_pruning_with_hog;
 
   // Enable/disable smooth intra modes.
