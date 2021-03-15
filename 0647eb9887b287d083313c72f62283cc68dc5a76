@@ -39,6 +39,30 @@
       },
       "revId": "0647eb9887b287d083313c72f62283cc68dc5a76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abd84cee_d2bab4d6",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2987,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-15T20:30:04Z",
+      "side": 1,
+      "message": "That\u0027s right.\n\nInterestingly, the dv_costs is only updated once per frame instead of once per sb. It might be worth looking into that.",
+      "parentUuid": "0ef05aec_2c15ab50",
+      "range": {
+        "startLine": 2987,
+        "startChar": 2,
+        "endLine": 2987,
+        "endChar": 26
+      },
+      "revId": "0647eb9887b287d083313c72f62283cc68dc5a76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
