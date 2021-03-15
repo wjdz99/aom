@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b392d89c_e6d8e5c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-03-15T13:19:19Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWhile analyzing the speed features present in \u0027good\u0027 usage, we observed that speed feature ‘reuse_best_prediction_for_part_ab’ is not introduced for intra frames. This speed feature limits the evaluation of modes for sub-partition of ab partitions by reusing the decision of already evaluated split/rectangular sub-partitions. In the parent version, this speed feature is enabled to prune intra/inter modes in inter frames. As per our study, the same can be extended to prune modes evaluation in intra frames by reusing the mode decision of split/rectangular sub-partition. Hence, we introduced the speed feature ‘reuse_best_prediction_for_part_ab’ in allintra path.\n\nHowever, to maintain bit match w.r.t. parent version, we disabled the sf in ‘good and ‘real-time’ encoding paths for intra frames. We shall experiment enabling the sf for intra frames in ‘good\u0027 and ‘real-time’ encoding path and plan to submit another patch based on results (speed v/s quality trade-off).\n\nWe validated the current patch for all-intra video encode and still-image encode.\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset. Bit match is verified for speed\u003d0.\n\n                  Instruction Count    BD-Rate Loss(%)\n    cpu-used        Reduction(%)       psnr       ssim  \n       1               -8.641          0.0799     0.0913\n       2               -6.840          0.0644     0.0791\n       3               -5.986          0.0539     0.0441\n       4               -2.462          0.0262     0.0294\n       5               -1.902          0.0263     0.0305\n       6                0.000         -0.0005    -0.0033\n  \n\nFollowing are instruction count reduction results when tested libaom with all intra frame encoding for a borg setup. Bit match is verified for speed\u003d0.\n                  Instruction Count         BD-Rate Loss(%)\n    cpu-used        Reduction(%)       avg.psnr  ovr.psnr  ssim  \n       1               -7.949          0.1029    0.1020    0.1054\n       2               -6.632          0.0775    0.0758    0.0708\n       3               -6.115          0.0779    0.0806    0.0693\n       4               -2.383          0.0555    0.0547    0.0600\n       5               -1.581          0.0283    0.0282    0.0254\n       6                0.000          0.0000    0.0000    0.0003   \n   \n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for \u0027good\u0027 and \u0027real-time\u0027 encoding modes for few videos with different video encoding configurations.\nWhen tried to enable the sf for speed 0 in avif and libaom with allintra, following results were seen.\n\n                          Instruction Count          BD-Rate Loss(%)\n               cpu-used     Reduction(%)        avg.psnr  ovr.psnr  ssim  \navif              0            -8.162           0.0807    0.0807    0.0961 \nvideo allintra    0            -8.207           0.0745    0.0755    0.0840\n \n\nAs ssim is not within the trade-off for avif, did not introduce this sf for speed 0. Please let us know if it is okay to extend this for speed 0, as the avg.psnr and ovr.psnr are within the trade-off.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nAniket.",
+      "revId": "de659b335d70ad54813d6f65b8fe2e5f4dd3f052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
