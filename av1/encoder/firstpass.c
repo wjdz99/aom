@@ -261,7 +261,7 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   const BLOCK_SIZE bsize = xd->mi[0]->bsize;
   const int new_mv_mode_penalty = NEW_MV_MODE_PENALTY;
   const int sr = get_search_range(&cpi->initial_dimensions);
-  const int step_param = 3 + sr;
+  const int step_param = cpi->sf.fp_sf.reduce_mv_step_param + sr;
 
   const search_site_config *first_pass_search_sites =
       cpi->mv_search_params.search_site_cfg[SS_CFG_FPF];
@@ -555,7 +555,6 @@ static void accumulate_mv_stats(const MV best_mv, const FULLPEL_MV mv,
   }
 }
 
-#define LOW_MOTION_ERROR_THRESH 25
 // Computes and returns the inter prediction error from the last frame.
 // Computes inter prediction errors from the golden and alt ref frams and
 // Updates stats accordingly.
@@ -637,7 +636,7 @@ static int firstpass_inter_prediction(
   raw_motion_err_list[raw_motion_err_counts] = raw_motion_error;
 
   // TODO(pengchong): Replace the hard-coded threshold
-  if (raw_motion_error > LOW_MOTION_ERROR_THRESH || cpi->oxcf.speed <= 2) {
+  if (raw_motion_error > cpi->sf.fp_sf.skip_motion_search_threshold) {
     // Test last reference frame using the previous best mv as the
     // starting point (best reference) for the search.
     first_pass_motion_search(cpi, x, best_ref_mv, &mv, &motion_error);
