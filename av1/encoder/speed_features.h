@@ -727,6 +727,7 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // 0: update happens at each sb level.
   // 1: update happens once for each sb row.
   // 2: update happens once for a set of rows.
+  // 3: skips updates
   int mv_cost_upd_level;
   // Prune inter modes based on tpl stats
   // 0 : no pruning
@@ -815,6 +816,14 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
   // colors to remaining colors) and terminate the search if current number of
   // palette colors is not the winner.
   int prune_palette_search_level;
+
+  // To skip cost update for mv.
+  // dv_cost_upd_level indicates the aggressiveness of skipping.
+  // 0: update happens at each sb level.
+  // 1: update happens once for each sb row.
+  // 2: update happens once for a set of rows.
+  // 3: skips updates
+  int dv_cost_upd_level;
 } INTRA_MODE_SPEED_FEATURES;
 
 typedef struct TX_SPEED_FEATURES {

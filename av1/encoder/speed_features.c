@@ -291,6 +291,7 @@ static void set_allintra_speed_features_framesize_independent(
   sf->part_sf.ml_predict_breakout_level = use_hbd ? 1 : 3;
 
   sf->intra_sf.intra_pruning_with_hog = 1;
+  sf->intra_sf.dv_cost_upd_level = 3;
 
   sf->tx_sf.adaptive_txb_search_level = 1;
   sf->tx_sf.intra_tx_size_search_init_depth_sqr = 1;
@@ -1087,6 +1088,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   sf->interp_sf.use_fast_interpolation_filter_search = 1;
 
+  sf->intra_sf.dv_cost_upd_level = 3;
   sf->intra_sf.intra_pruning_with_hog = 1;
 
   sf->mv_sf.full_pixel_search_level = 1;
@@ -1514,6 +1516,7 @@ static AOM_INLINE void init_interp_sf(INTERP_FILTER_SPEED_FEATURES *interp_sf) {
 
 static AOM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
   intra_sf->chroma_intra_pruning_with_hog = 0;
+  intra_sf->dv_cost_upd_level = 0;
   intra_sf->skip_intra_in_interframe = 1;
   intra_sf->intra_pruning_with_hog = 0;
   intra_sf->prune_palette_search_level = 0;
