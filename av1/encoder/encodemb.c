@@ -477,8 +477,10 @@ static void encode_block_inter(int plane, int block, int blk_row, int blk_col,
 
   if (blk_row >= max_blocks_high || blk_col >= max_blocks_wide) return;
 
+  const BLOCK_SIZE bsize_base =
+      plane ? mbmi->chroma_ref_info.bsize_base : mbmi->sb_type;
   const TX_SIZE plane_tx_size =
-      plane ? av1_get_max_uv_txsize(mbmi->sb_type, pd->subsampling_x,
+      plane ? av1_get_max_uv_txsize(bsize_base, pd->subsampling_x,
                                     pd->subsampling_y)
             : mbmi->inter_tx_size[av1_get_txb_size_index(plane_bsize, blk_row,
                                                          blk_col)];
