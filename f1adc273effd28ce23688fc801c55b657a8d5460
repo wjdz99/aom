@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46715543_6f8d7528",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-15T22:25:41Z",
+      "side": 1,
+      "message": "Please suggest a better comment. The code subtracts 1 from this value and uses the result as the index for an array (of size 4) of thresholds.",
+      "revId": "f1adc273effd28ce23688fc801c55b657a8d5460",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
