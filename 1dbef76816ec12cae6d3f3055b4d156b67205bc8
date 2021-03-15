@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c08b4cd_314e791f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-15T22:38:42Z",
+      "side": 1,
+      "message": "These two statements together repeat a number of times. Can that be a function?",
+      "range": {
+        "startLine": 281,
+        "startChar": 0,
+        "endLine": 285,
+        "endChar": 54
+      },
+      "revId": "1dbef76816ec12cae6d3f3055b4d156b67205bc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "956a226f_d4c2525a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-15T22:38:42Z",
+      "side": 1,
+      "message": "Just \"sizeof(td-\u003emb.cb_offset)\" will work, as it\u0027s an array (and not a pointer) with a size known at compile time.",
+      "range": {
+        "startLine": 503,
+        "startChar": 30,
+        "endLine": 503,
+        "endChar": 72
+      },
+      "revId": "1dbef76816ec12cae6d3f3055b4d156b67205bc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1e43b84_04066f99",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1431,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-15T22:38:42Z",
+      "side": 1,
+      "message": "same here, and other places",
+      "range": {
+        "startLine": 1431,
+        "startChar": 11,
+        "endLine": 1431,
+        "endChar": 49
+      },
+      "revId": "1dbef76816ec12cae6d3f3055b4d156b67205bc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76898d25_7fc1e827",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-15T22:38:42Z",
+      "side": 1,
+      "message": "I think the two staements above are repeated in lots of places.\nCan we refactor that into a function?",
+      "range": {
+        "startLine": 299,
+        "startChar": 0,
+        "endLine": 302,
+        "endChar": 79
+      },
+      "revId": "1dbef76816ec12cae6d3f3055b4d156b67205bc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
