@@ -272,7 +272,6 @@ TEST_P(AV1QuantizeTest, EobVerify) { RunEobTest(); }
 
 #if HAVE_SSE4_1
 const QuantizeFuncParams qfps[4] = {
-  // #if !CONFIG_EXTQUANT
   QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c,
                      16),
   QuantizeFuncParams(&av1_highbd_quantize_fp_sse4_1, &av1_highbd_quantize_fp_c,
