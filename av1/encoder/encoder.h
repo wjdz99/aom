@@ -3081,6 +3081,12 @@ void av1_new_framerate(AV1_COMP *cpi, double framerate);
 
 void av1_setup_frame_size(AV1_COMP *cpi);
 
+void dealloc_encoder_allocated_data(AV1_COMP *cpi);
+
+void terminate_worker_data(AV1_COMP *cpi);
+
+void free_thread_data(AV1_COMP *cpi);
+
 #define LAYER_IDS_TO_IDX(sl, tl, num_tl) ((sl) * (num_tl) + (tl))
 
 // Returns 1 if a frame is scaled and 0 otherwise.

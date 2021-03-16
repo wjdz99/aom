@@ -1380,7 +1380,7 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
 // This function will change the state and free the mutex of corresponding
 // workers and terminate the object. The object can not be re-used unless a call
 // to reset() is made.
-static AOM_INLINE void terminate_worker_data(AV1_COMP *cpi) {
+void terminate_worker_data(AV1_COMP *cpi) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   for (int t = mt_info->num_workers - 1; t >= 0; --t) {
     AVxWorker *const worker = &mt_info->workers[t];
@@ -1389,7 +1389,7 @@ static AOM_INLINE void terminate_worker_data(AV1_COMP *cpi) {
 }
 
 // Deallocate allocated thread_data.
-static AOM_INLINE void free_thread_data(AV1_COMP *cpi) {
+void free_thread_data(AV1_COMP *cpi) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   AV1_COMMON *cm = &cpi->common;
   for (int t = 0; t < mt_info->num_workers; ++t) {
@@ -1423,8 +1423,81 @@ static AOM_INLINE void free_thread_data(AV1_COMP *cpi) {
 
 void av1_remove_primary_compressor(AV1_PRIMARY *ppi) {
   if (!ppi) return;
-  av1_lookahead_destroy(ppi->lookahead);
+  if (ppi->lookahead != NULL) av1_lookahead_destroy(ppi->lookahead);
   aom_free(ppi);
+}
+
+void dealloc_encoder_allocated_data(AV1_COMP *cpi) {
+  if (cpi->compressor_stage != LAP_STAGE) {
+    terminate_worker_data(cpi);
+    free_thread_data(cpi);
+  }
+  MultiThreadInfo *const mt_info = &cpi->mt_info;
+#if CONFIG_MULTITHREAD
+  pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
+  pthread_mutex_t *const gm_mt_mutex_ = mt_info->gm_sync.mutex_;
+  if (enc_row_mt_mutex_ != NULL) {
+    pthread_mutex_destroy(enc_row_mt_mutex_);
+    aom_free(enc_row_mt_mutex_);
+  }
+  if (gm_mt_mutex_ != NULL) {
+    pthread_mutex_destroy(gm_mt_mutex_);
+    aom_free(gm_mt_mutex_);
+  }
+#endif
+  av1_row_mt_mem_dealloc(cpi);
+  if (cpi->compressor_stage != LAP_STAGE) {
+    aom_free(mt_info->tile_thr_data);
+    aom_free(mt_info->workers);
+  }
+
+#if !CONFIG_REALTIME_ONLY
+  TplParams *const tpl_data = &cpi->tpl_data;
+  av1_tpl_dealloc(&tpl_data->tpl_mt_sync);
+#endif
+  if (mt_info->num_workers > 1) {
+    av1_loop_filter_dealloc(&mt_info->lf_row_sync);
+    av1_cdef_mt_dealloc(&mt_info->cdef_sync);
+#if !CONFIG_REALTIME_ONLY
+    av1_loop_restoration_dealloc(&mt_info->lr_row_sync,
+                                 mt_info->num_mod_workers[MOD_LR]);
+    av1_gm_dealloc(&mt_info->gm_sync);
+    av1_tf_mt_dealloc(&mt_info->tf_sync);
+#endif
+  }
+  aom_free(cpi->tile_data);
+  cpi->tile_data = NULL;
+
+  aom_free(cpi->common.tpl_mvs);
+  cpi->common.tpl_mvs = NULL;
+
+  if (cpi->td.vt64x64) {
+    aom_free(cpi->td.vt64x64);
+    cpi->td.vt64x64 = NULL;
+  }
+
+  aom_free_frame_buffer(&cpi->last_frame_uf);
+
+#if !CONFIG_REALTIME_ONLY
+  av1_free_restoration_buffers(&cpi->common);
+#endif
+
+  aom_free_frame_buffer(&cpi->trial_frame_rst);
+  aom_free_frame_buffer(&cpi->scaled_source);
+  aom_free_frame_buffer(&cpi->scaled_last_source);
+  aom_free_frame_buffer(&cpi->alt_ref_buffer);
+
+#if CONFIG_DENOISE
+  if (cpi->denoise_and_model) {
+    aom_denoise_and_model_free(cpi->denoise_and_model);
+    cpi->denoise_and_model = NULL;
+  }
+#endif
+
+  if (cpi->film_grain_table) {
+    aom_film_grain_table_free(cpi->film_grain_table);
+    cpi->film_grain_table = NULL;
+  }
 }
 
 void av1_remove_compressor(AV1_COMP *cpi) {
@@ -1577,43 +1650,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     aom_free_frame_buffer(&tpl_data->tpl_rec_pool[frame]);
   }
 
-  if (cpi->compressor_stage != LAP_STAGE) {
-    terminate_worker_data(cpi);
-    free_thread_data(cpi);
-  }
-
-  MultiThreadInfo *const mt_info = &cpi->mt_info;
-#if CONFIG_MULTITHREAD
-  pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
-  pthread_mutex_t *const gm_mt_mutex_ = mt_info->gm_sync.mutex_;
-  if (enc_row_mt_mutex_ != NULL) {
-    pthread_mutex_destroy(enc_row_mt_mutex_);
-    aom_free(enc_row_mt_mutex_);
-  }
-  if (gm_mt_mutex_ != NULL) {
-    pthread_mutex_destroy(gm_mt_mutex_);
-    aom_free(gm_mt_mutex_);
-  }
-#endif
-  av1_row_mt_mem_dealloc(cpi);
-  if (cpi->compressor_stage != LAP_STAGE) {
-    aom_free(mt_info->tile_thr_data);
-    aom_free(mt_info->workers);
-  }
-
-#if !CONFIG_REALTIME_ONLY
-  av1_tpl_dealloc(&tpl_data->tpl_mt_sync);
-#endif
-  if (mt_info->num_workers > 1) {
-    av1_loop_filter_dealloc(&mt_info->lf_row_sync);
-    av1_cdef_mt_dealloc(&mt_info->cdef_sync);
-#if !CONFIG_REALTIME_ONLY
-    av1_loop_restoration_dealloc(&mt_info->lr_row_sync,
-                                 mt_info->num_mod_workers[MOD_LR]);
-    av1_gm_dealloc(&mt_info->gm_sync);
-    av1_tf_mt_dealloc(&mt_info->tf_sync);
-#endif
-  }
+  if (!cpi->common.seq_params.still_picture)
+    dealloc_encoder_allocated_data(cpi);
 
   dealloc_compressor_data(cpi);
 
