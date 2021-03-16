@@ -3599,15 +3599,13 @@ static void write_partition_tree(AV1_COMP *const cpi,
                                  const PC_TREE *const pc_tree,
                                  const BLOCK_SIZE bsize, const int mi_row,
                                  const int mi_col) {
+  (void)mi_row;
+  (void)mi_col;
   char filename[128];
-  snprintf(filename, 127, "partition_tree_%d", cpi->sb_counter);
+  snprintf(filename, 127, "partition_tree_sb%d_c%d", cpi->sb_counter, 0);
   ++cpi->sb_counter;
   FILE *pfile = fopen(filename, "w");
-  fprintf(pfile, "%d,%d,%d,%d,%d,", cpi->common.show_frame,
-          cpi->common.showable_frame, cpi->common.show_existing_frame,
-          cpi->gf_group.update_type[cpi->gf_group.index],
-          cpi->common.current_frame.order_hint);
-  fprintf(pfile, "%d,%d,%d", mi_row, mi_col, bsize);
+  fprintf(pfile, "%d", bsize);
 
   // Write partition type with BFS order.
   const PC_TREE *tree_node_queue[1024];
@@ -3632,8 +3630,7 @@ static void write_partition_tree(AV1_COMP *const cpi,
     ++q_idx;
   }
   const int num_leafs = last_idx;
-  const int max_depth = depth;
-  fprintf(pfile, ",%d,%d", num_leafs, max_depth);
+  fprintf(pfile, ",%d,%d", num_leafs, /*num_configs=*/1);
 
   // Write partitions for each node.
   q_idx = 0;
@@ -3664,15 +3661,15 @@ static void write_partition_tree(AV1_COMP *const cpi,
 static void verify_write_partition_tree(const AV1_COMP *const cpi,
                                         const PC_TREE *const pc_tree,
                                         const BLOCK_SIZE bsize,
-                                        const int mi_row, const int mi_col) {
+                                        const int config_id, const int mi_row,
+                                        const int mi_col) {
+  (void)mi_row;
+  (void)mi_col;
   char filename[128];
-  snprintf(filename, 127, "verify_partition_tree_%d", cpi->sb_counter - 1);
+  snprintf(filename, 127, "verify_partition_tree_sb%d_c%d", cpi->sb_counter - 1,
+           config_id);
   FILE *pfile = fopen(filename, "w");
-  fprintf(pfile, "%d,%d,%d,%d,%d,", cpi->common.show_frame,
-          cpi->common.showable_frame, cpi->common.show_existing_frame,
-          cpi->gf_group.update_type[cpi->gf_group.index],
-          cpi->common.current_frame.order_hint);
-  fprintf(pfile, "%d,%d,%d", mi_row, mi_col, bsize);
+  fprintf(pfile, "%d", bsize);
 
   // Write partition type with BFS order.
   const PC_TREE *tree_node_queue[1024];
@@ -3697,8 +3694,7 @@ static void verify_write_partition_tree(const AV1_COMP *const cpi,
     ++q_idx;
   }
   const int num_leafs = last_idx;
-  const int max_depth = depth;
-  fprintf(pfile, ",%d,%d", num_leafs, max_depth);
+  fprintf(pfile, ",%d,%d", num_leafs, /*num_configs=*/1);
 
   // Write partitions for each node.
   q_idx = 0;
@@ -3725,33 +3721,23 @@ static void verify_write_partition_tree(const AV1_COMP *const cpi,
   fclose(pfile);
 }
 
-static void read_partition_tree(AV1_COMP *const cpi, PC_TREE *const pc_tree,
-                                const int mi_row, const int mi_col) {
-  (void)mi_row;
-  (void)mi_col;
+static int read_partition_tree(AV1_COMP *const cpi, PC_TREE *const pc_tree,
+                               const int config_id) {
   char filename[128];
-  snprintf(filename, 127, "partition_tree_%d", cpi->sb_counter);
-  ++cpi->sb_counter;
+  snprintf(filename, 127, "partition_tree_sb%d_c%d", cpi->sb_counter,
+           config_id);
   FILE *pfile = fopen(filename, "r");
   if (pfile == NULL) {
     printf("Can't find the file: %s\n", filename);
-    return;
     exit(0);
   }
 
-  int read_mi_row;
-  int read_mi_col;
   int read_bsize;
   int num_nodes;
-  int max_depth;
-  int show_frame, showable_frame, show_existing_frame, update_type, order_hint;
-  fscanf(pfile, "%d,%d,%d,%d,%d,", &show_frame, &showable_frame,
-         &show_existing_frame, &update_type, &order_hint);
-  fscanf(pfile, "%d,%d,%d,%d,%d", &read_mi_row, &read_mi_col, &read_bsize,
-         &num_nodes, &max_depth);
-  assert(read_bsize == cpi->common.seq_params.sb_size);
+  int num_configs;
+  fscanf(pfile, "%d,%d,%d", &read_bsize, &num_nodes, &num_configs);
+  assert(read_bsize == cpi->common.seq_param.sb_size);
   BLOCK_SIZE bsize = (BLOCK_SIZE)read_bsize;
-  assert(mi_row == read_mi_row && mi_col == read_mi_col);
 
   PC_TREE *tree_node_queue[1024];
   int last_idx = 1;
@@ -3777,8 +3763,9 @@ static void read_partition_tree(AV1_COMP *const cpi, PC_TREE *const pc_tree,
     --num_nodes;
     ++q_idx;
   }
-
   fclose(pfile);
+
+  return num_configs;
 }
 
 static int64_t rd_search_for_fixed_partition(
@@ -3911,16 +3898,24 @@ bool av1_rd_partition_search(AV1_COMP *const cpi, ThreadData *td,
   MACROBLOCK *const x = &td->mb;
   int best_idx = 0;
   int64_t min_rdcost = INT64_MAX;
-
-  int num_configs = 1;
-  int64_t *rdcost = aom_calloc(num_configs, sizeof(int64_t));
-  PC_TREE *const pc_tree = av1_alloc_pc_tree_node(bsize);
-  read_partition_tree(cpi, pc_tree, mi_row, mi_col);
-  verify_write_partition_tree(cpi, pc_tree, bsize, mi_row, mi_col);
-
-  // Encode the block with the given partition tree. Get rdcost and encoding
-  // time.
-  for (int i = 0; i < num_configs; ++i) {
+  int num_configs;
+  int64_t *rdcost;
+  int i = 0;
+  do {
+    PC_TREE *const pc_tree = av1_alloc_pc_tree_node(bsize);
+    num_configs = read_partition_tree(cpi, pc_tree, i);
+    if (i == 0) {
+      rdcost = aom_calloc(num_configs, sizeof(int64_t));
+    }
+    if (num_configs <= 0) {
+      av1_free_pc_tree_recursive(pc_tree, av1_num_planes(cm), 0, 0);
+      aom_free(rdcost);
+      exit(0);
+      return false;
+    }
+    verify_write_partition_tree(cpi, pc_tree, bsize, i, mi_row, mi_col);
+    // Encode the block with the given partition tree. Get rdcost and encoding
+    // time.
     rdcost[i] = rd_search_for_fixed_partition(cpi, td, tile_data, tp, sms_root,
                                               mi_row, mi_col, bsize, pc_tree);
 
@@ -3928,17 +3923,25 @@ bool av1_rd_partition_search(AV1_COMP *const cpi, ThreadData *td,
       min_rdcost = rdcost[i];
       best_idx = i;
     }
-  }
+    av1_free_pc_tree_recursive(pc_tree, av1_num_planes(cm), 0, 0);
+    ++i;
+  } while (i < num_configs);
+
   best_rd_cost->rdcost = min_rdcost;
 
   // Encode with the partition configuration with the smallest rdcost.
+  PC_TREE *const pc_tree = av1_alloc_pc_tree_node(bsize);
+  read_partition_tree(cpi, pc_tree, best_idx);
+  rd_search_for_fixed_partition(cpi, td, tile_data, tp, sms_root, mi_row,
+                                mi_col, bsize, pc_tree);
   set_cb_offsets(x->cb_offset, 0, 0);
   encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
             pc_tree, NULL);
 
   av1_free_pc_tree_recursive(pc_tree, av1_num_planes(cm), 0, 0);
+  aom_free(rdcost);
+  ++cpi->sb_counter;
 
-  (void)best_idx;
   return true;
 }
 #endif  // PARTITION_SEARCH_ORDER
