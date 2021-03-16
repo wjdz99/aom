@@ -2102,6 +2102,11 @@ typedef struct AV1_PRIMARY {
    * Flag indicating whether look ahead processing (LAP) is enabled.
    */
   int lap_enabled;
+
+  /*!
+   * Parameters for AV1 bitstream levels.
+   */
+  AV1LevelParams level_params;
 } AV1_PRIMARY;
 
 /*!
@@ -2580,11 +2585,6 @@ typedef struct AV1_COMP {
    */
   uint64_t frame_component_time[kTimingComponents];
 #endif
-
-  /*!
-   * Parameters for AV1 bitstream levels.
-   */
-  AV1LevelParams level_params;
 
   /*!
    * Whether any no-zero delta_q was actually used.

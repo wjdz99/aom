@@ -3477,7 +3477,7 @@ typedef struct {
 static uint32_t init_large_scale_tile_obu_header(
     AV1_COMP *const cpi, uint8_t **data, struct aom_write_bit_buffer *saved_wb,
     LargeTileFrameOBU *lst_obu) {
-  AV1LevelParams *const level_params = &cpi->level_params;
+  AV1LevelParams *const level_params = &cpi->ppi->level_params;
   CurrentFrame *const current_frame = &cpi->common.current_frame;
   // For large_scale_tile case, we always have only one tile group, so it can
   // be written as an OBU_FRAME.
@@ -3669,7 +3669,7 @@ static void write_tile_obu(
     uint8_t **tile_data_start) {
   AV1_COMMON *const cm = &cpi->common;
   const CommonTileParams *const tiles = &cm->tiles;
-  AV1LevelParams *const level_params = &cpi->level_params;
+  AV1LevelParams *const level_params = &cpi->ppi->level_params;
   TileBufferEnc tile_buffers[MAX_TILE_ROWS][MAX_TILE_COLS];
   const int tile_cols = tiles->cols;
   const int tile_rows = tiles->rows;
@@ -3931,7 +3931,7 @@ static size_t av1_write_metadata_array(AV1_COMP *const cpi, uint8_t *dst) {
            current_metadata->insert_flag == AOM_MIF_NON_KEY_FRAME) ||
           current_metadata->insert_flag == AOM_MIF_ANY_FRAME) {
         obu_header_size =
-            av1_write_obu_header(&cpi->level_params, OBU_METADATA, 0, dst);
+            av1_write_obu_header(&cpi->ppi->level_params, OBU_METADATA, 0, dst);
         obu_payload_size =
             av1_write_metadata_obu(current_metadata, dst + obu_header_size);
         length_field_size = obu_memmove(obu_header_size, obu_payload_size, dst);
@@ -3955,7 +3955,7 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
   uint8_t *data = dst;
   uint32_t data_size;
   AV1_COMMON *const cm = &cpi->common;
-  AV1LevelParams *const level_params = &cpi->level_params;
+  AV1LevelParams *const level_params = &cpi->ppi->level_params;
   uint32_t obu_header_size = 0;
   uint32_t obu_payload_size = 0;
   FrameHeaderInfo fh_info = { NULL, 0, 0 };
