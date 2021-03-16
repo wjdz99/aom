@@ -205,6 +205,15 @@ typedef struct {
   int cdef_bits; /*!< Number of CDEF strength values in bits */
 } CdefInfo;
 
+#if CONFIG_CCSO
+typedef struct {
+  bool ccso_enable[2];
+  int filter_offset[2][CCSO_LUT_EXT_SIZE];
+  uint8_t quant_idx[2];
+  uint8_t ext_filter_support[2];
+} CcsoInfo;
+#endif
+
 /*!\cond */
 
 typedef struct {
@@ -943,6 +952,13 @@ typedef struct AV1Common {
    * CDEF (Constrained Directional Enhancement Filter) parameters.
    */
   CdefInfo cdef_info;
+
+#if CONFIG_CCSO
+  /*!
+   * CCSO (Cross Component Sample Offset) parameters.
+   */
+  CcsoInfo ccso_info;
+#endif
 
   /*!
    * Parameters for film grain synthesis.
