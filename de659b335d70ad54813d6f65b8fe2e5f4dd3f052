@@ -37,6 +37,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3b4e443f_bb262990",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-16T01:23:41Z",
+      "side": 1,
+      "message": "Nit: The nested if statements added to this file can be rewritten using \u0026\u0026. For example, this one can be rewritten as:\n\n  if (x-\u003euse_mb_mode_cach \u0026\u0026\n      x-\u003emb_mode_cache-\u003efilter_intra_mode_info.use_filter_intra \u003d\u003d 0) {\n    return 0;\n  }",
+      "revId": "de659b335d70ad54813d6f65b8fe2e5f4dd3f052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "698b80f9_01de6c19",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 2
