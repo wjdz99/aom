@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5a14a5b_958d8707",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-16T17:43:04Z",
+      "side": 1,
+      "message": "fixed the bug link. I\u0027ll treat the earlier verified as sticky.",
+      "revId": "19e637ec5280aaa0b86c90b4eabeed96e41f6218",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
