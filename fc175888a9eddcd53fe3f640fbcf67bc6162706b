@@ -70,6 +70,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47bd98a9_2989e0ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-16T17:52:12Z",
+      "side": 1,
+      "message": "Here are my borg results:\nspeed 5/patchset 4 borg test results:\n         avg_psnr:  ovr_psnr:  ssim:  speedup:\nmidres2:  0.145     -0.035    -0.204   9.3\nugc360p:  0.734      0.512     0.257  10.8\n\nIt seems the criteria in this CL was tuned well for regular clips (e.g. midres2 set), but didn\u0027t work well for ugc clips.",
+      "revId": "fc175888a9eddcd53fe3f640fbcf67bc6162706b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "007a0683_618ff8f5",
@@ -83,6 +100,30 @@
       "writtenOn": "2021-03-12T00:46:43Z",
       "side": 1,
       "message": "The tpl stats from this approximate tpl model will be actually used later for gop_length\u003d32, right? If true, no valid stats is available for frames beyond base+1 layer? Is this intended or am I missing anything?",
+      "range": {
+        "startLine": 3666,
+        "startChar": 15,
+        "endLine": 3666,
+        "endChar": 34
+      },
+      "revId": "fc175888a9eddcd53fe3f640fbcf67bc6162706b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cf68459_56405460",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3666,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-16T17:52:12Z",
+      "side": 1,
+      "message": "Looked it again. Second tpl stats call always happens since is_temporal_filter_enabled \u003d 0.",
+      "parentUuid": "007a0683_618ff8f5",
       "range": {
         "startLine": 3666,
         "startChar": 15,
