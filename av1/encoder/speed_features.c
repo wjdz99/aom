@@ -961,6 +961,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tpl_sf.prune_starting_mv = 3;
     sf->tpl_sf.use_y_only_rate_distortion = 1;
     sf->tpl_sf.subpel_force_stop = FULL_PEL;
+    sf->tpl_sf.disable_gop_length_decision = 1;
 
     sf->winner_mode_sf.dc_blk_pred_level = 1;
   }
