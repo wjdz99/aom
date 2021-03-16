@@ -177,9 +177,6 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
 
   dealloc_context_buffers_ext(&cpi->mbmi_ext_info);
 
-  aom_free(cpi->tile_data);
-  cpi->tile_data = NULL;
-
   // Delete sementation map
   aom_free(cpi->enc_seg.map);
   cpi->enc_seg.map = NULL;
@@ -236,29 +233,12 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
       cpi->td.mb.intrabc_hash_info.hash_value_buffer[i][j] = NULL;
     }
 
-  aom_free(cm->tpl_mvs);
-  cm->tpl_mvs = NULL;
-
-  if (cpi->td.vt64x64) {
-    aom_free(cpi->td.vt64x64);
-    cpi->td.vt64x64 = NULL;
-  }
-
   av1_free_pmc(cpi->td.firstpass_ctx, av1_num_planes(cm));
   cpi->td.firstpass_ctx = NULL;
 
   av1_free_ref_frame_buffers(cm->buffer_pool);
   av1_free_txb_buf(cpi);
   av1_free_context_buffers(cm);
-
-  aom_free_frame_buffer(&cpi->last_frame_uf);
-#if !CONFIG_REALTIME_ONLY
-  av1_free_restoration_buffers(cm);
-#endif
-  aom_free_frame_buffer(&cpi->trial_frame_rst);
-  aom_free_frame_buffer(&cpi->scaled_source);
-  aom_free_frame_buffer(&cpi->scaled_last_source);
-  aom_free_frame_buffer(&cpi->alt_ref_buffer);
 
   free_token_info(token_info);
 
@@ -270,17 +250,6 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->td.mb.tmp_conv_dst);
   for (int j = 0; j < 2; ++j) {
     aom_free(cpi->td.mb.tmp_pred_bufs[j]);
-  }
-
-#if CONFIG_DENOISE
-  if (cpi->denoise_and_model) {
-    aom_denoise_and_model_free(cpi->denoise_and_model);
-    cpi->denoise_and_model = NULL;
-  }
-#endif
-  if (cpi->film_grain_table) {
-    aom_film_grain_table_free(cpi->film_grain_table);
-    cpi->film_grain_table = NULL;
   }
 
   for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
