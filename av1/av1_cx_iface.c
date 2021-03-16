@@ -2173,6 +2173,10 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     cpi_lap->common.error.setjmp = 1;
   }
 
+  // Flags to indicate if different compressor stages were successful
+  int lap_stage_done = 0;
+  int encode_stage_done = 0;
+
   // Note(yunqing): While applying encoding flags, always start from enabling
   // all, and then modifying according to the flags. Previous frame's flags are
   // overwritten.
@@ -2309,6 +2313,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       const int status = av1_get_compressed_data(
           cpi_lap, &lib_flags, &frame_size, NULL, &dst_time_stamp_la,
           &dst_end_time_stamp_la, !img, timestamp_ratio);
+      if (status == AOM_CODEC_OK) lap_stage_done = 1;
       if (status != -1) {
         if (status != AOM_CODEC_OK) {
           aom_internal_error(&cpi_lap->common.error, AOM_CODEC_ERROR, NULL);
@@ -2327,6 +2332,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       const int status = av1_get_compressed_data(
           cpi, &lib_flags, &frame_size, cx_data, &dst_time_stamp,
           &dst_end_time_stamp, !img, timestamp_ratio);
+      if (status == AOM_CODEC_OK) encode_stage_done = 1;
       if (status == -1) break;
       if (status != AOM_CODEC_OK) {
         aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR, NULL);
@@ -2437,6 +2443,17 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
 
   cpi->common.error.setjmp = 0;
+  // For image encoding, deallocate the memory allocated within the library here
+  // rather than from av1_remove_compressor()
+  if (cpi->common.seq_params.still_picture) {
+    if (lap_stage_done) {
+      dealloc_encoder_allocated_data(cpi_lap);
+    } else if (encode_stage_done) {
+      dealloc_encoder_allocated_data(cpi);
+      cpi->lookahead = NULL;
+      if (cpi_lap != NULL) cpi_lap->lookahead = NULL;
+    }
+  }
   return res;
 }
 
