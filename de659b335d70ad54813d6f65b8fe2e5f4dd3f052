@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a59afc95_38032fba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-03-16T17:08:54Z",
+      "side": 1,
+      "message": "Hi Chi Yo Tsai,\n\nIn \u0027good\u0027 encoding mode, we tried to prune palette mode in inter frames based on cached_mbmi information. As per our tests, the speed gains are not significant with this approach. The reason being the palette mode is not getting evaluated as palette mode is consider only if the winner mode is intra in case of inter mode selection.\n\nWhen tried to prune palette and intrabc intra modes using cached information for allintra, did not observe any significant gains for screen contents. Hence, did not consider pruning palette and intrabc in allintra encoding mode.\n\nHowever, we will plan to enable sf \u0027reuse_best_prediction_for_part_ab\u0027 for intra frames in \u0027good\u0027 encoding mode and shall submit a patch based on results.\n\nThanks \u0026 regards,\nAniket",
+      "parentUuid": "1d038da8_16d926c7",
+      "revId": "de659b335d70ad54813d6f65b8fe2e5f4dd3f052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b4e443f_bb262990",
@@ -69,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1dc8174f_4e4ca859",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-03-16T17:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b4e443f_bb262990",
+      "revId": "de659b335d70ad54813d6f65b8fe2e5f4dd3f052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "698b80f9_01de6c19",
@@ -82,6 +118,24 @@
       "writtenOn": "2021-03-16T01:21:34Z",
       "side": 1,
       "message": "Nit: Since reuse_best_prediction_for_part_ab is used as a boolean, we can use the boolean notation:\n\n    sf-\u003epart_sf.reuse_best_prediction_for_part_ab \u003d !frame_is_intra_only(\u0026cpi-\u003ecommon);",
+      "revId": "de659b335d70ad54813d6f65b8fe2e5f4dd3f052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1d7597e_3c7f26c1",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-03-16T17:08:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "698b80f9_01de6c19",
       "revId": "de659b335d70ad54813d6f65b8fe2e5f4dd3f052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
