@@ -56,9 +56,13 @@ const TestVideoParam kTestVectors[] = {
 };
 
 const TestEncodeParam kEncodeVectors[] = {
+#if !CONFIG_REALTIME_ONLY
   { ::libaom_test::kOnePassGood, 2 }, { ::libaom_test::kOnePassGood, 5 },
   { ::libaom_test::kTwoPassGood, 1 }, { ::libaom_test::kTwoPassGood, 2 },
-  { ::libaom_test::kTwoPassGood, 5 }, { ::libaom_test::kRealTime, 5 },
+  { ::libaom_test::kTwoPassGood, 5 },
+#else
+  { ::libaom_test::kRealTime, 5 },
+#endif
 };
 
 const int kMinArfVectors[] = {
@@ -149,6 +153,13 @@ class ArfFreqTestLarge
         encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
         encoder->Control(AOME_SET_ARNR_MAXFRAMES, 7);
         encoder->Control(AOME_SET_ARNR_STRENGTH, 5);
+      } else {
+        encoder->Control(AV1E_SET_ENABLE_RESTORATION, 0);
+        encoder->Control(AV1E_SET_ENABLE_OBMC, 0);
+        encoder->Control(AV1E_SET_ENABLE_GLOBAL_MOTION, 0);
+        encoder->Control(AV1E_SET_ENABLE_WARPED_MOTION, 0);
+        encoder->Control(AV1E_SET_DELTAQ_MODE, 0);
+        encoder->Control(AV1E_SET_ENABLE_TPL_MODEL, 0);
       }
     }
   }
