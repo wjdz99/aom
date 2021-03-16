@@ -2173,6 +2173,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     cpi_lap->common.error.setjmp = 1;
   }
 
+  // Flag to indicate if the current process call actually encoded a frame
+  int is_frame_encoded = 0;
+
   // Note(yunqing): While applying encoding flags, always start from enabling
   // all, and then modifying according to the flags. Previous frame's flags are
   // overwritten.
@@ -2327,6 +2330,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       const int status = av1_get_compressed_data(
           cpi, &lib_flags, &frame_size, cx_data, &dst_time_stamp,
           &dst_end_time_stamp, !img, timestamp_ratio);
+      if (status == AOM_CODEC_OK) is_frame_encoded = 1;
       if (status == -1) break;
       if (status != AOM_CODEC_OK) {
         aom_internal_error(&cpi->common.error, AOM_CODEC_ERROR, NULL);
@@ -2437,6 +2441,85 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
 
   cpi->common.error.setjmp = 0;
+  // For image encoding, deallocate the memory allocated within the library here
+  // rather than from av1_remove_compressor()
+  if (cpi->common.seq_params.still_picture && is_frame_encoded) {
+    if (cpi->compressor_stage != LAP_STAGE) {
+      terminate_worker_data(cpi);
+      free_thread_data(cpi);
+    }
+
+    MultiThreadInfo *const mt_info = &cpi->mt_info;
+#if CONFIG_MULTITHREAD
+    pthread_mutex_t *const enc_row_mt_mutex_ = mt_info->enc_row_mt.mutex_;
+    pthread_mutex_t *const gm_mt_mutex_ = mt_info->gm_sync.mutex_;
+    if (enc_row_mt_mutex_ != NULL) {
+      pthread_mutex_destroy(enc_row_mt_mutex_);
+      aom_free(enc_row_mt_mutex_);
+    }
+    if (gm_mt_mutex_ != NULL) {
+      pthread_mutex_destroy(gm_mt_mutex_);
+      aom_free(gm_mt_mutex_);
+    }
+#endif
+    av1_row_mt_mem_dealloc(cpi);
+    if (cpi->compressor_stage != LAP_STAGE) {
+      aom_free(mt_info->tile_thr_data);
+      aom_free(mt_info->workers);
+    }
+
+#if !CONFIG_REALTIME_ONLY
+    TplParams *const tpl_data = &cpi->tpl_data;
+    av1_tpl_dealloc(&tpl_data->tpl_mt_sync);
+#endif
+    if (mt_info->num_workers > 1) {
+      av1_loop_filter_dealloc(&mt_info->lf_row_sync);
+      av1_cdef_mt_dealloc(&mt_info->cdef_sync);
+#if !CONFIG_REALTIME_ONLY
+      av1_loop_restoration_dealloc(&mt_info->lr_row_sync,
+                                   mt_info->num_mod_workers[MOD_LR]);
+      av1_gm_dealloc(&mt_info->gm_sync);
+      av1_tf_mt_dealloc(&mt_info->tf_sync);
+#endif
+    }
+    aom_free(cpi->tile_data);
+    cpi->tile_data = NULL;
+
+    aom_free(cpi->common.tpl_mvs);
+    cpi->common.tpl_mvs = NULL;
+
+    if (cpi->td.vt64x64) {
+      aom_free(cpi->td.vt64x64);
+      cpi->td.vt64x64 = NULL;
+    }
+
+    aom_free_frame_buffer(&cpi->last_frame_uf);
+
+#if !CONFIG_REALTIME_ONLY
+    av1_free_restoration_buffers(&cpi->common);
+#endif
+
+    aom_free_frame_buffer(&cpi->trial_frame_rst);
+    aom_free_frame_buffer(&cpi->scaled_source);
+    aom_free_frame_buffer(&cpi->scaled_last_source);
+    aom_free_frame_buffer(&cpi->alt_ref_buffer);
+
+#if CONFIG_DENOISE
+    if (cpi->denoise_and_model) {
+      aom_denoise_and_model_free(cpi->denoise_and_model);
+      cpi->denoise_and_model = NULL;
+    }
+#endif
+
+    if (cpi->film_grain_table) {
+      aom_film_grain_table_free(cpi->film_grain_table);
+      cpi->film_grain_table = NULL;
+    }
+
+    av1_lookahead_destroy(cpi->lookahead);
+    cpi->lookahead = NULL;
+    if (cpi_lap != NULL) cpi_lap->lookahead = NULL;
+  }
   return res;
 }
 
