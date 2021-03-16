@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbf6b3c4_95f16333",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-16T00:33:06Z",
+      "side": 1,
+      "message": "Hi Urvang,\n\nI just noticed that your fix for bug 2725 consists of two commits and they were submitted together. So if I want to cherry-pick the bug fix to the \u0027applejack\u0027 branch, I should cherry-pick both commits. Is this correct?\n\nOn the master branch, the code modified by this commit looks quite different now:\n\n  // Keyframe and section processing.\n  FIRSTPASS_STATS this_frame_copy;\n  this_frame_copy \u003d this_frame;\n  int is_overlay_forward_kf \u003d\n      rc-\u003eframes_to_key \u003d\u003d 0 \u0026\u0026\n      gf_group-\u003eupdate_type[gf_group-\u003eindex] \u003d\u003d OVERLAY_UPDATE;\n  if (rc-\u003eframes_to_key \u003c\u003d 0 \u0026\u0026 !is_overlay_forward_kf) {\n    assert(rc-\u003eframes_to_key \u003e\u003d -1);\n    // Define next KF group and assign bits to it.\n    int kf_offset \u003d rc-\u003eframes_to_key;\n    if (rc-\u003eframes_to_key \u003c 0) {\n      this_frame \u003d *(twopass-\u003estats_in - 1);\n    } else {\n      frame_params-\u003eframe_type \u003d KEY_FRAME;\n    }\n    find_next_key_frame(cpi, \u0026this_frame);\n    rc-\u003eframes_since_key -\u003d kf_offset;\n    rc-\u003eframes_to_key +\u003d kf_offset;\n    this_frame \u003d this_frame_copy;\n  } else {\n\n(It was first modified in https://aomedia-review.googlesource.com/c/aom/+/117345 and then modified in https://aomedia-review.googlesource.com/c/aom/+/121864.)\n\nBut the test rc-\u003eframes_to_key \u003c\u003d 0 is still there. So I assume it\u0027s safe to cherry-pick this commit for the \u0027applejack\u0027 branch.\n\nThank you!",
+      "revId": "30888c1bb990138d4b70ce04cf986420f551a433",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
