@@ -28,6 +28,18 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+// Cross-Component Sample Offset (CCSO)
+#if CONFIG_CCSO
+#define CCSO_SCALE_LAMBDA 1
+#define CCSO_FILTER_SUPPORT_EXT 1
+#define CCSO_QUANT_STEP 1
+#define CCSO_BLK_SIZE 7
+#define CCSO_PADDING_SIZE 7
+#define CCSO_DYNAMIC_RANGE 2
+#define CCSO_LUT_SIZE 9
+#define CCSO_LUT_EXT_SIZE 16
+#endif
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)

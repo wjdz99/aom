@@ -35,6 +35,9 @@
 
 #include "av1/common/alloccommon.h"
 #include "av1/common/cdef.h"
+#if CONFIG_CCSO
+#include "av1/common/ccso.h"
+#endif
 #include "av1/common/cfl.h"
 #if CONFIG_INSPECTION
 #include "av1/decoder/inspection.h"
@@ -1787,6 +1790,32 @@ static AOM_INLINE void setup_cdef(AV1_COMMON *cm,
         num_planes > 1 ? aom_rb_read_literal(rb, CDEF_STRENGTH_BITS) : 0;
   }
 }
+
+#if CONFIG_CCSO
+static AOM_INLINE void setup_ccso(AV1_COMMON *cm,
+                                  struct aom_read_bit_buffer *rb) {
+  int ccso_offset[8] = { 0, 1, -1, 3, -3, 5, -5, -7 };
+  for (int plane = 0; plane < 2; plane++) {
+    cm->ccso_info.ccso_enable[plane] = aom_rb_read_literal(rb, 1);
+    if (cm->ccso_info.ccso_enable[plane]) {
+#if CCSO_QUANT_STEP
+      cm->ccso_info.quant_idx[plane] = aom_rb_read_literal(rb, 2);
+#endif
+#if CCSO_FILTER_SUPPORT_EXT
+      cm->ccso_info.ext_filter_support[plane] = aom_rb_read_literal(rb, 3);
+#endif
+      for (int d0 = 0; d0 < 3; d0++) {
+        for (int d1 = 0; d1 < 3; d1++) {
+          int lut_idx_ext = (d0 << 2) + d1;
+          int offset_idx = aom_rb_read_literal(rb, (CCSO_DYNAMIC_RANGE + 1));
+          cm->ccso_info.filter_offset[plane][lut_idx_ext] =
+              ccso_offset[offset_idx];
+        }
+      }
+    }
+  }
+}
+#endif
 
 static INLINE int read_delta_q(struct aom_read_bit_buffer *rb) {
   return aom_rb_read_bit(rb) ? aom_rb_read_inv_signed_literal(rb, 6) : 0;
@@ -5038,6 +5067,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (!features->all_lossless && seq_params->enable_restoration) {
     decode_restoration_mode(cm, rb);
   }
+#if CONFIG_CCSO
+  if (!features->coded_lossless) {
+    setup_ccso(cm, rb);
+  }
+#endif
 
   features->tx_mode = read_tx_mode(rb, features->coded_lossless);
   current_frame->reference_mode = read_frame_reference_mode(cm, rb);
@@ -5302,6 +5336,13 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
         }
       }
     }
+  }
+  if (!tiles->single_tile_decoding) {
+#if CONFIG_CCSO
+    const int use_ccso =
+        cm->ccso_info.ccso_enable[0] || cm->ccso_info.ccso_enable[1];
+    if (use_ccso) ccso_frame(&cm->cur_frame->buf, cm, xd);
+#endif
   }
 #if CONFIG_LPF_MASK
   av1_zero_array(cm->lf.lfm, cm->lf.lfm_num);

@@ -62,6 +62,9 @@
 #include "av1/encoder/mv_prec.h"
 #include "av1/encoder/pass2_strategy.h"
 #include "av1/encoder/pickcdef.h"
+#if CONFIG_CCSO
+#include "av1/encoder/pickccso.h"
+#endif
 #include "av1/encoder/picklpf.h"
 #include "av1/encoder/pickrst.h"
 #include "av1/encoder/random.h"
@@ -2036,6 +2039,13 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #endif
 }
 
+#if CONFIG_CCSO
+static void ccso(AV1_COMP *cpi, AV1_COMMON *cm, MACROBLOCKD *xd) {
+  ccso_search(&cm->cur_frame->buf, cpi->source, cm, xd, cpi->td.mb.rdmult);
+  ccso_frame(&cm->cur_frame->buf, cm, xd);
+}
+#endif
+
 /*!\brief Select and apply in-loop deblocking filters, cdef filters, and
  * restoration filters
  *
@@ -2613,6 +2623,11 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
+
+#if CONFIG_CCSO
+  if (!cm->features.coded_lossless && !cm->tiles.large_scale)
+    ccso(cpi, cm, &cpi->td.mb.e_mbd);
+#endif
 
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(&cm->cur_frame->buf, av1_num_planes(cm));
