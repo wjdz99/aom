@@ -96,7 +96,13 @@ TEST_P(TimestampTest, TestAv1Rollover) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
 
-AV1_INSTANTIATE_TEST_SUITE(TimestampTest,
-                           ::testing::Values(::libaom_test::kTwoPassGood));
+AV1_INSTANTIATE_TEST_SUITE(TimestampTest, ::testing::Values(
+#if CONFIG_REALTIME_ONLY
+                                              ::libaom_test::kRealTime
+#else
+                                              ::libaom_test::kRealTime,
+                                              ::libaom_test::kTwoPassGood
+#endif
+                                              ));
 
 }  // namespace
