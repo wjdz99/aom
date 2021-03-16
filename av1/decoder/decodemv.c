@@ -81,6 +81,39 @@ static void read_cdef(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
   }
 }
 
+#if CONFIG_CCSO
+static void read_ccso(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
+  if (cm->features.coded_lossless) return;
+  const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  const int m =
+      ~((1 << (CCSO_BLK_SIZE + xd->plane[1].subsampling_x - MI_SIZE_LOG2)) - 1);
+
+  if (!(mi_row & ((1 << CCSO_BLK_SIZE >> 1) -
+                  (MI_SIZE_LOG2 - xd->plane[1].subsampling_y))) &&
+      !(mi_col & ((1 << CCSO_BLK_SIZE >> 1) -
+                  (MI_SIZE_LOG2 - xd->plane[1].subsampling_x))) &&
+      cm->ccso_info.ccso_enable[0]) {
+    int blk_idc = aom_read_bit(r, ACCT_STR);
+    xd->ccso_blk_u = blk_idc;
+    mi_params->mi_grid_base[(mi_row & m) * mi_params->mi_stride + (mi_col & m)]
+        ->ccso_blk_u = blk_idc;
+  }
+
+  if (!(mi_row & ((1 << CCSO_BLK_SIZE >> 1) -
+                  (MI_SIZE_LOG2 - xd->plane[2].subsampling_y))) &&
+      !(mi_col & ((1 << CCSO_BLK_SIZE >> 1) -
+                  (MI_SIZE_LOG2 - xd->plane[2].subsampling_x))) &&
+      cm->ccso_info.ccso_enable[1]) {
+    int blk_idc = aom_read_bit(r, ACCT_STR);
+    xd->ccso_blk_v = blk_idc;
+    mi_params->mi_grid_base[(mi_row & m) * mi_params->mi_stride + (mi_col & m)]
+        ->ccso_blk_v = blk_idc;
+  }
+}
+#endif
+
 static int read_delta_qindex(AV1_COMMON *cm, const MACROBLOCKD *xd,
                              aom_reader *r, MB_MODE_INFO *const mbmi) {
   int sign, abs, reduced_delta_qindex = 0;
@@ -791,6 +824,10 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     mbmi->segment_id = read_intra_segment_id(cm, xd, bsize, r, mbmi->skip_txfm);
 
   read_cdef(cm, r, xd);
+
+#if CONFIG_CCSO
+  read_ccso(cm, r, xd);
+#endif
 
   read_delta_q_params(cm, xd, r);
 
@@ -1551,6 +1588,10 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     mbmi->segment_id = read_inter_segment_id(cm, xd, 0, r);
 
   read_cdef(cm, r, xd);
+
+#if CONFIG_CCSO
+  read_ccso(cm, r, xd);
+#endif
 
   read_delta_q_params(cm, xd, r);
 
