@@ -1195,7 +1195,8 @@ static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
   tx_sf->model_based_prune_tx_search_level = 0;
   tx_sf->tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_1;
 #if CONFIG_NEW_TX_PARTITION
-    sf->tx_sf.tx_type_search.ml_tx_split_thresh = 400;
+  tx_sf->tx_type_search.ml_tx_split_thresh = 400;
+  tx_sf->tx_type_search.ml_tx_skip_all_split_thresh = 4000;
 #else
   tx_sf->tx_type_search.ml_tx_split_thresh = 8500;
 #endif 

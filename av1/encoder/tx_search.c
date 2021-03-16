@@ -2818,15 +2818,22 @@ static void select_tx_partition_type(
     // Skip any illegal partitions for this block size
     if (!use_tx_partition(type, max_tx_size)) continue;
 
+  //int ml_tx_split_horzvert_thresh;
   // ML based speed feature to skip searching for split transform blocks.
-  if (x->e_mbd.bd == 8 && ((!is_rect && type == TX_PARTITION_SPLIT) ||
-                           (is_rect && is_vert_rect && type == TX_PARTITION_HORZ) ||
-                           (is_rect && !is_vert_rect && type == TX_PARTITION_VERT))) {
+  if (x->e_mbd.bd == 8) {
     const int threshold = cpi->sf.tx_sf.tx_type_search.ml_tx_split_thresh;
-    if (threshold >= 0) {
+    const int threshold_skip_all =
+      cpi->sf.tx_sf.tx_type_search.ml_tx_skip_all_split_thresh;
+    if (threshold >= 0 || threshold_skip_all >= 0) {
       const int split_score =
           ml_predict_tx_split(x, plane_bsize, blk_row, blk_col, max_tx_size);
-      if (split_score < -threshold) continue;
+      // Skip all remaning partitions
+      if (type != TX_PARTITION_NONE && split_score < -threshold_skip_all) break;
+      if (threshold >= 0 && ((!is_rect && type == TX_PARTITION_SPLIT) ||
+          (is_rect && is_vert_rect && type == TX_PARTITION_HORZ) ||
+          (is_rect && !is_vert_rect && type == TX_PARTITION_VERT))) {
+        if (split_score < -threshold) continue;
+      }
     }
   }
 
