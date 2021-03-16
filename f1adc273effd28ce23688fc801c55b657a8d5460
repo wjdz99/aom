@@ -109,6 +109,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "20accd39_50b867b6",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-16T02:01:37Z",
+      "side": 1,
+      "message": "Yes, that function handles the intra modes in inter frames.\nIIRC, in the codebase, all the functions in the form \"handle_foo_mode\" are for inter frame encoding.",
+      "parentUuid": "e14e1faa_296f7ab1",
+      "revId": "f1adc273effd28ce23688fc801c55b657a8d5460",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "715d68fc_a4f3b643",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 1
