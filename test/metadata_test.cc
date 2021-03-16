@@ -34,7 +34,7 @@ const size_t kMetadataPayloadSizeCll = 4;
 const uint8_t kMetadataPayloadCll[kMetadataPayloadSizeCll] = { 0xB5, 0x01, 0x02,
                                                                0x03 };
 
-#if CONFIG_AV1_ENCODER
+#if CONFIG_AV1_ENCODER && !CONFIG_REALTIME_ONLY
 
 const size_t kMetadataObuSizeT35 = 28;
 const uint8_t kMetadataObuT35[kMetadataObuSizeT35] = {

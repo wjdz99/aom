@@ -241,6 +241,7 @@ TEST_P(ResizeTest, TestExternalResizeWorks) {
 const unsigned int kStepDownFrame = 3;
 const unsigned int kStepUpFrame = 6;
 
+#if !CONFIG_REALTIME_ONLY
 class ResizeInternalTestLarge : public ResizeTest {
  protected:
 #if WRITE_COMPRESSED_STREAM
@@ -362,6 +363,10 @@ TEST_P(ResizeInternalTestLarge, TestInternalResizeChangeConfig) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
 
+AV1_INSTANTIATE_TEST_SUITE(ResizeInternalTestLarge,
+                           ::testing::Values(::libaom_test::kOnePassGood));
+#endif
+
 class ResizeRealtimeTest
     : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
       public ::libaom_test::EncoderTest {
@@ -377,6 +382,12 @@ class ResizeRealtimeTest
       encoder->Control(AV1E_SET_AQ_MODE, 3);
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
       encoder->Control(AV1E_SET_FRAME_PARALLEL_DECODING, 1);
+      encoder->Control(AV1E_SET_ENABLE_RESTORATION, 0);
+      encoder->Control(AV1E_SET_ENABLE_OBMC, 0);
+      encoder->Control(AV1E_SET_ENABLE_GLOBAL_MOTION, 0);
+      encoder->Control(AV1E_SET_ENABLE_WARPED_MOTION, 0);
+      encoder->Control(AV1E_SET_DELTAQ_MODE, 0);
+      encoder->Control(AV1E_SET_ENABLE_TPL_MODEL, 0);
     }
     if (set_scale_mode_) {
       struct aom_scaling_mode mode;
@@ -786,6 +797,7 @@ TEST_P(ResizeCspTest, TestResizeCspWorks) {
   }
 }
 
+#if !CONFIG_REALTIME_ONLY
 // This class is used to check if there are any fatal
 // failures while encoding with resize-mode > 0
 class ResizeModeTestLarge
@@ -833,16 +845,6 @@ TEST_P(ResizeModeTestLarge, ResizeModeTest) {
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 }
 
-AV1_INSTANTIATE_TEST_SUITE(ResizeTest,
-                           ::testing::Values(::libaom_test::kRealTime));
-AV1_INSTANTIATE_TEST_SUITE(ResizeInternalTestLarge,
-                           ::testing::Values(::libaom_test::kOnePassGood));
-AV1_INSTANTIATE_TEST_SUITE(ResizeRealtimeTest,
-                           ::testing::Values(::libaom_test::kRealTime),
-                           ::testing::Range(5, 10));
-AV1_INSTANTIATE_TEST_SUITE(ResizeCspTest,
-                           ::testing::Values(::libaom_test::kRealTime));
-
 // TODO(anyone): Enable below test once resize issues are fixed
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(ResizeModeTestLarge);
 // AV1_INSTANTIATE_TEST_SUITE(
@@ -851,4 +853,12 @@ GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(ResizeModeTestLarge);
 //    ::libaom_test::kTwoPassGood),
 //    ::testing::Values(1, 2), ::testing::Values(8, 12, 16),
 //    ::testing::Values(8, 12, 16), ::testing::Range(2, 7));
+#endif  // !CONFIG_REALTIME_ONLY
+
+AV1_INSTANTIATE_TEST_SUITE(ResizeRealtimeTest,
+                           ::testing::Values(::libaom_test::kRealTime),
+                           ::testing::Range(6, 10));
+AV1_INSTANTIATE_TEST_SUITE(ResizeCspTest,
+                           ::testing::Values(::libaom_test::kRealTime));
+
 }  // namespace
