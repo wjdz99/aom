@@ -128,6 +128,7 @@ TEST(BlockdTest, GetPartitionSubsize) {
 
 #if CONFIG_AV1_DECODER && CONFIG_AV1_ENCODER
 namespace {
+
 // This class is used to validate if sb_size configured is respected
 // in the bitstream
 class SuperBlockSizeTestLarge
@@ -191,9 +192,17 @@ TEST_P(SuperBlockSizeTestLarge, SuperBlockSizeTest) {
       << "Failed for SB size " << superblock_size_;
 }
 
+const ::libaom_test::TestMode kTestModes[] = {
+#if CONFIG_REALTIME_ONLY
+  ::libaom_test::kRealTime
+#else
+  ::libaom_test::kRealTime, ::libaom_test::kOnePassGood,
+  ::libaom_test::kTwoPassGood
+#endif
+};
+
 AV1_INSTANTIATE_TEST_SUITE(SuperBlockSizeTestLarge,
-                           ::testing::Values(::libaom_test::kOnePassGood,
-                                             ::libaom_test::kTwoPassGood),
+                           ::testing::ValuesIn(kTestModes),
                            ::testing::Values(AOM_SUPERBLOCK_SIZE_64X64,
                                              AOM_SUPERBLOCK_SIZE_128X128),
                            ::testing::Values(AOM_Q, AOM_VBR, AOM_CBR, AOM_CQ));
