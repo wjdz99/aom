@@ -1187,6 +1187,10 @@ static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
   tx_sf->model_based_prune_tx_search_level = 0;
   tx_sf->tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_1;
   tx_sf->tx_type_search.ml_tx_split_thresh = 8500;
+#if CONFIG_NEW_TX_PARTITION
+  tx_sf->tx_type_search.prune_inter_4way_split = 1;
+  tx_sf->tx_type_search.prune_intra_4way_split = 1;
+#endif  // CONFIG_NEW_TX_PARTITION
   tx_sf->tx_type_search.use_skip_flag_prediction = 1;
   tx_sf->tx_type_search.use_reduced_intra_txset = 0;
   tx_sf->tx_type_search.fast_intra_tx_type_search = 0;
