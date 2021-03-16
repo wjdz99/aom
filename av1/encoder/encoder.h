@@ -2097,6 +2097,11 @@ typedef struct AV1_PRIMARY {
    * Track prior gf group state.
    */
   GF_STATE gf_state;
+
+  /*!
+   * Flag indicating whether look ahead processing (LAP) is enabled.
+   */
+  int lap_enabled;
 } AV1_PRIMARY;
 
 /*!
@@ -2636,10 +2641,6 @@ typedef struct AV1_COMP {
   SVC svc;
 
   /*!
-   * Flag indicating whether look ahead processing (LAP) is enabled.
-   */
-  int lap_enabled;
-  /*!
    * Indicates whether current processing stage is encode stage or LAP stage.
    */
   COMPRESSOR_STAGE compressor_stage;
@@ -2786,7 +2787,7 @@ struct AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
                                        STATS_BUFFER_CTX *stats_buf_context);
 
 struct AV1_PRIMARY *av1_create_primary_compressor(
-    struct aom_codec_pkt_list *pkt_list_head);
+    struct aom_codec_pkt_list *pkt_list_head, int num_lap_buffers);
 
 void av1_remove_compressor(AV1_COMP *cpi);
 
@@ -3020,7 +3021,7 @@ static INLINE int is_altref_enabled(int lag_in_frames, bool enable_auto_arf) {
 // Check if statistics generation stage
 static INLINE int is_stat_generation_stage(const AV1_COMP *const cpi) {
   assert(IMPLIES(cpi->compressor_stage == LAP_STAGE,
-                 cpi->oxcf.pass == 0 && cpi->lap_enabled));
+                 cpi->oxcf.pass == 0 && cpi->ppi->lap_enabled));
   return (cpi->oxcf.pass == 1 || (cpi->compressor_stage == LAP_STAGE));
 }
 // Check if statistics consumption stage
@@ -3032,7 +3033,7 @@ static INLINE int is_stat_consumption_stage_twopass(const AV1_COMP *const cpi) {
 static INLINE int is_stat_consumption_stage(const AV1_COMP *const cpi) {
   return (is_stat_consumption_stage_twopass(cpi) ||
           (cpi->oxcf.pass == 0 && (cpi->compressor_stage == ENCODE_STAGE) &&
-           cpi->lap_enabled));
+           cpi->ppi->lap_enabled));
 }
 
 /*!\endcond */
@@ -3045,8 +3046,9 @@ static INLINE int is_stat_consumption_stage(const AV1_COMP *const cpi) {
  * \return 0 if no stats for current stage else 1
  */
 static INLINE int has_no_stats_stage(const AV1_COMP *const cpi) {
-  assert(IMPLIES(!cpi->lap_enabled, cpi->compressor_stage == ENCODE_STAGE));
-  return (cpi->oxcf.pass == 0 && !cpi->lap_enabled);
+  assert(
+      IMPLIES(!cpi->ppi->lap_enabled, cpi->compressor_stage == ENCODE_STAGE));
+  return (cpi->oxcf.pass == 0 && !cpi->ppi->lap_enabled);
 }
 /*!\cond */
 
