@@ -38,6 +38,16 @@ class ActiveMapTest
                                   ::libaom_test::Encoder *encoder) {
     if (video->frame() == 0) {
       encoder->Control(AOME_SET_CPUUSED, cpu_used_);
+#if CONFIG_REALTIME_ONLY
+      if (GET_PARAM(1) == ::libaom_test::kRealTime) {
+        encoder->Control(AV1E_SET_ENABLE_RESTORATION, 0);
+        encoder->Control(AV1E_SET_ENABLE_OBMC, 0);
+        encoder->Control(AV1E_SET_ENABLE_GLOBAL_MOTION, 0);
+        encoder->Control(AV1E_SET_ENABLE_WARPED_MOTION, 0);
+        encoder->Control(AV1E_SET_DELTAQ_MODE, 0);
+        encoder->Control(AV1E_SET_ENABLE_TPL_MODEL, 0);
+      }
+#endif
     } else if (video->frame() == 3) {
       aom_active_map_t map = aom_active_map_t();
       /* clang-format off */
@@ -86,14 +96,6 @@ class ActiveMapTest
 };
 
 TEST_P(ActiveMapTest, Test) { DoTest(); }
-
-class ActiveMapTestLarge : public ActiveMapTest {};
-
-TEST_P(ActiveMapTestLarge, Test) { DoTest(); }
-
-AV1_INSTANTIATE_TEST_SUITE(ActiveMapTestLarge,
-                           ::testing::Values(::libaom_test::kRealTime),
-                           ::testing::Range(0, 5));
 
 AV1_INSTANTIATE_TEST_SUITE(ActiveMapTest,
                            ::testing::Values(::libaom_test::kRealTime),
