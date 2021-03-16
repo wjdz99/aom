@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b34ffe3_fc34ad91",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-16T00:23:31Z",
+      "side": 1,
+      "message": "Perhaps something like \"Feasible values are 0..4. The feature is disabled for 0. An increasing value indicates more aggressive pruning threshold.\"?\n\nI have no problem with the subtract 1 for indexing. But feel free to increase the array size by 1 and index directly if you prefer.",
+      "parentUuid": "46715543_6f8d7528",
+      "revId": "f1adc273effd28ce23688fc801c55b657a8d5460",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "781ac7ae_f29d75a2",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2021-03-15T22:32:19Z",
       "side": 1,
       "message": "Here is an example (from av1/encoder/intra_mode_search.c) of how this is used:\n\n  if (cpi-\u003esf.intra_sf.intra_pruning_with_hog) {\n    // Less aggressive thresholds are used here than those used in inter frame\n    // encoding.\n    const float thresh[4] \u003d { -1.2f, -1.2f, -0.6f, 0.4f };\n    const int is_chroma \u003d 0;\n    prune_intra_mode_with_hog(\n        x, bsize, thresh[cpi-\u003esf.intra_sf.intra_pruning_with_hog - 1],\n        directional_mode_skip_mask, is_chroma);\n  }\n\nNote: The comment in the code snippet is a little confusing to me. I don\u0027t know which thresholds used in inter frame encoding the comment is referring to. It would be good to clarify that.",
+      "revId": "f1adc273effd28ce23688fc801c55b657a8d5460",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e9b5a2f_83a9e8c5",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-16T00:23:31Z",
+      "side": 1,
+      "message": "The example you have is from av1_rd_pick_intra_sby_mode, which handles intra mode coding in INTRA frames.\n\nThere is a different function av1_handle_intra_y_mode that handles coding for INTER frames.\n\nBecause we usually want key frames/intra frames to have higher quality, the threshold is less aggressive for key frame coding.",
+      "parentUuid": "781ac7ae_f29d75a2",
       "revId": "f1adc273effd28ce23688fc801c55b657a8d5460",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -48,6 +84,24 @@
       "writtenOn": "2021-03-15T22:32:19Z",
       "side": 1,
       "message": "The value 1 is not currently used for chroma_intra_pruning_with_hog.",
+      "revId": "f1adc273effd28ce23688fc801c55b657a8d5460",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a41820d1_eac8a80e",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-16T00:23:31Z",
+      "side": 1,
+      "message": "Awk.\n\nBut I would prefer keeping the threshold so it will be easier to tune the encoder in the future.",
+      "parentUuid": "715d68fc_a4f3b643",
       "revId": "f1adc273effd28ce23688fc801c55b657a8d5460",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
