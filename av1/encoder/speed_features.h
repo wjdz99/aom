@@ -266,6 +266,10 @@ typedef struct {
   // mode evaluation and disables tx type mode pruning for winner mode
   // processing.
   int winner_mode_tx_type_pruning;
+#if CONFIG_NEW_TX_PARTITION
+  // Skip horz/vert partition based on 4way split ml model
+  int ml_tx_split_horzvert_thresh;
+#endif
 } TX_TYPE_SEARCH;
 
 enum {
