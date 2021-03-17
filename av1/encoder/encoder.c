@@ -79,6 +79,10 @@
 
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
+#if CONFIG_NEW_INTER_MODES
+#define MAX_DRL_BITS 5
+#endif  // CONFIG_NEW_INTER_MODES
+
 #if CONFIG_ENTROPY_STATS
 FRAME_COUNTS aggregate_fc;
 #endif  // CONFIG_ENTROPY_STATS
@@ -748,6 +752,11 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   }
 
   av1_reset_segment_features(cm);
+
+#if CONFIG_NEW_INTER_MODES
+  // Add logic to choose this in the range [3, 7]
+  cm->features.max_drl_bits = MAX_DRL_BITS;
+#endif  // CONFIG_NEW_INTER_MODES
 
   av1_set_high_precision_mv(cpi, 1, 0);
 
