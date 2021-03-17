@@ -94,6 +94,30 @@
       },
       "revId": "90abf5361f36fbc22f0c70dcd1793e7f8c4e49de",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13cfbd29_b313e62b",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-03-17T19:02:21Z",
+      "side": 1,
+      "message": "Yes you are right it is defined only on the encoder side to set max_drl\n_bits. However I did not want to contaminate anything else since eventually an encoder may select it intelligently per frame. MAX_REF_MV_SEARCH should ideally be max_drl_bits+1, but the macro is used for allocations of static array as well, which should be the max allowed value of MAX_REF_MV_STACK_SIZE.",
+      "parentUuid": "4d06ed39_2e7d7eba",
+      "range": {
+        "startLine": 25,
+        "startChar": 1,
+        "endLine": 29,
+        "endChar": 33
+      },
+      "revId": "90abf5361f36fbc22f0c70dcd1793e7f8c4e49de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
