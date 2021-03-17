@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nThis patch abstracts output_pkt_list from cpi to AV1_PRIMARY(ppi). There were some places in the existing codebase where output_pkt_list was expected to be null for LAP. Since this element is now abstracted and common to both cpi and cpi_lap, it will not be null. To accommodate this behavior, this patch adds code to check if the context accessing output_pkt_list is not a LAP context before it does so.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --passes etc. \n\nPlease review.",
       "revId": "1330bb996736f5adf56e77de28aa3d407b63bd53",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9853dd3_0db866f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-17T21:26:28Z",
+      "side": 1,
+      "message": "I saw cpi-\u003elap_enabled was used in the checking. Should cpi-\u003ecompressor_stage \u003d\u003d LAP_STAGE be used? Could you double check?",
+      "parentUuid": "5b43e72d_7742118b",
+      "revId": "1330bb996736f5adf56e77de28aa3d407b63bd53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
