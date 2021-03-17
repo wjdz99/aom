@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef870316_a53dfc05",
+        "filename": "test/active_map_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-17T00:11:22Z",
+      "side": 1,
+      "message": "This to me doesn\u0027t explain why we\u0027re doing it. I would hope they\u0027d be disabled because of the config already. If you\u0027re trying to match webrtc settings then doing it when !CONFIG_REALTIME_ONLY to make the two equivalent might make sense, but we\u0027d want to call that out.\n\nI think if realtime can be used with these settings then we\u0027d do better to pick up the defaults in all builds and maybe have a webrtc-like configuration for !CONFIG, unless I\u0027m misunderstanding things.",
+      "revId": "e5ee4e9fe8addeca7f7eeca722466c28be676611",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "560bd887_889a83ab",
+        "filename": "test/arf_freq_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-17T00:11:22Z",
+      "side": 1,
+      "message": "let\u0027s try to be consistent with positive checks when we can so the tests have a similar structure",
+      "revId": "e5ee4e9fe8addeca7f7eeca722466c28be676611",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d87db00_0cdff7e8",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-17T00:11:22Z",
+      "side": 1,
+      "message": "seems like this test could be extended to cover realtime, no?",
+      "revId": "e5ee4e9fe8addeca7f7eeca722466c28be676611",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d3bee23_d3c42840",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-17T00:11:22Z",
+      "side": 1,
+      "message": "This is part of the public api so I think we should keep the coverage for realtime. This comment may apply to a bunch of other tests. we have crashes right now with CONFIG_REALTIME_ONLY so that would suggest the library or the tests aren\u0027t doing enough error checking. There might still be failures and cases we want to exclude, but the library should be robust with any configuration.",
+      "revId": "e5ee4e9fe8addeca7f7eeca722466c28be676611",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
