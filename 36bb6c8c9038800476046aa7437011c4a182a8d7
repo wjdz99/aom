@@ -16,6 +16,24 @@
       "message": "Hi, Urvang, Leo\n\nIt seems I don\u0027t have the permission to merge this patch into the research branch anymore. Do you know what happened? can you help me merge this patch?\n\nThanks\n\nRyan",
       "revId": "36bb6c8c9038800476046aa7437011c4a182a8d7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f776b2c0_2a5b5448",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-17T04:46:28Z",
+      "side": 1,
+      "message": "I removed \"Verified - 1\" by AOMedia Builds. Please check whether it\u0027s ok to submit the changes now.",
+      "parentUuid": "59e7e44d_6e15c103",
+      "revId": "36bb6c8c9038800476046aa7437011c4a182a8d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
