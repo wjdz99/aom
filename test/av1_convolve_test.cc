@@ -622,6 +622,7 @@ TEST_P(AV1ConvolveCopyHighbdTest, RunTest) { RunTest(); }
 INSTANTIATE_TEST_SUITE_P(C, AV1ConvolveCopyHighbdTest,
                          BuildHighbdParams(aom_highbd_convolve_copy_c));
 
+#if !CONFIG_EXT_RECUR_PARTITIONS
 #if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(SSE2, AV1ConvolveCopyHighbdTest,
                          BuildHighbdParams(aom_highbd_convolve_copy_sse2));
@@ -631,6 +632,7 @@ INSTANTIATE_TEST_SUITE_P(SSE2, AV1ConvolveCopyHighbdTest,
 INSTANTIATE_TEST_SUITE_P(AVX2, AV1ConvolveCopyHighbdTest,
                          BuildHighbdParams(aom_highbd_convolve_copy_avx2));
 #endif
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
 /////////////////////////////////////////////////////////
 // Single reference convolve-2D functions (low bit-depth)
@@ -1060,6 +1062,7 @@ INSTANTIATE_TEST_SUITE_P(
     C, AV1ConvolveXHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_x_c));
 
+#if !CONFIG_EXT_RECUR_PARTITIONS
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, AV1ConvolveXHighbdCompoundTest,
@@ -1071,6 +1074,7 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1ConvolveXHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_x_avx2));
 #endif
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
 ////////////////////////////////////////////////
 // Compound convolve-y functions (low bit-depth)
@@ -1133,6 +1137,7 @@ INSTANTIATE_TEST_SUITE_P(
     C, AV1ConvolveYHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_y_c));
 
+#if !CONFIG_EXT_RECUR_PARTITIONS
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, AV1ConvolveYHighbdCompoundTest,
@@ -1144,6 +1149,7 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1ConvolveYHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_y_avx2));
 #endif
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
 //////////////////////////////////////////////////////
 // Compound convolve-2d-copy functions (low bit-depth)
@@ -1292,6 +1298,7 @@ INSTANTIATE_TEST_SUITE_P(
     C, AV1Convolve2DCopyHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_copy_c));
 
+#if !CONFIG_EXT_RECUR_PARTITIONS
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, AV1Convolve2DCopyHighbdCompoundTest,
@@ -1303,6 +1310,7 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1Convolve2DCopyHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_copy_avx2));
 #endif
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
 /////////////////////////////////////////////////
 // Compound convolve-2d functions (low bit-depth)
@@ -1480,6 +1488,7 @@ INSTANTIATE_TEST_SUITE_P(
     C, AV1Convolve2DHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_c));
 
+#if !CONFIG_EXT_RECUR_PARTITIONS
 #if HAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, AV1Convolve2DHighbdCompoundTest,
@@ -1491,5 +1500,6 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, AV1Convolve2DHighbdCompoundTest,
     BuildHighbdLumaParams(av1_highbd_dist_wtd_convolve_2d_avx2));
 #endif
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
 }  // namespace
