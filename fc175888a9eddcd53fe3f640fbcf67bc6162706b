@@ -129,6 +129,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cb1699e8_b346d65c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3665,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-03-17T14:49:42Z",
+      "side": 1,
+      "message": "Please find the results below (without the gfu boost condition)\n\n                      Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution    Reduction(%)    avg.psnr  ovr.psnr   ssim \n    5       LOWRES\t    7.317\t 0.2464\t   0.2791    0.1491\t\n    5       MIDRES\t    7.969\t 0.1941\t   0.1274    0.1699\t\n    5       HDRES\t    7.242       -0.0936\t  -0.0722   -0.1105\t\n    5       Average\t    7.457\t 0.1274\t   0.1276    0.0760",
+      "parentUuid": "e28252ff_ae9b4326",
+      "range": {
+        "startLine": 3664,
+        "startChar": 14,
+        "endLine": 3665,
+        "endChar": 69
+      },
+      "revId": "fc175888a9eddcd53fe3f640fbcf67bc6162706b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "007a0683_618ff8f5",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 4
@@ -187,6 +211,30 @@
       "writtenOn": "2021-03-17T04:47:14Z",
       "side": 1,
       "message": "Originally, use\n(beta[0] \u003e\u003d beta[1] + 0.7) \u0026\u0026 beta[0] \u003e 8.0;\nWhy is this changed? What is the difference?",
+      "range": {
+        "startLine": 1596,
+        "startChar": 2,
+        "endLine": 1596,
+        "endChar": 44
+      },
+      "revId": "fc175888a9eddcd53fe3f640fbcf67bc6162706b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39cb4787_c0d3c7ca",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1596,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-03-17T14:49:42Z",
+      "side": 1,
+      "message": "In the original version\n1. beta[0] \u003e 8.0 corresponds to base layer ARF having a higher dependency factor\n2. beta[0] \u003e\u003d beta[1] + 0.7 corresponds to the base layer ARF having a higher dependency factor than the (base + 1) layer ARF\nWhen both the above conditions are satisfied gop_length is chosen as 32.\n\nIn our patch\n1. beta[0] \u003e 1.1 : beta[0] corresponds to the dependency factor of base layer ARF by only the (base + 1) layer ARF being high (TPL stats calculation is done only for base layer and the (base + 1) layer ARF).\n2. \"rc-\u003egfu_boost \u003e\u003d rc-\u003enum_stats_used_for_gfu_boost * GF_MIN_BOOST * 1.4\" : Larger boost indicates good predictability of other frames from the base layer ARF.\nWhen either of the above conditions are satisfied gop_length is chosen as 32.",
+      "parentUuid": "a0ecda25_b097ee7e",
       "range": {
         "startLine": 1596,
         "startChar": 2,
