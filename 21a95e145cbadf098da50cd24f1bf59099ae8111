@@ -34,6 +34,24 @@
       "parentUuid": "855d21c0_a2f9eb58",
       "revId": "21a95e145cbadf098da50cd24f1bf59099ae8111",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "408e2e3d_b3b71564",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 24
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-17T23:16:04Z",
+      "side": 1,
+      "message": "We SWCs have discussed this, and we agreed that we should have at least two patches for each adopted proposal. In the first patch(s), the compiling flag is turned off by default, and there should be no performance change by this commit. In the second (or last) patch,  we need to have one single line to turn on the compiling flag by default, then all the changes will go through Jenkins tests. \n\nWhen merging the code to research branch, we will merge these two patches at the same time.",
+      "parentUuid": "5a3a7ac9_cad0adda",
+      "revId": "21a95e145cbadf098da50cd24f1bf59099ae8111",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
