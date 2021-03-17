@@ -32,34 +32,40 @@ static void update_scaling_factors(const int blk_count,
                                    double *const new_scaling_facotrs,
                                    double k) {
   double log_sum = 0.0;
-  double non_zero_blk_count = 0.0;
+  const float eps = 0.001f;
+  const double c = 2000.0;
+
   for (int i = 0; i < blk_count; ++i) {
-    const float eps = 0.001f;
+    new_scaling_facotrs[i] = 2.0 * rds[i].var + c;
+    log_sum += log(new_scaling_facotrs[i]);
+  }
+  log_sum = exp(log_sum / blk_count);
+  for (int i = 0; i < blk_count; ++i) {
+    new_scaling_facotrs[i] /= log_sum;
+  }
+
+  log_sum = 0.0;
+  for (int i = 0; i < blk_count; ++i) {
     double weight;
     if (rds[i].dbutteraugli < eps || rds[i].mse < eps) {
-      weight = -1.0;
+      weight = 1.0;
     } else {
       weight = rds[i].mse / rds[i].dbutteraugli;
       weight = AOMMIN(weight, 5.0);
       weight = AOMMAX(weight, 0.2);
-      weight += k;
-      log_sum += log(weight);
-      non_zero_blk_count += 1.0;
     }
-    new_scaling_facotrs[i] = weight;
+    weight += k;
+    new_scaling_facotrs[i] *= weight;
+    log_sum += log(new_scaling_facotrs[i]);
   }
 
   // Geometric average of the weights.
-  log_sum = exp(log_sum / non_zero_blk_count);
+  log_sum = exp(log_sum / blk_count);
 
   for (int i = 0; i < blk_count; ++i) {
-    if (new_scaling_facotrs[i] > 0.0) {
-      new_scaling_facotrs[i] /= log_sum;
-      new_scaling_facotrs[i] = AOMMIN(new_scaling_facotrs[i], 4.0);
-      new_scaling_facotrs[i] = AOMMAX(new_scaling_facotrs[i], 0.25);
-    } else {
-      new_scaling_facotrs[i] = 1.0;
-    }
+    new_scaling_facotrs[i] /= log_sum;
+    new_scaling_facotrs[i] = AOMMIN(new_scaling_facotrs[i], 4.0);
+    new_scaling_facotrs[i] = AOMMAX(new_scaling_facotrs[i], 0.25);
   }
 }
 
@@ -210,10 +216,10 @@ static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
   const double distortion_limit = 1.6;
   // 'K' is used to balance the rate-distortion distribution between PSNR
   // and Butteraugli.
-  const double k = find_optimal_k(cm, num_rows * num_cols, distortion_limit,
-                                  rds, rdmult, baseline_distortion);
+  // const double k = find_optimal_k(cm, num_rows * num_cols, distortion_limit,
+  //                                rds, rdmult, baseline_distortion);
 
-  update_scaling_factors(num_rows * num_cols, rds, scaling_factors, k);
+  update_scaling_factors(num_rows * num_cols, rds, scaling_factors, 0.4);
 
   aom_free(diffmap);
   aom_free(rds);
