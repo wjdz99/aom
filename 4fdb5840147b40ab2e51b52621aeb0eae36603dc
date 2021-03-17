@@ -3,6 +3,63 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0ad6bd19_5ae48c25",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T17:06:14Z",
+      "side": 1,
+      "message": "Typo: intra_mode_rd \u003d\u003e intra_model_rd",
+      "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "089748a6_74e08cb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T17:06:14Z",
+      "side": 1,
+      "message": "Angie: I suggest a few small changes.",
+      "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e5d6dae_2bfefb5c",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T17:06:14Z",
+      "side": 1,
+      "message": "Nit/optional: declare src_stride as \u0027int\u0027 to avoid the compiler warning when this is passed to the av1_fwd_txfm() callk at line 409. Since we pass block_size_wide[plane_bsize] (of the uint8_t type) as this argument, the \u0027int\u0027 type is large enough. Alternatively we can just add a (int) cast at line 409.",
+      "range": {
+        "startLine": 392,
+        "startChar": 27,
+        "endLine": 392,
+        "endChar": 47
+      },
+      "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "99e5c9ba_050c46b4",
         "filename": "av1/encoder/intra_mode_search_utils.h",
         "patchSetId": 3
@@ -20,6 +77,92 @@
         "endLine": 402,
         "endChar": 42
       },
+      "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92a4c5f6_b2368b13",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T17:06:14Z",
+      "side": 1,
+      "message": "use_hardamard \u003d\u003e use_hadamard",
+      "range": {
+        "startLine": 418,
+        "startChar": 51,
+        "endLine": 418,
+        "endChar": 64
+      },
+      "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e42e7b0a_3809bd2b",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T17:06:14Z",
+      "side": 1,
+      "message": "Nit: buffer \u003d\u003e buffers",
+      "range": {
+        "startLine": 435,
+        "startChar": 59,
+        "endLine": 435,
+        "endChar": 65
+      },
+      "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8936f0ec_15bb1a43",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T17:06:14Z",
+      "side": 1,
+      "message": "use_hardamard \u003d\u003e use_hadamard",
+      "range": {
+        "startLine": 468,
+        "startChar": 12,
+        "endLine": 468,
+        "endChar": 25
+      },
+      "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84da2eef_45a520e2",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T17:06:14Z",
+      "side": 1,
+      "message": "Optional: I assume the \u0027use_hadamard\u0027 variable (constant) is intended to make the code more readable. If so, a common solution recommended by https://abseil.io/tips/94 is to use a comment:\n\n      intra_model_rd(cm, x, plane, bsize, tx_size, /*use_hardamard\u003d*/1);",
       "revId": "4fdb5840147b40ab2e51b52621aeb0eae36603dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
