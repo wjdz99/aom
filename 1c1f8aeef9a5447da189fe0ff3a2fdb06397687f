@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05de767c_12a7bf32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T21:49:22Z",
+      "side": 1,
+      "message": "Sai: I suggest some small changes.",
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce53d1e9_73aa25a5",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T21:49:22Z",
+      "side": 1,
+      "message": "The multiplication here may overflow the 32-bit \u0027int\u0027 type if \u0027width\u0027 and \u0027height\u0027 are large. I don\u0027t know if the libaom encoder takes care of avoid integer overflow in this kind of calculation.",
+      "range": {
+        "startLine": 29,
+        "startChar": 29,
+        "endLine": 29,
+        "endChar": 47
+      },
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a601e234_87164d18",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T21:49:22Z",
+      "side": 1,
+      "message": "This case is impossible if we have validated source-\u003esubsampling_x and source-\u003esubsampling_y. I don\u0027t know if we can assume that here.",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 13
+      },
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1551206e_eba84e13",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T21:49:22Z",
+      "side": 1,
+      "message": "Nit: we can declare a local variable \u0027y_end\u0027:\n\n      const int y_start \u003d AOMMIN(y_start + block_h, height);\n\nand use it in the for loop\u0027s condition:\n\n     for (int y \u003d y_start; y \u003c y_end; y++) {",
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "600c209f_36214199",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T21:49:22Z",
+      "side": 1,
+      "message": "To handle an odd \u0027width\u0027 or \u0027height\u0027 correctly, I believe we need to use\n    (height + ss_y) \u003e\u003e ss_y\nand\n    (width + ss_x) \u003e\u003e ss_x\n\nI assume x_start, y_start, block_w, and block_h are even numbers. If any of them may be an odd number, we should use the same expression to subsample them.",
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e2b1003_6692f8f5",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-17T21:49:22Z",
+      "side": 1,
+      "message": "If \u0027width\u0027 and \u0027height\u0027 may be an odd number, these should be\n    (width + src-\u003esubsampling_x) \u003e\u003e src-\u003esubsampling_x\nand\n    (height + src-\u003esubsampling_y) \u003e\u003e src-\u003esubsampling_y",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 72
+      },
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
