@@ -2906,7 +2906,7 @@ static int encode_with_and_without_superres(AV1_COMP *cpi, size_t *size,
     int64_t superres_rates[SCALE_NUMERATOR];
     int superres_largest_tile_ids[SCALE_NUMERATOR];
     // Use superres for Key-frames and Alt-ref frames only.
-    const GF_GROUP *const gf_group = &cpi->gf_group;
+    const GF_GROUP *const gf_group = &cpi->ppi->gf_group;
     if (gf_group->update_type[cpi->cur_gf_index] != OVERLAY_UPDATE &&
         gf_group->update_type[cpi->cur_gf_index] != INTNL_OVERLAY_UPDATE) {
       for (int denom = SCALE_NUMERATOR + 1; denom <= 2 * SCALE_NUMERATOR;
@@ -3090,7 +3090,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   cpi->last_frame_type = current_frame->frame_type;
 
   if (frame_is_sframe(cm)) {
-    GF_GROUP *gf_group = &cpi->gf_group;
+    GF_GROUP *gf_group = &cpi->ppi->gf_group;
     // S frame will wipe out any previously encoded altref so we cannot place
     // an overlay frame
     gf_group->update_type[gf_group->size] = GF_UPDATE;
