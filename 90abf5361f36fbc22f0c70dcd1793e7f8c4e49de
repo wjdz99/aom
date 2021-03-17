@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1d5247b_a5252207",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5187
+      },
+      "writtenOn": "2021-03-17T17:28:22Z",
+      "side": 1,
+      "message": "I think it can be (MAX_DRL_BITS + 1) in both cases.",
+      "range": {
+        "startLine": 25,
+        "startChar": 1,
+        "endLine": 29,
+        "endChar": 33
+      },
+      "revId": "90abf5361f36fbc22f0c70dcd1793e7f8c4e49de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
