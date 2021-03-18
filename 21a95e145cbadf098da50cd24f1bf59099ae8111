@@ -52,6 +52,24 @@
       "parentUuid": "5a3a7ac9_cad0adda",
       "revId": "21a95e145cbadf098da50cd24f1bf59099ae8111",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78f18f18_8597057f",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 24
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 26092
+      },
+      "writtenOn": "2021-03-18T21:55:10Z",
+      "side": 1,
+      "message": "Hi, Leo\ndo you plan to do the actual merge and turn on the compile flag? just want to make sure you are not waiting for us to press the button.",
+      "parentUuid": "408e2e3d_b3b71564",
+      "revId": "21a95e145cbadf098da50cd24f1bf59099ae8111",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
