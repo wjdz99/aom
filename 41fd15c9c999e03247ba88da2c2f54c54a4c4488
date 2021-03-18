@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "20e720b2_44613c91",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "I haven\u0027t tested this on allintra mode yet.\n\nAlthough I expect the BDRate to be much better in allintra mode, we\u0027ll also see a significant slow down. Since the overhead of updating dv_costs is similar to that of mv_costs, from Ittiam\u0027s earlier optimizations, we\u0027ll probably see around 4% increased complexity on speed 6.\n\nWe can always run a couple more tests later to see how good the trade-off is.",
+      "parentUuid": "d414459e_9f64487a",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "1e80c678_39398d8f",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -69,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0433bd0e_11f1279f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 920,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Will do this in a separate patch.",
+      "parentUuid": "87dfe924_9b1aa6e8",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ad3dc88d_a32cc3ad",
@@ -92,6 +128,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b9b753c_6abb34ae",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad3dc88d_a32cc3ad",
+      "range": {
+        "startLine": 788,
+        "startChar": 0,
+        "endLine": 789,
+        "endChar": 80
+      },
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "56365954_efffda68",
@@ -105,6 +165,24 @@
       "writtenOn": "2021-03-17T16:47:12Z",
       "side": 1,
       "message": "Nit/optional: It may be helpful to add a comment to note that this function is the code common to skip_mv_cost_update() and skip_dv_cost_update().",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65e0cb7a_6a9aaef4",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1297,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56365954_efffda68",
       "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -149,6 +227,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cd6c635_5bf66f78",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fab8f0b_007b7046",
+      "range": {
+        "startLine": 1310,
+        "startChar": 0,
+        "endLine": 1312,
+        "endChar": 3
+      },
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9c9ac283_4f91b3ea",
@@ -162,6 +264,30 @@
       "writtenOn": "2021-03-17T16:47:12Z",
       "side": 1,
       "message": "Nit: the comment says \"current frame isn\u0027t intra frame\", but the code checks a stronger condition, so the comment and code don\u0027t match:\n\nstatic INLINE int av1_allow_intrabc(const AV1_COMMON *const cm) {\n  return frame_is_intra_only(cm) \u0026\u0026 cm-\u003efeatures.allow_screen_content_tools \u0026\u0026\n         cm-\u003efeatures.allow_intrabc;\n}",
+      "range": {
+        "startLine": 1356,
+        "startChar": 60,
+        "endLine": 1357,
+        "endChar": 16
+      },
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b5171eb_e95ef6e6",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c9ac283_4f91b3ea",
       "range": {
         "startLine": 1356,
         "startChar": 60,
@@ -195,6 +321,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0df0f9d2_746ab040",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1358,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Firstpass is not an actual encoding pass so I don\u0027t think a small difference in mv costs will significantly change the encoding quality.",
+      "parentUuid": "ec8b78c2_cd0a98cd",
+      "range": {
+        "startLine": 1358,
+        "startChar": 32,
+        "endLine": 1358,
+        "endChar": 61
+      },
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "72c32c9b_60870879",
@@ -212,6 +362,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "921e7229_71c0d1da",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1428,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72c32c9b_60870879",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bdc815ea_fdef6d14",
@@ -225,6 +393,24 @@
       "writtenOn": "2021-03-17T16:47:12Z",
       "side": 1,
       "message": "Nit: Combine these two if statements:\n\n    if (thread_data-\u003etd !\u003d \u0026cpi-\u003etd) {\n      if (cpi-\u003eoxcf.cost_upd_freq.mv \u003c COST_UPD_OFF) {\n        aom_free(thread_data-\u003etd-\u003emb.mv_costs);\n      }\n      if (cpi-\u003eoxcf.cost_upd_freq.dv \u003c COST_UPD_OFF) {\n        aom_free(thread_data-\u003etd-\u003emb.dv_costs);\n      }\n    }\n\nAlso at lines 1212-1219 below.",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "614380eb_fbc0e987",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bdc815ea_fdef6d14",
       "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -252,6 +438,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e91f67da_15c9590d",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 851,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2f5577d9_1fbb8e6c",
+      "range": {
+        "startLine": 849,
+        "startChar": 0,
+        "endLine": 851,
+        "endChar": 32
+      },
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "100cdda6_10a2a073",
@@ -265,6 +475,24 @@
       "writtenOn": "2021-03-17T16:47:12Z",
       "side": 1,
       "message": "Nit: change is_intrabc_block(mbmi) to is_intrabc here?",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3bdd684_15d5941f",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 804,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "100cdda6_10a2a073",
       "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -292,6 +520,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e298adb_b6be4ed9",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b69d4e8a_0df9b0a3",
+      "range": {
+        "startLine": 620,
+        "startChar": 30,
+        "endLine": 621,
+        "endChar": 45
+      },
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0b4854f0_83ba868f",
@@ -305,6 +557,24 @@
       "writtenOn": "2021-03-17T16:47:12Z",
       "side": 1,
       "message": "Nit/optional: As I noted elsewhere, it is not obvious that 3 means \"skips update\". It would be good to define a symbolic constant for this value, or use 0 to mean \"skips update\" (which will require more changes).",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b4ee6fe_60f0e36f",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0b4854f0_83ba868f",
       "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -326,6 +596,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "044cf255_45b5c859",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1534,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26d8fe78_95f8c329",
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "77d1f4cc_22f845dc",
@@ -339,6 +627,30 @@
       "writtenOn": "2021-03-17T16:47:12Z",
       "side": 1,
       "message": "Should this say \"dv\"? Or mention intrabc?",
+      "range": {
+        "startLine": 830,
+        "startChar": 29,
+        "endLine": 830,
+        "endChar": 31
+      },
+      "revId": "41fd15c9c999e03247ba88da2c2f54c54a4c4488",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e16f5ad1_433f1322",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T22:44:36Z",
+      "side": 1,
+      "message": "I rewrote the comments in a new commit.",
+      "parentUuid": "77d1f4cc_22f845dc",
       "range": {
         "startLine": 830,
         "startChar": 29,
