@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3036b14_ee307b7e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T19:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d4b454c_270cba03",
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9de80a2c_bf30c03c",
@@ -83,6 +101,30 @@
       "writtenOn": "2021-03-18T18:57:22Z",
       "side": 1,
       "message": "If you think the change to av1_allow_intrabc(cm) is potentially a bug fix, I suggest moving it to a separate CL, so that this CL consists of only cleanup changes.",
+      "range": {
+        "startLine": 620,
+        "startChar": 30,
+        "endLine": 620,
+        "endChar": 51
+      },
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b7673db_ca061161",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T19:43:55Z",
+      "side": 1,
+      "message": "I think this is fine, since for our use case intrabc and screen content flags are always set together.\n\nEven if they aren\u0027t, the behaviors of the old code would still be correct, just slightly slower by a fractional of a percent.",
+      "parentUuid": "088dbb98_4936b81c",
       "range": {
         "startLine": 620,
         "startChar": 30,
@@ -178,6 +220,24 @@
       "side": 1,
       "message": "Your rationale makes sense. We can address my confusion with a comment that explains the INTERNAL_ prefix of this enum (because there is a COST_UPD_TYPE enum whose values are public even though the symbolic names are not exposed).\n\nAnother nit: I suggest using the same prefix (either INTERNAL_ or INT_) for the enum type and the enum constants. I\u0027ll let you pick one. (I would prefer INTERNAL_, unless the INT_ prefix is common in libaom.)",
       "parentUuid": "2d543f85_50766e6f",
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5be9b96a_8f569c51",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T19:43:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f00bdaef_b297b251",
       "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
