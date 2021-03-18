@@ -1211,6 +1211,14 @@ typedef struct macroblock {
   DECLARE_ALIGNED(16, uint8_t, est_pred[128 * 128]);
 #endif
   /**@}*/
+  /*!
+   * Pointer to the buffer which caches superblock level gradient information.
+   */
+  pixel_hog_info *hog_info;
+  /*!
+   * Flags indicating the availability of cached SB level hog data.
+   */
+  bool is_hog_data_cached[PLANE_TYPES];
 } MACROBLOCK;
 #undef SINGLE_REF_MODES
 

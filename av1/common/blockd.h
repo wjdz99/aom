@@ -566,6 +566,13 @@ typedef struct dist_wtd_comp_params {
 
 struct scale_factors;
 
+// Structure to hold pixel level hog info.
+typedef struct pixel_hog_info {
+  int abs_dx_abs_dy_sum;
+  int8_t hist_bin_idx;
+  bool is_dx_zero;
+} pixel_hog_info;
+
 /*!\endcond */
 
 /*! \brief Variables related to current coding block.

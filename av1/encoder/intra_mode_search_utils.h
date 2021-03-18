@@ -22,6 +22,7 @@
 #include "av1/common/reconintra.h"
 
 #include "av1/encoder/encoder.h"
+#include "av1/encoder/encodeframe.h"
 #include "av1/encoder/model_rd.h"
 #include "av1/encoder/palette.h"
 
@@ -134,6 +135,11 @@ static AOM_INLINE int get_hist_bin_idx(int dx, int dy) {
 }
 #undef FIX_PREC_BITS
 
+// Normalizes the hog data.
+static AOM_INLINE void normalize_hog(float total, float *hist) {
+  for (int i = 0; i < BINS; ++i) hist[i] /= total;
+}
+
 static AOM_INLINE void generate_hog(const uint8_t *src, int stride, int rows,
                                     int cols, float *hist) {
   float total = 0.1f;
@@ -165,7 +171,120 @@ static AOM_INLINE void generate_hog(const uint8_t *src, int stride, int rows,
     src += stride;
   }
 
-  for (int i = 0; i < BINS; ++i) hist[i] /= total;
+  normalize_hog(total, hist);
+}
+
+// Computes and stores pixel level gradient information at superblock
+// level.
+static AOM_INLINE void generate_hog_superblock(MACROBLOCK *const x,
+                                               BLOCK_SIZE sb_size,
+                                               PLANE_TYPE plane) {
+  pixel_hog_info *hog_info = x->hog_info + plane * MAX_SB_SQUARE;
+  const uint8_t *src = x->plane[plane].src.buf;
+  const int stride = x->plane[plane].src.stride;
+  const int ss_x = x->e_mbd.plane[plane].subsampling_x;
+  const int ss_y = x->e_mbd.plane[plane].subsampling_y;
+  const int height = block_size_high[sb_size] >> ss_y;
+  const int width = block_size_wide[sb_size] >> ss_x;
+  const int hog_buf_stride = width;
+  src += stride;
+  for (int r = 1; r < height - 1; ++r) {
+    for (int c = 1; c < width - 1; ++c) {
+      const uint8_t *above = &src[c - stride];
+      const uint8_t *below = &src[c + stride];
+      const uint8_t *left = &src[c - 1];
+      const uint8_t *right = &src[c + 1];
+      // Calculate gradient using Sobel fitlers.
+      const int dx = (right[-stride] + 2 * right[0] + right[stride]) -
+                     (left[-stride] + 2 * left[0] + left[stride]);
+      const int dy = (below[-1] + 2 * below[0] + below[1]) -
+                     (above[-1] + 2 * above[0] + above[1]);
+      hog_info[r * hog_buf_stride + c].is_dx_zero = (dx == 0);
+      hog_info[r * hog_buf_stride + c].abs_dx_abs_dy_sum = abs(dx) + abs(dy);
+      hog_info[r * hog_buf_stride + c].hist_bin_idx =
+          (dx != 0) ? get_hist_bin_idx(dx, dy) : -1;
+    }
+    src += stride;
+  }
+}
+
+// Function to generate pixel level gradient information at superblock level.
+// Sets the flags 'is_hog_data_cached' for the specific plane-type if gradient
+// info is generated for the same.
+static AOM_INLINE void generate_sb_level_hog_data(AV1_COMP *cpi, MACROBLOCK *x,
+                                                  BLOCK_SIZE sb_size,
+                                                  int mi_row, int mi_col) {
+  const SPEED_FEATURES *sf = &cpi->sf;
+  // Initialise flags related to hog data caching.
+  x->is_hog_data_cached[PLANE_TYPE_Y] = false;
+  x->is_hog_data_cached[PLANE_TYPE_UV] = false;
+
+  // When partition_search_type is not SEARCH_PARTITION, SB level caching of HOG
+  // data will not give any speedup. HOG data is computed at block level in such
+  // cases.
+
+  // TODO(https://crbug.com/aomedia/2996) Enable SB level caching of HOG data in
+  // high-bd path.
+  if (sf->part_sf.partition_search_type != SEARCH_PARTITION ||
+      is_cur_buf_hbd(&x->e_mbd))
+    return;
+
+  av1_setup_src_planes(x, cpi->source, mi_row, mi_col,
+                       av1_num_planes(&cpi->common), sb_size);
+
+  if (sf->intra_sf.intra_pruning_with_hog) {
+    generate_hog_superblock(x, sb_size, PLANE_TYPE_Y);
+    x->is_hog_data_cached[PLANE_TYPE_Y] = true;
+  }
+  if (sf->intra_sf.chroma_intra_pruning_with_hog) {
+    generate_hog_superblock(x, sb_size, PLANE_TYPE_UV);
+    x->is_hog_data_cached[PLANE_TYPE_UV] = true;
+  }
+}
+
+// Reuses the pixel level gradient data generated at superblock level for block
+// level computation. Populates the histogram in 'hist' based on the gradient
+// information.
+static AOM_INLINE void get_generated_hog_data(const MACROBLOCK *x, int rows,
+                                              int cols, BLOCK_SIZE sb_size,
+
+                                              PLANE_TYPE plane, float *hist) {
+  float total = 0.1f;
+  const int ss_x = x->e_mbd.plane[plane].subsampling_x;
+  const int ss_y = x->e_mbd.plane[plane].subsampling_y;
+  const int hog_stride = block_size_wide[sb_size] >> ss_x;
+
+  // Derive offsets from the starting of the superblock in order to locate the
+  // block level hog data in the hog cache.
+  const int hog_info_row =
+      x->e_mbd.mi_row & ((block_size_high[sb_size] >> MI_SIZE_LOG2) - 1);
+  const int hog_info_col =
+      x->e_mbd.mi_col & ((block_size_wide[sb_size] >> MI_SIZE_LOG2) - 1);
+  const int hog_info_block_offset =
+      hog_stride * (hog_info_row << (MI_SIZE_LOG2 - ss_y)) +
+      (hog_info_col << (MI_SIZE_LOG2 - ss_x));
+  const pixel_hog_info *hog_info_block =
+      x->hog_info + plane * MAX_SB_SQUARE + hog_info_block_offset;
+
+  // Retrieve the cached gradient information and generate the histogram.
+  for (int r = 1; r < rows - 1; ++r) {
+    for (int c = 1; c < cols - 1; ++c) {
+      const int abs_dx_abs_dy_sum =
+          hog_info_block[c + r * hog_stride].abs_dx_abs_dy_sum;
+      const bool is_dx_zero = hog_info_block[c + r * hog_stride].is_dx_zero;
+      if (!abs_dx_abs_dy_sum) continue;
+      total += abs_dx_abs_dy_sum;
+      if (is_dx_zero) {
+        hist[0] += abs_dx_abs_dy_sum / 2;
+        hist[BINS - 1] += abs_dx_abs_dy_sum / 2;
+      } else {
+        const uint8_t idx = hog_info_block[c + r * hog_stride].hist_bin_idx;
+        assert(idx >= 0 && idx < BINS);
+        hist[idx] += abs_dx_abs_dy_sum;
+      }
+    }
+  }
+  normalize_hog(total, hist);
 }
 
 static AOM_INLINE void generate_hog_hbd(const uint8_t *src8, int stride,
@@ -200,11 +319,11 @@ static AOM_INLINE void generate_hog_hbd(const uint8_t *src8, int stride,
     src += stride;
   }
 
-  for (int i = 0; i < BINS; ++i) hist[i] /= total;
+  normalize_hog(total, hist);
 }
 
 static INLINE void collect_hog_data(const MACROBLOCK *x, BLOCK_SIZE bsize,
-                                    int plane, float *hog) {
+                                    BLOCK_SIZE sb_size, int plane, float *hog) {
   const MACROBLOCKD *xd = &x->e_mbd;
   const struct macroblockd_plane *const pd = &xd->plane[plane];
   const int ss_x = pd->subsampling_x;
@@ -217,12 +336,16 @@ static INLINE void collect_hog_data(const MACROBLOCK *x, BLOCK_SIZE bsize,
   const int cols =
       ((xd->mb_to_right_edge >= 0) ? bw : (xd->mb_to_right_edge >> 3) + bw) >>
       ss_x;
-  const int src_stride = x->plane[plane].src.stride;
-  const uint8_t *src = x->plane[plane].src.buf;
-  if (is_cur_buf_hbd(xd)) {
-    generate_hog_hbd(src, src_stride, rows, cols, hog);
+  if (x->is_hog_data_cached[plane]) {
+    get_generated_hog_data(x, rows, cols, sb_size, plane, hog);
   } else {
-    generate_hog(src, src_stride, rows, cols, hog);
+    const uint8_t *src = x->plane[plane].src.buf;
+    const int src_stride = x->plane[plane].src.stride;
+    if (is_cur_buf_hbd(xd)) {
+      generate_hog_hbd(src, src_stride, rows, cols, hog);
+    } else {
+      generate_hog(src, src_stride, rows, cols, hog);
+    }
   }
 
   // Scale the hog so the luma and chroma are on the same scale
@@ -232,13 +355,13 @@ static INLINE void collect_hog_data(const MACROBLOCK *x, BLOCK_SIZE bsize,
 }
 
 static AOM_INLINE void prune_intra_mode_with_hog(
-    const MACROBLOCK *x, BLOCK_SIZE bsize, float th,
+    const MACROBLOCK *x, BLOCK_SIZE bsize, BLOCK_SIZE sb_size, float th,
     uint8_t *directional_mode_skip_mask, int is_chroma) {
   aom_clear_system_state();
 
   const int plane = is_chroma ? AOM_PLANE_U : AOM_PLANE_Y;
   float hist[BINS] = { 0.0f };
-  collect_hog_data(x, bsize, plane, hist);
+  collect_hog_data(x, bsize, sb_size, plane, hist);
 
   // Make prediction for each of the mode
   float scores[DIRECTIONAL_MODES] = { 0.0f };
