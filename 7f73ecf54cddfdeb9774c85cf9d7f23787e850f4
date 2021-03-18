@@ -16,6 +16,188 @@
       "message": "Hi All,\nThis CL is ready for review.\nI am measuring the performance impact and will update the commit message before submitting this CL.\n",
       "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3c321b1_303f9b2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "Angie: Thank you for writing the CL. I don\u0027t really understand the code, so my review comments are on general coding style issues.",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5101dc82_d7f16f90",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "Declare this function as static.",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be82f2b8_0350ad07",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "IMPORTANT: These two lines are not reached because we always return from the if-else statement above.",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 26
+      },
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8526be3_80daa167",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "Declare this function as static",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb4736bc_c36bac3c",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "It seems that this array can be declared as const.",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a2c0f23_c55bcbcc",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "cfl_cost should be declared as int64_t.",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75e78d8b_8a0d5fbc",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 451,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "cfl_cost should be declared as int64_t.",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81499a1e_cbad286d",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "Optional: It would be good to document the side effects of this function. Obviously it returns an \u0027int\u0027 and has an output parameter (token_rate), but it is not obvious that it sets mbmi-\u003ecfl_alpha_idx and mbmi-\u003ecfl_alpha_signs.",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be713d4f_04298caa",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "Move these two checks before line 493. Also, these two checks can be combined:\n\n      if (cfl_rate_arr_u[ui] \u003d\u003d INT_MAX || cfl_rate_arr_v[vi] \u003d\u003d INT_MAX) continue;",
+      "range": {
+        "startLine": 499,
+        "startChar": 0,
+        "endLine": 500,
+        "endChar": 50
+      },
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "162d5621_f432c2b5",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T00:22:05Z",
+      "side": 1,
+      "message": "Optional: We can use the IMPLIES macro in this assertion.",
+      "revId": "7f73ecf54cddfdeb9774c85cf9d7f23787e850f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
