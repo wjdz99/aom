@@ -33,6 +33,24 @@
       "message": "const size_t stride_argb \u003d width * 4;\nconst size_t buffer_size \u003d height * stride_argb;",
       "revId": "198e29ccc278dcec5845f978f8c9d73995a99475",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b09f754_426e9a43",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-18T22:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e1aa6f8_f2fba313",
+      "revId": "198e29ccc278dcec5845f978f8c9d73995a99475",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

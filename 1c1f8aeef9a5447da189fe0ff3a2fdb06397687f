@@ -81,6 +81,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d0d9561_e63033f7",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-18T22:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1551206e_eba84e13",
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "600c209f_36214199",
@@ -98,6 +116,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "58ff891c_d8a94436",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-18T22:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "600c209f_36214199",
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e2b1003_6692f8f5",
@@ -111,6 +147,30 @@
       "writtenOn": "2021-03-17T21:49:22Z",
       "side": 1,
       "message": "If \u0027width\u0027 and \u0027height\u0027 may be an odd number, these should be\n    (width + src-\u003esubsampling_x) \u003e\u003e src-\u003esubsampling_x\nand\n    (height + src-\u003esubsampling_y) \u003e\u003e src-\u003esubsampling_y",
+      "range": {
+        "startLine": 179,
+        "startChar": 0,
+        "endLine": 181,
+        "endChar": 72
+      },
+      "revId": "1c1f8aeef9a5447da189fe0ff3a2fdb06397687f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa445e80_efd0c277",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-18T22:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e2b1003_6692f8f5",
       "range": {
         "startLine": 179,
         "startChar": 0,
