@@ -259,6 +259,7 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   for (int j = 0; j < 2; ++j) {
     aom_free(cpi->td.mb.tmp_pred_bufs[j]);
   }
+  aom_free(cpi->td.mb.hog_info);
 
 #if CONFIG_DENOISE
   if (cpi->denoise_and_model) {

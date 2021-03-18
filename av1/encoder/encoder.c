@@ -720,6 +720,15 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     }
   }
 
+  if (x->hog_info == NULL) {
+    const int ss_x = cm->seq_params.subsampling_x;
+    const int ss_y = cm->seq_params.subsampling_y;
+    const int sb_hog_cache_size =
+        MAX_SB_SQUARE + (MAX_SB_SQUARE >> (ss_x + ss_y));
+    CHECK_MEM_ERROR(cm, x->hog_info,
+                    aom_malloc(sizeof(*x->hog_info) * sb_hog_cache_size));
+  }
+
   av1_reset_segment_features(cm);
 
   av1_set_high_precision_mv(cpi, 1, 0);
@@ -1402,6 +1411,7 @@ static AOM_INLINE void free_thread_data(AV1_COMP *cpi) {
     for (int j = 0; j < 2; ++j) {
       aom_free(thread_data->td->tmp_pred_bufs[j]);
     }
+    aom_free(thread_data->td->hog_info);
     release_obmc_buffers(&thread_data->td->obmc_buffer);
     aom_free(thread_data->td->vt64x64);
 

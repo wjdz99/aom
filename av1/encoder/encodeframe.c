@@ -55,6 +55,7 @@
 #include "av1/encoder/encodetxb.h"
 #include "av1/encoder/ethread.h"
 #include "av1/encoder/extend.h"
+#include "av1/encoder/intra_mode_search_utils.h"
 #include "av1/encoder/ml.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/partition_strategy.h"
@@ -854,6 +855,10 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
               : 0;
       seg_skip = segfeature_active(seg, segment_id, SEG_LVL_SKIP);
     }
+
+    // Produce the gradient data at superblock level and set the flags
+    // appropriately.
+    generate_sb_level_hog_data(cpi, x, sb_size, mi_row, mi_col);
 
     // encode the superblock
     if (use_nonrd_mode) {

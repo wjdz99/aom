@@ -1303,6 +1303,7 @@ typedef struct ThreadData {
   int32_t num_64x64_blocks;
   PICK_MODE_CONTEXT *firstpass_ctx;
   TemporalFilterData tf_data;
+  pixel_level_gradient_info *hog_info;
 } ThreadData;
 
 struct EncWorkerData;

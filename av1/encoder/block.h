@@ -817,6 +817,14 @@ typedef struct {
   int lighting_change;
   int low_sumdiff;
 } CONTENT_STATE_SB;
+
+// Structure to hold pixel level gradient info.
+typedef struct pixel_level_gradient_info {
+  int abs_dx_abs_dy_sum;
+  int8_t hist_bin_idx;
+  bool is_dx_zero;
+} pixel_level_gradient_info;
+
 /*!\endcond */
 
 /*! \brief Encoder's parameters related to the current coding block.
@@ -1211,6 +1219,14 @@ typedef struct macroblock {
   DECLARE_ALIGNED(16, uint8_t, est_pred[128 * 128]);
 #endif
   /**@}*/
+  /*!
+   * Pointer to the buffer which caches superblock level gradient information.
+   */
+  pixel_level_gradient_info *hog_info;
+  /*!
+   * Flags indicating the availability of cached SB level gradient data.
+   */
+  bool is_hog_data_cached[PLANE_TYPES];
 } MACROBLOCK;
 #undef SINGLE_REF_MODES
 

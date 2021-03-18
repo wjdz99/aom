@@ -636,6 +636,14 @@ static AOM_INLINE void create_enc_workers(AV1_COMP *cpi, int num_workers) {
                                  sizeof(*thread_data->td->tmp_pred_bufs[j])));
       }
 
+      const int ss_x = cm->seq_params.subsampling_x;
+      const int ss_y = cm->seq_params.subsampling_y;
+      const int sb_hog_cache_size =
+          MAX_SB_SQUARE + (MAX_SB_SQUARE >> (ss_x + ss_y));
+      CHECK_MEM_ERROR(
+          cm, thread_data->td->hog_info,
+          aom_malloc(sizeof(*thread_data->td->hog_info) * sb_hog_cache_size));
+
       if (cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION) {
         const int num_64x64_blocks =
             (cm->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
@@ -867,6 +875,7 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
         thread_data->td->mb.tmp_pred_bufs[j] =
             thread_data->td->tmp_pred_bufs[j];
       }
+      thread_data->td->mb.hog_info = thread_data->td->hog_info;
 
       thread_data->td->mb.e_mbd.tmp_conv_dst = thread_data->td->mb.tmp_conv_dst;
       for (int j = 0; j < 2; ++j) {
