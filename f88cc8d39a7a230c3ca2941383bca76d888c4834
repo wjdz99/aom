@@ -22,6 +22,30 @@
       },
       "revId": "f88cc8d39a7a230c3ca2941383bca76d888c4834",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43f0d893_c2b17b70",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3598,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-03-18T18:57:18Z",
+      "side": 1,
+      "message": "Thanks. After refactoring, I have condensed this patch to the previous patch.\nThis patch will be abandoned.",
+      "parentUuid": "9c7318cd_aba9055a",
+      "range": {
+        "startLine": 3598,
+        "startChar": 12,
+        "endLine": 3598,
+        "endChar": 32
+      },
+      "revId": "f88cc8d39a7a230c3ca2941383bca76d888c4834",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
