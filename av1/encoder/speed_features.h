@@ -840,6 +840,15 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
 
   // Clip the frequency of updating the mv cost for intrabc.
   INTERNAL_COST_UPDATE_TYPE dv_cost_upd_level;
+
+  // Use fast_mode to find the best possible parameter for CFL
+  // Then do full rd search near the best possible parameter.
+  // The search range is set here.
+  // 1: Fastest mode.
+  // 3: Good speedup witout lossing compression performance at speed 0.
+  // 33: (33 == CFL_MAGS_SIZE) Exhaustive rd search. This setting should only be
+  // used for debugging purpose.
+  int cfl_search_range;
 } INTRA_MODE_SPEED_FEATURES;
 
 typedef struct TX_SPEED_FEATURES {

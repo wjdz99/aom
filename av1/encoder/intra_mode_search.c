@@ -355,9 +355,6 @@ static int rd_pick_intra_angle_sbuv(const AV1_COMP *const cpi, MACROBLOCK *x,
 #define PLANE_SIGN_TO_JOINT_SIGN(plane, a, b) \
   (plane == CFL_PRED_U ? a * CFL_SIGNS + b - 1 : b * CFL_SIGNS + a - 1)
 
-#define CFL_INDEX_MAX (CFL_ALPHABET_SIZE * 2 + 1)  // exclusive
-#define CFL_INDEX_ZERO CFL_ALPHABET_SIZE
-
 static void cfl_idx_to_sign_and_alpha(int cfl_idx, CFL_SIGN_TYPE *cfl_sign,
                                       int *cfl_alpha) {
   int cfl_linear_idx = cfl_idx - CFL_INDEX_ZERO;
@@ -413,7 +410,7 @@ static void cfl_pick_plane_parameter(const AV1_COMP *const cpi, MACROBLOCK *x,
                                      int plane, TX_SIZE tx_size,
                                      int cfl_search_range, int *cfl_rate_arr,
                                      int64_t *cfl_dist_arr) {
-  assert(cfl_search_range >= 1 && cfl_search_range < CFL_INDEX_MAX);
+  assert(cfl_search_range >= 1 && cfl_search_range <= CFL_MAGS_SIZE);
   MACROBLOCKD *const xd = &x->e_mbd;
 
   xd->cfl.use_dc_pred_cache = 1;
@@ -427,16 +424,16 @@ static void cfl_pick_plane_parameter(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int dir_ls[2] = { 1, -1 };
 
   int est_best_cfl_idx = CFL_INDEX_ZERO;
-  if (cfl_search_range < CFL_INDEX_MAX) {
+  if (cfl_search_range < CFL_MAGS_SIZE) {
     int fast_mode = 1;
     int start_cfl_idx = CFL_INDEX_ZERO;
     int64_t best_cfl_cost = cfl_compute_rd(cpi, x, plane, tx_size, plane_bsize,
                                            start_cfl_idx, fast_mode, NULL);
     for (int si = 0; si < 2; ++si) {
       const int dir = dir_ls[si];
-      for (int i = 1; i < CFL_INDEX_MAX; ++i) {
+      for (int i = 1; i < CFL_MAGS_SIZE; ++i) {
         int cfl_idx = start_cfl_idx + dir * i;
-        if (cfl_idx < 0 || cfl_idx >= CFL_INDEX_MAX) break;
+        if (cfl_idx < 0 || cfl_idx >= CFL_MAGS_SIZE) break;
         int64_t cfl_cost = cfl_compute_rd(cpi, x, plane, tx_size, plane_bsize,
                                           cfl_idx, fast_mode, NULL);
         if (cfl_cost < best_cfl_cost) {
@@ -449,7 +446,7 @@ static void cfl_pick_plane_parameter(const AV1_COMP *const cpi, MACROBLOCK *x,
     }
   }
 
-  for (int cfl_idx = 0; cfl_idx < CFL_INDEX_MAX; ++cfl_idx) {
+  for (int cfl_idx = 0; cfl_idx < CFL_MAGS_SIZE; ++cfl_idx) {
     cfl_rate_arr[cfl_idx] = INT_MAX;
     cfl_dist_arr[cfl_idx] = INT64_MAX;
   }
@@ -466,7 +463,7 @@ static void cfl_pick_plane_parameter(const AV1_COMP *const cpi, MACROBLOCK *x,
     const int dir = dir_ls[si];
     for (int i = 1; i < cfl_search_range; ++i) {
       int cfl_idx = start_cfl_idx + dir * i;
-      if (cfl_idx < 0 || cfl_idx >= CFL_INDEX_MAX) break;
+      if (cfl_idx < 0 || cfl_idx >= CFL_MAGS_SIZE) break;
       int64_t cfl_cost = cfl_compute_rd(cpi, x, plane, tx_size, plane_bsize,
                                         cfl_idx, fast_mode, &rd_stats);
       cfl_rate_arr[cfl_idx] = rd_stats.rate;
@@ -498,16 +495,17 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
                              int cfl_search_range, int *token_rate,
                              uint8_t *best_cfl_alpha_idx,
                              int8_t *best_cfl_alpha_signs) {
+  assert(cfl_search_range >= 1 && cfl_search_range <= CFL_MAGS_SIZE);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const ModeCosts *mode_costs = &x->mode_costs;
   const int64_t mode_rd = RDCOST(
       x->rdmult,
       mode_costs->intra_uv_mode_cost[CFL_ALLOWED][mbmi->mode][UV_CFL_PRED], 0);
-  int cfl_rate_arr_u[CFL_INDEX_MAX];
-  int cfl_rate_arr_v[CFL_INDEX_MAX];
-  int64_t cfl_dist_arr_u[CFL_INDEX_MAX];
-  int64_t cfl_dist_arr_v[CFL_INDEX_MAX];
+  int cfl_rate_arr_u[CFL_MAGS_SIZE];
+  int cfl_rate_arr_v[CFL_MAGS_SIZE];
+  int64_t cfl_dist_arr_u[CFL_MAGS_SIZE];
+  int64_t cfl_dist_arr_v[CFL_MAGS_SIZE];
   cfl_pick_plane_parameter(cpi, x, 1, tx_size, cfl_search_range, cfl_rate_arr_u,
                            cfl_dist_arr_u);
   cfl_pick_plane_parameter(cpi, x, 2, tx_size, cfl_search_range, cfl_rate_arr_v,
@@ -518,8 +516,8 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   int best_alpha_idx = 0;
   int best_cfl_alpha_u = 0;
   int best_cfl_alpha_v = 0;
-  for (int ui = 0; ui < CFL_INDEX_MAX; ++ui) {
-    for (int vi = 0; vi < CFL_INDEX_MAX; ++vi) {
+  for (int ui = 0; ui < CFL_MAGS_SIZE; ++ui) {
+    for (int vi = 0; vi < CFL_MAGS_SIZE; ++vi) {
       int cfl_alpha_u;
       CFL_SIGN_TYPE cfl_sign_u;
       cfl_idx_to_sign_and_alpha(ui, &cfl_sign_u, &cfl_alpha_u);
@@ -638,21 +636,20 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     // Init variables for cfl and angle delta
     int cfl_alpha_rate = 0;
     int cfl_token_rate;
+    const SPEED_FEATURES *sf = &cpi->sf;
     if (mode == UV_CFL_PRED) {
       if (!is_cfl_allowed(xd) || !intra_mode_cfg->enable_cfl_intra) continue;
       assert(!is_directional_mode);
       const TX_SIZE uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
-      int cfl_search_range = 3;
       cfl_alpha_rate = cfl_rd_pick_alpha(
-          x, cpi, uv_tx_size, best_rd, cfl_search_range, &cfl_token_rate,
-          &mbmi->cfl_alpha_idx, &mbmi->cfl_alpha_signs);
+          x, cpi, uv_tx_size, best_rd, sf->intra_sf.cfl_search_range,
+          &cfl_token_rate, &mbmi->cfl_alpha_idx, &mbmi->cfl_alpha_signs);
       if (cfl_alpha_rate == INT_MAX) continue;
     }
     mbmi->angle_delta[PLANE_TYPE_UV] = 0;
 
     if (is_directional_mode && av1_use_angle_delta(mbmi->bsize) &&
         intra_mode_cfg->enable_angle_delta) {
-      const SPEED_FEATURES *sf = &cpi->sf;
       if (sf->intra_sf.chroma_intra_pruning_with_hog &&
           !intra_search_state.dir_mode_skip_mask_ready) {
         static const float thresh[2][4] = {
