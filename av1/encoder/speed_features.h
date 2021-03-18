@@ -834,6 +834,14 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
   // 2: update happens once for a set of rows.
   // 3: skips updates
   int dv_cost_upd_level;
+
+  // Use fast_mode to find the best possible parameter for CFL
+  // Then do full rd search near the best possible parameter.
+  // The search range is set here.
+  // 1: fastest mode
+  // 3: good speedup witout lossing compression performance at speed 0
+  // 33: exhaustive rd search (33 == CFL_MAGS_SIZE)
+  int cfl_search_range;
 } INTRA_MODE_SPEED_FEATURES;
 
 typedef struct TX_SPEED_FEATURES {
