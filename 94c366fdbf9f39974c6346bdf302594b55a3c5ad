@@ -16,6 +16,24 @@
       "message": "Nit: The \"INTERNAL\" and \"INT\" prefixes are a little confusing. Did you consider naming this MV_COST_UPD_TYPE?  Are you worried that the MV_ prefix may be confusing when used with dv?",
       "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5b44d4d_129d015b",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-18T01:41:13Z",
+      "side": 1,
+      "message": "I\u0027m naming this internal to contrast it with COST_UPDATE_TYPE under av1/encoder/encoder.h, which we cannot change without breaking public API.\n\nI didn\u0027t name it with MV because we could potentially reuse the enum to control how often to update the cost table for other elements.",
+      "parentUuid": "13046e13_5f5eafab",
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
