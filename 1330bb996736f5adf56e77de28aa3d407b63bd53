@@ -52,6 +52,24 @@
       "parentUuid": "b9853dd3_0db866f6",
       "revId": "1330bb996736f5adf56e77de28aa3d407b63bd53",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e4e2d2a_a56009fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-18T16:24:43Z",
+      "side": 1,
+      "message": "Can lap_enabled also be true for first pass of 2-pass encoding case? Asked this because I noticed we use (cpi-\u003elap_enabled \u0026\u0026 cpi-\u003ecompressor_stage \u003d\u003d LAP_STAGE) in the code.",
+      "parentUuid": "f0d220c0_4a1189d9",
+      "revId": "1330bb996736f5adf56e77de28aa3d407b63bd53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
