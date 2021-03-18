@@ -34,6 +34,24 @@
       "parentUuid": "170a73f8_eb7f38cf",
       "revId": "a4f83474a0e73dfa529f89be733b9d9eb0577593",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad7dddc3_bfbb617c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-03-18T17:15:24Z",
+      "side": 1,
+      "message": "seems that this patch will make somewhat easier to get 16x16 tx size than 8x8?",
+      "parentUuid": "170a73f8_eb7f38cf",
+      "revId": "a4f83474a0e73dfa529f89be733b9d9eb0577593",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
