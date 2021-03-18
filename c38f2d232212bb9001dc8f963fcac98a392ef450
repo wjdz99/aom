@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "088e3cf3_85462ad3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-03-18T14:05:27Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nThe temporary buffer (tmp_conv_dst) used during compound prediction in the tpl module was not thread specific and the same is made as thread specific buffer in this patch. Also, transform stats collection over a frame in tpl model has been reworked for multi-thread case, i.e., thread specific accumulators are created and finally summed at the end of frame. As the stats collected (tpl_frame-\u003eabs_coeff_mean[i]) are not being used in the encoder, currently the correctness of the change is verified by printing and matching the values for few contents. \n\nPlease find below the average encode time reduction observed by re-enabling tpl multi-threading.\n\n                                  Average Encode Time\ncpu-used    Resolution    Tile       Reduction (%)\n    0        832x480      2x1       3.77 (2 threads)\n    1        832x480      2x1       7.77 (2 threads)\n\n\nPlease review the patch.\n\nThanks",
+      "revId": "c38f2d232212bb9001dc8f963fcac98a392ef450",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
