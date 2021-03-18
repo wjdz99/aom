@@ -88,6 +88,24 @@
       "parentUuid": "78f18f18_8597057f",
       "revId": "21a95e145cbadf098da50cd24f1bf59099ae8111",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6a7810a_115f0f52",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 24
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-18T22:19:39Z",
+      "side": 1,
+      "message": "To add to that, pls wait before submitting this patch.\nWe (SWCs) feel that it may be best to create a minor update to the anchor first (without any tools checked in).\nThis is because ext-quant in particular may need updates to the CTC as well.\n\nNew tools can be merged (and also turned on) after this minor anchor release, and will become part of next major anchor release.",
+      "parentUuid": "93949fab_1d42f219",
+      "revId": "21a95e145cbadf098da50cd24f1bf59099ae8111",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
