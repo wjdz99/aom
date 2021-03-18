@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a11a149e_5b16ae16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T18:57:22Z",
+      "side": 1,
+      "message": "Chi Yo: I suggest we undo the changes to the aom_malloc and memcpy calls in this CL. Please see my comment below.",
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d4b454c_270cba03",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T18:57:22Z",
+      "side": 1,
+      "message": "Looking at the aom_malloc call closer, I now prefer the original code because the type shows up twice:\n\n        CHECK_MEM_ERROR(cm, thread_data-\u003etd-\u003emb.mv_costs,\n                        (MvCosts *)aom_malloc(sizeof(MvCosts)));\n\nI suggest we undo the changes to the aom_malloc calls. We can also undo the changes to the memcpy calls, and then change the memcpy calls to struct copies in a separate CL.\n\nSorry about the change of opinions.",
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9de80a2c_bf30c03c",
@@ -32,6 +66,29 @@
       "side": 1,
       "message": "Grep suggests that there are a couple more memcpy usages on structs.\nLet\u0027s take care of them together in a separate commit.",
       "parentUuid": "9de80a2c_bf30c03c",
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "088dbb98_4936b81c",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T18:57:22Z",
+      "side": 1,
+      "message": "If you think the change to av1_allow_intrabc(cm) is potentially a bug fix, I suggest moving it to a separate CL, so that this CL consists of only cleanup changes.",
+      "range": {
+        "startLine": 620,
+        "startChar": 30,
+        "endLine": 620,
+        "endChar": 51
+      },
       "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +160,24 @@
       "side": 1,
       "message": "You are right, but here\u0027s my rationale behind the prefix INTERNAL:\n\nThe values of COST_UPDATE_TYPE are used indirectly by the encoder interface in av1/av1_cx_iface.c, where integers passed from the command-lines are casted to COST_UPDATE_TYPE. So the user does rely the the values of COST_UPDATE_TYPE.\n\nOn the other hand, the users never really have direct control over INTERNAL_COST_UPD_TYPE, so we are free to do whatever we want with it.\n\nAn alternative solution is to reuse COST_UPDATE_TYPE for our speed features, and add an extra COST_UPD_SBROW_SET at the end. This preserves the public API, but breaks the monotonicity.",
       "parentUuid": "65a5c46b_b4ec2f27",
+      "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f00bdaef_b297b251",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-18T18:57:22Z",
+      "side": 1,
+      "message": "Your rationale makes sense. We can address my confusion with a comment that explains the INTERNAL_ prefix of this enum (because there is a COST_UPD_TYPE enum whose values are public even though the symbolic names are not exposed).\n\nAnother nit: I suggest using the same prefix (either INTERNAL_ or INT_) for the enum type and the enum constants. I\u0027ll let you pick one. (I would prefer INTERNAL_, unless the INT_ prefix is common in libaom.)",
+      "parentUuid": "2d543f85_50766e6f",
       "revId": "94c366fdbf9f39974c6346bdf302594b55a3c5ad",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
