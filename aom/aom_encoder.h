@@ -246,6 +246,7 @@ typedef struct cfg_options {
    *
    */
   unsigned int enable_cdef;
+
   /*!\brief enable Loop Restoration Filter
    *
    */
@@ -354,6 +355,7 @@ typedef struct cfg_options {
    *
    */
   unsigned int reduced_tx_type_set;
+
 } cfg_options_t;
 
 /*!\brief Encoded Frame Flags

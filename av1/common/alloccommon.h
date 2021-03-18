@@ -44,6 +44,10 @@ void av1_free_state_buffers(struct AV1Common *cm);
 
 int av1_get_MBs(int width, int height);
 
+#if CONFIG_CC_CDEF
+void av1_free_cccdef_coeff_buffers(struct AV1Common *cm);
+#endif
+
 #if CONFIG_LPF_MASK
 int av1_alloc_loop_filter_mask(struct AV1Common *cm);
 void av1_free_loop_filter_mask(struct AV1Common *cm);

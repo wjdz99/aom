@@ -139,6 +139,10 @@ void av1_loop_filter_init(struct AV1Common *cm);
 void av1_loop_filter_frame_init(struct AV1Common *cm, int plane_start,
                                 int plane_end);
 
+#if CONFIG_CC_CDEF
+void av1_cccdef_filter_init(struct AV1Common *cm);
+#endif
+
 /*!\brief Apply AV1 loop filter
  *
  * \ingroup in_loop_filter

@@ -28,6 +28,15 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#ifdef CONFIG_CC_CDEF
+#define CHECK(c, err)                                                    \
+  if (c) {                                                               \
+    printf("The assertion failed on line %d, in file %s %s\n", __LINE__, \
+           __FILE__, err);                                               \
+    exit(1);                                                             \
+  }
+#endif
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)

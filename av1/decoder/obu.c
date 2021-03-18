@@ -250,6 +250,14 @@ static uint32_t read_sequence_header_obu(AV1Decoder *pbi,
                        seq_params->subsampling_x, seq_params->subsampling_y);
   }
 
+#if CONFIG_CC_CDEF
+  if (seq_params->enable_cdef && !seq_params->monochrome) {
+    seq_params->enable_cc_cdef = aom_rb_read_bit(rb);
+  } else {
+    seq_params->enable_cc_cdef = 0;
+  }
+#endif
+
   seq_params->film_grain_params_present = aom_rb_read_bit(rb);
 
   if (av1_check_trailing_bits(pbi, rb) != 0) {

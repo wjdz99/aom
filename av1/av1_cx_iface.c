@@ -3330,8 +3330,10 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
         1, 1,   1,   0, 0, 1, 1, 1, 1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0
+
+      },  // cfg
   },
   {
       // NOLINT
@@ -3405,8 +3407,10 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
         1, 1,   1,   0, 0, 1, 1, 1, 1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0
+
+      },  // cfg
   },
 };
 

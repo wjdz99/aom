@@ -104,6 +104,7 @@ int cdef_find_dir_c(const uint16_t *img, int stride, int32_t *var,
   /* We'd normally divide by 840, but dividing by 1024 is close enough
      for what we're going to do with this. */
   *var >>= 10;
+
   return best_dir;
 }
 
@@ -178,7 +179,13 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
                         int dir[CDEF_NBLOCKS][CDEF_NBLOCKS], int *dirinit,
                         int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
                         cdef_list *dlist, int cdef_count, int level,
-                        int sec_strength, int damping, int coeff_shift) {
+                        int sec_strength, int damping, int coeff_shift
+#if CONFIG_CC_CDEF
+                        ,
+                        bool adjustDirection
+#endif
+) {
+
   int bi;
   int bx;
   int by;
@@ -187,7 +194,12 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
   damping += coeff_shift - (pli != AOM_PLANE_Y);
   const int bw_log2 = 3 - xdec;
   const int bh_log2 = 3 - ydec;
+
+#if CONFIG_CC_CDEF
+  if (adjustDirection && dirinit && pri_strength == 0 && sec_strength == 0) {
+#else
   if (dirinit && pri_strength == 0 && sec_strength == 0) {
+#endif
     // If we're here, both primary and secondary strengths are 0, and
     // we still haven't written anything to y[] yet, so we just copy
     // the input to y[]. This is necessary only for av1_cdef_search()
@@ -205,7 +217,11 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
     return;
   }
 
+#if CONFIG_CC_CDEF
+  if (adjustDirection && pli == 0) {
+#else
   if (pli == 0) {
+#endif
     if (!dirinit || !*dirinit) {
       for (bi = 0; bi < cdef_count; bi++) {
         by = dlist[bi].by;
@@ -216,7 +232,12 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
       if (dirinit) *dirinit = 1;
     }
   }
+
+#if CONFIG_CC_CDEF
+  if (adjustDirection && (pli == 1 && xdec != ydec)) {
+#else
   if (pli == 1 && xdec != ydec) {
+#endif
     for (bi = 0; bi < cdef_count; bi++) {
       static const int conv422[8] = { 7, 0, 2, 4, 5, 6, 6, 6 };
       static const int conv440[8] = { 1, 2, 2, 2, 3, 4, 6, 0 };
@@ -233,6 +254,7 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
   for (bi = 0; bi < cdef_count; bi++) {
     by = dlist[bi].by;
     bx = dlist[bi].bx;
+
     if (dst8) {
       cdef_filter_block(
           &dst8[(by << bh_log2) * dstride + (bx << bw_log2)], NULL, dstride,
@@ -251,3 +273,109 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
     }
   }
 }
+
+#if CONFIG_CC_CDEF
+
+void cccdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
+                           const uint16_t *in, int bsize, int xdec, int ydec,
+                           int bit_depth, const short *filter_coeff,
+                           uint8_t filter_strength) {
+  int p, q, i, j;
+  const int stride = CDEF_BSTRIDE;
+  int pixel[MAX_NUMBER_OF_CCCDEF_FILTER_COEFF];
+  const int cccdef_scale_shift = CC_CDEF_SCALE_SHIFT;
+  for (p = 0; p < 4 << (bsize == BLOCK_8X8 || bsize == BLOCK_4X8); p++) {
+    for (q = 0; q < 4 << (bsize == BLOCK_8X8 || bsize == BLOCK_8X4); q++) {
+      // i, j are the position of the corresponding luma position
+      i = p << ydec;
+      j = q << xdec;
+      int curr_pos = i * stride + j;
+      int sum = 0;
+      int curr_luma = in[curr_pos];
+
+      pixel[0] = in[curr_pos - 2 * stride];
+      pixel[1] = in[curr_pos - stride];
+      pixel[2] = in[curr_pos - 2];
+      pixel[3] = in[curr_pos - 1];
+      pixel[4] = in[curr_pos + 1];
+      pixel[5] = in[curr_pos + 2];
+      pixel[6] = in[curr_pos + stride];
+      pixel[7] = in[curr_pos + 2 * stride];
+
+      for (int ncoeff = 0; ncoeff < MAX_NUMBER_OF_CCCDEF_FILTER_COEFF;
+           ncoeff++) {
+        if (pixel[ncoeff] == CDEF_VERY_LARGE) pixel[ncoeff] = curr_luma;
+
+        int diff = pixel[ncoeff] - curr_luma;
+        sum += filter_coeff[ncoeff] * (diff);
+      }
+
+      int offset = ((sum + 32) >> cccdef_scale_shift);
+      offset = (offset * filter_strength + 2) >> 2;
+
+      int curr_pel =
+          (dst8) ? (int)dst8[p * dstride + q] : (int)dst16[p * dstride + q];
+      int filtered_pel = curr_pel + offset;
+
+      if (dst8)
+        dst8[p * dstride + q] =
+            (uint8_t)clip_pixel_highbd(filtered_pel, bit_depth);
+      else
+        dst16[p * dstride + q] =
+            (uint16_t)clip_pixel_highbd(filtered_pel, bit_depth);
+    }
+  }
+}
+
+void av1_cccdef_filter_fb(
+    uint8_t *dst8, uint16_t *dst16, int dstride, uint16_t *in, int xdec,
+    int ydec, int dir[CDEF_NBLOCKS][CDEF_NBLOCKS], cdef_list *dlist,
+    int cdef_count, int bit_depth, bool is_rdo, const short *const filter_coeff,
+    const uint8_t filter_strength_index, const int direction_merge_mode,
+    const uint8_t *direction_enable_flags, int single_direction_coeff) {
+  int bi;
+  int bx;
+  int by;
+
+  const int bw_log2 = 3 - xdec;
+  const int bh_log2 = 3 - ydec;
+  const int bw_log2_y = 3;
+  const int bh_log2_y = 3;
+  int filter_strength = extract_strength_from_index(filter_strength_index);
+
+  if (!is_rdo && filter_strength == 0) return;
+
+  const int bsize =
+      ydec ? (xdec ? BLOCK_4X4 : BLOCK_8X4) : (xdec ? BLOCK_4X8 : BLOCK_8X8);
+  for (bi = 0; bi < cdef_count; bi++) {
+    by = dlist[bi].by;
+    bx = dlist[bi].bx;
+
+    CHECK(dir[by][bx] >= MAX_NUMBER_OF_DIRECTIONS,
+          " The direction number exceed the allowed limit ");
+    CHECK(direction_merge_mode != 0, " Directional merge mode is enabled ");
+    if (direction_enable_flags[dir[by][bx]]) {
+      const short *filter_coeff_dir =
+          (direction_merge_mode || single_direction_coeff)
+              ? filter_coeff
+              : &filter_coeff[dir[by][bx] * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF];
+
+      if (dst8) {
+        cccdef_filter_block_c(
+            &dst8[(by << bh_log2) * dstride + (bx << bw_log2)], NULL, dstride,
+            &in[(by * CDEF_BSTRIDE << bh_log2_y) + (bx << bw_log2_y)], bsize,
+            xdec, ydec, bit_depth, filter_coeff_dir, filter_strength);
+      } else {
+        cccdef_filter_block_c(
+            NULL,
+            &dst16[is_rdo ? bi << (bw_log2 + bh_log2)
+                          : (by << bh_log2) * dstride + (bx << bw_log2)],
+            is_rdo ? 1 << bw_log2 : dstride,
+            &in[(by * CDEF_BSTRIDE << bh_log2_y) + (bx << bw_log2_y)], bsize,
+            xdec, ydec, bit_depth, filter_coeff_dir, filter_strength);
+      }
+    }
+  }
+}
+
+#endif

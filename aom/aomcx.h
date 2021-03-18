@@ -1307,6 +1307,7 @@ enum aome_enc_control_id {
   /*!\brief Control to get frame info
    */
   AV1E_GET_FRAME_INFO = 165,
+
 };
 
 /*!\brief aom 1-D scaling mode

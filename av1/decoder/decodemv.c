@@ -81,6 +81,93 @@ static void read_cdef(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
   }
 }
 
+#if CONFIG_CC_CDEF
+static void read_cc_cdef(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
+  const int skip_txfm = xd->mi[0]->skip_txfm;
+  if (cm->features.coded_lossless) return;
+
+  CC_CdefInfo cc_cdef_info = cm->cdef_info.cc_cdef_info;
+
+  if (cm->features.allow_intrabc) {
+    assert(cc_cdef_info.cccdef_bits[0] == 0);
+    assert(cc_cdef_info.cccdef_bits[1] == 0);
+    return;
+  }
+
+  // At the start of a superblock, mark that we haven't yet read CDEF strengths
+  // for any of the CDEF units contained in this superblock.
+  const int sb_mask = (cm->seq_params.mib_size - 1);
+  const int mi_row_in_sb = (xd->mi_row & sb_mask);
+  const int mi_col_in_sb = (xd->mi_col & sb_mask);
+  if (mi_row_in_sb == 0 && mi_col_in_sb == 0) {
+    xd->cc_cdef_transmitted[0] = xd->cc_cdef_transmitted[1] =
+        xd->cc_cdef_transmitted[2] = xd->cc_cdef_transmitted[3] = false;
+  }
+
+  // CDEF unit size is 64x64 irrespective of the superblock size.
+  const int cdef_size = 1 << (6 - MI_SIZE_LOG2);
+
+  // Find index of this CDEF unit in this superblock.
+  const int index_mask = cdef_size;
+  const int cdef_unit_row_in_sb = ((xd->mi_row & index_mask) != 0);
+  const int cdef_unit_col_in_sb = ((xd->mi_col & index_mask) != 0);
+  const int index = (cm->seq_params.sb_size == BLOCK_128X128)
+                        ? cdef_unit_col_in_sb + 2 * cdef_unit_row_in_sb
+                        : 0;
+
+  // Read CDEF strength from the first non-skip coding block in this CDEF unit.
+  if (!xd->cc_cdef_transmitted[index] && !skip_txfm) {
+    // CDEF strength for this CDEF unit needs to be read into the MB_MODE_INFO
+    // of the 1st block in this CDEF unit.
+    const int first_block_mask = ~(cdef_size - 1);
+    CommonModeInfoParams *const mi_params = &cm->mi_params;
+    const int grid_idx =
+        get_mi_grid_idx(mi_params, xd->mi_row & first_block_mask,
+                        xd->mi_col & first_block_mask);
+    MB_MODE_INFO *const mbmi = mi_params->mi_grid_base[grid_idx];
+
+#if FIX_FB_SIGNALING
+    const int mbmi_cdef_strength = mbmi->cdef_strength;
+    int level = cm->cdef_info.cdef_strengths[mbmi_cdef_strength] / 4;
+    int sec_strength = cm->cdef_info.cdef_strengths[mbmi_cdef_strength] % 4;
+    sec_strength += sec_strength == 3;
+
+    int uv_level = cm->cdef_info.cdef_uv_strengths[mbmi_cdef_strength] / 4;
+    int uv_sec_strength =
+        cm->cdef_info.cdef_uv_strengths[mbmi_cdef_strength] % 4;
+    uv_sec_strength += uv_sec_strength == 3;
+
+    if (level == 0 && sec_strength == 0 && uv_level == 0 &&
+        uv_sec_strength == 0) {
+      mbmi->cc_cdef_strength_index_fb[0] = 0;
+      mbmi->cc_cdef_strength_index_fb[1] = 0;
+    } else {
+      mbmi->cc_cdef_strength_index_fb[0] =
+          cc_cdef_info.cccdef_frame_enable_flag[0]
+              ? aom_read_literal(r, cc_cdef_info.cccdef_bits[0], ACCT_STR)
+              : 0;
+      mbmi->cc_cdef_strength_index_fb[1] =
+          cc_cdef_info.cccdef_frame_enable_flag[1]
+              ? aom_read_literal(r, cc_cdef_info.cccdef_bits[1], ACCT_STR)
+              : 0;
+    }
+#else
+    mbmi->cc_cdef_strength_index_fb[0] =
+        cc_cdef_info.cccdef_frame_enable_flag[0]
+            ? aom_read_literal(r, cc_cdef_info.cccdef_bits[0], ACCT_STR)
+            : 0;
+    mbmi->cc_cdef_strength_index_fb[1] =
+        cc_cdef_info.cccdef_frame_enable_flag[1]
+            ? aom_read_literal(r, cc_cdef_info.cccdef_bits[1], ACCT_STR)
+            : 0;
+#endif
+
+    xd->cc_cdef_transmitted[index] = true;
+  }
+}
+
+#endif
+
 static int read_delta_qindex(AV1_COMMON *cm, const MACROBLOCKD *xd,
                              aom_reader *r, MB_MODE_INFO *const mbmi) {
   int sign, abs, reduced_delta_qindex = 0;
@@ -791,6 +878,11 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     mbmi->segment_id = read_intra_segment_id(cm, xd, bsize, r, mbmi->skip_txfm);
 
   read_cdef(cm, r, xd);
+
+#if CONFIG_CC_CDEF
+  const int num_planes = av1_num_planes(cm);
+  if (num_planes > 1 && cm->seq_params.enable_cc_cdef) read_cc_cdef(cm, r, xd);
+#endif
 
   read_delta_q_params(cm, xd, r);
 
@@ -1551,6 +1643,11 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     mbmi->segment_id = read_inter_segment_id(cm, xd, 0, r);
 
   read_cdef(cm, r, xd);
+
+#if CONFIG_CC_CDEF
+  const int num_planes = av1_num_planes(cm);
+  if (num_planes > 1 && cm->seq_params.enable_cc_cdef) read_cc_cdef(cm, r, xd);
+#endif
 
   read_delta_q_params(cm, xd, r);
 

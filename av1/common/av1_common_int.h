@@ -55,6 +55,18 @@ extern "C" {
 /* Constant value specifying size of subgop stats*/
 #define MAX_SUBGOP_STATS_SIZE 32
 
+#if CONFIG_CC_CDEF
+#define FIX_FB_SIGNALING 1
+#define MAX_NUMBER_OF_CCCDEF_FILTER_COEFF 8
+#define CC_CDEF_MAX_STRENGTHS 4
+#define MAX_NUMBER_OF_DIRECTIONS 4
+#define MAX_NUMBER_OF_FILTER_STRENGTHS 4
+#define CC_CDEF_SCALE_SHIFT 6
+#define CC_CDEF_FILTER_COEFF_BITS (CC_CDEF_SCALE_SHIFT - 2)
+#define MAX_NUMBER_OF_TEMPORAL_FILTERS 8
+#define CC_CDEF_FILTER_SET_IDX_BITS 3
+#endif
+
 /* Constant values while waiting for the sequence header */
 #define FRAME_ID_LENGTH 15
 #define DELTA_FRAME_ID_LENGTH 14
@@ -195,14 +207,57 @@ typedef struct BufferPool {
 
 /*!\endcond */
 
+#if CONFIG_CC_CDEF
+/*!\brief Parameters related to cross component CDEF */
+typedef struct {
+  // signalled values in the frame headers
+  short filter_coeff[2][MAX_NUMBER_OF_CCCDEF_FILTER_COEFF *
+                        MAX_NUMBER_OF_DIRECTIONS];
+  int nb_cccdef_strengths[2]; /*!< Number of CDEF strength values */
+  int cccdef_bits[2];         /*!< Number of CDEF strength values in bits */
+  int cccdef_strengths_index_array_frame[2][CC_CDEF_MAX_STRENGTHS];
+  uint8_t cccdef_frame_enable_flag[2];
+  uint8_t cccdef_frame_new_filter_signal_flag
+      [2][MAX_NUMBER_OF_DIRECTIONS];  // signal if the new filter is signalled
+                                      // or not
+  uint8_t cccdef_frame_filter_idx_in_buf
+      [2][MAX_NUMBER_OF_DIRECTIONS];  // if new filter is not signalled, signal
+                                      // index of the filter in the history
+  uint8_t cccdef_frame_direction_enable_flag
+      [2][MAX_NUMBER_OF_DIRECTIONS];  // signal if cc-cdef is enable for this
+                                      // specific directions
+} CC_CdefInfo;
+
+/*!\brief Parameters related to cross component CDEF */
+typedef struct {
+  short *buf[2];
+  int capacity_in_number_of_filter_sets[2];
+  int curr_number_of_filter_sets[2];
+  int number_of_coeff_ineach_set[2];
+  int curr_filter_set_write_index[2];  // Filter set index to write the new
+                                       // filter to history
+  int number_of_new_filter_sets[2];
+
+} CC_CdefFilterBuf;
+
+#endif
+
 /*!\brief Parameters related to CDEF */
 typedef struct {
   int cdef_damping;                       /*!< CDEF damping factor */
   int nb_cdef_strengths;                  /*!< Number of CDEF strength values */
   int cdef_strengths[CDEF_MAX_STRENGTHS]; /*!< CDEF strength values for luma */
+
   int cdef_uv_strengths[CDEF_MAX_STRENGTHS]; /*!< CDEF strength values for
                                                 chroma */
+
   int cdef_bits; /*!< Number of CDEF strength values in bits */
+
+#if CONFIG_CC_CDEF
+  CC_CdefInfo cc_cdef_info;
+  CC_CdefFilterBuf cccdef_filter_buf[MAX_NUMBER_OF_DIRECTIONS];
+#endif
+
 } CdefInfo;
 
 /*!\cond */
@@ -281,7 +336,8 @@ typedef struct SequenceHeader {
                                  // 1 - Enable superres for the sequence
                                  //     enable per-frame superres flag
   uint8_t enable_cdef;           // To turn on/off CDEF
-  uint8_t enable_restoration;    // To turn on/off loop restoration
+
+  uint8_t enable_restoration;  // To turn on/off loop restoration
   BITSTREAM_PROFILE profile;
 
   // Color config.
@@ -314,6 +370,11 @@ typedef struct SequenceHeader {
   // are_seq_headers_consistent() can be implemented with a memcmp() call.
   // TODO(urvang): We probably don't need the +1 here.
   aom_dec_model_op_parameters_t op_params[MAX_NUM_OPERATING_POINTS + 1];
+
+#if CONFIG_CC_CDEF
+  uint8_t enable_cc_cdef;  // To turn on/off CC-CDEF
+#endif
+
 } SequenceHeader;
 
 typedef struct {
@@ -1879,6 +1940,130 @@ static INLINE int is_valid_seq_level_idx(AV1_LEVEL seq_level_idx) {
 }
 
 /*!\endcond */
+
+#if CONFIG_CC_CDEF
+static INLINE void av1_reset_cccdef_filter_coeff_buffer(CdefInfo *cdef_info) {
+  for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+    for (int uv = 0; uv < 2; uv++) {
+      cdef_info->cccdef_filter_buf[dir].capacity_in_number_of_filter_sets[uv] =
+          MAX_NUMBER_OF_TEMPORAL_FILTERS;
+      cdef_info->cccdef_filter_buf[dir].number_of_coeff_ineach_set[uv] =
+          MAX_NUMBER_OF_CCCDEF_FILTER_COEFF;
+      cdef_info->cccdef_filter_buf[dir].curr_number_of_filter_sets[uv] = 0;
+      cdef_info->cccdef_filter_buf[dir].curr_filter_set_write_index[uv] = 0;
+
+      int buf_size =
+          cdef_info->cccdef_filter_buf[dir].number_of_coeff_ineach_set[uv] *
+          cdef_info->cccdef_filter_buf[dir]
+              .capacity_in_number_of_filter_sets[uv];
+
+      memset(cdef_info->cccdef_filter_buf[dir].buf[uv], 0,
+             buf_size * sizeof(*cdef_info->cccdef_filter_buf[dir].buf[uv]));
+
+      cdef_info->cccdef_filter_buf[dir].number_of_new_filter_sets[uv] =
+          0;  // count new filter sets
+    }
+  }
+}
+
+static INLINE void av1_update_cccdef_filter_coeff_buffer(CdefInfo *cdef_info,
+                                                         int dir, int uv) {
+  CC_CdefFilterBuf *coeff_buffer = &(cdef_info->cccdef_filter_buf[dir]);
+  short *curr_filter_coeff =
+      &cdef_info->cc_cdef_info
+           .filter_coeff[uv][dir * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF];
+  int write_position = coeff_buffer->curr_filter_set_write_index[uv] *
+                       coeff_buffer->number_of_coeff_ineach_set[uv];
+  short *startp = &(coeff_buffer->buf[uv][write_position]);
+
+  memcpy(startp, curr_filter_coeff,
+         coeff_buffer->number_of_coeff_ineach_set[uv] *
+             sizeof(curr_filter_coeff[0]));
+
+  coeff_buffer->curr_number_of_filter_sets[uv]++;  // counter to check the
+                                                   // number of filter sets
+  if (coeff_buffer->curr_number_of_filter_sets[uv] >
+      coeff_buffer->capacity_in_number_of_filter_sets[uv]) {
+    coeff_buffer->curr_number_of_filter_sets[uv] =
+        coeff_buffer->capacity_in_number_of_filter_sets[uv];
+  }
+
+  coeff_buffer
+      ->curr_filter_set_write_index[uv]++;  // update the start index to write
+                                            // the next frame filter
+  if (coeff_buffer->curr_filter_set_write_index[uv] >=
+      coeff_buffer->capacity_in_number_of_filter_sets[uv])
+    coeff_buffer->curr_filter_set_write_index[uv] = 0;
+
+  coeff_buffer->number_of_new_filter_sets[uv]++;  // counter to check the number
+                                                  // of filter sets
+  if (coeff_buffer->number_of_new_filter_sets[uv] >
+      coeff_buffer->capacity_in_number_of_filter_sets[uv]) {
+    coeff_buffer->number_of_new_filter_sets[uv] =
+        coeff_buffer->capacity_in_number_of_filter_sets[uv];
+  }
+}
+
+static INLINE void av1_fill_cccdef_filter_coeff_buffer_with_default_filters(
+    CdefInfo *cdef_info) {
+  av1_reset_cccdef_filter_coeff_buffer(cdef_info);
+
+  for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+    CC_CdefFilterBuf *coeff_buffer = &(cdef_info->cccdef_filter_buf[dir]);
+
+    for (int uv = 0; uv < 2; uv++) {
+      int number_of_default_filters =
+          coeff_buffer->capacity_in_number_of_filter_sets[uv];
+
+      for (int index = 0; index < number_of_default_filters; index++) {
+        const short *def_filter_coeff =
+            &defaultccdeffilter[uv][index]
+                               [dir * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF];
+
+        int write_position = coeff_buffer->curr_filter_set_write_index[uv] *
+                             coeff_buffer->number_of_coeff_ineach_set[uv];
+
+        short *startp = &(coeff_buffer->buf[uv][write_position]);
+
+        memcpy(startp, def_filter_coeff,
+               coeff_buffer->number_of_coeff_ineach_set[uv] *
+                   sizeof(def_filter_coeff[0]));
+
+        coeff_buffer
+            ->curr_number_of_filter_sets[uv]++;  // counter to check the number
+                                                 // of filter sets
+        if (coeff_buffer->curr_number_of_filter_sets[uv] >
+            coeff_buffer->capacity_in_number_of_filter_sets[uv]) {
+          coeff_buffer->curr_number_of_filter_sets[uv] =
+              coeff_buffer->capacity_in_number_of_filter_sets[uv];
+        }
+
+        coeff_buffer
+            ->curr_filter_set_write_index[uv]++;  // update the start index to
+                                                  // write the next frame filter
+        if (coeff_buffer->curr_filter_set_write_index[uv] >=
+            coeff_buffer->capacity_in_number_of_filter_sets[uv])
+          coeff_buffer->curr_filter_set_write_index[uv] = 0;
+      }
+
+      coeff_buffer->number_of_new_filter_sets[uv] = 0;  // count new filter sets
+    }
+  }
+}
+
+static INLINE void copy_cccdef_filter_coeff_from_buffer(
+    AV1_COMMON *const cm, const int filter_set_idx,
+    short f[MAX_NUMBER_OF_CCCDEF_FILTER_COEFF], int uvplane, int dir) {
+  CC_CdefFilterBuf *coeff_buffer = &cm->cdef_info.cccdef_filter_buf[dir];
+
+  short *startp =
+      &(coeff_buffer
+            ->buf[uvplane][filter_set_idx *
+                           coeff_buffer->number_of_coeff_ineach_set[uvplane]]);
+  memcpy(f, startp,
+         coeff_buffer->number_of_coeff_ineach_set[uvplane] * sizeof(f[0]));
+}
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

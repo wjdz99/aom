@@ -915,6 +915,82 @@ static AOM_INLINE void write_cdef(AV1_COMMON *cm, MACROBLOCKD *const xd,
   }
 }
 
+#if CONFIG_CC_CDEF
+static AOM_INLINE void write_cc_cdef(AV1_COMMON *cm, MACROBLOCKD *const xd,
+                                     aom_writer *w, int skip) {
+  if (cm->features.coded_lossless || cm->features.allow_intrabc) return;
+
+  // At the start of a superblock, mark that we haven't yet written CDEF
+  // strengths for any of the CDEF units contained in this superblock.
+  const int sb_mask = (cm->seq_params.mib_size - 1);
+  const int mi_row_in_sb = (xd->mi_row & sb_mask);
+  const int mi_col_in_sb = (xd->mi_col & sb_mask);
+  if (mi_row_in_sb == 0 && mi_col_in_sb == 0) {
+    xd->cc_cdef_transmitted[0] = xd->cc_cdef_transmitted[1] =
+        xd->cc_cdef_transmitted[2] = xd->cc_cdef_transmitted[3] = false;
+  }
+
+  // CDEF unit size is 64x64 irrespective of the superblock size.
+  const int cdef_size = 1 << (6 - MI_SIZE_LOG2);
+
+  // Find index of this CDEF unit in this superblock.
+  const int index_mask = cdef_size;
+  const int cdef_unit_row_in_sb = ((xd->mi_row & index_mask) != 0);
+  const int cdef_unit_col_in_sb = ((xd->mi_col & index_mask) != 0);
+  const int index = (cm->seq_params.sb_size == BLOCK_128X128)
+                        ? cdef_unit_col_in_sb + 2 * cdef_unit_row_in_sb
+                        : 0;
+
+  // Write CDEF strength to the first non-skip coding block in this CDEF unit.
+  if (!xd->cc_cdef_transmitted[index] && !skip) {
+    // CDEF strength for this CDEF unit needs to be stored in the MB_MODE_INFO
+    // of the 1st block in this CDEF unit.
+    const int first_block_mask = ~(cdef_size - 1);
+    const CommonModeInfoParams *const mi_params = &cm->mi_params;
+    const int grid_idx =
+        get_mi_grid_idx(mi_params, xd->mi_row & first_block_mask,
+                        xd->mi_col & first_block_mask);
+    const MB_MODE_INFO *const mbmi = mi_params->mi_grid_base[grid_idx];
+#if FIX_FB_SIGNALING
+    const int mbmi_cdef_strength = mbmi->cdef_strength;
+    int level = cm->cdef_info.cdef_strengths[mbmi_cdef_strength] / 4;
+    int sec_strength = cm->cdef_info.cdef_strengths[mbmi_cdef_strength] % 4;
+    sec_strength += sec_strength == 3;
+
+    int uv_level = cm->cdef_info.cdef_uv_strengths[mbmi_cdef_strength] / 4;
+    int uv_sec_strength =
+        cm->cdef_info.cdef_uv_strengths[mbmi_cdef_strength] % 4;
+    uv_sec_strength += uv_sec_strength == 3;
+
+    if (level == 0 && sec_strength == 0 && uv_level == 0 &&
+        uv_sec_strength == 0) {
+      CHECK(mbmi->cc_cdef_strength_index_fb[0],
+            " CC-CDEF is not allowed if CDEF is not applied ");
+      CHECK(mbmi->cc_cdef_strength_index_fb[1],
+            " CC-CDEF is not allowed if CDEF is not applied ");
+    } else {
+      if (cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[0])
+        aom_write_literal(w, mbmi->cc_cdef_strength_index_fb[0],
+                          cm->cdef_info.cc_cdef_info.cccdef_bits[0]);
+      if (cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[1])
+        aom_write_literal(w, mbmi->cc_cdef_strength_index_fb[1],
+                          cm->cdef_info.cc_cdef_info.cccdef_bits[1]);
+    }
+#else
+    if (cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[0])
+      aom_write_literal(w, mbmi->cc_cdef_strength_index_fb[0],
+                        cm->cdef_info.cc_cdef_info.cccdef_bits[0]);
+    if (cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[1])
+      aom_write_literal(w, mbmi->cc_cdef_strength_index_fb[1],
+                        cm->cdef_info.cc_cdef_info.cccdef_bits[1]);
+#endif
+
+    xd->cc_cdef_transmitted[index] = true;
+  }
+}
+
+#endif
+
 static AOM_INLINE void write_inter_segment_id(
     AV1_COMP *cpi, aom_writer *w, const struct segmentation *const seg,
     struct segmentation_probs *const segp, int skip, int preskip) {
@@ -1118,6 +1194,12 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
 
   write_cdef(cm, xd, w, skip);
 
+#if CONFIG_CC_CDEF
+  const int num_planes = av1_num_planes(cm);
+  if (num_planes > 1 && cm->seq_params.enable_cc_cdef)
+    write_cc_cdef(cm, xd, w, skip);
+#endif
+
   write_delta_q_params(cpi, skip, w);
 
   if (!mbmi->skip_mode) write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
@@ -1284,6 +1366,11 @@ static AOM_INLINE void write_mb_modes_kf(
 
   write_cdef(cm, xd, w, skip);
 
+#if CONFIG_CC_CDEF
+  const int num_planes = av1_num_planes(cm);
+  if (num_planes > 1 && cm->seq_params.enable_cc_cdef)
+    write_cc_cdef(cm, xd, w, skip);
+#endif
   write_delta_q_params(cpi, skip, w);
 
   if (av1_allow_intrabc(cm)) {
@@ -2036,6 +2123,26 @@ static AOM_INLINE void encode_loopfilter(AV1_COMMON *cm,
   }
 }
 
+#if CONFIG_CC_CDEF
+static void write_ccdef_coeff_golomb(struct aom_write_bit_buffer *wb,
+                                     short coeff) {
+  int x = coeff + 1;
+  int i = x;
+  int length = 0;
+
+  while (i) {
+    i >>= 1;
+    ++length;
+  }
+  assert(length > 0);
+
+  for (i = 0; i < length - 1; ++i) aom_wb_write_literal(wb, 0, 1);
+
+  for (i = length - 1; i >= 0; --i)
+    aom_wb_write_literal(wb, (x >> i) & 0x01, 1);
+}
+#endif
+
 static AOM_INLINE void encode_cdef(const AV1_COMMON *cm,
                                    struct aom_write_bit_buffer *wb) {
   assert(!cm->features.coded_lossless);
@@ -2048,10 +2155,105 @@ static AOM_INLINE void encode_cdef(const AV1_COMMON *cm,
   for (i = 0; i < cm->cdef_info.nb_cdef_strengths; i++) {
     aom_wb_write_literal(wb, cm->cdef_info.cdef_strengths[i],
                          CDEF_STRENGTH_BITS);
+
     if (num_planes > 1)
       aom_wb_write_literal(wb, cm->cdef_info.cdef_uv_strengths[i],
                            CDEF_STRENGTH_BITS);
   }
+
+#if CONFIG_CC_CDEF
+  if (num_planes > 1 && cm->seq_params.enable_cc_cdef) {
+    if (cm->cur_frame->frame_type == KEY_FRAME ||
+        cm->cur_frame->frame_type == INTRA_ONLY_FRAME) {
+      av1_fill_cccdef_filter_coeff_buffer_with_default_filters(&cm->cdef_info);
+    }
+    const int num_directions = MAX_NUMBER_OF_DIRECTIONS;
+    const int num_filter_coeff = MAX_NUMBER_OF_CCCDEF_FILTER_COEFF;
+
+    // signal filter coefficients in the fame header
+    for (int plane = 0; plane < 2; plane++) {
+      // Signal 1 bit-flag to enable/disable ccdef fo the frame
+      aom_wb_write_literal(
+          wb, cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[plane], 1);
+      if (cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[plane]) {
+        for (int dir = 0; dir < num_directions; dir++) {
+          // Signal 1 bit-flag to enable/disable filtering for this direction
+          aom_wb_write_literal(
+              wb,
+              cm->cdef_info.cc_cdef_info
+                  .cccdef_frame_direction_enable_flag[plane][dir],
+              1);
+          if (cm->cdef_info.cc_cdef_info
+                  .cccdef_frame_direction_enable_flag[plane][dir]) {
+            aom_wb_write_literal(
+                wb,
+                cm->cdef_info.cc_cdef_info
+                    .cccdef_frame_new_filter_signal_flag[plane][dir],
+                1);
+            if (cm->cdef_info.cc_cdef_info
+                    .cccdef_frame_new_filter_signal_flag[plane][dir]) {
+              for (i = 0; i < (num_filter_coeff); i++) {
+                int coeffabs =
+                    abs(cm->cdef_info.cc_cdef_info
+                            .filter_coeff[plane][i + dir * num_filter_coeff]);
+                int sign =
+                    (cm->cdef_info.cc_cdef_info
+                         .filter_coeff[plane][i + dir * num_filter_coeff]) < 0
+                        ? 1
+                        : 0;
+
+                write_ccdef_coeff_golomb(wb, coeffabs);
+
+                if (coeffabs) {
+                  aom_wb_write_literal(wb, sign, 1);
+                }
+
+                CHECK(coeffabs >= (1 << CC_CDEF_FILTER_COEFF_BITS),
+                      "CC-CDEF Filter coeff is larger than the maximum allowed "
+                      "value");
+              }
+              av1_update_cccdef_filter_coeff_buffer(&cm->cdef_info, dir, plane);
+            } else {
+              CC_CdefFilterBuf *coeff_buffer =
+                  &cm->cdef_info.cccdef_filter_buf[dir];
+              int num_bit = CC_CDEF_FILTER_SET_IDX_BITS;
+              CHECK(coeff_buffer->curr_number_of_filter_sets[plane] !=
+                        coeff_buffer->capacity_in_number_of_filter_sets[plane],
+                    " The number of filter is not equal to "
+                    "MAX_NUMBER_OF_TEMPORAL_FILTERS");
+              CHECK(cm->cdef_info.cc_cdef_info
+                            .cccdef_frame_filter_idx_in_buf[plane][dir] >=
+                        coeff_buffer->curr_number_of_filter_sets[plane],
+                    " Error in buffer index coding ");
+              aom_wb_write_literal(
+                  wb,
+                  cm->cdef_info.cc_cdef_info
+                      .cccdef_frame_filter_idx_in_buf[plane][dir],
+                  num_bit);
+            }  // end of new signal flag
+
+          }  // direction enable flag
+
+        }  // for each direction
+
+        // signaling strength parameters
+        aom_wb_write_literal(wb, cm->cdef_info.cc_cdef_info.cccdef_bits[plane],
+                             2);
+        for (i = 0; i < cm->cdef_info.cc_cdef_info.nb_cccdef_strengths[plane];
+             i++) {
+          int coded_value = cm->cdef_info.cc_cdef_info
+                                .cccdef_strengths_index_array_frame[plane][i];
+
+          CHECK(
+              coded_value >= (1 << CC_CDEF_STRENGTH_VALUE_BITS),
+              " strength values in frame level is larger than allowed value ");
+
+          aom_wb_write_literal(wb, coded_value, CC_CDEF_STRENGTH_VALUE_BITS);
+        }
+      }  // frame enable flag
+    }    // uv loop
+  }
+#endif
 }
 
 static AOM_INLINE void write_delta_q(struct aom_write_bit_buffer *wb,
@@ -3421,6 +3623,12 @@ uint32_t av1_write_sequence_header_obu(const SequenceHeader *seq_params,
   write_sequence_header(seq_params, &wb);
 
   write_color_config(seq_params, &wb);
+
+#if CONFIG_CC_CDEF
+  if (seq_params->enable_cdef && !seq_params->monochrome) {
+    aom_wb_write_bit(&wb, seq_params->enable_cc_cdef);
+  }
+#endif
 
   aom_wb_write_bit(&wb, seq_params->film_grain_params_present);
 

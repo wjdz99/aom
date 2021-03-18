@@ -1772,10 +1772,44 @@ static AOM_INLINE void setup_loopfilter(AV1_COMMON *cm,
   memcpy(cm->cur_frame->mode_deltas, lf->mode_deltas, MAX_MODE_LF_DELTAS);
 }
 
+#if CONFIG_CC_CDEF
+static int read_ccdef_coeff_golomb(struct aom_read_bit_buffer *rb) {
+  int x = 1;
+  int length = 0;
+  int i = 0;
+
+  while (!i) {
+    i = aom_rb_read_literal(rb, 1);
+    ++length;
+  }
+
+  for (i = 0; i < length - 1; ++i) {
+    x <<= 1;
+    x += aom_rb_read_literal(rb, 1);
+  }
+
+  return x - 1;
+}
+#endif
+
 static AOM_INLINE void setup_cdef(AV1_COMMON *cm,
                                   struct aom_read_bit_buffer *rb) {
   const int num_planes = av1_num_planes(cm);
   CdefInfo *const cdef_info = &cm->cdef_info;
+
+#if CONFIG_CC_CDEF
+  if (num_planes > 1) {
+    for (int plane = 0; plane < 2; plane++) {
+      for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+        cdef_info->cc_cdef_info.cccdef_frame_direction_enable_flag[plane][dir] =
+            0;
+        cdef_info->cc_cdef_info
+            .cccdef_frame_new_filter_signal_flag[plane][dir] = 0;
+        cdef_info->cc_cdef_info.cccdef_frame_filter_idx_in_buf[plane][dir] = 0;
+      }
+    }
+  }
+#endif
 
   if (cm->features.allow_intrabc) return;
   cdef_info->cdef_damping = aom_rb_read_literal(rb, 2) + 3;
@@ -1783,9 +1817,93 @@ static AOM_INLINE void setup_cdef(AV1_COMMON *cm,
   cdef_info->nb_cdef_strengths = 1 << cdef_info->cdef_bits;
   for (int i = 0; i < cdef_info->nb_cdef_strengths; i++) {
     cdef_info->cdef_strengths[i] = aom_rb_read_literal(rb, CDEF_STRENGTH_BITS);
+
     cdef_info->cdef_uv_strengths[i] =
         num_planes > 1 ? aom_rb_read_literal(rb, CDEF_STRENGTH_BITS) : 0;
   }
+
+#if CONFIG_CC_CDEF
+
+  if (num_planes > 1 && cm->seq_params.enable_cc_cdef) {
+    if (cm->cur_frame->frame_type == KEY_FRAME ||
+        cm->cur_frame->frame_type == INTRA_ONLY_FRAME) {
+      av1_fill_cccdef_filter_coeff_buffer_with_default_filters(&cm->cdef_info);
+    }
+
+    const int num_directions = MAX_NUMBER_OF_DIRECTIONS;
+    const int num_filter_coeff = MAX_NUMBER_OF_CCCDEF_FILTER_COEFF;
+
+    // Receive filter coefficients in the frame header
+    for (int plane = 0; plane < 2; plane++) {
+      memset(&cm->cdef_info.cc_cdef_info.filter_coeff[plane][0], 0,
+             sizeof(cm->cdef_info.cc_cdef_info.filter_coeff[plane][0]) *
+                 num_filter_coeff);  // initialize to 0
+
+      cdef_info->cc_cdef_info.cccdef_frame_enable_flag[plane] =
+          aom_rb_read_literal(rb, 1);
+      // printf(" Decoder: plane = %5d cccdef_frame_enable_flag = %5d \n",
+      // plane, cdef_info->cc_cdef_info.cccdef_frame_enable_flag[plane]);
+
+      if (cdef_info->cc_cdef_info.cccdef_frame_enable_flag[plane]) {
+        for (int dir = 0; dir < num_directions; dir++) {
+          cdef_info->cc_cdef_info
+              .cccdef_frame_direction_enable_flag[plane][dir] =
+              aom_rb_read_literal(rb, 1);
+          // printf(" Decoder: dir = %5d cccdef_frame_direction_enable_flag =
+          // %5d \n", dir,
+          // cdef_info->cc_cdef_info.cccdef_frame_direction_enable_flag[plane][dir]);
+
+          if (cdef_info->cc_cdef_info
+                  .cccdef_frame_direction_enable_flag[plane][dir]) {
+            cdef_info->cc_cdef_info
+                .cccdef_frame_new_filter_signal_flag[plane][dir] =
+                aom_rb_read_literal(rb, 1);
+
+            if (cdef_info->cc_cdef_info
+                    .cccdef_frame_new_filter_signal_flag[plane][dir]) {
+              for (int i = 0; i < num_filter_coeff; i++) {
+                int sign = 0;
+                int coeffabs = read_ccdef_coeff_golomb(rb);
+
+                if (coeffabs) sign = aom_rb_read_literal(rb, 1);
+                cm->cdef_info.cc_cdef_info
+                    .filter_coeff[plane][i + dir * num_filter_coeff] =
+                    sign ? -coeffabs : coeffabs;
+              }
+              av1_update_cccdef_filter_coeff_buffer(&cm->cdef_info, dir, plane);
+            } else {  // cccdef_frame_new_filter_signal_flag is 0
+
+              int num_bit = CC_CDEF_FILTER_SET_IDX_BITS;
+              short *dst = &cdef_info->cc_cdef_info
+                                .filter_coeff[plane][dir * num_filter_coeff];
+              cm->cdef_info.cc_cdef_info
+                  .cccdef_frame_filter_idx_in_buf[plane][dir] =
+                  aom_rb_read_literal(rb, num_bit);
+              copy_cccdef_filter_coeff_from_buffer(
+                  cm,
+                  cm->cdef_info.cc_cdef_info
+                      .cccdef_frame_filter_idx_in_buf[plane][dir],
+                  dst, plane, dir);
+            }
+
+          }  // direction enable flag
+        }    // For each direction
+
+        // strenght parameters
+        cdef_info->cc_cdef_info.cccdef_bits[plane] = aom_rb_read_literal(rb, 2);
+        cdef_info->cc_cdef_info.nb_cccdef_strengths[plane] =
+            (1 << cdef_info->cc_cdef_info.cccdef_bits[plane]);
+        for (int i = 0; i < cdef_info->cc_cdef_info.nb_cccdef_strengths[plane];
+             i++) {
+          cdef_info->cc_cdef_info.cccdef_strengths_index_array_frame[plane][i] =
+              aom_rb_read_literal(rb, CC_CDEF_STRENGTH_VALUE_BITS);
+        }
+
+      }  // frame enable flag
+    }
+  }
+
+#endif
 }
 
 static INLINE int read_delta_q(struct aom_read_bit_buffer *rb) {
@@ -2177,6 +2295,7 @@ void av1_set_single_tile_decoding_mode(AV1_COMMON *const cm) {
     const int no_cdef = cdef_info->cdef_bits == 0 &&
                         cdef_info->cdef_strengths[0] == 0 &&
                         cdef_info->cdef_uv_strengths[0] == 0;
+
     const int no_restoration =
         rst_info[0].frame_restoration_type == RESTORE_NONE &&
         rst_info[1].frame_restoration_type == RESTORE_NONE &&
@@ -4949,7 +5068,36 @@ static int read_uncompressed_header(AV1Decoder *pbi,
     cm->cdef_info.cdef_bits = 0;
     cm->cdef_info.cdef_strengths[0] = 0;
     cm->cdef_info.nb_cdef_strengths = 1;
+
     cm->cdef_info.cdef_uv_strengths[0] = 0;
+
+#if CONFIG_CC_CDEF
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[0] = 0;
+    cm->cdef_info.cc_cdef_info.cccdef_bits[0] = 0;
+    cm->cdef_info.cc_cdef_info.nb_cccdef_strengths[0] = 1;
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[1] = 0;
+    cm->cdef_info.cc_cdef_info.cccdef_bits[1] = 0;
+    cm->cdef_info.cc_cdef_info.nb_cccdef_strengths[1] = 1;
+    memset(cm->cdef_info.cc_cdef_info.filter_coeff[0], 0,
+           MAX_NUMBER_OF_DIRECTIONS * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF *
+               sizeof(cm->cdef_info.cc_cdef_info.filter_coeff[0][0]));
+    memset(cm->cdef_info.cc_cdef_info.filter_coeff[1], 0,
+           MAX_NUMBER_OF_DIRECTIONS * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF *
+               sizeof(cm->cdef_info.cc_cdef_info.filter_coeff[1][0]));
+
+    for (int plane = 0; plane < 2; plane++) {
+      for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+        cm->cdef_info.cc_cdef_info
+            .cccdef_frame_direction_enable_flag[plane][dir] = 0;
+        cm->cdef_info.cc_cdef_info
+            .cccdef_frame_new_filter_signal_flag[plane][dir] = 0;
+        cm->cdef_info.cc_cdef_info.cccdef_frame_filter_idx_in_buf[plane][dir] =
+            0;
+      }
+    }
+
+#endif
+
     cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
@@ -5023,7 +5171,29 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   if (features->coded_lossless || !seq_params->enable_cdef) {
     cm->cdef_info.cdef_bits = 0;
     cm->cdef_info.cdef_strengths[0] = 0;
+
     cm->cdef_info.cdef_uv_strengths[0] = 0;
+
+#if CONFIG_CC_CDEF
+    cm->cdef_info.cc_cdef_info.cccdef_bits[0] = 0;
+    cm->cdef_info.cc_cdef_info.cccdef_bits[1] = 0;
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[0] = 0;
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[1] = 0;
+    memset(cm->cdef_info.cc_cdef_info.filter_coeff, 0,
+           MAX_NUMBER_OF_DIRECTIONS * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF *
+               sizeof(cm->cdef_info.cc_cdef_info.filter_coeff[0][0]));
+
+    for (int plane = 0; plane < 2; plane++) {
+      for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+        cm->cdef_info.cc_cdef_info
+            .cccdef_frame_direction_enable_flag[plane][dir] = 0;
+        cm->cdef_info.cc_cdef_info
+            .cccdef_frame_new_filter_signal_flag[plane][dir] = 0;
+        cm->cdef_info.cc_cdef_info.cccdef_frame_filter_idx_in_buf[plane][dir] =
+            0;
+      }
+    }
+#endif
   }
   if (features->all_lossless || !seq_params->enable_restoration) {
     cm->rst_info[0].frame_restoration_type = RESTORE_NONE;
@@ -5258,6 +5428,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
         !pbi->skip_loop_filter && !cm->features.coded_lossless &&
         (cm->cdef_info.cdef_bits || cm->cdef_info.cdef_strengths[0] ||
          cm->cdef_info.cdef_uv_strengths[0]);
+
     const int do_superres = av1_superres_scaled(cm);
     const int optimized_loop_restoration = !do_cdef && !do_superres;
 
@@ -5267,7 +5438,11 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
                                                  cm, 0);
 
       if (do_cdef) {
+#if CONFIG_CC_CDEF
+        av1_cdef_cccdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->dcb.xd);
+#else
         av1_cdef_frame(&pbi->common.cur_frame->buf, cm, &pbi->dcb.xd);
+#endif
       }
 
       superres_post_decode(pbi);
