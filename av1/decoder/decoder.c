@@ -190,10 +190,12 @@ void av1_decoder_remove(AV1Decoder *pbi) {
     for (int worker_idx = 1; worker_idx < pbi->max_threads; worker_idx++) {
       DecWorkerData *const thread_data = pbi->thread_data + worker_idx;
       av1_free_mc_tmp_buf(thread_data->td);
+      aom_free(thread_data->td->seg_mask);
       aom_free(thread_data->td);
     }
     aom_free(pbi->thread_data);
   }
+  aom_free(pbi->dcb.xd.seg_mask);
 
   for (i = 0; i < pbi->num_workers; ++i) {
     AVxWorker *const worker = &pbi->tile_workers[i];
