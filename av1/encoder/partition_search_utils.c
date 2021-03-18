@@ -682,6 +682,34 @@ void av1_encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     int ref;
     const int is_compound = has_second_ref(mbmi);
 
+#if 1
+    const int dump_data = dry_run == OUTPUT_ENABLED && is_compound &&
+        block_size_wide[bsize] == 16 && block_size_high[bsize] == 16 &&
+        mbmi->comp_group_idx == 0 && mbmi->compound_idx == 1;
+    DECLARE_ALIGNED(32, uint8_t,predbuf[2][MAX_SB_SQUARE]) = { {0} };
+    if (dump_data) {
+      const MB_MODE_INFO orig_mbmi = *mbmi;
+      uint8_t *const orig_dst = xd->plane[0].dst.buf;
+      const int orig_stride = xd->plane[0].dst.stride;
+      for (int i = 0; i < 2; ++i) {
+        const YV12_BUFFER_CONFIG *cfg =
+          get_ref_frame_yv12_buf(cm, orig_mbmi.ref_frame[i]);
+        av1_setup_pre_planes(xd, 0, cfg, mi_row, mi_col,
+                             xd->block_ref_scale_factors[i], num_planes,
+                             &mbmi->chroma_ref_info);
+        mbmi->ref_frame[0] = orig_mbmi.ref_frame[i];
+        mbmi->ref_frame[1] = NONE_FRAME;
+        mbmi->mv[0].as_int = orig_mbmi.mv[i].as_int;
+        xd->plane[0].dst.buf = predbuf[i];
+        xd->plane[0].dst.stride = MAX_SB_SIZE;
+        av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,0);
+      }
+      *mbmi = orig_mbmi;
+      xd->plane[0].dst.buf = orig_dst;
+      xd->plane[0].dst.stride = orig_stride;
+    }
+#endif
+
     set_ref_ptrs(cm, xd, mbmi->ref_frame[0], mbmi->ref_frame[1]);
     for (ref = 0; ref < 1 + is_compound; ++ref) {
       const YV12_BUFFER_CONFIG *cfg =
@@ -759,12 +787,62 @@ void av1_encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       av1_interintra_ml_data_collect(cpi, x, bsize);
     }
 #endif  // CONFIG_INTERINTRA_ML_DATA_COLLECT
+
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                   av1_num_planes(cm) - 1);
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       assert(cpi->oxcf.enable_obmc == 1);
       av1_build_obmc_inter_predictors_sb(cm, xd);
     }
+
+#if 1
+    if (dump_data) {
+      FILE *fp = fopen("ml_comp_data.txt", "a");
+      const int bw = block_size_wide[bsize];
+      const int bh = block_size_high[bsize];
+      RefCntBuffer *refbuf0 = get_ref_frame_buf(cm, xd->mi[0]->ref_frame[0]);
+      RefCntBuffer *refbuf1 = get_ref_frame_buf(cm, xd->mi[0]->ref_frame[1]);
+      fprintf(fp, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+              cm->current_frame.order_hint, mi_row, mi_col, bw, bh,
+              mbmi->comp_group_idx, mbmi->compound_idx,
+              mbmi->ref_frame[0], mbmi->ref_frame[1],
+              mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col,
+              mbmi->mv[1].as_mv.row, mbmi->mv[1].as_mv.col,
+              refbuf0->order_hint, refbuf1->order_hint,
+              refbuf0->base_qindex, refbuf1->base_qindex);
+
+      for (int r = 0; r < bh; ++r) {
+        for (int c = 0; c < bw; ++c) {
+          fprintf(fp, "%d,", predbuf[0][r * MAX_SB_SIZE + c]);
+        }
+      }
+
+      for (int r = 0; r < bh; ++r) {
+        for (int c = 0; c < bw; ++c) {
+          fprintf(fp, "%d,", predbuf[1][r * MAX_SB_SIZE + c]);
+        }
+      }
+
+      const uint8_t *src = x->plane[0].src.buf;
+      const int src_stride = x->plane[0].src.stride;
+      for (int r = 0; r < bh; ++r) {
+        for (int c = 0; c < bw; ++c) {
+          fprintf(fp, "%d,", src[r * src_stride + c]);
+        }
+      }
+
+      const uint8_t *dst = xd->plane[0].dst.buf;
+      const int dst_stride = xd->plane[0].dst.stride;
+      for (int r = 0; r < bh; ++r) {
+        for (int c = 0; c < bw; ++c) {
+          fprintf(fp, "%d,", dst[r * dst_stride + c]);
+        }
+      }
+
+      fprintf(fp, "\n");
+      fclose(fp);
+    }
+#endif
 
 #if CONFIG_MISMATCH_DEBUG
     if (dry_run == OUTPUT_ENABLED) {
