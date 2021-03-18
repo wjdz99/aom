@@ -88,13 +88,15 @@ typedef struct frame_contexts {
   aom_cdf_prob coeff_br_cdf[TX_SIZES][PLANE_TYPES][LEVEL_CONTEXTS]
                            [CDF_SIZE(BR_CDF_SIZE)];
 
-  aom_cdf_prob newmv_cdf[NEWMV_MODE_CONTEXTS][CDF_SIZE(2)];
-  aom_cdf_prob zeromv_cdf[GLOBALMV_MODE_CONTEXTS][CDF_SIZE(2)];
 #if CONFIG_NEW_INTER_MODES
+  aom_cdf_prob inter_single_mode_cdf[INTER_SINGLE_MODE_CONTEXTS]
+                                    [CDF_SIZE(INTER_MODES)];
   aom_cdf_prob drl0_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob drl1_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob drl2_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
 #else
+  aom_cdf_prob newmv_cdf[NEWMV_MODE_CONTEXTS][CDF_SIZE(2)];
+  aom_cdf_prob zeromv_cdf[GLOBALMV_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob drl_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)];
   aom_cdf_prob refmv_cdf[REFMV_MODE_CONTEXTS][CDF_SIZE(2)];
 #endif  // CONFIG_NEW_INTER_MODES
@@ -233,6 +235,12 @@ static INLINE int av1_ceil_log2(int n) {
     p = p << 1;
   }
   return i;
+}
+
+static INLINE int16_t inter_single_mode_ctx(int16_t mode_ctx) {
+  const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
+  const int16_t zeromv_ctx = (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
+  return GLOBALMV_MODE_CONTEXTS * newmv_ctx + zeromv_ctx;
 }
 
 // Returns the context for palette color index at row 'r' and column 'c',
