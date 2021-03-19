@@ -822,6 +822,12 @@ static void build_inter_predictors_sub8x8(
       plane ? (mi->chroma_ref_info.mi_col_chroma_base - mi_col) : 0;
   const int pre_x = (mi_x + MI_SIZE * col_start) >> ss_x;
   const int pre_y = (mi_y + MI_SIZE * row_start) >> ss_y;
+#if CONFIG_EXT_RECUR_PARTITIONS
+  const int mb_to_top_edge_orig = xd->mb_to_top_edge;
+  const int mb_to_bottom_edge_orig = xd->mb_to_bottom_edge;
+  const int mb_to_left_edge_orig = xd->mb_to_left_edge;
+  const int mb_to_right_edge_orig = xd->mb_to_right_edge;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
 
   int row = row_start;
   for (int y = 0; y < b8_h; y += b4_h) {
@@ -852,6 +858,18 @@ static void build_inter_predictors_sub8x8(
       };
 
       const MV mv = this_mbmi->mv[ref].as_mv;
+#if CONFIG_EXT_RECUR_PARTITIONS
+      const int this_mi_row = xd->mi_row + row;
+      const int this_mi_col = xd->mi_col + col;
+      xd->mb_to_top_edge = -GET_MV_SUBPEL(this_mi_row);
+      xd->mb_to_bottom_edge = GET_MV_SUBPEL(
+          (cm->mi_params.mi_rows - mi_size_high[bsize] - this_mi_row) *
+          MI_SIZE);
+      xd->mb_to_left_edge = -GET_MV_SUBPEL((this_mi_col * MI_SIZE));
+      xd->mb_to_right_edge = GET_MV_SUBPEL(
+          (cm->mi_params.mi_cols - mi_size_wide[bsize] - this_mi_col) *
+          MI_SIZE);
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
 
       InterPredParams inter_pred_params;
       av1_init_inter_params(&inter_pred_params, b4_w, b4_h, pre_y + y,
@@ -871,10 +889,16 @@ static void build_inter_predictors_sub8x8(
                                     &inter_pred_params, xd, mi_x + x, mi_y + y,
                                     ref, mc_buf, calc_subpel_params_func);
 
-      ++col;
+      col += mi_size_wide[bsize];
     }
-    ++row;
+    row += mi_size_high[bsize];
   }
+#if CONFIG_EXT_RECUR_PARTITIONS
+  xd->mb_to_top_edge = mb_to_top_edge_orig;
+  xd->mb_to_bottom_edge = mb_to_bottom_edge_orig;
+  xd->mb_to_left_edge = mb_to_left_edge_orig;
+  xd->mb_to_right_edge = mb_to_right_edge_orig;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
 }
 
 static void build_inter_predictors_8x8_and_bigger(
