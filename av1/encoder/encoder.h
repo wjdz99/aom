@@ -2056,6 +2056,38 @@ typedef struct {
 } CoeffBufferPool;
 
 /*!
+ * \brief Elements from AV1_COMMON that are constant for all the frames
+ * in the sequence.
+ */
+typedef struct AV1_SEQ_CODING_TOOLS {
+  /*!
+   * Elements part of the sequence header, that are applicable for all the
+   * frames in the video.
+   */
+  SequenceHeader seq_params;
+
+  /*!
+   * Number of temporal layers: may be > 1 for SVC (scalable vector coding).
+   */
+  unsigned int number_temporal_layers;
+
+  /*!
+   * Number of spatial layers: may be > 1 for SVC (scalable vector coding).
+   */
+  unsigned int number_spatial_layers;
+
+  /*!
+   * If true, buffer removal times are present.
+   */
+  bool buffer_removal_time_present;
+
+  /*!
+   * Code and details about current error status.
+   */
+  struct aom_internal_error_info error;
+} AV1_SEQ_CODING_TOOLS;
+
+/*!
  * \brief Top level primary encoder structure
  */
 typedef struct AV1_PRIMARY {
@@ -2068,6 +2100,12 @@ typedef struct AV1_PRIMARY {
    * Lookahead processing stage top level structure
    */
   struct AV1_COMP *cpi_lap;
+
+  /*!
+   * Elements from AV1_COMMON that are constant for all the frames
+   * in the sequence.
+   */
+  struct AV1_SEQ_CODING_TOOLS seq_coding_tools;
 
   /*!
    * Look-ahead context.
@@ -2126,6 +2164,11 @@ typedef struct AV1_PRIMARY {
    * Information related to two pass encoding.
    */
   TWO_PASS twopass;
+
+  /*!
+   * Indicates whether to use SVC.
+   */
+  int use_svc;
 } AV1_PRIMARY;
 
 /*!
@@ -2807,12 +2850,15 @@ void av1_remove_compressor(AV1_COMP *cpi);
 
 void av1_remove_primary_compressor(AV1_PRIMARY *ppi);
 
+void av1_change_config_seq(AV1_PRIMARY *ppi, const AV1EncoderConfig *oxcf);
+
 void av1_change_config(AV1_COMP *cpi, const AV1EncoderConfig *oxcf);
 
 void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
                              int subsampling_x, int subsampling_y);
 
-void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
+void av1_init_seq_coding_tools(SequenceHeader *const seq,
+                               AV1_SEQ_CODING_TOOLS *seq_coding_tools,
                                const AV1EncoderConfig *oxcf, int use_svc);
 
 /*!\endcond */
@@ -3232,7 +3278,7 @@ static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
 // Note: The OBU returned is in Low Overhead Bitstream Format. Specifically,
 // the obu_has_size_field bit is set, and the buffer contains the obu_size
 // field.
-aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
+aom_fixed_buf_t *av1_get_global_headers(AV1_PRIMARY *ppi);
 
 #define MAX_GFUBOOST_FACTOR 10.0
 #define MIN_GFUBOOST_FACTOR 4.0

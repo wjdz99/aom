@@ -1176,7 +1176,9 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
     ctx->cfg = *cfg;
     set_encoder_config(&ctx->oxcf, &ctx->cfg, &ctx->extra_cfg);
     // On profile change, request a key frame
-    force_key |= ctx->ppi->cpi->common.seq_params.profile != ctx->oxcf.profile;
+    force_key |=
+        ctx->ppi->seq_coding_tools.seq_params.profile != ctx->oxcf.profile;
+    av1_change_config_seq(ctx->ppi, &ctx->oxcf);
     av1_change_config(ctx->ppi->cpi, &ctx->oxcf);
     if (ctx->ppi->cpi_lap != NULL) {
       av1_change_config(ctx->ppi->cpi_lap, &ctx->oxcf);
@@ -1189,7 +1191,7 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
 }
 
 static aom_fixed_buf_t *encoder_get_global_headers(aom_codec_alg_priv_t *ctx) {
-  return av1_get_global_headers(ctx->ppi->cpi);
+  return av1_get_global_headers(ctx->ppi);
 }
 
 static aom_codec_err_t ctrl_get_quantizer(aom_codec_alg_priv_t *ctx,
@@ -1222,6 +1224,7 @@ static aom_codec_err_t update_extra_cfg(aom_codec_alg_priv_t *ctx,
   if (res == AOM_CODEC_OK) {
     ctx->extra_cfg = *extra_cfg;
     set_encoder_config(&ctx->oxcf, &ctx->cfg, &ctx->extra_cfg);
+    av1_change_config_seq(ctx->ppi, &ctx->oxcf);
     av1_change_config(ctx->ppi->cpi, &ctx->oxcf);
     if (ctx->ppi->cpi_lap != NULL) {
       av1_change_config(ctx->ppi->cpi_lap, &ctx->oxcf);
@@ -2225,6 +2228,13 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   // The jmp_buf is valid only for the duration of the function that calls
   // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
   // before it returns.
+  if (setjmp(ppi->seq_coding_tools.error.jmp)) {
+    ppi->seq_coding_tools.error.setjmp = 0;
+    res = update_error_state(ctx, &ppi->seq_coding_tools.error);
+    aom_clear_system_state();
+    return res;
+  }
+  ppi->seq_coding_tools.error.setjmp = 1;
   if (setjmp(cpi->common.error.jmp)) {
     cpi->common.error.setjmp = 0;
     res = update_error_state(ctx, &cpi->common.error);
@@ -2382,7 +2392,6 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         if (status != AOM_CODEC_OK) {
           aom_internal_error(&cpi_lap->common.error, AOM_CODEC_ERROR, NULL);
         }
-        cpi_lap->ppi->seq_params_locked = 1;
       }
       lib_flags = 0;
       frame_size = 0;
@@ -2501,6 +2510,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   }
 
   cpi->common.error.setjmp = 0;
+  ppi->seq_coding_tools.error.setjmp = 0;
   return res;
 }
 
@@ -2678,6 +2688,7 @@ static aom_codec_err_t ctrl_set_number_spatial_layers(aom_codec_alg_priv_t *ctx,
   const int number_spatial_layers = va_arg(args, int);
   if (number_spatial_layers > MAX_NUM_SPATIAL_LAYERS)
     return AOM_CODEC_INVALID_PARAM;
+  ctx->ppi->seq_coding_tools.number_spatial_layers = number_spatial_layers;
   ctx->ppi->cpi->common.number_spatial_layers = number_spatial_layers;
   return AOM_CODEC_OK;
 }
@@ -2694,9 +2705,12 @@ static aom_codec_err_t ctrl_set_layer_id(aom_codec_alg_priv_t *ctx,
 
 static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
                                            va_list args) {
-  AV1_COMP *const cpi = ctx->ppi->cpi;
+  AV1_PRIMARY *const ppi = ctx->ppi;
+  AV1_COMP *const cpi = ppi->cpi;
   AV1_COMMON *const cm = &cpi->common;
   aom_svc_params_t *const params = va_arg(args, aom_svc_params_t *);
+  ppi->seq_coding_tools.number_spatial_layers = params->number_spatial_layers;
+  ppi->seq_coding_tools.number_temporal_layers = params->number_temporal_layers;
   cm->number_spatial_layers = params->number_spatial_layers;
   cm->number_temporal_layers = params->number_temporal_layers;
   cpi->svc.number_spatial_layers = params->number_spatial_layers;
@@ -2704,6 +2718,7 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
   cpi->svc.ksvc_fixed_mode = params->ksvc_fixed_mode;
   if (cm->number_spatial_layers > 1 || cm->number_temporal_layers > 1) {
     unsigned int sl, tl;
+    ppi->use_svc = 1;
     cpi->use_svc = 1;
     for (sl = 0; sl < cm->number_spatial_layers; ++sl) {
       for (tl = 0; tl < cm->number_temporal_layers; ++tl) {
@@ -2719,10 +2734,14 @@ static aom_codec_err_t ctrl_set_svc_params(aom_codec_alg_priv_t *ctx,
     }
     if (cm->current_frame.frame_number == 0) {
       if (!cpi->ppi->seq_params_locked) {
-        SequenceHeader *const seq_params = &cm->seq_params;
+        SequenceHeader *const seq_params = &ppi->seq_coding_tools.seq_params;
         seq_params->operating_points_cnt_minus_1 =
-            cm->number_spatial_layers * cm->number_temporal_layers - 1;
-        av1_init_seq_coding_tools(&cm->seq_params, cm, &cpi->oxcf, 1);
+            ppi->seq_coding_tools.number_spatial_layers *
+                ppi->seq_coding_tools.number_temporal_layers -
+            1;
+        av1_init_seq_coding_tools(seq_params, &ppi->seq_coding_tools,
+                                  &cpi->oxcf, 1);
+        cm->seq_params = *seq_params;
       }
       av1_init_layer_context(cpi);
     }
@@ -3222,10 +3241,9 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
 static aom_codec_err_t ctrl_get_seq_level_idx(aom_codec_alg_priv_t *ctx,
                                               va_list args) {
   int *const arg = va_arg(args, int *);
-  const AV1_COMP *const cpi = ctx->ppi->cpi;
   if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
-  return av1_get_seq_level_idx(&cpi->common.seq_params, &cpi->ppi->level_params,
-                               arg);
+  return av1_get_seq_level_idx(&ctx->ppi->seq_coding_tools.seq_params,
+                               &ctx->ppi->level_params, arg);
 }
 
 static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {

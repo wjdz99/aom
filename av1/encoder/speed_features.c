@@ -1705,8 +1705,12 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
   }
 
   if (!cpi->ppi->seq_params_locked) {
-    cpi->common.seq_params.enable_masked_compound &=
+    cpi->ppi->seq_coding_tools.seq_params.enable_masked_compound &=
         !sf->inter_sf.disable_masked_comp;
+
+    // Copy values from primary sequence params to cpi
+    cpi->common.seq_params.enable_masked_compound =
+        cpi->ppi->seq_coding_tools.seq_params.enable_masked_compound;
   }
 
   // This is only used in motion vector unit test.
@@ -1757,12 +1761,20 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   }
 
   if (!cpi->ppi->seq_params_locked) {
-    cpi->common.seq_params.enable_dual_filter &=
+    cpi->ppi->seq_coding_tools.seq_params.enable_dual_filter &=
         !sf->interp_sf.disable_dual_filter;
-    cpi->common.seq_params.enable_restoration &= !sf->lpf_sf.disable_lr_filter;
-
-    cpi->common.seq_params.enable_interintra_compound &=
+    cpi->ppi->seq_coding_tools.seq_params.enable_restoration &=
+        !sf->lpf_sf.disable_lr_filter;
+    cpi->ppi->seq_coding_tools.seq_params.enable_interintra_compound &=
         (sf->inter_sf.disable_interintra_wedge_var_thresh != UINT_MAX);
+
+    // Copy values from primary sequence params to cpi
+    cpi->common.seq_params.enable_dual_filter =
+        cpi->ppi->seq_coding_tools.seq_params.enable_dual_filter;
+    cpi->common.seq_params.enable_restoration =
+        cpi->ppi->seq_coding_tools.seq_params.enable_restoration;
+    cpi->common.seq_params.enable_interintra_compound =
+        cpi->ppi->seq_coding_tools.seq_params.enable_interintra_compound;
   }
 
   // sf->part_sf.partition_search_breakout_dist_thr is set assuming max 64x64
