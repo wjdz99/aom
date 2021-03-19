@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "91cde6ec_9bea0a11",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-19T21:59:25Z",
+      "side": 1,
+      "message": "Instead of this paragraph, you can just add this line to add automatic hyperlink to the bug:\nBUG\u003daomedia:2933\n\nThat will also update the bug when this patch gets merged.",
+      "range": {
+        "startLine": 9,
+        "startChar": 18,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "dd5918c1_925bdafb",
@@ -14,6 +37,75 @@
       "writtenOn": "2021-03-19T21:44:58Z",
       "side": 1,
       "message": "Hi Urvang, Leo, \n\nA fix for an open ticket 2933. It is good to have, not critical if it does not make it to the planned v1.0.1 tag.",
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3417d251_6dce8bc9",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-19T21:59:25Z",
+      "side": 1,
+      "message": "Can you instead add a comment saying something like:\n\"This should match the defaults in absence of a config file, set by \u003cfunction_name\u003e\"",
+      "range": {
+        "startLine": 553,
+        "startChar": 0,
+        "endLine": 553,
+        "endChar": 26
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dad16cc3_22bcee8e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-19T21:59:25Z",
+      "side": 1,
+      "message": "Isn\u0027t the default 0 without config for this one?",
+      "range": {
+        "startLine": 554,
+        "startChar": 28,
+        "endLine": 554,
+        "endChar": 31
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8baaf93b_14ee196a",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-19T21:59:25Z",
+      "side": 1,
+      "message": "No need to set 0 values (given the memset at the top), but ok if you want to explicitly do this.",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 592,
+        "endChar": 34
+      },
       "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
