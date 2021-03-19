@@ -735,8 +735,9 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // Whether fast wedge sign estimate is used
   int fast_wedge_sign_estimate;
 
-  // Enable/disable ME for interinter wedge search.
-  int disable_interinter_wedge_newmv_search;
+  // Prune ME for interinter wedge search.
+  // 0 : no pruning, 1 : partially do ME, 2 : disable fully
+  int prune_interinter_wedge_newmv_search;
 
   // Decide when and how to use joint_comp.
   DIST_WTD_COMP_FLAG use_dist_wtd_comp_flag;

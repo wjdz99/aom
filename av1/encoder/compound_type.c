@@ -62,7 +62,7 @@ static INLINE int is_comp_rd_match(const AV1_COMP *const cpi,
   // either of the directions
   if ((!have_newmv_in_inter_mode(mi->mode) &&
        !have_newmv_in_inter_mode(st->mode)) ||
-      (cpi->sf.inter_sf.disable_interinter_wedge_newmv_search)) {
+      (cpi->sf.inter_sf.prune_interinter_wedge_newmv_search)) {
     memcpy(&comp_rate[COMPOUND_WEDGE], &st->rate[COMPOUND_WEDGE],
            sizeof(comp_rate[COMPOUND_WEDGE]) * 2);
     memcpy(&comp_dist[COMPOUND_WEDGE], &st->dist[COMPOUND_WEDGE],
@@ -1108,7 +1108,7 @@ static int64_t masked_compound_type_rd(
     int wedge_newmv_search =
         have_newmv_in_inter_mode(this_mode) &&
         (compound_type == COMPOUND_WEDGE) &&
-        (!cpi->sf.inter_sf.disable_interinter_wedge_newmv_search);
+        (!cpi->sf.inter_sf.prune_interinter_wedge_newmv_search);
 
     // Search for new MV if needed and build predictor
     if (wedge_newmv_search) {
@@ -1162,10 +1162,10 @@ static int64_t masked_compound_type_rd(
   } else {
     // Reuse data as matching record is found
     assert(comp_dist[compound_type] != INT64_MAX);
-    // When disable_interinter_wedge_newmv_search is set, motion refinement is
+    // When prune_interinter_wedge_newmv_search is set, motion refinement is
     // disabled. Hence rate and distortion can be reused in this case as well
     assert(IMPLIES(have_newmv_in_inter_mode(this_mode),
-                   cpi->sf.inter_sf.disable_interinter_wedge_newmv_search));
+                   cpi->sf.inter_sf.prune_interinter_wedge_newmv_search));
     assert(mbmi->mv[0].as_int == cur_mv[0].as_int);
     assert(mbmi->mv[1].as_int == cur_mv[1].as_int);
     *out_rate_mv = rate_mv;
@@ -1392,7 +1392,8 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
           mode_rd = RDCOST(x->rdmult, rs2 + rd_stats->rate, 0);
           if (mode_rd >= ref_best_rd / 2) continue;
 
-          if (have_newmv_in_inter_mode(this_mode)) {
+          if (have_newmv_in_inter_mode(this_mode) &&
+              (cpi->sf.inter_sf.prune_interinter_wedge_newmv_search <= 1)) {
             tmp_rate_mv = av1_interinter_compound_motion_search(
                 cpi, x, cur_mv, bsize, this_mode);
             av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, orig_dst,
@@ -1439,7 +1440,8 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
         rs2 = masked_type_cost[cur_type];
         rs2 += get_interinter_compound_mask_rate(&x->mode_costs, mbmi);
 
-        if (have_newmv_in_inter_mode(this_mode)) {
+        if (have_newmv_in_inter_mode(this_mode) &&
+            (cpi->sf.inter_sf.prune_interinter_wedge_newmv_search <= 1)) {
           tmp_rate_mv = av1_interinter_compound_motion_search(cpi, x, cur_mv,
                                                               bsize, this_mode);
         }
