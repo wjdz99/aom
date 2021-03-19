@@ -308,11 +308,13 @@ void av1_update_frame_size(AV1_COMP *cpi) {
   if (!is_stat_generation_stage(cpi))
     alloc_context_buffers_ext(cm, &cpi->mbmi_ext_info);
 
-  if (!cpi->ppi->seq_params_locked)
-    set_sb_size(&cm->seq_params,
+  if (!cpi->ppi->seq_params_locked) {
+    SequenceHeader *const seq_params = &cpi->ppi->seq_coding_tools.seq_params;
+    set_sb_size(seq_params,
                 av1_select_sb_size(&cpi->oxcf, cm->width, cm->height,
                                    cpi->svc.number_spatial_layers));
-
+    set_sb_size(&cm->seq_params, seq_params->sb_size);
+  }
   set_tile_info(cm, &cpi->oxcf.tile_cfg);
 }
 
@@ -329,7 +331,8 @@ static INLINE int does_level_match(int width, int height, double fps,
          height <= lvl_height * lvl_dim_mult;
 }
 
-static void set_bitstream_level_tier(SequenceHeader *seq, AV1_COMMON *cm,
+static void set_bitstream_level_tier(SequenceHeader *const seq,
+                                     AV1_SEQ_CODING_TOOLS *seq_coding_tools,
                                      int width, int height,
                                      double init_framerate) {
   // TODO(any): This is a placeholder function that only addresses dimensions
@@ -374,25 +377,25 @@ static void set_bitstream_level_tier(SequenceHeader *seq, AV1_COMMON *cm,
     level = SEQ_LEVEL_6_2;
   }
 
-  SequenceHeader *const seq_params = &cm->seq_params;
   for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
     seq->seq_level_idx[i] = level;
     // Set the maximum parameters for bitrate and buffer size for this profile,
     // level, and tier
-    seq_params->op_params[i].bitrate = av1_max_level_bitrate(
-        cm->seq_params.profile, seq->seq_level_idx[i], seq->tier[i]);
+    seq->op_params[i].bitrate = av1_max_level_bitrate(
+        seq->profile, seq->seq_level_idx[i], seq->tier[i]);
     // Level with seq_level_idx = 31 returns a high "dummy" bitrate to pass the
     // check
-    if (seq_params->op_params[i].bitrate == 0)
+    if (seq->op_params[i].bitrate == 0)
       aom_internal_error(
-          &cm->error, AOM_CODEC_UNSUP_BITSTREAM,
+          &seq_coding_tools->error, AOM_CODEC_UNSUP_BITSTREAM,
           "AV1 does not support this combination of profile, level, and tier.");
     // Buffer size in bits/s is bitrate in bits/s * 1 s
-    seq_params->op_params[i].buffer_size = seq_params->op_params[i].bitrate;
+    seq->op_params[i].buffer_size = seq->op_params[i].bitrate;
   }
 }
 
-void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
+void av1_init_seq_coding_tools(SequenceHeader *const seq,
+                               AV1_SEQ_CODING_TOOLS *seq_coding_tools,
                                const AV1EncoderConfig *oxcf, int use_svc) {
   const FrameDimensionCfg *const frm_dim_cfg = &oxcf->frm_dim_cfg;
   const ToolCfg *const tool_cfg = &oxcf->tool_cfg;
@@ -451,8 +454,8 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_intra_edge_filter = oxcf->intra_mode_cfg.enable_intra_edge_filter;
   seq->enable_filter_intra = oxcf->intra_mode_cfg.enable_filter_intra;
 
-  set_bitstream_level_tier(seq, cm, frm_dim_cfg->width, frm_dim_cfg->height,
-                           oxcf->input_cfg.init_framerate);
+  set_bitstream_level_tier(seq, seq_coding_tools, frm_dim_cfg->width,
+                           frm_dim_cfg->height, oxcf->input_cfg.init_framerate);
 
   if (seq->operating_points_cnt_minus_1 == 0) {
     seq->operating_point_idc[0] = 0;
@@ -463,26 +466,31 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
     // skip decoding enhancement  layers (temporal first).
     int i = 0;
     assert(seq->operating_points_cnt_minus_1 ==
-           (int)(cm->number_spatial_layers * cm->number_temporal_layers - 1));
-    for (unsigned int sl = 0; sl < cm->number_spatial_layers; sl++) {
-      for (unsigned int tl = 0; tl < cm->number_temporal_layers; tl++) {
+           (int)(seq_coding_tools->number_spatial_layers *
+                     seq_coding_tools->number_temporal_layers -
+                 1));
+    for (unsigned int sl = 0; sl < seq_coding_tools->number_spatial_layers;
+         sl++) {
+      for (unsigned int tl = 0; tl < seq_coding_tools->number_temporal_layers;
+           tl++) {
         seq->operating_point_idc[i] =
-            (~(~0u << (cm->number_spatial_layers - sl)) << 8) |
-            ~(~0u << (cm->number_temporal_layers - tl));
+            (~(~0u << (seq_coding_tools->number_spatial_layers - sl)) << 8) |
+            ~(~0u << (seq_coding_tools->number_temporal_layers - tl));
         i++;
       }
     }
   }
 }
 
-static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
-  AV1_COMMON *const cm = &cpi->common;
-  SequenceHeader *const seq_params = &cm->seq_params;
-  ResizePendingParams *resize_pending_params = &cpi->resize_pending_params;
+static void init_config_sequence(struct AV1_PRIMARY *ppi,
+                                 AV1EncoderConfig *oxcf) {
+  SequenceHeader *const seq_params = &ppi->seq_coding_tools.seq_params;
   const DecoderModelCfg *const dec_model_cfg = &oxcf->dec_model_cfg;
   const ColorCfg *const color_cfg = &oxcf->color_cfg;
-  cpi->oxcf = *oxcf;
-  cpi->framerate = oxcf->input_cfg.init_framerate;
+
+  ppi->use_svc = 0;
+  ppi->seq_coding_tools.number_spatial_layers = 1;
+  ppi->seq_coding_tools.number_temporal_layers = 1;
 
   seq_params->profile = oxcf->profile;
   seq_params->bit_depth = oxcf->tool_cfg.bit_depth;
@@ -510,7 +518,7 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
     // set the decoder model parameters in schedule mode
     seq_params->decoder_model_info.num_units_in_decoding_tick =
         dec_model_cfg->num_units_in_decoding_tick;
-    cm->buffer_removal_time_present = 1;
+    ppi->seq_coding_tools.buffer_removal_time_present = 1;
     av1_set_aom_dec_model_info(&seq_params->decoder_model_info);
     av1_set_dec_model_op_parameters(&seq_params->op_params[0]);
   } else if (seq_params->timing_info_present &&
@@ -548,12 +556,20 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
       }
     }
   }
+  av1_change_config_seq(ppi, oxcf);
+}
+
+static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
+  AV1_COMMON *const cm = &cpi->common;
+  SequenceHeader *const seq_params = &cm->seq_params;
+  ResizePendingParams *resize_pending_params = &cpi->resize_pending_params;
+
+  cpi->oxcf = *oxcf;
+  cpi->framerate = oxcf->input_cfg.init_framerate;
 
   cm->width = oxcf->frm_dim_cfg.width;
   cm->height = oxcf->frm_dim_cfg.height;
-  // set sb size before allocations
-  set_sb_size(seq_params, av1_select_sb_size(&cpi->oxcf, cm->width, cm->height,
-                                             cpi->svc.number_spatial_layers));
+  *seq_params = cpi->ppi->seq_coding_tools.seq_params;
   alloc_compressor_data(cpi);
 
   av1_update_film_grain_parameters(cpi, oxcf);
@@ -586,25 +602,12 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   av1_noise_estimate_init(&cpi->noise_estimate, cm->width, cm->height);
 }
 
-void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
-  AV1_COMMON *const cm = &cpi->common;
-  SequenceHeader *const seq_params = &cm->seq_params;
-  RATE_CONTROL *const rc = &cpi->rc;
-  MACROBLOCK *const x = &cpi->td.mb;
-  AV1LevelParams *const level_params = &cpi->ppi->level_params;
-  InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
-  RefreshFrameFlagsInfo *const refresh_frame_flags = &cpi->refresh_frame;
-  const FrameDimensionCfg *const frm_dim_cfg = &cpi->oxcf.frm_dim_cfg;
+void av1_change_config_seq(struct AV1_PRIMARY *ppi,
+                           const AV1EncoderConfig *oxcf) {
+  SequenceHeader *const seq_params = &ppi->seq_coding_tools.seq_params;
+  const FrameDimensionCfg *const frm_dim_cfg = &oxcf->frm_dim_cfg;
   const DecoderModelCfg *const dec_model_cfg = &oxcf->dec_model_cfg;
   const ColorCfg *const color_cfg = &oxcf->color_cfg;
-  const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
-  // in case of LAP, lag in frames is set according to number of lap buffers
-  // calculated at init time. This stores and restores LAP's lag in frames to
-  // prevent override by new cfg.
-  int lap_lag_in_frames = -1;
-  if (cpi->ppi->lap_enabled && cpi->compressor_stage == LAP_STAGE) {
-    lap_lag_in_frames = cpi->oxcf.gf_cfg.lag_in_frames;
-  }
 
   if (seq_params->profile != oxcf->profile) seq_params->profile = oxcf->profile;
   seq_params->bit_depth = oxcf->tool_cfg.bit_depth;
@@ -635,7 +638,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
     // set the decoder model parameters in schedule mode
     seq_params->decoder_model_info.num_units_in_decoding_tick =
         dec_model_cfg->num_units_in_decoding_tick;
-    cm->buffer_removal_time_present = 1;
+    ppi->seq_coding_tools.buffer_removal_time_present = 1;
     av1_set_aom_dec_model_info(&seq_params->decoder_model_info);
     av1_set_dec_model_op_parameters(&seq_params->op_params[0]);
   } else if (seq_params->timing_info_present &&
@@ -646,6 +649,51 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   } else {
     seq_params->op_params[0].initial_display_delay =
         10;  // Default value (not signaled)
+  }
+
+  av1_update_film_grain_parameters_seq(ppi, oxcf);
+
+  // Superblock size should not be updated after the first key frame.
+  if (!ppi->seq_params_locked) {
+    set_sb_size(seq_params, av1_select_sb_size(
+                                oxcf, frm_dim_cfg->width, frm_dim_cfg->height,
+                                ppi->seq_coding_tools.number_spatial_layers));
+    for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i)
+      seq_params->tier[i] = (oxcf->tier_mask >> i) & 1;
+  }
+
+  // Init sequence level coding tools
+  // This should not be called after the first key frame.
+  if (!ppi->seq_params_locked) {
+    unsigned int num_sl = ppi->seq_coding_tools.number_spatial_layers;
+    unsigned int num_tl = ppi->seq_coding_tools.number_temporal_layers;
+    seq_params->operating_points_cnt_minus_1 =
+        (num_sl > 1 || num_tl > 1) ? num_sl * num_tl - 1 : 0;
+    av1_init_seq_coding_tools(seq_params, &ppi->seq_coding_tools, oxcf,
+                              ppi->use_svc);
+  }
+}
+
+void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
+  AV1_COMMON *const cm = &cpi->common;
+  SequenceHeader *const seq_params = &cm->seq_params;
+  RATE_CONTROL *const rc = &cpi->rc;
+  MACROBLOCK *const x = &cpi->td.mb;
+  AV1LevelParams *const level_params = &cpi->ppi->level_params;
+  InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
+  RefreshFrameFlagsInfo *const refresh_frame_flags = &cpi->refresh_frame;
+  const FrameDimensionCfg *const frm_dim_cfg = &cpi->oxcf.frm_dim_cfg;
+  const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
+
+  int sb_size = seq_params->sb_size;
+  *seq_params = cpi->ppi->seq_coding_tools.seq_params;
+
+  // in case of LAP, lag in frames is set according to number of lap buffers
+  // calculated at init time. This stores and restores LAP's lag in frames to
+  // prevent override by new cfg.
+  int lap_lag_in_frames = -1;
+  if (cpi->ppi->lap_enabled && cpi->compressor_stage == LAP_STAGE) {
+    lap_lag_in_frames = cpi->oxcf.gf_cfg.lag_in_frames;
   }
 
   av1_update_film_grain_parameters(cpi, oxcf);
@@ -761,17 +809,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   cm->width = frm_dim_cfg->width;
   cm->height = frm_dim_cfg->height;
 
-  int sb_size = seq_params->sb_size;
-  // Superblock size should not be updated after the first key frame.
-  if (!cpi->ppi->seq_params_locked) {
-    set_sb_size(
-        &cm->seq_params,
-        av1_select_sb_size(oxcf, frm_dim_cfg->width, frm_dim_cfg->height,
-                           cpi->svc.number_spatial_layers));
-    for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i)
-      seq_params->tier[i] = (oxcf->tier_mask >> i) & 1;
-  }
-
   if (initial_dimensions->width || sb_size != seq_params->sb_size) {
     if (cm->width > initial_dimensions->width ||
         cm->height > initial_dimensions->height ||
@@ -799,16 +836,6 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 #if CONFIG_AV1_HIGHBITDEPTH
   highbd_set_var_fns(cpi);
 #endif
-
-  // Init sequence level coding tools
-  // This should not be called after the first key frame.
-  if (!cpi->ppi->seq_params_locked) {
-    seq_params->operating_points_cnt_minus_1 =
-        (cm->number_spatial_layers > 1 || cm->number_temporal_layers > 1)
-            ? cm->number_spatial_layers * cm->number_temporal_layers - 1
-            : 0;
-    av1_init_seq_coding_tools(&cm->seq_params, cm, oxcf, cpi->use_svc);
-  }
 
   if (cpi->use_svc)
     av1_update_layer_context_change_config(cpi, rc_cfg->target_bandwidth);
@@ -853,12 +880,25 @@ AV1_PRIMARY *av1_create_primary_compressor(
   if (!ppi) return NULL;
   av1_zero(*ppi);
 
+  // The jmp_buf is valid only for the duration of the function that calls
+  // setjmp(). Therefore, this function must reset the 'setjmp' field to 0
+  // before it returns.
+  if (setjmp(ppi->seq_coding_tools.error.jmp)) {
+    ppi->seq_coding_tools.error.setjmp = 0;
+    av1_remove_primary_compressor(ppi);
+    return 0;
+  }
+  ppi->seq_coding_tools.error.setjmp = 1;
+
   ppi->seq_params_locked = 0;
   ppi->lap_enabled = num_lap_buffers > 0;
   ppi->output_pkt_list = pkt_list_head;
   ppi->b_calculate_psnr = CONFIG_INTERNAL_STATS;
   ppi->frames_left = oxcf->input_cfg.limit;
 
+  init_config_sequence(ppi, oxcf);
+
+  ppi->seq_coding_tools.error.setjmp = 0;
   return ppi;
 }
 
@@ -1967,7 +2007,7 @@ static void init_ref_frame_bufs(AV1_COMP *cpi) {
 void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
                              int subsampling_x, int subsampling_y) {
   AV1_COMMON *const cm = &cpi->common;
-  SequenceHeader *const seq_params = &cm->seq_params;
+  SequenceHeader *const seq_params = &cpi->ppi->seq_coding_tools.seq_params;
   InitialDimensions *const initial_dimensions = &cpi->initial_dimensions;
 
   if (!initial_dimensions->width ||
@@ -4045,12 +4085,12 @@ void av1_apply_encoding_flags(AV1_COMP *cpi, aom_enc_frame_flags_t flags) {
   }
 }
 
-aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
-  if (!cpi) return NULL;
+aom_fixed_buf_t *av1_get_global_headers(AV1_PRIMARY *ppi) {
+  if (!ppi) return NULL;
 
   uint8_t header_buf[512] = { 0 };
-  const uint32_t sequence_header_size =
-      av1_write_sequence_header_obu(&cpi->common.seq_params, &header_buf[0]);
+  const uint32_t sequence_header_size = av1_write_sequence_header_obu(
+      &ppi->seq_coding_tools.seq_params, &header_buf[0]);
   assert(sequence_header_size <= sizeof(header_buf));
   if (sequence_header_size == 0) return NULL;
 
@@ -4061,7 +4101,7 @@ aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi) {
   if (payload_offset + sequence_header_size > sizeof(header_buf)) return NULL;
   memmove(&header_buf[payload_offset], &header_buf[0], sequence_header_size);
 
-  if (av1_write_obu_header(&cpi->ppi->level_params, &cpi->frame_header_count,
+  if (av1_write_obu_header(&ppi->level_params, &ppi->cpi->frame_header_count,
                            OBU_SEQUENCE_HEADER, 0,
                            &header_buf[0]) != obu_header_size) {
     return NULL;

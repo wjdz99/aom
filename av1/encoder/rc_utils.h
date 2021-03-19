@@ -38,7 +38,7 @@ static AOM_INLINE void config_target_level(AV1_COMP *const cpi,
   aom_clear_system_state();
 
   AV1EncoderConfig *const oxcf = &cpi->oxcf;
-  SequenceHeader *const seq_params = &cpi->common.seq_params;
+  SequenceHeader *const seq_params = &cpi->ppi->seq_coding_tools.seq_params;
   TileConfig *const tile_cfg = &oxcf->tile_cfg;
   RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
 
