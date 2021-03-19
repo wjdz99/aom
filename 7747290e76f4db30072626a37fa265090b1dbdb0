@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "48d20629_c875d9a7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-03-19T23:17:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "91cde6ec_9bea0a11",
+      "range": {
+        "startLine": 9,
+        "startChar": 18,
+        "endLine": 9,
+        "endChar": 19
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "dd5918c1_925bdafb",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -66,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "77f7c69a_c4dd78cb",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-03-19T23:17:24Z",
+      "side": 1,
+      "message": "How does this look ? --  These parameters are set in the function parseCfg. In absence of these parameters in the config file, the default values should match",
+      "parentUuid": "3417d251_6dce8bc9",
+      "range": {
+        "startLine": 553,
+        "startChar": 0,
+        "endLine": 553,
+        "endChar": 26
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dad16cc3_22bcee8e",
         "filename": "apps/aomenc.c",
         "patchSetId": 1
@@ -77,6 +125,30 @@
       "writtenOn": "2021-03-19T21:59:25Z",
       "side": 1,
       "message": "Isn\u0027t the default 0 without config for this one?",
+      "range": {
+        "startLine": 554,
+        "startChar": 28,
+        "endLine": 554,
+        "endChar": 31
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c919b0e_62ff8c1e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-03-19T23:17:24Z",
+      "side": 1,
+      "message": "The defaults enum is \"dynamic\" and that corresponds to the value of 128. In the parseCfg, the checks are based on the value and not enum type. So without this patch, if superblock_size is not specified in config file, it would result in failed run.",
+      "parentUuid": "dad16cc3_22bcee8e",
       "range": {
         "startLine": 554,
         "startChar": 28,
@@ -100,6 +172,30 @@
       "writtenOn": "2021-03-19T21:59:25Z",
       "side": 1,
       "message": "No need to set 0 values (given the memset at the top), but ok if you want to explicitly do this.",
+      "range": {
+        "startLine": 591,
+        "startChar": 0,
+        "endLine": 592,
+        "endChar": 34
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d59b6ec3_b98f3588",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-03-19T23:17:24Z",
+      "side": 1,
+      "message": "For consistency, I have slight preference to explicitly set to zero. Though I agree with you, it is not required as memset already takes care.",
+      "parentUuid": "8baaf93b_14ee196a",
       "range": {
         "startLine": 591,
         "startChar": 0,
