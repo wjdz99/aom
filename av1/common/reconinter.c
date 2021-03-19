@@ -805,7 +805,8 @@ static void build_inter_predictors_sub8x8(
   const bool ss_y = pd->subsampling_y;
   const int b4_w = block_size_wide[bsize] >> ss_x;
   const int b4_h = block_size_high[bsize] >> ss_y;
-  const BLOCK_SIZE plane_bsize = plane ? mi->chroma_ref_info.bsize_base : bsize;
+  const BLOCK_SIZE plane_bsize =
+      plane ? mi->chroma_ref_info.bsize_base : mi->sb_type;
   const int b8_w = block_size_wide[plane_bsize] >> ss_x;
   const int b8_h = block_size_high[plane_bsize] >> ss_y;
   assert(!is_intrabc_block(mi));
@@ -814,14 +815,18 @@ static void build_inter_predictors_sub8x8(
   // worth of pixels. Thus (mi_x, mi_y) may not be the correct coordinates for
   // the top-left corner of the prediction source - the correct top-left corner
   // is at (pre_x, pre_y).
-  const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
-  const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
   const int row_start =
-      plane ? (mi->chroma_ref_info.mi_row_chroma_base - mi_row) : 0;
+      plane ? (mi->chroma_ref_info.mi_row_chroma_base - xd->mi_row) : 0;
   const int col_start =
-      plane ? (mi->chroma_ref_info.mi_col_chroma_base - mi_col) : 0;
+      plane ? (mi->chroma_ref_info.mi_col_chroma_base - xd->mi_col) : 0;
   const int pre_x = (mi_x + MI_SIZE * col_start) >> ss_x;
   const int pre_y = (mi_y + MI_SIZE * row_start) >> ss_y;
+#if CONFIG_EXT_RECUR_PARTITIONS
+  const int mb_to_top_edge_orig = xd->mb_to_top_edge;
+  const int mb_to_bottom_edge_orig = xd->mb_to_bottom_edge;
+  const int mb_to_left_edge_orig = xd->mb_to_left_edge;
+  const int mb_to_right_edge_orig = xd->mb_to_right_edge;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
 
   int row = row_start;
   for (int y = 0; y < b8_h; y += b4_h) {
@@ -852,6 +857,18 @@ static void build_inter_predictors_sub8x8(
       };
 
       const MV mv = this_mbmi->mv[ref].as_mv;
+#if CONFIG_EXT_RECUR_PARTITIONS
+      const int this_mi_row = xd->mi_row + row;
+      const int this_mi_col = xd->mi_col + col;
+      xd->mb_to_top_edge = -GET_MV_SUBPEL(this_mi_row);
+      xd->mb_to_bottom_edge = GET_MV_SUBPEL(
+          (cm->mi_params.mi_rows - mi_size_high[bsize] - this_mi_row) *
+          MI_SIZE);
+      xd->mb_to_left_edge = -GET_MV_SUBPEL((this_mi_col * MI_SIZE));
+      xd->mb_to_right_edge = GET_MV_SUBPEL(
+          (cm->mi_params.mi_cols - mi_size_wide[bsize] - this_mi_col) *
+          MI_SIZE);
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
 
       InterPredParams inter_pred_params;
       av1_init_inter_params(&inter_pred_params, b4_w, b4_h, pre_y + y,
@@ -871,10 +888,16 @@ static void build_inter_predictors_sub8x8(
                                     &inter_pred_params, xd, mi_x + x, mi_y + y,
                                     ref, mc_buf, calc_subpel_params_func);
 
-      ++col;
+      col += mi_size_wide[bsize];
     }
-    ++row;
+    row += mi_size_high[bsize];
   }
+#if CONFIG_EXT_RECUR_PARTITIONS
+  xd->mb_to_top_edge = mb_to_top_edge_orig;
+  xd->mb_to_bottom_edge = mb_to_bottom_edge_orig;
+  xd->mb_to_left_edge = mb_to_left_edge_orig;
+  xd->mb_to_right_edge = mb_to_right_edge_orig;
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
 }
 
 static void build_inter_predictors_8x8_and_bigger(
