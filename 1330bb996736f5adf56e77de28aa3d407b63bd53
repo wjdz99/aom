@@ -70,6 +70,23 @@
       "parentUuid": "f0d220c0_4a1189d9",
       "revId": "1330bb996736f5adf56e77de28aa3d407b63bd53",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8f84373_c026b5d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2021-03-19T04:22:03Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nlap_enabled cannot be true for 2-pass mode of operation. lap_enabled is only set to 1 if num_lap_buffers are greater than 0(this code is present in av1_create_compressor), and num_lap_buffers can only be \u003e0 if pass\u003d\u003d0(for 2-pass the variable pass can either be 1 or 2). This code is present in encoder_init(). For clarity please take a look at the table below:\n\n Context          Mode    pass  lap_enabled  compressor_stage  stat_gen_stage  stat_consumption_stage\n cpi              2-pass   1        0          ENCODE_STAGE       True               False\n cpi (Separate    \n instance         2-pass   2        0          ENCODE_STAGE       False              True\n from above)\n cpi_lap          1-pass   0        1            LAP_STAGE        True               False\n cpi              1-pass   0        1          ENCODE_STAGE       False              True\n\nFrom the above table we can see that there are two conditions on which we can distinguish between AV1_COMP of the first pass(ie; --passes\u003d2 and --pass\u003d1) and AV1_COMP of the single pass lap stats generation stage(ie; cpi_lap for --passes\u003d1). These conditions are below:\n1. lap_enabled \u003d\u003d 0 indicates the context is of first pass. This is because lap_enabled is not set for 2-pass mode of operation.\n2. compressor_stage \u003d\u003d LAP_STAGE indicates that the context is of single pass LAP(cpi_lap). This is because even for pass\u003d\u003d1 the variable compressor_stage is set to ENCODE_STAGE.\n\nWe want to distinguish between the two contexts because single pass lap should not output any stat packets to the application(as they are stored internally).\n\nWe chose to go with condition 1 as it was more explicit with respect to the intent behind putting that check.\n\nRegarding the following check: cpi-\u003elap_enabled \u0026\u0026 cpi-\u003ecompressor_stage \u003d\u003d LAP_STAGE; as can be seen from the table above, it is redundant. It can be replaced with cpi-\u003ecompressor_stage \u003d\u003d LAP_STAGE. We will do this cleanup in future CLs. \n\nPlease let us know your thoughts. Thanks.",
+      "revId": "1330bb996736f5adf56e77de28aa3d407b63bd53",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
