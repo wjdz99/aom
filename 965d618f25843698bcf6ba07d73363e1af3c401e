@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5bd3c5d0_e1410f02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-03-19T08:11:26Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nIn this CL, we have taken care of the review comments given in the following patch.\nhttps://aomedia-review.googlesource.com/c/aom/+/133241\n\nPlease review the CL.\n\nThanks \u0026 regards,\nAniket\n",
+      "revId": "965d618f25843698bcf6ba07d73363e1af3c401e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
