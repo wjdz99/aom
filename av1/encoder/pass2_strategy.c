@@ -780,11 +780,10 @@ static int64_t calculate_total_gf_group_bits(AV1_COMP *cpi,
   }
 
   // Clamp odd edge cases.
-  total_group_bits = (total_group_bits < 0)
-                         ? 0
-                         : (total_group_bits > twopass->kf_group_bits)
-                               ? twopass->kf_group_bits
-                               : total_group_bits;
+  total_group_bits = (total_group_bits < 0) ? 0
+                     : (total_group_bits > twopass->kf_group_bits)
+                         ? twopass->kf_group_bits
+                         : total_group_bits;
 
   // Clip based on user supplied data rate variability limit.
   if (total_group_bits > (int64_t)max_bits * rc->baseline_gf_interval)
@@ -2036,8 +2035,10 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
             int found = 0;
             // first try to end at a stable area
             for (int j = cur_last; j >= cur_start + min_shrink_int; j--) {
-              if (regions[find_regions_index(regions, num_regions, j + offset)]
-                      .type == STABLE_REGION) {
+              int cur_region_index =
+                  find_regions_index(regions, num_regions, j + offset);
+              if (regions[cur_region_index].type == STABLE_REGION &&
+                  cur_region_index >= 0) {
                 cur_last = j;
                 found = 1;
                 break;
@@ -2082,11 +2083,11 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
       // reset pointers to the shrinked location
       twopass->stats_in = start_pos + cur_last;
       cur_start = cur_last;
-      if (regions[find_regions_index(regions, num_regions,
-                                     cur_start + 1 + offset)]
-              .type == SCENECUT_REGION) {
-        cur_start++;
-      }
+      int cur_region_idx =
+          find_regions_index(regions, num_regions, cur_start + 1 + offset);
+      if (cur_region_idx >= 0)
+        if (regions[cur_region_idx].type == SCENECUT_REGION) cur_start++;
+
       i = cur_last;
 
       if (cut_here > 1 && cur_last == ori_last) break;
