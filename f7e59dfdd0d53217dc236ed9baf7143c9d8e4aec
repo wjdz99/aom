@@ -1,0 +1,272 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c23a916c_d19d9497",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "Typo: cpi \u003d\u003e cpu",
+      "range": {
+        "startLine": 10,
+        "startChar": 47,
+        "endLine": 10,
+        "endChar": 50
+      },
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85eb67a1_a0a34416",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "I suggest a few changes.",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "383ed906_38183b40",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "abs() can be omitted because cfl_linear_idx is positive.",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89dddaf5_8dc03088",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 372,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "abs(cfl_linear_idx) can be replaced by -cfl_linear_idx because cfl_linear_idx is negative.",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1aa85e30_30934343",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "Nit/optional: Use the parameter comment:\n  /*use_hardamard\u003d*/0",
+      "range": {
+        "startLine": 399,
+        "startChar": 59,
+        "endLine": 399,
+        "endChar": 72
+      },
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bc8b3c4_59d93d4c",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "Document that the cfl_rate_arr and cfl_dist_arr arrays both have CFL_INDEX_MAX elements.",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97673da1_89c6a994",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "Since cfl_search_range is an exclusive upper bound of the search at line 467, it seems that we should allow cfl_search_range \u003c\u003d CFL_INDEX_MAX in this assertion and also at line 430.",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54147af1_3cafcf0e",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "It seems that we don\u0027t need to check this condition because we can assume it is true (see the assertion at line 416).",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b72bfb7_570dc962",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 476,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "This if statement can be omitted because best_cfl_cost is not used in the rest of this function.",
+      "range": {
+        "startLine": 474,
+        "startChar": 0,
+        "endLine": 476,
+        "endChar": 7
+      },
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0821c7c5_b991cc6c",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "Delete this line. Its side effect is ignored because cfl_idx goes out of scope after this line.",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "325a08d3_499a08cc",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "This can be moved outside the inner for loop. Please see the next comment.",
+      "range": {
+        "startLine": 523,
+        "startChar": 0,
+        "endLine": 525,
+        "endChar": 63
+      },
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2ff37cd_6dd03bfb",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "I think this if statement can be split into two and moved to the beginning of the nested for loops at lines 521-522 as follows:\n\n  for (int ui \u003d 0; ui \u003c CFL_INDEX_MAX; ++ui) {\n    if (cfl_rate_arr_u[ui] \u003d\u003d INT_MAX)\n      continue;\n    int cfl_alpha_u;\n    CFL_SIGN_TYPE cfl_sign_u;\n    cfl_idx_to_sign_and_alpha(ui, \u0026cfl_sign_u, \u0026cfl_alpha_u);\n    for (int vi \u003d 0; vi \u003c CFL_INDEX_MAX; ++vi) {\n      if (cfl_rate_arr_v[vi] \u003d\u003d INT_MAX)\n        continue;",
+      "range": {
+        "startLine": 529,
+        "startChar": 0,
+        "endLine": 530,
+        "endChar": 17
+      },
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f21e5fa_49a64beb",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "Nit: Delete this variable and the best_alpha_idx variable.\n\nWe can compute best_alpha_idx as follows at line 560:\n\n    *best_cfl_alpha_idx \u003d (best_cfl_alpha_u \u003c\u003c CFL_ALPHABET_SIZE_LOG2) + best_cfl_alpha_v;",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7e0f812_82085021",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-19T00:23:00Z",
+      "side": 1,
+      "message": "We can delete this #if CONFIG_DEBUG now.\n\nThis #if CONFIG_DEBUG was necessary before because the assertion used xd-\u003ecfl.rate, which was only resent when CONFIG_DEBUG was 1.",
+      "revId": "f7e59dfdd0d53217dc236ed9baf7143c9d8e4aec",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
