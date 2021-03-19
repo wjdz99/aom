@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd5918c1_925bdafb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-03-19T21:44:58Z",
+      "side": 1,
+      "message": "Hi Urvang, Leo, \n\nA fix for an open ticket 2933. It is good to have, not critical if it does not make it to the planned v1.0.1 tag.",
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
