@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7b33e86_310b43e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-03-22T16:30:32Z",
+      "side": 1,
+      "message": "Debargha,\n\nThis patch fixes the aomedia:2928. The NN output precision bits are modified to 9.\nThis patch currently fixes the bitstream mismatch by reducing the precision bits, however\nthis many not solve the problem entirely.\n\nBelow are the borg results,\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc ...\n\n cpu-used     Instruction count          BD-Rate Loss(%)\n                 Reduction(%)      avg.psnr  ovr.psnr     ssim\n    0\t         -0.136           -0.0131    -0.0178    -0.0137\n    3            -0.008           -0.0069    -0.0047    -0.0004\n    6            -0.017           -0.0095    -0.0069    -0.0198\n\nPlease review\n\nThank you.\n",
+      "revId": "31830a19b2c3dfcc5b96ba6c96624bf736f0e0d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
