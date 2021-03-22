@@ -21,6 +21,9 @@
 #include "aom/aom_decoder.h"
 #include "aom_dsp/bitreader_buffer.h"
 #include "aom_dsp/aom_dsp_common.h"
+#if CONFIG_TUNE_BUTTERAUGLI
+#include "aom_dsp/butteraugli.h"
+#endif
 #include "aom_ports/mem_ops.h"
 #include "aom_util/aom_thread.h"
 
@@ -763,6 +766,9 @@ static aom_image_t *decoder_get_frame(aom_codec_alg_priv_t *ctx,
         ctx->last_show_frame = output_frame_buf;
         if (ctx->need_resync) return NULL;
         aom_img_remove_metadata(&ctx->img);
+#if CONFIG_TUNE_BUTTERAUGLI
+        aom_xyb_to_yuv(sd, sd);
+#endif
         yuvconfig2image(&ctx->img, sd, frame_worker_data->user_priv);
         move_decoder_metadata_to_img(pbi, &ctx->img);
 

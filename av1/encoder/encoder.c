@@ -95,6 +95,10 @@ FILE *yuv_rec_file;
 FILE *yuv_denoised_file = NULL;
 #endif
 
+#if CONFIG_TUNE_BUTTERAUGLI
+#include "aom_dsp/butteraugli.h"
+#endif
+
 static INLINE void Scale2Ratio(AOM_SCALING mode, int *hr, int *hs) {
   switch (mode) {
     case NORMAL:
@@ -448,6 +452,7 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
   seq->enable_masked_compound = oxcf->comp_type_cfg.enable_masked_comp;
   seq->enable_intra_edge_filter = oxcf->intra_mode_cfg.enable_intra_edge_filter;
   seq->enable_filter_intra = oxcf->intra_mode_cfg.enable_filter_intra;
+  seq->separate_uv_delta_q = 1;
 
   set_bitstream_level_tier(seq, cm, frm_dim_cfg->width, frm_dim_cfg->height,
                            oxcf->input_cfg.init_framerate);
@@ -3478,6 +3483,9 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   const int subsampling_x = sd->subsampling_x;
   const int subsampling_y = sd->subsampling_y;
   const int use_highbitdepth = (sd->flags & YV12_FLAG_HIGHBITDEPTH) != 0;
+#if CONFIG_TUNE_BUTTERAUGLI
+  aom_yuv_to_xyb(sd, sd);
+#endif
 
 #if CONFIG_TUNE_VMAF
   if (!is_stat_generation_stage(cpi) &&
