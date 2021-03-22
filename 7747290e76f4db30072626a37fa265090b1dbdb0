@@ -183,6 +183,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "fec1ef69_d0322f04",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-22T17:56:57Z",
+      "side": 1,
+      "message": "I found another place where 0 is also used as default value for superblock_size. \nWe may need to use same default value for one commandline parameter to easier read.\n\n/* default values */\n  if (cfg) {\n    memset(\u0026cfg-\u003eencoder_cfg, 0, sizeof(cfg-\u003eencoder_cfg));\n    cfg-\u003eencoder_cfg.superblock_size \u003d 0;  // Dynamic\n    cfg-\u003eencoder_cfg.max_partition_size \u003d 128;\n    cfg-\u003eencoder_cfg.min_partition_size \u003d 4;\n    cfg-\u003eencoder_cfg.enable_trellis_quant \u003d 3;\n  }",
+      "parentUuid": "1f267c99_933baa6b",
+      "range": {
+        "startLine": 554,
+        "startChar": 28,
+        "endLine": 554,
+        "endChar": 31
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "8baaf93b_14ee196a",
