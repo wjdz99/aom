@@ -33,6 +33,24 @@
       "message": "Sarah, I read on the bug that both you and Jonatan found (slightly different fixes) independently.\nHave you guys discussed on which one is the right/better way to go?",
       "revId": "e035aecd300dd89f27d26e69e9ef952f18a833e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6220f876_1fd9ba15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-03-22T22:08:39Z",
+      "side": 1,
+      "message": "I\u0027m emailing Jonatan to reach a consensus and will update the bug with a summary of our discussion.",
+      "parentUuid": "bce03cad_8abc0711",
+      "revId": "e035aecd300dd89f27d26e69e9ef952f18a833e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
