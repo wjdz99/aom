@@ -14,6 +14,16 @@
 
 #include "aom_scale/yv12config.h"
 
+// Please note that:
+// 1. We have to convert YUV to RGB first and then convert RGB to XYB, and vice
+// versa.
+// 2. When converting between YUV and RGB, these two functions use the
+// BT.709 matrix coefficients and assume the Y, U, V samples are limited range.
+// 3. When converting between RGB and XYB, these two functions assume the RGB
+// color space is sRGB.
+void aom_yuv_to_xyb(const YV12_BUFFER_CONFIG *yuv, YV12_BUFFER_CONFIG *xyb);
+void aom_xyb_to_yuv(const YV12_BUFFER_CONFIG *xyb, YV12_BUFFER_CONFIG *yuv);
+
 int aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
                          const YV12_BUFFER_CONFIG *distorted, int bit_depth,
                          float *dist_map);

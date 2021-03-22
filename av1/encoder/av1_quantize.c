@@ -750,10 +750,10 @@ void av1_set_quantizer(AV1_COMMON *const cm, int min_qmlevel, int max_qmlevel,
   quant_params->y_dc_delta_q = 0;
   if (enable_chroma_deltaq) {
     // TODO(aomedia:2717): need to design better delta
-    quant_params->u_dc_delta_q = 2;
-    quant_params->u_ac_delta_q = 2;
-    quant_params->v_dc_delta_q = 2;
-    quant_params->v_ac_delta_q = 2;
+    quant_params->u_dc_delta_q = 0;
+    quant_params->u_ac_delta_q = 6;
+    quant_params->v_dc_delta_q = 0;
+    quant_params->v_ac_delta_q = 0;
   } else {
     quant_params->u_dc_delta_q = 0;
     quant_params->u_ac_delta_q = 0;
