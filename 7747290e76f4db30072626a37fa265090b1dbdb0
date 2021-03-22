@@ -207,6 +207,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9150ffc_59abae79",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-03-22T18:31:19Z",
+      "side": 1,
+      "message": "Hello, Sorry I missed this comment. There are two parameters superblock_size (actually size) and aom_superblock_size enum (dynamic etc). ParseCfg seems to consider the config parameter as absolute size and checks as below \n  if (config-\u003esuperblock_size !\u003d 128 \u0026\u0026 config-\u003esuperblock_size !\u003d 64) {\n    fprintf(stderr, \"\\n%s\", kSbSizeWarningString);\n    exit(-1);\n  }\n\nEither we change the meaning of parameter in Config file as superblock_size \u003d 0,1,2 to correspond to (dynamic, 128x128 and 64x64) are give absolute values.  What was the intention of the original parameter in the config file?",
+      "parentUuid": "fec1ef69_d0322f04",
+      "range": {
+        "startLine": 554,
+        "startChar": 28,
+        "endLine": 554,
+        "endChar": 31
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5e7b235_bee836ef",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-03-22T18:31:19Z",
+      "side": 1,
+      "message": "Hello, Sorry I missed this comment. There are two parameters superblock_size (actually size) and aom_superblock_size enum (dynamic etc). ParseCfg seems to consider the config parameter as absolute size and checks as below \n  if (config-\u003esuperblock_size !\u003d 128 \u0026\u0026 config-\u003esuperblock_size !\u003d 64) {\n    fprintf(stderr, \"\\n%s\", kSbSizeWarningString);\n    exit(-1);\n  }\n\nEither we change the meaning of parameter in Config file as superblock_size \u003d 0,1,2 to correspond to (dynamic, 128x128 and 64x64) are give absolute values.  What was the intention of the original parameter in the config file?",
+      "parentUuid": "fec1ef69_d0322f04",
+      "range": {
+        "startLine": 554,
+        "startChar": 28,
+        "endLine": 554,
+        "endChar": 31
+      },
+      "revId": "7747290e76f4db30072626a37fa265090b1dbdb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "8baaf93b_14ee196a",
