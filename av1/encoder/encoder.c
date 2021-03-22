@@ -95,6 +95,10 @@ FILE *yuv_rec_file;
 FILE *yuv_denoised_file = NULL;
 #endif
 
+#if CONFIG_TUNE_BUTTERAUGLI
+#include "aom_dsp/butteraugli.h"
+#endif
+
 static INLINE void Scale2Ratio(AOM_SCALING mode, int *hr, int *hs) {
   switch (mode) {
     case NORMAL:
@@ -3478,6 +3482,9 @@ int av1_receive_raw_frame(AV1_COMP *cpi, aom_enc_frame_flags_t frame_flags,
   const int subsampling_x = sd->subsampling_x;
   const int subsampling_y = sd->subsampling_y;
   const int use_highbitdepth = (sd->flags & YV12_FLAG_HIGHBITDEPTH) != 0;
+#if CONFIG_TUNE_BUTTERAUGLI
+  aom_yuv_to_xyb(sd, sd, cpi->td.mb.e_mbd.bd);
+#endif
 
 #if CONFIG_TUNE_VMAF
   if (!is_stat_generation_stage(cpi) &&

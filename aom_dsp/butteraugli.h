@@ -14,6 +14,12 @@
 
 #include "aom_scale/yv12config.h"
 
+void aom_yuv_to_xyb(const YV12_BUFFER_CONFIG *yuv,
+                    const YV12_BUFFER_CONFIG *xyb, int bit_depth);
+
+void aom_xyb_to_yuv(const YV12_BUFFER_CONFIG *xyb,
+                    const YV12_BUFFER_CONFIG *yuv, int bit_depth);
+
 int aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
                          const YV12_BUFFER_CONFIG *distorted, int bit_depth,
                          float *dist_map);
