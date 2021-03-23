@@ -49,6 +49,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ee1b82cc_8fb3be98",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Since this variable has been modified in the later cl, to avoid conflict, so a constant variable is added in the following CL.\nhttps://aomedia-review.googlesource.com/c/aom/+/132125",
+      "parentUuid": "a306e829_a9b7e9c4",
+      "range": {
+        "startLine": 298,
+        "startChar": 26,
+        "endLine": 298,
+        "endChar": 35
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "94229f16_b43b577c",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 11
@@ -60,6 +84,30 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "This logic is repeated below too, so you can refactor (will make it easier to read too). e.g.\nconst int plane_start \u003d (xd-\u003etree_type \u003d\u003d CHROMA_PART);\nconst int plane_end \u003d (xd-\u003etree_type \u003d\u003d LUMA_PART) ? 1 : num_planes;\n.....\nfor (int plane \u003d plane_start; plane \u003c plane_end; ++plane) {\n...",
+      "range": {
+        "startLine": 981,
+        "startChar": 0,
+        "endLine": 982,
+        "endChar": 80
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1f6a61b_77a47dd9",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "94229f16_b43b577c",
       "range": {
         "startLine": 981,
         "startChar": 0,
@@ -83,6 +131,24 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "Again, local variables \"plane_start\" and \"plane_end\" will make this easier to read.",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb12214b_46137554",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1536,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e1549c7f_7710ff12",
       "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -133,6 +199,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37915202_d5ba117a",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3400,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3f8b1f2c_17f1ed10",
+      "range": {
+        "startLine": 3400,
+        "startChar": 0,
+        "endLine": 3400,
+        "endChar": 24
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8ce28935_12111ce2",
@@ -146,6 +236,30 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "This whole block is repeated. Can we refactor?",
+      "range": {
+        "startLine": 3399,
+        "startChar": 0,
+        "endLine": 3413,
+        "endChar": 52
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c119b8fa_b82ae67d",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3413,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Since the following cl (https://aomedia-review.googlesource.com/c/aom/+/132125) also changed this part, to avoid conflicts, I will mrefactor this part in that cl.",
+      "parentUuid": "8ce28935_12111ce2",
       "range": {
         "startLine": 3399,
         "startChar": 0,
@@ -179,6 +293,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "221f24b2_4fb7e705",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f95ffd53_cc3623dc",
+      "range": {
+        "startLine": 141,
+        "startChar": 23,
+        "endLine": 141,
+        "endChar": 61
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ffbd5ea2_6eb98c39",
@@ -192,6 +330,24 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "Again, local variables \"plane_start\" and \"plane_end\" will make this easier to read.",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21fe062c_e2326342",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ffbd5ea2_6eb98c39",
       "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -213,6 +369,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9dcb3e0_d984886e",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c6cd119a_2dc240e5",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9432eed_0673e1bf",
@@ -230,6 +404,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f74048c_2dc38635",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1720,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d9432eed_0673e1bf",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c55dd5e_08fbd37f",
@@ -243,6 +435,24 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "same here",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b7312fe_0122e635",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1891,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4c55dd5e_08fbd37f",
       "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -266,6 +476,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d478aa9b_c5c6a739",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2014,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Thanks for the comments. Since the following cl (https://aomedia-review.googlesource.com/c/aom/+/132125) only modified this part, to avoid conflicts, I will change this variable in that cl.",
+      "parentUuid": "7effa4b9_b7a217d6",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "aa0e50d9_044efbd6",
         "filename": "av1/encoder/encodeframe.c",
         "patchSetId": 11
@@ -277,6 +505,30 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "You can just put \"x,\" part under #if:\n\n    av1_set_fixed_partitioning(cpi, tile_info, \n#if CONFIG_SDP\n    x,\n#endif\n    mi, mi_row, mi_col, bsize);\n\n(same below)",
+      "range": {
+        "startLine": 486,
+        "startChar": 47,
+        "endLine": 486,
+        "endChar": 48
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffefe450_9a8001d8",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Thanks for the comments. This code has change has been removed in the following cl.\nhttps://aomedia-review.googlesource.com/c/aom/+/132124",
+      "parentUuid": "aa0e50d9_044efbd6",
       "range": {
         "startLine": 486,
         "startChar": 47,
@@ -312,6 +564,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a124f56a_a42df5e0",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 808,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Thanks for the comments. This code change has been removed in the following cl.\nhttps://aomedia-review.googlesource.com/c/aom/+/132124",
+      "parentUuid": "21d47ada_4f9833d3",
+      "range": {
+        "startLine": 808,
+        "startChar": 33,
+        "endLine": 808,
+        "endChar": 35
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f499ea9a_20ce87a5",
         "filename": "av1/encoder/encodeframe_utils.h",
         "patchSetId": 11
@@ -323,6 +599,30 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "Only \u0027xd\u0027 part should be inside #if .. #endif",
+      "range": {
+        "startLine": 310,
+        "startChar": 48,
+        "endLine": 310,
+        "endChar": 70
+      },
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0722fa8_d22885ec",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Thanks for the comments. This code has change has been removed in the following cl.\nhttps://aomedia-review.googlesource.com/c/aom/+/132124",
+      "parentUuid": "f499ea9a_20ce87a5",
       "range": {
         "startLine": 310,
         "startChar": 48,
@@ -350,6 +650,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc8df5c9_fa104829",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "181f54a1_bc4e1107",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2140a5f3_c4a2e7f4",
@@ -363,6 +681,24 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "and here",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "debc76d2_09f4b7db",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1580,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2140a5f3_c4a2e7f4",
       "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -384,6 +720,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1ddfa80_196fa63a",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4685fbb5_abfdef6c",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a4dbbb7_f7eb7ff5",
@@ -397,6 +751,24 @@
       "writtenOn": "2021-03-22T17:23:48Z",
       "side": 1,
       "message": "and here",
+      "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "034bdcf0_39476f18",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T06:18:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7a4dbbb7_f7eb7ff5",
       "revId": "5c0fa90a60a23c6a25e0d5d5958306747ec2313b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
