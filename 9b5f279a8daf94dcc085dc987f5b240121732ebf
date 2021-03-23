@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "883f0230_3ba1310e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-03-23T11:07:54Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch disables the newmv search for COMPOUND_WEDGE for non-boosted frames in speed 3 and 4. Correspondingly, the speed feature disable_interinter_wedge_newmv_search has been moved to speed \u003e\u003d 3. The conditions for reuse of stats in av1_compound_type_rd() are also changed to be in sync with the enable/disable of newmv search for COMPOUND_WEDGE and COMPOUND_DIFFWTD.\n\nPlease find the detailed borg results for speed 3 and 4 below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |  LOW RES   |       3.511       |  0.0932    0.1003    0.1079  |\n   3     |  MID RES   |       3.212       | -0.0136   -0.0088   -0.0584  |\n   3     |   HD RES   |       2.744       |  0.0334    0.0366   -0.0136  |\n   3     |  Average   |       3.243       |  0.0437    0.0490    0.0222  |\n         |            |                   |                              |\n   4     |  LOW RES   |       3.249       |  0.0473    0.0458    0.0573  |\n   4     |  MID RES   |       3.099       |  0.0271    0.0422    0.0192  |\n   4     |   HD RES   |       2.974       |  0.0610    0.0591    0.0295  |\n   4     |  Average   |       3.143       |  0.0456    0.0488    0.0376  |\n     \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "9b5f279a8daf94dcc085dc987f5b240121732ebf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
