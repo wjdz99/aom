@@ -16,6 +16,98 @@
       "message": "Hi Yunqing,\nThis patch moves the element gf_group-\u003eindex from GF_GROUP to AV1_COMP(cpi). This is because while the frames in a sub-gop will share the gf_group structure, each of them will have a unique index inside the gf_group. Thus, this element stays in the frame context(cpi).\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc. \n\nPlease review.",
       "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bd9954d_9ef14923",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-23T19:00:08Z",
+      "side": 1,
+      "message": "Jingning: I am not sure why you asked me to review this CL. I am not familiar with the GF_GROUP struct.\n\nMufaddal: I read the entire CL carefully and believe it is correct. But I am afraid that I don\u0027t understand why this change is needed. Please see my comment at av1/encoder/encoder.h:2357.",
+      "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd202529_e839ecb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-23T19:00:08Z",
+      "side": 1,
+      "message": "Hi Mufaddal,\n\nYour comment contains important information about this CL. I suggest moving at least the first paragraph to the commit message because it explains why this struct member should be moved.\n\nI have to admit I don\u0027t understand the explanation, but I am still new to the encoder code in libaom.",
+      "parentUuid": "7514104f_e1d86d62",
+      "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be16c463_41c8f4c1",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-23T19:00:08Z",
+      "side": 1,
+      "message": "Nit: The function name and the comment mention \"the gf group index\", which refers to the old name \"gf_group.index\". The function name and comment probably should be updated to reflect the new name \"cur_gf_index\".\n\nAlternatively, we can rename the field \"cur_gf_group_index\" or \"gf_group_index\". I don\u0027t really understand this code, so the names I suggested may be incorrect.",
+      "range": {
+        "startLine": 169,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 59
+      },
+      "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd17a112_fea5f3c3",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-23T19:00:08Z",
+      "side": 1,
+      "message": "Mufaddal: Code Search shows that this field is the only place where the GF_GROUP struct is allocated. If so, then changing cpi-\u003egf_group.index to cpi-\u003ecur_gf_index is merely a syntactic change and does not really change anything.\n\nAre you planning to allocate the GF_GROUP struct in other places after this CL?",
+      "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14e8a659_a823b6b4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 3241,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-23T19:00:08Z",
+      "side": 1,
+      "message": "Are you planning to pass an \u0027index\u0027 argument that is not cpi-\u003ecur_gf_index in the future?",
+      "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
