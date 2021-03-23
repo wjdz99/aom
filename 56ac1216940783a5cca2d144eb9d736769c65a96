@@ -99,6 +99,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bcf9b88_824caad2",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 519,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-23T19:24:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b59b3c6f_761db746",
+      "range": {
+        "startLine": 517,
+        "startChar": 0,
+        "endLine": 519,
+        "endChar": 63
+      },
+      "revId": "56ac1216940783a5cca2d144eb9d736769c65a96",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b27e3f5d_052d6ec5",
@@ -112,6 +136,24 @@
       "writtenOn": "2021-03-23T17:32:10Z",
       "side": 1,
       "message": "The comment says \u0027eob\u0027 is for inverse transforms only:\n\n  typedef struct txfm_param {\n    ..\n    // for inverse transforms only\n    int eob;\n  } TxfmParam;\n\nIf the comment is correct, then we don\u0027t need to set \u0027eob\u0027 here (because this struct is passed to av1_fwd_txfm()). Is the comment incorrect?",
+      "revId": "56ac1216940783a5cca2d144eb9d736769c65a96",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68ff1268_54489516",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-23T19:24:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b27e3f5d_052d6ec5",
       "revId": "56ac1216940783a5cca2d144eb9d736769c65a96",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
