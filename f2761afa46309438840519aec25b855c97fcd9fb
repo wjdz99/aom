@@ -16,6 +16,24 @@
       "message": "Since this is not a bugfix, and it changes the bitstream and has loss for high bit-depth video sequences. I this it\u0027s better to run all the mandatory sequences in CTC to have a clear picture about the performance of this code change before merging this code change.",
       "revId": "f2761afa46309438840519aec25b855c97fcd9fb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0f85209_90c5ada9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-03-23T15:59:29Z",
+      "side": 1,
+      "message": "I agree that some more testing would be desirable.\nBut given that the loss on A2 10 bit sequences is within noise range (0.02%), maybe just RA on A2, A3, A5 should be enough?\n(A4 doesn\u0027t have any 10-bit videos)",
+      "parentUuid": "c0af8992_5cf953dd",
+      "revId": "f2761afa46309438840519aec25b855c97fcd9fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
