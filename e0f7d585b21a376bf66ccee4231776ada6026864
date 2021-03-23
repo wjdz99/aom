@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b79ec42b_a1b5ac4f",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3177,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-23T01:02:22Z",
+      "side": 1,
+      "message": "If has_no_stats_stage(cpi) is false, do we need to set rc-\u003eframes_to_key to any value? The original code sets rc-\u003eframes_to_key to 1 in that case. The new code leaves rc-\u003eframes_to_key unchanged.",
+      "revId": "e0f7d585b21a376bf66ccee4231776ada6026864",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
