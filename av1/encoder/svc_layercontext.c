@@ -30,6 +30,7 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
   svc->current_superframe = 0;
   svc->force_zero_mode_spatial_ref = 1;
   svc->num_encoded_top_layer = 0;
+  svc->use_flexible_mode = 0;
 
   for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
     for (int tl = 0; tl < svc->number_temporal_layers; ++tl) {
@@ -198,7 +199,7 @@ void av1_restore_layer_context(AV1_COMP *const cpi) {
   // This is to skip searching mv for that reference if it was last
   // refreshed (i.e., buffer slot holding that reference was refreshed) on the
   // previous spatial layer(s) at the same time (current_superframe).
-  if (svc->external_ref_frame_config && svc->force_zero_mode_spatial_ref) {
+  if (svc->set_ref_frame_config && svc->force_zero_mode_spatial_ref) {
     int ref_frame_idx = svc->ref_idx[LAST_FRAME - 1];
     if (svc->buffer_time_index[ref_frame_idx] == svc->current_superframe &&
         svc->buffer_spatial_layer[ref_frame_idx] <= svc->spatial_layer_id - 1)
@@ -243,7 +244,7 @@ void av1_save_layer_context(AV1_COMP *const cpi) {
       svc->buffer_time_index[i] = svc->current_superframe;
       svc->buffer_spatial_layer[i] = svc->spatial_layer_id;
     }
-  } else if (cpi->svc.external_ref_frame_config) {
+  } else if (cpi->svc.set_ref_frame_config) {
     for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
       int ref_frame_map_idx = svc->ref_idx[i];
       if (cpi->svc.refresh[ref_frame_map_idx]) {
@@ -341,4 +342,33 @@ void av1_one_pass_cbr_svc_start_layer(AV1_COMP *const cpi) {
   cpi->common.width = width;
   cpi->common.height = height;
   av1_update_frame_size(cpi);
+}
+
+// For fixed svc mode: the spatial and temporal layer id are set internally
+// based on frame counter, and a fixed pattern is set bases on the number of
+// spatial and temporal layers.
+void av1_set_svc_fixed_mode(AV1_COMP *const cpi) {
+  SVC *const svc = &cpi->svc;
+  int superframe_cnt =
+      cpi->common.current_frame.frame_number % svc->number_spatial_layers;
+  // Fixed SVC mode only support at most 3 spatial or temporal layers.
+  assert(svc->number_spatial_layers >= 1 && svc->number_spatial_layers <= 3 &&
+         svc->number_temporal_layers >= 1 && svc->number_temporal_layers <= 3);
+  svc->set_ref_frame_config = 1;
+  // Set the spatial and temporal layer id.
+  svc->spatial_layer_id =
+      cpi->common.current_frame.frame_number / svc->number_spatial_layers;
+  svc->temporal_layer_id = 0;
+  if (svc->number_temporal_layers == 2) {
+    svc->temporal_layer_id = (superframe_cnt % 2) != 0;
+  } else if (svc->number_temporal_layers == 3) {
+    if (superframe_cnt % 2 != 0)
+      svc->temporal_layer_id = 2;
+    else if ((superframe_cnt > 1) && ((superframe_cnt - 2) % 4 == 0))
+      svc->temporal_layer_id = 1;
+  }
+  // SET THE SVC FLAGS HERE FOR EACH PATTERN (SL=1,2,3,TL=1,2,3):
+  // cpi->svc.reference[i]
+  // cpi->svc.ref_idx[i]
+  // cpi->svc.refresh[i]
 }
