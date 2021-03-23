@@ -34,6 +34,23 @@
       "parentUuid": "c0af8992_5cf953dd",
       "revId": "f2761afa46309438840519aec25b855c97fcd9fb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60d69c9b_92293e79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-03-23T17:20:16Z",
+      "side": 1,
+      "message": "\u003e Patch Set 1:\n\u003e \n\u003e I can do a test before and after this patch on the full CTC, however\n\u003e note there are likely other changes between v1.0.0 and the new anchor\n\u003e to come that likely has similar level of changes, that we have not\n\u003e tested similarly.\n\u003e \n\u003e On Tue, Mar 23, 2021 at 8:59 AM Urvang Joshi (Gerrit)\n\u003e \u003cnoreply-gerritcodereview-z6yjxe514YZe4iQd6MZs4g\u003d\u003d@google.com\u003e wrote:\n\nI checked that there are three patches merged into research branch after v1.0.0 that changed the bitrate of. These three patches are listed below.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/127041\nhttps://aomedia-review.googlesource.com/c/aom/+/130224\nhttps://aomedia-review.googlesource.com/c/aom/+/131081\n\nAll of these 3 patches are bug-fix. And yes, I think that it\u0027s better to run ctc for any bugfix to have a better picture if it changes the bitstream. Since it takes too much time to run 4K sequences for a bugfix, we can skip 4K sequences for these tests.\n",
+      "revId": "f2761afa46309438840519aec25b855c97fcd9fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
