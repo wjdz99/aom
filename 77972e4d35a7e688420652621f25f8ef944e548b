@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7abb2cd4_93e1d13c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-03-23T19:23:04Z",
+      "side": 1,
+      "message": "Thanks for the fix Neil. Was there any chance the encoder could have called init with \u003c 0 points?",
+      "revId": "77972e4d35a7e688420652621f25f8ef944e548b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
