@@ -52,6 +52,24 @@
       "parentUuid": "907ec19a_27b96d22",
       "revId": "e0f7d585b21a376bf66ccee4231776ada6026864",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "100714e3_9d806046",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3177,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-03-23T20:14:53Z",
+      "side": 1,
+      "message": "Currently, rc-\u003enext_key_frame_forced is only computed in 2 pass, so we need to initialize rc-\u003ethis_key_frame_forced differently for 1 pass. \n\nI think the logic here is that 1 pass will not place a keyframe other than at frame 0 without someone setting max_kf_interval. This means that any key frame (detected by frames_to_key \u003d\u003d 0) that isn\u0027t at frame 0 is forced by the encoding parameters.",
+      "parentUuid": "391f3524_07f75ab8",
+      "revId": "e0f7d585b21a376bf66ccee4231776ada6026864",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
