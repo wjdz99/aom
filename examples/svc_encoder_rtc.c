@@ -1292,15 +1292,19 @@ int main(int argc, const char **argv) {
       const aom_codec_cx_pkt_t *pkt;
       int layer = 0;
 
-      // Set the reference/update flags, layer_id, and reference_map
-      // buffer index.
-      set_layer_pattern(app_input.layering_mode, frame_cnt, &layer_id,
-                        &ref_frame_config, &use_svc_control, slx, is_key_frame,
-                        (app_input.layering_mode == 10));
-      aom_codec_control(&codec, AV1E_SET_SVC_LAYER_ID, &layer_id);
-      if (use_svc_control)
-        aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,
-                          &ref_frame_config);
+      // For flexible mode:
+      if (app_input.layering_mode >= 0) {
+        // Set the reference/update flags, layer_id, and reference_map
+        // buffer index.
+        set_layer_pattern(app_input.layering_mode, frame_cnt, &layer_id,
+                          &ref_frame_config, &use_svc_control, slx, is_key_frame,
+                          (app_input.layering_mode == 10));
+        aom_codec_control(&codec, AV1E_SET_SVC_LAYER_ID, &layer_id);
+        if (use_svc_control)
+          aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,
+                            &ref_frame_config);
+      }
+
       if (set_err_resil_frame) {
         // Set error_resilient per frame: off/0 for base layer and
         // on/1 for enhancement layer frames.
