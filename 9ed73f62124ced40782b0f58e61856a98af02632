@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c90aa5c_391d19a1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-03-23T03:21:14Z",
+      "side": 1,
+      "message": "Hi Jingning, I resolved the static analysis warning. Now the patch is ready to check in. Do you have other comments?",
+      "revId": "9ed73f62124ced40782b0f58e61856a98af02632",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
