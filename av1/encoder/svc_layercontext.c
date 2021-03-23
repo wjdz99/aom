@@ -30,6 +30,7 @@ void av1_init_layer_context(AV1_COMP *const cpi) {
   svc->current_superframe = 0;
   svc->force_zero_mode_spatial_ref = 1;
   svc->num_encoded_top_layer = 0;
+  svc->use_flexible_mode = 0;
 
   for (int sl = 0; sl < svc->number_spatial_layers; ++sl) {
     for (int tl = 0; tl < svc->number_temporal_layers; ++tl) {
@@ -341,4 +342,18 @@ void av1_one_pass_cbr_svc_start_layer(AV1_COMP *const cpi) {
   cpi->common.width = width;
   cpi->common.height = height;
   av1_update_frame_size(cpi);
+ }
+
+void av1_set_svc_fixed_mode(AV1_COMP *const cpi) {
+  SVC *const svc = &cpi->svc;
+  // Fixed SVC mode only supported for at most 3 spatial or temporal layers.
+  assert(svc->number_spatial_layers >= 1 &&
+         svc->number_spatial_layers <= 3 &&
+         svc->number_temporal_layers >= 1 &&
+         svc->number_temporal_layers <= 3);
+  svc->external_ref_frame_config = 1;
+  // SET THE SVC FLAGS HERE FOR EACH PATTERN (SL=1,2,3,TL=1,2,3):
+  // cpi->svc.reference[i] 
+  // cpi->svc.ref_idx[i] 
+  // cpi->svc.refresh[i]
 }

@@ -2236,6 +2236,9 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     cpi_lap->common.error.setjmp = 1;
   }
 
+  if (cpi->use_svc && cpi->svc.use_flexible_mode == 0 && flags == 0)
+    av1_set_svc_fixed_mode(cpi);
+
   // Note(yunqing): While applying encoding flags, always start from enabling
   // all, and then modifying according to the flags. Previous frame's flags are
   // overwritten.
@@ -2732,6 +2735,7 @@ static aom_codec_err_t ctrl_set_svc_ref_frame_config(aom_codec_alg_priv_t *ctx,
   }
   for (unsigned int i = 0; i < REF_FRAMES; ++i)
     cpi->svc.refresh[i] = data->refresh[i];
+  cpi->svc.use_flexible_mode = 1;
   return AOM_CODEC_OK;
 }
 

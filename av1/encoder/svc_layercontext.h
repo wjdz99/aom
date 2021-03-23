@@ -138,6 +138,7 @@ typedef struct SVC {
    * Force zero-mv in mode search for the spatial/inter-layer reference.
    */
   int force_zero_mode_spatial_ref;
+  int use_flexible_mode;
 } SVC;
 
 struct AV1_COMP;
@@ -271,6 +272,9 @@ int av1_svc_primary_ref_frame(const struct AV1_COMP *const cpi);
 void av1_get_layer_resolution(const int width_org, const int height_org,
                               const int num, const int den, int *width_out,
                               int *height_out);
+
+void av1_set_svc_fixed_mode(struct AV1_COMP *const cpi);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
