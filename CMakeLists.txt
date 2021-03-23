@@ -34,8 +34,25 @@ endif()
 
 # Updating version info.
 # https://www.gnu.org/software/libtool/manual/libtool.html#Updating-version-info
+<<<<<<< HEAD   (2e0d6e Temporarily skip the drop frame test.)
 set(SO_VERSION 2)
 set(SO_FILE_VERSION 2.0.2)
+=======
+# c=<current>, a=<age>, r=<revision>
+#
+# libtool generates .so file as .so.[c-a].a.r, while -version-info c:r:a is
+# passed to libtool.
+#
+# We set SO_FILE_VERSION = [c-a].a.r
+#
+# To determine those two variables, calculate c,a,r with current SO_FILE_VERSION
+# then follow the rules in the link to detemine the new version (c1, a1, r1) and
+# set SO_FILE_VERSION to [c1-a1].a1.r1
+#
+# SO_VERSION should be set to c1-a1
+set(SO_VERSION 3)
+set(SO_FILE_VERSION 3.0.0)
+>>>>>>> BRANCH (d853ca Avoid out of boundary read in region array)
 
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")

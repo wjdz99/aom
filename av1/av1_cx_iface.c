@@ -3102,9 +3102,12 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_cfl_intra,
                               argv, err_string)) {
     extra_cfg.enable_cfl_intra = arg_parse_int_helper(&arg, err_string);
+<<<<<<< HEAD   (2e0d6e Temporarily skip the drop frame test.)
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_diagonal_intra,
                               argv, err_string)) {
     extra_cfg.enable_diagonal_intra = arg_parse_int_helper(&arg, err_string);
+=======
+>>>>>>> BRANCH (d853ca Avoid out of boundary read in region array)
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_overlay, argv,
                               err_string)) {
     extra_cfg.enable_overlay = arg_parse_int_helper(&arg, err_string);

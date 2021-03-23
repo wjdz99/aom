@@ -350,7 +350,11 @@ static AOM_INLINE void alloc_util_frame_buffers(AV1_COMP *cpi) {
             &cpi->trial_frame_rst, cm->superres_upscaled_width,
             cm->superres_upscaled_height, seq_params->subsampling_x,
             seq_params->subsampling_y, seq_params->use_highbitdepth,
+<<<<<<< HEAD   (2e0d6e Temporarily skip the drop frame test.)
             AOM_RESTORATION_FRAME_BORDER, byte_alignment, NULL, NULL, NULL, 0))
+=======
+            AOM_RESTORATION_FRAME_BORDER, byte_alignment, NULL, NULL, NULL))
+>>>>>>> BRANCH (d853ca Avoid out of boundary read in region array)
       aom_internal_error(&cm->error, AOM_CODEC_MEM_ERROR,
                          "Failed to allocate trial restored frame buffer");
   }
