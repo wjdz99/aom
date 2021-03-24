@@ -48,8 +48,15 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
       memcpy(final_warp_params, &mbmi->wm_params, sizeof(*final_warp_params));
     return 1;
   } else if (warp_types->global_warp_allowed && !gm_params->invalid) {
-    if (final_warp_params != NULL)
+    if (final_warp_params != NULL) {
+#if CONFIG_EXT_ROTATION
+      if (mbmi->mode == GLOBALMV && mbmi->rot_flag) {
+        memcpy(final_warp_params, &mbmi->wm_params, sizeof(*final_warp_params));
+        return 1;
+      }
+#endif  // CONFIG_EXT_ROTATION
       memcpy(final_warp_params, gm_params, sizeof(*final_warp_params));
+    }
     return 1;
   }
 
