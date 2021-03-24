@@ -110,6 +110,30 @@
       },
       "revId": "31830a19b2c3dfcc5b96ba6c96624bf736f0e0d7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d05b487b_737b7a39",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-03-24T14:02:22Z",
+      "side": 1,
+      "message": "We chose precision bits as 9 to reduce the occurrence of mismatch. Also this was suggested by Debargha, when we presented with details of precision bits 10 and 9.\n\nThank you",
+      "parentUuid": "d9d8062e_e79726cc",
+      "range": {
+        "startLine": 19,
+        "startChar": 24,
+        "endLine": 19,
+        "endChar": 25
+      },
+      "revId": "31830a19b2c3dfcc5b96ba6c96624bf736f0e0d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
