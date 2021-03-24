@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1479bfcd_aed3a171",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-24T22:24:09Z",
+      "side": 0,
+      "message": "Just wanted to confirm that you meant to delete this TODO comment, because this search loop is not changed.",
+      "revId": "904e2139c216321a612da824a6563954132d72d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
