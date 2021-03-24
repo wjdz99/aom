@@ -259,12 +259,11 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
       xd->global_motion, xd, mbmi, cm->features.allow_warped_motion);
   int motion_mode;
 
-  if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return SIMPLE_TRANSLATION;
-
-  if (last_motion_mode_allowed == OBMC_CAUSAL) {
+  if (last_motion_mode_allowed == SIMPLE_TRANSLATION) {
+    motion_mode = SIMPLE_TRANSLATION;
+  } else if (last_motion_mode_allowed == OBMC_CAUSAL) {
     motion_mode =
         aom_read_symbol(r, xd->tile_ctx->obmc_cdf[mbmi->sb_type], 2, ACCT_STR);
-    return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   } else {
     motion_mode =
         aom_read_symbol(r, xd->tile_ctx->motion_mode_cdf[mbmi->sb_type],
@@ -272,17 +271,36 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_EXT_ROTATION
     if (motion_mode == WARPED_CAUSAL) {
       mbmi->rot_flag = aom_read_symbol(
-          r, xd->tile_ctx->warp_rotation_cdf[mbmi->sb_type], 2, ACCT_STR);
+          r, xd->tile_ctx->warp_rotation_flag_cdf[mbmi->sb_type], 2, ACCT_STR);
       if (mbmi->rot_flag) {
-        mbmi->rotation = aom_read_symbol(r, xd->tile_ctx->rotation_degree_cdf,
-                                         ROTATION_COUNT, ACCT_STR) *
-                             ROTATION_STEP -
-                         ROTATION_RANGE;
+        mbmi->rotation =
+            aom_read_symbol(r, xd->tile_ctx->warp_rotation_degree_cdf,
+                            ROTATION_COUNT, ACCT_STR) *
+                ROTATION_STEP -
+            ROTATION_RANGE;
       }
     }
 #endif  // CONFIG_EXT_ROTATION
-    return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
   }
+#if CONFIG_EXT_ROTATION
+  if (motion_mode == SIMPLE_TRANSLATION && mbmi->mode == GLOBALMV &&
+      xd->global_motion[mbmi->ref_frame[0]].wmtype != IDENTITY) {
+    mbmi->rot_flag = aom_read_symbol(
+        r, xd->tile_ctx->globalmv_rotation_flag_cdf[mbmi->sb_type], 2,
+        ACCT_STR);
+    if (mbmi->rot_flag) {
+      mbmi->rotation =
+          aom_read_symbol(r, xd->tile_ctx->globalmv_rotation_degree_cdf,
+                          ROTATION_COUNT, ACCT_STR) *
+              ROTATION_STEP -
+          ROTATION_RANGE;
+    }
+
+    printf("decode flag:%d \n", mbmi->rot_flag);
+    if (mbmi->rot_flag) printf("decode: %d \n", mbmi->rotation);
+  }
+#endif  // CONFIG_EXT_ROTATION
+  return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);
 }
 
 static PREDICTION_MODE read_inter_compound_mode(MACROBLOCKD *xd, aom_reader *r,
