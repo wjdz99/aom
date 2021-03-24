@@ -521,6 +521,8 @@ static void set_good_speed_feature_framesize_dependent(
     sf->mv_sf.use_downsampled_sad = 1;
   }
 
+  if (!is_720p_or_larger) sf->hl_sf.recode_tolerance = 35;
+
   if (speed >= 1) {
     if (is_720p_or_larger) {
       sf->part_sf.use_square_partition_only_threshold = BLOCK_128X128;
