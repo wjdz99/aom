@@ -70,6 +70,24 @@
       "parentUuid": "391f3524_07f75ab8",
       "revId": "e0f7d585b21a376bf66ccee4231776ada6026864",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c72b08b4_0d39932c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3177,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-24T18:57:25Z",
+      "side": 1,
+      "message": "Thanks for the explanation! I have to admit that I don\u0027t understand this code. So please make sure that we are setting rc-\u003ethis_key_frame_forced and rc-\u003eframes_to_key in the correct order here. I.e., the value of rc-\u003ethis_key_frame_forced should depend on the previous value of rc-\u003eframes_to_key, not the new value.\n\nIf the order of these two assignments is correct, please go ahead and submit this CL.",
+      "parentUuid": "100714e3_9d806046",
+      "revId": "e0f7d585b21a376bf66ccee4231776ada6026864",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
