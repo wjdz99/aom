@@ -1309,6 +1309,7 @@ typedef struct ThreadData {
   PICK_MODE_CONTEXT *firstpass_ctx;
   TemporalFilterData tf_data;
   TplTxfmStats tpl_txfm_stats;
+  pixel_level_gradient_info *pixel_gradient_info;
 } ThreadData;
 
 struct EncWorkerData;
