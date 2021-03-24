@@ -192,6 +192,8 @@ int av1_find_projection(int np, const int *pts1, const int *pts2,
 int av1_get_shear_params(WarpedMotionParams *wm);
 
 #if CONFIG_EXT_ROTATION
+void av1_gm_rotation(int32_t *original_wmmat, int8_t rotation, int center_x,
+                     int center_y, int32_t *output_wmmat);
 // add rotation to a warping matrix
 void av1_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int center_x,
                        int center_y);
