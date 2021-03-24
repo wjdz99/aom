@@ -22,6 +22,30 @@
       },
       "revId": "2b473233577993a863e85bfc61f93d792af8c01f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9a551a2_1d87d043",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-03-24T05:57:52Z",
+      "side": 0,
+      "message": "The conditions for reuse of stats for diffwtd are changed to be in sync with the enable/disable of newmv search for diffwtd. \n\nFor speed 2, diffwtd goes through masked_compound_type_rd() since enable_fast_compound_mode_search \u003d 1 for speed 2, where there is no search for newmv modes for diffwtd. So the reuse of stats should happen for diffwtd for all modes (including newmv modes) in speed 2. In the parent version, the speed feature disable_interinter_wedge_newmv_search was used to control the reuse of stats for diffwtd (and wedge), and since disable_interinter_wedge_newmv_search was set to 1 for speed 2 (but not applied to actually disable the newmv search for wedge), the reuse used to happen. Since this CL properly moves the setting of the speed feature disable_interinter_wedge_newmv_search to those speed levels which disables the newmv search for wedge, the stats reuse of diffwtd in speed 2 must now happen based on enable_fast_compound_mode_search being set or not (which corresponds to masked_compound_type_rd() path).\n\nIn the parent version (as well as in current CL), speed 0 and 1 have enable_fast_compound_mode_search disabled, so the reuse of stats do not happen for these speed levels (since the stats reuse is called from masked_compound_type_rd() function for these two compound types).\n\nWe have locally verified bit-match for speed 0, 1, 2 with no speed impact on lowres and midres borg sets.",
+      "parentUuid": "42754321_cb7c3671",
+      "range": {
+        "startLine": 730,
+        "startChar": 4,
+        "endLine": 730,
+        "endChar": 73
+      },
+      "revId": "2b473233577993a863e85bfc61f93d792af8c01f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
