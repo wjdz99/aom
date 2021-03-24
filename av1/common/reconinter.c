@@ -48,8 +48,15 @@ int av1_allow_warp(const MB_MODE_INFO *const mbmi,
       memcpy(final_warp_params, &mbmi->wm_params, sizeof(*final_warp_params));
     return 1;
   } else if (warp_types->global_warp_allowed && !gm_params->invalid) {
-    if (final_warp_params != NULL)
+    if (final_warp_params != NULL) {
+#if CONFIG_EXT_ROTATION
+      if (mbmi->mode == GLOBALMV && mbmi->rot_flag) {
+        memcpy(final_warp_params, &mbmi->wm_params, sizeof(*final_warp_params));
+        return 1;
+      }
+#endif  // CONFIG_EXT_ROTATION
       memcpy(final_warp_params, gm_params, sizeof(*final_warp_params));
+    }
     return 1;
   }
 
@@ -111,12 +118,24 @@ void av1_init_comp_mode(InterPredParams *inter_pred_params) {
 
 void av1_init_warp_params(InterPredParams *inter_pred_params,
                           const WarpTypesAllowed *warp_types, int ref,
-                          const MACROBLOCKD *xd, const MB_MODE_INFO *mi) {
+                          const MACROBLOCKD *xd, MB_MODE_INFO *mi) {
   if (inter_pred_params->block_height < 8 || inter_pred_params->block_width < 8)
     return;
 
   if (xd->cur_frame_force_integer_mv) return;
 
+#if CONFIG_EXT_ROTATION
+  if (warp_rotation_allowed(xd) && mi->rot_flag) {
+    memcpy(&mi->wm_params, &xd->global_motion[mi->ref_frame[ref]],
+           sizeof(WarpedMotionParams));
+    const int center_x = (xd->mi_col + (xd->width / 2)) * MI_SIZE;
+    const int center_y = (xd->mi_row + (xd->height / 2)) * MI_SIZE;
+    av1_warp_rotation(mi, mi->rotation, center_x, center_y);
+    if (!av1_get_shear_params(&mi->wm_params)) {
+      mi->rot_flag = 0;
+    }
+  }
+#endif  // CONFIG_EXT_ROTATION
   if (av1_allow_warp(mi, warp_types, &xd->global_motion[mi->ref_frame[ref]], 0,
                      inter_pred_params->scale_factors,
                      &inter_pred_params->warp_params))
@@ -876,7 +895,7 @@ static void build_inter_predictors_sub8x8(
 }
 
 static void build_inter_predictors_8x8_and_bigger(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mi,
     int build_for_obmc, int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func) {
   const int is_compound = has_second_ref(mi);
@@ -952,9 +971,9 @@ static void build_inter_predictors_8x8_and_bigger(
 }
 
 void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                int plane, const MB_MODE_INFO *mi,
-                                int build_for_obmc, int bw, int bh, int mi_x,
-                                int mi_y, uint8_t **mc_buf,
+                                int plane, MB_MODE_INFO *mi, int build_for_obmc,
+                                int bw, int bh, int mi_x, int mi_y,
+                                uint8_t **mc_buf,
                                 CalcSubpelParamsFunc calc_subpel_params_func) {
   if (is_sub8x8_inter(xd, mi, plane, is_intrabc_block(mi), build_for_obmc)) {
 #if !CONFIG_EXT_RECUR_PARTITIONS
