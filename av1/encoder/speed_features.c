@@ -952,6 +952,8 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 5) {
+    sf->gm_sf.gm_search_type = GM_DISABLE;
+
     sf->part_sf.simple_motion_search_prune_agg = 3;
     sf->part_sf.ext_partition_eval_thresh =
         allow_screen_content_tools ? BLOCK_8X8 : BLOCK_16X16;
@@ -1815,7 +1817,7 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
     // Disable the speed feature 'prune_ref_frame_for_gm_search' to achieve
     // better parallelism when number of threads available are greater than or
     // equal to maximum number of reference frames allowed for global motion.
-    if (sf->gm_sf.gm_search_type != GM_DISABLE_SEARCH &&
+    if (sf->gm_sf.gm_search_type < GM_DISABLE_SEARCH &&
         (cpi->oxcf.max_threads >=
          gm_available_reference_frames[sf->gm_sf.gm_search_type]))
       sf->gm_sf.prune_ref_frame_for_gm_search = 0;

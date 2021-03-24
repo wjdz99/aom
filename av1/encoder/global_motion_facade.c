@@ -269,7 +269,8 @@ static int do_gm_search_logic(SPEED_FEATURES *const sf, int frame) {
     case GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2:
       return !(frame == LAST2_FRAME || frame == LAST3_FRAME ||
                (frame == ALTREF2_FRAME));
-    case GM_DISABLE_SEARCH: return 0;
+    case GM_DISABLE_SEARCH: AOM_FALLTHROUGH_INTENDED;
+    case GM_DISABLE: return 0;
     default: assert(0);
   }
   return 1;

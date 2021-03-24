@@ -35,7 +35,8 @@ enum {
   GM_FULL_SEARCH,
   GM_REDUCED_REF_SEARCH_SKIP_L2_L3,
   GM_REDUCED_REF_SEARCH_SKIP_L2_L3_ARF2,
-  GM_DISABLE_SEARCH
+  GM_DISABLE_SEARCH, /*< Disables GM search so it becomes ZEROMV */
+  GM_DISABLE         /*< Completely disables GM */
 } UENUM1BYTE(GM_SEARCH_TYPE);
 
 enum {
