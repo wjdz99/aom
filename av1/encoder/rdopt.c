@@ -1414,6 +1414,37 @@ static INLINE void refine_mv_for_newmv(const AV1_COMP *const cpi,
   }
 }
 
+// find rdcost for rotation
+// static INLINE int64_t find_rotation_cost(const AV1_COMP *const cpi,
+// MACROBLOCK *const x,
+//                                       BLOCK_SIZE bsize, int tmp_rate2, int
+//                                       rot, RD_STATS *rd_stats, RD_STATS
+//                                       *rd_stats_y, RD_STATS *rd_stats_uv,
+//                                       int64_t ref_best_rd){
+//   const AV1_COMMON *const cm = &cpi->common;
+//   MACROBLOCKD *xd = &x->e_mbd;
+//   MB_MODE_INFO *mbmi = xd->mi[0];
+//   // Build the warped predictor
+//   av1_enc_build_inter_predictor(cm, xd, xd->mi_row, xd->mi_col, NULL, bsize,
+//   0,
+//                                 av1_num_planes(cm) - 1);
+//   // calculate cost
+//   tmp_rate2 +=
+//       (rot == 0)
+//           ? x->mode_costs.warp_rotation_cost[0]
+//           : (x->mode_costs.rotation_degree_cost
+//                   [(mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP] +
+//               x->mode_costs.warp_rotation_cost[1]);
+//   if (av1_txfm_search(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
+//                       tmp_rate2, ref_best_rd) &&
+//       rd_stats_y->rate != INT_MAX) {
+//     const int64_t this_rd =
+//         RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+//     return this_rd;
+//   }
+//   return INT64_MAX;
+// }
+
 /*!\brief AV1 motion mode search
  *
  * \ingroup inter_mode_search
@@ -1590,6 +1621,76 @@ static int64_t motion_mode_rd(
       // SIMPLE_TRANSLATION mode: no need to recalculate.
       // The prediction is calculated before motion_mode_rd() is called in
       // handle_inter_mode()
+#if CONFIG_EXT_ROTATION
+      const WarpedMotionParams *const wm =
+          &xd->global_motion[mbmi->ref_frame[0]];
+      if (mbmi->mode == GLOBALMV && wm->wmtype != IDENTITY) {
+        const int center_x = (mi_col + (xd->width / 2)) * MI_SIZE;
+        const int center_y = (mi_row + (xd->height / 2)) * MI_SIZE;
+        const int tmp_rate2_0 = tmp_rate2;
+
+        // keep track of best rotation degree
+        int64_t rdcost = INT64_MAX;
+        int best_rot = 0;
+
+        // check all rotations
+        for (int rot = -ROTATION_RANGE; rot <= ROTATION_RANGE;
+             rot += ROTATION_STEP) {
+          if (rot != 0) {
+            mbmi->rot_flag = 1;
+            memcpy(&mbmi->wm_params, wm, sizeof(WarpedMotionParams));
+            av1_warp_rotation(mbmi, rot, center_x, center_y);
+            if (!av1_get_shear_params(&mbmi->wm_params)) continue;
+            tmp_rate2 +=
+                (x->mode_costs
+                     .rotation_degree_cost[(mbmi->rotation + ROTATION_RANGE) /
+                                           ROTATION_STEP] +
+                 x->mode_costs.warp_rotation_cost[1]);
+          } else {
+            mbmi->rot_flag = 0;
+            tmp_rate2 += x->mode_costs.warp_rotation_cost[0];
+          }
+          // int rotation_cost = find_rotation_cost(cpi, x, bsize, tmp_rate2,
+          // rot, rd_stats, rd_stats_y,
+          //                    rd_stats_uv, ref_best_rd);
+          // if (rotation_cost < rdcost) {
+          //   rdcost = rotation_cost;
+          //   best_rot = rot;
+          // }
+          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
+                                        av1_num_planes(cm) - 1);
+
+          if (av1_txfm_search(cpi, x, bsize, rd_stats, rd_stats_y, rd_stats_uv,
+                              tmp_rate2, ref_best_rd) &&
+              rd_stats_y->rate != INT_MAX) {
+            const int64_t this_rd =
+                RDCOST(x->rdmult, rd_stats->rate, rd_stats->dist);
+            if (this_rd < rdcost) {
+              rdcost = this_rd;
+              best_rot = rot;
+            }
+          }
+          tmp_rate2 = tmp_rate2_0;
+        }
+        if (best_rot != 0) {
+          mbmi->rotation = best_rot;
+          // do rotation
+          memcpy(&mbmi->wm_params, wm, sizeof(WarpedMotionParams));
+          av1_warp_rotation(mbmi, mbmi->rotation, center_x, center_y);
+          av1_get_shear_params(&mbmi->wm_params);
+          av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
+                                        av1_num_planes(cm) - 1);
+          tmp_rate2 +=
+              x->mode_costs
+                  .rotation_degree_cost[(mbmi->rotation + ROTATION_RANGE) /
+                                        ROTATION_STEP] +
+              x->mode_costs.warp_rotation_cost[1];
+        } else {
+          mbmi->rot_flag = 0;
+          tmp_rate2 += x->mode_costs.warp_rotation_cost[0];
+        }
+      }
+#endif  // CONFIG_EXT_ROTATION
     } else if (mbmi->motion_mode == OBMC_CAUSAL) {
       const uint32_t cur_mv = mbmi->mv[0].as_int;
       // OBMC_CAUSAL not allowed for compound prediction
@@ -1654,6 +1755,14 @@ static int64_t motion_mode_rd(
                                 &tmp_rate_mv, &tmp_rate2, rate2_nocoeff,
                                 rate_mv0);
           }
+          // int rotation_cost = find_rotation_cost(cpi, x, bsize, tmp_rate2,
+          // rot, rd_stats, rd_stats_y,
+          //                    rd_stats_uv, ref_best_rd);
+          // if (rotation_cost < rdcost) {
+          //   rdcost = rotation_cost;
+          //   best_rot = rot;
+          // }
+
           // Build the warped predictor
           av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0,
                                         av1_num_planes(cm) - 1);
