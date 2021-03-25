@@ -18,6 +18,9 @@
 
 #include "common/tf_lite_includes.h"
 
+#define CFG_MAX_LEN 256
+#define NUM_MODELS 8
+
 #define Y4M_HDR_MAX_LEN 256
 #define Y4M_HDR_MAX_WORDS 16
 #define NUM_THREADS 8
@@ -29,7 +32,7 @@
 //   cnn_restore_y4m
 //       <y4m_input>
 //       <num_frames>
-//       <restore_code>
+//       <upsampling_ratio>
 //       <y4m_output>
 
 namespace {
@@ -38,6 +41,10 @@ namespace {
 #include "examples/cnn_restore/sr3by2_tflite.h"
 #include "examples/cnn_restore/sr4by3_tflite.h"
 #include "examples/cnn_restore/sr5by4_tflite.h"
+#include "examples/cnn_restore/sr6by5_tflite.h"
+#include "examples/cnn_restore/sr7by6_tflite.h"
+#include "examples/cnn_restore/sr8by7_tflite.h"
+#include "examples/cnn_restore/sr9by8_tflite.h"
 
 void RegisterSelectedOps(::tflite::MutableOpResolver *resolver) {
   resolver->AddBuiltin(::tflite::BuiltinOperator_ADD,
@@ -57,13 +64,9 @@ static void usage_and_exit(char *prog) {
   printf("  %s\n", prog);
   printf("      <y4m_input>\n");
   printf("      <num_frames>\n");
-  printf("      <restore_code>\n");
-  printf("          Possible values:\n");
-  printf("              0 - none [default]\n");
-  printf("              1 - 2/1 x 2/1 superresolution\n");
-  printf("              2 - 3/2 x 3/2 superresolution\n");
-  printf("              3 - 4/3 x 4/3 superresolution\n");
-  printf("              4 - 5/4 x 5/4 superresolution\n");
+  printf("      <upsampling_ratio>\n");
+  printf("          in form <p>:<q> where <p>/<q> is the upsampling ratio\n");
+  printf("          with <p> greater than <q>.\n");
   printf("      <y4m_output>\n");
   printf("      \n");
   exit(EXIT_FAILURE);
@@ -82,6 +85,20 @@ static int split_words(char *buf, char delim, int nmax, char **words) {
   words[n++] = y;
   assert(n > 0 && n <= nmax);
   return n;
+}
+
+static int parse_rational_config(char *cfg, int *p, int *q) {
+  char cfgbuf[CFG_MAX_LEN];
+  strncpy(cfgbuf, cfg, CFG_MAX_LEN - 1);
+
+  char *cfgwords[2];
+  const int ncfgwords = split_words(cfgbuf, ':', 2, cfgwords);
+  if (ncfgwords < 2) return 0;
+
+  *p = atoi(cfgwords[0]);
+  *q = atoi(cfgwords[1]);
+  if (*p <= 0 || *q <= 0 || *p < *q) return 0;
+  return 1;
 }
 
 static int parse_info(char *hdrwords[], int nhdrwords, int *width, int *height,
@@ -112,15 +129,39 @@ static int parse_info(char *hdrwords[], int nhdrwords, int *width, int *height,
   return 1;
 }
 
+static const double model_ratios[NUM_MODELS] = { 2.0 / 1.0, 3.0 / 2.0,
+                                                 4.0 / 3.0, 5.0 / 4.0,
+                                                 6.0 / 5.0, 7.0 / 6.0,
+                                                 8.0 / 7.0, 9.0 / 8.0 };
+
 static const unsigned char *get_model(int code) {
   switch (code) {
-    case 0: return NULL;
-    case 1: return _tmp_sr2by1_tflite;
-    case 2: return _tmp_sr3by2_tflite;
-    case 3: return _tmp_sr4by3_tflite;
-    case 4: return _tmp_sr5by4_tflite;
+    case -1: return NULL;
+    case 0: return _tmp_sr2by1_tflite;
+    case 1: return _tmp_sr3by2_tflite;
+    case 2: return _tmp_sr4by3_tflite;
+    case 3: return _tmp_sr5by4_tflite;
+    case 4: return _tmp_sr6by5_tflite;
+    case 5: return _tmp_sr7by6_tflite;
+    case 6: return _tmp_sr8by7_tflite;
+    case 7: return _tmp_sr9by8_tflite;
     default: return NULL;
   }
+}
+
+static int search_best_code(int p, int q) {
+  if (p == q) return -1;
+  double ratio = (double)p / q;
+  int mini = -1;
+  double minerr = 10000.0;
+  for (int i = 1; i <= 8; ++i) {
+    double err = fabs(ratio - model_ratios[i]);
+    if (err < minerr) {
+      mini = i;
+      minerr = err;
+    }
+  }
+  return mini;
 }
 
 static TfLiteDelegate *get_tflite_xnnpack_delegate(int num_threads) {
@@ -286,7 +327,12 @@ int main(int argc, char *argv[]) {
   }
   const int bytes_per_pel = (bitdepth + 7) / 8;
   int num_frames = atoi(argv[2]);
-  const int restore_code = atoi(argv[3]);
+  int p, q;
+  if (!parse_rational_config(argv[3], &p, &q)) {
+    printf("Could not parse upsampling factor from %s\n", argv[3]);
+    usage_and_exit(argv[0]);
+  }
+  const int restore_code = search_best_code(p, q);
 
   const int uvwidth = subx ? (ywidth + 1) >> 1 : ywidth;
   const int uvheight = suby ? (yheight + 1) >> 1 : yheight;
