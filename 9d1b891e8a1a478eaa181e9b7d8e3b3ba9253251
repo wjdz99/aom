@@ -16,6 +16,57 @@
       "message": "\u003e Patch Set 9: Verified-1 -Code-Review\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://build.aomedia.org/jenkins/job/libaom__commit_trigger/58414/ : FAILURE\n\nThis failure is from RD_DEBUG.\nI will fix it soon.",
       "revId": "9d1b891e8a1a478eaa181e9b7d8e3b3ba9253251",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65eae25b_bcd241cd",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-25T20:45:21Z",
+      "side": 1,
+      "message": "Nit/optional: We can omit the local variable \u0027cfl_is_ok\u0027 and directly test the function\u0027s return value, as we do for the other two similar calls. (Please see my annotations below.)",
+      "revId": "9d1b891e8a1a478eaa181e9b7d8e3b3ba9253251",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01ab3048_d285a4e8",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-25T20:45:21Z",
+      "side": 1,
+      "message": "Note that we test the function\u0027s return value directly.",
+      "revId": "9d1b891e8a1a478eaa181e9b7d8e3b3ba9253251",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1394f19_24a2fe11",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-25T20:45:21Z",
+      "side": 1,
+      "message": "Note that we test the function\u0027s return value directly.",
+      "revId": "9d1b891e8a1a478eaa181e9b7d8e3b3ba9253251",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
