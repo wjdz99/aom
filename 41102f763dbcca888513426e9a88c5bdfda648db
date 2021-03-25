@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc7093be_34b65703",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-25T02:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f685a9f_4184580a",
+      "range": {
+        "startLine": 494,
+        "startChar": 0,
+        "endLine": 495,
+        "endChar": 32
+      },
+      "revId": "41102f763dbcca888513426e9a88c5bdfda648db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "273a73ec_615c6775",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-03-24T22:24:09Z",
       "side": 1,
       "message": "Nit: Delete the \u0027*\u0027 before best_cfl_alpha_signs.",
+      "range": {
+        "startLine": 499,
+        "startChar": 17,
+        "endLine": 499,
+        "endChar": 18
+      },
+      "revId": "41102f763dbcca888513426e9a88c5bdfda648db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f049d2f_97f71006",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-25T02:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "273a73ec_615c6775",
       "range": {
         "startLine": 499,
         "startChar": 17,
@@ -64,6 +112,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08778504_d88851f6",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-25T02:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c2c315d_b28d37ba",
+      "revId": "41102f763dbcca888513426e9a88c5bdfda648db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d79de8ac_e88ba5e8",
@@ -81,6 +147,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "176a5ec2_dc30e58d",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-25T02:26:52Z",
+      "side": 1,
+      "message": "Good catch.\nWe do need to set ski_txfm.",
+      "parentUuid": "d79de8ac_e88ba5e8",
+      "revId": "41102f763dbcca888513426e9a88c5bdfda648db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf3302da_f74e7fe7",
@@ -94,6 +178,30 @@
       "writtenOn": "2021-03-24T22:24:09Z",
       "side": 1,
       "message": "Optional: It would be good to document what we\u0027re doing here in the function comment (the comment block before the function).\n\nAlternatively, we can change this function to return a 0/1 status, and change the caller (lines 633-636) to check the return value of this function as follows:\n\n      if (!cfl_rd_pick_alpha(x, cpi, uv_tx_size, best_rd,\n                             sf-\u003eintra_sf.cfl_search_range, \u0026tokenonly_rd_stats,\n                             \u0026mbmi-\u003ecfl_alpha_idx, \u0026mbmi-\u003ecfl_alpha_signs))\n          continue;",
+      "range": {
+        "startLine": 551,
+        "startChar": 0,
+        "endLine": 555,
+        "endChar": 3
+      },
+      "revId": "41102f763dbcca888513426e9a88c5bdfda648db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6476e7e3_50497f4d",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-25T02:26:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf3302da_f74e7fe7",
       "range": {
         "startLine": 551,
         "startChar": 0,
