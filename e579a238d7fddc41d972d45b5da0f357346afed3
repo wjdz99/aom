@@ -75,6 +75,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "68a669b8_001a4bb2",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-03-25T11:22:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2f59f911_94d3eadf",
+      "range": {
+        "startLine": 155,
+        "startChar": 36,
+        "endLine": 155,
+        "endChar": 68
+      },
+      "revId": "e579a238d7fddc41d972d45b5da0f357346afed3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9034bc02_8de95db5",
@@ -88,6 +112,30 @@
       "writtenOn": "2021-03-24T19:26:39Z",
       "side": 1,
       "message": "Why do we test cpi-\u003esf.intra_sf.prune_filter_intra_level \u003d\u003d 0 instead of cpi-\u003esf.intra_sf.prune_filter_intra_level !\u003d 2 here?\n\ncpi-\u003esf.intra_sf.prune_filter_intra_level \u003d\u003d 2 seems to match the comment \"only if filter intra modes are disabled\" better. Therefore I am wondering if we should test the opposite condition cpi-\u003esf.intra_sf.prune_filter_intra_level !\u003d 2 here.",
+      "range": {
+        "startLine": 1184,
+        "startChar": 8,
+        "endLine": 1184,
+        "endChar": 54
+      },
+      "revId": "e579a238d7fddc41d972d45b5da0f357346afed3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae8f8ff8_ba0d5f38",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-03-25T11:22:21Z",
+      "side": 1,
+      "message": "Currently, smooth prediction is disabled for speed \u003e\u003d 2 (using the sf disable_smooth_intra). As the functionality of filter intra modes and smooth prediction overlaps, we are trying to retain the smooth prediction when pruning logic for filter intra modes is present. The following explains the usage of prune_filter_intra_level:\n-\u003e 0 : No pruning (SMOOTH_PRED is disabled through disable_smooth_intra, as all filter intra modes are enabled)\n-\u003e 1 : Evaluate a few of the filter intra modes based on best intra mode so far (SMOOTH_PRED is enabled, as fewer filter intra modes are disabled)\n-\u003e 2 : Do not evaluate filter intra modes (SMOOTH_PRED is enabled, as all filter intra modes are disabled)\n\nHowever, we modified the comment slightly for better understanding. Please review.",
+      "parentUuid": "9034bc02_8de95db5",
       "range": {
         "startLine": 1184,
         "startChar": 8,
