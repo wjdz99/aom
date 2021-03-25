@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbc19901_58376cbc",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2106,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-25T23:25:39Z",
+      "side": 1,
+      "message": "We should be able to remove the TXB_COEFF_COST_MAP_SIZE macro. It is only used in these two assertions.\n\nThen, we should be able to remove the blk_row and blk_col parameters from this function.\n\nNote: The function is now only one line; we can just inline the function.",
+      "range": {
+        "startLine": 2105,
+        "startChar": 0,
+        "endLine": 2106,
+        "endChar": 44
+      },
+      "revId": "4cb849d8ad97639c58177acd6375988feaab76cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
