@@ -33,6 +33,24 @@
       "message": "Ok I ran my own coding tests, looks like this gives neutral results on all builtin subgop configs and fixes the bug, so I\u0027ll go ahead and submit. ",
       "revId": "5d1217febce96ad5e897fbf7ad456c4fb83e32c0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50b8c7e2_c6355414",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25837
+      },
+      "writtenOn": "2021-03-25T18:47:24Z",
+      "side": 1,
+      "message": "Hi,\n\nYes, I did not test both patches on the full test set, but for RA for class A4 and A5 the following difference is observed when --reduced-reference-set\u003d1 (with this patch as anchor and https://aomedia-review.googlesource.com/c/aom/+/132961 as test) the following numbers are observed:\n\nSequence:                 PSNR-Y      PSNR-U      PSNR-V     MS-SSIM   APSNR-YUV \nFourPeople_480x270          0.26        0.34        0.51        0.02        0.28 \nParkJoy_480x270_50          0.26        0.16        0.95        0.53        0.27 \nVertical_Bayshore_         -0.02        1.44        2.43       -0.06        0.01 \nBlueSky_360p25              0.01       -0.11       -0.30        0.15       -0.02 \nRedKayak_360_2997          -0.01       -0.91       -2.56       -0.03       -0.03 \nSnowMountain_640x3          0.12        0.18        0.32        0.01        0.12 \nSpeedBag_640x360_2          2.60        1.68        1.73        1.75        2.49 \nStockholm_640x360_         -0.15       -0.02       -0.28       -0.66       -0.15 \nTouchdownPass_640x          0.35        0.58       -0.62        0.36        0.33 \nAverage:                    0.38        0.37        0.24        0.23        0.37 \n\nThe SpeedBag sequence is the primary reason (2.6%) for the average difference in BD-rate (0.38%).",
+      "parentUuid": "23bb5b56_365eb31b",
+      "revId": "5d1217febce96ad5e897fbf7ad456c4fb83e32c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
