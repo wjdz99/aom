@@ -278,6 +278,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd15b901_135d67bc",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 2357,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-25T18:12:26Z",
+      "side": 1,
+      "message": "Thanks a lot for the explanation!",
+      "parentUuid": "e86a2fb1_0bdd4dae",
+      "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14e8a659_a823b6b4",
@@ -309,6 +327,24 @@
       "side": 1,
       "message": "No, we are not planning to pass a value other than cur_gf_index(now gf_frame_index) in the future. We have renamed this variable to gf_frame_index for clarity.",
       "parentUuid": "14e8a659_a823b6b4",
+      "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ed8caec_08092451",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 3241,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-25T18:12:26Z",
+      "side": 1,
+      "message": "Thank you. I understand the design now. The function argument that will change is gf_group, not \u0027index\u0027. Currently gf_group is always \u0026cpi-\u003egf_group. In the future other values (\u0026ppi-\u003egf_group I guess) will be passed as the gf_group argument.",
+      "parentUuid": "2eaabf78_b0e207c1",
       "revId": "30364b0eefebcdbc120a3526009fd63c68f67e22",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
