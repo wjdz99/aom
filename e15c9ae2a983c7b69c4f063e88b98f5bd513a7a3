@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "321508fd_6cf56e2f",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fab80a8_17abb76e",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e10dbc79_37e74c4e",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-03-25T16:56:43Z",
       "side": 1,
       "message": "Format this three items per line. We can use end-of-line comment to force that:\n\n  .183f / 255.f, .614f / 255.f, .062f / 255.f,  //\n  -.101f / 255.f, -.339f / 255.f, .439f / 255.f,  //\n  .439f / 255.f, -.399f / 255.f, -.040f / 255.f\n\nOr we can use the clang-format off/on comments.",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a04eb342_1aad335a",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e10dbc79_37e74c4e",
       "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79f0d0c2_110ec888",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a5baf0a_f8981196",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80f4b085_f9dfe04d",
@@ -82,6 +136,24 @@
       "writtenOn": "2021-03-25T16:56:43Z",
       "side": 1,
       "message": "Note that all the entries in YUVtoRGBMatrix has a 255.f factor, and then we divide by maxv (\u003d 255.f) here.\n\nSo we can remove the 255.f factors from all the entries in YUVtoRGBMatrix, and remove the division by maxv here.",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1255d9c9_a0ed6beb",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80f4b085_f9dfe04d",
       "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a3e71b9_d471e7d4",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9718d15_8cc198d9",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42799546_1eb8489d",
@@ -120,6 +210,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c602d70_32798546",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42799546_1eb8489d",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6340dbd_8f78e612",
@@ -133,6 +241,24 @@
       "writtenOn": "2021-03-25T16:56:43Z",
       "side": 1,
       "message": "We should document the following about these two functions.\n\n1. When converting between YUV and RGB, these two functions use the BT.709 matrix coefficients and assume the Y, U, V samples are limited range.\n\n2. When converting between RGB and XYB, these two functions assume the RGB color space is sRGB.",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efd8cb3f_e1bdbe7e",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6340dbd_8f78e612",
       "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -177,6 +303,48 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc3abf0c_ca09aa52",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc04bf78_86a2a251",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c0b807f_d75432e0",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50b79215_f53ce305",
+      "range": {
+        "startLine": 18,
+        "startChar": 51,
+        "endLine": 18,
+        "endChar": 64
+      },
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23b8b6ad_ff5e6082",
@@ -190,6 +358,24 @@
       "writtenOn": "2021-03-25T16:56:43Z",
       "side": 1,
       "message": "Nit: I suggest declaring the outout parameter \u0027yuv\u0027 without \u0027const\u0027.",
+      "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e04159c7_2414f03b",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-03-25T22:54:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23b8b6ad_ff5e6082",
       "revId": "e15c9ae2a983c7b69c4f063e88b98f5bd513a7a3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
