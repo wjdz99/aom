@@ -3139,6 +3139,12 @@ static AOM_INLINE void choose_smallest_tx_size(const AV1_COMP *const cpi,
 }
 
 #if CONFIG_NEW_TX_PARTITION
+TX_PARTITION_TYPE partition_search_order[TX_PARTITION_TYPES] = { TX_PARTITION_NONE,
+                                                                 TX_PARTITION_VERT,
+                                                                 TX_PARTITION_HORZ,
+                                                                 TX_PARTITION_SPLIT,
+                                                                 TX_PARTITION_VERT4,
+                                                                 TX_PARTITION_HORZ4 };
 // Search for the best uniform transform size and type for current coding block.
 static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
                                         MACROBLOCK *x, RD_STATS *rd_stats,
@@ -3163,9 +3169,11 @@ static void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
   int64_t best_rd = INT64_MAX;
   x->rd_model = FULL_TXFM_RD;
   int64_t cur_rd = INT64_MAX;
-  for (TX_PARTITION_TYPE type = 0; type < TX_PARTITION_TYPES_INTRA; ++type) {
+  for (int type_index = 0; type_index < TX_PARTITION_TYPES_INTRA; ++type_index) {
+    TX_PARTITION_TYPE type = partition_search_order[type_index];
     // Skip any illegal partitions for this block size
     if (!use_tx_partition(type, max_tx_size)) continue;
+    if (type_index > 2 && best_partition_type == TX_PARTITION_NONE) break;
     if (cpi->sf.tx_sf.tx_type_search.prune_intra_4way_split) {
       if (type == TX_PARTITION_VERT4 &&
           best_partition_type != TX_PARTITION_VERT)
