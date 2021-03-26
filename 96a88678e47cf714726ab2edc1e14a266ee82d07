@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27d5211a_f3abc3da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-03-26T14:18:48Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nPlease review the patch.\n\nThanks,\nJayashri.",
+      "revId": "96a88678e47cf714726ab2edc1e14a266ee82d07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

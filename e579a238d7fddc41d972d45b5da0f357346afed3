@@ -72,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "be9d7884_71442915",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-03-26T14:18:48Z",
+      "side": 1,
+      "message": "Hi Chi Yo Tsai,\n\nThe current approach, enables/evaluates fewer filter intra modes (for speed presets 2 to 5) to get speed gains. However, smooth_pred mode evaluation is enabled to improve the trade-off better, due to which the gains we should see through disabling few filter intra modes have been masked-off with better quality improvement. And also, the percentage taken by filter intra module is more in presets 2,3 compared to 4,5 presets due to which the gains can be seen in presets 2 and 3 even after enabling smooth_pred mode evaluation.\n\nThe following are results, when tried different experiments.\n1. Disabling all filter intra modes through sf \u0027disable_filter_intra\u0027 (In this case smooth_pred is enabled).\n\n    For Still image encode,\n    cpu-used    Reduction(%)     psnr     ssim    \n        2          6.103         0.0269   0.0766  \n        3          8.058         0.0957   0.1648  \n        4          4.196         0.0110   0.1167  \n        5          2.748        -0.0478   0.0818\n        \n    For allintra video encode,\n    cpu-used    Reduction(%)     avg.psnr   ovr.psnr   ssim    \n        2         8.631          0.3304     0.3303     0.3237\n        3         11.295         0.4171     0.4162     0.4092\n        4         7.113          0.2613     0.2576     0.2805\n        5         5.163          0.1836     0.1826     0.2264  \n\nFrom the above data, it is observed that disabling all filter intra modes is not helpful for allintra video encode (as the speed vs quality trade-off is not met). Hence, tried to disable fewer filter intra modes based on best intra mode so far.\n2. This CL, disabling fewer filter intra modes (smooth_pred is enabled).\n\n    For Still image encode,\n    cpu-used    Reduction(%)     psnr     ssim    \n        2          3.494        -0.3771  -0.2950  \n        3          4.095        -0.3720  -0.2924  \n        4          0.000        -0.4138  -0.2966  \n        5          0.000        -0.4435  -0.3025\n        \n    For allintra video encode,\n    cpu-used    Reduction(%)     avg.psnr  ovr.psnr    ssim    \n        2          5.079        -0.1388   -0.1381     -0.1067\n        3          6.258        -0.1219   -0.1223     -0.0903\n        4          1.951        -0.2030   -0.2045     -0.1531\n        5          1.785        -0.2400   -0.2408     -0.1690  \n\nCompared to approach 1, the speed gains have reduced with quality improvement, as expected.\nWe have also validated the results published.\n\nThanks \u0026 Regards,\nJayashri.",
+      "parentUuid": "fd8858d5_edfc80b3",
+      "revId": "e579a238d7fddc41d972d45b5da0f357346afed3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2f59f911_94d3eadf",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 3
