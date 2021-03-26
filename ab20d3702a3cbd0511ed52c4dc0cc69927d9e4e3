@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86f5e794_12fe6ee5",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 2362,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-26T18:08:58Z",
+      "side": 1,
+      "message": "Mufaddal: Please add a comment to note that this is used as the index for several arrays in the GF_GROUP struct.\n\nSpecifically, the index is used for the layer_depth, arf_src_offset, update_type, bit_allocation, frame_type, and refbuf_state arrays in GF_GROUP. We probably don\u0027t need to document this level of detail.\n\nI also don\u0027t know why the index is not used for the other arrays in GF_GROUP.",
+      "revId": "ab20d3702a3cbd0511ed52c4dc0cc69927d9e4e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
