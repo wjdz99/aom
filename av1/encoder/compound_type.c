@@ -1371,7 +1371,7 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
       int_mv tmp_mv[2] = { mbmi->mv[0], mbmi->mv[1] };
       int best_rs2 = 0;
       int best_rate_mv = *rate_mv;
-      const int wedge_mask_size = get_wedge_types_lookup(bsize);
+      int wedge_mask_size = get_wedge_types_lookup(bsize);
       int need_mask_search = args->wedge_index == -1;
 
       if (need_mask_search && !have_newmv_in_inter_mode(this_mode)) {
@@ -1426,6 +1426,19 @@ int av1_compound_type_rd(const AV1_COMP *const cpi, MACROBLOCK *x,
             tmp_mv[1] = mbmi->mv[1];
             best_rate_mv = tmp_rate_mv;
             best_rs2 = rs2;
+          }
+        }
+        // Consider the asymmetric partitions for oblique angle only if the
+        // corresponding symmetric partition is the best so far
+        const int idx_before_asym_oblique = 7;
+        const int last_oblique_sym_idx = 3;
+        if (cpi->sf.inter_sf.enable_fast_wedge_mask_search &&
+            (wedge_mask == idx_before_asym_oblique)) {
+          if (best_mask_index > last_oblique_sym_idx) {
+            break;
+          } else {
+            wedge_mask += best_mask_index * 2;
+            wedge_mask_size = wedge_mask + 3;
           }
         }
       }
