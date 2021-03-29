@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccb28415_07a2a0b8",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-29T17:19:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04f84268_40ab0ea7",
+      "range": {
+        "startLine": 51,
+        "startChar": 23,
+        "endLine": 51,
+        "endChar": 66
+      },
+      "revId": "e158441346b91d4bf3162030f2fc97e3a3a3b17e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ffd8308_e4471934",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6c8a6bd_ac6367c4",
+        "filename": "av1/common/entropymode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-29T17:19:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ffd8308_e4471934",
+      "range": {
+        "startLine": 116,
+        "startChar": 44,
+        "endLine": 116,
+        "endChar": 46
+      },
+      "revId": "e158441346b91d4bf3162030f2fc97e3a3a3b17e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19b86a54_8c4274bd",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-03-24T06:02:11Z",
       "side": 1,
       "message": "You may define some intermediate variables to improve readability.",
+      "range": {
+        "startLine": 1661,
+        "startChar": 10,
+        "endLine": 1666,
+        "endChar": 58
+      },
+      "revId": "e158441346b91d4bf3162030f2fc97e3a3a3b17e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82b14e36_39c4d81e",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1666,
+      "author": {
+        "id": 23153
+      },
+      "writtenOn": "2021-03-29T17:19:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19b86a54_8c4274bd",
       "range": {
         "startLine": 1661,
         "startChar": 10,
