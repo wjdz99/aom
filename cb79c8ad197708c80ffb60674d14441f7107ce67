@@ -16,6 +16,52 @@
       "message": "Hi Wan-Teh/Chi-Yo,\n\nThis CL enables the generation of gradient data at superblock level and the consumption of the same at block level when partition_search_type is SEARCH_PARTITION. This approach avoids repetitive calculations of gradient data at pixel level as it is calculated based on source pixels.\n\nThis change is disabled for inter frames as this approach will not help in speedup for inter frames due to the early exits present for intra mode evaluation through speed features such as skip_intra_in_interframe, intra_y_mode_mask, intra_uv_mode_mask etc.\n\nWe have introduced a new data structure \"pixel_level_gradient_info\" in MACROBLOCK structure which is used to communicate the necessary pixel level gradient information from the superblock stage, enabling the computation of the Histogram of Gradients (HOG) at block stage. A thread specific buffer is allocated to hold the information for all relevant pixels in the superblock. For AVIF still-image encoding, a HEAP memory increase of 0.5%-2% (depending on resolution) is observed when multi-threading is enabled.\n\nThis change is enabled for intra frames only, when partition_search_type is SEARCH_PARTITION. Also, when partition_search_type is not SEARCH_PARTITION, the HOG computations would be at done block level as before.\n\nWe plan to extend this optimization to HBD path in a separate patch.\n\nWe validated the current patch for video and still-image encode. It was verified that the output of AVIF/video encode is bit-exact w.r.t. parent version.\n\nInstruction count reduction observed for AVIF still image encode is given below:\n\n           Instruction Count\n  speed       Reduction(%)  \n    0           0.863\n    1           1.500\n    2           1.217\n    3           1.812\n    4           2.844\n    5           3.242\n    6           0.470\n\nInstruction count reduction observed for video encode is given below.\n                         Instruction Count\n    usage    cpu-used      Reduction(%)  \n    good        3             0.023\n    good        5             0.042\n    good        6             0.039\n  allintra      3             1.304\n  allintra      5             2.350\n  allintra      6             0.637\n     rt         4             0.002\n     rt         9             0.000\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./avifenc ...\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "cb79c8ad197708c80ffb60674d14441f7107ce67",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c60193db_71a7155a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-29T19:54:06Z",
+      "side": 1,
+      "message": "Nit: I would suggest adding an if statement here so the reader knows why the gradients are being computed. Maybe something like\nif (sf-\u003eintra_sf.intra_pruning_with_hog || \n    sf-\u003eintra_sf.chroma_intra_pruning_with_hog) {\n  produce_gradients_for_sb(cpi, x, sb_size, mi_row, mi_col);\n}",
+      "range": {
+        "startLine": 861,
+        "startChar": 3,
+        "endLine": 861,
+        "endChar": 62
+      },
+      "revId": "cb79c8ad197708c80ffb60674d14441f7107ce67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87a51a5b_cafefdc7",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-03-29T19:54:06Z",
+      "side": 1,
+      "message": "What\u0027s the % of total encoding time spent on this function before/after this commit?\nI\u0027m curious if there is room for optimization by caching the histograms at block level as well.",
+      "range": {
+        "startLine": 328,
+        "startChar": 0,
+        "endLine": 328,
+        "endChar": 74
+      },
+      "revId": "cb79c8ad197708c80ffb60674d14441f7107ce67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
