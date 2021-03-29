@@ -108,6 +108,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "593bf26e_3aeb2f7a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-03-29T10:20:31Z",
+      "side": 1,
+      "message": "Hi Frank,\n\nFor speed presets 4 and 5, the encode time reduction is less than 0.1% (which is negligible). Hence, we mentioned the same as 0.000%.\nAs per our understanding, the comment from Chi Yo Tsai is on quality improvement with no impact on encoding time. We clarified the same in our previous message.\n\nPlease let us know in case we need to provide any other details.\n\nThanks \u0026 Regards,\nJayashri",
+      "parentUuid": "5d122e50_a180042e",
+      "revId": "e579a238d7fddc41d972d45b5da0f357346afed3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2f59f911_94d3eadf",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 3
