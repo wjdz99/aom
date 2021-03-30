@@ -34,6 +34,13 @@ typedef struct IntraModeSearchState {
    */
   PREDICTION_MODE best_intra_mode;
 
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+  /*!
+   * \brief The best mrl index found so far
+   */
+  int best_mrl_index;
+#endif
+
   /** \name Speed feature variables
    * Variables to help with pruning some luma intra-modes during inter frame
    * coding process.
@@ -73,6 +80,61 @@ typedef struct IntraModeSearchState {
   int64_t best_pred_rd[REFERENCE_MODES];
 } IntraModeSearchState;
 
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+/*!\brief Evaluate a given intra-mode for inter frames.
+ *
+ * \ingroup intra_mode_search
+ * \callgraph
+ * \callergraph
+ * This function handles an intra-mode prediction when the current frame is an
+ * inter frame. This is the intra-mode counterpart of handle_inter_mode. This
+ * function first performs an intra prediction using the mode specified by
+ * x->e_mbd.mi[0]->mode, then it searches over *all* available chroma intra
+ * predictions by calling av1_rd_pick_intra_sbuv_mode. To avoid repeated
+ * computation for chroma mode search, a cache of the best chroma mode and its
+ * rd statistics is kept in intra_search_state that is retrieved when
+ * av1_handle_intra_mode is called more than once. This function does *not*
+ * support palette mode prediction in the luma channel, but it does search for
+ * palette mode in the chroma channel.
+ *
+ * \param[in]    intra_search_state Structure to hold the best luma intra mode
+ *                                  and cache chroma prediction for speed up.
+ * \param[in]    cpi                Top-level encoder structure.
+ * \param[in]    x                  Pointer to structure holding all the data
+ *                                  for the current macroblock.
+ * \param[in]    bsize              Current partition block size.
+ * \param[in]    ref_frame_cost     The entropy cost for signaling that the
+ *                                  current ref frame is an intra frame.
+ * \param[in]    ctx                Structure to hold the number of 4x4 blks to
+ *                                  copy the tx_type and txfm_skip arrays.
+ * \param[in]    rd_stats           Struct to keep track of the current
+ *                                  intra-mode's rd_stats.
+ * \param[in]    rd_stats_y         Struct to keep track of the current
+ *                                  intra-mode's rd_stats (luma only).
+ * \param[in]    rd_stats_uv        Struct to keep track of the current
+ *                                  intra-mode's rd_stats (chroma only).
+ * \param[in]    best_rd            Best RD seen for this block so far.
+ * \param[in]    best_intra_rd      Best intra RD seen for this block so far.
+ *
+ * \param[in]    best_model_rd      Best model RD seen for this block so far.
+ * \param[in]    top_intra_model_rd Top intra model RD seen for this block so
+ * far. \return Returns the rdcost of the current intra-mode if it's available,
+ * otherwise returns INT64_MAX. The corresponding values in x->e_mbd.mi[0],
+ * rd_stats, rd_stats_y/uv, and best_intra_rd are also updated. Moreover, in the
+ * first evocation of the function, the chroma intra mode result is cached in
+ * intra_search_state to be used in subsequent calls. In the first evaluation
+ * with directional mode, a prune_mask computed with histogram of gradient is
+ * also stored in intra_search_state.
+ */
+int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
+                              const AV1_COMP *cpi, MACROBLOCK *x,
+                              BLOCK_SIZE bsize, unsigned int ref_frame_cost,
+                              const PICK_MODE_CONTEXT *ctx, RD_STATS *rd_stats,
+                              RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
+                              int64_t best_rd, int64_t *best_intra_rd,
+                              int64_t *best_model_rd,
+                              int64_t top_intra_model_rd[]);
+#else
 /*!\brief Evaluate a given intra-mode for inter frames.
  *
  * \ingroup intra_mode_search
@@ -122,6 +184,7 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
                               const PICK_MODE_CONTEXT *ctx, RD_STATS *rd_stats,
                               RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
                               int64_t best_rd, int64_t *best_intra_rd);
+#endif
 
 /*!\brief Evaluate luma palette mode for inter frames.
  *
