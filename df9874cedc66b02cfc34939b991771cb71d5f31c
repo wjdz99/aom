@@ -33,6 +33,154 @@
       "message": "Looks good. Thanks for the optimization!",
       "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e2bdd2e_77ef274e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "Chi Yo: Thank you for the review!\n\nJayasanker: I suggest a few small changes.",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fd8fdde_a63d66d0",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "Optional: The struct has two bytes of padding. Since we allocate 2 ^ 15 \u003d 32768 copies of this struct, it would be good to eliminate the padding bytes. Can abs_dx_abs_dy_sum be declared as int16_t or uint16_t?",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88365579_47d624d1",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "Nit: In this file, the two prevalent naming conventions for structs are:\n\n  typedef struct {\n    ...\n  } FOO_BAR;\n\nand\n\n  typedef struct {\n    ...\n  } FooBar;\n\nNo structs in this file are named using the \"foo_bar\" naming convention. So please change pixel_level_gradient_info to either PIXEL_LEVEL_GRADIENT_INFO or PixelLevelGradientInfo. I also suggest we remove the struct tag \"pixel_level_gradient_info\" from line 839 so that line 839 reads\n\n  typedef struct {",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9190debd_997ad49c",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "IMPORTANT: It is not clear that this pointer points to an array. Please document the size (number of elements) of this array.\n\nThe array is allocated as follows:\n\n    CHECK_MEM_ERROR(cm, x-\u003epixel_gradient_info,\n                    aom_malloc(sizeof(*x-\u003epixel_gradient_info) * PLANE_TYPES *\n                               MAX_SB_SQUARE));",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f47aced_e0e006df",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "IMPORTANT: It is not clear that this pointer points to an array. Please document the size (number of elements) of this array.\n\nThe array is allocated as follows:\n\n      CHECK_MEM_ERROR(cm, thread_data-\u003etd-\u003epixel_gradient_info,\n                      aom_malloc(sizeof(*thread_data-\u003etd-\u003epixel_gradient_info) *\n                                 PLANE_TYPES * MAX_SB_SQUARE));",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0bfacca_8274d1e1",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "Nit: fitlers \u003d\u003e filters",
+      "range": {
+        "startLine": 198,
+        "startChar": 40,
+        "endLine": 198,
+        "endChar": 47
+      },
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b42561a4_b47a6862",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "Nit: move this line right before line 280:\n\n      const bool is_dx_zero \u003d grad_info_blk[r * sb_width + c].is_dx_zero;\n      if (is_dx_zero) {",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0077de6_1c9bb425",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-03-30T18:54:45Z",
+      "side": 1,
+      "message": "Nit: the same \u003d\u003e the cached data",
+      "range": {
+        "startLine": 343,
+        "startChar": 62,
+        "endLine": 343,
+        "endChar": 70
+      },
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
