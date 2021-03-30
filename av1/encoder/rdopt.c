@@ -3859,6 +3859,9 @@ static AOM_INLINE void init_intra_mode_search_state(
     IntraModeSearchState *intra_search_state) {
   intra_search_state->skip_intra_modes = 0;
   intra_search_state->best_intra_mode = DC_PRED;
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+  intra_search_state->best_mrl_index = 0;
+#endif
   intra_search_state->dir_mode_skip_mask_ready = 0;
   av1_zero(intra_search_state->directional_mode_skip_mask);
   intra_search_state->rate_uv_intra = INT_MAX;
@@ -4595,7 +4598,9 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
                            InterModeSFArgs *args) {
   const SPEED_FEATURES *const sf = &cpi->sf;
   MACROBLOCKD *const xd = &x->e_mbd;
+#if !(CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH)
   MB_MODE_INFO *const mbmi = xd->mi[0];
+#endif
   // Get the actual prediction mode we are trying in this iteration
   const THR_MODES mode_enum = av1_default_mode_order[midx];
   const MODE_DEFINITION *mode_def = &av1_mode_defs[mode_enum];
@@ -4643,6 +4648,7 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
 
   // Speed features to prune out INTRA frames
   if (ref_frame == INTRA_FRAME) {
+#if !(CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH)
     if ((!cpi->oxcf.intra_mode_cfg.enable_smooth_intra ||
          sf->intra_sf.disable_smooth_intra) &&
         (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
@@ -4655,6 +4661,7 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
     // Intra modes will be handled in another loop later.
     assert(*args->intra_mode_num < INTRA_MODES);
     args->intra_mode_idx_ls[(*args->intra_mode_num)++] = mode_enum;
+#endif
     return 1;
   }
 
@@ -4978,6 +4985,12 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   int num_single_modes_processed = 0;
   int intra_mode_idx_ls[INTRA_MODES];
 
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+  for (i = 0; i < INTRA_MODES; i++) {
+    intra_mode_idx_ls[i] = i + 156;
+  }
+#endif
+
   // Temporary buffers used by handle_inter_mode().
   uint8_t *const tmp_buf = get_buf_by_bd(xd, x->tmp_pred_bufs[0]);
 
@@ -5250,6 +5263,91 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   }
 
   const unsigned int intra_ref_frame_cost = ref_costs_single[INTRA_FRAME];
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+  int64_t best_model_rd = INT64_MAX;
+  static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
+    DC_PRED,       H_PRED,        V_PRED,    SMOOTH_PRED, PAETH_PRED,
+    SMOOTH_V_PRED, SMOOTH_H_PRED, D135_PRED, D203_PRED,   D157_PRED,
+    D67_PRED,      D113_PRED,     D45_PRED,
+  };
+  int64_t top_intra_model_rd[TOP_INTRA_MODEL_NUM];
+  for (i = 0; i < TOP_INTRA_MODEL_NUM; i++) {
+    top_intra_model_rd[i] = INT64_MAX;
+  }
+  for (int mrlIdx = 0; mrlIdx < MRL_LINE_NUMBER; mrlIdx++) {
+    if (sf->intra_sf.skip_intra_in_interframe &&
+        search_state.intra_search_state.skip_intra_modes)
+      break;
+    mbmi->mrlIdx = mrlIdx;
+    for (int mode_idx = INTRA_MODE_START; mode_idx < LUMA_MODE_NUM;
+         ++mode_idx) {
+      if (sf->intra_sf.skip_intra_in_interframe &&
+          search_state.intra_search_state.skip_intra_modes)
+        break;
+      if (mode_idx < INTRA_MODE_END) {
+        mbmi->mode = intra_rd_search_mode_order[mode_idx];
+        mbmi->angle_delta[PLANE_TYPE_Y] = 0;
+      } else {
+        mbmi->mode =
+            (mode_idx - INTRA_MODE_END) / (MAX_ANGLE_DELTA * 2) + V_PRED;
+        int angle_delta = (mode_idx - INTRA_MODE_END) % (MAX_ANGLE_DELTA * 2);
+        mbmi->angle_delta[PLANE_TYPE_Y] =
+            (angle_delta < 3 ? (angle_delta - 3) : (angle_delta - 2));
+      }
+      THR_MODES mode_enum = -1;
+      for (i = 0; i < INTRA_MODE_END; i++) {
+        if (mbmi->mode == av1_mode_defs[intra_mode_idx_ls[i]].mode) {
+          mode_enum = intra_mode_idx_ls[i];
+          break;
+        }
+      }
+      assert(av1_mode_defs[mode_enum].ref_frame[0] == INTRA_FRAME);
+      assert(av1_mode_defs[mode_enum].ref_frame[1] == NONE_FRAME);
+      init_mbmi(mbmi, mbmi->mode, av1_mode_defs[mode_enum].ref_frame, cm);
+      txfm_info->skip_txfm = 0;
+      if (av1_is_directional_mode(mbmi->mode) &&
+          av1_use_angle_delta(bsize) == 0 &&
+          mbmi->angle_delta[PLANE_TYPE_Y] != 0)
+        continue;
+      if (mbmi->mrlIdx > 0 && av1_is_directional_mode(mbmi->mode) == 0) {
+        continue;
+      }
+      if (mbmi->mode != DC_PRED) {
+        // Only search the oblique modes if the best so far is
+        // one of the neighboring directional modes
+        if ((sf->rt_sf.mode_search_skip_flags & FLAG_SKIP_INTRA_BESTINTER) &&
+            (mbmi->mode >= D45_PRED && mbmi->mode <= PAETH_PRED)) {
+          if (search_state.best_mode_index != THR_INVALID &&
+              search_state.best_mbmode.ref_frame[0] > INTRA_FRAME)
+            continue;
+        }
+        if (sf->rt_sf.mode_search_skip_flags & FLAG_SKIP_INTRA_DIRMISMATCH) {
+          if (conditional_skipintra(
+                  mbmi->mode, search_state.intra_search_state.best_intra_mode))
+            continue;
+        }
+      }
+      RD_STATS intra_rd_stats, intra_rd_stats_y, intra_rd_stats_uv;
+      intra_rd_stats.rdcost = av1_handle_intra_mode(
+          &search_state.intra_search_state, cpi, x, bsize, intra_ref_frame_cost,
+          ctx, &intra_rd_stats, &intra_rd_stats_y, &intra_rd_stats_uv,
+          search_state.best_rd, &search_state.best_intra_rd, &best_model_rd,
+          top_intra_model_rd);
+
+      // Collect mode stats for multiwinner mode processing
+      const int txfm_search_done = 1;
+      store_winner_mode_stats(
+          &cpi->common, x, mbmi, &intra_rd_stats, &intra_rd_stats_y,
+          &intra_rd_stats_uv, mode_enum, NULL, bsize, intra_rd_stats.rdcost,
+          cpi->sf.winner_mode_sf.multi_winner_mode_type, txfm_search_done);
+      if (intra_rd_stats.rdcost < search_state.best_rd) {
+        update_search_state(&search_state, rd_cost, ctx, &intra_rd_stats,
+                            &intra_rd_stats_y, &intra_rd_stats_uv, mode_enum, x,
+                            txfm_search_done);
+      }
+    }
+  }
+#else
   for (int j = 0; j < intra_mode_num; ++j) {
     if (sf->intra_sf.skip_intra_in_interframe &&
         search_state.intra_search_state.skip_intra_modes)
@@ -5297,6 +5395,7 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
                           txfm_search_done);
     }
   }
+#endif
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, handle_intra_mode_time);
 #endif

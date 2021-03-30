@@ -240,6 +240,10 @@ typedef struct MB_MODE_INFO {
   PALETTE_MODE_INFO palette_mode_info;
   // Common for both INTER and INTRA blocks
   BLOCK_SIZE sb_type;
+
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+  uint8_t mrlIdx;
+#endif
   PREDICTION_MODE mode;
   // Only for INTRA blocks
   UV_PREDICTION_MODE uv_mode;
