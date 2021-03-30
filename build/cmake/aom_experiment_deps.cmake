@@ -84,4 +84,8 @@ macro(fix_experiment_configs)
       change_config_and_warn(CONFIG_CNN_RESTORATION 1 CONFIG_CNN_CRLC_GUIDED)
     endif()
   endif()
+  
+  if(CONFIG_SMALL_CNN_CRLC_GUIDED)
+    change_config_and_warn(CONFIG_CNN_RESTORATION 1 CONFIG_SMALL_CNN_CRLC_GUIDED)
+  endif()
 endmacro()
