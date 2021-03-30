@@ -447,35 +447,67 @@ extern "C" int av1_restore_cnn_guided_img_tflite(
   }
   int scale, A0_min, A1_min;
   int qp = qindex / 4;
+#if CONFIG_SMALL_CNN_CRLC_GUIDED
   if (qp < 17) {
-    scale = 16384;
-    A0_min = -7;
-    A1_min = -5;
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -12;
   } else if (17 <= qp && qp < 27) {
-    scale = 16384;
-    A0_min = -12;
-    A1_min = -7;
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -12;
   } else if (27 <= qp && qp < 31) {
-    scale = 8192;
-    A0_min = -12;
-    A1_min = -3;
+    scale = 2048;
+    A0_min = -9;
+    A1_min = -11;
   } else if (31 <= qp && qp < 37) {
-    scale = 8192;
-    A0_min = -13;
-    A1_min = -10;
+    scale = 2048;
+    A0_min = -12;
+    A1_min = -12;
   } else if (37 <= qp && qp < 47) {
-    scale = 4192;
-    A0_min = -13;
+    scale = 1024;
+    A0_min = -10;
     A1_min = -10;
   } else if (47 <= qp && qp < 57) {
-    scale = 2046;
-    A0_min = -13;
+    scale = 512;
+    A0_min = -11;
+    A1_min = -3;
+  } else if (qp > 56) {
+    scale = 256;
+    A0_min = -5;
+    A1_min = -10;
+  }
+#else
+  if (qp < 17) {
+    scale = 8192;
+    A0_min = -6;
+    A1_min = -6;
+  } else if (17 <= qp && qp < 27) {
+    scale = 8192;
+    A0_min = -15;
+    A1_min = -10;
+  } else if (27 <= qp && qp < 31) {
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -7;
+  } else if (31 <= qp && qp < 37) {
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -7;
+  } else if (37 <= qp && qp < 47) {
+    scale = 2048;
+    A0_min = -10;
+    A1_min = -8;
+  } else if (47 <= qp && qp < 57) {
+    scale = 2048;
+    A0_min = -10;
     A1_min = -10;
   } else if (qp > 56) {
-    scale = 2046;
-    A0_min = -15;
+    scale = 2048;
+    A0_min = -8;
     A1_min = -6;
   }
+#endif  // CONFIG_SMALL_CNN_CRLC_GUIDED
 
   int blockSize = frameType;
   int cols = int(ceil(double(height) / blockSize));
@@ -774,35 +806,68 @@ extern "C" int av1_restore_cnn_guided_img_tflite_highbd(
   }
   int scale, A0_min, A1_min;
   int qp = qindex / 4;
+#if CONFIG_SMALL_CNN_CRLC_GUIDED
   if (qp < 17) {
-    scale = 16384;
-    A0_min = -7;
-    A1_min = -5;
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -12;
   } else if (17 <= qp && qp < 27) {
-    scale = 16384;
-    A0_min = -12;
-    A1_min = -7;
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -12;
   } else if (27 <= qp && qp < 31) {
-    scale = 8192;
-    A0_min = -12;
-    A1_min = -3;
+    scale = 2048;
+    A0_min = -9;
+    A1_min = -11;
   } else if (31 <= qp && qp < 37) {
-    scale = 8192;
-    A0_min = -13;
-    A1_min = -10;
+    scale = 2048;
+    A0_min = -12;
+    A1_min = -12;
   } else if (37 <= qp && qp < 47) {
-    scale = 4192;
-    A0_min = -13;
+    scale = 1024;
+    A0_min = -10;
     A1_min = -10;
   } else if (47 <= qp && qp < 57) {
-    scale = 2046;
-    A0_min = -13;
+    scale = 512;
+    A0_min = -11;
+    A1_min = -3;
+  } else if (qp > 56) {
+    scale = 256;
+    A0_min = -5;
+    A1_min = -10;
+  }
+#else
+  if (qp < 17) {
+    scale = 8192;
+    A0_min = -6;
+    A1_min = -6;
+  } else if (17 <= qp && qp < 27) {
+    scale = 8192;
+    A0_min = -15;
+    A1_min = -10;
+  } else if (27 <= qp && qp < 31) {
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -7;
+  } else if (31 <= qp && qp < 37) {
+    scale = 4096;
+    A0_min = -11;
+    A1_min = -7;
+  } else if (37 <= qp && qp < 47) {
+    scale = 2048;
+    A0_min = -10;
+    A1_min = -8;
+  } else if (47 <= qp && qp < 57) {
+    scale = 2048;
+    A0_min = -10;
     A1_min = -10;
   } else if (qp > 56) {
-    scale = 2046;
-    A0_min = -15;
+    scale = 2048;
+    A0_min = -8;
     A1_min = -6;
   }
+#endif  // CONFIG_SMALL_CNN_CRLC_GUIDED
+
   int blockSize = frameType;
   int cols = int(ceil(double(height) / blockSize));
   int rows = int(ceil(double(width) / blockSize));
@@ -1085,21 +1150,40 @@ extern "C" int av1_restore_cnn_guided_decode_img_tflite(
   }
   int scale;
   int qp = qindex / 4;
+#if CONFIG_SMALL_CNN_CRLC_GUIDED
   if (qp < 17) {
-    scale = 16384;
+    scale = 4096;
   } else if (17 <= qp && qp < 27) {
-    scale = 16384;
+    scale = 4096;
   } else if (27 <= qp && qp < 31) {
-    scale = 8192;
+    scale = 2048;
   } else if (31 <= qp && qp < 37) {
-    scale = 8192;
+    scale = 2048;
   } else if (37 <= qp && qp < 47) {
-    scale = 4192;
+    scale = 1024;
   } else if (47 <= qp && qp < 57) {
-    scale = 2046;
-  } else {
-    scale = 2046;
+    scale = 512;
+  } else if (qp > 56) {
+    scale = 256;
   }
+#else
+  if (qp < 17) {
+    scale = 8192;
+  } else if (17 <= qp && qp < 27) {
+    scale = 8192;
+  } else if (27 <= qp && qp < 31) {
+    scale = 4096;
+  } else if (31 <= qp && qp < 37) {
+    scale = 4096;
+  } else if (37 <= qp && qp < 47) {
+    scale = 2048;
+  } else if (47 <= qp && qp < 57) {
+    scale = 2048;
+  } else if (qp > 56) {
+    scale = 2048;
+  }
+#endif  // CONFIG_SMALL_CNN_CRLC_GUIDED
+
   int blockSize = frameType;
   double cols = ceil(double(height) / blockSize);
   double rows = ceil(double(width) / blockSize);
@@ -1233,21 +1317,40 @@ extern "C" int av1_restore_cnn_guided_decode_img_tflite_highbd(
   }
   int scale;
   int qp = qindex / 4;
+#if CONFIG_SMALL_CNN_CRLC_GUIDED
   if (qp < 17) {
-    scale = 16384;
+    scale = 4096;
   } else if (17 <= qp && qp < 27) {
-    scale = 16384;
+    scale = 4096;
   } else if (27 <= qp && qp < 31) {
-    scale = 8192;
+    scale = 2048;
   } else if (31 <= qp && qp < 37) {
-    scale = 8192;
+    scale = 2048;
   } else if (37 <= qp && qp < 47) {
-    scale = 4192;
+    scale = 1024;
   } else if (47 <= qp && qp < 57) {
-    scale = 2046;
-  } else {
-    scale = 2046;
+    scale = 512;
+  } else if (qp > 56) {
+    scale = 256;
   }
+#else
+  if (qp < 17) {
+    scale = 8192;
+  } else if (17 <= qp && qp < 27) {
+    scale = 8192;
+  } else if (27 <= qp && qp < 31) {
+    scale = 4096;
+  } else if (31 <= qp && qp < 37) {
+    scale = 4096;
+  } else if (37 <= qp && qp < 47) {
+    scale = 2048;
+  } else if (47 <= qp && qp < 57) {
+    scale = 2048;
+  } else if (qp > 56) {
+    scale = 2048;
+  }
+#endif  // CONFIG_SMALL_CNN_CRLC_GUIDED
+
   int blockSize = frameType;
   double cols = ceil(double(height) / blockSize);
   double rows = ceil(double(width) / blockSize);
