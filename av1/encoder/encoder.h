@@ -2129,6 +2129,12 @@ typedef struct AV1_PRIMARY {
    * Information related to two pass encoding.
    */
   TWO_PASS twopass;
+
+  /*!
+   * Frame buffer holding the temporally filtered source frame. It can be KEY
+   * frame or ARF frame.
+   */
+  YV12_BUFFER_CONFIG alt_ref_buffer;
 } AV1_PRIMARY;
 
 /*!
@@ -2397,12 +2403,6 @@ typedef struct AV1_COMP {
    * To control the reference frame buffer and selection.
    */
   RefBufferStack ref_buffer_stack;
-
-  /*!
-   * Frame buffer holding the temporally filtered source frame. It can be KEY
-   * frame or ARF frame.
-   */
-  YV12_BUFFER_CONFIG alt_ref_buffer;
 
   /*!
    * Tell if OVERLAY frame shows existing alt_ref frame.
