@@ -616,6 +616,7 @@ typedef struct AV1Common {
 
 #if CONFIG_CNN_CRLC_GUIDED
   int use_guided_level;
+  int guided_inter_kf_use_small;
   CRLCInfo crlc_info[MAX_MB_PLANE];
   int use_full_crlc;
 #endif  // CONFIG_CNN_CRLC_GUIDED
