@@ -26,6 +26,11 @@ extern "C" {
 
 /*!\cond */
 
+
+#if CONFIG_MRLS
+#define MRL_LINE_NUMBER 4
+#endif
+
 #undef MAX_SB_SIZE
 
 // Max superblock size

@@ -411,6 +411,11 @@ void av1_rd_pick_palette_intra_sby(
     uint8_t *best_blk_skip, uint8_t *tx_type_map) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
+
+#if CONFIG_MRLS
+  mbmi->mrl_index = 0;
+#endif
+
   assert(!is_inter_block(mbmi));
   assert(av1_allow_palette(cpi->common.features.allow_screen_content_tools,
                            bsize));
