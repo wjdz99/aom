@@ -156,6 +156,14 @@ static int read_delta_lflevel(const AV1_COMMON *const cm, aom_reader *r,
   return reduced_delta_lflevel;
 }
 
+#if CONFIG_MRLS
+static uint8_t read_mrl_index(FRAME_CONTEXT *ec_ctx, aom_reader *r) {
+  const uint8_t mrl_index =
+      aom_read_symbol(r, ec_ctx->mrl_index_cdf, MRL_LINE_NUMBER, ACCT_STR);
+  return mrl_index;
+}
+#endif
+
 static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                              aom_reader *r,
                                              CFL_ALLOWED_TYPE cfl_allowed,
@@ -967,11 +975,20 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
                 : 0;
       }
 #else
-    mbmi->angle_delta[PLANE_TYPE_UV] =
-        (use_angle_delta && av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
-            ? read_angle_delta(r,
-                               ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED])
-            : 0;
+
+    if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
+      mbmi->uv_mode =
+          read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
+      if (mbmi->uv_mode == UV_CFL_PRED) {
+        mbmi->cfl_alpha_idx =
+            read_cfl_alphas(ec_ctx, r, &mbmi->cfl_alpha_signs);
+      }
+      mbmi->angle_delta[PLANE_TYPE_UV] =
+          (use_angle_delta &&
+           av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
+              ? read_angle_delta(
+                    r, ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED])
+              : 0;
 #endif
     } else {
       // Avoid decoding angle_info if there is is no chroma prediction
@@ -983,6 +1000,14 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     // Avoid decoding angle_info if there is is no chroma prediction
     mbmi->uv_mode = UV_DC_PRED;
   }
+#endif
+#if CONFIG_MRLS
+#if CONFIG_SDP
+  if (xd->tree_type != CHROMA_PART)
+#endif
+    // Parsing reference line index
+    mbmi->mrl_index =
+        av1_is_directional_mode(mbmi->mode) ? read_mrl_index(ec_ctx, r) : 0;
 #endif
 
   if (av1_allow_palette(cm->features.allow_screen_content_tools, bsize))
@@ -1059,7 +1084,7 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
   if (!is_comp_ref_allowed(xd->mi[0]->sb_type[PLANE_TYPE_Y]))
     return SINGLE_REFERENCE;
 #else
-  if (!is_comp_ref_allowed(xd->mi[0]->sb_type)) return SINGLE_REFERENCE;
+    if (!is_comp_ref_allowed(xd->mi[0]->sb_type)) return SINGLE_REFERENCE;
 #endif
   if (cm->current_frame.reference_mode == REFERENCE_MODE_SELECT) {
     const int ctx = av1_get_reference_mode_context(xd);
@@ -1205,7 +1230,7 @@ static INLINE void read_mb_interp_filter(const MACROBLOCKD *const xd,
 #if CONFIG_REMOVE_DUAL_FILTER
     mbmi->interp_fltr = interp_filter;
 #else
-    mbmi->interp_filters = av1_broadcast_interp_filter(interp_filter);
+      mbmi->interp_filters = av1_broadcast_interp_filter(interp_filter);
 #endif  // CONFIG_REMOVE_DUAL_FILTER
   } else {
 #if CONFIG_REMOVE_DUAL_FILTER
@@ -1214,19 +1239,21 @@ static INLINE void read_mb_interp_filter(const MACROBLOCKD *const xd,
         r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS, ACCT_STR);
     mbmi->interp_fltr = filter;
 #else
-    InterpFilter ref0_filter[2] = { EIGHTTAP_REGULAR, EIGHTTAP_REGULAR };
-    for (int dir = 0; dir < 2; ++dir) {
-      const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
-      ref0_filter[dir] = (InterpFilter)aom_read_symbol(
-          r, ec_ctx->switchable_interp_cdf[ctx], SWITCHABLE_FILTERS, ACCT_STR);
-      if (!enable_dual_filter) {
-        ref0_filter[1] = ref0_filter[0];
-        break;
+      InterpFilter ref0_filter[2] = { EIGHTTAP_REGULAR, EIGHTTAP_REGULAR };
+      for (int dir = 0; dir < 2; ++dir) {
+        const int ctx = av1_get_pred_context_switchable_interp(xd, dir);
+        ref0_filter[dir] =
+            (InterpFilter)aom_read_symbol(r, ec_ctx->switchable_interp_cdf[ctx],
+                                          SWITCHABLE_FILTERS, ACCT_STR);
+        if (!enable_dual_filter) {
+          ref0_filter[1] = ref0_filter[0];
+          break;
+        }
       }
-    }
-    // The index system works as: (0, 1) -> (vertical, horizontal) filter types
-    mbmi->interp_filters.as_filters.x_filter = ref0_filter[1];
-    mbmi->interp_filters.as_filters.y_filter = ref0_filter[0];
+      // The index system works as: (0, 1) -> (vertical, horizontal) filter
+      // types
+      mbmi->interp_filters.as_filters.x_filter = ref0_filter[1];
+      mbmi->interp_filters.as_filters.y_filter = ref0_filter[0];
 #endif  // CONFIG_REMOVE_DUAL_FILTER
   }
 }
@@ -1238,7 +1265,7 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
 #if CONFIG_SDP
   const BLOCK_SIZE bsize = mbmi->sb_type[PLANE_TYPE_Y];
 #else
-  const BLOCK_SIZE bsize = mbmi->sb_type;
+    const BLOCK_SIZE bsize = mbmi->sb_type;
 #endif
   const int use_angle_delta = av1_use_angle_delta(bsize);
 
@@ -1255,11 +1282,21 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
                 r, ec_ctx->angle_delta_cdf[PLANE_TYPE_Y][mbmi->mode - V_PRED])
           : 0;
 #else
-  mbmi->angle_delta[PLANE_TYPE_Y] =
-      use_angle_delta && av1_is_directional_mode(mbmi->mode)
-          ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
-          : 0;
+    mbmi->angle_delta[PLANE_TYPE_Y] =
+        use_angle_delta && av1_is_directional_mode(mbmi->mode)
+            ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
+            : 0;
 #endif
+
+#if CONFIG_MRLS
+#if CONFIG_SDP
+  if (xd->tree_type != CHROMA_PART)
+#endif
+    // Parsing reference line index
+    mbmi->mrl_index =
+        av1_is_directional_mode(mbmi->mode) ? read_mrl_index(ec_ctx, r) : 0;
+#endif
+
   if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
     mbmi->uv_mode =
         read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
@@ -1284,11 +1321,11 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
               : 0;
     }
 #else
-    mbmi->angle_delta[PLANE_TYPE_UV] =
-        use_angle_delta && av1_is_directional_mode(get_uv_mode(mbmi->uv_mode))
-            ? read_angle_delta(r,
-                               ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED])
-            : 0;
+      mbmi->angle_delta[PLANE_TYPE_UV] =
+          use_angle_delta && av1_is_directional_mode(get_uv_mode(mbmi->uv_mode))
+              ? read_angle_delta(
+                    r, ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED])
+              : 0;
 #endif
   } else {
     // Avoid decoding angle_info if there is is no chroma prediction
@@ -1328,7 +1365,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_SDP
   BLOCK_SIZE bsize = mbmi->sb_type[PLANE_TYPE_Y];
 #else
-  BLOCK_SIZE bsize = mbmi->sb_type;
+    BLOCK_SIZE bsize = mbmi->sb_type;
 #endif
   FeatureFlags *const features = &cm->features;
   if (features->cur_frame_force_integer_mv) {
@@ -1487,7 +1524,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 #if CONFIG_SDP
   const BLOCK_SIZE bsize = mbmi->sb_type[PLANE_TYPE_Y];
 #else
-  const BLOCK_SIZE bsize = mbmi->sb_type;
+    const BLOCK_SIZE bsize = mbmi->sb_type;
 #endif
   const int allow_hp = features->allow_high_precision_mv;
   int_mv nearestmv[2], nearmv[2];
@@ -1628,8 +1665,8 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   if (is_motion_variation_allowed_bsize(mbmi->sb_type[PLANE_TYPE_Y]) &&
       !mbmi->skip_mode && !has_second_ref(mbmi)) {
 #else
-  if (is_motion_variation_allowed_bsize(mbmi->sb_type) && !mbmi->skip_mode &&
-      !has_second_ref(mbmi)) {
+    if (is_motion_variation_allowed_bsize(mbmi->sb_type) && !mbmi->skip_mode &&
+        !has_second_ref(mbmi)) {
 #endif
     mbmi->num_proj_ref = av1_findSamples(cm, xd, pts, pts_inref);
   }
@@ -1756,10 +1793,10 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
     mbmi->skip_txfm[xd->tree_type == CHROMA_PART] =
         read_skip_txfm(cm, xd, mbmi->segment_id, r);
 #else
-  if (mbmi->skip_mode)
-    mbmi->skip_txfm = 1;
-  else
-    mbmi->skip_txfm = read_skip_txfm(cm, xd, mbmi->segment_id, r);
+    if (mbmi->skip_mode)
+      mbmi->skip_txfm = 1;
+    else
+      mbmi->skip_txfm = read_skip_txfm(cm, xd, mbmi->segment_id, r);
 #endif
 
   if (!cm->seg.segid_preskip)
@@ -1812,7 +1849,7 @@ void av1_read_mode_info(AV1Decoder *const pbi, DecoderCodingBlock *dcb,
   mi->tree_type = xd->tree_type;
   mi->use_intrabc[xd->tree_type == CHROMA_PART] = 0;
 #else
-  mi->use_intrabc = 0;
+    mi->use_intrabc = 0;
 #endif
 
 #if CONFIG_SDP

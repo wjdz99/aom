@@ -519,6 +519,11 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
 #if CONFIG_SDP
   if (xd->tree_type != CHROMA_PART) {
 #endif
+#if CONFIG_MRLS
+    if (av1_is_directional_mode(mbmi->mode)) {
+      update_cdf(fc->mrl_index_cdf, mbmi->mrl_index, MRL_LINE_NUMBER);
+    }
+#endif
     if (intraonly) {
 #if CONFIG_ENTROPY_STATS
       const PREDICTION_MODE above = av1_above_block_mode(above_mi);
@@ -1245,6 +1250,9 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
               RESTORE_SWITCHABLE_TYPES);
   AVERAGE_CDF(ctx_left->wiener_restore_cdf, ctx_tr->wiener_restore_cdf, 2);
   AVERAGE_CDF(ctx_left->sgrproj_restore_cdf, ctx_tr->sgrproj_restore_cdf, 2);
+#if CONFIG_MRLS
+  AVERAGE_CDF(ctx_left->mrl_index_cdf, ctx_tr->mrl_index_cdf, MRL_LINE_NUMBER);
+#endif
   AVERAGE_CDF(ctx_left->y_mode_cdf, ctx_tr->y_mode_cdf, INTRA_MODES);
   AVG_CDF_STRIDE(ctx_left->uv_mode_cdf[0], ctx_tr->uv_mode_cdf[0],
                  UV_INTRA_MODES - 1, CDF_SIZE(UV_INTRA_MODES));
