@@ -136,6 +136,14 @@ static int read_delta_lflevel(const AV1_COMMON *const cm, aom_reader *r,
   return reduced_delta_lflevel;
 }
 
+#if CONFIG_MRLS
+static uint8_t read_mrl_index(FRAME_CONTEXT *ec_ctx, aom_reader *r) {
+  const uint8_t mrlIdx =
+      aom_read_symbol(r, ec_ctx->mrl_index_cdf, MRL_LINE_NUMBER, ACCT_STR);
+  return mrlIdx;
+}
+#endif
+
 static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                              aom_reader *r,
                                              CFL_ALLOWED_TYPE cfl_allowed,
@@ -821,6 +829,12 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
           ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
           : 0;
 
+#if CONFIG_MRLS
+  // Parsing reference line index
+  mbmi->mrlIdx =
+      av1_is_directional_mode(mbmi->mode) ? read_mrl_index(ec_ctx, r) : 0;
+#endif
+
   if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
     mbmi->uv_mode =
         read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
@@ -1094,6 +1108,13 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
       use_angle_delta && av1_is_directional_mode(mbmi->mode)
           ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
           : 0;
+
+#if CONFIG_MRLS
+  // Parsing reference line index
+  mbmi->mrlIdx =
+      av1_is_directional_mode(mbmi->mode) ? read_mrl_index(ec_ctx, r) : 0;
+#endif
+
   if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
     mbmi->uv_mode =
         read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
