@@ -4418,9 +4418,22 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
   av1_alloc_restoration_buffers(cm);
 #if CONFIG_CNN_CRLC_GUIDED
   if (cm->use_guided_level > 1) cm->use_guided_level = 0;
-  const int guided_unit_size = (cm->use_guided_level == 1) ? 128 : 256;
-  set_CRLC_unit_size(guided_unit_size, seq_params->subsampling_x,
-                     seq_params->subsampling_y, cm->crlc_info);
+  int guided_unit_size = (cm->use_guided_level == 1) ? 128 : 256;
+  cm->guided_inter_kf_use_small = 0;
+  if (cpi->oxcf.key_freq != 0) {
+    cm->guided_inter_kf_use_small = 1;
+    if (cm->current_frame.order_hint % 16 == 0) {
+      guided_unit_size = 128;  // kf block size
+      set_CRLC_unit_size(guided_unit_size, seq_params->subsampling_x,
+                         seq_params->subsampling_y, cm->crlc_info);
+    } else {
+      set_CRLC_unit_size(guided_unit_size, seq_params->subsampling_x,
+                         seq_params->subsampling_y, cm->crlc_info);
+    }
+  } else {
+    set_CRLC_unit_size(guided_unit_size, seq_params->subsampling_x,
+                       seq_params->subsampling_y, cm->crlc_info);
+  }
   av1_alloc_CRLC_buffers(cm);
 #endif  // CONFIG_CNN_CRLC_GUIDED
   alloc_util_frame_buffers(cpi);
