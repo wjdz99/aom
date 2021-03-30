@@ -717,6 +717,10 @@ typedef struct {
   int motion_mode_cost[BLOCK_SIZES_ALL][MOTION_MODES];
   //! motion_mode_cost1
   int motion_mode_cost1[BLOCK_SIZES_ALL][2];
+#if CONFIG_MRLS
+  //! mrl_index_cost
+  int mrl_index_cost[MRL_LINE_NUMBER];
+#endif
   //! switchable_interp_costs
   int switchable_interp_costs[SWITCHABLE_FILTER_CONTEXTS][SWITCHABLE_FILTERS];
   /**@}*/

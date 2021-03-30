@@ -70,11 +70,19 @@ static INLINE int av1_filter_intra_allowed(const AV1_COMMON *const cm,
 #if CONFIG_SDP
   return mbmi->mode == DC_PRED &&
          mbmi->palette_mode_info.palette_size[0] == 0 &&
-         av1_filter_intra_allowed_bsize(cm, mbmi->sb_type[PLANE_TYPE_Y]);
+         av1_filter_intra_allowed_bsize(cm, mbmi->sb_type[PLANE_TYPE_Y])
+#if CONFIG_MRLS
+         && mbmi->mrlIdx == 0
+#endif
+    ;
 #else
   return mbmi->mode == DC_PRED &&
          mbmi->palette_mode_info.palette_size[0] == 0 &&
-         av1_filter_intra_allowed_bsize(cm, mbmi->sb_type);
+         av1_filter_intra_allowed_bsize(cm, mbmi->sb_type)
+#if CONFIG_MRLS
+         && mbmi->mrlIdx == 0
+#endif
+      ;
 #endif
 }
 

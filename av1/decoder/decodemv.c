@@ -156,6 +156,14 @@ static int read_delta_lflevel(const AV1_COMMON *const cm, aom_reader *r,
   return reduced_delta_lflevel;
 }
 
+#if CONFIG_MRLS
+static uint8_t read_mrl_index(FRAME_CONTEXT *ec_ctx, aom_reader *r) {
+  const uint8_t mrlIdx =
+      aom_read_symbol(r, ec_ctx->mrl_index_cdf, MRL_LINE_NUMBER, ACCT_STR);
+  return mrlIdx;
+}
+#endif
+
 static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                              aom_reader *r,
                                              CFL_ALLOWED_TYPE cfl_allowed,
@@ -967,6 +975,13 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
                 : 0;
       }
 #else
+
+  if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
+    mbmi->uv_mode =
+        read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
+    if (mbmi->uv_mode == UV_CFL_PRED) {
+      mbmi->cfl_alpha_idx = read_cfl_alphas(ec_ctx, r, &mbmi->cfl_alpha_signs);
+    }
     mbmi->angle_delta[PLANE_TYPE_UV] =
         (use_angle_delta && av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
             ? read_angle_delta(r,
@@ -983,6 +998,14 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     // Avoid decoding angle_info if there is is no chroma prediction
     mbmi->uv_mode = UV_DC_PRED;
   }
+#endif
+#if CONFIG_MRLS
+#if CONFIG_SDP
+    if (xd->tree_type != CHROMA_PART)
+#endif
+    // Parsing reference line index
+    mbmi->mrlIdx =
+      av1_is_directional_mode(mbmi->mode) ? read_mrl_index(ec_ctx, r) : 0;
 #endif
 
   if (av1_allow_palette(cm->features.allow_screen_content_tools, bsize))
@@ -1260,6 +1283,16 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
           ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
           : 0;
 #endif
+
+#if CONFIG_MRLS
+#if CONFIG_SDP
+  if (xd->tree_type != CHROMA_PART)
+#endif
+  // Parsing reference line index
+  mbmi->mrlIdx =
+      av1_is_directional_mode(mbmi->mode) ? read_mrl_index(ec_ctx, r) : 0;
+#endif
+
   if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
     mbmi->uv_mode =
         read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);

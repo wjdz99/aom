@@ -26,8 +26,11 @@ extern "C" {
 
 /*!\cond */
 
-#define TOP_INTRA_MODEL_NUM 4
 #define LUMA_MODE_NUM 61
+#define TOP_INTRA_MODEL_NUM 4
+#if CONFIG_MRLS
+#define MRL_LINE_NUMBER 4
+#endif
 
 #undef MAX_SB_SIZE
 

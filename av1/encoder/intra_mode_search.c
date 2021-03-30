@@ -57,6 +57,9 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
   mbmi->filter_intra_mode_info.use_filter_intra = 1;
   mbmi->mode = DC_PRED;
   mbmi->palette_mode_info.palette_size[0] = 0;
+#if CONFIG_MRLS
+  mbmi->mrlIdx = 0;
+#endif
 
   for (mode = 0; mode < FILTER_INTRA_MODES; ++mode) {
     int64_t this_rd;
@@ -757,7 +760,6 @@ static INLINE void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
     mbmi->filter_intra_mode_info.use_filter_intra = 0;
   }
 }
-
 int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
                               const AV1_COMP *cpi, MACROBLOCK *x,
                               BLOCK_SIZE bsize, unsigned int ref_frame_cost,
@@ -773,8 +775,17 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
   assert(mbmi->ref_frame[0] == INTRA_FRAME);
   const PREDICTION_MODE mode = mbmi->mode;
   const ModeCosts *mode_costs = &x->mode_costs;
+#if CONFIG_MRLS
+  int mrlIdxCost = av1_is_directional_mode(mbmi->mode)
+    ? x->mode_costs.mrl_index_cost[mbmi->mrlIdx]
+    : 0;
+#endif
   const int mode_cost =
-      mode_costs->mbmode_cost[size_group_lookup[bsize]][mode] + ref_frame_cost;
+      mode_costs->mbmode_cost[size_group_lookup[bsize]][mode] + ref_frame_cost
+#if CONFIG_MRLS
+    + mrlIdxCost
+#endif
+    ;
   const int intra_cost_penalty = av1_get_intra_cost_penalty(
       cm->quant_params.base_qindex, cm->quant_params.y_dc_delta_q,
       cm->seq_params.bit_depth);
@@ -805,6 +816,12 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
   double thres_best = 1.50;
   double thred_top =
       (cpi->common.features.allow_screen_content_tools) ? 1.40 : 1.00;
+#if CONFIG_MRLS
+  if (intra_search_state->best_mrl_index == 0 && mbmi->mrlIdx > 1 &&
+    av1_is_directional_mode(intra_search_state->best_intra_mode) == 0) {
+    return INT64_MAX;
+  }
+#endif
   int64_t this_model_rd = intra_model_yrd(cpi, x, bsize, mode_cost);
   for (int i = 0; i < TOP_INTRA_MODEL_NUM; i++) {
     if (this_model_rd < top_intra_model_rd[i]) {
@@ -941,6 +958,9 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
   if (this_rd < *best_intra_rd) {
     *best_intra_rd = this_rd;
     intra_search_state->best_intra_mode = mode;
+#if CONFIG_MRLS
+    intra_search_state->best_mrl_index = mbmi->mrlIdx;
+#endif
   }
 
   if (sf->intra_sf.skip_intra_in_interframe) {
@@ -1016,7 +1036,11 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     top_intra_model_rd[i] = INT64_MAX;
   }
   double thres_best = 1.50;
-  double thred_top =
+#if CONFIG_MRLS
+  for (int mrl_idx = 0; mrl_idx < MRL_LINE_NUMBER; ++mrl_idx) {
+    mbmi->mrlIdx = mrl_idx;
+#endif
+    double thred_top =
       (cpi->common.features.allow_screen_content_tools) ? 1.40 : 1.00;
   for (int mode_idx = INTRA_MODE_START; mode_idx < LUMA_MODE_NUM; ++mode_idx) {
     if (mode_idx < INTRA_MODE_END) {
@@ -1043,10 +1067,24 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (is_directional_mode && av1_use_angle_delta(bsize) == 0 &&
         mbmi->angle_delta[PLANE_TYPE_Y] != 0)
       continue;
-    int64_t this_model_rd;
-    is_directional_mode = av1_is_directional_mode(mbmi->mode);
     if (is_directional_mode && directional_mode_skip_mask[mbmi->mode]) continue;
-    this_model_rd = intra_model_yrd(cpi, x, bsize, bmode_costs[mbmi->mode]);
+#if CONFIG_MRLS
+    if (!is_directional_mode && mrl_idx) continue;
+    if (best_mbmi.mrlIdx == 0 && mbmi->mrlIdx > 1 &&
+      av1_is_directional_mode(best_mbmi.mode) == 0) {
+      continue;
+    }
+    int mrlIdxCost =
+      is_directional_mode ? x->mode_costs.mrl_index_cost[mbmi->mrlIdx] : 0;
+#endif
+    int64_t this_model_rd;
+    this_model_rd = intra_model_yrd(cpi, x, bsize,
+#if CONFIG_MRLS
+      bmode_costs[mbmi->mode] + mrlIdxCost
+#else
+      bmode_costs[mbmi->mode]
+#endif
+    );
 
     for (int i = 0; i < TOP_INTRA_MODEL_NUM; i++) {
       if (this_model_rd < top_intra_model_rd[i]) {
@@ -1085,9 +1123,14 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       // not the tokenonly rate.
       this_rate_tokenonly -= tx_size_cost(x, bsize, mbmi->tx_size);
     }
-    this_rate =
-        this_rd_stats.rate +
-        intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
+    this_rate = this_rd_stats.rate +
+#if CONFIG_MRLS
+                intra_mode_info_cost_y(cpi, x, mbmi, bsize,
+                                       bmode_costs[mbmi->mode] + mrlIdxCost);
+#else
+                  intra_mode_info_cost_y(cpi, x, mbmi, bsize,
+                                         bmode_costs[mbmi->mode]);
+#endif
     this_rd = RDCOST(x->rdmult, this_rate, this_distortion);
     // Collect mode stats for multiwinner mode processing
     const int txfm_search_done = 1;
@@ -1109,82 +1152,83 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
     }
   }
+#if CONFIG_MRLS
+}
+#endif
+// Searches palette
+if (try_palette) {
+  av1_rd_pick_palette_intra_sby(
+      cpi, x, bsize, bmode_costs[DC_PRED], &best_mbmi, best_palette_color_map,
+      &best_rd, &best_model_rd, rate, rate_tokenonly, distortion, skippable,
+      &beat_best_rd, ctx, ctx->blk_skip, ctx->tx_type_map);
+}
 
-  // Searches palette
-  if (try_palette) {
-    av1_rd_pick_palette_intra_sby(
-        cpi, x, bsize, bmode_costs[DC_PRED], &best_mbmi, best_palette_color_map,
-        &best_rd, &best_model_rd, rate, rate_tokenonly, distortion, skippable,
-        &beat_best_rd, ctx, ctx->blk_skip, ctx->tx_type_map);
+// Searches filter_intra
+if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
+  if (rd_pick_filter_intra_sby(cpi, x, rate, rate_tokenonly, distortion,
+                               skippable, bsize, bmode_costs[DC_PRED], &best_rd,
+                               &best_model_rd, ctx)) {
+    best_mbmi = *mbmi;
   }
+}
 
-  // Searches filter_intra
-  if (beat_best_rd && av1_filter_intra_allowed_bsize(&cpi->common, bsize)) {
-    if (rd_pick_filter_intra_sby(cpi, x, rate, rate_tokenonly, distortion,
-                                 skippable, bsize, bmode_costs[DC_PRED],
-                                 &best_rd, &best_model_rd, ctx)) {
-      best_mbmi = *mbmi;
-    }
-  }
+// No mode is identified with less rd value than best_rd passed to this
+// function. In such cases winner mode processing is not necessary and return
+// best_rd as INT64_MAX to indicate best mode is not identified
+if (!beat_best_rd) return INT64_MAX;
 
-  // No mode is identified with less rd value than best_rd passed to this
-  // function. In such cases winner mode processing is not necessary and return
-  // best_rd as INT64_MAX to indicate best mode is not identified
-  if (!beat_best_rd) return INT64_MAX;
+// In multi-winner mode processing, perform tx search for few best modes
+// identified during mode evaluation. Winner mode processing uses best tx
+// configuration for tx search.
+if (cpi->sf.winner_mode_sf.multi_winner_mode_type) {
+  int best_mode_idx = 0;
+  int block_width, block_height;
+  uint8_t *color_map_dst = xd->plane[PLANE_TYPE_Y].color_index_map;
+  av1_get_block_dimensions(bsize, AOM_PLANE_Y, xd, &block_width, &block_height,
+                           NULL, NULL);
 
-  // In multi-winner mode processing, perform tx search for few best modes
-  // identified during mode evaluation. Winner mode processing uses best tx
-  // configuration for tx search.
-  if (cpi->sf.winner_mode_sf.multi_winner_mode_type) {
-    int best_mode_idx = 0;
-    int block_width, block_height;
-    uint8_t *color_map_dst = xd->plane[PLANE_TYPE_Y].color_index_map;
-    av1_get_block_dimensions(bsize, AOM_PLANE_Y, xd, &block_width,
-                             &block_height, NULL, NULL);
-
-    for (int mode_idx = 0; mode_idx < x->winner_mode_count; mode_idx++) {
-      *mbmi = x->winner_mode_stats[mode_idx].mbmi;
-      if (is_winner_mode_processing_enabled(cpi, mbmi, mbmi->mode)) {
-        // Restore color_map of palette mode before winner mode processing
-        if (mbmi->palette_mode_info.palette_size[0] > 0) {
-          uint8_t *color_map_src =
-              x->winner_mode_stats[mode_idx].color_index_map;
-          memcpy(color_map_dst, color_map_src,
-                 block_width * block_height * sizeof(*color_map_src));
-        }
-        // Set params for winner mode evaluation
-        set_mode_eval_params(cpi, x, WINNER_MODE_EVAL);
-
-        // Winner mode processing
-        // If previous searches use only the default tx type/no R-D optimization
-        // of quantized coeffs, do an extra search for the best tx type/better
-        // R-D optimization of quantized coeffs
-        if (intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate,
-                            rate_tokenonly, distortion, skippable, &best_mbmi,
-                            ctx))
-          best_mode_idx = mode_idx;
+  for (int mode_idx = 0; mode_idx < x->winner_mode_count; mode_idx++) {
+    *mbmi = x->winner_mode_stats[mode_idx].mbmi;
+    if (is_winner_mode_processing_enabled(cpi, mbmi, mbmi->mode)) {
+      // Restore color_map of palette mode before winner mode processing
+      if (mbmi->palette_mode_info.palette_size[0] > 0) {
+        uint8_t *color_map_src = x->winner_mode_stats[mode_idx].color_index_map;
+        memcpy(color_map_dst, color_map_src,
+               block_width * block_height * sizeof(*color_map_src));
       }
-    }
-    // Copy color_map of palette mode for final winner mode
-    if (best_mbmi.palette_mode_info.palette_size[0] > 0) {
-      uint8_t *color_map_src =
-          x->winner_mode_stats[best_mode_idx].color_index_map;
-      memcpy(color_map_dst, color_map_src,
-             block_width * block_height * sizeof(*color_map_src));
-    }
-  } else {
-    // If previous searches use only the default tx type/no R-D optimization of
-    // quantized coeffs, do an extra search for the best tx type/better R-D
-    // optimization of quantized coeffs
-    if (is_winner_mode_processing_enabled(cpi, mbmi, best_mbmi.mode)) {
       // Set params for winner mode evaluation
       set_mode_eval_params(cpi, x, WINNER_MODE_EVAL);
-      *mbmi = best_mbmi;
-      intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate,
-                      rate_tokenonly, distortion, skippable, &best_mbmi, ctx);
+
+      // Winner mode processing
+      // If previous searches use only the default tx type/no R-D optimization
+      // of quantized coeffs, do an extra search for the best tx type/better
+      // R-D optimization of quantized coeffs
+      if (intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate,
+                          rate_tokenonly, distortion, skippable, &best_mbmi,
+                          ctx))
+        best_mode_idx = mode_idx;
     }
   }
-  *mbmi = best_mbmi;
-  av1_copy_array(xd->tx_type_map, ctx->tx_type_map, ctx->num_4x4_blk);
-  return best_rd;
+  // Copy color_map of palette mode for final winner mode
+  if (best_mbmi.palette_mode_info.palette_size[0] > 0) {
+    uint8_t *color_map_src =
+        x->winner_mode_stats[best_mode_idx].color_index_map;
+    memcpy(color_map_dst, color_map_src,
+           block_width * block_height * sizeof(*color_map_src));
+  }
+} else {
+  // If previous searches use only the default tx type/no R-D optimization of
+  // quantized coeffs, do an extra search for the best tx type/better R-D
+  // optimization of quantized coeffs
+  if (is_winner_mode_processing_enabled(cpi, mbmi, best_mbmi.mode)) {
+    // Set params for winner mode evaluation
+    set_mode_eval_params(cpi, x, WINNER_MODE_EVAL);
+    *mbmi = best_mbmi;
+    intra_block_yrd(cpi, x, bsize, bmode_costs, &best_rd, rate, rate_tokenonly,
+                    distortion, skippable, &best_mbmi, ctx);
+  }
+}
+*mbmi = best_mbmi;
+av1_copy_array(xd->tx_type_map, ctx->tx_type_map, ctx->num_4x4_blk);
+return best_rd;
 }
