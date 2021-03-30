@@ -434,6 +434,9 @@ const arg_def_t *av1_key_val_args[] = {
 #if CONFIG_SDP
   &g_av1_codec_arg_defs.enable_sdp,
 #endif
+#if CONFIG_MRLS
+  &g_av1_codec_arg_defs.enable_mrls,
+#endif
   NULL,
 };
 
@@ -566,6 +569,9 @@ static void init_config(cfg_options_t *config) {
   config->enable_1to4_partitions = 1;
 #if CONFIG_SDP
   config->enable_sdp = 1;
+#endif
+#if CONFIG_MRLS
+  config->enable_mrls = 1;
 #endif
   config->enable_flip_idtx = 1;
   config->enable_deblocking = 1;
@@ -1385,7 +1391,10 @@ static void show_stream_config(struct stream_state *stream,
           "EdgeFilter (%d), PaethPredictor (%d)\n",
           encoder_cfg->enable_intra_edge_filter,
           encoder_cfg->enable_paeth_intra);
-
+#if CONFIG_MRLS
+  fprintf(stdout, "                               : MRLS (%d)\n",
+          encoder_cfg->enable_mrls);
+#endif
   fprintf(stdout,
           "Tool setting (Inter)           : OBMC (%d), WarpMotion (%d), "
           "GlobalMotion (%d)\n",
