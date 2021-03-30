@@ -2624,32 +2624,57 @@ static void write_sgrproj_filter(MACROBLOCKD *xd,
 }
 
 #if CONFIG_CNN_CRLC_GUIDED
-static void write_filter_crlc(MACROBLOCKD *xd, int QP, const CRLCInfo *ci,
+static void write_filter_crlc(MACROBLOCKD *xd, int qp, const CRLCInfo *ci,
                               aom_writer *wb) {
-  QP /= 4;
+  qp /= 4;
   int A0_min, A1_min, channels = 2;
-  if (QP < 17) {
-    A0_min = -7;
-    A1_min = -5;
-  } else if (17 <= QP && QP < 27) {
+#if CONFIG_SMALL_CNN_CRLC_GUIDED
+  if (qp < 17) {
+    A0_min = -11;
+    A1_min = -12;
+  } else if (17 <= qp && qp < 27) {
+    A0_min = -11;
+    A1_min = -12;
+  } else if (27 <= qp && qp < 31) {
+    A0_min = -9;
+    A1_min = -11;
+  } else if (31 <= qp && qp < 37) {
     A0_min = -12;
-    A1_min = -7;
-  } else if (27 <= QP && QP < 31) {
-    A0_min = -12;
+    A1_min = -12;
+  } else if (37 <= qp && qp < 47) {
+    A0_min = -10;
+    A1_min = -10;
+  } else if (47 <= qp && qp < 57) {
+    A0_min = -11;
     A1_min = -3;
-  } else if (31 <= QP && QP < 37) {
-    A0_min = -13;
+  } else if (qp > 56) {
+    A0_min = -5;
     A1_min = -10;
-  } else if (37 <= QP && QP < 47) {
-    A0_min = -13;
-    A1_min = -10;
-  } else if (47 <= QP && QP < 57) {
-    A0_min = -13;
-    A1_min = -10;
-  } else {
+  }
+#else
+  if (qp < 17) {
+    A0_min = -6;
+    A1_min = -6;
+  } else if (17 <= qp && qp < 27) {
     A0_min = -15;
+    A1_min = -10;
+  } else if (27 <= qp && qp < 31) {
+    A0_min = -11;
+    A1_min = -7;
+  } else if (31 <= qp && qp < 37) {
+    A0_min = -11;
+    A1_min = -7;
+  } else if (37 <= qp && qp < 47) {
+    A0_min = -10;
+    A1_min = -8;
+  } else if (47 <= qp && qp < 57) {
+    A0_min = -10;
+    A1_min = -10;
+  } else if (qp > 56) {
+    A0_min = -8;
     A1_min = -6;
   }
+#endif  // CONFIG_SMALL_CNN_CRLC_GUIDED
 
   int a0;
   int a1;
@@ -2840,6 +2865,7 @@ static void encode_cnn(AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
     aom_wb_write_bit(wb, cm->use_cnn_uv);
 #if CONFIG_CNN_CRLC_GUIDED
     aom_wb_write_bit(wb, cm->use_guided_level);
+    aom_wb_write_bit(wb, cm->guided_inter_kf_use_small);
 #endif  // CONFIG_CNN_CRLC_GUIDED
   } else {
     assert(!cm->use_cnn_y);
