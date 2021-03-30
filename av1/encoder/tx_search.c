@@ -2914,6 +2914,7 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 
   if (tx_select) {
     start_tx = max_rect_tx_size;
+
     init_depth = get_search_init_depth(mi_size_wide[bs], mi_size_high[bs],
                                        is_inter_block(mbmi), &cpi->sf,
                                        txfm_params->tx_size_search_method);

@@ -515,7 +515,12 @@ static void init_intra_predictors_internal(void) {
 // Directional prediction, zone 1: 0 < angle < 90
 void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                             const uint8_t *above, const uint8_t *left,
-                            int upsample_above, int dx, int dy) {
+                            int upsample_above, int dx, int dy
+#if CONFIG_MRLS
+                            ,
+                            int mrlIdx
+#endif
+) {
   int r, c, x, base, shift, val;
 
   (void)left;
@@ -523,10 +528,18 @@ void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
   assert(dy == 1);
   assert(dx > 0);
 
+#if CONFIG_MRLS
+  const int max_base_x = ((bw + bh) - 1 + mrlIdx * 2) << upsample_above;
+#else
   const int max_base_x = ((bw + bh) - 1) << upsample_above;
+#endif
   const int frac_bits = 6 - upsample_above;
   const int base_inc = 1 << upsample_above;
+#if CONFIG_MRLS
+  x = dx * (1 + mrlIdx);
+#else
   x = dx;
+#endif
   for (r = 0; r < bh; ++r, dst += stride, x += dx) {
     base = x >> frac_bits;
     shift = ((x << upsample_above) & 0x3F) >> 1;
@@ -554,12 +567,22 @@ void av1_dr_prediction_z1_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                             const uint8_t *above, const uint8_t *left,
                             int upsample_above, int upsample_left, int dx,
-                            int dy) {
+                            int dy
+#if CONFIG_MRLS
+                            ,
+                            int mrlIdx
+#endif
+) {
   assert(dx > 0);
   assert(dy > 0);
 
+#if CONFIG_MRLS
+  const int min_base_x = -((1 + mrlIdx) << upsample_above);
+  const int min_base_y = -((1 + mrlIdx) << upsample_left);
+#else
   const int min_base_x = -(1 << upsample_above);
   const int min_base_y = -(1 << upsample_left);
+#endif
   (void)min_base_y;
   const int frac_bits_x = 6 - upsample_above;
   const int frac_bits_y = 6 - upsample_left;
@@ -568,7 +591,11 @@ void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
     for (int c = 0; c < bw; ++c) {
       int val;
       int y = r + 1;
+#if CONFIG_MRLS
+      int x = (c << 6) - (y + mrlIdx) * dx;
+#else
       int x = (c << 6) - y * dx;
+#endif
       const int base_x = x >> frac_bits_x;
       if (base_x >= min_base_x) {
         const int shift = ((x * (1 << upsample_above)) & 0x3F) >> 1;
@@ -576,7 +603,11 @@ void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
         val = ROUND_POWER_OF_TWO(val, 5);
       } else {
         x = c + 1;
+#if CONFIG_MRLS
+        y = (r << 6) - (x + mrlIdx) * dy;
+#else
         y = (r << 6) - x * dy;
+#endif
         const int base_y = y >> frac_bits_y;
         assert(base_y >= min_base_y);
         const int shift = ((y * (1 << upsample_left)) & 0x3F) >> 1;
@@ -592,7 +623,12 @@ void av1_dr_prediction_z2_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 // Directional prediction, zone 3: 180 < angle < 270
 void av1_dr_prediction_z3_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
                             const uint8_t *above, const uint8_t *left,
-                            int upsample_left, int dx, int dy) {
+                            int upsample_left, int dx, int dy
+#if CONFIG_MRLS
+                            ,
+                            int mrlIdx
+#endif
+) {
   int r, c, y, base, shift, val;
 
   (void)above;
@@ -601,10 +637,18 @@ void av1_dr_prediction_z3_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
   assert(dx == 1);
   assert(dy > 0);
 
+#if CONFIG_MRLS
+  const int max_base_y = (bw + bh - 1 + mrlIdx * 2) << upsample_left;
+#else
   const int max_base_y = (bw + bh - 1) << upsample_left;
+#endif
   const int frac_bits = 6 - upsample_left;
   const int base_inc = 1 << upsample_left;
+#if CONFIG_MRLS
+  y = dy * (1 + mrlIdx);
+#else
   y = dy;
+#endif
   for (c = 0; c < bw; ++c, y += dy) {
     base = y >> frac_bits;
     shift = ((y << upsample_left) & 0x3F) >> 1;
@@ -623,7 +667,12 @@ void av1_dr_prediction_z3_c(uint8_t *dst, ptrdiff_t stride, int bw, int bh,
 
 static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
                          const uint8_t *above, const uint8_t *left,
-                         int upsample_above, int upsample_left, int angle) {
+                         int upsample_above, int upsample_left, int angle
+#if CONFIG_MRLS
+                         ,
+                         int mrlIdx
+#endif
+) {
   const int dx = av1_get_dx(angle);
   const int dy = av1_get_dy(angle);
   const int bw = tx_size_wide[tx_size];
@@ -632,13 +681,27 @@ static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
 
   if (angle > 0 && angle < 90) {
     av1_dr_prediction_z1(dst, stride, bw, bh, above, left, upsample_above, dx,
-                         dy);
+                         dy
+#if CONFIG_MRLS
+                         ,
+                         mrlIdx
+#endif
+    );
   } else if (angle > 90 && angle < 180) {
     av1_dr_prediction_z2(dst, stride, bw, bh, above, left, upsample_above,
-                         upsample_left, dx, dy);
+                         upsample_left, dx, dy
+#if CONFIG_MRLS
+                         ,
+                         mrlIdx
+#endif
+    );
   } else if (angle > 180 && angle < 270) {
-    av1_dr_prediction_z3(dst, stride, bw, bh, above, left, upsample_left, dx,
-                         dy);
+    av1_dr_prediction_z3(dst, stride, bw, bh, above, left, upsample_left, dx, dy
+#if CONFIG_MRLS
+                         ,
+                         mrlIdx
+#endif
+    );
   } else if (angle == 90) {
     pred[V_PRED][tx_size](dst, stride, above, left);
   } else if (angle == 180) {
@@ -650,7 +713,12 @@ static void dr_predictor(uint8_t *dst, ptrdiff_t stride, TX_SIZE tx_size,
 void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride, int bw,
                                    int bh, const uint16_t *above,
                                    const uint16_t *left, int upsample_above,
-                                   int dx, int dy, int bd) {
+                                   int dx, int dy, int bd
+#if CONFIG_MRLS
+                                   ,
+                                   int mrlIdx
+#endif
+) {
   int r, c, x, base, shift, val;
 
   (void)left;
@@ -659,10 +727,18 @@ void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride, int bw,
   assert(dy == 1);
   assert(dx > 0);
 
+#if CONFIG_MRLS
+  const int max_base_x = ((bw + bh) - 1 + mrlIdx * 2) << upsample_above;
+#else
   const int max_base_x = ((bw + bh) - 1) << upsample_above;
+#endif
   const int frac_bits = 6 - upsample_above;
   const int base_inc = 1 << upsample_above;
+#if CONFIG_MRLS
+  x = dx * (1 + mrlIdx);
+#else
   x = dx;
+#endif
   for (r = 0; r < bh; ++r, dst += stride, x += dx) {
     base = x >> frac_bits;
     shift = ((x << upsample_above) & 0x3F) >> 1;
@@ -690,13 +766,23 @@ void av1_highbd_dr_prediction_z1_c(uint16_t *dst, ptrdiff_t stride, int bw,
 void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
                                    int bh, const uint16_t *above,
                                    const uint16_t *left, int upsample_above,
-                                   int upsample_left, int dx, int dy, int bd) {
+                                   int upsample_left, int dx, int dy, int bd
+#if CONFIG_MRLS
+                                   ,
+                                   int mrlIdx
+#endif
+) {
   (void)bd;
   assert(dx > 0);
   assert(dy > 0);
 
+#if CONFIG_MRLS
+  const int min_base_x = -((1 + mrlIdx) << upsample_above);
+  const int min_base_y = -((1 + mrlIdx) << upsample_left);
+#else
   const int min_base_x = -(1 << upsample_above);
   const int min_base_y = -(1 << upsample_left);
+#endif
   (void)min_base_y;
   const int frac_bits_x = 6 - upsample_above;
   const int frac_bits_y = 6 - upsample_left;
@@ -705,7 +791,11 @@ void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
     for (int c = 0; c < bw; ++c) {
       int val;
       int y = r + 1;
+#if CONFIG_MRLS
+      int x = (c << 6) - (y + mrlIdx) * dx;
+#else
       int x = (c << 6) - y * dx;
+#endif
       const int base_x = x >> frac_bits_x;
       if (base_x >= min_base_x) {
         const int shift = ((x * (1 << upsample_above)) & 0x3F) >> 1;
@@ -713,7 +803,11 @@ void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
         val = ROUND_POWER_OF_TWO(val, 5);
       } else {
         x = c + 1;
+#if CONFIG_MRLS
+        y = (r << 6) - (x + mrlIdx) * dy;
+#else
         y = (r << 6) - x * dy;
+#endif
         const int base_y = y >> frac_bits_y;
         assert(base_y >= min_base_y);
         const int shift = ((y * (1 << upsample_left)) & 0x3F) >> 1;
@@ -730,7 +824,12 @@ void av1_highbd_dr_prediction_z2_c(uint16_t *dst, ptrdiff_t stride, int bw,
 void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride, int bw,
                                    int bh, const uint16_t *above,
                                    const uint16_t *left, int upsample_left,
-                                   int dx, int dy, int bd) {
+                                   int dx, int dy, int bd
+#if CONFIG_MRLS
+                                   ,
+                                   int mrlIdx
+#endif
+) {
   int r, c, y, base, shift, val;
 
   (void)above;
@@ -739,10 +838,18 @@ void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride, int bw,
   assert(dx == 1);
   assert(dy > 0);
 
+#if CONFIG_MRLS
+  const int max_base_y = (bw + bh - 1 + mrlIdx * 2) << upsample_left;
+#else
   const int max_base_y = (bw + bh - 1) << upsample_left;
+#endif
   const int frac_bits = 6 - upsample_left;
   const int base_inc = 1 << upsample_left;
+#if CONFIG_MRLS
+  y = dy * (1 + mrlIdx);
+#else
   y = dy;
+#endif
   for (c = 0; c < bw; ++c, y += dy) {
     base = y >> frac_bits;
     shift = ((y << upsample_left) & 0x3F) >> 1;
@@ -762,7 +869,12 @@ void av1_highbd_dr_prediction_z3_c(uint16_t *dst, ptrdiff_t stride, int bw,
 static void highbd_dr_predictor(uint16_t *dst, ptrdiff_t stride,
                                 TX_SIZE tx_size, const uint16_t *above,
                                 const uint16_t *left, int upsample_above,
-                                int upsample_left, int angle, int bd) {
+                                int upsample_left, int angle, int bd
+#if CONFIG_MRLS
+                                ,
+                                int mrlIdx
+#endif
+) {
   const int dx = av1_get_dx(angle);
   const int dy = av1_get_dy(angle);
   const int bw = tx_size_wide[tx_size];
@@ -771,13 +883,28 @@ static void highbd_dr_predictor(uint16_t *dst, ptrdiff_t stride,
 
   if (angle > 0 && angle < 90) {
     av1_highbd_dr_prediction_z1(dst, stride, bw, bh, above, left,
-                                upsample_above, dx, dy, bd);
+                                upsample_above, dx, dy, bd
+#if CONFIG_MRLS
+                                ,
+                                mrlIdx
+#endif
+    );
   } else if (angle > 90 && angle < 180) {
     av1_highbd_dr_prediction_z2(dst, stride, bw, bh, above, left,
-                                upsample_above, upsample_left, dx, dy, bd);
+                                upsample_above, upsample_left, dx, dy, bd
+#if CONFIG_MRLS
+                                ,
+                                mrlIdx
+#endif
+    );
   } else if (angle > 180 && angle < 270) {
     av1_highbd_dr_prediction_z3(dst, stride, bw, bh, above, left, upsample_left,
-                                dx, dy, bd);
+                                dx, dy, bd
+#if CONFIG_MRLS
+                                ,
+                                mrlIdx
+#endif
+    );
   } else if (angle == 90) {
     pred_high[V_PRED][tx_size](dst, stride, above, left, bd);
   } else if (angle == 180) {
@@ -1129,7 +1256,12 @@ static void build_intra_predictors_high(
     int dst_stride, PREDICTION_MODE mode, int angle_delta,
     FILTER_INTRA_MODE filter_intra_mode, TX_SIZE tx_size,
     int disable_edge_filter, int n_top_px, int n_topright_px, int n_left_px,
-    int n_bottomleft_px, int plane) {
+    int n_bottomleft_px, int plane
+#if CONFIG_MRLS
+    ,
+    int is_sb_boundary
+#endif
+) {
   int i;
   uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
   uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
@@ -1142,8 +1274,17 @@ static void build_intra_predictors_high(
   int need_left = extend_modes[mode] & NEED_LEFT;
   int need_above = extend_modes[mode] & NEED_ABOVE;
   int need_above_left = extend_modes[mode] & NEED_ABOVELEFT;
+#if CONFIG_MRLS
+  int mrlIdx = (plane == PLANE_TYPE_Y && is_inter_block(xd->mi[0]) == 0)
+                   ? xd->mi[0]->mrlIdx
+                   : 0;
+  const int above_mrl_idx = is_sb_boundary ? 0 : mrlIdx;
+  const uint16_t *above_ref = ref - ref_stride * (above_mrl_idx + 1);
+  const uint16_t *left_ref = ref - 1 - mrlIdx;
+#else
   const uint16_t *above_ref = ref - ref_stride;
   const uint16_t *left_ref = ref - 1;
+#endif
   int p_angle = 0;
   const int is_dr_mode = av1_is_directional_mode(mode);
   const int use_filter_intra = filter_intra_mode != FILTER_INTRA_MODES;
@@ -1197,7 +1338,12 @@ static void build_intra_predictors_high(
     int need_bottom = extend_modes[mode] & NEED_BOTTOMLEFT;
     if (use_filter_intra) need_bottom = 0;
     if (is_dr_mode) need_bottom = p_angle > 180;
+#if CONFIG_MRLS
+    const int num_left_pixels_needed =
+        txhpx + (need_bottom ? txwpx : 3) + mrlIdx * 2;
+#else
     const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 0);
+#endif
     i = 0;
     if (n_left_px > 0) {
       for (; i < n_left_px; i++) left_col[i] = left_ref[i * ref_stride];
@@ -1218,7 +1364,12 @@ static void build_intra_predictors_high(
     int need_right = extend_modes[mode] & NEED_ABOVERIGHT;
     if (use_filter_intra) need_right = 0;
     if (is_dr_mode) need_right = p_angle < 90;
+#if CONFIG_MRLS
+    const int num_top_pixels_needed =
+        txwpx + (need_right ? txhpx : 0) + mrlIdx * 2;
+#else
     const int num_top_pixels_needed = txwpx + (need_right ? txhpx : 0);
+#endif
     if (n_top_px > 0) {
       memcpy(above_row, above_ref, n_top_px * sizeof(above_ref[0]));
       i = n_top_px;
@@ -1237,6 +1388,24 @@ static void build_intra_predictors_high(
   }
 
   if (need_above_left) {
+#if CONFIG_MRLS
+    for (i = 1; i <= mrlIdx + 1; i++) {
+      if (n_top_px > 0 && n_left_px > 0) {
+        above_row[-i] = above_ref[-i];
+        if (is_sb_boundary)
+          left_col[-i] = left_ref[-ref_stride];
+        else
+          left_col[-i] = left_ref[-i * ref_stride];
+
+      } else if (n_top_px > 0) {
+        above_row[-i] = left_col[-i] = above_ref[0];
+      } else if (n_left_px > 0) {
+        above_row[-i] = left_col[-i] = left_ref[0];
+      } else {
+        above_row[-i] = left_col[-i] = base;
+      }
+    }
+#else
     if (n_top_px > 0 && n_left_px > 0) {
       above_row[-1] = above_ref[-1];
     } else if (n_top_px > 0) {
@@ -1247,6 +1416,7 @@ static void build_intra_predictors_high(
       above_row[-1] = base;
     }
     left_col[-1] = above_row[-1];
+#endif
   }
 
   if (use_filter_intra) {
@@ -1258,7 +1428,11 @@ static void build_intra_predictors_high(
   if (is_dr_mode) {
     int upsample_above = 0;
     int upsample_left = 0;
+#if CONFIG_MRLS
+    if (!disable_edge_filter && mrlIdx == 0) {
+#else
     if (!disable_edge_filter) {
+#endif
       const int need_right = p_angle < 90;
       const int need_bottom = p_angle > 180;
       const int filt_type = get_filt_type(xd, plane);
@@ -1294,7 +1468,12 @@ static void build_intra_predictors_high(
       }
     }
     highbd_dr_predictor(dst, dst_stride, tx_size, above_row, left_col,
-                        upsample_above, upsample_left, p_angle, xd->bd);
+                        upsample_above, upsample_left, p_angle, xd->bd
+#if CONFIG_MRLS
+                        ,
+                        mrlIdx
+#endif
+    );
     return;
   }
 
@@ -1313,11 +1492,24 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
                                    FILTER_INTRA_MODE filter_intra_mode,
                                    TX_SIZE tx_size, int disable_edge_filter,
                                    int n_top_px, int n_topright_px,
-                                   int n_left_px, int n_bottomleft_px,
-                                   int plane) {
+                                   int n_left_px, int n_bottomleft_px, int plane
+#if CONFIG_MRLS
+                                   ,
+                                   int is_sb_boundary
+#endif
+) {
   int i;
+#if CONFIG_MRLS
+  uint8_t mrlIdx = (plane == PLANE_TYPE_Y && is_inter_block(xd->mi[0]) == 0)
+                       ? xd->mi[0]->mrlIdx
+                       : 0;
+  const int above_mrl_idx = is_sb_boundary ? 0 : mrlIdx;
+  const uint8_t *above_ref = ref - ref_stride * (above_mrl_idx + 1);
+  const uint8_t *left_ref = ref - 1 - mrlIdx;
+#else
   const uint8_t *above_ref = ref - ref_stride;
   const uint8_t *left_ref = ref - 1;
+#endif
   DECLARE_ALIGNED(16, uint8_t, left_data[NUM_INTRA_NEIGHBOUR_PIXELS]);
   DECLARE_ALIGNED(16, uint8_t, above_data[NUM_INTRA_NEIGHBOUR_PIXELS]);
   uint8_t *const above_row = above_data + 16;
@@ -1380,7 +1572,12 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
     int need_bottom = extend_modes[mode] & NEED_BOTTOMLEFT;
     if (use_filter_intra) need_bottom = 0;
     if (is_dr_mode) need_bottom = p_angle > 180;
+#if CONFIG_MRLS
+    const int num_left_pixels_needed =
+        txhpx + (need_bottom ? txwpx : 3) + mrlIdx * 2;
+#else
     const int num_left_pixels_needed = txhpx + (need_bottom ? txwpx : 0);
+#endif
     i = 0;
     if (n_left_px > 0) {
       for (; i < n_left_px; i++) left_col[i] = left_ref[i * ref_stride];
@@ -1401,7 +1598,12 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
     int need_right = extend_modes[mode] & NEED_ABOVERIGHT;
     if (use_filter_intra) need_right = 0;
     if (is_dr_mode) need_right = p_angle < 90;
+#if CONFIG_MRLS
+    const int num_top_pixels_needed =
+        txwpx + (need_right ? txhpx : 0) + mrlIdx * 2;
+#else
     const int num_top_pixels_needed = txwpx + (need_right ? txhpx : 0);
+#endif
     if (n_top_px > 0) {
       memcpy(above_row, above_ref, n_top_px);
       i = n_top_px;
@@ -1418,6 +1620,23 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   }
 
   if (need_above_left) {
+#if CONFIG_MRLS
+    for (i = 1; i <= mrlIdx + 1; i++) {
+      if (n_top_px > 0 && n_left_px > 0) {
+        above_row[-i] = above_ref[-i];
+        if (is_sb_boundary)
+          left_col[-i] = left_ref[-ref_stride];
+        else
+          left_col[-i] = left_ref[-i * ref_stride];
+      } else if (n_top_px > 0) {
+        above_row[-i] = left_col[-i] = above_ref[0];
+      } else if (n_left_px > 0) {
+        above_row[-i] = left_col[-i] = left_ref[0];
+      } else {
+        above_row[-i] = left_col[-i] = 128;
+      }
+    }
+#else
     if (n_top_px > 0 && n_left_px > 0) {
       above_row[-1] = above_ref[-1];
     } else if (n_top_px > 0) {
@@ -1428,6 +1647,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
       above_row[-1] = 128;
     }
     left_col[-1] = above_row[-1];
+#endif
   }
 
   if (use_filter_intra) {
@@ -1439,7 +1659,11 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   if (is_dr_mode) {
     int upsample_above = 0;
     int upsample_left = 0;
+#if CONFIG_MRLS
+    if (!disable_edge_filter && mrlIdx == 0) {
+#else
     if (!disable_edge_filter) {
+#endif
       const int need_right = p_angle < 90;
       const int need_bottom = p_angle > 180;
       const int filt_type = get_filt_type(xd, plane);
@@ -1475,7 +1699,12 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
       }
     }
     dr_predictor(dst, dst_stride, tx_size, above_row, left_col, upsample_above,
-                 upsample_left, p_angle);
+                 upsample_left, p_angle
+#if CONFIG_MRLS
+                 ,
+                 mrlIdx
+#endif
+    );
     return;
   }
 
@@ -1614,14 +1843,24 @@ void av1_predict_intra_block(
 
   const int disable_edge_filter = !cm->seq_params.enable_intra_edge_filter;
 
+#if CONFIG_MRLS
+  const int is_sb_boundary =
+      (mi_row % cm->seq_params.mib_size == 0 && row_off == 0) ? 1 : 0;
+#endif
+
   if (is_cur_buf_hbd(xd)) {
-    build_intra_predictors_high(
-        xd, ref, ref_stride, dst, dst_stride, mode, angle_delta,
-        filter_intra_mode, tx_size, disable_edge_filter,
-        have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
-        have_top_right ? AOMMIN(txwpx, xr) : 0,
-        have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+    build_intra_predictors_high(xd, ref, ref_stride, dst, dst_stride, mode,
+                                angle_delta, filter_intra_mode, tx_size,
+                                disable_edge_filter,
+                                have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
+                                have_top_right ? AOMMIN(txwpx, xr) : 0,
+                                have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
+                                have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane
+#if CONFIG_MRLS
+                                ,
+                                is_sb_boundary
+#endif
+    );
     return;
   }
 
@@ -1631,7 +1870,12 @@ void av1_predict_intra_block(
                          have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
                          have_top_right ? AOMMIN(txwpx, xr) : 0,
                          have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-                         have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+                         have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane
+#if CONFIG_MRLS
+                         ,
+                         is_sb_boundary
+#endif
+  );
 }
 
 void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
