@@ -1604,7 +1604,11 @@ static void compute_intra_yprediction(const AV1_COMMON *cm,
       pd->dst.buf = &dst_buf_base[4 * (row * (int64_t)dst_stride + col)];
       av1_predict_intra_block(cm, xd, block_size_wide[bsize],
                               block_size_high[bsize], tx_size, mode, 0, 0,
-                              FILTER_INTRA_MODES, pd->dst.buf, dst_stride,
+                              FILTER_INTRA_MODES,
+#if CONFIG_DERIVED_INTRA_MODE
+                              0,
+#endif  // CONFIG_DERIVED_INTRA_MODE
+                              pd->dst.buf, dst_stride,
                               pd->dst.buf, dst_stride, 0, 0, plane);
     }
   }

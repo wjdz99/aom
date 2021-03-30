@@ -414,6 +414,23 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
   if (!is_inter) {
     xd->cfl.store_y = store_cfl_required(cm, xd);
     mbmi->skip_txfm = 1;
+
+#if CONFIG_DERIVED_INTRA_MODE
+    if (mbmi->use_derived_intra_mode[0] || mbmi->use_derived_intra_mode[1]) {
+#if 0
+      int angle;
+      const int mode = av1_get_derived_intra_mode(xd, bsize, &angle);
+      if (mbmi->mode != mode || mbmi->derived_angle != angle) {
+        printf("\n %d %d vs %d %d\n", mbmi->mode, mbmi->derived_angle, mode, angle);
+      }
+#endif
+      const int derived_mode =
+          av1_get_derived_intra_mode(xd, bsize, &mbmi->derived_angle);
+      if (mbmi->use_derived_intra_mode[0]) mbmi->mode = derived_mode;
+      if (mbmi->use_derived_intra_mode[1]) mbmi->uv_mode = derived_mode;
+    }
+#endif  // CONFIG_DERIVED_INTRA_MODE
+
     for (int plane = 0; plane < num_planes; ++plane) {
       av1_encode_intra_block_plane(cpi, x, plane, dry_run,
                                    cpi->optimize_seg_arr[mbmi->segment_id]);
@@ -487,6 +504,39 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     av1_tokenize_sb_tx_size(cpi, td, dry_run, rate,
                             tile_data->allow_update_cdf);
   }
+
+#if 0
+  if (!dry_run) {
+    MB_MODE_INFO *mbmi = xd->mi[0];
+    int bw = block_size_wide[mbmi->sb_type], bh = block_size_high[mbmi->sb_type];
+    FILE *fp = fopen("enc.txt", "a");
+    fprintf(fp, "frame %d, bd %d, is_cur_buf_hbd %d, "
+            "mi %d %d, bsize %d %d, dist %d %d, mode %d %d, derive %d\n",
+            cm->current_frame.absolute_poc, xd->bd, 0 * is_cur_buf_hbd(xd),
+            xd->mi_row, xd->mi_col,
+            bw, bh, xd->mb_to_bottom_edge, xd->mb_to_right_edge,
+            mbmi->mode, mbmi->uv_mode, mbmi->use_derived_intra_mode);
+    if (mbmi->use_derived_intra_mode) {
+      fprintf(fp, "%d\n", mbmi->derived_angle);
+    }
+
+#if 1
+    uint8_t *dst = xd->plane[0].dst.buf;
+    int dst_stride = xd->plane[0].dst.stride;
+    if (xd->mb_to_bottom_edge < 0) bh += xd->mb_to_bottom_edge / 8;
+    if (xd->mb_to_right_edge < 0) bw += xd->mb_to_right_edge / 8;
+    for (int i = 0; i < bh; ++i) {
+      for (int j = 0; j < bw; ++j) {
+        fprintf(fp, "%d ", dst[dst_stride * i + j]);
+      }
+      fprintf(fp, "\n");
+    }
+    fprintf(fp, "\n");
+#endif
+
+    fclose(fp);
+  }
+  #endif
 
   if (!dry_run) {
     if (av1_allow_intrabc(cm) && is_intrabc_block(mbmi)) td->intrabc_used = 1;

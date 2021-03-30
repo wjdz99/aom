@@ -775,7 +775,7 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
   // Turn off the encoding trial for forward key frame and superres.
   if (cpi->sf.rt_sf.use_nonrd_pick_mode || oxcf->kf_cfg.fwd_kf_enabled ||
       cpi->superres_mode != AOM_SUPERRES_NONE || oxcf->mode == REALTIME ||
-      is_screen_content_type_orig_decision || !is_key_frame) {
+      is_screen_content_type_orig_decision || !is_key_frame || 1) {
     return;
   }
 

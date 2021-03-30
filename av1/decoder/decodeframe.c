@@ -1443,6 +1443,44 @@ static AOM_INLINE void parse_decode_block(AV1Decoder *const pbi,
 
   decode_token_recon_block(pbi, td, r, bsize);
   av1_mark_block_as_coded(xd, bsize, cm->seq_params.sb_size);
+
+#if 0
+  {
+    int bw = block_size_wide[mbmi->sb_type], bh = block_size_high[mbmi->sb_type];
+    FILE *fp = fopen("dec.txt", "a");
+    fprintf(fp, "frame %d, bd %d, is_cur_buf_hbd %d, "
+            "mi %d %d, bsize %d %d, dist %d %d, mode %d %d, derive %d\n",
+            cm->current_frame.absolute_poc, xd->bd, 0 * is_cur_buf_hbd(xd),
+            xd->mi_row, xd->mi_col,
+            bw, bh, xd->mb_to_bottom_edge, xd->mb_to_right_edge,
+            mbmi->mode, mbmi->uv_mode, mbmi->use_derived_intra_mode);
+    if (mbmi->use_derived_intra_mode) {
+      fprintf(fp, "%d\n", mbmi->derived_angle);
+    }
+
+#if 1
+    uint8_t *dst8 = xd->plane[0].dst.buf;
+    uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
+    int dst_stride = xd->plane[0].dst.stride;
+    //printf("dst %ld, stride %d\n", dst, dst_stride);
+    if (xd->mb_to_bottom_edge < 0) bh += xd->mb_to_bottom_edge / 8;
+    if (xd->mb_to_right_edge < 0) bw += xd->mb_to_right_edge / 8;
+    for (int i = 0; i < bh; ++i) {
+      for (int j = 0; j < bw; ++j) {
+        //printf("%d %d \n", i, j);
+        //int v = dst[dst_stride * i + j];
+        //printf("%d ", v);
+        fprintf(fp, "%d ", dst[dst_stride * i + j]);
+        //printf("%d ", dst[dst_stride * i + j]);
+      }
+      fprintf(fp, "\n");
+    }
+    fprintf(fp, "\n");
+#endif
+
+    fclose(fp);
+  }
+#endif
 }
 
 static AOM_INLINE void set_offsets_for_pred_and_recon(

@@ -1366,7 +1366,11 @@ void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
 
   av1_predict_intra_block(cm, xd, pd->width, pd->height,
                           max_txsize_rect_lookup[plane_bsize], mode, 0, 0,
-                          FILTER_INTRA_MODES, ctx->plane[plane],
+                          FILTER_INTRA_MODES,
+#if CONFIG_DERIVED_INTRA_MODE
+                          0,
+#endif  // CONFIG_DERIVED_INTRA_MODE
+                          ctx->plane[plane],
                           ctx->stride[plane], dst, dst_stride, 0, 0, plane);
 }
 
