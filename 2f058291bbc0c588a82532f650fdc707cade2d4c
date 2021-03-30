@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aea7ab5a_58d6b341",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2943,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-30T01:45:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bad1bc96_a8629b2b",
+      "range": {
+        "startLine": 2943,
+        "startChar": 8,
+        "endLine": 2943,
+        "endChar": 40
+      },
+      "revId": "2f058291bbc0c588a82532f650fdc707cade2d4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "208ad5c7_77e64f93",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80fb645d_8cae819b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3007,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-30T01:45:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "208ad5c7_77e64f93",
+      "range": {
+        "startLine": 3007,
+        "startChar": 8,
+        "endLine": 3007,
+        "endChar": 40
+      },
+      "revId": "2f058291bbc0c588a82532f650fdc707cade2d4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1a419928_43d1aa7b",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-03-26T04:06:46Z",
       "side": 1,
       "message": "Shorten this to cm-\u003eseq_params.bit_depth",
+      "range": {
+        "startLine": 1163,
+        "startChar": 42,
+        "endLine": 1163,
+        "endChar": 74
+      },
+      "revId": "2f058291bbc0c588a82532f650fdc707cade2d4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "793e30ce_3c85427a",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1163,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-30T01:45:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a419928_43d1aa7b",
       "range": {
         "startLine": 1163,
         "startChar": 42,
