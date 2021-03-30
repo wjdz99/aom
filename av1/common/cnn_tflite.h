@@ -22,6 +22,8 @@ extern "C" {
 
 // Minimum base_qindex needed to run cnn.
 #define MIN_CNN_Q_INDEX 67
+// guided cnn use small model
+#define CONFIG_SMALL_CNN_CRLC_GUIDED 1
 
 // Returns true if we are allowed to use CNN for restoration.
 static INLINE int av1_use_cnn(const AV1_COMMON *cm) {
