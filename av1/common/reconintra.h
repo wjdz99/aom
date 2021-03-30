@@ -68,14 +68,16 @@ static INLINE int av1_filter_intra_allowed_bsize(const AV1_COMMON *const cm,
 static INLINE int av1_filter_intra_allowed(const AV1_COMMON *const cm,
                                            const MB_MODE_INFO *mbmi) {
 #if CONFIG_SDP
-  return mbmi->mode == DC_PRED &&
-         mbmi->palette_mode_info.palette_size[0] == 0 &&
-         av1_filter_intra_allowed_bsize(cm, mbmi->sb_type[PLANE_TYPE_Y]);
+  const BLOCK_SIZE sb_type = mbmi->sb_type[PLANE_TYPE_Y];
 #else
-  return mbmi->mode == DC_PRED &&
-         mbmi->palette_mode_info.palette_size[0] == 0 &&
-         av1_filter_intra_allowed_bsize(cm, mbmi->sb_type);
+  const BLOCK_SIZE sb_type = mbmi->sb_type;
 #endif
+  return mbmi->mode == DC_PRED &&
+#if CONFIG_MRLS
+         mbmi->mrl_index == 0 &&
+#endif
+         mbmi->palette_mode_info.palette_size[0] == 0 &&
+         av1_filter_intra_allowed_bsize(cm, sb_type);
 }
 
 extern const int8_t av1_filter_intra_taps[FILTER_INTRA_MODES][8][8];
