@@ -204,8 +204,10 @@ class AV1QuantizeTest : public ::testing::TestWithParam<QuantizeFuncParams> {
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(AV1QuantizeTest);
 
+#if !CONFIG_EXTQUANT
 TEST_P(AV1QuantizeTest, BitExactCheck) { RunQuantizeTest(); }
 TEST_P(AV1QuantizeTest, EobVerify) { RunEobTest(); }
+#endif  // CONFIG_EXTQUANT
 
 #if HAVE_SSE4_1 && !CONFIG_EXTQUANT
 const QuantizeFuncParams qfps[4] = {
