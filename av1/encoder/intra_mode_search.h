@@ -34,6 +34,10 @@ typedef struct IntraModeSearchState {
    */
   PREDICTION_MODE best_intra_mode;
 
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+  int best_mrl_index;
+#endif
+
   /** \name Speed feature variables
    * Variables to help with pruning some luma intra-modes during inter frame
    * coding process.
@@ -116,12 +120,23 @@ typedef struct IntraModeSearchState {
  * with directional mode, a prune_mask computed with histogram of gradient is
  * also stored in intra_search_state.
  */
+#if CONFIG_MRLS || CONFIG_NEW_INTRA_MODE_SEARCH
+int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
+                              const AV1_COMP *cpi, MACROBLOCK *x,
+                              BLOCK_SIZE bsize, unsigned int ref_frame_cost,
+                              const PICK_MODE_CONTEXT *ctx, RD_STATS *rd_stats,
+                              RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
+                              int64_t best_rd, int64_t *best_intra_rd,
+                              int64_t *best_model_rd,
+                              int64_t top_intra_model_rd[]);
+#else
 int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
                               const AV1_COMP *cpi, MACROBLOCK *x,
                               BLOCK_SIZE bsize, unsigned int ref_frame_cost,
                               const PICK_MODE_CONTEXT *ctx, RD_STATS *rd_stats,
                               RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
                               int64_t best_rd, int64_t *best_intra_rd);
+#endif
 
 /*!\brief Evaluate luma palette mode for inter frames.
  *
