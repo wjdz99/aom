@@ -26,6 +26,19 @@ extern "C" {
 
 /*!\cond */
 
+#if CONFIG_NEW_INTRA_MODE_SEARCH && !CONFIG_MRLS
+#define MRL_LINE_NUMBER 1
+#define TOP_INTRA_MODEL_NUM 4
+#define LUMA_MODE_NUM 61
+#endif
+
+#if CONFIG_MRLS
+#define MRL_LINE_NUMBER 4
+#define LUMA_MODE_NUM 61
+#define TOP_INTRA_MODEL_NUM 4
+#define CTU_BOUNDARY_ONE_ABOVE_LINE 1
+#endif
+
 #undef MAX_SB_SIZE
 
 // Max superblock size

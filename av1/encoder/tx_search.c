@@ -566,6 +566,9 @@ static AOM_INLINE void save_tx_rd_info(int n4, uint32_t hash,
 
 static int get_search_init_depth(int mi_width, int mi_height, int is_inter,
                                  const SPEED_FEATURES *sf,
+#if CONFIG_MRLS
+                                 const MB_MODE_INFO *const mbmi,
+#endif
                                  int tx_size_search_method) {
   if (tx_size_search_method == USE_LARGESTALL) return MAX_VARTX_DEPTH;
 
@@ -2914,8 +2917,12 @@ static AOM_INLINE void choose_tx_size_type_from_rd(const AV1_COMP *const cpi,
 
   if (tx_select) {
     start_tx = max_rect_tx_size;
+
     init_depth = get_search_init_depth(mi_size_wide[bs], mi_size_high[bs],
                                        is_inter_block(mbmi), &cpi->sf,
+#if CONFIG_MRLS
+                                       mbmi,
+#endif
                                        txfm_params->tx_size_search_method);
   } else {
     const TX_SIZE chosen_tx_size =
@@ -3214,8 +3221,15 @@ static int inter_block_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   const int bh = tx_size_high_unit[max_tx_size];
   const int bw = tx_size_wide_unit[max_tx_size];
   const int step = bw * bh;
-  const int init_depth = get_search_init_depth(
-      mi_width, mi_height, 1, &cpi->sf, txfm_params->tx_size_search_method);
+#if CONFIG_MRLS
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+#endif
+  const int init_depth =
+      get_search_init_depth(mi_width, mi_height, 1, &cpi->sf,
+#if CONFIG_MRLS
+                            mbmi,
+#endif
+                            txfm_params->tx_size_search_method);
   ENTROPY_CONTEXT ctxa[MAX_MIB_SIZE];
   ENTROPY_CONTEXT ctxl[MAX_MIB_SIZE];
   TXFM_CONTEXT tx_above[MAX_MIB_SIZE];
@@ -3296,8 +3310,15 @@ static int64_t select_tx_size_and_type(const AV1_COMP *cpi, MACROBLOCK *x,
   av1_get_entropy_contexts(bsize, pd, ctxa, ctxl);
   memcpy(tx_above, xd->above_txfm_context, sizeof(TXFM_CONTEXT) * mi_width);
   memcpy(tx_left, xd->left_txfm_context, sizeof(TXFM_CONTEXT) * mi_height);
-  const int init_depth = get_search_init_depth(
-      mi_width, mi_height, 1, &cpi->sf, txfm_params->tx_size_search_method);
+#if CONFIG_MRLS
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+#endif
+  const int init_depth =
+      get_search_init_depth(mi_width, mi_height, 1, &cpi->sf,
+#if CONFIG_MRLS
+                            mbmi,
+#endif
+                            txfm_params->tx_size_search_method);
   const TX_SIZE max_tx_size = max_txsize_rect_lookup[bsize];
   const int bh = tx_size_high_unit[max_tx_size];
   const int bw = tx_size_wide_unit[max_tx_size];
