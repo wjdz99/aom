@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7c0b655_86bd1619",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-03-30T09:11:50Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch disables the search for asymmetric wedge partitions for oblique angles when the corresponding symmetric wedge partition is not the best so far during the wedge mask search for COMPOUND_WEDGE. \n\nWhen the speed feature enable_fast_wedge_mask_search is set, the wedge mask search is discontinued if horizontal or vertical angle becomes the winner after the search over the first 8 masks. If any of the oblique angles is the best from the search over the first 8 masks, then the further search happens only over the masks corresponding to that particular oblique angle.\n\nPlease find the detailed borg results for speed 3 and 4 below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |  LOW RES   |       1.967       |  0.0188    0.0177    0.0214  |\n   3     |  MID RES   |       1.986       |  0.0245    0.0179    0.0687  |\n   3     |   HD RES   |       1.191       | -0.0783   -0.0802   -0.0694  |\n   3     |  Average   |       1.774       | -0.0091   -0.0121    0.0076  |\n         |            |                   |                              |     \n   4     |  LOW RES   |       1.392       |  0.0758    0.0805    0.1148  |\n   4     |  MID RES   |       1.450       |  0.0624    0.0788    0.0069  |\n   4     |   HD RES   |       1.021       | -0.0053    0.0056    0.0474  |\n   4     |  Average   |       1.312       |  0.0471    0.0572    0.0627  |\n     \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "9d841c033fff4ed9b514473cdc11deb57a0d0773",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
