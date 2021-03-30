@@ -224,7 +224,6 @@ static AOM_INLINE void write_selected_tx_size(const MACROBLOCKD *xd,
     assert(depth >= 0 && depth <= max_depths);
     assert(!is_inter_block(mbmi));
     assert(IMPLIES(is_rect_tx(tx_size), is_rect_tx_allowed(xd, mbmi)));
-
     aom_write_symbol(w, depth, ec_ctx->tx_size_cdf[tx_size_cat][tx_size_ctx],
                      max_depths + 1);
   }
@@ -940,6 +939,13 @@ static AOM_INLINE void write_intra_y_mode_nonkf(FRAME_CONTEXT *frame_ctx,
                    INTRA_MODES);
 }
 
+#if CONFIG_MRLS
+static AOM_INLINE void write_mrl_index(FRAME_CONTEXT *ec_ctx, uint8_t mrl_index,
+                                       aom_writer *w) {
+  aom_write_symbol(w, mrl_index, ec_ctx->mrl_index_cdf, MRL_LINE_NUMBER);
+}
+#endif
+
 static AOM_INLINE void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
                                            UV_PREDICTION_MODE uv_mode,
                                            PREDICTION_MODE y_mode,
@@ -1139,6 +1145,12 @@ static AOM_INLINE void write_intra_prediction_modes(AV1_COMP *cpi,
                       ec_ctx->angle_delta_cdf[mode - V_PRED]);
 #endif
     }
+#if CONFIG_MRLS
+    // Encoding reference line index
+    if (av1_is_directional_mode(mode)) {
+      write_mrl_index(ec_ctx, mbmi->mrl_index, w);
+    }
+#endif
 #if CONFIG_SDP
   }
 #endif
