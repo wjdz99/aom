@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89be4912_9ae95f29",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-31T03:02:22Z",
+      "side": 1,
+      "message": "Yep, the if statement doesn\u0027t really help here.\n\nBut I think it makes sense to let av1_merge_rd_stats() to handle the situation that one of the rate is INT_MAX.\nWhen the rate is INT_MAX, it means the rd_stats is not valid and hence the merged rd_stats should still be invalid.",
+      "parentUuid": "ba85f4d7_19358ab3",
+      "revId": "cf14c3e101aca9fbaf0cb7deac989160ca118f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "73776fce_8c0ded5a",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-03-30T16:59:53Z",
       "side": 1,
       "message": "IMPORTANT: Can these two additions make rd_stats.rate exceed INT_MAX? If so, we need to do \"saturated\" addition here, similar to this addition in av1_merge_rd_stats():\n\n  rd_stats_dst-\u003erate \u003d (int)AOMMIN(\n      ((int64_t)rd_stats_dst-\u003erate + (int64_t)rd_stats_src-\u003erate), INT_MAX);",
+      "revId": "cf14c3e101aca9fbaf0cb7deac989160ca118f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89b74a13_19bae169",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 563,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-31T03:02:22Z",
+      "side": 1,
+      "message": "So far the codebase is assuming that regular cumulative rate will not exceed INT_MAX.\nAnd we only set the rate to INT_MAX when the mode is not valid.\nSo it should be okay to do the plus operation here.",
+      "parentUuid": "73776fce_8c0ded5a",
       "revId": "cf14c3e101aca9fbaf0cb7deac989160ca118f1f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -75,6 +111,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a1f5913_017898d4",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-31T03:02:22Z",
+      "side": 1,
+      "message": "When mbmi-\u003ebest_cfl_alpha_idx \u003d 0 and mbmi-\u003ebest_cfl_alpha_signs \u003d 0,\nit means cfl is off.\nSo this one should be okay.\nI added some comment to clarify that.",
+      "parentUuid": "bb1a3c52_0ad43bca",
+      "range": {
+        "startLine": 575,
+        "startChar": 1,
+        "endLine": 577,
+        "endChar": 30
+      },
+      "revId": "cf14c3e101aca9fbaf0cb7deac989160ca118f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7797b244_988bd350",
@@ -92,6 +152,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7dcc1e4_f5c3f571",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-31T03:02:22Z",
+      "side": 1,
+      "message": "Yep, the cfl_alph_rate is already added into tokenonly_rd_stats.rate at line 560 and 562.",
+      "parentUuid": "7797b244_988bd350",
+      "revId": "cf14c3e101aca9fbaf0cb7deac989160ca118f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85e4bfa0_98c45a92",
@@ -105,6 +183,30 @@
       "writtenOn": "2021-03-30T16:59:53Z",
       "side": 1,
       "message": "Did you mean keep the \"status\" or keep the \"stats\"?",
+      "range": {
+        "startLine": 125,
+        "startChar": 32,
+        "endLine": 125,
+        "endChar": 47
+      },
+      "revId": "cf14c3e101aca9fbaf0cb7deac989160ca118f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13d278c0_1426d37b",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-03-31T03:02:22Z",
+      "side": 1,
+      "message": "I meant keep the invalid status.\nThen I realized that we need to call av1_invalid_rd_stats() to do so.\nThanks for reminding.",
+      "parentUuid": "85e4bfa0_98c45a92",
       "range": {
         "startLine": 125,
         "startChar": 32,
