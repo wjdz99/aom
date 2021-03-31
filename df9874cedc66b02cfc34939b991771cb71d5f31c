@@ -69,6 +69,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfcd69d6_38c72e2c",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 842,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-31T13:33:19Z",
+      "side": 1,
+      "message": "Done. We verified that using \u0027uint16_t\u0027 type for \u0027abs_dx_abs_dy_sum\u0027 will hold good for the high-bd path also.\n\nThe variables dx and dy are calculated as:\n      const int dx \u003d (right[-stride] + 2 * right[0] + right[stride]) -\n                     (left[-stride] + 2 * left[0] + left[stride]);\n      const int dy \u003d (below[-1] + 2 * below[0] + below[1]) -\n                     (above[-1] + 2 * above[0] + above[1]);\n\nFor a 12-bit source, the values of abs(dx) and abs(dy) could be represented using unsigned 14-bit integers. Thus,\n      abs_dx_abs_dy_sum \u003d abs(dx) + abs(dy);\n\nwill be a sum of two unsigned 14-bit integers, which could result in an unsigned 15-bit integer.\n\nThe data-types for the intermediate variables could be changed in the existing generate_hog functions as well. We shall take this up in a subsequent patch.",
+      "parentUuid": "8fd8fdde_a63d66d0",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "88365579_47d624d1",
@@ -82,6 +100,24 @@
       "writtenOn": "2021-03-30T18:54:45Z",
       "side": 1,
       "message": "Nit: In this file, the two prevalent naming conventions for structs are:\n\n  typedef struct {\n    ...\n  } FOO_BAR;\n\nand\n\n  typedef struct {\n    ...\n  } FooBar;\n\nNo structs in this file are named using the \"foo_bar\" naming convention. So please change pixel_level_gradient_info to either PIXEL_LEVEL_GRADIENT_INFO or PixelLevelGradientInfo. I also suggest we remove the struct tag \"pixel_level_gradient_info\" from line 839 so that line 839 reads\n\n  typedef struct {",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4697f12_ec8bedc3",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-31T13:33:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88365579_47d624d1",
       "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +139,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d6f22ee_622229f6",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1184,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-31T13:33:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9190debd_997ad49c",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7f47aced_e0e006df",
@@ -116,6 +170,24 @@
       "writtenOn": "2021-03-30T18:54:45Z",
       "side": 1,
       "message": "IMPORTANT: It is not clear that this pointer points to an array. Please document the size (number of elements) of this array.\n\nThe array is allocated as follows:\n\n      CHECK_MEM_ERROR(cm, thread_data-\u003etd-\u003epixel_gradient_info,\n                      aom_malloc(sizeof(*thread_data-\u003etd-\u003epixel_gradient_info) *\n                                 PLANE_TYPES * MAX_SB_SQUARE));",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5c4a7ba_580efedb",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-31T13:33:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7f47aced_e0e006df",
       "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -143,6 +215,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2729ce86_3c8b1ee6",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-31T13:33:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0bfacca_8274d1e1",
+      "range": {
+        "startLine": 198,
+        "startChar": 40,
+        "endLine": 198,
+        "endChar": 47
+      },
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b42561a4_b47a6862",
@@ -160,6 +256,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bad89b6d_9e9db39b",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-31T13:33:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b42561a4_b47a6862",
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c0077de6_1c9bb425",
@@ -173,6 +287,30 @@
       "writtenOn": "2021-03-30T18:54:45Z",
       "side": 1,
       "message": "Nit: the same \u003d\u003e the cached data",
+      "range": {
+        "startLine": 343,
+        "startChar": 62,
+        "endLine": 343,
+        "endChar": 70
+      },
+      "revId": "df9874cedc66b02cfc34939b991771cb71d5f31c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c0a9bdc_fc74f7c8",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-03-31T13:33:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0077de6_1c9bb425",
       "range": {
         "startLine": 343,
         "startChar": 62,
