@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37e10eb7_77fc7794",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 3892,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-03-31T01:36:40Z",
+      "side": 1,
+      "message": "Direct RDCOST should be used. Because av1_rd_cost_update requires\nrate, dist and rdcost \u003c INT64_MAX, otherwise, the rdcost is not calculated.\nHowever, in this case, best_rdc is initialized on line 3794. The rdcost is always INT64_MAX before this line.",
+      "range": {
+        "startLine": 3892,
+        "startChar": 0,
+        "endLine": 3892,
+        "endChar": 72
+      },
+      "revId": "df573a63de6d9bd4e02b7a7779b207c204c44a97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
