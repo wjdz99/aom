@@ -954,6 +954,8 @@ static INLINE BitDepthInfo get_bit_depth_info(const MACROBLOCKD *xd) {
   BitDepthInfo bit_depth_info;
   bit_depth_info.bit_depth = xd->bd;
   bit_depth_info.use_highbitdepth_buf = is_cur_buf_hbd(xd);
+  assert(IMPLIES(!bit_depth_info.use_highbitdepth_buf,
+                 bit_depth_info.bit_depth == 8));
   return bit_depth_info;
 }
 
