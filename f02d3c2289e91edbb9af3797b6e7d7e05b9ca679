@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch adds more comments to the code under the speed feature enable_fast_wedge_mask_search, explaining the logic behind the different indices used for pruning the asymmetric wedge partition masks for oblique angles. Comments are also updated to indicate that horizontal/vertical types do not undergo any pruning.\n\nPlease review the patch.\n\nThanks,\nNithya",
       "revId": "f02d3c2289e91edbb9af3797b6e7d7e05b9ca679",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aaedc8d8_f20d2976",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-03-31T16:59:30Z",
+      "side": 1,
+      "message": "This makes the logic much clearer. Thanks.",
+      "parentUuid": "9e9e901b_387a6628",
+      "revId": "f02d3c2289e91edbb9af3797b6e7d7e05b9ca679",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
