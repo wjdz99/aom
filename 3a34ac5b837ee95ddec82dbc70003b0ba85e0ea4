@@ -16,6 +16,24 @@
       "message": "should we fix the condition in the wrapper instead? We should only allow AOM_USAGE_REALTIME for this config, so maybe we should fix the condition in the webrtc wrapper.",
       "revId": "3a34ac5b837ee95ddec82dbc70003b0ba85e0ea4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbe53459_0f27032f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-04-01T04:33:50Z",
+      "side": 1,
+      "message": "We can do this, but this will delay this libaom roll until WebRTC wrapper is fixed in all the instances. \nI would roll this update, then fix WebRTC and then roll another libaom update with GOOD_QUALITY properly disabled.",
+      "parentUuid": "f4873b09_90160c5d",
+      "revId": "3a34ac5b837ee95ddec82dbc70003b0ba85e0ea4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
