@@ -43,6 +43,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8938fd29_d233b5e8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-01T15:23:43Z",
+      "side": 1,
+      "message": "Fyodor: I just realized that we don\u0027t need to change this RANGE_CHECK:\n\n  RANGE_CHECK(cfg, g_usage, AOM_USAGE_REALTIME, AOM_USAGE_REALTIME);\n\nThe reason is that webrtc::LibaomAv1Encoder changes its cfg-\u003eg_usage to 1 (\u003d AOM_USAGE_REALTIME) before calling aom_codec_enc_init():\n\n  // Initialize encoder configuration structure with default values\n  aom_codec_err_t ret \u003d\n      aom_codec_enc_config_default(aom_codec_av1_cx(), \u0026cfg_, 0);\n  ...\n\n  // Overwrite default config with input encoder settings \u0026 RTC-relevant values.\n  ...\n  cfg_.g_usage \u003d aux_params_.usage_profile;  \u003c\u003d\u003d THIS DEFAULTS TO 1\n\n  ...\n\n  // Initialize an encoder instance.\n  ret \u003d aom_codec_enc_init(\u0026ctx_, aom_codec_av1_cx(), \u0026cfg_, flags);\n\nSo we can revert this change, and move the TODO comment to line 3369.",
+      "revId": "2d186a2bee0cfd1fe07c3c163a1135a499f201fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "57d896dd_ddd74451",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 2
