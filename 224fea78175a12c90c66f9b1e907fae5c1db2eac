@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb5edcb0_f217985f",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-01T01:07:25Z",
+      "side": 1,
+      "message": "Nit/optional: We can omit this comment and the similar comment at line 948.",
+      "revId": "224fea78175a12c90c66f9b1e907fae5c1db2eac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0d49fbd_b0007243",
+        "filename": "av1/encoder/encodemb.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-01T01:07:25Z",
+      "side": 1,
+      "message": "Optional: For a small struct like BitDepthInfo, it can be more efficient to pass it by value so that the function does not need to dereference a pointer:\n\nvoid av1_subtract_block(BitDepthInfo bd_info, int rows, int cols,",
+      "range": {
+        "startLine": 127,
+        "startChar": 24,
+        "endLine": 127,
+        "endChar": 51
+      },
+      "revId": "224fea78175a12c90c66f9b1e907fae5c1db2eac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
