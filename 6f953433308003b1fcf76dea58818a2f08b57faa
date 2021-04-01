@@ -16,6 +16,24 @@
       "message": "Nit/optional: This function is very long, so I am tempted to suggest we declare the variable \u0027bd_info\u0027 near its first use, such as here. On the other hand, one could argue that it is clearer to prepare \u0027bd_info\u0027 at the beginning of the function. I leave this decision to you.",
       "revId": "6f953433308003b1fcf76dea58818a2f08b57faa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18c50205_b388ad10",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-04-01T22:12:30Z",
+      "side": 1,
+      "message": "I will keep it as it is for now because\nbd_info will stay constant for the entire video coding so it\u0027s position doesn\u0027t matter that much as compared to other variables.\n\nI am still trying to figure out the input/output of different parts of this function. Will move bd_info to a more optimal place next time I touch the code.",
+      "parentUuid": "c0e117ac_1e09e60e",
+      "revId": "6f953433308003b1fcf76dea58818a2f08b57faa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
