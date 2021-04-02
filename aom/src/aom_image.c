@@ -42,19 +42,19 @@ static aom_image_t *img_alloc_helper(
   if (!buf_align) buf_align = 1;
 
   /* Validate alignment (must be power of 2) */
-  if (buf_align & (buf_align - 1)) goto fail;
+  if (buf_align & (buf_align - 1)) goto fail_set_null;
 
   /* Treat align==0 like align==1 */
   if (!stride_align) stride_align = 1;
 
   /* Validate alignment (must be power of 2) */
-  if (stride_align & (stride_align - 1)) goto fail;
+  if (stride_align & (stride_align - 1)) goto fail_set_null;
 
   /* Treat align==0 like align==1 */
   if (!size_align) size_align = 1;
 
   /* Validate alignment (must be power of 2) */
-  if (size_align & (size_align - 1)) goto fail;
+  if (size_align & (size_align - 1)) goto fail_set_null;
 
   /* Get sample size for this format */
   switch (fmt) {
@@ -159,6 +159,14 @@ static aom_image_t *img_alloc_helper(
   aom_img_set_rect(img, 0, 0, d_w, d_h, border);
   return img;
 
+fail_set_null:
+  /* If we fail to early, then img->img_data has not been allocated, so it could
+   * contain garbage value. So we set it to NULL to avoid calling free on
+   * invalid memory. */
+  if (img) {
+    img->img_data = NULL;
+    img->img_data_owner = 0;
+  }
 fail:
   aom_img_free(img);
   return NULL;
