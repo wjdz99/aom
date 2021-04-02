@@ -1020,6 +1020,7 @@ static INLINE void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 }
 
+// Evaluate a given luma intra-mode in inter frames.
 int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
                             const AV1_COMP *cpi, MACROBLOCK *x,
                             BLOCK_SIZE bsize, unsigned int ref_frame_cost,
@@ -1078,14 +1079,17 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
   }
 
   // Pick filter intra modes.
-  if (mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
+  // If sf->intra_sf.prune_filter_intra_level is 2, filter_intra is disabled.
+  if (sf->intra_sf.prune_filter_intra_level < 2 && mode == DC_PRED &&
+      av1_filter_intra_allowed_bsize(cm, bsize)) {
     int try_filter_intra = 1;
     int64_t best_rd_so_far = INT64_MAX;
     if (rd_stats_y->rate != INT_MAX) {
       const int tmp_rate = rd_stats_y->rate +
                            mode_costs->filter_intra_cost[bsize][0] + mode_cost;
       best_rd_so_far = RDCOST(x->rdmult, tmp_rate, rd_stats_y->dist);
-      try_filter_intra = (best_rd_so_far / 2) <= best_rd;
+      //      try_filter_intra = (best_rd_so_far / 2) <= best_rd;
+      try_filter_intra = (best_rd_so_far / 1) <= best_rd;
     }
 
     if (try_filter_intra) {
