@@ -38,6 +38,13 @@ static aom_image_t *img_alloc_helper(
   unsigned int h, w, s, xcs, ycs, bps, bit_depth;
   unsigned int stride_in_bytes;
 
+  /* Set the img_data pointer to NULL. Otherwise, if we fail to create img, we
+   * will free whatever img_data is pointed to, even if it's invalid. */
+  if (img) {
+    img->img_data = NULL;
+    img->img_data_owner = 0;
+  }
+
   /* Treat align==0 like align==1 */
   if (!buf_align) buf_align = 1;
 
