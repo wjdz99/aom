@@ -16,6 +16,24 @@
       "message": "checklicense.py also complains about the following third_party libs:\n\n\u0027third_party/libaom/source/libaom/third_party/vector/vector.h\u0027 has non-allowlisted license \u0027UNKNOWN\u0027\n\u0027third_party/libaom/source/libaom/third_party/vector/vector.c\u0027 has non-allowlisted license \u0027UNKNOWN\u0027\n\u0027third_party/libaom/source/libaom/third_party/fastfeat/fast_9.c\u0027 has non-allowlisted license \u0027UNKNOWN\u0027\n\u0027third_party/libaom/source/libaom/third_party/fastfeat/fast.h\u0027 has non-allowlisted license \u0027UNKNOWN\u0027\n\u0027third_party/libaom/source/libaom/third_party/fastfeat/nonmax.c\u0027 has non-allowlisted license \u0027UNKNOWN\u0027\n\u0027third_party/libaom/source/libaom/third_party/fastfeat/fast.c\u0027 has non-allowlisted license \u0027UNKNOWN\u0027\n\nBut they already have LICENSE file.",
       "revId": "49810a481a22bf6470dde2e53f4cacae013e1dfd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37cc36fe_4cc256c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-04-05T23:19:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7dd6348d_41bdd3d0",
+      "revId": "49810a481a22bf6470dde2e53f4cacae013e1dfd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
