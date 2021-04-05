@@ -1751,3 +1751,52 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
   est_rate *= block_count;
   return est_rate;
 }
+
+double av1_laplace_prob(double q_step, double b, double zero_bin_ratio,
+                        int qcoeff) {
+  aom_clear_system_state();
+  int abs_qcoeff = abs(qcoeff);
+  double z0 = fmax(exp(-zero_bin_ratio / 2 * q_step / b), EPSILON);
+  if (abs_qcoeff == 0) {
+    double p0 = 1 - z0;
+    return p0;
+  } else {
+    assert(abs_qcoeff > 0);
+    double z = fmax(exp(-q_step / b), EPSILON);
+    double p = z0 / 2 * (1 - z) * pow(z, abs_qcoeff - 1);
+    return p;
+  }
+}
+
+double av1_est_coeff_entropy(double q_step, double b, double zero_bin_ratio,
+                             int qcoeff) {
+  aom_clear_system_state();
+  int abs_qcoeff = abs(qcoeff);
+  double z0 = fmax(exp(-zero_bin_ratio / 2 * q_step / b), EPSILON);
+  if (abs_qcoeff == 0) {
+    double r = -log2(1 - z0);
+    return r;
+  } else {
+    double z = fmax(exp(-q_step / b), EPSILON);
+    double r = 1 - log2(z0) - log2(1 - z) - (abs_qcoeff - 1) * log2(z);
+    return r;
+  }
+}
+
+double av1_est_txfm_block_entropy(int q_index, const double *abs_coeff_mean,
+                                  int coeff_num, int *qcoeff_ls) {
+  aom_clear_system_state();
+  double zero_bin_ratio = 2;
+  double dc_q_step = av1_dc_quant_QTX(q_index, 0, AOM_BITS_8) / 4.;
+  double ac_q_step = av1_ac_quant_QTX(q_index, 0, AOM_BITS_8) / 4.;
+  double est_rate = 0;
+  // dc coeff
+  est_rate += av1_est_coeff_entropy(dc_q_step, abs_coeff_mean[0],
+                                    zero_bin_ratio, qcoeff_ls[0]);
+  // ac coeff
+  for (int i = 1; i < coeff_num; ++i) {
+    est_rate += av1_est_coeff_entropy(ac_q_step, abs_coeff_mean[i],
+                                      zero_bin_ratio, qcoeff_ls[i]);
+  }
+  return est_rate;
+}

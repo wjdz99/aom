@@ -22,7 +22,13 @@ struct AV1_COMP;
 struct EncodeFrameParams;
 struct EncodeFrameInput;
 
-#include "av1/encoder/encoder.h"
+#include "config/aom_config.h"
+
+#include "av1/common/mv.h"
+#include "av1/common/scale.h"
+#include "av1/encoder/block.h"
+#include "av1/encoder/lookahead.h"
+#include "aom_scale/yv12config.h"
 
 static INLINE BLOCK_SIZE convert_length_to_bsize(int length) {
   switch (length) {
@@ -304,6 +310,51 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
  *
  */
 void av1_tpl_stats_init_txfm_stats(TplDepFrame *tpl_frame, int coeff_num);
+
+/*!\brief  Estimate coefficient entropy using Laplace dsitribution
+ *
+ *\ingroup tpl_modelling
+ *
+ * \param[in]    q_step          quantizer step size without any scaling
+ * \param[in]    b               mean absolute deviation of Laplace distribution
+ * \param[in]    zero_bin_ratio  zero bin's size is zero_bin_ratio * q_step
+ * \param[in]    qcoeff          quantized coefficient
+ *
+ * \return estimated coefficient entropy
+ *
+ */
+double av1_est_coeff_entropy(double q_step, double b, double zero_bin_ratio,
+                             int qcoeff);
+
+/*!\brief  Estimate entropy of a transform block using Laplace dsitribution
+ *
+ *\ingroup tpl_modelling
+ *
+ * \param[in]    q_index         quantizer index
+ * \param[in]    abs_coeff_mean  array of maximum absolute deviations
+ * \param[in]    coeff_num       number of coefficients per transform block
+ * \param[in]    qcoeff_ls       array of quantized coefficients
+ *
+ * \return estimated transform block entropy
+ *
+ */
+double av1_est_txfm_block_entropy(int q_index, const double *abs_coeff_mean,
+                                  int coeff_num, int *qcoeff_ls);
+
+/*!\brief  Compute the probability qcoeff w.r.t. a Laplace distribution
+ *
+ *\ingroup tpl_modelling
+ *
+ * \param[in]    q_step          quantizer step size without any scaling
+ * \param[in]    b               mean absolute deviation of Laplace distribution
+ * \param[in]    zero_bin_ratio  zero bin's size is zero_bin_ratio * q_step
+ * \param[in]    qcoeff          quantized coefficient
+ *
+ * \return the probability of qcoeff
+ *
+ */
+double av1_laplace_prob(double q_step, double b, double zero_bin_ratio,
+                        int qcoeff);
 
 /*!\endcond */
 #ifdef __cplusplus
