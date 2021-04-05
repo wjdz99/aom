@@ -423,19 +423,29 @@ static AOM_INLINE void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_ROTATION
   }
 #if CONFIG_EXT_ROTATION
-  if (mbmi->motion_mode == SIMPLE_TRANSLATION && mbmi->mode == GLOBALMV &&
-      xd->global_motion[mbmi->ref_frame[0]].wmtype != IDENTITY) {
-    aom_write_symbol(w, mbmi->rot_flag,
-                     xd->tile_ctx->globalmv_rotation_flag_cdf[mbmi->sb_type],
-                     2);
-    if (mbmi->rot_flag) {
-      aom_write_symbol(w, (mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP,
-                       xd->tile_ctx->globalmv_rotation_degree_cdf,
-                       ROTATION_COUNT);
+  if (mbmi->motion_mode == SIMPLE_TRANSLATION) {
+    if (mbmi->mode == GLOBALMV &&
+        xd->global_motion[mbmi->ref_frame[0]].wmtype != IDENTITY) {
+      aom_write_symbol(w, mbmi->rot_flag,
+                       xd->tile_ctx->globalmv_rotation_flag_cdf[mbmi->sb_type],
+                       2);
+      if (mbmi->rot_flag) {
+        aom_write_symbol(w, (mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP,
+                         xd->tile_ctx->globalmv_rotation_degree_cdf,
+                         ROTATION_COUNT);
+      }
+    } else {
+      aom_write_symbol(
+          w, mbmi->rot_flag,
+          xd->tile_ctx->translation_rotation_flag_cdf[mbmi->sb_type], 2);
+      if (mbmi->rot_flag) {
+        aom_write_symbol(w, (mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP,
+                         xd->tile_ctx->translation_rotation_degree_cdf,
+                         ROTATION_COUNT);
+      }
+      printf("bitstream flag:%d \n", mbmi->rot_flag);
+      if (mbmi->rot_flag) printf("bitstream: %d \n", mbmi->rotation);
     }
-
-    printf("bitstream flag:%d \n", mbmi->rot_flag);
-    if (mbmi->rot_flag) printf("bitstream: %d \n", mbmi->rotation);
   }
 #endif  // CONFIG_EXT_ROTATION
 }

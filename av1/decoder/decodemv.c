@@ -283,21 +283,33 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_EXT_ROTATION
   }
 #if CONFIG_EXT_ROTATION
-  if (motion_mode == SIMPLE_TRANSLATION && mbmi->mode == GLOBALMV &&
-      xd->global_motion[mbmi->ref_frame[0]].wmtype != IDENTITY) {
-    mbmi->rot_flag = aom_read_symbol(
-        r, xd->tile_ctx->globalmv_rotation_flag_cdf[mbmi->sb_type], 2,
-        ACCT_STR);
-    if (mbmi->rot_flag) {
-      mbmi->rotation =
-          aom_read_symbol(r, xd->tile_ctx->globalmv_rotation_degree_cdf,
-                          ROTATION_COUNT, ACCT_STR) *
-              ROTATION_STEP -
-          ROTATION_RANGE;
+  if (motion_mode == SIMPLE_TRANSLATION) {
+    if (mbmi->mode == GLOBALMV &&
+        xd->global_motion[mbmi->ref_frame[0]].wmtype != IDENTITY) {
+      mbmi->rot_flag = aom_read_symbol(
+          r, xd->tile_ctx->globalmv_rotation_flag_cdf[mbmi->sb_type], 2,
+          ACCT_STR);
+      if (mbmi->rot_flag) {
+        mbmi->rotation =
+            aom_read_symbol(r, xd->tile_ctx->globalmv_rotation_degree_cdf,
+                            ROTATION_COUNT, ACCT_STR) *
+                ROTATION_STEP -
+            ROTATION_RANGE;
+      }
+    } else {
+      mbmi->rot_flag = aom_read_symbol(
+          r, xd->tile_ctx->translation_rotation_flag_cdf[mbmi->sb_type], 2,
+          ACCT_STR);
+      if (mbmi->rot_flag) {
+        mbmi->rotation =
+            aom_read_symbol(r, xd->tile_ctx->translation_rotation_degree_cdf,
+                            ROTATION_COUNT, ACCT_STR) *
+                ROTATION_STEP -
+            ROTATION_RANGE;
+      }
+      printf("decode flag:%d \n", mbmi->rot_flag);
+      if (mbmi->rot_flag) printf("decode: %d \n", mbmi->rotation);
     }
-
-    printf("decode flag:%d \n", mbmi->rot_flag);
-    if (mbmi->rot_flag) printf("decode: %d \n", mbmi->rotation);
   }
 #endif  // CONFIG_EXT_ROTATION
   return (MOTION_MODE)(SIMPLE_TRANSLATION + motion_mode);

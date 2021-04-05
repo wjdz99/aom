@@ -1118,6 +1118,7 @@ void av1_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int center_x,
     mi->wm_params.wmmat[4] = sine_val << precision_value;
     mi->wm_params.wmmat[5] = cosine_val << precision_value;
     mi->wm_params.wmmat[6] = mi->wm_params.wmmat[7] = 0;
+    mi->wm_params.wmtype = AFFINE;
   } else {
     int32_t matrix[8];
     memcpy(matrix, mi->wm_params.wmmat, sizeof(int32_t) * 8);
