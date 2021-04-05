@@ -1093,6 +1093,13 @@ int av1_find_projection(int np, const int *pts1, const int *pts2,
 }
 
 #if CONFIG_EXT_ROTATION
+int simple_translation_rotation_allowed(const MB_MODE_INFO *mbmi) {
+  if (mbmi->motion_mode != SIMPLE_TRANSLATION) return 0;
+  if (mbmi->mode == GLOBALMV) return 0;
+  if (has_second_ref(mbmi)) return 0;
+  return 1;
+}
+
 int warp_rotation_allowed(const MACROBLOCKD *xd) {
   MB_MODE_INFO *mbmi = xd->mi[0];
   if (mbmi->motion_mode != SIMPLE_TRANSLATION) return 0;
@@ -1127,6 +1134,7 @@ void av1_warp_rotation(MB_MODE_INFO *mi, int8_t rotation, int center_x,
     mi->wm_params.wmmat[4] = sine_val << precision_value;
     mi->wm_params.wmmat[5] = cosine_val << precision_value;
     mi->wm_params.wmmat[6] = mi->wm_params.wmmat[7] = 0;
+    mi->wm_params.wmtype = AFFINE;
   } else {
     int32_t matrix[8];
     memcpy(matrix, mi->wm_params.wmmat, sizeof(int32_t) * 8);
