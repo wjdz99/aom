@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a2850ea_c54c11ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2021-04-05T18:17:04Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have refactored the code related to packing headers at the end of each tile\ngroup from write_tile_obu() into a new function write_last_tile_info(), to facilitate\ntile-level multithreading of the module. Some code cleanup has also been done. \n\nKindly review the patch.\n\nRegards,\nVishesh",
+      "revId": "c548ef070fef7e7817223be23a6ba759ad515148",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
