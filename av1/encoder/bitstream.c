@@ -428,12 +428,26 @@ static AOM_INLINE void write_motion_mode(const AV1_COMMON *cm, MACROBLOCKD *xd,
 static AOM_INLINE void write_warp_rotation(MACROBLOCKD *xd,
                                            const MB_MODE_INFO *mbmi,
                                            aom_writer *w) {
-  aom_write_symbol(w, mbmi->rot_flag,
-                   xd->tile_ctx->globalmv_rotation_flag_cdf[mbmi->sb_type], 2);
-  if (mbmi->rot_flag) {
-    aom_write_symbol(w, (mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP,
-                     xd->tile_ctx->globalmv_rotation_degree_cdf,
-                     ROTATION_COUNT);
+  if (warp_rotation_allowed(xd)) {
+    aom_write_symbol(w, mbmi->rot_flag,
+                     xd->tile_ctx->globalmv_rotation_flag_cdf[mbmi->sb_type],
+                     2);
+    if (mbmi->rot_flag) {
+      aom_write_symbol(w, (mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP,
+                       xd->tile_ctx->globalmv_rotation_degree_cdf,
+                       ROTATION_COUNT);
+    }
+  } else {
+    aom_write_symbol(w, mbmi->rot_flag,
+                     xd->tile_ctx->translation_rotation_flag_cdf[mbmi->sb_type],
+                     2);
+    if (mbmi->rot_flag) {
+      aom_write_symbol(w, (mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP,
+                       xd->tile_ctx->translation_rotation_degree_cdf,
+                       ROTATION_COUNT);
+    }
+    // printf("bitstream flag:%d \n", mbmi->rot_flag);
+    // if (mbmi->rot_flag) printf("bitstream: %d \n", mbmi->rotation);
   }
 }
 #endif  // CONFIG_EXT_ROTATION
@@ -1395,7 +1409,8 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
 
     if (mbmi->ref_frame[1] != INTRA_FRAME) write_motion_mode(cm, xd, mbmi, w);
 #if CONFIG_EXT_ROTATION
-    if (warp_rotation_allowed(xd)) write_warp_rotation(xd, mbmi, w);
+    if (mbmi->motion_mode == SIMPLE_TRANSLATION)
+      write_warp_rotation(xd, mbmi, w);
 #endif  // CONFIG_EXT_ROTATION
 
     // First write idx to indicate current compound inter prediction mode group
