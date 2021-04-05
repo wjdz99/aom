@@ -496,7 +496,7 @@ struct macroblock {
   // in rdopt.c.
 #if CONFIG_INTERINTRA_ML
   int interintra_mode_cost_[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
-  int interintra_ml_mode_cost_[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
+  int interintra_ml_mode_cost_[BLOCK_SIZE_GROUPS][INTERINTRA_ML_MODES];
 #else
   int interintra_mode_cost_[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
 #endif

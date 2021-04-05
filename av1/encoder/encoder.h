@@ -506,6 +506,10 @@ typedef struct FRAME_COUNTS {
   unsigned int wedge_idx[BLOCK_SIZES_ALL][16];
   unsigned int interintra[BLOCK_SIZE_GROUPS][2];
   unsigned int interintra_mode[BLOCK_SIZE_GROUPS][INTERINTRA_MODES];
+#if CONFIG_INTERINTRA_ML
+  // TODO(sjhwang): How do we use this?
+  unsigned int interintra_ml_mode[BLOCK_SIZE_GROUPS][INTERINTRA_ML_MODES];
+#endif  // CONFIG_INTERINTRA_ML
   unsigned int wedge_interintra[BLOCK_SIZES_ALL][2];
   unsigned int compound_type[BLOCK_SIZES_ALL][MASKED_COMPOUND_TYPES];
   unsigned int motion_mode[BLOCK_SIZES_ALL][MOTION_MODES];

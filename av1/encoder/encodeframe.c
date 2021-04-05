@@ -318,6 +318,10 @@ static void avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->wedge_interintra_cdf, ctx_tr->wedge_interintra_cdf, 2);
   AVERAGE_CDF(ctx_left->interintra_mode_cdf, ctx_tr->interintra_mode_cdf,
               INTERINTRA_MODES);
+#if CONFIG_INTERINTRA_ML
+  AVERAGE_CDF(ctx_left->interintra_ml_mode_cdf, ctx_tr->interintra_ml_mode_cdf,
+              INTERINTRA_ML_MODES);
+#endif  // CONFIG_INTERINTRA_ML
   AVERAGE_CDF(ctx_left->motion_mode_cdf, ctx_tr->motion_mode_cdf, MOTION_MODES);
 #if CONFIG_EXT_WARP && CONFIG_SUB8X8_WARP
   AVERAGE_CDF(ctx_left->warp_cdf, ctx_tr->warp_cdf, 2);

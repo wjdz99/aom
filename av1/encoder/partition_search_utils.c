@@ -1710,7 +1710,7 @@ static INLINE void update_inter_stats(const AV1_COMMON *const cm,
 #if CONFIG_INTERINTRA_ML
               if (is_interintra_ml_supported(xd, mbmi->use_wedge_interintra)) {
                 update_cdf(fc->interintra_ml_mode_cdf[bsize_group],
-                           mbmi->interintra_mode, INTERINTRA_MODES);
+                           mbmi->interintra_mode, INTERINTRA_ML_MODES);
               } else {
                 update_cdf(fc->interintra_mode_cdf[bsize_group],
                            mbmi->interintra_mode, INTERINTRA_MODES);

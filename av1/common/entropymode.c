@@ -1156,10 +1156,10 @@ static const aom_cdf_prob
                                { AOM_CDF4(4238, 11537, 25926) } };
 static const aom_cdf_prob
     default_interintra_ml_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(
-        INTERINTRA_MODES)] = { { AOM_CDF4(8192, 16384, 24576) },
-                               { AOM_CDF4(1875, 11082, 27332) },
-                               { AOM_CDF4(2473, 9996, 26388) },
-                               { AOM_CDF4(4238, 11537, 25926) } };
+        INTERINTRA_ML_MODES)] = { { AOM_CDF6(5461, 10922, 16384, 21845, 27306) },
+                                  { AOM_CDF6(5461, 10922, 16384, 21845, 27306) },
+                                  { AOM_CDF6(5461, 10922, 16384, 21845, 27306) },
+                                  { AOM_CDF6(5461, 10922, 16384, 21845, 27306) } };
 #else
 static const aom_cdf_prob
     default_interintra_mode_cdf[BLOCK_SIZE_GROUPS][CDF_SIZE(

@@ -1552,7 +1552,7 @@ static void write_interintra_mode_bits(MACROBLOCKD const *xd,
   if (is_interintra_ml_supported(xd, mbmi->use_wedge_interintra)) {
     aom_write_symbol(w, mbmi->interintra_mode,
                      ec_ctx->interintra_ml_mode_cdf[bsize_group],
-                     INTERINTRA_MODES);
+                     INTERINTRA_ML_MODES);
   } else {
     aom_write_symbol(w, mbmi->interintra_mode,
                      ec_ctx->interintra_mode_cdf[bsize_group],

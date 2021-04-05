@@ -1720,7 +1720,7 @@ static void read_interintra_mode_bits(MACROBLOCKD *const xd,
   if (is_interintra_ml_supported(xd, mbmi->use_wedge_interintra)) {
     mbmi->interintra_mode =
         aom_read_symbol(r, xd->tile_ctx->interintra_ml_mode_cdf[size_group],
-                        INTERINTRA_MODES, ACCT_STR);
+                        INTERINTRA_ML_MODES, ACCT_STR);
   } else {
     mbmi->interintra_mode =
         aom_read_symbol(r, xd->tile_ctx->interintra_mode_cdf[size_group],

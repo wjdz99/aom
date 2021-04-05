@@ -10787,6 +10787,8 @@ static int handle_smooth_inter_intra_mode(
                                       AOM_PLANE_Y, AOM_PLANE_Y);
       }
 #endif  // CONFIG_ILLUM_MCOMP
+      // TODO: What does this mean?
+      // Should we check if ml interintra mode is enabled?
       if ((!cpi->oxcf.enable_smooth_intra || cpi->sf.disable_smooth_intra) &&
           (INTERINTRA_MODE)j == II_SMOOTH_PRED)
         continue;
@@ -10940,6 +10942,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   uint8_t *intrapred = get_buf_by_bd(xd, intrapred_);
   const int_mv mv0 = mbmi->mv[0];
 #if CONFIG_INTERINTRA_ML
+  // TODO: Is this correct???
   const int is_wedge_used =
       is_interintra_ml_supported(&x->e_mbd, /*wedge=*/false);
 #else
@@ -10969,6 +10972,10 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
   const int left = xd->left_mbmi && xd->left_mbmi->use_derived_intra_mode[0];
   const int *derived_intra_mode_cost =
       x->derived_intra_mode_cost[1][above + left];
+#elif CONFIG_INTERINTRA_ML
+  const int total_modes = is_interintra_ml_supported(&x->e_mbd, /*wedge=*/false) ? INTERINTRA_ML_MODES : INTERINTRA_MODES;
+  const int *derived_intra_mode_cost = NULL;
+  int pick_derived_intra_mode = 0;
 #else
   const int total_modes = INTERINTRA_MODES;
   const int *derived_intra_mode_cost = NULL;
@@ -11009,6 +11016,7 @@ static int handle_inter_intra_mode(const AV1_COMP *const cpi,
       best_interintra_rd_wedge = pick_interintra_wedge(
           cpi, x, bsize, intrapred_, stride, tmp_buf_, stride);
     } else if (cpi->sf.fast_interintra_wedge_search) {
+      // TODO: Is this correct for ML mode?
       mbmi->interintra_mode = II_DC_PRED;
 #if CONFIG_DERIVED_INTRA_MODE
       mbmi->use_derived_intra_mode[0] = pick_derived_intra_mode;
@@ -15647,9 +15655,11 @@ void av1_rd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   InterModeSearchState search_state;
   init_inter_mode_search_state(&search_state, cpi, x, bsize, best_rd_so_far);
+
+  const INTERINTRA_MODE total_modes = is_interintra_ml_supported(&x->e_mbd, /*wedge=*/false) ? INTERINTRA_ML_MODES : INTERINTRA_MODES;
   INTERINTRA_MODE interintra_modes[REF_FRAMES] = {
-    INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES,
-    INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES, INTERINTRA_MODES
+    total_modes, total_modes, total_modes, total_modes,
+    total_modes, total_modes, total_modes, total_modes
   };
   HandleInterModeArgs args = {
     { NULL },  { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE },

@@ -74,13 +74,13 @@ tflite::ErrorReporter *get_reporter() {
 
 const unsigned char *get_serialized_tflite_model(BLOCK_SIZE bsize) {
   switch (bsize) {
-    case BLOCK_8X8: return decode_19752907_001_8x8_tflite_data;
-    case BLOCK_8X16: return decode_19752907_003_8x16_tflite_data;
-    case BLOCK_16X8: return decode_19752907_002_16x8_tflite_data;
-    case BLOCK_16X16: return decode_19752907_004_16x16_tflite_data;
-    case BLOCK_16X32: return decode_19752907_006_16x32_tflite_data;
-    case BLOCK_32X16: return decode_19752907_005_32x16_tflite_data;
-    case BLOCK_32X32: return decode_19752907_007_32x32_tflite_data;
+    case BLOCK_8X8: return decode_21749596_001_8x8_tflite_data;
+    case BLOCK_8X16: return decode_21749596_003_16x8_tflite_data;
+    case BLOCK_16X8: return decode_21749596_002_8x16_tflite_data;
+    case BLOCK_16X16: return decode_21749596_004_16x16_tflite_data;
+    case BLOCK_16X32: return decode_21749596_006_32x16_tflite_data;
+    case BLOCK_32X16: return decode_21749596_005_16x32_tflite_data;
+    case BLOCK_32X32: return decode_21749596_007_32x32_tflite_data;
     default: return nullptr;
   }
 }
