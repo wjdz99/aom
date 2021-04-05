@@ -1250,16 +1250,29 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
           update_cdf(fc->obmc_cdf[bsize], mbmi->motion_mode == OBMC_CAUSAL, 2);
         }
 #if CONFIG_EXT_ROTATION
-        if (warp_rotation_allowed(xd)) {
+        if (mbmi->motion_mode == SIMPLE_TRANSLATION) {
           const int rot_ind = (mbmi->rotation + ROTATION_RANGE) / ROTATION_STEP;
+          if (warp_rotation_allowed(xd)) {
 #if CONFIG_ENTROPY_STATS
-          ++counts->globalmv_rotation_flag[bsize][mbmi->rot_flag];
-          if (mbmi->rot_flag) ++counts->globalmv_rotation_degree[rot_ind];
+            ++counts->globalmv_rotation_flag[bsize][mbmi->rot_flag];
+            if (mbmi->rot_flag) ++counts->globalmv_rotation_degree[rot_ind];
 #endif
-          update_cdf(fc->globalmv_rotation_flag_cdf[bsize], mbmi->rot_flag, 2);
-          if (mbmi->rot_flag)
-            update_cdf(fc->globalmv_rotation_degree_cdf, rot_ind,
-                       ROTATION_COUNT);
+            update_cdf(fc->globalmv_rotation_flag_cdf[bsize], mbmi->rot_flag,
+                       2);
+            if (mbmi->rot_flag)
+              update_cdf(fc->globalmv_rotation_degree_cdf, rot_ind,
+                         ROTATION_COUNT);
+          } else {
+#if CONFIG_ENTROPY_STATS
+            ++counts->translation_rotation_flag[bsize][mbmi->rot_flag];
+            if (mbmi->rot_flag) ++counts->translation_rotation_degree[rot_ind];
+#endif
+            update_cdf(fc->translation_rotation_flag_cdf[bsize], mbmi->rot_flag,
+                       2);
+            if (mbmi->rot_flag)
+              update_cdf(fc->translation_rotation_degree_cdf, rot_ind,
+                         ROTATION_COUNT);
+          }
         }
 #endif  // CONFIG_EXT_ROTATION
       }
