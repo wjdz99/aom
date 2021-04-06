@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch abstracts lap_enabled to AV1_PRIMARY(ppi).\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc. \n\nPlease review.",
       "revId": "40799bfd9c65e8f7f5f1b0099ddb69824a14d02e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c7688c5_0d6999d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-06T00:02:39Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "40799bfd9c65e8f7f5f1b0099ddb69824a14d02e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
