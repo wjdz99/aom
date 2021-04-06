@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e3c974d_d11843d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-04-06T18:00:52Z",
+      "side": 1,
+      "message": "\u003e We also thought of renaming the existing function generate_hog() as generate_hog_lowbd() and generate_hog_hbd() as generate_hog_highbd() for better readability, but did not pursue this change as the naming comes from parent version. Please let us know your opinion on this change.\n\nI support this change. But doing the quick grep shows that the prevalent naming convention in libaom has the form \"av1_highbd_foo_fn\" instead of \"av1_foo_fn_highbd\". If we want to be consistent, highbd_generate_hog might be a better choice.",
+      "parentUuid": "2bbbfe8c_cf0b6019",
+      "revId": "fabcf2e0af80459a4a6df4d2891975dd59acfe87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0e858f54_d8f3b350",
