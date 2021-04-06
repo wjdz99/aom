@@ -474,6 +474,17 @@ static void set_allintra_speed_features_framesize_independent(
     sf->winner_mode_sf.multi_winner_mode_type = MULTI_WINNER_MODE_OFF;
   }
 
+  // TODO(kyslov@): Please move the real-time key frame coding speed features
+  // here accordingly.
+  if (speed >= 7) {
+  }
+
+  if (speed >= 8) {
+  }
+
+  if (speed >= 9) {
+  }
+
   // Intra txb hash is currently not compatible with multi-winner mode as the
   // hashes got reset during multi-winner mode processing.
   assert(IMPLIES(
