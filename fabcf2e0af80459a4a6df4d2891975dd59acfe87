@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bbbfe8c_cf0b6019",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-04-06T17:30:27Z",
+      "side": 1,
+      "message": "Hi Wan-Teh/Chi-Yo,\n\nThis CL enables the generation of gradient data at superblock level for HBD encode.\nThis is a follow-up CL for https://aomedia-review.googlesource.com/c/aom/+/133661.\n\nWe have taken care of spell mistakes in 2 places and also the code related to highbd path is kept under the macro CONFIG_AV1_HIGHBITDEPTH.\n\nWe validated the current patch for video and still-image encode. It was verified that the output of AVIF/video encode is bit-exact w.r.t. parent version for highbd and lowbd cases.\n\nFollowing are instruction count reduction results when tested libaom with allintra encoding for a borg setup.\n\n                        Instruction Count \n  cpu-used   Bit-Depth    Reduction(%)\n     5          10           2.141\n     5          12           1.843\n\nThe instruction count reduction specified has been measured using command:\n  $ perf stat -e instructions:u ./aomenc ...\n\nNote that the instruction count reduction numbers are measured for bit-depth 10/12 by passing --bit-depth\u003d10/12 (setting output bit-depth as 10/12 will force the libaom to take highbd path) for 8 bit input.\n\nWe also thought of renaming the existing function generate_hog() as generate_hog_lowbd() and generate_hog_hbd() as generate_hog_highbd() for better readability, but did not pursue this change as the naming comes from parent version. Please let us know your opinion on this change.\n\nPlease review.\n\nRegards,\nAniket.",
+      "revId": "fabcf2e0af80459a4a6df4d2891975dd59acfe87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
