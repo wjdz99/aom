@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9b99ca16_a07e0fc7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-06T19:44:45Z",
+      "side": 1,
+      "message": "You should only have to use the new key-value API: there is no need to support the old API for any new command-line flags.\n@Bohan: can you suggest what changes are needed for new API only?",
+      "parentUuid": "3521ecbb_242aa0a7",
+      "revId": "fa69d88fd668c94d6e324f854ccfc91b6ed7f393",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0e4362ee_42c230ff",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 19
@@ -73,6 +91,30 @@
       "side": 1,
       "message": "Since both the compiling flag and run-time flag are supported in this commit. So I think what we discussed before is to have at least 3 separate patches for this proposal, which is listed below.\n\nIn the first patch, the compiling flag is turned off by default\nIn the second patch, the compiling flag is turned on by default, but run-time flag is turn off by default\nIn the third patch, the compiling flag is turned on by default, and run-time flag is also turned on by default",
       "parentUuid": "0e4362ee_42c230ff",
+      "range": {
+        "startLine": 140,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 74
+      },
+      "revId": "fa69d88fd668c94d6e324f854ccfc91b6ed7f393",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15455d94_7d5329dc",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 19
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-06T19:44:45Z",
+      "side": 1,
+      "message": "What I meant is:\n- The title of the patch is \"add run-time flag\", so it should only add the runtime flag, and not do anything else. (And it should keep compile flag off).\n- Next patch can turn on compile flag on by default\n- And the one after that can also turn runtime flag on by default",
+      "parentUuid": "48d5847e_48ff2827",
       "range": {
         "startLine": 140,
         "startChar": 0,
