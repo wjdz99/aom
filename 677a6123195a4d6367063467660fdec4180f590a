@@ -61,6 +61,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "be5bcf35_0f71de52",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 25837
+      },
+      "writtenOn": "2021-04-06T16:22:22Z",
+      "side": 1,
+      "message": "BDRate gain is typically around 0.5% for AV2 CTC LD:\nhttps://beta.arewecompressedyet.com/?job\u003d%402021-03-29T07%3A17%3A55.895Z%402021-03-31T08%3A21%3A41.899Z%402021-03-31T10%3A42%3A27.622Z%402021-04-05T18%3A54%3A56.338Z\u0026job\u003d%402021-03-29T07%3A17%3A55.895Z%402021-03-31T08%3A21%3A41.899Z%402021-03-31T10%3A42%3A27.622Z%402021-04-06T07%3A52%3A10.102Z",
+      "parentUuid": "b846e579_2f890d99",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 13
+      },
+      "revId": "677a6123195a4d6367063467660fdec4180f590a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "866adf34_7ee18372",
         "filename": "av1/encoder/encode_strategy.c",
         "patchSetId": 2
@@ -72,6 +96,30 @@
       "writtenOn": "2021-04-06T15:47:02Z",
       "side": 1,
       "message": "Can you add a comment here on what this is doing? Specifically, what is the number 3?",
+      "range": {
+        "startLine": 712,
+        "startChar": 0,
+        "endLine": 712,
+        "endChar": 51
+      },
+      "revId": "677a6123195a4d6367063467660fdec4180f590a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09b09254_82c1a81e",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 712,
+      "author": {
+        "id": 25837
+      },
+      "writtenOn": "2021-04-06T16:22:22Z",
+      "side": 1,
+      "message": "The number 3 is introduced here in order to avoid that any of the three closest previous reference frames are overwritten by the current frame since these are good reference pictures to use (in low delay configurations).",
+      "parentUuid": "866adf34_7ee18372",
       "range": {
         "startLine": 712,
         "startChar": 0,
