@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "82779eea_edd0d479",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-06T21:47:55Z",
+      "side": 1,
+      "message": "Since we\u0027re calloc\u0027ing the structure in the case img is NULL, I think you can just add:\n  if (img !\u003d NULL) memset(img, 0, sizeof(aom_image_t));\nhere.",
+      "revId": "cf7baa0e0091b4396a6eaaa94f2329a26c3ee3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "797591c2_b7868b5f",
         "filename": "aom/src/aom_image.c",
         "patchSetId": 2
