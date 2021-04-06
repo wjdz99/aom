@@ -68,6 +68,24 @@
       "parentUuid": "797591c2_b7868b5f",
       "revId": "cf7baa0e0091b4396a6eaaa94f2329a26c3ee3d9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8029d70d_af3bbd37",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-04-06T22:20:33Z",
+      "side": 1,
+      "message": "I don\u0027t have access to the bug.",
+      "parentUuid": "edc043ee_740ed3d3",
+      "revId": "cf7baa0e0091b4396a6eaaa94f2329a26c3ee3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
