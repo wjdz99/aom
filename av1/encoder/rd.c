@@ -346,8 +346,11 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
       av1_cost_tokens_from_cdf(mode_costs->drl_mode_cost0[i], fc->drl_cdf[i],
                                NULL);
     }
+<<<<<<< HEAD   (d6f0bd Introduce the derived_intra_mode experiment)
 #endif  // CONFIG_NEW_INTER_MODES
 
+=======
+>>>>>>> BRANCH (72b391 Fix code to aggregate stats)
     for (i = 0; i < INTER_COMPOUND_MODE_CONTEXTS; ++i)
       av1_cost_tokens_from_cdf(mode_costs->inter_compound_mode_cost[i],
                                fc->inter_compound_mode_cdf[i], NULL);
