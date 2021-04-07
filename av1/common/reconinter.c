@@ -630,11 +630,18 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 
 #if CONFIG_OPTFLOW_REFINEMENT
 
+#define OPFL_QUINCUNX 1
+#define OPFL_FULLPEL_REUSE 1
+
 // Delta to use for computing gradients in bits, with 0 referring to
 // integer-pel. The actual delta value used from the 1/8-pel original MVs
 // is 2^(3 - SUBPEL_GRAD_DELTA_BITS). The max value of this macro is 3.
 // TODO(debargha@, kslu@): experiment with values 0, 1, 2
+#if OPFL_FULLPEL_REUSE
+#define SUBPEL_GRAD_DELTA_BITS 0
+#else
 #define SUBPEL_GRAD_DELTA_BITS 3
+#endif
 // Note: grad_prec_bits param returned correspond to the precision
 // of the gradient information in bits assuming gradient
 // computed at unit pixel step normalization is 0 scale.
@@ -662,11 +669,6 @@ int av1_compute_subpel_gradients_highbd(
   // Do references one at a time
   const int is_compound = 0;
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  struct buf_2d *const dst_buf = &pd->dst;
-  uint16_t tmp_buf1[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
-  uint16_t tmp_buf2[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
-  uint8_t *tmp_buf1_8 = CONVERT_TO_BYTEPTR(tmp_buf1);
-  uint8_t *tmp_buf2_8 = CONVERT_TO_BYTEPTR(tmp_buf2);
 
   int is_global[2] = { 0, 0 };
   const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[ref]];
@@ -709,12 +711,36 @@ int av1_compute_subpel_gradients_highbd(
 
   // Original predictor
   const MV mv_orig = mi->mv[ref].as_mv;
-  MV mv_modified = mv_orig;
   assert(mi->interinter_comp.type == COMPOUND_AVERAGE);
   av1_build_one_inter_predictor(pred_dst, bw, &mv_orig, &inter_pred_params, xd,
                                 mi_x, mi_y, ref, mc_buf,
                                 calc_subpel_params_func);
 
+#if OPFL_FULLPEL_REUSE
+  // Reuse pixels in pred_dst to compute gradients
+  for (int i = 0; i < bh; i++) {
+    x_grad[i * bw] =
+        (int16_t)pred_dst16[i * bw + 1] - (int16_t)pred_dst16[i * bw];
+    for (int j = 1; j < bw - 1; j++)
+      x_grad[i * bw + j] = (int16_t)pred_dst16[i * bw + j + 1] -
+                           (int16_t)pred_dst16[i * bw + j - 1];
+    x_grad[i * bw + bw - 1] = (int16_t)pred_dst16[i * bw + bw - 1] -
+                              (int16_t)pred_dst16[i * bw + bw - 2];
+  }
+  for (int j = 0; j < bw; j++) {
+    y_grad[j] = (int16_t)pred_dst16[bw + j] - (int16_t)pred_dst16[j];
+    for (int i = 1; i < bh - 1; i++)
+      y_grad[i * bw + j] = (int16_t)pred_dst16[(i + 1) * bw + j] -
+                           (int16_t)pred_dst16[(i - 1) * bw + j];
+    y_grad[(bh - 1) * bw + j] = (int16_t)pred_dst16[(bh - 1) * bw + j] -
+                                (int16_t)pred_dst16[(bh - 2) * bw + j];
+  }
+#else
+  MV mv_modified = mv_orig;
+  uint16_t tmp_buf1[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
+  uint16_t tmp_buf2[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
+  uint8_t *tmp_buf1_8 = CONVERT_TO_BYTEPTR(tmp_buf1);
+  uint8_t *tmp_buf2_8 = CONVERT_TO_BYTEPTR(tmp_buf2);
   // X gradient
   // Get predictor to the left
   mv_modified.col = mv_orig.col - (1 << (3 - SUBPEL_GRAD_DELTA_BITS));
@@ -766,6 +792,7 @@ int av1_compute_subpel_gradients_highbd(
           (int16_t)tmp_buf2[i * bw + j] - (int16_t)tmp_buf1[i * bw + j];
     }
   }
+#endif  // OPFL_FULLPEL_REUSE
   *grad_prec_bits = 3 - SUBPEL_GRAD_DELTA_BITS - 2;
   return r_dist;
 }
@@ -797,8 +824,6 @@ int av1_compute_subpel_gradients_lowbd(
   const int is_compound = 0;
   struct macroblockd_plane *const pd = &xd->plane[plane];
   struct buf_2d *const dst_buf = &pd->dst;
-  uint8_t tmp_buf1[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
-  uint8_t tmp_buf2[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
 
   int is_global[2] = { 0, 0 };
   const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[ref]];
@@ -841,12 +866,32 @@ int av1_compute_subpel_gradients_lowbd(
 
   // Original predictor
   const MV mv_orig = mi->mv[ref].as_mv;
-  MV mv_modified = mv_orig;
   assert(mi->interinter_comp.type == COMPOUND_AVERAGE);
   av1_build_one_inter_predictor(pred_dst, bw, &mv_orig, &inter_pred_params, xd,
                                 mi_x, mi_y, ref, mc_buf,
                                 calc_subpel_params_func);
 
+#if OPFL_FULLPEL_REUSE
+  for (int i = 0; i < bh; i++) {
+    x_grad[i * bw] = (int16_t)pred_dst[i * bw + 1] - (int16_t)pred_dst[i * bw];
+    for (int j = 1; j < bw - 1; j++)
+      x_grad[i * bw + j] =
+          (int16_t)pred_dst[i * bw + j + 1] - (int16_t)pred_dst[i * bw + j - 1];
+    x_grad[i * bw + bw - 1] =
+        (int16_t)pred_dst[i * bw + bw - 1] - (int16_t)pred_dst[i * bw + bw - 2];
+  }
+  for (int j = 0; j < bw; j++) {
+    y_grad[j] = (int16_t)pred_dst[bw + j] - (int16_t)pred_dst[j];
+    for (int i = 1; i < bh - 1; i++)
+      y_grad[i * bw + j] = (int16_t)pred_dst[(i + 1) * bw + j] -
+                           (int16_t)pred_dst[(i - 1) * bw + j];
+    y_grad[(bh - 1) * bw + j] = (int16_t)pred_dst[(bh - 1) * bw + j] -
+                                (int16_t)pred_dst[(bh - 2) * bw + j];
+  }
+#else
+  MV mv_modified = mv_orig;
+  uint8_t tmp_buf1[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
+  uint8_t tmp_buf2[MAX_SB_SIZE * MAX_SB_SIZE] = { 0 };
   // X gradient
   // Get predictor to the left
   mv_modified.col = mv_orig.col - (1 << (3 - SUBPEL_GRAD_DELTA_BITS));
@@ -898,6 +943,7 @@ int av1_compute_subpel_gradients_lowbd(
           (int16_t)tmp_buf2[i * bw + j] - (int16_t)tmp_buf1[i * bw + j];
     }
   }
+#endif  // OPFL_FULLPEL_REUSE
   *grad_prec_bits = 3 - SUBPEL_GRAD_DELTA_BITS - 2;
   return r_dist;
 }
@@ -932,6 +978,9 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
   int64_t svw = 0;
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
+#if OPFL_QUINCUNX
+      if ((i + j) % 2 == 1) continue;
+#endif
       const int u = d0 * gx0[i * gstride + j] - d1 * gx1[i * gstride + j];
       const int v = d0 * gy0[i * gstride + j] - d1 * gy1[i * gstride + j];
       const int w = d0 * (p0[i * pstride0 + j] - p1[i * pstride1 + j]);
@@ -970,6 +1019,9 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
   int64_t svw = 0;
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
+#if OPFL_QUINCUNX
+      if ((i + j) % 2 == 1) continue;
+#endif
       const int u = d0 * gx0[i * gstride + j] - d1 * gx1[i * gstride + j];
       const int v = d0 * gy0[i * gstride + j] - d1 * gy1[i * gstride + j];
       const int w = d0 * (p0[i * pstride0 + j] - p1[i * pstride1 + j]);
