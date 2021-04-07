@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nWe have refactored the cdef frame code to facilitate row-level multi-threading. We have submitted 3 dependent patches for this change.\n\nPlease check the code changes with respect to each patches.\n\nPatch 1:\t\n1. Copy of top line buffer (linebuf) has been moved from block level to row-level. Also, two buffers (ping-pong) are introduced to avoid linebuf over-writing by two consecutive rows. This buffer is required to process each row independently in MT implementation\n2. Memory allocation of line buffer has been modified to handle frame resolution changes (super-res or resize) at run time. Originally, memory allocation was done at frame level. By this way, overheads due to malloc call is avoided.\n3. restore_cdef_coding_context() function is introduced to copy CdefInfo structure\n4. The above changes are applicable for encoder and decoder\n\nPatch 2:\t\n1. Memory allocation of column buffer (colbuf) and intermediate buffer (srcbuf) has been handled similar to line buffer allocation at run time. \n2. Also, this helps in row-level MT implementation, as column and intermediate buffers are required for each row to process independently.\n\nPatch 3:\t\n1. Introduced a bottom line buffer (linebuf) at row-level. This buffer is required to process each row independently in MT implementation.\n\nThe changes are bit-exact (verified locally). \n1. Heap memory analysis is done and observed that the change is negligible.\n2. Average encode time impact of these patches is ~0.7% for --rt preset and negligible for --good preset. The overhead is due to top and bottom line buffer changes. The buffers are inevitable to facilitate row-level MT in cdef frame. \n\nPlease review the same and let us know your thoughts. Thank you.",
       "revId": "f267cec4219ef2ccb83c1fbc72770269e6cc3880",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5105e4c4_ef099e72",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-07T20:49:00Z",
+      "side": 1,
+      "message": "Thanks for the details. Looks good to me.",
+      "parentUuid": "ec22349a_b1e35298",
+      "revId": "f267cec4219ef2ccb83c1fbc72770269e6cc3880",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
