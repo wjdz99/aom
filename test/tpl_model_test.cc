@@ -42,3 +42,14 @@ TEST(TplModelTest, TransformCoeffEntropyTest2) {
   double expected_rate = av1_laplace_entropy(q_step, b, zero_bin_ratio);
   EXPECT_NEAR(expected_rate, est_expected_rate, 0.001);
 }
+
+TEST(TplModelTest, av1_delta_rate_cost1) {
+  // When srcrf_dist equal to recrf_dist, av1_delta_rate_cost should return 0
+  int64_t srcrf_dist = 256;
+  int64_t recrf_dist = 256;
+  int64_t delta_rate = 512;
+  int pixel_num = 256;
+  int64_t rate_cost =
+      av1_delta_rate_cost(delta_rate, recrf_dist, srcrf_dist, pixel_num);
+  EXPECT_EQ(rate_cost, 0);
+}
