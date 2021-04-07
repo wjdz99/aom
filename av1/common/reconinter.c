@@ -754,19 +754,14 @@ int av1_compute_subpel_gradients_highbd(
   // reference
   const int r_dist = get_relative_dist(&cm->seq_params.order_hint_info,
                                        cur_frame_index, ref_index);
+  if (!r_dist) return 0;
 
   // Do references one at a time
   const int is_compound = 0;
   struct macroblockd_plane *const pd = &xd->plane[plane];
   struct buf_2d *const dst_buf = &pd->dst;
 
-  int is_global[2] = { 0, 0 };
-  const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[ref]];
-  is_global[ref] = is_global_mv_block(mi, wm->wmtype);
-  const WarpTypesAllowed warp_types = { is_global[ref],
-                                        mi->motion_mode == WARPED_CAUSAL };
-  const struct scale_factors *const sf =
-      mi->use_intrabc ? &cm->sf_identity : xd->block_ref_scale_factors[ref];
+  const struct scale_factors *const sf = xd->block_ref_scale_factors[ref];
 
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
@@ -775,7 +770,7 @@ int av1_compute_subpel_gradients_highbd(
   const int pre_x = (mi_x + MI_SIZE * col_start) >> pd->subsampling_x;
   const int pre_y = (mi_y + MI_SIZE * row_start) >> pd->subsampling_y;
 
-  struct buf_2d *const pre_buf = mi->use_intrabc ? dst_buf : &pd->pre[ref];
+  struct buf_2d *const pre_buf = &pd->pre[ref];
 
 #if CONFIG_REMOVE_DUAL_FILTER
 #if OPFL_FIX_INTERPFILTER_FOR_GRAD
@@ -804,10 +799,6 @@ int av1_compute_subpel_gradients_highbd(
       cm, mi, 0, &inter_pred_params.conv_params.fwd_offset,
       &inter_pred_params.conv_params.bck_offset, is_compound);
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
-
-  av1_init_warp_params(&inter_pred_params, &warp_types, ref, xd, mi);
-  // TODO(sarahparker) make compatible with warped modes
-  if (inter_pred_params.mode == WARP_PRED || !r_dist) return 0;
 
   // Original predictor
   const MV mv_orig = mi->mv[ref].as_mv;
@@ -1019,19 +1010,13 @@ int av1_compute_subpel_gradients_lowbd(
   // reference
   const int r_dist = get_relative_dist(&cm->seq_params.order_hint_info,
                                        cur_frame_index, ref_index);
+  if (!r_dist) return 0;
 
   // Do references one at a time
   const int is_compound = 0;
   struct macroblockd_plane *const pd = &xd->plane[plane];
-  struct buf_2d *const dst_buf = &pd->dst;
 
-  int is_global[2] = { 0, 0 };
-  const WarpedMotionParams *const wm = &xd->global_motion[mi->ref_frame[ref]];
-  is_global[ref] = is_global_mv_block(mi, wm->wmtype);
-  const WarpTypesAllowed warp_types = { is_global[ref],
-                                        mi->motion_mode == WARPED_CAUSAL };
-  const struct scale_factors *const sf =
-      mi->use_intrabc ? &cm->sf_identity : xd->block_ref_scale_factors[ref];
+  const struct scale_factors *const sf = xd->block_ref_scale_factors[ref];
 
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
@@ -1040,7 +1025,7 @@ int av1_compute_subpel_gradients_lowbd(
   const int pre_x = (mi_x + MI_SIZE * col_start) >> pd->subsampling_x;
   const int pre_y = (mi_y + MI_SIZE * row_start) >> pd->subsampling_y;
 
-  struct buf_2d *const pre_buf = mi->use_intrabc ? dst_buf : &pd->pre[ref];
+  struct buf_2d *const pre_buf = &pd->pre[ref];
 
 #if CONFIG_REMOVE_DUAL_FILTER
 #if OPFL_FIX_INTERPFILTER_FOR_GRAD
@@ -1069,10 +1054,6 @@ int av1_compute_subpel_gradients_lowbd(
       cm, mi, 0, &inter_pred_params.conv_params.fwd_offset,
       &inter_pred_params.conv_params.bck_offset, is_compound);
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
-
-  av1_init_warp_params(&inter_pred_params, &warp_types, ref, xd, mi);
-  // TODO(sarahparker) make compatible with warped modes
-  if (inter_pred_params.mode == WARP_PRED || !r_dist) return 0;
 
   // Original predictor
   const MV mv_orig = mi->mv[ref].as_mv;
@@ -1971,7 +1952,17 @@ static void build_inter_predictors_8x8_and_bigger(
 
 #if CONFIG_OPTFLOW_REFINEMENT
   const int use_optflow_refinement = (mi->mode > NEW_NEWMV) && is_compound;
-  assert(IMPLIES(use_optflow_refinement, !build_for_obmc));
+  assert(IMPLIES(use_optflow_refinement, !build_for_obmc && !mi->use_intrabc));
+#if 0
+  if (cm->current_frame.order_hint == SIDX && mi_y == SROW * MI_SIZE &&
+      mi_x == SCOL * MI_SIZE) {
+    fprintf(stderr, "f %d p %d mi_y %d mi_x %d bw %d bh %d\n",
+            cm->current_frame.order_hint, plane, mi_y, mi_x, bw, bh);
+    fprintf(stderr, " mode %d motion_mode %d mv0=(%d,%d) mv1=(%d,%d)\n",
+            mi->mode, mi->motion_mode, mi->mv[0].as_mv.row,
+            mi->mv[0].as_mv.col, mi->mv[1].as_mv.row, mi->mv[1].as_mv.col);
+  }
+#endif
 
   if (use_optflow_refinement && plane == 0) {
     // Initialize refined mv
