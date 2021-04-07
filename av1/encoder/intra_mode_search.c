@@ -1020,6 +1020,7 @@ static INLINE void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 }
 
+// Evaluate a given luma intra-mode in inter frames.
 int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
                             const AV1_COMP *cpi, MACROBLOCK *x,
                             BLOCK_SIZE bsize, unsigned int ref_frame_cost,
@@ -1084,13 +1085,18 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
     if (rd_stats_y->rate != INT_MAX) {
       const int tmp_rate = rd_stats_y->rate +
                            mode_costs->filter_intra_cost[bsize][0] + mode_cost;
+      // best_rd_so_far is the rdcost of DC_PRED without using filter_intra.
+      // Later, in filter intra search, best_rd_so_far is used for comparison.
       best_rd_so_far = RDCOST(x->rdmult, tmp_rate, rd_stats_y->dist);
       try_filter_intra = (best_rd_so_far / 2) <= best_rd;
     }
 
     if (try_filter_intra) {
+      // best_rd_so_far can be larger than best_rd. But, if best_rd_so_far is
+      // smaller, it should be used as best_rd (i.e. use AOMMIN(best_rd,
+      // best_rd_so_far).
       handle_filter_intra_mode(cpi, x, bsize, ctx, rd_stats_y, mode_cost,
-                               best_rd, best_rd_so_far);
+                               AOMMIN(best_rd, best_rd_so_far), best_rd_so_far);
     }
   }
 
