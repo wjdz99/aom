@@ -1608,6 +1608,7 @@ void av1_encode_frame(AV1_COMP *cpi) {
   CurrentFrame *const current_frame = &cm->current_frame;
   FeatureFlags *const features = &cm->features;
   const int num_planes = av1_num_planes(cm);
+
   // Indicates whether or not to use a default reduced set for ext-tx
   // rather than the potential full set of 16 transforms
   features->reduced_tx_set_used = cpi->oxcf.txfm_cfg.reduced_tx_type_set;
