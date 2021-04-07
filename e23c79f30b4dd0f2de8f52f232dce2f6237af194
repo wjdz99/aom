@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1db78da6_76e7377e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-07T14:17:19Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThis CL adds a unit-test EndToEndAllIntraTest to check the adherence to a given PSNR value for allintra encoding. We have set AOM_Q (the use-case of still picture encoding mode) as ratecontrol mode for allintra encoding mode and considered cq_level\u003d18 for testing purpose. EndToEndAllIntraTest is enabled only for speed 6. However, added support to test allintra for speed presets 1,2,3,5,6 using the unit-test EndToEndTestLarge.\n\nAs per our understanding, the else part of the PSNR thresholds in \u0027kPsnrThreshold[][]\u0027 array is never getting used as the macro CONFIG_AV1_ENCODER is enabled by default, and also the file end_to_end_test.cc is included under the same macro. Hence, cleaned-up \u0027kPsnrThreshold[][]\u0027 by keeping the entries that are getting used. The entries correspond to speed 7, 5th entry in each preset array (which points to encoding mode value 4) are not used anywhere. Hence, removed the same from \u0027kPsnrThreshold[][]\u0027.\n\nThe PSNR threshold is set such that the difference between actual vs threshold will be between 0.1 to 0.2 dB by rounding down to one decimal point. However, the threshold shall be adjusted accordingly depending on the optimization progress in the future.\n\nWe thought of adding a separate LargeTest (EndToEndAllIntraTestLarge) for allintra path to test only specific presets 1,3 and 6 but we did not pursue the change for simpler code.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
+      "revId": "e23c79f30b4dd0f2de8f52f232dce2f6237af194",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
