@@ -108,6 +108,9 @@ void av1_twopass_zero_stats(FIRSTPASS_STATS *section) {
   section->new_mv_count = 0.0;
   section->count = 0.0;
   section->duration = 1.0;
+  section->is_flash = 0;
+  section->noise_var = 0;
+  section->cor_coeff = 1.0;
 }
 
 void av1_accumulate_stats(FIRSTPASS_STATS *section,
@@ -135,6 +138,8 @@ void av1_accumulate_stats(FIRSTPASS_STATS *section,
   section->new_mv_count += frame->new_mv_count;
   section->count += frame->count;
   section->duration += frame->duration;
+  section->noise_var += frame->noise_var;
+  section->cor_coeff *= frame->cor_coeff;
 }
 
 static int get_unit_rows(const BLOCK_SIZE fp_block_size, const int mb_rows) {
