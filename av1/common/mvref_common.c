@@ -706,6 +706,8 @@ static AOM_INLINE void setup_ref_mv_list(
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
+  const int16_t newmv_ctx = mode_context[ref_frame] & NEWMV_CTX_MASK;
+  assert(newmv_ctx < NEWMV_MODE_CONTEXTS);
 
   // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
@@ -1572,18 +1574,6 @@ static AOM_INLINE void set_ref_frame_info(int *remapped_ref_idx, int frame_idx,
 
   remapped_ref_idx[frame_idx] = ref_info->map_idx;
 }
-
-#if CONFIG_NEW_INTER_MODES
-aom_cdf_prob *av1_get_drl_cdf(FRAME_CONTEXT *ec_ctx,
-                              const uint16_t *ref_mv_weight, int ref_idx) {
-  const int ctx = av1_drl_ctx(ref_mv_weight, ref_idx);
-  switch (ref_idx) {
-    case 0: return ec_ctx->drl0_cdf[ctx];
-    case 1: return ec_ctx->drl1_cdf[ctx];
-    default: return ec_ctx->drl2_cdf[ctx];
-  }
-}
-#endif  // CONFIG_NEW_INTER_MODES
 
 void av1_set_frame_refs(AV1_COMMON *const cm, int *remapped_ref_idx,
                         int lst_map_idx, int gld_map_idx) {
