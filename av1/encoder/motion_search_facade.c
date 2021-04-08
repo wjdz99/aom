@@ -159,6 +159,66 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
         }
       }
     }
+
+#if CONFIG_REF_MV_BANK
+    const int max_cnt = MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB;
+    if (cnt < max_cnt) {
+      const MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
+      const REF_MV_BANK *ref_mv_bank_left = xd->ref_mv_bank_left_pt;
+      const CANDIDATE_MV *queue_left = ref_mv_bank_left->rmb_buffer[ref_frame];
+      const int count_left = ref_mv_bank_left->rmb_count[ref_frame];
+      const int start_idx_left = ref_mv_bank_left->rmb_start_idx[ref_frame];
+      for (int idx_left = 0; idx_left < count_left && cnt < max_cnt; ++idx_left) {
+        const int idx =
+            (start_idx_left + count_left - 1 - idx_left) % REF_MV_BANK_SIZE;
+        const CANDIDATE_MV cand_mv = queue_left[idx];
+        const FULLPEL_MV fmv = { GET_MV_RAWPEL(cand_mv.this_mv.as_mv.row),
+                                  GET_MV_RAWPEL(cand_mv.this_mv.as_mv.col) };
+        int unique = 1;
+        for (int m = 0; m < cnt; m++) {
+          if (fmv.row == cand[m].fmv.row && fmv.col == cand[m].fmv.col) {
+            unique = 0;
+            break;
+          }
+        }
+
+        if (unique) {
+          cand[cnt].fmv = fmv;
+          cand[cnt].weight = 1;
+          cnt++;
+        }
+      }
+#if REF_MV_BANK_COLS
+      const int col_bank_idx = av1_get_column_bank_index(cm, xd->mi_col);
+      const REF_MV_BANK *ref_mv_bank_above =
+          &xd->ref_mv_bank_above_pt[col_bank_idx];
+      const int count_above = ref_mv_bank_above->rmb_count[ref_frame];
+      const CANDIDATE_MV *queue_above =
+          ref_mv_bank_above->rmb_buffer[ref_frame];
+      const int start_idx_above = ref_mv_bank_above->rmb_start_idx[ref_frame];
+      for (int idx_above = 0; idx_above < count_above && cnt < max_cnt; ++idx_above) {
+        const int idx =
+            (start_idx_above + count_above - 1 - idx_above) % REF_MV_BANK_SIZE;
+        const CANDIDATE_MV cand_mv = queue_above[idx];
+        const FULLPEL_MV fmv = { GET_MV_RAWPEL(cand_mv.this_mv.as_mv.row),
+                                  GET_MV_RAWPEL(cand_mv.this_mv.as_mv.col) };
+        int unique = 1;
+        for (int m = 0; m < cnt; m++) {
+          if (fmv.row == cand[m].fmv.row && fmv.col == cand[m].fmv.col) {
+            unique = 0;
+            break;
+          }
+        }
+
+        if (unique) {
+          cand[cnt].fmv = fmv;
+          cand[cnt].weight = 1;
+          cnt++;
+        }
+      }
+#endif  // REF_MV_BANK_COLS
+    }
+#endif  // CONFIG_REF_MV_BANK
   }
 
   // Further reduce the search range.

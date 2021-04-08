@@ -866,7 +866,7 @@ static AOM_INLINE void setup_ref_mv_list(
 #endif  // CONFIG_NEW_INTER_MODES
   }
 
-#if CONFIG_REF_MV_BANK
+#if CONFIG_REF_MV_BANK && 0
   // TODO(huisu): do we need the AOMMIN? can we just use the first ?
 #if CONFIG_NEW_INTER_MODES
   const int ref_mv_limit =
