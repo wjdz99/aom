@@ -511,23 +511,24 @@ static AOM_INLINE void build_mc_border(const uint8_t *src, int src_stride,
 static INLINE int update_extend_mc_border_params(
     const struct scale_factors *const sf, struct buf_2d *const pre_buf,
     MV32 scaled_mv, PadBlock *block, int subpel_x_mv, int subpel_y_mv,
+#if CONFIG_OPTFLOW_REFINEMENT
+    int use_optflow_refinement,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     int do_warp, int is_intrabc, int *x_pad, int *y_pad) {
   // Get reference width and height.
   int frame_width = pre_buf->width;
   int frame_height = pre_buf->height;
 
-  // Do border extension if there is motion or
-  // width/height is not a multiple of 8 pixels.
-#if CONFIG_OPTFLOW_REFINEMENT
-  // Extension is needed in optical flow refinement to obtain MV offsets
-  (void)scaled_mv;
-  if (!is_intrabc && !do_warp) {
-#else
+  // Do border extension if there is motion or width/height is not a multiple
+  // of 8 pixels.
   const int is_scaled = av1_is_scaled(sf);
-  if ((!is_intrabc) && (!do_warp) &&
-      (is_scaled || scaled_mv.col || scaled_mv.row || (frame_width & 0x7) ||
-       (frame_height & 0x7))) {
+  if (((!is_intrabc) && (!do_warp) &&
+       (is_scaled || scaled_mv.col || scaled_mv.row || (frame_width & 0x7) ||
+        (frame_height & 0x7)))
+#if CONFIG_OPTFLOW_REFINEMENT
+      || use_optflow_refinement
 #endif  // CONFIG_OPTFLOW_REFINEMENT
+  ) {
     if (subpel_x_mv || (sf->x_step_q4 != SUBPEL_SHIFTS)) {
       block->x0 -= AOM_INTERP_EXTEND - 1;
       block->x1 += AOM_INTERP_EXTEND;
@@ -553,13 +554,19 @@ static INLINE void extend_mc_border(const struct scale_factors *const sf,
                                     struct buf_2d *const pre_buf,
                                     MV32 scaled_mv, PadBlock block,
                                     int subpel_x_mv, int subpel_y_mv,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                    int use_optflow_refinement,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
                                     int do_warp, int is_intrabc, int highbd,
                                     uint8_t *mc_buf, uint8_t **pre,
                                     int *src_stride) {
   int x_pad = 0, y_pad = 0;
   if (update_extend_mc_border_params(sf, pre_buf, scaled_mv, &block,
-                                     subpel_x_mv, subpel_y_mv, do_warp,
-                                     is_intrabc, &x_pad, &y_pad)) {
+                                     subpel_x_mv, subpel_y_mv,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                     use_optflow_refinement,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                                     do_warp, is_intrabc, &x_pad, &y_pad)) {
     // Get reference block pointer.
     const uint8_t *const buf_ptr =
         pre_buf->buf0 + block.y0 * pre_buf->stride + block.x0;
@@ -718,6 +725,9 @@ static void dec_calc_subpel_params_and_extend(
   extend_mc_border(
       inter_pred_params->scale_factors, &inter_pred_params->ref_frame_buf,
       scaled_mv, block, subpel_x_mv, subpel_y_mv,
+#if CONFIG_OPTFLOW_REFINEMENT
+      use_optflow_refinement,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       inter_pred_params->mode == WARP_PRED, inter_pred_params->is_intrabc,
       inter_pred_params->use_hbd_buf, mc_buf[ref], pre, src_stride);
 }
