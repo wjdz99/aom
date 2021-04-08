@@ -645,8 +645,13 @@ enum {
 #define MAX_ANGLE_DELTA 3
 #define ANGLE_STEP 3
 
+<<<<<<< HEAD   (d6f0bd Introduce the derived_intra_mode experiment)
 #define INTER_SINGLE_MODES SINGLE_INTER_MODE_NUM
 #define INTER_COMPOUND_MODES COMP_INTER_MODE_NUM
+=======
+#define INTER_SINGLE_MODES (1 + NEWMV - NEARESTMV)
+#define INTER_COMPOUND_MODES (1 + NEW_NEWMV - NEAREST_NEARESTMV)
+>>>>>>> BRANCH (72b391 Fix code to aggregate stats)
 
 #define SKIP_CONTEXTS 3
 #define SKIP_MODE_CONTEXTS 3

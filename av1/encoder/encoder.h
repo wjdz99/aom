@@ -1141,7 +1141,10 @@ typedef struct FRAME_COUNTS {
   unsigned int zeromv_mode[GLOBALMV_MODE_CONTEXTS][2];
   unsigned int refmv_mode[REFMV_MODE_CONTEXTS][2];
   unsigned int drl_mode[DRL_MODE_CONTEXTS][2];
+<<<<<<< HEAD   (d6f0bd Introduce the derived_intra_mode experiment)
 #endif  // CONFIG_NEW_INTER_MODES
+=======
+>>>>>>> BRANCH (72b391 Fix code to aggregate stats)
   unsigned int inter_compound_mode[INTER_COMPOUND_MODE_CONTEXTS]
                                   [INTER_COMPOUND_MODES];
   unsigned int wedge_idx[BLOCK_SIZES_ALL][16];
