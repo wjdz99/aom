@@ -261,6 +261,14 @@ static INLINE int16_t inter_single_mode_ctx(int16_t mode_ctx) {
   assert(ctx < INTER_SINGLE_MODE_CONTEXTS);
   return ctx;
 }
+
+static INLINE int16_t drl_mode_ctx(int16_t mode_ctx) {
+  const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
+  const int16_t zeromv_ctx = (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
+  const int16_t ctx = GLOBALMV_MODE_CONTEXTS * newmv_ctx + zeromv_ctx;
+  assert(ctx < DRL_MODE_CONTEXTS);
+  return ctx;
+}
 #endif  // CONFIG_NEW_INTER_MODES
 
 // Returns the context for palette color index at row 'r' and column 'c',
