@@ -1,0 +1,220 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26677d61_623c364c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "Optional: If there will be a series of CLs for this work, I recommend filing a bug report and linking all the related CLs to that bug.",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4b9ed2c_0306fcec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "I suggest some changes.",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82c1283f_ee7d89fe",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1757,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "I seem to remember Chi Yo did some work so that we no longer need to call aom_clear_system_state(). Could you please check with him?",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9213f0dc_c441e384",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1771,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "It seems that this function is equal to -log2(av1_laplace_prob(...)). If so, can we just implement it that way?\n\n  double av1_est_coeff_entropy(double q_step, double b, double zero_bin_ratio,\n                               int qcoeff) {\n    return -log2(av1_laplace_prob(q_step, b, zero_bin_ratio, qcoeff));\n  }\n\nUPDATE: TransformCoeffEntropyTest1 confirms this relation between the two functions.",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9d7d6fbb_187cb755",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "Since \"estimate\" is used in this function name without abbreviation, I suggest we do not abbreviate \"estimate\" in the function names \"av1_est_coeff_entropy\" and \"av1_est_txfm_block_entropy\".",
+      "range": {
+        "startLine": 301,
+        "startChar": 19,
+        "endLine": 301,
+        "endChar": 27
+      },
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7a45a58_be6f0b3b",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "Nit: Why is the parameter named a \"mean\" if it is maximum absolute deviations?",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7d231ff_f4589edc",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "Please document the sizes of the abs_coeff_mean and qcoeff_ls arrays.\n\nUPDATE: I found the answer to my question: coeff_num. Given that, I probably would suggest we list the coeff_num parameter last:\n\n  int q_index, const double *abs_coeff_mean, int *qcoeff_ls, int coeff_num\n\nBut please use the parameter order that you prefer.",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa8a95b3_7d31ad23",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "Just curious: What does the \"ls\" in \"qcoeff_ls\" stand for?",
+      "range": {
+        "startLine": 343,
+        "startChar": 49,
+        "endLine": 343,
+        "endChar": 63
+      },
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8fbf41e_dc28b9d0",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "Nit: in alphabetical order, this test should be listed last, after temporal_filter_test.cc and tile_xxx_test.cc.\n\nNote that temporal_filter_test.cc should be listed before tile_xxx_test.cc in alphabetical order.",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cb64f7f_886b4e8f",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "Should we also test av1_est_txfm_block_entropy()?",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40e6ef5d_624eb36a",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "The Style Guide recommends we include this header first, before the system headers. So it should look like this:\n\n#include \"av1/encoder/tpl_model.h\"\n\n#include \u003ccstdlib\u003e\n\n#include \"third_party/googletest/src/googletest/include/gtest/gtest.h\"\n\nSee the sample code at\nhttps://engdoc.corp.google.com/eng/doc/devguide/cpp/styleguide.md?cl\u003dhead#Names_and_Order_of_Includes",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6db7ea2_a14a6370",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-08T19:48:52Z",
+      "side": 1,
+      "message": "This sentence is incomplete. Maybe add av1_laplace_entropy()?",
+      "revId": "7879f4a1bf293adac90e120fab87335dfb0d5105",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
