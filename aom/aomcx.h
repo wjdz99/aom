@@ -18,6 +18,7 @@
  */
 #include "aom/aom.h"
 #include "aom/aom_encoder.h"
+#include "aom/aom_external_partition.h"
 
 /*!\file
  * \brief Provides definitions for using AOM or AV1 encoder algorithm within the
@@ -1327,6 +1328,12 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_DIAGONAL_INTRA = 141,
 
+  /*!\brief Codec control to use an external partition model
+   * A set of callback functions is passed through this control
+   * to let the encoder encode with given partitions.
+   */
+  AV1E_SET_EXTERNAL_PARTITION = 142,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -1860,6 +1867,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, unsigned int)
 #define AOM_CTRL_AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DNL_DENOISING, int)
+#define AOM_CTRL_AV1E_SET_ENABLE_DNL_DENOISING
+
+AOM_CTRL_USE_TYPE(AV1E_SET_EXTERNAL_PARTITION, aom_ext_part_funcs_t)
 #define AOM_CTRL_AV1E_SET_ENABLE_DNL_DENOISING
 
 /*!\endcond */
