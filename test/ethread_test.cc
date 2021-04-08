@@ -22,6 +22,7 @@
 
 namespace {
 const size_t kFirstPassStatsSz = sizeof(FIRSTPASS_STATS);
+const int kCqLevel = 18;
 class AVxFirstPassEncoderThreadTest
     : public ::libaom_test::CodecTestWith4Params<libaom_test::TestMode, int,
                                                  int, int>,
@@ -227,11 +228,12 @@ class AVxEncoderThreadTest
   virtual void SetUp() {
     InitializeConfig(encoding_mode_);
 
-    if (encoding_mode_ != ::libaom_test::kRealTime) {
+    if (encoding_mode_ == ::libaom_test::kOnePassGood ||
+        encoding_mode_ == ::libaom_test::kTwoPassGood) {
       cfg_.g_lag_in_frames = 6;
       cfg_.rc_2pass_vbr_minsection_pct = 5;
       cfg_.rc_2pass_vbr_maxsection_pct = 2000;
-    } else {
+    } else if (encoding_mode_ == ::libaom_test::kRealTime) {
       cfg_.g_error_resilient = 1;
     }
     cfg_.rc_max_quantizer = 56;
@@ -248,7 +250,10 @@ class AVxEncoderThreadTest
       SetTileSize(encoder);
       encoder->Control(AOME_SET_CPUUSED, set_cpu_used_);
       encoder->Control(AV1E_SET_ROW_MT, row_mt_);
-      if (encoding_mode_ != ::libaom_test::kRealTime) {
+      if (encoding_mode_ == ::libaom_test::kAllIntra) {
+        encoder->Control(AOME_SET_CQ_LEVEL, kCqLevel);
+      } else if (encoding_mode_ == ::libaom_test::kOnePassGood ||
+                 encoding_mode_ == ::libaom_test::kTwoPassGood) {
         encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
         encoder->Control(AOME_SET_ARNR_MAXFRAMES, 5);
         encoder->Control(AOME_SET_ARNR_STRENGTH, 5);
@@ -437,6 +442,14 @@ TEST_P(AVxEncoderThreadRTTest, EncoderResultTest) {
   DoTest();
 }
 
+class AVxEncoderThreadAllIntraTest : public AVxEncoderThreadTest {};
+
+TEST_P(AVxEncoderThreadAllIntraTest, EncoderResultTest) {
+  cfg_.large_scale_tile = 0;
+  decoder_->Control(AV1_SET_TILE_MODE, 0);
+  DoTest();
+}
+
 class AVxEncoderThreadTestLarge : public AVxEncoderThreadTest {};
 
 TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
@@ -448,6 +461,14 @@ TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
 class AVxEncoderThreadRTTestLarge : public AVxEncoderThreadTest {};
 
 TEST_P(AVxEncoderThreadRTTestLarge, EncoderResultTest) {
+  cfg_.large_scale_tile = 0;
+  decoder_->Control(AV1_SET_TILE_MODE, 0);
+  DoTest();
+}
+
+class AVxEncoderThreadAllIntraTestLarge : public AVxEncoderThreadTest {};
+
+TEST_P(AVxEncoderThreadAllIntraTestLarge, EncoderResultTest) {
   cfg_.large_scale_tile = 0;
   decoder_->Control(AV1_SET_TILE_MODE, 0);
   DoTest();
@@ -472,6 +493,12 @@ AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadRTTest,
                            ::testing::Values(7, 8, 9), ::testing::Values(0, 2),
                            ::testing::Values(0, 2), ::testing::Values(0, 1));
 
+// Only test cpu_used 6 here.
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadAllIntraTest,
+                           ::testing::Values(::libaom_test::kAllIntra),
+                           ::testing::Values(6), ::testing::Values(0, 2),
+                           ::testing::Values(0, 2), ::testing::Values(0, 1));
+
 // Test cpu_used 0, 1, 3 and 5.
 AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadTestLarge,
                            ::testing::Values(::libaom_test::kTwoPassGood,
@@ -483,6 +510,13 @@ AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadTestLarge,
 // Test cpu_used 0, 2, 4 and 6.
 AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadRTTestLarge,
                            ::testing::Values(::libaom_test::kRealTime),
+                           ::testing::Values(0, 2, 4, 6),
+                           ::testing::Values(1, 6), ::testing::Values(1, 6),
+                           ::testing::Values(0, 1));
+
+// Test cpu_used 0, 2, 4 and 6.
+AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadAllIntraTestLarge,
+                           ::testing::Values(::libaom_test::kAllIntra),
                            ::testing::Values(0, 2, 4, 6),
                            ::testing::Values(1, 6), ::testing::Values(1, 6),
                            ::testing::Values(0, 1));
