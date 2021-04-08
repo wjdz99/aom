@@ -3731,7 +3731,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
           // Tpl stats is reused when the ARF is temporally filtered and gf
           // interval is not shortened.
           if (is_temporal_filter_enabled && !shorten_gf_interval)
-            cpi->tpl_data.skip_tpl_setup_stats = 1;
+            cpi->skip_tpl_setup_stats = 1;
         } else {
           // GOP length is decided based on GF boost and approximate tpl model
           shorten_gf_interval =

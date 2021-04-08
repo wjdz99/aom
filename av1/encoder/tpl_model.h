@@ -19,6 +19,7 @@ extern "C" {
 /*!\cond */
 
 struct AV1_COMP;
+struct AV1_SEQ_CODING_TOOLS;
 struct EncodeFrameParams;
 struct EncodeFrameInput;
 
@@ -196,11 +197,6 @@ typedef struct TplParams {
    * Frame border for tpl frame.
    */
   int border_in_pixels;
-
-  /*!
-   * Skip tpl setup when tpl data from gop length decision can be reused.
-   */
-  int skip_tpl_setup_stats;
 } TplParams;
 
 /*!\brief Allocate buffers used by tpl model
@@ -211,8 +207,10 @@ typedef struct TplParams {
  * \param[out]   tpl_data  tpl data structure
  */
 
-void av1_setup_tpl_buffers(AV1_COMMON *const cm, TplParams *const tpl_data,
-                           int lag_in_frames);
+void av1_setup_tpl_buffers(CommonModeInfoParams *const mi_params,
+                           struct AV1_SEQ_CODING_TOOLS *const seq_coding_tools,
+                           TplParams *const tpl_data, int width, int height,
+                           int byte_alignment, int lag_in_frames);
 
 /*!\brief Implements temporal dependency modelling for a GOP (GF/ARF
  * group) and selects between 16 and 32 frame GOP structure.
