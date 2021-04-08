@@ -23,6 +23,38 @@
 #include "av1/common/av1_common_int.h"
 #include "av1/common/cdef_block.h"
 
+enum { TOP, LEFT, BOTTOM, RIGHT, BOUNDARIES } UENUM1BYTE(BOUNDARY);
+
+struct AV1CdefSyncData;
+
+/*!\brief Parameters related to CDEF Block */
+typedef struct {
+  uint16_t *src;
+  uint16_t *top_linebuf[MAX_MB_PLANE];
+  uint16_t *bot_linebuf[MAX_MB_PLANE];
+  uint8_t *dst;
+  cdef_list dlist[MI_SIZE_64X64 * MI_SIZE_64X64];
+
+  int xdec;
+  int ydec;
+  int mi_wide_l2;
+  int mi_high_l2;
+  int frame_boundary[BOUNDARIES];
+
+  int damping;
+  int coeff_shift;
+  int level;
+  int sec_strength;
+  int cdef_count;
+  int is_zero_level;
+  int dir[CDEF_NBLOCKS][CDEF_NBLOCKS];
+  int var[CDEF_NBLOCKS][CDEF_NBLOCKS];
+
+  int dst_stride;
+  int coffset;
+  int roffset;
+} CdefBlockInfo;
+
 static INLINE int sign(int i) { return i < 0 ? -1 : 1; }
 
 static INLINE int constrain(int diff, int threshold, int damping) {
@@ -41,19 +73,35 @@ int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
                              int mi_row, int mi_col, cdef_list *dlist,
                              BLOCK_SIZE bsize);
 
+typedef void (*cdef_init_fb_row_t)(AV1_COMMON *cm, MACROBLOCKD *const xd,
+                                   CdefBlockInfo *fb_info,
+                                   uint16_t **const linebuf,
+                                   uint16_t *const src,
+                                   struct AV1CdefSyncData *cdef_sync, int fbr);
+
 /*!\brief Function for applying CDEF to a frame
  *
  * \ingroup in_loop_cdef
  * This function applies CDEF to a frame.
  *
- * \param[in, out]  frame       Compressed frame buffer
- * \param[in, out]  cm          Pointer to top level common structure
- * \param[in]       xd          Pointer to common current coding block structure
+ * \param[in, out]  frame     Compressed frame buffer
+ * \param[in, out]  cm        Pointer to top level common structure
+ * \param[in]       xd        Pointer to common current coding block structure
+ * \param[in]       cdef_init_fb_row_fn   Function Pointer
  *
  * \return Nothing is returned. Instead, the filtered frame is output in
  * \c frame.
  */
-void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd);
+void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
+                    cdef_init_fb_row_t cdef_init_fb_row_fn);
+void av1_cdef_fb_row(AV1_COMMON *cm, MACROBLOCKD *xd, uint16_t **const linebuf,
+                     uint16_t **const colbuf, uint16_t *const src, int fbr,
+                     cdef_init_fb_row_t cdef_init_fb_row_fn,
+                     struct AV1CdefSyncData *cdef_sync);
+void av1_cdef_init_fb_row(AV1_COMMON *cm, MACROBLOCKD *const xd,
+                          CdefBlockInfo *fb_info, uint16_t **const linebuf,
+                          uint16_t *const src,
+                          struct AV1CdefSyncData *cdef_sync, int fbr);
 
 #ifdef __cplusplus
 }  // extern "C"
