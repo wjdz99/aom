@@ -47,10 +47,8 @@ static void enc_calc_subpel_params(const MV *const src_mv,
 
   const struct scale_factors *sf = inter_pred_params->scale_factors;
   struct buf_2d *pre_buf = &inter_pred_params->ref_frame_buf;
-#if CONFIG_EXT_RECUR_PARTITIONS || CONFIG_OPTFLOW_REFINEMENT
   const int is_scaled = av1_is_scaled(sf);
   if (is_scaled || !xd) {
-#endif  // CONFIG_EXT_RECUR_PARTITIONS || CONFIG_OPTFLOW_REFINEMENT
     int ssx = inter_pred_params->subsampling_x;
     int ssy = inter_pred_params->subsampling_y;
     int orig_pos_y = inter_pred_params->pix_row << SUBPEL_BITS;
@@ -66,8 +64,8 @@ static void enc_calc_subpel_params(const MV *const src_mv,
       orig_pos_x += src_mv->col * (1 << (1 - ssx));
     }
 #else
-  orig_pos_y += src_mv->row * (1 << (1 - ssy));
-  orig_pos_x += src_mv->col * (1 << (1 - ssx));
+    orig_pos_y += src_mv->row * (1 << (1 - ssy));
+    orig_pos_x += src_mv->col * (1 << (1 - ssx));
 #endif  // CONFIG_OPTFLOW_REFINEMENT
     int pos_y = sf->scale_value_y(orig_pos_y, sf);
     int pos_x = sf->scale_value_x(orig_pos_x, sf);
@@ -88,7 +86,6 @@ static void enc_calc_subpel_params(const MV *const src_mv,
     subpel_params->ys = sf->y_step_q4;
     *pre = pre_buf->buf0 + (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
            (pos_x >> SCALE_SUBPEL_BITS);
-#if CONFIG_EXT_RECUR_PARTITIONS || CONFIG_OPTFLOW_REFINEMENT
   } else {
     int pos_x = inter_pred_params->pix_col << SUBPEL_BITS;
     int pos_y = inter_pred_params->pix_row << SUBPEL_BITS;
@@ -115,7 +112,6 @@ static void enc_calc_subpel_params(const MV *const src_mv,
     *pre = pre_buf->buf0 + (pos_y >> SUBPEL_BITS) * pre_buf->stride +
            (pos_x >> SUBPEL_BITS);
   }
-#endif  // CONFIG_EXT_RECUR_PARTITIONS || CONFIG_OPTFLOW_REFINEMENT
   *src_stride = pre_buf->stride;
 }
 
