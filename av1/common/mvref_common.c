@@ -1575,8 +1575,9 @@ static AOM_INLINE void set_ref_frame_info(int *remapped_ref_idx, int frame_idx,
 
 #if CONFIG_NEW_INTER_MODES
 aom_cdf_prob *av1_get_drl_cdf(FRAME_CONTEXT *ec_ctx,
-                              const uint16_t *ref_mv_weight, int ref_idx) {
-  const int ctx = av1_drl_ctx(ref_mv_weight, ref_idx);
+                              const uint16_t *ref_mv_weight,
+                              const int16_t mode_ctx, int ref_idx) {
+  const int ctx = av1_drl_ctx(ref_mv_weight, mode_ctx, ref_idx);
   switch (ref_idx) {
     case 0: return ec_ctx->drl0_cdf[ctx];
     case 1: return ec_ctx->drl1_cdf[ctx];
