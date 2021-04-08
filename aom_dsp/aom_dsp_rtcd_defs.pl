@@ -1353,9 +1353,7 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
       if ($w == 4 && $h == 4) {
           specialize "aom_highbd_${bd}_variance${w}x${h}", "sse4_1";
         }
-      if ($w != 128 && $h != 128 && $w != 4 &&
-          ((aom_config("CONFIG_EXT_RECUR_PARTITIONS") ne "yes") || (!($w == 8 && $h == 16) && !($w == 16 && $h == 32)))) {
-        # 8x16 and 16x32 functions have an alignment issue with CONFIG_EXT_RECUR_PARTITIONS experiment. So disabled for now.
+      if ($w != 128 && $h != 128 && $w != 4) {
         specialize "aom_highbd_${bd}_sub_pixel_variance${w}x${h}", qw/sse2/;
         specialize "aom_highbd_${bd}_sub_pixel_avg_variance${w}x${h}", qw/sse2/;
       }
