@@ -404,10 +404,10 @@ def GatherPerframeStat(test_cfg,EncodeMethod,CodecName,EncodePreset,clip, name, 
                     enc_list[int(POC)] = "%s,%s,%s,%s,%s"%(POC,frame_type,pyd_level,qindex,frame_size)
 
     for i in range(len(enc_list)):
-        #"TestCfg,EncodeMethod,CodecName,EncodePreset,Class,Res,Name,FPS,BitDepth,QP,POC,FrameType,Level,qindex,FrameSize")
+        #"TestCfg,EncodeMethod,CodecName,EncodePreset,Class,Name,Res,FPS,BitDepth,QP,POC,FrameType,Level,qindex,FrameSize")
         perframe_csv.write("%s,%s,%s,%s,%s,%s,%s,%s,%d,%d,%s,%s\n"
-                           %(test_cfg,EncodeMethod,CodecName,EncodePreset,clip.file_class,str(clip.width)+"x"+str(clip.height),
-                             name,clip.fps,clip.bit_depth,qp,enc_list[i],perframe_vmaf_log[i]))
+                           %(test_cfg,EncodeMethod,CodecName,EncodePreset,clip.file_class,name,str(clip.width)+"x"+str(clip.height),
+                             clip.fps,clip.bit_depth,qp,enc_list[i],perframe_vmaf_log[i]))
 
 
 def plot_rd_curve(br, qty, qty_str, name, line_color=None, line_style=None, marker_format=None):

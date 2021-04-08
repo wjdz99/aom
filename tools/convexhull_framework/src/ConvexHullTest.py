@@ -183,9 +183,6 @@ def Run_ConvexHull_Test(clip, dnScalAlgo, upScalAlgo, ScaleMethod, LogCmdOnly = 
     DnScaledRes = [(int(clip.width / ratio), int(clip.height / ratio)) for ratio in
                    DnScaleRatio]
     for i in range(len(DnScaledRes)):
-        if SaveMemory:
-            CleanIntermediateFiles()
-
         DnScaledW = DnScaledRes[i][0]
         DnScaledH = DnScaledRes[i][1]
         # downscaling if the downscaled file does not exist
@@ -199,9 +196,9 @@ def Run_ConvexHull_Test(clip, dnScalAlgo, upScalAlgo, ScaleMethod, LogCmdOnly = 
                        clip.fps_denom, clip.bit_depth)
         for QP in QPs['AS']:
             Utils.Logger.info("start encode and upscale for QP %d" % QP)
-            JobName = '%s_%s_%s_%s_Preset_%s_QP_%d' % \
+            JobName = '%s_%s_%s_%s_%dx%d_Preset_%s_QP_%d' % \
                       (GetShortContentName(clip.file_name, False),
-                       EncodeMethod, CodecName, "AS", EncodePreset, QP)
+                       EncodeMethod, CodecName, "AS", DnScaledW, DnScaledH, EncodePreset, QP)
             if LogCmdOnly:
                 Utils.CmdLogger.write("============== %s Job Start =================\n" % JobName)
 
@@ -280,8 +277,9 @@ def SaveConvexHullResultsToExcel(content, ScaleMethod, dnScAlgos, upScAlgos, csv
 
                 #"TestCfg,EncodeMethod,CodecName,EncodePreset,Class,OrigRes,Name,FPS,Bit Depth,CodedRes,QP,Bitrate(kbps)")
                 csv.write("%s,%s,%s,%s,%s,%s,%s,%.4f,%d,%s,%d,%.4f"%
-                          ("AS", EncodeMethod, CodecName, EncodePreset, clip.file_class,str(clip.width)+"x"+str(clip.height),
-                           contentname, clip.fps,clip.bit_depth,str(DnScaledW)+"x"+str(DnScaledH),qp,bitrate))
+                          ("AS", EncodeMethod, CodecName, EncodePreset, clip.file_class,contentname,
+                           str(clip.width)+"x"+str(clip.height), clip.fps,clip.bit_depth,
+                           str(DnScaledW)+"x"+str(DnScaledH),qp,bitrate))
                 for qty in quality:
                     csv.write(",%.4f"%qty)
 
@@ -443,7 +441,7 @@ if __name__ == "__main__":
     elif Function == 'convexhull':
         csv_file, perframe_csvfile = GetRDResultCsvFile(EncodeMethod, CodecName, EncodePreset, "AS")
         csv = open(csv_file, "wt")
-        csv.write("TestCfg,EncodeMethod,CodecName,EncodePreset,Class,OrigRes,Name,FPS," \
+        csv.write("TestCfg,EncodeMethod,CodecName,EncodePreset,Class,Name,OrigRes,FPS," \
                   "Bit Depth,CodedRes,QP,Bitrate(kbps)")
         for qty in QualityList:
             csv.write(',' + qty)
@@ -453,7 +451,7 @@ if __name__ == "__main__":
             csv.write(",EncT[s],DecT[s]\n")
 
         perframe_csv = open(perframe_csvfile, 'wt')
-        perframe_csv.write("TestCfg,EncodeMethod,CodecName,EncodePreset,Class,Res,Name,FPS," \
+        perframe_csv.write("TestCfg,EncodeMethod,CodecName,EncodePreset,Class,Name,Res,FPS," \
                            "Bit Depth,QP,POC,FrameType,Level,qindex,FrameSize")
         for qty in QualityList:
             if not qty.startswith("APSNR"):
