@@ -32,6 +32,9 @@ typedef enum ATTRIBUTE_PACKED {
   EIGHTTAP_SMOOTH,
   MULTITAP_SHARP,
   BILINEAR,
+#if CONFIG_OPTFLOW_REFINEMENT
+  BICUBIC,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   // Encoder side only filters
   MULTITAP_SHARP2,
 
@@ -133,6 +136,20 @@ DECLARE_ALIGNED(256, static const InterpKernel,
   { 0, 0, 0, 16, 112, 0, 0, 0 }, { 0, 0, 0, 8, 120, 0, 0, 0 }
 };
 
+#if CONFIG_OPTFLOW_REFINEMENT
+DECLARE_ALIGNED(256, static const InterpKernel,
+                av1_bicubic_filters[SUBPEL_SHIFTS]) = {
+  { 0, 0, 0, 128, 0, 0, 0, 0 },    { 0, 0, -2, 124, 8, -2, 0, 0 },
+  { 0, 0, -4, 118, 16, -2, 0, 0 }, { 0, 0, -6, 112, 26, -4, 0, 0 },
+  { 0, 0, -6, 104, 34, -4, 0, 0 }, { 0, 0, -8, 98, 44, -6, 0, 0 },
+  { 0, 0, -8, 90, 54, -8, 0, 0 },  { 0, 0, -8, 80, 64, -8, 0, 0 },
+  { 0, 0, -8, 72, 72, -8, 0, 0 },  { 0, 0, -8, 64, 80, -8, 0, 0 },
+  { 0, 0, -8, 54, 90, -8, 0, 0 },  { 0, 0, -6, 44, 98, -8, 0, 0 },
+  { 0, 0, -6, 34, 104, -6, 0, 0 }, { 0, 0, -4, 26, 112, -6, 0, 0 },
+  { 0, 0, -4, 16, 118, -4, 0, 0 }, { 0, 0, -2, 8, 124, -2, 0, 0 }
+};
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+
 DECLARE_ALIGNED(256, static const InterpKernel,
                 av1_sub_pel_filters_8[SUBPEL_SHIFTS]) = {
   { 0, 0, 0, 128, 0, 0, 0, 0 },      { 0, 2, -6, 126, 8, -2, 0, 0 },
@@ -197,6 +214,9 @@ static const InterpFilterParams
       { (const int16_t *)av1_sub_pel_filters_8sharp, SUBPEL_TAPS,
         MULTITAP_SHARP },
       { (const int16_t *)av1_bilinear_filters, SUBPEL_TAPS, BILINEAR },
+#if CONFIG_OPTFLOW_REFINEMENT
+      { (const int16_t *)av1_bicubic_filters, SUBPEL_TAPS, BICUBIC },
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
       // The following filters are for encoder only, and now they are used in
       // temporal filtering. The predictor block size >= 16 in temporal filter.
