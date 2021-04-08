@@ -183,9 +183,6 @@ def Run_ConvexHull_Test(clip, dnScalAlgo, upScalAlgo, ScaleMethod, LogCmdOnly = 
     DnScaledRes = [(int(clip.width / ratio), int(clip.height / ratio)) for ratio in
                    DnScaleRatio]
     for i in range(len(DnScaledRes)):
-        if SaveMemory:
-            CleanIntermediateFiles()
-
         DnScaledW = DnScaledRes[i][0]
         DnScaledH = DnScaledRes[i][1]
         # downscaling if the downscaled file does not exist
@@ -199,9 +196,9 @@ def Run_ConvexHull_Test(clip, dnScalAlgo, upScalAlgo, ScaleMethod, LogCmdOnly = 
                        clip.fps_denom, clip.bit_depth)
         for QP in QPs['AS']:
             Utils.Logger.info("start encode and upscale for QP %d" % QP)
-            JobName = '%s_%s_%s_%s_Preset_%s_QP_%d' % \
+            JobName = '%s_%s_%s_%s_%dx%d_Preset_%s_QP_%d' % \
                       (GetShortContentName(clip.file_name, False),
-                       EncodeMethod, CodecName, "AS", EncodePreset, QP)
+                       EncodeMethod, CodecName, "AS", DnScaledW, DnScaledH, EncodePreset, QP)
             if LogCmdOnly:
                 Utils.CmdLogger.write("============== %s Job Start =================\n" % JobName)
 
