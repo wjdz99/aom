@@ -481,6 +481,9 @@ static AOM_INLINE void process_single_ref_mv_candidate(
         // doesn't matter as long as it is properly initialized.
         ref_mv_weight[stack_idx] = 2;
         ++(*refmv_count);
+#if CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
+        if (*refmv_count >= MAX_MV_REF_CANDIDATES) return;
+#endif  // CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
       }
     }
   }
@@ -651,6 +654,13 @@ static AOM_INLINE void setup_ref_mv_list(
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
+#if CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
+  int refmv_count_max_ctx =
+      AOMMAX(*refmv_count, MAX_MV_REF_CANDIDATES) + (rf[1] == NONE_FRAME);
+  refmv_count_max_ctx = AOMMIN(refmv_count_max_ctx, MAX_REF_MV_STACK_SIZE);
+  // Add max #ref_mvs expected to second byte of mode_context
+  mode_context[ref_frame] |= (refmv_count_max_ctx << 8);
+#endif  // CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
 
   // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
@@ -760,7 +770,7 @@ static AOM_INLINE void setup_ref_mv_list(
       }
     }
 
-    assert(*refmv_count >= 2);
+    assert(*refmv_count >= MAX_MV_REF_CANDIDATES);
 
     for (int idx = 0; idx < *refmv_count; ++idx) {
       clamp_mv_ref(&ref_mv_stack[idx].this_mv.as_mv, xd->width << MI_SIZE_LOG2,
@@ -826,6 +836,9 @@ static AOM_INLINE void setup_ref_mv_list(
     }
 #endif  // CONFIG_NEW_INTER_MODES
   }
+#if CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
+  assert(*refmv_count <= refmv_count_max_ctx);
+#endif  // CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
 }
 
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
@@ -1495,18 +1508,6 @@ static AOM_INLINE void set_ref_frame_info(int *remapped_ref_idx, int frame_idx,
 
   remapped_ref_idx[frame_idx] = ref_info->map_idx;
 }
-
-#if CONFIG_NEW_INTER_MODES
-aom_cdf_prob *av1_get_drl_cdf(FRAME_CONTEXT *ec_ctx,
-                              const uint16_t *ref_mv_weight, int ref_idx) {
-  const int ctx = av1_drl_ctx(ref_mv_weight, ref_idx);
-  switch (ref_idx) {
-    case 0: return ec_ctx->drl0_cdf[ctx];
-    case 1: return ec_ctx->drl1_cdf[ctx];
-    default: return ec_ctx->drl2_cdf[ctx];
-  }
-}
-#endif  // CONFIG_NEW_INTER_MODES
 
 void av1_set_frame_refs(AV1_COMMON *const cm, int *remapped_ref_idx,
                         int lst_map_idx, int gld_map_idx) {
