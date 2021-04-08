@@ -2093,10 +2093,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int force_skip_low_temp_var = 0;
   int use_ref_frame_mask[REF_FRAMES] = { 0 };
   unsigned int sse_zeromv_norm = UINT_MAX;
+  unsigned int sse_zeromv_norm_thresh = bsize > BLOCK_64X64 ? 1000 : 20;
   // Use mode set that includes zeromv (via globalmv) for speed >= 9 for
   // content with low motion.
   int use_zeromv =
-      ((cpi->oxcf.speed >= 9 && cpi->rc.avg_frame_low_motion > 70) ||
+      ((cpi->oxcf.speed >= 9 &&
+        (cpi->rc.avg_frame_low_motion > 70 || bsize >= BLOCK_64X64)) ||
        cpi->sf.rt_sf.nonrd_agressive_skip);
   const int num_inter_modes =
       use_zeromv ? NUM_INTER_MODES_REDUCED : NUM_INTER_MODES_RT;
@@ -2286,6 +2288,13 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     // current ref frame is not allowed.
     if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
         get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame)
+      continue;
+
+    // Force (0, 0) LAST only for big blocks when ZEROMV is used, and when
+    // the sse from the zeromv (first mode tested) is below threshold.
+    if (use_zeromv && bsize >= BLOCK_64X64 &&
+        sse_zeromv_norm < sse_zeromv_norm_thresh &&
+        (ref_frame != LAST_FRAME || frame_mv[this_mode][ref_frame].as_int != 0))
       continue;
 
     if (skip_mode_by_bsize_and_ref_frame(
