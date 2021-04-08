@@ -633,6 +633,7 @@ TEST_P(ResizeRealtimeTest, TestInternalResizeDown) {
       last_w = info->w;
       last_h = info->h;
       resize_count++;
+      break;
     }
   }
 

@@ -1188,7 +1188,7 @@ void av1_get_ref_frames(AV1_COMP *const cpi, int cur_frame_disp,
     // Continue if the current ref slot is already full
     if (remapped_ref_idx[frame - LAST_FRAME] != INVALID_IDX) continue;
     // Find the next unmapped reference buffer
-    // in decreasing ouptut oreder relative to current picture
+    // in decreasing ouptut order relative to current picture
     int next_buf_max = 0;
     int next_disp_order = INT_MIN;
     for (buf_map_idx = n_bufs - 1; buf_map_idx >= 0; buf_map_idx--) {
@@ -1210,8 +1210,8 @@ void av1_get_ref_frames(AV1_COMP *const cpi, int cur_frame_disp,
     // Continue if the current ref slot is already full
     if (remapped_ref_idx[frame - LAST_FRAME] != INVALID_IDX) continue;
     // Find the next unmapped reference buffer
-    // in increasing ouptut oreder relative to current picture
-    int next_buf_max = 0;
+    // in increasing ouptut order relative to current picture
+    int next_buf_max = -1;
     int next_disp_order = INT_MAX;
     for (buf_map_idx = n_bufs - 1; buf_map_idx >= 0; buf_map_idx--) {
       if (!buffer_map[buf_map_idx].used &&
