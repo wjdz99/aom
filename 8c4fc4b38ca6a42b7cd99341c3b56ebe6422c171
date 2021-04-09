@@ -22,6 +22,30 @@
       },
       "revId": "8c4fc4b38ca6a42b7cd99341c3b56ebe6422c171",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "855a0a13_a43db3f0",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-09T02:08:07Z",
+      "side": 1,
+      "message": "\u003e maybe add another line, something like:\n\u003e \n\u003e \"Update LT_CURRENT, LT_REVISION, LT_AGE for public release following guidelines in the libtool document.\"\n\u003e \n\u003e It\u0027ll be clear to releaser what to change.\n\nGood point, done.",
+      "parentUuid": "36cdcc0a_b416469f",
+      "range": {
+        "startLine": 48,
+        "startChar": 9,
+        "endLine": 48,
+        "endChar": 24
+      },
+      "revId": "8c4fc4b38ca6a42b7cd99341c3b56ebe6422c171",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
