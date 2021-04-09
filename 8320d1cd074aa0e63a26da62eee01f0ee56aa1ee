@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c5a5781_b5aefc74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-04-09T12:00:36Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch abstracts alt_ref_buffer to AV1_PRIMARY (ppi). Currently alt_ref_buffer is used while temporal filtering of key frame, alt ref frame and internal ref frames (with filter_frame_lookahead_idx \u003e\u003d 7 under HIGH_LEVEL_SPEED_FEATURES:second_alt_ref_filtering). More than one of these frames will not be considered for parallel encoding under FP1 or FP2, hence the variable alt_ref_buffer is moved to ppi.\n\nThe allocation calls for alt_ref_buffer are not changed because they happen at init and at increase in dimensions which is handled inside encode path. Both the cases are handled as reallocation and are thus not changed. Deallocation happens at the end and is moved to av1_remove_primary_compressor.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. \n\nPlease review.",
+      "revId": "8320d1cd074aa0e63a26da62eee01f0ee56aa1ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
