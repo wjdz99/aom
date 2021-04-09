@@ -16,6 +16,23 @@
       "message": "I am uploading the fix for review so the oss-fuzz bug can be fixed quickly. I will write a follow-up CL to add the reproducer test case to test/invalid_file_test.cc.",
       "revId": "5159d150638fd610fa3b594123447e123aecf4b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a0d43d8_c0a99c70",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-09T02:09:45Z",
+      "side": 1,
+      "message": "this check isn\u0027t strictly necessary",
+      "revId": "5159d150638fd610fa3b594123447e123aecf4b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
