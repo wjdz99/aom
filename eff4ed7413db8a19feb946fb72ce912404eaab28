@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9bba1fe_dd674cbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-09T23:27:36Z",
+      "side": 1,
+      "message": "The patch looks good to me in terms of adding the command line option. ",
+      "revId": "eff4ed7413db8a19feb946fb72ce912404eaab28",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
