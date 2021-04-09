@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea67236b_63dbaf6d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-09T05:09:57Z",
+      "side": 0,
+      "message": "Use_cdef is 0 if cm-\u003etiles.large_scale \u003d 1. Removing it doesn\u0027t sound right?",
+      "range": {
+        "startLine": 2095,
+        "startChar": 54,
+        "endLine": 2095,
+        "endChar": 75
+      },
+      "revId": "6c93db7ff63430d2e5dcdfc42e84e3a0514da608",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
