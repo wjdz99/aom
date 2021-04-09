@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "784ee8de_d8a49bb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-09T01:48:31Z",
+      "side": 1,
+      "message": "I am uploading the fix for review so the oss-fuzz bug can be fixed quickly. I will write a follow-up CL to add the reproducer test case to test/invalid_file_test.cc.",
+      "revId": "5159d150638fd610fa3b594123447e123aecf4b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
