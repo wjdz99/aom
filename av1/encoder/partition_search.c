@@ -3910,11 +3910,62 @@ static RD_STATS rd_search_for_fixed_partition(
   return best_rdc;
 }
 
+static bool rd_mode_search_with_given_partition(
+    AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data,
+    TokenExtra **tp, SIMPLE_MOTION_DATA_TREE *sms_root, int mi_row, int mi_col,
+    const BLOCK_SIZE bsize, RD_STATS *best_rd_cost) {
+  ExtPartController *const ext_part_controller = &cpi->ext_part_controller;
+  assert(ext_part_controller != NULL && ext_part_controller->ready);
+
+  AV1_COMMON *const cm = &cpi->common;
+  bool is_final_decision = false;
+  do {
+    PC_TREE *const pc_tree = av1_alloc_pc_tree_node(bsize);
+    // TODO(chengchen): where to send features?
+    // TODO(chengchen): modify the decision struct to contain pc_tree.
+    aom_partition_decision_t decision;
+    const bool get_decicion_success =
+        av1_ext_part_get_partition_decision(ext_part_controller, &decision);
+    if (!get_decicion_success) return false;
+    // TODO(chengchen): We need a function here to convert the decision to pc_tree.
+    is_final_decision = decision.is_final_decision;
+    // Encode the block with the given partition tree. Get rdcost and encoding
+    // time.
+    aom_partition_stats_t partition_stats;
+    // TODO(chengchen): collect partition stats;
+    const RD_STATS rdcost = rd_search_for_fixed_partition(cpi, td, tile_data,
+                                                          tp, sms_root, mi_row,
+                                                          mi_col, bsize,
+                                                          pc_tree);
+    const bool send_features_success =
+        av1_ext_part_send_partition_stats(ext_part_controller, &partition_stats);
+    if (!send_features_success) return false;
+
+    // Encode with the partition configuration if it is the final decision.
+    if (is_final_decision) {
+      *best_rd_cost = rdcost;
+      MACROBLOCK *const x = &td->mb;
+      set_cb_offsets(x->cb_offset, 0, 0);
+      encode_sb(cpi, td, tile_data, tp, mi_row, mi_col, OUTPUT_ENABLED, bsize,
+                pc_tree, NULL);
+    }
+
+    av1_free_pc_tree_recursive(pc_tree, av1_num_planes(cm), 0, 0);
+  } while (!is_final_decision);
+
+  return true;
+}
+
 bool av1_rd_partition_search(AV1_COMP *const cpi, ThreadData *td,
                              TileDataEnc *tile_data, TokenExtra **tp,
                              SIMPLE_MOTION_DATA_TREE *sms_root, int mi_row,
                              int mi_col, const BLOCK_SIZE bsize,
                              RD_STATS *best_rd_cost) {
+  if (cpi->ext_part_controller.ready) {
+    return rd_mode_search_with_given_partition(cpi, td, tile_data, tp, sms_root,
+                                               mi_row, mi_col, bsize, best_rd_cost);
+  }
+
   AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &td->mb;
   int best_idx = 0;
