@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch extend the speed feature disable_interinter_wedge_newmv_search to speed 2 for non-boosted arf2 bwd frame type.\n\nPlease find the detailed borg results below : \n\n CPU   Resolution  Instruction Count     BD-Rate Impact %\n                       Reduction %       avg.psnr ovr.psnr  ssim\n  2    LOW RES           1.137           0.0056   0.0109   -0.0179\n  2    HD RES            0.700           -0.0091  -0.0121  -0.0189\n  2    MID RES           0.880           0.0010   0.0110   -0.0235\n  2    AVERAGE           0.963           -0.0002  0.0039  -0.0198\n\nPlease review the patch.\n\nRegards,\nAkshata",
       "revId": "bad5234c8c939837cfcd60a989d793931190df84",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a727cde5_b14b7c52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-09T05:15:47Z",
+      "side": 1,
+      "message": "Thanks. Looks good.",
+      "revId": "bad5234c8c939837cfcd60a989d793931190df84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
