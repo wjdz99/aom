@@ -52,6 +52,24 @@
       "parentUuid": "480580c3_45cdfe14",
       "revId": "704e5f7552a9934bdc29bc6f448d41637dd25a9b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ab1f877_178c98ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-09T18:57:40Z",
+      "side": 1,
+      "message": "Even we have 1 cpi per frame later, cpi-\u003ecommon.seq_params should be constant for every frame, right? So still can access like ppi-\u003ecpi-\u003ecommon.seq_params, right? Unlike other elements, this can not be moved out of cm. Is it necessary to make another copy in ppi? Did I miss anything?",
+      "parentUuid": "5e9f326e_cde46c6a",
+      "revId": "704e5f7552a9934bdc29bc6f448d41637dd25a9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
