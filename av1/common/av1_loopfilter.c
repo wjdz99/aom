@@ -31,9 +31,13 @@ static const SEG_LVL_FEATURES seg_lvl_lf_lut[MAX_MB_PLANE][2] = {
 static const int delta_lf_id_lut[MAX_MB_PLANE][2] = { { 0, 1 },
                                                       { 2, 2 },
                                                       { 3, 3 } };
+<<<<<<< HEAD   (d6f0bd Introduce the derived_intra_mode experiment)
 #if CONFIG_NEW_INTER_MODES
+=======
+>>>>>>> BRANCH (72b391 Fix code to aggregate stats)
 static const int mode_lf_lut[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // INTRA_MODES
+<<<<<<< HEAD   (d6f0bd Introduce the derived_intra_mode experiment)
   1, 0, 1,                                // INTER_SINGLE_MODES (GLOBALMV == 0)
   1, 1, 1, 0, 1,  // INTER_COMPOUND_MODES (GLOBAL_GLOBALMV == 0)
 #if CONFIG_OPTFLOW_REFINEMENT
@@ -43,6 +47,8 @@ static const int mode_lf_lut[] = {
 #else
 static const int mode_lf_lut[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // INTRA_MODES
+=======
+>>>>>>> BRANCH (72b391 Fix code to aggregate stats)
   1, 1, 0, 1,                             // INTER_SINGLE_MODES (GLOBALMV == 0)
   1, 1, 1, 1, 1, 1, 0, 1  // INTER_COMPOUND_MODES (GLOBAL_GLOBALMV == 0)
 };
