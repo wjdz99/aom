@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9583707_d458925d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-09T16:19:49Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have incorporated your comments in this patch. We have also included fix for the issue oss-fuzz:33030.\n\nFix for aomedia:3019\t\n1. Fixed the memory leak issue while switching large scale tile at run time.\n2. Handled cdef frame memory allocation with dynamic switching of large scale tile feature.\n\nFix for oss-fuzz:33030 (as recommended by Wan-Teh)\nRemoved mi_rows check for configuration change.\nHandled cdef frame memory allocation with configuration change as below at run time.\n1. Number of planes (monochrome/color).\n2. Subsampling format.\n3. Enable CDEF.\n\nPlease review the same.\nThank you.",
+      "revId": "d650a7f913fc96b39c38d3c0fbea805703f82a37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
