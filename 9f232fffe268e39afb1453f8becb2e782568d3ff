@@ -16,6 +16,29 @@
       "message": "Hi Wan-Teh,\n\nThis CL is to clean-up kPsnrThreshold[][] array used in EndToEndTest/EndToEndTestLarge. The entries correspond to speed 7, 4th and 5th entry in each preset array (which points to encoding mode value 3 and 4) are not used anywhere. Hence, we removed. Also we hardcoded the encode mode as kTwoPassGood and speed preset as 3, for the instantiation of EndToEndTest.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
       "revId": "9f232fffe268e39afb1453f8becb2e782568d3ff",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef5dcc4b_779c40d3",
+        "filename": "test/end_to_end_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-09T16:10:08Z",
+      "side": 1,
+      "message": "Hi Jayashri,\n\nI am sorry that my previous comment may have been misleading. Please delete this comment and this #if, as you originally did.\n\nThis #if was last updated in this commit:\nhttps://aomedia-review.googlesource.com/c/aom/+/39422/8/test/end_to_end_test.cc\n\nIn that commit, the #if was changed from:\n\n  #if CONFIG_AV1_ENCODER \u0026\u0026 CONFIG_HIGHBITDEPTH\n\nto:\n\n  #if CONFIG_AV1_ENCODER\n\nSo it seems that this \"Note:\" comment should have been deleted in that commit.\n\nAlso, test/end_to_end_test.cc is only compiled when the build option CONFIG_AV1_ENCODER is set. Therefore the CONFIG_AV1_ENCODER macro is always 1 when test/end_to_end_test.cc is compiled. This is why we can delete this #if and the entire #else block.",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 27
+      },
+      "revId": "9f232fffe268e39afb1453f8becb2e782568d3ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
