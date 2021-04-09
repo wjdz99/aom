@@ -15,6 +15,8 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
+#include "av1/encoder/cost.h"
+
 namespace {
 
 double laplace_prob(double q_step, double b, double zero_bin_ratio,
@@ -71,6 +73,40 @@ TEST(TplModelTest, DeltaRateCost1) {
   int64_t rate_cost =
       av1_delta_rate_cost(delta_rate, recrf_dist, srcrf_dist, pixel_num);
   EXPECT_EQ(rate_cost, 0);
+}
+
+// a reference function of av1_delta_rate_cost() with delta_rate using bit as
+// basic unit
+double ref_delta_rate_cost(double delta_rate, double flow_ratio,
+                           int pixel_num) {
+  assert(flow_ratio <= 1 && flow_ratio >= 0);
+  double bits_per_pixel = (double)delta_rate / pixel_num;
+  double p = pow(2, bits_per_pixel);
+  double flow_rate_per_pixel =
+      sqrt(p * p / (flow_ratio * p * p + (1 - flow_ratio)));
+  double rate_cost = pixel_num * log2(flow_rate_per_pixel);
+  return rate_cost;
+}
+
+TEST(TplModelTest, DeltaRateCost2) {
+  int64_t scale = 1 << (TPL_DEP_COST_SCALE_LOG2 + AV1_PROB_COST_SHIFT);
+  std::vector<int64_t> srcrf_dist_arr = { 256, 257, 312 };
+  std::vector<int64_t> recrf_dist_arr = { 512, 288, 620 };
+  std::vector<int64_t> delta_rate_arr = { 10, 278, 100 };
+  for (size_t t = 0; t < srcrf_dist_arr.size(); ++t) {
+    int64_t srcrf_dist = srcrf_dist_arr[t];
+    int64_t recrf_dist = recrf_dist_arr[t];
+    int64_t delta_rate = delta_rate_arr[t];
+    int64_t scaled_delta_rate = delta_rate * scale;
+    int pixel_num = 256;
+    double rate_cost = av1_delta_rate_cost(scaled_delta_rate, recrf_dist,
+                                           srcrf_dist, pixel_num);
+    rate_cost /= scale;
+    double flow_ratio = (double)srcrf_dist / recrf_dist;
+    double ref_rate_cost =
+        ref_delta_rate_cost(delta_rate, flow_ratio, pixel_num);
+    EXPECT_NEAR(rate_cost, ref_rate_cost, 1);
+  }
 }
 
 }  // namespace
