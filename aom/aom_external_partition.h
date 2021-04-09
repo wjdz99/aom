@@ -35,7 +35,7 @@ typedef void *aom_ext_part_model_t;
  * For example, the maximum superblock size determined by the sequence header.
  */
 typedef struct aom_ext_part_config {
-  int superblock_size;
+  int superblock_size; /**< super block size (either 64x64 or 128x128) */
 } aom_ext_part_config_t;
 
 /*!\brief Features pass to the external model to make partition decisions.
@@ -47,7 +47,7 @@ typedef struct aom_partition_features {
   // Features are unclear yet
   // Candidates include:
   // mv
-  int64_t sse;
+  int64_t sse; /**< sum squared error */
 } aom_partition_features_t;
 
 /*!\brief Partition decisions received from the external model.
@@ -69,14 +69,16 @@ typedef struct aom_partition_decision {
  * or inference though "func()" defined in ....
  */
 typedef struct aom_partition_stats {
-  int rate;
-  int64_t dist;
-  int64_t rdcost;
+  int rate;       /**< Rate cost of the block */
+  int64_t dist;   /**< Distortion of the block */
+  int64_t rdcost; /**< Rate-distortion cost of the block */
 } aom_partition_stats_t;
 
+/*!\brief Enum for return status.
+ */
 typedef enum aom_ext_part_status {
-  AOM_EXT_PART_OK = 0,
-  AOM_EXT_PART_ERROR = 1,
+  AOM_EXT_PART_OK = 0,    /**< Status of success */
+  AOM_EXT_PART_ERROR = 1, /**< Status of failure */
 } aom_ext_part_status_t;
 
 /*!\brief Callback of creating an external partition model.
