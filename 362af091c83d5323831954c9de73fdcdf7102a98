@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a75ad5a_0747a29f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1443,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-09T00:18:07Z",
+      "side": 1,
+      "message": "as noted by https://aomedia-review.googlesource.com/c/aom/+/135206 CAST() has side effects in that it advances the args pointer.",
+      "revId": "362af091c83d5323831954c9de73fdcdf7102a98",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
