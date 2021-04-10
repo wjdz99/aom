@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee577bce_f8aa13f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-10T08:48:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nPlease review the updated patch set.\n\nThank you.",
+      "revId": "5f315523455b84a2eed2a5b68954e4b324a53955",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
