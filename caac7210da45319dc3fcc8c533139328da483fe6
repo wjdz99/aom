@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1f46bbd_dae2989b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-10T01:22:06Z",
+      "side": 1,
+      "message": "We rebased it on top of the fix.(CL135142)\n\nPlease review the patch. \nThank you",
+      "revId": "caac7210da45319dc3fcc8c533139328da483fe6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
