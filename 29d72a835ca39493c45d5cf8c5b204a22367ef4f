@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7df717d2_eb9cdf5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-10T21:14:08Z",
+      "side": 1,
+      "message": "Hi Deepa,\n\nHere is Borg test result at speed 4:\n        avg_psnr:  ovr_psnr:  ssim:  encoder speedup:\nmidres2:  0.023    -0.083    -0.407     6.2\nlowres2:  0.303     0.210    -0.192     5.5\nugc360p:  0.517     0.258     0.189     8.1\nugc480p:  0.297     0.330     0.548     5.6\n\nI got similar results as you posted before. ugc360p performance is worse than that\nof ugc480p set. Based on your results of the 3 experiments, looks like Experiment 3\nis conservative that gives good tradeoff at speed 4. Do you want to submit a CL for\nthat?\n\nYunqing\n",
+      "revId": "29d72a835ca39493c45d5cf8c5b204a22367ef4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
