@@ -263,6 +263,9 @@ typedef struct {
   /*!\endcond */
 } RATE_CONTROL;
 
+/*!
+ * \brief  Primary Rate Control parameters and status
+ */
 typedef struct {
   // Sub-gop level Rate targetting variables
 
