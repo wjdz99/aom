@@ -70,6 +70,30 @@
       },
       "revId": "49128691079728553792afac6b29df1f7e2c1871",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "204f7cb3_86f8ba19",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2102,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-11T04:22:54Z",
+      "side": 0,
+      "message": "We moved the logic to av1_alloc_cdef_linebuf() function in \u0027av1/common/alloccommon.c\u0027. Can you please refer to line no:94.\nWe did this modification to handle cdef frame memory allocation based on runtime \nconfiguration parameters.",
+      "parentUuid": "2ddb0074_4d47d436",
+      "range": {
+        "startLine": 2102,
+        "startChar": 37,
+        "endLine": 2102,
+        "endChar": 48
+      },
+      "revId": "49128691079728553792afac6b29df1f7e2c1871",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
