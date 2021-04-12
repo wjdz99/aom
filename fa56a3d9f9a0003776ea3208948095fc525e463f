@@ -22,6 +22,30 @@
       },
       "revId": "fa56a3d9f9a0003776ea3208948095fc525e463f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9328dd4b_0ee54cb1",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-12T21:27:29Z",
+      "side": 1,
+      "message": "q_decay is a factor of decay_factor (line 580), which is used to determine filter weight (line 665).\n\nDecay factor contains various factors that could have an impact on filtering. For example, \"s_dacay\" is to unify the input \"arnr-strength\". \"n_decay\" is related to the noise level. \"q_decay\" is introduced to capture the influence of qindex on filtering.\n\nAt the time Damon adds q_decay, our only intention is to not apply filtering, or only very little filtering, for low q. Therefore before this change, q_decay will only have an impact when q_factor is below \"TF_Q_DECAY_THRESHOLD \u003d 20\", other wise, q_decay \u003d 1.\n\nI observed that we could apply a slightly stronger filtering for high q_factors. The value \"2\", \"0.5\" are experimentally determined.",
+      "parentUuid": "bc5e4f63_75001660",
+      "range": {
+        "startLine": 572,
+        "startChar": 32,
+        "endLine": 572,
+        "endChar": 40
+      },
+      "revId": "fa56a3d9f9a0003776ea3208948095fc525e463f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
