@@ -16,6 +16,19 @@
 
 #if CONFIG_OPTICAL_FLOW_API
 
+#define SPARSE_MTX_CHECK_ALLOC(error_info, lval, expr, failexpr) \
+  do {                                                           \
+    lval = (expr);                                               \
+    if (!lval) {                                                 \
+      (failexpr);                                                \
+      if (error_info) {                                          \
+        aom_internal_error(error_info, AOM_CODEC_MEM_ERROR,      \
+                           "Failed to allocate " #lval);         \
+      }                                                          \
+      return -1;                                                 \
+    }                                                            \
+  } while (0)
+
 /*
  * Input:
  * rows: array of row positions
@@ -24,13 +37,18 @@
  * num_elem: total number of elements in the matrix
  * num_rows: number of rows in the matrix
  * num_cols: number of columns in the matrix
+ * err_info: struct to store mem error
  *
  * Output:
  * sm: pointer to the sparse matrix to be initialized
+ *
+ * Return: 0  - success
+ *         -1 - failed
  */
-void av1_init_sparse_mtx(const int *rows, const int *cols, const double *values,
-                         int num_elem, int num_rows, int num_cols,
-                         SPARSE_MTX *sm) {
+int av1_init_sparse_mtx(const int *rows, const int *cols, const double *values,
+                        int num_elem, int num_rows, int num_cols,
+                        SPARSE_MTX *sm,
+                        struct aom_internal_error_info *err_info) {
   sm->n_elem = num_elem;
   sm->n_rows = num_rows;
   sm->n_cols = num_cols;
@@ -38,15 +56,23 @@ void av1_init_sparse_mtx(const int *rows, const int *cols, const double *values,
     sm->row_pos = NULL;
     sm->col_pos = NULL;
     sm->value = NULL;
-    return;
+    return 0;
   }
-  sm->row_pos = aom_calloc(num_elem, sizeof(*sm->row_pos));
-  sm->col_pos = aom_calloc(num_elem, sizeof(*sm->col_pos));
-  sm->value = aom_calloc(num_elem, sizeof(*sm->value));
+  SPARSE_MTX_CHECK_ALLOC(err_info, sm->row_pos,
+                         aom_calloc(num_elem, sizeof(*sm->row_pos)),
+                         av1_free_sparse_mtx_elems(sm));
+  SPARSE_MTX_CHECK_ALLOC(err_info, sm->col_pos,
+                         aom_calloc(num_elem, sizeof(*sm->col_pos)),
+                         av1_free_sparse_mtx_elems(sm));
+  SPARSE_MTX_CHECK_ALLOC(err_info, sm->value,
+                         aom_calloc(num_elem, sizeof(*sm->value)),
+                         av1_free_sparse_mtx_elems(sm));
 
   memcpy(sm->row_pos, rows, num_elem * sizeof(*sm->row_pos));
   memcpy(sm->col_pos, cols, num_elem * sizeof(*sm->col_pos));
   memcpy(sm->value, values, num_elem * sizeof(*sm->value));
+
+  return 0;
 }
 
 /*
@@ -57,15 +83,19 @@ void av1_init_sparse_mtx(const int *rows, const int *cols, const double *values,
  * row_offset1, row_offset2: row offset of each matrix in the new matrix
  * col_offset1, col_offset2: column offset of each matrix in the new matrix
  * new_n_rows, new_n_cols: number of rows and columns in the new matrix
+ * err_info: struct to store mem error
  *
  * Output:
  * sm: the combined matrix
+ *
+ * Return: 0  - success
+ *         -1 - failed
  */
-void av1_init_combine_sparse_mtx(const SPARSE_MTX *sm1, const SPARSE_MTX *sm2,
-                                 SPARSE_MTX *sm, int row_offset1,
-                                 int col_offset1, int row_offset2,
-                                 int col_offset2, int new_n_rows,
-                                 int new_n_cols) {
+int av1_init_combine_sparse_mtx(const SPARSE_MTX *sm1, const SPARSE_MTX *sm2,
+                                SPARSE_MTX *sm, int row_offset1,
+                                int col_offset1, int row_offset2,
+                                int col_offset2, int new_n_rows, int new_n_cols,
+                                struct aom_internal_error_info *err_info) {
   sm->n_elem = sm1->n_elem + sm2->n_elem;
   sm->n_cols = new_n_cols;
   sm->n_rows = new_n_rows;
@@ -74,11 +104,18 @@ void av1_init_combine_sparse_mtx(const SPARSE_MTX *sm1, const SPARSE_MTX *sm2,
     sm->row_pos = NULL;
     sm->col_pos = NULL;
     sm->value = NULL;
-    return;
+    return 0;
   }
-  sm->row_pos = aom_calloc(sm->n_elem, sizeof(*sm->row_pos));
-  sm->col_pos = aom_calloc(sm->n_elem, sizeof(*sm->col_pos));
-  sm->value = aom_calloc(sm->n_elem, sizeof(*sm->value));
+
+  SPARSE_MTX_CHECK_ALLOC(err_info, sm->row_pos,
+                         aom_calloc(sm->n_elem, sizeof(*sm->row_pos)),
+                         av1_free_sparse_mtx_elems(sm));
+  SPARSE_MTX_CHECK_ALLOC(err_info, sm->col_pos,
+                         aom_calloc(sm->n_elem, sizeof(*sm->col_pos)),
+                         av1_free_sparse_mtx_elems(sm));
+  SPARSE_MTX_CHECK_ALLOC(err_info, sm->value,
+                         aom_calloc(sm->n_elem, sizeof(*sm->value)),
+                         av1_free_sparse_mtx_elems(sm));
 
   for (int i = 0; i < sm1->n_elem; i++) {
     sm->row_pos[i] = sm1->row_pos[i] + row_offset1;
@@ -91,6 +128,7 @@ void av1_init_combine_sparse_mtx(const SPARSE_MTX *sm1, const SPARSE_MTX *sm2,
     sm->col_pos[n_elem1 + i] = sm2->col_pos[i] + col_offset2;
   }
   memcpy(sm->value + n_elem1, sm2->value, sm2->n_elem * sizeof(*sm2->value));
+  return -1;
 }
 
 void av1_free_sparse_mtx_elems(SPARSE_MTX *sm) {
@@ -168,6 +206,19 @@ void av1_constant_multiply_sparse_matrix(SPARSE_MTX *sm, double c) {
   }
 }
 
+static INLINE void free_solver_local_buf(double *buf1, double *buf2,
+                                         double *buf3, double *buf4,
+                                         double *buf5, double *buf6,
+                                         double *buf7) {
+  aom_free(buf1);
+  aom_free(buf2);
+  aom_free(buf3);
+  aom_free(buf4);
+  aom_free(buf5);
+  aom_free(buf6);
+  aom_free(buf7);
+}
+
 /*
  * Solve for Ax = b
  * no requirement on A
@@ -176,24 +227,45 @@ void av1_constant_multiply_sparse_matrix(SPARSE_MTX *sm, double c) {
  * A: the sparse matrix
  * b: the vector b
  * bl: length of b
+ * x: the vector x
+ * err_info: struct to store mem error
  *
  * Output:
  * x: pointer to the solution vector
+ *
+ * Return: 0  - success
+ *         -1 - failed
  */
-void av1_bi_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b,
-                                      int bl, double *x) {
-  double *r, *r_hat, *p, *p_hat, *Ap, *p_hatA, *x_hat;
+int av1_bi_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b,
+                                     int bl, double *x,
+                                     struct aom_internal_error_info *err_info) {
+  double *r = NULL, *r_hat = NULL, *p = NULL, *p_hat = NULL, *Ap = NULL,
+         *p_hatA = NULL, *x_hat = NULL;
   double alpha, beta, rtr, r_norm_2;
   double denormtemp;
 
   // initialize
-  r = aom_calloc(bl, sizeof(*r));
-  r_hat = aom_calloc(bl, sizeof(*r_hat));
-  p = aom_calloc(bl, sizeof(*p));
-  p_hat = aom_calloc(bl, sizeof(*p_hat));
-  Ap = aom_calloc(bl, sizeof(*Ap));
-  p_hatA = aom_calloc(bl, sizeof(*p_hatA));
-  x_hat = aom_calloc(bl, sizeof(*x_hat));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, r, aom_calloc(bl, sizeof(*r)),
+      free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, r_hat, aom_calloc(bl, sizeof(*r_hat)),
+      free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, p, aom_calloc(bl, sizeof(*p)),
+      free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, p_hat, aom_calloc(bl, sizeof(*p_hat)),
+      free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, Ap, aom_calloc(bl, sizeof(*Ap)),
+      free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, p_hatA, aom_calloc(bl, sizeof(*p_hatA)),
+      free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, x_hat, aom_calloc(bl, sizeof(*x_hat)),
+      free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat));
 
   int i;
   for (i = 0; i < bl; i++) {
@@ -232,13 +304,8 @@ void av1_bi_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b,
     }
   }
   // free
-  aom_free(r);
-  aom_free(r_hat);
-  aom_free(p);
-  aom_free(p_hat);
-  aom_free(Ap);
-  aom_free(p_hatA);
-  aom_free(x_hat);
+  free_solver_local_buf(r, r_hat, p, p_hat, Ap, p_hatA, x_hat);
+  return 0;
 }
 
 /*
@@ -248,20 +315,32 @@ void av1_bi_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b,
  * A: the sparse matrix
  * b: the vector b
  * bl: length of b
+ * x: the vector x
+ * err_info: struct to store mem error
  *
  * Output:
  * x: pointer to the solution vector
+ *
+ * Return: 0  - success
+ *         -1 - failed
  */
-void av1_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b, int bl,
-                                   double *x) {
-  double *r, *p, *Ap;
+int av1_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b, int bl,
+                                  double *x,
+                                  struct aom_internal_error_info *err_info) {
+  double *r = NULL, *p = NULL, *Ap = NULL;
   double alpha, beta, rtr, r_norm_2;
   double denormtemp;
 
   // initialize
-  r = aom_calloc(bl, sizeof(*r));
-  p = aom_calloc(bl, sizeof(*p));
-  Ap = aom_calloc(bl, sizeof(*Ap));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, r, aom_calloc(bl, sizeof(*r)),
+      free_solver_local_buf(r, p, Ap, NULL, NULL, NULL, NULL));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, p, aom_calloc(bl, sizeof(*p)),
+      free_solver_local_buf(r, p, Ap, NULL, NULL, NULL, NULL));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, Ap, aom_calloc(bl, sizeof(*Ap)),
+      free_solver_local_buf(r, p, Ap, NULL, NULL, NULL, NULL));
 
   int i;
   for (i = 0; i < bl; i++) {
@@ -291,9 +370,9 @@ void av1_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b, int bl,
     }
   }
   // free
-  aom_free(r);
-  aom_free(p);
-  aom_free(Ap);
+  free_solver_local_buf(r, p, Ap, NULL, NULL, NULL, NULL);
+
+  return 0;
 }
 
 /*
@@ -303,18 +382,33 @@ void av1_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b, int bl,
  * A: the sparse matrix
  * b: the vector b
  * bl: length of b
+ * x: the vector x
+ * err_info: struct to store mem error
  *
  * Output:
  * x: pointer to the solution vector
+ *
+ * Return: 0  - success
+ *         -1 - failed
  */
-void av1_jacobi_sparse(const SPARSE_MTX *A, const double *b, int bl,
-                       double *x) {
-  double *diags, *Rx, *x_last, *x_cur, *tempx;
+int av1_jacobi_sparse(const SPARSE_MTX *A, const double *b, int bl, double *x,
+                      struct aom_internal_error_info *err_info) {
+  double *diags = NULL, *Rx = NULL, *x_last = NULL, *x_cur = NULL, *tempx = NULL;
   double resi2;
-  diags = aom_calloc(bl, sizeof((*diags)));
-  Rx = aom_calloc(bl, sizeof(*Rx));
-  x_last = aom_calloc(bl, sizeof(*x_last));
-  x_cur = aom_calloc(bl, sizeof(*x_cur));
+
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, diags, aom_calloc(bl, sizeof(*diags)),
+      free_solver_local_buf(diags, Rx, x_last, x_cur, NULL, NULL, NULL));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, Rx, aom_calloc(bl, sizeof(*Rx)),
+      free_solver_local_buf(diags, Rx, x_last, x_cur, NULL, NULL, NULL));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, x_last, aom_calloc(bl, sizeof(*x_last)),
+      free_solver_local_buf(diags, Rx, x_last, x_cur, NULL, NULL, NULL));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, x_cur, aom_calloc(bl, sizeof(*x_cur)),
+      free_solver_local_buf(diags, Rx, x_last, x_cur, NULL, NULL, NULL));
+
   int i;
   memset(x_last, 0, sizeof(*x_last) * bl);
   // get the diagonals of A
@@ -347,10 +441,8 @@ void av1_jacobi_sparse(const SPARSE_MTX *A, const double *b, int bl,
   for (i = 0; i < bl; i++) {
     x[i] = x_cur[i];
   }
-  aom_free(diags);
-  aom_free(Rx);
-  aom_free(x_last);
-  aom_free(x_cur);
+  free_solver_local_buf(diags, Rx, x_last, x_cur, NULL, NULL, NULL);
+  return 0;
 }
 
 /*
@@ -360,17 +452,31 @@ void av1_jacobi_sparse(const SPARSE_MTX *A, const double *b, int bl,
  * A: the sparse matrix
  * b: the vector b
  * bl: length of b
+ * x: the vector x
+ * err_info: struct to store mem error
  *
  * Output:
  * x: pointer to the solution vector
+ *
+ * Return: 0  - success
+ *         -1 - failed
  */
-void av1_steepest_descent_sparse(const SPARSE_MTX *A, const double *b, int bl,
-                                 double *x) {
-  double *d, *Ad, *Ax;
+int av1_steepest_descent_sparse(const SPARSE_MTX *A, const double *b, int bl,
+                                double *x,
+                                struct aom_internal_error_info *err_info) {
+  double *d = NULL, *Ad = NULL, *Ax = NULL;
   double resi2, resi2_last, dAd, diff, temp;
-  d = aom_calloc(bl, sizeof(*d));
-  Ax = aom_calloc(bl, sizeof(*Ax));
-  Ad = aom_calloc(bl, sizeof(*Ad));
+
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, d, aom_calloc(bl, sizeof(*d)),
+      free_solver_local_buf(d, Ax, Ad, NULL, NULL, NULL, NULL));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, Ax, aom_calloc(bl, sizeof(*Ax)),
+      free_solver_local_buf(d, Ax, Ad, NULL, NULL, NULL, NULL));
+  SPARSE_MTX_CHECK_ALLOC(
+      err_info, Ad, aom_calloc(bl, sizeof(*Ad)),
+      free_solver_local_buf(d, Ax, Ad, NULL, NULL, NULL, NULL));
+
   int i;
   // initialize with 0s
   resi2 = 0;
@@ -402,9 +508,9 @@ void av1_steepest_descent_sparse(const SPARSE_MTX *A, const double *b, int bl,
       break;
     }
   }
-  aom_free(d);
-  aom_free(Ax);
-  aom_free(Ad);
+  free_solver_local_buf(d, Ax, Ad, NULL, NULL, NULL, NULL);
+
+  return 0;
 }
 
 #endif  // CONFIG_OPTICAL_FLOW_API
