@@ -16,6 +16,15 @@
 
 #if CONFIG_OPTICAL_FLOW_API
 
+static INLINE void *sparse_matrix_check_calloc(size_t num, size_t size) {
+  void *ptr = aom_calloc(num, size);
+  if (ptr == NULL) {
+    fprintf(stderr, "Error: Cannot allocate memory for sparse matrices.\n");
+    exit(EXIT_FAILURE);
+  }
+  return ptr;
+}
+
 /*
  * Input:
  * rows: array of row positions
@@ -40,9 +49,9 @@ void av1_init_sparse_mtx(const int *rows, const int *cols, const double *values,
     sm->value = NULL;
     return;
   }
-  sm->row_pos = aom_calloc(num_elem, sizeof(*sm->row_pos));
-  sm->col_pos = aom_calloc(num_elem, sizeof(*sm->col_pos));
-  sm->value = aom_calloc(num_elem, sizeof(*sm->value));
+  sm->row_pos = sparse_matrix_check_calloc(num_elem, sizeof(*sm->row_pos));
+  sm->col_pos = sparse_matrix_check_calloc(num_elem, sizeof(*sm->col_pos));
+  sm->value = sparse_matrix_check_calloc(num_elem, sizeof(*sm->value));
 
   memcpy(sm->row_pos, rows, num_elem * sizeof(*sm->row_pos));
   memcpy(sm->col_pos, cols, num_elem * sizeof(*sm->col_pos));
@@ -76,9 +85,9 @@ void av1_init_combine_sparse_mtx(const SPARSE_MTX *sm1, const SPARSE_MTX *sm2,
     sm->value = NULL;
     return;
   }
-  sm->row_pos = aom_calloc(sm->n_elem, sizeof(*sm->row_pos));
-  sm->col_pos = aom_calloc(sm->n_elem, sizeof(*sm->col_pos));
-  sm->value = aom_calloc(sm->n_elem, sizeof(*sm->value));
+  sm->row_pos = sparse_matrix_check_calloc(sm->n_elem, sizeof(*sm->row_pos));
+  sm->col_pos = sparse_matrix_check_calloc(sm->n_elem, sizeof(*sm->col_pos));
+  sm->value = sparse_matrix_check_calloc(sm->n_elem, sizeof(*sm->value));
 
   for (int i = 0; i < sm1->n_elem; i++) {
     sm->row_pos[i] = sm1->row_pos[i] + row_offset1;
@@ -187,13 +196,13 @@ void av1_bi_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b,
   double denormtemp;
 
   // initialize
-  r = aom_calloc(bl, sizeof(*r));
-  r_hat = aom_calloc(bl, sizeof(*r_hat));
-  p = aom_calloc(bl, sizeof(*p));
-  p_hat = aom_calloc(bl, sizeof(*p_hat));
-  Ap = aom_calloc(bl, sizeof(*Ap));
-  p_hatA = aom_calloc(bl, sizeof(*p_hatA));
-  x_hat = aom_calloc(bl, sizeof(*x_hat));
+  r = sparse_matrix_check_calloc(bl, sizeof(*r));
+  r_hat = sparse_matrix_check_calloc(bl, sizeof(*r_hat));
+  p = sparse_matrix_check_calloc(bl, sizeof(*p));
+  p_hat = sparse_matrix_check_calloc(bl, sizeof(*p_hat));
+  Ap = sparse_matrix_check_calloc(bl, sizeof(*Ap));
+  p_hatA = sparse_matrix_check_calloc(bl, sizeof(*p_hatA));
+  x_hat = sparse_matrix_check_calloc(bl, sizeof(*x_hat));
 
   int i;
   for (i = 0; i < bl; i++) {
@@ -259,9 +268,9 @@ void av1_conjugate_gradient_sparse(const SPARSE_MTX *A, const double *b, int bl,
   double denormtemp;
 
   // initialize
-  r = aom_calloc(bl, sizeof(*r));
-  p = aom_calloc(bl, sizeof(*p));
-  Ap = aom_calloc(bl, sizeof(*Ap));
+  r = sparse_matrix_check_calloc(bl, sizeof(*r));
+  p = sparse_matrix_check_calloc(bl, sizeof(*p));
+  Ap = sparse_matrix_check_calloc(bl, sizeof(*Ap));
 
   int i;
   for (i = 0; i < bl; i++) {
@@ -311,10 +320,10 @@ void av1_jacobi_sparse(const SPARSE_MTX *A, const double *b, int bl,
                        double *x) {
   double *diags, *Rx, *x_last, *x_cur, *tempx;
   double resi2;
-  diags = aom_calloc(bl, sizeof((*diags)));
-  Rx = aom_calloc(bl, sizeof(*Rx));
-  x_last = aom_calloc(bl, sizeof(*x_last));
-  x_cur = aom_calloc(bl, sizeof(*x_cur));
+  diags = sparse_matrix_check_calloc(bl, sizeof((*diags)));
+  Rx = sparse_matrix_check_calloc(bl, sizeof(*Rx));
+  x_last = sparse_matrix_check_calloc(bl, sizeof(*x_last));
+  x_cur = sparse_matrix_check_calloc(bl, sizeof(*x_cur));
   int i;
   memset(x_last, 0, sizeof(*x_last) * bl);
   // get the diagonals of A
@@ -368,9 +377,9 @@ void av1_steepest_descent_sparse(const SPARSE_MTX *A, const double *b, int bl,
                                  double *x) {
   double *d, *Ad, *Ax;
   double resi2, resi2_last, dAd, diff, temp;
-  d = aom_calloc(bl, sizeof(*d));
-  Ax = aom_calloc(bl, sizeof(*Ax));
-  Ad = aom_calloc(bl, sizeof(*Ad));
+  d = sparse_matrix_check_calloc(bl, sizeof(*d));
+  Ax = sparse_matrix_check_calloc(bl, sizeof(*Ax));
+  Ad = sparse_matrix_check_calloc(bl, sizeof(*Ad));
   int i;
   // initialize with 0s
   resi2 = 0;
