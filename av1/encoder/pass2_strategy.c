@@ -3673,8 +3673,9 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       calculate_gf_length(cpi, max_gop_length, MAX_NUM_GF_INTERVALS);
     }
 
+    int gop_length_decision_method = cpi->sf.tpl_sf.gop_length_decision_method;
     if (max_gop_length > 16 && oxcf->algo_cfg.enable_tpl_model &&
-        !(cpi->sf.tpl_sf.gop_length_decision_method == 2)) {
+        !(gop_length_decision_method == 3)) {
       int this_idx = rc->frames_since_key + rc->gf_intervals[rc->cur_gf_index] -
                      rc->regions_offset - 1;
       int this_region =
@@ -3695,7 +3696,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
 
         int is_temporal_filter_enabled = 0;
         int shorten_gf_interval = 0;
-        if (!cpi->sf.tpl_sf.gop_length_decision_method) {
+        if (!(gop_length_decision_method == 2)) {
           is_temporal_filter_enabled =
               (rc->frames_since_key > 0 && gf_group->arf_index > -1);
           if (is_temporal_filter_enabled) {
@@ -3708,18 +3709,30 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
             aom_extend_frame_borders(&cpi->alt_ref_buffer,
                                      av1_num_planes(&cpi->common));
           }
-          shorten_gf_interval =
-              !av1_tpl_setup_stats(cpi, 1, frame_params, frame_input);
-          // Tpl stats is reused when the ARF is temporally filtered and gf
-          // interval is not shortened.
-          if (is_temporal_filter_enabled && !shorten_gf_interval)
-            cpi->tpl_data.skip_tpl_setup_stats = 1;
+
+          int do_complete_tpl = 1;
+          if (gop_length_decision_method == 1) {
+            int tpl_gop_length_decision =
+                !av1_tpl_setup_stats(cpi, 2, frame_params, frame_input);
+            if (!(tpl_gop_length_decision == 2)) {
+              do_complete_tpl = 0;
+              shorten_gf_interval = !tpl_gop_length_decision;
+            }
+          }
+          if (do_complete_tpl) {
+            shorten_gf_interval =
+                !av1_tpl_setup_stats(cpi, 1, frame_params, frame_input);
+            // Tpl stats is reused when the ARF is temporally filtered and gf
+            // interval is not shortened.
+            if (is_temporal_filter_enabled && !shorten_gf_interval)
+              cpi->tpl_data.skip_tpl_setup_stats = 1;
+          }
         } else {
           // GOP length is decided based on GF boost and approximate tpl model
           shorten_gf_interval =
               (rc->gfu_boost <
                rc->num_stats_used_for_gfu_boost * GF_MIN_BOOST * 1.4) &&
-              !av1_tpl_setup_stats(cpi, 2, frame_params, frame_input);
+              !av1_tpl_setup_stats(cpi, 3, frame_params, frame_input);
         }
         if (shorten_gf_interval) {
           // A shorter gf interval is better.
