@@ -1,14 +1,13 @@
-/*
- * Copyright (c) 2016, Alliance for Open Media. All rights reserved
- *
- * This source code is subject to the terms of the BSD 2 Clause License and
- * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause License
- * was not distributed with this source code in the LICENSE file, you can
- * obtain it at www.aomedia.org/license/software. If the Alliance for Open
- * Media Patent License 1.0 was not distributed with this source code in the
- * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
- */
-
+ci /*
+    * Copyright (c) 2016, Alliance for Open Media. All rights reserved
+    *
+    * This source code is subject to the terms of the BSD 2 Clause License and
+    * the Alliance for Open Media Patent License 1.0. If the BSD 2 Clause
+    * License was not distributed with this source code in the LICENSE file, you
+    * can obtain it at www.aomedia.org/license/software. If the Alliance for
+    * Open Media Patent License 1.0 was not distributed with this source code in
+    * the PATENTS file, you can obtain it at www.aomedia.org/license/patent.
+    */
 /*!\file
  * \brief Provides the high level interface to wrap encoder algorithms.
  *
@@ -24,13 +23,15 @@
 
 #include <limits.h>
 #include <string.h>
+#include <assert.h>
 
 #include "aom/aom_encoder.h"
 #include "aom/internal/aom_codec_internal.h"
 
 #define SAVE_STATUS(ctx, var) (ctx ? (ctx->err = var) : var)
 
-static aom_codec_alg_priv_t *get_alg_priv(aom_codec_ctx_t *ctx) {
+    static aom_codec_alg_priv_t *
+    get_alg_priv(aom_codec_ctx_t *ctx) {
   return (aom_codec_alg_priv_t *)ctx->priv;
 }
 
@@ -50,7 +51,11 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
     res = AOM_CODEC_INCAPABLE;
   else if ((flags & AOM_CODEC_USE_PSNR) && !(iface->caps & AOM_CODEC_CAP_PSNR))
     res = AOM_CODEC_INCAPABLE;
-  else {
+  else if (cfg->g_bit_depth > 8 && (flags & AOM_CODEC_USE_HIGHBITDEPTH) == 0) {
+    res = AOM_CODEC_ERROR;
+    ctx->err_detail =
+        "High bit-depth used without the AOM_CODEC_USE_HIGHBITDEPTH flag.";
+  } else {
     ctx->iface = iface;
     ctx->name = iface->name;
     ctx->priv = NULL;
