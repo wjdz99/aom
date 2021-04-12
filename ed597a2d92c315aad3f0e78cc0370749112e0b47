@@ -33,6 +33,24 @@
       "message": "Hi Vishnu,\n\nThanks for the explanation. I saw the change in av1_alloc_cdef_linebuf() to handle large scale tile case.\n\nYou added\nuint8_t prev_cdef_enable_flag;\nunsigned int prev_large_scale_tile_flag;\nint prev_num_planes;\nto handle cdef linebuf allocation and freeing. I am not quite convinced that the above elements are necessary?\n\nWe had memory allocation in cdef before https://aomedia-review.googlesource.com/c/aom/+/134681. We didn\u0027t need to store prev flags before. Why is this necessary now? What is different about alloc_cdef_linebuf added for CDEF MT?\n\nCherma and Ranjit, could you also take a look and help me understand it? Thanks.\n",
       "revId": "ed597a2d92c315aad3f0e78cc0370749112e0b47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "444a750e_d4977343",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-12T19:12:31Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nEarlier, cdef memory was allocated and freed for each frame. In case there is a change in encoder/decoder configuration at run time, memory allocation was appropriately handled as it was done at frame level.\n\nThe configurations which can impact cdef memory at run time are as below\n* Enable/disable cdef\n* Enable/disable large scale tile\n* Change is frame resolution\n* Resize/super-res mode\n* Change in number of planes\n\nDuring speed profiling, we observed that the above approach was adding a enc time overhead in RT path. Thus, we have modified the allocation from frame level to sequence level. As per the new approach, reallocation is only done if there is a change in configuration at run time. This approach also resolves the overhead issue.\n\nThe \"prev\" variables are maintained to track changes in configuration. Reallocation is done if current configuration is different from previous one.\n\nKindly let us know if you have any queries. Thank you.",
+      "parentUuid": "1a11b3fb_14e3189b",
+      "revId": "ed597a2d92c315aad3f0e78cc0370749112e0b47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
