@@ -24,6 +24,7 @@
 
 #include <limits.h>
 #include <string.h>
+#include <assert.h>
 
 #include "aom/aom_encoder.h"
 #include "aom/internal/aom_codec_internal.h"
@@ -51,6 +52,7 @@ aom_codec_err_t aom_codec_enc_init_ver(aom_codec_ctx_t *ctx,
   else if ((flags & AOM_CODEC_USE_PSNR) && !(iface->caps & AOM_CODEC_CAP_PSNR))
     res = AOM_CODEC_INCAPABLE;
   else {
+    assert(cfg->g_bit_depth <= 8 || (flags & AOM_CODEC_USE_HIGHBITDEPTH));
     ctx->iface = iface;
     ctx->name = iface->name;
     ctx->priv = NULL;
