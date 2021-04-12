@@ -70,6 +70,24 @@
       "parentUuid": "5e9f326e_cde46c6a",
       "revId": "704e5f7552a9934bdc29bc6f448d41637dd25a9b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "addee10e_8bb8e65b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-04-12T17:15:24Z",
+      "side": 1,
+      "message": "Yes, we will be having 1 cpi per frame later and seq_params will be constant for each frame, hence the existing way of config change will cause each cpi to update its version of seq_params. Though this is functionally correct when frame parallelism will be enabled, we feel that keeping a copy of these parameters in ppi will ensure that the updates are in a single place aiding readability and consistency across cpis. This will also help in the initialization of new elements/structures that will be abstracted to ppi (https://aomedia-review.googlesource.com/c/aom/+/135325 and https://aomedia-review.googlesource.com/c/aom/+/135326). Without this copy of seq_coding_tools in ppi, the initialization of those elements will become scattered across/delayed. \nPlease let us know your opinion.",
+      "parentUuid": "8ab1f877_178c98ee",
+      "revId": "704e5f7552a9934bdc29bc6f448d41637dd25a9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
