@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nPlease review the updated patch set.\n\nThank you.",
       "revId": "ed597a2d92c315aad3f0e78cc0370749112e0b47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a11b3fb_14e3189b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-12T17:27:49Z",
+      "side": 1,
+      "message": "Hi Vishnu,\n\nThanks for the explanation. I saw the change in av1_alloc_cdef_linebuf() to handle large scale tile case.\n\nYou added\nuint8_t prev_cdef_enable_flag;\nunsigned int prev_large_scale_tile_flag;\nint prev_num_planes;\nto handle cdef linebuf allocation and freeing. I am not quite convinced that the above elements are necessary?\n\nWe had memory allocation in cdef before https://aomedia-review.googlesource.com/c/aom/+/134681. We didn\u0027t need to store prev flags before. Why is this necessary now? What is different about alloc_cdef_linebuf added for CDEF MT?\n\nCherma and Ranjit, could you also take a look and help me understand it? Thanks.\n",
+      "revId": "ed597a2d92c315aad3f0e78cc0370749112e0b47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
