@@ -16,6 +16,74 @@
       "message": "Hi Wan-Teh,\n\nIn this CL, we have added unit tests to check bit exactness between different thread configurations for allintra encoding mode. The unit-test validates the bit-exactness for AOM_Q mode (the use-case of still picture encoding mode) and considered cq_level\u003d18 for testing purpose. The unit-test ‘AVxEncoderThreadAllIntraTest’ tests for cpu-used 6 whereas the unit-test ‘AVxEncoderThreadAllIntraTestLarge’ tests for cpu-used 0, 2, 4 and 6.\n\nWe thought of combining the unit-tests \u0027AVxEncoderThreadRTTestLarge\u0027 and \u0027AVxEncoderThreadAllIntraTestLarge\u0027 as both are testing for same parameters, but did not pursue for better readability and consistency.\n\nWe also thought of cleaning-up the following code related to decoder control setting (which is present in each unit-test definition), by moving the same to DoTest(). We did not pursue the same as it is not typical practice to add this code in DoTest().\n\n  if (large_scale_tile \u003d\u003d 0) {\n    decoder_-\u003eControl(AV1_SET_TILE_MODE, 0);\n  } else {\n    decoder_-\u003eControl(AV1_SET_TILE_MODE, 1);\n    decoder_-\u003eControl(AV1D_EXT_TILE_DEBUG, 1);\n  }\n\nPlease review the patch. \n\nRegards, \nAniket.",
       "revId": "f4edcddeb5bed2bb99c57a54cfdd848baca839e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4eddc70c_21c8f0eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-12T22:08:30Z",
+      "side": 1,
+      "message": "I suggest three small changes.",
+      "revId": "f4edcddeb5bed2bb99c57a54cfdd848baca839e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae75867e_d6ad5b6a",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-12T22:08:30Z",
+      "side": 1,
+      "message": "Nit: declare this as \u0027unsigned int\u0027 because that\u0027s the type of the argument for AOME_SET_CQ_LEVEL:\n\n  /*!\\brief Codec control function to set constrained / constant quality level,\n   * unsigned int parameter\n   *\n   * Valid range: 0..63\n   *\n   * \\attention For this value to be used aom_codec_enc_cfg_t::rc_end_usage\n   *            must be set to #AOM_CQ or #AOM_Q.\n   */\n  AOME_SET_CQ_LEVEL \u003d 25,",
+      "revId": "f4edcddeb5bed2bb99c57a54cfdd848baca839e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "781dd0b8_7ee850e0",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-12T22:08:30Z",
+      "side": 1,
+      "message": "Do not test speed 6 because it\u0027s already tested by the non-large test.",
+      "revId": "f4edcddeb5bed2bb99c57a54cfdd848baca839e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "117ed361_3153c0c9",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-12T22:08:30Z",
+      "side": 1,
+      "message": "Do not test speed 6.",
+      "revId": "f4edcddeb5bed2bb99c57a54cfdd848baca839e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
