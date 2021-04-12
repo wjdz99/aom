@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d31c7aa_81d643df",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-04-12T22:35:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11f1d659_f11b96c1",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "4d8c27d48690458f734a3ac6ce4b035144fe7ab3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c2fd146f_b9bfb102",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b67faa3b_767b514c",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-04-12T22:35:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c2fd146f_b9bfb102",
+      "range": {
+        "startLine": 81,
+        "startChar": 31,
+        "endLine": 81,
+        "endChar": 40
+      },
+      "revId": "4d8c27d48690458f734a3ac6ce4b035144fe7ab3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "38a0bb01_365336e9",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-12T22:00:55Z",
       "side": 1,
       "message": "Remove this (double) type casr because delta_rate is already a double.",
+      "range": {
+        "startLine": 83,
+        "startChar": 26,
+        "endLine": 83,
+        "endChar": 34
+      },
+      "revId": "4d8c27d48690458f734a3ac6ce4b035144fe7ab3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "651f9e95_e109332e",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-04-12T22:35:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38a0bb01_365336e9",
       "range": {
         "startLine": 83,
         "startChar": 26,
