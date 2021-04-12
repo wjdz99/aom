@@ -26,6 +26,7 @@ void av1_init_opfl_params(OPFL_PARAMS *opfl_params) {
   opfl_params->pyramid_levels = OPFL_PYRAMID_LEVELS;
   opfl_params->warping_steps = OPFL_WARPING_STEPS;
   opfl_params->lk_params = NULL;
+  opfl_params->err_info = NULL;
 }
 
 void av1_init_lk_params(LK_PARAMS *lk_params) {
@@ -711,8 +712,8 @@ static void get_frame_gradients(const YV12_BUFFER_CONFIG *from_frame,
 static void solve_horn_schunck(const double *ix, const double *iy,
                                const double *it, int grad_stride, int width,
                                int height, const LOCALMV *init_mvs,
-                               int init_mv_stride, LOCALMV *mvs,
-                               int mv_stride) {
+                               int init_mv_stride, LOCALMV *mvs, int mv_stride,
+                               struct aom_internal_error_info *err_info) {
   // TODO(bohanli): May just need to allocate the buffers once per optical flow
   // calculation
   int *row_pos = aom_calloc(width * height * 28, sizeof(*row_pos));
@@ -818,7 +819,7 @@ static void solve_horn_schunck(const double *ix, const double *iy,
     }
   }
   av1_init_sparse_mtx(row_pos, col_pos, values, c, 2 * width * height,
-                      2 * width * height, &A);
+                      2 * width * height, &A, err_info);
   // subtract init mv part from b
   av1_mtx_vect_multi_left(&A, mv_init_vec, temp_b, 2 * width * height);
   for (int i = 0; i < 2 * width * height; i++) {
@@ -860,10 +861,10 @@ static void solve_horn_schunck(const double *ix, const double *iy,
   }
 
   av1_init_sparse_mtx(row_pos, col_pos, values, c, 2 * width * height,
-                      2 * width * height, &A);
+                      2 * width * height, &A, err_info);
 
   // solve for the mvs
-  av1_conjugate_gradient_sparse(&A, b, 2 * width * height, mv_vec);
+  av1_conjugate_gradient_sparse(&A, b, 2 * width * height, mv_vec, err_info);
   // copy mvs
   for (w = 0; w < width; w++) {
     for (h = 0; h < height; h++) {
@@ -933,7 +934,7 @@ static void horn_schunck(const YV12_BUFFER_CONFIG *from_frame,
     get_frame_gradients(from_frame, &temp_frame, ix, iy, it, fw);
     // form linear equations and solve mvs
     solve_horn_schunck(ix, iy, it, fw, fw, fh, init_mvs, init_mv_stride,
-                       refine_mvs, fw);
+                       refine_mvs, fw, opfl_params->err_info);
     // update init_mvs
     for (h = 0; h < fh; h++) {
       for (w = 0; w < fw; w++) {
