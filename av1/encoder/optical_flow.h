@@ -53,11 +53,13 @@ typedef struct opfl_params {
   int warping_steps;
   LK_PARAMS *lk_params;
   int flags;
+  struct aom_internal_error_info *err_info;
 } OPFL_PARAMS;
 
 #define OPFL_FLAG_SPARSE 1
 
-void av1_init_opfl_params(OPFL_PARAMS *opfl_params);
+void av1_init_opfl_params(OPFL_PARAMS *opfl_params,
+                          struct aom_internal_error_info *err_info);
 
 void av1_init_lk_params(LK_PARAMS *lk_params);
 
