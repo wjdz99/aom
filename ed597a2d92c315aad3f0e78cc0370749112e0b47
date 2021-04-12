@@ -69,6 +69,29 @@
       "parentUuid": "444a750e_d4977343",
       "revId": "ed597a2d92c315aad3f0e78cc0370749112e0b47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49f019e0_d7727494",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-12T21:44:12Z",
+      "side": 1,
+      "message": "Another cleanup suggested by James Zern: it is okay to pass a null pointer to aom_free(). So these three lines can be rewritten as either:\n\n    aom_free(cm-\u003ecdef_info.linebuf[plane]);\n    cm-\u003ecdef_info.linebuf[plane] \u003d NULL;\n\nor:\n\n    if (cm-\u003ecdef_info.linebuf[plane] !\u003d NULL) {\n      aom_free(cm-\u003ecdef_info.linebuf[plane]);\n      cm-\u003ecdef_info.linebuf[plane] \u003d NULL;\n    }",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 40
+      },
+      "revId": "ed597a2d92c315aad3f0e78cc0370749112e0b47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
