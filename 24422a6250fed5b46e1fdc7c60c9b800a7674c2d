@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17a5a71c_26d1c4a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-04-13T21:26:21Z",
+      "side": 1,
+      "message": "Since we are going to cherry pick the bugfix (https://aomedia-review.googlesource.com/c/aom/+/135503) from master branch. I will abandon this cl. ",
+      "revId": "24422a6250fed5b46e1fdc7c60c9b800a7674c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "57f55387_48fc6862",
@@ -14,6 +31,30 @@
       "writtenOn": "2021-04-13T20:29:15Z",
       "side": 1,
       "message": "Looks like this is a typo, should be j \u003c config-\u003earg_key_val_cnt. It might still be worthwhile to check for NULL conditions here, though.\n\nI\u0027ll probably submit a patch to fix this typo in master branch and it would be nice if you could cherry pick it here. Will cc you on the CL. \n\nThanks for spotting this!",
+      "range": {
+        "startLine": 917,
+        "startChar": 26,
+        "endLine": 917,
+        "endChar": 38
+      },
+      "revId": "24422a6250fed5b46e1fdc7c60c9b800a7674c2d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09db5be3_ded18d51",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 917,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-04-13T21:26:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "57f55387_48fc6862",
       "range": {
         "startLine": 917,
         "startChar": 26,
