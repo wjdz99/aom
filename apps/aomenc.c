@@ -915,7 +915,9 @@ static void set_config_arg_key_vals(struct stream_config *config,
    * control.
    */
   for (j = 0; j < config->arg_ctrl_cnt; j++)
-    if (strcmp(name, config->arg_key_vals[j][0]) == 0) break;
+    if (config->arg_key_vals[j][0] == NULL ||
+        strcmp(name, config->arg_key_vals[j][0]) == 0)
+      break;
 
   /* Update/insert */
   assert(j < ARG_KEY_VAL_CNT_MAX);
