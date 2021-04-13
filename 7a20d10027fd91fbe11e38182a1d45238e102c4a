@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb9190fe_aa6d6707",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-13T19:33:03Z",
+      "side": 1,
+      "message": "Here are the outcomes of running the command:\n\n  aomenc --pass\u003d2 --usage\u003d1 -o /dev/null inputfile\n\nbefore and after this CL.\n\nBefore: Exit status 0 (success)\n\n  Warning: Assuming --pass\u003d2 implies --passes\u003d2\n\n  Warning: Enforcing one-pass encoding in realtime mode\n\nAfter: Exit status 1 (failure)\n\n  Warning: Assuming --pass\u003d2 implies --passes\u003d2\n\n  Warning: Enforcing one-pass encoding in realtime mode\n\n  Error: Invalid --pass\u003d2 for one-pass encoding\n\n  Usage: ./aomenc \u003coptions\u003e -o dst_filename src_filename\n  Use --help to see the full list of options.",
+      "revId": "7a20d10027fd91fbe11e38182a1d45238e102c4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cce76b0d_ae8e1d18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-13T19:33:03Z",
+      "side": 1,
+      "message": "PTAL. Thanks!",
+      "revId": "7a20d10027fd91fbe11e38182a1d45238e102c4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
