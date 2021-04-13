@@ -1128,8 +1128,7 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   av1_frame_init_quantizer(cpi);
 
   tpl_frame->base_rdmult = av1_compute_rd_mult_based_on_qindex(
-                               cm->seq_params->bit_depth, pframe_qindex) /
-                           6;
+      cpi, pframe_qindex) / 6;
 
   memset(tpl_txfm_stats, 0, sizeof(*tpl_txfm_stats));
 }
