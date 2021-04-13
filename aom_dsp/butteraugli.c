@@ -18,6 +18,8 @@
 
 int aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
                          const YV12_BUFFER_CONFIG *distorted, int bit_depth,
+                         int color_range,
+                         aom_matrix_coefficients_t matrix_coefficients,
                          float *dist_map) {
   (void)bit_depth;
   assert(bit_depth == 8);
@@ -25,6 +27,18 @@ int aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
   const int height = source->y_crop_height;
   const int ss_x = source->subsampling_x;
   const int ss_y = source->subsampling_y;
+
+  struct YuvConstants *yuv_constants;
+  if (matrix_coefficients == AOM_CICP_MC_BT_709) {
+    if (color_range) {
+      return 0;
+    } else {
+      yuv_constants = (struct YuvConstants *)&kYuvH709Constants;
+    }
+  } else {
+    yuv_constants = (struct YuvConstants *)(color_range ? &kYuvJPEGConstants
+                                                        : &kYuvI601Constants);
+  }
 
   const size_t stride_argb = width * 4;
   const size_t buffer_size = height * stride_argb;
@@ -39,27 +53,27 @@ int aom_calc_butteraugli(const YV12_BUFFER_CONFIG *source,
   if (ss_x == 1 && ss_y == 1) {
     I420ToARGBMatrix(source->y_buffer, source->y_stride, source->u_buffer,
                      source->uv_stride, source->v_buffer, source->uv_stride,
-                     src_argb, stride_argb, &kYuvH709Constants, width, height);
+                     src_argb, stride_argb, yuv_constants, width, height);
     I420ToARGBMatrix(distorted->y_buffer, distorted->y_stride,
                      distorted->u_buffer, distorted->uv_stride,
                      distorted->v_buffer, distorted->uv_stride, distorted_argb,
-                     stride_argb, &kYuvH709Constants, width, height);
+                     stride_argb, yuv_constants, width, height);
   } else if (ss_x == 1 && ss_y == 0) {
     I422ToARGBMatrix(source->y_buffer, source->y_stride, source->u_buffer,
                      source->uv_stride, source->v_buffer, source->uv_stride,
-                     src_argb, stride_argb, &kYuvH709Constants, width, height);
+                     src_argb, stride_argb, yuv_constants, width, height);
     I422ToARGBMatrix(distorted->y_buffer, distorted->y_stride,
                      distorted->u_buffer, distorted->uv_stride,
                      distorted->v_buffer, distorted->uv_stride, distorted_argb,
-                     stride_argb, &kYuvH709Constants, width, height);
+                     stride_argb, yuv_constants, width, height);
   } else if (ss_x == 0 && ss_y == 0) {
     I444ToARGBMatrix(source->y_buffer, source->y_stride, source->u_buffer,
                      source->uv_stride, source->v_buffer, source->uv_stride,
-                     src_argb, stride_argb, &kYuvH709Constants, width, height);
+                     src_argb, stride_argb, yuv_constants, width, height);
     I444ToARGBMatrix(distorted->y_buffer, distorted->y_stride,
                      distorted->u_buffer, distorted->uv_stride,
                      distorted->v_buffer, distorted->uv_stride, distorted_argb,
-                     stride_argb, &kYuvH709Constants, width, height);
+                     stride_argb, yuv_constants, width, height);
   } else {
     aom_free(src_argb);
     aom_free(distorted_argb);
