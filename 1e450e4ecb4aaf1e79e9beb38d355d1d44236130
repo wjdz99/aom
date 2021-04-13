@@ -22,6 +22,30 @@
       },
       "revId": "1e450e4ecb4aaf1e79e9beb38d355d1d44236130",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c30194f_9eadb0ed",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1019,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-13T22:54:32Z",
+      "side": 1,
+      "message": "Thanks for reviewing! Updated the comment here in the new patch.",
+      "parentUuid": "550b2b92_eecfc2d3",
+      "range": {
+        "startLine": 1019,
+        "startChar": 3,
+        "endLine": 1019,
+        "endChar": 19
+      },
+      "revId": "1e450e4ecb4aaf1e79e9beb38d355d1d44236130",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
