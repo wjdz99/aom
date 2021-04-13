@@ -617,8 +617,8 @@ static AOM_INLINE void write_angle_delta(aom_writer *w, int angle_delta,
 }
 
 static AOM_INLINE void write_mb_interp_filter(AV1_COMMON *const cm,
-                                              const MACROBLOCKD *xd,
-                                              aom_writer *w) {
+                                              ThreadData *td, aom_writer *w) {
+  const MACROBLOCKD *xd = &td->mb.e_mbd;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
@@ -637,7 +637,7 @@ static AOM_INLINE void write_mb_interp_filter(AV1_COMMON *const cm,
           av1_extract_interp_filter(mbmi->interp_filters, dir);
       aom_write_symbol(w, filter, ec_ctx->switchable_interp_cdf[ctx],
                        SWITCHABLE_FILTERS);
-      ++cm->cur_frame->interp_filter_selected[filter];
+      ++td->interp_filter_selected[filter];
       if (cm->seq_params.enable_dual_filter == 0) return;
     }
   }
@@ -1147,17 +1147,19 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, ThreadData *const td,
       for (ref = 0; ref < 1 + is_compound; ++ref) {
         nmv_context *nmvc = &ec_ctx->nmvc;
         const int_mv ref_mv = get_ref_mv(x, ref);
-        av1_encode_mv(cpi, w, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
+        av1_encode_mv(cpi, w, td, &mbmi->mv[ref].as_mv, &ref_mv.as_mv, nmvc,
                       allow_hp);
       }
     } else if (mode == NEAREST_NEWMV || mode == NEAR_NEWMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = get_ref_mv(x, 1);
-      av1_encode_mv(cpi, w, &mbmi->mv[1].as_mv, &ref_mv.as_mv, nmvc, allow_hp);
+      av1_encode_mv(cpi, w, td, &mbmi->mv[1].as_mv, &ref_mv.as_mv, nmvc,
+                    allow_hp);
     } else if (mode == NEW_NEARESTMV || mode == NEW_NEARMV) {
       nmv_context *nmvc = &ec_ctx->nmvc;
       const int_mv ref_mv = get_ref_mv(x, 0);
-      av1_encode_mv(cpi, w, &mbmi->mv[0].as_mv, &ref_mv.as_mv, nmvc, allow_hp);
+      av1_encode_mv(cpi, w, td, &mbmi->mv[0].as_mv, &ref_mv.as_mv, nmvc,
+                    allow_hp);
     }
 
     if (cpi->common.current_frame.reference_mode != COMPOUND_REFERENCE &&
@@ -1235,7 +1237,7 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, ThreadData *const td,
         }
       }
     }
-    write_mb_interp_filter(cm, xd, w);
+    write_mb_interp_filter(cm, td, w);
   }
 }
 
@@ -1556,7 +1558,7 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, ThreadData *const td,
     write_tokens_b(cpi, &td->mb, w, tok, tok_end);
 
     const int end = aom_tell_size(w);
-    cpi->rc.coefficient_size += end - start;
+    td->coefficient_size += end - start;
   }
 }
 
@@ -2089,17 +2091,9 @@ static AOM_INLINE void encode_segmentation(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (!seg->enabled) return;
 
   // Write update flags
-  if (cm->features.primary_ref_frame == PRIMARY_REF_NONE) {
-    assert(seg->update_map == 1);
-    seg->temporal_update = 0;
-    assert(seg->update_data == 1);
-  } else {
+  if (cm->features.primary_ref_frame != PRIMARY_REF_NONE) {
     aom_wb_write_bit(wb, seg->update_map);
-    if (seg->update_map) {
-      // Select the coding strategy (temporal or spatial)
-      av1_choose_segmap_coding_method(cm, xd);
-      aom_wb_write_bit(wb, seg->temporal_update);
-    }
+    if (seg->update_map) aom_wb_write_bit(wb, seg->temporal_update);
     aom_wb_write_bit(wb, seg->update_data);
   }
 
@@ -3553,6 +3547,7 @@ static void write_large_scale_tile_obu(
   const int tile_rows = tiles->rows;
   unsigned int tile_size = 0;
 
+  reset_pack_bs_thread_data(&cpi->td);
   for (int tile_col = 0; tile_col < tile_cols; tile_col++) {
     TileInfo tile_info;
     const int is_last_col = (tile_col == tile_cols - 1);
@@ -3629,6 +3624,7 @@ static void write_large_scale_tile_obu(
       *max_tile_col_size = AOMMAX(*max_tile_col_size, col_size);
     }
   }
+  accumulate_pack_bs_thread_data(cpi, &cpi->td);
 }
 
 // Packs information in the obu header for large scale tiles.
@@ -3773,6 +3769,21 @@ void write_last_tile_info(AV1_COMP *const cpi, const FrameHeaderInfo *fh_info,
   *is_first_tg = 0;
 }
 
+void reset_pack_bs_thread_data(ThreadData *const td) {
+  td->coefficient_size = 0;
+  td->max_mv_magnitude = 0;
+  av1_zero(td->interp_filter_selected);
+}
+
+void accumulate_pack_bs_thread_data(AV1_COMP *const cpi, ThreadData const *td) {
+  cpi->rc.coefficient_size += td->coefficient_size;
+  cpi->mv_search_params.max_mv_magnitude += td->max_mv_magnitude;
+
+  for (InterpFilter filter = EIGHTTAP_REGULAR; filter < SWITCHABLE; filter++)
+    cpi->common.cur_frame->interp_filter_selected[filter] +=
+        td->interp_filter_selected[filter];
+}
+
 // Store information related to each default tile in the OBU header.
 static void write_tile_obu(
     AV1_COMP *const cpi, uint8_t *const dst, uint32_t *total_size,
@@ -3793,6 +3804,7 @@ static void write_tile_obu(
   int new_tg = 1;
   int is_first_tg = 1;
 
+  reset_pack_bs_thread_data(&cpi->td);
   for (int tile_row = 0; tile_row < tile_rows; tile_row++) {
     for (int tile_col = 0; tile_col < tile_cols; tile_col++) {
       const int tile_idx = tile_row * tile_cols + tile_col;
@@ -3853,6 +3865,7 @@ static void write_tile_obu(
       *total_size += (uint32_t)pack_bs_params.buf.size;
     }
   }
+  accumulate_pack_bs_thread_data(cpi, &cpi->td);
 }
 
 // Write total buffer size and related information into the OBU header for
@@ -3942,6 +3955,9 @@ static uint32_t write_tiles_in_tg_obus(AV1_COMP *const cpi, uint8_t *const dst,
   AV1_COMMON *const cm = &cpi->common;
   const CommonTileParams *const tiles = &cm->tiles;
   *largest_tile_id = 0;
+
+  // Select the coding strategy (temporal or spatial)
+  if (cm->seg.enabled) av1_choose_segmap_coding_method(cm, &cpi->td.mb.e_mbd);
 
   if (tiles->large_scale)
     return pack_large_scale_tiles_in_tg_obus(cpi, dst, saved_wb,
