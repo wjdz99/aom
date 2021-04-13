@@ -223,7 +223,7 @@ static int rd_pick_filter_intra_sby(const AV1_COMP *const cpi, MACROBLOCK *x,
     if (tokenonly_rd_stats.rate == INT_MAX) continue;
     const int this_rate =
         tokenonly_rd_stats.rate +
-        intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
+        intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost, 0, 1, 0, 0);
     this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
 
     // Visual quality adjustment based on recon vs source variance.
@@ -962,8 +962,9 @@ static AOM_INLINE int intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     this_rate_tokenonly -= tx_size_cost(x, bsize, mbmi->tx_size);
   }
   const int this_rate =
-      rd_stats.rate +
-      intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
+      rd_stats.rate + intra_mode_info_cost_y(cpi, x, mbmi, bsize,
+                                             bmode_costs[mbmi->mode], 1, 1, 1,
+                                             1);
   const int64_t this_rd = RDCOST(x->rdmult, this_rate, rd_stats.dist);
   if (this_rd < *best_rd) {
     *best_mbmi = *mbmi;
@@ -1016,7 +1017,7 @@ static INLINE void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
     if (rd_stats_y_fi.rate == INT_MAX) continue;
     const int this_rate_tmp =
         rd_stats_y_fi.rate +
-        intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
+        intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost, 0, 1, 0, 0);
     const int64_t this_rd_tmp =
         RDCOST(x->rdmult, this_rate_tmp, rd_stats_y_fi.dist);
 
@@ -1137,7 +1138,8 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
 
   if (rd_stats_y->rate == INT_MAX) return 0;
 
-  *mode_cost_y = intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
+  *mode_cost_y =
+      intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost, 1, 1, 1, 0);
   const int rate_y = rd_stats_y->skip_txfm
                          ? mode_costs->skip_txfm_cost[skip_ctx][1]
                          : rd_stats_y->rate;
@@ -1348,9 +1350,9 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
       // not the tokenonly rate.
       this_rate_tokenonly -= tx_size_cost(x, bsize, mbmi->tx_size);
     }
-    this_rate =
-        this_rd_stats.rate +
-        intra_mode_info_cost_y(cpi, x, mbmi, bsize, bmode_costs[mbmi->mode]);
+    this_rate = this_rd_stats.rate +
+                intra_mode_info_cost_y(cpi, x, mbmi, bsize,
+                                       bmode_costs[mbmi->mode], 1, 1, 1, 1);
     this_rd = RDCOST(x->rdmult, this_rate, this_distortion);
 
     // Visual quality adjustment based on recon vs source variance.

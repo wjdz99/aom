@@ -464,10 +464,11 @@ static AOM_INLINE int write_uniform_cost(int n, int v) {
  *
  * \callergraph
  */
-static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
-                                             const MACROBLOCK *x,
-                                             const MB_MODE_INFO *mbmi,
-                                             BLOCK_SIZE bsize, int mode_cost) {
+static AOM_INLINE int intra_mode_info_cost_y(
+    const AV1_COMP *cpi, const MACROBLOCK *x, const MB_MODE_INFO *mbmi,
+    BLOCK_SIZE bsize, int mode_cost, int include_palette,
+    int include_filter_intra, int include_directional_intra,
+    int include_intrbc) {
   int total_rate = mode_cost;
   const ModeCosts *mode_costs = &x->mode_costs;
   const int use_palette = mbmi->palette_mode_info.palette_size[0] > 0;
@@ -478,7 +479,7 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
           use_filter_intra) <= 1);
   const int try_palette = av1_allow_palette(
       cpi->common.features.allow_screen_content_tools, mbmi->bsize);
-  if (try_palette && mbmi->mode == DC_PRED) {
+  if (include_palette && try_palette && mbmi->mode == DC_PRED) {
     const MACROBLOCKD *xd = &x->e_mbd;
     const int bsize_ctx = av1_get_palette_bsize_ctx(bsize);
     const int mode_ctx = av1_get_palette_mode_ctx(xd);
@@ -504,7 +505,7 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
       total_rate += palette_mode_cost;
     }
   }
-  if (av1_filter_intra_allowed(&cpi->common, mbmi)) {
+  if (include_filter_intra && av1_filter_intra_allowed(&cpi->common, mbmi)) {
     total_rate += mode_costs->filter_intra_cost[mbmi->bsize][use_filter_intra];
     if (use_filter_intra) {
       total_rate +=
@@ -512,7 +513,7 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
                                                  .filter_intra_mode];
     }
   }
-  if (av1_is_directional_mode(mbmi->mode)) {
+  if (include_directional_intra && av1_is_directional_mode(mbmi->mode)) {
     if (av1_use_angle_delta(bsize)) {
       total_rate +=
           mode_costs->angle_delta_cost[mbmi->mode - V_PRED]
@@ -520,7 +521,7 @@ static AOM_INLINE int intra_mode_info_cost_y(const AV1_COMP *cpi,
                                        mbmi->angle_delta[PLANE_TYPE_Y]];
     }
   }
-  if (av1_allow_intrabc(&cpi->common))
+  if (include_intrbc && av1_allow_intrabc(&cpi->common))
     total_rate += mode_costs->intrabc_cost[use_intrabc];
   return total_rate;
 }

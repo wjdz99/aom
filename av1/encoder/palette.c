@@ -284,6 +284,16 @@ static AOM_INLINE void palette_rd_y(
                 intra_mode_info_cost_y(cpi, x, mbmi, bsize, dc_mode_cost);
   }
 
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
+=======
+  RD_STATS tokenonly_rd_stats;
+  av1_pick_uniform_tx_size_type_yrd(cpi, x, &tokenonly_rd_stats, bsize,
+                                    *best_rd);
+  if (tokenonly_rd_stats.rate == INT_MAX) return;
+  const int palette_mode_cost =
+      intra_mode_info_cost_y(cpi, x, mbmi, bsize, dc_mode_cost, 1, 0, 0, 0);
+  int this_rate = tokenonly_rd_stats.rate + palette_mode_cost;
+>>>>>>> CHANGE (3857c8 intra_mode_info_cost_y)
   int64_t this_rd = RDCOST(x->rdmult, this_rate, tokenonly_rd_stats.dist);
   if (!xd->lossless[mbmi->segment_id] && block_signals_txsize(mbmi->bsize)) {
     tokenonly_rd_stats.rate -= tx_size_cost(x, bsize, mbmi->tx_size);
