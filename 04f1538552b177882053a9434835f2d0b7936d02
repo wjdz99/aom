@@ -35,6 +35,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6750a870_37b62b9d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-13T03:31:07Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThank you for the code review. Please check our comments.",
+      "revId": "04f1538552b177882053a9434835f2d0b7936d02",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1aa5a3ea_fa5df296",
@@ -58,6 +75,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1aea4ae0_57a74cb4",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-13T03:31:07Z",
+      "side": 1,
+      "message": "yes correct\nThe conditions used in caller (line 976) and callee (line 324) functions in parent code are same. So, in caller function the value of delta_lf_multi is hard coded and delta_lf_multi is passed as a function argument. This modification silences the warning.",
+      "parentUuid": "1aa5a3ea_fa5df296",
+      "range": {
+        "startLine": 326,
+        "startChar": 6,
+        "endLine": 326,
+        "endChar": 20
+      },
+      "revId": "04f1538552b177882053a9434835f2d0b7936d02",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db83882a_6bacf580",
@@ -71,6 +112,30 @@
       "writtenOn": "2021-04-12T18:12:41Z",
       "side": 1,
       "message": "\"(void)cm\" wouldn\u0027t cause complier warning for debug build?",
+      "range": {
+        "startLine": 327,
+        "startChar": 49,
+        "endLine": 327,
+        "endChar": 51
+      },
+      "revId": "04f1538552b177882053a9434835f2d0b7936d02",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e5aae40_4d68bc6d",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-13T03:31:07Z",
+      "side": 1,
+      "message": "yes right,\n\"(void)cm\" is added to suppress warning in release build only.",
+      "parentUuid": "db83882a_6bacf580",
       "range": {
         "startLine": 327,
         "startChar": 49,
