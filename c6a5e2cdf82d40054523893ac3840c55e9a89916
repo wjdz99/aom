@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ef14b9e_00f94f31",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-14T16:11:15Z",
+      "side": 1,
+      "message": "ok.",
+      "parentUuid": "049891e6_7eb5b2af",
+      "range": {
+        "startLine": 116,
+        "startChar": 41,
+        "endLine": 116,
+        "endChar": 47
+      },
+      "revId": "c6a5e2cdf82d40054523893ac3840c55e9a89916",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "57263bea_57ce670b",
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "No, We are coping the required number of pixels only. But in the parent commit, irrespective of subsampling format same amount of memory was allocated for all the planes.\n\nNow, we have modified it such that, the memory allocation is based on subsampling format.",
       "parentUuid": "57263bea_57ce670b",
+      "range": {
+        "startLine": 176,
+        "startChar": 12,
+        "endLine": 176,
+        "endChar": 18
+      },
+      "revId": "c6a5e2cdf82d40054523893ac3840c55e9a89916",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "228deae2_b02633dd",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-14T16:11:15Z",
+      "side": 1,
+      "message": "sounds good.",
+      "parentUuid": "8f3793b9_28c1e386",
       "range": {
         "startLine": 176,
         "startChar": 12,
