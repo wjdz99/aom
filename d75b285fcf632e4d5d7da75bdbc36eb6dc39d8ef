@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad87dcee_81001b9f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-14T17:35:51Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWhile validating the implementation of MT of bitstream packing, we observed that ‘seg-\u003etemporal_update’ variable updated in encode_segmentation( ) function is creating race condition as the function can be simultaneously called by two or more threads for preparing uncompressed header. The above scenario is expected if number of tile groups \u003e 1.\n\nWe also noticed that av1_choose_segmap_coding_method( ) which does “segmentation map coding method decision” is for complete frame and not for a specific tile. Hence, to make ‘seg-\u003etemporal_update’ variable thread safe, we moved the function to frame level. As the function is common between large scale and default tile, we moved it to write_tiles_in_tg_obus( ).\n\nThis patch is tested locally for bit match. Please review.\nThank you.",
+      "revId": "d75b285fcf632e4d5d7da75bdbc36eb6dc39d8ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
