@@ -4820,6 +4820,10 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->ref_frame[0] = ref_frames[0];
   mbmi->ref_frame[1] = ref_frames[1];
+#if CONFIG_NEW_REF_SIGNALING
+  mbmi->ref_frame_nrs[0] = cm->new_ref_frame_data.named_to_ranked_refs[ref_frames[0]];
+  mbmi->ref_frame_nrs[1] = cm->new_ref_frame_data.named_to_ranked_refs[ref_frames[1]];
+#endif  // CONFIG_NEW_REF_SIGNALING
   pmi->palette_size[0] = 0;
   pmi->palette_size[1] = 0;
   mbmi->filter_intra_mode_info.use_filter_intra = 0;

@@ -790,6 +790,9 @@ enum {
 
 // Note: It includes single and compound references. So, it can take values from
 // NONE_FRAME to (MODE_CTX_REF_FRAMES - 1). Hence, it is not defined as an enum.
+#if CONFIG_NEW_REF_SIGNALING
+typedef int8_t MV_REFERENCE_FRAME_NRS;
+#endif  // CONFIG_NEW_REF_SIGNALING
 typedef int8_t MV_REFERENCE_FRAME;
 
 /*!\endcond */

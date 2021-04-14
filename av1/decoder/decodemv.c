@@ -1480,6 +1480,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
   av1_collect_neighbors_ref_counts(xd);
 
   read_ref_frames(cm, xd, r, mbmi->segment_id, mbmi->ref_frame);
+#if CONFIG_NEW_REF_SIGNALING
+  mbmi->ref_frame_nrs[0] = cm->new_ref_frame_data.named_to_ranked_refs[mbmi->ref_frames[0]];
+  mbmi->ref_frame_nrs[1] = cm->new_ref_frame_data.named_to_ranked_refs[mbmi->ref_frames[1]];
+#endif  // CONFIG_NEW_REF_SIGNALING
   const int is_compound = has_second_ref(mbmi);
 
   const MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
