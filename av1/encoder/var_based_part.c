@@ -394,7 +394,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
         scale_part_thresh_content(threshold_base, cpi->oxcf.speed, cm->width,
                                   cm->height, cpi->svc.non_reference_frame);
 #endif
-
+    if (cpi->sf.rt_sf.force_large_partition_blocks) threshold_base <<= 1;
     thresholds[0] = threshold_base >> 1;
     thresholds[1] = threshold_base;
     thresholds[3] = threshold_base << cpi->oxcf.speed;
