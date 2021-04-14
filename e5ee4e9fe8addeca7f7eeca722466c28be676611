@@ -157,6 +157,24 @@
       "parentUuid": "5cae67e6_b0d73b2f",
       "revId": "e5ee4e9fe8addeca7f7eeca722466c28be676611",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7b7233e_ac8c8883",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-04-14T16:56:31Z",
+      "side": 1,
+      "message": "I added part of that test back. I think we should land this one and enable realtime only config on jenkins first and I can deal with decoder later. When realtime only build was introduced we didn\u0027t want to change decoder code.",
+      "parentUuid": "24bb9ab5_cb1126f1",
+      "revId": "e5ee4e9fe8addeca7f7eeca722466c28be676611",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
