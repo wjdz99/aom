@@ -517,10 +517,10 @@ static const aom_cdf_prob
 
 static const aom_cdf_prob default_drl0_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
 #if NO_MV_PARSING_DEP
-  { AOM_CDF2(18267) }, { AOM_CDF2(18267) }, { AOM_CDF2(18267) },
-  { AOM_CDF2(18267) }, { AOM_CDF2(18267) }, { AOM_CDF2(18267) },
-  { AOM_CDF2(18267) }, { AOM_CDF2(18267) }, { AOM_CDF2(18267) },
-  { AOM_CDF2(18267) }, { AOM_CDF2(18267) }, { AOM_CDF2(18267) },
+  { AOM_CDF2(27068) }, { AOM_CDF2(23432) }, { AOM_CDF2(20032) },
+  { AOM_CDF2(18153) }, { AOM_CDF2(23318) }, { AOM_CDF2(25873) },
+  { AOM_CDF2(25851) }, { AOM_CDF2(25580) }, { AOM_CDF2(15990) },
+  { AOM_CDF2(16543) }, { AOM_CDF2(21978) }, { AOM_CDF2(21615) }
 #else
   { AOM_CDF2(15648) }, { AOM_CDF2(26275) }, { AOM_CDF2(20267) }
 #endif  // NO_MV_PARSING_DEP
@@ -528,10 +528,10 @@ static const aom_cdf_prob default_drl0_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
 
 static const aom_cdf_prob default_drl1_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
 #if NO_MV_PARSING_DEP
-  { AOM_CDF2(20267) }, { AOM_CDF2(20267) }, { AOM_CDF2(20267) },
-  { AOM_CDF2(20267) }, { AOM_CDF2(20267) }, { AOM_CDF2(20267) },
-  { AOM_CDF2(20267) }, { AOM_CDF2(20267) }, { AOM_CDF2(20267) },
-  { AOM_CDF2(20267) }, { AOM_CDF2(20267) }, { AOM_CDF2(20267) },
+  { AOM_CDF2(28637) }, { AOM_CDF2(24672) }, { AOM_CDF2(22569) },
+  { AOM_CDF2(21901) }, { AOM_CDF2(17351) }, { AOM_CDF2(18164) },
+  { AOM_CDF2(19975) }, { AOM_CDF2(19362) }, { AOM_CDF2(18487) },
+  { AOM_CDF2(23215) }, { AOM_CDF2(18524) }, { AOM_CDF2(20702) }
 #else
   { AOM_CDF2(16196) }, { AOM_CDF2(22540) }, { AOM_CDF2(12071) }
 #endif
@@ -539,10 +539,10 @@ static const aom_cdf_prob default_drl1_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
 
 static const aom_cdf_prob default_drl2_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
 #if NO_MV_PARSING_DEP
-  { AOM_CDF2(22267) }, { AOM_CDF2(22267) }, { AOM_CDF2(22267) },
-  { AOM_CDF2(22267) }, { AOM_CDF2(22267) }, { AOM_CDF2(22267) },
-  { AOM_CDF2(22267) }, { AOM_CDF2(22267) }, { AOM_CDF2(22267) },
-  { AOM_CDF2(22267) }, { AOM_CDF2(22267) }, { AOM_CDF2(22267) },
+  { AOM_CDF2(27447) }, { AOM_CDF2(29211) }, { AOM_CDF2(25403) },
+  { AOM_CDF2(26039) }, { AOM_CDF2(19428) }, { AOM_CDF2(20579) },
+  { AOM_CDF2(22549) }, { AOM_CDF2(23122) }, { AOM_CDF2(16108) },
+  { AOM_CDF2(18411) }, { AOM_CDF2(19481) }, { AOM_CDF2(20254) }
 #else
   { AOM_CDF2(18355) }, { AOM_CDF2(18090) }, { AOM_CDF2(13689) }
 #endif
