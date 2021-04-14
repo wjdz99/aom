@@ -1885,6 +1885,10 @@ static void estimate_intra_mode(
     mi->mode = this_mode;
     mi->ref_frame[0] = INTRA_FRAME;
     mi->ref_frame[1] = NONE_FRAME;
+#if CONFIG_NEW_REF_SIGNALING
+  mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, mi->ref_frame[0]);
+  mi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, mi->ref_frame[1]);
+#endif  // CONFIG_NEW_REF_SIGNALING
 
     av1_invalid_rd_stats(&this_rdc);
     args.mode = this_mode;

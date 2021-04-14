@@ -357,6 +357,9 @@ static int firstpass_intra_prediction(
   xd->left_available = (mb_col != 0);
   xd->mi[0]->sb_type = bsize;
   xd->mi[0]->ref_frame[0] = INTRA_FRAME;
+#if CONFIG_NEW_REF_SIGNALING
+  xd->mi[0]->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, xd->mi[0]->ref_frame[0]);
+#endif  // CONFIG_NEW_REF_SIGNALING
   set_mi_row_col(xd, tile, mb_row * mb_scale, mi_size_high[bsize],
                  mb_col * mb_scale, mi_size_wide[bsize], mi_params->mi_rows,
                  mi_params->mi_cols, NULL);
