@@ -50,6 +50,24 @@
       "message": "The is_cur_buf_hbd() function is defined as:\n\n  static INLINE int is_cur_buf_hbd(const MACROBLOCKD *xd) {\n    return xd-\u003ecur_buf-\u003eflags \u0026 YV12_FLAG_HIGHBITDEPTH ? 1 : 0;\n  }\n\nDo you think it should test CONFIG_AV1_HIGHBITDEPTH as follows?\n\n  static INLINE int is_cur_buf_hbd(const MACROBLOCKD *xd) {\n  #CONFIG_AV1_HIGHBITDEPTH\n    return xd-\u003ecur_buf-\u003eflags \u0026 YV12_FLAG_HIGHBITDEPTH ? 1 : 0;\n  #else\n    return 0;\n  #endif\n  }",
       "revId": "78bcb2fe80c63071678c6dc9ec98b33f99b856f3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9403eef_51f4ebb8",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-04-14T17:11:17Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe changes we have done are consistent with some of the modules like av1_setup_obmc_dst_bufs(). As per our understanding, introducing macro as per your suggestion in is_cur_buf_hbd() should be similar to the changes we have done. We validated our understanding with the assembly code generated using gcc compiler (when CONFIG_AV1_HIGHBITDEPTH is off). Overall we feel that modifying is_cur_buf_hbd() can result in simpler code as caller module does not need to address different cases of CONFIG_AV1_HIGHBITDEPTH.\n\nWe also see that there are some modules like cfl_store_dc_pred() which do not have changes specific to CONFIG_AV1_HIGHBITDEPTH. By modifying is_cur_buf_hbd(), we can address the cases where CONFIG_AV1_HIGHBITDEPTH related changes are not taken care.\n\nPlease let us know your opinion on pursuing above change.",
+      "parentUuid": "a616ee19_9c47bc8b",
+      "revId": "78bcb2fe80c63071678c6dc9ec98b33f99b856f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
