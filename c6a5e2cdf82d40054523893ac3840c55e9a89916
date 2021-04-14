@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "049891e6_7eb5b2af",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-14T06:36:57Z",
+      "side": 1,
+      "message": "Yes, the memory of srcbuf and colbuf are to be moved to sequence level. Similar to linebuf, these buffers will also get re-allocated in the follow up patches.",
+      "parentUuid": "8b59715d_2536c64a",
+      "range": {
+        "startLine": 116,
+        "startChar": 41,
+        "endLine": 116,
+        "endChar": 47
+      },
+      "revId": "c6a5e2cdf82d40054523893ac3840c55e9a89916",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "57263bea_57ce670b",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-04-12T22:18:13Z",
       "side": 1,
       "message": "So we actually copied more than needed before?",
+      "range": {
+        "startLine": 176,
+        "startChar": 12,
+        "endLine": 176,
+        "endChar": 18
+      },
+      "revId": "c6a5e2cdf82d40054523893ac3840c55e9a89916",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f3793b9_28c1e386",
+        "filename": "av1/common/cdef.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-14T06:36:57Z",
+      "side": 1,
+      "message": "No, We are coping the required number of pixels only. But in the parent commit, irrespective of subsampling format same amount of memory was allocated for all the planes.\n\nNow, we have modified it such that, the memory allocation is based on subsampling format.",
+      "parentUuid": "57263bea_57ce670b",
       "range": {
         "startLine": 176,
         "startChar": 12,
