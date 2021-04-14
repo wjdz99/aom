@@ -22,6 +22,30 @@
       },
       "revId": "11b6195a7540dacbd9f130bf9cb34a0bc1250765",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d47f16c9_990efaeb",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-04-14T03:44:54Z",
+      "side": 1,
+      "message": "I have a followup change that will modify this so I\u0027ll add it there",
+      "parentUuid": "5f06a69d_563b9ad2",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 49
+      },
+      "revId": "11b6195a7540dacbd9f130bf9cb34a0bc1250765",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
