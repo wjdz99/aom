@@ -755,7 +755,7 @@ enum {
 
 #if CONFIG_NEW_REF_SIGNALING
 #define MAX_REF_FRAMES_NRS REF_FRAMES
-#define INTRA_FRAME_NRS MAX_REF_FRAMES
+#define INTRA_FRAME_NRS MAX_REF_FRAMES_NRS
 #endif  // CONFIG_NEW_REF_SIGNALING
 
 #define REF_FRAMES_LOG2 3
@@ -795,6 +795,9 @@ enum {
 
 // Note: It includes single and compound references. So, it can take values from
 // NONE_FRAME to (MODE_CTX_REF_FRAMES - 1). Hence, it is not defined as an enum.
+#if CONFIG_NEW_REF_SIGNALING
+typedef int8_t MV_REFERENCE_FRAME_NRS;
+#endif  // CONFIG_NEW_REF_SIGNALING
 typedef int8_t MV_REFERENCE_FRAME;
 
 /*!\endcond */

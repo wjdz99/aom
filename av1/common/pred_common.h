@@ -68,6 +68,18 @@ void av1_get_ref_frames(AV1_COMMON *const cm, int cur_frame_disp,
 void av1_init_new_ref_frame_map(AV1_COMMON *const cm,
                                 RefFrameMapPair *ref_frame_map_pairs,
                                 int cur_frame_disp);
+
+int convert_named_ref_to_ranked_ref_index(NewRefFramesData *ref_frame_data, int named_idx) {
+  if (named_idx == INVALID_IDX) return INVALID_IDX;
+  if (named_idx == INTRA_FRAME) return INTRA_FRAME_NRS;
+  return ref_frame_data->named_to_ranked_refs[named_idx];
+}
+
+int convert_ranked_ref_to_named_ref_index(NewRefFramesData *ref_frame_data, int ranked_idx) {
+  if (ranked_idx == INVALID_IDX) return INVALID_IDX;
+  if (ranked_idx == INTRA_FRAME_NRS) return INTRA_FRAME;
+  return ref_frame_data->ranked_to_named_refs[ranked_idx];
+}
 #endif  // NEW_REF_SIGNALING
 
 static INLINE int get_segment_id(const CommonModeInfoParams *const mi_params,
