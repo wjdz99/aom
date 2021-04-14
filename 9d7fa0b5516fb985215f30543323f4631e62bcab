@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f0baa09_ccbaec02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-04-14T14:46:24Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, \n\nWe have done the changes as per your suggestion. We noticed that speed presets 7, 8 and 9 are enabled for allintra encoding mode. Hence we have added cpu-used 8 to ‘AVxEncoderThreadAllIntraTestLarge’ test. We rebased the patch to verify the same.\n\nPlease review.\n\nThanks \u0026 regards, \nAniket.\n",
+      "revId": "9d7fa0b5516fb985215f30543323f4631e62bcab",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
