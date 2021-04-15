@@ -35,6 +35,41 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b1f4556_5d1c55ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-15T04:24:16Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThank you for the review.\nPlease check our comments.",
+      "revId": "523cdb53f2209a112b2c4bf8ba3a0ba72cf2acc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "900024cd_8d6c6017",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-15T04:24:16Z",
+      "side": 1,
+      "message": "No, We did not introduce a temporary buffer to store bitstream.\nInstead we divided the bitstream buffer based on the area of the tile. After bitstream preparation, all the buffers are collated using memmove. \nWe felt that size of the bitstream buffer is sufficient for this design. Also, the buffer changes are applicable only for the multithread design.",
+      "parentUuid": "017c88f0_9219b4b7",
+      "revId": "523cdb53f2209a112b2c4bf8ba3a0ba72cf2acc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24071643_871e15ed",
@@ -48,6 +83,30 @@
       "writtenOn": "2021-04-14T23:06:55Z",
       "side": 1,
       "message": "Looks like we have xd-\u003eerror_info which is used in decoder. Could that be used here or use x-\u003eerror_info?",
+      "range": {
+        "startLine": 2917,
+        "startChar": 25,
+        "endLine": 2917,
+        "endChar": 26
+      },
+      "revId": "523cdb53f2209a112b2c4bf8ba3a0ba72cf2acc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e26cc930_7336530e",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2917,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-15T04:24:16Z",
+      "side": 1,
+      "message": "As per our understanding xd structure is specific to decoder. So we have introduced ‘error_info’ in an encoder specific structure (MACROBLOCK).",
+      "parentUuid": "24071643_871e15ed",
       "range": {
         "startLine": 2917,
         "startChar": 25,
@@ -81,6 +140,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e5d4f83_ac810181",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3559,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-15T04:24:16Z",
+      "side": 1,
+      "message": "No, multithread support is not planned for large scale tile.",
+      "parentUuid": "fd3f6784_192cb6ef",
+      "range": {
+        "startLine": 3559,
+        "startChar": 2,
+        "endLine": 3559,
+        "endChar": 27
+      },
+      "revId": "523cdb53f2209a112b2c4bf8ba3a0ba72cf2acc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9c8d8e4b_b274bb4f",
@@ -94,6 +177,30 @@
       "writtenOn": "2021-04-14T23:06:55Z",
       "side": 1,
       "message": "Is this needed in other part of the encoder? If true, should it be assigned during encoder initialization?",
+      "range": {
+        "startLine": 3584,
+        "startChar": 6,
+        "endLine": 3584,
+        "endChar": 41
+      },
+      "revId": "523cdb53f2209a112b2c4bf8ba3a0ba72cf2acc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f551317c_8d64e386",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3584,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-15T04:24:16Z",
+      "side": 1,
+      "message": "This change may not be needed in other part of the encoder as ‘error_info’ is not used within the scope of multithreading except pack bitstream.",
+      "parentUuid": "9c8d8e4b_b274bb4f",
       "range": {
         "startLine": 3584,
         "startChar": 6,
@@ -127,6 +234,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "106c6c8d_0cabdf96",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3799,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-15T04:24:16Z",
+      "side": 1,
+      "message": "We are not planning to move these functions to ethread.c as it will be used by functions of both single thread and multithread implementations.",
+      "parentUuid": "41026f10_cf75c0ce",
+      "range": {
+        "startLine": 3781,
+        "startChar": 0,
+        "endLine": 3799,
+        "endChar": 0
+      },
+      "revId": "523cdb53f2209a112b2c4bf8ba3a0ba72cf2acc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0d696df0_c8908d5f",
@@ -140,6 +271,30 @@
       "writtenOn": "2021-04-14T23:06:55Z",
       "side": 1,
       "message": "This function calling is also needed for single thread case, right? Same for accumulate_pack_bs_thread_data()?",
+      "range": {
+        "startLine": 3820,
+        "startChar": 2,
+        "endLine": 3820,
+        "endChar": 38
+      },
+      "revId": "523cdb53f2209a112b2c4bf8ba3a0ba72cf2acc8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f04e4f90_85a3d7dc",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3820,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-15T04:24:16Z",
+      "side": 1,
+      "message": "Yeah, these functions are used in following scenarios,\n* Pack bitstream of default tile (Single thread)\n* Pack bitstream of default tile (Multi-thread)\n* Pack bitstream of large scale tile (Single thread)",
+      "parentUuid": "0d696df0_c8908d5f",
       "range": {
         "startLine": 3820,
         "startChar": 2,
