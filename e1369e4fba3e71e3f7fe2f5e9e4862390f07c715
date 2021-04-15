@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "007cd80b_3f98e2fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-04-15T21:56:11Z",
+      "side": 1,
+      "message": "This one only addresses the 8Xh assembly, but similar changes can be made for other bsizes as well.",
+      "revId": "e1369e4fba3e71e3f7fe2f5e9e4862390f07c715",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
