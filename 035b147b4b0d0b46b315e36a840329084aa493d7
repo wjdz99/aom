@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2de5dfb_246ad9d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-15T09:00:39Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have gone through few previous patches to investigate the CONFIG_AV1_HIGHBITDEPTH macro usage in end_to_end_test.cc. The following 2 patches give a brief idea,\n1) https://aomedia-review.googlesource.com/c/aom/+/39422\n2) https://aomedia-review.googlesource.com/c/aom/+/95002\n\nIn patch (1), the CONFIG_AV1_HIGHBITDEPTH has been removed from both, thresholds and content test-cases. In patch (2), CONFIG_AV1_HIGHBITDEPTH is introduced to exclude the high bit-depth contents, but the thresholds correspond to high bit depth are not enabled. As this end_to_end_test.cc is compiled only when CONFIG_AV1_ENCODER is enabled, the else part of the code has not been compiled after the changes of the patch (1).\n\nHence, we felt maintaining both lowbd and highbd thresholds is necessary and also updating the psnr thresholds with newly generated actual psnr, as the previous thresholds had come from vp10 (needs to be updated based on latest aom).\n\nHowever, on generating psnr thresholds for all encoding modes (derived based on minimum psnr across test-cases), the threshold seems to be corresponding to low-bit-depth test-cases. Hence, we are keeping the same psnr threshold with/without CONFIG_AV1_HIGHBITDEPTH macro.\n\nPlease review the patch.\n\nRegards,\nJayashri",
+      "revId": "035b147b4b0d0b46b315e36a840329084aa493d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
