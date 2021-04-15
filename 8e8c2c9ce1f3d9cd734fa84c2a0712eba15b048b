@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "aab0a83f_9a7f8941",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-15T15:10:32Z",
+      "side": 1,
+      "message": "Yes, indeed. I\u0027m thinking of addressing them in a separate CL, or do you think it is better to include them here?",
+      "parentUuid": "a2dfee20_a157545f",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "83d49467_45bae3d0",
         "filename": "av1/encoder/sparse_linear_solver.c",
         "patchSetId": 3
@@ -48,6 +66,24 @@
       "writtenOn": "2021-04-15T02:54:24Z",
       "side": 1,
       "message": "why not use AOM_CHECK_MEM_ERROR directly from aom_mem.h?",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10250658_c99c11d0",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-15T15:10:32Z",
+      "side": 1,
+      "message": "Yeah I pretty much copied it here, only that this also returns 0 when the allocation fails. It also checks the error_info pointer and do not save the error if it is NULL.",
+      "parentUuid": "83d49467_45bae3d0",
       "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
