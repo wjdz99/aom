@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ae4b1be_10aca4a7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 923,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-15T02:35:55Z",
+      "side": 1,
+      "message": "I was going to suggest is_rect_tx(), but that looks like it\u0027s incorrect:\n\nhttps://aomedia.googlesource.com/aom/+/refs/heads/master/av1/common/blockd.h#1013",
+      "revId": "113cfd2bae3ac5cc2cc250a94d42ff69b16dc170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab1bda6a_59ea9802",
+        "filename": "test/arf_freq_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-15T02:35:55Z",
+      "side": 1,
+      "message": "I think this should be enabled in either CONFIG, no?",
+      "revId": "113cfd2bae3ac5cc2cc250a94d42ff69b16dc170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5137df3e_3fe78434",
+        "filename": "test/av1_key_value_api_test.cc",
+        "patchSetId": 13
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-15T02:35:55Z",
+      "side": 1,
+      "message": "this could be const int usage \u003d CONFIG_REALTIME_ONLY, but maybe this is clearer",
+      "revId": "113cfd2bae3ac5cc2cc250a94d42ff69b16dc170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad3adb58_1ad33d1c",
+        "filename": "test/test.cmake",
+        "patchSetId": 13
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-15T02:35:55Z",
+      "side": 1,
+      "message": "is this one just due to the encode settings used?",
+      "revId": "113cfd2bae3ac5cc2cc250a94d42ff69b16dc170",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
