@@ -69,6 +69,24 @@
       "parentUuid": "f3df7952_0d5b9835",
       "revId": "565ce702ac5e82b135ab495bc2aa9bd1f2172b2a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fb9daad_bc46eaaa",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-04-15T05:44:22Z",
+      "side": 1,
+      "message": "that\u0027s ok if vga is out of the speedup, i think its better to keep condition consistent with line 461",
+      "parentUuid": "3f400f43_82095899",
+      "revId": "565ce702ac5e82b135ab495bc2aa9bd1f2172b2a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
