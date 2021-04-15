@@ -1,0 +1,232 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4564fd20_e174a568",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Sai: I suggest some small changes. Thank you!",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd7dd369_69b92d6d",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Declare this as a const pointer:\n\n  const struct YuvConstants *yuv_constants;\n\nand then remove the casts at lines 34 and 36.",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "042cbed5_636fa150",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Change this to:\n    if (color_range \u003d\u003d AOM_CR_FULL_RANGE) return 0;",
+      "range": {
+        "startLine": 33,
+        "startChar": 8,
+        "endLine": 33,
+        "endChar": 19
+      },
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb82b900_44494179",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Optional: I probably would test for AOM_CICP_MC_BT_601 explicitly here:\n\n  } else if (matrix_coefficients \u003d\u003d AOM_CICP_MC_BT_601 || matrix_coefficients \u003d\u003d AOM_CICP_MC_BT_470_B_G) {\n\nand then add an \"else\" branch that returns 0:\n\n  } else {\n    return 0;\n  }\n\nNote: AOM_CICP_MC_BT_470_B_G (5) and AOM_CICP_MC_BT_601 (6) have the same matrix coefficients.",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10f6983c_c6f79449",
+        "filename": "aom_dsp/butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "In the ? : expression, change the test to color_range \u003d\u003d AOM_CR_FULL_RANGE",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 78
+      },
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "757c831b_72672eab",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Please document that this function returns a boolean that indicates success/failure.",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50b5f098_bbc1888e",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "1. Nit: Please list \u0027color_range\u0027 after \u0027matrix_coefficients\u0027. That order is more common.\n\n2. Please declare \u0027color_range\u0027 as aom_color_range_t.\n\nNote 1: aom_color_range_t is defined in the same header (aom/aom_image.h) as aom_matrix_coefficients_t (used on the next line):\n\n  /*!\\brief List of supported color range */\n  typedef enum aom_color_range {\n    AOM_CR_STUDIO_RANGE \u003d 0, /**\u003c Y [16..235], UV [16..240] */\n    AOM_CR_FULL_RANGE \u003d 1    /**\u003c YUV/RGB [0..255] */\n  } aom_color_range_t;       /**\u003c alias for enum aom_color_range */",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c75eb715_542fcb0b",
+        "filename": "aom_dsp/butteraugli.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "I found that the YV12_BUFFER_CONFIG struct already has the color range and matrix coefficients:\n\n  typedef struct yv12_buffer_config {\n    ...\n    aom_matrix_coefficients_t matrix_coefficients;\n    ...\n    aom_color_range_t color_range;\n    ...\n  } YV12_BUFFER_CONFIG;\n\nHowever, we may not set every field of YV12_BUFFER_CONFIG properly. If the \u0027source\u0027 and \u0027distorted\u0027 parameters have their \u0027matrix_coefficients\u0027 and \u0027color_range\u0027 fields set properly, then we don\u0027t need to add the \u0027matrix_coefficients\u0027 and \u0027color_range\u0027 parameters to aom_calc_butteraugli().",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1b0c417_f1727044",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Please change img-\u003emc !\u003d 0 to img-\u003emc !\u003d AOM_CICP_MC_IDENTITY. Actually, should we remove this check?",
+      "range": {
+        "startLine": 620,
+        "startChar": 8,
+        "endLine": 620,
+        "endChar": 20
+      },
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "480debc3_70d71314",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Add \u0026\u0026 img-\u003emc !\u003d AOM_CICP_MC_BT_470_B_G.\n\nAOM_CICP_MC_BT_470_B_G (5) and AOM_CICP_MC_BT_601 (6) have the same matrix coefficients. (The error message at line 623 does not need to mention BT.470 System B, G.)",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a1d432d_2f27495e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "1. Please change \"images\" to \"matrix coefficients\".\n\n2. Also, should we mention \"identity\"? This depends on what we do about the img-\u003emc !\u003d 0 check at line 620.",
+      "range": {
+        "startLine": 623,
+        "startChar": 34,
+        "endLine": 623,
+        "endChar": 40
+      },
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4557f2a_235e3d91",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-15T17:16:58Z",
+      "side": 1,
+      "message": "Please change this to:\n\n  const aom_color_range_t color_range \u003d (aom_color_range_t)seq_params-\u003ecolor_range;",
+      "revId": "fe64481c5c1859d9eedcbafd9c56da3ab7ba44e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
