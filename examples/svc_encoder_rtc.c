@@ -1113,7 +1113,8 @@ int main(int argc, const char **argv) {
 
   // start with default encoder configuration
   aom_codec_err_t res =
-      aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg, 0);
+      aom_codec_enc_config_default(aom_codec_av1_cx(), &cfg,
+                                   AOM_USAGE_REALTIME);
   if (res) {
     die("Failed to get config: %s\n", aom_codec_err_to_string(res));
   }
