@@ -512,6 +512,26 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
     // Use segment BOOST2 for more aggressive in-frame Q adjustment.
     av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_Q);
 
+    // Use segment for loop filter adjustment.
+    if (cpi->oxcf.speed >= 7 && cpi->oxcf.mode == REALTIME &&
+        cpi->oxcf.resize_cfg.resize_mode != RESIZE_DYNAMIC) {
+      // Segment BASE is disabled.
+      av1_disable_segfeature(seg, CR_SEGMENT_ID_BASE, SEG_LVL_ALT_LF_Y_V);
+      av1_disable_segfeature(seg, CR_SEGMENT_ID_BASE, SEG_LVL_ALT_LF_Y_H);
+      av1_disable_segfeature(seg, CR_SEGMENT_ID_BASE, SEG_LVL_ALT_LF_U);
+      av1_disable_segfeature(seg, CR_SEGMENT_ID_BASE, SEG_LVL_ALT_LF_V);
+      // Enable LF adjustment on segment 1.
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_Y_V);
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_Y_H);
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_U);
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_V);
+      // Enable LF adjustment on segment 2.
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_Y_V);
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_Y_H);
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_U);
+      av1_enable_segfeature(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_V);
+    }
+
     // Set the q delta for segment BOOST1.
     const CommonQuantParams *const quant_params = &cm->quant_params;
     int qindex_delta =
@@ -533,6 +553,20 @@ void av1_cyclic_refresh_setup(AV1_COMP *const cpi) {
                0.1 * cr->rate_boost_fac * cr->rate_ratio_qdelta));
     cr->qindex_delta[2] = qindex_delta;
     av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_Q, qindex_delta);
+
+    if (cpi->oxcf.speed >= 7 && cpi->oxcf.mode == REALTIME &&
+        cpi->oxcf.resize_cfg.resize_mode != RESIZE_DYNAMIC) {
+      // Use smaller LF on segment 1, since it will have lower Q.
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_Y_V, 6);
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_Y_H, 6);
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_U, 6);
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST1, SEG_LVL_ALT_LF_V, 6);
+      // Use smaller LF on segment 2, since it will have lower Q.
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_Y_V, 12);
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_Y_H, 12);
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_U, 12);
+      av1_set_segdata(seg, CR_SEGMENT_ID_BOOST2, SEG_LVL_ALT_LF_V, 12);
+    }
 
     // Update the segmentation and refresh map.
     cyclic_refresh_update_map(cpi);
