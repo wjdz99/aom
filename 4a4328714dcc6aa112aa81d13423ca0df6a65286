@@ -16,6 +16,24 @@
       "message": "Chi Yo, Yunqing: Please review.\n\nVishnu: This CL is just a quick fix for the segmentation fault of test_libaom in 32-bit x86 builds. Please take a closer look and see if any other buffers in cm-\u003ecdef_info should also be allocated using aom_memalign(), or if there is a better way to fix this segmentation fault. Thanks!",
       "revId": "4a4328714dcc6aa112aa81d13423ca0df6a65286",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61b9a9e0_9b65b1e9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-16T03:45:13Z",
+      "side": 1,
+      "message": "Thanks for the fix.\nWill check for other memory allocations related to the cdef frame.",
+      "parentUuid": "27a1dad7_d9e73c59",
+      "revId": "4a4328714dcc6aa112aa81d13423ca0df6a65286",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
