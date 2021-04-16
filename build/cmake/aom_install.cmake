@@ -45,7 +45,8 @@ macro(setup_aom_install_targets)
               -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
               -DCMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}
               -DCONFIG_MULTITHREAD=${CONFIG_MULTITHREAD}
-              -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H} -P
+              -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H}
+              -DCONFIG_TUNE_VMAF=${CONFIG_TUNE_VMAF} -P
               "${AOM_ROOT}/build/cmake/pkg_config.cmake"
       COMMENT "Writing aom.pc"
       VERBATIM)
