@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5c2a9760_8fe523b3",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-16T01:59:35Z",
+      "side": 1,
+      "message": "is this set to something non-null anywhere?",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a2dfee20_a157545f",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 3
@@ -49,6 +66,24 @@
       "side": 1,
       "message": "Yes, indeed. I\u0027m thinking of addressing them in a separate CL, or do you think it is better to include them here?",
       "parentUuid": "a2dfee20_a157545f",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8d2a0d2_b10db76f",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-16T01:59:35Z",
+      "side": 1,
+      "message": "\u003e Yes, indeed. I\u0027m thinking of addressing them in a separate CL, or do you think it is better to include them here?\n\nA separate cl is ok, I just wanted to make sure you were aware of them.",
+      "parentUuid": "aab0a83f_9a7f8941",
       "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -84,6 +119,41 @@
       "side": 1,
       "message": "Yeah I pretty much copied it here, only that this also returns 0 when the allocation fails. It also checks the error_info pointer and do not save the error if it is NULL.",
       "parentUuid": "83d49467_45bae3d0",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06f9bd13_56a95834",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-16T01:59:35Z",
+      "side": 1,
+      "message": "\u003e Yeah I pretty much copied it here, only that this also returns 0 when the allocation fails. It also checks the error_info pointer and do not save the error if it is NULL.\n\nAre either of those cases possible? The codebase is pretty dependent on longjmp being set when using this macro",
+      "parentUuid": "10250658_c99c11d0",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68893f0d_ba82b8af",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-16T01:59:35Z",
+      "side": 1,
+      "message": "I think things may have diverged over time, but in general the code had used posix style returns with 0 being success. I\u0027m ok with using boolean returns, though it may not be necessary here if we\u0027re relying on the function to longjmp on failure like a lot of the encoder.",
       "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
