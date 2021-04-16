@@ -16,6 +16,47 @@
       "message": "Hey Bohan, I\u0027m not very familiar with the key and value API.\nCould you take a look to make sure it is correct?",
       "revId": "1050eb72336bbb7bb4dee873e405041370af51db",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e688c7f1_286d7cb6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-16T18:21:57Z",
+      "side": 1,
+      "message": "Hi Chi-yo, this CL looks good to me in terms of supporting the key\u0026val API, although I should mention that aomenc is using the control API to set this option, (which is perfectly fine).",
+      "parentUuid": "4c124356_bdae96ed",
+      "revId": "1050eb72336bbb7bb4dee873e405041370af51db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a241cdd0_4278fde8",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-16T18:21:57Z",
+      "side": 1,
+      "message": "This is for control API. We could add this to av1_key_val_args, and remove this line and the corresponding line in line 230, if we want aomenc to use the Key\u0026Val API for this option.",
+      "range": {
+        "startLine": 426,
+        "startChar": 1,
+        "endLine": 426,
+        "endChar": 41
+      },
+      "revId": "1050eb72336bbb7bb4dee873e405041370af51db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
