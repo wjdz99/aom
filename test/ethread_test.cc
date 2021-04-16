@@ -260,6 +260,7 @@ class AVxEncoderThreadTest
         encoder->Control(AV1E_SET_COEFF_COST_UPD_FREQ, 2);
         encoder->Control(AV1E_SET_MODE_COST_UPD_FREQ, 2);
         encoder->Control(AV1E_SET_MV_COST_UPD_FREQ, 3);
+        encoder->Control(AV1E_SET_DV_COST_UPD_FREQ, 3);
       }
       encoder_initialized_ = true;
     }
