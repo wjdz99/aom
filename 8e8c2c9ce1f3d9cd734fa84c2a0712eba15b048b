@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3d86bba9_d1d8a77e",
+        "filename": "av1/encoder/optical_flow.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-16T18:07:52Z",
+      "side": 1,
+      "message": "No, it is set to NULL for initialization. I\u0027m going to set it to the proper pointer in the next CL, where we are also checking mem allocation for optical flow functions.",
+      "parentUuid": "5c2a9760_8fe523b3",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a2dfee20_a157545f",
         "filename": "av1/encoder/optical_flow.c",
         "patchSetId": 3
@@ -141,6 +159,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5561410_f45fbfa0",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-16T18:07:52Z",
+      "side": 1,
+      "message": "Ah, I see. I was not familiar with longjmp and it now makes sense. Let me use AOM_CHECK_MEM_ERROR instead then. But one question I have is that if, say, the allocation at line 63 fails and it long jumps out, should we think of how to free up the memory allocated at line 61?",
+      "parentUuid": "06f9bd13_56a95834",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "68893f0d_ba82b8af",
@@ -154,6 +190,24 @@
       "writtenOn": "2021-04-16T01:59:35Z",
       "side": 1,
       "message": "I think things may have diverged over time, but in general the code had used posix style returns with 0 being success. I\u0027m ok with using boolean returns, though it may not be necessary here if we\u0027re relying on the function to longjmp on failure like a lot of the encoder.",
+      "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d700ce6e_957d35c8",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-04-16T18:07:52Z",
+      "side": 1,
+      "message": "Ack. Will remove the returns here.",
+      "parentUuid": "68893f0d_ba82b8af",
       "revId": "8e8c2c9ce1f3d9cd734fa84c2a0712eba15b048b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
