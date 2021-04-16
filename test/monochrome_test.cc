@@ -20,16 +20,34 @@
 
 namespace {
 
+const int kMaxPsnr = 100;
+const unsigned int kCqLevel = 18;
+const double kPsnrThreshold[2] = { 29.0, 41.5 };
+const double kPsnrFluctuation[2] = { 2.5, 0.3 };
+
 class MonochromeTest
-    : public ::libaom_test::CodecTestWithParam<libaom_test::TestMode>,
+    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode, int,
+                                                 int>,
       public ::libaom_test::EncoderTest {
  protected:
-  MonochromeTest() : EncoderTest(GET_PARAM(0)), frame0_psnr_y_(0.) {}
+  MonochromeTest()
+      : EncoderTest(GET_PARAM(0)), lossless_(GET_PARAM(2)),
+        cpu_used_(GET_PARAM(3)), frame0_psnr_y_(0.0) {}
 
   virtual ~MonochromeTest() {}
 
   virtual void SetUp() { InitializeConfig(GET_PARAM(1)); }
 
+  virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
+                                  ::libaom_test::Encoder *encoder) {
+    encoder->Control(AOME_SET_CPUUSED, cpu_used_);
+    if (mode_ == ::libaom_test::kAllIntra && video->frame() == 0) {
+      encoder->Control(AOME_SET_CQ_LEVEL, kCqLevel);
+      if (lossless_) {
+        encoder->Control(AV1E_SET_LOSSLESS, 1);
+      }
+    }
+  }
   virtual void DecompressedFrameHook(const aom_image_t &img,
                                      aom_codec_pts_t pts) {
     (void)pts;
@@ -68,16 +86,25 @@ class MonochromeTest
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
+    // Check average PSNR value is >= 100 db in case of lossless encoding.
+    if (lossless_) {
+      EXPECT_GE(pkt->data.psnr.psnr[0], kMaxPsnr);
+      return;
+    }
+    const bool is_allintra = (mode_ == ::libaom_test::kAllIntra);
     // Check that the initial Y PSNR value is 'high enough', and check that
     // subsequent Y PSNR values are 'close' to this initial value.
-    if (frame0_psnr_y_ == 0.) {
+    if (frame0_psnr_y_ == 0.0) {
       frame0_psnr_y_ = pkt->data.psnr.psnr[1];
-      EXPECT_GT(frame0_psnr_y_, 29.);
+      EXPECT_GT(frame0_psnr_y_, kPsnrThreshold[is_allintra]);
     }
-    EXPECT_NEAR(pkt->data.psnr.psnr[1], frame0_psnr_y_, 2.5);
+    EXPECT_NEAR(pkt->data.psnr.psnr[1], frame0_psnr_y_,
+                kPsnrFluctuation[is_allintra]);
   }
 
   std::vector<int> chroma_value_list_;
+  int lossless_;
+  int cpu_used_;
   double frame0_psnr_y_;
 };
 
@@ -121,8 +148,33 @@ TEST_P(MonochromeTest, TestMonochromeEncoding) {
   }
 }
 
+class MonochromeAllIntraTest : public MonochromeTest {};
+
+TEST_P(MonochromeAllIntraTest, TestMonochromeEncoding) {
+  ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                       30, 1, 0, 5);
+  init_flags_ = AOM_CODEC_USE_PSNR;
+  // Set monochrome encoding flag
+  cfg_.monochrome = 1;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+
+  // Check that the chroma planes are equal across all frames
+  std::vector<int>::const_iterator iter = chroma_value_list_.begin();
+  int initial_chroma_value = *iter;
+  for (; iter != chroma_value_list_.end(); ++iter) {
+    // Check that all decoded frames have the same constant chroma planes.
+    EXPECT_EQ(*iter, initial_chroma_value);
+  }
+}
+
 AV1_INSTANTIATE_TEST_SUITE(MonochromeTest,
                            ::testing::Values(::libaom_test::kOnePassGood,
-                                             ::libaom_test::kTwoPassGood));
+                                             ::libaom_test::kTwoPassGood),
+                           ::testing::Values(0),   // lossless
+                           ::testing::Values(0));  // cpu_used
 
+AV1_INSTANTIATE_TEST_SUITE(MonochromeAllIntraTest,
+                           ::testing::Values(::libaom_test::kAllIntra),
+                           ::testing::Values(0, 1),   // lossless
+                           ::testing::Values(6, 9));  // cpu_used
 }  // namespace
