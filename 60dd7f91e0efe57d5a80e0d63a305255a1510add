@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \n\nIn this patch, we have added another level for the speed feature \u0027gop_length_decision_method\u0027 for speed 4, where GOP length is decided based on tpl stats of ARFs from base layer, (base+1) layer and (base+2) layer. For a range of beta[0], beta[1] values, GF length decision is based on complete tpl stats. Following are the results:\n\n cpu-used   Resolution   Instruction Count        BD-Rate Loss (%)\n                          Reduction (%)    avg.psnr   ovr.psnr    ssim                     \n  4         LOWRES         2.167            0.0246     0.0220   -0.0191\n  4         MIDRES         1.526           -0.0608    -0.0295   -0.0852\n  4         HDRES          1.723           -0.1323    -0.1658   -0.1802\n  4         Average        1.898           -0.0482    -0.0503   -0.0876\n                                            \n  4         ugc360p        1.883            0.0592    -0.0238   -0.0141\n\nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate loss\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …  \n\nWe tried extending this to speed 3. The results are as follows:\n \n cpu-used      Resolution   Instruction Count       BD-Rate Loss (%)\n                             Reduction (%)    avg.psnr   ovr.psnr    ssim       \n    3           LOWRES\t        1.684\t      0.0227     0.0266\t   -0.0019\n    3           MIDRES\t        1.31\t      0.0405     0.0294\t    0.0910\n    3           HDRES\t        1.083\t     -0.0036    -0.0285\t    0.0254\n    3           Average\t        1.44\t      0.0199     0.0106\t    0.0336\n                \n    3           ugc360p\t        1.927\t      0.0766     0.0089\t    0.0112\n\nFrom the data above, we see that midres is not as per trade-off for ssim. Also, ugc360p is not as per trade-off for avg.psnr. We tried adjusting the thresholds but were not successful in getting the results in trade-off. Hence, we have not extended this speed feature to speed 3. \n\nPlease review the patch.\n\nThanks",
       "revId": "60dd7f91e0efe57d5a80e0d63a305255a1510add",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d0703b1_1505dbf2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-16T04:50:52Z",
+      "side": 1,
+      "message": "The patch looks good.\n\nSpeed 3 performance is slightly beyond the limit. This probably is fine. Maybe you can submit the CL? Also, gop_length_decision_method is quite complicated. It would be good if speed 3 change is only a one-line change, right?",
+      "parentUuid": "0423ae78_9b62379f",
+      "revId": "60dd7f91e0efe57d5a80e0d63a305255a1510add",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
