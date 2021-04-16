@@ -605,6 +605,10 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
   .vbr_corpus_complexity_lap = ARG_DEF(
       NULL, "vbr-corpus-complexity-lap", 1,
       "Set average corpus complexity per mb for single pass VBR using lap. "
-      "(0..10000), default is 0")
+      "(0..10000), default is 0"),
+
+  .dv_cost_upd_freq = ARG_DEF(NULL, "dv-cost-upd-freq", 1,
+                              "Update freq for dv costs"
+                              "0: SB, 1: SB Row per Tile, 2: Tile, 3: Off"),
 #endif  // CONFIG_AV1_ENCODER
 };
