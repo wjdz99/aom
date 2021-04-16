@@ -714,20 +714,20 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 // Bilinear and bicubic coefficients
 #if OPFL_BILINEAR_GRAD
 static const int bilinear_bits = 3;
-static const int16_t coeffs_bilr[4][2] = {
-  { 0, 8 },  // delta = 1 (SUBPEL_GRAD_DELTA_BITS = 0)
-  { 4, 4 },  // delta = 0.5 (SUBPEL_GRAD_DELTA_BITS = 1)
-  { 6, 2 },  // delta = 0.25 (SUBPEL_GRAD_DELTA_BITS = 2)
-  { 7, 1 },  // delta = 0.125 (SUBPEL_GRAD_DELTA_BITS = 3)
+static const int16_t coeffs_bilinear[4] = {
+  8,  // delta = 1 (SUBPEL_GRAD_DELTA_BITS = 0)
+  4,  // delta = 0.5 (SUBPEL_GRAD_DELTA_BITS = 1)
+  2,  // delta = 0.25 (SUBPEL_GRAD_DELTA_BITS = 2)
+  1,  // delta = 0.125 (SUBPEL_GRAD_DELTA_BITS = 3)
 };
 #endif
 #if OPFL_BICUBIC_GRAD
 static const int bicubic_bits = 7;
-static const int16_t coeffs_bicb[4][4] = {
-  { 0, 0, 128, 0 },     // delta = 1 (SUBPEL_GRAD_DELTA_BITS = 0)
-  { -8, 72, 72, -8 },   // delta = 0.5 (SUBPEL_GRAD_DELTA_BITS = 1)
-  { -7, 105, 35, -5 },  // delta = 0.25 (SUBPEL_GRAD_DELTA_BITS = 2)
-  { -4, 118, 17, -3 },  // delta = 0.125 (SUBPEL_GRAD_DELTA_BITS = 3)
+static const int16_t coeffs_bicubic[4][2] = {
+  { 128, 0 },  // delta = 1 (SUBPEL_GRAD_DELTA_BITS = 0)
+  { 80, -8 },  // delta = 0.5 (SUBPEL_GRAD_DELTA_BITS = 1)
+  { 42, -5 },  // delta = 0.25 (SUBPEL_GRAD_DELTA_BITS = 2)
+  { 21, -3 },  // delta = 0.125 (SUBPEL_GRAD_DELTA_BITS = 3)
 };
 #endif
 
@@ -818,85 +818,52 @@ int av1_compute_subpel_gradients_highbd(
 
   // Reuse pixels in pred_dst to compute gradients
 #if OPFL_BILINEAR_GRAD
-  int t = SUBPEL_GRAD_DELTA_BITS;
-  int idx, id0, id1;
+  int id_next, id_prev;
+  int16_t temp = 0;
   for (int i = 0; i < bh; i++) {
     for (int j = 0; j < bw; j++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i, j+delta)
-      id0 = j;
-      id1 = AOMMIN(j + 1, bw - 1);
-      x_grad[idx] = coeffs_bilr[t][0] * (int16_t)pred_dst16[i * bw + id0] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst16[i * bw + id1];
-      // Interpolate pixel (i, j-delta) and subtract it from x_grad
-      id1 = AOMMAX(j - 1, 0);
-      x_grad[idx] -= coeffs_bilr[t][0] * (int16_t)pred_dst16[i * bw + id0] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst16[i * bw + id1];
-      x_grad[idx] /= 1 << bilinear_bits;
-    }
-  }
-  for (int j = 0; j < bw; j++) {
-    for (int i = 0; i < bh; i++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i+delta, j)
-      id0 = i;
-      id1 = AOMMIN(i + 1, bh - 1);
-      y_grad[idx] = coeffs_bilr[t][0] * (int16_t)pred_dst16[id0 * bw + j] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst16[id1 * bw + j];
-      // Interpolate pixel (i-delta, j) and subtract it from y_grad
-      id1 = AOMMAX(i - 1, 0);
-      y_grad[idx] -= coeffs_bilr[t][0] * (int16_t)pred_dst16[id0 * bw + j] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst16[id1 * bw + j];
-      y_grad[idx] /= 1 << bilinear_bits;
+      // Subtract interpolated pixel (i, j+delta) by (i, j-delta)
+      id_next = AOMMIN(j + 1, bw - 1);
+      id_prev = AOMMAX(j - 1, 0);
+      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS] *
+             ((int16_t)pred_dst16[i * bw + id_next] -
+              (int16_t)pred_dst16[i * bw + id_prev]);
+      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
+      // Subtract interpolated pixels (i+delta, j) by (i-delta, j)
+      id_next = AOMMIN(i + 1, bh - 1);
+      id_prev = AOMMAX(i - 1, 0);
+      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS] *
+             ((int16_t)pred_dst16[id_next * bw + j] -
+              (int16_t)pred_dst16[id_prev * bw + j]);
+      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
     }
   }
 #elif OPFL_BICUBIC_GRAD
   int t = SUBPEL_GRAD_DELTA_BITS;
-  int idx = 0, id0, id1, id2, id3;
+  int id_prev, id_prev2, id_next, id_next2;
+  int16_t temp = 0;
   for (int i = 0; i < bh; i++) {
     for (int j = 0; j < bw; j++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i, j+delta)
-      id0 = AOMMAX(j - 1, 0);
-      id1 = j;
-      id2 = AOMMIN(j + 1, bw - 1);
-      id3 = AOMMIN(j + 2, bw - 1);
-      x_grad[idx] = coeffs_bicb[t][0] * (int16_t)pred_dst16[i * bw + id0] +
-                    coeffs_bicb[t][1] * (int16_t)pred_dst16[i * bw + id1] +
-                    coeffs_bicb[t][2] * (int16_t)pred_dst16[i * bw + id2] +
-                    coeffs_bicb[t][3] * (int16_t)pred_dst16[i * bw + id3];
-      // Interpolate pixel (i, j-delta) and subtract it from x_grad
-      id0 = AOMMIN(j + 1, bw - 1);
-      id2 = AOMMAX(j - 1, 0);
-      id3 = AOMMAX(j - 2, 0);
-      x_grad[idx] -= coeffs_bicb[t][0] * (int16_t)pred_dst16[i * bw + id0] +
-                     coeffs_bicb[t][1] * (int16_t)pred_dst16[i * bw + id1] +
-                     coeffs_bicb[t][2] * (int16_t)pred_dst16[i * bw + id2] +
-                     coeffs_bicb[t][3] * (int16_t)pred_dst16[i * bw + id3];
-      x_grad[idx] /= 1 << bicubic_bits;
-    }
-  }
-  for (int j = 0; j < bw; j++) {
-    for (int i = 0; i < bh; i++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i+delta, j)
-      id0 = AOMMAX(i - 1, 0);
-      id1 = i;
-      id2 = AOMMIN(i + 1, bh - 1);
-      id3 = AOMMIN(i + 2, bh - 1);
-      y_grad[idx] = coeffs_bicb[t][0] * (int16_t)pred_dst16[id0 * bw + j] +
-                    coeffs_bicb[t][1] * (int16_t)pred_dst16[id1 * bw + j] +
-                    coeffs_bicb[t][2] * (int16_t)pred_dst16[id2 * bw + j] +
-                    coeffs_bicb[t][3] * (int16_t)pred_dst16[id3 * bw + j];
-      // Interpolate pixel (i-delta, j) and subtract it from y_grad
-      id0 = AOMMIN(i + 1, bh - 1);
-      id2 = AOMMAX(i - 1, 0);
-      id3 = AOMMAX(i - 2, 0);
-      y_grad[idx] -= coeffs_bicb[t][0] * (int16_t)pred_dst16[id0 * bw + j] +
-                     coeffs_bicb[t][1] * (int16_t)pred_dst16[id1 * bw + j] +
-                     coeffs_bicb[t][2] * (int16_t)pred_dst16[id2 * bw + j] +
-                     coeffs_bicb[t][3] * (int16_t)pred_dst16[id3 * bw + j];
-      y_grad[idx] /= 1 << bicubic_bits;
+      // Subtract interpolated pixel (i, j+delta) by (i, j-delta)
+      id_prev = AOMMAX(j - 1, 0);
+      id_prev2 = AOMMAX(j - 2, 0);
+      id_next = AOMMIN(j + 1, bw - 1);
+      id_next2 = AOMMIN(j + 2, bw - 1);
+      temp = coeffs_bicubic[t][0] * ((int16_t)pred_dst16[i * bw + id_next] -
+                                     (int16_t)pred_dst16[i * bw + id_prev]) +
+             coeffs_bicubic[t][1] * ((int16_t)pred_dst16[i * bw + id_next2] -
+                                     (int16_t)pred_dst16[i * bw + id_prev2]);
+      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
+      // Subtract interpolated pixel (i+delta, j) by (i-delta, j)
+      id_prev = AOMMAX(i - 1, 0);
+      id_prev2 = AOMMAX(i - 2, 0);
+      id_next = AOMMIN(i + 1, bh - 1);
+      id_next2 = AOMMIN(i + 2, bh - 1);
+      temp = coeffs_bicubic[t][0] * ((int16_t)pred_dst16[id_next * bw + j] -
+                                     (int16_t)pred_dst16[id_prev * bw + j]) +
+             coeffs_bicubic[t][1] * ((int16_t)pred_dst16[id_next2 * bw + j] -
+                                     (int16_t)pred_dst16[id_prev2 * bw + j]);
+      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
     }
   }
 #elif OPFL_REUSE_FP_PRED_FOR_FP_GRAD
@@ -1116,85 +1083,52 @@ int av1_compute_subpel_gradients_lowbd(
 
   // Reuse pixels in pred_dst to compute gradients
 #if OPFL_BILINEAR_GRAD
-  int t = SUBPEL_GRAD_DELTA_BITS;
-  int idx, id0, id1;
+  int id_next, id_prev;
+  int16_t temp = 0;
   for (int i = 0; i < bh; i++) {
     for (int j = 0; j < bw; j++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i, j+delta)
-      id0 = j;
-      id1 = AOMMIN(j + 1, bw - 1);
-      x_grad[idx] = coeffs_bilr[t][0] * (int16_t)pred_dst[i * bw + id0] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst[i * bw + id1];
-      // Interpolate pixel (i, j-delta) and subtract it from x_grad
-      id1 = AOMMAX(j - 1, 0);
-      x_grad[idx] -= coeffs_bilr[t][0] * (int16_t)pred_dst[i * bw + id0] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst[i * bw + id1];
-      x_grad[idx] /= 1 << bilinear_bits;
-    }
-  }
-  for (int j = 0; j < bw; j++) {
-    for (int i = 0; i < bh; i++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i+delta, j)
-      id0 = i;
-      id1 = AOMMIN(i + 1, bh - 1);
-      y_grad[idx] = coeffs_bilr[t][0] * (int16_t)pred_dst[id0 * bw + j] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst[id1 * bw + j];
-      // Interpolate pixel (i-delta, j) and subtract it from y_grad
-      id1 = AOMMAX(i - 1, 0);
-      y_grad[idx] -= coeffs_bilr[t][0] * (int16_t)pred_dst[id0 * bw + j] +
-                     coeffs_bilr[t][1] * (int16_t)pred_dst[id1 * bw + j];
-      y_grad[idx] /= 1 << bilinear_bits;
+      // Subtract interpolated pixel (i, j+delta) by (i, j-delta)
+      id_next = AOMMIN(j + 1, bw - 1);
+      id_prev = AOMMAX(j - 1, 0);
+      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS] *
+             ((int16_t)pred_dst[i * bw + id_next] -
+              (int16_t)pred_dst[i * bw + id_prev]);
+      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
+      // Subtract interpolated pixels (i+delta, j) by (i-delta, j)
+      id_next = AOMMIN(i + 1, bh - 1);
+      id_prev = AOMMAX(i - 1, 0);
+      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS] *
+             ((int16_t)pred_dst[id_next * bw + j] -
+              (int16_t)pred_dst[id_prev * bw + j]);
+      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
     }
   }
 #elif OPFL_BICUBIC_GRAD
   int t = SUBPEL_GRAD_DELTA_BITS;
-  int idx = 0, id0, id1, id2, id3;
+  int id_prev, id_prev2, id_next, id_next2;
+  int16_t temp = 0;
   for (int i = 0; i < bh; i++) {
     for (int j = 0; j < bw; j++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i, j+delta)
-      id0 = AOMMAX(j - 1, 0);
-      id1 = j;
-      id2 = AOMMIN(j + 1, bw - 1);
-      id3 = AOMMIN(j + 2, bw - 1);
-      x_grad[idx] = coeffs_bicb[t][0] * (int16_t)pred_dst[i * bw + id0] +
-                    coeffs_bicb[t][1] * (int16_t)pred_dst[i * bw + id1] +
-                    coeffs_bicb[t][2] * (int16_t)pred_dst[i * bw + id2] +
-                    coeffs_bicb[t][3] * (int16_t)pred_dst[i * bw + id3];
-      // Interpolate pixel (i, j-delta) and subtract it from x_grad
-      id0 = AOMMIN(j + 1, bw - 1);
-      id2 = AOMMAX(j - 1, 0);
-      id3 = AOMMAX(j - 2, 0);
-      x_grad[idx] -= coeffs_bicb[t][0] * (int16_t)pred_dst[i * bw + id0] +
-                     coeffs_bicb[t][1] * (int16_t)pred_dst[i * bw + id1] +
-                     coeffs_bicb[t][2] * (int16_t)pred_dst[i * bw + id2] +
-                     coeffs_bicb[t][3] * (int16_t)pred_dst[i * bw + id3];
-      x_grad[idx] /= 1 << bicubic_bits;
-    }
-  }
-  for (int j = 0; j < bw; j++) {
-    for (int i = 0; i < bh; i++) {
-      idx = i * bw + j;
-      // Interpolate pixel (i+delta, j)
-      id0 = AOMMAX(i - 1, 0);
-      id1 = i;
-      id2 = AOMMIN(i + 1, bh - 1);
-      id3 = AOMMIN(i + 2, bh - 1);
-      y_grad[idx] = coeffs_bicb[t][0] * (int16_t)pred_dst[id0 * bw + j] +
-                    coeffs_bicb[t][1] * (int16_t)pred_dst[id1 * bw + j] +
-                    coeffs_bicb[t][2] * (int16_t)pred_dst[id2 * bw + j] +
-                    coeffs_bicb[t][3] * (int16_t)pred_dst[id3 * bw + j];
-      // Interpolate pixel (i-delta, j) and subtract it from y_grad
-      id0 = AOMMIN(i + 1, bh - 1);
-      id2 = AOMMAX(i - 1, 0);
-      id3 = AOMMAX(i - 2, 0);
-      y_grad[idx] -= coeffs_bicb[t][0] * (int16_t)pred_dst[id0 * bw + j] +
-                     coeffs_bicb[t][1] * (int16_t)pred_dst[id1 * bw + j] +
-                     coeffs_bicb[t][2] * (int16_t)pred_dst[id2 * bw + j] +
-                     coeffs_bicb[t][3] * (int16_t)pred_dst[id3 * bw + j];
-      y_grad[idx] /= 1 << bicubic_bits;
+      // Subtract interpolated pixel (i, j+delta) by (i, j-delta)
+      id_prev = AOMMAX(j - 1, 0);
+      id_prev2 = AOMMAX(j - 2, 0);
+      id_next = AOMMIN(j + 1, bw - 1);
+      id_next2 = AOMMIN(j + 2, bw - 1);
+      temp = coeffs_bicubic[t][0] * ((int16_t)pred_dst[i * bw + id_next] -
+                                     (int16_t)pred_dst[i * bw + id_prev]) +
+             coeffs_bicubic[t][1] * ((int16_t)pred_dst[i * bw + id_next2] -
+                                     (int16_t)pred_dst[i * bw + id_prev2]);
+      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
+      // Subtract interpolated pixel (i+delta, j) by (i-delta, j)
+      id_prev = AOMMAX(i - 1, 0);
+      id_prev2 = AOMMAX(i - 2, 0);
+      id_next = AOMMIN(i + 1, bh - 1);
+      id_next2 = AOMMIN(i + 2, bh - 1);
+      temp = coeffs_bicubic[t][0] * ((int16_t)pred_dst[id_next * bw + j] -
+                                     (int16_t)pred_dst[id_prev * bw + j]) +
+             coeffs_bicubic[t][1] * ((int16_t)pred_dst[id_next2 * bw + j] -
+                                     (int16_t)pred_dst[id_prev2 * bw + j]);
+      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
     }
   }
 #elif OPFL_REUSE_FP_PRED_FOR_FP_GRAD
