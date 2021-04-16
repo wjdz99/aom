@@ -325,14 +325,18 @@ static const arg_def_t end_usage =
 static const arg_def_t target_bitrate =
     ARG_DEF(NULL, "target-bitrate", 1, "Bitrate (kbps)");
 static const arg_def_t min_qp_level =
-    ARG_DEF(NULL, "min-qp", 1, "Minimum (best) quantizer");
+    ARG_DEF(NULL, "min-qp", 1,
+            "Minimum (best) qp in range [M, 255],"
+            "where M = 0/-48/-96 for 8/10/12 bit");
 static const arg_def_t max_qp_level =
-    ARG_DEF(NULL, "max-qp", 1, "Maximum (worst) quantizer");
+    ARG_DEF(NULL, "max-qp", 1,
+            "Maximum (worst) qp in range [M, 255],"
+            "where M = 0/-48/-96 for 8/10/12 bit");
 static const arg_def_t min_q_level = ARG_DEF(
-    NULL, "min-q", 1, "Minimum (best) quantizer in range 0 to 63 (DEPRECATED)");
+    NULL, "min-q", 1, "Minimum (best) quantizer in range [0, 63] (DEPRECATED)");
 static const arg_def_t max_q_level =
     ARG_DEF(NULL, "max-q", 1,
-            "Maximum (worst) quantizer in range 0 to 63 (DEPRECATED)");
+            "Maximum (worst) quantizer in range [0, 63] (DEPRECATED)");
 
 static const arg_def_t undershoot_pct =
     ARG_DEF(NULL, "undershoot-pct", 1, "Datarate undershoot (min) target (%)");
@@ -410,10 +414,12 @@ static const struct arg_enum_list tuning_enum[] = {
 static const arg_def_t tune_metric =
     ARG_DEF_ENUM(NULL, "tune", 1, "Distortion metric tuned with", tuning_enum);
 static const arg_def_t qp_level =
-    ARG_DEF(NULL, "qp", 1, "Constant/Constrained Quality level");
+    ARG_DEF(NULL, "qp", 1,
+            "Constant/Constrained quality qp in range [M, 255],"
+            "where M = 0/-48/-96 for 8/10/12 bit");
 static const arg_def_t cq_level =
     ARG_DEF(NULL, "cq-level", 1,
-            "Constant/Constrained Quality level in range 0 to 63 (DEPRECATED)");
+            "Constant/Constrained quality qp in range [0, 63] (DEPRECATED)");
 static const arg_def_t max_intra_rate_pct =
     ARG_DEF(NULL, "max-intra-rate", 1, "Max I-frame bitrate (pct)");
 
