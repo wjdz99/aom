@@ -130,11 +130,15 @@ static INLINE void calculate_dqcoeff_lp_and_store(const int16x8_t qcoeff,
   const int32x4_t dqcoeff_1 =
       vmull_s16(vget_high_s16(qcoeff), vget_high_s16(dequant));
 
+#if CONFIG_EXTQUANT
+  vst1q_s32(dqcoeff, vcombine_s16(vmovn_s32(dqcoeff_0), vmovn_s32(dqcoeff_1)));
+#else
   vst1q_s16(dqcoeff, vcombine_s16(vmovn_s32(dqcoeff_0), vmovn_s32(dqcoeff_1)));
+#endif
 }
 
 #if CONFIG_EXTQUANT
-void av1_quantize_lp_neon(const tran_low_t *coeff_ptr, intptr_t n_coeffs,
+void av1_quantize_lp_neon(const tran_low_t *coeff_ptr, intptr_t count,
                           const int32_t *round_ptr, const int32_t *quant_ptr,
                           tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr,
                           const int32_t *dequant_ptr, uint16_t *eob_ptr,
@@ -162,7 +166,11 @@ void av1_quantize_lp_neon(const int16_t *coeff_ptr, intptr_t count,
   // process dc and the first seven ac coeffs
   {
     const int16x8_t v_iscan = vld1q_s16(&scan[0]);
+#if CONFIG_EXTQUANT
+    const int16x8_t v_coeff = vld1q_s32(coeff_ptr);
+#else
     const int16x8_t v_coeff = vld1q_s16(coeff_ptr);
+#endif
     const int16x8_t v_coeff_sign = vshrq_n_s16(v_coeff, 15);
     const int16x8_t v_abs = vabsq_s16(v_coeff);
     const int16x8_t v_tmp = vqaddq_s16(v_abs, v_round);
@@ -179,7 +187,11 @@ void av1_quantize_lp_neon(const int16_t *coeff_ptr, intptr_t count,
     const int16x8_t v_qcoeff = vsubq_s16(v_qcoeff_a, v_coeff_sign);
     calculate_dqcoeff_lp_and_store(v_qcoeff, v_dequant, dqcoeff_ptr);
     v_eobmax_76543210 = vmaxq_s16(v_eobmax_76543210, v_nz_iscan);
+#if CONFIG_EXTQUANT
+    vst1q_s32(qcoeff_ptr, v_qcoeff);
+#else
     vst1q_s16(qcoeff_ptr, v_qcoeff);
+#endif
     v_round = vmovq_n_s16(round_ptr[1]);
     v_quant = vmovq_n_s16(quant_ptr[1]);
     v_dequant = vmovq_n_s16(dequant_ptr[1]);
@@ -187,7 +199,11 @@ void av1_quantize_lp_neon(const int16_t *coeff_ptr, intptr_t count,
   // now process the rest of the ac coeffs
   for (int i = 8; i < count; i += 8) {
     const int16x8_t v_iscan = vld1q_s16(&scan[i]);
+#if CONFIG_EXTQUANT
+    const int16x8_t v_coeff = vld1q_s32(coeff_ptr + i);
+#else
     const int16x8_t v_coeff = vld1q_s16(coeff_ptr + i);
+#endif
     const int16x8_t v_coeff_sign = vshrq_n_s16(v_coeff, 15);
     const int16x8_t v_abs = vabsq_s16(v_coeff);
     const int16x8_t v_tmp = vqaddq_s16(v_abs, v_round);
@@ -204,7 +220,11 @@ void av1_quantize_lp_neon(const int16_t *coeff_ptr, intptr_t count,
     const int16x8_t v_qcoeff = vsubq_s16(v_qcoeff_a, v_coeff_sign);
     calculate_dqcoeff_lp_and_store(v_qcoeff, v_dequant, dqcoeff_ptr + i);
     v_eobmax_76543210 = vmaxq_s16(v_eobmax_76543210, v_nz_iscan);
+#if CONFIG_EXTQUANT
+    vst1q_s32(qcoeff_ptr + i, v_qcoeff);
+#else
     vst1q_s16(qcoeff_ptr + i, v_qcoeff);
+#endif
   }
 #ifdef __aarch64__
   *eob_ptr = vmaxvq_s16(v_eobmax_76543210);
