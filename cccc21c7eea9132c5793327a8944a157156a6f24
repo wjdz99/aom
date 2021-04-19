@@ -69,6 +69,40 @@
       "message": "Thanks for the fix Christopher!\n\nThis CL works for me. I have tested this CL with libavif using the following command lines:\nBuild/install libaom:\ncmake -G Ninja -DCONFIG_TUNE_VMAF\u003d1 -DCMAKE_BUILD_TYPE\u003dRelease -DENABLE_DOCS\u003d0 -DENABLE_EXAMPLES\u003d0 -DENABLE_TESTDATA\u003d0 -DENABLE_TESTS\u003d0 -DENABLE_TOOLS\u003d0 ..\nsudo ninja install\n\nBuild libavif:\ncmake -G Ninja .. -DBUILD_SHARED_LIBS\u003dOFF -DAVIF_CODEC_AOM\u003dON -DAVIF_LOCAL_AOM\u003dOFF -DAVIF_BUILD_EXAMPLES\u003dON -DAVIF_BUILD_APPS\u003dON -DAVIF_BUILD_TESTS\u003dON -DCMAKE_BUILD_TYPE\u003dRelease\nninja\n\nRun avifenc with tune\u003dvmaf:\n./avifenc -y 420 --min 0 --max 63 -s 6 -j 4 -a end-usage\u003dq -a cq-level\u003d18 -a tune\u003dvmaf ${input} ${output}",
       "revId": "cccc21c7eea9132c5793327a8944a157156a6f24",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16c82455_ec68a953",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-19T23:00:49Z",
+      "side": 1,
+      "message": "Christopher: I request a small change.\n\nSai: Thank you for testing the CL!",
+      "revId": "cccc21c7eea9132c5793327a8944a157156a6f24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "176a82e2_a3d45e73",
+        "filename": "build/cmake/aom_install.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-19T23:00:49Z",
+      "side": 1,
+      "message": "Nit: Could you swap these two lines so that the two -DCONFIG_... lines are listed together? Thanks.",
+      "revId": "cccc21c7eea9132c5793327a8944a157156a6f24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
