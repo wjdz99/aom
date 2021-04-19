@@ -16,6 +16,24 @@
       "message": "Christopher: Thank you for the CL! Could you please apply the patch near the end of this page?\n\nhttps://build.aomedia.org/jenkins/job/style-check/55062/console\n\nSai: Could you please test this CL?",
       "revId": "cccc21c7eea9132c5793327a8944a157156a6f24",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d29fdbc6_d29a0a42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-04-19T22:41:48Z",
+      "side": 1,
+      "message": "That patch should have been already applied (if you are talking about the cmake changes)",
+      "parentUuid": "49358ba9_2cc91338",
+      "revId": "cccc21c7eea9132c5793327a8944a157156a6f24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
