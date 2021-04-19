@@ -364,8 +364,11 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_AVX2
             "${AOM_ROOT}/av1/encoder/x86/temporal_filter_avx2.c"
             "${AOM_ROOT}/av1/encoder/x86/pickrst_avx2.c")
 
+if(NOT CONFIG_EXTQUANT)
+  list(APPEND AOM_AV1_ENCODER_INTRIN_NEON
+              "${AOM_ROOT}/av1/encoder/arm/neon/quantize_neon.c")
+endif()
 list(APPEND AOM_AV1_ENCODER_INTRIN_NEON
-            "${AOM_ROOT}/av1/encoder/arm/neon/quantize_neon.c"
             "${AOM_ROOT}/av1/encoder/arm/neon/ml_neon.c"
             "${AOM_ROOT}/av1/encoder/arm/neon/picksrt_neon.c"
             "${AOM_ROOT}/av1/encoder/arm/neon/rdopt_neon.c"
