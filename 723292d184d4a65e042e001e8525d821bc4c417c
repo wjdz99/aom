@@ -16,6 +16,172 @@
       "message": "Hi Wan-Teh,\n\nThis CL adds a unit-test MonochromeAllIntraTest to validate monochrome encoding, in lossy/lossless modes.\n\nWe introduced \u0027lossless_\u0027 flag, 0 and 1 indicating the lossy and lossless mode for allintra encoding respectively. We also introduced cpu_used_ variable, to specify the encoding speed and retained existing cpu_used (0) setting for \u0027MonochromeTest\u0027. For \u0027MonochromeAllIntraTest\u0027, the unit-test validates for speed presets 6 and 9.\n\nTo check the psnr value, the new threshold (41.5 db) has been introduced for allintra encoding in lossy mode, which is chosen to be lesser than the first frame psnr (42.08 db). And the allowed fluctuation between the first frame and subsequent frames has been chosen as 0.3 db for allintra encoding. We have refactored the code related to threshold/fluctuation by introducing the \u0027kPsnrThreshold[]\u0027 and \u0027kPsnrFluctuation[]\u0027 (In this array 1st entry is corresponds to non-allintra and 2nd entry corresponds to allintra). In the case of lossless coding, the PSNR comparison happens with 100 db (similar to LosslessTestLarge).\n\nWe feel that in the existing unit-test \u0027MonochromeTest\u0027, initialization of some of the params like kf_mode, g_error_resilient etc can be removed (as they are same as default values). We plan to pursue this change in a separate patch.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
       "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf91e54a_44157f5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "Thanks for the CL! I suggest some small changes.",
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3618f50_51b17835",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "Nit: declare this constant as a double because it will be compared with a double (pkt-\u003edata.psnr.psnr[0]):\n\n  const double kMaxPsnr \u003d 100.0;",
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "034c73c0_589fa736",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "Please document the meaning of the two elements in these two arrays. (The array index is is_allintra.)",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 48
+      },
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cd5e0e0_80119315",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "Nit/optional: Since cpu_used is used only once, at line 43, we don\u0027t need to save GET_PARAM(3) in a data member. We can get rid of cpu_used_ and use GET_PARAM(3) directly at line 43.",
+      "range": {
+        "startLine": 35,
+        "startChar": 8,
+        "endLine": 35,
+        "endChar": 31
+      },
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70f8eb3d_ae9dfa56",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "It seems that this should be restructured as follows:\n\n    if (video-\u003eframe() \u003d\u003d 0) {\n      encoder-\u003eControl(AOME_SET_CPUUSED, cpu_used_);\n      if (mode_ \u003d\u003d ::libaom_test::kAllIntra) {\n        encoder-\u003eControl(AOME_SET_CQ_LEVEL, kCqLevel);\n      }\n      if (lossless_) {\n        encoder-\u003eControl(AV1E_SET_LOSSLESS, 1);\n      }\n    }\n\nIn other words,\n\n1. All the encoder-\u003eControl() calls are only made before encoding the first video frame.\n\n2. The lossless flag is independent of all intra mode.",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 5
+      },
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53a4a302_82b16ea1",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "Nit: Add a blank line after this line to separate the bodies of the two methods.",
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83c30ebd_f48151dc",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "Nit/optional: This probably doesn\u0027t matter, but it would seem to look nicer if we use EXPECT_GT here to be consistent with line 99.",
+      "range": {
+        "startLine": 91,
+        "startChar": 6,
+        "endLine": 91,
+        "endChar": 15
+      },
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c12c06ca_26d23de1",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:50:50Z",
+      "side": 1,
+      "message": "Nit: List these two members first, before chroma_value_list_. Since these two members store test params, it looks nicer to declare them first.",
+      "range": {
+        "startLine": 106,
+        "startChar": 0,
+        "endLine": 107,
+        "endChar": 16
+      },
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
