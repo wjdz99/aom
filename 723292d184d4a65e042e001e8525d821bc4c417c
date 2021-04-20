@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b88c316_f3e9aa04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-20T15:32:44Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThis CL adds a unit-test MonochromeAllIntraTest to validate monochrome encoding, in lossy/lossless modes.\n\nWe introduced \u0027lossless_\u0027 flag, 0 and 1 indicating the lossy and lossless mode for allintra encoding respectively. We also introduced cpu_used_ variable, to specify the encoding speed and retained existing cpu_used (0) setting for \u0027MonochromeTest\u0027. For \u0027MonochromeAllIntraTest\u0027, the unit-test validates for speed presets 6 and 9.\n\nTo check the psnr value, the new threshold (41.5 db) has been introduced for allintra encoding in lossy mode, which is chosen to be lesser than the first frame psnr (42.08 db). And the allowed fluctuation between the first frame and subsequent frames has been chosen as 0.3 db for allintra encoding. We have refactored the code related to threshold/fluctuation by introducing the \u0027kPsnrThreshold[]\u0027 and \u0027kPsnrFluctuation[]\u0027 (In this array 1st entry is corresponds to non-allintra and 2nd entry corresponds to allintra). In the case of lossless coding, the PSNR comparison happens with 100 db (similar to LosslessTestLarge).\n\nWe feel that in the existing unit-test \u0027MonochromeTest\u0027, initialization of some of the params like kf_mode, g_error_resilient etc can be removed (as they are same as default values). We plan to pursue this change in a separate patch.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
+      "revId": "723292d184d4a65e042e001e8525d821bc4c417c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
