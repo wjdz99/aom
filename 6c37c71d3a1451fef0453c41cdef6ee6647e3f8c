@@ -34,6 +34,24 @@
       "parentUuid": "e3b7ef4f_e987906e",
       "revId": "6c37c71d3a1451fef0453c41cdef6ee6647e3f8c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72e5ad31_b1206a28",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T18:09:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd32279f_46ce5015",
+      "revId": "6c37c71d3a1451fef0453c41cdef6ee6647e3f8c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
