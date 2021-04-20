@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a06440da_d0291b44",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-04-20T11:35:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "763a5c35_2c9b03d9",
+      "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8806b927_7b7c8960",
@@ -65,6 +83,24 @@
       "writtenOn": "2021-04-20T00:12:35Z",
       "side": 1,
       "message": "Let\u0027s add the following before this line:\n\n// For all intra mode, test speed 0, 2, 4, 6, 8.\n\n(This is the counter part of line 492.)",
+      "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3b78972_461d5098",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-04-20T11:35:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8806b927_7b7c8960",
       "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
