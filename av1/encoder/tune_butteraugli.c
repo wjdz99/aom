@@ -15,10 +15,13 @@
 
 #include "aom_dsp/butteraugli.h"
 #include "aom_ports/system_state.h"
-#include "av1/encoder/rdopt.h"
+#include "av1/encoder/encodeframe.h"
+#include "av1/encoder/encoder_utils.h"
 #include "av1/encoder/extend.h"
+#include "av1/encoder/var_based_part.h"
+#include "encoder_alloc.h"
 
-static const int resize_factor = 2;
+static const int resize_factor = 4;
 
 static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
                                               const YV12_BUFFER_CONFIG *source,
@@ -43,14 +46,14 @@ static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
                        "Failed to calculate Butteraugli distances.");
   }
 
-  const int num_mi_w = mi_size_wide[butteraugli_rdo_bsize] / resize_factor;
-  const int num_mi_h = mi_size_high[butteraugli_rdo_bsize] / resize_factor;
-  const int num_cols =
-      (mi_params->mi_cols / resize_factor + num_mi_w - 1) / num_mi_w;
-  const int num_rows =
-      (mi_params->mi_rows / resize_factor + num_mi_h - 1) / num_mi_h;
-  const int block_w = num_mi_w << 2;
-  const int block_h = num_mi_h << 2;
+  const int num_mi_w = mi_size_wide[butteraugli_rdo_bsize];
+  const int num_mi_h = mi_size_high[butteraugli_rdo_bsize];
+  const int num_cols = (mi_params->mi_cols + num_mi_w - 1) / num_mi_w;
+  const int num_rows = (mi_params->mi_rows + num_mi_h - 1) / num_mi_h;
+  const int block_w =
+      (mi_size_wide[butteraugli_rdo_bsize] << 2) / resize_factor;
+  const int block_h =
+      (mi_size_high[butteraugli_rdo_bsize] << 2) / resize_factor;
   double log_sum = 0.0;
   double blk_count = 0.0;
 
@@ -256,4 +259,62 @@ void av1_restore_butteraugli_source(AV1_COMP *cpi) {
   cpi->butteraugli_info.recon_set = true;
   aom_free_frame_buffer(&resized_recon);
   aom_clear_system_state();
+}
+
+void av1_setup_butteraugli_rdmult(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const QuantizationCfg *const q_cfg = &oxcf->q_cfg;
+  const int q_index = 96;
+  aom_clear_system_state();
+
+  // Setup necessary params for encoding, including frame source, etc.
+  if (cm->current_frame.frame_type == KEY_FRAME) copy_frame_prob_info(cpi);
+  av1_set_frame_size(cpi, cm->superres_upscaled_width,
+                     cm->superres_upscaled_height);
+
+  cpi->source =
+      av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source,
+                            cm->features.interp_filter, 0, false, false);
+  if (cpi->unscaled_last_source != NULL) {
+    cpi->last_source = av1_scale_if_required(
+        cm, cpi->unscaled_last_source, &cpi->scaled_last_source,
+        cm->features.interp_filter, 0, false, false);
+  }
+
+  av1_setup_butteraugli_source(cpi);
+  av1_setup_frame(cpi);
+
+  if (cm->seg.enabled) {
+    if (!cm->seg.update_data && cm->prev_frame) {
+      segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
+      cm->seg.enabled = cm->prev_frame->seg.enabled;
+    } else {
+      av1_calculate_segdata(&cm->seg);
+    }
+  } else {
+    memset(&cm->seg, 0, sizeof(cm->seg));
+  }
+  segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
+  cm->cur_frame->seg.enabled = cm->seg.enabled;
+
+  const PARTITION_SEARCH_TYPE partition_search_type =
+      cpi->sf.part_sf.partition_search_type;
+  const BLOCK_SIZE fixed_partition_size = cpi->sf.part_sf.fixed_partition_size;
+  cpi->sf.part_sf.partition_search_type = FIXED_PARTITION;
+  cpi->sf.part_sf.fixed_partition_size = BLOCK_16X16;
+
+  av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q_index,
+                    q_cfg->enable_chroma_deltaq);
+  av1_set_speed_features_qindex_dependent(cpi, oxcf->speed);
+  if (q_cfg->deltaq_mode != NO_DELTA_Q || q_cfg->enable_chroma_deltaq)
+    av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,
+                       cm->seq_params.bit_depth);
+
+  av1_set_variance_partition_thresholds(cpi, q_index, 0);
+  av1_encode_frame(cpi);
+
+  av1_restore_butteraugli_source(cpi);
+  cpi->sf.part_sf.partition_search_type = partition_search_type;
+  cpi->sf.part_sf.fixed_partition_size = fixed_partition_size;
 }
