@@ -227,6 +227,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
 #if CONFIG_TUNE_VMAF
                                         AV1E_SET_VMAF_MODEL_PATH,
 #endif
+                                        AV1E_SET_PARTITION_INFO_PATH,
                                         0 };
 
 const arg_def_t *main_args[] = { &g_av1_codec_arg_defs.help,
@@ -422,6 +423,7 @@ const arg_def_t *av1_ctrl_args[] = {
 #if CONFIG_TUNE_VMAF
   &g_av1_codec_arg_defs.vmaf_model_path,
 #endif
+  &g_av1_codec_arg_defs.partition_info_path,
   NULL,
 };
 
@@ -505,6 +507,7 @@ struct stream_config {
 #if CONFIG_TUNE_VMAF
   const char *vmaf_model_path;
 #endif
+  const char *partition_info_path;
   aom_color_range_t color_range;
 };
 
@@ -1073,6 +1076,9 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.vmaf_model_path, argi)) {
       config->vmaf_model_path = arg.val;
 #endif
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.partition_info_path,
+                         argi)) {
+      config->partition_info_path = arg.val;
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_fixed_qp_offsets,
                          argi)) {
       config->cfg.use_fixed_qp_offsets = arg_parse_uint(&arg);
@@ -1439,6 +1445,11 @@ static void initialize_encoder(struct stream_state *stream,
                                   stream->config.vmaf_model_path);
   }
 #endif
+  if (stream->config.partition_info_path) {
+    AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder,
+                                  AV1E_SET_PARTITION_INFO_PATH,
+                                  stream->config.partition_info_path);
+  }
 
   if (stream->config.film_grain_filename) {
     AOM_CODEC_CONTROL_TYPECHECKED(&stream->encoder, AV1E_SET_FILM_GRAIN_TABLE,

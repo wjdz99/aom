@@ -1327,6 +1327,11 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_DIAGONAL_INTRA = 141,
 
+  /*!\brief Codec control to set the path for partition stats read and write.
+   * const char * parameter.
+   */
+  AV1E_SET_PARTITION_INFO_PATH = 142,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -1861,6 +1866,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_VBR_CORPUS_COMPLEXITY_LAP, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DNL_DENOISING, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_DNL_DENOISING
+
+AOM_CTRL_USE_TYPE(AV1E_SET_PARTITION_INFO_PATH, const char *)
+#define AOM_CTRL_AV1E_SET_PARTITION_INFO_PATH
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
