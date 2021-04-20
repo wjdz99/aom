@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 #include <memory>
+#include <unordered_map>
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
@@ -23,6 +24,11 @@ namespace {
 const int kLevelMin = 0;
 const int kLevelMax = 31;
 const int kLevelKeepStats = 24;
+// Validate the level information for cq levels 18 and 63 in case of
+// still picture encode.
+std::unordered_map<unsigned int, int> kLevelThreshold = { { 18, { 4 } },
+                                                          { 63, { 0 } } };
+
 // Speed settings tested
 static const int kCpuUsedVectors[] = {
   1,
@@ -32,20 +38,22 @@ static const int kCpuUsedVectors[] = {
 };
 
 class LevelTest
-    : public ::libaom_test::CodecTestWith2Params<libaom_test::TestMode, int>,
+    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode, int,
+                                                 unsigned int>,
       public ::libaom_test::EncoderTest {
  protected:
   LevelTest()
       : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
-        cpu_used_(GET_PARAM(2)), target_level_(31) {}
+        cpu_used_(GET_PARAM(2)), cq_level_(GET_PARAM(3)), target_level_(31) {}
 
   virtual ~LevelTest() {}
 
   virtual void SetUp() {
     InitializeConfig(encoding_mode_);
-    if (encoding_mode_ != ::libaom_test::kRealTime) {
+    if (encoding_mode_ == ::libaom_test::kOnePassGood ||
+        encoding_mode_ == ::libaom_test::kTwoPassGood) {
       cfg_.g_lag_in_frames = 5;
-    } else {
+    } else if (encoding_mode_ == ::libaom_test::kRealTime) {
       cfg_.rc_buf_sz = 1000;
       cfg_.rc_buf_initial_sz = 500;
       cfg_.rc_buf_optimal_sz = 600;
@@ -57,10 +65,14 @@ class LevelTest
     if (video->frame() == 0) {
       encoder->Control(AOME_SET_CPUUSED, cpu_used_);
       encoder->Control(AV1E_SET_TARGET_SEQ_LEVEL_IDX, target_level_);
-      if (encoding_mode_ != ::libaom_test::kRealTime) {
+      if (encoding_mode_ == ::libaom_test::kOnePassGood ||
+          encoding_mode_ == ::libaom_test::kTwoPassGood) {
         encoder->Control(AOME_SET_ENABLEAUTOALTREF, 1);
         encoder->Control(AOME_SET_ARNR_MAXFRAMES, 7);
         encoder->Control(AOME_SET_ARNR_STRENGTH, 5);
+      } else if (encoding_mode_ == ::libaom_test::kAllIntra) {
+        encoder->Control(AV1E_SET_FORCE_VIDEO_MODE, 0);
+        encoder->Control(AOME_SET_CQ_LEVEL, cq_level_);
       }
     }
 
@@ -71,6 +83,7 @@ class LevelTest
 
   libaom_test::TestMode encoding_mode_;
   int cpu_used_;
+  int cq_level_;
   int target_level_;
   int level_[32];
 };
@@ -149,8 +162,25 @@ TEST_P(LevelTest, TestTargetLevel0) {
   }
 }
 
+class StillPictureLevelTest : public LevelTest {};
+
+TEST_P(StillPictureLevelTest, TestMonitoringQp) {
+  libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
+                                     30, 1, 0, 1);
+  target_level_ = kLevelKeepStats;
+  cfg_.g_limit = 1;
+  ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+  ASSERT_EQ(level_[0], kLevelThreshold[cq_level_]);
+}
+
 AV1_INSTANTIATE_TEST_SUITE(LevelTest,
                            ::testing::Values(::libaom_test::kTwoPassGood,
                                              ::libaom_test::kOnePassGood),
-                           ::testing::ValuesIn(kCpuUsedVectors));
+                           ::testing::ValuesIn(kCpuUsedVectors),  // cpu_used
+                           ::testing::Values(10));                // cq_level
+
+AV1_INSTANTIATE_TEST_SUITE(StillPictureLevelTest,
+                           ::testing::Values(::libaom_test::kAllIntra),
+                           ::testing::Values(6),        // cpu_used
+                           ::testing::Values(18, 63));  // cq_level
 }  // namespace
