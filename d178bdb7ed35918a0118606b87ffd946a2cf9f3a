@@ -16,6 +16,40 @@
       "message": "Hi Wan-Teh,\n\nThis CL adds a unit-test LosslessAllIntraTestLarge to check the adherence of psnr value for allintra encoding.\n\nCurrently, \u0027LosslessTestLarge\u0027 validates lossless coding through the following methods,\n1. Setting both rc_min_quantizer and rc_max_quantizer to 0\n2. Setting the param \u0027lossless\u0027 to 1 through encoder control (min and max quantizer will be set to zero as lossless flag is set)\n\nFor \u0027LosslessAllIntraTestLarge\u0027, we have considered approach 2 and also did not consider the unit-test for 444 input (existing LosslessTestLarge tests the same) to save the testing time.\n\nWe introduced cpu_used_ variable to specify speed and retained existing cpu_used setting for \u0027LosslessTestLarge\u0027. In parent version, \u0027LosslessTestLarge\u0027 runs for 4 different rate control modes with cpu_used set as 0 (default value of cpu_used is 0). For \u0027LosslessAllIntraTestLarge\u0027, we considered AOM_Q as rate control mode (use-case for still picture) and speed preset as 6, 9.\n\nPlease review the patch.\n\nRegards,\nJayashri.\n\n",
       "revId": "d178bdb7ed35918a0118606b87ffd946a2cf9f3a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "854d7bc1_6c3f82bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T00:46:09Z",
+      "side": 1,
+      "message": "Hi Jayashri: I suggest a small change.",
+      "revId": "d178bdb7ed35918a0118606b87ffd946a2cf9f3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45be73f4_b99698ee",
+        "filename": "test/lossless_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T00:46:09Z",
+      "side": 1,
+      "message": "Nit: Swap these two lines so that the three test parameters are consecutive.",
+      "revId": "d178bdb7ed35918a0118606b87ffd946a2cf9f3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
