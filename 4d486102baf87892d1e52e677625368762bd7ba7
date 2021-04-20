@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nWe have enabled row-level multi-threading support for CDEF frame in this patch.\nPlease find the average encode time reduction for --tile-columns\u003d2 --tile-rows\u003d0 --threads\u003d4 configuration.\n\ncpu-used\tresolution\tEncode Time Reduction (%)\n    7\t    360p\t      \t2.88\n            480p\t      \t3.98\n            720p\t      \t4.19\n            1080p\t      \t5.88\n            Avg\t\t        4.23\n    8\t    360p\t      \t5.13\n            480p\t      \t6.21\n            720p\t      \t6.47\n            1080p\t      \t7.69\n            Avg\t\t        6.37\n    9\t    360p\t      \t6.67\n            480p\t      \t8.19\n            720p\t      \t8.75\n            1080p\t      \t9.93\n            Avg\t\t        8.38\n\nNote: For the speed profiling dv cost update frequency is set to COST_UPD_OFF.\n\nPlease find the average decode time reduction for --tile-columns\u003d2 --tile-rows\u003d0 --threads\u003d4 configuration.\nresolution\tDecode Time Reduction (%)\n  360p\t        14.19\n  480p\t        11.89\n  720p\t        13.12\n  1080p\t        13.86\n  Avg\t        13.27\n\nThis patch is verified to be bit-exact for –good and –rt presets. Heap memory increase for this implementation is ~1% (averaged across resolutions).\n\nPlease review this patch.\nThank you.",
       "revId": "4d486102baf87892d1e52e677625368762bd7ba7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "de1119b5_1acdd0f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-20T00:36:34Z",
+      "side": 1,
+      "message": "Looks good to me. Thanks!\nSo current encoder MT unit test covers this one well?",
+      "revId": "4d486102baf87892d1e52e677625368762bd7ba7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
