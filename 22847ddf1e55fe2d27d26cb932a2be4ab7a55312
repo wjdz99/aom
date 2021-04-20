@@ -16,6 +16,80 @@
       "message": "Hi Wan-Teh,\n\nWe noticed a merge conflict for this patch. Hence, we rebased the patch to the latest.\n\nPlease review.\n\nThanks \u0026 Regards,\nAniket.",
       "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2706d414_270fc9df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T00:12:35Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nI suggest two small changes.",
+      "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "763a5c35_2c9b03d9",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T00:12:35Z",
+      "side": 1,
+      "message": "Nit: Add a blank line after this line.",
+      "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8806b927_7b7c8960",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T00:12:35Z",
+      "side": 1,
+      "message": "Let\u0027s add the following before this line:\n\n// For all intra mode, test speed 0, 2, 4, 6, 8.\n\n(This is the counter part of line 492.)",
+      "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5c6cbc07_d864e6db",
+        "filename": "test/ethread_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-20T00:12:35Z",
+      "side": 1,
+      "message": "Just FYI: This should be moved outside the #if !CONFIG_REALTIME_ONLY block. I will take care of this.",
+      "range": {
+        "startLine": 513,
+        "startChar": 0,
+        "endLine": 518,
+        "endChar": 52
+      },
+      "revId": "22847ddf1e55fe2d27d26cb932a2be4ab7a55312",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
