@@ -15,8 +15,10 @@
 
 #include "aom_dsp/butteraugli.h"
 #include "aom_ports/system_state.h"
-#include "av1/encoder/rdopt.h"
+#include "av1/encoder/encodeframe.h"
+#include "av1/encoder/encoder_utils.h"
 #include "av1/encoder/extend.h"
+#include "av1/encoder/var_based_part.h"
 
 static const int resize_factor = 2;
 
@@ -256,4 +258,62 @@ void av1_restore_butteraugli_source(AV1_COMP *cpi) {
   cpi->butteraugli_info.recon_set = true;
   aom_free_frame_buffer(&resized_recon);
   aom_clear_system_state();
+}
+
+// Set encoding parameters to make the encoding process fast.
+// A fixed block partition size, and a large q is used.
+static void set_encoding_params(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  cm->features.allow_screen_content_tools = 0;
+  cm->features.allow_intrabc = 0;
+  cpi->use_screen_content_tools = 0;
+  cpi->sf.part_sf.partition_search_type = FIXED_PARTITION;
+  cpi->sf.part_sf.fixed_partition_size = BLOCK_32X32;
+}
+
+void av1_setup_butteraugli_rdmult(AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const QuantizationCfg *const q_cfg = &oxcf->q_cfg;
+  const int q_index = 96;
+
+  // Setup necessary params for encoding, including frame source, etc.
+  aom_clear_system_state();
+
+  cpi->source =
+      av1_scale_if_required(cm, cpi->unscaled_source, &cpi->scaled_source,
+                            cm->features.interp_filter, 0, false, false);
+  if (cpi->unscaled_last_source != NULL) {
+    cpi->last_source = av1_scale_if_required(
+        cm, cpi->unscaled_last_source, &cpi->scaled_last_source,
+        cm->features.interp_filter, 0, false, false);
+  }
+
+  av1_setup_frame(cpi);
+
+  if (cm->seg.enabled) {
+    if (!cm->seg.update_data && cm->prev_frame) {
+      segfeatures_copy(&cm->seg, &cm->prev_frame->seg);
+      cm->seg.enabled = cm->prev_frame->seg.enabled;
+    } else {
+      av1_calculate_segdata(&cm->seg);
+    }
+  } else {
+    memset(&cm->seg, 0, sizeof(cm->seg));
+  }
+  segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
+  cm->cur_frame->seg.enabled = cm->seg.enabled;
+
+  set_encoding_params(cpi);
+  av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel,
+                    q_index,
+                    q_cfg->enable_chroma_deltaq);
+  av1_set_speed_features_qindex_dependent(cpi, oxcf->speed);
+  if (q_cfg->deltaq_mode != NO_DELTA_Q || q_cfg->enable_chroma_deltaq)
+    av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,
+                       cm->seq_params.bit_depth);
+
+  av1_set_variance_partition_thresholds(cpi, q_index, 0);
+  // transform / motion compensation build reconstruction frame
+  av1_encode_frame(cpi);
 }

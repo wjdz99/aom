@@ -40,4 +40,6 @@ void av1_setup_butteraugli_source(AV1_COMP *cpi);
 
 void av1_restore_butteraugli_source(AV1_COMP *cpi);
 
+void av1_setup_butteraugli_rdmult(AV1_COMP *cpi);
+
 #endif  // AOM_AV1_ENCODER_TUNE_BUTTERAUGLI_H_
