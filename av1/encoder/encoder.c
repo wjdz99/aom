@@ -727,7 +727,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   if (x->pixel_gradient_info == NULL) {
     CHECK_MEM_ERROR(cm, x->pixel_gradient_info,
                     aom_malloc(sizeof(*x->pixel_gradient_info) * PLANE_TYPES *
-                               MAX_SB_SQUARE));
+                                   MAX_SB_SQUARE >>
+                               cm->seq_params.monochrome));
   }
 
   av1_reset_segment_features(cm);
