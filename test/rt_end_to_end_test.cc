@@ -29,6 +29,28 @@ const int kBitrate = 500;
 
 // List of psnr thresholds for speed settings 6-8
 // keys: video, speed, aq mode.
+#if CONFIG_EXTQUANT
+std::unordered_map<std::string,
+                   std::unordered_map<int, std::unordered_map<int, double>>>
+    kPsnrThreshold = { { "park_joy_90p_8_420.y4m",
+                         { { 5, { { 0, 29.2 }, { 3, 29.9 } } },
+                           { 6, { { 0, 29.1 }, { 3, 30.0 } } },
+                           { 7, { { 0, 28.2 }, { 3, 29.6 } } },
+                           { 8, { { 0, 29.0 }, { 3, 29.6 } } },
+                           { 9, { { 0, 28.3 }, { 3, 29.3 } } } } },
+                       { "paris_352_288_30.y4m",
+                         { { 5, { { 0, 30.0 }, { 3, 30.4 } } },
+                           { 6, { { 0, 29.3 }, { 3, 29.9 } } },
+                           { 7, { { 0, 29.3 }, { 3, 29.8 } } },
+                           { 8, { { 0, 29.7 }, { 3, 29.9 } } },
+                           { 9, { { 0, 28.9 }, { 3, 29.3 } } } } },
+                       { "niklas_1280_720_30.y4m",
+                         { { 5, { { 0, 24.1 }, { 3, 24.4 } } },
+                           { 6, { { 0, 23.7 }, { 3, 24.2 } } },
+                           { 7, { { 0, 23.6 }, { 3, 23.6 } } },
+                           { 8, { { 0, 23.5 }, { 3, 23.5 } } },
+                           { 9, { { 0, 23.4 }, { 3, 23.4 } } } } } };
+#else
 std::unordered_map<std::string,
                    std::unordered_map<int, std::unordered_map<int, double>>>
     kPsnrThreshold = { { "park_joy_90p_8_420.y4m",
@@ -49,6 +71,7 @@ std::unordered_map<std::string,
                            { 7, { { 0, 33.6 }, { 3, 33.6 } } },
                            { 8, { { 0, 33.5 }, { 3, 33.5 } } },
                            { 9, { { 0, 33.4 }, { 3, 33.4 } } } } } };
+#endif  // !CONFIG_EXTQUANT
 
 typedef struct {
   const char *filename;
