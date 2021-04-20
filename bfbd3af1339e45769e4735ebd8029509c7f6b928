@@ -33,6 +33,24 @@
       "message": "This bug was introduced in https://aomedia-review.googlesource.com/c/aom/+/133661.\n\nIt seems that the allocation of the pixel_gradient_info buffer could also take into account the number of planes:\n\n  if (x-\u003epixel_gradient_info \u003d\u003d NULL) {\n    CHECK_MEM_ERROR(cm, x-\u003epixel_gradient_info,\n                    aom_malloc(sizeof(*x-\u003epixel_gradient_info) * PLANE_TYPES *\n                               MAX_SB_SQUARE));\n  }\n\nJayasanker, could you please investigate whether that is worth doing? Thanks.,",
       "revId": "bfbd3af1339e45769e4735ebd8029509c7f6b928",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e9ee0b9_8b2d17e8",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-04-20T15:25:52Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have created the following CL to avoid the memory allocation for chroma in case of monochrome encoding.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/135942\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "parentUuid": "7c695c33_acfda308",
+      "revId": "bfbd3af1339e45769e4735ebd8029509c7f6b928",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
