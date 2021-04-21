@@ -4329,6 +4329,10 @@ void av1_read_color_config(struct aom_read_bit_buffer *rb,
     seq_params->transfer_characteristics = AOM_CICP_TC_UNSPECIFIED;
     seq_params->matrix_coefficients = AOM_CICP_MC_UNSPECIFIED;
   }
+#if CONFIG_EXTQUANT
+  seq_params->base_y_dc_delta_q =
+      DELTA_DCQUANT_MIN + aom_rb_read_literal(rb, DELTA_DCQUANT_BITS);
+#endif  // CONFIG_EXTQUANT
   if (is_monochrome) {
     // [16,235] (including xvycc) vs [0,255] range
     seq_params->color_range = aom_rb_read_bit(rb);
@@ -4384,8 +4388,6 @@ void av1_read_color_config(struct aom_read_bit_buffer *rb,
   }
   seq_params->separate_uv_delta_q = aom_rb_read_bit(rb);
 #if CONFIG_EXTQUANT
-  seq_params->base_y_dc_delta_q =
-      DELTA_DCQUANT_MIN + aom_rb_read_literal(rb, DELTA_DCQUANT_BITS);
   seq_params->base_uv_dc_delta_q =
       DELTA_DCQUANT_MIN + aom_rb_read_literal(rb, DELTA_DCQUANT_BITS);
 #endif  // CONFIG_EXTQUANT
