@@ -4804,7 +4804,8 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
         (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
          mbmi->mode == SMOOTH_V_PRED))
       return 1;
-    if (!cpi->oxcf.intra_mode_cfg.enable_paeth_intra &&
+    if ((!cpi->oxcf.intra_mode_cfg.enable_paeth_intra ||
+         cpi->sf.intra_sf.disable_paeth_intra) &&
         mbmi->mode == PAETH_PRED)
       return 1;
 

@@ -720,6 +720,8 @@ static void set_good_speed_feature_framesize_dependent(
     } else {
       sf->inter_sf.prune_ref_mv_idx_search = 1;
     }
+
+    if (is_720p_or_larger) sf->intra_sf.disable_paeth_intra = 1;
   }
 }
 
@@ -1643,6 +1645,7 @@ static AOM_INLINE void init_intra_sf(INTRA_MODE_SPEED_FEATURES *intra_sf) {
   intra_sf->prune_filter_intra_level = 0;
   intra_sf->prune_chroma_modes_using_luma_winner = 0;
   intra_sf->cfl_search_range = 3;
+  intra_sf->disable_paeth_intra = 0;
 }
 
 static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {

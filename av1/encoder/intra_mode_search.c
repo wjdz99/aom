@@ -641,7 +641,10 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         mode <= UV_SMOOTH_H_PRED)
       continue;
 
-    if (!intra_mode_cfg->enable_paeth_intra && mode == UV_PAETH_PRED) continue;
+    if ((!intra_mode_cfg->enable_paeth_intra ||
+         cpi->sf.intra_sf.disable_paeth_intra) &&
+        mode == UV_PAETH_PRED)
+      continue;
 
     assert(mbmi->mode < INTRA_MODES);
     if (cpi->sf.intra_sf.prune_chroma_modes_using_luma_winner &&
@@ -1256,7 +1259,8 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
         cpi->sf.intra_sf.prune_filter_intra_level == 0 &&
         mbmi->mode == SMOOTH_PRED)
       continue;
-    if (!cpi->oxcf.intra_mode_cfg.enable_paeth_intra &&
+    if ((!cpi->oxcf.intra_mode_cfg.enable_paeth_intra ||
+         cpi->sf.intra_sf.disable_paeth_intra) &&
         mbmi->mode == PAETH_PRED)
       continue;
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
