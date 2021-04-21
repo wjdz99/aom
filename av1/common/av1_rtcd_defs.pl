@@ -431,6 +431,11 @@ if ($opts{config} !~ /libs-x86-win32-vs.*/) {
   specialize qw/cdef_copy_rect8_16bit_to_16bit sse2 ssse3 sse4_1 avx2 neon/;
 }
 
+# Cross-component Sample Offset
+if (aom_config("CONFIG_CCSO") eq "yes") {
+	add_proto qw/void ccso_filter_block_hbd/, "uint16_t *temp_rec_y_buf, uint16_t *rec_yuv_16, int x, int y, int pic_width_c, int pic_height_c, int *rec_luma_idx, const int8_t *offset_buf, const int *ccso_stride_idx, const int *dst_stride_idx, int y_uv_scale, int pad_stride, int quant_step_size, int inv_quant_step, int *rec_idx, int maxval";
+}
+
 # WARPED_MOTION / GLOBAL_MOTION functions
 
 add_proto qw/void av1_warp_affine/, "const int32_t *mat, const uint8_t *ref, int width, int height, int stride, uint8_t *pred, int p_col, int p_row, int p_width, int p_height, int p_stride, int subsampling_x, int subsampling_y, ConvolveParams *conv_params, int16_t alpha, int16_t beta, int16_t gamma, int16_t delta";
