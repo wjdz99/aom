@@ -2706,6 +2706,12 @@ static AOM_INLINE void write_color_config(
     aom_wb_write_literal(wb, seq_params->transfer_characteristics, 8);
     aom_wb_write_literal(wb, seq_params->matrix_coefficients, 8);
   }
+#if CONFIG_EXTQUANT
+  assert(seq_params->base_y_dc_delta_q <= DELTA_DCQUANT_MAX);
+  aom_wb_write_unsigned_literal(
+      wb, seq_params->base_y_dc_delta_q - DELTA_DCQUANT_MIN,
+      DELTA_DCQUANT_BITS);
+#endif  // CONFIG_EXTQUANT
   if (is_monochrome) {
     // 0: [16, 235] (i.e. xvYCC), 1: [0, 255]
     aom_wb_write_bit(wb, seq_params->color_range);
@@ -2752,11 +2758,7 @@ static AOM_INLINE void write_color_config(
   }
   aom_wb_write_bit(wb, seq_params->separate_uv_delta_q);
 #if CONFIG_EXTQUANT
-  assert(seq_params->base_y_dc_delta_q <= DELTA_DCQUANT_MAX);
   assert(seq_params->base_uv_dc_delta_q >= DELTA_DCQUANT_MIN);
-  aom_wb_write_unsigned_literal(
-      wb, seq_params->base_y_dc_delta_q - DELTA_DCQUANT_MIN,
-      DELTA_DCQUANT_BITS);
   aom_wb_write_unsigned_literal(
       wb, seq_params->base_uv_dc_delta_q - DELTA_DCQUANT_MIN,
       DELTA_DCQUANT_BITS);
