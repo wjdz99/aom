@@ -392,7 +392,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,                            // allow_warped_motion at frame level
   1,                            // enable filter intra at sequence level
   1,                            // enable smooth intra modes usage for sequence
-  1,                            // enable Paeth intra mode usage for sequence
+  0,                            // enable Paeth intra mode usage for sequence
   1,                            // enable CFL uv intra mode usage for sequence
   1,                       // enable D45 to D203 intra mode usage for sequence
   1,                       // superres
