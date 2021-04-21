@@ -478,6 +478,6 @@ int aom_vector_var_c(const int16_t *ref, const int16_t *src, const int bwl) {
   }
 
   // (mean * mean): dynamic range 31 bits.
-  var = sse - ((mean * mean) >> (bwl + 2));
+  var = sse - (int)(((int64_t)mean * (int64_t)mean) >> (bwl + 2));
   return var;
 }
