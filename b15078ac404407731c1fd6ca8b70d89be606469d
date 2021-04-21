@@ -34,6 +34,24 @@
       "parentUuid": "dddf1856_9fdacba1",
       "revId": "b15078ac404407731c1fd6ca8b70d89be606469d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31263a0e_dd3a1b18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-21T04:54:45Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nFor multi-threading of pack bit-stream stage, bit-stream buffer will be prepared in parallel for different tiles on separate threads. In this case, the data will be filled in the output buffer at different offsets and later stitched. The offset locations will be calculated/prorated based on tile size (in pixels) and available bit-stream buffer size. As available bit-stream buffer size (cx_data_sz) is maintained locally in encoder_encode(), we are storing the same in cpi-\u003eavailable_bs_size so that offsets can be calculated appropriately.\nPlease let us know your thoughts on our approach.",
+      "parentUuid": "2d66ec81_1eed1f78",
+      "revId": "b15078ac404407731c1fd6ca8b70d89be606469d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
