@@ -16,6 +16,29 @@
       "message": "Searched the code history to see why tx_size was set like this. Went back to VP8 initial codebase.\n$ git reset --hard 0ea50ce9cb4b65eee6afa1d041fe8beb5abda667\nHEAD is now at 0ea50ce9c Initial WebM release\n\nIn first pass, we had:\n int use_dc_pred \u003d (mb_col || mb_row) \u0026\u0026 (!mb_col || !mb_row);\n // do intra 16x16 prediction\n this_error \u003d vp8_encode_intra(cpi, x, use_dc_pred);\n\nThen, in vp8_encode_intra(), we had:\n    if (use_dc_pred)\n    {\n        x-\u003ee_mbd.mbmi.mode \u003d DC_PRED;\n        x-\u003ee_mbd.mbmi.uv_mode \u003d DC_PRED;\n        x-\u003ee_mbd.mbmi.ref_frame \u003d INTRA_FRAME;\n\n        vp8_encode_intra16x16mby(IF_RTCD(\u0026cpi-\u003ertcd), x);\n    }\n    else\n    {\n        for (i \u003d 0; i \u003c 16; i++)\n        {\n            BLOCKD *b \u003d \u0026x-\u003ee_mbd.block[i];\n            BLOCK  *be \u003d \u0026x-\u003eblock[i];\n\n            vp8_encode_intra4x4block(IF_RTCD(\u0026cpi-\u003ertcd), x, be, b, B_DC_PRED);\n        }\n    }\n\nFor internal blocks (use_dc_pred\u003d0), B_DC_PRED mode was used for each 4x4 block of the 16x16 block, which probably was better than using DC_PRED on the whole 16x16 block.\n\nIn AV1, for internal blocks, are we doing anything similar to B_DC_PRED?\n",
       "revId": "2353fd39316ec909b4d6e698f60496e79191092f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6400a715_9c4afa8b",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-04-21T04:04:50Z",
+      "side": 1,
+      "message": "When this function is called, tx2 is always 4x4. Wouldn\u0027t it always make the return value a Tx4x4?",
+      "range": {
+        "startLine": 356,
+        "startChar": 22,
+        "endLine": 356,
+        "endChar": 37
+      },
+      "revId": "2353fd39316ec909b4d6e698f60496e79191092f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
