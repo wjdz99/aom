@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75495e7a_359ed01a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-04-21T13:03:16Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch facilitates the enabling of FP1 approach for frame-parallel multithreading (FPMT), by marking the frames that will be encoded in parallel as well as those which will be made as non-references (in future patches). \n\nThe LF_UPDATE frames are marked as non-references (gf_group-\u003eis_frame_non_ref[]), so that consecutive non-references along with the next internal arf frame can be encoded in parallel. The level of parallelism (gf_group-\u003eframe_parallel_level) indicates whether a frame is part of parallel-encodable frames (level \u003e 0), as well as whether it is the first (level 1) frame or later (level 2) frame(s) in encode order in a parallel encode set.\n\nThe code changes are added under the config macro CONFIG_FRAME_PARALLEL_ENCODE which is turned OFF by default. We have internally tested this patch for the tests mentioned below with the CONFIG_FRAME_PARALLEL_ENCODE macro set to 1 and num_fp_contexts set to 4.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc. \n\nPlease review. \n\nRegards,\nRemya",
+      "revId": "8f4faa4cb3e7ab99537b71feb0cb5f9c2bec6799",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
