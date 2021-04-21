@@ -140,11 +140,13 @@ void av1_loop_filter_dealloc(AV1LfSync *lf_sync) {
 
 static void loop_filter_data_reset(LFWorkerData *lf_data,
                                    YV12_BUFFER_CONFIG *frame_buffer,
-                                   struct AV1Common *cm, MACROBLOCKD *xd) {
+                                   struct AV1Common *cm, MACROBLOCKD *xd,
+                                   int no_4x4_lf) {
   struct macroblockd_plane *pd = xd->plane;
   lf_data->frame_buffer = frame_buffer;
   lf_data->cm = cm;
   lf_data->xd = xd;
+  lf_data->no_4x4_lf = no_4x4_lf;
   for (int i = 0; i < MAX_MB_PLANE; i++) {
     memcpy(&lf_data->planes[i].dst, &pd[i].dst, sizeof(lf_data->planes[i].dst));
     lf_data->planes[i].subsampling_x = pd[i].subsampling_x;
@@ -320,8 +322,8 @@ static AV1LfMTInfo *get_lf_job_info(AV1LfSync *lf_sync) {
 // Implement row loopfiltering for each thread.
 static INLINE void thread_loop_filter_rows(
     const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
-    struct macroblockd_plane *planes, MACROBLOCKD *xd,
-    AV1LfSync *const lf_sync) {
+    struct macroblockd_plane *planes, MACROBLOCKD *xd, AV1LfSync *const lf_sync,
+    int no_4x4_lf) {
   const int sb_cols =
       ALIGN_POWER_OF_TWO(cm->mi_params.mi_cols, MAX_MIB_SIZE_LOG2) >>
       MAX_MIB_SIZE_LOG2;
@@ -346,7 +348,7 @@ static INLINE void thread_loop_filter_rows(
                                mi_row, mi_col, plane, plane + 1);
 
           av1_filter_block_plane_vert(cm, xd, plane, &planes[plane], mi_row,
-                                      mi_col);
+                                      mi_col, no_4x4_lf);
           sync_write(lf_sync, r, c, sb_cols, plane);
         }
       } else if (dir == 1) {
@@ -365,7 +367,7 @@ static INLINE void thread_loop_filter_rows(
           av1_setup_dst_planes(planes, cm->seq_params.sb_size, frame_buffer,
                                mi_row, mi_col, plane, plane + 1);
           av1_filter_block_plane_horz(cm, xd, plane, &planes[plane], mi_row,
-                                      mi_col);
+                                      mi_col, no_4x4_lf);
         }
       }
     } else {
@@ -379,7 +381,7 @@ static int loop_filter_row_worker(void *arg1, void *arg2) {
   AV1LfSync *const lf_sync = (AV1LfSync *)arg1;
   LFWorkerData *const lf_data = (LFWorkerData *)arg2;
   thread_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
-                          lf_data->xd, lf_sync);
+                          lf_data->xd, lf_sync, lf_data->no_4x4_lf);
   return 1;
 }
 
@@ -458,7 +460,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                                 int is_decoding,
 #endif
                                 AVxWorker *workers, int nworkers,
-                                AV1LfSync *lf_sync) {
+                                AV1LfSync *lf_sync, int no_4x4_lf) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
 #if CONFIG_LPF_MASK
   int sb_rows;
@@ -514,7 +516,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
     worker->data2 = lf_data;
 
     // Loopfilter data
-    loop_filter_data_reset(lf_data, frame, cm, xd);
+    loop_filter_data_reset(lf_data, frame, cm, xd, no_4x4_lf);
 
     // Start loopfiltering
     if (i == 0) {
@@ -537,7 +539,7 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                               int is_decoding,
 #endif
                               AVxWorker *workers, int num_workers,
-                              AV1LfSync *lf_sync) {
+                              AV1LfSync *lf_sync, int no_4x4_lf) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
 
   start_mi_row = 0;
@@ -579,7 +581,7 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   }
 #else
   loop_filter_rows_mt(frame, cm, xd, start_mi_row, end_mi_row, plane_start,
-                      plane_end, workers, num_workers, lf_sync);
+                      plane_end, workers, num_workers, lf_sync, no_4x4_lf);
 #endif
 }
 
