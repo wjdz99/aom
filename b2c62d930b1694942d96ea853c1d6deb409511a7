@@ -16,6 +16,24 @@
       "message": "This comment seems to suggest we intended to use test the CONFIG_AV1_HIGHBITDEPTH macro here.\n\nIn any case, I suggest we first write a CL to clean up the kPsnrThreshold array, i.e., change it to:\n\n  // List of psnr thresholds for speed settings 0-6 and 3 encoding modes\n  const double kPsnrThreshold[][3] \u003d {\n    { 36.0, 37.0, 37.0 }, { 31.0, 36.0, 36.0 },  //\n    { 31.0, 35.0, 35.0 }, { 31.0, 34.0, 34.0 },  //\n    { 31.0, 33.0, 33.0 }, { 31.0, 32.0, 32.0 },  //\n    { 30.0, 31.0, 31.0 }\n  };\n\nand then rebase this CL on that CL.",
       "revId": "b2c62d930b1694942d96ea853c1d6deb409511a7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8b6d274_947837b4",
+        "filename": "test/end_to_end_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-21T17:23:00Z",
+      "side": 0,
+      "message": "We have created a separate patch for kPsnrThreshold[][] array cleanup - https://aomedia-review.googlesource.com/c/aom/+/135322.",
+      "parentUuid": "5596e3a6_1c993844",
+      "revId": "b2c62d930b1694942d96ea853c1d6deb409511a7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
