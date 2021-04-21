@@ -514,11 +514,11 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(cfg, g_input_bit_depth, AOM_BITS_8, AOM_BITS_12);
 #if CONFIG_EXTQUANT
   RANGE_CHECK(cfg, rc_max_quantizer,
-              (int)(-(cfg->g_bit_depth - AOM_BITS_8) * MAXQ_OFFSET), 255);
+              (-(int)(cfg->g_bit_depth - AOM_BITS_8) * MAXQ_OFFSET), 255);
   RANGE_CHECK(cfg, rc_min_quantizer,
-              (int)(-(cfg->g_bit_depth - AOM_BITS_8) * MAXQ_OFFSET), 255);
+              (-(int)(cfg->g_bit_depth - AOM_BITS_8) * MAXQ_OFFSET), 255);
   RANGE_CHECK(extra_cfg, qp,
-              (int)(-(cfg->g_bit_depth - AOM_BITS_8) * MAXQ_OFFSET), 255);
+              (-(int)(cfg->g_bit_depth - AOM_BITS_8) * MAXQ_OFFSET), 255);
 #else
   RANGE_CHECK(cfg, rc_max_quantizer, 0, 255);
   RANGE_CHECK(cfg, rc_min_quantizer, 0, 255);
