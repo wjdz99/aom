@@ -346,14 +346,15 @@ static TX_SIZE set_lpf_parameters(
 void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
                                  const MACROBLOCKD *const xd, const int plane,
                                  const MACROBLOCKD_PLANE *const plane_ptr,
-                                 const uint32_t mi_row, const uint32_t mi_col) {
+                                 const uint32_t mi_row, const uint32_t mi_col,
+                                 int no_4x4_lf) {
   const uint32_t scale_horz = plane_ptr->subsampling_x;
   const uint32_t scale_vert = plane_ptr->subsampling_y;
   uint8_t *const dst_ptr = plane_ptr->dst.buf;
   const int dst_stride = plane_ptr->dst.stride;
   const int y_range = (MAX_MIB_SIZE >> scale_vert);
   const int x_range = (MAX_MIB_SIZE >> scale_horz);
-  for (int y = 0; y < y_range; y++) {
+  for (int y = 0; y < y_range; y += (no_4x4_lf ? 2 : 1)) {
     uint8_t *p = dst_ptr + y * MI_SIZE * dst_stride;
     for (int x = 0; x < x_range;) {
       // inner loop always filter vertical edges in a MI block. If MI size
@@ -459,14 +460,15 @@ void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
 void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
                                  const MACROBLOCKD *const xd, const int plane,
                                  const MACROBLOCKD_PLANE *const plane_ptr,
-                                 const uint32_t mi_row, const uint32_t mi_col) {
+                                 const uint32_t mi_row, const uint32_t mi_col,
+                                 int no_4x4_lf) {
   const uint32_t scale_horz = plane_ptr->subsampling_x;
   const uint32_t scale_vert = plane_ptr->subsampling_y;
   uint8_t *const dst_ptr = plane_ptr->dst.buf;
   const int dst_stride = plane_ptr->dst.stride;
   const int y_range = (MAX_MIB_SIZE >> scale_vert);
   const int x_range = (MAX_MIB_SIZE >> scale_horz);
-  for (int x = 0; x < x_range; x++) {
+  for (int x = 0; x < x_range; x += (no_4x4_lf ? 2 : 1)) {
     uint8_t *p = dst_ptr + x * MI_SIZE;
     for (int y = 0; y < y_range;) {
       // inner loop always filter vertical edges in a MI block. If MI size
@@ -661,7 +663,7 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
 #if CONFIG_LPF_MASK
                              int is_decoding,
 #endif
-                             int plane_start, int plane_end) {
+                             int plane_start, int plane_end, int no_4x4_lf) {
   struct macroblockd_plane *pd = xd->plane;
   const int col_start = 0;
   const int col_end = cm->mi_params.mi_cols;
@@ -669,6 +671,7 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
   int plane;
 
 #if CONFIG_LPF_MASK
+  (void)no_4x4_lf;
   if (is_decoding) {
     cm->is_decoding = is_decoding;
     for (plane = plane_start; plane < plane_end; plane++) {
@@ -724,22 +727,22 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
           // filter vertical edges
           av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
                                mi_col, plane, plane + 1);
-          av1_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row,
-                                      mi_col);
+          av1_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row, mi_col,
+                                      no_4x4_lf);
           // filter horizontal edges
           if (mi_col - MAX_MIB_SIZE >= 0) {
             av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer,
                                  mi_row, mi_col - MAX_MIB_SIZE, plane,
                                  plane + 1);
             av1_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
-                                        mi_col - MAX_MIB_SIZE);
+                                        mi_col - MAX_MIB_SIZE, no_4x4_lf);
           }
         }
         // filter horizontal edges
         av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
                              mi_col - MAX_MIB_SIZE, plane, plane + 1);
         av1_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
-                                    mi_col - MAX_MIB_SIZE);
+                                    mi_col - MAX_MIB_SIZE, no_4x4_lf);
       }
     } else {
       // filter all vertical edges in every 128x128 super block
@@ -747,8 +750,8 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
         for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
           av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
                                mi_col, plane, plane + 1);
-          av1_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row,
-                                      mi_col);
+          av1_filter_block_plane_vert(cm, xd, plane, &pd[plane], mi_row, mi_col,
+                                      no_4x4_lf);
         }
       }
 
@@ -757,8 +760,8 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
         for (mi_col = col_start; mi_col < col_end; mi_col += MAX_MIB_SIZE) {
           av1_setup_dst_planes(pd, cm->seq_params.sb_size, frame_buffer, mi_row,
                                mi_col, plane, plane + 1);
-          av1_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row,
-                                      mi_col);
+          av1_filter_block_plane_horz(cm, xd, plane, &pd[plane], mi_row, mi_col,
+                                      no_4x4_lf);
         }
       }
     }
@@ -770,7 +773,8 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #if CONFIG_LPF_MASK
                            int is_decoding,
 #endif
-                           int plane_start, int plane_end, int partial_frame) {
+                           int plane_start, int plane_end, int partial_frame,
+                           int no_4x4_lf) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
 
   start_mi_row = 0;
@@ -786,5 +790,5 @@ void av1_loop_filter_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 #if CONFIG_LPF_MASK
                    is_decoding,
 #endif
-                   plane_start, plane_end);
+                   plane_start, plane_end, no_4x4_lf);
 }

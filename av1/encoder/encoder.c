@@ -2264,13 +2264,15 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                                0,
 #endif
                                mt_info->workers, num_workers,
-                               &mt_info->lf_row_sync);
+                               &mt_info->lf_row_sync,
+                               cpi->sf.rt_sf.use_nonrd_pick_mode);
     else
       av1_loop_filter_frame(&cm->cur_frame->buf, cm, xd,
 #if CONFIG_LPF_MASK
                             0,
 #endif
-                            0, num_planes, 0);
+                            0, num_planes, 0,
+                            cpi->sf.rt_sf.use_nonrd_pick_mode);
   }
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, loop_filter_time);
