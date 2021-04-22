@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3269c0e0_4aea4bc3",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-22T00:29:24Z",
+      "side": 1,
+      "message": "I assumed the comment is obsolete. Integer sanitization found issues with range being larger.",
+      "parentUuid": "e6d16121_70ae09df",
+      "range": {
+        "startLine": 480,
+        "startChar": 0,
+        "endLine": 480,
+        "endChar": 42
+      },
+      "revId": "2441d03d797401cdba4f37ae5aa27c8f1e678b14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "16ec95d7_6e296357",
         "filename": "aom_dsp/avg.c",
         "patchSetId": 6
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "79ed63e3_178b2bc8",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-22T00:29:24Z",
+      "side": 1,
+      "message": "Right - but compiler will do the right thing. I find this more readable actually.",
+      "parentUuid": "16ec95d7_6e296357",
+      "range": {
+        "startLine": 481,
+        "startChar": 37,
+        "endLine": 481,
+        "endChar": 46
+      },
+      "revId": "2441d03d797401cdba4f37ae5aa27c8f1e678b14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f89caa23_af84f3d1",
         "filename": "av1/encoder/partition_strategy.c",
         "patchSetId": 6
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-21T19:35:43Z",
       "side": 1,
       "message": "2nd cast not needed.",
+      "range": {
+        "startLine": 1332,
+        "startChar": 21,
+        "endLine": 1332,
+        "endChar": 28
+      },
+      "revId": "2441d03d797401cdba4f37ae5aa27c8f1e678b14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05203d44_1c23d896",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-22T00:29:24Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "f89caa23_af84f3d1",
       "range": {
         "startLine": 1332,
         "startChar": 21,
