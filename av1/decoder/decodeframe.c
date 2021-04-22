@@ -5300,6 +5300,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 #if CONFIG_LPF_MASK
                               1,
 #endif
+                              1,  // TODO(chengchen): REALTIME mode at decoder?
                               0, num_planes, 0);
       }
     }
