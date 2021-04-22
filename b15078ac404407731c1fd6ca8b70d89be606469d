@@ -52,6 +52,24 @@
       "parentUuid": "2d66ec81_1eed1f78",
       "revId": "b15078ac404407731c1fd6ca8b70d89be606469d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc51ffff_bfe54af1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-22T06:11:58Z",
+      "side": 1,
+      "message": "Ok. I see what you mean. Guess cx_data_sz might be quite large.",
+      "parentUuid": "31263a0e_dd3a1b18",
+      "revId": "b15078ac404407731c1fd6ca8b70d89be606469d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
