@@ -104,6 +104,24 @@
       "parentUuid": "b3dfe7c6_ee8b2579",
       "revId": "fadce3f2fdef6645c9ce8b01bba1ead7a2f98a5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71c08aba_c317ab92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-04-22T22:24:48Z",
+      "side": 1,
+      "message": "I agree we shouldn\u0027t break compatibility on this release since 3.0.0 (which breaks compatibility) was just released a while ago.\n\nBut at some point we have to bump up the major version to accommodate new features where it is very difficult to keep the release compatible.\n\nIt\u0027s probably better to have a guideline how often we can do that. I added a comment in the Frank\u0027s release process document.",
+      "parentUuid": "222a66db_f9e8413a",
+      "revId": "fadce3f2fdef6645c9ce8b01bba1ead7a2f98a5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
