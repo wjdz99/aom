@@ -832,7 +832,6 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->enable_smooth_intra = (cfg->disable_smooth_intra == 0);
   extra_cfg->enable_paeth_intra = (cfg->disable_paeth_intra == 0);
   extra_cfg->enable_cfl_intra = (cfg->disable_cfl == 0);
-  extra_cfg->enable_diagonal_intra = (cfg->disable_diagonal_intra == 0);
   extra_cfg->enable_obmc = (cfg->disable_obmc == 0);
   extra_cfg->enable_palette = (cfg->disable_palette == 0);
   extra_cfg->enable_intrabc = (cfg->disable_intrabc == 0);
@@ -3680,7 +3679,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
+        0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
   },
 #endif  // !CONFIG_REALTIME_ONLY
   {
@@ -3751,7 +3750,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
+        0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
   },
 #if !CONFIG_REALTIME_ONLY
   {
@@ -3822,7 +3821,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
+        0, 0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },  // cfg
   },
 #endif  // !CONFIG_REALTIME_ONLY
 };
