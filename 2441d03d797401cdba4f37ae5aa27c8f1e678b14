@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d3f4abe1_7377083a",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-22T05:02:19Z",
+      "side": 1,
+      "message": "Pls remove the comment in that case.",
+      "parentUuid": "3269c0e0_4aea4bc3",
+      "range": {
+        "startLine": 480,
+        "startChar": 0,
+        "endLine": 480,
+        "endChar": 42
+      },
+      "revId": "2441d03d797401cdba4f37ae5aa27c8f1e678b14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "16ec95d7_6e296357",
         "filename": "aom_dsp/avg.c",
         "patchSetId": 6
@@ -85,6 +109,30 @@
       "side": 1,
       "message": "Right - but compiler will do the right thing. I find this more readable actually.",
       "parentUuid": "16ec95d7_6e296357",
+      "range": {
+        "startLine": 481,
+        "startChar": 37,
+        "endLine": 481,
+        "endChar": 46
+      },
+      "revId": "2441d03d797401cdba4f37ae5aa27c8f1e678b14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8170b09e_d1f45ca2",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-22T05:02:19Z",
+      "side": 1,
+      "message": "My suggestion of using cast for left side only (of multiplication) matches other such casts in the codebase.\nBut yes, no strong preference either way.",
+      "parentUuid": "79ed63e3_178b2bc8",
       "range": {
         "startLine": 481,
         "startChar": 37,
@@ -132,6 +180,30 @@
       "side": 1,
       "message": "ditto",
       "parentUuid": "f89caa23_af84f3d1",
+      "range": {
+        "startLine": 1332,
+        "startChar": 21,
+        "endLine": 1332,
+        "endChar": 28
+      },
+      "revId": "2441d03d797401cdba4f37ae5aa27c8f1e678b14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "960b0764_74646296",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1332,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-04-22T05:02:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "05203d44_1c23d896",
       "range": {
         "startLine": 1332,
         "startChar": 21,
