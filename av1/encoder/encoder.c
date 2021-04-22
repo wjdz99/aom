@@ -2274,7 +2274,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #if CONFIG_LPF_MASK
                             0,
 #endif
-                            0, num_planes, 0);
+                            cpi->oxcf.mode == REALTIME, 0, num_planes, 0);
   }
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, loop_filter_time);
