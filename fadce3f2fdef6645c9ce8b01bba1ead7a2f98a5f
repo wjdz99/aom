@@ -122,6 +122,24 @@
       "parentUuid": "222a66db_f9e8413a",
       "revId": "fadce3f2fdef6645c9ce8b01bba1ead7a2f98a5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80894c7e_7e3df208",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-22T22:34:34Z",
+      "side": 1,
+      "message": "I am surprised to discover that neither the aom_codec_enc_cfg_t struct nor the cfg_options_t struct can be extended without breaking binary compatibility.\n\nDoes this mean in order to add a new encoder option, we can only extend the av1_extracfg struct (which is a private type defined in av1/av1_cx_iface.c) and set its members using aom_codec_control() or the new Key \u0026 Value API function aom_codec_set_option()?",
+      "parentUuid": "222a66db_f9e8413a",
+      "revId": "fadce3f2fdef6645c9ce8b01bba1ead7a2f98a5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
