@@ -69,6 +69,24 @@
       "parentUuid": "3514a878_14e7f9f7",
       "revId": "b6d6c660e60018d3a7dbf1147587678022bcbda0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "631c6262_ed21616a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25837
+      },
+      "writtenOn": "2021-04-22T13:32:12Z",
+      "side": 1,
+      "message": "I tested the combined impact of this change and 09fe53b2e201cd0f1adf2bdcbb9e7f6d90d2c9b2 on class a5 and the impact seems to generally be small:\nThe BD-Rate(PSNR-Y) on class a5 is as follows:\n--subgop-config-str\u003denh -0.11%\n--subgop-config-str\u003ddef -0.08%\n--subgop-config-str\u003dasym +0.01%\n\nlinks:\nhttps://beta.arewecompressedyet.com/?job\u003d%402021-04-21T11%3A35%3A22.856Z%402021-04-21T11%3A36%3A39.662Z%402021-04-21T20%3A44%3A58.361Z\u0026job\u003d%402021-03-29T07%3A17%3A55.895Z%402021-03-31T08%3A21%3A41.899Z%402021-04-21T11%3A18%3A09.783Z%402021-04-21T20%3A45%3A39.080Z\n\nhttps://beta.arewecompressedyet.com/?job\u003d%402021-04-21T11%3A35%3A22.856Z%402021-04-21T20%3A45%3A26.969Z\u0026job\u003d%402021-03-29T07%3A17%3A55.895Z%402021-03-31T08%3A21%3A41.899Z%402021-04-21T11%3A17%3A46.903Z%402021-04-21T20%3A46%3A04.736Z\n\nhttps://beta.arewecompressedyet.com/?job\u003d%402021-04-21T11%3A35%3A22.856Z%402021-04-21T11%3A36%3A29.768Z%402021-04-21T20%3A45%3A16.161Z\u0026job\u003d%402021-03-29T07%3A17%3A55.895Z%402021-03-31T08%3A21%3A41.899Z%402021-04-21T11%3A17%3A17.343Z%402021-04-21T20%3A46%3A31.344Z",
+      "parentUuid": "aa71bcb1_a975523c",
+      "revId": "b6d6c660e60018d3a7dbf1147587678022bcbda0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
