@@ -115,6 +115,24 @@
       "parentUuid": "44887dae_3808dcf3",
       "revId": "1b498412e65d4b8a8719fa8db4e2dd10a53d2c77",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d150e9e3_2f1fbce3",
+        "filename": "test/end_to_end_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-22T23:28:20Z",
+      "side": 1,
+      "message": "Thanks for the explanation. I didn\u0027t notice that.\n\nI think it is a good idea to add EndToEndTestAllIntraLarge so that we have full control of the speeds we want to test in all intra mode. I suggest we only test speeds {2, 4, 6, 8} or {3, 6, 9} to save time.",
+      "parentUuid": "d6279120_389a4bb1",
+      "revId": "1b498412e65d4b8a8719fa8db4e2dd10a53d2c77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
