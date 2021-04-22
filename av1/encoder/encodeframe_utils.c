@@ -902,6 +902,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   int tpl_stride = tpl_frame->stride;
   int64_t intra_cost = 0;
   int64_t mc_dep_cost = 0;
+  int64_t base_rate = 0;
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
   const int base_qindex = cm->quant_params.base_qindex;
@@ -932,6 +933,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
                  this_stats->mc_dep_dist);
       intra_cost += this_stats->recrf_dist << RDDIV_BITS;
       mc_dep_cost += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      base_rate += this_stats->recrf_rate;
       mi_count++;
     }
   }
@@ -944,8 +946,14 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   if (mc_dep_cost > 0 && intra_cost > 0) {
     const double r0 = cpi->rd.r0;
     const double rk = (double)intra_cost / mc_dep_cost;
-    beta = (r0 / rk);
-    assert(beta > 0.0);
+    double rate_scale = ((double)base_rate / mi_count) / cpi->rd.base_rate;
+    rate_scale = AOMMIN(rate_scale, 2.0);
+    rate_scale = AOMMAX(rate_scale, 1.0);
+    beta = r0 / rk;
+    beta = (beta - 1.0) / rate_scale + 1.0;
+
+    beta = AOMMAX(beta, 0.5);
+    beta = AOMMIN(beta, 2.0);
   }
   offset = av1_get_deltaq_offset(cpi, base_qindex, beta);
   aom_clear_system_state();

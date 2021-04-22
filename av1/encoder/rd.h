@@ -79,6 +79,7 @@ typedef struct RD_OPT {
   int RDMULT;
 
   double r0;
+  double base_rate;
 } RD_OPT;
 
 static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
