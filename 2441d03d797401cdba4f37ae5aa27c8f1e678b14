@@ -72,6 +72,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbe68a59_eb9db032",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-22T19:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3f4abe1_7377083a",
+      "range": {
+        "startLine": 480,
+        "startChar": 0,
+        "endLine": 480,
+        "endChar": 42
+      },
+      "revId": "2441d03d797401cdba4f37ae5aa27c8f1e678b14",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "16ec95d7_6e296357",
