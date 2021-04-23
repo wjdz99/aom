@@ -16,6 +16,47 @@
       "message": "Hi Yunqing,\n\nThis patch limits the number of best inter modes considered for transform search in tx_search_best_inter_candidates() based on the best (first) mode in terms of model rd. If the first candidate turns out to be the best so far in terms of actual rd, and if it is either transform skip or compound, then the number of inter mode candidates to be evaluated is limited as per qindex.\n\nIn case of first being valid and transform skip, less number of candidates are considered at low quantizers and more at high quantizers, since the probability of occurrence of transform skip is relatively lower at low quantizers and higher at high quantizers.\n\nIf the first is valid (best) and compound, more number of candidates are considered at low quantizers and less at high quantizers, since the probability of occurrence of single reference mode is high at low quantizers. Also, our analysis on the inter mode statistics showed that at higher quantizers, the no. of compound inter mode candidates in tx_search_best_inter_candidates() is less than 2. Hence if a compound mode is the topmost in terms of model rd as well as the best so far in terms of actual rd, then it is more likely to win in those cases. Therefore, the no. of candidates at high quantizers is kept low when the first mode is valid and compound.\n\nPlease find the detailed borg results for speed 2 and 3 below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOW RES   |       3.277       |  0.0390    0.0393    0.0509  |\n   2     |  MID RES   |       2.128       |  0.0511    0.0385    0.0449  |\n   2     |   HD RES*  |       5.332       |  0.0459    0.0555    0.0171  |\n   2     |  Average   |       3.519       |  0.0447    0.0440    0.0388  |\n         |            |                   |                              |     \n   3     |  LOW RES   |       1.376       | -0.0003   -0.0054    0.0026  |\n   3     |  MID RES   |       1.109       |  0.0575    0.0563   -0.0005  |\n   3     |   HD RES   |       3.185       |  0.0719    0.0888    0.0789  |\n   3     |  Average   |       1.771       |  0.0386    0.0413    0.0250  |\n   \n   *60 frame run\n\nFor faster speed levels, the average speed and quality impact are small, as provided below.\n   \n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |   \n   4     |  LOW RES   |       0.369       | -0.0029   -0.0028   -0.0334  |\n   4     |  MID RES   |       0.497       |  0.0784    0.0779    0.0505  |\n   4     |   HD RES   |       0.800       |  0.0047    0.0111    0.0136  |\n   4     |  Average   |       0.510       |  0.0232    0.0250    0.0055  |\n         |            |                   |                              |   \n   5     |  LOW RES   |       0.268       |  0.0133    0.0206    0.0232  |\n   5     |  MID RES   |       0.373       |  0.1359    0.1737    0.0798  |\n   5     |   HD RES   |       0.796       |  0.0286    0.0530    0.0384  |\n   5     |  Average   |       0.428       |  0.0539    0.0753    0.0444  |\n         |            |                   |                              |   \n   6     |  LOW RES   |       0.158       | -0.0293   -0.0329   -0.0303  |\n   6     |  MID RES   |       0.308       | -0.0282   -0.0101   -0.0307  |\n   6     |   HD RES   |       0.601       |  0.0130    0.0128    0.0117  |\n   6     |  Average   |       0.307       | -0.0161   -0.0123   -0.0176  |\n     \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks,\nNithya\n",
       "revId": "26a5fc4d60d678932691840d7cbadd180ccb1196",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49b639fe_bc5317af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-23T20:12:09Z",
+      "side": 1,
+      "message": "Really nice speedup at speed 2 \u0026 3 with good tradeoff!",
+      "parentUuid": "a377a865_077d15c0",
+      "revId": "26a5fc4d60d678932691840d7cbadd180ccb1196",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3c9f700_c9c3f84f",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5002,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-23T20:12:09Z",
+      "side": 1,
+      "message": "Why \"!j\" is necessary here? Could you provide context?",
+      "range": {
+        "startLine": 5002,
+        "startChar": 19,
+        "endLine": 5002,
+        "endChar": 67
+      },
+      "revId": "26a5fc4d60d678932691840d7cbadd180ccb1196",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
