@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nWe have refactored the code related to adding headers in the bitstream at the \nstart of each tile group from pack_tile_info() into a new function\nav1_write_obu_tg_tile_headers().\n\nIn order to facilitate multithreading, the available bitstream buffer needs to be \ndistributed proportionally among the tiles. As the frame header size is variable \nbased on encoder configuration, we are unable to estimate bit-stream buffer\nsize for the same. Hence the function is being moved out of the multi-threading\nscope. Moreover, the header encoding function takes negligible encode time\n(0.1%-0.2% of total time). So moving the function is not expected to impact MT \nperformance.\n\nWe have also moved av1_reset_loop_restoration() into pack_tile_info(), to include\nit in the multithreading scope as well.\n\nThe change has been verified to be bit-exact locally with no impact on speed.\n\nKindly review this patch.\n\nRegards,\nVishesh\n",
       "revId": "0d5ed0ae59c5b2f9a859e61978814a6120d0aa80",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87629829_6efa69a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-23T17:03:35Z",
+      "side": 1,
+      "message": "looks good to me.",
+      "parentUuid": "d07bd4d0_5ab267a6",
+      "revId": "0d5ed0ae59c5b2f9a859e61978814a6120d0aa80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
