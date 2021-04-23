@@ -580,7 +580,7 @@ void av1_create_second_pass_workers(AV1_COMP *cpi, int num_workers) {
 
       // Create threads
       if (!winterface->reset(worker))
-        aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+        aom_internal_error(cm->error, AOM_CODEC_ERROR,
                            "Tile encoder thread creation failed");
     } else {
       // Main thread acts as a worker and uses the thread data in cpi.
@@ -733,7 +733,7 @@ static AOM_INLINE void fp_create_enc_workers(AV1_COMP *cpi, int num_workers) {
       if (create_workers) {
         // Create threads
         if (!winterface->reset(worker))
-          aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+          aom_internal_error(cm->error, AOM_CODEC_ERROR,
                              "Tile encoder thread creation failed");
       }
     } else {
@@ -773,7 +773,7 @@ static AOM_INLINE void sync_enc_workers(MultiThreadInfo *const mt_info,
   }
 
   if (had_error)
-    aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+    aom_internal_error(cm->error, AOM_CODEC_ERROR,
                        "Failed to encode tile data");
 }
 
