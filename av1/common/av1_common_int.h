@@ -195,19 +195,17 @@ typedef struct {
   uint16_t *colbuf[MAX_MB_PLANE];         /*!< CDEF column line buffer */
   uint16_t *linebuf[MAX_MB_PLANE];        /*!< CDEF top & bottom line buffer */
   uint16_t *srcbuf;                       /*!< CDEF intermediate buffer */
+  size_t prev_colbuf_size[MAX_MB_PLANE];  /*!< CDEF column line buffer sizes*/
+  size_t prev_linebuf_size[MAX_MB_PLANE];  // CDEF top & bottom line buffer
+                                           // sizes
+  size_t prev_srcbuf_size;                /*!< CDEF intermediate buffer size*/
   int cdef_damping;                       /*!< CDEF damping factor */
   int nb_cdef_strengths;                  /*!< Number of CDEF strength values */
   int cdef_strengths[CDEF_MAX_STRENGTHS]; /*!< CDEF strength values for luma */
   int cdef_uv_strengths[CDEF_MAX_STRENGTHS]; /*!< CDEF strength values for
                                                 chroma */
   int cdef_bits;                 /*!< Number of CDEF strength values in bits */
-  int allocated_mi_cols;         /*!< Number of cols in the frame in 4 pixel */
   int allocated_mi_rows;         /*!< Number of rows in the frame in 4 pixel */
-  int allocated_subsampling_x;   /*!< Chroma subsampling for x */
-  int allocated_subsampling_y;   /*!< Chroma subsampling for y */
-  uint8_t prev_cdef_enable_flag; /*!< CDEF on/off flag */
-  unsigned int prev_large_scale_tile_flag; /*!< Large scale tile on/off flag */
-  int prev_num_planes;                     /*!< Number of planes */
   int allocated_num_workers;               /*!< Number of CDEF workers */
 } CdefInfo;
 
