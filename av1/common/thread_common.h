@@ -99,7 +99,7 @@ typedef struct AV1LrSyncData {
 } AV1LrSync;
 
 typedef struct AV1CdefWorker {
-  AV1_COMMON *cm;
+  const AV1_COMMON *cm;
   MACROBLOCKD *xd;
   uint16_t *colbuf[MAX_MB_PLANE];
   uint16_t *srcbuf;
@@ -131,19 +131,23 @@ typedef struct AV1CdefSyncData {
   int fbc;
 } AV1CdefSync;
 
-void av1_cdef_frame_mt(AV1_COMMON *cm, MACROBLOCKD *xd,
-                       AV1CdefWorkerData *cdef_worker, AVxWorker *workers,
-                       AV1CdefSync *cdef_sync, int num_workers,
+void av1_cdef_frame_mt(AV1_COMMON *const cm, MACROBLOCKD *const xd,
+                       AV1CdefWorkerData *const cdef_worker,
+                       AVxWorker *const workers, AV1CdefSync *const cdef_sync,
+                       const int num_workers,
                        cdef_init_fb_row_t cdef_init_fb_row_fn);
-void av1_cdef_init_fb_row_mt(AV1_COMMON *cm, MACROBLOCKD *const xd,
-                             CdefBlockInfo *fb_info, uint16_t **const linebuf,
-                             uint16_t *const src,
-                             struct AV1CdefSyncData *cdef_sync, int fbr);
-void av1_cdef_copy_sb8_16(AV1_COMMON *cm, uint16_t *dst, int dstride,
-                          const uint8_t *src, int src_voffset, int src_hoffset,
-                          int sstride, int vsize, int hsize);
-void av1_alloc_cdef_sync(AV1_COMMON *cm, AV1CdefSync *cdef_sync,
-                         int num_workers);
+void av1_cdef_init_fb_row_mt(const AV1_COMMON *const cm,
+                             const MACROBLOCKD *const xd,
+                             CdefBlockInfo *const fb_info,
+                             uint16_t **const linebuf, uint16_t *const src,
+                             struct AV1CdefSyncData *const cdef_sync,
+                             const int fbr);
+void av1_cdef_copy_sb8_16(const AV1_COMMON *const cm, uint16_t *const dst,
+                          const int dstride, const uint8_t *src,
+                          const int src_voffset, const int src_hoffset,
+                          const int sstride, const int vsize, const int hsize);
+void av1_alloc_cdef_sync(AV1_COMMON *const cm, AV1CdefSync *cdef_sync,
+                         const int num_workers);
 void av1_free_cdef_sync(AV1CdefSync *cdef_sync);
 
 // Deallocate loopfilter synchronization related mutex and data.
