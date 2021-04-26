@@ -108,4 +108,28 @@ TEST(TplModelTest, DeltaRateCostReference) {
   }
 }
 
+TEST(TplModelTest, GetOverlapAreaHasOverlap) {
+  int row_a = 10;
+  int col_a = 18;
+  int row_b = 8;
+  int col_b = 17;
+  int height = 7;
+  int width = 6;
+  int overlap_area =
+      av1_get_overlap_area(row_a, col_a, row_b, col_b, width, height);
+  EXPECT_EQ(overlap_area, 25);
+}
+
+TEST(TplModelTest, GetOverlapAreaNoOverlap) {
+  int row_a = 10;
+  int col_a = 18;
+  int row_b = 5;
+  int col_b = 5;
+  int height = 4;
+  int width = 4;
+  int overlap_area =
+      av1_get_overlap_area(row_a, col_a, row_b, col_b, width, height);
+  EXPECT_EQ(overlap_area, 0);
+}
+
 }  // namespace
