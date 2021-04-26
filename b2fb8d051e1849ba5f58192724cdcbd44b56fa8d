@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae880d5c_d5235529",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25661
+      },
+      "writtenOn": "2021-04-26T19:34:24Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch refactors malloc and free calls of srcbuf, linebuf and colbuf buffers in cdef_info structure. We also removed several variables in cdef_info structure that are used to track change in configuration at frame level. Reallocation of buffers are simplified as per the suggestion given by Wan-Teh Chang.\nThank you.",
+      "revId": "b2fb8d051e1849ba5f58192724cdcbd44b56fa8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
