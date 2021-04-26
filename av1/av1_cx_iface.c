@@ -1347,7 +1347,7 @@ static aom_codec_err_t encoder_set_config(aom_codec_alg_priv_t *ctx,
 }
 
 static aom_fixed_buf_t *encoder_get_global_headers(aom_codec_alg_priv_t *ctx) {
-  return av1_get_global_headers(ctx->ppi->cpi);
+  return av1_get_global_headers(ctx->ppi);
 }
 
 static aom_codec_err_t ctrl_get_quantizer(aom_codec_alg_priv_t *ctx,
@@ -3465,9 +3465,8 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
 static aom_codec_err_t ctrl_get_seq_level_idx(aom_codec_alg_priv_t *ctx,
                                               va_list args) {
   int *const arg = va_arg(args, int *);
-  const AV1_COMP *const cpi = ctx->ppi->cpi;
   if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
-  return av1_get_seq_level_idx(cpi->common.seq_params, &cpi->ppi->level_params,
+  return av1_get_seq_level_idx(&ctx->ppi->seq_params, &ctx->ppi->level_params,
                                arg);
 }
 

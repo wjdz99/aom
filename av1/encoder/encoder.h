@@ -3292,7 +3292,7 @@ static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
 // Note: The OBU returned is in Low Overhead Bitstream Format. Specifically,
 // the obu_has_size_field bit is set, and the buffer contains the obu_size
 // field.
-aom_fixed_buf_t *av1_get_global_headers(AV1_COMP *cpi);
+aom_fixed_buf_t *av1_get_global_headers(AV1_PRIMARY *ppi);
 
 #define MAX_GFUBOOST_FACTOR 10.0
 #define MIN_GFUBOOST_FACTOR 4.0
