@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9d0fc1b_2ab46ced",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26662
+      },
+      "writtenOn": "2021-04-26T20:22:51Z",
+      "side": 1,
+      "message": "Roberto Herrera\u0026 Sergio Maldonado \u0026 Higinia Tapia \u003cppl-paloverde-bw-legal@printspots.com\u003e",
+      "revId": "5849e6dca5547ad5bbf161594eec6a4056d8943d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
