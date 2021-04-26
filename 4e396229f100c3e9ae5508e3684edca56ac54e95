@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d3fc40a_9d9f9929",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-04-26T14:59:39Z",
+      "side": 1,
+      "message": "Hi Wan-Teh/Yunqing,\n\nThis patch potentially fixes the issue seen for unit-test \u0027AVxEncoderThreadAllIntraTestLarge\u0027.\nhttps://build.aomedia.org/jenkins/job/libaom__unit_tests-multi-target/1733/CONFIG_LOWBITDEPTH\u003d2,GTEST_SHARD_INDEX\u003d15,arch\u003dx86_64-linux-gcc/console\n\nWe could not reproduce the issue in linux as per steps in above. However, we could reproduce a crash using MSVS in windows environment.\n\nThe issue is seen in av1_fill_lr_rates(), where the NULL pointer access is happening. When master thread does not pick any encode job, \u0027tile_ctx\u0027 (in enc_row_mt_worker_hook() function) is not updated. This was resulting in NULL pointer access in av1_fill_lr_rates(). Hence, we passed cm-\u003efc instead of \u0027tile_ctx\u0027 to av1_fill_lr_rates() function to resolve the issue. As per our understanding, the fix is correct as lr related context is not updated during encode stage.\n\nThough the issue is seen with newly introduced \u0027AVxEncoderThreadAllIntraTestLarge\u0027, the fix is applicable for video encoding as well.\n\nWe verified that fix is bit-exact with parent version in single thread encoding mode for \u0027good\u0027 speed\u003d4 preset and few specific encoding modes.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "4e396229f100c3e9ae5508e3684edca56ac54e95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
