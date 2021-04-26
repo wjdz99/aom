@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "381ba8cb_684b8c5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-26T13:39:41Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThis CL extends speed feature lpf_pick as LPF_PICK_FROM_Q (quantizer based filter level selection method) for speed 6 in allintra encode.\n\nWe validated the current patch for allintra video and still-image encode. Following are encode time reduction results when AVIF encode was tested for a typical image dataset.\n\n                      Instruction Count  BD-Rate Loss(%)\n      cpu-used          Reduction(%)     psnr     ssim\n         6                7.330          0.0262   0.0514\n         6 (tune\u003dssim)    7.194          0.0352   0.0468\n\nFollowing are encode time reduction results when tested libaom with all intra frame encoding in a borg setup.\n\n                      Instruction Count      BD-Rate Loss(%)\n     cpu-used           Reduction(%)     avg.psnr  ovr.psnr  ssim\n         6                7.802          0.0227    0.0225    0.0246\n         6 (tune\u003dssim)    7.649          0.0341    0.0311    0.0117\n\nBit match is verified for all presets except preset 6.\n\nThe following were the few observations, when we tried characterizing the filter level selected by this method,\n-\u003e at lower quantizers, the error in the filter level predicted is quite lower  (w.r.t. parent version)\n-\u003e at higher quantizers, the error is relatively higher. However, the image looked visually similar (current CL vs parent version)\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nRegards,\nJayashri.\n\n\n\n",
+      "revId": "b81bcfbb0d773379dcce6a417ef8528f0376f066",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
