@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "89417266_1aac4a91",
+        "filename": "examples/cnn_restore/cnn_restore_y4m.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-27T22:52:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "659c8493_8b893f4d",
+      "revId": "bdb3d67069e66911e7f8fe60a553e496393f7fce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "176f7842_a121539e",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-04-27T21:43:47Z",
       "side": 1,
       "message": "Should add an if / assert for invalid \u0027level\u0027 also",
+      "revId": "bdb3d67069e66911e7f8fe60a553e496393f7fce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c81e5a41_6311443d",
+        "filename": "examples/cnn_restore/cnn_restore_y4m.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-27T22:52:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "176f7842_a121539e",
       "revId": "bdb3d67069e66911e7f8fe60a553e496393f7fce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
