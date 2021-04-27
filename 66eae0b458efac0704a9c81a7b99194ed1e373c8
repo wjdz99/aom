@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b228848_5a3a08d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-04-27T06:00:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have tested this patch for aomedia:3037. The issue is due to change in frame resolutions at run time. In multi-thread scenario, allocation of linebuf depends on frame height and width. But in the patch we submitted before, the allocation is not handled for change in frame height at run time.\n\nAs this patch handles reallocation of linebuf appropriately by considering frame height and width, it can fix the reported issue as well. So you shall consider this patch as a fix for the issue.\nPlease review the same.\nThank you.",
+      "revId": "66eae0b458efac0704a9c81a7b99194ed1e373c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
