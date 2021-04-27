@@ -16,6 +16,137 @@
       "message": "Hi Wan-Teh,\n\nIn this CL, we have added a unit-test \u0027StillPictureLevelTest\u0027 to validate the level information for still picture encode. We have set AOM_Q (the use-case of still picture encoding mode) as rate control mode and considered cq_level 18 and 63 for testing purpose. We introduced \u0027cq_level_\u0027 variable, to specify the quantization parameter and passed cq_level as 10 (which is default value) for existing unit-test \u0027LevelTest\u0027. For \u0027StillPictureLevelTest\u0027, the unit-test validates for speed preset 6.\n\nThe \u0027kLevelThreshold\u0027 has been introduced using \u0027unordered_map\u0027 for better indexing (similar to RTEndToEndTest) while comparing the expected level information with output level. We thought of introducing output level parameter as \u0027unsigned int\u0027, but did not pursue this change to maintain consistency with existing level related parameters (like kLevelMin, kLevelMax etc.), which are declared as \u0027int\u0027. Please let us know your opinion on this change.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata",
       "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f0485cc_0c7caccf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T23:24:12Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nI am sorry that I asked many questions, but I simply don\u0027t understand what the new test is doing.",
+      "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b958d86e_24f8446d",
+        "filename": "test/level_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T23:24:12Z",
+      "side": 1,
+      "message": "Just curious: Why do we test cq_level 63?",
+      "range": {
+        "startLine": 27,
+        "startChar": 55,
+        "endLine": 27,
+        "endChar": 57
+      },
+      "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7593ac6_2df2febe",
+        "filename": "test/level_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T23:24:12Z",
+      "side": 1,
+      "message": "Add \"in all intra mode\" at the end of this sentence.",
+      "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a4f1bf1_3f64e3f0",
+        "filename": "test/level_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T23:24:12Z",
+      "side": 1,
+      "message": "Why are the values in this map called thresholds?\n\nCould you add a comment to explain why we expect the levels to be 4 and 0 for cq_level 18 and 63?",
+      "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b92f8aa_8b6afcab",
+        "filename": "test/level_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T23:24:12Z",
+      "side": 1,
+      "message": "The curly braces {} around 4 and 0 should not be there, right?",
+      "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c36026ed_9eb6c6c0",
+        "filename": "test/level_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T23:24:12Z",
+      "side": 1,
+      "message": "Nit: You probably copied this from test/still_picture_test.cc, but this is not needed because 0 is the default for AV1E_SET_FORCE_VIDEO_MODE.",
+      "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "801659e0_be4de1e9",
+        "filename": "test/level_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T23:24:12Z",
+      "side": 1,
+      "message": "The cq_level of 10 is not used here, right? If so, it would be good to add a comment to say it is just a placeholder value.",
+      "range": {
+        "startLine": 180,
+        "startChar": 45,
+        "endLine": 180,
+        "endChar": 47
+      },
+      "revId": "29cbc40d451e05fbedded016a8ab468a89653d49",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
