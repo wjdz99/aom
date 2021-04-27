@@ -382,6 +382,13 @@ void av1_accumulate_stats(FIRSTPASS_STATS *section,
  */
 void av1_first_pass(struct AV1_COMP *cpi, const int64_t ts_duration);
 
+static AOM_INLINE int use_ml_model_to_decide_alt_ref(
+    const GFConfig *gf_cfg, const RateControlCfg *rc_cfg) {
+  return (rc_cfg->mode == AOM_Q) && (rc_cfg->cq_level <= 200) &&
+         (!gf_cfg->gf_min_pyr_height) &&
+         is_altref_enabled(gf_cfg->lag_in_frames, gf_cfg->enable_auto_arf);
+}
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

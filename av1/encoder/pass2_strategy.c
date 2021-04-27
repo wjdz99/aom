@@ -2415,6 +2415,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   }
 
   int use_alt_ref;
+  int ml_decides_use_alt_ref = use_ml_model_to_decide_alt_ref(gf_cfg, rc_cfg);
+
   if (can_disable_arf) {
     use_alt_ref =
         !is_almost_static(gf_stats.zero_motion_accumulator,
@@ -2423,7 +2425,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         (i >= MIN_GF_INTERVAL);
 
     // TODO(urvang): Improve and use model for VBR, CQ etc as well.
-    if (use_alt_ref && rc_cfg->mode == AOM_Q && rc_cfg->cq_level <= 200) {
+    if (use_alt_ref && ml_decides_use_alt_ref) {
       aom_clear_system_state();
       float features[21];
       get_features_from_gf_stats(
