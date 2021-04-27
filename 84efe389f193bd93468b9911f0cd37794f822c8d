@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc173ba7_e4e1fc84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-04-27T21:12:35Z",
+      "side": 1,
+      "message": "The patch comments indicate changing UV delta values for AI Mode. What is the AI mode?  \nThe changes seem to be applied for EXT_QUANT by default.The values are changed to -4, curious how was the number decided.",
+      "revId": "84efe389f193bd93468b9911f0cd37794f822c8d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
