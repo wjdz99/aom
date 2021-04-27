@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c378a886_53fcbc13",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-27T12:34:03Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nIn this CL, we have removed the parameters which are initialized to default values and removed the initialization of cfg_.g_w/cfg_.g_h (as initialization happens in InitEncoder() based on input source parameters) in MonochromeTest. \n\nPlease review the patch.\n\nRegards,\nJayashri.",
+      "revId": "3d97116716fb4facf581baa191e3211f09fbc1a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
