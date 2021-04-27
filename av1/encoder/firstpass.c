@@ -480,15 +480,19 @@ static int firstpass_intra_prediction(
   // Accumulate the intra error.
   stats->intra_error += (int64_t)this_intra_error;
 
-  const int hbd = is_cur_buf_hbd(xd);
-  const int stride = x->plane[0].src.stride;
-  const int num_8x8_rows = block_size_high[fp_block_size] / 8;
-  const int num_8x8_cols = block_size_wide[fp_block_size] / 8;
-  const uint8_t *buf = x->plane[0].src.buf;
-  for (int r8 = 0; r8 < num_8x8_rows; ++r8) {
-    for (int c8 = 0; c8 < num_8x8_cols; ++c8) {
-      stats->frame_avg_wavelet_energy += av1_haar_ac_sad_8x8_uint8_input(
-          buf + c8 * 8 + r8 * 8 * stride, stride, hbd);
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  if (oxcf->rc_cfg.mode == AOM_Q ||
+      oxcf->q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL) {
+    const int hbd = is_cur_buf_hbd(xd);
+    const int stride = x->plane[0].src.stride;
+    const int num_8x8_rows = block_size_high[fp_block_size] / 8;
+    const int num_8x8_cols = block_size_wide[fp_block_size] / 8;
+    const uint8_t *buf = x->plane[0].src.buf;
+    for (int r8 = 0; r8 < num_8x8_rows; ++r8) {
+      for (int c8 = 0; c8 < num_8x8_cols; ++c8) {
+        stats->frame_avg_wavelet_energy += av1_haar_ac_sad_8x8_uint8_input(
+            buf + c8 * 8 + r8 * 8 * stride, stride, hbd);
+      }
     }
   }
 
