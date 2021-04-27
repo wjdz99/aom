@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f22b02d6_40ae6e6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-27T04:06:36Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have submitted this CL to enable multi-thread support in bitstream packing. Please check below for few key features added as part of this implementation.\n* Bit stream buffer for each tile is distributed based on area of the tile. Size of the buffer is prorated based on available buffer size and area of the tile.\n* In order to simplify the calculation of bitstream buffer required, header preparation is kept outside the multi-threading scope.\n* Jobs of bitstream packing is ordered in descending area of the tile. This ensures that larger tile gets processed first in the job queue.\nFrom our experiments we observed that multithreading is not helpful for frames with smaller bit stream size (For example: source alt-ref frames). This behavior is due to multi-thread setup time overhead for such frame is relatively high as compared to the time for bitstream packing.\nThis patch is verified to be bit-exact for –good and –rt presets.\n\nThe encode time impact for RT preset is measured with threads\u003d4, num-tile-cols\u003d4, row-mt\u003d1 (averaged over 360p, 480p, 720p and 1080p).\n cpu-used  Resolution    Encode Time Reduction (%)\n    7           360p            4.32\n                480p            4.04\n                720p            5.06\n               1080p            5.98\n             Average            4.85\n             \n    8           360p            4.12\n                480p            5.64\n                720p            7.27\n               1080p            7.87\n             Average            6.23\n             \n    9           360p            3.12\n                480p            5.75\n                720p            7.48\n               1080p            9.05\n             Average            6.35\nNote: For speed profiling dv cost update frequency is set to COST_UPD_OFF (--dv-cost-upd-freq\u003d3).\n\nThe encode time impact for --good preset is negligible.\nHeap memory impact is negligible.\n\nPlease review the patch.\nThank you.\n",
+      "revId": "e895566227d27431e5e7d9421a5b3d2a5f921e67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
