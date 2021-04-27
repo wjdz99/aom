@@ -1939,9 +1939,18 @@ static AOM_INLINE int compute_num_lf_workers(AV1_COMP *cpi) {
   return compute_num_enc_workers(cpi, cpi->oxcf.max_threads);
 }
 
-// Computes num_workers for cdef multi-threading.
-static AOM_INLINE int compute_num_cdef_workers(AV1_COMP *cpi) {
+// Computes num_workers for cdef search module multi-threading.
+static AOM_INLINE int compute_num_cdef_search_workers(AV1_COMP *cpi) {
   return compute_num_enc_workers(cpi, cpi->oxcf.max_threads);
+}
+
+// Computes num_workers for cdef frame multi-threading.
+static AOM_INLINE int compute_num_cdef_frame_workers(AV1_COMP *cpi) {
+  if (cpi->oxcf.max_threads <= 1) return 1;
+
+  const int num_mi_rows =
+      (cpi->common.mi_params.mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+  return AOMMIN(num_mi_rows, cpi->oxcf.max_threads);
 }
 
 // Computes num_workers for loop-restoration multi-threading.
@@ -1966,9 +1975,9 @@ int compute_num_mod_workers(AV1_COMP *cpi, MULTI_THREADED_MODULES mod_name) {
       break;
     case MOD_LPF: num_mod_workers = compute_num_lf_workers(cpi); break;
     case MOD_CDEF_SEARCH:
-      num_mod_workers = compute_num_cdef_workers(cpi);
+      num_mod_workers = compute_num_cdef_search_workers(cpi);
       break;
-    case MOD_CDEF: num_mod_workers = compute_num_cdef_workers(cpi); break;
+    case MOD_CDEF: num_mod_workers = compute_num_cdef_frame_workers(cpi); break;
     case MOD_LR: num_mod_workers = compute_num_lr_workers(cpi); break;
     default: assert(0); break;
   }
