@@ -116,6 +116,24 @@
       "parentUuid": "5639cc6e_46f1ee98",
       "revId": "9fcd606b92ef1ecce5d6caddeb22036668f42d1d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d47d5b13_40b712c9",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-27T00:09:51Z",
+      "side": 1,
+      "message": "\u003e Done. Thanks a lot! I don\u0027t know how to generate the list of bug fixes. Could you describe how you do that in the release process document? Thanks.\n\u003e \n\nI just read through git log braeburn..celestia.\n\n\u003e 2875 is the Key \u0026 Value API. It was released in libaom 3.0.0. The commits made after libaom 3.0.0 were related to having aomenc use the new aom_codec_set_option() function.\n\u003e \n\u003e 2994 was cherry-picked to the braeburn branch for libaom 3.0.0.\n\u003e \n\nI missed that, thanks.\n\n\u003e Viewing of 2998-3000 is restricted, so I only list their bug numbers.\n\nThat\u0027s fine. I typically do that in the webp changelog for the miscellaneous ones:\nhttps://chromium.googlesource.com/webm/libwebp/+/refs/tags/v1.2.0\n\nIt\u0027s up to you if you want to condense things at all.",
+      "parentUuid": "642afced_695abf6d",
+      "revId": "9fcd606b92ef1ecce5d6caddeb22036668f42d1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
