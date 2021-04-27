@@ -34,6 +34,24 @@
       "parentUuid": "4289efcf_06d59576",
       "revId": "e9f07358b077253b898e60633e1b5ef51e13b773",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a790e55_0da3a5f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-27T20:48:57Z",
+      "side": 1,
+      "message": "Great. Thanks! This CL depends on another CL, but it is actually independent. If you can break the dependency, please go ahead and submit this CL first.",
+      "parentUuid": "0c1cff93_8d51743f",
+      "revId": "e9f07358b077253b898e60633e1b5ef51e13b773",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
