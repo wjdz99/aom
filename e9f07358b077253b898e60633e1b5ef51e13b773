@@ -16,6 +16,24 @@
       "message": "Thanks for the CL! Could you please test setting both CONFIG_TUNE_VMAF and CONFIG_TUNE_BUTTERAUGLI at the same time?",
       "revId": "e9f07358b077253b898e60633e1b5ef51e13b773",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c1cff93_8d51743f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-04-27T20:45:42Z",
+      "side": 1,
+      "message": "No problem! I tested it. They can work at the same time.",
+      "parentUuid": "4289efcf_06d59576",
+      "revId": "e9f07358b077253b898e60633e1b5ef51e13b773",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
