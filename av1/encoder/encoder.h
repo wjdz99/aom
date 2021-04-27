@@ -3317,6 +3317,11 @@ static INLINE int av1_pixels_to_mi(int pixels) {
   return ALIGN_POWER_OF_TWO(pixels, 3) >> MI_SIZE_LOG2;
 }
 
+static AOM_INLINE int use_ml_model_to_decide_alt_ref(
+    const RateControlCfg *rc_cfg) {
+  return (rc_cfg->mode == AOM_Q) && (rc_cfg->cq_level <= 200);
+}
+
 static AOM_INLINE int is_psnr_calc_enabled(const AV1_COMP *cpi) {
   const AV1_COMMON *const cm = &cpi->common;
 
