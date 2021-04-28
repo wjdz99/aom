@@ -589,4 +589,31 @@ INSTANTIATE_TEST_SUITE_P(
                    static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_8)));
 
 #endif  // HAVE_AVX
+
+TEST(QuantizeTest, QuantizeFpSimple) {
+  // Here we use a uniform quantizer as an example
+  const int16_t dequant_ptr[2] = { 78, 93 };  // quantize step
+  const int16_t round_ptr[2] = { 39, 46 };    // round ~= dequant / 2
+
+  // quant ~= 2^16 / dequant. This is a 16-bit fixed point representation of the
+  // inverse of quantize step.
+  const int16_t quant_ptr[2] = { 840, 704 };
+  int log_scale = 0;
+  int coeff_count = 4;
+  const tran_low_t coeff_ptr[4] = { -449, 624, -14, 24 };
+  const tran_low_t ref_qcoeff_ptr[4] = { -6, 7, 0, 0 };
+  const tran_low_t ref_dqcoeff_ptr[4] = { -468, 651, 0, 0 };
+  const int16_t scan[4] = { 0, 1, 2, 3 };
+  tran_low_t qcoeff_ptr[4];
+  tran_low_t dqcoeff_ptr[4];
+  int eob =
+      av1_quantize_fp_simple(quant_ptr, dequant_ptr, round_ptr, log_scale, scan,
+                             coeff_count, coeff_ptr, qcoeff_ptr, dqcoeff_ptr);
+  EXPECT_EQ(eob, 2);
+  for (int i = 0; i < coeff_count; ++i) {
+    EXPECT_EQ(qcoeff_ptr[i], ref_qcoeff_ptr[i]);
+    EXPECT_EQ(dqcoeff_ptr[i], ref_dqcoeff_ptr[i]);
+  }
+}
+
 }  // namespace
