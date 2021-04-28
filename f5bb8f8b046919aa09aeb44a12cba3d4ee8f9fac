@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25aed216_0691f23f",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-28T22:23:07Z",
+      "side": 1,
+      "message": "did you want to add this control in this change? some of the open questions in the header could be marked with TODO()",
+      "revId": "f5bb8f8b046919aa09aeb44a12cba3d4ee8f9fac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ff25499_8aeb4bdc",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-28T22:23:07Z",
+      "side": 1,
+      "message": "This works and is similar to libvpx. In looking at that though we didn\u0027t need to go with a control at all and could have added a new api function to handle things similar to the external frame buffers. The controls are meant to provide binary compatibility but in this case you need to add new types so that breaks it on its own.",
+      "range": {
+        "startLine": 163,
+        "startChar": 37,
+        "endLine": 163,
+        "endChar": 42
+      },
+      "revId": "f5bb8f8b046919aa09aeb44a12cba3d4ee8f9fac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
