@@ -2424,8 +2424,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         p_rc->use_arf_in_this_kf_group && (i < gf_cfg->lag_in_frames) &&
         (i >= MIN_GF_INTERVAL);
 
+    FIRSTPASS_STATS *total_stats = twopass->stats_buf_ctx->total_stats;
     // TODO(urvang): Improve and use model for VBR, CQ etc as well.
-    if (use_alt_ref && rc_cfg->mode == AOM_Q && rc_cfg->cq_level <= 200) {
+    if (use_alt_ref &&
+        use_ml_model_to_decide_alt_ref(rc_cfg->mode, rc_cfg->cq_level) &&
+        !IS_FP_STATS_INVALID(total_stats)) {
       aom_clear_system_state();
       float features[21];
       get_features_from_gf_stats(

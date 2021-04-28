@@ -54,6 +54,8 @@
 #define NCOUNT_INTRA_THRESH 8192
 #define NCOUNT_INTRA_FACTOR 3
 
+#define INVALID_FP_STATS -1
+
 static AOM_INLINE void output_stats(FIRSTPASS_STATS *stats,
                                     struct aom_codec_pkt_list *pktlist) {
   struct aom_codec_cx_pkt pkt;
@@ -121,9 +123,11 @@ void av1_accumulate_stats(FIRSTPASS_STATS *section,
   section->frame_avg_wavelet_energy += frame->frame_avg_wavelet_energy;
   section->coded_error += frame->coded_error;
   section->sr_coded_error += frame->sr_coded_error;
+  section->tr_coded_error += frame->tr_coded_error;
   section->pcnt_inter += frame->pcnt_inter;
   section->pcnt_motion += frame->pcnt_motion;
   section->pcnt_second_ref += frame->pcnt_second_ref;
+  section->pcnt_third_ref += frame->pcnt_third_ref;
   section->pcnt_neutral += frame->pcnt_neutral;
   section->intra_skip_pct += frame->intra_skip_pct;
   section->inactive_zone_rows += frame->inactive_zone_rows;
@@ -354,6 +358,13 @@ static double raw_motion_error_stdev(int *raw_motion_err_list,
   // frame as the reference.
   raw_err_stdev = sqrt(raw_err_stdev / raw_motion_err_counts);
   return raw_err_stdev;
+}
+
+static AOM_INLINE int do_third_ref_motion_search(const RateControlCfg *rc_cfg,
+                                                 const GFConfig *gf_cfg) {
+  return use_ml_model_to_decide_alt_ref(rc_cfg->mode, rc_cfg->cq_level) &&
+         can_disable_altref(gf_cfg->lag_in_frames, gf_cfg->enable_auto_arf,
+                            gf_cfg->gf_min_pyr_height);
 }
 
 #define UL_INTRA_THRESH 50
@@ -682,29 +693,38 @@ static int firstpass_inter_prediction(
 
     // Motion search in 3rd reference frame.
     int alt_motion_error = motion_error;
-    if (alt_ref_frame != NULL) {
-      FULLPEL_MV tmp_mv = kZeroFullMv;
-      xd->plane[0].pre[0].buf = alt_ref_frame->y_buffer + alt_ref_frame_yoffset;
-      xd->plane[0].pre[0].stride = alt_ref_frame->y_stride;
-      alt_motion_error =
-          get_prediction_error_bitdepth(is_high_bitdepth, bitdepth, bsize,
-                                        &x->plane[0].src, &xd->plane[0].pre[0]);
-      first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &alt_motion_error);
-    }
-    if (alt_motion_error < motion_error && alt_motion_error < gf_motion_error &&
-        alt_motion_error < this_intra_error) {
-      ++stats->third_ref_count;
-    }
-    // In accumulating a score for the 3rd reference frame take the
-    // best of the motion predicted score and the intra coded error
-    // (just as will be done for) accumulation of "coded_error" for
-    // the last frame.
-    if (alt_ref_frame != NULL) {
-      stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
-    } else {
-      // TODO(chengchen): I believe logically this should also be changed to
-      // stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error).
-      stats->tr_coded_error += motion_error;
+    // The ML model to predict if a flat structure (golden-frame only structure
+    // without ALT-REF and Internal-ARFs) is better requires stats based on
+    // motion search w.r.t 3rd reference frame in the first pass. As the ML
+    // model is enabled under certain conditions, motion search in 3rd reference
+    // frame is also enabled for those cases.
+    if (do_third_ref_motion_search(&cpi->oxcf.rc_cfg, &cpi->oxcf.gf_cfg)) {
+      if (alt_ref_frame != NULL) {
+        FULLPEL_MV tmp_mv = kZeroFullMv;
+        xd->plane[0].pre[0].buf =
+            alt_ref_frame->y_buffer + alt_ref_frame_yoffset;
+        xd->plane[0].pre[0].stride = alt_ref_frame->y_stride;
+        alt_motion_error = get_prediction_error_bitdepth(
+            is_high_bitdepth, bitdepth, bsize, &x->plane[0].src,
+            &xd->plane[0].pre[0]);
+        first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &alt_motion_error);
+      }
+      if (alt_motion_error < motion_error &&
+          alt_motion_error < gf_motion_error &&
+          alt_motion_error < this_intra_error) {
+        ++stats->third_ref_count;
+      }
+      // In accumulating a score for the 3rd reference frame take the
+      // best of the motion predicted score and the intra coded error
+      // (just as will be done for) accumulation of "coded_error" for
+      // the last frame.
+      if (alt_ref_frame != NULL) {
+        stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
+      } else {
+        // TODO(chengchen): I believe logically this should also be changed to
+        // stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error).
+        stats->tr_coded_error += motion_error;
+      }
     }
 
     // Reset to last frame as reference buffer.
@@ -850,6 +870,11 @@ static void update_firstpass_stats(AV1_COMP *cpi,
   // something less than the full time between subsequent values of
   // cpi->source_time_stamp.
   fps.duration = (double)ts_duration;
+
+  if (do_third_ref_motion_search(&cpi->oxcf.rc_cfg, &cpi->oxcf.gf_cfg)) {
+    fps.pcnt_third_ref = INVALID_FP_STATS;
+    fps.tr_coded_error = INVALID_FP_STATS;
+  }
 
   // We will store the stats inside the persistent twopass struct (and NOT the
   // local variable 'fps'), and then cpi->output_pkt_list will point to it.

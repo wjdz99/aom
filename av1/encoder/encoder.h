@@ -82,6 +82,9 @@ extern "C" {
 // Number of frames required to test for scene cut detection
 #define SCENE_CUT_KEY_TEST_INTERVAL 16
 
+#define IS_FP_STATS_INVALID(fp_stats) \
+  ((fp_stats->tr_coded_error < 0) || (fp_stats->pcnt_third_ref < 0))
+
 // Rational number with an int64 numerator
 // This structure holds a fractional value
 typedef struct aom_rational64 {
@@ -3416,6 +3419,18 @@ static INLINE FRAME_UPDATE_TYPE get_frame_update_type(const GF_GROUP *gf_group,
 
 static INLINE int av1_pixels_to_mi(int pixels) {
   return ALIGN_POWER_OF_TWO(pixels, 3) >> MI_SIZE_LOG2;
+}
+
+static AOM_INLINE int use_ml_model_to_decide_alt_ref(enum aom_rc_mode mode,
+                                                     int cq_level) {
+  return (mode == AOM_Q && cq_level <= 200);
+}
+
+static AOM_INLINE int can_disable_altref(int lag_in_frames,
+                                         bool enable_auto_arf,
+                                         int gf_min_pyr_height) {
+  return is_altref_enabled(lag_in_frames, enable_auto_arf) &&
+         (gf_min_pyr_height == 0);
 }
 
 static AOM_INLINE int is_psnr_calc_enabled(const AV1_COMP *cpi) {
