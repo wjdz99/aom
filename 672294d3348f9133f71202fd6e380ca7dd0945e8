@@ -89,6 +89,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e229258_ca1893f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-28T18:14:16Z",
+      "side": 1,
+      "message": "Cheng: Please consider my review as supplemental, because I only checked a few aspects of the CL quickly.",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28246e5e_2b7eb85e",
@@ -243,6 +260,103 @@
         "startChar": 14,
         "endLine": 31,
         "endChar": 34
+      },
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8d202cb_3ce1a4a2",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-28T18:14:16Z",
+      "side": 1,
+      "message": "This sentence looks like an incomplete draft.",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae018ea0_bf0fbb3f",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-28T18:14:16Z",
+      "side": 1,
+      "message": "Please add a WARNING or NOTE comment to say that new members may be added to this struct, but they must be added after existing members, and existing members must not be removed. Otherwise we need to bump the major version of libaom.\n\nThe reason this struct can be extended without breaking compatibility is that this struct is only allocated and provided (read only) to external model.",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10fc4ea1_34519632",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-28T18:14:16Z",
+      "side": 1,
+      "message": "This struct is filled in by libaom clients. If you think you may change the definition of this struct in the future, we should design this struct to allow it to be extended without breaking compatibility.",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d7068e1_0d93e74d",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-28T18:14:16Z",
+      "side": 1,
+      "message": "Nit: This doesn\u0027t really matter, but usually \"_ptr\" is omitted in the names of pointer parameters. I am just wondering why only this pointer parameter has \"_ptr\" in its name.",
+      "range": {
+        "startLine": 95,
+        "startChar": 40,
+        "endLine": 95,
+        "endChar": 44
+      },
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c50ab1a4_53aae9b0",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-28T18:14:16Z",
+      "side": 1,
+      "message": "IMPORTANT: Since aom_ext_part_model_t is already a pointer (void *, see line 31), does this parameter need to be a pointer to aom_ext_part_model_t?",
+      "range": {
+        "startLine": 95,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 26
       },
       "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
