@@ -54,6 +54,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "439a3c9a_a4347398",
+        "filename": "test/end_to_end_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-28T15:52:18Z",
+      "side": 1,
+      "message": "The actual threshold corresponding to speed 7, 8 of kRealTime are 30.5 db, 30.4 db respectively. In the current patch, we have mentioned thresholds of speed 7, 8 are the same as speed 6, it will result in a failure when tested for kRealTime speed 7 and 8.",
+      "parentUuid": "4d241b37_9ebefbc4",
+      "revId": "d5bd82ac0f50cd0fa4022616935c043d90042041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ee589b16_050c73c4",
         "filename": "test/end_to_end_test.cc",
         "patchSetId": 7
@@ -65,6 +83,24 @@
       "writtenOn": "2021-04-27T22:50:30Z",
       "side": 1,
       "message": "[Just a comment. No change requested.] Since the real-time mode only uses speeds 6-9, the testing of speeds 1-5 in the real-time mode is not useful, and we are not testing the speeds that are actually used in real-time mode. This means the real-time mode should also be tested separately, at speeds 6, 7, 8, 9.",
+      "revId": "d5bd82ac0f50cd0fa4022616935c043d90042041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9119cc62_2c7d8f1a",
+        "filename": "test/end_to_end_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-28T15:52:18Z",
+      "side": 1,
+      "message": "Yes Wan-Teh, we too have the same observations as you highlighted.",
+      "parentUuid": "ee589b16_050c73c4",
       "revId": "d5bd82ac0f50cd0fa4022616935c043d90042041",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -82,6 +118,24 @@
       "writtenOn": "2021-04-27T22:50:30Z",
       "side": 1,
       "message": "Please test speeds 2, 4, 6, 8 here. I just noticed that the non-large test only test one test vector, so the large test should test all test vectors at speed 6.",
+      "revId": "d5bd82ac0f50cd0fa4022616935c043d90042041",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c63898fe_73fb8825",
+        "filename": "test/end_to_end_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-04-28T15:52:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "deab5157_11856482",
       "revId": "d5bd82ac0f50cd0fa4022616935c043d90042041",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
