@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cdc1bef_1c38cdb7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-04-28T18:55:13Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nIn this patch, av1_get_global_headers, av1_get_seq_level_idx and set_bitstream_level_tier are cleaned up because elements of ppi were accessed in these functions through cpi. ppi is now passed to these functions instead of cpi.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. \n\nPlease review.",
+      "revId": "49041e757d4a87dfff216fecb42cc8a480843f01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
