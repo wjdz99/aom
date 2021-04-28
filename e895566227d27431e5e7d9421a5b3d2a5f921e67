@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac3af66e_30962627",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3932,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-28T15:38:56Z",
+      "side": 1,
+      "message": "This observation is applicable for good quality preset as well. In general, the issue is seen in all the bitstreams coded with very low bitrates.\n\nAs per your suggestion for sorting of tile jobs, txfm coeff (x-\u003ecb_coef_buff) can be used to choose between single thread and multithread paths. We shall experiment and modify the logic in a follow up patch. We plan to use absolute sum of txfm_coeffs as a metric for the same.",
+      "parentUuid": "8f2dcbff_7c3d93d1",
+      "range": {
+        "startLine": 3929,
+        "startChar": 0,
+        "endLine": 3932,
+        "endChar": 51
+      },
+      "revId": "e895566227d27431e5e7d9421a5b3d2a5f921e67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95477fcb_2b0dbc4d",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-04-27T21:50:40Z",
       "side": 1,
       "message": "If we want to estimate tile bitstream size, besides tile area, maybe also consider mode/residual info in each tile? For example, txfm coeff (x-\u003ecb_coef_buff). What do you think?\n\nDid you see performance was generally improved with this ranking?",
+      "range": {
+        "startLine": 1811,
+        "startChar": 14,
+        "endLine": 1811,
+        "endChar": 26
+      },
+      "revId": "e895566227d27431e5e7d9421a5b3d2a5f921e67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d131d47_b03c0b3e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1811,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-28T15:38:56Z",
+      "side": 1,
+      "message": "Thank you for the suggestion. We will consider the same in the follow up patch.\n\nYes, With area based tile ranking we observed ~5% module level improvement in MT performance for non-uniform tile configuration (1080p, --tile-width\u003d1,5,4,5 --tile-height\u003d1,3,2,3 with 4 threads for RT encoding).",
+      "parentUuid": "95477fcb_2b0dbc4d",
       "range": {
         "startLine": 1811,
         "startChar": 14,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7730374c_3266eb59",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1910,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-28T15:38:56Z",
+      "side": 1,
+      "message": "Thank you for pointing out this issue. We have updated in patchset 7.\n\ncpi-\u003eavailable_bs_size / 2 – 1 was added based on buffer fullness condition (cx_data_sz \u003e\u003d ctx-\u003ecx_data_sz / 2) used in encoder_encode() assuming that cpi-\u003eavailable_bs_size is equal to \u0027ctx-\u003ecx_data_sz\u0027. But we realized that cpi-\u003eavailable_bs_size is actually equal to \u0027cx_data_sz\u0027.",
+      "parentUuid": "c335c528_9ca119b9",
+      "range": {
+        "startLine": 1910,
+        "startChar": 24,
+        "endLine": 1910,
+        "endChar": 54
+      },
+      "revId": "e895566227d27431e5e7d9421a5b3d2a5f921e67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7a7341a_8f52f65e",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-04-27T21:50:40Z",
       "side": 1,
       "message": "Suspect this size could be much larger than the actual tile bitstream size? If it is true, would this affect memmove() performance if two tiles are stored far away from each other?",
+      "range": {
+        "startLine": 1921,
+        "startChar": 4,
+        "endLine": 1921,
+        "endChar": 15
+      },
+      "revId": "e895566227d27431e5e7d9421a5b3d2a5f921e67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a96559f3_c73069a5",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1921,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-28T15:38:56Z",
+      "side": 1,
+      "message": "The memmove() does not add significant overhead. From our experiments we measured that the memmove was taking \u003c ~0.1% of total encode time even for high bitrate encodes.",
+      "parentUuid": "a7a7341a_8f52f65e",
       "range": {
         "startLine": 1921,
         "startChar": 4,
