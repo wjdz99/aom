@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bba224f0_b9c4ce32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-04-28T01:11:27Z",
+      "side": 1,
+      "message": "Thanks for the thorough investigation and quick fix!\n\nLess relevant to this CL, how does the residual in palette mode differ from other prediction modes? Does it prefer identity transform more often?",
+      "revId": "6ea9ea260179fae8123c6af8d486105f0bf54cb9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
