@@ -177,6 +177,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "478766b5_32c6ca31",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T23:54:43Z",
+      "side": 1,
+      "message": "Thank you!\nI added an ABI version for it.",
+      "parentUuid": "a661030b_c73a5194",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9245cb70_60bf6a6c",

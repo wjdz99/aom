@@ -39,6 +39,48 @@
       },
       "revId": "f5bb8f8b046919aa09aeb44a12cba3d4ee8f9fac",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c5cbc62_b03c9639",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T23:54:43Z",
+      "side": 1,
+      "message": "The control is supposed to be added in following changes.",
+      "parentUuid": "25aed216_0691f23f",
+      "revId": "f5bb8f8b046919aa09aeb44a12cba3d4ee8f9fac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a82e96e_5c07ba07",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T23:54:43Z",
+      "side": 1,
+      "message": "I think a control could allow us to write a unit test that is similar to other existing tests.",
+      "parentUuid": "8ff25499_8aeb4bdc",
+      "range": {
+        "startLine": 163,
+        "startChar": 37,
+        "endLine": 163,
+        "endChar": 42
+      },
+      "revId": "f5bb8f8b046919aa09aeb44a12cba3d4ee8f9fac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
