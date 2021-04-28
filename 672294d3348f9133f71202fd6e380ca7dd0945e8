@@ -91,6 +91,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "28246e5e_2b7eb85e",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-28T17:47:44Z",
+      "side": 1,
+      "message": "like vpx, this interface should have its own abi value that contributes to the overall one.",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9245cb70_60bf6a6c",
         "filename": "aom/aom_external_partition.h",
         "patchSetId": 4
