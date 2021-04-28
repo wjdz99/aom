@@ -682,7 +682,18 @@ static int firstpass_inter_prediction(
 
     // Motion search in 3rd reference frame.
     int alt_motion_error = motion_error;
-    if (alt_ref_frame != NULL) {
+    GFConfig *const gf_cfg = &cpi->oxcf.gf_cfg;
+    RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
+    // The ML model to predict if a flat structure (golden-frame only structure
+    // without ALT-REF and Internal-ARFs) is better requires stats based on
+    // motion search w.r.t 3rd reference frame in the first pass. As the ML
+    // model is enabled under certain conditions, motion search in 3rd reference
+    // frame is also enabled for those cases.
+    int do_third_ref_motion_search =
+        alt_ref_frame != NULL && rc_cfg->mode == AOM_Q &&
+        rc_cfg->cq_level <= 200 && !gf_cfg->gf_min_pyr_height &&
+        is_altref_enabled(gf_cfg->lag_in_frames, gf_cfg->enable_auto_arf);
+    if (do_third_ref_motion_search) {
       FULLPEL_MV tmp_mv = kZeroFullMv;
       xd->plane[0].pre[0].buf = alt_ref_frame->y_buffer + alt_ref_frame_yoffset;
       xd->plane[0].pre[0].stride = alt_ref_frame->y_stride;
@@ -699,7 +710,7 @@ static int firstpass_inter_prediction(
     // best of the motion predicted score and the intra coded error
     // (just as will be done for) accumulation of "coded_error" for
     // the last frame.
-    if (alt_ref_frame != NULL) {
+    if (do_third_ref_motion_search) {
       stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
     } else {
       // TODO(chengchen): I believe logically this should also be changed to
