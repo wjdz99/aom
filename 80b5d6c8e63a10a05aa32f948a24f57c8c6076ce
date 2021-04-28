@@ -73,6 +73,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "e09790f9_84e849b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-04-28T14:40:33Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nAs per our understanding, \u0027e_mbd.tile_ctx\u0027 was mostly used in encoding stage except the following 2 places:\n\n1. av1_collect_mv_stats(): In this function, \u0027e_mbd.tile_ctx\u0027 is initialized with cm-\u003efc. Hence this should not result in any MT mismatch.\n2. av1_fill_lr_rates(): For this call, \u0027e_mbd.tile_ctx\u0027 was used. As loop restoration context is not updated during encode stage, passing cm-\u003efc was resulting in bit-exact behavior, at the same time resolving MT crash issue.\n\nPlease let us know your opinion on our understanding.\n\nThanks \u0026 Regards,\nVenkata",
+      "parentUuid": "7810725c_528f063c",
+      "revId": "80b5d6c8e63a10a05aa32f948a24f57c8c6076ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fe007c91_825b4c48",
         "filename": "av1/encoder/pickrst.c",
         "patchSetId": 2
