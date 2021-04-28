@@ -106,6 +106,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "46456a86_fa3fa8e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T18:47:20Z",
+      "side": 1,
+      "message": "Thanks for the review.",
+      "parentUuid": "4e229258_ca1893f9",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28246e5e_2b7eb85e",
@@ -119,6 +137,24 @@
       "writtenOn": "2021-04-28T17:47:44Z",
       "side": 1,
       "message": "like vpx, this interface should have its own abi value that contributes to the overall one.",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "110c9832_a247c72b",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T18:47:20Z",
+      "side": 1,
+      "message": "Could you point me to an example?",
+      "parentUuid": "28246e5e_2b7eb85e",
       "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -282,6 +318,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8eb3aad5_37e1de08",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T18:47:20Z",
+      "side": 1,
+      "message": "Yes. The \"func()\" has not been defined yet. So I just leave it as a placeholder.",
+      "parentUuid": "b8d202cb_3ce1a4a2",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ae018ea0_bf0fbb3f",
@@ -299,6 +353,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "deb61aa9_91934fd8",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T18:47:20Z",
+      "side": 1,
+      "message": "Thanks, that\u0027s a good suggestion.\nI add a NOTE.",
+      "parentUuid": "ae018ea0_bf0fbb3f",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "10fc4ea1_34519632",
@@ -312,6 +384,24 @@
       "writtenOn": "2021-04-28T18:14:16Z",
       "side": 1,
       "message": "This struct is filled in by libaom clients. If you think you may change the definition of this struct in the future, we should design this struct to allow it to be extended without breaking compatibility.",
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67c38508_f733b544",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T18:47:20Z",
+      "side": 1,
+      "message": "I also add a NOTE for it.",
+      "parentUuid": "10fc4ea1_34519632",
       "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -357,6 +447,54 @@
         "startChar": 4,
         "endLine": 95,
         "endChar": 26
+      },
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b268f4bd_3b9b4783",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T18:47:20Z",
+      "side": 1,
+      "message": "You\u0027re right. It should be aom_ext_par_model_t only, except the one in aom_ext_part_create_model_fn_t.",
+      "parentUuid": "c50ab1a4_53aae9b0",
+      "range": {
+        "startLine": 95,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 26
+      },
+      "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2d74808_69bc3884",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-04-28T18:47:20Z",
+      "side": 1,
+      "message": "I removed \"_ptr\" suffix.",
+      "parentUuid": "8d7068e1_0d93e74d",
+      "range": {
+        "startLine": 95,
+        "startChar": 40,
+        "endLine": 95,
+        "endChar": 44
       },
       "revId": "672294d3348f9133f71202fd6e380ca7dd0945e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
