@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cc1a2a6_7ae45b65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-04-28T18:56:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nIn this patch, the initializations of seq_params have been moved out to new functions (init_config_seq(), av1_change_config_seq() and av1_update_film_grain_parameters_seq()) that get called during creation of ppi (av1_create_primary_compressor()). To facilitate this split, number_temporal_layers, number_spatial_layers are also moved from AV1_COMMON to AV1_PRIMARY and AV1_Decoder.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc. \n\nPlease review.",
+      "revId": "119c9c03118b40348a34fa7ccc549bd39da6a97d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
