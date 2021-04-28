@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fed05b5d_7862d49e",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1711,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-28T16:15:56Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nWhile reviewing this CL, I tried to study related code by searching for \"-\u003emode_costs, \" in the source tree. I found the following two calls to av1_fill_mode_rates(), whose second and third parameters are the same as the parameters of av1_fill_lr_rates():\n\nav1/encoder/encodeframe_utils.c:\n\n      av1_fill_mode_rates(cm, \u0026x-\u003emode_costs, xd-\u003etile_ctx);\n\nav1/encoder/rd.c:\n\n    av1_fill_mode_rates(cm, \u0026x-\u003emode_costs, cm-\u003efc);\n\nCould you please review these two av1_fill_mode_rates() calls and make sure we are passing the correct third argument to them?\n\nThank you!",
+      "revId": "e7acade5ae8e12c18d1a34b123abd0f838e8272c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
