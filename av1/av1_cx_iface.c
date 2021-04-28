@@ -616,6 +616,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
     const size_t packet_sz = sizeof(FIRSTPASS_STATS);
     const int n_packets = (int)(cfg->rc_twopass_stats_in.sz / packet_sz);
     const FIRSTPASS_STATS *stats;
+    const int cq_level = av1_quantizer_to_qindex(extra_cfg->cq_level);
 
     if (cfg->rc_twopass_stats_in.buf == NULL)
       ERROR("rc_twopass_stats_in.buf not set.");
@@ -631,6 +632,15 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 
     if ((int)(stats->count + 0.5) != n_packets - 1)
       ERROR("rc_twopass_stats_in missing EOS stats packet");
+
+    if (use_ml_model_to_decide_alt_ref(cfg->rc_end_usage, cq_level) &&
+        can_disable_altref(cfg->g_lag_in_frames, extra_cfg->enable_auto_alt_ref,
+                           extra_cfg->gf_min_pyr_height) &&
+        IS_FP_STATS_INVALID(stats))
+      fprintf(stderr,
+              "Warning: First pass stats required in the ML model to predict "
+              "a flat GOP structure is invalid. Continuing encoding by "
+              "disabling the ML model\n");
   }
 
   if (cfg->g_profile <= (unsigned int)PROFILE_1 &&

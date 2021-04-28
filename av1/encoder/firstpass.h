@@ -30,6 +30,9 @@ extern "C" {
 
 #define VLOW_MOTION_THRESHOLD 950
 
+#define IS_FP_STATS_INVALID(fp_stats) \
+  ((fp_stats->tr_coded_error < 0) || (fp_stats->pcnt_third_ref < 0))
+
 /*!
  * \brief The stucture of acummulated frame stats in the first pass.
  */

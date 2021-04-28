@@ -3418,6 +3418,18 @@ static INLINE int av1_pixels_to_mi(int pixels) {
   return ALIGN_POWER_OF_TWO(pixels, 3) >> MI_SIZE_LOG2;
 }
 
+static AOM_INLINE int use_ml_model_to_decide_alt_ref(enum aom_rc_mode mode,
+                                                     int cq_level) {
+  return (mode == AOM_Q && cq_level <= 200);
+}
+
+static AOM_INLINE int can_disable_altref(int lag_in_frames,
+                                         bool enable_auto_arf,
+                                         int gf_min_pyr_height) {
+  return is_altref_enabled(lag_in_frames, enable_auto_arf) &&
+         (gf_min_pyr_height == 0);
+}
+
 static AOM_INLINE int is_psnr_calc_enabled(const AV1_COMP *cpi) {
   const AV1_COMMON *const cm = &cpi->common;
 
