@@ -16,6 +16,69 @@
       "message": "Hi Yunqing,\nThis patch moves error from AV1_COMP to AV1_PRIMARY and AV1Decoder. This adds error handling in av1_create_primary_compressor. This change also facilitates future CLs where initialization of seq_params is split from frame level initializations.\n\nCurrently, cpi and cpi_lap had their separate error because of the structural design. So, error.setjmp needed to be set and reset for them separately in encoder_encode. With this patch, since error is moved to primary context, all the cpi\u0027s can refer to the same error variable and only 1 error.setjmp needs to be set/reset.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. Decoder conformance is verified using --test-decode\u003dfatal and sanitizer tests.\n\nPlease review.",
       "revId": "fd888f96559a8da9b526a7aff8c345a50588d604",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "696d8487_adbff712",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-28T20:07:38Z",
+      "side": 1,
+      "message": "Hi Nithya and Ranjit, the error handling part is tricky. Could you take a close look at this CL and provide your opinion?",
+      "revId": "fd888f96559a8da9b526a7aff8c345a50588d604",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa0bd60c_25526735",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-28T20:07:38Z",
+      "side": 1,
+      "message": "When pbi is available, should we use it directly? Namely, pbi-\u003eerror.jmp? Same for other places in this file and other decoder files. May also apply to encoder files. What do you think?",
+      "range": {
+        "startLine": 106,
+        "startChar": 13,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "fd888f96559a8da9b526a7aff8c345a50588d604",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f31af15_cb01c941",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-28T20:07:38Z",
+      "side": 1,
+      "message": "This is moved to av1_create_primary_compressor(). av1_remove_primary_compressor(ppi) should also include av1_remove_compressor(cpi), right? Should this part be removed? We can discuss it.",
+      "range": {
+        "startLine": 917,
+        "startChar": 2,
+        "endLine": 921,
+        "endChar": 3
+      },
+      "revId": "fd888f96559a8da9b526a7aff8c345a50588d604",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
