@@ -16,6 +16,24 @@
       "message": "Thank you for the review.\nPlease check our comments.",
       "revId": "6f976f69d21b7384ae13e183deba01fefd115c93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b84f969_1c8a3acc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-28T16:34:28Z",
+      "side": 1,
+      "message": "Thanks for the reply. This looks fine. Any improvement can be submitted later.",
+      "parentUuid": "58b4b5aa_507a7fac",
+      "revId": "6f976f69d21b7384ae13e183deba01fefd115c93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
