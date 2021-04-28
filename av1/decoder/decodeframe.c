@@ -911,6 +911,18 @@ static AOM_INLINE void predict_inter_block(AV1_COMMON *const cm,
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
   for (int ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+#if CONFIG_NEW_REF_SIGNALING
+    const MV_REFERENCE_FRAME frame = mbmi->ref_frame_nrs[ref];
+    if (frame == INTRA_FRAME_NRS) {
+      assert(is_intrabc_block(mbmi));
+      assert(ref == 0);
+    } else {
+      const RefCntBuffer *ref_buf = get_ref_frame_buf_nrs(cm, frame);
+      const struct scale_factors *ref_scale_factors =
+          get_ref_scale_factors_const_nrs(cm, frame);
+
+      xd->block_ref_scale_factors[ref] = ref_scale_factors;
+#else
     const MV_REFERENCE_FRAME frame = mbmi->ref_frame[ref];
     if (frame < LAST_FRAME) {
       assert(is_intrabc_block(mbmi));
@@ -922,6 +934,7 @@ static AOM_INLINE void predict_inter_block(AV1_COMMON *const cm,
           get_ref_scale_factors_const(cm, frame);
 
       xd->block_ref_scale_factors[ref] = ref_scale_factors;
+#endif  // CONFIG_NEW_REF_SIGNALING
       av1_setup_pre_planes(xd, ref, &ref_buf->buf, mi_row, mi_col,
                            ref_scale_factors, num_planes,
                            &mbmi->chroma_ref_info);
