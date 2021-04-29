@@ -233,7 +233,7 @@ static AV1_DENOISER_DECISION perform_motion_compensation(
         frame == ALTREF_FRAME ||
         (frame == GOLDEN_FRAME && use_gf_temporal_ref) ||
         (frame != LAST_FRAME &&
-         ((ctx->zeromv_lastref_sse<(5 * ctx->zeromv_sse)>> 2) ||
+         ((ctx->zeromv_lastref_sse < (5 * ctx->zeromv_sse) >> 2) ||
           denoiser->denoising_level >= kDenHigh))) {
       frame = LAST_FRAME;
       ctx->newmv_sse = ctx->zeromv_lastref_sse;
@@ -349,7 +349,7 @@ void av1_denoiser_denoise(AV1_COMP *cpi, MACROBLOCK *mb, int mi_row, int mi_col,
         &cpi->common, denoiser, mb, bs, increase_denoising, mi_row, mi_col, ctx,
         motion_magnitude, &zeromv_filter, cpi->svc.number_spatial_layers,
         cpi->source->y_width, cpi->svc.ref_idx[0], cpi->svc.ref_idx[3],
-        cpi->use_svc, cpi->svc.spatial_layer_id, use_gf_temporal_ref);
+        cpi->ppi->use_svc, cpi->svc.spatial_layer_id, use_gf_temporal_ref);
 
   if (decision == FILTER_BLOCK) {
     decision = av1_denoiser_filter(src.buf, src.stride, mc_avg_start,
@@ -689,8 +689,9 @@ int64_t av1_scale_acskip_thresh(int64_t threshold,
                                 AV1_DENOISER_LEVEL noise_level, int abs_sumdiff,
                                 int temporal_layer_id) {
   if (noise_level >= kDenLow && abs_sumdiff < 5)
-    return threshold *=
-           (noise_level == kDenLow) ? 2 : (temporal_layer_id == 2) ? 10 : 6;
+    return threshold *= (noise_level == kDenLow)   ? 2
+                        : (temporal_layer_id == 2) ? 10
+                                                   : 6;
   else
     return threshold;
 }
@@ -724,7 +725,7 @@ void av1_denoiser_update_ref_frame(AV1_COMP *const cpi) {
          (cpi->common.width != cpi->resize_pending_params.width ||
           cpi->common.height != cpi->resize_pending_params.height));
 
-    if (cpi->use_svc) {
+    if (cpi->ppi->use_svc) {
 // TODO(kyslov) Enable when SVC temporal denosing is implemented
 #if 0
       const int svc_buf_shift =
