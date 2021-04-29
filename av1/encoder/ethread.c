@@ -28,6 +28,11 @@ static AOM_INLINE void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
   for (int i = 0; i < REFERENCE_MODES; i++)
     td->rd_counts.comp_pred_diff[i] += td_t->rd_counts.comp_pred_diff[i];
 
+#if CONFIG_NEW_REF_SIGNALING
+  for (int i = 0; i < MAX_REF_FRAMES_NRS; i++)
+    td->rd_counts.global_motion_used_nrs[i] +=
+        td_t->rd_counts.global_motion_used_nrs[i];
+#endif  // CONFIG_NEW_REF_SIGNALING
   for (int i = 0; i < REF_FRAMES; i++)
     td->rd_counts.global_motion_used[i] +=
         td_t->rd_counts.global_motion_used[i];
@@ -1334,7 +1339,11 @@ static AOM_INLINE int get_next_gm_job(AV1_COMP *cpi, int *frame_idx,
   int8_t cur_frame_to_process = job_info->next_frame_to_process[cur_dir];
 
   if (cur_frame_to_process < total_refs && !job_info->early_exit[cur_dir]) {
+#if CONFIG_NEW_REF_SIGNALING
+    *frame_idx = gm_info->reference_frames_nrs[cur_dir][cur_frame_to_process].frame;
+#else
     *frame_idx = gm_info->reference_frames[cur_dir][cur_frame_to_process].frame;
+#endif  // CONFIG_NEW_REF_SIGNALING
     job_info->next_frame_to_process[cur_dir] += 1;
     return 1;
   }
@@ -1411,6 +1420,13 @@ static int gm_mt_worker_hook(void *arg1, void *unused) {
     init_gm_thread_data(gm_info, gm_thread_data);
 
     // Compute global motion for the given ref_buf_idx.
+#if CONFIG_NEW_REF_SIGNALING
+    av1_compute_gm_for_valid_ref_frames_nrs(
+        cpi, gm_info->ref_buf_nrs, ref_buf_idx, gm_info->num_src_corners,
+        gm_info->src_corners, gm_info->src_buffer,
+        gm_thread_data->params_by_motion, gm_thread_data->segment_map,
+        gm_info->segment_map_w, gm_info->segment_map_h);
+#endif  // CONFIG_NEW_REF_SIGNALING
     av1_compute_gm_for_valid_ref_frames(
         cpi, gm_info->ref_buf, ref_buf_idx, gm_info->num_src_corners,
         gm_info->src_corners, gm_info->src_buffer,
@@ -1426,9 +1442,15 @@ static int gm_mt_worker_hook(void *arg1, void *unused) {
     // the remaining ref frames in that direction. The below exit is disabled
     // when ref frame distance w.r.t. current frame is zero. E.g.:
     // source_alt_ref_frame w.r.t. ARF frames.
+#if CONFIG_NEW_REF_SIGNALING
+    if (cpi->sf.gm_sf.prune_ref_frame_for_gm_search &&
+        gm_info->reference_frames_nrs[cur_dir][ref_frame_idx].distance != 0 &&
+        cpi->common.global_motion_nrs[ref_buf_idx].wmtype != ROTZOOM)
+#else
     if (cpi->sf.gm_sf.prune_ref_frame_for_gm_search &&
         gm_info->reference_frames[cur_dir][ref_frame_idx].distance != 0 &&
         cpi->common.global_motion[ref_buf_idx].wmtype != ROTZOOM)
+#endif  // CONFIG_NEW_REF_SIGNALING
       job_info->early_exit[cur_dir] = 1;
 
 #if CONFIG_MULTITHREAD
