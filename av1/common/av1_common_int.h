@@ -139,6 +139,10 @@ typedef struct RefCntBuffer {
   // Then, pool->frame_bufs[k].ref_count = n.
   int ref_count;
 
+#if CONFIG_NEW_REF_SIGNALING
+  unsigned int ref_order_hints_nrs[MAX_REF_FRAMES_NRS];
+  unsigned int ref_display_order_hint_nrs[MAX_REF_FRAMES_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
   unsigned int order_hint;
   unsigned int ref_order_hints[INTER_REFS_PER_FRAME];
 
@@ -161,6 +165,9 @@ typedef struct RefCntBuffer {
   // the sizes that can be derived from the buf structure)
   int width;
   int height;
+#if CONFIG_NEW_REF_SIGNALING
+  WarpedMotionParams global_motion_nrs[MAX_REF_FRAMES_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
   WarpedMotionParams global_motion[REF_FRAMES];
   int showable_frame;  // frame can be used as show existing frame in future
   uint8_t film_grain_params_present;
@@ -1082,6 +1089,14 @@ typedef struct AV1Common {
    */
   DeltaQInfo delta_q_info;
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Global motion parameters for each reference frame in new ref signaling
+   * experiment.
+   */
+  WarpedMotionParams global_motion_nrs[REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   /*!
    * Global motion parameters for each reference frame.
    */
@@ -1434,7 +1449,11 @@ static INLINE void check_wmmat(WarpedMotionParams *params) {
 
 static INLINE int calculate_gm_ref_params_scaling_distance(
     const AV1_COMMON *const cm, int frame) {
+#if CONFIG_NEW_REF_SIGNALING
+  const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, frame);
+#else
   const RefCntBuffer *const buf = get_ref_frame_buf(cm, frame);
+#endif  // CONFIG_NEW_REF_SIGNALING
   const int ref_order_hint = buf ? (int)buf->order_hint : -1;
   if (ref_order_hint < 0) return 0;
   return get_relative_dist(&cm->seq_params.order_hint_info, ref_order_hint,
@@ -1446,8 +1465,13 @@ static INLINE bool find_gm_ref_params(WarpedMotionParams *ref_params,
                                       int base_frame) {
   if (base_frame < 0) return false;
 
+#if CONFIG_NEW_REF_SIGNALING
+  memcpy(ref_params, &cm->global_motion_nrs[base_frame],
+         sizeof(WarpedMotionParams));
+#else
   memcpy(ref_params, &cm->global_motion[base_frame],
          sizeof(WarpedMotionParams));
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   double scale_factor;
   const int distance = calculate_gm_ref_params_scaling_distance(cm, cur_frame);

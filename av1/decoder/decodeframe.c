@@ -5801,6 +5801,15 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
   mismatch_move_frame_idx_r();
 #endif
 
+#if CONFIG_NEW_REF_SIGNALING
+  for (int i = 0; i < MAX_REF_FRAMES_NRS; ++i) {
+    cm->global_motion_nrs[i] = default_warp_params;
+    cm->cur_frame->global_motion_nrs[i] = default_warp_params;
+  }
+  xd->global_motion_nrs = cm->global_motion_nrs;
+
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
     cm->global_motion[i] = default_warp_params;
     cm->cur_frame->global_motion[i] = default_warp_params;

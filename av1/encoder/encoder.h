@@ -1410,6 +1410,9 @@ typedef struct TileDataEnc {
 typedef struct RD_COUNTS {
   int64_t comp_pred_diff[REFERENCE_MODES];
   // Stores number of 4x4 blocks using global motion per reference frame.
+#if CONFIG_NEW_REF_SIGNALING
+  int global_motion_used_nrs[MAX_REF_FRAMES_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
   int global_motion_used[REF_FRAMES];
   int compound_ref_used_flag;
   int skip_mode_used_flag;
@@ -1726,6 +1729,15 @@ typedef struct {
    */
   int type_cost[TRANS_TYPES];
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Array to store the cost for signalling a particular global motion model for
+   * each reference frame. gmparams_cost[i] stores the cost of signalling global
+   * motion for the ith reference frame.
+   */
+  int params_cost_nrs[MAX_REF_FRAMES_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   /*!
    * Array to store the cost for signalling a particular global motion model for
    * each reference frame. gmparams_cost[i] stores the cost of signalling global
@@ -1737,6 +1749,15 @@ typedef struct {
    * Flag to indicate if global motion search needs to be rerun.
    */
   bool search_done;
+
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Array of pointers to the frame buffers holding the nrs reference frames.
+   * ref_buf[i] stores the pointer to the reference frame of the ith
+   * reference frame type.
+   */
+  YV12_BUFFER_CONFIG *ref_buf_nrs[MAX_REF_FRAMES_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   /*!
    * Array of pointers to the frame buffers holding the reference frames.
@@ -1757,6 +1778,16 @@ typedef struct {
    */
   int num_ref_frames[MAX_DIRECTIONS];
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Array of structure which stores the valid reference frames from 
+   * new ref signaling experiment in past and
+   * future directions and their corresponding distance from the source frame.
+   * reference_frames[i][j] holds the jth valid reference frame type in the
+   * direction 'i' and its temporal distance from the source frame .
+   */
+  FrameDistPair reference_frames_nrs[MAX_DIRECTIONS][MAX_REF_FRAMES_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
   /*!
    * Array of structure which stores the valid reference frames in past and
    * future directions and their corresponding distance from the source frame.

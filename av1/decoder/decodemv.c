@@ -276,8 +276,17 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
   if (cm->features.switchable_motion_mode == 0) return SIMPLE_TRANSLATION;
   if (mbmi->skip_mode) return SIMPLE_TRANSLATION;
 
+#if CONFIG_NEW_REF_SIGNALING
+  const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed_nrs(
+      xd->global_motion_nrs, xd, mbmi, cm->features.allow_warped_motion);
+  const MOTION_MODE last_motion_mode_allowed2 = motion_mode_allowed(
+      xd->global_motion, xd, mbmi, cm->features.allow_warped_motion);
+  // TODO(sarahparker) Temporary assert
+  assert(last_motion_mode_allowed == last_motion_mode_allowed2);
+#else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
       xd->global_motion, xd, mbmi, cm->features.allow_warped_motion);
+#endif  // CONFIG_NEW_REF_SIGNALING
   int motion_mode;
 
   if (last_motion_mode_allowed == SIMPLE_TRANSLATION) return SIMPLE_TRANSLATION;
@@ -1361,10 +1370,19 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       break;
     }
     case GLOBALMV: {
+#if CONFIG_NEW_REF_SIGNALING
+      assert(is_same_wm_params(&cm->global_motion_nrs[ref_frame_nrs[0]], 
+            &cm->global_motion[ref_frame[0]]));
+      mv[0].as_int = gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs[0]],
+                                          features->fr_mv_precision, bsize,
+                                          xd->mi_col, xd->mi_row)
+                         .as_int;
+#else
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           features->fr_mv_precision, bsize,
                                           xd->mi_col, xd->mi_row)
                          .as_int;
+#endif  // CONFIG_NEW_REF_SIGNALING
       break;
     }
     case NEW_NEWMV:
@@ -1441,6 +1459,20 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif  // CONFIG_OPTFLOW_REFINEMENT
     {
       assert(is_compound);
+#if CONFIG_NEW_REF_SIGNALING
+      assert(is_same_wm_params(&cm->global_motion_nrs[ref_frame_nrs[0]], 
+            &cm->global_motion[ref_frame[0]]));
+      assert(is_same_wm_params(&cm->global_motion_nrs[ref_frame_nrs[1]], 
+            &cm->global_motion[ref_frame[1]]));
+      mv[0].as_int = gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs[0]],
+                                          features->fr_mv_precision, bsize,
+                                          xd->mi_col, xd->mi_row)
+                         .as_int;
+      mv[1].as_int = gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs[1]],
+                                          features->fr_mv_precision, bsize,
+                                          xd->mi_col, xd->mi_row)
+                         .as_int;
+#else
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           features->fr_mv_precision, bsize,
                                           xd->mi_col, xd->mi_row)
@@ -1449,6 +1481,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                                           features->fr_mv_precision, bsize,
                                           xd->mi_col, xd->mi_row)
                          .as_int;
+#endif  // CONFIG_NEW_REF_SIGNALING
       break;
     }
     default: { return 0; }
