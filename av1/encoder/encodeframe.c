@@ -562,8 +562,25 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 
   // Adjust and encode the superblock
   PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+  int skip_cdef_large_mv = 1;
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                          pc_root);
+                          pc_root, &skip_cdef_large_mv);
+  if (sf->rt_sf.skip_cdef_sb) {
+    // If color sensitivity is on for this superblock, don't skip cdef.
+    if (x->color_sensitivity[0] || x->color_sensitivity[1])
+      skip_cdef_large_mv = 0;
+
+    const int block64_in_sb = (sb_size == BLOCK_128X128) ? 2 : 1;
+    for (int r = 0; r < block64_in_sb; ++r) {
+      for (int c = 0; c < block64_in_sb; ++c) {
+        const int idx =
+            r * MI_SIZE_64X64 * cm->mi_params.mi_stride + c * MI_SIZE_64X64;
+        if (mi[idx]) mi[idx]->skip_cdef_curr_sb = skip_cdef_large_mv;
+      }
+    }
+  } else {
+    (void)skip_cdef_large_mv;
+  }
   av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
 }
 
