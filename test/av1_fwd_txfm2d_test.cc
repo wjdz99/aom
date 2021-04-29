@@ -362,6 +362,44 @@ TEST_P(AV1FwdTxfm2dTest, match) {
 TEST_P(AV1FwdTxfm2dTest, DISABLED_Speed) {
   AV1FwdTxfm2dSpeedTest(GET_PARAM(0), GET_PARAM(1));
 }
+TEST(AV1FwdTxfm2dTest, DCTScaleTest) {
+  EXPECT_TRUE(true);
+
+  BitDepthInfo bd_info;
+  bd_info.bit_depth = 8;
+  bd_info.use_highbitdepth_buf = 0;
+  DECLARE_ALIGNED(32, int16_t, src_diff[1024]);
+  DECLARE_ALIGNED(32, tran_low_t, coeff[1024]);
+
+  TX_SIZE TXS[4] = {TX_4X4, TX_8X8, TX_16X16, TX_32X32};
+
+  for (int i = 0; i < 4; i++) {
+    TX_SIZE TX = TXS[i];
+    int BUFFER_SIZE = pow(2, i+2);
+    int ARRAY_SIZE = pow(BUFFER_SIZE, 2);
+
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+      src_diff[i] = 8;
+      coeff[i] = 0;
+    }
+
+    int src_stride = BUFFER_SIZE;
+
+    av1_quick_txfm(0, TX, bd_info, src_diff, src_stride, coeff);
+
+    double r = 0;
+    double t = 0;
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+      r += pow(src_diff[i], 2);
+      t += pow(coeff[i], 2);
+    }
+
+    double scale = t / r;
+
+    EXPECT_GE(scale, 1);
+    EXPECT_LE(scale, 128);
+  }
+}
 using ::testing::Combine;
 using ::testing::Values;
 using ::testing::ValuesIn;
