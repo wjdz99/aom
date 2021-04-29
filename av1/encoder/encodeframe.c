@@ -562,8 +562,27 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 
   // Adjust and encode the superblock
   PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+  int skip_cdef_large_mv = 1;
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                          pc_root);
+                          pc_root, &skip_cdef_large_mv);
+  if (cpi->sf.rt_sf.skip_cdef_sb) {
+    // If color sensitivity is on for this superblock, don't skip cdef.
+    if (x->color_sensitivity[0] || x->color_sensitivity[1])
+      skip_cdef_large_mv = 0;
+    const int skip_sb_row = mi_row >> MIN_MIB_SIZE_LOG2;
+    const int skip_sb_col = mi_col >> MIN_MIB_SIZE_LOG2;
+    const int skip_sb_stride =
+        (cm->mi_params.mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+    const int sb_idx = skip_sb_row * skip_sb_stride + skip_sb_col;
+    cpi->skip_cdef_curr_sb[sb_idx] = skip_cdef_large_mv;
+    if (cm->seq_params->sb_size == BLOCK_128X128) {
+      cpi->skip_cdef_curr_sb[sb_idx + 1] = skip_cdef_large_mv;
+      cpi->skip_cdef_curr_sb[sb_idx + skip_sb_stride] = skip_cdef_large_mv;
+      cpi->skip_cdef_curr_sb[sb_idx + skip_sb_stride + 1] = skip_cdef_large_mv;
+    }
+  } else {
+    (void)skip_cdef_large_mv;
+  }
   av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
 }
 
