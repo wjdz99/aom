@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nIn the function prepare_pack_bs_workers(), the qsort call, used to sort tiles based on \narea, was incorrectly using sizeof(pack_bs_tile_order) instead of it\u0027s value. This issue \nwas not seen earlier since sizeof(pack_bs_tile_order) and sizeof(*pack_bs_tile_order)\nare the same in a 64-bit build. However, this can cause issues in a 32-bit build. This \nCL fixes the same by correctly using sizeof(*pack_bs_tile_order).\n\nKindly review the patch.\n\nRegards,\nVishesh",
       "revId": "3c0e362b14a503b5762599371a3d373001383cf2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "630bd662_53055bc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-04-29T19:30:05Z",
+      "side": 1,
+      "message": "Thanks for the fix!",
+      "parentUuid": "8d48494f_0cb9cb0a",
+      "revId": "3c0e362b14a503b5762599371a3d373001383cf2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
