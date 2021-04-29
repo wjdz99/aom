@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "36c5d3e2_fa774b47",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-04-29T23:59:11Z",
+      "side": 1,
+      "message": "\u003e Perhaps the new code in this file should be added to build/cmake/aom_install.cmake instead?\n\nThat is where we put it with libgav1 which was in part based on the libaom implementation which Tom did first:\nhttps://chromium.googlesource.com/codecs/libgav1/+/refs/tags/v0.16.3/cmake/libgav1_install.cmake#22\n\nDraco may have something similar. The libgav1 presubmit has something to test find_package() using an installed library. We can add something here too.\n\ncat \u003e CMakeLists.txt \u003c\u003cEOF\ncmake_minimum_required(VERSION 3.7.1)\n\nproject(libgav1 CXX)\n\nfind_package(libgav1)\nif (NOT libgav1_FOUND)\n  message(FATAL_ERROR \"libgav1 package not found\")\nendif ()\nmessage(\"libgav1_FOUND: \\${libgav1_FOUND}\")\nmessage(\"libgav1_INCLUDE_DIRS: \\${libgav1_INCLUDE_DIRS}\")\nmessage(\"libgav1_LIBRARIES: \\${libgav1_LIBRARIES}\")\nmessage(\"LIBGAV1_INCLUDE_DIRS: \\${LIBGAV1_INCLUDE_DIRS}\")\nmessage(\"LIBGAV1_LIBRARIES: \\${LIBGAV1_LIBRARIES}\")\nEOF\ncmake . -DCMAKE_PREFIX_PATH\u003d\"${BUILD_DIR}/libgav1-install/share/cmake\"",
+      "parentUuid": "550de76b_172cfdb7",
+      "revId": "1a6feb9b8f85b843481c5b00bc23d9888302159d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4a8d7310_96ab7487",
         "filename": "CMakeLists.txt",
         "patchSetId": 2
