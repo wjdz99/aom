@@ -285,6 +285,11 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
     aom_free(cpi->consec_zero_mv);
     cpi->consec_zero_mv = NULL;
   }
+
+  if (cpi->skip_cdef_sb) {
+    aom_free(cpi->skip_cdef_sb);
+    cpi->skip_cdef_sb = NULL;
+  }
 }
 
 static AOM_INLINE void variance_partition_alloc(AV1_COMP *cpi) {

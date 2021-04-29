@@ -1362,6 +1362,17 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
                              sizeof(*cpi->consec_zero_mv)));
 
   {
+    const int bsize = BLOCK_64X64;
+    const int w = mi_size_wide[bsize];
+    const int h = mi_size_high[bsize];
+    const int num_cols = (mi_params->mi_cols + w - 1) / w;
+    const int num_rows = (mi_params->mi_rows + h - 1) / h;
+    CHECK_MEM_ERROR(
+        cm, cpi->skip_cdef_sb,
+        aom_calloc(num_cols * num_rows, sizeof(*cpi->skip_cdef_sb)));
+  }
+
+  {
     const int bsize = BLOCK_16X16;
     const int w = mi_size_wide[bsize];
     const int h = mi_size_high[bsize];
@@ -2117,7 +2128,8 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
     const int num_workers = cpi->mt_info.num_mod_workers[MOD_CDEF];
     // Find CDEF parameters
     av1_cdef_search(&cpi->mt_info, &cm->cur_frame->buf, cpi->source, cm, xd,
-                    cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult);
+                    cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult,
+                    cpi->skip_cdef_sb, cpi->rc.frames_since_key);
 
     // Apply the filter
     if (!cpi->sf.rt_sf.skip_loopfilter_non_reference) {
