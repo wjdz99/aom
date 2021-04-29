@@ -1840,6 +1840,7 @@ static INLINE void set_sb_size(SequenceHeader *const seq_params,
   seq_params->sb_size = sb_size;
   seq_params->mib_size = mi_size_wide[seq_params->sb_size];
   seq_params->mib_size_log2 = mi_size_wide_log2[seq_params->sb_size];
+  // printf("sbsize %d\n", seq_params->sb_size);
 }
 
 // Returns true if the frame is fully lossless at the coded resolution.

@@ -561,8 +561,16 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 
   // Adjust and encode the superblock
   PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+  int skip_cdef_large_mv = 1;
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                          pc_root);
+                          pc_root, &skip_cdef_large_mv);
+  const int sb_row = mi_row >> cm->seq_params->mib_size_log2;
+  const int sb_col = mi_col >> cm->seq_params->mib_size_log2;
+  const int sb_idx =
+      sb_row * (cm->mi_params.mi_cols >> cm->seq_params->mib_size_log2) +
+      sb_col;
+  // printf("mi_row %d mi_col %d sb_row %d sb_col %d sb_idx %d\n", mi_row, mi_col, sb_row, sb_col, sb_idx);
+  cpi->skip_cdef_sb[sb_idx] = skip_cdef_large_mv;
   av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
 }
 
