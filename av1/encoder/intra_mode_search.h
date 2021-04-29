@@ -108,6 +108,10 @@ typedef struct IntraModeSearchState {
  * \param[in]    best_rd            Best RD seen for this block so far.
  * \param[in]    best_intra_rd      Best intra RD seen for this block so far.
  *
+ * \param[in]    best_model_rd      Best model RD seen for this block so far.
+ * \param[in]    top_intra_model_rd Top intra model RD seen for this block so
+ * far.
+ *
  * \return Returns the rdcost of the current intra-mode if it's available,
  * otherwise returns INT64_MAX. The corresponding values in x->e_mbd.mi[0],
  * rd_stats, rd_stats_y/uv, and best_intra_rd are also updated. Moreover, in the
@@ -121,7 +125,9 @@ int64_t av1_handle_intra_mode(IntraModeSearchState *intra_search_state,
                               BLOCK_SIZE bsize, unsigned int ref_frame_cost,
                               const PICK_MODE_CONTEXT *ctx, RD_STATS *rd_stats,
                               RD_STATS *rd_stats_y, RD_STATS *rd_stats_uv,
-                              int64_t best_rd, int64_t *best_intra_rd);
+                              int64_t best_rd, int64_t *best_intra_rd,
+                              int64_t *best_model_rd,
+                              int64_t top_intra_model_rd[]);
 
 /*!\brief Evaluate luma palette mode for inter frames.
  *
