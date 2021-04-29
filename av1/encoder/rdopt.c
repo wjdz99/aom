@@ -1246,6 +1246,9 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
                             const MACROBLOCK *const x,
                             PREDICTION_MODE this_mode,
                             const MV_REFERENCE_FRAME ref_frames[2],
+#if CONFIG_NEW_REF_SIGNALING
+                            const MV_REFERENCE_FRAME)NRS ref_frames_nrs[2],
+#endif  // CONFIG_NEW_REF_SIGNALING
                             InterModeSearchState *search_state) {
   const int is_comp_pred = ref_frames[1] > INTRA_FRAME;
   const uint8_t ref_frame_type = av1_ref_frame_type(ref_frames);
@@ -1258,15 +1261,33 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
         // NEARMV has the same motion vector as NEARESTMV
         compare_mode = NEARESTMV;
       }
+#if CONFIG_NEW_REF_SIGNALING
+      // TODO(sarahparker) Temporary assert
+      assert(is_same_wm_params(
+        cm->global_motion_nrs[ref_frames_nrs[0]]
+        cm->global_motion[ref_frames[0]]);
+      if (ref_mv_count == 1 &&
+          cm->global_motion_nrs[ref_frames_nrs[0]].wmtype <= TRANSLATION) {
+#else
       if (ref_mv_count == 1 &&
           cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION) {
+#endif  // !CONFIG_NEW_REF_SIGNALING
         // NEARMV has the same motion vector as GLOBALMV
         compare_mode = GLOBALMV;
       }
     }
     if (this_mode == GLOBALMV) {
+#if CONFIG_NEW_REF_SIGNALING
+      // TODO(sarahparker) Temporary assert
+      assert(is_same_wm_params(
+        cm->global_motion_nrs[ref_frames_nrs[0]]
+        cm->global_motion[ref_frames[0]]);
+      if (ref_mv_count == 0 &&
+          cm->global_motion_nrs[ref_frames_nrs[0]].wmtype <= TRANSLATION) {
+#else
       if (ref_mv_count == 0 &&
           cm->global_motion[ref_frames[0]].wmtype <= TRANSLATION) {
+#endif  // !CONFIG_NEW_REF_SIGNALING
         // GLOBALMV has the same motion vector as NEARESTMV
         compare_mode = NEARESTMV;
       }
@@ -1642,8 +1663,17 @@ static int64_t motion_mode_rd(
   if (features->switchable_motion_mode) {
     // Determine which motion modes to search if more than SIMPLE_TRANSLATION
     // is allowed.
+#if CONFIG_NEW_REF_SIGNALING
+    last_motion_mode_allowed = motion_mode_allowed_nrs(
+        xd->global_motion_nrs, xd, mbmi, features->allow_warped_motion);
+    // TODO(sarahparker) Temporary assert
+    const MOTION_MODE last_motion_mode_allowed2 = motion_mode_allowed(
+        xd->global_motion, xd, mbmi, features->allow_warped_motion);
+    assert(last_motion_mode_allowed == last_motion_mode_allowed2);
+#else
     last_motion_mode_allowed = motion_mode_allowed(
         xd->global_motion, xd, mbmi, features->allow_warped_motion);
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 
   if (last_motion_mode_allowed == WARPED_CAUSAL) {
@@ -6521,21 +6551,32 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   else
     mbmi->ref_frame[0] = LAST_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
-  mbmi->mv[0].as_int =
-      gm_get_motion_vector(&cm->global_motion[mbmi->ref_frame[0]],
-                           features->fr_mv_precision, bsize, mi_col, mi_row)
-          .as_int;
 #if CONFIG_NEW_REF_SIGNALING
   mbmi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame[0]);
   mbmi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame[1]);
+  // TODO(sarahparker) Temporary assert
   assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                mbmi->ref_frame_nrs[0]) ==
          mbmi->ref_frame[0]);
   assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                mbmi->ref_frame_nrs[1]) ==
          mbmi->ref_frame[1]);
+  mbmi->mv[0].as_int =
+      gm_get_motion_vector(&cm->global_motion_nrs[mbmi->ref_frame_nrs[0]],
+                           features->fr_mv_precision, bsize, mi_col, mi_row)
+          .as_int;
+  // TODO(sarahparker) Temporary assert
+  assert(mbmi->mv[0].as_int == 
+      gm_get_motion_vector(&cm->global_motion[mbmi->ref_frame[0]],
+                           features->fr_mv_precision, bsize, mi_col, mi_row)
+          .as_int);
+#else 
+  mbmi->mv[0].as_int =
+      gm_get_motion_vector(&cm->global_motion[mbmi->ref_frame[0]],
+                           features->fr_mv_precision, bsize, mi_col, mi_row)
+          .as_int;
 #endif  // CONFIG_NEW_REF_SIGNALING
   mbmi->tx_size = max_txsize_lookup[bsize];
   x->txfm_search_info.skip_txfm = 1;
