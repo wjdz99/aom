@@ -35,7 +35,7 @@
 
 #include "av1/av1_iface_common.h"
 
-struct aom_codec_alg_priv {
+struct aom_codec_alg_priv_Ttt {
   aom_codec_priv_t base;
   aom_codec_dec_cfg_t cfg;
   aom_codec_stream_info_t si;
