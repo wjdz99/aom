@@ -51,6 +51,42 @@
       "parentUuid": "7c12cb09_f58d751a",
       "revId": "0717b620064da75e3ec3e8f7a9238c3187eb523b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2571b4f9_89eb6100",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-29T03:20:46Z",
+      "side": 1,
+      "message": "I think if this comment is on the fixes in aom_dsp/avg.c we need to make sure that the C code is consistent with the assembly code. So it is not that straightforward to change the C code only. We should take a not of this and revisit later.",
+      "parentUuid": "f8ce62b4_288db633",
+      "revId": "0717b620064da75e3ec3e8f7a9238c3187eb523b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdca6540_2980f5d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-29T03:20:46Z",
+      "side": 1,
+      "message": "This is how the baseline code was (i.e. use 0 as delta q). This patch just maintains the same behavior with EXT_QUANT. However one can certainly experiment later with different values of delta, especially when delta quant is enabled. Perhaps this was an oversight.",
+      "parentUuid": "6ca947fd_5acc4da0",
+      "revId": "0717b620064da75e3ec3e8f7a9238c3187eb523b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
