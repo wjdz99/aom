@@ -768,6 +768,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   tpl_stats->intra_cost = best_intra_cost << TPL_DEP_COST_SCALE_LOG2;
 
   tpl_stats->srcrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
+  tpl_stats->srcrf_var = recon_var << TPL_DEP_COST_SCALE_LOG2;
 
   // Final encode
   int rate_cost = 0;
@@ -789,13 +790,16 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   tpl_stats_record_txfm_block(tpl_txfm_stats, coeff, tpl_frame->coeff_num);
 
   tpl_stats->recrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
+  tpl_stats->recrf_var = recon_var << TPL_DEP_COST_SCALE_LOG2;
   tpl_stats->recrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
   if (!is_inter_mode(best_mode)) {
     tpl_stats->srcrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
     tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
+    tpl_stats->srcrf_var = recon_var << TPL_DEP_COST_SCALE_LOG2;
   }
 
   tpl_stats->recrf_dist = AOMMAX(tpl_stats->srcrf_dist, tpl_stats->recrf_dist);
+  tpl_stats->recrf_var = AOMMAX(tpl_stats->srcrf_var, tpl_stats->recrf_var);
   tpl_stats->recrf_rate = AOMMAX(tpl_stats->srcrf_rate, tpl_stats->recrf_rate);
 
   if (best_mode == NEW_NEWMV) {
@@ -807,15 +811,20 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
                         rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
                         use_y_only_rate_distortion);
     tpl_stats->cmp_recrf_dist[0] = recon_error << TPL_DEP_COST_SCALE_LOG2;
+    tpl_stats->cmp_recrf_var[0] = recon_var << TPL_DEP_COST_SCALE_LOG2;
     tpl_stats->cmp_recrf_rate[0] = rate_cost << TPL_DEP_COST_SCALE_LOG2;
 
     tpl_stats->cmp_recrf_dist[0] =
         AOMMAX(tpl_stats->srcrf_dist, tpl_stats->cmp_recrf_dist[0]);
+    tpl_stats->cmp_recrf_var[0] =
+        AOMMAX(tpl_stats->srcrf_var, tpl_stats->cmp_recrf_var[0]);
     tpl_stats->cmp_recrf_rate[0] =
         AOMMAX(tpl_stats->srcrf_rate, tpl_stats->cmp_recrf_rate[0]);
 
     tpl_stats->cmp_recrf_dist[0] =
         AOMMIN(tpl_stats->recrf_dist, tpl_stats->cmp_recrf_dist[0]);
+    tpl_stats->cmp_recrf_var[0] =
+        AOMMIN(tpl_stats->recrf_var, tpl_stats->cmp_recrf_var[0]);
     tpl_stats->cmp_recrf_rate[0] =
         AOMMIN(tpl_stats->recrf_rate, tpl_stats->cmp_recrf_rate[0]);
 
@@ -828,15 +837,20 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
                         rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
                         use_y_only_rate_distortion);
     tpl_stats->cmp_recrf_dist[1] = recon_error << TPL_DEP_COST_SCALE_LOG2;
+    tpl_stats->cmp_recrf_var[1] = recon_var << TPL_DEP_COST_SCALE_LOG2;
     tpl_stats->cmp_recrf_rate[1] = rate_cost << TPL_DEP_COST_SCALE_LOG2;
 
     tpl_stats->cmp_recrf_dist[1] =
         AOMMAX(tpl_stats->srcrf_dist, tpl_stats->cmp_recrf_dist[1]);
+    tpl_stats->cmp_recrf_var[1] =
+        AOMMAX(tpl_stats->srcrf_var, tpl_stats->cmp_recrf_var[1]);
     tpl_stats->cmp_recrf_rate[1] =
         AOMMAX(tpl_stats->srcrf_rate, tpl_stats->cmp_recrf_rate[1]);
 
     tpl_stats->cmp_recrf_dist[1] =
         AOMMIN(tpl_stats->recrf_dist, tpl_stats->cmp_recrf_dist[1]);
+    tpl_stats->cmp_recrf_var[1] =
+        AOMMIN(tpl_stats->recrf_var, tpl_stats->cmp_recrf_var[1]);
     tpl_stats->cmp_recrf_rate[1] =
         AOMMIN(tpl_stats->recrf_rate, tpl_stats->cmp_recrf_rate[1]);
   }
@@ -1024,6 +1038,10 @@ static AOM_INLINE void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row,
   tpl_ptr->cmp_recrf_dist[1] = AOMMAX(1, tpl_ptr->cmp_recrf_dist[1]);
   tpl_ptr->cmp_recrf_rate[0] = AOMMAX(1, tpl_ptr->cmp_recrf_rate[0]);
   tpl_ptr->cmp_recrf_rate[1] = AOMMAX(1, tpl_ptr->cmp_recrf_rate[1]);
+  tpl_ptr->srcrf_var = AOMMAX(1, tpl_ptr->srcrf_var);
+  tpl_ptr->recrf_var = AOMMAX(1, tpl_ptr->recrf_var);
+  tpl_ptr->cmp_recrf_var[0] = AOMMAX(1, tpl_ptr->cmp_recrf_var[0]);
+  tpl_ptr->cmp_recrf_var[1] = AOMMAX(1, tpl_ptr->cmp_recrf_var[1]);
 }
 
 // Reset the ref and source frame pointers of tpl_data.
