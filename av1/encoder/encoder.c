@@ -813,6 +813,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
       av1_free_sms_tree(&cpi->td);
       av1_free_pmc(cpi->td.firstpass_ctx, av1_num_planes(cm));
       cpi->td.firstpass_ctx = NULL;
+      aom_free(cpi->skip_cdef_curr_sb);
       alloc_compressor_data(cpi);
       realloc_segmentation_maps(cpi);
       initial_dimensions->width = initial_dimensions->height = 0;
@@ -2117,7 +2118,8 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
     const int num_workers = cpi->mt_info.num_mod_workers[MOD_CDEF];
     // Find CDEF parameters
     av1_cdef_search(&cpi->mt_info, &cm->cur_frame->buf, cpi->source, cm, xd,
-                    cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult);
+                    cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult,
+                    cpi->skip_cdef_curr_sb, cpi->rc.frames_since_key);
 
     // Apply the filter
     if (!cpi->sf.rt_sf.skip_loopfilter_non_reference) {
@@ -3391,6 +3393,17 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
 
   memcpy(&cpi->refresh_frame, &frame_params->refresh_frame,
          sizeof(cpi->refresh_frame));
+
+  if (cpi->sf.rt_sf.skip_cdef_sb && !cpi->skip_cdef_curr_sb) {
+    const int bsize = BLOCK_64X64;
+    const int w = mi_size_wide[bsize];
+    const int h = mi_size_high[bsize];
+    const int num_cols = (cm->mi_params.mi_cols + w - 1) / w;
+    const int num_rows = (cm->mi_params.mi_rows + h - 1) / h;
+    CHECK_MEM_ERROR(
+        cm, cpi->skip_cdef_curr_sb,
+        aom_calloc(num_cols * num_rows, sizeof(*cpi->skip_cdef_curr_sb)));
+  }
 
   if (current_frame->frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
     current_frame->frame_number = 0;
