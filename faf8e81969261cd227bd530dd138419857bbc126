@@ -16,6 +16,24 @@
       "message": "Hi Chi Yo, I remember you looked at this before. What was the conclusion?",
       "revId": "faf8e81969261cd227bd530dd138419857bbc126",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc2db6d1_44dc06b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-04-29T23:51:06Z",
+      "side": 1,
+      "message": "My concern is that the user might first encode without delta-q, and then re-encode with delta-q using the same first pass stats. This would give the user a suboptimal result.\n\nWe could work around this by detecting whether the first pass wavelet energy is valid by checking if it\u0027s all zero. If it is, then it\u0027s likely to be invalid, and we can skip the ml-model and prints a warning saying that the firstpass stats is invalid.",
+      "parentUuid": "65088935_b1bdd586",
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
