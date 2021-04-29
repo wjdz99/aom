@@ -26,6 +26,9 @@ extern "C" {
 
 /*!\cond */
 
+#define TOP_INTRA_MODEL_NUM 4
+#define LUMA_MODE_NUM 61
+
 #undef MAX_SB_SIZE
 
 // Max superblock size
