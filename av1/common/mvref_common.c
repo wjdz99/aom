@@ -1022,6 +1022,17 @@ void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
   cm->cur_frame->absolute_poc = cm->current_frame.absolute_poc;
   cm->cur_frame->pyramid_level = cm->current_frame.pyramid_level;
 
+#if CONFIG_NEW_REF_SIGNALING
+  MV_REFERENCE_FRAME_NRS ref_frame_nrs;
+  for (ref_frame_nrs = 0; ref_frame_nrs < MAX_REF_FRAMES_NRS; ++ref_frame_nrs) {
+    const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref_frame_nrs);
+    if (buf != NULL) {
+      cm->cur_frame->ref_order_hints_nrs[ref_frame_nrs] = buf->order_hint;
+      cm->cur_frame->ref_display_order_hint_nrs[ref_frame_nrs] =
+          buf->display_order_hint;
+    }
+  }
+#endif  // CONFIG_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);

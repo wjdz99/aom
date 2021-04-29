@@ -1342,6 +1342,14 @@ typedef struct macroblockd {
    */
   struct aom_internal_error_info *error_info;
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Same as cm->global_motion_nrs.
+   */
+  const WarpedMotionParams *global_motion_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
+
+
   /*!
    * Same as cm->global_motion.
    */
@@ -1946,12 +1954,22 @@ static INLINE MOTION_MODE
 motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
                     const MB_MODE_INFO *mbmi, int allow_warped_motion) {
   if (xd->cur_frame_force_integer_mv == 0) {
+#if CONFIG_NEW_REF_SIGNALING
+    const TransformationType gm_type = gm_params[mbmi->ref_frame_nrs[0]].wmtype;
+#else
     const TransformationType gm_type = gm_params[mbmi->ref_frame[0]].wmtype;
+#endif  // CONFIG_NEW_REF_SIGNALING
     if (is_global_mv_block(mbmi, gm_type)) return SIMPLE_TRANSLATION;
   }
   if (is_motion_variation_allowed_bsize(mbmi->sb_type, xd->mi_row,
                                         xd->mi_col) &&
-      is_inter_mode(mbmi->mode) && mbmi->ref_frame[1] != INTRA_FRAME &&
+      is_inter_mode(mbmi->mode) && 
+#if CONFIG_NEW_REF_SIGNALING
+      mbmi->ref_frame[1] != INTRA_FRAME_NRS &&
+      mbmi->ref_frame[1] != INVALID_IDX &&
+#else
+      mbmi->ref_frame[1] != INTRA_FRAME &&
+#endif  // CONFIG_NEW_REF_SIGNALING
       is_motion_variation_allowed_compound(mbmi)) {
     if (!check_num_overlappable_neighbors(mbmi)) return SIMPLE_TRANSLATION;
     assert(!has_second_ref(mbmi));
@@ -2059,7 +2077,11 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd,
 
   // Now check if all global motion is non translational
   for (ref = 0; ref < 1 + has_second_ref(mbmi); ++ref) {
+#if CONFIG_NEW_REF_SIGNALING
+    if (xd->global_motion_nrs[mbmi->ref_frame_nrs[ref]].wmtype == TRANSLATION) return 0;
+#else
     if (xd->global_motion[mbmi->ref_frame[ref]].wmtype == TRANSLATION) return 0;
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
   return 1;
 }
