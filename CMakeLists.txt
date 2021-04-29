@@ -56,6 +56,9 @@ unset(LT_CURRENT)
 unset(LT_REVISION)
 unset(LT_AGE)
 
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")
 include("${AOM_ROOT}/aom_mem/aom_mem.cmake")
@@ -280,6 +283,43 @@ if(BUILD_SHARED_LIBS)
     set_target_properties(aom PROPERTIES VERSION ${SO_FILE_VERSION})
   endif()
 endif()
+
+set(PUBLIC_HEADERS aom/aom.h aom/aom_codec.h aom/aom_decoder.h aom/aom_encoder.h
+                   aom/aom_frame_buffer.h aom/aom_image.h aom/aom_integer.h
+                   aom/aomcx.h aom/aomdx.h)
+
+set_target_properties(aom PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADERS}")
+
+target_include_directories(aom
+                           PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+                                  $<INSTALL_INTERFACE:include>)
+
+install(TARGETS aom
+        EXPORT aomTargets
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aom")
+
+install(EXPORT aomTargets
+        FILE aomTargets.cmake
+        NAMESPACE AOM::
+        DESTINATION lib/cmake/aom)
+
+configure_package_config_file(cmake/aomConfig.cmake.in
+                              ${CMAKE_CURRENT_BINARY_DIR}/aomConfig.cmake
+                              INSTALL_DESTINATION lib/cmake/aom
+                              NO_SET_AND_CHECK_MACRO
+                              NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/aomConfigVersion.cmake
+  VERSION ${SO_FILE_VERSION}
+  COMPATIBILITY SameMajorVersion)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/aomConfig.cmake
+              ${CMAKE_CURRENT_BINARY_DIR}/aomConfigVersion.cmake
+        DESTINATION lib/cmake/aom)
 
 if(NOT MSVC AND NOT APPLE)
   target_link_libraries(aom ${AOM_LIB_LINK_TYPE} m)
