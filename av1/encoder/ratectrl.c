@@ -1688,7 +1688,6 @@ static int rc_pick_q_and_bounds(const AV1_COMP *cpi, int width, int height,
   *top_index = active_worst_quality;
   *bottom_index = active_best_quality;
 
-  assert(*top_index <= rc->worst_quality && *top_index >= rc->best_quality);
   assert(*bottom_index <= rc->worst_quality &&
          *bottom_index >= rc->best_quality);
   assert(q <= rc->worst_quality && q >= rc->best_quality);

@@ -902,6 +902,8 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   int tpl_stride = tpl_frame->stride;
   int64_t intra_cost = 0;
   int64_t mc_dep_cost = 0;
+  int64_t intra_var = 0;
+  int64_t mc_dep_var = 0;
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
   const int base_qindex = cm->quant_params.base_qindex;
@@ -930,8 +932,13 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
       int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
+      int64_t mc_dep_var_delta =
+          RDCOST(tpl_frame->base_rdmult, 0, this_stats->mc_dep_dist);
       intra_cost += this_stats->recrf_dist << RDDIV_BITS;
       mc_dep_cost += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+
+      intra_var += this_stats->recrf_var << RDDIV_BITS;
+      mc_dep_var += (this_stats->recrf_var << RDDIV_BITS) + mc_dep_var_delta;
       mi_count++;
     }
   }
@@ -941,10 +948,12 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
 
   int offset = 0;
   double beta = 1.0;
-  if (mc_dep_cost > 0 && intra_cost > 0) {
+  if (mc_dep_cost > 0 && intra_cost > 0 && intra_var > 0) {
     const double r0 = cpi->rd.r0;
     const double rk = (double)intra_cost / mc_dep_cost;
     beta = (r0 / rk);
+
+    beta = cpi->rd.r0 / ((double)intra_var / mc_dep_var);
     assert(beta > 0.0);
   }
   offset = av1_get_deltaq_offset(cpi, base_qindex, beta);

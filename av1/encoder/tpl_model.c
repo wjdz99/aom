@@ -976,14 +976,24 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
 
   int64_t srcrf_dist = is_compound ? tpl_stats_ptr->cmp_recrf_dist[!ref]
                                    : tpl_stats_ptr->srcrf_dist;
+  int64_t srcrf_var = is_compound ? tpl_stats_ptr->cmp_recrf_var[!ref]
+                                  : tpl_stats_ptr->srcrf_var;
   int64_t srcrf_rate = is_compound ? tpl_stats_ptr->cmp_recrf_rate[!ref]
                                    : tpl_stats_ptr->srcrf_rate;
 
   int64_t cur_dep_dist = tpl_stats_ptr->recrf_dist - srcrf_dist;
+  int64_t cur_dep_var = tpl_stats_ptr->recrf_var - srcrf_var;
+
   int64_t mc_dep_dist =
       (int64_t)(tpl_stats_ptr->mc_dep_dist *
                 ((double)(tpl_stats_ptr->recrf_dist - srcrf_dist) /
                  tpl_stats_ptr->recrf_dist));
+
+  int64_t mc_dep_var =
+      (int64_t)(tpl_stats_ptr->mc_dep_var *
+                ((double)(tpl_stats_ptr->recrf_var - srcrf_var) /
+                 tpl_stats_ptr->recrf_var));
+
   int64_t delta_rate = tpl_stats_ptr->recrf_rate - srcrf_rate;
   int64_t mc_dep_rate =
       av1_delta_rate_cost(tpl_stats_ptr->mc_dep_rate, tpl_stats_ptr->recrf_dist,
@@ -1007,6 +1017,8 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
           ((cur_dep_dist + mc_dep_dist) * overlap_area) / pix_num;
       des_stats->mc_dep_rate +=
           ((delta_rate + mc_dep_rate) * overlap_area) / pix_num;
+      des_stats->mc_dep_var +=
+          ((cur_dep_var + mc_dep_var) * overlap_area) / pix_num;
     }
   }
 }
@@ -1658,6 +1670,7 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
   for (int row = 0; row < num_rows; row++) {
     for (int col = 0; col < num_cols; col++) {
       double intra_cost = 0.0, mc_dep_cost = 0.0;
+      double intra_var = 0.0, mc_dep_var = 0.0;
       // Loop through each mi block.
       for (int mi_row = row * num_mi_h; mi_row < (row + 1) * num_mi_h;
            mi_row += step) {
@@ -1672,9 +1685,16 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
           intra_cost += (double)(this_stats->recrf_dist << RDDIV_BITS);
           mc_dep_cost +=
               (double)(this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+
+          int64_t mc_dep_var_delta =
+              RDCOST(tpl_frame->base_rdmult, 0, this_stats->mc_dep_var);
+          intra_var += (double)(this_stats->recrf_var < RDDIV_BITS);
+          mc_dep_var +=
+              (double)(this_stats->recrf_dist << RDDIV_BITS) + mc_dep_var_delta;
         }
       }
-      const double rk = intra_cost / mc_dep_cost;
+      double rk = intra_cost / mc_dep_cost;
+      rk = intra_var / mc_dep_var;
       const int index = row * num_cols + col;
       cpi->tpl_rdmult_scaling_factors[index] = rk / cpi->rd.r0 + c;
     }

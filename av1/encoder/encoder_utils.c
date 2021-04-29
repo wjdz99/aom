@@ -472,7 +472,9 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
   if (tpl_frame->is_valid) {
     int tpl_stride = tpl_frame->stride;
     int64_t intra_cost_base = 0;
+    int64_t intra_var_base = 0;
     int64_t mc_dep_cost_base = 0;
+    int64_t mc_dep_var_base = 0;
     const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
     const int row_step = step;
     const int col_step_sr =
@@ -486,9 +488,14 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         int64_t mc_dep_delta =
             RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                    this_stats->mc_dep_dist);
+        int64_t mc_dep_var_delta =
+            RDCOST(tpl_frame->base_rdmult, 0, this_stats->mc_dep_var);
         intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
+        intra_var_base += (this_stats->recrf_var << RDDIV_BITS);
         mc_dep_cost_base +=
             (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+        mc_dep_var_base +=
+            (this_stats->recrf_var << RDDIV_BITS) + mc_dep_var_delta;
       }
     }
 
@@ -497,6 +504,11 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
     } else {
       aom_clear_system_state();
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
+      cpi->rd.r0 = (double)intra_var_base / mc_dep_var_base;
+
+      fprintf(stderr, "r0 = %lf, var_r0 = %lf\n",
+              1.0 / cpi->rd.r0, (double)mc_dep_var_base / intra_var_base);
+
       if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) {
         if (cpi->ppi->lap_enabled) {
           double min_boost_factor = sqrt(cpi->ppi->p_rc.baseline_gf_interval);
