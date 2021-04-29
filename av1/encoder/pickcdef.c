@@ -491,13 +491,14 @@ static AOM_INLINE void cdef_params_init(const YV12_BUFFER_CONFIG *frame,
 #endif
 }
 
-static void pick_cdef_from_qp(AV1_COMMON *const cm) {
+static void pick_cdef_from_qp(AV1_COMMON *const cm, uint8_t *skip_cdef_sb,
+                              int frames_since_key) {
   const int bd = cm->seq_params->bit_depth;
   const int q =
       av1_ac_quant_QTX(cm->quant_params.base_qindex, 0, bd) >> (bd - 8);
   CdefInfo *const cdef_info = &cm->cdef_info;
-  cdef_info->cdef_bits = 0;
-  cdef_info->nb_cdef_strengths = 1;
+  cdef_info->cdef_bits = 1;
+  cdef_info->nb_cdef_strengths = 2;
   cdef_info->cdef_damping = 3 + (cm->quant_params.base_qindex >> 6);
 
   int predicted_y_f1 = 0;
@@ -537,13 +538,28 @@ static void pick_cdef_from_qp(AV1_COMMON *const cm) {
   cdef_info->cdef_uv_strengths[0] =
       predicted_uv_f1 * CDEF_SEC_STRENGTHS + predicted_uv_f2;
 
+  cdef_info->cdef_strengths[1] = 0;
+  cdef_info->cdef_uv_strengths[1] = 0;
+
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
+  const int mi_size_sb =
+      cm->seq_params->sb_size == BLOCK_64X64 ? MI_SIZE_64X64 : MI_SIZE_128X128;
   const int nvfb = (mi_params->mi_rows + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
   const int nhfb = (mi_params->mi_cols + MI_SIZE_64X64 - 1) / MI_SIZE_64X64;
+  const int sb_stride = (mi_params->mi_rows + mi_size_sb - 1) / mi_size_sb;
   MB_MODE_INFO **mbmi = mi_params->mi_grid_base;
   for (int r = 0; r < nvfb; ++r) {
     for (int c = 0; c < nhfb; ++c) {
       mbmi[MI_SIZE_64X64 * c]->cdef_strength = 0;
+      int idx = 0;
+      if (cm->seq_params->sb_size == BLOCK_64X64) {
+        idx = r * nhfb + c;
+      } else {
+        idx = (r >> 1) * sb_stride + (c >> 1);
+      }
+      if (skip_cdef_sb[idx] && frames_since_key > 10) {
+        mbmi[MI_SIZE_64X64 * c]->cdef_strength = 1;
+      }
     }
     mbmi += MI_SIZE_64X64 * mi_params->mi_stride;
   }
@@ -551,10 +567,10 @@ static void pick_cdef_from_qp(AV1_COMMON *const cm) {
 
 void av1_cdef_search(MultiThreadInfo *mt_info, const YV12_BUFFER_CONFIG *frame,
                      const YV12_BUFFER_CONFIG *ref, AV1_COMMON *cm,
-                     MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method,
-                     int rdmult) {
+                     MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult,
+                     uint8_t *skip_cdef_sb, int frames_since_key) {
   if (pick_method == CDEF_PICK_FROM_Q) {
-    pick_cdef_from_qp(cm);
+    pick_cdef_from_qp(cm, skip_cdef_sb, frames_since_key);
     return;
   }
   const CommonModeInfoParams *const mi_params = &cm->mi_params;

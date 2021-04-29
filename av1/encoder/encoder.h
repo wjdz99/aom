@@ -2757,6 +2757,12 @@ typedef struct AV1_COMP {
   uint8_t *consec_zero_mv;
 
   /*!
+   * Flag indicating this superblock can be skipped for cdef based on motion
+   * vectors and predict mode. Only used in real-time mode.
+   */
+  uint8_t *skip_cdef_sb;
+
+  /*!
    * Block size of first pass encoding
    */
   BLOCK_SIZE fp_block_size;
