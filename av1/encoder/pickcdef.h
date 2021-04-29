@@ -225,7 +225,8 @@ void av1_cdef_mse_calc_block(CdefSearchCtx *cdef_search_ctx, int fbr, int fbc,
 void av1_cdef_search(struct MultiThreadInfo *mt_info,
                      const YV12_BUFFER_CONFIG *frame,
                      const YV12_BUFFER_CONFIG *ref, AV1_COMMON *cm,
-                     MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult);
+                     MACROBLOCKD *xd, CDEF_PICK_METHOD pick_method, int rdmult,
+                     uint8_t *skip_cdef_sb);
 
 #ifdef __cplusplus
 }  // extern "C"

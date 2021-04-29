@@ -1147,6 +1147,8 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Skips mode checks more agressively in nonRD mode
   int nonrd_agressive_skip;
+
+  int skip_cdef_on_large_mv;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
