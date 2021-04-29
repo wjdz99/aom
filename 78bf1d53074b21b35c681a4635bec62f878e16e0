@@ -195,6 +195,30 @@
       },
       "revId": "78bf1d53074b21b35c681a4635bec62f878e16e0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d08cd607_ec8a560d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-04-29T14:43:23Z",
+      "side": 1,
+      "message": "I did not understand the suggestion. The quant_func_list is a 2D structure and the EXT_QUANT uses only the high  bd functions in the table. Please elaborate more.",
+      "parentUuid": "e9dacd59_53fb34c1",
+      "range": {
+        "startLine": 301,
+        "startChar": 46,
+        "endLine": 301,
+        "endChar": 49
+      },
+      "revId": "78bf1d53074b21b35c681a4635bec62f878e16e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
