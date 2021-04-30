@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0a91ea5_dc9ca61c",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-04-30T17:49:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa0bd60c_25526735",
+      "range": {
+        "startLine": 106,
+        "startChar": 13,
+        "endLine": 106,
+        "endChar": 22
+      },
+      "revId": "fd888f96559a8da9b526a7aff8c345a50588d604",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2f31af15_cb01c941",
@@ -95,6 +119,30 @@
       "side": 1,
       "message": "Thought about this again. In current implementation, if something fails during creating the cpi, then setjmp(cm-\u003eerror-\u003ejmp) is true, and it calls\n av1_remove_compressor(cpi);\n return 0;\nSo, encoder initialization fails. Couldn\u0027t see how ppi created before this cpi is destroyed, right?",
       "parentUuid": "2f31af15_cb01c941",
+      "range": {
+        "startLine": 917,
+        "startChar": 2,
+        "endLine": 921,
+        "endChar": 3
+      },
+      "revId": "fd888f96559a8da9b526a7aff8c345a50588d604",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26a5447a_2d3c350d",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-04-30T17:49:40Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nPlease find our understanding of the existing logic (before the introduction of ppi) below.\n1. When an error occurs during creation of cpi, av1_remove_compressor() is called to free cpi, and returns with 0. The caller (create_context_and_bufferpool()) returns with AOM_CODEC_MEM_ERROR to encoder_init(), which in turn returns to aom_codec_enc_init_ver() with AOM_CODEC_MEM_ERROR.\n2. aom_codec_enc_init_ver(), on seeing AOM_CODEC_MEM_ERROR, calls encoder_destroy() to delete the instance.\n3. During 1, only cpi is freed, whereas the buffer pools, frame stats buffer and prior cpi (in case step 1 is caused by cpi_lap) are still alive. These get freed during encoder_destroy() of 2.\n\nThe current CL uses similar logic as detailed below.\n1. When an error occurs during the creation of any of the cpis, only that cpi is freed through av1_remove_compressor(), and encoder_init() returns with AOM_CODEC_MEM_ERROR.\n2. aom_codec_enc_init_ver() calls encoder_destroy(), which frees the buffer pools, frame stats buffer, prior cpis and ppi.\n\nWhen an error occurs during the creation of ppi, av1_remove_primary_compressor() is called, which frees ppi. Encoder_init returns with AOM_CODEC_MEM_ERROR, causing aom_codec_enc_init_ver() to call encoder_destroy().\n\nThus the error handling logic of the current CL during av1_create_compressor() is similar to that in the existing implementation. Please let us know your thoughts.",
+      "parentUuid": "06119661_d4576df5",
       "range": {
         "startLine": 917,
         "startChar": 2,
