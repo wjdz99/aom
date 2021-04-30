@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d76e7a4_4c1029e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-04-30T19:35:49Z",
+      "side": 1,
+      "message": "Looks like all the other patches in the chain have +2\u0027s now.\nHow about this one?",
+      "revId": "99df1d5518dcdfc3b7b2c6f0b84b4bd7ec861bbe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
