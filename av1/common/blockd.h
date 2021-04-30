@@ -332,6 +332,7 @@ typedef struct MB_MODE_INFO {
   INTERINTRA_MODE interintra_mode;
 #if CONFIG_NEW_TX_PARTITION
   TX_PARTITION_TYPE partition_type[INTER_TX_SIZE_BUF_LEN];
+  float features[INTER_TX_SIZE_BUF_LEN][64];
 #endif  // CONFIG_NEW_TX_PARTITION
   MOTION_MODE motion_mode;
 #if CONFIG_EXT_ROTATION
@@ -1422,6 +1423,7 @@ typedef struct macroblockd {
    * 'cpi->tile_thr_data[t].td->mb.tmp_pred_bufs'.
    */
   uint8_t *tmp_obmc_bufs[2];
+  FILE *training_fp;
 } MACROBLOCKD;
 
 /*!\cond */

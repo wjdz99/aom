@@ -389,6 +389,31 @@ static void update_zeromv_cnt(const AV1_COMP *const cpi,
     }
 }
 
+static void get_training_data(const AV1_COMP *const cpi,
+                              MACROBLOCK *const x, BLOCK_SIZE bsize,
+                              int plane, int mi_row, int mi_col) {
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *mbmi = xd->mi[0];
+  const int is_inter = is_inter_block(mbmi);
+  struct macroblock_plane *const p = &x->plane[plane];
+  struct macroblockd_plane *const pd = &xd->plane[plane];
+  const AV1_COMMON *const cm = &cpi->common;
+  FILE *fp = xd->training_fp;
+  // TODO(sarahparker) replace 0, 0 with mi_row, mi_col
+  const BLOCK_SIZE plane_bsize =
+      get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+  const uint8_t bw = block_size_wide[plane_bsize];
+  const uint8_t bh = block_size_high[plane_bsize];
+  const int index = is_inter ? av1_get_txb_size_index(plane_bsize, mi_row, mi_col) : 0;
+  const uint8_t partition = mbmi->partition_type[index];
+  float *features = mbmi->features[index];
+  fwrite(features, 64, sizeof(features[0]), fp); 
+  fwrite(&bw, 1, sizeof(bw), fp); 
+  fwrite(&bh, 1, sizeof(bh), fp); 
+  fwrite(&is_inter, 1, sizeof(is_inter), fp); 
+  fwrite(&partition , 1, sizeof(partition), fp); 
+}
+
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TokenExtra **t, RUN_TYPE dry_run,
                               BLOCK_SIZE bsize, int *rate) {
@@ -495,6 +520,11 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     (void)num_planes;
 #endif
 
+//////////////////////////////////////
+    if (!dry_run && !mbmi->skip_txfm) { 
+      get_training_data(cpi, x, bsize, 0, mi_row, mi_col);
+    }
+//////////////////////////////////////
     av1_encode_sb(cpi, x, dry_run);
     av1_tokenize_sb_tx_size(cpi, td, dry_run, rate,
                             tile_data->allow_update_cdf);
