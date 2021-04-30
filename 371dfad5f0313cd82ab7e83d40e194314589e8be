@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f07c68a7_a0240449",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-04-30T22:25:42Z",
+      "side": 1,
+      "message": "Hi Jayasanker,\n\nCould you please change \"transform coeff RD\" to \"rate-distortion optimization of transform coefficients\", as you did in your libavif patch (https://github.com/AOMediaCodec/libavif/pull/614)? Thanks.",
+      "range": {
+        "startLine": 228,
+        "startChar": 48,
+        "endLine": 228,
+        "endChar": 66
+      },
+      "revId": "371dfad5f0313cd82ab7e83d40e194314589e8be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
