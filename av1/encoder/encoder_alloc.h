@@ -265,6 +265,12 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
   aom_free(cpi->td.mb.inter_modes_info);
   cpi->td.mb.inter_modes_info = NULL;
 
+  if (cpi->training_fp) {
+    fclose(cpi->training_fp);
+    printf("Training file closed\n");
+    cpi->training_fp = NULL;
+  }
+
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < 2; j++) {
       aom_free(cpi->td.mb.intrabc_hash_info.hash_value_buffer[i][j]);

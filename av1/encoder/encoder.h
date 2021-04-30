@@ -2697,6 +2697,7 @@ typedef struct AV1_COMP {
    * Number of frames left to be encoded, is 0 if limit is not set.
    */
   int frames_left;
+  FILE *training_fp;
 } AV1_COMP;
 
 /*!
