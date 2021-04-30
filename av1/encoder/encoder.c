@@ -10,6 +10,8 @@
  */
 
 #include <limits.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <float.h>
 #include <math.h>
 #include <stdio.h>
@@ -504,6 +506,19 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   cpi->oxcf = *oxcf;
   cpi->framerate = oxcf->input_cfg.init_framerate;
 
+  if (cpi->training_fp) {
+    fclose(cpi->training_fp);
+    printf("Training file closed\n");
+  }
+  // Generate a random filename so we can collect training data in parallel
+  char filename_buf[15];
+  unsigned int seed = (unsigned int)getpid();
+  unsigned int rand_val = lcg_rand16(&seed);
+  printf("RANDOM NUM: %d\n", rand_val);
+  sprintf(filename_buf, "train%d.dat", rand_val);
+  cpi->training_fp = fopen(filename_buf, "wb");
+  if (cpi->training_fp != NULL) printf("Training file opened\n");
+
   seq_params->profile = oxcf->profile;
   seq_params->bit_depth = oxcf->tool_cfg.bit_depth;
   seq_params->use_highbitdepth = oxcf->use_highbitdepth;
@@ -632,6 +647,8 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   // calculated at init time. This stores and restores LAP's lag in frames to
   // prevent override by new cfg.
   int lap_lag_in_frames = -1;
+
+  cpi->td.mb.e_mbd.training_fp = cpi->training_fp;
   if (cpi->lap_enabled && cpi->compressor_stage == LAP_STAGE) {
     lap_lag_in_frames = cpi->oxcf.gf_cfg.lag_in_frames;
   }
