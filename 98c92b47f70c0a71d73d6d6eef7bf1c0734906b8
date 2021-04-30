@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eebb2448_16ebb89f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-04-30T15:07:45Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe noticed an integer overflow issue in buffer size computation of pack bitstream MT in the nightly tests (only in 32-bit builds) below.\nhttps://build.aomedia.org/jenkins/job/libaom__nightly_unit_tests-sanitized/1078/\n\nThe issue is caused by overflow in a multiplication operation. As size_t datatype is taking 4-bytes in size, the issue seen only in 32-bit build. The issue is fixed by storing the multiplication output in an intermediate 64-bit variable.\n\nThis patch is tested locally for bit match. Please review.\nThank you.",
+      "revId": "98c92b47f70c0a71d73d6d6eef7bf1c0734906b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
