@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b1748a2_dedcfae1",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-04-30T18:02:57Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "5bf28df5_4c985715",
+      "range": {
+        "startLine": 153,
+        "startChar": 6,
+        "endLine": 153,
+        "endChar": 13
+      },
+      "revId": "edf237ddb8e7e0e4cff89c5db5358ff638ac2b26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "35bd3990_806155fe",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa06ce5c_db8c9d11",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-04-30T18:02:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35bd3990_806155fe",
+      "range": {
+        "startLine": 168,
+        "startChar": 8,
+        "endLine": 168,
+        "endChar": 11
+      },
+      "revId": "edf237ddb8e7e0e4cff89c5db5358ff638ac2b26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3bbba57d_643e5fa1",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-04-30T17:15:02Z",
       "side": 1,
       "message": "() not needed",
+      "range": {
+        "startLine": 241,
+        "startChar": 35,
+        "endLine": 241,
+        "endChar": 36
+      },
+      "revId": "edf237ddb8e7e0e4cff89c5db5358ff638ac2b26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd02e036_430e552b",
+        "filename": "av1/encoder/aq_cyclicrefresh.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-04-30T18:02:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3bbba57d_643e5fa1",
       "range": {
         "startLine": 241,
         "startChar": 35,
