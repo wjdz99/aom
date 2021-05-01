@@ -72,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1fa38a3f_162f943a",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-05-01T17:32:42Z",
+      "side": 1,
+      "message": "\u003e Perhaps the new code in this file should be added to build/cmake/aom_install.cmake instead?\n\nYes, all of this belongs in the install script.",
+      "parentUuid": "36c5d3e2_fa774b47",
+      "revId": "1a6feb9b8f85b843481c5b00bc23d9888302159d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4a8d7310_96ab7487",
         "filename": "CMakeLists.txt",
         "patchSetId": 2
@@ -100,6 +118,24 @@
       "writtenOn": "2021-04-29T22:18:34Z",
       "side": 1,
       "message": "This CL adds a new \u0027cmake\u0027 directory and puts the new aomConfig.cmake.in file there. I think we can put aomConfig.cmake.in in the existing build/cmake directory.",
+      "revId": "1a6feb9b8f85b843481c5b00bc23d9888302159d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95d10359_bbe01c9a",
+        "filename": "cmake/aomConfig.cmake.in",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-05-01T17:32:42Z",
+      "side": 1,
+      "message": "Yes, this belongs in build/cmake. Also, given the existing naming convention for libaom source files, it should be named aom_config.cmake.template.",
+      "parentUuid": "a1f45798_a1130373",
       "revId": "1a6feb9b8f85b843481c5b00bc23d9888302159d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
