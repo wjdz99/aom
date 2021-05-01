@@ -3533,13 +3533,16 @@ static int apply_denoise_2d(AV1_COMP *cpi, YV12_BUFFER_CONFIG *sd,
     }
     memset(cpi->film_grain_table, 0, sizeof(*cpi->film_grain_table));
   }
-  if (aom_denoise_and_model_run(cpi->denoise_and_model, sd,
-                                &cm->film_grain_params,
-                                cpi->oxcf.enable_dnl_denoising)) {
-    if (cm->film_grain_params.apply_grain) {
-      aom_film_grain_table_append(cpi->film_grain_table, time_stamp, end_time,
-                                  &cm->film_grain_params);
-    }
+  if (!aom_denoise_and_model_run(cpi->denoise_and_model, sd,
+                                 &cm->film_grain_params,
+                                 cpi->oxcf.enable_dnl_denoising)) {
+    aom_internal_error(cm->error, AOM_CODEC_ERROR,
+                       "Error running denoise and model");
+    return -1;
+  }
+  if (cm->film_grain_params.apply_grain) {
+    aom_film_grain_table_append(cpi->film_grain_table, time_stamp, end_time,
+                                &cm->film_grain_params);
   }
   return 0;
 }
