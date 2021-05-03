@@ -24,6 +24,8 @@
     reduced.
 
   - Bug fixes:
+    Issue 2601: third_party/libaom fails licensecheck
+
     Issue 2950: Conditional expression for rc->this_key_frame_forced is always
     true in find_next_key_frame()
 
