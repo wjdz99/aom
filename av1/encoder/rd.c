@@ -1298,7 +1298,9 @@ int av1_get_switchable_rate(const MACROBLOCK *x, const MACROBLOCKD *xd,
                             InterpFilter interp_filter) {
   if (interp_filter == SWITCHABLE) {
     const MB_MODE_INFO *const mbmi = xd->mi[0];
-#if CONFIG_OPTFLOW_REFINEMENT
+#if CONFIG_FIX_COMP_INTERP_FILTER
+    if (mbmi->mode > NEWMV) return 0;
+#elif CONFIG_OPTFLOW_REFINEMENT
     if (mbmi->mode > NEW_NEWMV) return 0;
 #endif
 #if CONFIG_REMOVE_DUAL_FILTER

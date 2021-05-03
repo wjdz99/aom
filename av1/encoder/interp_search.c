@@ -127,6 +127,9 @@ static INLINE void swap_dst_buf(MACROBLOCKD *xd, const BUFFER_SET *dst_bufs[2],
 static INLINE int get_switchable_rate(MACROBLOCK *const x,
                                       const InterpFilter interp_fltr,
                                       const int ctx[2]) {
+#if CONFIG_FIX_COMP_INTERP_FILTER
+  if (x->e_mbd.mi[0]->mode > NEWMV) return 0;
+#endif
 #if CONFIG_OPTFLOW_REFINEMENT
   if (x->e_mbd.mi[0]->mode > NEW_NEWMV) return 0;
 #endif
@@ -138,6 +141,9 @@ static INLINE int get_switchable_rate(MACROBLOCK *const x,
 static INLINE int get_switchable_rate(MACROBLOCK *const x,
                                       const int_interpfilters filters,
                                       int dual_filter, const int ctx[2]) {
+#if CONFIG_FIX_COMP_INTERP_FILTER
+  if (x->e_mbd.mi[0]->mode > NEWMV) return 0;
+#endif
 #if CONFIG_OPTFLOW_REFINEMENT
   if (x->e_mbd.mi[0]->mode > NEW_NEWMV) return 0;
 #endif
@@ -719,7 +725,9 @@ int64_t av1_interpolation_filter_search(
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int need_search = av1_is_interp_needed(xd) &&
-#if CONFIG_OPTFLOW_REFINEMENT
+#if CONFIG_FIX_COMP_INTERP_FILTER
+                          mbmi->mode <= NEWMV &&
+#elif CONFIG_OPTFLOW_REFINEMENT
                           mbmi->mode <= NEW_NEWMV &&
 #endif
                           !cpi->sf.rt_sf.skip_interp_filter_search;
@@ -785,7 +793,12 @@ int64_t av1_interpolation_filter_search(
   }
   if (!need_search) {
 #if CONFIG_REMOVE_DUAL_FILTER
-#if CONFIG_OPTFLOW_REFINEMENT
+#if CONFIG_FIX_COMP_INTERP_FILTER
+    assert(mbmi->interp_fltr ==
+           ((mbmi->mode > NEWMV && mbmi->mode != GLOBAL_GLOBALMV)
+                ? MULTITAP_SHARP
+                : EIGHTTAP_REGULAR));
+#elif CONFIG_OPTFLOW_REFINEMENT
     assert(mbmi->interp_fltr ==
            (mbmi->mode > NEW_NEWMV ? MULTITAP_SHARP : EIGHTTAP_REGULAR));
 #else
@@ -793,10 +806,14 @@ int64_t av1_interpolation_filter_search(
 #endif
 #else
     const int_interpfilters filters =
-#if CONFIG_OPTFLOW_REFINEMENT
+#if CONFIG_FIX_COMP_INTERP_FILTER
+        (mbmi->mode > NEWMV && mbmi->mode != GLOBAL_GLOBALMV)
+            ? av1_broadcast_interp_filter(MULTITAP_SHARP)
+            :
+#elif CONFIG_OPTFLOW_REFINEMENT
         mbmi->mode > NEW_NEWMV ? av1_broadcast_interp_filter(MULTITAP_SHARP) :
 #endif
-                               av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
+            av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
     assert(mbmi->interp_filters.as_int == filters.as_int);
     (void)filters;
 #endif  // CONFIG_REMOVE_DUAL_FILTER
