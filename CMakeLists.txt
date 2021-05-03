@@ -47,9 +47,15 @@ endif()
 # passed to libtool.
 #
 # We set SO_FILE_VERSION = [c-a].a.r
+<<<<<<< HEAD   (7247e6 Disable ext partitions for low quantizers in speed 2)
 set(LT_CURRENT 3)
 set(LT_REVISION 0)
 set(LT_AGE 0)
+=======
+set(LT_CURRENT 4)
+set(LT_REVISION 0)
+set(LT_AGE 1)
+>>>>>>> BRANCH (c0f141 Require CMake version 3.6 or higher)
 math(EXPR SO_VERSION "${LT_CURRENT} - ${LT_AGE}")
 set(SO_FILE_VERSION "${SO_VERSION}.${LT_AGE}.${LT_REVISION}")
 unset(LT_CURRENT)
