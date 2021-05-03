@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "204fa76d_3b5b1430",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75f4d3ef_1ebadd79",
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb86418c_b56bb97f",
@@ -65,6 +83,24 @@
       "writtenOn": "2021-04-30T22:51:27Z",
       "side": 1,
       "message": "Nit: Please add a class comment that this tests AOME_SET_SHARPNESS.",
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d7ef3be_241eaaff",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb86418c_b56bb97f",
       "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "492f1034_ec8aed5e",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56b9827c_ebde75ca",
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85c0b43b_d79528d6",
@@ -103,6 +157,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1b65645_95ca4388",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85c0b43b_d79528d6",
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5fd51546_864a8cdb",
@@ -116,6 +188,30 @@
       "writtenOn": "2021-04-30T22:51:27Z",
       "side": 1,
       "message": "Nit: these two statements can be combined:\n\n    std::unique_ptr\u003clibaom_test::VideoSource\u003e video(\n        new libaom_test::Y4mVideoSource(\"paris_352_288_30.y4m\", 0, kFrames));",
+      "range": {
+        "startLine": 97,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 77
+      },
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa2486ab_f9ae4546",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5fd51546_864a8cdb",
       "range": {
         "startLine": 97,
         "startChar": 0,
@@ -149,6 +245,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42047679_a3683b2e",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "169ccb6c_6f48bd84",
+      "range": {
+        "startLine": 105,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 79
+      },
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a56cf6ab_a016e67b",
@@ -172,6 +292,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f423c98_a66988b9",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a56cf6ab_a016e67b",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 23
+      },
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "63a6d64d_bdb070b3",
@@ -185,6 +329,24 @@
       "writtenOn": "2021-04-30T22:51:27Z",
       "side": 1,
       "message": "Nit/optional: To shorten test time, we can test cpu_used 3, 6, 9 only.",
+      "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f576e877_1e6980e7",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-05-03T14:37:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63a6d64d_bdb070b3",
       "revId": "45cee7d759051b66ccbb957beb55eb63a5ebf9b0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
