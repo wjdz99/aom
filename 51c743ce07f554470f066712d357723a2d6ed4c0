@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "019f46b5_ee298312",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-05-03T17:10:00Z",
+      "side": 1,
+      "message": "Ack. Added +2.",
+      "parentUuid": "02957693_87f54681",
+      "revId": "51c743ce07f554470f066712d357723a2d6ed4c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80fe22c0_0a93e393",
@@ -103,6 +121,30 @@
       "side": 1,
       "message": "Ack",
       "parentUuid": "b36824bc_b0a8ea5c",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 5
+      },
+      "revId": "51c743ce07f554470f066712d357723a2d6ed4c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdf6b11f_694a2212",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-05-03T17:10:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "587e3054_6a21abbd",
       "range": {
         "startLine": 71,
         "startChar": 0,

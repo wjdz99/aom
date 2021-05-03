@@ -87,6 +87,30 @@
       },
       "revId": "d40d035d484dcb729263976828c0266449de4ffc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3a7da4a_d39319e0",
+        "filename": "test/monochrome_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-05-03T17:10:00Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b43f7ffc_15f02b0e",
+      "range": {
+        "startLine": 102,
+        "startChar": 26,
+        "endLine": 102,
+        "endChar": 29
+      },
+      "revId": "d40d035d484dcb729263976828c0266449de4ffc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
