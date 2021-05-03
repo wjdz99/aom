@@ -219,6 +219,30 @@
       },
       "revId": "78bf1d53074b21b35c681a4635bec62f878e16e0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "596aab67_f0d3a8c2",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-03T22:31:16Z",
+      "side": 1,
+      "message": "I meant that you can make quant_func_list a 1D array when CONFIG_EXT_QUANT is enabled, thereby removing the unnecessary part of the array.",
+      "parentUuid": "d08cd607_ec8a560d",
+      "range": {
+        "startLine": 301,
+        "startChar": 46,
+        "endLine": 301,
+        "endChar": 49
+      },
+      "revId": "78bf1d53074b21b35c681a4635bec62f878e16e0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
