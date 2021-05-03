@@ -1203,7 +1203,9 @@ static INLINE void read_mb_interp_filter(const MACROBLOCKD *const xd,
                                          aom_reader *r) {
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
-#if CONFIG_OPTFLOW_REFINEMENT
+#if CONFIG_FIX_COMP_INTERP_FILTER
+  if (!av1_is_interp_needed(xd) || mbmi->mode > NEWMV) {
+#elif CONFIG_OPTFLOW_REFINEMENT
   if (!av1_is_interp_needed(xd) || mbmi->mode > NEW_NEWMV) {
 #else
   if (!av1_is_interp_needed(xd)) {
