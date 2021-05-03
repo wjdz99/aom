@@ -161,6 +161,8 @@ set_aom_config_var(CONFIG_EXT_RECUR_PARTITIONS 0 NUMBER
                    "AV2 Fully recursive partitions experiment flag")
 set_aom_config_var(CONFIG_OPTFLOW_REFINEMENT 0
                    "AV2 optical flow based MV refinement experimental flag")
+set_aom_config_var(CONFIG_FIX_COMP_INTERP_FILTER 0
+                   "AV2 fix compound interpolation filter experimental flag")
 
 #
 # Variables in this section control optional features of the build system.
