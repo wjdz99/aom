@@ -48,7 +48,10 @@ macro(setup_aom_install_targets)
               -DCMAKE_PROJECT_NAME=${CMAKE_PROJECT_NAME}
               -DCONFIG_MULTITHREAD=${CONFIG_MULTITHREAD}
               -DCONFIG_TUNE_VMAF=${CONFIG_TUNE_VMAF}
+<<<<<<< HEAD   (7247e6 Disable ext partitions for low quantizers in speed 2)
               -DCONFIG_TUNE_BUTTERAUGLI=${CONFIG_TUNE_BUTTERAUGLI}
+=======
+>>>>>>> BRANCH (c0f141 Require CMake version 3.6 or higher)
               -DHAVE_PTHREAD_H=${HAVE_PTHREAD_H}
               -P
               "${AOM_ROOT}/build/cmake/pkg_config.cmake"
