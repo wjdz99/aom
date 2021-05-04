@@ -1503,7 +1503,7 @@ static int tf_worker_hook(void *arg1, void *unused) {
   int current_mb_row = -1;
 
   while (tf_get_next_job(tf_sync, &current_mb_row, tf_ctx->mb_rows))
-    av1_tf_do_filtering_row(cpi, td, current_mb_row);
+    av1_tf_do_filtering_row(cpi, td, current_mb_row, 0, 3);
 
   tf_restore_state(mbd, input_mb_mode_info, input_buffer, num_planes);
 

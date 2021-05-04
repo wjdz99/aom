@@ -445,4 +445,18 @@ void av1_compute_global_motion_facade(AV1_COMP *cpi) {
   }
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          sizeof(cm->cur_frame->global_motion));
+
+//  printf("\nFrame:[%d/%d]: Last(1): %d;   %d %d %d %d;  alt(7): %d;   %d %d %d %d\n",
+//          cm->current_frame.frame_number, cm->show_frame,
+//          cm->global_motion[1].wmtype,
+//          cm->global_motion[1].wmmat[0],
+//          cm->global_motion[1].wmmat[1],
+//          cm->global_motion[1].wmmat[2],
+//          cm->global_motion[1].wmmat[3],
+//          cm->global_motion[7].wmtype,
+//          cm->global_motion[7].wmmat[0],
+//          cm->global_motion[7].wmmat[1],
+//          cm->global_motion[7].wmmat[2],
+//          cm->global_motion[7].wmmat[3]);
+
 }

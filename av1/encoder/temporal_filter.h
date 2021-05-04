@@ -191,7 +191,7 @@ filtering
 modified.
 */
 void av1_tf_do_filtering_row(struct AV1_COMP *cpi, struct ThreadData *td,
-                             int mb_row);
+                             int mb_row, int is_second_arf, FRAME_UPDATE_TYPE update_type);
 
 /*!\brief Performs temporal filtering if needed on a source frame.
  * For example to create a filtered alternate reference frame (ARF)
