@@ -3100,6 +3100,77 @@ int av1_find_best_sub_pixel_tree(MACROBLOCKD *xd, const AV1_COMMON *const cm,
     hstep >>= 1;
   }
 
+
+  return besterr;
+}
+
+int av1_find_best_sub_pixel_tree1(MACROBLOCKD *xd, const AV1_COMMON *const cm,
+                                 const SUBPEL_MOTION_SEARCH_PARAMS *ms_params,
+                                 MV start_mv, MV *bestmv, int *distortion,
+                                 unsigned int *sse1,
+                                 int_mv *last_mv_search_list) {
+  const int allow_hp = ms_params->allow_hp;
+  const int forced_stop = ms_params->forced_stop;
+  const int iters_per_step = ms_params->iters_per_step;
+  const MV_COST_PARAMS *mv_cost_params = &ms_params->mv_cost_params;
+  const SUBPEL_SEARCH_VAR_PARAMS *var_params = &ms_params->var_params;
+  const SUBPEL_SEARCH_TYPE subpel_search_type =
+      ms_params->var_params.subpel_search_type;
+  const SubpelMvLimits *mv_limits = &ms_params->mv_limits;
+
+  // How many steps to take. A round of 0 means fullpel search only, 1 means
+  // half-pel, and so on.
+  const int round = AOMMIN(FULL_PEL - forced_stop, 3 - !allow_hp);
+  int hstep = INIT_SUBPEL_STEP_SIZE;  // Step size, initialized to 4/8=1/2 pel
+
+  unsigned int besterr = INT_MAX;
+
+  *bestmv = start_mv;
+
+  const struct scale_factors *const sf = is_intrabc_block(xd->mi[0])
+                                             ? &cm->sf_identity
+                                             : xd->block_ref_scale_factors[0];
+  const int is_scaled = av1_is_scaled(sf);
+
+  if (subpel_search_type != USE_2_TAPS_ORIG) {
+    besterr = upsampled_setup_center_error(xd, cm, bestmv, var_params,
+                                           mv_cost_params, sse1, distortion);
+  } else {
+    besterr = setup_center_error(xd, bestmv, var_params, mv_cost_params, sse1,
+                                 distortion);
+  }
+
+  // If forced_stop is FULL_PEL, return.
+  if (!round) return besterr;
+
+  for (int iter = 0; iter < round; ++iter) {
+    MV iter_center_mv = *bestmv;
+    if (check_repeated_mv_and_update(last_mv_search_list, iter_center_mv,
+                                     iter)) {
+      return INT_MAX;
+    }
+
+    MV diag_step;
+    if (subpel_search_type != USE_2_TAPS_ORIG) {
+      diag_step = first_level_check(xd, cm, iter_center_mv, bestmv, hstep,
+                                    mv_limits, var_params, mv_cost_params,
+                                    &besterr, sse1, distortion);
+    } else {
+      diag_step = first_level_check_fast(xd, cm, iter_center_mv, bestmv, hstep,
+                                         mv_limits, var_params, mv_cost_params,
+                                         &besterr, sse1, distortion, is_scaled);
+    }
+
+    // Check diagonal sub-pixel position
+    if (!CHECK_MV_EQUAL(iter_center_mv, *bestmv) && iters_per_step > 1) {
+      second_level_check_v2(xd, cm, iter_center_mv, diag_step, bestmv,
+                            mv_limits, var_params, mv_cost_params, &besterr,
+                            sse1, distortion, is_scaled);
+    }
+
+    hstep >>= 1;
+  }
+
   return besterr;
 }
 
