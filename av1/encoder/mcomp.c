@@ -3100,6 +3100,7 @@ int av1_find_best_sub_pixel_tree(MACROBLOCKD *xd, const AV1_COMMON *const cm,
     hstep >>= 1;
   }
 
+
   return besterr;
 }
 
