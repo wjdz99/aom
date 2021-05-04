@@ -5142,12 +5142,12 @@ BEGIN_PARTITION_SEARCH:
   assert(IMPLIES(!cpi->oxcf.part_cfg.enable_rect_partitions,
                  !part_search_state.do_rectangular_split));
 
-#if !CONFIG_EXT_RECUR_PARTITIONS
   const int ext_partition_allowed =
       part_search_state.do_rectangular_split &&
       bsize > cpi->sf.part_sf.ext_partition_eval_thresh &&
       blk_params.has_rows && blk_params.has_cols;
 
+#if !CONFIG_EXT_RECUR_PARTITIONS
   // AB partitions search stage.
   ab_partitions_search(cpi, td, tile_data, tp, x, &x_ctx, pc_tree,
                        &part_search_state, &best_rdc, rect_part_win_info,
@@ -5200,19 +5200,18 @@ BEGIN_PARTITION_SEARCH:
 #endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
 #if CONFIG_EXT_RECUR_PARTITIONS
-  /*  prune_partition_3(cpi, pc_tree, &part_search_state, x, &best_rdc,
-                      pb_source_variance, ext_partition_allowed);*/
-
   // PARTITION_HORZ_3
   if (IMPLIES(should_reuse_mode(x, REUSE_PARTITION_MODE_FLAG),
-              !PRUNE_WITH_PREV_PARTITION(PARTITION_HORZ_3))) {
+              !PRUNE_WITH_PREV_PARTITION(PARTITION_HORZ_3)) &&
+      ext_partition_allowed) {
     search_partition_horz_3(&part_search_state, cpi, td, tile_data, tp,
                             &best_rdc, pc_tree, &x_ctx, multi_pass_mode);
   }
 
   // PARTITION_VERT_3
   if (IMPLIES(should_reuse_mode(x, REUSE_PARTITION_MODE_FLAG),
-              !PRUNE_WITH_PREV_PARTITION(PARTITION_VERT_3))) {
+              !PRUNE_WITH_PREV_PARTITION(PARTITION_VERT_3)) &&
+      ext_partition_allowed) {
     search_partition_vert_3(&part_search_state, cpi, td, tile_data, tp,
                             &best_rdc, pc_tree, &x_ctx, multi_pass_mode);
   }
