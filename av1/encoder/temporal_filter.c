@@ -28,6 +28,7 @@
 #include "av1/encoder/mcomp.h"
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/rotation.h"
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/temporal_filter.h"
 #include "aom_dsp/aom_dsp_common.h"
@@ -42,8 +43,8 @@
 // NOTE: All `tf` in this file means `temporal filtering`.
 
 // Forward Declaration.
-static void tf_determine_block_partition(const MV block_mv, const int block_mse,
-                                         MV *subblock_mvs, int *subblock_mses);
+static void tf_determine_block_partition(const MV block_mv, const int block_rot, const int block_mse,
+                                         MV *subblock_mvs, int *subblock_rot, int *subblock_mses, int *which);
 
 /*!\endcond */
 /*!\brief Does motion search for blocks in temporal filtering. This is
@@ -86,7 +87,7 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
                              const YV12_BUFFER_CONFIG *ref_frame,
                              const BLOCK_SIZE block_size, const int mb_row,
                              const int mb_col, MV *ref_mv, MV *subblock_mvs,
-                             int *subblock_mses) {
+                             int *subblock_mses, int *subblock_rot, int is_edge_blk) {
   // Frame information
   const int min_frame_size = AOMMIN(cpi->common.width, cpi->common.height);
 
@@ -138,6 +139,10 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
   int block_mse = INT_MAX;
   MV block_mv = kZeroMv;
 
+  int rot = 0;
+  int block_rot = 0;
+  unsigned int error_rot = INT_MAX;
+
   av1_make_default_fullpel_ms_params(&full_ms_params, cpi, mb, block_size,
                                      &baseline_mv, search_site_cfg,
                                      /*fine_search_interval=*/0);
@@ -173,6 +178,36 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
     error = cpi->mv_search_params.find_fractional_mv_step(
         &mb->e_mbd, &cpi->common, &ms_params, subpel_start_mv, &best_mv.as_mv,
         &distortion, &sse, NULL);
+
+    // In rot, it is the same as
+    // sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED; at speed 3. so,
+    // base error is different for speed >=3.
+//    unsigned int error_mv = av1_find_best_sub_pixel_tree1(
+//        &mb->e_mbd, &cpi->common, &ms_params, best_mv.as_mv, &best_mv.as_mv,
+//        &distortion, &sse, NULL);
+
+    if (!is_edge_blk) {
+    //printf("\n bbbbmv: %d; %d;", best_mv.as_mv.row, best_mv.as_mv.col);
+      MV this_mv;
+      this_mv.row = best_mv.as_mv.row;
+      this_mv.col = best_mv.as_mv.col;
+
+      error_rot = INT_MAX;
+      error_rot = av1_find_best_rotation(mbd, &ms_params, error, &this_mv, &block_rot);
+      if (block_rot) {
+        assert(error_rot < error);
+         const float err_ratio = (float)(error - error_rot) / error;
+         if (err_ratio > 0.1) {
+//          printf("\n %d;       %d; %d;    %f; ", error,  error_rot, block_rot,   err_ratio);
+          error = error_rot;
+          best_mv.as_mv.row = this_mv.row;
+          best_mv.as_mv.col = this_mv.col;
+         } else {
+           block_rot = 0;
+         }
+      }
+    }
+
     block_mse = DIVIDE_AND_ROUND(error, mb_pels);
     block_mv = best_mv.as_mv;
     *ref_mv = best_mv.as_mv;
@@ -214,8 +249,30 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
         error = cpi->mv_search_params.find_fractional_mv_step(
             &mb->e_mbd, &cpi->common, &ms_params, subpel_start_mv,
             &best_mv.as_mv, &distortion, &sse, NULL);
+
+        if (!is_edge_blk && block_rot) {
+        //printf("\n bbbbmv: %d; %d;", best_mv.as_mv.row, best_mv.as_mv.col);
+          MV this_mv;
+          this_mv.row = best_mv.as_mv.row;
+          this_mv.col = best_mv.as_mv.col;
+
+          error_rot = INT_MAX;
+          rot = 0;
+          error_rot = av1_find_best_rotation(mbd, &ms_params, error, &this_mv, &rot);
+          if (rot) {
+//            printf("\n    %d:   %d;       %d; %d; ", subblock_idx, error,  error_rot, rot);
+            assert(error_rot < error);
+            error = error_rot;
+            best_mv.as_mv.row = this_mv.row;
+            best_mv.as_mv.col = this_mv.col;
+          }
+          // error and error_rot are not comparable. So, if 32x32 use rot, then 16x16 use rot & error_rot. So errors are comparable.
+          error = error_rot;
+        }
+
         subblock_mses[subblock_idx] = DIVIDE_AND_ROUND(error, subblock_pels);
         subblock_mvs[subblock_idx] = best_mv.as_mv;
+        subblock_rot[subblock_idx] = rot;
         ++subblock_idx;
       }
     }
@@ -226,8 +283,13 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
   mbd->plane[0].pre[0] = ori_pre_buf;
 
   // Make partition decision.
-  tf_determine_block_partition(block_mv, block_mse, subblock_mvs,
-                               subblock_mses);
+  int which;
+  tf_determine_block_partition(block_mv, block_rot, block_mse, subblock_mvs, subblock_rot,
+                               subblock_mses, &which);
+
+//  if(block_rot)
+//  printf("\n which: %d;   found rot: %d; %d; %d; %d;   \n", which, subblock_rot[0], subblock_rot[1],subblock_rot[2],subblock_rot[3]);
+
 
   // Do not pass down the reference motion vector if error is too large.
   const int thresh = (min_frame_size >= 720) ? 12 : 3;
@@ -251,8 +313,8 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
 // Returns:
 //   Nothing will be returned. Results are saved in `subblock_mvs` and
 //   `subblock_mses`.
-static void tf_determine_block_partition(const MV block_mv, const int block_mse,
-                                         MV *subblock_mvs, int *subblock_mses) {
+static void tf_determine_block_partition(const MV block_mv, const int block_rot, const int block_mse,
+                                         MV *subblock_mvs, int *subblock_rot, int *subblock_mses, int *which) {
   int min_subblock_mse = INT_MAX;
   int max_subblock_mse = INT_MIN;
   int64_t sum_subblock_mse = 0;
@@ -264,14 +326,17 @@ static void tf_determine_block_partition(const MV block_mv, const int block_mse,
 
   // TODO(any): The following magic numbers may be tuned to improve the
   // performance OR find a way to get rid of these magic numbers.
+  *which = 1;
   if (((block_mse * 15 < sum_subblock_mse * 4) &&
        max_subblock_mse - min_subblock_mse < 48) ||
       ((block_mse * 14 < sum_subblock_mse * 4) &&
        max_subblock_mse - min_subblock_mse < 24)) {  // No split.
     for (int i = 0; i < 4; ++i) {
       subblock_mvs[i] = block_mv;
+      subblock_rot[i] = block_rot;
       subblock_mses[i] = block_mse;
     }
+    *which = 0;
   }
 }
 
@@ -314,7 +379,7 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
                                const BLOCK_SIZE block_size, const int mb_row,
                                const int mb_col, const int num_planes,
                                const struct scale_factors *scale,
-                               const MV *subblock_mvs, uint8_t *pred) {
+                               const MV *subblock_mvs, const int *subblock_rot, uint8_t *pred) {
   // Information of the entire block.
   const int mb_height = block_size_high[block_size];  // Height.
   const int mb_width = block_size_wide[block_size];   // Width.
@@ -352,7 +417,9 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
     for (int i = 0; i < plane_h; i += h) {
       for (int j = 0; j < plane_w; j += w) {
         // Choose proper motion vector.
-        const MV mv = subblock_mvs[subblock_idx++];
+        const MV mv = subblock_mvs[subblock_idx];
+        const int rot = subblock_rot[subblock_idx];
+        subblock_idx++;
         assert(mv.row >= INT16_MIN && mv.row <= INT16_MAX &&
                mv.col >= INT16_MIN && mv.col <= INT16_MAX);
 
@@ -365,8 +432,15 @@ static void tf_build_predictor(const YV12_BUFFER_CONFIG *ref_frame,
                               subsampling_y, bit_depth, is_high_bitdepth,
                               is_intrabc, scale, &ref_buf, interp_filters);
         inter_pred_params.conv_params = get_conv_params(0, plane, bit_depth);
-        av1_enc_build_one_inter_predictor(&pred[plane_offset + i * plane_w + j],
-                                          plane_w, &mv, &inter_pred_params);
+
+        if (!rot) {
+          av1_enc_build_one_inter_predictor(&pred[plane_offset + i * plane_w + j],
+                                            plane_w, &mv, &inter_pred_params);
+        } else {
+          ///
+          av1_enc_build_one_rotational_predictor(&pred[plane_offset + i * plane_w + j],
+                                                 plane_w, &mv, rot, &inter_pred_params);
+        }
       }
     }
     plane_offset += plane_h * plane_w;
@@ -799,11 +873,19 @@ void av1_tf_do_filtering_row(AV1_COMP *cpi, ThreadData *td, int mb_row) {
     memset(count, 0, num_pels * sizeof(count[0]));
     MV ref_mv = kZeroMv;  // Reference motion vector passed down along frames.
                           // Perform temporal filtering frame by frame.
+
+    int is_edge_blk = 0;
+    if (mb_row == 0 || mb_row == tf_ctx->mb_rows - 1 || mb_col == 0 || mb_col == tf_ctx->mb_cols - 1)
+      is_edge_blk = 1;
+
     for (int frame = 0; frame < num_frames; frame++) {
       if (frames[frame] == NULL) continue;
 
+      //printf("\n------------- 1blk/per ref------------\n");
+
       // Motion search.
       MV subblock_mvs[4] = { kZeroMv, kZeroMv, kZeroMv, kZeroMv };
+      int subblock_rot[4] = { 0, 0, 0, 0 };
       int subblock_mses[4] = { INT_MAX, INT_MAX, INT_MAX, INT_MAX };
       if (frame ==
           filter_frame_idx) {  // Frame to be filtered.
@@ -812,7 +894,7 @@ void av1_tf_do_filtering_row(AV1_COMP *cpi, ThreadData *td, int mb_row) {
         ref_mv.col *= -1;
       } else {  // Other reference frames.
         tf_motion_search(cpi, mb, frame_to_filter, frames[frame], block_size,
-                         mb_row, mb_col, &ref_mv, subblock_mvs, subblock_mses);
+                         mb_row, mb_col, &ref_mv, subblock_mvs, subblock_mses, subblock_rot, is_edge_blk);
       }
 
       // Perform weighted averaging.
@@ -821,7 +903,7 @@ void av1_tf_do_filtering_row(AV1_COMP *cpi, ThreadData *td, int mb_row) {
                                       mb_col, num_planes, accum, count);
       } else {  // Other reference frames.
         tf_build_predictor(frames[frame], mbd, block_size, mb_row, mb_col,
-                           num_planes, scale, subblock_mvs, pred);
+                           num_planes, scale, subblock_mvs, subblock_rot, pred);
 
         // All variants of av1_apply_temporal_filter() contain floating point
         // operations. Hence, clear the system state.
