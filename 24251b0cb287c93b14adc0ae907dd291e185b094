@@ -57,6 +57,30 @@
       },
       "revId": "24251b0cb287c93b14adc0ae907dd291e185b094",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "044de81f_7c1eada5",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1985,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-05-04T05:10:00Z",
+      "side": 1,
+      "message": "Yes, this is handling speed 2 case.",
+      "parentUuid": "b04be4ad_5d6d7344",
+      "range": {
+        "startLine": 1985,
+        "startChar": 10,
+        "endLine": 1985,
+        "endChar": 44
+      },
+      "revId": "24251b0cb287c93b14adc0ae907dd291e185b094",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
