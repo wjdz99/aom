@@ -2274,6 +2274,10 @@ typedef struct AV1_PRIMARY {
   Metrics metrics;
   /*!\endcond */
 #endif
+
+#if CONFIG_ENTROPY_STATS
+  FRAME_COUNTS aggregate_fc;
+#endif  // CONFIG_ENTROPY_STATS
 } AV1_PRIMARY;
 
 /*!
@@ -2907,6 +2911,9 @@ void av1_remove_compressor(AV1_COMP *cpi);
 
 void av1_remove_primary_compressor(AV1_PRIMARY *ppi);
 
+#if CONFIG_ENTROPY_STATS
+void print_entropy_stats(AV1_PRIMARY *const ppi);
+#endif
 #if CONFIG_INTERNAL_STATS
 void print_internal_stats(AV1_PRIMARY *ppi);
 #endif
