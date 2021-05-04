@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41b90aa5_fb7d73d8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-04T18:50:33Z",
+      "side": 1,
+      "message": "This is similar to the last CL, but adding a unit test for the Hadamard function as well.",
+      "revId": "0ded61cfd0401b2f980045086ea214cb99090f1c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
