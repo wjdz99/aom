@@ -5204,14 +5204,16 @@ BEGIN_PARTITION_SEARCH:
                       pb_source_variance, ext_partition_allowed);*/
 
   // PARTITION_HORZ_3
-  if (IMPLIES(should_reuse_mode(x, REUSE_PARTITION_MODE_FLAG),
+  if (blk_params.has_rows && blk_params.has_cols &&
+      IMPLIES(should_reuse_mode(x, REUSE_PARTITION_MODE_FLAG),
               !PRUNE_WITH_PREV_PARTITION(PARTITION_HORZ_3))) {
     search_partition_horz_3(&part_search_state, cpi, td, tile_data, tp,
                             &best_rdc, pc_tree, &x_ctx, multi_pass_mode);
   }
 
   // PARTITION_VERT_3
-  if (IMPLIES(should_reuse_mode(x, REUSE_PARTITION_MODE_FLAG),
+  if (blk_params.has_rows && blk_params.has_cols &&
+      IMPLIES(should_reuse_mode(x, REUSE_PARTITION_MODE_FLAG),
               !PRUNE_WITH_PREV_PARTITION(PARTITION_VERT_3))) {
     search_partition_vert_3(&part_search_state, cpi, td, tile_data, tp,
                             &best_rdc, pc_tree, &x_ctx, multi_pass_mode);
