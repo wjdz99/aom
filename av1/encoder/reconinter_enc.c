@@ -28,50 +28,6 @@
 #include "av1/common/reconintra.h"
 #include "av1/encoder/reconinter_enc.h"
 
-static void enc_calc_subpel_params(const MV *const src_mv,
-                                   InterPredParams *const inter_pred_params,
-                                   MACROBLOCKD *xd, int mi_x, int mi_y, int ref,
-                                   uint8_t **mc_buf, uint8_t **pre,
-                                   SubpelParams *subpel_params,
-                                   int *src_stride) {
-  // These are part of the function signature to use this function through a
-  // function pointer. See typedef of 'CalcSubpelParamsFunc'.
-  (void)xd;
-  (void)mi_x;
-  (void)mi_y;
-  (void)ref;
-  (void)mc_buf;
-
-  const struct scale_factors *sf = inter_pred_params->scale_factors;
-
-  struct buf_2d *pre_buf = &inter_pred_params->ref_frame_buf;
-  int ssx = inter_pred_params->subsampling_x;
-  int ssy = inter_pred_params->subsampling_y;
-  int orig_pos_y = inter_pred_params->pix_row << SUBPEL_BITS;
-  orig_pos_y += src_mv->row * (1 << (1 - ssy));
-  int orig_pos_x = inter_pred_params->pix_col << SUBPEL_BITS;
-  orig_pos_x += src_mv->col * (1 << (1 - ssx));
-  int pos_y = sf->scale_value_y(orig_pos_y, sf);
-  int pos_x = sf->scale_value_x(orig_pos_x, sf);
-  pos_x += SCALE_EXTRA_OFF;
-  pos_y += SCALE_EXTRA_OFF;
-
-  const int top = -AOM_LEFT_TOP_MARGIN_SCALED(ssy);
-  const int left = -AOM_LEFT_TOP_MARGIN_SCALED(ssx);
-  const int bottom = (pre_buf->height + AOM_INTERP_EXTEND) << SCALE_SUBPEL_BITS;
-  const int right = (pre_buf->width + AOM_INTERP_EXTEND) << SCALE_SUBPEL_BITS;
-  pos_y = clamp(pos_y, top, bottom);
-  pos_x = clamp(pos_x, left, right);
-
-  subpel_params->subpel_x = pos_x & SCALE_SUBPEL_MASK;
-  subpel_params->subpel_y = pos_y & SCALE_SUBPEL_MASK;
-  subpel_params->xs = sf->x_step_q4;
-  subpel_params->ys = sf->y_step_q4;
-  *pre = pre_buf->buf0 + (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
-         (pos_x >> SCALE_SUBPEL_BITS);
-  *src_stride = pre_buf->stride;
-}
-
 void av1_enc_build_one_inter_predictor(uint8_t *dst, int dst_stride,
                                        const MV *src_mv,
                                        InterPredParams *inter_pred_params) {
