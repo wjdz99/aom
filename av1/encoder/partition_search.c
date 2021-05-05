@@ -1396,6 +1396,20 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
     }
 #else
     if (new_mv) {
+#if CONFIG_MVP_INDEPENDENT_PARSING
+      int ref_mv_idx = mbmi->ref_mv_idx;
+      for (int i = 0; i < 2; ++i) {
+        uint8_t drl_ctx = av1_drl_ctx(false, i);
+        uint8_t bit = ref_mv_idx < (i + 1);
+        update_cdf(fc->drl_cdf[drl_ctx], bit, 2);
+#if CONFIG_ENTROPY_STATS
+        ++counts->drl_mode[drl_ctx][bit];
+#endif
+        if (bit) {
+          break;
+        }
+      }
+#else
       const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
       for (int idx = 0; idx < 2; ++idx) {
         if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -1408,8 +1422,23 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
           if (mbmi->ref_mv_idx == idx) break;
         }
       }
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
     }
     if (have_nearmv_in_inter_mode(mbmi->mode)) {
+#if CONFIG_MVP_INDEPENDENT_PARSING
+      int ref_mv_idx = mbmi->ref_mv_idx;
+      for (int i = 0; i < 2; ++i) {
+        uint8_t drl_ctx = av1_drl_ctx(true, i);
+        uint8_t bit = ref_mv_idx < (i + 1);
+        update_cdf(fc->drl_cdf[drl_ctx], bit, 2);
+#if CONFIG_ENTROPY_STATS
+        ++counts->drl_mode[drl_ctx][bit];
+#endif
+        if (bit) {
+          break;
+        }
+      }
+#else
       const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
       for (int idx = 1; idx < 3; ++idx) {
         if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -1422,6 +1451,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
           if (mbmi->ref_mv_idx == idx - 1) break;
         }
       }
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
     }
 #endif  // CONFIG_NEW_INTER_MODES
     if (have_newmv_in_inter_mode(mbmi->mode)) {
