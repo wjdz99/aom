@@ -440,6 +440,14 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
       seq->order_hint_info.enable_order_hint;
   seq->enable_superres = oxcf->superres_cfg.enable_superres;
   seq->enable_cdef = tool_cfg->enable_cdef;
+
+#if CONFIG_CC_CDEF
+  seq->enable_cc_cdef = 1;
+  if (seq->enable_cdef == 0 || seq->monochrome) {
+    seq->enable_cc_cdef = 0;
+  }
+#endif
+
   seq->enable_restoration = tool_cfg->enable_restoration;
   seq->enable_warped_motion = oxcf->motion_mode_cfg.enable_warped_motion;
   seq->enable_interintra_compound = tool_cfg->enable_interintra_comp;
@@ -1328,6 +1336,11 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   av1_qm_init(&cm->quant_params, av1_num_planes(cm));
 
   av1_loop_filter_init(cm);
+
+#if CONFIG_CC_CDEF
+  av1_cccdef_filter_init(cm);
+#endif
+
   cm->superres_scale_denominator = SCALE_NUMERATOR;
   cm->superres_upscaled_width = oxcf->frm_dim_cfg.width;
   cm->superres_upscaled_height = oxcf->frm_dim_cfg.height;
@@ -1984,6 +1997,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
                                    int use_cdef) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   const int num_workers = mt_info->num_workers;
+
   if (use_restoration)
     av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
 
@@ -1991,12 +2005,33 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, cdef_time);
 #endif
+
     // Find CDEF parameters
     av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
                     cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult);
 
+#if CONFIG_CC_CDEF
+    if (cm->cur_frame->frame_type == KEY_FRAME ||
+        cm->cur_frame->frame_type == INTRA_ONLY_FRAME) {
+      av1_fill_cccdef_filter_coeff_buffer_with_default_filters(&cm->cdef_info);
+    }
+
+    int key_freq_max = cpi->oxcf.kf_cfg.key_freq_max;
+    int key_freq_min = cpi->oxcf.kf_cfg.key_freq_min;
+
+    // Find cross component CDEF parameters
+    av1_cc_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
+                       cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult,
+                       key_freq_max, key_freq_min);
+
+    // Apply the filter
+    av1_cdef_cccdef_frame(&cm->cur_frame->buf, cm, xd);
+
+#else
     // Apply the filter
     av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
+#endif
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, cdef_time);
 #endif
@@ -2004,7 +2039,29 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
     cm->cdef_info.cdef_bits = 0;
     cm->cdef_info.cdef_strengths[0] = 0;
     cm->cdef_info.nb_cdef_strengths = 1;
+
     cm->cdef_info.cdef_uv_strengths[0] = 0;
+
+#if CONFIG_CC_CDEF
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[0] = 0;
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[1] = 0;
+    memset(cm->cdef_info.cc_cdef_info.filter_coeff, 0,
+           MAX_NUMBER_OF_DIRECTIONS * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF *
+               sizeof(cm->cdef_info.cc_cdef_info.filter_coeff[0][0]));
+    cm->cdef_info.cc_cdef_info.cccdef_bits[0] = 0;
+    cm->cdef_info.cc_cdef_info.nb_cccdef_strengths[0] = 1;
+    cm->cdef_info.cc_cdef_info.cccdef_bits[1] = 0;
+    cm->cdef_info.cc_cdef_info.nb_cccdef_strengths[1] = 1;
+
+    for (int plane = 0; plane < 2; plane++) {
+      for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+        cm->cdef_info.cc_cdef_info
+            .cccdef_frame_new_filter_signal_flag[plane][dir] = 0;
+        cm->cdef_info.cc_cdef_info.cccdef_frame_filter_idx_in_buf[plane][dir] =
+            0;
+      }
+    }
+#endif
   }
 
   av1_superres_post_encode(cpi);
