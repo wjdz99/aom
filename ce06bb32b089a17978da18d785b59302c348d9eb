@@ -33,6 +33,24 @@
       "message": "Hey Yue, could you take a look at the pruning criterion for PARTITION_3s here?\nI\u0027m not too familiar with how PARTITION_TYPE_REC works with non square partitions.\n\nThe search criterion here is different from the one in the experimental branch because I think the criterion in the experimental branch is too aggressive.\nIn the experimental branch, we remove all PARTITION_3s if either of has_rows, has_cols is false. But the syntax actually allows PARTITION_3s in this case if the current blocks is not square.\n\nRight now with the current search criterion, I can get around 4.6% on a5 set speed 1 over 16 frames. But if I disable all PARTITION_3s on the boundary, the gain drops to around 2.4%.",
       "revId": "ce06bb32b089a17978da18d785b59302c348d9eb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea611e8e_8df1e69b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-05-05T17:08:57Z",
+      "side": 1,
+      "message": "Thanks. There is no restriction on part_3s on the boundary when the block is rectangular.",
+      "parentUuid": "8dedf811_be3a36d4",
+      "revId": "ce06bb32b089a17978da18d785b59302c348d9eb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
