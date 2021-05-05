@@ -1559,6 +1559,10 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
   xd->cfl.store_y = store_cfl_required(cm, xd);
 
+#if CONFIG_RECORDED_MVP
+  av1_update_recorded_mvp(xd, mbmi);
+#endif  // CONFIG_RECORDED_MVP
+
 #if DEC_MISMATCH_DEBUG
   dec_dump_logs(cm, mi, mi_row, mi_col, mode_ctx);
 #endif  // DEC_MISMATCH_DEBUG
