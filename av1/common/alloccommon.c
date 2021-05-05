@@ -132,6 +132,16 @@ void av1_free_restoration_buffers(AV1_COMMON *cm) {
   aom_free_frame_buffer(&cm->rst_frame);
 }
 
+#if CONFIG_CC_CDEF
+void av1_free_cccdef_coeff_buffers(struct AV1Common *cm) {
+  for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+    for (int uv = 0; uv < 2; uv++) {
+      aom_free(cm->cdef_info.cccdef_filter_buf[dir].buf[uv]);
+    }
+  }
+}
+#endif
+
 void av1_free_above_context_buffers(CommonContexts *above_contexts) {
   int i;
   const int num_planes = above_contexts->num_planes;

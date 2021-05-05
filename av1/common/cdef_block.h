@@ -20,7 +20,11 @@
 #define CDEF_SB_SHIFT (MAX_SB_SIZE_LOG2 - CDEF_BLOCKSIZE_LOG2)
 
 /* We need to buffer three vertical lines. */
+#if CCCDEF_LONG_TAP && VERTICAL_DIAGONAL_EXT == 1
+#define CDEF_VBORDER (8)
+#else
 #define CDEF_VBORDER (3)
+#endif
 /* We only need to buffer three horizontal pixels too, but let's align to
    16 bytes (8 x 16 bits) to make vectorization easier. */
 #define CDEF_HBORDER (8)
@@ -48,11 +52,29 @@ typedef void (*cdef_filter_block_func)(uint8_t *dst8, uint16_t *dst16,
                                        int coeff_shift);
 void copy_cdef_16bit_to_16bit(uint16_t *dst, int dstride, uint16_t *src,
                               cdef_list *dlist, int cdef_count, int bsize);
-
 void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
                         uint16_t *in, int xdec, int ydec,
                         int dir[CDEF_NBLOCKS][CDEF_NBLOCKS], int *dirinit,
                         int var[CDEF_NBLOCKS][CDEF_NBLOCKS], int pli,
                         cdef_list *dlist, int cdef_count, int level,
-                        int sec_strength, int damping, int coeff_shift);
+                        int sec_strength, int damping, int coeff_shift
+#if CONFIG_CC_CDEF
+                        ,
+                        bool adjustDirection
+#endif
+
+);
+
+#if CONFIG_CC_CDEF
+void av1_cccdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
+                          uint16_t *in, int xdec, int ydec,
+                          int dir[CDEF_NBLOCKS][CDEF_NBLOCKS], cdef_list *dlist,
+                          int cdef_count, int bit_depth, bool is_rdo,
+                          const int16_t *const filter_coeff,
+                          const uint8_t filter_strength,
+                          const int direction_merge_mode,
+                          const uint8_t *direction_enable_flags,
+                          int single_direction_coeff);
+#endif
+
 #endif  // AOM_AV1_COMMON_CDEF_BLOCK_H_
