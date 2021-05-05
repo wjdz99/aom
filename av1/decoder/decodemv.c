@@ -220,7 +220,7 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
 #endif  // CONFIG_NEW_INTER_MODES
 }
 
-#if CONFIG_NEW_INTER_MODES
+#if CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
 static void read_drl_idx(int max_drl_bits, const int16_t mode_ctx,
                          FRAME_CONTEXT *ec_ctx, DecoderCodingBlock *dcb,
                          MB_MODE_INFO *mbmi, aom_reader *r) {
@@ -239,6 +239,37 @@ static void read_drl_idx(int max_drl_bits, const int16_t mode_ctx,
   }
   assert(mbmi->ref_mv_idx < max_drl_bits + 1);
 }
+
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MB_MODE_INFO *mbmi,
+                         aom_reader *r) {
+  mbmi->ref_mv_idx = 0;
+  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
+    int ref_mv_idx = 0;
+    for (int i = 0; i < 2; ++i) {
+      uint8_t drl_ctx = av1_drl_ctx(false, i);
+      uint8_t bit = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+      if (bit) {
+        break;
+      }
+      ref_mv_idx++;
+    }
+    mbmi->ref_mv_idx = ref_mv_idx;
+  }
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    int ref_mv_idx = 0;
+    for (int i = 0; i < 2; ++i) {
+      uint8_t drl_ctx = av1_drl_ctx(true, i + 1);
+      uint8_t bit = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+      if (bit) {
+        break;
+      }
+      ref_mv_idx++;
+    }
+    mbmi->ref_mv_idx = ref_mv_idx;
+  }
+}
+
 #else
 static void read_drl_idx(FRAME_CONTEXT *ec_ctx, DecoderCodingBlock *dcb,
                          MB_MODE_INFO *mbmi, aom_reader *r) {
@@ -269,7 +300,7 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, DecoderCodingBlock *dcb,
     }
   }
 }
-#endif  // CONFIG_NEW_INTER_MODES
+#endif  // CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
 
 static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                     MB_MODE_INFO *mbmi, aom_reader *r) {
@@ -1619,12 +1650,15 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       // TODO(chiyotsai@google.com): Remove the following line
       av1_set_default_mbmi_mv_precision(mbmi, sbi);
       if (have_drl_index(mbmi->mode))
-        read_drl_idx(
-#if CONFIG_NEW_INTER_MODES
-            cm->features.max_drl_bits,
-            av1_mode_context_pristine(inter_mode_ctx, mbmi->ref_frame),
-#endif  // CONFIG_NEW_INTER_MODES
-            ec_ctx, dcb, mbmi, r);
+#if CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
+        read_drl_idx(cm->features.max_drl_bits,
+                     av1_mode_context_pristine(inter_mode_ctx, mbmi->ref_frame),
+                     ec_ctx, dcb, mbmi, r);
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+        read_drl_idx(ec_ctx, mbmi, r);
+#else
+        read_drl_idx(ec_ctx, dcb, mbmi, r);
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
     }
   }
   av1_set_default_mbmi_mv_precision(mbmi, sbi);
