@@ -182,6 +182,11 @@ static INLINE int16_t av1_mode_context_analyzer(
   return comp_ctx;
 }
 
+#if CONFIG_MVP_INDEPENDENT_PARSING
+static INLINE uint8_t av1_drl_ctx(const bool is_nearmv, int ref_idx) {
+  return CLIP(ref_idx - is_nearmv, 0, 2);
+}
+#else
 static INLINE uint8_t av1_drl_ctx(const uint16_t *ref_mv_weight, int ref_idx) {
   if (ref_mv_weight[ref_idx] >= REF_CAT_LEVEL &&
       ref_mv_weight[ref_idx + 1] >= REF_CAT_LEVEL)
@@ -197,6 +202,7 @@ static INLINE uint8_t av1_drl_ctx(const uint16_t *ref_mv_weight, int ref_idx) {
 
   return 0;
 }
+#endif // CONFIG_MVP_INDEPENDENT_PARSING
 
 void av1_setup_frame_buf_refs(AV1_COMMON *cm);
 void av1_setup_frame_sign_bias(AV1_COMMON *cm);
