@@ -16,6 +16,12 @@
 #define CDEF_PRI_STRENGTHS 16
 #define CDEF_SEC_STRENGTHS 4
 
+#if CONFIG_CC_CDEF
+#define TOTAL_CCCDEF_STRENGTHS 4
+#define CC_CDEF_STRENGTH_VALUE_BITS \
+  2  // number of bits to signal strength values of each frame [ 0, 1, 2, 4]
+#endif
+
 #include "config/aom_config.h"
 
 #include "aom/aom_integer.h"
@@ -54,6 +60,13 @@ int av1_cdef_compute_sb_list(const CommonModeInfoParams *const mi_params,
  * \c frame.
  */
 void av1_cdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd);
+
+#if CONFIG_CC_CDEF
+void av1_cdef_cccdef_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
+                           MACROBLOCKD *xd);
+int extract_strength_from_index(int strength_idx);
+
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

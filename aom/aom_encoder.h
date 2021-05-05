@@ -246,6 +246,7 @@ typedef struct cfg_options {
    *
    */
   unsigned int enable_cdef;
+
   /*!\brief enable Loop Restoration Filter
    *
    */
