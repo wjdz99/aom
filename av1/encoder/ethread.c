@@ -802,6 +802,12 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
             thread_data->td->mb.tmp_pred_bufs[j];
       }
     }
+    
+#if CONFIG_RECORDED_MVP
+    av1_zero(thread_data->td->mb.e_mbd.rmvp);
+    av1_zero(thread_data->td->mb.e_mbd.copied_rmvp);
+    thread_data->td->mb.e_mbd.rmvp_pt = &thread_data->td->mb.e_mbd.rmvp;
+#endif  // CONFIG_RECORDED_MVP
   }
 }
 

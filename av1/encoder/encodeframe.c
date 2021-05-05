@@ -741,6 +741,20 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
   // Code each SB in the row
   for (int mi_col = tile_info->mi_col_start, sb_col_in_tile = 0;
        mi_col < tile_info->mi_col_end; mi_col += mib_size, sb_col_in_tile++) {
+#if CONFIG_RECORDED_MVP
+    if (mi_col == tile_info->mi_col_start) {
+#if CONFIG_RESET_FROM_LAST_ROWHEAD
+      // Copied the first SB's MVP of above row into
+      // the first SB's MVP of current row
+      xd->rmvp = xd->copied_rmvp;
+#else
+      av1_zero(xd->rmvp);
+#endif
+    }
+    
+    xd->rmvp_pt = &xd->rmvp;
+#endif  // CONFIG_RECORDED_MVP
+
     (*(enc_row_mt->sync_read_ptr))(row_mt_sync, sb_row, sb_col_in_tile);
 
     if (tile_data->allow_update_cdf && row_mt_enabled &&
@@ -803,6 +817,15 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
     (*(enc_row_mt->sync_write_ptr))(row_mt_sync, sb_row, sb_col_in_tile,
                                     sb_cols_in_tile);
+    
+#if CONFIG_RECORDED_MVP
+#if CONFIG_RESET_FROM_LAST_ROWHEAD
+    // Save the first SB's MVP of current row for future use
+    if (mi_col == tile_info->mi_col_start) {
+      xd->copied_rmvp = xd->rmvp;
+    }
+#endif
+#endif  // CONFIG_RECORDED_MVP
   }
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, encode_sb_time);
@@ -935,6 +958,12 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
 
   av1_crc32c_calculator_init(
       &td->mb.txfm_search_info.mb_rd_record.crc_calculator);
+
+#if CONFIG_RECORDED_MVP
+  av1_zero(td->mb.e_mbd.rmvp);
+  av1_zero(td->mb.e_mbd.copied_rmvp);
+  td->mb.e_mbd.rmvp_pt = &td->mb.e_mbd.rmvp;
+#endif  // CONFIG_RECORDED_MVP
 
   for (int mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
        mi_row += cm->seq_params.mib_size) {

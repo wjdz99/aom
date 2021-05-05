@@ -2696,12 +2696,37 @@ static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
   av1_reset_loop_filter_delta(xd, num_planes);
   av1_reset_loop_restoration(xd, num_planes);
 
+#if CONFIG_RECORDED_MVP
+  av1_zero(xd->rmvp);
+  av1_zero(xd->copied_rmvp);
+  xd->rmvp_pt = NULL;
+#endif  // CONFIG_RECORDED_MVP
+
   for (int mi_row = tile_info.mi_row_start; mi_row < tile_info.mi_row_end;
        mi_row += cm->seq_params.mib_size) {
     av1_zero_left_context(xd);
 
     for (int mi_col = tile_info.mi_col_start; mi_col < tile_info.mi_col_end;
          mi_col += cm->seq_params.mib_size) {
+#if CONFIG_RECORDED_MVP
+      if (mi_col == tile_info.mi_col_start) {
+#if CONFIG_RESET_FROM_LAST_ROWHEAD
+        // Copied first SB's MVP of above row into first SB's
+        // MVP of current row
+        td->copied_rmvp = xd->copied_rmvp;
+        xd->rmvp = xd->copied_rmvp;
+#else
+        av1_zero(xd->rmvp);
+#endif
+      }
+      
+      // td->rmvp is initialized as xd->rmvp, and used
+      // for MV referencing during decoding the tile.
+      // xd->rmvp is updated as decoding goes.
+      td->rmvp = xd->rmvp;
+      xd->rmvp_pt = &td->rmvp;
+#endif  // CONFIG_RECORDED_MVP
+
       set_cb_buffer(pbi, dcb, &td->cb_buffer_base, num_planes, 0, 0);
 
       // Bit-stream parsing and decoding of the superblock
@@ -2712,6 +2737,16 @@ static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
         aom_merge_corrupted_flag(&dcb->corrupted, 1);
         return;
       }
+      
+#if CONFIG_RECORDED_MVP
+#if CONFIG_RESET_FROM_LAST_ROWHEAD
+      if (mi_col == tile_info.mi_col_start) {
+        // Save the first SB's MVP of current row for future use
+        td->copied_rmvp = xd->rmvp;
+        xd->copied_rmvp = xd->rmvp;
+      }
+#endif
+#endif  // CONFIG_RECORDED_MVP
     }
   }
 
