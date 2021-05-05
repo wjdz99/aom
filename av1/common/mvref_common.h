@@ -18,6 +18,10 @@
 extern "C" {
 #endif
 
+#if CONFIG_RECORDED_MVP
+#define CONFIG_RESET_FROM_LAST_ROWHEAD 1
+#endif
+
 #define MVREF_ROW_COLS 3
 
 // Set the upper limit of the motion vector component magnitude.
@@ -339,6 +343,11 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
 
   return 1;
 }
+
+#if CONFIG_RECORDED_MVP
+void av1_update_recorded_mvp(MACROBLOCKD *const xd,
+                             const MB_MODE_INFO *const mbmi);
+#endif  // CONFIG_RECORDED_MVP
 
 #ifdef __cplusplus
 }  // extern "C"

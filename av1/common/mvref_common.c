@@ -749,6 +749,91 @@ static AOM_INLINE void process_single_ref_mv_candidate(
   }
 }
 
+#if CONFIG_RECORDED_MVP
+static AOM_INLINE bool check_rmb_cand(CANDIDATE_MV cand_mv,
+                                      CANDIDATE_MV *ref_mv_stack,
+                                      uint16_t *ref_mv_weight, int refmv_count,
+                                      int is_comp, int mi_row, int mi_col,
+                                      int block_width, int block_height,
+                                      int frame_width, int frame_height) {
+  // Check if the MV candidate is already existing in the ref MV stack.
+  int existing = 0;
+  for (int i = 0; i < refmv_count; ++i) {
+    if (ref_mv_stack[i].this_mv.as_int == cand_mv.this_mv.as_int &&
+        (!is_comp ||
+         ref_mv_stack[i].comp_mv.as_int == cand_mv.comp_mv.as_int)) {
+      existing = 1;
+      break;
+    }
+  }
+  if (existing) return false;
+
+  // Check if the MV candidate is pointing to ref block inside frame boundary.
+  int mv_valid = 1;
+  for (int i = 0; i < 1 + is_comp; ++i) {
+    const int mv_row =
+    (i ? cand_mv.comp_mv.as_mv.row : cand_mv.this_mv.as_mv.row) / 8;
+    const int mv_col =
+    (i ? cand_mv.comp_mv.as_mv.col : cand_mv.this_mv.as_mv.col) / 8;
+    const int ref_x = mi_col * MI_SIZE + mv_col;
+    const int ref_y = mi_row * MI_SIZE + mv_row;
+    if (ref_x <= -block_width || ref_y <= -block_height ||
+        ref_x >= frame_width || ref_y >= frame_height) {
+      mv_valid = 0;
+      break;
+    }
+  }
+  if (!mv_valid) return false;
+
+  ref_mv_stack[refmv_count] = cand_mv;
+  ref_mv_weight[refmv_count] = REF_CAT_LEVEL;
+
+  return true;
+}
+
+static AOM_INLINE void fill_mvp_from_recorded_mvp(
+    const AV1_COMMON *cm, const MACROBLOCKD *xd, MV_REFERENCE_FRAME ref_frame,
+    uint8_t *const refmv_count,
+    CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
+    uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
+    int_mv mv_ref_list[MAX_MV_REF_CANDIDATES], int_mv *gm_mv_candidates) {
+
+  MV_REFERENCE_FRAME rf[2];
+  av1_set_ref_frame(rf, ref_frame);
+
+  const int ref_mv_limit =
+    AOMMIN(USABLE_REF_MV_STACK_SIZE, MAX_REF_MV_STACK_SIZE);
+  // If open slots are available, fetch reference MVs from the ref mv banks.
+  if (*refmv_count < ref_mv_limit && ref_frame != INTRA_FRAME) {
+    const RECORDED_MVP *rmvp = xd->rmvp_pt;
+    const CANDIDATE_MV *queue = rmvp->rmb_buffer[ref_frame];
+    const int count = rmvp->rmb_count[ref_frame];
+    const int start_idx = rmvp->rmb_start_idx[ref_frame];
+
+    const int is_comp = rf[1] > INTRA_FRAME;
+    int queue_idx = 0;
+    const int block_width = xd->width * MI_SIZE;
+    const int block_height = xd->height * MI_SIZE;
+
+    do {
+      for (; queue_idx < count && *refmv_count < ref_mv_limit; ++queue_idx) {
+        const int pos =
+        (start_idx + count - 1 - queue_idx) % RECORDED_MVP_SIZE;
+        const CANDIDATE_MV cand_mv = queue[pos];
+        if (check_rmb_cand(cand_mv, ref_mv_stack, ref_mv_weight, *refmv_count,
+                           is_comp, xd->mi_row, xd->mi_col, block_width,
+                           block_height, cm->width, cm->height)) {
+          ++*refmv_count;
+          break;
+        }
+      }
+
+      if (queue_idx >= count) break;
+    } while (*refmv_count < ref_mv_limit);
+  }
+}
+#endif  // CONFIG_RECORDED_MVP
+
 #if CONFIG_MVP_INDEPENDENT_PARSING
 static AOM_INLINE void fill_mvp_from_gmv(
     CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
@@ -1134,7 +1219,7 @@ static AOM_INLINE void setup_ref_mv_list(
                    xd->height << MI_SIZE_LOG2, xd);
     }
 
-#if !CONFIG_MVP_INDEPENDENT_PARSING
+#if !(CONFIG_MVP_INDEPENDENT_PARSING || CONFIG_RECORDED_MVP)
     if (mv_ref_list != NULL) {
       for (int idx = *refmv_count; idx < MAX_MV_REF_CANDIDATES; ++idx)
         mv_ref_list[idx].as_int = gm_mv_candidates[0].as_int;
@@ -1144,12 +1229,29 @@ static AOM_INLINE void setup_ref_mv_list(
         mv_ref_list[idx].as_int = ref_mv_stack[idx].this_mv.as_int;
       }
     }
-#endif // !CONFIG_MVP_INDEPENDENT_PARSING
+#endif // !(CONFIG_MVP_INDEPENDENT_PARSING || CONFIG_RECORDED_MVP)
   }
+
+#if CONFIG_RECORDED_MVP
+  fill_mvp_from_recorded_mvp(cm, xd, ref_frame, refmv_count,
+                             ref_mv_stack, ref_mv_weight,
+                             mv_ref_list, gm_mv_candidates);
+#endif
+
 #if CONFIG_MVP_INDEPENDENT_PARSING
   fill_mvp_from_gmv(ref_mv_stack, ref_mv_weight, refmv_count, gm_mv_candidates);
 
   if (rf[1] <= NONE_FRAME && mv_ref_list != NULL) {
+    for (int idx = 0; idx < AOMMIN(MAX_MV_REF_CANDIDATES, *refmv_count);
+         ++idx) {
+      mv_ref_list[idx].as_int = ref_mv_stack[idx].this_mv.as_int;
+    }
+  }
+#elif CONFIG_RECORDED_MVP
+  if (rf[1] <= NONE_FRAME && mv_ref_list != NULL) {
+    for (int idx = *refmv_count; idx < MAX_MV_REF_CANDIDATES; ++idx)
+      mv_ref_list[idx].as_int = gm_mv_candidates[0].as_int;
+
     for (int idx = 0; idx < AOMMIN(MAX_MV_REF_CANDIDATES, *refmv_count);
          ++idx) {
       mv_ref_list[idx].as_int = ref_mv_stack[idx].this_mv.as_int;
@@ -2022,3 +2124,55 @@ void av1_set_frame_refs(AV1_COMMON *const cm, int *remapped_ref_idx,
     assert(ref_flag_list[i] == 1);
   }
 }
+
+#if CONFIG_RECORDED_MVP
+static INLINE void update_recorded_mvp(const MB_MODE_INFO *const mbmi,
+                                       RECORDED_MVP *rmvp) {
+  const MV_REFERENCE_FRAME ref_frame = av1_ref_frame_type(mbmi->ref_frame);
+  CANDIDATE_MV *queue = rmvp->rmb_buffer[ref_frame];
+  const int is_comp = has_second_ref(mbmi);
+  const int start_idx = rmvp->rmb_start_idx[ref_frame];
+  const int count = rmvp->rmb_count[ref_frame];
+  int found = -1;
+
+  // Check if current MV is already existing in the buffer.
+  for (int i = 0; i < count; ++i) {
+    const int idx = (start_idx + i) % RECORDED_MVP_SIZE;
+    if (mbmi->mv[0].as_int == queue[idx].this_mv.as_int &&
+        (!is_comp || mbmi->mv[1].as_int == queue[idx].comp_mv.as_int)) {
+      found = i;
+      break;
+    }
+  }
+
+  // If current MV is found in the buffer, move it to the end of the buffer.
+  if (found >= 0) {
+    const int idx = (start_idx + found) % RECORDED_MVP_SIZE;
+    const CANDIDATE_MV cand = queue[idx];
+    for (int i = found; i < count - 1; ++i) {
+      const int idx0 = (start_idx + i) % RECORDED_MVP_SIZE;
+      const int idx1 = (start_idx + i + 1) % RECORDED_MVP_SIZE;
+      queue[idx0] = queue[idx1];
+    }
+    const int tail = (start_idx + count - 1) % RECORDED_MVP_SIZE;
+    queue[tail] = cand;
+    return;
+  }
+
+  // If current MV is not found in the buffer, append it to the end of the
+  // buffer, and update the count and start_idx accordingly.
+  const int idx = (start_idx + count) % RECORDED_MVP_SIZE;
+  queue[idx].this_mv = mbmi->mv[0];
+  if (is_comp) queue[idx].comp_mv = mbmi->mv[1];
+  if (count < RECORDED_MVP_SIZE) {
+    ++rmvp->rmb_count[ref_frame];
+  } else {
+    ++rmvp->rmb_start_idx[ref_frame];
+  }
+}
+
+void av1_update_recorded_mvp(MACROBLOCKD *const xd,
+                            const MB_MODE_INFO *const mbmi) {
+  update_recorded_mvp(mbmi, &xd->rmvp);
+}
+#endif  // CONFIG_RECORDED_MVP
