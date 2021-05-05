@@ -2353,7 +2353,7 @@ static INLINE int build_cur_mv(int_mv *cur_mv, PREDICTION_MODE this_mode,
   return ret;
 }
 
-#if CONFIG_NEW_INTER_MODES
+#if CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
 // See write_drl_idx for a description of how this works.
 // With CONFIG_NEW_INTER_MODES, this computes the bit cost
 // of writing the full 4-value DRL index instead of the
@@ -2390,6 +2390,33 @@ static INLINE int get_drl_cost(int max_drl_bits, const MB_MODE_INFO *mbmi,
   }
   return cost;
 }
+
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
+                               const int (*const drl_mode_cost0)[2]) {
+  int cost = 0;
+  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
+    for (int idx = 0; idx < 2; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(false, idx);
+      uint8_t bit = mbmi->ref_mv_idx < (idx + 1);
+      cost += drl_mode_cost0[drl_ctx][bit];
+      if (bit) return cost;
+    }
+    return cost;
+  }
+
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    for (int idx = 0; idx < 2; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(true, idx + 1);
+      uint8_t bit = mbmi->ref_mv_idx < (idx + 1);
+      cost += drl_mode_cost0[drl_ctx][bit];
+      if (bit) return cost;
+    }
+    return cost;
+  }
+  return cost;
+}
+
 #else
 static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
                                const MB_MODE_INFO_EXT *mbmi_ext,
@@ -2419,7 +2446,7 @@ static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
   }
   return cost;
 }
-#endif  // CONFIG_NEW_INTER_MODES
+#endif  // CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
 
 static INLINE int is_single_newmv_valid(const HandleInterModeArgs *const args,
                                         const MB_MODE_INFO *const mbmi,
@@ -2526,13 +2553,16 @@ static bool ref_mv_idx_early_breakout(
     return true;
   }
   size_t est_rd_rate = args->ref_frame_cost + args->single_comp_cost;
+<<<<<<< HEAD
 #if CONFIG_NEW_INTER_MODES
-  const int drl_cost = get_drl_cost(cpi->common.features.max_drl_bits, mbmi,
-                                    mbmi_ext, x, ref_frame_type);
+      &&!CONFIG_MVP_INDEPENDENT_PARSING const int drl_cost = get_drl_cost(
+          cpi->common.features.max_drl_bits, mbmi, mbmi_ext, x, ref_frame_type);
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+  const int drl_cost = get_drl_cost(mbmi, x->mode_costs.drl_mode_cost0);
 #else
   const int drl_cost = get_drl_cost(
       mbmi, mbmi_ext, x->mode_costs.drl_mode_cost0, ref_frame_type);
-#endif  // CONFIG_NEW_INTER_MODES
+#endif  // CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
   est_rd_rate += drl_cost;
 #if CONFIG_NEW_INTER_MODES
   if (RDCOST(x->rdmult, est_rd_rate, 0) > ref_best_rd) {
@@ -2555,7 +2585,9 @@ static int64_t simple_translation_pred_rd(
   MACROBLOCKD *xd = &x->e_mbd;
   MB_MODE_INFO *mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+#if !CONFIG_MVP_INDEPENDENT_PARSING
   const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
   const AV1_COMMON *cm = &cpi->common;
   const int is_comp_pred = has_second_ref(mbmi);
   const ModeCosts *mode_costs = &x->mode_costs;
@@ -2588,9 +2620,11 @@ static int64_t simple_translation_pred_rd(
   mbmi->ref_mv_idx = ref_mv_idx;
 
   rd_stats->rate += args->ref_frame_cost + args->single_comp_cost;
-#if CONFIG_NEW_INTER_MODES
+#if CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
   const int drl_cost = get_drl_cost(cpi->common.features.max_drl_bits, mbmi,
                                     mbmi_ext, x, ref_frame_type);
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+  const int drl_cost = get_drl_cost(mbmi, mode_costs->drl_mode_cost0);
 #else
   const int drl_cost =
       get_drl_cost(mbmi, mbmi_ext, mode_costs->drl_mode_cost0, ref_frame_type);
@@ -3344,7 +3378,9 @@ static int64_t handle_inter_mode(
                                { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE } };
 
   int64_t ret_val = INT64_MAX;
+#if CONFIG_MVP_INDEPENDENT_PARSING == 0
   const int8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
+#endif
   RD_STATS best_rd_stats, best_rd_stats_y, best_rd_stats_uv;
   int64_t best_rd = INT64_MAX;
   uint8_t best_blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
@@ -3443,9 +3479,11 @@ static int64_t handle_inter_mode(
 
     // Compute cost for signalling this DRL index
     rd_stats->rate = base_rate;
-#if CONFIG_NEW_INTER_MODES
+#if CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
     const int drl_cost = get_drl_cost(cm->features.max_drl_bits, mbmi, mbmi_ext,
                                       x, ref_frame_type);
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+    const int drl_cost = get_drl_cost(mbmi, mode_costs->drl_mode_cost0);
 #else
     const int drl_cost = get_drl_cost(
         mbmi, mbmi_ext, mode_costs->drl_mode_cost0, ref_frame_type);
