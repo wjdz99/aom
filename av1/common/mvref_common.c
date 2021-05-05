@@ -749,6 +749,23 @@ static AOM_INLINE void process_single_ref_mv_candidate(
   }
 }
 
+#if CONFIG_MVP_INDEPENDENT_PARSING
+static AOM_INLINE void fill_mvp_from_gmv(
+    CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
+    uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
+    uint8_t *const refmv_count, int_mv *gm_mv_candidates) {
+  const int ref_mv_limit = AOMMIN(USABLE_REF_MV_STACK_SIZE,
+                                  MAX_REF_MV_STACK_SIZE);
+
+  for (int idx = *refmv_count; idx < ref_mv_limit; ++idx) {
+    ref_mv_stack[idx].this_mv.as_int = gm_mv_candidates[0].as_int;
+    ref_mv_stack[idx].comp_mv.as_int = gm_mv_candidates[0].as_int;
+    ref_mv_weight[idx] = 2;
+    ++*refmv_count;
+  }
+}
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
+
 static AOM_INLINE void setup_ref_mv_list(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, MV_REFERENCE_FRAME ref_frame,
     uint8_t *const refmv_count,
@@ -1097,6 +1114,7 @@ static AOM_INLINE void setup_ref_mv_list(
                    xd->height << MI_SIZE_LOG2, xd);
     }
 
+#if !CONFIG_MVP_INDEPENDENT_PARSING
     if (mv_ref_list != NULL) {
       for (int idx = *refmv_count; idx < MAX_MV_REF_CANDIDATES; ++idx)
         mv_ref_list[idx].as_int = gm_mv_candidates[0].as_int;
@@ -1106,7 +1124,18 @@ static AOM_INLINE void setup_ref_mv_list(
         mv_ref_list[idx].as_int = ref_mv_stack[idx].this_mv.as_int;
       }
     }
+#endif  // !CONFIG_MVP_INDEPENDENT_PARSING
   }
+#if CONFIG_MVP_INDEPENDENT_PARSING
+  fill_mvp_from_gmv(ref_mv_stack, ref_mv_weight, refmv_count, gm_mv_candidates);
+
+  if (rf[1] <= NONE_FRAME && mv_ref_list != NULL) {
+    for (int idx = 0; idx < AOMMIN(MAX_MV_REF_CANDIDATES, *refmv_count);
+         ++idx) {
+      mv_ref_list[idx].as_int = ref_mv_stack[idx].this_mv.as_int;
+    }
+  }
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
 }
 
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
