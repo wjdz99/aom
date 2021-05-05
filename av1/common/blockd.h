@@ -504,6 +504,26 @@ struct scale_factors;
 
 /*!\endcond */
 
+#if CONFIG_RECORDED_MVP
+#define RECORDED_MVP_SIZE USABLE_REF_MV_STACK_SIZE
+
+/*! \brief Variables related to reference MV bank. */
+typedef struct {
+  /*!
+   * Number of ref MVs in the buffer.
+   */
+  int rmb_count[MODE_CTX_REF_FRAMES];
+  /*!
+   * Index corresponding to the first ref MV in the buffer.
+   */
+  int rmb_start_idx[MODE_CTX_REF_FRAMES];
+  /*!
+   * Circular buffer storing the ref MVs.
+   */
+  CANDIDATE_MV rmb_buffer[MODE_CTX_REF_FRAMES][RECORDED_MVP_SIZE];
+} RECORDED_MVP;
+#endif  // CONFIG_RECORDED_MVP
+
 /*! \brief Variables related to current coding block.
  *
  * This is a common set of variables used by both encoder and decoder.
@@ -523,6 +543,17 @@ typedef struct macroblockd {
    * Same as cm->mi_params.mi_stride, copied here for convenience.
    */
   int mi_stride;
+
+#if CONFIG_RECORDED_MVP
+  /**
+   * \name Reference MV bank info.
+   */
+  /**@{*/
+  RECORDED_MVP rmvp; /*!< ref recorded mv to update */
+  RECORDED_MVP copied_rmvp; /*!< Copy the ref recorded mv of first SB in each tile row */
+  RECORDED_MVP *rmvp_pt;  /*!< Pointer to ref recorded mv to refer to */
+  /**@}*/
+#endif  // CONFIG_RECORDED_MVP
 
   /*!
    * True if current block transmits chroma information.
