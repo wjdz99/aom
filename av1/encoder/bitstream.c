@@ -127,7 +127,7 @@ static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 #endif  // !CONFIG_NEW_INTER_MODES
 }
 
-#if CONFIG_NEW_INTER_MODES
+#if CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
 static void write_drl_idx(int max_drl_bits, const int16_t mode_ctx,
                           FRAME_CONTEXT *ec_ctx, const MB_MODE_INFO *mbmi,
                           const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
@@ -146,6 +146,39 @@ static void write_drl_idx(int max_drl_bits, const int16_t mode_ctx,
         av1_get_drl_cdf(ec_ctx, mbmi_ext_frame->weight, mode_ctx, idx);
     aom_write_symbol(w, mbmi->ref_mv_idx != idx, drl_cdf, 2);
     if (mbmi->ref_mv_idx == idx) break;
+  }
+}
+
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+static AOM_INLINE void write_drl_idx(FRAME_CONTEXT *ec_ctx,
+                                     const MB_MODE_INFO *mbmi, aom_writer *w) {
+  assert(mbmi->ref_mv_idx < 3);
+
+  const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
+  if (new_mv) {
+    int ref_mv_idx = mbmi->ref_mv_idx;
+    for (int i = 0; i < 2; ++i) {
+      uint8_t drl_ctx = av1_drl_ctx(false, i);
+      uint8_t bit = ref_mv_idx < (i + 1);
+      aom_write_symbol(w, bit, ec_ctx->drl_cdf[drl_ctx], 2);
+      if (bit) {
+        break;
+      }
+    }
+    return;
+  }
+
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    int ref_mv_idx = mbmi->ref_mv_idx;
+    for (int i = 0; i < 2; ++i) {
+      uint8_t drl_ctx = av1_drl_ctx(true, i + 1);
+      uint8_t bit = ref_mv_idx < (i + 1);
+      aom_write_symbol(w, bit, ec_ctx->drl_cdf[drl_ctx], 2);
+      if (bit) {
+        break;
+      }
+    }
+    return;
   }
 }
 #else
@@ -183,7 +216,7 @@ static AOM_INLINE void write_drl_idx(
     return;
   }
 }
-#endif  // CONFIG_NEW_INTER_MODES
+#endif  // CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
 
 static AOM_INLINE void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
                                                  PREDICTION_MODE mode,
@@ -1436,11 +1469,14 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
         write_inter_mode(w, mode, ec_ctx, mode_ctx);
 
       if (have_drl_index(mode))
-        write_drl_idx(
-#if CONFIG_NEW_INTER_MODES
-            cm->features.max_drl_bits, mbmi_ext_frame->mode_context,
-#endif  // CONFIG_NEW_INTER_MODES
-            ec_ctx, mbmi, mbmi_ext_frame, w);
+#if CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
+        write_drl_idx(cm->features.max_drl_bits, mbmi_ext_frame->mode_context,
+                      ec_ctx, mbmi, mbmi_ext_frame, w);
+#elif CONFIG_MVP_INDEPENDENT_PARSING
+        write_drl_idx(ec_ctx, mbmi, w);
+#else
+        write_drl_idx(ec_ctx, mbmi, mbmi_ext_frame, w);
+#endif  // CONFIG_NEW_INTER_MODES && !CONFIG_MVP_INDEPENDENT_PARSING
       else
         assert(mbmi->ref_mv_idx == 0);
     }
