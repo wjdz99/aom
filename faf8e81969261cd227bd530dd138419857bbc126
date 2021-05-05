@@ -70,6 +70,24 @@
       "parentUuid": "ada30a5c_556e0041",
       "revId": "faf8e81969261cd227bd530dd138419857bbc126",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92ba0efc_6a60e2d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-05T18:49:08Z",
+      "side": 1,
+      "message": "Thanks for the further testing. What does this mean: \"with no change in coding performance over BORG test suite\"? There is coding performance change, right?\n\nDisabling the ML model in AOM_Q mode gives slight coding gain on ugc360p set - this is quite different from original CL\u0027s result. Is it because you test speed 5 instead of a low speed (speed 1 or 2)? Or something else is different? More testing can be helpful for us to reach a conclusion.\n\nA general practice for 2-pass encoding is to use a high speed for first pass and a low speed for second pass. For example, 1st pass uses speed 4 and 2nd pass uses speed 2. In this case, adding speed feature in 1st pass can be tricky. We might still need a good solution to handle it. What do you think?",
+      "parentUuid": "899db4e3_830c3809",
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
