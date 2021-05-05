@@ -52,6 +52,24 @@
       "parentUuid": "dc2db6d1_44dc06b1",
       "revId": "faf8e81969261cd227bd530dd138419857bbc126",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "899db4e3_830c3809",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-05-05T09:10:40Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nWe tried disabling the ML model in AOM_Q mode. Following are the results for ugc360p with no change in coding performance over BORG test suite.\n\n cpu-used    Instruction             BD-Rate Loss(%)\n          Count Reduction(%)   avg.psnr  ovr.psnr  ssim\n  5              -1.513        -0.1607   -0.0992   -0.6795\n  6              -1.060        -0.0402    0.0116   -0.1339\n  \n\nFrom the results above, we see that disabling the ML model is resulting in slight BD-Rate gain for speed 5, 6. \n\nWe also tried enabling the ML model for AOM_VBR mode. The results for ugc360p are as follows with no change in coding performance over BORG test suite.\n\n cpu-used    Instruction             BD-Rate Loss(%)\n          Count Reduction(%)   avg.psnr  ovr.psnr  ssim\n  5              1.100         0.2763     0.5952   1.2735\n  6              0.992         0.2901     0.4793   1.0643\n  \n\nThe results do not meet the expected BD-Rate vs speed trade-off. \n\nThus we feel that it is better to disable the ML model for speed 5, 6 (by introducing a speed feature). Thereby, for speed 5, 6 we can remove those calculations in first pass which are required only for the ML model. This would result in ~2% instruction count reduction  (this patch + avoiding motion search w.r.t third reference in first pass) for both speed 5, 6 with no change in coding performance. \n\nPlease let us know your opinion.",
+      "parentUuid": "ada30a5c_556e0041",
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
