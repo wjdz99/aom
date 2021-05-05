@@ -28,6 +28,23 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#ifdef CONFIG_CC_CDEF
+#define CCCDEF_LONG_TAP \
+  0  // 0 default, 1: HOR extension, 2: HOR + VER extension, 3: HOR + DIAG
+     // extension
+#define DISABLE_CCCDEF_HISTORY 0
+
+#define CHECKCDEF(c, err)                                                \
+  if (c) {                                                               \
+    printf("The assertion failed on line %d, in file %s %s\n", __LINE__, \
+           __FILE__, err);                                               \
+    exit(1);                                                             \
+  }
+#if CCCDEF_LONG_TAP
+#define VERTICAL_DIAGONAL_EXT (CCCDEF_LONG_TAP - 1)
+#endif
+#endif
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
