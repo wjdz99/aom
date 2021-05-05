@@ -107,6 +107,7 @@ set_aom_config_var(CONFIG_TUNE_VMAF 0 "Enable encoding tuning for VMAF.")
 set_aom_config_var(CONFIG_USE_VMAF_RC 0 "Use libvmaf_rc tune for VMAF_NEG.")
 
 # AV1 experiment flags.
+set_aom_config_var(CONFIG_CC_CDEF 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_SPEED_STATS 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_COLLECT_RD_STATS 0 "AV1 experiment flag.")
 set_aom_config_var(CONFIG_DIST_8X8 0 "AV1 experiment flag.")
@@ -137,6 +138,8 @@ set_aom_config_var(CONFIG_REMOVE_DIST_WTD_COMP 1
                    "AV2 experiment flag to remove dist_wtd_comp tool.")
 set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
                    "AV2 experiment flag to remove dual filter.")
+# Cross component sample offset
+set_aom_config_var(CONFIG_CCSO 0 "AV2 cross component sample offset flag.")
 
 #
 # Variables in this section control optional features of the build system.

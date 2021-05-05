@@ -116,6 +116,32 @@ void av1_loop_filter_init(AV1_COMMON *cm) {
     memset(lfi->lfthr[lvl].hev_thr, (lvl >> 4), SIMD_WIDTH);
 }
 
+#if CONFIG_CC_CDEF
+void av1_cccdef_filter_init(AV1_COMMON *cm) {
+  for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+    for (int uv = 0; uv < 2; uv++) {
+      cm->cdef_info.cccdef_filter_buf[dir]
+          .capacity_in_number_of_filter_sets[uv] =
+          MAX_NUMBER_OF_TEMPORAL_FILTERS;
+      cm->cdef_info.cccdef_filter_buf[dir].number_of_coeff_ineach_set[uv] =
+          MAX_NUMBER_OF_CCCDEF_FILTER_COEFF;
+      cm->cdef_info.cccdef_filter_buf[dir].curr_number_of_filter_sets[uv] = 0;
+      cm->cdef_info.cccdef_filter_buf[dir].curr_filter_set_write_index[uv] = 0;
+      cm->cdef_info.cccdef_filter_buf[dir].number_of_new_filter_sets[uv] = 0;
+      int buf_size =
+          cm->cdef_info.cccdef_filter_buf[dir].number_of_coeff_ineach_set[uv] *
+          cm->cdef_info.cccdef_filter_buf[dir]
+              .capacity_in_number_of_filter_sets[uv];
+      CHECK_MEM_ERROR(
+          cm, cm->cdef_info.cccdef_filter_buf[dir].buf[uv],
+          aom_calloc(buf_size,
+                     sizeof(*cm->cdef_info.cccdef_filter_buf[dir].buf[uv])));
+    }
+  }
+  av1_fill_cccdef_filter_coeff_buffer_with_default_filters(&cm->cdef_info);
+}
+#endif
+
 // Update the loop filter for the current frame.
 // This should be called before loop_filter_rows(),
 // av1_loop_filter_frame() calls this function directly.

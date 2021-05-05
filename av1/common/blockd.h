@@ -275,6 +275,13 @@ typedef struct MB_MODE_INFO {
   // Indicate if masked compound is used(1) or not(0).
   uint8_t comp_group_idx : 1;
   int8_t cdef_strength : 4;
+#if CONFIG_CC_CDEF
+  int8_t cc_cdef_strength_index_fb[2];
+#endif
+#if CONFIG_CCSO
+  uint8_t ccso_blk_u : 2;
+  uint8_t ccso_blk_v : 2;
+#endif
 } MB_MODE_INFO;
 
 static INLINE int is_intrabc_block(const MB_MODE_INFO *mbmi) {
@@ -826,6 +833,10 @@ typedef struct macroblockd {
    */
   bool cdef_transmitted[4];
 
+#if CONFIG_CC_CDEF
+  bool cc_cdef_transmitted[4];
+#endif
+
   /*!
    * Mask for this block used for compound prediction.
    */
@@ -868,6 +879,10 @@ typedef struct macroblockd {
    * 'cpi->tile_thr_data[t].td->mb.tmp_pred_bufs'.
    */
   uint8_t *tmp_obmc_bufs[2];
+#if CONFIG_CCSO
+  uint8_t ccso_blk_u;
+  uint8_t ccso_blk_v;
+#endif
 } MACROBLOCKD;
 
 /*!\cond */

@@ -62,6 +62,9 @@
 #include "av1/encoder/mv_prec.h"
 #include "av1/encoder/pass2_strategy.h"
 #include "av1/encoder/pickcdef.h"
+#if CONFIG_CCSO
+#include "av1/encoder/pickccso.h"
+#endif
 #include "av1/encoder/picklpf.h"
 #include "av1/encoder/pickrst.h"
 #include "av1/encoder/random.h"
@@ -440,6 +443,14 @@ void av1_init_seq_coding_tools(SequenceHeader *seq, AV1_COMMON *cm,
       seq->order_hint_info.enable_order_hint;
   seq->enable_superres = oxcf->superres_cfg.enable_superres;
   seq->enable_cdef = tool_cfg->enable_cdef;
+
+#if CONFIG_CC_CDEF
+  seq->enable_cc_cdef = 1;
+  if (seq->enable_cdef == 0 || seq->monochrome) {
+    seq->enable_cc_cdef = 0;
+  }
+#endif
+
   seq->enable_restoration = tool_cfg->enable_restoration;
   seq->enable_warped_motion = oxcf->motion_mode_cfg.enable_warped_motion;
   seq->enable_interintra_compound = tool_cfg->enable_interintra_comp;
@@ -1328,6 +1339,11 @@ AV1_COMP *av1_create_compressor(AV1EncoderConfig *oxcf, BufferPool *const pool,
   av1_qm_init(&cm->quant_params, av1_num_planes(cm));
 
   av1_loop_filter_init(cm);
+
+#if CONFIG_CC_CDEF
+  av1_cccdef_filter_init(cm);
+#endif
+
   cm->superres_scale_denominator = SCALE_NUMERATOR;
   cm->superres_upscaled_width = oxcf->frm_dim_cfg.width;
   cm->superres_upscaled_height = oxcf->frm_dim_cfg.height;
@@ -1982,8 +1998,55 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
 static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
                                    MACROBLOCKD *xd, int use_restoration,
                                    int use_cdef) {
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 2
+  uint16_t *rec_yuv[3];
+  uint16_t *ext_rec_y;
+  int use_ccso = !cm->features.coded_lossless && !cm->tiles.large_scale;
+  const int num_planes = av1_num_planes(cm);
+  av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, &cm->cur_frame->buf,
+                       0, 0, 0, num_planes);
+  const int ccso_stride = xd->plane[0].dst.width;
+  const int ccso_stride_ext = xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1);
+  if (use_ccso) {
+    ext_rec_y =
+        aom_malloc(sizeof(*ext_rec_y) *
+                   (xd->plane[0].dst.height + (CCSO_PADDING_SIZE << 1)) *
+                   (xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1)));
+    for (int pli = 0; pli < 1; pli++) {
+      rec_yuv[pli] =
+          aom_malloc(sizeof(*rec_yuv) * xd->plane[0].dst.height * ccso_stride);
+      int pic_height = xd->plane[pli].dst.height;
+      int pic_width = xd->plane[pli].dst.width;
+      const int dst_stride = xd->plane[pli].dst.stride;
+      for (int r = 0; r < pic_height; ++r) {
+        for (int c = 0; c < pic_width; ++c) {
+          if (cm->seq_params.use_highbitdepth) {
+            if (pli == 0)
+              ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                        CCSO_PADDING_SIZE] =
+                  CONVERT_TO_SHORTPTR(
+                      xd->plane[pli].dst.buf)[r * dst_stride + c];
+            rec_yuv[pli][r * ccso_stride + c] =
+                CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+          } else {
+            if (pli == 0)
+              ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                        CCSO_PADDING_SIZE] =
+                  xd->plane[pli].dst.buf[r * dst_stride + c];
+            rec_yuv[pli][r * ccso_stride + c] =
+                xd->plane[pli].dst.buf[r * dst_stride + c];
+          }
+        }
+      }
+    }
+    extend_ccso_border(ext_rec_y, CCSO_PADDING_SIZE, xd);
+  }
+#endif
+#endif
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   const int num_workers = mt_info->num_workers;
+
   if (use_restoration)
     av1_loop_restoration_save_boundary_lines(&cm->cur_frame->buf, cm, 0);
 
@@ -1991,12 +2054,33 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, cdef_time);
 #endif
+
     // Find CDEF parameters
     av1_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
                     cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult);
 
+#if CONFIG_CC_CDEF
+    if (cm->cur_frame->frame_type == KEY_FRAME ||
+        cm->cur_frame->frame_type == INTRA_ONLY_FRAME) {
+      av1_fill_cccdef_filter_coeff_buffer_with_default_filters(&cm->cdef_info);
+    }
+
+    int key_freq_max = cpi->oxcf.kf_cfg.key_freq_max;
+    int key_freq_min = cpi->oxcf.kf_cfg.key_freq_min;
+
+    // Find cross component CDEF parameters
+    av1_cc_cdef_search(&cm->cur_frame->buf, cpi->source, cm, xd,
+                       cpi->sf.lpf_sf.cdef_pick_method, cpi->td.mb.rdmult,
+                       key_freq_max, key_freq_min);
+
+    // Apply the filter
+    av1_cdef_cccdef_frame(&cm->cur_frame->buf, cm, xd);
+
+#else
     // Apply the filter
     av1_cdef_frame(&cm->cur_frame->buf, cm, xd);
+#endif
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
     end_timing(cpi, cdef_time);
 #endif
@@ -2004,10 +2088,68 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
     cm->cdef_info.cdef_bits = 0;
     cm->cdef_info.cdef_strengths[0] = 0;
     cm->cdef_info.nb_cdef_strengths = 1;
+
     cm->cdef_info.cdef_uv_strengths[0] = 0;
+
+#if CONFIG_CC_CDEF
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[0] = 0;
+    cm->cdef_info.cc_cdef_info.cccdef_frame_enable_flag[1] = 0;
+    memset(cm->cdef_info.cc_cdef_info.filter_coeff, 0,
+           MAX_NUMBER_OF_DIRECTIONS * MAX_NUMBER_OF_CCCDEF_FILTER_COEFF *
+               sizeof(cm->cdef_info.cc_cdef_info.filter_coeff[0][0]));
+    cm->cdef_info.cc_cdef_info.cccdef_bits[0] = 0;
+    cm->cdef_info.cc_cdef_info.nb_cccdef_strengths[0] = 1;
+    cm->cdef_info.cc_cdef_info.cccdef_bits[1] = 0;
+    cm->cdef_info.cc_cdef_info.nb_cccdef_strengths[1] = 1;
+
+    for (int plane = 0; plane < 2; plane++) {
+      for (int dir = 0; dir < MAX_NUMBER_OF_DIRECTIONS; dir++) {
+        cm->cdef_info.cc_cdef_info
+            .cccdef_frame_new_filter_signal_flag[plane][dir] = 0;
+        cm->cdef_info.cc_cdef_info.cccdef_frame_filter_idx_in_buf[plane][dir] =
+            0;
+      }
+    }
+#endif
   }
 
   av1_superres_post_encode(cpi);
+
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 2
+  if (use_ccso) {
+    av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, &cm->cur_frame->buf,
+                         0, 0, 0, num_planes);
+    for (int pli = 1; pli < 3; pli++) {
+      rec_yuv[pli] =
+          aom_malloc(sizeof(*rec_yuv) * xd->plane[0].dst.height * ccso_stride);
+      int pic_height = xd->plane[pli].dst.height;
+      int pic_width = xd->plane[pli].dst.width;
+      const int dst_stride = xd->plane[pli].dst.stride;
+      for (int r = 0; r < pic_height; ++r) {
+        for (int c = 0; c < pic_width; ++c) {
+          if (cm->seq_params.use_highbitdepth) {
+            rec_yuv[pli][r * ccso_stride + c] =
+                CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+          } else {
+            rec_yuv[pli][r * ccso_stride + c] =
+                xd->plane[pli].dst.buf[r * dst_stride + c];
+          }
+        }
+      }
+    }
+
+    ccso_search(&cm->cur_frame->buf, cpi->source, cm, xd, cpi->td.mb.rdmult,
+                ext_rec_y, rec_yuv);
+    ccso_frame(&cm->cur_frame->buf, cm, xd, ext_rec_y);
+
+    for (int pli = 0; pli < num_planes; pli++) {
+      aom_free(rec_yuv[pli]);
+    }
+    aom_free(ext_rec_y);
+  }
+#endif
+#endif
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, loop_restoration_time);
@@ -2035,6 +2177,15 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
   end_timing(cpi, loop_restoration_time);
 #endif
 }
+
+#if CONFIG_CCSO
+#if !CCSO_LOCATION
+static void ccso(AV1_COMP *cpi, AV1_COMMON *cm, MACROBLOCKD *xd) {
+  ccso_search(&cm->cur_frame->buf, cpi->source, cm, xd, cpi->td.mb.rdmult);
+  ccso_frame(&cm->cur_frame->buf, cm, xd);
+}
+#endif
+#endif
 
 /*!\brief Select and apply in-loop deblocking filters, cdef filters, and
  * restoration filters
@@ -2091,7 +2242,87 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   end_timing(cpi, loop_filter_time);
 #endif
 
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 1
+  uint16_t *rec_yuv[3];
+  uint16_t *ext_rec_y;
+  int use_ccso = !cm->features.coded_lossless && !cm->tiles.large_scale;
+  av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, &cm->cur_frame->buf,
+                       0, 0, 0, num_planes);
+  const int ccso_stride = xd->plane[0].dst.width;
+  const int ccso_stride_ext = xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1);
+  if (use_ccso) {
+    ext_rec_y =
+        aom_malloc(sizeof(*ext_rec_y) *
+                   (xd->plane[0].dst.height + (CCSO_PADDING_SIZE << 1)) *
+                   (xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1)));
+    for (int pli = 0; pli < 1; pli++) {
+      rec_yuv[pli] =
+          aom_malloc(sizeof(*rec_yuv) * xd->plane[0].dst.height * ccso_stride);
+      int pic_height = xd->plane[pli].dst.height;
+      int pic_width = xd->plane[pli].dst.width;
+      const int dst_stride = xd->plane[pli].dst.stride;
+      for (int r = 0; r < pic_height; ++r) {
+        for (int c = 0; c < pic_width; ++c) {
+          if (cm->seq_params.use_highbitdepth) {
+            if (pli == 0)
+              ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                        CCSO_PADDING_SIZE] =
+                  CONVERT_TO_SHORTPTR(
+                      xd->plane[pli].dst.buf)[r * dst_stride + c];
+            rec_yuv[pli][r * ccso_stride + c] =
+                CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+          } else {
+            if (pli == 0)
+              ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                        CCSO_PADDING_SIZE] =
+                  xd->plane[pli].dst.buf[r * dst_stride + c];
+            rec_yuv[pli][r * ccso_stride + c] =
+                xd->plane[pli].dst.buf[r * dst_stride + c];
+          }
+        }
+      }
+    }
+    extend_ccso_border(ext_rec_y, CCSO_PADDING_SIZE, xd);
+  }
+#endif
+#endif
+
   cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
+
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 1
+  if (use_ccso) {
+    av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, &cm->cur_frame->buf,
+                         0, 0, 0, num_planes);
+    for (int pli = 1; pli < 3; pli++) {
+      rec_yuv[pli] =
+          aom_malloc(sizeof(*rec_yuv) * xd->plane[0].dst.height * ccso_stride);
+      int pic_height = xd->plane[pli].dst.height;
+      int pic_width = xd->plane[pli].dst.width;
+      const int dst_stride = xd->plane[pli].dst.stride;
+      for (int r = 0; r < pic_height; ++r) {
+        for (int c = 0; c < pic_width; ++c) {
+          if (cm->seq_params.use_highbitdepth) {
+            rec_yuv[pli][r * ccso_stride + c] =
+                CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+          } else {
+            rec_yuv[pli][r * ccso_stride + c] =
+                xd->plane[pli].dst.buf[r * dst_stride + c];
+          }
+        }
+      }
+    }
+    ccso_search(&cm->cur_frame->buf, cpi->source, cm, xd, cpi->td.mb.rdmult,
+                ext_rec_y, rec_yuv);
+    ccso_frame(&cm->cur_frame->buf, cm, xd, ext_rec_y);
+    for (int pli = 0; pli < num_planes; pli++) {
+      aom_free(rec_yuv[pli]);
+    }
+    aom_free(ext_rec_y);
+  }
+#endif
+#endif
 }
 
 /*!\brief Encode a frame without the recode loop, usually used in one-pass
@@ -2613,6 +2844,13 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
+
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 0
+  if (!cm->features.coded_lossless && !cm->tiles.large_scale)
+    ccso(cpi, cm, &cpi->td.mb.e_mbd);
+#endif
+#endif
 
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(&cm->cur_frame->buf, av1_num_planes(cm));

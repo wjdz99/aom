@@ -28,6 +28,39 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#ifdef CONFIG_CC_CDEF
+#define CCCDEF_LONG_TAP \
+  0  // 0 default, 1: HOR extension, 2: HOR + VER extension, 3: HOR + DIAG
+     // extension
+#define DISABLE_CCCDEF_HISTORY 0
+
+#define CHECKCDEF(c, err)                                                \
+  if (c) {                                                               \
+    printf("The assertion failed on line %d, in file %s %s\n", __LINE__, \
+           __FILE__, err);                                               \
+    exit(1);                                                             \
+  }
+#if CCCDEF_LONG_TAP
+#define VERTICAL_DIAGONAL_EXT (CCCDEF_LONG_TAP - 1)
+#endif
+#endif
+
+// Cross-Component Sample Offset (CCSO)
+#if CONFIG_CCSO
+#define CCSO_SCALE_LAMBDA 1
+#define CCSO_FILTER_SUPPORT_EXT 1
+#define CCSO_QUANT_STEP 1
+#define CCSO_BLK_SIZE 7
+#define CCSO_PADDING_SIZE 7
+#define CCSO_DYNAMIC_RANGE 2
+#define CCSO_LUT_SIZE 9
+#define CCSO_LUT_EXT_SIZE 16
+#define CCSO_FILTER_SHAPE 1  // 0: 8 shapes in ccso_v1; 1: 6 shapes in FG 1.2
+#define CCSO_LOCATION \
+  2  // 0: after LR; 1: input before CDEF, output after LR; 2: input before
+     // CDEF, output after CDEF
+#endif
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
