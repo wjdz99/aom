@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9cb9ed92_a6643095",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-05-06T19:03:47Z",
+      "side": 1,
+      "message": "Thanks for your comments. I believe that the decision has been made in CWG to adopt this encoder only changes.\n\nIn addition, if we only apply the encoder only changes to key frames, the coding gain in RA configuration is around 0.1% with around 1-2% encoding time saving if I recall correctly. Therefore, the code changes in inter frames brings around 0.5% coding gain with around 4-5% encoding time increase. I would like others to comment whether it\u0027s a good trade-off or not.",
+      "parentUuid": "32c4e754_74815c14",
+      "revId": "7a0a7c3b02404d80a29965daa8a66eb24e47b3e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e8bd7119_92306a66",
