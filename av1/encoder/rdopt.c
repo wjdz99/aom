@@ -2547,17 +2547,8 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const PREDICTION_MODE this_mode = mbmi->mode;
 
-  // Only search indices if they have some chance of being good.
-#if CONFIG_NEW_INTER_MODES
-  int good_indices = 0x1;  // Always allow the zeroth MV to be searched
-  const int start_mv_idx =
-      1;  // Because MV 0 will be returned, don't waste time on it here
-#else
   int good_indices = 0;
-  const int start_mv_idx = 0;
-#endif  // CONFIG_NEW_INTER_MODES
-
-  for (int i = start_mv_idx; i < ref_set; ++i) {
+  for (int i = 0; i < ref_set; ++i) {
     if (ref_mv_idx_early_breakout(cpi, &cpi->ref_frame_dist_info, x, args,
                                   ref_best_rd, i)) {
       continue;
@@ -2565,6 +2556,10 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
     mask_set_bit(&good_indices, i);
   }
 
+  // Always have at least one motion vector searched.
+  if (!good_indices) {
+    good_indices = 0x1;
+  }
   // Only prune in NEARMV mode, if the speed feature is set, and the block size
   // is large enough. If these conditions are not met, return all good indices
   // found so far.
@@ -2587,7 +2582,7 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
 #else
   int64_t idx_rdcost[] = { INT64_MAX, INT64_MAX, INT64_MAX };
 #endif  // CONFIG_NEW_INTER_MODES
-  for (int ref_mv_idx = start_mv_idx; ref_mv_idx < ref_set; ++ref_mv_idx) {
+  for (int ref_mv_idx = 0; ref_mv_idx < ref_set; ++ref_mv_idx) {
     // If this index is bad, ignore it.
     if (!mask_check_bit(good_indices, ref_mv_idx)) {
       continue;
@@ -2596,15 +2591,15 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
         cpi, x, rd_stats, args, ref_mv_idx, mode_info, ref_best_rd, bsize);
   }
   // Find the index with the best RD cost.
-  int best_idx = start_mv_idx;
+  int best_idx = 0;
 #if CONFIG_NEW_INTER_MODES
-  for (int i = start_mv_idx + 1; i < cm->features.max_drl_bits + 1; ++i) {
+  for (int i = 1; i < cm->features.max_drl_bits + 1; ++i) {
     if (idx_rdcost[i] < idx_rdcost[best_idx]) {
       best_idx = i;
     }
   }
 #else
-  for (int i = start_mv_idx + 1; i < MAX_REF_MV_SEARCH; ++i) {
+  for (int i = 1; i < MAX_REF_MV_SEARCH; ++i) {
     if (idx_rdcost[i] < idx_rdcost[best_idx]) {
       best_idx = i;
     }
@@ -2615,12 +2610,8 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   // If the simple translation cost is not within this multiple of the
   // best RD, skip it. Note that the cutoff is derived experimentally.
   const double ref_dth = 5;
-#if CONFIG_NEW_INTER_MODES
-  int result = 0x1;  // Always allow the zeroth MV to be searched
-#else
   int result = 0;
-#endif  // CONFIG_NEW_INTER_MODES
-  for (int i = start_mv_idx; i < ref_set; ++i) {
+  for (int i = 0; i < ref_set; ++i) {
     if (mask_check_bit(good_indices, i) &&
         (1.0 * idx_rdcost[i]) / idx_rdcost[best_idx] < dth &&
         (1.0 * idx_rdcost[i]) / ref_best_rd < ref_dth) {
