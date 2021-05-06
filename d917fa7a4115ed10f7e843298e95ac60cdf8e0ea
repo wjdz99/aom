@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch abstracts stats under CONFIG_ENTROPY_STATS to AV1_PRIMARY. The global variable \"aggregate_fc\" is moved to ppi. A copy is present in cpi for collecting stats for each frame which is refreshed at the beginning of a frame encode and accumulated to ppi after encoding is finished.\n\nThe relevant initializations have also been moved to av1_create_primary_compressor. The print call is moved to a separate function \"print_entropy_stats()\". This gets called at the beginning of encoder_destroy.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. \n\nPlease review.",
       "revId": "d917fa7a4115ed10f7e843298e95ac60cdf8e0ea",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e5c9396_a5e9a50f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-06T19:29:13Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "d917fa7a4115ed10f7e843298e95ac60cdf8e0ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
