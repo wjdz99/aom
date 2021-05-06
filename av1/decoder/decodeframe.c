@@ -5500,7 +5500,13 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
          cm->cdef_info.cdef_uv_strengths[0]);
 
     const int do_superres = av1_superres_scaled(cm);
-    const int optimized_loop_restoration = !do_cdef && !do_superres;
+    const int optimized_loop_restoration = !do_cdef && !do_superres
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 2
+                                           && !use_ccso
+#endif
+#endif
+        ;
 
     if (!optimized_loop_restoration) {
       if (do_loop_restoration)
@@ -5517,6 +5523,15 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
 
       superres_post_decode(pbi);
 
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 2
+      if (use_ccso) {
+        ccso_frame(&cm->cur_frame->buf, cm, xd, ext_rec_y);
+        aom_free(ext_rec_y);
+      }
+#endif
+#endif
+
       if (do_loop_restoration) {
         av1_loop_restoration_save_boundary_lines(&pbi->common.cur_frame->buf,
                                                  cm, 1);
@@ -5532,6 +5547,14 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
         }
       }
     } else {
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 2
+      if (use_ccso) {
+        ccso_frame(&cm->cur_frame->buf, cm, xd, ext_rec_y);
+        aom_free(ext_rec_y);
+      }
+#endif
+#endif
       // In no cdef and no superres case. Provide an optimized version of
       // loop_restoration_filter.
       if (do_loop_restoration) {
@@ -5548,7 +5571,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       }
     }
 #if CONFIG_CCSO
-#if CCSO_LOCATION
+#if CCSO_LOCATION == 1
     if (use_ccso) {
       ccso_frame(&cm->cur_frame->buf, cm, xd, ext_rec_y);
       aom_free(ext_rec_y);
@@ -5558,7 +5581,7 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   }
 
 #if CONFIG_CCSO
-#if !CCSO_LOCATION
+#if CCSO_LOCATION == 0
   if (!tiles->single_tile_decoding) {
     const int use_ccso =
         cm->ccso_info.ccso_enable[0] || cm->ccso_info.ccso_enable[1];
