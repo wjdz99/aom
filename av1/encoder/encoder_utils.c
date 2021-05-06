@@ -542,6 +542,47 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
   *q = av1_rc_pick_q_and_bounds(cpi, cm->width, cm->height, cpi->gf_frame_index,
                                 bottom_index, top_index);
 
+  if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) &&
+      !frame_is_intra_only(cm)) {
+    double cur_qstep = av1_dc_quant_QTX(*q, 0, cm->seq_params->bit_depth);
+    double lef_qstep = av1_dc_quant_QTX(cpi->rc.active_worst_quality, 0,
+                                        cm->seq_params->bit_depth);
+
+    TplDepFrame *tpl_frame = &cpi->ppi->tpl_data.tpl_frame[cpi->gf_frame_index];
+    double lambda =
+        (tpl_frame->abs_coeff_max[0] + tpl_frame->abs_coeff_mean[0] * 2) / 2;
+
+    fprintf(stderr, "lef_qstep = %lf, lambda = %lf\n", lef_qstep, lambda);
+
+    if (lef_qstep > lambda) {
+      int level_qp = cpi->rc.active_worst_quality;
+      int idx;
+      for (idx = 0; idx < level_qp; ++idx) {
+        if (av1_dc_quant_QTX(level_qp - idx, 0, cm->seq_params->bit_depth) <=
+            lambda)
+          break;
+      }
+      level_qp -= idx;
+      lef_qstep = av1_dc_quant_QTX(level_qp, 0, cm->seq_params->bit_depth);
+    }
+
+    int arf_qp;
+    double tgt_qstep;
+    for (arf_qp = cpi->rc.active_worst_quality; arf_qp > 0; --arf_qp) {
+      tgt_qstep = av1_dc_quant_QTX(arf_qp, 0, cm->seq_params->bit_depth);
+      if (tgt_qstep + 0.1 <= lef_qstep * sqrt(cpi->rd.r0)) break;
+    }
+
+    fprintf(stderr, "cur_qstep = %f, tgt_qstep = %f\n", cur_qstep, tgt_qstep);
+    fprintf(stderr, "q = %d, arf_qp = %d\n", *q, arf_qp);
+    fprintf(stderr, "prop rate = %f\n", 1 / cpi->rd.r0);
+
+    *q = arf_qp;
+    *top_index = *bottom_index = arf_qp;
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE)
+      cpi->ppi->p_rc.arf_q = *q;
+  }
+
   // Configure experimental use of segmentation for enhanced coding of
   // static regions if indicated.
   // Only allowed in the second pass of a two pass encode, as it requires
