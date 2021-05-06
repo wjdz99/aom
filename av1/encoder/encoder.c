@@ -1998,6 +1998,53 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
 static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
                                    MACROBLOCKD *xd, int use_restoration,
                                    int use_cdef) {
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 2
+  uint16_t *rec_yuv[3];
+  uint16_t *ext_rec_y;
+  int use_ccso = !cm->features.coded_lossless && !cm->tiles.large_scale;
+  const int num_planes = av1_num_planes(cm);
+  av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, &cm->cur_frame->buf,
+                       0, 0, 0, num_planes);
+  const int ccso_stride = xd->plane[0].dst.width;
+  const int ccso_stride_ext = xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1);
+  if (use_ccso) {
+    ext_rec_y =
+        aom_malloc(sizeof(*ext_rec_y) *
+                   (xd->plane[0].dst.height + (CCSO_PADDING_SIZE << 1)) *
+                   (xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1)));
+    for (int pli = 0; pli < 1; pli++) {
+      rec_yuv[pli] =
+          aom_malloc(sizeof(*rec_yuv) * xd->plane[0].dst.height * ccso_stride);
+      int pic_height = xd->plane[pli].dst.height;
+      int pic_width = xd->plane[pli].dst.width;
+      const int dst_stride = xd->plane[pli].dst.stride;
+      for (int r = 0; r < pic_height; ++r) {
+        for (int c = 0; c < pic_width; ++c) {
+          if (cm->seq_params.use_highbitdepth) {
+            if (pli == 0)
+              ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                        CCSO_PADDING_SIZE] =
+                  CONVERT_TO_SHORTPTR(
+                      xd->plane[pli].dst.buf)[r * dst_stride + c];
+            rec_yuv[pli][r * ccso_stride + c] =
+                CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+          } else {
+            if (pli == 0)
+              ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                        CCSO_PADDING_SIZE] =
+                  xd->plane[pli].dst.buf[r * dst_stride + c];
+            rec_yuv[pli][r * ccso_stride + c] =
+                xd->plane[pli].dst.buf[r * dst_stride + c];
+          }
+        }
+      }
+    }
+    extend_ccso_border(ext_rec_y, CCSO_PADDING_SIZE, xd);
+  }
+#endif
+#endif
+
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   const int num_workers = mt_info->num_workers;
 
@@ -2068,6 +2115,42 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
   }
 
   av1_superres_post_encode(cpi);
+
+#if CONFIG_CCSO
+#if CCSO_LOCATION == 2
+  if (use_ccso) {
+    av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, &cm->cur_frame->buf,
+                         0, 0, 0, num_planes);
+    for (int pli = 1; pli < 3; pli++) {
+      rec_yuv[pli] =
+          aom_malloc(sizeof(*rec_yuv) * xd->plane[0].dst.height * ccso_stride);
+      int pic_height = xd->plane[pli].dst.height;
+      int pic_width = xd->plane[pli].dst.width;
+      const int dst_stride = xd->plane[pli].dst.stride;
+      for (int r = 0; r < pic_height; ++r) {
+        for (int c = 0; c < pic_width; ++c) {
+          if (cm->seq_params.use_highbitdepth) {
+            rec_yuv[pli][r * ccso_stride + c] =
+                CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+          } else {
+            rec_yuv[pli][r * ccso_stride + c] =
+                xd->plane[pli].dst.buf[r * dst_stride + c];
+          }
+        }
+      }
+    }
+
+    ccso_search(&cm->cur_frame->buf, cpi->source, cm, xd, cpi->td.mb.rdmult,
+                ext_rec_y, rec_yuv);
+    ccso_frame(&cm->cur_frame->buf, cm, xd, ext_rec_y);
+
+    for (int pli = 0; pli < num_planes; pli++) {
+      aom_free(rec_yuv[pli]);
+    }
+    aom_free(ext_rec_y);
+  }
+#endif
+#endif
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, loop_restoration_time);
@@ -2161,7 +2244,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
 #endif
 
 #if CONFIG_CCSO
-#if CCSO_LOCATION
+#if CCSO_LOCATION == 1
   uint16_t *rec_yuv[3];
   uint16_t *ext_rec_y;
   int use_ccso = !cm->features.coded_lossless && !cm->tiles.large_scale;
@@ -2209,7 +2292,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
 
 #if CONFIG_CCSO
-#if CCSO_LOCATION
+#if CCSO_LOCATION == 1
   if (use_ccso) {
     av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, &cm->cur_frame->buf,
                          0, 0, 0, num_planes);
@@ -2764,7 +2847,7 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
   }
 
 #if CONFIG_CCSO
-#if !CCSO_LOCATION
+#if CCSO_LOCATION == 0
   if (!cm->features.coded_lossless && !cm->tiles.large_scale)
     ccso(cpi, cm, &cpi->td.mb.e_mbd);
 #endif

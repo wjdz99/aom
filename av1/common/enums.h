@@ -56,7 +56,9 @@ extern "C" {
 #define CCSO_LUT_SIZE 9
 #define CCSO_LUT_EXT_SIZE 16
 #define CCSO_FILTER_SHAPE 1  // 0: 8 shapes in ccso_v1; 1: 6 shapes in FG 1.2
-#define CCSO_LOCATION 0  // 0: after LR; 1: input before CDEF, output after LR;
+#define CCSO_LOCATION \
+  2  // 0: after LR; 1: input before CDEF, output after LR; 2: input before
+     // CDEF, output after CDEF
 #endif
 
 // Max superblock size
