@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a46ad048_6d226f41",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-05-06T11:35:25Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch creates the framework to allocate bitstream buffers for frames encoded in given parallel encode set.\nA new structure AV1_PARALLEL_FRAMES_DATA is introduced to hold the bitstream buffer (cx_data_frame) for each frame in a parallel encode set, its total size (cx_data_sz), display order hint (frame_display_order_hint) and the actual output bitstream size (frame_size). The initialization framework of the current patch initializes all the elements of AV1_PARALLEL_FRAMES_DATA, and subsequent updates of frame_display_order_hint and frame_size would be handled by future CLs.\n\nSince the packed bitstreams for the frames with only frame_parallel_level\u003d2 need to be stored (in addition to existing bitstream buffer), \"num_fp_contexts - 1\" instances of AV1_PARALLEL_FRAMES_DATA are allocated. For the frame with frame_parallel_level\u003d1, the bitstream is stored in the existing cx_data buffer.\n\nWe have internally tested this patch by forcing creation of multiple cpi(s) and the tests mentioned below are run with the CONFIG_FRAME_PARALLEL_ENCODE macro set to 1 and num_fp_contexts set to 2.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. \n\nPlease review.",
+      "revId": "447608540ef03feb54a7ae48c825d505ff207fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
