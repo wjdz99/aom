@@ -141,6 +141,30 @@
       },
       "revId": "9969513295c82ec4122661e125732f7c3f05db90",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1f8396e_8bde63b9",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-06T04:47:48Z",
+      "side": 1,
+      "message": "Thanks for the test.\nThe cl looks good to me. Thanks for figuring this out.\n\nBeyond this cl, I am not sure why these dual functions do not improve speed. That\u0027s what I mentioned, I am not very certain how the SIMD implementations work in AV1 as compared with VP9.",
+      "parentUuid": "52e7f08d_24a5b5cb",
+      "range": {
+        "startLine": 759,
+        "startChar": 10,
+        "endLine": 761,
+        "endChar": 30
+      },
+      "revId": "9969513295c82ec4122661e125732f7c3f05db90",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
