@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3007874_25f4c71e",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-06T18:16:39Z",
+      "side": 1,
+      "message": "Default value here should be 0.",
+      "range": {
+        "startLine": 149,
+        "startChar": 43,
+        "endLine": 149,
+        "endChar": 44
+      },
+      "revId": "266e92b2aaca22e97360649827bc1c16fa3e4218",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
