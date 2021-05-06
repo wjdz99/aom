@@ -362,6 +362,7 @@ TEST_P(AV1FwdTxfm2dTest, match) {
 TEST_P(AV1FwdTxfm2dTest, DISABLED_Speed) {
   AV1FwdTxfm2dSpeedTest(GET_PARAM(0), GET_PARAM(1));
 }
+#if CONFIG_BITRATE_ACCURACY
 TEST(AV1FwdTxfm2dTest, DCTScaleTest) {
   BitDepthInfo bd_info;
   bd_info.bit_depth = 8;
@@ -398,6 +399,9 @@ TEST(AV1FwdTxfm2dTest, DCTScaleTest) {
     EXPECT_NEAR(scale, ref_scale_list[i], 5);
   }
 }
+#endif
+
+
 TEST(AV1FwdTxfm2dTest, HadamardScaleTest) {
   BitDepthInfo bd_info;
   bd_info.bit_depth = 8;
