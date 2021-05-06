@@ -77,9 +77,15 @@ double aom_calc_fastssim(const YV12_BUFFER_CONFIG *source,
                          double *ssim_u, double *ssim_v, uint32_t bd,
                          uint32_t in_bd);
 
+#if CONFIG_AV1_HIGHBITDEPTH
 void aom_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
                           const YV12_BUFFER_CONFIG *dest, double *weight,
                           uint32_t bd, uint32_t in_bd, double *fast_ssim);
+#endif
+
+void aom_ssim(const YV12_BUFFER_CONFIG *orig, const YV12_BUFFER_CONFIG *recon,
+              const uint32_t bit_depth, const uint32_t in_bit_depth,
+              uint8_t is_hbd, double *weight, double *frame_ssim2);
 
 #ifdef __cplusplus
 }  // extern "C"
