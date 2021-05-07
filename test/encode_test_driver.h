@@ -216,6 +216,12 @@ class EncoderTest {
   // Hook to be called on every first pass stats packet.
   virtual void StatsPktHook(const aom_codec_cx_pkt_t * /*pkt*/) {}
 
+  // Calculates ssim at frame level.
+  virtual void calc_ssim_frame_level(const aom_image_t * /*img*/,
+                                     const aom_image_t * /*img*/,
+                                     aom_bit_depth_t /*bd*/,
+                                     unsigned int /*in_bd*/) {}
+
   // Hook to determine whether the encode loop should continue.
   virtual bool Continue() const {
     return !(::testing::Test::HasFatalFailure() || abort_);

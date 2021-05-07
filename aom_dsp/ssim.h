@@ -20,6 +20,7 @@ extern "C" {
 
 #include "config/aom_config.h"
 
+#if CONFIG_INTERNAL_STATS
 #include "aom_scale/yv12config.h"
 
 // metrics used for calculating ssim, ssim2, dssim, and ssimc
@@ -77,9 +78,26 @@ double aom_calc_fastssim(const YV12_BUFFER_CONFIG *source,
                          double *ssim_u, double *ssim_v, uint32_t bd,
                          uint32_t in_bd);
 
+#if CONFIG_AV1_HIGHBITDEPTH
 void aom_highbd_calc_ssim(const YV12_BUFFER_CONFIG *source,
                           const YV12_BUFFER_CONFIG *dest, double *weight,
                           uint32_t bd, uint32_t in_bd, double *fast_ssim);
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+
+void aom_ssim_facade(const YV12_BUFFER_CONFIG *orig,
+                     const YV12_BUFFER_CONFIG *recon, const uint32_t bit_depth,
+                     const uint32_t in_bit_depth, uint8_t is_hbd,
+                     double *weight, double *frame_ssim2);
+#endif  // CONFIG_INTERNAL_STATS
+
+double aom_ssim2(const uint8_t *img1, const uint8_t *img2, int stride_img1,
+                 int stride_img2, int width, int height);
+
+#if CONFIG_AV1_HIGHBITDEPTH
+double aom_highbd_ssim2(const uint8_t *img1, const uint8_t *img2,
+                        int stride_img1, int stride_img2, int width, int height,
+                        uint32_t bd, uint32_t shift);
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 
 #ifdef __cplusplus
 }  // extern "C"

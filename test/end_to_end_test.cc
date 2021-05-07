@@ -14,6 +14,9 @@
 
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
+#include "aom_ports/mem.h"
+#include "aom_dsp/ssim.h"
+#include "av1/common/blockd.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/util.h"
@@ -36,6 +39,10 @@ const double kPsnrThreshold[][4] = {
   { 35.0, 44.3, 38.7, 41.3 }, { 35.0, 44.3, 38.7, 40.8 },
   { 35.0, 44.3, 38.7, 40.8 }
 };
+
+// List of ssim thresholds for speed settings 0-8 with allintra encoding mode.
+const double kSsimThreshold[] = { 83.4, 83.4, 83.4, 83.3, 83.3,
+                                  83.0, 82.3, 81.1, 81.1 };
 
 typedef struct {
   const char *filename;
@@ -85,14 +92,14 @@ int is_extension_y4m(const char *filename) {
 }
 
 class EndToEndTest
-    : public ::libaom_test::CodecTestWith3Params<libaom_test::TestMode,
-                                                 TestVideoParam, int>,
+    : public ::libaom_test::CodecTestWith4Params<libaom_test::TestMode,
+                                                 TestVideoParam, int, bool>,
       public ::libaom_test::EncoderTest {
  protected:
   EndToEndTest()
-      : EncoderTest(GET_PARAM(0)), test_video_param_(GET_PARAM(2)),
-        cpu_used_(GET_PARAM(3)), psnr_(0.0), nframes_(0),
-        encoding_mode_(GET_PARAM(1)) {}
+      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
+        test_video_param_(GET_PARAM(2)), cpu_used_(GET_PARAM(3)),
+        enable_ssim_(GET_PARAM(4)), nframes_(0), psnr_(0.0), ssim_(0.0) {}
 
   virtual ~EndToEndTest() {}
 
@@ -106,16 +113,73 @@ class EndToEndTest
       cfg_.rc_buf_initial_sz = 500;
       cfg_.rc_buf_optimal_sz = 600;
     }
+    if (enable_ssim_ == 0) init_flags_ = AOM_CODEC_USE_PSNR;
   }
 
   virtual void BeginPassHook(unsigned int) {
-    psnr_ = 0.0;
     nframes_ = 0;
+    psnr_ = 0.0;
+    ssim_ = 0.0;
   }
 
   virtual void PSNRPktHook(const aom_codec_cx_pkt_t *pkt) {
     psnr_ += pkt->data.psnr.psnr[0];
+    if (enable_ssim_ == 0) nframes_++;
+  }
+
+  virtual void calc_ssim_frame_level(const aom_image_t *img_src,
+                                     const aom_image_t *img_enc,
+                                     aom_bit_depth_t bd, unsigned int in_bd) {
+    // When quality metric is psnr, do not evaluate ssim.
+    if (enable_ssim_ == 0) return;
+    double frame_ssim;
+    double plane_ssim[MAX_MB_PLANE] = { 0.0, 0.0, 0.0 };
+    int crop_widths[PLANE_TYPES];
+    int crop_heights[PLANE_TYPES];
+    crop_widths[PLANE_TYPE_Y] = img_src->d_w;
+    crop_heights[PLANE_TYPE_Y] = img_src->d_h;
+    // Width of UV planes calculated based on chroma_shift values.
+    crop_widths[PLANE_TYPE_UV] =
+        img_src->x_chroma_shift == 1 ? (img_src->w + 1) >> 1 : img_src->w;
+    crop_heights[PLANE_TYPE_UV] =
+        img_src->y_chroma_shift == 1 ? (img_src->h + 1) >> 1 : img_src->h;
     nframes_++;
+
+#if CONFIG_AV1_HIGHBITDEPTH
+    uint8_t is_hbd = bd > AOM_BITS_8;
+    if (is_hbd) {
+      // HBD ssim calculation.
+      uint8_t shift = bd - in_bd;
+      for (int i = AOM_PLANE_Y; i < MAX_MB_PLANE; ++i) {
+        const int is_uv = i > AOM_PLANE_Y;
+        plane_ssim[i] = aom_highbd_ssim2(
+            CONVERT_TO_BYTEPTR(img_src->planes[i]),
+            CONVERT_TO_BYTEPTR(img_enc->planes[i]),
+            img_src->stride[is_uv] >> is_hbd, img_enc->stride[is_uv] >> is_hbd,
+            crop_widths[is_uv], crop_heights[is_uv], in_bd, shift);
+      }
+      frame_ssim = plane_ssim[AOM_PLANE_Y] * .8 +
+                   .1 * (plane_ssim[AOM_PLANE_U] + plane_ssim[AOM_PLANE_V]);
+      // Accumulate to find sequence level ssim value.
+      ssim_ += frame_ssim;
+      return;
+    }
+#else
+    (void)bd;
+    (void)in_bd;
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+
+    // LBD ssim calculation.
+    for (int i = AOM_PLANE_Y; i < MAX_MB_PLANE; ++i) {
+      const int is_uv = i > AOM_PLANE_Y;
+      plane_ssim[i] = aom_ssim2(img_src->planes[i], img_enc->planes[i],
+                                img_src->stride[is_uv], img_enc->stride[is_uv],
+                                crop_widths[is_uv], crop_heights[is_uv]);
+    }
+    frame_ssim = plane_ssim[AOM_PLANE_Y] * .8 +
+                 .1 * (plane_ssim[AOM_PLANE_U] + plane_ssim[AOM_PLANE_V]);
+    // Accumulate to find sequence level ssim value.
+    ssim_ += frame_ssim;
   }
 
   virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
@@ -124,6 +188,7 @@ class EndToEndTest
       encoder->Control(AV1E_SET_FRAME_PARALLEL_DECODING, 1);
       encoder->Control(AV1E_SET_TILE_COLUMNS, 4);
       encoder->Control(AOME_SET_CPUUSED, cpu_used_);
+      if (enable_ssim_ == 1) encoder->Control(AOME_SET_TUNING, AOM_TUNE_SSIM);
       // Test screen coding tools at cpu_used = 1 && encoding mode is two-pass.
       if (cpu_used_ == 1 && encoding_mode_ == ::libaom_test::kTwoPassGood)
         encoder->Control(AV1E_SET_TUNE_CONTENT, AOM_CONTENT_SCREEN);
@@ -145,9 +210,16 @@ class EndToEndTest
     return 0.0;
   }
 
+  double GetAverageSsim() const {
+    if (nframes_) return 100 * pow(ssim_ / nframes_, 8.0);
+    return 0.0;
+  }
+
   double GetPsnrThreshold() {
     return kPsnrThreshold[cpu_used_][encoding_mode_];
   }
+
+  double GetSsimThreshold() { return kSsimThreshold[cpu_used_]; }
 
   void DoTest() {
     cfg_.rc_target_bitrate = kBitrate;
@@ -155,7 +227,6 @@ class EndToEndTest
     cfg_.g_profile = test_video_param_.profile;
     cfg_.g_input_bit_depth = test_video_param_.input_bit_depth;
     cfg_.g_bit_depth = test_video_param_.bit_depth;
-    init_flags_ = AOM_CODEC_USE_PSNR;
     if (cfg_.g_bit_depth > 8) init_flags_ |= AOM_CODEC_USE_HIGHBITDEPTH;
 
     std::unique_ptr<libaom_test::VideoSource> video;
@@ -168,20 +239,28 @@ class EndToEndTest
           kFramerate, 1, 0, kFrames));
     }
     ASSERT_TRUE(video.get() != NULL);
-
     ASSERT_NO_FATAL_FAILURE(RunLoop(video.get()));
-    const double psnr = GetAveragePsnr();
-    EXPECT_GT(psnr, GetPsnrThreshold())
-        << "cpu used = " << cpu_used_ << ", encoding mode = " << encoding_mode_;
+    if (enable_ssim_ == 0) {
+      const double psnr = GetAveragePsnr();
+      EXPECT_GT(psnr, GetPsnrThreshold())
+          << "encoding mode = " << encoding_mode_
+          << ", cpu used = " << cpu_used_ << ", enable ssim = " << enable_ssim_;
+    } else {
+      const double ssim = GetAverageSsim();
+      EXPECT_GT(ssim, GetSsimThreshold())
+          << "encoding mode = " << encoding_mode_
+          << ", cpu used = " << cpu_used_ << ", enable ssim = " << enable_ssim_;
+    }
   }
 
-  TestVideoParam test_video_param_;
-  int cpu_used_;
-
  private:
-  double psnr_;
+  const libaom_test::TestMode encoding_mode_;
+  const TestVideoParam test_video_param_;
+  const int cpu_used_;
+  const bool enable_ssim_;
   unsigned int nframes_;
-  libaom_test::TestMode encoding_mode_;
+  double psnr_;
+  double ssim_;
 };
 
 class EndToEndTestLarge : public EndToEndTest {};
@@ -190,31 +269,35 @@ class EndToEndAllIntraTestLarge : public EndToEndTest {};
 
 class EndToEndAllIntraTest : public EndToEndTest {};
 
-TEST_P(EndToEndTestLarge, EndtoEndPSNRTest) { DoTest(); }
+TEST_P(EndToEndTestLarge, QualityMetricTest) { DoTest(); }
 
-TEST_P(EndToEndTest, EndtoEndPSNRTest) { DoTest(); }
+TEST_P(EndToEndTest, QualityMetricTest) { DoTest(); }
 
-TEST_P(EndToEndAllIntraTestLarge, EndtoEndPSNRTest) { DoTest(); }
+TEST_P(EndToEndAllIntraTestLarge, QualityMetricTest) { DoTest(); }
 
-TEST_P(EndToEndAllIntraTest, EndtoEndPSNRTest) { DoTest(); }
+TEST_P(EndToEndAllIntraTest, QualityMetricTest) { DoTest(); }
 
 AV1_INSTANTIATE_TEST_SUITE(EndToEndTestLarge,
                            ::testing::ValuesIn(kEncodingModeVectors),
                            ::testing::ValuesIn(kTestVectors),
-                           ::testing::ValuesIn(kCpuUsedVectors));
+                           ::testing::ValuesIn(kCpuUsedVectors),
+                           ::testing::Values(0));  // enable_ssim
 
 AV1_INSTANTIATE_TEST_SUITE(EndToEndTest,
                            ::testing::Values(::libaom_test::kTwoPassGood),
                            ::testing::Values(kTestVectors[2]),  // 444
-                           ::testing::Values(3));               // cpu_used
+                           ::testing::Values(3),                // cpu_used
+                           ::testing::Values(0));               // enable_ssim
 
 AV1_INSTANTIATE_TEST_SUITE(EndToEndAllIntraTestLarge,
                            ::testing::Values(::libaom_test::kAllIntra),
                            ::testing::ValuesIn(kTestVectors),
-                           ::testing::Values(2, 4, 6, 8));  // cpu_used
+                           ::testing::Values(2, 4, 6, 8),  // cpu_used
+                           ::testing::Values(0, 1));       // enable_ssim
 
 AV1_INSTANTIATE_TEST_SUITE(EndToEndAllIntraTest,
                            ::testing::Values(::libaom_test::kAllIntra),
                            ::testing::Values(kTestVectors[0]),  // 420
-                           ::testing::Values(6));               // cpu_used
+                           ::testing::Values(6),                // cpu_used
+                           ::testing::Values(0, 1));            // enable_ssim
 }  // namespace
