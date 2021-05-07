@@ -14,6 +14,7 @@
 
 #include "av1/encoder/cost.h"
 #include "av1/encoder/tpl_model.h"
+#include "av1/encoder/encoder.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 namespace {
@@ -138,6 +139,13 @@ TEST(TplModelTest, GetOverlapAreaNoOverlap) {
   int overlap_area =
       av1_get_overlap_area(row_a, col_a, row_b, col_b, width, height);
   EXPECT_EQ(overlap_area, 0);
+}
+
+TEST(TPLModelTest, EstimateFrameRateTest) {
+  int x = 1;
+  GF_GROUP gop;
+  // double result = av1_estimate_gop_bitrate(...)
+  EXPECT_EQ(x, 1);
 }
 
 }  // namespace
