@@ -152,10 +152,10 @@ def GenerateSummaryRDDataFile(EncodeMethod, CodecName, EncodePreset,
             if (test_cfg == "STILL"):
                 csv.write("%d"%filesize)
             else:
-                csv.write("%.4f"%bitrate)
+                csv.write("%f"%bitrate)
 
             for qty in quality:
-                csv.write(",%.4f"%qty)
+                csv.write(",%f"%qty)
             if UsePerfUtil:
                 enc_time, dec_time, enc_instr, dec_instr, enc_cycles, dec_cycles = GatherInstrCycleInfo(bs, Path_TimingLog)
                 csv.write(",%.2f,%.2f,%s,%s,%s,%s,\n" % (enc_time,dec_time,enc_instr,dec_instr,enc_cycles,dec_cycles))

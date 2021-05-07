@@ -281,7 +281,7 @@ def SaveConvexHullResultsToExcel(content, ScaleMethod, dnScAlgos, upScAlgos, csv
                            str(clip.width)+"x"+str(clip.height), clip.fps,clip.bit_depth,
                            str(DnScaledW)+"x"+str(DnScaledH),qp,bitrate))
                 for qty in quality:
-                    csv.write(",%.4f"%qty)
+                    csv.write(",%f"%qty)
 
                 if EnableTimingInfo:
                     if UsePerfUtil:
