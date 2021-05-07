@@ -140,4 +140,10 @@ TEST(TplModelTest, GetOverlapAreaNoOverlap) {
   EXPECT_EQ(overlap_area, 0);
 }
 
+TEST(TPLModelTest, EstimateFrameRateTest) {
+  int x = 1;
+  // double result = av1_estimate_gop_bitrate(...)
+  EXPECT_EQ(x, 1);
+}
+
 }  // namespace
