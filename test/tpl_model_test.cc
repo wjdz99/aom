@@ -14,6 +14,7 @@
 
 #include "av1/encoder/cost.h"
 #include "av1/encoder/tpl_model.h"
+#include "av1/encoder/encoder.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 namespace {
@@ -138,6 +139,26 @@ TEST(TplModelTest, GetOverlapAreaNoOverlap) {
   int overlap_area =
       av1_get_overlap_area(row_a, col_a, row_b, col_b, width, height);
   EXPECT_EQ(overlap_area, 0);
+}
+
+TEST(TPLModelTest, EstimateFrameRateTest) {
+  const int size = 256;
+  const int frame_count = 16;
+  unsigned char q_index_list[size];
+  TplTxfmStats stats_list[size];
+
+  for (int i = 0; i < size; i++) {
+    q_index_list[i] = 1;
+    stats_list[i] = *(new TplTxfmStats());
+    stats_list[i].txfm_block_count = size / frame_count;
+
+    for (int j = 0; j < 256; j++) { /* this is always 256 */
+      stats_list[i].abs_coeff_sum[j] = 1;
+    }
+  }
+
+  double result = av1_estimate_gop_bitrate(q_index_list, size, stats_list);
+  EXPECT_GT(result, 0);
 }
 
 }  // namespace
