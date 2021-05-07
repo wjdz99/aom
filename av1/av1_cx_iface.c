@@ -3784,9 +3784,6 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-#if CONFIG_SDP
-        1,
-#endif  // CONFIG_SDP
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
@@ -3862,9 +3859,6 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
       { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-#if CONFIG_SDP
-        1,
-#endif
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
