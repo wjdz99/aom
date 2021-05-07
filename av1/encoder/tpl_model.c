@@ -1753,6 +1753,10 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
   return est_rate;
 }
 
+double av1_estimate_gop_bitrate(const int num_frames, const int* bits_per_frame) {
+  return 1;
+}
+
 double av1_estimate_coeff_entropy(double q_step, double b,
                                   double zero_bin_ratio, int qcoeff) {
   int abs_qcoeff = abs(qcoeff);

@@ -302,6 +302,12 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
                                        const double *abs_coeff_mean,
                                        int coeff_num);
 
+/*
+ *!\brief Compute the number of bits needed to encode a GOP
+ *
+ */
+double av1_estimate_gop_bitrate(const int num_frames, const int* bits_per_frame);
+
 /*!\brief  Init data structure storing transform stats
  *
  *\ingroup tpl_modelling
