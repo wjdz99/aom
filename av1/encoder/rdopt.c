@@ -1236,10 +1236,46 @@ static INLINE void clamp_mv2(MV *mv, const MACROBLOCKD *xd) {
   clamp_mv(mv, &mv_limits);
 }
 
-#if !CONFIG_NEW_INTER_MODES
-/* Because NEARESTMV is gone with NEW_INTER_MODES and there is no easy way to
- * check if GLOBALMV and NEARMV are using the same MV, this function should not
- * be called.*/
+#if CONFIG_NEW_INTER_MODES
+/* Skip global motion if it shares the same MV with NEAR, and global motion
+   is estimated to be higher in cost. */
+static int skip_repeated_mv(const AV1_COMMON *const cm,
+                            const MACROBLOCK *const x,
+                            PREDICTION_MODE this_mode,
+                            const MV_REFERENCE_FRAME ref_frames[2],
+                            InterModeSearchState *search_state) {
+  (void)cm;
+  const int is_comp_pred = ref_frames[1] > INTRA_FRAME;
+  if (is_comp_pred) {
+    return 0;
+  }
+  if (this_mode != GLOBALMV) {
+    return 0;
+  }
+  const uint8_t ref_frame_type = av1_ref_frame_type(ref_frames);
+  const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+  const int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
+  if (ref_mv_count > 1) {
+    return 0;
+  }
+  const PREDICTION_MODE compare_mode = NEARMV;
+  if (search_state->modelled_rd[compare_mode][0][ref_frames[0]] == INT64_MAX) {
+    return 0;
+  }
+  const int16_t mode_ctx =
+      av1_mode_context_analyzer(mbmi_ext->mode_context, ref_frames);
+  const int compare_cost = cost_mv_ref(&x->mode_costs, compare_mode, mode_ctx);
+  const int this_cost = cost_mv_ref(&x->mode_costs, this_mode, mode_ctx);
+
+  // Only skip if the mode cost is larger than compare mode cost
+  if (this_cost > compare_cost) {
+    search_state->modelled_rd[this_mode][0][ref_frames[0]] =
+        search_state->modelled_rd[compare_mode][0][ref_frames[0]];
+    return 1;
+  }
+  return 0;
+}
+#else
 /* If the current mode shares the same mv with other modes with higher cost,
  * skip this mode. */
 static int skip_repeated_mv(const AV1_COMMON *const cm,
@@ -1297,7 +1333,7 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
   }
   return 0;
 }
-#endif  // !CONFIG_NEW_INTER_MODES
+#endif  // CONFIG_NEW_INTER_MODES
 
 static INLINE int clamp_and_check_mv(int_mv *out_mv, int_mv in_mv,
                                      const AV1_COMMON *cm,
@@ -4807,12 +4843,10 @@ static int inter_mode_search_order_independent_skip(
       ref_frame[0] == INTRA_FRAME)
     return 1;
 
-#if !CONFIG_NEW_INTER_MODES
   const AV1_COMMON *const cm = &cpi->common;
   if (skip_repeated_mv(cm, x, mode, ref_frame, search_state)) {
     return 1;
   }
-#endif  // !CONFIG_NEW_INTER_MODES
 #if CONFIG_EXT_RECUR_PARTITIONS
   const int cached_skip_ret =
       skip_inter_mode_with_cached_mode(x, mode, ref_frame);
