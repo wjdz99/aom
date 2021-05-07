@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "94c2c3c2_c2ef76eb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-07T15:24:05Z",
+      "side": 1,
+      "message": "Please add\n\nBUG\u003daomedia:3049",
+      "revId": "83a95c669d344306e2e342feff3f4743d718cd05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "75074c8a_ac821fff",
@@ -14,6 +31,57 @@
       "writtenOn": "2021-05-07T14:52:38Z",
       "side": 1,
       "message": "Hi Wan-Teh,\n\nThis CL fixes the android build failure observed in\nhttps://build.aomedia.org/jenkins/job/libaom__compile_android/772\nby replacing the enum key in the unordered_map with integer type.\n\nAs per our understanding, unordered_map not supporting enum as key\nseems to be a limitation with C++11. Hence we have added a typecast\nfor the usage of TestMode enum in the unordered_map to retain code\nreadability.\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "83a95c669d344306e2e342feff3f4743d718cd05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04cdd8dc_a2dae38c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-07T15:24:05Z",
+      "side": 1,
+      "message": "Hi Jayasanker,\n\nThank you very much for the fix! I already filed a bug report. I suggest some small changes.",
+      "revId": "83a95c669d344306e2e342feff3f4743d718cd05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41f14781_a2f9319c",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-07T15:24:05Z",
+      "side": 1,
+      "message": "Please change this to static_cast\u003cint\u003e(::libaom_test::kTwoPassGood)",
+      "revId": "83a95c669d344306e2e342feff3f4743d718cd05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c822404d_ea39e927",
+        "filename": "test/sharpness_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-07T15:24:05Z",
+      "side": 1,
+      "message": "Please change this to static_cast\u003cint\u003e(::libaom_test::kAllIntra)",
       "revId": "83a95c669d344306e2e342feff3f4743d718cd05",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
