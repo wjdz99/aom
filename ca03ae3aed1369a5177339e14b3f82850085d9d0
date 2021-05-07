@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e8986c3_73b53d7d",
+        "filename": "aom_dsp/ssim.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-05-07T14:31:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "780a9111_a24d84ab",
+      "revId": "ca03ae3aed1369a5177339e14b3f82850085d9d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "77c559da_ea18ee79",
@@ -75,6 +93,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0089477d_94eac192",
+        "filename": "aom_dsp/ssim.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-05-07T14:31:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77c559da_ea18ee79",
+      "range": {
+        "startLine": 88,
+        "startChar": 50,
+        "endLine": 88,
+        "endChar": 57
+      },
+      "revId": "ca03ae3aed1369a5177339e14b3f82850085d9d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1558f915_8c20458a",
@@ -88,6 +130,24 @@
       "writtenOn": "2021-05-07T03:05:44Z",
       "side": 1,
       "message": "Nit: Although I think \"facade\" is a very reasonable name to use here and libaom already uses \"facade\" in several functions, I found that libaom does not seem to use \"facade\" to handle dispatching to highbd or lowbd functions. To follow the common convention in libaom, I suggest the following renaming:\n\n  First, rename \"aom_calc_ssim\" to \"aom_lowbd_calc_ssim\".\n  Then, rename \"aom_ssim_facade\" to \"aom_calc_ssim\".",
+      "revId": "ca03ae3aed1369a5177339e14b3f82850085d9d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e496ed2c_336c1905",
+        "filename": "aom_dsp/ssim.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-05-07T14:31:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1558f915_8c20458a",
       "revId": "ca03ae3aed1369a5177339e14b3f82850085d9d0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
