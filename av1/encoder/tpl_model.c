@@ -1753,6 +1753,20 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
   return est_rate;
 }
 
+double av1_estimate_gop_bitrate(gf_group gop, TplTxfmStats stats) {
+  unsigned char *q_val = gop->q_val;
+  int gop_size = gop->size;
+  for (int i = 0; i < gop_size; i++) {
+    int q_index = q_val[i];
+
+    double result = av1_laplace_estimate_frame_rate(q_index,
+                                                    stats->txfm_block_count,
+                                                    ,
+                                                    
+  }
+  return 1;
+}
+
 double av1_estimate_coeff_entropy(double q_step, double b,
                                   double zero_bin_ratio, int qcoeff) {
   int abs_qcoeff = abs(qcoeff);
