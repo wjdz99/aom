@@ -1753,6 +1753,31 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
   return est_rate;
 }
 
+double av1_estimate_gop_bitrate(const unsigned char *q_index_list,
+                                const int frame_count, const int txfm_size,
+                                const TplTxfmStats *stats_list) {
+  double gop_bitrate = 0;
+  for (int frame_index = 0; frame_index < frame_count; frame_index++) {
+    int q_index = q_index_list[frame_index];
+    TplTxfmStats frame_stats = stats_list[frame_index];
+
+    /* Convert to mean absolute deviation */
+    double abs_coeff_mean[256];
+    for (int i = 0; i < txfm_size; i++) {
+      abs_coeff_mean[i] =
+          frame_stats.abs_coeff_sum[i] / frame_stats.txfm_block_count;
+      if (abs_coeff_mean[i] == 0) {
+        return 0;  // avoid divide by zero error
+      }
+    }
+
+    double frame_bitrate = av1_laplace_estimate_frame_rate(
+        q_index, frame_stats.txfm_block_count, abs_coeff_mean, txfm_size);
+    gop_bitrate += frame_bitrate;
+  }
+  return gop_bitrate;
+}
+
 double av1_estimate_coeff_entropy(double q_step, double b,
                                   double zero_bin_ratio, int qcoeff) {
   int abs_qcoeff = abs(qcoeff);
