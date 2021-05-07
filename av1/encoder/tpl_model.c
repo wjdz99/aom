@@ -1753,6 +1753,19 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
   return est_rate;
 }
 
+double av1_estimate_gop_bitrate(unsigned char *q_val, int size,
+                                TplTxfmStats **stats) {
+  double gop_bitrate = 0;
+  for (int frame_index = 0; frame_index < size; frame_index++) {
+    int q_index = q_val[frame_index];
+    TplTxfmStats *frame_stats = stats[frame_index];
+    double frame_bitrate = av1_laplace_estimate_frame_rate(
+        q_index, frame_stats->txfm_block_count, frame_stats->abs_coeff_sum, 16);
+    gop_bitrate += frame_bitrate;
+  }
+  return gop_bitrate;
+}
+
 double av1_estimate_coeff_entropy(double q_step, double b,
                                   double zero_bin_ratio, int qcoeff) {
   int abs_qcoeff = abs(qcoeff);
