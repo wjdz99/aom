@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6283821c_23b48a99",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-08T02:01:03Z",
+      "side": 1,
+      "message": "[Optional] It\u0027s better to use meaningful name.\nIt\u0027s good to add comment to explain why the size is 25.",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 17
+      },
+      "revId": "8224e2de3ec9abd4939f6de22479ec66995462fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
