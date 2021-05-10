@@ -25,6 +25,10 @@
 typedef struct txfm_param {
   // for both forward and inverse transforms
   TX_TYPE tx_type;
+#if CONFIG_IST
+  TX_TYPE stx_type;
+  PREDICTION_MODE intra_mode;
+#endif
   TX_SIZE tx_size;
   int lossless;
   int bd;
