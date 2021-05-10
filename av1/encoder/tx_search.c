@@ -2396,6 +2396,7 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   // Iterate through all transform type candidates.
   for (int idx = 0; idx < TX_TYPES; ++idx) {
 #if CONFIG_IST
+    bool skip_idx = false;
     for (int stx = 0; stx < 4; ++stx) {
       TX_TYPE tx_type = (TX_TYPE)txk_map[idx];
       if (!(allowed_tx_mask & (1 << tx_type))) continue;
@@ -2574,15 +2575,24 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       if (cpi->sf.tx_sf.adaptive_txb_search_level) {
         if ((best_rd - (best_rd >> cpi->sf.tx_sf.adaptive_txb_search_level)) >
             ref_best_rd) {
+#if CONFIG_IST
+          skip_idx = true;
+#endif
           break;
         }
       }
 
       // Terminate transform type search if the block has been quantized to
       // all zero.
-      if (cpi->sf.tx_sf.tx_type_search.skip_tx_search && !best_eob) break;
+      if (cpi->sf.tx_sf.tx_type_search.skip_tx_search && !best_eob) {
+#if CONFIG_IST
+        skip_idx = true;
+#endif
+        break;
+      }
 #if CONFIG_IST
     }
+    if (skip_idx) break;
 #endif
   }
 
@@ -2592,8 +2602,11 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
   if (plane == 0) update_txk_array(xd, blk_row, blk_col, tx_size, best_tx_type);
   x->plane[plane].txb_entropy_ctx[block] = best_txb_ctx;
   x->plane[plane].eobs[block] = best_eob;
+#if CONFIG_IST
+  skip_trellis = skip_trellis_based_on_satd[best_tx_type & 0x0f];
+#else
   skip_trellis = skip_trellis_based_on_satd[best_tx_type];
-
+#endif
   // Point dqcoeff to the quantized coefficients corresponding to the best
   // transform type, then we can skip transform and quantization, e.g. in the
   // final pixel domain distortion calculation and recon_intra().

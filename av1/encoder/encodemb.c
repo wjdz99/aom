@@ -281,7 +281,11 @@ void av1_xform(MACROBLOCK *x, int plane, int block, int blk_row, int blk_col,
                const int reuse
 #endif
 ) {
+#if CONFIG_IST
+  struct macroblock_plane *const p = &x->plane[plane];
+#else
   const struct macroblock_plane *const p = &x->plane[plane];
+#endif
   const int block_offset = BLOCK_OFFSET(block);
   tran_low_t *const coeff = p->coeff + block_offset;
   const int diff_stride = block_size_wide[plane_bsize];
@@ -302,11 +306,11 @@ void av1_xform(MACROBLOCK *x, int plane, int block, int blk_row, int blk_col,
     if (txfm_param->stx_type == 0) {
       av1_fwd_txfm(src_diff, coeff, diff_stride, txfm_param);
       if (plane == 0) {
-        memcpy(tempCoeff, coeff, trWidth * trHeigh * sizeof(tran_low_t));
+        memcpy(p->tempCoeff, coeff, trWidth * trHeigh * sizeof(tran_low_t));
       }
     } else {
       if (plane == 0)
-        memcpy(coeff, tempCoeff, trWidth * trHeigh * sizeof(tran_low_t));
+        memcpy(coeff, p->tempCoeff, trWidth * trHeigh * sizeof(tran_low_t));
     }
   }
   MACROBLOCKD *const xd = &x->e_mbd;

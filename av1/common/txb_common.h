@@ -19,10 +19,6 @@ extern const int16_t av1_eob_offset_bits[12];
 
 extern const int8_t *av1_nz_map_ctx_offset[TX_SIZES_ALL];
 
-#if CONFIG_IST
-extern tran_low_t tempCoeff[4096];
-#endif
-
 typedef struct txb_ctx {
   int txb_skip_ctx;
   int dc_sign_ctx;

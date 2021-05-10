@@ -243,6 +243,14 @@ uint8_t av1_read_coeffs_txb(const AV1_COMMON *const cm, DecoderCodingBlock *dcb,
   }
   *eob = rec_eob_pos(eob_pt, eob_extra);
 
+// read  stx_type here
+#if CONFIG_IST
+  if (plane == AOM_PLANE_Y) {
+    // only y plane's stx_type is transmitted
+    av1_read_stx_type(cm, xd, blk_row, blk_col, tx_size, eob, r);
+  }
+#endif
+  //
   if (*eob > 1) {
     memset(levels_buf, 0,
            sizeof(*levels_buf) *

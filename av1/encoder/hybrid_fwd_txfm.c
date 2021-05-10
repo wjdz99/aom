@@ -311,28 +311,6 @@ void av1_highbd_fwd_txfm(const int16_t *src_diff, tran_low_t *coeff,
 }
 
 #if CONFIG_IST
-void fwd_stxfm(tran_low_t *src, tran_low_t *dst, const PREDICTION_MODE mode,
-               const int8_t stx_idx, const int size) {
-  const int *kernel =
-      (size == 4) ? g_stx4x4[mode][stx_idx][0] : g_stx8x8[mode][stx_idx][0];
-  int coef;
-  int *out = dst;
-
-  assert(mode < 24);
-  assert(stx_idx < 4);
-
-  for (int j = 0; j < size * size; j++) {
-    int *srcPtr = src;
-    const int *kernel_tmp = kernel;
-    coef = 0;
-    for (int i = 0; i < size * size; i++) {
-      coef += *srcPtr++ * *kernel_tmp++;
-    }
-    *out++ = (coef + 64) >> 7;
-    kernel += (size * size);
-  }
-}
-
 void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param) {
   const TX_TYPE stx_type = txfm_param->stx_type;
 
@@ -345,22 +323,39 @@ void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param) {
 
   if ((width >= 4 && height >= 4) && txfm_param->stx_type) {
     PREDICTION_MODE intra_mode = txfm_param->intra_mode;
+    PREDICTION_MODE mode_t;
     const int log2width = tx_size_wide_log2[txfm_param->tx_size];
-    tran_low_t buf0[64] = { 0 }, buf1[64] = { 0 };
     int sbSize = (width >= 8 && height >= 8) ? 8 : 4;
+    const int16_t *scan_order_in;
     const int16_t *scan_order_out = (sbSize == 4)
                                         ? g_stx_scan_orders_4x4[log2width - 2]
                                         : g_stx_scan_orders_8x8[log2width - 2];
+    tran_low_t buf0[64] = { 0 }, buf1[64] = { 0 };
     tran_low_t *tmp = buf0;
     tran_low_t *src = coeff;
+    int8_t transpose;
+    int mode =
+        (txfm_param->tx_type == ADST_ADST) ? intra_mode - 12 : intra_mode;
+    transpose = (mode == g_stx_transpose_mapping[mode]) ? 0 : 1;
+    if (mode == 10) transpose = 0;
+    mode_t = (txfm_param->tx_type == ADST_ADST)
+                 ? g_stx_transpose_mapping[mode] + 12
+                 : g_stx_transpose_mapping[mode];
+    if (transpose) {
+      scan_order_in = (sbSize == 4)
+                          ? g_stx_scan_orders_transpose_4x4[log2width - 2]
+                          : g_stx_scan_orders_transpose_8x8[log2width - 2];
+    } else {
+      scan_order_in = (sbSize == 4) ? g_stx_scan_orders_4x4[log2width - 2]
+                                    : g_stx_scan_orders_8x8[log2width - 2];
+    }
     for (int r = 0; r < sbSize * sbSize; r++) {
-      *tmp = src[scan_order_out[r]];
+      *tmp = src[scan_order_in[r]];
       tmp++;
     }
-    fwd_stxfm(buf0, buf1, intra_mode, (int8_t)(stx_type - 1), sbSize);
-
+    fwd_stxfm(buf0, buf1, mode_t, (int8_t)(stx_type - 1), sbSize);
+    memset(coeff, 0, width * height * sizeof(tran_low_t));
     tmp = buf1;
-    src = coeff;
     for (int i = 0; i < sbSize * sbSize; i++) {
       coeff[scan_order_out[i]] = *tmp++;
     }

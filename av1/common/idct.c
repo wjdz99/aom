@@ -210,7 +210,15 @@ static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
       (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
   if ((txfm_param->intra_mode < PAETH_PRED) &&
       !(mbmi->filter_intra_mode_info.use_filter_intra)) {
-    txfm_param->stx_type = (tx_type >> 4);
+    const int width = tx_size_wide[tx_size];
+    const int height = tx_size_high[tx_size];
+    int sbSize = (width >= 8 && height >= 8) ? 8 : 4;
+    bool ist_eob = 1;
+    if ((sbSize == 4) && (eob > (IST_4x4_HEIGHT - 1)))
+      ist_eob = 0;
+    else if ((sbSize == 8) && (eob > (IST_8x8_HEIGHT - 1)))
+      ist_eob = 0;
+    if (ist_eob) txfm_param->stx_type = (tx_type >> 4);
     if (txfm_param->tx_type == ADST_ADST) {
       txfm_param->intra_mode += 12;
     }
@@ -355,20 +363,28 @@ void av1_inverse_transform_block(const MACROBLOCKD *xd,
 }
 
 #if CONFIG_IST
-void inv_stxfm(tran_low_t *src, tran_low_t *dst, const PREDICTION_MODE mode,
-               const int8_t stx_idx, const int size) {
-  const int *kernel =
+void inv_stxfm_c(tran_low_t *src, tran_low_t *dst, const PREDICTION_MODE mode,
+                 const int8_t stx_idx, const int size) {
+  const int16_t *kernel =
       (size == 4) ? g_stx4x4[mode][stx_idx][0] : g_stx8x8[mode][stx_idx][0];
   int *out = dst;
 
   assert(mode < 24);
   assert(stx_idx < 4);
 
-  for (int j = 0; j < size * size; j++) {
+  int reduced_width, reduced_height;
+  if (size == 4) {
+    reduced_height = IST_4x4_HEIGHT;
+    reduced_width = IST_4x4_WIDTH;
+  } else {
+    reduced_height = IST_8x8_HEIGHT;
+    reduced_width = IST_8x8_WIDTH;
+  }
+  for (int j = 0; j < reduced_width; j++) {
     int32_t resi = 0;
-    const int *kernel_tmp = kernel;
+    const int16_t *kernel_tmp = kernel;
     int *srcPtr = src;
-    for (int i = 0; i < size * size; i++) {
+    for (int i = 0; i < reduced_height; i++) {
       resi += *srcPtr++ * *kernel_tmp;
       kernel_tmp += (size * size);
     }
@@ -389,21 +405,39 @@ void av1_inv_stxfm(tran_low_t *coeff, TxfmParam *txfm_param) {
 
   if ((width >= 4 && height >= 4) && txfm_param->stx_type) {
     PREDICTION_MODE intra_mode = txfm_param->intra_mode;
+    PREDICTION_MODE mode_t;
     const int log2width = tx_size_wide_log2[txfm_param->tx_size];
-    tran_low_t buf0[64] = { 0 }, buf1[64] = { 0 };
+
     int sbSize = (width >= 8 && height >= 8) ? 8 : 4;
-    const int16_t *scan_order_out = (sbSize == 4)
-                                        ? g_stx_scan_orders_4x4[log2width - 2]
-                                        : g_stx_scan_orders_8x8[log2width - 2];
+    const int16_t *scan_order_out;
+    const int16_t *scan_order_in = (sbSize == 4)
+                                       ? g_stx_scan_orders_4x4[log2width - 2]
+                                       : g_stx_scan_orders_8x8[log2width - 2];
+    tran_low_t buf0[64] = { 0 }, buf1[64] = { 0 };
     tran_low_t *tmp = buf0;
     tran_low_t *src = coeff;
-    tmp = buf0;
-    for (int i = 0; i < sbSize * sbSize; i++) {
-      *tmp++ = src[scan_order_out[i]];
+
+    for (int r = 0; r < sbSize * sbSize; r++) {
+      *tmp = src[scan_order_in[r]];
+      tmp++;
     }
-
-    inv_stxfm(buf0, buf1, intra_mode, (int8_t)(stx_type - 1), sbSize);
-
+    int8_t transpose;
+    int mode =
+        (txfm_param->tx_type == ADST_ADST) ? intra_mode - 12 : intra_mode;
+    transpose = (mode == g_stx_transpose_mapping[mode]) ? 0 : 1;
+    if (mode == 10) transpose = 0;
+    mode_t = (txfm_param->tx_type == ADST_ADST)
+                 ? g_stx_transpose_mapping[mode] + 12
+                 : g_stx_transpose_mapping[mode];
+    if (transpose) {
+      scan_order_out = (sbSize == 4)
+                           ? g_stx_scan_orders_transpose_4x4[log2width - 2]
+                           : g_stx_scan_orders_transpose_8x8[log2width - 2];
+    } else {
+      scan_order_out = (sbSize == 4) ? g_stx_scan_orders_4x4[log2width - 2]
+                                     : g_stx_scan_orders_8x8[log2width - 2];
+    }
+    inv_stxfm(buf0, buf1, mode_t, (int8_t)(stx_type - 1), sbSize);
     tmp = buf1;
     src = coeff;
     for (int r = 0; r < sbSize * sbSize; r++) {

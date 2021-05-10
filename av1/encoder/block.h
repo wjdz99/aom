@@ -102,6 +102,10 @@ typedef struct {
 typedef struct macroblock_plane {
   //! Stores source - pred so the txfm can be computed later
   DECLARE_ALIGNED(32, int16_t, src_diff[MAX_SB_SQUARE]);
+  //! temporary buffer for primary transform coeffs
+#if CONFIG_IST
+  DECLARE_ALIGNED(32, int32_t, tempCoeff[4096]);
+#endif
   //! Dequantized coefficients
   tran_low_t *dqcoeff;
   //! Quantized coefficients

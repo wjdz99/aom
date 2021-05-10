@@ -404,7 +404,14 @@ void av1_write_coeffs_txb(const AV1_COMMON *const cm, MACROBLOCK *const x,
       aom_write_bit(w, bit);
     }
   }
-
+// write stx_type here
+#if CONFIG_IST
+  // Only y plane's stx_type is transmitted
+  if (plane == 0) {
+    av1_write_stx_type(cm, xd, tx_type, tx_size, eob, w);
+  }
+#endif
+  //
   const int width = get_txb_wide(tx_size);
   const int height = get_txb_high(tx_size);
   uint8_t levels_buf[TX_PAD_2D];
