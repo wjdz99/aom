@@ -33,6 +33,24 @@
       "message": "Thanks for the fix.\nI tested on speed 4 and speed 6, the coding performance change is within 0.05%.",
       "revId": "cadba565a437ba5ad6570b8f98d217bc6e4e11c4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b48f981_0868d93c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2021-05-10T09:56:26Z",
+      "side": 1,
+      "message": "Thanks a lot for the review and for testing the change! I added STATS_CHANGED to the change description, but it looks like that cleared the code review flags so I\u0027ll need a +2 again...",
+      "parentUuid": "efc4b7b6_ba195f4b",
+      "revId": "cadba565a437ba5ad6570b8f98d217bc6e4e11c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
