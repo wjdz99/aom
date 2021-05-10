@@ -996,6 +996,14 @@ static const aom_cdf_prob default_tx_size_cdf[MAX_TX_CATS][TX_SIZE_CONTEXTS]
                                                  { AOM_CDF3(16803, 22759) } },
                                              };
 
+#if CONFIG_IST
+static const aom_cdf_prob default_stx_cdf[5][CDF_SIZE(4)] = {
+  { AOM_CDF4(8192, 16384, 24576) }, { AOM_CDF4(8192, 16384, 24576) },
+  { AOM_CDF4(8192, 16384, 24576) }, { AOM_CDF4(8192, 16384, 24576) },
+  { AOM_CDF4(8192, 16384, 24576) },
+};
+#endif
+
 #define MAX_COLOR_CONTEXT_HASH 8
 // Negative values are invalid
 static const int palette_color_index_context_lookup[MAX_COLOR_CONTEXT_HASH +
@@ -1247,6 +1255,9 @@ static void init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->cfl_sign_cdf, default_cfl_sign_cdf);
   av1_copy(fc->cfl_alpha_cdf, default_cfl_alpha_cdf);
   av1_copy(fc->intrabc_cdf, default_intrabc_cdf);
+#if CONFIG_IST
+  av1_copy(fc->stx_cdf, default_stx_cdf);
+#endif
 }
 
 void av1_set_default_ref_deltas(int8_t *ref_deltas) {
