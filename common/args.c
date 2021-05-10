@@ -83,6 +83,9 @@ int parse_cfg(const char *file, cfg_options_t *config) {
 #if CONFIG_SDP
     GET_PARAMS(enable_sdp);
 #endif
+#if CONFIG_IST
+    GET_PARAMS(enable_ist);
+#endif
     GET_PARAMS(enable_flip_idtx);
     GET_PARAMS(enable_deblocking);
     GET_PARAMS(enable_cdef);
