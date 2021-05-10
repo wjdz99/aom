@@ -95,6 +95,7 @@ typedef struct AV1TplRowMultiThreadInfo {
 
 typedef struct TplTxfmStats {
   double abs_coeff_sum[256];  // Assume we are using 16x16 transform block
+  double abs_coeff_max[256];
   int txfm_block_count;
 } TplTxfmStats;
 
@@ -129,6 +130,7 @@ typedef struct TplDepFrame {
   uint32_t frame_display_index;
   double abs_coeff_sum[256];  // Assume we are using 16x16 transform block
   double abs_coeff_mean[256];
+  double abs_coeff_max[256];
   int coeff_num;  // number of coefficients in a transform block
   int txfm_block_count;
 } TplDepFrame;

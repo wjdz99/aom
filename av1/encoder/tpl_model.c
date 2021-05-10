@@ -43,6 +43,9 @@ static AOM_INLINE void tpl_stats_record_txfm_block(TplTxfmStats *tpl_txfm_stats,
   assert(coeff_num <= 256);
   for (int i = 0; i < coeff_num; ++i) {
     tpl_txfm_stats->abs_coeff_sum[i] += abs(coeff[i]) / (double)LOSSLESS_Q_STEP;
+    tpl_txfm_stats->abs_coeff_max[i] =
+        AOMMAX(tpl_txfm_stats->abs_coeff_max[i],
+               abs(coeff[i]) / (double)LOSSLESS_Q_STEP);
   }
   ++tpl_txfm_stats->txfm_block_count;
 }
@@ -55,6 +58,7 @@ static AOM_INLINE void tpl_stats_update_abs_coeff_mean(
     tpl_frame->abs_coeff_sum[i] = tpl_txfm_stats->abs_coeff_sum[i];
     tpl_frame->abs_coeff_mean[i] =
         tpl_frame->abs_coeff_sum[i] / tpl_txfm_stats->txfm_block_count;
+    tpl_frame->abs_coeff_max[i] = tpl_txfm_stats->abs_coeff_max[i];
   }
 }
 
