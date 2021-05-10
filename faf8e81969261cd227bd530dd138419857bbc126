@@ -127,6 +127,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b29ce976_f3ddb44f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-10T22:17:31Z",
+      "side": 1,
+      "message": "Since the model was added, there have been changes to dynamically select GF group length I believe. My guess is that the interaction of that with GF group height (e.g. flat vs max depth pyramid) may have caused the regression.\nMaybe we could retrain the model?\n\nOne quick test to find the potential gain is to run baseline vs \"--gf-max-pyr-height\u003d0\" and see any clips have gains by using a flag structure. If so, ML model could potentially be retrained to capture those.",
+      "parentUuid": "2df56fa0_ae56b04c",
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "853be540_6af6825a",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 5
