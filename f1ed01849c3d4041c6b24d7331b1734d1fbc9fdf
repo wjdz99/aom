@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7a45a76_8e7a5a33",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-10T21:39:48Z",
+      "side": 1,
+      "message": "You can pass in parameter like\nconst TplTxfmStats *stats_arr\n\nAnd do \nconst TplTxfmStats *frame_stats \u003d stats_arr + frame_index;\nor\nconst TplTxfmStats *frame_stats \u003d \u0026stats_arr[frame_index];\n\nWe are not changing the value of frame_stats, so we should add const to make it clear.",
+      "range": {
+        "startLine": 1756,
+        "startChar": 64,
+        "endLine": 1756,
+        "endChar": 84
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6656ea8_1498bff8",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-10T21:39:48Z",
+      "side": 1,
+      "message": "frame_count",
+      "range": {
+        "startLine": 1756,
+        "startChar": 54,
+        "endLine": 1756,
+        "endChar": 62
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "974947d0_89d65657",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-10T21:39:48Z",
+      "side": 1,
+      "message": "const unsigned char *q_val",
+      "range": {
+        "startLine": 1756,
+        "startChar": 47,
+        "endLine": 1756,
+        "endChar": 52
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ee0a371_f52dadea",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-10T21:39:48Z",
+      "side": 1,
+      "message": "This could be an example of function documentation.",
+      "range": {
+        "startLine": 283,
+        "startChar": 0,
+        "endLine": 303,
+        "endChar": 54
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7113de0f_37d8c9dd",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-10T21:39:48Z",
+      "side": 1,
+      "message": "Add \\param[in] and return to document the function parameter.",
+      "range": {
+        "startLine": 305,
+        "startChar": 0,
+        "endLine": 308,
+        "endChar": 3
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
