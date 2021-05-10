@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22b30b8d_7d087146",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-05-10T18:11:57Z",
+      "side": 1,
+      "message": "encodeframe_util.c\n\nAnd maybe \u0027Remove ...\u0027 the duplicate clear made me think you were clearing the system state / adding calls here.",
+      "range": {
+        "startLine": 7,
+        "startChar": 32,
+        "endLine": 7,
+        "endChar": 48
+      },
+      "revId": "43b24fefce741a9fe1de4e0d64ef3175f0136497",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
