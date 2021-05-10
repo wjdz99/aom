@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1c1dd89_3855b9e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-05-10T11:56:54Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have added the default initialization of xd-\u003etile_ctx with common frame context (cm-\u003efc) in enc_row_mt_worker_hook(). This ensures that xd-\u003etile_ctx is initialized appropriately in encode stage even though master thread does not pick any encode job. As xd-\u003etile_ctx is updated now, we have reverted the change of passing cm-\u003efc instead of xd-\u003etile_ctx in av1_fill_lr_rates().\n\nWe verified that the following issue is not seen with this patch.\nhttps://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3036\n\nWe also verified bit-match w.r.t. parent version for few test-cases.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "8711577a030a5828a38407e5ba4237f069c21705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
