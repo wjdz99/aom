@@ -22,6 +22,30 @@
       },
       "revId": "43b24fefce741a9fe1de4e0d64ef3175f0136497",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e82fdbd9_1700038a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-10T18:46:06Z",
+      "side": 1,
+      "message": "Saw this after submitting.\nI chose \"clear\" due to the length limitation.",
+      "parentUuid": "22b30b8d_7d087146",
+      "range": {
+        "startLine": 7,
+        "startChar": 32,
+        "endLine": 7,
+        "endChar": 48
+      },
+      "revId": "43b24fefce741a9fe1de4e0d64ef3175f0136497",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
