@@ -434,6 +434,9 @@ const arg_def_t *av1_key_val_args[] = {
 #if CONFIG_SDP
   &g_av1_codec_arg_defs.enable_sdp,
 #endif
+#if CONFIG_IST
+  &g_av1_codec_arg_defs.enable_ist,
+#endif
   NULL,
 };
 
@@ -566,6 +569,9 @@ static void init_config(cfg_options_t *config) {
   config->enable_1to4_partitions = 1;
 #if CONFIG_SDP
   config->enable_sdp = 1;
+#endif
+#if CONFIG_IST
+  config->enable_ist = 1;
 #endif
   config->enable_flip_idtx = 1;
   config->enable_deblocking = 1;
@@ -1360,7 +1366,10 @@ static void show_stream_config(struct stream_state *stream,
   fprintf(stdout, "                               : SDP (%d)\n",
           encoder_cfg->enable_sdp);
 #endif
-
+#if CONFIG_IST
+  fprintf(stdout, "                               : IST (%d)\n",
+          encoder_cfg->enable_ist);
+#endif
   fprintf(stdout,
           "Tool setting (Intra)           : SmoothIntra (%d), CfL (%d), "
           "FilterIntra (%d)\n",
