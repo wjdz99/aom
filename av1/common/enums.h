@@ -80,6 +80,21 @@ extern "C" {
 #define PARTITION_STRUCTURE_NUM 2
 #endif
 
+#if CONFIG_IST
+#define TEST_FG2 1
+#if TEST_FG2
+#define IST_4x4_WIDTH 16
+#define IST_4x4_HEIGHT 8
+#define IST_8x8_WIDTH 64
+#define IST_8x8_HEIGHT 32
+#else
+#define IST_4x4_WIDTH 16
+#define IST_4x4_HEIGHT 16
+#define IST_8x8_WIDTH 64
+#define IST_8x8_HEIGHT 64
+#endif
+#endif  // CONFIG_IST
+
 #define DIST_PRECISION_BITS 4
 #define DIST_PRECISION (1 << DIST_PRECISION_BITS)  // 16
 

@@ -2602,3 +2602,42 @@ void av1_fwd_txfm2d_64x16_sse4_1(const int16_t *input, int32_t *coeff,
   transpose_8nx8n(in, outcoeff128, txfm_size_row, 32);
   (void)bd;
 }
+
+#if CONFIG_IST
+void fwd_stxfm_sse4_1(tran_low_t* src, tran_low_t* dst, const PREDICTION_MODE mode,
+  const int8_t stx_idx, const int size) {
+  const int16_t* kernel =
+    (size == 4) ? g_stx4x4[mode][stx_idx][0] : g_stx8x8[mode][stx_idx][0];
+  int coef;
+  int* out = dst;
+
+  assert(mode < 24);
+  assert(stx_idx < 4);
+
+  int reduced_width, reduced_height;
+  if (size == 4) {
+    reduced_height = IST_4x4_HEIGHT;
+    reduced_width = IST_4x4_WIDTH;
+  }
+  else {
+    reduced_height = IST_8x8_HEIGHT;
+    reduced_width = IST_8x8_WIDTH;
+  }
+  for (int j = 0; j < reduced_height; j++) {
+    int* srcPtr = src;
+    const int16_t* kernel_tmp = kernel;
+    coef = 0;
+    __m128i tmpSum = _mm_setzero_si128(); //Return vector of type __m128i with all elements set to zero.
+    for (int i = 0; i < reduced_width; i += 4) {
+      __m128i tmpBlk = _mm_loadu_si128((__m128i*)(srcPtr + i)); //Load 128-bits of integer data from memory into tmpBlk
+      __m128i tmpT = _mm_cvtepi16_epi32(_mm_loadl_epi64((__m128i*)(kernel_tmp + i))); //Load 64-bit integer;Sign extend packed 16-bit integers to packed 32-bit integers, and store the results in tmpT
+      tmpSum = _mm_add_epi32(tmpSum, _mm_mullo_epi32(tmpBlk, tmpT));
+    }
+    tmpSum = _mm_add_epi32(tmpSum, _mm_shuffle_epi32(tmpSum, _MM_SHUFFLE(2, 3, 0, 1)));
+    tmpSum = _mm_add_epi32(tmpSum, _mm_shuffle_epi32(tmpSum, _MM_SHUFFLE(1, 0, 3, 2)));
+    coef = _mm_cvtsi128_si32(tmpSum);
+    *out++ = (coef + 64) >> 7;
+    kernel += (size * size);
+    }
+  }
+#endif
