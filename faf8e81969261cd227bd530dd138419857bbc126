@@ -123,6 +123,75 @@
       "message": "Hi Urvang,\n\nPlease take a look at Deepa\u0027s test results, which showed the gains by enabling the ML model was reduced. Any suggestions for getting back the coding gain for ugc set?",
       "revId": "faf8e81969261cd227bd530dd138419857bbc126",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "853be540_6af6825a",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-10T22:11:04Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 491,
+        "startChar": 2,
+        "endLine": 491,
+        "endChar": 5
+      },
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8bb3ef8_5c17ab66",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-10T22:11:04Z",
+      "side": 1,
+      "message": "\"gf_cfg-\u003egf_min_pyr_height \u003d\u003d 0\" is better:\n- It\u0027s easier to read\n- Also, this is NOT a boolean variable, so using \"!\" is not recommended",
+      "range": {
+        "startLine": 492,
+        "startChar": 50,
+        "endLine": 492,
+        "endChar": 75
+      },
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00f32813_4ab26463",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2428,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-10T22:11:04Z",
+      "side": 1,
+      "message": "Call the function \"use_ml_model_to_decide_alt_ref()\" directly, as the value is used only once.",
+      "range": {
+        "startLine": 2428,
+        "startChar": 23,
+        "endLine": 2428,
+        "endChar": 45
+      },
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
