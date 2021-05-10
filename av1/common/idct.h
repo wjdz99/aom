@@ -33,7 +33,11 @@ typedef struct {
 int av1_get_tx_scale(const TX_SIZE tx_size);
 
 void av1_inverse_transform_block(const MACROBLOCKD *xd,
+#if CONFIG_IST
+                                 tran_low_t *dqcoeff, int plane,
+#else
                                  const tran_low_t *dqcoeff, int plane,
+#endif
                                  TX_TYPE tx_type, TX_SIZE tx_size, uint8_t *dst,
                                  int stride, int eob, int reduced_tx_set);
 void av1_highbd_iwht4x4_add(const tran_low_t *input, uint8_t *dest, int stride,
@@ -43,6 +47,10 @@ static INLINE const int32_t *cast_to_int32(const tran_low_t *input) {
   assert(sizeof(int32_t) == sizeof(tran_low_t));
   return (const int32_t *)input;
 }
+
+#if CONFIG_IST
+void av1_inv_stxfm(tran_low_t *coeff, TxfmParam *txfm_param);
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"
