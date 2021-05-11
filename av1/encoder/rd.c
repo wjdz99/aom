@@ -335,6 +335,10 @@ void av1_fill_lr_rates(ModeCosts *mode_costs, FRAME_CONTEXT *fc) {
   av1_cost_tokens_from_cdf(mode_costs->cnn_restore_cost, fc->cnn_restore_cdf,
                            NULL);
 #endif  // CONFIG_LOOP_RESTORE_CNN
+#if CONFIG_WIENER_NONSEP
+  av1_cost_tokens_from_cdf(x->wiener_nonsep_restore_cost,
+                           fc->wiener_nonsep_restore_cdf, NULL);
+#endif  // CONFIG_WIENER_NONSEP
 }
 
 // Values are now correlated to quantizer.
