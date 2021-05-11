@@ -70,6 +70,78 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "315c598b_4b122c7c",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-11T22:27:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7a45a76_8e7a5a33",
+      "range": {
+        "startLine": 1756,
+        "startChar": 64,
+        "endLine": 1756,
+        "endChar": 84
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "418931d1_762afb07",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-11T22:27:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6656ea8_1498bff8",
+      "range": {
+        "startLine": 1756,
+        "startChar": 54,
+        "endLine": 1756,
+        "endChar": 62
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a685e86_0d44da80",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1756,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-11T22:27:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "974947d0_89d65657",
+      "range": {
+        "startLine": 1756,
+        "startChar": 47,
+        "endLine": 1756,
+        "endChar": 52
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3ee0a371_f52dadea",
@@ -93,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e33cffa5_d87f2545",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-11T22:27:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3ee0a371_f52dadea",
+      "range": {
+        "startLine": 283,
+        "startChar": 0,
+        "endLine": 303,
+        "endChar": 54
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7113de0f_37d8c9dd",
@@ -106,6 +202,30 @@
       "writtenOn": "2021-05-10T21:39:48Z",
       "side": 1,
       "message": "Add \\param[in] and return to document the function parameter.",
+      "range": {
+        "startLine": 305,
+        "startChar": 0,
+        "endLine": 308,
+        "endChar": 3
+      },
+      "revId": "f1ed01849c3d4041c6b24d7331b1734d1fbc9fdf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89c43181_b55592b3",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-11T22:27:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7113de0f_37d8c9dd",
       "range": {
         "startLine": 305,
         "startChar": 0,
