@@ -22,6 +22,30 @@
       },
       "revId": "8224e2de3ec9abd4939f6de22479ec66995462fa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4d3f443_8d9460cf",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-11T05:00:17Z",
+      "side": 1,
+      "message": "Sure. I will add comments and change it in following cls.",
+      "parentUuid": "6283821c_23b48a99",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 17
+      },
+      "revId": "8224e2de3ec9abd4939f6de22479ec66995462fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
