@@ -33,6 +33,46 @@
       "message": "Yunqing,\nThis patch disables the extended compound modes (NEAREST_NEWMV, NEW_NEARESTMV, NEAR_NEWMV, NEW_NEARMV ) in speed 6.\n         |            | Instruction Count |        BD-Rate Loss(%)      |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim   |\n-------- | ---------- | ----------------- | --------  --------  --------|\n   6     |  LOW RES   |       1.262       |  0.1731   0.1801   0.0867   |\n   6     |  MID RES   |       1.234       |  0.2087   0.2093   0.1065   |\n   6     |   HD RES   |       1.441       |  0.1695   0.1707   0.0590   |\n   6     |  Average   |       1.301       |  0.1824   0.1858   0.0840   |\n\nIn the commit message, BD rate impact column: [+] sign is for BD-Rate drop [-] sign is for BD-Rate improvement. The instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc … For other speed levels, this is a bit-exact change with no impact on speed \n(verified locally on a few test cases).\n\nPlease review the patch.",
       "revId": "678f7ddb067be36af8ab82b37e20902f4c6a06cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0249746a_1dd01fd3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-11T17:25:17Z",
+      "side": 1,
+      "message": "Good speedup. The tradeoff is ok for speed 6. Thanks.",
+      "revId": "678f7ddb067be36af8ab82b37e20902f4c6a06cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33beda03_66ddde1b",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-11T17:25:17Z",
+      "side": 1,
+      "message": "The speed feature name may need to be modified. Could you add a comment to state that extended compound modes NEAREST_NEWMV, NEW_NEARESTMV, NEAR_NEWMV, NEW_NEARMV are disabled when prune_compound_using_neighbors \u003d 3 in speed_features.h?",
+      "range": {
+        "startLine": 1079,
+        "startChar": 50,
+        "endLine": 1079,
+        "endChar": 51
+      },
+      "revId": "678f7ddb067be36af8ab82b37e20902f4c6a06cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
