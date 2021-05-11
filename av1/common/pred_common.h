@@ -388,18 +388,26 @@ static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_p6(
 // The prediction flags in these dummy entries are initialized to 0.
 static INLINE int get_tx_size_context(const MACROBLOCKD *xd) {
   const MB_MODE_INFO *mbmi = xd->mi[0];
-  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
-  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
 #if CONFIG_SDP
+  MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
   const TX_SIZE max_tx_size =
       max_txsize_rect_lookup[mbmi->sb_type[PLANE_TYPE_Y]];
 #else
+  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
   const TX_SIZE max_tx_size = max_txsize_rect_lookup[mbmi->sb_type];
 #endif
   const int max_tx_wide = tx_size_wide[max_tx_size];
   const int max_tx_high = tx_size_high[max_tx_size];
   const int has_above = xd->up_available;
   const int has_left = xd->left_available;
+
+#if CONFIG_SDP
+  // Set the tree_type of above and left blocks same as current block
+  if (has_above) above_mbmi->tree_type = xd->tree_type;
+  if (has_left) left_mbmi->tree_type = xd->tree_type;
+#endif
 
   int above = xd->above_txfm_context[0] >= max_tx_wide;
   int left = xd->left_txfm_context[0] >= max_tx_high;
