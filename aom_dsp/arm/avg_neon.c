@@ -177,12 +177,13 @@ int aom_vector_var_neon(const int16_t *ref, const int16_t *src, const int bwl) {
   }
 #if defined(__aarch64__)
   int mean = vaddvq_s32(v_mean);
-  int sse = (int)vaddvq_s32(v_sse);
+  uint32_t sse = (uint32_t)vaddvq_s32(v_sse);
 #else
   int mean = horizontal_add_s32x4(v_mean);
-  int sse = horizontal_add_s32x4(v_sse);
+  uint32_t sse = (uint32_t)horizontal_add_s32x4(v_sse);
 #endif
-  // (mean * mean): dynamic range 31 bits.
-  int var = sse - ((mean * mean) >> (bwl + 2));
+  // (mean * mean): dynamic range 32 bits - can be stored in uint32_t
+  uint32_t meansq = (uint32_t)abs(mean) * (uint32_t)abs(mean);
+  int var = sse - (int)(meansq >> (bwl + 2));
   return var;
 }
