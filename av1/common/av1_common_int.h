@@ -1457,11 +1457,20 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
     if (!(mi_row & (xd->width - 1))) xd->is_first_horizontal_rect = 1;
 }
 
+#if CONFIG_SDP
+static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
+                                           const MB_MODE_INFO *above_mi,
+                                           const MB_MODE_INFO *left_mi,
+                                           int tree_type) {
+  const PREDICTION_MODE above = av1_above_block_mode(above_mi, tree_type);
+  const PREDICTION_MODE left = av1_left_block_mode(left_mi, tree_type);
+#else
 static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
                                            const MB_MODE_INFO *above_mi,
                                            const MB_MODE_INFO *left_mi) {
   const PREDICTION_MODE above = av1_above_block_mode(above_mi);
   const PREDICTION_MODE left = av1_left_block_mode(left_mi);
+#endif
   const int above_ctx = intra_mode_context[above];
   const int left_ctx = intra_mode_context[left];
   return tile_ctx->kf_y_cdf[above_ctx][left_ctx];

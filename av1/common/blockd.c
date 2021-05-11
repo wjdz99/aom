@@ -16,6 +16,23 @@
 #include "av1/common/av1_common_int.h"
 #include "av1/common/blockd.h"
 
+#if CONFIG_SDP
+PREDICTION_MODE av1_left_block_mode(const MB_MODE_INFO *left_mi,
+                                    int tree_type) {
+  if (!left_mi) return DC_PRED;
+  assert(!is_inter_block(left_mi, tree_type) ||
+         is_intrabc_block(left_mi, tree_type));
+  return left_mi->mode;
+}
+
+PREDICTION_MODE av1_above_block_mode(const MB_MODE_INFO *above_mi,
+                                     int tree_type) {
+  if (!above_mi) return DC_PRED;
+  assert(!is_inter_block(above_mi, tree_type) ||
+         is_intrabc_block(above_mi, tree_type));
+  return above_mi->mode;
+}
+#else
 PREDICTION_MODE av1_left_block_mode(const MB_MODE_INFO *left_mi) {
   if (!left_mi) return DC_PRED;
   assert(!is_inter_block(left_mi) || is_intrabc_block(left_mi));
@@ -27,6 +44,7 @@ PREDICTION_MODE av1_above_block_mode(const MB_MODE_INFO *above_mi) {
   assert(!is_inter_block(above_mi) || is_intrabc_block(above_mi));
   return above_mi->mode;
 }
+#endif
 
 void av1_set_entropy_contexts(const MACROBLOCKD *xd,
                               struct macroblockd_plane *pd, int plane,
