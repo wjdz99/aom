@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "97a92f6e_0e84ce1f",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1757,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-11T22:51:11Z",
+      "side": 1,
+      "message": "Use \"const TplTxfmStats *stats_list\" here",
+      "range": {
+        "startLine": 1757,
+        "startChar": 32,
+        "endLine": 1757,
+        "endChar": 58
+      },
+      "revId": "812f6e00014f25f59ec369b472f7e90f8533793b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "209f7462_a1ff5e32",
         "filename": "test/tpl_model_test.cc",
         "patchSetId": 8
@@ -14,6 +37,30 @@
       "writtenOn": "2021-05-11T22:34:45Z",
       "side": 1,
       "message": "This will create an array of pointers but those pointers are not assigned with actual memory.",
+      "range": {
+        "startLine": 147,
+        "startChar": 2,
+        "endLine": 147,
+        "endChar": 38
+      },
+      "revId": "812f6e00014f25f59ec369b472f7e90f8533793b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d6eabb5_0749831a",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-11T22:51:11Z",
+      "side": 1,
+      "message": "You can do TplTxfmStats stats_list[#]\nThen pass stats_list into av1_estimate_gop_bitrate().\nTo do this, you need to change the transform stats parameter to \n\"const TplTxfmStats* stats_list\"",
+      "parentUuid": "209f7462_a1ff5e32",
       "range": {
         "startLine": 147,
         "startChar": 2,
