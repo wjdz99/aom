@@ -113,6 +113,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e9646d4_bc430d79",
+        "filename": "av1/common/pred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-05-11T19:27:50Z",
+      "side": 1,
+      "message": "Btw, if you turn off IntraBC for each sequence, there is no decoder crash for this sequence.",
+      "parentUuid": "6202bf90_a5bb139c",
+      "range": {
+        "startLine": 397,
+        "startChar": 8,
+        "endLine": 397,
+        "endChar": 10
+      },
+      "revId": "fc411de21265465d841000dce69187cd685f5a5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e1ac073c_599e4576",
