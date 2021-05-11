@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0722867_59bd3bb4",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-11T16:26:53Z",
+      "side": 1,
+      "message": "const (this and all variables below)",
+      "range": {
+        "startLine": 179,
+        "startChar": 2,
+        "endLine": 179,
+        "endChar": 5
+      },
+      "revId": "b06bebb27529474ccdfc7b0d36b397ad602ea913",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc9e1f90_ad8fb096",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-11T16:26:53Z",
+      "side": 1,
+      "message": "In this statement, \u0027var\u0027 and \u0027(int)(meansq ....\u0027 are both \u0027int\u0027.\nAny reason for \u0027sse\u0027 to be uint32_t?",
+      "range": {
+        "startLine": 187,
+        "startChar": 12,
+        "endLine": 187,
+        "endChar": 15
+      },
+      "revId": "b06bebb27529474ccdfc7b0d36b397ad602ea913",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a2f7d4f_0a2aae87",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-11T16:26:53Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 480,
+        "startChar": 2,
+        "endLine": 480,
+        "endChar": 10
+      },
+      "revId": "b06bebb27529474ccdfc7b0d36b397ad602ea913",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1254734e_53d67609",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-11T16:26:53Z",
+      "side": 1,
+      "message": "same question about \u0027sse\u0027 type",
+      "revId": "b06bebb27529474ccdfc7b0d36b397ad602ea913",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
