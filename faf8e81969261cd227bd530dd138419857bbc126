@@ -214,6 +214,42 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c83f3f3c_aec66d9d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-05-12T15:41:16Z",
+      "side": 1,
+      "message": "Yunqing,\nWe shall plan to handle the situation where first pass uses different setting from second pass by checking for validity of \"total_stats-\u003eframe_avg_wavelet_energy\" before encoding the first frame and thereby printing a warning if first pass stats is invalid.\nPlease let us know your opinion.",
+      "parentUuid": "c344cd04_d92d35ab",
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1db5590a_82078e8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-05-12T15:41:16Z",
+      "side": 1,
+      "message": "Please note that the baseline in the above results corresponds to commit id 2971930 (with ML model not disabled).",
+      "parentUuid": "47f501ff_ba945adf",
+      "revId": "faf8e81969261cd227bd530dd138419857bbc126",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "853be540_6af6825a",
