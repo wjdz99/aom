@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05684330_105eae67",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1757,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-12T00:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97a92f6e_0e84ce1f",
+      "range": {
+        "startLine": 1757,
+        "startChar": 32,
+        "endLine": 1757,
+        "endChar": 58
+      },
+      "revId": "812f6e00014f25f59ec369b472f7e90f8533793b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "209f7462_a1ff5e32",
@@ -61,6 +85,30 @@
       "side": 1,
       "message": "You can do TplTxfmStats stats_list[#]\nThen pass stats_list into av1_estimate_gop_bitrate().\nTo do this, you need to change the transform stats parameter to \n\"const TplTxfmStats* stats_list\"",
       "parentUuid": "209f7462_a1ff5e32",
+      "range": {
+        "startLine": 147,
+        "startChar": 2,
+        "endLine": 147,
+        "endChar": 38
+      },
+      "revId": "812f6e00014f25f59ec369b472f7e90f8533793b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57d62c5a_b6cff3ff",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-12T00:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d6eabb5_0749831a",
       "range": {
         "startLine": 147,
         "startChar": 2,
