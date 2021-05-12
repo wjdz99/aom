@@ -533,6 +533,9 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   int rf_idx;
   int_mv single_mv[INTER_REFS_PER_FRAME];
 
+  center_mv_t center_mvs_pool[INTER_REFS_PER_FRAME][4];
+  int refmv_count_pool[INTER_REFS_PER_FRAME];
+
   best_mv[0].as_int = INVALID_MV;
   best_mv[1].as_int = INVALID_MV;
 
@@ -543,6 +546,13 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
       tpl_stats->mv[rf_idx].as_int = INVALID_MV;
       continue;
     }
+    int idx;
+    center_mv_t *center_mvs = center_mvs_pool[rf_idx];
+    for (idx = 0; idx < 4; ++idx) {
+      center_mvs[idx].sad = INT_MAX;
+      center_mvs[idx].mv.as_int = 0;
+    }
+    int refmv_count = 1;
 
     const YV12_BUFFER_CONFIG *ref_frame_ptr = tpl_data->src_ref_frame[rf_idx];
     int ref_mb_offset =
@@ -552,13 +562,6 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
 
     int_mv best_rfidx_mv = { 0 };
     uint32_t bestsme = UINT32_MAX;
-
-    center_mv_t center_mvs[4] = { { { 0 }, INT_MAX },
-                                  { { 0 }, INT_MAX },
-                                  { { 0 }, INT_MAX },
-                                  { { 0 }, INT_MAX } };
-    int refmv_count = 1;
-    int idx;
 
     if (xd->up_available) {
       TplDepStats *ref_tpl_stats = &tpl_frame->tpl_stats_ptr[av1_tpl_ptr_pos(
@@ -615,6 +618,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
           refmv_count--;
       }
     }
+    refmv_count_pool[rf_idx] = refmv_count;
 
     for (idx = 0; idx < refmv_count; ++idx) {
       int_mv this_mv;
@@ -627,6 +631,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
         best_rfidx_mv = this_mv;
       }
     }
+
+    (void)refmv_count_pool;
 
     tpl_stats->mv[rf_idx].as_int = best_rfidx_mv.as_int;
     single_mv[rf_idx] = best_rfidx_mv;
