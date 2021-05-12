@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7cde8af_441c47f3",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bed709b8_6261a27d",
+      "range": {
+        "startLine": 940,
+        "startChar": 33,
+        "endLine": 940,
+        "endChar": 66
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "12f086ed_3e181cc1",
@@ -81,6 +105,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6203d58c_6d579443",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12f086ed_3e181cc1",
+      "range": {
+        "startLine": 397,
+        "startChar": 11,
+        "endLine": 397,
+        "endChar": 26
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0358cdba_8f48ffce",
@@ -94,6 +142,24 @@
       "writtenOn": "2021-05-12T17:46:19Z",
       "side": 1,
       "message": "If we get to the \"else\" part, we know newq \u003e\u003d q. Should we handle newq \u003d\u003d q and newq \u003e q separately?",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cfcfd96_1e4c7543",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0358cdba_8f48ffce",
       "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -133,6 +199,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "df2202a7_bbf65e98",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Yep it\u0027s a bug fix. For do-while, we will do qindex++ at least once.\nIf the initial qindex is 255, qindex++ -\u003e 256 which is not valid.",
+      "parentUuid": "b996ff08_c82177a9",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d9f3d7f_876b1d7f",
@@ -146,6 +230,30 @@
       "writtenOn": "2021-05-12T17:50:32Z",
       "side": 1,
       "message": "Nit/optional: We can declare bit_depth as aom_bit_depth_t. Two other functions declared in this header use the aom_bit_depth_t type for their bit_depth parameter. I am not sure what is the preferred style in libaom.",
+      "range": {
+        "startLine": 349,
+        "startChar": 26,
+        "endLine": 349,
+        "endChar": 39
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e78462de_d8d2b588",
+        "filename": "av1/encoder/rd.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d9f3d7f_876b1d7f",
       "range": {
         "startLine": 349,
         "startChar": 26,
@@ -179,6 +287,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30406ce4_c623f025",
+        "filename": "av1/encoder/tune_vmaf.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23087b79_26a458b3",
+      "range": {
+        "startLine": 950,
+        "startChar": 43,
+        "endLine": 950,
+        "endChar": 76
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3410b9ae_7c5b80cc",
@@ -192,6 +324,30 @@
       "writtenOn": "2021-05-12T17:46:19Z",
       "side": 1,
       "message": "Nit: remove \u003calgorithm\u003e and \u003cvector\u003e. They are not used.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 17
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7922cb61_6dc6a6bf",
+        "filename": "test/rd_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3410b9ae_7c5b80cc",
       "range": {
         "startLine": 13,
         "startChar": 0,
@@ -225,6 +381,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d0c152a_e59b5f3f",
+        "filename": "test/rd_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9ac0a74_fad7c99a",
+      "range": {
+        "startLine": 30,
+        "startChar": 26,
+        "endLine": 30,
+        "endChar": 31
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "623fea7d_b766f772",
@@ -238,6 +418,24 @@
       "writtenOn": "2021-05-12T17:46:19Z",
       "side": 1,
       "message": "Nit: Use static_cast\u003cint\u003e",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8875af4f_f9e20f76",
+        "filename": "test/rd_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-12T22:51:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "623fea7d_b766f772",
       "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
