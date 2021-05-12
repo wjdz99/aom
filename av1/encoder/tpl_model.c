@@ -763,6 +763,40 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
                         rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
                         use_y_only_rate_distortion);
     tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
+
+    MV ref_mv =
+        best_cmp_rf_idx >= 0
+            ? center_mvs_pool[comp_ref_frames[best_cmp_rf_idx][0]][0].mv.as_mv
+            : center_mvs_pool[best_rf_idx][0].mv.as_mv;
+    int mvcost =
+        av1_mv_bit_cost(&best_mv[0].as_mv, &ref_mv, x->mv_costs->nmv_joint_cost,
+                        x->mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+    if (best_cmp_rf_idx >= 0) {
+      ref_mv = center_mvs_pool[comp_ref_frames[best_cmp_rf_idx][1]][0].mv.as_mv;
+      mvcost += av1_mv_bit_cost(&best_mv[1].as_mv, &ref_mv,
+                                x->mv_costs->nmv_joint_cost,
+                                x->mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+    }
+    int64_t best_rd =
+        RDCOST(tpl_frame->base_rdmult, rate_cost + mvcost, recon_error);
+
+    int_mv tmp_mv = xd->mi[0]->mv[0];
+    xd->mi[0]->mv[0] = center_mvs_pool[best_rf_idx][0].mv;
+    int64_t tmp_recon_error, tmp_pred_error;
+    get_rate_distortion(&rate_cost, &tmp_recon_error, &tmp_pred_error, src_diff,
+                        coeff, qcoeff, dqcoeff, cm, x, ref_frame_ptr,
+                        rec_buffer_pool, rec_stride_pool, tx_size, NEWMV,
+                        mi_row, mi_col, use_y_only_rate_distortion);
+    int64_t tmp_rd = RDCOST(tpl_frame->base_rdmult, rate_cost, tmp_recon_error);
+
+    if (tmp_rd < best_rd) {
+      best_mode = NEWMV;
+      recon_error = tmp_recon_error;
+      pred_error = tmp_pred_error;
+      tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
+    } else {
+      xd->mi[0]->mv[0] = tmp_mv;
+    }
   }
 
   best_intra_cost = AOMMAX(best_intra_cost, 1);
