@@ -542,6 +542,69 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
   *q = av1_rc_pick_q_and_bounds(cpi, cm->width, cm->height, cpi->gf_frame_index,
                                 bottom_index, top_index);
 
+  if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) &&
+      !frame_is_intra_only(cm)) {
+    double cur_qstep = av1_dc_quant_QTX(*q, 0, cm->seq_params->bit_depth);
+    double lef_qstep = av1_dc_quant_QTX(cpi->rc.active_worst_quality, 0,
+                                        cm->seq_params->bit_depth);
+
+    TplParams *tpl_data = &cpi->ppi->tpl_data;
+    TplDepFrame *tpl_frame = &cpi->ppi->tpl_data.tpl_frame[cpi->gf_frame_index];
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+
+    int tpl_stride = tpl_frame->stride;
+    int64_t intra_cost_base = 0;
+    int64_t mc_dep_cost_base = 0;
+    int64_t pred_error = 1;
+    int64_t recn_error = 1;
+    const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+    const int row_step = step;
+    const int col_step_sr =
+        coded_to_superres_mi(step, cm->superres_scale_denominator);
+    const int mi_cols_sr = av1_pixels_to_mi(cm->superres_upscaled_width);
+
+    for (int row = 0; row < cm->mi_params.mi_rows; row += row_step) {
+      for (int col = 0; col < mi_cols_sr; col += col_step_sr) {
+        TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+        int64_t mc_dep_delta =
+            RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+                   this_stats->mc_dep_dist);
+        intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
+        pred_error += (this_stats->srcrf_sse << RDDIV_BITS);
+        recn_error += (this_stats->srcrf_dist << RDDIV_BITS);
+        fprintf(stderr, "pred_error = %ld, recn_error = %ld\n",
+          this_stats->srcrf_sse, this_stats->srcrf_dist);
+        mc_dep_cost_base +=
+            (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      }
+    }
+    double r0 = (double)intra_cost_base / mc_dep_cost_base;
+    double gamma = (double)recn_error / pred_error;
+
+    //    r0 = 1 / (1 / r0 + 5 * gamma);
+
+    fprintf(stderr, "quant res = %f\n", gamma);
+
+    int arf_qp;
+    double tgt_qstep;
+    fprintf(stderr, "active worst qp = %d\n", cpi->rc.active_worst_quality);
+    for (arf_qp = cpi->rc.active_worst_quality; arf_qp > 0; --arf_qp) {
+      tgt_qstep = av1_dc_quant_QTX(arf_qp, 0, cm->seq_params->bit_depth);
+      if (tgt_qstep + 0.1 <= lef_qstep * sqrt(r0)) break;
+    }
+
+    fprintf(stderr, "cur_qstep = %f, tgt_qstep = %f\n", cur_qstep, tgt_qstep);
+    fprintf(stderr, "q = %d, arf_qp = %d\n", *q, arf_qp);
+    fprintf(stderr, "prop rate = %f, arf boost = %d\n", 1 / r0,
+            cpi->ppi->p_rc.gfu_boost);
+
+    *q = arf_qp;
+    *top_index = *bottom_index = arf_qp;
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE)
+      cpi->ppi->p_rc.arf_q = *q;
+  }
+
   // Configure experimental use of segmentation for enhanced coding of
   // static regions if indicated.
   // Only allowed in the second pass of a two pass encode, as it requires
