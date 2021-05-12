@@ -16,6 +16,24 @@
       "message": "Generally speaking:\n- \u0027mbmi\u0027 (MB_MODE_INFO struct) is supposed to contain the actual variables and arrays, and\n- \u0027xd\u0027 (MACROBLOCKD struct) is supposed to contain only pointers into \u0027mbmi\u0027 (see comment for MACROBLOCKD struct), offsets etc.\n\nSo, having a variable only in \u0027xd\u0027 is a bit counter-intuitive.\nIs it possible to remove the \u0027tree_type\u0027 from \u0027xd\u0027 instead (and keep it here in \u0027mbmi\u0027)?\nIf so, that\u0027s strongly preferred.\nThat will also avoid large number of changes due to change in the signature for is_intrabc_block() and is_inter_block()",
       "revId": "f96d93f18d65d1a9201475025a7b34fbda22c01a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98fcb675_da498d55",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-05-12T18:47:18Z",
+      "side": 0,
+      "message": "Thanks for your suggestion, but it\u0027s not easy to move \"tree_type\" to mbmi because it will require more code changes, much more than moving \"tree_type\" to xd.\n\nIn addition, I also see a lot of variables in xd.",
+      "parentUuid": "e1635ecd_db203509",
+      "revId": "f96d93f18d65d1a9201475025a7b34fbda22c01a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
