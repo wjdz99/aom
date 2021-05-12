@@ -161,18 +161,40 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   const MV ref_mv = av1_get_ref_mv(x, ref_idx).as_mv;
-  FULLPEL_MV start_mv;
-  if (mbmi->motion_mode != SIMPLE_TRANSLATION)
+  FULLPEL_MV start_mv, start_mv2;
+  if (mbmi->motion_mode != SIMPLE_TRANSLATION) {
     start_mv = get_fullmv_from_mv(&mbmi->mv[0].as_mv);
-  else
+  } else {
+
     start_mv = get_fullmv_from_mv(&ref_mv);
+
+
+
+    const int len = AOMMIN(MAX_MV_REF_CANDIDATES + 1, x->mbmi_ext.ref_mv_count[ref]);
+    MV mv_found;
+    if (x->best_mv_idx[ref] >= len) {
+      mv_found = x->mbmi_ext.global_mvs[ref].as_mv;
+//      mv_found = ref_mv;
+    } else {
+      // use ref_mv with index = x->best_mv_idx[ref] instead of index = mbmi->ref_mv_idx.
+      mv_found = av1_get_ref_mv_from_stack(ref_idx, mbmi->ref_frame, x->best_mv_idx[ref], &x->mbmi_ext).as_mv;
+      //mv_found = ref_mv;
+    }
+    start_mv2 = get_fullmv_from_mv(&mv_found);
+
+  }
 
   // cand stores start_mv and all possible MVs in a SB.
   cand_mv_t cand[MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB + 1] = { { { 0, 0 },
                                                                   0 } };
   cand[0].fmv = start_mv;
-  int cnt = 1;
+  cand[1].fmv = start_mv2;
+  int cnt = 2;
   int total_weight = 0;
+
+  cand[0].weight = 1;
+  cand[1].weight = 1;
+  total_weight = 2;
 
   if (!cpi->sf.mv_sf.full_pixel_search_level &&
       mbmi->motion_mode == SIMPLE_TRANSLATION) {
@@ -235,6 +257,11 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
       break;
     default: assert(0 && "Invalid motion mode!\n");
   }
+
+//  if (mbmi->motion_mode== SIMPLE_TRANSLATION && (x->best_mv_idx[ref] >= x->mbmi_ext.ref_mv_count[ref]))
+//  printf("\n!!!!! mbmi->ref_mv_idx = %d; ref: %d; ref_mv(%d, %d); start_mv(%d, %d)(full), best_mv(%d, %d)(full), step_param: %d;\n ",
+//         mbmi->ref_mv_idx, ref, ref_mv.row, ref_mv.col, start_mv.row, start_mv.col, best_mv->as_fullmv.row, best_mv->as_fullmv.col, step_param);
+
 
   if (scaled_ref_frame) {
     // Swap back the original buffers for subpel motion search.

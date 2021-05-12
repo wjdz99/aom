@@ -987,19 +987,36 @@ void av1_get_entropy_contexts(BLOCK_SIZE plane_bsize,
   get_entropy_contexts_plane(plane_bsize, pd, t_above, t_left);
 }
 
+static INLINE int is_different_mv(MV *mv1, const MV *mv2) {
+  return (mv1->row != mv2->row || mv1->col != mv2->col);
+}
+
 void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
                  int ref_y_stride, int ref_frame, BLOCK_SIZE block_size) {
   const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, NONE_FRAME };
-  const int_mv ref_mv =
-      av1_get_ref_mv_from_stack(0, ref_frames, 0, &x->mbmi_ext);
-  const int_mv ref_mv1 =
-      av1_get_ref_mv_from_stack(0, ref_frames, 1, &x->mbmi_ext);
   MV pred_mv[MAX_MV_REF_CANDIDATES + 1];
   int num_mv_refs = 0;
-  pred_mv[num_mv_refs++] = ref_mv.as_mv;
-  if (ref_mv.as_int != ref_mv1.as_int) {
-    pred_mv[num_mv_refs++] = ref_mv1.as_mv;
+
+  // Allow it to test 3 ref mvs plus mbmi_ext->global_mvs
+  for (int i = 0; i < AOMMIN(MAX_MV_REF_CANDIDATES + 1, x->mbmi_ext.ref_mv_count[ref_frame]); i++) {
+    const MV ref_mv =
+          av1_get_ref_mv_from_stack(0, ref_frames, i, &x->mbmi_ext).as_mv;
+    if (!num_mv_refs || (num_mv_refs == 1 && is_different_mv(&pred_mv[num_mv_refs - 1], &ref_mv)) ||
+        (num_mv_refs == 2 && is_different_mv(&pred_mv[num_mv_refs - 1], &ref_mv) && is_different_mv(&pred_mv[num_mv_refs - 2], &ref_mv))) {
+      pred_mv[num_mv_refs] = ref_mv;
+      num_mv_refs++;
+    }
   }
+
+  const MV ref_mv = x->mbmi_ext.global_mvs[ref_frame].as_mv;
+  if (!num_mv_refs || (num_mv_refs == 1 && is_different_mv(&pred_mv[num_mv_refs - 1], &ref_mv)) ||
+      (num_mv_refs == 2 && is_different_mv(&pred_mv[num_mv_refs - 1], &ref_mv) && is_different_mv(&pred_mv[num_mv_refs - 2], &ref_mv)) ||
+      (num_mv_refs == 3 && is_different_mv(&pred_mv[num_mv_refs - 1], &ref_mv) && is_different_mv(&pred_mv[num_mv_refs - 2], &ref_mv) && is_different_mv(&pred_mv[num_mv_refs - 3], &ref_mv))) {
+    pred_mv[num_mv_refs] = ref_mv;
+    num_mv_refs++;
+  }
+
+//  printf("\n ref_frame: %d; x->mbmi_ext.ref_mv_count[ref_frame]=%d; num_mv_refs = %d; ", ref_frame, x->mbmi_ext.ref_mv_count[ref_frame], num_mv_refs);
 
   assert(num_mv_refs <= (int)(sizeof(pred_mv) / sizeof(pred_mv[0])));
 
@@ -1007,6 +1024,7 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   int zero_seen = 0;
   int best_sad = INT_MAX;
   int max_mv = 0;
+  int best_mv_idx = -1;
   // Get the sad for each candidate reference mv.
   for (int i = 0; i < num_mv_refs; ++i) {
     const MV *this_mv = &pred_mv[i];
@@ -1025,12 +1043,20 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
     // Note if it is the best so far.
     if (this_sad < best_sad) {
       best_sad = this_sad;
+      best_mv_idx = i;
+//      printf("  bs:%d;   ",best_sad);
     }
   }
+//  if (best_mv_idx >= x->mbmi_ext.ref_mv_count[ref_frame])
+//    printf(" ref_frame: %d; x->mbmi_ext.ref_mv_count[ref_frame]: %d; num_mv_refs: %d;  best_mv_idx:  %d; \n",
+//           ref_frame, x->mbmi_ext.ref_mv_count[ref_frame], num_mv_refs, best_mv_idx);
+//  else
+//    printf(" nnnnnnnnnnn\n");
 
   // Note the index of the mv that worked best in the reference list.
   x->max_mv_context[ref_frame] = max_mv;
   x->pred_mv_sad[ref_frame] = best_sad;
+  x->best_mv_idx[ref_frame] = best_mv_idx;
 }
 
 void av1_setup_pred_block(const MACROBLOCKD *xd,
