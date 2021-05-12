@@ -1,0 +1,187 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "028821cf_b6b057ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "LGTM. I suggest a few small changes. I also have some questions about the change of do-while loops to while loops.",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bed709b8_6261a27d",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "Nit: We can shorten this a bit by using the \u0027cm\u0027 local variable: cm-\u003eseq_params-\u003ebit_depth",
+      "range": {
+        "startLine": 940,
+        "startChar": 33,
+        "endLine": 940,
+        "endChar": 66
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12f086ed_3e181cc1",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "Nit: qindex - 1 \u003e\u003d 0 is equivalent to the simpler qindex \u003e 0. Do you prefer qindex - 1 \u003e\u003d 0?",
+      "range": {
+        "startLine": 397,
+        "startChar": 11,
+        "endLine": 397,
+        "endChar": 26
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0358cdba_8f48ffce",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "If we get to the \"else\" part, we know newq \u003e\u003d q. Should we handle newq \u003d\u003d q and newq \u003e q separately?",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df7901c0_b7e57a1b",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "The new condition qindex + 1 \u003c MAXQ is different from the original condition qindex \u003c MAXQ. Is this intentional?\n\nIf this change is a bug fix, please mention it in the commit message.\n\nAlso, the change from do-while loops to while loops also change the behavior in a subtle way. Is that also a bug fix?",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23087b79_26a458b3",
+        "filename": "av1/encoder/tune_vmaf.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "Nit: Use the \u0027cm\u0027 local variable: cm-\u003eseq_params-\u003ebit_depth",
+      "range": {
+        "startLine": 950,
+        "startChar": 43,
+        "endLine": 950,
+        "endChar": 76
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3410b9ae_7c5b80cc",
+        "filename": "test/rd_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "Nit: remove \u003calgorithm\u003e and \u003cvector\u003e. They are not used.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 17
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9ac0a74_fad7c99a",
+        "filename": "test/rd_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "Nit: Use C++ cast: static_cast\u003cint\u003e(round(dc_q_step / sqrt(beta)));",
+      "range": {
+        "startLine": 30,
+        "startChar": 26,
+        "endLine": 30,
+        "endChar": 31
+      },
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "623fea7d_b766f772",
+        "filename": "test/rd_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-12T17:46:19Z",
+      "side": 1,
+      "message": "Nit: Use static_cast\u003cint\u003e",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
