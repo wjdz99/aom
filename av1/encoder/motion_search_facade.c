@@ -236,6 +236,11 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     default: assert(0 && "Invalid motion mode!\n");
   }
 
+//  if (mbmi->motion_mode== SIMPLE_TRANSLATION && (x->best_mv_idx[ref] >= x->mbmi_ext.ref_mv_count[ref]))
+//  printf("\n!!!!! mbmi->ref_mv_idx = %d; ref: %d; ref_mv(%d, %d); start_mv(%d, %d)(full), best_mv(%d, %d)(full), step_param: %d;\n ",
+//         mbmi->ref_mv_idx, ref, ref_mv.row, ref_mv.col, start_mv.row, start_mv.col, best_mv->as_fullmv.row, best_mv->as_fullmv.col, step_param);
+
+
   if (scaled_ref_frame) {
     // Swap back the original buffers for subpel motion search.
     for (int i = 0; i < num_planes; i++) {
