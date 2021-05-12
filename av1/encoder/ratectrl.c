@@ -1550,8 +1550,8 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
   const int is_intrl_arf_boost =
       gf_group->update_type[gf_index] == INTNL_ARF_UPDATE;
   const int is_leaf_frame =
-      !(refresh_frame_flags->golden_frame ||
-        refresh_frame_flags->alt_ref_frame || is_intrl_arf_boost);
+      !(gf_group->update_type[gf_index] == ARF_UPDATE ||
+        gf_group->update_type[gf_index] == GF_UPDATE || is_intrl_arf_boost);
   const int is_overlay_frame = rc->is_src_frame_alt_ref;
 
   if (is_leaf_frame || is_overlay_frame) {
@@ -1666,7 +1666,7 @@ static int rc_pick_q_and_bounds(const AV1_COMP *cpi, int width, int height,
                                      cq_level, bit_depth);
   }
 
-  if (oxcf->mode == AOM_Q) {
+  if (oxcf->rc_cfg.mode == AOM_Q) {
     return rc_pick_q_and_bounds_q_mode(cpi, width, height, gf_index,
                                        bottom_index, top_index);
   }
