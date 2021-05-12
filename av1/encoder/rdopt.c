@@ -2729,6 +2729,9 @@ static int64_t handle_inter_mode(
     save_mv[i][1].as_int = INVALID_MV;
   }
 
+//  if (this_mode == NEWMV)
+//    printf("\n NEWMV: ref_set=%d; ref: %d; best_mv_idx:   %d; ", ref_set, mbmi->ref_frame[0], x->best_mv_idx[mbmi->ref_frame[0]]);
+
   // Main loop of this function. This will  iterate over all of the ref mvs
   // in the dynamic reference list and do the following:
   //    1.) Get the current MV. Create newmv MV if necessary
@@ -2755,6 +2758,10 @@ static int64_t handle_inter_mode(
               cpi->sf.inter_sf.prune_inter_modes_based_on_tpl))
         continue;
     }
+
+    if (this_mode == NEWMV && ref_mv_idx != x->best_mv_idx[mbmi->ref_frame[0]])
+      continue;
+
     av1_init_rd_stats(rd_stats);
 
     // Initialize compound mode data
@@ -2822,6 +2829,7 @@ static int64_t handle_inter_mode(
                               refs, cur_mv, &best_rd, orig_dst, ref_mv_idx))
         continue;
     }
+
     // Copy the motion vector for this mode into mbmi struct
     for (i = 0; i < is_comp_pred + 1; ++i) {
       mbmi->mv[i].as_int = cur_mv[i].as_int;
@@ -3683,6 +3691,8 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
       // Skip fixed mv modes for poor references
       if ((x->pred_mv_sad[ref_frame] >> 2) > min_pred_mv_sad) {
         mask->pred_modes[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
+//        mask->pred_modes[ref_frame] |= (1 << NEW_NEWMV);
+//        mask->pred_modes[ref_frame] |= (1 << NEWMV);
       }
     }
     if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
@@ -3840,6 +3850,8 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
   x->best_pred_mv_sad = INT_MAX;
+
+//  printf("\n\n ----- 1 block  ----- ");
 
   for (MV_REFERENCE_FRAME ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME;
        ++ref_frame) {
@@ -5329,7 +5341,10 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
   for (i = 0; i < MAX_WINNER_MOTION_MODES; ++i)
     best_motion_mode_cands.motion_mode_cand[i].rd_cost = INT64_MAX;
 
-  for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
+  for (i = 0; i < REF_FRAMES; ++i){
+    x->pred_sse[i] = INT_MAX;
+    x->best_mv_idx[i] = -1;
+  }
 
   av1_invalid_rd_stats(rd_cost);
 
