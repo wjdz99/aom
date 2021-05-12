@@ -5699,7 +5699,10 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
   for (i = 0; i < MAX_WINNER_MOTION_MODES; ++i)
     best_motion_mode_cands.motion_mode_cand[i].rd_cost = INT64_MAX;
 
-  for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
+  for (i = 0; i < REF_FRAMES; ++i) {
+    x->pred_sse[i] = INT_MAX;
+    x->best_mv_idx[i] = -1;
+  }
 
   av1_invalid_rd_stats(rd_cost);
 

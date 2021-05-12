@@ -1054,18 +1054,36 @@ void av1_get_entropy_contexts(BLOCK_SIZE plane_bsize,
   get_entropy_contexts_plane(plane_bsize, pd, t_above, t_left);
 }
 
+static INLINE int is_same_mv(MV *mv1, const MV *mv2) {
+  return (mv1->row == mv2->row && mv1->col == mv2->col);
+}
+
 void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
                  int ref_y_stride, int ref_frame, BLOCK_SIZE block_size) {
   const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, NONE_FRAME };
-  const int_mv ref_mv =
-      av1_get_ref_mv_from_stack(0, ref_frames, 0, &x->mbmi_ext);
-  const int_mv ref_mv1 =
-      av1_get_ref_mv_from_stack(0, ref_frames, 1, &x->mbmi_ext);
+  const int len =
+      AOMMIN(MAX_MV_REF_CANDIDATES + 1, x->mbmi_ext.ref_mv_count[ref_frame]);
   MV pred_mv[MAX_MV_REF_CANDIDATES + 1];
   int num_mv_refs = 0;
-  pred_mv[num_mv_refs++] = ref_mv.as_mv;
-  if (ref_mv.as_int != ref_mv1.as_int) {
-    pred_mv[num_mv_refs++] = ref_mv1.as_mv;
+
+  // Allow it to test 3 ref_mv from ref_mv_stack and mbmi_ext->global_mvs.
+  for (int i = 0; i < len + 1; i++) {
+    const MV ref_mv =
+        (i == len)
+            ? x->mbmi_ext.global_mvs[ref_frame].as_mv
+            : av1_get_ref_mv_from_stack(0, ref_frames, i, &x->mbmi_ext).as_mv;
+
+    int unique = 1;
+    for (int j = 0; j < num_mv_refs; j++) {
+      if (is_same_mv(&pred_mv[j], &ref_mv)) {
+        unique = 0;
+        break;
+      }
+    }
+
+    if (unique) {
+      pred_mv[num_mv_refs++] = ref_mv;
+    }
   }
 
   assert(num_mv_refs <= (int)(sizeof(pred_mv) / sizeof(pred_mv[0])));
@@ -1074,6 +1092,7 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   int zero_seen = 0;
   int best_sad = INT_MAX;
   int max_mv = 0;
+  int best_mv_idx = -1;
   // Get the sad for each candidate reference mv.
   for (int i = 0; i < num_mv_refs; ++i) {
     const MV *this_mv = &pred_mv[i];
@@ -1092,6 +1111,7 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
     // Note if it is the best so far.
     if (this_sad < best_sad) {
       best_sad = this_sad;
+      best_mv_idx = i;
     }
     if (i == 0)
       x->pred_mv0_sad[ref_frame] = this_sad;
@@ -1102,6 +1122,7 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   // Note the index of the mv that worked best in the reference list.
   x->max_mv_context[ref_frame] = max_mv;
   x->pred_mv_sad[ref_frame] = best_sad;
+  x->best_mv_idx[ref_frame] = best_mv_idx;
 }
 
 void av1_setup_pred_block(const MACROBLOCKD *xd,

@@ -1175,6 +1175,8 @@ typedef struct macroblock {
   unsigned int source_variance;
   //! SSE of the current predictor.
   unsigned int pred_sse[REF_FRAMES];
+  //! Index of the best reference MV.
+  int best_mv_idx[REF_FRAMES];
   //! Prediction for ML based partition.
 #if CONFIG_RT_ML_PARTITIONING
   DECLARE_ALIGNED(16, uint8_t, est_pred[128 * 128]);

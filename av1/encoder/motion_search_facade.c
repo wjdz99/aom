@@ -74,7 +74,7 @@ static INLINE void get_mv_candidate_from_tpl(const AV1_COMP *const cpi,
     int valid = 1;
 
     // Assign large weight to start_mv, so it is always tested.
-    cand[0].weight = nw * nh;
+    for (int i = 0; i < *cand_count; i++) cand[i].weight = nw * nh;
 
     for (int k = 0; k < nh; k++) {
       for (int l = 0; l < nw; l++) {
@@ -108,7 +108,8 @@ static INLINE void get_mv_candidate_from_tpl(const AV1_COMP *const cpi,
     }
 
     if (valid) {
-      *total_cand_weight = 2 * nh * nw;
+      for (int i = 0; i < *cand_count; i++)
+        *total_cand_weight += cand[i].weight;
       if (*cand_count > 2)
         qsort(cand, *cand_count, sizeof(cand[0]), &compare_weight);
     }
@@ -161,18 +162,47 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   const MV ref_mv = av1_get_ref_mv(x, ref_idx).as_mv;
-  FULLPEL_MV start_mv;
-  if (mbmi->motion_mode != SIMPLE_TRANSLATION)
-    start_mv = get_fullmv_from_mv(&mbmi->mv[0].as_mv);
-  else
-    start_mv = get_fullmv_from_mv(&ref_mv);
-
   // cand stores start_mv and all possible MVs in a SB.
   cand_mv_t cand[MAX_TPL_BLK_IN_SB * MAX_TPL_BLK_IN_SB + 1] = { { { 0, 0 },
                                                                   0 } };
-  cand[0].fmv = start_mv;
-  int cnt = 1;
+  FULLPEL_MV start_mv;
+  int cnt = 0;
   int total_weight = 0;
+  int num_start_mvs = 2;
+
+  if (mbmi->motion_mode != SIMPLE_TRANSLATION) {
+    start_mv = get_fullmv_from_mv(&mbmi->mv[0].as_mv);
+  } else {
+    start_mv = get_fullmv_from_mv(&ref_mv);
+    cand[cnt++].fmv = start_mv;
+
+    // Get second start_mv from ref_mv_stack with index = x->best_mv_idx[ref].
+    if (x->best_mv_idx[ref] != mbmi->ref_mv_idx) {
+      const int len =
+          AOMMIN(MAX_MV_REF_CANDIDATES + 1, x->mbmi_ext.ref_mv_count[ref]);
+      MV mv_found;
+//      if (x->best_mv_idx[ref] >= len) {
+//        mv_found = x->mbmi_ext.global_mvs[ref].as_mv;
+//      } else {
+//        mv_found = av1_get_ref_mv_from_stack(ref_idx, mbmi->ref_frame,
+//                                             x->best_mv_idx[ref], &x->mbmi_ext)
+//                       .as_mv;
+//      }
+
+      if (x->best_mv_idx[ref] < len) {
+        mv_found = av1_get_ref_mv_from_stack(ref_idx, mbmi->ref_frame,
+                                             x->best_mv_idx[ref], &x->mbmi_ext)
+                       .as_mv;
+
+        FULLPEL_MV start_mv2 = get_fullmv_from_mv(&mv_found);
+        if ((start_mv2.row != cand[cnt - 1].fmv.row) ||
+            (start_mv2.col != cand[cnt - 1].fmv.col)) {
+          cand[cnt++].fmv = start_mv2;
+          num_start_mvs++;
+        }
+      }
+    }
+  }
 
   if (!cpi->sf.mv_sf.full_pixel_search_level &&
       mbmi->motion_mode == SIMPLE_TRANSLATION) {
@@ -211,7 +241,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     case SIMPLE_TRANSLATION: {
       // Perform a search with the top 2 candidates
       int sum_weight = 0;
-      for (int m = 0; m < AOMMIN(2, cnt); m++) {
+      for (int m = 0; m < AOMMIN(num_start_mvs, cnt); m++) {
         FULLPEL_MV smv = cand[m].fmv;
         FULLPEL_MV this_best_mv, this_second_best_mv;
 
