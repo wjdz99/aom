@@ -1001,12 +1001,15 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
     pred_mv[num_mv_refs++] = ref_mv1.as_mv;
   }
 
+//  printf("\n x->mbmi_ext.ref_mv_count[ref_frame]=%d; ", x->mbmi_ext.ref_mv_count[ref_frame]);
+
   assert(num_mv_refs <= (int)(sizeof(pred_mv) / sizeof(pred_mv[0])));
 
   const uint8_t *const src_y_ptr = x->plane[0].src.buf;
   int zero_seen = 0;
   int best_sad = INT_MAX;
   int max_mv = 0;
+  int best_mv_idx = -1;
   // Get the sad for each candidate reference mv.
   for (int i = 0; i < num_mv_refs; ++i) {
     const MV *this_mv = &pred_mv[i];
@@ -1025,8 +1028,11 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
     // Note if it is the best so far.
     if (this_sad < best_sad) {
       best_sad = this_sad;
+      best_mv_idx = i;
     }
   }
+
+//  printf("    %d; ", best_mv_idx);
 
   // Note the index of the mv that worked best in the reference list.
   x->max_mv_context[ref_frame] = max_mv;

@@ -2729,6 +2729,8 @@ static int64_t handle_inter_mode(
     save_mv[i][1].as_int = INVALID_MV;
   }
 
+//  printf("\n ref_set=%d;", ref_set);
+
   // Main loop of this function. This will  iterate over all of the ref mvs
   // in the dynamic reference list and do the following:
   //    1.) Get the current MV. Create newmv MV if necessary
@@ -3681,8 +3683,10 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
       disable_reference(ref_frame, mask->ref_combo);
     } else {
       // Skip fixed mv modes for poor references
-      if ((x->pred_mv_sad[ref_frame] >> 2) > min_pred_mv_sad) {
+      if ((x->pred_mv_sad[ref_frame] >> 1) > min_pred_mv_sad) {
         mask->pred_modes[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
+//        mask->pred_modes[ref_frame] |= (1 << NEW_NEWMV);
+//        mask->pred_modes[ref_frame] |= (1 << NEWMV);
       }
     }
     if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
@@ -3840,6 +3844,8 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
   x->best_pred_mv_sad = INT_MAX;
+
+//  printf("\n\n ----- 1 block  ----- ");
 
   for (MV_REFERENCE_FRAME ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME;
        ++ref_frame) {
