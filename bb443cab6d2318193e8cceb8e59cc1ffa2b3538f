@@ -63,6 +63,30 @@
       },
       "revId": "bb443cab6d2318193e8cceb8e59cc1ffa2b3538f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56e87a1c_151888e8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2192,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-13T21:43:23Z",
+      "side": 1,
+      "message": "Thanks.\nIf height is 90 pixels, realtime mode should not be used.\nIf height is 94 pixels, for example, realtime mode filtering could be used.\n\nThen are !(cm-\u003emi_params.mi_cols % 2) \u0026\u0026 !(cm-\u003emi_params.mi_rows % 2) always true?",
+      "parentUuid": "97d691b3_f8ffb0b8",
+      "range": {
+        "startLine": 2191,
+        "startChar": 38,
+        "endLine": 2192,
+        "endChar": 45
+      },
+      "revId": "bb443cab6d2318193e8cceb8e59cc1ffa2b3538f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
