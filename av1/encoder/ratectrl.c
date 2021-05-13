@@ -1666,7 +1666,7 @@ static int rc_pick_q_and_bounds(const AV1_COMP *cpi, int width, int height,
                                      cq_level, bit_depth);
   }
 
-  if (oxcf->mode == AOM_Q) {
+  if (oxcf->rc_cfg.mode == AOM_Q) {
     return rc_pick_q_and_bounds_q_mode(cpi, width, height, gf_index,
                                        bottom_index, top_index);
   }
