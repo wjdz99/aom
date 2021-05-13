@@ -217,6 +217,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a17c9717_52e61dbc",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-13T00:23:38Z",
+      "side": 1,
+      "message": "Good catch!",
+      "parentUuid": "df2202a7_bbf65e98",
+      "revId": "daf8516968d208b2e72d71d5f0e1f002eb51301f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d9f3d7f_876b1d7f",
