@@ -1422,10 +1422,20 @@ void av1_prune_partitions_before_search(
         prune_sub_8x8 = 0;
       }
     }
-    if (prune_sub_8x8) {
-      *partition_horz_allowed = 0;
-      *partition_vert_allowed = 0;
-      *do_square_split = 0;
+    if (cpi->sf.part_sf.prune_sub_8x8_partition_level == 2) {
+      if (x->qindex < QINDEX_RANGE / 3) {
+        *partition_horz_allowed = 0;
+        *partition_vert_allowed = 0;
+        *do_square_split = 0;
+      } else if (x->qindex < 2 * QINDEX_RANGE / 3) {
+        *do_square_split = 0;
+      }
+    } else {  // prune_sub_8x8_partition_level 1 and 3
+      if (prune_sub_8x8) {
+        *partition_horz_allowed = 0;
+        *partition_vert_allowed = 0;
+        *do_square_split = 0;
+      }
     }
   }
 

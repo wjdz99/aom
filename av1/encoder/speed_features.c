@@ -1066,6 +1066,10 @@ static void set_good_speed_features_framesize_independent(
     sf->tpl_sf.gop_length_decision_method = 2;
 
     sf->winner_mode_sf.dc_blk_pred_level = 1;
+
+    sf->part_sf.prune_sub_8x8_partition_level =
+        (allow_screen_content_tools || frame_is_intra_only(&cpi->common)) ? 0
+                                                                          : 2;
   }
 
   if (speed >= 6) {
@@ -1088,7 +1092,7 @@ static void set_good_speed_features_framesize_independent(
         boosted || allow_screen_content_tools ? 0 : 1;
     sf->part_sf.prune_sub_8x8_partition_level =
         allow_screen_content_tools ? 0
-                                   : frame_is_intra_only(&cpi->common) ? 1 : 2;
+                                   : frame_is_intra_only(&cpi->common) ? 1 : 3;
     sf->part_sf.prune_part4_search = 3;
 
     sf->mv_sf.simple_motion_subpel_force_stop = FULL_PEL;

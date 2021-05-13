@@ -548,7 +548,8 @@ typedef struct PARTITION_SPEED_FEATURES {
   // Prune sub_8x8 (BLOCK_4X4, BLOCK_4X8 and BLOCK_8X4) partitions.
   // 0 : no pruning
   // 1 : pruning based on neighbour block information
-  // 2 : prune always
+  // 2 : pruning based on Q index
+  // 3 : prune always
   int prune_sub_8x8_partition_level;
 
   // Prune rectangular split based on simple motion search split/no_split score.
