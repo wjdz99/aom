@@ -39,6 +39,30 @@
       },
       "revId": "bb443cab6d2318193e8cceb8e59cc1ffa2b3538f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97d691b3_f8ffb0b8",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2192,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-05-13T21:30:04Z",
+      "side": 1,
+      "message": "No, and this was the reason for the test failures... If you look at 90p clip, the height is 90 pixels, but the MBMI-aligned height is 96p. So, the last MBMI line is completely outside of conformance dimensions.",
+      "parentUuid": "f06bbbc3_091750c7",
+      "range": {
+        "startLine": 2191,
+        "startChar": 38,
+        "endLine": 2192,
+        "endChar": 45
+      },
+      "revId": "bb443cab6d2318193e8cceb8e59cc1ffa2b3538f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
