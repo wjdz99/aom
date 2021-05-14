@@ -23,7 +23,7 @@ from Utils import GetShortContentName, CreateChart_Scatter,\
      SetupLogging, UpdateChart, AddSeriesToChart_Scatter_Rows,\
      Cleanfolder, CreateClipList, Clip, GatherPerfInfo, GetEncLogFile, \
      GetRDResultCsvFile, GatherPerframeStat, GatherInstrCycleInfo, \
-     Interpolate_Bilinear, convex_hull, DeleteFile
+     Interpolate_Bilinear, convex_hull, DeleteFile, md5
 from PostAnalysis_Summary import GenerateSumRDExcelFile,\
      GenerateSumCvxHullExcelFile
 from ScalingTest import Run_Scaling_Test, SaveScalingResultsToExcel
@@ -34,7 +34,7 @@ from Config import LogLevels, FrameNum, QPs, CvxH_WtCols,\
      EncodeMethods, CodecNames, LoggerName, DnScaleRatio, TargetQtyMetrics, \
      CvxHDataRows, CvxHDataStartRow, CvxHDataStartCol, CvxHDataNum, \
      Int_ConvexHullColor, EnablePreInterpolation, AS_DOWNSCALE_ON_THE_FLY,\
-     UsePerfUtil, ScaleMethods, EnableTimingInfo, InterpolatePieces
+     UsePerfUtil, ScaleMethods, EnableTimingInfo, InterpolatePieces, EnableMD5
 
 ###############################################################################
 ##### Helper Functions ########################################################
@@ -286,12 +286,18 @@ def SaveConvexHullResultsToExcel(content, ScaleMethod, dnScAlgos, upScAlgos, csv
                 if EnableTimingInfo:
                     if UsePerfUtil:
                         enc_time, dec_time, enc_instr, dec_instr, enc_cycles, dec_cycles = GatherInstrCycleInfo(bs, Path_PerfLog)
-                        csv.write(",%.2f,%.2f,%s,%s,%s,%s,\n"%(enc_time,dec_time,enc_instr,dec_instr,enc_cycles,dec_cycles))
+                        csv.write(",%.2f,%.2f,%s,%s,%s,%s,"%(enc_time,dec_time,enc_instr,dec_instr,enc_cycles,dec_cycles))
                     else:
                         enc_time, dec_time = GatherPerfInfo(bs, Path_PerfLog)
-                        csv.write(",%.2f,%.2f,\n" % (enc_time, dec_time))
+                        csv.write(",%.2f,%.2f," % (enc_time, dec_time))
                 else:
-                    csv.write(",,,\n")
+                    csv.write(",,,")
+
+                if EnableMD5:
+                    enc_md5 = md5(bs)
+                    dec_md5 = md5(reconyuv)
+                    csv.write("%s,%s" % (enc_md5, dec_md5))
+                csv.write("\n")
 
                 if (EncodeMethod == 'aom'):
                     enc_log = GetEncLogFile(bs, Path_EncLog)
@@ -448,6 +454,9 @@ if __name__ == "__main__":
         csv.write(",EncT[s],DecT[s]")
         if UsePerfUtil:
             csv.write(",EncInstr,DecInstr,EncCycles,DecCycles")
+        if EnableMD5:
+            csv.write(",EncMD5,DecMD5")
+
         csv.write("\n")
 
         perframe_csv = open(perframe_csvfile, 'wt')
