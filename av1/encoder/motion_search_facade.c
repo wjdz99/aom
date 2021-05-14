@@ -308,6 +308,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
           const int best_mv_var = mv_search_params->find_fractional_mv_step(
               xd, cm, &ms_params, subpel_start_mv, &best_mv->as_mv, &dis,
               &x->pred_sse[ref], fractional_ms_list);
+          mode_info[mbmi->ref_mv_idx].sse = x->pred_sse[ref];
 
           if (try_second) {
             struct macroblockd_plane *p = xd->plane;
@@ -358,11 +359,17 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                 int64_t tmp_rd =
                     RDCOST(x->rdmult, tmp_rd_stats.rate + tmp_mv_rate,
                            tmp_rd_stats.dist);
-                if (tmp_rd < rd) best_mv->as_mv = this_best_mv;
+                if (tmp_rd < rd) {
+                  best_mv->as_mv = this_best_mv;
+                  mode_info[mbmi->ref_mv_idx].sse = x->pred_sse[ref];
+                }
               } else {
                 // If cpi->sf.mv_sf.disable_second_mv = 1, use var to decide the
                 // best MV.
-                if (this_var < best_mv_var) best_mv->as_mv = this_best_mv;
+                if (this_var < best_mv_var) {
+                  best_mv->as_mv = this_best_mv;
+                  mode_info[mbmi->ref_mv_idx].sse = x->pred_sse[ref];
+                }
               }
             }
           }
@@ -370,6 +377,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
           mv_search_params->find_fractional_mv_step(
               xd, cm, &ms_params, subpel_start_mv, &best_mv->as_mv, &dis,
               &x->pred_sse[ref], NULL);
+          mode_info[mbmi->ref_mv_idx].sse = x->pred_sse[ref];
         }
         break;
       case OBMC_CAUSAL:

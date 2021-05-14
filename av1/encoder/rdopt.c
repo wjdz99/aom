@@ -2365,9 +2365,65 @@ static int skip_repeated_newmv(
     mode_info[ref_mv_idx].mv.as_int = mode_info[i].mv.as_int;
 
     restore_dst_buf(xd, orig_dst, num_planes);
-    return 1;
   }
-  return 0;
+
+  if (!skip && 1) {
+    for (i = 0; i < ref_mv_idx; ++i) {
+      if (!args->single_newmv_valid[i][refs[0]]) continue;
+
+      //    printf("\n i= %d; new: %d;%d;              old: %d;%d;    %d;%d; %d;
+      //    %ld;    %d; \n", i, cur_mv[0].as_mv.row,  cur_mv[0].as_mv.col,
+      //           args->single_newmv[i][refs[0]].as_mv.row,
+      //           args->single_newmv[i][refs[0]].as_mv.col,
+      //           mode_info[i].mv.as_mv.row, mode_info[i].mv.as_mv.col,
+      //           this_rate_mv ,   mode_info[i].rd, mode_info[i].rate_mv);
+
+      // Compare the cost difference including drl cost and mv cost
+      if (mode_info[i].mv.as_int != INVALID_MV) {
+        // printf(" \n %d; %d;      %d; %d;", i, mode_info[i].sse,
+        // mode_info[ref_mv_idx].sse, x->pred_sse[refs[0]]);
+
+        const int compare_cost = mode_info[i].rate_mv + mode_info[i].drl_cost;
+        const int_mv ref_mv = av1_get_ref_mv(x, 0);
+        this_rate_mv = av1_mv_bit_cost(
+            &cur_mv[0].as_mv, &ref_mv.as_mv, x->mv_costs->nmv_joint_cost,
+            x->mv_costs->mv_cost_stack, MV_COST_WEIGHT);
+        const int this_cost = this_rate_mv + drl_cost;
+        const int64_t compare_rd =
+            RDCOST(x->rdmult, compare_cost, (mode_info[i].sse << 4));
+        const int64_t this_rd =
+            RDCOST(x->rdmult, this_cost, (mode_info[ref_mv_idx].sse << 4));
+
+        if (compare_rd <= this_rd) {
+          // Skip this mode if it is more expensive as the previous result
+          // for this MV
+          skip = 1;
+          break;
+        }
+      }
+    }
+
+    if (skip) {
+      const THR_MODES mode_enum = get_prediction_mode_idx(
+          best_mbmi->mode, best_mbmi->ref_frame[0], best_mbmi->ref_frame[1]);
+      // Collect mode stats for multiwinner mode processing
+      store_winner_mode_stats(
+          &cpi->common, x, best_mbmi, best_rd_stats, best_rd_stats_y,
+          best_rd_stats_uv, mode_enum, NULL, bsize, *best_rd,
+          cpi->sf.winner_mode_sf.multi_winner_mode_type, do_tx_search);
+      args->modelled_rd[this_mode][ref_mv_idx][refs[0]] =
+          args->modelled_rd[this_mode][i][refs[0]];
+      args->simple_rd[this_mode][ref_mv_idx][refs[0]] =
+          args->simple_rd[this_mode][i][refs[0]];
+      mode_info[ref_mv_idx].rd = mode_info[i].rd;
+      mode_info[ref_mv_idx].rate_mv =
+          this_rate_mv;  // why not use   mode_info[i].rate_mv?
+      mode_info[ref_mv_idx].mv.as_int = mode_info[i].mv.as_int;
+
+      restore_dst_buf(xd, orig_dst, num_planes);
+    }
+  }
+  return skip;
 }
 
 /*!\brief High level function to select parameters for compound mode.
@@ -2742,6 +2798,7 @@ static int64_t handle_inter_mode(
     mode_info[ref_mv_idx].full_search_mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].mv.as_int = INVALID_MV;
     mode_info[ref_mv_idx].rd = INT64_MAX;
+    mode_info[ref_mv_idx].sse = UINT32_MAX;
 
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.
