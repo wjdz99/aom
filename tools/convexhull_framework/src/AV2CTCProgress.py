@@ -23,27 +23,35 @@ from matplotlib.backends.backend_pdf import PdfPages
 csv_files = {
     "v1.0.0":
     {
-        "AI":  "D:\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_AI_Preset_0.csv",
-        "LD":  "D:\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_LD_Preset_0.csv",
-        "RA":  "D:\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_RA_Preset_0.csv",
-        "Still":  "D:\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_STILL_Preset_0.csv",
-        "AS":  "D:\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_AS_Preset_0.csv",
+        "AI":  "D:\\AV2-CTC\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_AI_Preset_0.csv",
+        "LD":  "D:\\AV2-CTC\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_LD_Preset_0.csv",
+        "RA":  "D:\\AV2-CTC\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_RA_Preset_0.csv",
+        "Still":  "D:\\AV2-CTC\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_STILL_Preset_0.csv",
+        "AS":  "D:\\AV2-CTC\\AV2-CTC-v1.0.0-Final\\analysis\\rdresult\\RDResults_aom_av2_AS_Preset_0.csv",
     },
     "v1.0.1":
     {
-        "AI":  "D:\\AV2-CTC-v1.0.1\\analysis\\rdresult-new\\RDResults_aom_av2_AI_Preset_0.csv",
-        "LD":  "D:\\AV2-CTC-v1.0.1\\analysis\\rdresult-new\\RDResults_aom_av2_LD_Preset_0.csv",
-        "RA":  "D:\\AV2-CTC-v1.0.1\\analysis\\rdresult-new\\RDResults_aom_av2_RA_Preset_0.csv",
-        "Still":  "D:\\AV2-CTC-v1.0.1\\analysis\\rdresult-new\\RDResults_aom_av2_STILL_Preset_0.csv",
-        "AS":  "D:\\AV2-CTC-v1.0.1\\analysis\\rdresult-new\\RDResults_aom_av2_AS_Preset_0.csv",
+        "AI":  "D:\\AV2-CTC\\AV2-CTC-v1.0.1\\analysis\\rdresult\\RDResults_aom_av2_AI_Preset_0.csv",
+        "LD":  "D:\\AV2-CTC\\AV2-CTC-v1.0.1\\analysis\\rdresult\\RDResults_aom_av2_LD_Preset_0.csv",
+        "RA":  "D:\\AV2-CTC\\AV2-CTC-v1.0.1\\analysis\\rdresult\\RDResults_aom_av2_RA_Preset_0.csv",
+        "Still":  "D:\\AV2-CTC\\AV2-CTC-v1.0.1\\analysis\\rdresult\\RDResults_aom_av2_STILL_Preset_0.csv",
+        "AS":  "D:\\AV2-CTC\\AV2-CTC-v1.0.1\\analysis\\rdresult\\RDResults_aom_av2_AS_Preset_0.csv",
     },
     "sdp-off":
     {
-        "AI":  "D:\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_AI_Preset_0.csv",
-        "LD":  "D:\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_LD_Preset_0.csv",
-        "RA":  "D:\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_RA_Preset_0.csv",
-        "Still":  "D:\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_STILL_Preset_0.csv",
-        "AS":  "D:\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_AS_Preset_0.csv",
+        "AI":  "D:\\AV2-CTC\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_AI_Preset_0.csv",
+        "LD":  "D:\\AV2-CTC\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_LD_Preset_0.csv",
+        "RA":  "D:\\AV2-CTC\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_RA_Preset_0.csv",
+        "Still":  "D:\\AV2-CTC\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_STILL_Preset_0.csv",
+        "AS":  "D:\\AV2-CTC\\AV2-CTC-SDP-OFF\\analysis\\rdresult\\RDResults_aom_av2_AS_Preset_0.csv",
+    },
+    "B034":
+    {
+        "AI":  "D:\\AV2-CTC\\AV2-CTC-B034\\analysis\\rdresult\\RDResults_aom_av2_AI_Preset_0.csv",
+        "LD":  "D:\\AV2-CTC\\AV2-CTC-B034\\analysis\\rdresult\\RDResults_aom_av2_LD_Preset_0.csv",
+        "RA":  "D:\\AV2-CTC\\AV2-CTC-B034\\analysis\\rdresult\\RDResults_aom_av2_RA_Preset_0.csv",
+        "Still":  "D:\\AV2-CTC\\AV2-CTC-B034\\analysis\\rdresult\\RDResults_aom_av2_STILL_Preset_0.csv",
+        "AS":  "D:\\AV2-CTC\\AV2-CTC-B034\\analysis\\rdresult\\RDResults_aom_av2_AS_Preset_0.csv",
     },
 }
 
@@ -59,6 +67,7 @@ formats = {
     "v1.0.0":  ['r', '-', 'o'],
     "v1.0.1":  ['g', '-', '*'],
     "sdp-off": ['b', '-', '+'],
+    "B034":    ['k', '-', '^'],
 }
 
 AS_formats = {
@@ -82,7 +91,7 @@ def WriteSheet(csv_file, sht, start_row):
             col = 1
             for word in words:
                 mycell = sht.cell(row=row, column=col)
-                if col >= 12 and word != "":
+                if col >= 12 and col <= 30 and word != "":
                     mycell.value = float(word)
                 else:
                     mycell.value = word
