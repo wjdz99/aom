@@ -406,11 +406,14 @@ def SetupLogging(level, logcmdonly, name, cmd_log_path, test_log_path):
         Logger.setLevel(levelname)
 
 def md5(fname):
-    hash_md5 = hashlib.md5()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+    if os.path.exists(fname):
+        hash_md5 = hashlib.md5()
+        with open(fname, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    else:
+        return ""
 
 def GatherInstrCycleInfo(bsfile, Path_TimingLog):
     assert(Platform != "Windows" and Platform != "Darwin")

@@ -35,6 +35,7 @@ FrameNum = {
 }
 EnableTimingInfo = True
 UsePerfUtil = False
+EnableMD5 = True
 Platform = platform.system()
 PSNR_Y_WEIGHT = 14.0
 PSNR_U_WEIGHT = 1.0
