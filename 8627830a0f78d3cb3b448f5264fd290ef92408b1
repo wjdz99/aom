@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91a4ce1b_0929713e",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1758,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-14T22:22:18Z",
+      "side": 1,
+      "message": "We don\u0027t need this parameter for now.",
+      "range": {
+        "startLine": 1758,
+        "startChar": 55,
+        "endLine": 1758,
+        "endChar": 75
+      },
+      "revId": "8627830a0f78d3cb3b448f5264fd290ef92408b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "777455c8_d44ed9ba",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 23
+      },
+      "lineNbr": 1767,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-14T22:22:18Z",
+      "side": 1,
+      "message": "Let\u0027s use 256 here directly for now.",
+      "range": {
+        "startLine": 1767,
+        "startChar": 24,
+        "endLine": 1767,
+        "endChar": 33
+      },
+      "revId": "8627830a0f78d3cb3b448f5264fd290ef92408b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5d5c9ae_7a8a0b7b",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-14T22:22:18Z",
+      "side": 1,
+      "message": "I think the size here is number of coefficients, we don\u0027t need this parameter for now.\nAdd\n\\param[in] frame_count number of frames in the GOP",
+      "range": {
+        "startLine": 309,
+        "startChar": 3,
+        "endLine": 309,
+        "endChar": 48
+      },
+      "revId": "8627830a0f78d3cb3b448f5264fd290ef92408b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a25b6b68_c6a996bc",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-14T22:22:18Z",
+      "side": 1,
+      "message": "let\u0027s remote this parameter for now.",
+      "range": {
+        "startLine": 314,
+        "startChar": 55,
+        "endLine": 314,
+        "endChar": 70
+      },
+      "revId": "8627830a0f78d3cb3b448f5264fd290ef92408b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
