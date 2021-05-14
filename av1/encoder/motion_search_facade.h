@@ -23,6 +23,7 @@ extern "C" {
 typedef struct {
   int64_t rd;
   int drl_cost;
+  unsigned int sse;
 
   int rate_mv;
   int_mv mv;
