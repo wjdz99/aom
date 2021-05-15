@@ -1014,6 +1014,12 @@ static INLINE int wrap_index(int i, int wiener_win) {
   return (i >= wiener_halfwin1 ? wiener_win - 1 - i : i);
 }
 
+// Computes u * v / d using int64 arithmetic assuming (u % d) * v
+// does not overflow, but (u * v) is more likely to.
+static INLINE int64_t proddiv64(int64_t u, int64_t v, int64_t d) {
+  return (u / d) * v + ((u % d) * v) / d;
+}
+
 // Solve linear equations to find Wiener filter tap values
 // Taps are output scaled by WIENER_FILT_STEP
 static int linsolve_wiener(int n, int64_t *A, int stride, int64_t *b,
@@ -1041,7 +1047,12 @@ static int linsolve_wiener(int n, int64_t *A, int stride, int64_t *b,
       for (int j = 0; j < n; j++) {
         A[(i + 1) * stride + j] -= c / 256 * A[k * stride + j] / cd * 256;
       }
-      b[i + 1] -= c * b[k] / cd;
+      if (llabs(c) > INT_MAX || llabs(b[k]) > INT_MAX) {
+        // Reduce the probability of overflow by computing at lower precision
+        b[i + 1] -= AOMMAX(c, b[k]) / 256 * AOMMIN(c, b[k]) / cd * 256;
+      } else {
+        b[i + 1] -= c * b[k] / cd;
+      }
     }
   }
   // Back-substitution
