@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2924708_59e48cc1",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 25
+      },
+      "lineNbr": 1785,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-05-15T13:51:14Z",
+      "side": 1,
+      "message": "please consider to make this number directly derived from the transform size. that would avoid issues in the event that we change the operating block size in tpl.",
+      "range": {
+        "startLine": 1785,
+        "startChar": 24,
+        "endLine": 1785,
+        "endChar": 27
+      },
+      "revId": "5f9975ec9afdf8cadedec2fd034fe459677c401b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
