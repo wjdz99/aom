@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "950686df_ea2a4393",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-17T20:46:08Z",
+      "side": 1,
+      "message": "Is it correct to pass b\u003d0.0 to these two functions?",
+      "revId": "f99c15035fd463ff32994301c4f72679518b6af1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d3980c3_56facf85",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-17T20:46:08Z",
+      "side": 1,
+      "message": "Is it correct to pass b\u003d0.0 to these two functi",
+      "revId": "f99c15035fd463ff32994301c4f72679518b6af1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
