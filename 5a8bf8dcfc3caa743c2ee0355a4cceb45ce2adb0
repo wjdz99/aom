@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30485ced_37083dc9",
+        "filename": "av1/common/restoration.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1246,
+      "author": {
+        "id": 26732
+      },
+      "writtenOn": "2021-05-17T23:09:42Z",
+      "side": 1,
+      "message": "LGTM. We may wish to reduce code overlap by having a single function and moving the high-bit-depth decision in here or factoring out the lines following \"// extend border by replication\" to a single function called by both routines.",
+      "range": {
+        "startLine": 1246,
+        "startChar": 9,
+        "endLine": 1246,
+        "endChar": 35
+      },
+      "revId": "5a8bf8dcfc3caa743c2ee0355a4cceb45ce2adb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
