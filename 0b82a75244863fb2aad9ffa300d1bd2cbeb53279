@@ -26,6 +26,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "739838e2_60fbf9aa",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-17T21:52:18Z",
+      "side": 1,
+      "message": "So, evaluating all delta angles here gives coding gain?\n\nNot sure why previous function rd_pick_intra_angle_sby() doesn\u0027t work well - skip search too much? But, optimization is also done in this cl. Anyway, nice coding gain.",
+      "range": {
+        "startLine": 1141,
+        "startChar": 51,
+        "endLine": 1141,
+        "endChar": 66
+      },
+      "revId": "0b82a75244863fb2aad9ffa300d1bd2cbeb53279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "23b81057_0bebd226",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 2
@@ -42,6 +65,29 @@
         "startChar": 4,
         "endLine": 1188,
         "endChar": 6
+      },
+      "revId": "0b82a75244863fb2aad9ffa300d1bd2cbeb53279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf28b0a4_aafb5fbc",
+        "filename": "av1/encoder/intra_mode_search.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-17T21:52:18Z",
+      "side": 1,
+      "message": "style?",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 13
       },
       "revId": "0b82a75244863fb2aad9ffa300d1bd2cbeb53279",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
