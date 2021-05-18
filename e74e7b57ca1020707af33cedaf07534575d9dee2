@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18adaee1_d283a7e8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-05-18T18:36:52Z",
+      "side": 1,
+      "message": "Second commit to consolidate SDP and ERP.\n\nThis is the second commit that adds the out-of-flag data structures for ERP.\nIn particular, this one adds the partition_tree data structure to tracks the partitioning on the decoder side.\nThere are several optimizations in progress with SDP:\n1. Currently the two separate trees are stored for luma and chroma. There are some room for memory reduction here.\n2. Eventually get_partition functions should be fully replaced by ptree-\u003epartition. This is not done in this commit to make the changes relatively small.\n",
+      "revId": "e74e7b57ca1020707af33cedaf07534575d9dee2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
