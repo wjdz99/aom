@@ -2587,8 +2587,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       }
     } else {
       memset(&cm->seg, 0, sizeof(cm->seg));
-    }
-    segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
+    }    segfeatures_copy(&cm->cur_frame->seg, &cm->seg);
     cm->cur_frame->seg.enabled = cm->seg.enabled;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -2628,6 +2627,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     aom_clear_system_state();
 
+#if CONFIG_BITRATE_ACCURACY
+    const int do_dummy_pack = 1;
+#else
     // Dummy pack of the bitstream using up to date stats to get an
     // accurate estimate of output frame size to determine if we need
     // to recode.
@@ -2635,6 +2637,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         (cpi->sf.hl_sf.recode_loop >= ALLOW_RECODE_KFARFGF &&
          oxcf->rc_cfg.mode != AOM_Q) ||
         oxcf->rc_cfg.min_cr > 0;
+#endif  // CONFIG_BITRATE_ACCURACY
     if (do_dummy_pack) {
       av1_finalize_encoded_frame(cpi);
       int largest_tile_id = 0;  // Output from bitstream: unused here
@@ -2645,6 +2648,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       }
 
       rc->projected_frame_size = (int)(*size) << 3;
+
+#if CONFIG_BITRATE_ACCURACY      
+      printf("\nprojected frame size: %d", rc->projected_frame_size);
+#endif
     }
 
 #if CONFIG_TUNE_VMAF
@@ -2665,6 +2672,16 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       loop = 1;
       av1_setup_butteraugli_rdmult_and_restore_source(cpi, 0.4);
     }
+#endif
+
+#if CONFIG_BITRATE_ACCURACY
+    loop = 0;
+  /* GF_GROUP *gf_group2 = &cpi->ppi->gf_group; */
+  /* printf("\ngf_group in encode_with_recode_loop\n"); */
+  /* printf("size: %d\n", gf_group2->size); */
+  /* for (int i = 0; i < gf_group2->size; i++) { */
+  /*   printf("i, q_val[i]: %d, %d\n", i, gf_group2->q_val[i]); */
+  /* } */
 #endif
 
     if (loop) {
