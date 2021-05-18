@@ -125,7 +125,7 @@ static unsigned int predict_dc_levels[3][MODE_EVAL_TYPES] = { { 0, 0, 0 },
 // 1 : All reference frames except L2 and L3 are allowed.
 // 2 : All reference frames except L2, L3 and ARF2 are allowed.
 // 3 : No reference frame is allowed.
-static int gm_available_reference_frames[GM_DISABLE_SEARCH + 1] = {
+int gm_available_reference_frames[GM_DISABLE_SEARCH + 1] = {
   INTER_REFS_PER_FRAME, INTER_REFS_PER_FRAME - 2, INTER_REFS_PER_FRAME - 3, 0
 };
 
@@ -1913,14 +1913,6 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
       // Revert to type 2
       sf->inter_sf.inter_mode_rd_model_estimation = 2;
     }
-
-    // Disable the speed feature 'prune_ref_frame_for_gm_search' to achieve
-    // better parallelism when number of threads available are greater than or
-    // equal to maximum number of reference frames allowed for global motion.
-    if (sf->gm_sf.gm_search_type != GM_DISABLE_SEARCH &&
-        (cpi->oxcf.max_threads >=
-         gm_available_reference_frames[sf->gm_sf.gm_search_type]))
-      sf->gm_sf.prune_ref_frame_for_gm_search = 0;
   }
 }
 
