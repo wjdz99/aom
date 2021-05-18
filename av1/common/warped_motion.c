@@ -793,6 +793,27 @@ int64_t av1_frame_error(int use_hbd, int bd, const uint8_t *ref, int stride,
   return av1_calc_frame_error(ref, stride, dst, p_width, p_height, p_stride);
 }
 
+int64_t av1_frame_error_align_ref(int use_hbd, int bd, const uint8_t *ref,
+                                  int stride, uint8_t *dst, int p_width,
+                                  int p_height, int p_stride) {
+#if CONFIG_AV1_HIGHBITDEPTH
+  if (use_hbd) {
+    return av1_calc_highbd_frame_error(CONVERT_TO_SHORTPTR(ref), stride,
+                                       CONVERT_TO_SHORTPTR(dst), p_width,
+                                       p_height, p_stride, bd);
+  }
+#endif
+  (void)use_hbd;
+  (void)bd;
+  DECLARE_ALIGNED(16, uint8_t, tmp[WARP_ERROR_BLOCK * WARP_ERROR_BLOCK]);
+  for (int h = 0; h < WARP_ERROR_BLOCK; h++) {
+    memcpy(tmp + h * WARP_ERROR_BLOCK, ref + h * stride,
+           sizeof(tmp[0]) * WARP_ERROR_BLOCK);
+  }
+  return av1_calc_frame_error(tmp, WARP_ERROR_BLOCK, dst, p_width, p_height,
+                              p_stride);
+}
+
 int64_t av1_segmented_frame_error(int use_hbd, int bd, const uint8_t *ref,
                                   int stride, uint8_t *dst, int p_width,
                                   int p_height, int p_stride,
