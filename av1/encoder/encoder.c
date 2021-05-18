@@ -2659,6 +2659,14 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
       // bits used for this frame
       rc->projected_frame_size = (int)(*size) << 3;
+
+      const GF_GROUP *gf_group = &cpi->ppi->gf_group;
+      // TODO:
+      // 1) Encode a video, check whether 'gf_group q' match the 'q' here. Here
+      // 'q' stands for q_index. 2) [optional] A good opportunity to write more
+      // code is to rename 'q' to 'q_index'.
+      printf("\ngf_group q %d q %d projected_frame_size %d\n",
+             gf_group->q_val[cpi->gf_frame_index], q, rc->projected_frame_size);
     }
 
 #if CONFIG_TUNE_VMAF

@@ -1543,11 +1543,18 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
     } else {
       mc_flow_dispenser(cpi);
     }
+    // This is where we compute the abs_coeff_mean for each frame in a gop
     tpl_stats_update_abs_coeff_mean(tpl_data, &cpi->td.tpl_txfm_stats);
 
     aom_extend_frame_borders(tpl_data->tpl_frame[frame_idx].rec_picture,
                              av1_num_planes(cm));
   }
+  // Here we got all the information we need to estimate frame rate for gop
+  // Information:
+  // gf_group->q_val[]: q indices for each frame in the gop
+  // abs_coeff_mean[]: mad for each transformcoefficients
+  // TODO:
+  // Call av1_estimate_gop_bitrate() here to estimate the gop bitrate
 
   for (int frame_idx = tpl_gf_group_frames - 1;
        frame_idx >= cpi->gf_frame_index; --frame_idx) {
