@@ -1549,6 +1549,22 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
                              av1_num_planes(cm));
   }
 
+#if CONFIG_BITRATE_ACCURACY
+  TplTxfmStats stats_list[MAX_STATIC_GF_GROUP_LENGTH];
+  for (int i = 0; i < gf_group->size; i++) {
+    TplDepFrame *tpl_frame = &tpl_data->tpl_stats_buffer[i];
+    stats_list[i].txfm_block_count = 8;
+    for (int j = 0; j < 256; j++) {
+      stats_list[i].abs_coeff_sum[j] = tpl_frame->abs_coeff_sum[j];
+    }
+  }
+
+  double br = av1_estimate_gop_bitrate(gf_group->q_val,
+                                       gf_group->size,
+                                       stats_list);
+  printf("\nestimated bitrate: %f\n", br);
+#endif
+
   for (int frame_idx = tpl_gf_group_frames - 1;
        frame_idx >= cpi->gf_frame_index; --frame_idx) {
     if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
@@ -1617,7 +1633,7 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
           (double)mc_dep_cost_base / intra_cost_base;
     }
   }
-
+  
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_tpl_setup_stats_time);
 #endif
