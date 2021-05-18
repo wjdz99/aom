@@ -2814,7 +2814,7 @@ static int64_t handle_inter_mode(
 
       // skip NEWMV mode in drl if the motion search result is the same
       // as a previous result
-      if (cpi->sf.inter_sf.skip_repeated_newmv &&
+      if (0 && cpi->sf.inter_sf.skip_repeated_newmv &&
           skip_repeated_newmv(cpi, x, bsize, do_tx_search, this_mode,
                               &best_mbmi, motion_mode_cand, &ref_best_rd,
                               &best_rd_stats, &best_rd_stats_y,
