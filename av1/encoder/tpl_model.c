@@ -47,14 +47,15 @@ static AOM_INLINE void tpl_stats_record_txfm_block(TplTxfmStats *tpl_txfm_stats,
   ++tpl_txfm_stats->txfm_block_count;
 }
 
-static AOM_INLINE void tpl_stats_update_abs_coeff_mean(
-    TplParams *tpl_data, TplTxfmStats *tpl_txfm_stats) {
+static AOM_INLINE void av1_tpl_store_txfm_stats(TplParams *tpl_data,
+                                                TplTxfmStats *tpl_txfm_stats) {
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_data->frame_idx];
   tpl_frame->txfm_block_count = tpl_txfm_stats->txfm_block_count;
+  tpl_data->txfm_stats_list->txfm_block_count =
+      tpl_txfm_stats->txfm_block_count;
   for (int i = 0; i < tpl_frame->coeff_num; ++i) {
-    tpl_frame->abs_coeff_sum[i] = tpl_txfm_stats->abs_coeff_sum[i];
-    tpl_frame->abs_coeff_mean[i] =
-        tpl_frame->abs_coeff_sum[i] / tpl_txfm_stats->txfm_block_count;
+    tpl_data->txfm_stats_list->abs_coeff_sum[i] =
+        tpl_txfm_stats->abs_coeff_sum[i];
   }
 }
 
@@ -1543,11 +1544,17 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
     } else {
       mc_flow_dispenser(cpi);
     }
-    tpl_stats_update_abs_coeff_mean(tpl_data, &cpi->td.tpl_txfm_stats);
+    av1_tpl_store_txfm_stats(tpl_data, &cpi->td.tpl_txfm_stats);
 
     aom_extend_frame_borders(tpl_data->tpl_frame[frame_idx].rec_picture,
                              av1_num_planes(cm));
   }
+
+#if CONFIG_BITRATE_ACCURACY
+  double gop_bitrate = av1_estimate_gop_bitrate(gf_group->q_val, gf_group->size,
+                                                tpl_data->txfm_stats_list);
+  printf("\nestimated bitrate: %f\n", gop_bitrate);
+#endif
 
   for (int frame_idx = tpl_gf_group_frames - 1;
        frame_idx >= cpi->gf_frame_index; --frame_idx) {
