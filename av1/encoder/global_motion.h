@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 #define MAX_CORNERS 4096
-#define RANSAC_NUM_MOTIONS 1
+#define RANSAC_NUM_MOTIONS 2
 #define GM_REFINEMENT_COUNT 5
 #define MAX_DIRECTIONS 2
 
@@ -56,6 +56,7 @@ typedef struct {
 
   // Pointer to hold inliers from motion model.
   uint8_t *segment_map;
+  int *correspondences;
 } GlobalMotionThreadData;
 
 typedef struct {
@@ -101,8 +102,9 @@ void av1_convert_model_to_params(const double *params,
 
 // TODO(sarahparker) These need to be retuned for speed 0 and 1 to
 // maximize gains from segmented error metric
-static const double erroradv_tr = 0.65;
-static const double erroradv_prod_tr = 20000;
+static const double new_factor = 0.85;
+static const double erroradv_tr = 0.65 * new_factor / 0.65;
+static const double erroradv_prod_tr = 25000 * new_factor / 0.65;
 
 int av1_is_enough_erroradvantage(double best_erroradvantage, int params_cost);
 
@@ -117,7 +119,9 @@ int64_t av1_warp_error(WarpedMotionParams *wm, int use_hbd, int bd,
                        uint8_t *dst, int p_col, int p_row, int p_width,
                        int p_height, int p_stride, int subsampling_x,
                        int subsampling_y, int64_t best_error,
-                       uint8_t *segment_map, int segment_map_stride);
+                       uint8_t *segment_map, int64_t *segment_error,
+                       int segment_map_stride, int64_t *seg_better_err,
+                       int64_t *seg_ref_err, double *better_seg_ratio);
 
 // Returns the av1_warp_error between "dst" and the result of applying the
 // motion params that result from fine-tuning "wm" to "ref". Note that "wm" is
@@ -126,8 +130,9 @@ int64_t av1_refine_integerized_param(
     WarpedMotionParams *wm, TransformationType wmtype, int use_hbd, int bd,
     uint8_t *ref, int r_width, int r_height, int r_stride, uint8_t *dst,
     int d_width, int d_height, int d_stride, int n_refinements,
-    int64_t best_frame_error, uint8_t *segment_map, int segment_map_stride,
-    int64_t erroradv_threshold);
+    int64_t best_frame_error, uint8_t *segment_map, int64_t *segment_error,
+    int segment_map_stride, int64_t *seg_better_err, int64_t *seg_ref_err,
+    double *better_seg_ratio);
 
 /*
   Computes "num_motions" candidate global motion parameters between two frames.
@@ -151,7 +156,8 @@ int av1_compute_global_motion(TransformationType type,
                               int bit_depth,
                               GlobalMotionEstimationType gm_estimation_type,
                               int *num_inliers_by_motion,
-                              MotionModel *params_by_motion, int num_motions);
+                              MotionModel *params_by_motion, int num_motions,
+                              int *correspondences, int num_correspondences);
 #ifdef __cplusplus
 }  // extern "C"
 #endif
