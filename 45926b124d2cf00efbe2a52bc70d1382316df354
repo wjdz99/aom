@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b35ebaf4_7a05117f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-05-18T18:39:24Z",
+      "side": 1,
+      "message": "Third commit that adds the data structures for ERP.\nThis one adds CHROMA_REF_INFO.\n\nThis one is compatible with SDP but redundant. SDP currently relies on mi-\u003esb_size[1] instead of chr_ref_info-\u003ebsize_base. Eventually they should be merged together.",
+      "revId": "45926b124d2cf00efbe2a52bc70d1382316df354",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
