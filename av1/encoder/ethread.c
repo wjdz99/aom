@@ -1670,7 +1670,8 @@ static int gm_mt_worker_hook(void *arg1, void *unused) {
         cpi, gm_info->ref_buf, ref_buf_idx, gm_info->num_src_corners,
         gm_info->src_corners, gm_info->src_buffer,
         gm_thread_data->params_by_motion, gm_thread_data->segment_map,
-        gm_info->segment_map_w, gm_info->segment_map_h);
+        gm_info->segment_map_w, gm_info->segment_map_h,
+        gm_thread_data->correspondences);
 
 #if CONFIG_MULTITHREAD
     pthread_mutex_lock(gm_mt_mutex_);
@@ -1737,6 +1738,7 @@ void av1_gm_dealloc(AV1GlobalMotionSync *gm_sync_data) {
     for (int j = 0; j < gm_sync_data->allocated_workers; j++) {
       GlobalMotionThreadData *thread_data = &gm_sync_data->thread_data[j];
       aom_free(thread_data->segment_map);
+      aom_free(thread_data->correspondences);
 
       for (int m = 0; m < RANSAC_NUM_MOTIONS; m++)
         aom_free(thread_data->params_by_motion[m].inliers);
@@ -1772,6 +1774,10 @@ static AOM_INLINE void gm_alloc(AV1_COMP *cpi, int num_workers) {
           aom_malloc(sizeof(*thread_data->params_by_motion[m].inliers) * 2 *
                      MAX_CORNERS));
     }
+
+    CHECK_MEM_ERROR(cm, thread_data->correspondences,
+                    aom_malloc(sizeof(*thread_data->correspondences) * 4 *
+                               gm_info->num_src_corners));
   }
 }
 
