@@ -151,6 +151,9 @@ static INLINE int error_measure(int err) {
 // described by 'dst'.
 int64_t av1_frame_error(int use_hbd, int bd, const uint8_t *ref, int stride,
                         uint8_t *dst, int p_width, int p_height, int p_stride);
+int64_t av1_frame_error_align_dst(int use_hbd, int bd, const uint8_t *ref,
+                                  int stride, uint8_t *dst, int p_width,
+                                  int p_height, int p_stride);
 
 int64_t av1_segmented_frame_error(int use_hbd, int bd, const uint8_t *ref,
                                   int stride, uint8_t *dst, int p_width,
