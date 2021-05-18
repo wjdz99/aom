@@ -2498,6 +2498,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   int original_q = 0;
 #endif
 
+#if CONFIG_BITRATE_ACCURACY
+  int gop_total_bits = 0;
+#endif
+
   // Loop variables
   int loop = 0;
   int loop_count = 0;
@@ -2636,6 +2640,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
     aom_clear_system_state();
 
+#if CONFIG_BITRATE_ACCURACY
+    const int do_dummy_pack = 1;
+#else
     // Dummy pack of the bitstream using up to date stats to get an
     // accurate estimate of output frame size to determine if we need
     // to recode.
@@ -2643,6 +2650,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
         (cpi->sf.hl_sf.recode_loop >= ALLOW_RECODE_KFARFGF &&
          oxcf->rc_cfg.mode != AOM_Q) ||
         oxcf->rc_cfg.min_cr > 0;
+#endif  // CONFIG_BITRATE_ACCURACY
     if (do_dummy_pack) {
       av1_finalize_encoded_frame(cpi);
       int largest_tile_id = 0;  // Output from bitstream: unused here
@@ -2653,6 +2661,12 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       }
 
       rc->projected_frame_size = (int)(*size) << 3;
+
+#if CONFIG_BITRATE_ACCURACY
+      gop_total_bits += rc->projected_frame_size;
+      printf("\nframe: %d, projected frame size: %d, total: %d\n",
+             cpi->gf_frame_index, rc->projected_frame_size, gop_total_bits);
+#endif
     }
 
 #if CONFIG_TUNE_VMAF
@@ -2673,6 +2687,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       loop = 1;
       av1_setup_butteraugli_rdmult_and_restore_source(cpi, 0.4);
     }
+#endif
+
+#if CONFIG_BITRATE_ACCURACY
+    loop = 0;
 #endif
 
     if (loop) {
