@@ -447,7 +447,7 @@ AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadRTTest,
                            ::testing::Values(0, 2), ::testing::Values(0, 2),
                            ::testing::Values(0, 1));
 
-#if !CONFIG_REALTIME_ONLY
+#if !CONFIG_REALTIME_ONLY && !AOM_VALGRIND_BUILD
 class AVxEncoderThreadTestLarge : public AVxEncoderThreadTest {};
 
 TEST_P(AVxEncoderThreadTestLarge, EncoderResultTest) {
@@ -512,7 +512,7 @@ AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadAllIntraTestLarge,
                            ::testing::Values(0, 2, 4, 8),
                            ::testing::Values(1, 6), ::testing::Values(1, 6),
                            ::testing::Values(0, 1));
-#endif
+#endif  // !CONFIG_REALTIME_ONLY && !AOM_VALGRIND_BUILD
 
 class AVxEncoderThreadLSTest : public AVxEncoderThreadTest {
   virtual void SetTileSize(libaom_test::Encoder *encoder) {
@@ -539,7 +539,7 @@ TEST_P(AVxEncoderThreadLSTest, EncoderResultTest) {
   DoTest();
 }
 
-#if !CONFIG_REALTIME_ONLY
+#if !CONFIG_REALTIME_ONLY && !AOM_VALGRIND_BUILD
 class AVxEncoderThreadLSTestLarge : public AVxEncoderThreadLSTest {};
 
 TEST_P(AVxEncoderThreadLSTestLarge, EncoderResultTest) {
@@ -554,5 +554,5 @@ AV1_INSTANTIATE_TEST_SUITE(AVxEncoderThreadLSTestLarge,
                                              ::libaom_test::kOnePassGood),
                            ::testing::Values(1, 3), ::testing::Values(0, 6),
                            ::testing::Values(0, 6), ::testing::Values(1));
-#endif
+#endif  // !CONFIG_REALTIME_ONLY && !AOM_VALGRIND_BUILD
 }  // namespace
