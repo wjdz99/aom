@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c2b7de3_a1a2e929",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-18T05:30:10Z",
+      "side": 1,
+      "message": "It keeps 4 best model rd so far in \"prune_intra_y_mode()\" for speed up.\n4 is a trade-off. The more it keeps, the slower it could be. The less it keeps, the performance is worse.\nIf I disable this function, the coding difference is within 0.1%, but 6.6% slower.",
+      "parentUuid": "5480c5c1_5308d5a8",
+      "range": {
+        "startLine": 456,
+        "startChar": 30,
+        "endLine": 456,
+        "endChar": 31
+      },
+      "revId": "0b82a75244863fb2aad9ffa300d1bd2cbeb53279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "739838e2_60fbf9aa",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-17T21:52:18Z",
       "side": 1,
       "message": "So, evaluating all delta angles here gives coding gain?\n\nNot sure why previous function rd_pick_intra_angle_sby() doesn\u0027t work well - skip search too much? But, optimization is also done in this cl. Anyway, nice coding gain.",
+      "range": {
+        "startLine": 1141,
+        "startChar": 51,
+        "endLine": 1141,
+        "endChar": 66
+      },
+      "revId": "0b82a75244863fb2aad9ffa300d1bd2cbeb53279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f749c025_7cc5a88a",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-18T05:30:10Z",
+      "side": 1,
+      "message": "Very good question. I also tried to understand it.\nAfter some study, I think there may be two reasons\nFirst, previously, a main direction (for example, 45 degree) is searched and followed by associated delta angles. This change lets the encoder do the search for all main directions (45, 135 degrees, etc) first, then to other angles (45 + delta, 135 + delta, ...). The reordering seems bring gains.\nSecond, previous search uses \"model_intra_yrd_and_prune()\" to prune delta angle searches. This might prune some good candidates.",
+      "parentUuid": "739838e2_60fbf9aa",
       "range": {
         "startLine": 1141,
         "startChar": 51,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a950fea_e0c0440d",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1188,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-18T05:30:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23b81057_0bebd226",
+      "range": {
+        "startLine": 1184,
+        "startChar": 4,
+        "endLine": 1188,
+        "endChar": 6
+      },
+      "revId": "0b82a75244863fb2aad9ffa300d1bd2cbeb53279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf28b0a4_aafb5fbc",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-05-17T21:52:18Z",
       "side": 1,
       "message": "style?",
+      "range": {
+        "startLine": 98,
+        "startChar": 4,
+        "endLine": 98,
+        "endChar": 13
+      },
+      "revId": "0b82a75244863fb2aad9ffa300d1bd2cbeb53279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "000bf2ee_c545cb5f",
+        "filename": "av1/encoder/intra_mode_search.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-18T05:30:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf28b0a4_aafb5fbc",
       "range": {
         "startLine": 98,
         "startChar": 4,
