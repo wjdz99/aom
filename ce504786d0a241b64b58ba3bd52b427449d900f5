@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83d1da03_7ce5e0b1",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2502,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-18T22:36:42Z",
+      "side": 1,
+      "message": "This variable only exist in this function.\nThis function only encode one frame.\nA gop contains multiple frames.\nTo get the actual bits usage for the entire gop, you will need to accumulate the result.\n\nI would recommend to work on this part in a separate CL.",
+      "range": {
+        "startLine": 2502,
+        "startChar": 2,
+        "endLine": 2502,
+        "endChar": 25
+      },
+      "revId": "ce504786d0a241b64b58ba3bd52b427449d900f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d501d24e_fb933b63",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1556,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-18T22:36:42Z",
+      "side": 1,
+      "message": "txfm_block_count is not set right, which might affect the estimated accuracy.",
+      "range": {
+        "startLine": 1556,
+        "startChar": 4,
+        "endLine": 1556,
+        "endChar": 39
+      },
+      "revId": "ce504786d0a241b64b58ba3bd52b427449d900f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcb59b64_0f9c1891",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1560,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-18T22:36:42Z",
+      "side": 1,
+      "message": "I would recommend not crate a new stats_list here.\nInstead, do the following steps.\n1) Remove abs_coeff_sum and abs_coeff_mean from TplDepFrame \n   \n2) Create TplTxfmStats txfm_stats_list[MAX_LENGTH_TPL_FRAME_STATS] in TplParams\n    this will be the place we store all the transform stats.\n3) In tpl_stats_update_abs_coeff_mean()\n    3.1) Rename it to av1_tpl_store_txfm_stats.\n    3.2) copy td.txfm_stats to tpl_data.txfm_stats_list[i]\n4) Pass tpl_data.txfm_stats_list into av1_estimate_gop_bitrate()\n\nThis way, we avoid additional array copy and make the code cleaner.",
+      "range": {
+        "startLine": 1553,
+        "startChar": 0,
+        "endLine": 1560,
+        "endChar": 3
+      },
+      "revId": "ce504786d0a241b64b58ba3bd52b427449d900f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
