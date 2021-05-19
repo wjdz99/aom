@@ -49,6 +49,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "08fd3b38_651e40d4",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-05-19T22:19:29Z",
+      "side": 1,
+      "message": "Directly sending in a frame index would probably be safer than using tpl_data, which is a GOP level data structure.",
+      "range": {
+        "startLine": 52,
+        "startChar": 58,
+        "endLine": 52,
+        "endChar": 67
+      },
+      "revId": "441f56d56db49b011aca77ff2870af2f738c0d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5b4455d8_ecd48dd0",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 9
