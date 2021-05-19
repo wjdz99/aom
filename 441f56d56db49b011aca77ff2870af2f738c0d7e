@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be2d7fc2_29d467ed",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2633,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-19T23:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0818a258_32b47717",
+      "range": {
+        "startLine": 2631,
+        "startChar": 0,
+        "endLine": 2633,
+        "endChar": 5
+      },
+      "revId": "441f56d56db49b011aca77ff2870af2f738c0d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "45f75bb8_e230df92",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-19T21:38:14Z",
       "side": 1,
       "message": "const TplTxfmStats *tpl_txfm_stats.\n\nHere tpl_txfm_stats is our input pointer and we are not going to change the value it point to. Hence it\u0027s good to add a const to indicate that.\n\nhttps://stackoverflow.com/questions/21476869/constant-pointer-vs-pointer-to-constant\n\nI would recommend also pass in \"int frame_index\"",
+      "range": {
+        "startLine": 51,
+        "startChar": 48,
+        "endLine": 51,
+        "endChar": 76
+      },
+      "revId": "441f56d56db49b011aca77ff2870af2f738c0d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a81a3fe_3eeb4c5b",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-19T23:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "45f75bb8_e230df92",
       "range": {
         "startLine": 51,
         "startChar": 48,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd8f3d2d_647aa227",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-19T23:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08fd3b38_651e40d4",
+      "range": {
+        "startLine": 52,
+        "startChar": 58,
+        "endLine": 52,
+        "endChar": 67
+      },
+      "revId": "441f56d56db49b011aca77ff2870af2f738c0d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b4455d8_ecd48dd0",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-05-19T21:39:39Z",
       "side": 1,
       "message": "tpl_data-\u003etxfm_stats_list is an array.\nUsing it this way will only change the value in tpl_data-\u003etxfm_stats_list[0].txfm_block_count",
+      "range": {
+        "startLine": 54,
+        "startChar": 2,
+        "endLine": 54,
+        "endChar": 45
+      },
+      "revId": "441f56d56db49b011aca77ff2870af2f738c0d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4d0a34d_2330c479",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-19T23:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b4455d8_ecd48dd0",
       "range": {
         "startLine": 54,
         "startChar": 2,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2d61db1_8e42ce48",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-19T23:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5284881_2acd17be",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 3
+      },
+      "revId": "441f56d56db49b011aca77ff2870af2f738c0d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "78652d56_3f3ce959",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-05-19T21:38:14Z",
       "side": 1,
       "message": "Let\u0027s remove these fields since we created txfm_stats_list[] store the same information already.",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 23
+      },
+      "revId": "441f56d56db49b011aca77ff2870af2f738c0d7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f2e4b50_cc7197e3",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-19T23:02:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78652d56_3f3ce959",
       "range": {
         "startLine": 131,
         "startChar": 0,
