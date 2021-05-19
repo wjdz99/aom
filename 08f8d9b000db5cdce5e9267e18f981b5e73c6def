@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5599dad_6a960a97",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-05-19T14:10:48Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs per the suggestions in the previous CL (https://aomedia-review.googlesource.com/c/aom/+/136961) and the follow-up discussions, we have added a separate file end_to_end_ssim_test.cc for SSIM based quality gating checks to avoid moving the file end_to_end_test.cc under if(NOT BUILD_SHARED_LIBS) in test.cmake.\n\nIn this CL, we have introduced EndToEndSSIMTest and EndToEndSSIMTestLarge unit-tests to check the adherence to a given SSIM threshold. A common class EndToEndTest is derived (and used in both end_to_end_test.cc and end_to_end_ssim_test.cc) to avoid code duplication w.r.t. end_to_end_test.cc.\n\nAs the functions needed to calculate AOMSSIM metric are in ssim.c file, we have moved ssim.c and ssim.h files outside the CONFIG_INTERNAL_STATS macro and the functions which are not contributing to AOMSSIM metric calculation in these files are kept under the same CONFIG_INTERNAL_STATS macro. Currently, we have added SSIM quality metric check for allintra encoding mode only. As SSIM related functions (aom_ssim2() and aom_hbd_ssim2(), which are defined in aom_dsp/ssim.c) need to be called in end_to_end_ssim_test.cc, the file is moved under if(NOT BUILD_SHARED_LIBS) in test.cmake.\n\nWe also modified similarity() function in aom_dsp/ssim.c to silence static analyzer warnings.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
+      "revId": "08f8d9b000db5cdce5e9267e18f981b5e73c6def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
