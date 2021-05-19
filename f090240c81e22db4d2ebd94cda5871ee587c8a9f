@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "f145a972_ffd462ac",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2021-05-19T15:57:02Z",
+      "side": 1,
+      "message": "VBR mode",
+      "parentUuid": "3c2e1a04_f98eed15",
+      "range": {
+        "startLine": 16,
+        "startChar": 8,
+        "endLine": 16,
+        "endChar": 21
+      },
+      "revId": "f090240c81e22db4d2ebd94cda5871ee587c8a9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "1bf098ac_930d746e",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-05-17T21:14:50Z",
       "side": 1,
       "message": "Do you use the same parameter values as VP9?",
+      "revId": "f090240c81e22db4d2ebd94cda5871ee587c8a9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0995b39_68db5a7b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2021-05-19T15:57:02Z",
+      "side": 1,
+      "message": "No, In fact the optimal multiplier is quite bit lower for AV1. However the nature of the changes is the same, just with tweaks to values to accommodate the fact that AV1 has the potential for better prediction and also multiple ARFs per group.",
+      "parentUuid": "1bf098ac_930d746e",
       "revId": "f090240c81e22db4d2ebd94cda5871ee587c8a9f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
