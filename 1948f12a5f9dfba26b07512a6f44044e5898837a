@@ -51,6 +51,24 @@
       "parentUuid": "d77d099b_5370cdcd",
       "revId": "1948f12a5f9dfba26b07512a6f44044e5898837a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "251b1a51_7e1432d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-19T06:26:56Z",
+      "side": 1,
+      "message": "Thanks for the quick reply. In FP, we define the ref updating rule ourselves that can be different from the default one. Maybe we can think about a way to handle show-existing frame. For example, maybe we don\u0027t update ref frame for show-existing frame 2 and 4 as well?\nI thought about this. My concern is that using a different approach under a config flag may cause problem for us later. If we can find a way to build upon the existing stack-based implementation, I feel it would be better.\nStill not sure why this approach is fundamentally different from stack-based approach. Maybe we can borrow the idea from this CL about how ref is updated for involved frames (say, frame 1, (2), 3, (4)), and define an updating rule that works. Let me know if it is possible.",
+      "parentUuid": "b393eb81_7d8d9e76",
+      "revId": "1948f12a5f9dfba26b07512a6f44044e5898837a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
