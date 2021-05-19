@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c588f71_bc4aa3ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-05-19T14:42:23Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, we introduced a speed feature option to reduce entropy cost update frequency for mode. We changed the frequency to ‘once for each sb row’. \t\n\nThis change is not enabled for hd res as the speed-up/trade-off was not seen to be encouraging. Speed and bd-rate numbers are measured for Borg test suite. The optimization is enabled for speed preset 6. The change is a bit exact for speed presets \u003c\u003d5 with no speed impact (verified locally). This patch is a dependent patch with parent patch https://aomedia-review.googlesource.com/c/aom/+/138001. The results are w.r.t the parent patch.\n\n                      Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)   avg.psnr  ovr.psnr   ssim   \n   6       LOW RES        0.609        0.0075    0.0062   -0.0204\n   6       MID RES        0.601        0.0714    0.0749    0.0287\n   6        HD RES        0.000        0.0000    0.0000    0.0000\n   6       Average        0.453        0.0239    0.0244    0.0002\nIn the commit message, Quality Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease merge the patch in case of no issues.\n\nThanks \u0026 Regards,\nMudassir.",
+      "revId": "8e5375800dd3bf627bb3b5ed42e0583a5a21a8e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
