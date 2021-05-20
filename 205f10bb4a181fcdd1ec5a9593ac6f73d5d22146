@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ae5fcf4_3546e50b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-05-20T23:48:54Z",
+      "side": 1,
+      "message": "this branch shouldn\u0027t be necessary",
+      "revId": "205f10bb4a181fcdd1ec5a9593ac6f73d5d22146",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50a8b34c_0b77cc04",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1895,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-05-20T23:48:54Z",
+      "side": 1,
+      "message": "Just return this directly. In other cases with this kind of structure no else is necessary when the other branch returns:\nhttp://clang.llvm.org/extra/clang-tidy/checks/readability-else-after-return.html",
+      "revId": "205f10bb4a181fcdd1ec5a9593ac6f73d5d22146",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd9a0dfd_61f83904",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 2042,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-05-20T23:48:54Z",
+      "side": 1,
+      "message": "I think this is just an output pointer to an int, not to an int array",
+      "range": {
+        "startLine": 2042,
+        "startChar": 40,
+        "endLine": 2042,
+        "endChar": 45
+      },
+      "revId": "205f10bb4a181fcdd1ec5a9593ac6f73d5d22146",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
