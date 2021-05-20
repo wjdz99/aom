@@ -130,6 +130,9 @@ typedef struct {
   // Block width of minimum partition size allowed.
   int min_partition_size_1d;
 
+  // Block width of maximum partition size allowed.
+  int max_partition_size_1d;
+
   // Flag to indicate if partition is 8x8 or higher size.
   int bsize_at_least_8x8;
 
