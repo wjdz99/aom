@@ -33,6 +33,24 @@
       "message": "Please resolve Jenkins issue.",
       "revId": "31fe325b6160b057c9b64be1f0655ea899db993a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d56bd056_8c479770",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-05-20T12:54:27Z",
+      "side": 1,
+      "message": "The jenkins test failure is seen with the test \u0027AV1/DatarateTestRealtime.BasicRateTargetingVBR/2\u0027. The test failure is first seen in commit \u0027Changes to the RD and Rate control code\u0027 (commit id 0123c298).\n\nThe test failure is seen as the datarate for the file is greater than 1.4 times the target datarate. With the target datarate set as 400 kbps, the achieved datarate is 561.216 kbps in commit 0123c298 which exceeds the threshold. Whereas, the achieved datarate is 532.98 kbps in the parent commit (commit id : 1b365a3). The datarate has increased ~5% in commit 0123c298.\n\nPlease let us know if we should submit a patch by relaxing the threshold for the target datarate.",
+      "parentUuid": "2485c9c6_0efd5cb1",
+      "revId": "31fe325b6160b057c9b64be1f0655ea899db993a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
