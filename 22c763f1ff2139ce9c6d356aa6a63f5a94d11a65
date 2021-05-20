@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ddddcae_3e9dd0b5",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-20T20:19:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81b31fc1_06377d25",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 39
+      },
+      "revId": "22c763f1ff2139ce9c6d356aa6a63f5a94d11a65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4323accb_3c0a3f48",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-20T18:17:54Z",
       "side": 1,
       "message": "Please remove these four fields.\nAll the information we need is in txfm_stats_list.",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 23
+      },
+      "revId": "22c763f1ff2139ce9c6d356aa6a63f5a94d11a65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc433e4f_ab1cc7e6",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-05-20T20:19:52Z",
+      "side": 1,
+      "message": "If these lines are deleted it causes a whole bunch of errors elsewhere. I will do this in a follow up CL.",
+      "parentUuid": "4323accb_3c0a3f48",
       "range": {
         "startLine": 132,
         "startChar": 0,
