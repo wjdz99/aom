@@ -22,6 +22,30 @@
       },
       "revId": "3ee419a19878e11b7df4d8d8033f3f989751545b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee7184c4_7b3bacd1",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-05-20T04:42:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16b57be1_aa14691c",
+      "range": {
+        "startLine": 91,
+        "startChar": 35,
+        "endLine": 91,
+        "endChar": 60
+      },
+      "revId": "3ee419a19878e11b7df4d8d8033f3f989751545b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
