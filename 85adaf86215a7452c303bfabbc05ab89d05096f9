@@ -95,6 +95,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "df50c7c7_d4a99aaf",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1061,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-20T16:22:14Z",
+      "side": 1,
+      "message": "[Optional]I would recommend to pass in ext_part_controller as a separate parameter.\nThis way we know ext_part_controller is the only part that can be modified by this function.",
+      "parentUuid": "f08a7a75_a57ae86c",
+      "range": {
+        "startLine": 1061,
+        "startChar": 33,
+        "endLine": 1061,
+        "endChar": 52
+      },
+      "revId": "85adaf86215a7452c303bfabbc05ab89d05096f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b7432b5_d89072c4",
