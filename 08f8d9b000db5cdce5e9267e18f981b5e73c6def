@@ -16,6 +16,91 @@
       "message": "Hi Wan-Teh,\n\nAs per the suggestions in the previous CL (https://aomedia-review.googlesource.com/c/aom/+/136961) and the follow-up discussions, we have added a separate file end_to_end_ssim_test.cc for SSIM based quality gating checks to avoid moving the file end_to_end_test.cc under if(NOT BUILD_SHARED_LIBS) in test.cmake.\n\nIn this CL, we have introduced EndToEndSSIMTest and EndToEndSSIMTestLarge unit-tests to check the adherence to a given SSIM threshold. A common class EndToEndTest is derived (and used in both end_to_end_test.cc and end_to_end_ssim_test.cc) to avoid code duplication w.r.t. end_to_end_test.cc.\n\nAs the functions needed to calculate AOMSSIM metric are in ssim.c file, we have moved ssim.c and ssim.h files outside the CONFIG_INTERNAL_STATS macro and the functions which are not contributing to AOMSSIM metric calculation in these files are kept under the same CONFIG_INTERNAL_STATS macro. Currently, we have added SSIM quality metric check for allintra encoding mode only. As SSIM related functions (aom_ssim2() and aom_hbd_ssim2(), which are defined in aom_dsp/ssim.c) need to be called in end_to_end_ssim_test.cc, the file is moved under if(NOT BUILD_SHARED_LIBS) in test.cmake.\n\nWe also modified similarity() function in aom_dsp/ssim.c to silence static analyzer warnings.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
       "revId": "08f8d9b000db5cdce5e9267e18f981b5e73c6def",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bff2e54a_93f1ad66",
+        "filename": "test/end_to_end_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-20T23:19:15Z",
+      "side": 1,
+      "message": "Please rename this file \"end_to_end_psnr_test,cc\".",
+      "revId": "08f8d9b000db5cdce5e9267e18f981b5e73c6def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34634567_a56266a9",
+        "filename": "test/end_to_end_test.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-20T23:19:15Z",
+      "side": 1,
+      "message": "IMPORTANT: Instead of trying to using this header file to share code between end_to_end_ssim_test.cc and end_to_end_test.cc, I suggest we make end_to_end_ssim_test.cc and end_to_end_test.cc independent and not try to share code.",
+      "revId": "08f8d9b000db5cdce5e9267e18f981b5e73c6def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9096b3f0_8d788dd8",
+        "filename": "test/end_to_end_test.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-20T23:19:15Z",
+      "side": 1,
+      "message": "This header file should have a header include guard macro:\n\n#ifndef AOM_TEST_END_TO_END_TEST_H_\n#define AOM_TEST_END_TO_END_TEST_H_\n\n...\n\n#endif  // AOM_TEST_END_TO_END_TEST_H_",
+      "revId": "08f8d9b000db5cdce5e9267e18f981b5e73c6def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebb08a2e_90bd3f3b",
+        "filename": "test/end_to_end_test.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-20T23:19:15Z",
+      "side": 1,
+      "message": "Nit: The #include statements should be listed in alphabetical order in this file. So move this line after line 17.",
+      "revId": "08f8d9b000db5cdce5e9267e18f981b5e73c6def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2ae84a5_1a8d1f0e",
+        "filename": "test/end_to_end_test.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-20T23:19:15Z",
+      "side": 1,
+      "message": "Nit: Remove the unnamed namespace, because it is uncommon in a header file.",
+      "revId": "08f8d9b000db5cdce5e9267e18f981b5e73c6def",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
