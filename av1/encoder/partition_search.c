@@ -2482,6 +2482,8 @@ static void init_partition_search_state_params(
   blk_params->width = block_size_wide[bsize];
   blk_params->min_partition_size_1d =
       block_size_wide[x->sb_enc.min_partition_size];
+  blk_params->max_partition_size_1d =
+      block_size_wide[x->sb_enc.max_partition_size];
   blk_params->subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
   blk_params->split_bsize2 = blk_params->subsize;
   blk_params->bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
@@ -2611,7 +2613,8 @@ static AOM_INLINE void reset_part_limitations(
       (blk_params.width > blk_params.min_partition_size_1d);
   part_search_state->partition_none_allowed =
       blk_params.has_rows && blk_params.has_cols &&
-      (blk_params.width >= blk_params.min_partition_size_1d);
+      (blk_params.width >= blk_params.min_partition_size_1d) &&
+      (blk_params.width <= blk_params.max_partition_size_1d);
   part_search_state->partition_rect_allowed[HORZ] =
       blk_params.has_cols && is_rect_part_allowed &&
       get_plane_block_size(
@@ -3244,7 +3247,8 @@ static AOM_INLINE void set_part_none_allowed_flag(
   // Set PARTITION_NONE for screen content.
   if (cpi->use_screen_content_tools)
     part_search_state->partition_none_allowed =
-        blk_params.has_rows && blk_params.has_cols;
+        blk_params.has_rows && blk_params.has_cols &&
+        blk_params.width <= blk_params.max_partition_size_1d;
 }
 
 // Set params needed for PARTITION_NONE search.
