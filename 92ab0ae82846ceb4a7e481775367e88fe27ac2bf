@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c2efa4f_5c42e4a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-05-21T13:36:57Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs per your suggestions, we have renamed the existing file end_to_end_test.cc with end_to_end_psnr_test.cc and also removed the file end_to_end_test.h to make both ssim and psnr unit-tests independent. We have not pursued the cleanup which is possible in the existing end_to_end_psnr_test.cc (related to kWidth/kHeight/kFramerate used in YUVVideoSource), as it is not related to this patch.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
+      "revId": "92ab0ae82846ceb4a7e481775367e88fe27ac2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
