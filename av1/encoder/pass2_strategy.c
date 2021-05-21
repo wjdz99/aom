@@ -3398,10 +3398,10 @@ static void process_first_pass_stats(AV1_COMP *cpi,
     const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
     if (use_ml_model_to_decide_flat_gop(rc_cfg) && can_disable_altref(gf_cfg) &&
         IS_FP_STATS_TO_PREDICT_FLAT_GOP_INVALID(total_stats))
-      warn(
-          "First pass stats required in the ML model to predict a flat GOP "
-          "structure is invalid. Continuing encoding by disabling the ML "
-          "model.\n");
+      // warn(
+      //     "First pass stats required in the ML model to predict a flat GOP "
+      //     "structure is invalid. Continuing encoding by disabling the ML "
+      //     "model.\n");
   }
 
   if (cpi->oxcf.rc_cfg.mode != AOM_Q && current_frame->frame_number == 0 &&
