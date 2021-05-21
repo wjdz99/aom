@@ -2640,7 +2640,9 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   AV1_COMMON *const cm = &cpi->common;
   const MACROBLOCKD *const xd = &x->e_mbd;
   const MB_MODE_INFO *const mbmi = xd->mi[0];
+#if !CONFIG_REF_MV_BANK
   const PREDICTION_MODE this_mode = mbmi->mode;
+#endif
 
   // Only search indices if they have some chance of being good.
   int good_indices = 0;
@@ -2663,7 +2665,9 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   // found so far.
   if (!cpi->sf.inter_sf.prune_mode_search_simple_translation)
     return good_indices;
+#if !CONFIG_REF_MV_BANK
   if (!have_nearmv_in_inter_mode(this_mode)) return good_indices;
+#endif
   if (num_pels_log2_lookup[bsize] <= 6) return good_indices;
   // Do not prune when there is internal resizing. TODO(elliottk) fix this
   // so b/2384 can be resolved.
