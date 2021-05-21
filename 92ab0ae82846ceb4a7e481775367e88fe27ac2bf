@@ -16,6 +16,40 @@
       "message": "Hi Wan-Teh,\n\nAs per your suggestions, we have renamed the existing file end_to_end_test.cc with end_to_end_psnr_test.cc and also removed the file end_to_end_test.h to make both ssim and psnr unit-tests independent. We have not pursued the cleanup which is possible in the existing end_to_end_psnr_test.cc (related to kWidth/kHeight/kFramerate used in YUVVideoSource), as it is not related to this patch.\n\nPlease review the patch.\n\nRegards,\nJayashri.",
       "revId": "92ab0ae82846ceb4a7e481775367e88fe27ac2bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "154b2eb6_980a2c37",
+        "filename": "aom_dsp/ssim.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-21T21:31:38Z",
+      "side": 1,
+      "message": "I found that this macro is only used in aom/aom_dsp/fastssim.c, so we could move this macro definition to that file.",
+      "revId": "92ab0ae82846ceb4a7e481775367e88fe27ac2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "788f46cf_75275eac",
+        "filename": "test/encode_test_driver.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-21T21:31:38Z",
+      "side": 1,
+      "message": "The \"if (img_enc \u0026\u0026 img_dec)\" test at line 278 seems to imply img_enc may be null. So I added an \"if (img_enc)\" test around the CalculateFrameLevelSSIM() call. Please let me know if img_enc cannot possibly be null.",
+      "revId": "92ab0ae82846ceb4a7e481775367e88fe27ac2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

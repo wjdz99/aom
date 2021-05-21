@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56aa2bfa_115baea9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-05-21T21:31:38Z",
+      "side": 1,
+      "message": "Hi Jayashri,\n\nPatchset 6 looks good. Thanks! I made some minor edits.",
+      "revId": "12139b20e28a87996986d747ef2acaf4ffcf20d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
