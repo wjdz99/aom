@@ -16,6 +16,24 @@
       "message": "Any change in coding gain?",
       "revId": "2681c57ea7cf4fe79a4784cb320771687cb91327",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4dca489d_4207abd3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-05-21T20:35:06Z",
+      "side": 1,
+      "message": "There should be - since the training set is now different (trainhd).\nBut I did not check specifically on the same testset (A2). This is WIP and the models will change several times for the compression cases.",
+      "parentUuid": "939693d6_d888dc4b",
+      "revId": "2681c57ea7cf4fe79a4784cb320771687cb91327",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
