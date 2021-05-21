@@ -17,6 +17,8 @@
 #include "aom_dsp/psnr.h"
 #include "aom_scale/yv12config.h"
 
+#define AV2CTC_PSNR_PEAK 1
+
 double aom_sse_to_psnr(double samples, double peak, double sse) {
   if (sse > 0.0) {
     const double psnr = 10.0 * log10(samples * peak * peak / sse);
@@ -358,7 +360,11 @@ void aom_calc_highbd_psnr(const YV12_BUFFER_CONFIG *a,
   int i;
   uint64_t total_sse = 0;
   uint32_t total_samples = 0;
+#if AV2CTC_PSNR_PEAK
+  const double peak = (double)(255 << (in_bit_depth - 8));
+#else
   const double peak = (double)((1 << in_bit_depth) - 1);
+#endif  // AV2CTC_PSNR_PEAK
   const unsigned int input_shift = bit_depth - in_bit_depth;
 
   for (i = 0; i < 3; ++i) {
