@@ -22,6 +22,30 @@
       },
       "revId": "58e90e59c54fd2f567281a297e4a7fdea3b78e04",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62045185_d962b89c",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1549,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-21T00:01:45Z",
+      "side": 1,
+      "message": "It\u0027s safer to use the frame_idx directly from the outer for loop.",
+      "parentUuid": "269038d8_ed5baaea",
+      "range": {
+        "startLine": 1549,
+        "startChar": 29,
+        "endLine": 1549,
+        "endChar": 48
+      },
+      "revId": "58e90e59c54fd2f567281a297e4a7fdea3b78e04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
