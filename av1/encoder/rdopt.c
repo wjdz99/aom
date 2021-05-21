@@ -1156,7 +1156,7 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
 
     int_mv best_mv;
     av1_single_motion_search(cpi, x, bsize, ref_idx, rate_mv, search_range,
-                             mode_info, &best_mv);
+                             mode_info, &best_mv, args);
     if (best_mv.as_int == INVALID_MV) return INT64_MAX;
 
     args->single_newmv[ref_mv_idx][refs[0]] = best_mv;
@@ -1374,7 +1374,7 @@ static int64_t motion_mode_rd(
       assert(!is_comp_pred);
       if (have_newmv_in_inter_mode(this_mode)) {
         av1_single_motion_search(cpi, x, bsize, 0, &tmp_rate_mv, INT_MAX, NULL,
-                                 &mbmi->mv[0]);
+                                 &mbmi->mv[0], NULL);
         tmp_rate2 = rate2_nocoeff - rate_mv0 + tmp_rate_mv;
       }
       if ((mbmi->mv[0].as_int != cur_mv) || eval_motion_mode) {
