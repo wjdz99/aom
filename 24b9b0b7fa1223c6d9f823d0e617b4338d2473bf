@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdf4616a_0bf022aa",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2021-05-21T05:50:20Z",
+      "side": 1,
+      "message": "does this change the encoding result? assert will be compiled out in the release build. this line will not change the runtime behavior.",
+      "range": {
+        "startLine": 212,
+        "startChar": 2,
+        "endLine": 212,
+        "endChar": 3
+      },
+      "revId": "24b9b0b7fa1223c6d9f823d0e617b4338d2473bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
