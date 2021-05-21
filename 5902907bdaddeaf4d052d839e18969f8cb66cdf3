@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7fe57b3_7e29ebd3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2666,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-21T22:31:11Z",
+      "side": 1,
+      "message": "This is just a reminder.\nThis line will be printed for every frame.\nBut we should only compare the actual_gop_bitrate with estiamted_gop_bitrate when all frames in the GOP are encoded.\n\nA video will have many GOPs",
+      "range": {
+        "startLine": 2664,
+        "startChar": 0,
+        "endLine": 2666,
+        "endChar": 52
+      },
+      "revId": "5902907bdaddeaf4d052d839e18969f8cb66cdf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6353725f_218649c6",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-05-21T22:31:11Z",
+      "side": 1,
+      "message": "You will need to initialized this two variable in av1_init_tpl_stats()",
+      "range": {
+        "startLine": 223,
+        "startChar": 0,
+        "endLine": 224,
+        "endChar": 28
+      },
+      "revId": "5902907bdaddeaf4d052d839e18969f8cb66cdf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
