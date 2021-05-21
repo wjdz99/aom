@@ -16,6 +16,24 @@
       "message": "Deb, Is the plan to enable or disable this by default. ",
       "revId": "c537e67de9d228c2cf1fda2e7e146f0bb18125ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b42cfad4_da21c940",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-05-21T16:48:41Z",
+      "side": 1,
+      "message": "I suggest we keep this off by default for now. Once someone tests both options and brings in data to show 0 offset is better than centered offset, I will be happy to make this on by default.",
+      "parentUuid": "af855de0_8923643e",
+      "revId": "c537e67de9d228c2cf1fda2e7e146f0bb18125ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
