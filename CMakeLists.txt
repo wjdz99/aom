@@ -721,6 +721,16 @@ if(ENABLE_EXAMPLES AND "${CMAKE_GENERATOR}" MATCHES "Makefiles$")
 endif()
 
 if(BUILD_SHARED_LIBS)
+  if(NOT MSVC AND NOT APPLE)
+    # The -z defs linker option reports unresolved symbol references from object
+    # files when building a shared library. See
+    # https://cmake.org/cmake/help/v3.13/command/target_link_options.html.
+    if(NOT "${CMAKE_VERSION}" VERSION_LESS "3.13")
+      # target_link_options() was added in CMake 3.13.
+      target_link_options(aom PRIVATE LINKER:-z,defs)
+    endif()
+  endif()
+
   include("${AOM_ROOT}/build/cmake/exports.cmake")
   setup_exports_target()
 endif()
