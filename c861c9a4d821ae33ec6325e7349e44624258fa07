@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "03f9e26c_543cfba1",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 2038,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-05-22T00:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "feb204b6_56fbb3a5",
+      "revId": "c861c9a4d821ae33ec6325e7349e44624258fa07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0f2b018b_b9916c65",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-05-21T03:19:37Z",
       "side": 1,
       "message": "can we put this condition in the nonrd_pick_inter mode, at the end of the mode selection (which is called for every coding block in the sb), since then it only needs to be added once?",
+      "revId": "c861c9a4d821ae33ec6325e7349e44624258fa07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "546b5564_dbdbd0d6",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 2099,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-05-22T00:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f2b018b_b9916c65",
       "revId": "c861c9a4d821ae33ec6325e7349e44624258fa07",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d85b33e3_86351634",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 1151,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-05-22T00:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf50cc1d_5f7d5136",
+      "revId": "c861c9a4d821ae33ec6325e7349e44624258fa07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d79a5d9_c89ec901",
@@ -65,6 +119,30 @@
       "writtenOn": "2021-05-21T01:20:26Z",
       "side": 1,
       "message": "off?",
+      "range": {
+        "startLine": 1152,
+        "startChar": 20,
+        "endLine": 1152,
+        "endChar": 22
+      },
+      "revId": "c861c9a4d821ae33ec6325e7349e44624258fa07",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70ef8c89_4eccf9c8",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-05-22T00:21:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d79a5d9_c89ec901",
       "range": {
         "startLine": 1152,
         "startChar": 20,
