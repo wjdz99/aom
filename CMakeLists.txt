@@ -279,6 +279,14 @@ if(BUILD_SHARED_LIBS)
     # cmake-format: on
     set_target_properties(aom PROPERTIES SOVERSION ${SO_VERSION})
     set_target_properties(aom PROPERTIES VERSION ${SO_FILE_VERSION})
+
+    # The -z defs linker option reports unresolved symbol references from object
+    # files when building a shared library. See
+    # https://cmake.org/cmake/help/v3.13/command/target_link_options.html.
+    if (NOT "${CMAKE_VERSION}" VERSION_LESS "3.13")
+      # target_link_options() was added in CMake 3.13.
+      target_link_options(aom PRIVATE LINKER:-z,defs)
+    endif()
   endif()
 endif()
 
