@@ -886,6 +886,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   int maxvar_16x16[4][4];
   int minvar_16x16[4][4];
   int64_t threshold_4x4avg;
+  // Set color_sen to coding block in nonrd_pickmode.
+  int set_color_sen = 0;
   uint8_t *s;
   const uint8_t *d;
   int sp;
@@ -1135,7 +1137,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     set_low_temp_var_flag(cpi, &x->part_search_info, xd, vt, thresholds,
                           ref_frame_partition, mi_col, mi_row);
   }
-  chroma_check(cpi, x, bsize, y_sad, is_key_frame);
+  if (set_color_sen) chroma_check(cpi, x, bsize, y_sad, is_key_frame);
 
   if (vt2) aom_free(vt2);
   if (vt) aom_free(vt);

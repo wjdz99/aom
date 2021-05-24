@@ -2068,6 +2068,25 @@ static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
   return 0;
 }
 
+void set_color_sensitivity(const AV1_COMP *cpi, MACROBLOCK *x,
+                           MACROBLOCKD *xd, BLOCK_SIZE bsize,
+                           unsigned int source_variance) {
+  if (cpi->oxcf.tool_cfg.enable_monochrome ||
+      source_variance > 1000) return;
+  int y_sad = x->pred_mv_sad[LAST_FRAME];
+  for (int i = 1; i <= 2; ++i) {
+    struct macroblock_plane *const p = &x->plane[i];
+    struct macroblockd_plane *const pd = &xd->plane[i];
+    const BLOCK_SIZE bs =
+        get_plane_block_size(bsize, pd->subsampling_x, pd->subsampling_y);
+    int uv_sad =
+        cpi->ppi->fn_ptr[bs].sdf(p->src.buf, p->src.stride,
+                                 pd->dst.buf, pd->dst.stride);
+    // Tune threshold per block size?
+    x->color_sensitivity[i - 1] = uv_sad > (y_sad >> 2);
+  }
+}
+
 void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                   MACROBLOCK *x, RD_STATS *rd_cost,
                                   BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx) {
@@ -2245,6 +2264,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]),
       TX_16X16);
 
+  x->color_sensitivity[0] = 0;
+  x->color_sensitivity[1] = 0;
+
   for (int idx = 0; idx < num_inter_modes; ++idx) {
     const struct segmentation *const seg = &cm->seg;
 
@@ -2363,6 +2385,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if COLLECT_PICK_MODE_STAT
     ms_stat.num_nonskipped_searches[bsize][this_mode]++;
 #endif
+
+    if (idx == 0)
+      set_color_sensitivity(cpi, x, xd, bsize, x->source_variance);
+
     if (enable_filter_search && !force_mv_inter_layer &&
         ((mi->mv[0].as_mv.row & 0x07) || (mi->mv[0].as_mv.col & 0x07)) &&
         (ref_frame == LAST_FRAME || !x->nonrd_prune_ref_frame_search)) {
