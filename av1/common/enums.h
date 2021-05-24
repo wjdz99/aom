@@ -28,6 +28,12 @@ extern "C" {
 
 #undef MAX_SB_SIZE
 
+#if CONFIG_ORIP
+#define NUMBER_OF_ADDITIONAL_MODES 2
+#define ADDITIONAL_ANGLE_DELTA 1
+#define ANGLE_DELTA_FOR_FILTER (MAX_ANGLE_DELTA + 1)
+#endif
+
 // Max superblock size
 #define MAX_SB_SIZE_LOG2 7
 #define MAX_SB_SIZE (1 << MAX_SB_SIZE_LOG2)
