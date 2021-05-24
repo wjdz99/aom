@@ -141,7 +141,7 @@ set_aom_config_var(CONFIG_SDP 1 NUMBER "AV2 Semi-Decoupled Partitioning.")
 set_aom_config_var(CONFIG_EXTQUANT 1
                    "AV2 extended quantization experiment flag")
 set_aom_config_var(
-  CONFIG_MRLS 0 "AV2 experiment flag to enable multiple line intra prediction.")
+  CONFIG_MRLS 1 "AV2 experiment flag to enable multiple line intra prediction.")
 
 #
 # Variables in this section control optional features of the build system.
