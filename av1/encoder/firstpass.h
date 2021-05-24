@@ -352,6 +352,11 @@ struct EncodeFrameParams;
 struct AV1EncoderConfig;
 struct TileDataEnc;
 
+static INLINE int is_fp_wavelet_energy_invalid(
+    const FIRSTPASS_STATS *fp_stats) {
+  return (fp_stats->frame_avg_wavelet_energy < 0);
+}
+
 int av1_get_unit_rows_in_tile(TileInfo tile, const BLOCK_SIZE fp_block_size);
 int av1_get_unit_cols_in_tile(TileInfo tile, const BLOCK_SIZE fp_block_size);
 
