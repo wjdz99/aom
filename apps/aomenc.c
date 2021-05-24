@@ -1886,6 +1886,7 @@ static void show_stream_config(struct stream_state *stream,
           "(%d)\n",
           encoder_cfg->enable_dual_filter, encoder_cfg->enable_angle_delta);
 #endif  // CONFIG_REMOVE_DUAL_FILTER
+
   fprintf(stdout,
           "                               : "
           "EdgeFilter (%d), PaethPredictor (%d)\n",
