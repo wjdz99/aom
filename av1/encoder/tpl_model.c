@@ -1631,9 +1631,12 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   }
 
 #if CONFIG_BITRATE_ACCURACY
-  double gop_bitrate = av1_estimate_gop_bitrate(gf_group->q_val, gf_group->size,
-                                                tpl_data->txfm_stats_list);
-  printf("\nestimated bitrate: %f\n", gop_bitrate);
+  if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE &&
+      gop_eval == 0) {
+    double gop_bitrate = av1_estimate_gop_bitrate(
+        gf_group->q_val, gf_group->size, tpl_data->txfm_stats_list);
+    printf("\nestimated bitrate: %f\n", gop_bitrate);
+  }
 #endif
 
   for (int frame_idx = tpl_gf_group_frames - 1;
