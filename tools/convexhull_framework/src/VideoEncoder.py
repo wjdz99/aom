@@ -10,9 +10,11 @@
 ##
 __author__ = "maggie.sun@intel.com, ryanlei@fb.com"
 
+import os
 import Utils
-from Config import AOMENC, AV1ENC, SVTAV1, EnableTimingInfo, Platform, UsePerfUtil, CTC_VERSION
-from Utils import ExecuteCmd
+from Config import AOMENC, AV1ENC, SVTAV1, EnableTimingInfo, Platform, UsePerfUtil, CTC_VERSION, HEVCCfgFile, \
+     HMENC
+from Utils import ExecuteCmd, ConvertY4MToYUV, DeleteFile, GetShortContentName
 
 def get_qindex_from_QP(QP):
     quantizer_to_qindex = [
@@ -170,6 +172,43 @@ def EncodeWithSVT_AV1(clip, test_cfg, QP, framenum, outfile, preset, enc_perf,
                 cmd = "/usr/bin/time --verbose --output=%s "%enc_perf + cmd
     ExecuteCmd(cmd, LogCmdOnly)
 
+
+def EncodeWithHM_HEVC(clip, test_cfg, QP, framenum, outfile, preset, enc_perf,
+                      enc_log, LogCmdOnly=False):
+    input_yuv_file = GetShortContentName(outfile, False) + ".yuv"
+    bs_path = os.path.dirname(outfile)
+    input_yuv_file = os.path.join(bs_path, input_yuv_file)
+    ConvertY4MToYUV(clip, input_yuv_file, LogCmdOnly)
+
+    args = " -c %s -i %s -b %s --SourceWidth=%d --SourceHeight=%d --InputBitDepth=%d --InternalBitDepth=%d " \
+           " --InputChromaFormat=420 --FrameRate=%d --GOPSize=16 --FramesToBeEncoded=%d --QP=%d " \
+           % (HEVCCfgFile, input_yuv_file, outfile, clip.width, clip.height, clip.bit_depth, clip.bit_depth,
+              clip.fps, framenum, QP)
+
+    if test_cfg == "AI" or test_cfg == "STILL":
+        args += " --IntraPeriod=1 "
+    elif test_cfg == "RA" or test_cfg == "AS":
+        args += " --IntraPeriod=64 "
+    elif test_cfg == "LD":
+        args += " --IntraPeriod=-1 "
+    else:
+        print("Unsupported Test Configuration %s" % test_cfg)
+
+    cmd = HMENC + args + "> %s 2>&1"%enc_log
+    if (EnableTimingInfo):
+        if Platform == "Windows":
+            cmd = "ptime " + cmd + " >%s"%enc_perf
+        elif Platform == "Darwin":
+            cmd = "gtime --verbose --output=%s "%enc_perf + cmd
+        else:
+            if UsePerfUtil:
+                cmd = "3>%s perf stat --log-fd 3 " % enc_perf + cmd
+            else:
+                cmd = "/usr/bin/time --verbose --output=%s "%enc_perf + cmd
+    ExecuteCmd(cmd, LogCmdOnly)
+
+    DeleteFile(input_yuv_file, LogCmdOnly)
+
 def VideoEncode(EncodeMethod, CodecName, clip, test_cfg, QP, framenum, outfile,
                 preset, enc_perf, enc_log, LogCmdOnly=False):
     Utils.CmdLogger.write("::Encode\n")
@@ -183,6 +222,12 @@ def VideoEncode(EncodeMethod, CodecName, clip, test_cfg, QP, framenum, outfile,
                               enc_perf, enc_log, LogCmdOnly)
         elif EncodeMethod == "svt":
             EncodeWithSVT_AV1(clip, test_cfg, QP, framenum, outfile, preset,
+                              enc_perf, enc_log, LogCmdOnly)
+        else:
+            raise ValueError("invalid parameter for encode.")
+    elif CodecName == 'hevc':
+        if EncodeMethod == 'hm':
+            EncodeWithHM_HEVC(clip, test_cfg, QP, framenum, outfile, preset,
                               enc_perf, enc_log, LogCmdOnly)
         else:
             raise ValueError("invalid parameter for encode.")
