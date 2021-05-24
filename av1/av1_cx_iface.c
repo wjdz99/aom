@@ -361,7 +361,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,    // enable semi-decoupled partitioning
 #endif  // CONFIG_SDP
 #if CONFIG_MRLS
-  0,    // enable multiple reference line selection
+  1,    // enable multiple reference line selection
 #endif  // CONFIG_MRLS
   4,    // min_partition_size
   128,  // max_partition_size
@@ -3811,7 +3811,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
         1, 1,   1,   1, 1, 1, 1,
 =======
 #if CONFIG_MRLS
-        0,
+        1,
 #endif
 >>>>>>> a99250896 (Multiple reference line selection (MRLS))
 #if !CONFIG_REMOVE_DIST_WTD_COMP
@@ -3896,7 +3896,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
         1, 1,   1,   1, 1, 1, 1,
 =======
 #if CONFIG_MRLS
-        0,
+        1,
 #endif
 >>>>>>> a99250896 (Multiple reference line selection (MRLS))
 #if !CONFIG_REMOVE_DIST_WTD_COMP
