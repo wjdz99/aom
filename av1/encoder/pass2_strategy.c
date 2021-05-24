@@ -45,8 +45,9 @@
 #define DEFAULT_GF_BOOST 2000
 #define GROUP_ADAPTIVE_MAXQ 1
 
-#define IS_FP_STATS_TO_PREDICT_FLAT_GOP_INVALID(fp_stats) \
-  (((fp_stats)->tr_coded_error < 0) || ((fp_stats)->pcnt_third_ref < 0))
+#define IS_FP_STATS_TO_PREDICT_FLAT_GOP_INVALID(fp_stats)                  \
+  (((fp_stats)->tr_coded_error < 0) || ((fp_stats)->pcnt_third_ref < 0) || \
+   ((fp_stats)->frame_avg_wavelet_energy < 0))
 
 static void init_gf_stats(GF_GROUP_STATS *gf_stats);
 
@@ -3622,8 +3623,11 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     // The multiplication by 256 reverses a scaling factor of (>> 8)
     // applied when combining MB error values for the frame.
     twopass->mb_av_energy = log((this_frame_ptr->intra_error / num_mbs) + 1.0);
-    twopass->frame_avg_haar_energy =
-        log((this_frame_ptr->frame_avg_wavelet_energy / num_mbs) + 1.0);
+    const FIRSTPASS_STATS *const total_stats =
+        twopass->stats_buf_ctx->total_stats;
+    if (!IS_FP_WAVELET_ENERGY_INVALID(total_stats))
+      twopass->frame_avg_haar_energy =
+          log((this_frame_ptr->frame_avg_wavelet_energy / num_mbs) + 1.0);
 
     // Set the frame content type flag.
     if (this_frame_ptr->intra_skip_pct >= FC_ANIMATION_THRESH)
