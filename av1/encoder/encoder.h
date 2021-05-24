@@ -82,6 +82,9 @@ extern "C" {
 // Number of frames required to test for scene cut detection
 #define SCENE_CUT_KEY_TEST_INTERVAL 16
 
+#define IS_FP_WAVELET_ENERGY_INVALID(fp_stats) \
+  ((fp_stats)->frame_avg_wavelet_energy < 0)
+
 // Rational number with an int64 numerator
 // This structure holds a fractional value
 typedef struct aom_rational64 {
@@ -3264,6 +3267,12 @@ static AOM_INLINE int can_disable_altref(const GFConfig *gf_cfg) {
 static AOM_INLINE int use_ml_model_to_decide_flat_gop(
     const RateControlCfg *rc_cfg) {
   return (rc_cfg->mode == AOM_Q && rc_cfg->cq_level <= 200);
+}
+
+static AOM_INLINE int calc_wavelet_energy(const AV1EncoderConfig *oxcf) {
+  return (use_ml_model_to_decide_flat_gop(&oxcf->rc_cfg) &&
+          can_disable_altref(&oxcf->gf_cfg)) ||
+         (oxcf->q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL);
 }
 
 // Check if statistics generation stage

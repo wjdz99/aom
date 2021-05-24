@@ -27,6 +27,7 @@
 #include "av1/common/av1_common_int.h"
 #include "av1/common/reconinter.h"
 
+#include "av1/encoder/dwt.h"
 #include "av1/encoder/encoder.h"
 #include "av1/encoder/encode_strategy.h"
 #include "av1/encoder/encodeframe.h"
@@ -1551,6 +1552,32 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   frame_input.ts_duration = source->ts_end - source->ts_start;
   // Save unfiltered source. It is used in av1_get_second_pass_params().
   cpi->unfiltered_source = frame_input.source;
+
+  if (!use_one_pass_rt_params && !is_stat_generation_stage(cpi)) {
+    TWO_PASS *const twopass = &cpi->ppi->twopass;
+    const FIRSTPASS_STATS *const total_stats =
+        twopass->stats_buf_ctx->total_stats;
+    if (calc_wavelet_energy(&cpi->oxcf) &&
+        IS_FP_WAVELET_ENERGY_INVALID(total_stats)) {
+      const int num_mbs = (cpi->oxcf.resize_cfg.resize_mode != RESIZE_NONE)
+                              ? cpi->initial_mbs
+                              : cm->mi_params.MBs;
+      const uint8_t *const src = cpi->unfiltered_source->y_buffer;
+      const int hbd = cpi->unfiltered_source->flags & YV12_FLAG_HIGHBITDEPTH;
+      const int stride = cpi->unfiltered_source->y_stride;
+      const int width = cpi->unfiltered_source->y_crop_width;
+      const int height = cpi->unfiltered_source->y_crop_height;
+      int64_t frame_avg_wavelet_energy = 0;
+      for (int r = 0; r < height; r += 8) {
+        for (int c = 0; c < width; c += 8) {
+          frame_avg_wavelet_energy += av1_haar_ac_sad_8x8_uint8_input(
+              src + c + r * stride, stride, hbd);
+        }
+      }
+      twopass->frame_avg_haar_energy =
+          log((frame_avg_wavelet_energy / num_mbs) + 1.0);
+    }
+  }
 
   *time_stamp = source->ts_start;
   *time_end = source->ts_end;
