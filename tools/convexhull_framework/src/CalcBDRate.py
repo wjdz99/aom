@@ -16,7 +16,6 @@ import scipy.interpolate
 import logging
 from Config import LoggerName
 from operator import itemgetter
-from Utils import plot_rd_curve
 
 subloggername = "CalcBDRate"
 loggername = LoggerName + '.' + '%s' % subloggername

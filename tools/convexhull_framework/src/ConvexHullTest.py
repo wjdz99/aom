@@ -277,7 +277,7 @@ def SaveConvexHullResultsToExcel(content, ScaleMethod, dnScAlgos, upScAlgos, csv
                 qualities.append(quality)
 
                 #"TestCfg,EncodeMethod,CodecName,EncodePreset,Class,OrigRes,Name,FPS,Bit Depth,CodedRes,QP,Bitrate(kbps)")
-                csv.write("%s,%s,%s,%s,%s,%s,%s,%.4f,%d,%s,%d,%.4f"%
+                csv.write("%s,%s,%s,%s,%s,%s,%s,%.4f,%d,%s,%d,%f"%
                           ("AS", EncodeMethod, CodecName, EncodePreset, clip.file_class,contentname,
                            str(clip.width)+"x"+str(clip.height), clip.fps,clip.bit_depth,
                            str(DnScaledW)+"x"+str(DnScaledH),qp,bitrate))
