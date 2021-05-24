@@ -35,6 +35,8 @@ typedef struct fs_ctx fs_ctx;
 #define FS_MINI(_a, _b) ((_a) < (_b) ? (_a) : (_b))
 #define FS_MAXI(_a, _b) ((_a) > (_b) ? (_a) : (_b))
 
+#define MAX_SSIM_DB 100.0
+
 struct fs_level {
   uint32_t *im1;
   uint32_t *im2;

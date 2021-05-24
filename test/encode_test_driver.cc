@@ -267,25 +267,27 @@ void EncoderTest::RunLoop(VideoSource *video) {
             default: break;
           }
         }
-#if CONFIG_AV1_DECODER
-        if (has_dxdata && has_cxdata) {
+        if (has_cxdata) {
           const aom_image_t *img_enc = encoder->GetPreviewFrame();
           if (img_enc) {
             CalculateFrameLevelSSIM(video->img(), img_enc, cfg_.g_bit_depth,
                                     cfg_.g_input_bit_depth);
           }
-          DxDataIterator dec_iter = decoder->GetDxData();
-          const aom_image_t *img_dec = dec_iter.Next();
-          if (img_enc && img_dec) {
-            const bool res =
-                compare_img(img_enc, img_dec, NULL, NULL, NULL, NULL, NULL);
-            if (!res) {  // Mismatch
-              MismatchHook(img_enc, img_dec);
+#if CONFIG_AV1_DECODER
+          if (has_dxdata) {
+            DxDataIterator dec_iter = decoder->GetDxData();
+            const aom_image_t *img_dec = dec_iter.Next();
+            if (img_enc && img_dec) {
+              const bool res =
+                  compare_img(img_enc, img_dec, NULL, NULL, NULL, NULL, NULL);
+              if (!res) {  // Mismatch
+                MismatchHook(img_enc, img_dec);
+              }
             }
+            if (img_dec) DecompressedFrameHook(*img_dec, video->pts());
           }
-          if (img_dec) DecompressedFrameHook(*img_dec, video->pts());
-        }
 #endif
+        }
         if (!Continue()) break;
       }  // Loop over spatial layers
     }
