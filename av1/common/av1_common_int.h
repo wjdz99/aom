@@ -268,6 +268,11 @@ typedef struct SequenceHeader {
                                        // 2 - adaptive
   uint8_t enable_filter_intra;         // enables/disables filterintra
   uint8_t enable_intra_edge_filter;    // enables/disables edge upsampling
+
+#if CONFIG_ORIP
+  uint8_t enable_orip;  // To turn on/off sub-block based ORIP
+#endif
+
   uint8_t enable_interintra_compound;  // enables/disables interintra_compound
   uint8_t enable_masked_compound;      // enables/disables masked compound
 #if !CONFIG_REMOVE_DUAL_FILTER
@@ -281,7 +286,8 @@ typedef struct SequenceHeader {
                                  // 1 - Enable superres for the sequence
                                  //     enable per-frame superres flag
   uint8_t enable_cdef;           // To turn on/off CDEF
-  uint8_t enable_restoration;    // To turn on/off loop restoration
+
+  uint8_t enable_restoration;  // To turn on/off loop restoration
   BITSTREAM_PROFILE profile;
 
   // Color config.
