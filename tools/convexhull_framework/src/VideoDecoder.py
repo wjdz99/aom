@@ -10,9 +10,10 @@
 ##
 __author__ = "maggie.sun@intel.com, ryanlei@fb.com"
 
+import os
 import Utils
-from Config import AOMDEC, AV1DEC, EnableTimingInfo, Platform, UsePerfUtil
-from Utils import ExecuteCmd
+from Config import AOMDEC, AV1DEC, EnableTimingInfo, Platform, UsePerfUtil, HMDEC
+from Utils import ExecuteCmd, GetShortContentName, ConvertYUVToY4M, DeleteFile
 
 def DecodeWithAOM(test_cfg, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly=False):
     if decode_to_yuv:
@@ -52,11 +53,35 @@ def DecodeWithAV1(test_cfg, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly
 
     ExecuteCmd(cmd, LogCmdOnly)
 
-def VideoDecode(method, test_cfg, codec, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly=False):
+def DecodeWithHEVC(test_cfg, clip, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly=False):
+    output_yuv_file = GetShortContentName(outfile, False) + ".yuv"
+    output_path = os.path.dirname(outfile)
+    output_yuv_file = os.path.join(output_path, output_yuv_file)
+    args = " -b %s -o %s" % (infile, output_yuv_file)
+    cmd = HMDEC + args
+    if EnableTimingInfo:
+        if Platform == "Windows":
+            cmd = "ptime " + cmd + " >%s" % dec_perf
+        elif Platform == "Darwin":
+            cmd = "gtime --verbose --output=%s " % dec_perf + cmd
+        else:
+            if UsePerfUtil:
+                cmd = "3>%s perf stat --log-fd 3 " % dec_perf + cmd
+            else:
+                cmd = "/usr/bin/time --verbose --output=%s " % dec_perf + cmd
+
+    ExecuteCmd(cmd, LogCmdOnly)
+    ConvertYUVToY4M(clip, output_yuv_file, outfile, LogCmdOnly)
+    DeleteFile(output_yuv_file, LogCmdOnly)
+
+
+def VideoDecode(clip, method, test_cfg, codec, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly=False):
     Utils.CmdLogger.write("::Decode\n")
     if codec == 'av2' and method == 'aom':
         DecodeWithAOM(test_cfg, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly)
     elif codec == 'av1':
         DecodeWithAV1(test_cfg, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly)
+    elif codec == 'hevc':
+        DecodeWithHEVC(test_cfg, clip, infile, outfile, dec_perf, decode_to_yuv, LogCmdOnly)
     else:
         raise ValueError("invalid parameter for decode.")
