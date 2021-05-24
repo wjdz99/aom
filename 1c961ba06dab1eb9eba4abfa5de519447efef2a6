@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9852f92f_b6d38609",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-05-24T13:10:18Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have submitted a patch to extend pruning of sub 8x8 partitions for speed 5. For HD RES, BD-Rate using avg.psnr is slightly beyond the expected tradeoff (i.e., instruction count reduction to BD-Rate loss ratio is 9.98). Please find the Borg results below.\n\n                      Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   5       LOW RES        3.473         0.3201      0.3222     0.3304\n   5       MID RES        2.051         0.1656      0.1681     0.115\n   5        HD RES        0.879         0.0881      0.0778     0.0854\n   5       Average        2.467         0.2042      0.2026     0.1927\nIn the commit message, BD-Rate loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease let us know your opinion on the patch. \n\nThanks \u0026 Regards,\nMudassir.",
+      "revId": "1c961ba06dab1eb9eba4abfa5de519447efef2a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
