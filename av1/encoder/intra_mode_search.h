@@ -287,7 +287,8 @@ void set_y_mode_and_delta_angle(const int mode_idx, MB_MODE_INFO *const mbmi);
  *                                  block so far.
  */
 int prune_intra_y_mode(int64_t this_model_rd, int64_t *best_model_rd,
-                       int64_t top_intra_model_rd[]);
+                       int64_t top_intra_model_rd[],
+                       int top_intra_model_count_allowed);
 
 #ifdef __cplusplus
 }  // extern "C"
