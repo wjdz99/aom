@@ -1488,6 +1488,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
 void av1_init_tpl_stats(TplParams *const tpl_data) {
   int frame_idx;
+  tpl_data->ready = 0;
   set_tpl_stats_block_size(&tpl_data->tpl_stats_block_mis_log2,
                            &tpl_data->tpl_bsize_1d);
   for (frame_idx = 0; frame_idx < MAX_LAG_BUFFERS; ++frame_idx) {
@@ -1502,6 +1503,18 @@ void av1_init_tpl_stats(TplParams *const tpl_data) {
     TplDepFrame *tpl_frame = &tpl_data->tpl_stats_buffer[frame_idx];
     av1_tpl_stats_init_txfm_stats(tpl_frame, tpl_data->tpl_bsize_1d);
   }
+}
+
+int av1_tpl_stats_ready(const TplParams *tpl_data, int gf_frame_index) {
+  if (tpl_data->ready == 0) {
+    return 0;
+  }
+  if (gf_frame_index >= MAX_LENGTH_TPL_FRAME_STATS) {
+    assert(gf_frame_index >= MAX_LENGTH_TPL_FRAME_STATS &&
+           "Invalid gf_frame_index\n");
+    return 0;
+  }
+  return tpl_data->tpl_frame[gf_frame_index].is_valid;
 }
 
 static AOM_INLINE int eval_gop_length(double *beta, int gop_eval) {
@@ -1663,6 +1676,9 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
     end_timing(cpi, av1_tpl_setup_stats_time);
 #endif
 
+  if (gop_eval == 0) {
+    tpl_data->ready = 1;
+  }
   if (cpi->common.tiles.large_scale) return 0;
   if (gf_group->max_layer_depth_allowed == 0) return 1;
   if (!gop_eval) return 0;

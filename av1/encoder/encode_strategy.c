@@ -1063,6 +1063,10 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     }
   }
 
+  if (gf_group->size > MAX_LENGTH_TPL_FRAME_STATS) {
+    allow_tpl = 0;
+  }
+
   if (allow_tpl == 0) {
     // Avoid the use of unintended TPL stats from previous GOP's results.
     if (cpi->gf_frame_index == 0 && !is_stat_generation_stage(cpi))
