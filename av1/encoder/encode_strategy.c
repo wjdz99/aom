@@ -1006,6 +1006,9 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     av1_read_rd_command(filepath, &cpi->rd_command);
   }
 #endif  // CONFIG_RD_COMMAND
+  if (gf_group->size > MAX_LENGTH_TPL_FRAME_STATS) {
+    allow_tpl = 0;
+  }
 
   if (allow_tpl == 0) {
     // Avoid the use of unintended TPL stats from previous GOP's results.
