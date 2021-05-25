@@ -697,6 +697,8 @@ static void set_good_speed_feature_framesize_dependent(
       sf->inter_sf.prune_warped_prob_thresh = 8;
     }
     if (is_720p_or_larger) sf->hl_sf.recode_tolerance = 40;
+
+    sf->inter_sf.skip_repeated_newmv = 3;
   }
 
   if (speed >= 6) {
