@@ -63,6 +63,30 @@
       },
       "revId": "553ee8c780330e62b12c3c52b489db8d0f6e1b46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cda28926_7d5181b2",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1693,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-25T17:01:20Z",
+      "side": 1,
+      "message": "Thanks for the testing. Just want to see if we can do anything to reduce the quality loss. Do you have any idea about the cause of loss - is it due to non-reference or using default fc? Also, in FP1, we encode (1 || 3 || 6), and then (5 || 7 || 12). Can 5 and 7 use 1 and 3 as references? Would this help?",
+      "parentUuid": "8b3e52f6_f08812bf",
+      "range": {
+        "startLine": 1693,
+        "startChar": 7,
+        "endLine": 1693,
+        "endChar": 72
+      },
+      "revId": "553ee8c780330e62b12c3c52b489db8d0f6e1b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
