@@ -104,6 +104,24 @@
       "parentUuid": "01d8da03_3f4aabbc",
       "revId": "92ab0ae82846ceb4a7e481775367e88fe27ac2bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1dfa0a2f_dab16ff8",
+        "filename": "test/encode_test_driver.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-05-25T13:27:32Z",
+      "side": 1,
+      "message": "We have done some study and experiments on has_cxdata and has_dxdata flags. We understand that img_enc and img_dec are redundant w.r.t. to has_cxdata and has_dxdata and img_enc, img_dec can be cleaned up. However, we are not entirely sure of the correctness of this change. Please let us know your opinion.",
+      "parentUuid": "72833609_28192464",
+      "revId": "92ab0ae82846ceb4a7e481775367e88fe27ac2bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
