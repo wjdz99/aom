@@ -16,6 +16,29 @@
       "message": "Hi Yunqing,\n\nIn this patch, the LF_UPDATE frames which are marked as non-reference frames by the flag \u0027is_frame_non_ref\u0027 are made non-reference frames by setting their refresh flags to 0 during FPMT. The primary_ref_frame for the non-reference frames is set as PRIMARY_REF_NONE.\n\nPlease find the detailed borg result (on patchset 1) with CONFIG_FRAME_PARALLEL_ENCODE 1 and num_fp_contexts \u003d 4 (test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   0     |  Average   |       2.851       |  0.7407   0.7406   0.8888    |\n   1     |  Average   |       1.519       |  0.6871   0.6706   0.7909    |\n   2     |  Average   |       0.885       |  0.8218   0.8199   0.9821    |\n   3     |  Average   |       0.797       |  0.8613   0.8719   0.9653    |\n   4     |  Average   |       0.599       |  0.9358   0.9505   1.0205    |\n   5     |  Average   |       0.527       |  1.0246   1.0381   1.1659    |\n   6     |  Average   |       0.335       |  1.2328   1.2422   1.3017    |\n   \nPlease find the CQP results (on patchset 1) with CONFIG_FRAME_PARALLEL_ENCODE 1 and num_fp_contexts \u003d 4 (test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) on a subset of hdres (10 contents) below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   0     |  Average   |       4.074       |  0.6542    0.6495    0.7584  |\n   1     |  Average   |       1.757       |  0.6310    0.6387    0.6280  |\n   2     |  Average   |       0.256       |  0.8252    0.8223    0.8359  |\n   3     |  Average   |       0.386       |  0.6060    0.6209    0.6603  |\n   4     |  Average   |       0.584       |  0.6806    0.7194    0.5057  |\n   5     |  Average   |       0.052       |  0.7696    0.7582    0.9014  |\n   6     |  Average   |       0.098       |  1.2403    1.2243    1.2227  |\n   \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\nPlease not that patchset 1 has been rebased to avoid merge conflict.\n\nBit-match is locally verified (for CONFIG_FRAME_PARALLEL_ENCODE \u003d 0) for speed 0 to 6 on a few test cases. We have internally tested this patch with CONFIG_FRAME_PARALLEL_ENCODE set as 1 and num_fp_contexts set as 4 for compliance, for a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, --resize-mode, --superres-mode\u003d, --sb-size, --bit-depth etc.\n\nPlease review this patch.\n\nRegards,\nRemya",
       "revId": "553ee8c780330e62b12c3c52b489db8d0f6e1b46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85ddd751_6829d707",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1693,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-25T00:08:09Z",
+      "side": 1,
+      "message": "So these leaf frames will use default frame contexts. Can they use previous frame\u0027s fc for better coding gain? Why is this necessary?",
+      "range": {
+        "startLine": 1693,
+        "startChar": 7,
+        "endLine": 1693,
+        "endChar": 72
+      },
+      "revId": "553ee8c780330e62b12c3c52b489db8d0f6e1b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
