@@ -2187,14 +2187,8 @@ static AOM_INLINE void get_block_level_tpl_stats(
                  cpi->gf_frame_index < cpi->ppi->gf_group.size));
   const int tpl_idx = cpi->gf_frame_index;
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
-  if (tpl_idx >= MAX_TPL_FRAME_IDX) {
-    return;
-  }
+  if (!av1_tpl_stats_ready(tpl_data, tpl_idx)) return;
   const TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
-  if (!tpl_frame->is_valid) {
-    return;
-  }
-
   const TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
@@ -2581,7 +2575,7 @@ static int64_t handle_inter_mode(
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
   const int prune_modes_based_on_tpl =
       cpi->sf.inter_sf.prune_inter_modes_based_on_tpl &&
-      tpl_idx < MAX_TPL_FRAME_IDX && tpl_data->tpl_frame[tpl_idx].is_valid;
+      av1_tpl_stats_ready(tpl_data, tpl_idx);
   int i;
   // Reference frames for this mode
   const int refs[2] = { mbmi->ref_frame[0],
