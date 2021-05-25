@@ -39,6 +39,30 @@
       },
       "revId": "553ee8c780330e62b12c3c52b489db8d0f6e1b46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b3e52f6_f08812bf",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1693,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-05-25T14:04:20Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn the current codebase, the primary ref frame is chosen based on the update type of the frames. For LF_UPDATE frames, the primary ref frame is the previously encoded LF_UPDATE frame only. The very first LF_UPDATE frame in the sequence starts with default contexts. In the current CL, we have extended this logic to be applicable for non-reference LF_UPDATE frames.\n\nWe also tested your suggestion of using the frame context of the previous frame (which would be INTNL_ARF_UPDATE type) for non-reference frames and setting \u0027disable_cdf_update’ to 1 (for non-reference frames) in order to ensure decoder compliance. However, this resulted in a higher quality loss than the one with PRIMARY_REF_NONE as shown by the CQP results (on a subset of hdres (10 contents)) below.\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  Average   |      -0.382       |   1.0485   1.0664   0.9436   |\n   3     |  Average   |      -0.295       |   0.7363   0.7576   0.6723   |\n   4     |  Average   |       0.008       |   0.7857   0.8258   0.6075   |\n   5     |  Average   |      -0.378       |   0.9333   0.9519   1.0295   |\n   6     |  Average   |      -0.393       |   1.4665   1.4749   1.4223   |\n\nAs per our understanding, this behaviour is probably caused by the quality difference between INTNL_ARF_UPDATE frames and LF_UPDATE frames driving different context adaptations during entropy coding.\n\nThus we feel that it would be optimal to set PRIMARY_REF_NONE for non-reference frames. Please let us know your thoughts.\n\nRegards,\nRemya",
+      "parentUuid": "85ddd751_6829d707",
+      "range": {
+        "startLine": 1693,
+        "startChar": 7,
+        "endLine": 1693,
+        "endChar": 72
+      },
+      "revId": "553ee8c780330e62b12c3c52b489db8d0f6e1b46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
