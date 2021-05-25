@@ -251,7 +251,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   //     search process as the current fullpel_mv.
   //  2. The rate needed to encode the current fullpel_mv is larger than that
   //     for the other ref_mv.
-  if (cpi->sf.inter_sf.skip_repeated_newmv == 2 &&
+  if (cpi->sf.inter_sf.skip_repeated_newmv >= 2 &&
       mbmi->motion_mode == SIMPLE_TRANSLATION &&
       best_mv->as_int != INVALID_MV) {
     int_mv this_mv;
@@ -262,6 +262,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                         mv_costs->mv_cost_stack, MV_COST_WEIGHT);
     mode_info[ref_mv_idx].full_search_mv.as_int = this_mv.as_int;
     mode_info[ref_mv_idx].full_mv_rate = this_mv_rate;
+    mode_info[ref_mv_idx].full_mv_bestsme = bestsme;
 
     for (int prev_ref_idx = 0; prev_ref_idx < ref_mv_idx; ++prev_ref_idx) {
       // Check if the motion search result same as previous results
@@ -281,6 +282,16 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
           best_mv->as_int = INVALID_MV;
           return;
         }
+      }
+
+      // Terminate the evaluation of current ref_mv_idx based on bestsme and
+      // drl_cost.
+      if (cpi->sf.inter_sf.skip_repeated_newmv == 3 &&
+          mode_info[prev_ref_idx].full_mv_bestsme <
+              mode_info[ref_mv_idx].full_mv_bestsme &&
+          mode_info[prev_ref_idx].drl_cost < mode_info[ref_mv_idx].drl_cost) {
+        best_mv->as_int = INVALID_MV;
+        return;
       }
     }
   }
@@ -391,7 +402,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
       default: assert(0 && "Invalid motion mode!\n");
     }
 
-    if (cpi->sf.inter_sf.skip_repeated_newmv == 1 && args != NULL &&
+    if (cpi->sf.inter_sf.skip_repeated_newmv >= 1 && args != NULL &&
         mbmi->motion_mode == SIMPLE_TRANSLATION &&
         best_mv->as_int != INVALID_MV) {
       const int ref_mv_idx = mbmi->ref_mv_idx;
