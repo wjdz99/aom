@@ -16,6 +16,201 @@
       "message": "The code patch is ready for review. Please take a look.",
       "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aec83d5b_2a0d0051",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1387,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "Pls move out the common parts, and only keep the MRLS specific parts under #if ...#endif\n(Imagine that more experiments will come in adding another config. They should be able to easily add their parts also)",
+      "range": {
+        "startLine": 1387,
+        "startChar": 0,
+        "endLine": 1387,
+        "endChar": 62
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2282f6c_17ccf8c6",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1393,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 1393,
+        "startChar": 0,
+        "endLine": 1393,
+        "endChar": 69
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b649a113_35f1d41a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3808,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "Unrelated to this patch: I realized recently that this #if CONFIG_SDP block is actually in the wrong place I believe.\n(Pls check the order of flags in the \u0027cfg\u0027 struct and compare that to the where sdp flag is here)\nAssuming this is incorrect, pls create a separate patch to fix that first and then rebase and update this patch on top.",
+      "range": {
+        "startLine": 3808,
+        "startChar": 0,
+        "endLine": 3808,
+        "endChar": 10
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bf583e1_0b102a8d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3888,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8d5cef2_53712113",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "Prefer \u0027MLR_LINE_COUNT\u0027",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 85,
+        "endChar": 23
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a780a88_7f300210",
+        "filename": "av1/common/reconintra.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "We can avoid this duplication by extracting common parts out of CONFIG_SDP:\n\n#if CONFIG_SDP\nconst BLOCK_SIZE sb_type \u003d mbmi-\u003esb_type[PLANE_TYPE_Y];\n#else\nconst BLOCK_SIZE sb_type \u003d mbmi-\u003esb_type;\n#endif\n\n  return mbmi-\u003emode \u003d\u003d DC_PRED \u0026\u0026\n#if CONFIG_MRLS\n         mbmi-\u003emrl_index \u003d\u003d 0 \u0026\u0026\n#endif\n         mbmi-\u003epalette_mode_info.palette_size[0] \u003d\u003d 0 \u0026\u0026\n         av1_filter_intra_allowed_bsize(cm, sb_type);",
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fbb7fa1_bbdacdf2",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1322,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "This is repeated, could be a function",
+      "range": {
+        "startLine": 1313,
+        "startChar": 0,
+        "endLine": 1322,
+        "endChar": 6
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78d53029_1523b863",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 826,
+        "startChar": 2,
+        "endLine": 826,
+        "endChar": 5
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "feb29f01_d3cba4b0",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1100,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T17:52:00Z",
+      "side": 1,
+      "message": "const?",
+      "range": {
+        "startLine": 1100,
+        "startChar": 6,
+        "endLine": 1100,
+        "endChar": 9
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
