@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52410021_cfc1885f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-05-25T18:17:43Z",
+      "side": 1,
+      "message": "Thanks for pointing this out. Will provide another patch to fix it soon.",
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aec83d5b_2a0d0051",
@@ -87,6 +104,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4cd625f_c0f5f945",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3808,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-05-25T18:17:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b649a113_35f1d41a",
+      "range": {
+        "startLine": 3808,
+        "startChar": 0,
+        "endLine": 3808,
+        "endChar": 10
+      },
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7bf583e1_0b102a8d",
@@ -100,6 +141,24 @@
       "writtenOn": "2021-05-25T17:52:00Z",
       "side": 1,
       "message": "same here",
+      "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33b5608a_a4d1a72a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 3888,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-05-25T18:17:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7bf583e1_0b102a8d",
       "revId": "34c1b61c66a1593f5e16d179186dc7600cdc7665",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
