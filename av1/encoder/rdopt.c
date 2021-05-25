@@ -2657,6 +2657,7 @@ static int64_t handle_inter_mode(
         mbmi, mbmi_ext, mode_costs->drl_mode_cost0, ref_frame_type);
     mode_info[ref_mv_idx].drl_cost = drl_cost;
     mode_info[ref_mv_idx].skip = 0;
+    mode_info[ref_mv_idx].sse = UINT32_MAX;
 
     if (!mask_check_bit(idx_mask, ref_mv_idx)) {
       // MV did not perform well in simple translation search. Skip it.

@@ -391,7 +391,7 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
       default: assert(0 && "Invalid motion mode!\n");
     }
 
-    if (cpi->sf.inter_sf.skip_repeated_newmv == 1 && args != NULL &&
+    if (cpi->sf.inter_sf.skip_repeated_newmv >= 1 && args != NULL &&
         mbmi->motion_mode == SIMPLE_TRANSLATION &&
         best_mv->as_int != INVALID_MV) {
       const int ref_mv_idx = mbmi->ref_mv_idx;
@@ -402,6 +402,12 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       for (int prev_ref_idx = 0; prev_ref_idx < ref_mv_idx; ++prev_ref_idx) {
         if (!args->single_newmv_valid[prev_ref_idx][ref]) continue;
+
+        const int prev_rate_cost = args->single_newmv_rate[prev_ref_idx][ref] +
+                                   mode_info[prev_ref_idx].drl_cost;
+        const int this_rate_cost =
+            best_mv_rate + mode_info[ref_mv_idx].drl_cost;
+
         // Check if the motion vectors are the same.
         if (best_mv->as_int == args->single_newmv[prev_ref_idx][ref].as_int) {
           // Skip this evaluation if the previous one is skipped.
@@ -410,15 +416,22 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
             break;
           }
           // Compare the rate cost that we current know.
-          const int prev_rate_cost =
-              args->single_newmv_rate[prev_ref_idx][ref] +
-              mode_info[prev_ref_idx].drl_cost;
-          const int this_rate_cost =
-              best_mv_rate + mode_info[ref_mv_idx].drl_cost;
-
           if (prev_rate_cost <= this_rate_cost) {
             // If the current rate_cost is worse than the previous rate_cost,
             // then we terminate the search for this ref_mv_idx.
+            mode_info[ref_mv_idx].skip = 1;
+            break;
+          }
+        }
+
+        mode_info[ref_mv_idx].sse = x->pred_sse[ref];
+        if (!mode_info[ref_mv_idx].skip &&
+            cpi->sf.inter_sf.skip_repeated_newmv > 1) {
+          const int64_t prev_rd = RDCOST(x->rdmult, prev_rate_cost,
+                                         (mode_info[prev_ref_idx].sse << 4));
+          const int64_t this_rd = RDCOST(x->rdmult, this_rate_cost,
+                                         (mode_info[ref_mv_idx].sse << 4));
+          if (prev_rd <= this_rd) {
             mode_info[ref_mv_idx].skip = 1;
             break;
           }
