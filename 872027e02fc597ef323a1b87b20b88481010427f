@@ -16,6 +16,24 @@
       "message": "any concerns about encoding stats?",
       "revId": "872027e02fc597ef323a1b87b20b88481010427f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0afc4984_e142fcb8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-05-25T22:06:31Z",
+      "side": 1,
+      "message": "This patch just fixes the bug. I think there shouldn\u0027t be any influences on encoding stats (except that now we are really using the correct minimum GF length and therefore the results may differ with before when we had the bug. Does this count as stats change too?)",
+      "parentUuid": "6a8fef82_0dfa17ae",
+      "revId": "872027e02fc597ef323a1b87b20b88481010427f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
