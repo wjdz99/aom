@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4bf7d6b_89a14fc6",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T22:05:33Z",
+      "side": 1,
+      "message": "\u0027mrls_flag\u0027 type is correct now.\nBut \u0027mode\u0027 has type \u0027PREDICTION_MODE\u0027 actually.",
+      "range": {
+        "startLine": 165,
+        "startChar": 49,
+        "endLine": 165,
+        "endChar": 56
+      },
+      "revId": "587939d711f6e2e3344ec6963d6029fb74e9eedf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4252b8c8_70f88e6f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 26
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-25T22:05:33Z",
+      "side": 1,
+      "message": "Here also: \u0027mode\u0027 has type \u0027PREDICTION_MODE\u0027.",
+      "range": {
+        "startLine": 959,
+        "startChar": 47,
+        "endLine": 959,
+        "endChar": 51
+      },
+      "revId": "587939d711f6e2e3344ec6963d6029fb74e9eedf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
