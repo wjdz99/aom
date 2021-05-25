@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "336b9c7d_854da01a",
+        "filename": "test/encode_test_driver.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-05-25T14:47:44Z",
+      "side": 1,
+      "message": "The Clang format moved the mentioned code (case and has_cxdata assignment statement) in a single line. Based on the suggestion, we have updated the code into two lines by introducing empty comment.",
+      "parentUuid": "dea41b60_46d76e47",
+      "revId": "2428c0274301c10c9b4e88b371e1e6b0df00312c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1660f145_db24a91d",
@@ -65,6 +83,24 @@
       "writtenOn": "2021-05-24T15:48:14Z",
       "side": 1,
       "message": "[This comment is a question, not a request for change.] Does has_cxdata mean it is safe to call encoder-\u003eGetPreviewFrame()?\n\nSimilarly, does has_dxdata mean it is safe to call decoder-\u003eGetDxData() (see lines 276-277)?",
+      "revId": "2428c0274301c10c9b4e88b371e1e6b0df00312c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "813691b4_b058cb73",
+        "filename": "test/encode_test_driver.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 25819
+      },
+      "writtenOn": "2021-05-25T14:47:44Z",
+      "side": 1,
+      "message": "Yes. As per our understanding, encoder-\u003eGetPreviewFrame() can be called when has_cxdata is true. Also decoder-\u003eGetDxData() can be called when has_dxdata is true (In this case has_cxdata is also true). However, has_cxdata and has_dxdata related checks are in \u0027nested if\u0027 and should be similar to the parent version.",
+      "parentUuid": "1660f145_db24a91d",
       "revId": "2428c0274301c10c9b4e88b371e1e6b0df00312c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
