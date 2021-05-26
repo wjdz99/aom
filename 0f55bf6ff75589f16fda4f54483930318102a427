@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \n\nIn this patch we have fixed the population of \u0027mb_av_energy\u0027, \u0027frame_avg_haar_energy\u0027 and\n\u0027fr_content_type\u0027 in the TWO_PASS structure for frames of type \u0027ARF_UPDATE\u0027, \u0027INTNL_ARF_UPDATE\u0027. Earlier these variables were not populated for arfs and internal arfs resulting in stale data being used. As these variables are not used in the default encoder configuration (used in Borg test suite), there is no speed, BD-Rate impact for the same. \n\nThe variable \u0027mb_av_energy\u0027 is used whenever aq-mode is either variance, complexity. The variable \u0027frame_avg_haar_energy\u0027 is used whenever deltaq-mode is set as deltaq perceptual. \n\nThere is no change in the speed, BD-Rate with aq-mode\u003d2 (complexity). The performance results with aq-mode\u003d1 (variance) are as follows:\n\n cpu-used   Resolution   Instruction Count        BD-Rate Loss (%)\n                          Reduction (%)    avg.psnr   ovr.psnr    ssim        \n    6         LOWRES       -0.007           -0.0008     0.0009    -0.0059\n    6         MIDRES        0.028           -0.0101    -0.0059    -0.0398\n    6         HDRES         0.011           -0.0188    -0.0177    -0.0199\n    6         Average       0.006           -0.0090    -0.0068    -0.0201\n\nThe performance results with deltaq-mode\u003d2 (deltaq perceptual) are as follows:\n\n cpu-used   Resolution   Instruction Count        BD-Rate Loss (%)\n                          Reduction (%)    avg.psnr   ovr.psnr    ssim    \n    6        LOWRES        -0.007          -0.0003     0.0023     0.0193\n    6        MIDRES         0.017           0.0340     0.0064     0.0835\n    6        HDRES         -0.054          -0.0582    -0.0540    -0.0656\n    6        Average       -0.013          -0.0079    -0.0137     0.0122\n\n[+] sign is for BD-Rate loss\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …  \n\nWe have added \u0027assert(twopass-\u003estats_in !\u003d NULL)\u0027 to silence a jenkins static analyser warning.\n\nPlease review this patch.\n\nThanks",
       "revId": "0f55bf6ff75589f16fda4f54483930318102a427",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "846f210b_9236e825",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-05-26T21:21:42Z",
+      "side": 1,
+      "message": "Thanks for the fix!",
+      "parentUuid": "dd45ee42_58d8121b",
+      "revId": "0f55bf6ff75589f16fda4f54483930318102a427",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
