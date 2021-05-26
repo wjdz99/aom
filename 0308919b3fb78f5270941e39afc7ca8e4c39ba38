@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ef1f98e_ac124836",
+        "filename": "tools/convexhull_framework/src/AV2CTCProgress.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-26T17:58:00Z",
+      "side": 1,
+      "message": "Pls mention this in commit description",
+      "range": {
+        "startLine": 404,
+        "startChar": 4,
+        "endLine": 405,
+        "endChar": 45
+      },
+      "revId": "0308919b3fb78f5270941e39afc7ca8e4c39ba38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c88b3ec7_25221b19",
+        "filename": "tools/convexhull_framework/src/ConvexHullTest.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-26T17:58:00Z",
+      "side": 1,
+      "message": "Pls note this change in commit description",
+      "range": {
+        "startLine": 288,
+        "startChar": 62,
+        "endLine": 288,
+        "endChar": 66
+      },
+      "revId": "0308919b3fb78f5270941e39afc7ca8e4c39ba38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
