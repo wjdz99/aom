@@ -282,9 +282,10 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
 
       // Terminate the evaluation of current ref_mv_idx based on bestsme and
       // drl_cost.
-      if (cpi->sf.inter_sf.skip_newmv_in_drl == 3 &&
-          mode_info[prev_ref_idx].full_mv_bestsme <
-              mode_info[ref_mv_idx].full_mv_bestsme &&
+      const int mul = cpi->sf.inter_sf.skip_newmv_in_drl == 3 ? 4 : 5;
+      if (/*cpi->sf.inter_sf.skip_newmv_in_drl == 3 &&*/
+          mode_info[prev_ref_idx].full_mv_bestsme * mul <
+              (mode_info[ref_mv_idx].full_mv_bestsme << 2) &&
           mode_info[prev_ref_idx].drl_cost < mode_info[ref_mv_idx].drl_cost) {
         best_mv->as_int = INVALID_MV;
         return;
