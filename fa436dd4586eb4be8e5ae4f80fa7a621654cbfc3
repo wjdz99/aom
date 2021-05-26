@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18b5dc9a_01ac1100",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-05-26T12:43:45Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch extends winner_mode_tx_type_pruning speed feature to speed 3. This also sets less aggressive tx type search for the mode evaluation of speed 3.\nPlease find below detailed borg result.\nCPU Resolution  Instruction Count      BD-Rate Impact %\n                  Reduction %      avg.psnr ovr.psnr   ssim\n 3    LOW RES       1.417          0.0345   0.0366   0.0613\n 3    MID RES       1.014          0.0470   0.0572   0.0380\n 3    HD RES        2.070          0.0373   0.0481   0.0007\n 3    AVERAGE       1.485          0.0390   0.0462   0.0360\n\nIn the commit message : \n[-] indicates encode time increase\n[+] indicates encode time reduction\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc …\n\nThe changes are bit exact for faster speed preset (speed 4 to 6).\nPlease review the patch.\n\nThanks and Regards,\nAkshata\n",
+      "revId": "fa436dd4586eb4be8e5ae4f80fa7a621654cbfc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
