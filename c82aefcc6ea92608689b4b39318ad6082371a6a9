@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b08259e_21c5f738",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 836,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-05-26T05:24:44Z",
+      "side": 1,
+      "message": "this is preexisting, but we\u0027re a little inconsistent in how this flag is tested (! vs \u003d\u003d 0).",
+      "range": {
+        "startLine": 836,
+        "startChar": 25,
+        "endLine": 836,
+        "endChar": 30
+      },
+      "revId": "c82aefcc6ea92608689b4b39318ad6082371a6a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
