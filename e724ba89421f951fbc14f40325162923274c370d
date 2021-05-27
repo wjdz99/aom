@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f239e3c7_aef657c0",
+        "filename": "tools/convexhull_framework/src/VideoEncoder.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-05-27T16:39:14Z",
+      "side": 1,
+      "message": "Note that some of these other parameters somewhat depend on SUB_GOP_SIZE.\ne.g. \"lag-in-frames\" should be \"SUB_GOP_SIZE + 3\" (as it needs 3 extra frames frames for filtering top-level ALTREF frame).\n\"gf-max-pyr-height\" and \"gf-min-pyr-height\" should be 4 if SUB_GOP_SIZE is 16, and 5 if SUB_GOP_SIZE is 32 (when that support is added).\nJust to keep this in mind in case SUB_GOP_SIZE changes in future.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 84
+      },
+      "revId": "e724ba89421f951fbc14f40325162923274c370d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
