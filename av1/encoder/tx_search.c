@@ -2026,10 +2026,10 @@ get_tx_mask(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
     int num_allowed = 0;
     const FRAME_UPDATE_TYPE update_type =
         get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
-    const int *tx_type_probs =
-        cpi->frame_probs.tx_type_probs[update_type][tx_size];
     int i;
-
+#if CONFIG_FRAME_PARALLEL_ENCODE
+    const int *tx_type_probs =
+        cpi->ppi->temp_frame_probs.tx_type_probs[update_type][tx_size];
     if (cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats) {
       static const int thresh_arr[2][7] = { { 10, 15, 15, 10, 15, 15, 15 },
                                             { 10, 17, 17, 10, 17, 17, 17 } };
@@ -2049,6 +2049,30 @@ get_tx_mask(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
       if ((prune >> max_idx) & 0x01) prune &= ~(1 << max_idx);
       allowed_tx_mask &= (~prune);
     }
+#else
+    const int *tx_type_probs =
+        cpi->frame_probs.tx_type_probs[update_type][tx_size];
+    if (cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats) {
+      static const int thresh_arr[2][7] = { { 10, 15, 15, 10, 15, 15, 15 },
+                                            { 10, 17, 17, 10, 17, 17, 17 } };
+      const int thresh =
+          thresh_arr[cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats - 1]
+                    [update_type];
+      uint16_t prune = 0;
+      int max_prob = -1;
+      int max_idx = 0;
+      for (i = 0; i < TX_TYPES; i++) {
+        if (tx_type_probs[i] > max_prob && (allowed_tx_mask & (1 << i))) {
+          max_prob = tx_type_probs[i];
+          max_idx = i;
+        }
+        if (tx_type_probs[i] < thresh) prune |= (1 << i);
+      }
+      if ((prune >> max_idx) & 0x01) prune &= ~(1 << max_idx);
+      allowed_tx_mask &= (~prune);
+    }
+#endif
+
     for (i = 0; i < TX_TYPES; i++) {
       if (allowed_tx_mask & (1 << i)) num_allowed++;
     }
