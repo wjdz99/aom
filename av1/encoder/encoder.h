@@ -2973,6 +2973,7 @@ typedef struct EncodeFrameParams {
    *  Speed level to use for this frame: Bigger number means faster.
    */
   int speed;
+  int shown_fwd_key;
 } EncodeFrameParams;
 
 /*!\cond */

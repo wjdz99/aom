@@ -3102,6 +3102,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                   frame_might_allow_warped_motion(cm);
 
   cpi->last_frame_type = current_frame->frame_type;
+  if (cm->cur_frame->frame_type == KEY_FRAME) printf("~~~~~~~~~~KEY ~~~~~~~~~~ ");
+  printf("FRAME %d, ftk %d, show ex %d, show %d\n", (int)current_frame->display_order_hint, 
+          cpi->rc.frames_to_key, cm->show_existing_frame, cm->show_frame);
 
   if (frame_is_sframe(cm)) {
     GF_GROUP *gf_group = &cpi->ppi->gf_group;

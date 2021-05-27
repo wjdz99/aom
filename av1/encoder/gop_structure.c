@@ -170,7 +170,7 @@ static void set_multi_layer_params(
 static int construct_multi_layer_gf_structure(
     AV1_COMP *cpi, TWO_PASS *twopass, GF_GROUP *const gf_group,
     RATE_CONTROL *rc, FRAME_INFO *const frame_info, int gf_interval,
-    FRAME_UPDATE_TYPE first_frame_update_type) {
+    FRAME_UPDATE_TYPE first_frame_update_type, int shown_fwd) {
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   int frame_index = 0;
   int cur_frame_index = 0;
@@ -191,8 +191,18 @@ static int construct_multi_layer_gf_structure(
   memset(gf_group->src_offset, 0,
          sizeof(gf_group->src_offset[0]) * MAX_STATIC_GF_GROUP_LENGTH);
 #endif
+  if (shown_fwd) {
+    gf_group->update_type[frame_index] = OVERLAY_UPDATE;
+    gf_group->arf_src_offset[frame_index] = 0;
+    gf_group->cur_frame_idx[frame_index] = cur_frame_index;
+    gf_group->layer_depth[frame_index] = 0;
+    gf_group->frame_type[frame_index] = KEY_FRAME;
+    gf_group->refbuf_state[frame_index] = REFBUF_UPDATE;
+    gf_group->max_layer_depth = 0;
+    ++frame_index;
+    cur_frame_index++;
 
-  if (first_frame_update_type == KF_UPDATE &&
+  } else if (first_frame_update_type == KF_UPDATE &&
       cpi->oxcf.kf_cfg.enable_keyframe_filtering > 1) {
     gf_group->update_type[frame_index] = ARF_UPDATE;
     gf_group->arf_src_offset[frame_index] = 0;
@@ -307,20 +317,21 @@ static int construct_multi_layer_gf_structure(
   return frame_index;
 }
 
-void av1_gop_setup_structure(AV1_COMP *cpi) {
+void av1_gop_setup_structure(AV1_COMP *cpi, int shown_fwd_kf) {
   RATE_CONTROL *const rc = &cpi->rc;
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   GF_GROUP *const gf_group = &cpi->ppi->gf_group;
   TWO_PASS *const twopass = &cpi->ppi->twopass;
   FRAME_INFO *const frame_info = &cpi->frame_info;
-  const int key_frame = rc->frames_since_key == 0;
+  const int key_frame = rc->frames_since_key == 0 && !shown_fwd_kf;
   const FRAME_UPDATE_TYPE first_frame_update_type =
       key_frame ? KF_UPDATE
                 : cpi->ppi->gf_state.arf_gf_boost_lst ||
                           (p_rc->baseline_gf_interval == 1)
                       ? OVERLAY_UPDATE
                       : GF_UPDATE;
+  printf("ffu %d, kf %d, shown %d\n", first_frame_update_type, key_frame, shown_fwd_kf);
   gf_group->size = construct_multi_layer_gf_structure(
       cpi, twopass, gf_group, rc, frame_info, p_rc->baseline_gf_interval - 1,
-      first_frame_update_type);
+      first_frame_update_type, shown_fwd_kf);
 }

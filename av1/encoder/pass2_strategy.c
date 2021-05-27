@@ -2173,7 +2173,8 @@ static void define_gf_group_pass0(AV1_COMP *cpi) {
     gf_group->max_layer_depth_allowed = 0;
 
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
-  av1_gop_setup_structure(cpi);
+  //sarahparker
+  av1_gop_setup_structure(cpi, 0);
 
   // Allocate bits to each of the frames in the GF group.
   // TODO(sarahparker) Extend this to work with pyramid structure.
@@ -2572,7 +2573,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     twopass->kf_group_error_left -= (int64_t)gf_stats.gf_group_err;
 
   // Set up the structure of this Group-Of-Pictures (same as GF_GROUP)
-  av1_gop_setup_structure(cpi);
+  printf("setup 1\n");
+  av1_gop_setup_structure(cpi, frame_params->shown_fwd_key);
 
   // Reset the file position.
   reset_fpf_position(twopass, start_pos);
@@ -3667,6 +3669,13 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   int is_overlay_forward_kf =
       rc->frames_to_key == 0 &&
       gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE;
+  if (is_overlay_forward_kf) {
+    frame_params->shown_fwd_key = 1;
+    printf("OVERLAY KF, show_ex %d\n", frame_params->show_existing_frame);
+  } else {
+    frame_params->shown_fwd_key = 0;
+  }
+  printf("fsk %d\n", rc->frames_since_key);
   if (rc->frames_to_key <= 0 && !is_overlay_forward_kf) {
     assert(rc->frames_to_key >= -1);
     // Define next KF group and assign bits to it.
@@ -3716,7 +3725,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   }
 
   // Define a new GF/ARF group. (Should always enter here for key frames).
-  if (cpi->gf_frame_index == gf_group->size) {
+  if (is_overlay_forward_kf || (cpi->gf_frame_index == gf_group->size)) {
     assert(cpi->common.current_frame.frame_number == 0 ||
            cpi->gf_frame_index == gf_group->size);
     const FIRSTPASS_STATS *const start_position = twopass->stats_in;

@@ -40,7 +40,7 @@ struct EncodeFrameParams;
  *
  * \return No return value but this function updates group data structures.
  */
-void av1_gop_setup_structure(struct AV1_COMP *cpi);
+void av1_gop_setup_structure(AV1_COMP *cpi, int shown_fwd_kf);
 
 /*!\brief Distributes bits to frames in a group
  *

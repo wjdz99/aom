@@ -1504,6 +1504,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   const int use_one_pass_rt_params = has_no_stats_stage(cpi) &&
                                      oxcf->mode == REALTIME &&
                                      gf_cfg->lag_in_frames == 0;
+  const int is_fwd_kf = (oxcf->kf_cfg.fwd_kf_enabled &&
+        gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE &&
+        cpi->rc.frames_to_key == 0);
+
   if (!use_one_pass_rt_params && !is_stat_generation_stage(cpi)) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, av1_get_second_pass_params_time);
@@ -1518,9 +1522,7 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   if (!is_stat_generation_stage(cpi)) {
     // If this is a forward keyframe, mark as a show_existing_frame
     // TODO(bohanli): find a consistent condition for fwd keyframes
-    if (oxcf->kf_cfg.fwd_kf_enabled &&
-        gf_group->update_type[cpi->gf_frame_index] == OVERLAY_UPDATE &&
-        cpi->rc.frames_to_key == 0) {
+    if (is_fwd_kf) {
       frame_params.show_existing_frame = 1;
     } else {
       frame_params.show_existing_frame =
