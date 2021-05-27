@@ -453,13 +453,13 @@ static INLINE void find_best_non_dual_interp_filter(
         get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
     const int ctx0 = av1_get_pred_context_switchable_interp(xd, 0);
     const int ctx1 = av1_get_pred_context_switchable_interp(xd, 1);
-    const int *switchable_interp_p0 =
-        cpi->frame_probs.switchable_interp_probs[update_type][ctx0];
-    const int *switchable_interp_p1 =
-        cpi->frame_probs.switchable_interp_probs[update_type][ctx1];
-
     static const int thr[7] = { 0, 8, 8, 8, 8, 0, 8 };
     const int thresh = thr[update_type];
+#if CONFIG_FRAME_PARALLEL_ENCODE
+    const int *switchable_interp_p0 =
+        cpi->ppi->temp_frame_probs.switchable_interp_probs[update_type][ctx0];
+    const int *switchable_interp_p1 =
+        cpi->ppi->temp_frame_probs.switchable_interp_probs[update_type][ctx1];
     for (i = 0; i < SWITCHABLE_FILTERS; i++) {
       // For non-dual case, the 2 dir's prob should be identical.
       assert(switchable_interp_p0[i] == switchable_interp_p1[i]);
@@ -469,6 +469,21 @@ static INLINE void find_best_non_dual_interp_filter(
         reset_interp_filter_allowed_mask(&interp_filter_search_mask, filt_type);
       }
     }
+#else
+    const int *switchable_interp_p0 =
+        cpi->frame_probs.switchable_interp_probs[update_type][ctx0];
+    const int *switchable_interp_p1 =
+        cpi->frame_probs.switchable_interp_probs[update_type][ctx1];
+    for (i = 0; i < SWITCHABLE_FILTERS; i++) {
+      // For non-dual case, the 2 dir's prob should be identical.
+      assert(switchable_interp_p0[i] == switchable_interp_p1[i]);
+      if (switchable_interp_p0[i] < thresh &&
+          switchable_interp_p1[i] < thresh) {
+        DUAL_FILTER_TYPE filt_type = i + SWITCHABLE_FILTERS * i;
+        reset_interp_filter_allowed_mask(&interp_filter_search_mask, filt_type);
+      }
+    }
+#endif
   }
 
   // Regular filter evaluation should have been done and hence the same should
