@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "86c544bb_1fc2fd6f",
+        "filename": "tools/convexhull_framework/src/AV2CTCProgress.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2021-05-27T05:35:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8ef1f98e_ac124836",
+      "range": {
+        "startLine": 404,
+        "startChar": 4,
+        "endLine": 405,
+        "endChar": 45
+      },
+      "revId": "0308919b3fb78f5270941e39afc7ca8e4c39ba38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c88b3ec7_25221b19",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-05-26T17:58:00Z",
       "side": 1,
       "message": "Pls note this change in commit description",
+      "range": {
+        "startLine": 288,
+        "startChar": 62,
+        "endLine": 288,
+        "endChar": 66
+      },
+      "revId": "0308919b3fb78f5270941e39afc7ca8e4c39ba38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f7b97d4_7c94ff43",
+        "filename": "tools/convexhull_framework/src/ConvexHullTest.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2021-05-27T05:35:21Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c88b3ec7_25221b19",
       "range": {
         "startLine": 288,
         "startChar": 62,
