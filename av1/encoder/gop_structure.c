@@ -61,6 +61,82 @@ static void set_src_offset(GF_GROUP *const gf_group, int *first_frame_index,
 }
 #endif  // CONFIG_FRAME_PARALLEL_ENCODE
 
+// Sets the GF_GROUP params for LF_UPDATE frames.
+static AOM_INLINE void set_params_for_leaf_frames(
+    GF_GROUP *const gf_group, int *cur_frame_idx, int *frame_ind,
+#if CONFIG_FRAME_PARALLEL_ENCODE
+    int *parallel_frame_count, int max_parallel_frames,
+    int do_frame_parallel_encode, int *first_frame_index,
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE
+    int layer_depth) {
+  gf_group->update_type[*frame_ind] = LF_UPDATE;
+  gf_group->arf_src_offset[*frame_ind] = 0;
+  gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
+  gf_group->layer_depth[*frame_ind] = MAX_ARF_LAYERS;
+  gf_group->frame_type[*frame_ind] = INTER_FRAME;
+  gf_group->max_layer_depth = AOMMAX(gf_group->max_layer_depth, layer_depth);
+#if CONFIG_FRAME_PARALLEL_ENCODE
+  // Set the level of parallelism for the LF_UPDATE frame.
+  if (do_frame_parallel_encode) {
+    set_frame_parallel_level(&gf_group->frame_parallel_level[*frame_ind],
+                             parallel_frame_count, max_parallel_frames);
+    // Set LF_UPDATE frames as non-reference frames.
+    gf_group->is_frame_non_ref[*frame_ind] = 1;
+  }
+  set_src_offset(gf_group, first_frame_index, *cur_frame_idx, *frame_ind);
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE
+
+  ++(*frame_ind);
+  ++(*cur_frame_idx);
+}
+
+// Sets the GF_GROUP params for INTNL_OVERLAY_UPDATE frames.
+static AOM_INLINE void set_params_for_intnl_overlay_frames(
+    GF_GROUP *const gf_group, int *cur_frame_idx, int *frame_ind,
+#if CONFIG_FRAME_PARALLEL_ENCODE
+    int *first_frame_index,
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE
+    int layer_depth) {
+  gf_group->update_type[*frame_ind] = INTNL_OVERLAY_UPDATE;
+  gf_group->arf_src_offset[*frame_ind] = 0;
+  gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
+  gf_group->layer_depth[*frame_ind] = layer_depth;
+  gf_group->frame_type[*frame_ind] = INTER_FRAME;
+#if CONFIG_FRAME_PARALLEL_ENCODE
+  set_src_offset(gf_group, first_frame_index, *cur_frame_idx, *frame_ind);
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE
+  ++(*frame_ind);
+  ++(*cur_frame_idx);
+}
+
+// Sets the GF_GROUP params for INTNL_ARF_UPDATE frames.
+static AOM_INLINE void set_params_for_internal_arfs(
+    GF_GROUP *const gf_group, int *cur_frame_idx, int *frame_ind,
+#if CONFIG_FRAME_PARALLEL_ENCODE
+    int *parallel_frame_count, int max_parallel_frames,
+    int do_frame_parallel_encode, int *first_frame_index,
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE
+    int layer_depth, int arf_src_offset) {
+  gf_group->update_type[*frame_ind] = INTNL_ARF_UPDATE;
+  gf_group->arf_src_offset[*frame_ind] = arf_src_offset;
+  gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
+  gf_group->layer_depth[*frame_ind] = layer_depth;
+  gf_group->frame_type[*frame_ind] = INTER_FRAME;
+#if CONFIG_FRAME_PARALLEL_ENCODE
+  if (do_frame_parallel_encode) {
+    // If max_parallel_frames is not exceeded, encode the next internal ARF
+    // frame in parallel.
+    if (*parallel_frame_count > 1 &&
+        *parallel_frame_count <= max_parallel_frames) {
+      gf_group->frame_parallel_level[*frame_ind] = 2;
+      *parallel_frame_count = 1;
+    }
+  }
+  set_src_offset(gf_group, first_frame_index, *cur_frame_idx, *frame_ind);
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE
+  ++(*frame_ind);
+}
+
 // Set parameters for frames between 'start' and 'end' (excluding both).
 static void set_multi_layer_params(
     const TWO_PASS *twopass, GF_GROUP *const gf_group,
@@ -79,51 +155,25 @@ static void set_multi_layer_params(
       num_frames_to_process < 3) {
     // Leaf nodes.
     while (start < end) {
-      gf_group->update_type[*frame_ind] = LF_UPDATE;
-      gf_group->arf_src_offset[*frame_ind] = 0;
-      gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
-      gf_group->layer_depth[*frame_ind] = MAX_ARF_LAYERS;
-      gf_group->frame_type[*frame_ind] = INTER_FRAME;
-      gf_group->max_layer_depth =
-          AOMMAX(gf_group->max_layer_depth, layer_depth);
+      set_params_for_leaf_frames(gf_group, cur_frame_idx, frame_ind,
 #if CONFIG_FRAME_PARALLEL_ENCODE
-      // Set the level of parallelism for the LF_UPDATE frame.
-      if (do_frame_parallel_encode) {
-        set_frame_parallel_level(&gf_group->frame_parallel_level[*frame_ind],
-                                 parallel_frame_count, max_parallel_frames);
-        // Set LF_UPDATE frames as non-reference frames.
-        gf_group->is_frame_non_ref[*frame_ind] = 1;
-      }
-      set_src_offset(gf_group, first_frame_index, *cur_frame_idx, *frame_ind);
+                                 parallel_frame_count, max_parallel_frames,
+                                 do_frame_parallel_encode, first_frame_index,
 #endif  // CONFIG_FRAME_PARALLEL_ENCODE
-      ++(*frame_ind);
-      ++(*cur_frame_idx);
+                                 layer_depth);
       ++start;
     }
   } else {
     const int m = (start + end - 1) / 2;
 
     // Internal ARF.
-    gf_group->update_type[*frame_ind] = INTNL_ARF_UPDATE;
-    gf_group->arf_src_offset[*frame_ind] = m - start;
-    gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
-    gf_group->layer_depth[*frame_ind] = layer_depth;
-    gf_group->frame_type[*frame_ind] = INTER_FRAME;
-
+    int arf_src_offset = m - start;
+    set_params_for_internal_arfs(gf_group, cur_frame_idx, frame_ind,
 #if CONFIG_FRAME_PARALLEL_ENCODE
-    if (do_frame_parallel_encode) {
-      // If max_parallel_frames is not exceeded, encode the next internal ARF
-      // frame in parallel.
-      if (*parallel_frame_count > 1 &&
-          *parallel_frame_count <= max_parallel_frames) {
-        gf_group->frame_parallel_level[*frame_ind] = 2;
-        *parallel_frame_count = 1;
-      }
-    }
-    set_src_offset(gf_group, first_frame_index, *cur_frame_idx, *frame_ind);
+                                 parallel_frame_count, max_parallel_frames,
+                                 do_frame_parallel_encode, first_frame_index,
 #endif  // CONFIG_FRAME_PARALLEL_ENCODE
-
-    ++(*frame_ind);
+                                 layer_depth, arf_src_offset);
 
     // Frames displayed before this internal ARF.
     set_multi_layer_params(twopass, gf_group, p_rc, rc, frame_info, start, m,
@@ -135,17 +185,11 @@ static void set_multi_layer_params(
                            layer_depth + 1);
 
     // Overlay for internal ARF.
-    gf_group->update_type[*frame_ind] = INTNL_OVERLAY_UPDATE;
-    gf_group->arf_src_offset[*frame_ind] = 0;
-    gf_group->cur_frame_idx[*frame_ind] = *cur_frame_idx;
-    gf_group->layer_depth[*frame_ind] = layer_depth;
-    gf_group->frame_type[*frame_ind] = INTER_FRAME;
-
+    set_params_for_intnl_overlay_frames(gf_group, cur_frame_idx, frame_ind,
 #if CONFIG_FRAME_PARALLEL_ENCODE
-    set_src_offset(gf_group, first_frame_index, *cur_frame_idx, *frame_ind);
+                                        first_frame_index,
 #endif  // CONFIG_FRAME_PARALLEL_ENCODE
-    ++(*frame_ind);
-    ++(*cur_frame_idx);
+                                        layer_depth);
 
     // Frames displayed after this internal ARF.
     set_multi_layer_params(twopass, gf_group, p_rc, rc, frame_info, m + 1, end,
