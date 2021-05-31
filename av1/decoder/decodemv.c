@@ -193,6 +193,30 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
     return NEARMV;
 }
 
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+static void read_drl_idx(FRAME_CONTEXT* ec_ctx, MB_MODE_INFO* mbmi, aom_reader* r) {
+  mbmi->ref_mv_idx = 0;
+  if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
+    for (int idx = 0; idx < 2; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(idx);
+      int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+      mbmi->ref_mv_idx = idx + drl_idx;
+      if (!drl_idx) return;
+    }
+  }
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    // Offset the NEARESTMV mode.
+    // TODO(jingning): Unify the two syntax decoding loops after the NEARESTMV
+    // mode is factored in.
+    for (int idx = 1; idx < 3; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(idx);
+      int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+      mbmi->ref_mv_idx = idx + drl_idx - 1;
+      if (!drl_idx) return;
+    }
+  }
+}
+#else
 static void read_drl_idx(FRAME_CONTEXT *ec_ctx, DecoderCodingBlock *dcb,
                          MB_MODE_INFO *mbmi, aom_reader *r) {
   MACROBLOCKD *const xd = &dcb->xd;
@@ -222,6 +246,7 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, DecoderCodingBlock *dcb,
     }
   }
 }
+#endif
 
 static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
                                     MB_MODE_INFO *mbmi, aom_reader *r) {
@@ -1328,7 +1353,11 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
         mbmi->mode = read_inter_mode(ec_ctx, r, mode_ctx);
       if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV ||
           have_nearmv_in_inter_mode(mbmi->mode))
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+        read_drl_idx(ec_ctx, mbmi, r);
+#else
         read_drl_idx(ec_ctx, dcb, mbmi, r);
+#endif
     }
   }
 
@@ -1380,7 +1409,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       ref_mv[1] = xd->ref_mv_stack[ref_frame][ref_mv_idx].comp_mv;
   } else {
     if (mbmi->mode == NEWMV) {
+#if !CONFIG_NO_MV_PARSING_DEPENDENCY
       if (dcb->ref_mv_count[ref_frame] > 1)
+#endif
         ref_mv[0] = xd->ref_mv_stack[ref_frame][mbmi->ref_mv_idx].this_mv;
     }
   }
