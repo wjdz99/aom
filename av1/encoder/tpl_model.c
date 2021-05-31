@@ -976,6 +976,15 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
                                    : tpl_stats_ptr->srcrf_rate;
 
   int64_t cur_dep_dist = tpl_stats_ptr->recrf_dist - srcrf_dist;
+  int64_t intra_cost = tpl_stats_ptr->intra_cost;
+  int64_t inter_cost = tpl_stats_ptr->inter_cost;
+
+  int64_t srcrf_sse = tpl_stats_ptr->srcrf_sse;
+
+  int64_t mc_dep_mbtree = 
+      (int64_t)
+      ((double)tpl_stats_ptr->mc_dep_mbtree * (1.0 - (double)inter_cost / intra_cost) *
+       (double)srcrf_dist / srcrf_sse);
   int64_t mc_dep_dist =
       (int64_t)(tpl_stats_ptr->mc_dep_dist *
                 ((double)(tpl_stats_ptr->recrf_dist - srcrf_dist) /
@@ -1003,6 +1012,8 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
           ((cur_dep_dist + mc_dep_dist) * overlap_area) / pix_num;
       des_stats->mc_dep_rate +=
           ((delta_rate + mc_dep_rate) * overlap_area) / pix_num;
+      des_stats->mc_dep_mbtree +=
+          ((intra_cost + mc_dep_mbtree) * overlap_area) / pix_num;
     }
   }
 }
@@ -1382,7 +1393,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
 
   int extend_frame_count = 0;
   int extend_frame_length =
-      AOMMIN(MAX_TPL_EXTEND,
+      AOMMIN(0,
              cpi->rc.frames_to_key - cpi->ppi->p_rc.baseline_gf_interval);
   int frame_display_index = gf_group->cur_frame_idx[gop_length - 1] +
                             gf_group->arf_src_offset[gop_length - 1] + 1;
