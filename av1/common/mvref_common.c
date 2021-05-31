@@ -139,12 +139,20 @@ static AOM_INLINE void add_ref_mv_candidate(
   }
 }
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+static AOM_INLINE void scan_row_mbmi(
+    const AV1_COMMON* cm, const MACROBLOCKD* xd, int mi_col,
+    const MV_REFERENCE_FRAME rf[2], int row_offset, CANDIDATE_MV* ref_mv_stack,
+    uint16_t* ref_mv_weight, uint8_t* refmv_count, uint8_t* ref_match_count,
+    uint8_t* newmv_count, int_mv* gm_mv_candidates) {
+#else
 static AOM_INLINE void scan_row_mbmi(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, int mi_col,
     const MV_REFERENCE_FRAME rf[2], int row_offset, CANDIDATE_MV *ref_mv_stack,
     uint16_t *ref_mv_weight, uint8_t *refmv_count, uint8_t *ref_match_count,
     uint8_t *newmv_count, int_mv *gm_mv_candidates, int max_row_offset,
     int *processed_rows) {
+#endif
   int end_mi = AOMMIN(xd->width, cm->mi_params.mi_cols - mi_col);
   end_mi = AOMMIN(end_mi, mi_size_wide[BLOCK_64X64]);
   const int width_8x8 = mi_size_wide[BLOCK_8X8];
@@ -168,6 +176,9 @@ static AOM_INLINE void scan_row_mbmi(
     else if (abs(row_offset) > 1)
       len = AOMMAX(len, width_8x8);
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+    uint16_t weight = row_offset < -1 ? 0 : 2;
+#else
     uint16_t weight = 2;
     if (xd->width >= width_8x8 && xd->width <= n4_w) {
       uint16_t inc = AOMMIN(-max_row_offset + row_offset + 1,
@@ -177,6 +188,7 @@ static AOM_INLINE void scan_row_mbmi(
       // Update processed rows.
       *processed_rows = inc - row_offset - 1;
     }
+#endif
 
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
@@ -186,12 +198,20 @@ static AOM_INLINE void scan_row_mbmi(
   }
 }
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+static AOM_INLINE void scan_col_mbmi(
+    const AV1_COMMON* cm, const MACROBLOCKD* xd, int mi_row,
+    const MV_REFERENCE_FRAME rf[2], int col_offset, CANDIDATE_MV* ref_mv_stack,
+    uint16_t* ref_mv_weight, uint8_t* refmv_count, uint8_t* ref_match_count,
+    uint8_t* newmv_count, int_mv* gm_mv_candidates) {
+#else
 static AOM_INLINE void scan_col_mbmi(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, int mi_row,
     const MV_REFERENCE_FRAME rf[2], int col_offset, CANDIDATE_MV *ref_mv_stack,
     uint16_t *ref_mv_weight, uint8_t *refmv_count, uint8_t *ref_match_count,
     uint8_t *newmv_count, int_mv *gm_mv_candidates, int max_col_offset,
     int *processed_cols) {
+#endif
   int end_mi = AOMMIN(xd->height, cm->mi_params.mi_rows - mi_row);
   end_mi = AOMMIN(end_mi, mi_size_high[BLOCK_64X64]);
   const int n8_h_8 = mi_size_high[BLOCK_8X8];
@@ -215,6 +235,9 @@ static AOM_INLINE void scan_col_mbmi(
     else if (abs(col_offset) > 1)
       len = AOMMAX(len, n8_h_8);
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+    uint16_t weight = col_offset < -1 ? 0 : 2;
+#else
     int weight = 2;
     if (xd->height >= n8_h_8 && xd->height <= n4_h) {
       int inc = AOMMIN(-max_col_offset + col_offset + 1,
@@ -224,6 +247,7 @@ static AOM_INLINE void scan_col_mbmi(
       // Update processed cols.
       *processed_cols = inc - col_offset - 1;
     }
+#endif
 
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
@@ -250,9 +274,16 @@ static AOM_INLINE void scan_blk_mbmi(
         xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
     const int len = mi_size_wide[BLOCK_8X8];
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+    uint16_t weight = row_offset == -1 && col_offset == -1 ? 0 : 2;
+    add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
+                         newmv_count, ref_mv_stack, ref_mv_weight,
+                         gm_mv_candidates, cm->global_motion, weight * len);
+#else
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion, 2 * len);
+#endif
   }  // Analyze a single 8x8 block motion information.
 }
 
@@ -518,14 +549,24 @@ static AOM_INLINE void setup_ref_mv_list(
 
   // Scan the first above row mode info. row_offset = -1;
   if (abs(max_row_offset) >= 1)
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+    scan_row_mbmi(cm, xd, mi_col, rf, -1, ref_mv_stack, ref_mv_weight,
+                  refmv_count, &row_match_count, &newmv_count, gm_mv_candidates);
+#else
     scan_row_mbmi(cm, xd, mi_col, rf, -1, ref_mv_stack, ref_mv_weight,
                   refmv_count, &row_match_count, &newmv_count, gm_mv_candidates,
                   max_row_offset, &processed_rows);
+#endif
   // Scan the first left column mode info. col_offset = -1;
   if (abs(max_col_offset) >= 1)
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+    scan_col_mbmi(cm, xd, mi_row, rf, -1, ref_mv_stack, ref_mv_weight,
+                  refmv_count, &col_match_count, &newmv_count, gm_mv_candidates);
+#else
     scan_col_mbmi(cm, xd, mi_row, rf, -1, ref_mv_stack, ref_mv_weight,
                   refmv_count, &col_match_count, &newmv_count, gm_mv_candidates,
                   max_col_offset, &processed_cols);
+#endif
   // Check top-right boundary
   if (has_tr)
     scan_blk_mbmi(cm, xd, mi_row, mi_col, rf, -1, xd->width, ref_mv_stack,
@@ -598,17 +639,33 @@ static AOM_INLINE void setup_ref_mv_list(
 
     if (abs(row_offset) <= abs(max_row_offset) &&
         abs(row_offset) > processed_rows)
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+      scan_row_mbmi(cm, xd, mi_col, rf, row_offset, ref_mv_stack, ref_mv_weight,
+                    refmv_count, &row_match_count, &dummy_newmv_count, gm_mv_candidates);
+#else
       scan_row_mbmi(cm, xd, mi_col, rf, row_offset, ref_mv_stack, ref_mv_weight,
                     refmv_count, &row_match_count, &dummy_newmv_count,
                     gm_mv_candidates, max_row_offset, &processed_rows);
+#endif
 
     if (abs(col_offset) <= abs(max_col_offset) &&
         abs(col_offset) > processed_cols)
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+      scan_col_mbmi(cm, xd, mi_row, rf, col_offset, ref_mv_stack, ref_mv_weight,
+                    refmv_count, &col_match_count, &dummy_newmv_count, gm_mv_candidates);
+#else
       scan_col_mbmi(cm, xd, mi_row, rf, col_offset, ref_mv_stack, ref_mv_weight,
                     refmv_count, &col_match_count, &dummy_newmv_count,
                     gm_mv_candidates, max_col_offset, &processed_cols);
+#endif
   }
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP
+  int new_ctx = 2 * nearest_match + (newmv_count > 0);
+  int ref_ctx = 2 * nearest_match + (newmv_count > 0);
+  mode_context[ref_frame] |= new_ctx;
+  mode_context[ref_frame] |= (ref_ctx << REFMV_OFFSET);
+#else
   const uint8_t ref_match_count = (row_match_count > 0) + (col_match_count > 0);
 
   switch (nearest_match) {
@@ -636,6 +693,7 @@ static AOM_INLINE void setup_ref_mv_list(
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
+#endif
 
   // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
@@ -655,6 +713,7 @@ static AOM_INLINE void setup_ref_mv_list(
     len = nr_len;
   }
 
+#if !CONFIG_COMPLEXITY_SCALABLE_MVP
   len = *refmv_count;
   while (len > nearest_refmv_count) {
     int nr_len = nearest_refmv_count;
@@ -671,6 +730,7 @@ static AOM_INLINE void setup_ref_mv_list(
     }
     len = nr_len;
   }
+#endif
 
   int mi_width = AOMMIN(mi_size_wide[BLOCK_64X64], xd->width);
   mi_width = AOMMIN(mi_width, cm->mi_params.mi_cols - mi_col);
@@ -745,6 +805,14 @@ static AOM_INLINE void setup_ref_mv_list(
       clamp_mv_ref(&ref_mv_stack[idx].comp_mv.as_mv, xd->width << MI_SIZE_LOG2,
                    xd->height << MI_SIZE_LOG2, xd);
     }
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+    for (int idx = *refmv_count; idx < USABLE_REF_MV_STACK_SIZE; ++idx) {
+      ref_mv_stack[idx].this_mv.as_int = gm_mv_candidates[0].as_int;
+      ref_mv_stack[idx].comp_mv.as_int = gm_mv_candidates[0].as_int;
+      ref_mv_weight[idx] = 2;
+      ++*refmv_count;
+    }
+#endif
   } else {
     // Handle single reference frame extension
     for (int idx = 0; abs(max_row_offset) >= 1 && idx < mi_size &&
@@ -768,6 +836,13 @@ static AOM_INLINE void setup_ref_mv_list(
                    xd->height << MI_SIZE_LOG2, xd);
     }
 
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+    for (int idx = *refmv_count; idx < USABLE_REF_MV_STACK_SIZE; ++idx) {
+      ref_mv_stack[idx].this_mv.as_int = gm_mv_candidates[0].as_int;
+      ref_mv_weight[idx] = 2;
+      ++*refmv_count;
+    }
+#endif
     if (mv_ref_list != NULL) {
       for (int idx = *refmv_count; idx < MAX_MV_REF_CANDIDATES; ++idx)
         mv_ref_list[idx].as_int = gm_mv_candidates[0].as_int;

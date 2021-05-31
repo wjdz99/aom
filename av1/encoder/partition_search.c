@@ -1089,6 +1089,16 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 
     const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
     if (new_mv) {
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+      for (int idx = 0; idx < 2; ++idx) {
+        uint8_t drl_ctx = av1_drl_ctx(idx);
+        update_cdf(fc->drl_cdf[drl_ctx], mbmi->ref_mv_idx != idx, 2);
+#if CONFIG_ENTROPY_STATS
+        ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx];
+#endif
+        if (mbmi->ref_mv_idx == idx) break;
+      }
+#else
       const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
       for (int idx = 0; idx < 2; ++idx) {
         if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -1101,9 +1111,20 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
           if (mbmi->ref_mv_idx == idx) break;
         }
       }
+#endif
     }
 
     if (have_nearmv_in_inter_mode(mbmi->mode)) {
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+      for (int idx = 1; idx < 3; ++idx) {
+        uint8_t drl_ctx = av1_drl_ctx(idx);
+        update_cdf(fc->drl_cdf[drl_ctx], mbmi->ref_mv_idx != idx - 1, 2);
+#if CONFIG_ENTROPY_STATS
+        ++counts->drl_mode[drl_ctx][mbmi->ref_mv_idx != idx - 1];
+#endif
+        if (mbmi->ref_mv_idx == idx - 1) break;
+      }
+#else
       const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
       for (int idx = 1; idx < 3; ++idx) {
         if (mbmi_ext->ref_mv_count[ref_frame_type] > idx + 1) {
@@ -1116,6 +1137,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
           if (mbmi->ref_mv_idx == idx - 1) break;
         }
       }
+#endif
     }
     if (have_newmv_in_inter_mode(mbmi->mode)) {
       const int allow_hp = cm->features.cur_frame_force_integer_mv

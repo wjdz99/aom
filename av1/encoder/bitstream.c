@@ -95,6 +95,35 @@ static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
   }
 }
 
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+static AOM_INLINE void write_drl_idx(FRAME_CONTEXT* ec_ctx,
+    const MB_MODE_INFO* mbmi, aom_writer* w) {
+  assert(mbmi->ref_mv_idx < 3);
+
+  const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
+  if (new_mv) {
+    int idx;
+    for (idx = 0; idx < 2; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(idx);
+      aom_write_symbol(w, mbmi->ref_mv_idx != idx, ec_ctx->drl_cdf[drl_ctx], 2);
+      if (mbmi->ref_mv_idx == idx) return;
+    }
+    return;
+  }
+
+  if (have_nearmv_in_inter_mode(mbmi->mode)) {
+    int idx;
+    // TODO(jingning): Temporary solution to compensate the NEARESTMV offset.
+    for (idx = 1; idx < 3; ++idx) {
+      uint8_t drl_ctx = av1_drl_ctx(idx);
+      aom_write_symbol(w, mbmi->ref_mv_idx != (idx - 1),
+        ec_ctx->drl_cdf[drl_ctx], 2);
+      if (mbmi->ref_mv_idx == (idx - 1)) return;
+    }
+    return;
+  }
+}
+#else
 static AOM_INLINE void write_drl_idx(
     FRAME_CONTEXT *ec_ctx, const MB_MODE_INFO *mbmi,
     const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame, aom_writer *w) {
@@ -129,6 +158,7 @@ static AOM_INLINE void write_drl_idx(
     return;
   }
 }
+#endif
 
 static AOM_INLINE void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
                                                  PREDICTION_MODE mode,
@@ -1144,7 +1174,11 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
         write_inter_mode(w, mode, ec_ctx, mode_ctx);
 
       if (mode == NEWMV || mode == NEW_NEWMV || have_nearmv_in_inter_mode(mode))
+#if CONFIG_NO_MV_PARSING_DEPENDENCY
+        write_drl_idx(ec_ctx, mbmi, w);
+#else
         write_drl_idx(ec_ctx, mbmi, mbmi_ext_frame, w);
+#endif
       else
         assert(mbmi->ref_mv_idx == 0);
     }
