@@ -976,6 +976,15 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
                                    : tpl_stats_ptr->srcrf_rate;
 
   int64_t cur_dep_dist = tpl_stats_ptr->recrf_dist - srcrf_dist;
+  int64_t intra_cost = tpl_stats_ptr->intra_cost;
+  int64_t inter_cost = tpl_stats_ptr->inter_cost;
+
+  int64_t srcrf_sse = tpl_stats_ptr->srcrf_sse;
+
+  int64_t mc_dep_mbtree = 
+      (int64_t)
+      ((double)tpl_stats_ptr->mc_dep_mbtree 
+      * (1.0 - (double)inter_cost / intra_cost));
   int64_t mc_dep_dist =
       (int64_t)(tpl_stats_ptr->mc_dep_dist *
                 ((double)(tpl_stats_ptr->recrf_dist - srcrf_dist) /
@@ -1003,6 +1012,8 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
           ((cur_dep_dist + mc_dep_dist) * overlap_area) / pix_num;
       des_stats->mc_dep_rate +=
           ((delta_rate + mc_dep_rate) * overlap_area) / pix_num;
+      des_stats->mc_dep_mbtree +=
+          ((intra_cost + mc_dep_mbtree) * overlap_area) / pix_num;
     }
   }
 }
@@ -1737,6 +1748,7 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
   for (int row = 0; row < num_rows; row++) {
     for (int col = 0; col < num_cols; col++) {
       double intra_cost = 0.0, mc_dep_cost = 0.0;
+      double intra_mbtree = 0, mc_dep_mbtree = 0;
       // Loop through each mi block.
       for (int mi_row = row * num_mi_h; mi_row < (row + 1) * num_mi_h;
            mi_row += step) {
@@ -1751,9 +1763,14 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
           intra_cost += (double)(this_stats->recrf_dist << RDDIV_BITS);
           mc_dep_cost +=
               (double)(this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+
+          intra_mbtree += this_stats->intra_cost;
+          mc_dep_mbtree += this_stats->mc_dep_mbtree + this_stats->intra_cost;
         }
       }
-      const double rk = intra_cost / mc_dep_cost;
+      const double rk = 
+        intra_mbtree / mc_dep_mbtree;
+        // intra_cost / mc_dep_cost;
       const int index = row * num_cols + col;
       cpi->ppi->tpl_rdmult_scaling_factors[index] = rk / cpi->rd.r0 + c;
     }

@@ -472,7 +472,12 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
   if (tpl_frame->is_valid) {
     int tpl_stride = tpl_frame->stride;
     int64_t intra_cost_base = 0;
+    int64_t tpl_dist_base = 0;
     int64_t mc_dep_cost_base = 0;
+
+    int64_t intra_mbtree = 0;
+    int64_t mc_dep_mbtree = 0;
+
     const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
     const int row_step = step;
     const int col_step_sr =
@@ -486,17 +491,27 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         int64_t mc_dep_delta =
             RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                    this_stats->mc_dep_dist);
+        tpl_dist_base += (this_stats->mc_dep_dist << RDDIV_BITS);
         intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
         mc_dep_cost_base +=
             (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+
+        intra_mbtree += this_stats->intra_cost;
+        mc_dep_mbtree += this_stats->mc_dep_mbtree + this_stats->intra_cost;
       }
     }
+
+    fprintf(stderr, "tpl dist prop %f, mbtree %f\n",
+        (double)tpl_dist_base / intra_cost_base,
+        (double)mc_dep_mbtree / intra_mbtree);
 
     if (mc_dep_cost_base == 0) {
       tpl_frame->is_valid = 0;
     } else {
       aom_clear_system_state();
-      cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
+      cpi->rd.r0 = 
+      (double)intra_mbtree / mc_dep_mbtree;
+      // (double)intra_cost_base / mc_dep_cost_base;
       if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) {
         if (cpi->ppi->lap_enabled) {
           double min_boost_factor = sqrt(cpi->ppi->p_rc.baseline_gf_interval);
@@ -542,6 +557,13 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
   *q = av1_rc_pick_q_and_bounds(cpi, cm->width, cm->height, cpi->gf_frame_index,
                                 bottom_index, top_index);
 
+  fprintf(stderr, "frame idx = %d, type = %d\n",
+      cm->current_frame.display_order_hint, gf_group->frame_type[cpi->gf_frame_index]);
+
+  // if (cm->current_frame.display_order_hint == 32) {
+  //   *q = *bottom_index = *top_index = *q + 1;
+  // }
+  
   // Configure experimental use of segmentation for enhanced coding of
   // static regions if indicated.
   // Only allowed in the second pass of a two pass encode, as it requires
