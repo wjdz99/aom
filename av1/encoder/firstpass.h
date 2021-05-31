@@ -189,7 +189,6 @@ typedef struct {
   // frame.
   unsigned char cur_frame_idx[MAX_STATIC_GF_GROUP_LENGTH];
   int layer_depth[MAX_STATIC_GF_GROUP_LENGTH];
-  int arf_boost[MAX_STATIC_GF_GROUP_LENGTH];
   int max_layer_depth;
   int max_layer_depth_allowed;
   // This is currently only populated for AOM_Q mode
@@ -197,8 +196,6 @@ typedef struct {
   int bit_allocation[MAX_STATIC_GF_GROUP_LENGTH];
   // The frame coding type - inter/intra frame
   FRAME_TYPE frame_type[MAX_STATIC_GF_GROUP_LENGTH];
-  // The reference frame buffer control - update or reset
-  REFBUF_STATE refbuf_state[MAX_STATIC_GF_GROUP_LENGTH];
   int arf_index;  // the index in the gf group of ARF, if no arf, then -1
   int size;       // The total length of a GOP
 #if CONFIG_FRAME_PARALLEL_ENCODE
