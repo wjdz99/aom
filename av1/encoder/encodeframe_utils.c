@@ -915,6 +915,10 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   const int row_step = step;
   const int col_step_sr =
       coded_to_superres_mi(step, cm->superres_scale_denominator);
+
+  int64_t intra_mbtree = 0;
+  int64_t mc_dep_mbtree = 0;
+
   for (int row = mi_row; row < mi_row + mi_high; row += row_step) {
     for (int col = mi_col_sr; col < mi_col_end_sr; col += col_step_sr) {
       if (row >= cm->mi_params.mi_rows || col >= mi_cols_sr) continue;
@@ -925,6 +929,9 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
                  this_stats->mc_dep_dist);
       intra_cost += this_stats->recrf_dist << RDDIV_BITS;
       mc_dep_cost += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+
+      intra_mbtree += this_stats->intra_cost;
+      mc_dep_mbtree += this_stats->mc_dep_mbtree;
       mi_count++;
     }
   }
@@ -934,7 +941,9 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   double beta = 1.0;
   if (mc_dep_cost > 0 && intra_cost > 0) {
     const double r0 = cpi->rd.r0;
-    const double rk = (double)intra_cost / mc_dep_cost;
+    const double rk = 
+    (double)intra_mbtree / mc_dep_mbtree;
+    // (double)intra_cost / mc_dep_cost;
     beta = (r0 / rk);
     assert(beta > 0.0);
   }
