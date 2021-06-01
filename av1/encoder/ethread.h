@@ -80,6 +80,8 @@ int av1_get_max_num_workers(AV1_COMP *cpi);
 
 void av1_create_workers(AV1_COMP *cpi, int num_workers);
 
+void av1_init_mt_sync(AV1_COMP *cpi, int is_first_pass);
+
 void av1_create_second_pass_workers(AV1_COMP *cpi, int num_workers);
 
 void av1_cdef_mse_calc_frame_mt(AV1_COMMON *cm, MultiThreadInfo *mt_info,
