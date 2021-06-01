@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb2baa0d_5654ae3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 31
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-01T22:54:31Z",
+      "side": 1,
+      "message": "Thank you for your comments.",
+      "revId": "4276a9514f551d9a7b31acf05dd5ac1e0f8ca65d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "92afbe11_000e20a7",
@@ -116,6 +133,24 @@
       "writtenOn": "2021-06-01T22:49:41Z",
       "side": 1,
       "message": "Is the plan to not enable the test for MRLS?",
+      "revId": "4276a9514f551d9a7b31acf05dd5ac1e0f8ca65d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "584bb3d6_f60667f5",
+        "filename": "test/dr_prediction_test.cc",
+        "patchSetId": 31
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-01T22:54:31Z",
+      "side": 1,
+      "message": "Currently we have the SIMD implementation on AVX2, but don\u0027t have the SMID implementation on NEON, so the unit test on NEON is not enabled.",
+      "parentUuid": "873e288c_7dd984bb",
       "revId": "4276a9514f551d9a7b31acf05dd5ac1e0f8ca65d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
