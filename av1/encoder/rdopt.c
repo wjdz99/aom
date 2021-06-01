@@ -5455,7 +5455,7 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
   // with av1_default_mode_order to get the enum that defines the mode, which
   // can be used with av1_mode_defs to get the prediction mode and the ref
   // frames.
-  for (THR_MODES midx = THR_MODE_START; midx < THR_MODE_END; ++midx) {
+  for (THR_MODES midx = THR_MODE_START; midx < THR_INTER_MODE_END; ++midx) {
     // Get the actual prediction mode we are trying in this iteration
     const THR_MODES mode_enum = av1_default_mode_order[midx];
     const MODE_DEFINITION *mode_def = &av1_mode_defs[mode_enum];
