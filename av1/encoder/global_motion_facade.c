@@ -312,6 +312,10 @@ static int compare_distance(const void *a, const void *b) {
   return 0;
 }
 
+#if CONFIG_NEW_REF_SIGNALING
+
+#else
+
 // Function to decide if we can skip the global motion parameter computation
 // for a particular ref frame.
 static AOM_INLINE int skip_gm_frame(AV1_COMMON *const cm, int ref_frame) {
@@ -400,6 +404,7 @@ static AOM_INLINE void update_valid_ref_frames_for_gm(
     }
   }
 }
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 // Allocates and initializes memory for segment_map and MotionModel.
 static AOM_INLINE void alloc_global_motion_data(MotionModel *params_by_motion,
