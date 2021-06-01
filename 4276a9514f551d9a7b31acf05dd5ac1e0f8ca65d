@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92afbe11_000e20a7",
+        "filename": "aom_dsp/x86/intrapred_avx2.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-06-01T21:23:09Z",
+      "side": 1,
+      "message": "Minor item -- If the * 2 can be changed to shift here and other places below? It is fine to keep it * 2 if that was preferred for some reason.",
+      "revId": "4276a9514f551d9a7b31acf05dd5ac1e0f8ca65d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8bb4965_2a4cd15b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-06-01T21:23:09Z",
+      "side": 1,
+      "message": "This comment needs to be updated",
+      "revId": "4276a9514f551d9a7b31acf05dd5ac1e0f8ca65d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53690ee2_dcb2ba64",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-06-01T21:23:09Z",
+      "side": 1,
+      "message": "Should this not be enabled by default?",
+      "revId": "4276a9514f551d9a7b31acf05dd5ac1e0f8ca65d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a96d3416_db03a8ad",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 31
+      },
+      "lineNbr": 3811,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-06-01T21:23:09Z",
+      "side": 1,
+      "message": "Should this not be enabled by default?",
+      "revId": "4276a9514f551d9a7b31acf05dd5ac1e0f8ca65d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
