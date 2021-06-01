@@ -16,6 +16,24 @@
       "message": "Yunqing,\n\nI have taken in your comments. Please review the patch.\n\nThanks",
       "revId": "b9b0b43fe9990971b6a9aa861daf56e6411b92ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff40ef47_306f120b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-01T16:38:49Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "26f48b1c_f9c77aa4",
+      "revId": "b9b0b43fe9990971b6a9aa861daf56e6411b92ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
