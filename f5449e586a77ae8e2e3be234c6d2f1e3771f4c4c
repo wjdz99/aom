@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fa01aee_60ab9730",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-06-01T13:59:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have skipped wavelet energy calculation in first pass. For the case where deltaq_mode is configured as DELTA_Q_PERCEPTUAL in second pass and configured differently in first pass encoding, \u0027frame_avg_wavelet_energy\u0027 is calculated in second pass encoding.  \n\nFollowing are the results:\n \n              Instruction Count\n  cpu-used      Reduction(%)\n      3              0.40\n      4              0.59\n      5              1.14\n      6              1.50\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc ...\n\nThe speed gains for cpu-used 0,1,2 are negligible.\n\nPlease review this patch.\n\nThanks",
+      "revId": "f5449e586a77ae8e2e3be234c6d2f1e3771f4c4c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
