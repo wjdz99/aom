@@ -551,7 +551,8 @@ static AOM_INLINE void setup_ref_mv_list(
   if (abs(max_row_offset) >= 1)
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
     scan_row_mbmi(cm, xd, mi_col, rf, -1, ref_mv_stack, ref_mv_weight,
-                  refmv_count, &row_match_count, &newmv_count, gm_mv_candidates);
+                  refmv_count, &row_match_count, &newmv_count,
+                  gm_mv_candidates);
 #else
     scan_row_mbmi(cm, xd, mi_col, rf, -1, ref_mv_stack, ref_mv_weight,
                   refmv_count, &row_match_count, &newmv_count, gm_mv_candidates,
@@ -561,7 +562,8 @@ static AOM_INLINE void setup_ref_mv_list(
   if (abs(max_col_offset) >= 1)
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
     scan_col_mbmi(cm, xd, mi_row, rf, -1, ref_mv_stack, ref_mv_weight,
-                  refmv_count, &col_match_count, &newmv_count, gm_mv_candidates);
+                  refmv_count, &col_match_count, &newmv_count,
+                  gm_mv_candidates);
 #else
     scan_col_mbmi(cm, xd, mi_row, rf, -1, ref_mv_stack, ref_mv_weight,
                   refmv_count, &col_match_count, &newmv_count, gm_mv_candidates,
@@ -641,7 +643,8 @@ static AOM_INLINE void setup_ref_mv_list(
         abs(row_offset) > processed_rows)
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
       scan_row_mbmi(cm, xd, mi_col, rf, row_offset, ref_mv_stack, ref_mv_weight,
-                    refmv_count, &row_match_count, &dummy_newmv_count, gm_mv_candidates);
+                    refmv_count, &row_match_count, &dummy_newmv_count,
+                    gm_mv_candidates);
 #else
       scan_row_mbmi(cm, xd, mi_col, rf, row_offset, ref_mv_stack, ref_mv_weight,
                     refmv_count, &row_match_count, &dummy_newmv_count,
@@ -652,7 +655,8 @@ static AOM_INLINE void setup_ref_mv_list(
         abs(col_offset) > processed_cols)
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
       scan_col_mbmi(cm, xd, mi_row, rf, col_offset, ref_mv_stack, ref_mv_weight,
-                    refmv_count, &col_match_count, &dummy_newmv_count, gm_mv_candidates);
+                    refmv_count, &col_match_count, &dummy_newmv_count,
+                    gm_mv_candidates);
 #else
       scan_col_mbmi(cm, xd, mi_row, rf, col_offset, ref_mv_stack, ref_mv_weight,
                     refmv_count, &col_match_count, &dummy_newmv_count,
