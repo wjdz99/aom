@@ -282,6 +282,17 @@ static INLINE void thread_loop_filter_rows(
       dir = cur_job_info->dir;
       r = mi_row >> MAX_MIB_SIZE_LOG2;
 
+#if CONFIG_SDP
+      if (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
+          cm->seq_params.enable_sdp) {
+        if (plane == AOM_PLANE_Y) {
+          xd->tree_type = LUMA_PART;
+        } else {
+          xd->tree_type = CHROMA_PART;
+        }
+      }
+#endif  // CONFIG_SDP
+
       if (dir == 0) {
         for (mi_col = 0; mi_col < cm->mi_params.mi_cols;
              mi_col += MAX_MIB_SIZE) {
@@ -314,8 +325,14 @@ static INLINE void thread_loop_filter_rows(
         }
       }
     } else {
+#if CONFIG_SDP
+      xd->tree_type = SHARED_PART;
+#endif  // CONFIG_SDP
       break;
     }
+#if CONFIG_SDP
+    xd->tree_type = SHARED_PART;
+#endif  // CONFIG_SDP
   }
 }
 

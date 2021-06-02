@@ -335,18 +335,20 @@ static TX_SIZE set_lpf_parameters(
 #else
               mi_prev->skip_txfm && is_inter_block(mi_prev);
 #endif
-#if CONFIG_EXT_RECUR_PARTITIONS
-          const BLOCK_SIZE bsize = get_mb_plane_block_size(
-              mbmi, plane, plane_ptr->subsampling_x, plane_ptr->subsampling_y);
-#elif CONFIG_SDP
-          const BLOCK_SIZE bsize = get_plane_block_size(
-              mbmi->sb_type[plane > 0], plane_ptr->subsampling_x,
-              plane_ptr->subsampling_y);
-#else  // !CONFIG_EXT_RECUR_PARTITIONS && ! CONFIG_SDP
+#if CONFIG_EXT_RECUR_PARTITIONS || CONFIG_SDP
+          const BLOCK_SIZE bsize =
+              get_mb_plane_block_size(xd, mbmi, plane, plane_ptr->subsampling_x,
+                                      plane_ptr->subsampling_y);
+#if CONFIG_SDP
+          assert(bsize == get_plane_block_size(mbmi->sb_type[plane > 0],
+                                               plane_ptr->subsampling_x,
+                                               plane_ptr->subsampling_y));
+#endif  // CONFIG_SDP
+#else
           const BLOCK_SIZE bsize =
               get_plane_block_size(mbmi->sb_type, plane_ptr->subsampling_x,
                                    plane_ptr->subsampling_y);
-#endif
+#endif  // CONFIG_EXT_RECUR_PARTITIONS || CONFIG_SDP
           assert(bsize < BLOCK_SIZES_ALL);
           const int prediction_masks = edge_dir == VERT_EDGE
                                            ? block_size_wide[bsize] - 1
@@ -673,6 +675,17 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
       else if (plane == 2 && !(cm->lf.filter_level_v))
         continue;
 
+#if CONFIG_SDP
+      if (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
+          cm->seq_params.enable_sdp) {
+        if (plane == AOM_PLANE_Y) {
+          xd->tree_type = LUMA_PART;
+        } else {
+          xd->tree_type = CHROMA_PART;
+        }
+      }
+#endif  // CONFIG_SDP
+
       av1_setup_dst_planes(pd, frame_buffer, 0, 0, plane, plane + 1, NULL);
 
       av1_build_bitmask_vert_info(cm, &pd[plane], plane);
@@ -698,6 +711,9 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
         av1_filter_block_plane_bitmask_horz(cm, &pd[plane], plane, mi_row,
                                             mi_col - MI_SIZE_64X64);
       }
+#if CONFIG_SDP
+      xd->tree_type = SHARED_PART;
+#endif  // CONFIG_SDP
     }
     return;
   }
@@ -711,6 +727,16 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
     else if (plane == 2 && !(cm->lf.filter_level_v))
       continue;
 
+#if CONFIG_SDP
+    if (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
+        cm->seq_params.enable_sdp) {
+      if (plane == AOM_PLANE_Y) {
+        xd->tree_type = LUMA_PART;
+      } else {
+        xd->tree_type = CHROMA_PART;
+      }
+    }
+#endif  // CONFIG_SDP
     if (cm->lf.combine_vert_horz_lf) {
       // filter all vertical and horizontal edges in every 128x128 super block
       for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
@@ -755,6 +781,9 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame_buffer, AV1_COMMON *cm,
         }
       }
     }
+#if CONFIG_SDP
+    xd->tree_type = SHARED_PART;
+#endif  // CONFIG_SDP
   }
 }
 
