@@ -16,6 +16,92 @@
       "message": "Hi Yunqing,\n\nThis patch adds a unit test CpuUsedFirstpassTest, that validates the two pass encoding mode, when the first pass stats are generated with a different speed preset. In this test, the PSNR achieved  when using first pass stats of a different speed preset, is compared with, the PSNR achieved when the first pass stats of the same speed preset is used. A PSNR difference of greater than or equal to 0.1db , causes the test to fail.\n\nTo limit the duration of the test, we have restricted the resolution to 640x480 , the rate control mode to AOM_VBR and the different combinations of speed presets(2 ,4 , 6) as listed in table below. The lower speed presets (2, 4) have been added as part of Large tests (CpuUsedFirstpassTestLarge).\n\n\t      |    Reference encode     |     Test encode         |\nTest case No. | First pass  Second pass | First pass  Second pass |\n\t      |  cpu_used    cpu_used\t|  cpu_used    cpu_used   |\n------------- | ----------  ----------  | ----------  ----------  |\n       1      |     2\t   \t 2\t|     4\t\t  2       |\n       2      |     2\t   \t 2\t|     6\t\t  2       |\n       3      |     4\t   \t 4\t|     2\t\t  4       |\n       4      |     4\t   \t 4\t|     6\t\t  4       |\n       5      |     6\t   \t 6\t|     2\t\t  6       |\n       6      |     6\t   \t 6\t|     4\t\t  6       |\n\t \nPlease review the patch and let us know your opinion.\n\nThanks",
       "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29606204_7963c29c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-02T16:41:53Z",
+      "side": 1,
+      "message": "Thanks for adding this unit test.",
+      "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56901bf5_dc008654",
+        "filename": "test/cpu_used_firstpass_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-02T16:41:53Z",
+      "side": 1,
+      "message": "If 1st pass cpu_used \u003c 2nd pass cpu_used, we should not see much psnr loss, right? Did you see that in your testing? \nMaybe at least have 2 psnr thresholds here for different cases?",
+      "range": {
+        "startLine": 19,
+        "startChar": 34,
+        "endLine": 19,
+        "endChar": 37
+      },
+      "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21ae5124_85724f61",
+        "filename": "test/cpu_used_firstpass_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-02T16:41:53Z",
+      "side": 1,
+      "message": "Maybe move 4 to CpuUsedFirstpassTest, so we at least run 1 test with (1st pass cpu_used \u003e 2nd pass cpu_used) daily?",
+      "range": {
+        "startLine": 109,
+        "startChar": 48,
+        "endLine": 109,
+        "endChar": 49
+      },
+      "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee550a85_153c8231",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-02T16:41:53Z",
+      "side": 1,
+      "message": "Add cpu_used_firstpass_test.cc to this list if it isn\u0027t for real time?",
+      "range": {
+        "startLine": 99,
+        "startChar": 7,
+        "endLine": 99,
+        "endChar": 48
+      },
+      "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
