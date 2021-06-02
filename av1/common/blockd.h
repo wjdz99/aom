@@ -1572,6 +1572,26 @@ static INLINE BLOCK_SIZE get_mb_plane_block_size(const MACROBLOCKD *xd,
   const BLOCK_SIZE bsize_base = get_bsize_base(xd, mbmi, plane);
   return get_plane_block_size(bsize_base, subsampling_x, subsampling_y);
 }
+
+#if CONFIG_SDP
+// This is only needed to support lpf multi-thread.
+// because xd is shared among all the threads workers, xd->tree_type does not
+// contain the valid tree_type, so we are passing in the tree_type
+static INLINE BLOCK_SIZE get_mb_plane_block_size_from_tree_type(
+    const MB_MODE_INFO *mbmi, TREE_TYPE tree_type, int plane, int subsampling_x,
+    int subsampling_y) {
+  assert(subsampling_x >= 0 && subsampling_x < 2);
+  assert(subsampling_y >= 0 && subsampling_y < 2);
+  BLOCK_SIZE bsize_base = BLOCK_INVALID;
+  if (tree_type == SHARED_PART) {
+    bsize_base =
+        plane ? mbmi->chroma_ref_info.bsize_base : mbmi->sb_type[PLANE_TYPE_Y];
+  } else {
+    bsize_base = mbmi->sb_type[av1_get_sdp_idx(tree_type)];
+  }
+  return get_plane_block_size(bsize_base, subsampling_x, subsampling_y);
+}
+#endif  // CONFIG_SDP
 #endif  // CONFIG_EXT_RECUR_PARTITIONS || CONFIG_SDP
 
 #if CONFIG_SDP
