@@ -5029,6 +5029,8 @@ static AOM_INLINE void search_intra_modes_in_interframe(
   for (int i = 0; i < TOP_INTRA_MODEL_COUNT; i++) {
     top_intra_model_rd[i] = INT64_MAX;
   }
+
+  //printf("\n yrd_threshold = %ld;  ", yrd_threshold);
   for (int mode_idx = INTRA_MODE_START; mode_idx < LUMA_MODE_COUNT;
        ++mode_idx) {
     if (sf->intra_sf.skip_intra_in_interframe &&
@@ -5083,9 +5085,11 @@ static AOM_INLINE void search_intra_modes_in_interframe(
         intra_search_state, cpi, x, bsize, intra_ref_frame_cost, ctx,
         &intra_rd_stats_y, search_state->best_rd, &mode_cost_y, &intra_rd_y,
         &best_model_rd, top_intra_model_rd);
+
     if (is_luma_result_valid && intra_rd_y < yrd_threshold) {
       is_best_y_mode_intra = 1;
       if (intra_rd_y < best_rd_y) {
+        //printf("     !!!: %d;      ", mbmi->mode);
         best_intra_rd_stats_y = intra_rd_stats_y;
         best_mode_cost_y = mode_cost_y;
         best_rd_y = intra_rd_y;
@@ -5253,7 +5257,10 @@ static AOM_INLINE void skip_intra_modes_in_interframe(
     if (scores[1] > scores[0] + thresh[skip_intra_in_interframe - 1]) {
       search_state->intra_search_state.skip_intra_modes = 1;
     }
-  } else if ((search_state->best_mbmode.skip_txfm) &&
+  }
+
+  if (!search_state->intra_search_state.skip_intra_modes &&
+      search_state->best_mbmode.skip_txfm &&
              (skip_intra_in_interframe >= 2)) {
     search_state->intra_search_state.skip_intra_modes = 1;
   }
@@ -5614,6 +5621,9 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
       (x->source_variance > src_var_thresh_intra_skip))
     skip_intra_modes_in_interframe(cm, x, bsize, &search_state, inter_cost,
                                    intra_cost, skip_intra_in_interframe);
+
+//  if(search_state.best_mbmode.skip_txfm) // && best_inter_yrd != search_state.best_rd)
+//    printf("\n  %ld;  %ld; ", best_inter_yrd, search_state.best_rd);
 
   const unsigned int intra_ref_frame_cost = ref_costs_single[INTRA_FRAME];
   search_intra_modes_in_interframe(&search_state, cpi, x, rd_cost, bsize, ctx,
