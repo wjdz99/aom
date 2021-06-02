@@ -1562,7 +1562,11 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
   const int is_overlay_frame = rc->is_src_frame_alt_ref;
 
   if (is_leaf_frame || is_overlay_frame) {
+    // ===== start ==== This is where we decide q_index when
+    // gf_group->update_type[gf_index] == OVERLAY_UPDATE / INTNL_OVERLAY_UPDATE
+    // cq_level: this is the base_q_index
     if (rc_mode == AOM_Q) return cq_level;
+    // ===== end ====
 
     active_best_quality = inter_minq[active_worst_quality];
     // For the constrained quality mode we don't want
@@ -1583,6 +1587,10 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
     q = rc->avg_frame_qindex[INTER_FRAME];
   }
   if (rc_mode == AOM_CQ && q < cq_level) q = cq_level;
+  // ===== start ==== This is where we decide q_index when
+  // gf_group->update_type[gf_index] == ARF_UPDATE input: arf_boost_factor,
+  // avg_frame_qindex(Let's use base_qindex here) output: active_best_qualitly
+  // --> the qindex used for ARF frame, i.e. p_rc->arf_q
   active_best_quality = get_gf_active_quality(p_rc, q, bit_depth);
   // Constrained quality use slightly lower active best.
   if (rc_mode == AOM_CQ) active_best_quality = active_best_quality * 15 / 16;
@@ -1590,13 +1598,19 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
   const int boost = min_boost - active_best_quality;
   active_best_quality = min_boost - (int)(boost * p_rc->arf_boost_factor);
   if (!is_intrl_arf_boost) return active_best_quality;
+  // ===== end
 
   if (rc_mode == AOM_Q || rc_mode == AOM_CQ) active_best_quality = p_rc->arf_q;
+  // ===== start ==== This is where we decide q_index when
+  // gf_group->update_type[gf_index] == INTNL_ARF_UPDATE input: arf_qindexs(i.e.
+  // p_rc->arf_q) and  gf_group->layer_depth[gf_index] output:
+  // active_best_qualitly --> the qindex used for this frame
   int this_height = gf_group_pyramid_level(gf_group, gf_index);
   while (this_height > 1) {
     active_best_quality = (active_best_quality + active_worst_quality + 1) / 2;
     --this_height;
   }
+  // ===== end ====
   return active_best_quality;
 }
 
