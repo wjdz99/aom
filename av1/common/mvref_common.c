@@ -810,7 +810,7 @@ static AOM_INLINE void setup_ref_mv_list(
       clamp_mv_ref(&ref_mv_stack[idx].comp_mv.as_mv, xd->width << MI_SIZE_LOG2,
                    xd->height << MI_SIZE_LOG2, xd);
     }
-#if CONFIG_NO_MV_PARSING_DEPENDENCY
+#if 0//CONFIG_NO_MV_PARSING_DEPENDENCY
     for (int idx = *refmv_count; idx < USABLE_REF_MV_STACK_SIZE; ++idx) {
       ref_mv_stack[idx].this_mv.as_int = gm_mv_candidates[0].as_int;
       ref_mv_stack[idx].comp_mv.as_int = gm_mv_candidates[0].as_int;
@@ -841,7 +841,7 @@ static AOM_INLINE void setup_ref_mv_list(
                    xd->height << MI_SIZE_LOG2, xd);
     }
 
-#if CONFIG_NO_MV_PARSING_DEPENDENCY
+#if 0//CONFIG_NO_MV_PARSING_DEPENDENCY
     for (int idx = *refmv_count; idx < USABLE_REF_MV_STACK_SIZE; ++idx) {
       ref_mv_stack[idx].this_mv.as_int = gm_mv_candidates[0].as_int;
       ref_mv_weight[idx] = 2;
