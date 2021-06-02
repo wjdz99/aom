@@ -2602,7 +2602,6 @@ static int64_t simple_translation_pred_rd(
   if (!build_cur_mv(cur_mv, mbmi->mode, cm, x, 0)) {
     return INT64_MAX;
   }
-  assert(have_nearmv_in_inter_mode(mbmi->mode));
   for (int i = 0; i < is_comp_pred + 1; ++i) {
     mbmi->mv[i].as_int = cur_mv[i].as_int;
   }
@@ -2647,6 +2646,45 @@ static INLINE bool mask_check_bit(int mask, int index) {
   return (mask >> index) & 0x1;
 }
 
+#define CONFIG_NEW_INTER_MODES_FASTER 1
+
+#if CONFIG_NEW_INTER_MODES && CONFIG_NEW_INTER_MODES_FASTER
+static int pick_top_n(
+    int64_t *idx_rdcost, int ref_set, int n, int good_indices) {
+  n = AOMMIN(ref_set, n);
+  int num_good = 0;
+  for (int i = 0; i < ref_set; ++i) {
+    if (mask_check_bit(good_indices, i) && idx_rdcost[i] != INT64_MAX) {
+      ++num_good;
+    }
+  }
+  int result = 0;
+  while (n > 0 && num_good > 0) {
+    int best_idx = -1;
+    for (int i = 0; i < ref_set; ++i) {
+      if (!mask_check_bit(good_indices, i)) {
+        continue;
+      }
+      if (best_idx == -1 || idx_rdcost[best_idx] > idx_rdcost[i]) {
+        best_idx = i;
+      }
+    }
+    --n;
+    --num_good;
+    mask_set_bit(&result, best_idx);
+    idx_rdcost[best_idx] = INT64_MAX;
+  }
+
+  for (int i = 0; i < ref_set && n > 0; ++i) {
+    if (mask_check_bit(good_indices, i) && !mask_check_bit(result, i)) {
+      mask_set_bit(&result, i);
+      --n;
+    }
+  }
+  return result;
+}
+#endif  // CONFIG_NEW_INTER_MODES
+
 // Before performing the full MV search in handle_inter_mode, do a simple
 // translation search and see if we can eliminate any motion vectors.
 // Returns an integer where, if the i-th bit is set, it means that the i-th
@@ -2682,7 +2720,9 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
   // found so far.
   if (!cpi->sf.inter_sf.prune_mode_search_simple_translation)
     return good_indices;
-  if (!have_nearmv_in_inter_mode(this_mode)) return good_indices;
+#if !CONFIG_NEW_INTER_MODES || !CONFIG_NEW_INTER_MODES_FASTER
+   if (!have_nearmv_in_inter_mode(this_mode)) return good_indices;
+#endif
   if (num_pels_log2_lookup[bsize] <= 6) return good_indices;
   // Do not prune when there is internal resizing. TODO(elliottk) fix this
   // so b/2384 can be resolved.
@@ -2739,7 +2779,12 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
 #endif  // CONFIG_NEW_INTER_MODES
   // Only include indices that are good and within a % of the best.
 #if CONFIG_NEW_INTER_MODES
-  const double dth = has_second_ref(mbmi) ? 1.02 : 1.001;
+  double dth = has_second_ref(mbmi) ? 1.02 : 1.001;
+#if CONFIG_NEW_INTER_MODES_FASTER
+  if (!have_nearmv_in_inter_mode(this_mode)) {
+    return pick_top_n(idx_rdcost, ref_set, 5, good_indices);
+  }
+#endif
 #else
   const double dth = has_second_ref(mbmi) ? 1.05 : 1.001;
 #endif
@@ -3380,6 +3425,7 @@ static int64_t handle_inter_mode(
       av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
   const int idx_mask = ref_mv_idx_to_search(cpi, x, rd_stats, args, ref_best_rd,
                                             mode_info, bsize, ref_set);
+
   const ModeCosts *mode_costs = &x->mode_costs;
   const int ref_mv_cost = cost_mv_ref(mode_costs, this_mode,
 #if CONFIG_OPTFLOW_REFINEMENT
