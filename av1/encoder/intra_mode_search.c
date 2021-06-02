@@ -1013,7 +1013,7 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
                          ? mode_costs->skip_txfm_cost[skip_ctx][1]
                          : rd_stats_y->rate;
   *rd_y = RDCOST(x->rdmult, rate_y + *mode_cost_y, rd_stats_y->dist);
-  if (best_rd < (INT64_MAX / 2) && *rd_y > (best_rd + (best_rd >> 2))) {
+  if (best_rd < (INT64_MAX / 2) && *rd_y > (best_rd + (best_rd >> 3))) {
     intra_search_state->skip_intra_modes = 1;
     return 0;
   }

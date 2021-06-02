@@ -5253,8 +5253,10 @@ static AOM_INLINE void skip_intra_modes_in_interframe(
     if (scores[1] > scores[0] + thresh[skip_intra_in_interframe - 1]) {
       search_state->intra_search_state.skip_intra_modes = 1;
     }
-  } else if ((search_state->best_mbmode.skip_txfm) &&
-             (skip_intra_in_interframe >= 2)) {
+  }
+
+  if (!search_state->intra_search_state.skip_intra_modes &&
+      search_state->best_mbmode.skip_txfm && (skip_intra_in_interframe >= 2)) {
     search_state->intra_search_state.skip_intra_modes = 1;
   }
 }
