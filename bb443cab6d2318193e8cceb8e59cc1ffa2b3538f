@@ -16,6 +16,24 @@
       "message": "Just wanted to confirm that this line has no effects, right?",
       "revId": "bb443cab6d2318193e8cceb8e59cc1ffa2b3538f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a68f1dc6_635307f0",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-06-02T20:59:08Z",
+      "side": 0,
+      "message": "That is correct - it is only used for inter mode search",
+      "parentUuid": "35e3a77a_06b3700e",
+      "revId": "bb443cab6d2318193e8cceb8e59cc1ffa2b3538f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
