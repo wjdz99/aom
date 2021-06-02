@@ -16,6 +16,24 @@
       "message": "Hi Marco, this CL changes real-time speed 5 performance. Could you take a look to see if this is acceptable? Otherwise, I can disable it for real-time.",
       "revId": "43d452a69607420f99fb07508b2d66b8605764d2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "289e6ae4_1b04be84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-06-02T22:00:58Z",
+      "side": 1,
+      "message": "I think its better to also disable it for rt speed 5, so real-time performance remains unchanged.",
+      "parentUuid": "af0caca6_471711d8",
+      "revId": "43d452a69607420f99fb07508b2d66b8605764d2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
