@@ -1042,6 +1042,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.enable_fast_compound_mode_search = 2;
 
     sf->intra_sf.chroma_intra_pruning_with_hog = 3;
+    sf->intra_sf.intra_pruning_with_hog = 4;
 
     // TODO(any): Extend multi-winner mode processing support for inter frames
     sf->winner_mode_sf.multi_winner_mode_type =
@@ -1073,7 +1074,6 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.prune_ext_comp_using_neighbors = 3;
 
     sf->intra_sf.chroma_intra_pruning_with_hog = 4;
-    sf->intra_sf.intra_pruning_with_hog = 4;
     sf->intra_sf.intra_uv_mode_mask[TX_32X32] = UV_INTRA_DC;
     sf->intra_sf.intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC;
     sf->intra_sf.intra_y_mode_mask[TX_32X32] = INTRA_DC;
