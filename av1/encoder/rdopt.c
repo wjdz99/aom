@@ -1359,8 +1359,7 @@ static int64_t motion_mode_rd(
         get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
     const int prune_obmc = cpi->frame_probs.obmc_probs[update_type][bsize] <
                            cpi->sf.inter_sf.prune_obmc_prob_thresh;
-    if ((!cpi->oxcf.motion_mode_cfg.enable_obmc ||
-         cpi->sf.rt_sf.use_nonrd_pick_mode || prune_obmc) &&
+    if ((!cpi->oxcf.motion_mode_cfg.enable_obmc || prune_obmc) &&
         mbmi->motion_mode == OBMC_CAUSAL)
       continue;
 
