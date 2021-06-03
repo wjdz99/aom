@@ -140,7 +140,7 @@ set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
 set_aom_config_var(CONFIG_NO_MV_PARSING_DEPENDENCY 1
                    "AV2 experiment flag to remove MV parsing dependency.")
 set_aom_config_var(CONFIG_COMPLEXITY_SCALABLE_MVP 1
-                   "AV2 experiment flag to allow reduced complexity of ref MV list construction.")
+                   "AV2 experiment flag to enable complexity-scalable MVP.")
 
 #
 # Variables in this section control optional features of the build system.
