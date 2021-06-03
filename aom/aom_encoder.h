@@ -157,9 +157,10 @@ typedef struct aom_rational {
 
 /*!\brief Multi-pass Encoding Pass */
 enum aom_enc_pass {
-  AOM_RC_ONE_PASS,   /**< Single pass mode */
-  AOM_RC_FIRST_PASS, /**< First pass of multi-pass mode */
-  AOM_RC_LAST_PASS   /**< Final pass of multi-pass mode */
+  AOM_RC_ONE_PASS,    /**< Single pass mode */
+  AOM_RC_FIRST_PASS,  /**< First pass of multi-pass mode */
+  AOM_RC_SECOND_PASS, /**< Second pass of multi-pass mode */
+  AOM_RC_LAST_PASS    /**< Final pass of multi-pass mode */
 };
 
 /*!\brief Rate control mode */

@@ -974,11 +974,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
     dec_model_cfg->display_model_info_present_flag = 1;
   }
 
-  switch (cfg->g_pass) {
-    case AOM_RC_ONE_PASS: oxcf->pass = 0; break;
-    case AOM_RC_FIRST_PASS: oxcf->pass = 1; break;
-    case AOM_RC_LAST_PASS: oxcf->pass = 2; break;
-  }
+  oxcf->pass = cfg->g_pass;
 
   // Set Rate Control configuration.
   rc_cfg->max_intra_bitrate_pct = extra_cfg->rc_max_intra_bitrate_pct;
@@ -2295,8 +2291,8 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
       reduce_ratio(&priv->timestamp_ratio);
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
-      if (priv->oxcf.rc_cfg.mode != AOM_CBR && priv->oxcf.pass == 0 &&
-          priv->oxcf.mode == GOOD) {
+      if (priv->oxcf.rc_cfg.mode != AOM_CBR &&
+          priv->oxcf.pass == AOM_RC_ONE_PASS && priv->oxcf.mode == GOOD) {
         // Enable look ahead - enabled for AOM_Q, AOM_CQ, AOM_VBR
         *num_lap_buffers =
             AOMMIN((int)priv->cfg.g_lag_in_frames,
@@ -2454,7 +2450,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   AV1_COMP *cpi_lap = ppi->cpi_lap;
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
 
-  if (cpi->ppi->lap_enabled && cpi_lap == NULL && cpi->oxcf.pass == 0)
+  if (cpi->ppi->lap_enabled && cpi_lap == NULL &&
+      cpi->oxcf.pass == AOM_RC_ONE_PASS)
     return AOM_CODEC_INVALID_PARAM;
 
   if (img != NULL) {
@@ -2641,7 +2638,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int has_no_show_keyframe = 0;
     int num_workers = 0;
 
-    if (cpi->oxcf.pass == 1) {
+    if (cpi->oxcf.pass == AOM_RC_FIRST_PASS) {
 #if !CONFIG_REALTIME_ONLY
       num_workers = av1_fp_compute_num_enc_workers(cpi);
 #endif
@@ -2651,7 +2648,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     }
     if ((num_workers > 1) && (cpi->mt_info.num_workers == 0)) {
       av1_create_workers(cpi, num_workers);
-      if (cpi->oxcf.pass != 1) {
+      if (cpi->oxcf.pass != AOM_RC_FIRST_PASS) {
         av1_create_second_pass_workers(cpi, num_workers);
       }
     }

@@ -1402,9 +1402,17 @@ static void setup_pass(struct stream_state *stream,
       fatal("Failed to open statistics store");
   }
 
-  stream->config.cfg.g_pass = global->passes == 2
-                                  ? pass ? AOM_RC_LAST_PASS : AOM_RC_FIRST_PASS
-                                  : AOM_RC_ONE_PASS;
+  if (global->passes == 1) {
+    stream->config.cfg.g_pass = AOM_RC_ONE_PASS;
+  } else if (pass == global->passes - 1) {
+    stream->config.cfg.g_pass = AOM_RC_LAST_PASS;
+  } else {
+    switch (pass) {
+      case 0: stream->config.cfg.g_pass = AOM_RC_FIRST_PASS; break;
+      case 1: stream->config.cfg.g_pass = AOM_RC_SECOND_PASS; break;
+    }
+  }
+
   if (pass) {
     stream->config.cfg.rc_twopass_stats_in = stats_get(&stream->stats);
   }
