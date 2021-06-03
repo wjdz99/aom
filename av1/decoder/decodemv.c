@@ -1410,9 +1410,7 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
       ref_mv[1] = xd->ref_mv_stack[ref_frame][ref_mv_idx].comp_mv;
   } else {
     if (mbmi->mode == NEWMV) {
-#if !CONFIG_NO_MV_PARSING_DEPENDENCY
       if (dcb->ref_mv_count[ref_frame] > 1)
-#endif
         ref_mv[0] = xd->ref_mv_stack[ref_frame][mbmi->ref_mv_idx].this_mv;
     }
   }
