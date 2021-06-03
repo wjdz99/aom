@@ -385,6 +385,7 @@ void av1_setup_xform(const AV1_COMMON *cm, MACROBLOCK *x,
   txfm_param->intra_mode =
       (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
   if ((txfm_param->intra_mode < PAETH_PRED) &&
+      !xd->lossless[mbmi->segment_id] &&
       !(mbmi->filter_intra_mode_info.use_filter_intra) &&
       cm->seq_params.enable_ist) {
     txfm_param->stx_type = (tx_type >> 4);

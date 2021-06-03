@@ -5827,10 +5827,7 @@ void inv_stxfm_sse4_1(tran_low_t *src, tran_low_t *dst,
                       const int size) {
   const int16_t *kernel =
       (size == 4) ? g_stx4x4[mode][stx_idx][0] : g_stx8x8[mode][stx_idx][0];
-
-  assert(mode < 14);
   assert(stx_idx < 4);
-
   int rnd_factor = 1 << (7 - 1);
   const __m128i round = _mm_set1_epi32(rnd_factor);
 
