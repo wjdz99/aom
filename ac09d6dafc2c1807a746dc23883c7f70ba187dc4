@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "084ef217_dabd8717",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-03T16:19:27Z",
+      "side": 1,
+      "message": "We can still exit early here with best_rd.\nDo you want to guard this with the speed feature as well?",
+      "range": {
+        "startLine": 639,
+        "startChar": 2,
+        "endLine": 639,
+        "endChar": 27
+      },
+      "revId": "ac09d6dafc2c1807a746dc23883c7f70ba187dc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
