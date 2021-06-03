@@ -810,14 +810,6 @@ static AOM_INLINE void setup_ref_mv_list(
       clamp_mv_ref(&ref_mv_stack[idx].comp_mv.as_mv, xd->width << MI_SIZE_LOG2,
                    xd->height << MI_SIZE_LOG2, xd);
     }
-#if 0//CONFIG_NO_MV_PARSING_DEPENDENCY
-    for (int idx = *refmv_count; idx < USABLE_REF_MV_STACK_SIZE; ++idx) {
-      ref_mv_stack[idx].this_mv.as_int = gm_mv_candidates[0].as_int;
-      ref_mv_stack[idx].comp_mv.as_int = gm_mv_candidates[0].as_int;
-      ref_mv_weight[idx] = 2;
-      ++*refmv_count;
-    }
-#endif
   } else {
     // Handle single reference frame extension
     for (int idx = 0; abs(max_row_offset) >= 1 && idx < mi_size &&
@@ -841,13 +833,6 @@ static AOM_INLINE void setup_ref_mv_list(
                    xd->height << MI_SIZE_LOG2, xd);
     }
 
-#if 0//CONFIG_NO_MV_PARSING_DEPENDENCY
-    for (int idx = *refmv_count; idx < USABLE_REF_MV_STACK_SIZE; ++idx) {
-      ref_mv_stack[idx].this_mv.as_int = gm_mv_candidates[0].as_int;
-      ref_mv_weight[idx] = 2;
-      ++*refmv_count;
-    }
-#endif
     if (mv_ref_list != NULL) {
       for (int idx = *refmv_count; idx < MAX_MV_REF_CANDIDATES; ++idx)
         mv_ref_list[idx].as_int = gm_mv_candidates[0].as_int;
