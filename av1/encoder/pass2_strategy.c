@@ -1942,10 +1942,11 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
       int offset = rc->frames_since_key - p_rc->regions_offset;
       REGIONS *regions = p_rc->regions;
       int num_regions = p_rc->num_regions;
+      printf("ftk %d i %d\n", rc->frames_to_key, i);
       if (cpi->oxcf.kf_cfg.fwd_kf_enabled && p_rc->next_is_fwd_key) {
         const int frames_left = rc->frames_to_key - i;
         const int min_int = AOMMIN(MIN_FWD_KF_INTERVAL, active_min_gf_interval);
-        if (frames_left < min_int && frames_left > 0) {
+        if (frames_left < min_int && frames_left > 0 /*&& rc->frames_to_key > min_int*/) { //sarah_change
           cur_last = rc->frames_to_key - min_int - 1;
         }
       }
@@ -2237,6 +2238,7 @@ static INLINE void set_baseline_gf_interval(AV1_COMP *cpi, int arf_position,
   } else {
     p_rc->baseline_gf_interval = arf_position;
   }
+  printf("INT %d arf %d\n", p_rc->baseline_gf_interval, arf_position);
 }
 
 // initialize GF_GROUP_STATS
@@ -2390,6 +2392,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   }
 
   i = p_rc->gf_intervals[p_rc->cur_gf_index];
+  
 
   // save the errs for the last frame
   last_frame_stats.frame_coded_error = next_frame.coded_error;
@@ -2803,10 +2806,14 @@ static int test_candidate_kf(TWO_PASS *twopass,
 #define MIN_STATIC_KF_BOOST 5400  // Minimum boost for static KF interval
 
 static int detect_app_forced_key(AV1_COMP *cpi) {
-  if (cpi->oxcf.kf_cfg.fwd_kf_enabled) cpi->ppi->p_rc.next_is_fwd_key = 1;
+  if (cpi->oxcf.kf_cfg.fwd_kf_enabled) {
+    cpi->ppi->p_rc.next_is_fwd_key = 1;
+  }
   int num_frames_to_app_forced_key = is_forced_keyframe_pending(
       cpi->ppi->lookahead, cpi->ppi->lookahead->max_sz, cpi->compressor_stage);
-  if (num_frames_to_app_forced_key != -1) cpi->ppi->p_rc.next_is_fwd_key = 0;
+  if (num_frames_to_app_forced_key != -1) {
+    cpi->ppi->p_rc.next_is_fwd_key = 0;
+  }
   return num_frames_to_app_forced_key;
 }
 
@@ -2950,9 +2957,12 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   if (cpi->ppi->lap_enabled && !scenecut_detected)
     frames_to_key = num_frames_to_next_key;
 
+  printf("in %d end %d\n", ((char *)twopass->stats_in - (char *)twopass->stats_buf_ctx->stats_in_start) / sizeof(FIRSTPASS_STATS), 
+                           ((char *)twopass->stats_buf_ctx->stats_in_end - (char *)twopass->stats_buf_ctx->stats_in_start) / sizeof(FIRSTPASS_STATS));
   if (!kf_cfg->fwd_kf_enabled || scenecut_detected ||
-      twopass->stats_in >= twopass->stats_buf_ctx->stats_in_end)
+      twopass->stats_in >= twopass->stats_buf_ctx->stats_in_end) { //sarah_change
     p_rc->next_is_fwd_key = 0;
+  }
 
   return frames_to_key;
 }
@@ -3216,9 +3226,12 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
     p_rc->next_key_frame_forced = 0;
   }
 
-  if (kf_cfg->fwd_kf_enabled)
+  if (kf_cfg->fwd_kf_enabled) {
     p_rc->next_is_fwd_key |= p_rc->next_key_frame_forced;
+  }
 
+  printf("2 in %d end %d\n", ((char *)twopass->stats_in - (char *)twopass->stats_buf_ctx->stats_in_start) / sizeof(FIRSTPASS_STATS), 
+                           ((char *)twopass->stats_buf_ctx->stats_in_end - (char *)twopass->stats_buf_ctx->stats_in_start) / sizeof(FIRSTPASS_STATS));
   // Special case for the last key frame of the file.
   if (twopass->stats_in >= twopass->stats_buf_ctx->stats_in_end) {
     // Accumulate kf group error.
@@ -3320,9 +3333,6 @@ static void find_next_key_frame(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame) {
   kf_bits = calculate_boost_bits(
       AOMMIN(rc->frames_to_key, frames_to_key_clipped) - 1, p_rc->kf_boost,
       AOMMIN(twopass->kf_group_bits, kf_group_bits_clipped));
-  // printf("kf boost = %d kf_bits = %d kf_zeromotion_pct = %d\n",
-  // p_rc->kf_boost,
-  //        kf_bits, twopass->kf_zeromotion_pct);
   kf_bits = adjust_boost_bits_for_target_level(cpi, rc, kf_bits,
                                                twopass->kf_group_bits, 0);
 
@@ -3865,7 +3875,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     }
 #endif
   }
-  assert(cpi->gf_frame_index < gf_group->size);
+//assert(cpi->gf_frame_index < gf_group->size);
 
   if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE ||
       gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE) {
