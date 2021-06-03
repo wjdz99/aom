@@ -756,15 +756,19 @@ static int get_kf_active_quality(const PRIMARY_RATE_CONTROL *const p_rc, int q,
                             kf_low_motion_minq, kf_high_motion_minq);
 }
 
-static int get_gf_active_quality(const PRIMARY_RATE_CONTROL *const p_rc, int q,
-                                 aom_bit_depth_t bit_depth) {
+static int get_gf_active_quality_no_rc(int gfu_boost, int q, aom_bit_depth_t bit_depth) {
   int *arfgf_low_motion_minq;
   int *arfgf_high_motion_minq;
   ASSIGN_MINQ_TABLE(bit_depth, arfgf_low_motion_minq);
   ASSIGN_MINQ_TABLE(bit_depth, arfgf_high_motion_minq);
-  return get_active_quality(q, p_rc->gfu_boost, gf_low, gf_high,
+  return get_active_quality(q, gfu_boost, gf_low, gf_high,
                             arfgf_low_motion_minq, arfgf_high_motion_minq);
 }
+
+static int get_gf_active_quality(const PRIMARY_RATE_CONTROL *const p_rc, int q,
+                                 aom_bit_depth_t bit_depth) {
+  return get_gf_active_quality_no_rc(p_rc->gfu_boost, q, bit_depth);
+}                                
 
 static int get_gf_high_motion_quality(int q, aom_bit_depth_t bit_depth) {
   int *arfgf_high_motion_minq;
@@ -1621,6 +1625,47 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
   if (!is_intrl_arf_boost) return active_best_quality;
 
   if (rc_mode == AOM_Q || rc_mode == AOM_CQ) active_best_quality = p_rc->arf_q;
+  int this_height = gf_group_pyramid_level(gf_group, gf_index);
+  while (this_height > 1) {
+    active_best_quality = (active_best_quality + active_worst_quality + 1) / 2;
+    --this_height;
+  }
+  return active_best_quality;
+}
+
+// We assume at the start of the function that rc_mode = AOM_Q.
+static int get_active_best_quality_q_mode(const int cq_level,
+                                          const int bit_depth,
+                                          const GF_GROUP *gf_group,
+                                          const int gf_index,
+                                          const int is_overlay_frame,
+                                          int gfu_boost,
+                                          int arf_boost_factor,
+                                          int arf_q) {
+  const int is_intrl_arf_boost =
+      gf_group->update_type[gf_index] == INTNL_ARF_UPDATE;
+  int is_leaf_frame =
+      !(gf_group->update_type[gf_index] == ARF_UPDATE ||
+        gf_group->update_type[gf_index] == GF_UPDATE || is_intrl_arf_boost);
+
+  if (is_leaf_frame || is_overlay_frame) {
+      return cq_level;
+  }
+
+  // Determine active_best_quality for frames that are not leaf or overlay.
+  // Use the lower of active_worst_quality and recent
+  // average Q as basis for GF/ARF best Q limit unless last frame was
+  // a key frame.
+  int active_worst_quality = cq_level;
+  int active_best_quality = get_gf_active_quality_no_rc(gfu_boost, cq_level, bit_depth);
+
+  // Constrained quality use slightly lower active best.
+  const int min_boost = get_gf_high_motion_quality(cq_level, bit_depth);
+  const int boost = min_boost - active_best_quality;
+  active_best_quality = min_boost - (int)(boost * arf_boost_factor);
+  if (!is_intrl_arf_boost) return active_best_quality;
+
+  active_best_quality = arf_q;
   int this_height = gf_group_pyramid_level(gf_group, gf_index);
   while (this_height > 1) {
     active_best_quality = (active_best_quality + active_worst_quality + 1) / 2;
