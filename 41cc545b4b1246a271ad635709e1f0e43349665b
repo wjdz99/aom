@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f08cd61_263f3ab4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-06-03T22:33:09Z",
+      "side": 1,
+      "message": "Hello Wan-Teh, didn\u0027t realize that mingw-w64\u0027s ld doesn\u0027t support -z flags and didn\u0027t encounter the issue since I normally compile libaom as static and only encountered the issue today when I tried compiling it as shared.\n\nPlease review this whenever you can.",
+      "revId": "41cc545b4b1246a271ad635709e1f0e43349665b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
