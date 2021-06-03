@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "05745405_709447c8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-03T11:33:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e644d45c_8bf9019a",
+      "revId": "20b5e306f15fe43791c03190ee5169057a3c590e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4db16461_616a360f",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-03T00:12:32Z",
       "side": 1,
       "message": "This speed feature is applicable to speed presets 1 to 9, not just 1 to 6, right?",
+      "range": {
+        "startLine": 12,
+        "startChar": 29,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "20b5e306f15fe43791c03190ee5169057a3c590e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6daf71a2_2668fe3d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-03T11:33:17Z",
+      "side": 1,
+      "message": "In allintra encoding mode, speed presets 7 to 9 use non-rd path for intra mode decision, i.e.,av1_nonrd_pick_intra_mode(). The speed feature \u0027top_intra_model_count_allowed\u0027 is applicable only in \u0027av1_rd_pick_intra_mode_sb()\u0027. Hence, this speed feature is applicable for presets 0 to 6 and presets 7 to 9 will not have any impact because of this sf.",
+      "parentUuid": "4db16461_616a360f",
       "range": {
         "startLine": 12,
         "startChar": 29,
