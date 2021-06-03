@@ -159,6 +159,7 @@ struct av1_extracfg {
   COST_UPDATE_TYPE dv_cost_upd_freq;
   unsigned int ext_tile_debug;
   unsigned int sb_multipass_unit_test;
+  int passes;
 };
 
 #if CONFIG_REALTIME_ONLY
@@ -303,6 +304,7 @@ static struct av1_extracfg default_extra_cfg = {
   COST_UPD_OFF,  // dv_cost_upd_freq
   0,             // ext_tile_debug
   0,             // sb_multipass_unit_test
+  -1,            // passes
 };
 #else
 static struct av1_extracfg default_extra_cfg = {
@@ -434,6 +436,7 @@ static struct av1_extracfg default_extra_cfg = {
   COST_UPD_SB,  // dv_cost_upd_freq
   0,            // ext_tile_debug
   0,            // sb_multipass_unit_test
+  -1,           // passes
 };
 #endif
 
@@ -542,7 +545,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(cfg, rc_2pass_vbr_bias_pct, 100);
   RANGE_CHECK(cfg, kf_mode, AOM_KF_DISABLED, AOM_KF_AUTO);
   RANGE_CHECK_HI(cfg, rc_dropframe_thresh, 100);
-  RANGE_CHECK(cfg, g_pass, AOM_RC_ONE_PASS, AOM_RC_LAST_PASS);
+  RANGE_CHECK(cfg, g_pass, AOM_RC_ONE_PASS, AOM_RC_THIRD_PASS);
   if (cfg->g_pass == AOM_RC_ONE_PASS) {
     RANGE_CHECK_HI(cfg, g_lag_in_frames, MAX_TOTAL_BUFFERS);
   } else {
@@ -612,7 +615,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(cfg, g_input_bit_depth, 8, 12);
   RANGE_CHECK(extra_cfg, content, AOM_CONTENT_DEFAULT, AOM_CONTENT_INVALID - 1);
 
-  if (cfg->g_pass == AOM_RC_LAST_PASS) {
+  if (cfg->g_pass >= AOM_RC_LAST_PASS) {
     const size_t packet_sz = sizeof(FIRSTPASS_STATS);
     const int n_packets = (int)(cfg->rc_twopass_stats_in.sz / packet_sz);
     const FIRSTPASS_STATS *stats;
@@ -929,7 +932,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   input_cfg->input_bit_depth = cfg->g_input_bit_depth;
   // guess a frame rate if out of whack, use 30
   input_cfg->init_framerate = (double)cfg->g_timebase.den / cfg->g_timebase.num;
-  if (cfg->g_pass == AOM_RC_LAST_PASS) {
+  if (cfg->g_pass >= AOM_RC_LAST_PASS) {
     const size_t packet_sz = sizeof(FIRSTPASS_STATS);
     const int n_packets = (int)(cfg->rc_twopass_stats_in.sz / packet_sz);
     input_cfg->limit = n_packets - 1;
@@ -974,10 +977,17 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
     dec_model_cfg->display_model_info_present_flag = 1;
   }
 
-  switch (cfg->g_pass) {
-    case AOM_RC_ONE_PASS: oxcf->pass = 0; break;
-    case AOM_RC_FIRST_PASS: oxcf->pass = 1; break;
-    case AOM_RC_LAST_PASS: oxcf->pass = 2; break;
+  oxcf->pass = cfg->g_pass;
+  // For backward compatibility, assume that if extra_cfg->passes==-1, then
+  // passes = 1 or 2.
+  if (extra_cfg->passes == -1) {
+    if (cfg->g_pass == AOM_RC_ONE_PASS) {
+      oxcf->passes = 1;
+    } else {
+      oxcf->passes = 2;
+    }
+  } else {
+    oxcf->passes = extra_cfg->passes;
   }
 
   // Set Rate Control configuration.
@@ -2295,8 +2305,8 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
       reduce_ratio(&priv->timestamp_ratio);
 
       set_encoder_config(&priv->oxcf, &priv->cfg, &priv->extra_cfg);
-      if (priv->oxcf.rc_cfg.mode != AOM_CBR && priv->oxcf.pass == 0 &&
-          priv->oxcf.mode == GOOD) {
+      if (priv->oxcf.rc_cfg.mode != AOM_CBR &&
+          priv->oxcf.pass == AOM_RC_ONE_PASS && priv->oxcf.mode == GOOD) {
         // Enable look ahead - enabled for AOM_Q, AOM_CQ, AOM_VBR
         *num_lap_buffers =
             AOMMIN((int)priv->cfg.g_lag_in_frames,
@@ -2454,7 +2464,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   AV1_COMP *cpi_lap = ppi->cpi_lap;
   if (cpi == NULL) return AOM_CODEC_INVALID_PARAM;
 
-  if (cpi->ppi->lap_enabled && cpi_lap == NULL && cpi->oxcf.pass == 0)
+  if (cpi->ppi->lap_enabled && cpi_lap == NULL &&
+      cpi->oxcf.pass == AOM_RC_ONE_PASS)
     return AOM_CODEC_INVALID_PARAM;
 
   if (img != NULL) {
@@ -2641,7 +2652,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
     int has_no_show_keyframe = 0;
     int num_workers = 0;
 
-    if (cpi->oxcf.pass == 1) {
+    if (cpi->oxcf.pass == AOM_RC_FIRST_PASS) {
 #if !CONFIG_REALTIME_ONLY
       num_workers = av1_fp_compute_num_enc_workers(cpi);
 #endif
@@ -2657,7 +2668,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         av1_init_mt_sync(cpi_lap, 1);
       }
 #endif  // CONFIG_MULTITHREAD
-      if (cpi->oxcf.pass != 1) {
+      if (cpi->oxcf.pass != AOM_RC_FIRST_PASS) {
         av1_create_second_pass_workers(cpi, num_workers);
       }
     }
@@ -3523,6 +3534,9 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                               &g_av1_codec_arg_defs.input_chroma_subsampling_y,
                               argv, err_string)) {
     extra_cfg.chroma_subsampling_y = arg_parse_uint_helper(&arg, err_string);
+  } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.passes, argv,
+                              err_string)) {
+    extra_cfg.passes = arg_parse_int_helper(&arg, err_string);
   } else {
     match = 0;
     snprintf(err_string, ARG_ERR_MSG_MAX_LEN, "Cannot find aom option %s",
