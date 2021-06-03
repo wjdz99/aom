@@ -60,6 +60,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "328d3854_6409792b",
+        "filename": "test/cpu_used_firstpass_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-06-03T15:32:24Z",
+      "side": 1,
+      "message": "Yunqing,\n\nAs per our understanding, there should be lesser BD rate loss when  1st pass cpu_used \u003c 2nd pass cpu_used, on average for 1st pass cpu_used !\u003d 2nd pass cpu_used. However, we see that this is not true in the case of the content we have chosen (niklas_640_480_30). Please find the table below with PSNR values for all configurations when second pass cpu_used \u003d 2. We see that test case 1 (first pass cpu_used \u003d 0 and second pass cpu_used \u003d 2) has a higher PSNR loss of around 0.057db than test case 6 (first pass cpu_used \u003d 6 and second pass cpu_used \u003d 2) with PSNR loss of around 0.039db. Though the PSNR loss is not as expected, it seems to be small.\n\n Test case No. First pass  Second pass  PSNR achieved  Difference\n\t       cpu_used   cpu_used\t\t      w r t Ref PSNR\n Ref PSNR\t  2          2          41.87051          NA\n    1\t\t  0          2          41.813452       0.057058\n    2             1          2          41.875526      -0.005016\n    3             3          2          41.807365       0.063145\n    4             4          2          41.807365       0.063145\n    5             5          2          41.831419       0.039091\n    6             6          2          41.831419       0.039091\n\n\nHence we have added some buffer and chosen a uniform PSNR difference threshold of 0.1 db, for all configurations. Please let us know your opinion on this.",
+      "parentUuid": "56901bf5_dc008654",
+      "range": {
+        "startLine": 19,
+        "startChar": 34,
+        "endLine": 19,
+        "endChar": 37
+      },
+      "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "21ae5124_85724f61",
         "filename": "test/cpu_used_firstpass_test.cc",
         "patchSetId": 4
@@ -71,6 +95,30 @@
       "writtenOn": "2021-06-02T16:41:53Z",
       "side": 1,
       "message": "Maybe move 4 to CpuUsedFirstpassTest, so we at least run 1 test with (1st pass cpu_used \u003e 2nd pass cpu_used) daily?",
+      "range": {
+        "startLine": 109,
+        "startChar": 48,
+        "endLine": 109,
+        "endChar": 49
+      },
+      "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ac25fe0_ec1b8279",
+        "filename": "test/cpu_used_firstpass_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-06-03T15:32:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21ae5124_85724f61",
       "range": {
         "startLine": 109,
         "startChar": 48,
@@ -94,6 +142,30 @@
       "writtenOn": "2021-06-02T16:41:53Z",
       "side": 1,
       "message": "Add cpu_used_firstpass_test.cc to this list if it isn\u0027t for real time?",
+      "range": {
+        "startLine": 99,
+        "startChar": 7,
+        "endLine": 99,
+        "endChar": 48
+      },
+      "revId": "49e879d45449d2276e564ffddcd2fb229e019f63",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b5a74ef_a3803f7c",
+        "filename": "test/test.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-06-03T15:32:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee550a85_153c8231",
       "range": {
         "startLine": 99,
         "startChar": 7,
