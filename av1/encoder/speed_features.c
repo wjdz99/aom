@@ -1354,6 +1354,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
 
     sf->inter_sf.inter_mode_rd_model_estimation = 2;
+    sf->intra_sf.top_intra_model_count_allowed = 2;
 
     for (int i = 0; i < TX_SIZES; ++i) {
       sf->intra_sf.intra_y_mode_mask[i] = INTRA_DC;
