@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nJust to be sure I understood it correctly.\nThis change makes the code as it was before https://aomedia-review.googlesource.com/c/aom/+/138781\nand the speed up is against this previous CL.\nIs that correct or am I missing something?\n\nThanks.",
       "revId": "9fd79d76f1d903afb8c332bc96c5a350c58875ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b961a66_36182e81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-03T16:59:15Z",
+      "side": 1,
+      "message": "Let\u0027s call https://aomedia-review.googlesource.com/c/aom/+/138781 CL1, and current cl CL2.\n\nintra_y_mode_mask wasn\u0027t actually used before CL1. CL1 added code to use the mask. That related intra_y_mode_mask setting for rtc had to be commented out to make it unchanged for rtc case. Namely, CL1 didn\u0027t cause any change for rtc case.\n\nCL2 enables using intra_y_mode_mask for rtc. So speedup is against previous rtc code.",
+      "parentUuid": "66f8adc0_9dbaeb54",
+      "revId": "9fd79d76f1d903afb8c332bc96c5a350c58875ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
