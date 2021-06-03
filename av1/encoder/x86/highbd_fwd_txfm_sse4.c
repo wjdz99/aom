@@ -2630,7 +2630,6 @@ void fwd_stxfm_sse4_1(tran_low_t *src, tran_low_t *dst,
   for (int j = 0; j < reduced_height; j++) {
     int *srcPtr = src;
     const int16_t *kernel_tmp = kernel;
-    coef = 0;
     __m128i tmpSum = _mm_setzero_si128();
     for (int i = 0; i < reduced_width; i += 4) {
       __m128i tmpBlk = _mm_loadu_si128((__m128i *)(srcPtr + i));
