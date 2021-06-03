@@ -444,7 +444,7 @@ static const int quant_dist_lookup_table[4][2] = {
 
 #if CONFIG_IST
 
-static const uint8_t g_stx_transpose_mapping[INTRA_MODES - 1] = {
+static const uint8_t g_stx_transpose_mapping[12] = {
   // 0(DC_PRED) 1(V_PRED) 2(H_PRED) 3(D45_PRED) 4(D135_PRED) 5(D113_PRED)
   // 6(D157_PRED) 7(D203_PRED) 8(D67_PRED) 9(SMOOTH_PRED) 10(SMOOTH_V_PRED)
   // 11(SMOOTH_H_PRED)

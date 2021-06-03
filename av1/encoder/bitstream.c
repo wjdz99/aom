@@ -926,7 +926,11 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
     // eset == 0 should correspond to a set with only DCT_DCT and there
     // is no need to send the tx_type
     assert(eset > 0);
+#if CONFIG_IST
+    assert(av1_ext_tx_used[tx_set_type][tx_type & 0x0f]);
+#else
     assert(av1_ext_tx_used[tx_set_type][tx_type]);
+#endif
     if (is_inter) {
       aom_write_symbol(w, av1_ext_tx_ind[tx_set_type][tx_type],
                        ec_ctx->inter_ext_tx_cdf[eset][square_tx_size],
@@ -940,7 +944,7 @@ void av1_write_tx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
         intra_dir = mbmi->mode;
 #if CONFIG_IST
       aom_write_symbol(
-          w, av1_ext_tx_ind[tx_set_type][tx_type & 0xf],
+          w, av1_ext_tx_ind[tx_set_type][tx_type & 0x0f],
           ec_ctx->intra_ext_tx_cdf[eset][square_tx_size][intra_dir],
           av1_num_ext_tx_set[tx_set_type]);
 #else
@@ -975,16 +979,6 @@ void av1_write_stx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
       !segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
-    const TxSetType tx_set_type = av1_get_ext_tx_set_type(
-        tx_size, is_inter, features->reduced_tx_set_used);
-    const int eset =
-        get_ext_tx_set(tx_size, is_inter, features->reduced_tx_set_used);
-    // eset == 0 should correspond to a set with only DCT_DCT and there
-    // is no need to send the tx_type
-    assert(eset > 0);
-    assert(av1_ext_tx_used[tx_set_type][tx_type]);
-    (void)eset;
-    (void)tx_set_type;
     if (!is_inter) {
       PREDICTION_MODE intra_dir;
       if (mbmi->filter_intra_mode_info.use_filter_intra)
@@ -1016,7 +1010,7 @@ void av1_write_stx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
         aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
       }
     }
-  } else if (!is_inter) {
+  } else if (!is_inter && !xd->lossless[mbmi->segment_id]) {
     uint8_t stx_flag = (tx_type >> 4);
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];

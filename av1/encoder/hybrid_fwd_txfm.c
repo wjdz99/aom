@@ -321,9 +321,9 @@ void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param) {
                          ? tx_size_high[txfm_param->tx_size]
                          : 32;
 
-  if ((width >= 4 && height >= 4) && txfm_param->stx_type) {
+  if ((width >= 4 && height >= 4) && stx_type) {
     PREDICTION_MODE intra_mode = txfm_param->intra_mode;
-    PREDICTION_MODE mode_t;
+    PREDICTION_MODE mode = 0, mode_t = 0;
     const int log2width = tx_size_wide_log2[txfm_param->tx_size];
     int sbSize = (width >= 8 && height >= 8) ? 8 : 4;
     const int16_t *scan_order_in;
@@ -334,8 +334,9 @@ void av1_fwd_stxfm(tran_low_t *coeff, TxfmParam *txfm_param) {
     tran_low_t *tmp = buf0;
     tran_low_t *src = coeff;
     int8_t transpose = 0;
-    int mode =
-        (txfm_param->tx_type == ADST_ADST) ? intra_mode - 12 : intra_mode;
+    mode = AOMMIN(
+        (txfm_param->tx_type == ADST_ADST) ? intra_mode - 12 : intra_mode,
+        SMOOTH_H_PRED);
     if ((mode == H_PRED) || (mode == D157_PRED) || (mode == D67_PRED) ||
         (mode == SMOOTH_H_PRED))
       transpose = 1;

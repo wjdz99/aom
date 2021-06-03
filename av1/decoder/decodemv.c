@@ -769,15 +769,6 @@ void av1_read_stx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd, int blk_row,
 #endif
   if (get_ext_tx_types(tx_size, inter_block, cm->features.reduced_tx_set_used) >
       1) {
-    const TxSetType tx_set_type = av1_get_ext_tx_set_type(
-        tx_size, inter_block, cm->features.reduced_tx_set_used);
-    const int eset =
-        get_ext_tx_set(tx_size, inter_block, cm->features.reduced_tx_set_used);
-    // eset == 0 should correspond to a set with only DCT_DCT and
-    // there is no need to read the tx_type
-    assert(eset != 0);
-    (void)eset;
-    (void)tx_set_type;
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
     if (!inter_block) {
