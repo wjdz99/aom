@@ -435,10 +435,7 @@ void fwd_stxfm_c(tran_low_t *src, tran_low_t *dst, const PREDICTION_MODE mode,
       (size == 4) ? g_stx4x4[mode][stx_idx][0] : g_stx8x8[mode][stx_idx][0];
   int coef;
   int *out = dst;
-
-  assert(mode < 14);
   assert(stx_idx < 4);
-
   int shift = 7;
   int offset = 1 << (shift - 1);
 
