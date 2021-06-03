@@ -379,7 +379,6 @@ static void set_good_speed_features_framesize_independent(
   sf->tx_sf.intra_tx_size_search_init_depth_sqr = 1;
   sf->tx_sf.model_based_prune_tx_search_level = 1;
   sf->tx_sf.tx_type_search.use_reduced_intra_txset = 1;
-
   sf->rt_sf.use_nonrd_pick_mode = 0;
   sf->rt_sf.use_real_time_ref_set = 0;
 
@@ -609,7 +608,6 @@ static void set_good_speed_features_framesize_independent(
     sf->rd_sf.perform_coeff_opt_based_on_satd =
         is_boosted_arf2_bwd_type ? 1 : 2;
     sf->rd_sf.tx_domain_dist_thres_level = 2;
-
     // TODO(any): Extend multi-winner mode processing support for inter frames
     sf->winner_mode_sf.multi_winner_mode_type =
         frame_is_intra_only(&cpi->common) ? MULTI_WINNER_MODE_DEFAULT
@@ -847,9 +845,10 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->hl_sf.recode_loop = ALLOW_RECODE_KFMAXBW;
 
     sf->inter_sf.adaptive_rd_thresh = 4;
-
+#if !CONFIG_IST
     sf->rd_sf.tx_domain_dist_level = 2;
     sf->rd_sf.tx_domain_dist_thres_level = 2;
+#endif
     sf->winner_mode_sf.tx_size_search_level = 1;
 
     sf->rt_sf.mode_search_skip_flags =
