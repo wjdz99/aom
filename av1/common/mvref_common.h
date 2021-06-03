@@ -183,9 +183,7 @@ static INLINE int16_t av1_mode_context_analyzer(
 }
 
 #if CONFIG_NO_MV_PARSING_DEPENDENCY
-static INLINE uint8_t av1_drl_ctx(int ref_idx) {
-  return AOMMIN(ref_idx, 2);
-}
+static INLINE uint8_t av1_drl_ctx(int ref_idx) { return AOMMIN(ref_idx, 2); }
 #else
 static INLINE uint8_t av1_drl_ctx(const uint16_t *ref_mv_weight, int ref_idx) {
   if (ref_mv_weight[ref_idx] >= REF_CAT_LEVEL &&

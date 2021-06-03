@@ -194,8 +194,8 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
 }
 
 #if CONFIG_NO_MV_PARSING_DEPENDENCY
-static void read_drl_idx(FRAME_CONTEXT* ec_ctx, MB_MODE_INFO* mbmi,
-                         aom_reader* r) {
+static void read_drl_idx(FRAME_CONTEXT *ec_ctx, MB_MODE_INFO *mbmi,
+                         aom_reader *r) {
   mbmi->ref_mv_idx = 0;
   if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
     for (int idx = 0; idx < 2; ++idx) {

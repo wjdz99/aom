@@ -96,8 +96,8 @@ static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 }
 
 #if CONFIG_NO_MV_PARSING_DEPENDENCY
-static AOM_INLINE void write_drl_idx(FRAME_CONTEXT* ec_ctx,
-    const MB_MODE_INFO* mbmi, aom_writer* w) {
+static AOM_INLINE void write_drl_idx(FRAME_CONTEXT *ec_ctx,
+                                     const MB_MODE_INFO *mbmi, aom_writer *w) {
   assert(mbmi->ref_mv_idx < 3);
 
   const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
@@ -117,7 +117,7 @@ static AOM_INLINE void write_drl_idx(FRAME_CONTEXT* ec_ctx,
     for (idx = 1; idx < 3; ++idx) {
       uint8_t drl_ctx = av1_drl_ctx(idx);
       aom_write_symbol(w, mbmi->ref_mv_idx != (idx - 1),
-        ec_ctx->drl_cdf[drl_ctx], 2);
+                       ec_ctx->drl_cdf[drl_ctx], 2);
       if (mbmi->ref_mv_idx == (idx - 1)) return;
     }
     return;

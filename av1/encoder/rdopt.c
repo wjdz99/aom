@@ -1781,8 +1781,8 @@ static INLINE int build_cur_mv(int_mv *cur_mv, PREDICTION_MODE this_mode,
 }
 
 #if CONFIG_NO_MV_PARSING_DEPENDENCY
-static INLINE int get_drl_cost(const MB_MODE_INFO* mbmi,
-                               const int(* const drl_mode_cost0)[2]) {
+static INLINE int get_drl_cost(const MB_MODE_INFO *mbmi,
+                               const int(*const drl_mode_cost0)[2]) {
   int cost = 0;
   if (mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV) {
     for (int idx = 0; idx < 2; ++idx) {

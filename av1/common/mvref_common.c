@@ -141,10 +141,10 @@ static AOM_INLINE void add_ref_mv_candidate(
 
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
 static AOM_INLINE void scan_row_mbmi(
-    const AV1_COMMON* cm, const MACROBLOCKD* xd, int mi_col,
-    const MV_REFERENCE_FRAME rf[2], int row_offset, CANDIDATE_MV* ref_mv_stack,
-    uint16_t* ref_mv_weight, uint8_t* refmv_count, uint8_t* ref_match_count,
-    uint8_t* newmv_count, int_mv* gm_mv_candidates) {
+    const AV1_COMMON *cm, const MACROBLOCKD *xd, int mi_col,
+    const MV_REFERENCE_FRAME rf[2], int row_offset, CANDIDATE_MV *ref_mv_stack,
+    uint16_t *ref_mv_weight, uint8_t *refmv_count, uint8_t *ref_match_count,
+    uint8_t *newmv_count, int_mv *gm_mv_candidates) {
 #else
 static AOM_INLINE void scan_row_mbmi(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, int mi_col,
@@ -200,10 +200,10 @@ static AOM_INLINE void scan_row_mbmi(
 
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
 static AOM_INLINE void scan_col_mbmi(
-    const AV1_COMMON* cm, const MACROBLOCKD* xd, int mi_row,
-    const MV_REFERENCE_FRAME rf[2], int col_offset, CANDIDATE_MV* ref_mv_stack,
-    uint16_t* ref_mv_weight, uint8_t* refmv_count, uint8_t* ref_match_count,
-    uint8_t* newmv_count, int_mv* gm_mv_candidates) {
+    const AV1_COMMON *cm, const MACROBLOCKD *xd, int mi_row,
+    const MV_REFERENCE_FRAME rf[2], int col_offset, CANDIDATE_MV *ref_mv_stack,
+    uint16_t *ref_mv_weight, uint8_t *refmv_count, uint8_t *ref_match_count,
+    uint8_t *newmv_count, int_mv *gm_mv_candidates) {
 #else
 static AOM_INLINE void scan_col_mbmi(
     const AV1_COMMON *cm, const MACROBLOCKD *xd, int mi_row,
@@ -663,7 +663,6 @@ static AOM_INLINE void setup_ref_mv_list(
                     gm_mv_candidates, max_col_offset, &processed_cols);
 #endif
   }
-
 
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
   int new_ctx = 2 * nearest_match + (newmv_count > 0);
