@@ -1629,6 +1629,68 @@ static int get_active_best_quality(const AV1_COMP *const cpi,
   return active_best_quality;
 }
 
+// We assume at the start of the function that rc_mode = AOM_Q.
+/* static int get_active_best_quality_q_mode(const AV1_COMP *const cpi, */
+/*                                    const int active_worst_quality, */
+/*                                    const int cq_level, const int gf_index) { */
+static int get_active_best_quality_q_mode(const AV1_COMP *const cpi,
+                                          const int cq_level,
+                                          const int gf_index) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const int bit_depth = cm->seq_params->bit_depth;
+  const RATE_CONTROL *const rc = &cpi->rc;
+  const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
+  const RefreshFrameFlagsInfo *const refresh_frame_flags = &cpi->refresh_frame;
+  const GF_GROUP *gf_group = &cpi->ppi->gf_group;
+  int *inter_minq;
+  int avg_frame_qindex_inter_frame;
+  ASSIGN_MINQ_TABLE(bit_depth, inter_minq);
+  int active_best_quality = 0;
+  const int is_intrl_arf_boost =
+      gf_group->update_type[gf_index] == INTNL_ARF_UPDATE;
+  int is_leaf_frame =
+      !(gf_group->update_type[gf_index] == ARF_UPDATE ||
+        gf_group->update_type[gf_index] == GF_UPDATE || is_intrl_arf_boost);
+
+  // TODO(jingning): Consider to rework this hack that covers issues incurred
+  // in lightfield setting.
+  if (cm->tiles.large_scale) {
+    is_leaf_frame = !(refresh_frame_flags->golden_frame ||
+                      refresh_frame_flags->alt_ref_frame || is_intrl_arf_boost);
+  }
+  const int is_overlay_frame = rc->is_src_frame_alt_ref;
+
+  if (is_leaf_frame || is_overlay_frame) {
+      return cq_level;
+  }
+
+  // Determine active_best_quality for frames that are not leaf or overlay.
+  // Use the lower of active_worst_quality and recent
+  // average Q as basis for GF/ARF best Q limit unless last frame was
+  // a key frame.
+  int q = cq_level;
+  int active_worst_quality = cq_level;
+  avg_frame_qindex_inter_frame = rc->avg_frame_qindex[INTER_FRAME];
+  if (rc->frames_since_key > 1 &&
+      avg_frame_qindex_inter_frame < active_worst_quality) {
+    q = avg_frame_qindex_inter_frame;
+  }
+  active_best_quality = get_gf_active_quality(p_rc, q, bit_depth);
+  // Constrained quality use slightly lower active best.
+  const int min_boost = get_gf_high_motion_quality(q, bit_depth);
+  const int boost = min_boost - active_best_quality;
+  active_best_quality = min_boost - (int)(boost * p_rc->arf_boost_factor);
+  if (!is_intrl_arf_boost) return active_best_quality;
+
+  active_best_quality = p_rc->arf_q;
+  int this_height = gf_group_pyramid_level(gf_group, gf_index);
+  while (this_height > 1) {
+    active_best_quality = (active_best_quality + active_worst_quality + 1) / 2;
+    --this_height;
+  }
+  return active_best_quality;
+}
+
 static int rc_pick_q_and_bounds_q_mode(const AV1_COMP *cpi, int width,
                                        int height, int gf_index,
                                        int *bottom_index, int *top_index) {
