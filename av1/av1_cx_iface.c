@@ -361,7 +361,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,    // enable semi-decoupled partitioning
 #endif  // CONFIG_SDP
 #if CONFIG_IST
-  0,    // enable intra secondary transform
+  1,    // enable intra secondary transform
 #endif  // CONFIG_IST
   4,    // min_partition_size
   128,  // max_partition_size
@@ -3803,13 +3803,14 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0, 128, 128, 4, 1, 1, 1,
 #if CONFIG_SDP
         1,
 #endif  // CONFIG_SDP
 #if CONFIG_IST
-        0,
+        1,
 #endif  // CONFIG_IST
+        1, 1,   1,   1, 1, 1, 1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
@@ -3884,13 +3885,14 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                   // tile_heights
       0,                       // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      { 0, 128, 128, 4, 1, 1, 1,
 #if CONFIG_SDP
         1,
 #endif
 #if CONFIG_IST
-        0,
+        1,
 #endif
+        1, 1,   1,   1, 1, 1, 1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
