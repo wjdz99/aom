@@ -2482,14 +2482,15 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       const int filter = mbmi->filter_intra_mode_info.use_filter_intra;
       int depth = tx_size_to_depth(tx_size, plane_bsize);
 #if CONFIG_SDP
+      bool skip_stx = ((tx_type != DCT_DCT && tx_type != ADST_ADST) ||
+                       plane != 0 || is_inter_block(mbmi, xd->tree_type) ||
+                       dc_only_blk || intra_mode >= PAETH_PRED || filter ||
+                       depth > 0 || xd->lossless[mbmi->segment_id]);
+#else
       bool skip_stx =
           ((tx_type != DCT_DCT && tx_type != ADST_ADST) || plane != 0 ||
-           is_inter_block(mbmi, xd->tree_type) || dc_only_blk ||
-           intra_mode >= PAETH_PRED || filter || depth > 0);
-#else
-      bool skip_stx = ((tx_type != DCT_DCT && tx_type != ADST_ADST) ||
-                       plane != 0 || is_inter_block(mbmi) || dc_only_blk ||
-                       intra_mode >= PAETH_PRED || filter || depth > 0);
+           is_inter_block(mbmi) || dc_only_blk || intra_mode >= PAETH_PRED ||
+           filter || depth > 0 || xd->lossless[mbmi->segment_id]);
 #endif
       if (skip_stx && stx) continue;
       tx_type += (stx << 4);
