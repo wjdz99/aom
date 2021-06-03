@@ -1016,7 +1016,7 @@ void av1_write_stx_type(const AV1_COMMON *const cm, const MACROBLOCKD *xd,
         aom_write_symbol(w, stx_flag, ec_ctx->stx_cdf[square_tx_size], 4);
       }
     }
-  } else if (!is_inter) {
+  } else if (!is_inter && !xd->lossless[mbmi->segment_id]) {
     uint8_t stx_flag = (tx_type >> 4);
     FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
     const TX_SIZE square_tx_size = txsize_sqr_map[tx_size];
