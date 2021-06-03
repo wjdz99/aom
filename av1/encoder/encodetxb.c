@@ -1451,12 +1451,20 @@ static void update_tx_type_count(const AV1_COMP *cpi, const AV1_COMMON *cm,
     }
   } else {
     if (cpi->oxcf.txfm_cfg.use_intra_dct_only) {
+#if CONFIG_IST
+      assert((tx_type & 0x0f) == DCT_DCT);
+#else
       assert(tx_type == DCT_DCT);
+#endif
     } else if (cpi->oxcf.txfm_cfg.use_intra_default_tx_only) {
       const TX_TYPE default_type = get_default_tx_type(
           PLANE_TYPE_Y, xd, tx_size, cpi->is_screen_content_type);
       (void)default_type;
+#if CONFIG_IST
+      assert((tx_type & 0x0f) == default_type);
+#else
       assert(tx_type == default_type);
+#endif
     }
   }
 
