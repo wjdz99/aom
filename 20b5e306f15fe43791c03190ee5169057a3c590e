@@ -1,6 +1,46 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "e644d45c_8bf9019a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-03T00:12:32Z",
+      "side": 1,
+      "message": "Optional: Venkata, could you mention either https://aomedia-review.googlesource.com/c/aom/+/138241 or commit 1c09f409f30db74d089c6a7257c359a61b270cef, which added this speed feature?",
+      "revId": "20b5e306f15fe43791c03190ee5169057a3c590e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4db16461_616a360f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-03T00:12:32Z",
+      "side": 1,
+      "message": "This speed feature is applicable to speed presets 1 to 9, not just 1 to 6, right?",
+      "range": {
+        "startLine": 12,
+        "startChar": 29,
+        "endLine": 12,
+        "endChar": 35
+      },
+      "revId": "20b5e306f15fe43791c03190ee5169057a3c590e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "a4ad613a_4f240c4c",
@@ -14,6 +54,23 @@
       "writtenOn": "2021-05-31T13:46:16Z",
       "side": 1,
       "message": "Hi Wan-Teh,\n\nWhile studying the recent improvements in intra mode search algorithm, we observed that there was an increase in encode time for faster presets. We tried generating statistics to understand this behavior and observed that there is an increase in evaluation of modes for faster presets (significantly, due to delta angular modes).\n\nWe observed that a speed feature \u0027top_intra_model_count_allowed\u0027 was introduced recently to restrict the number of candidates to be used for storing model_rd for intra mode decision (in good encoding mode). Reducing the number of candidates as per the sf seemed to help in reducing the encode time reduction as the best model_rd used for pruning is lesser. Hence we tried extending the speed feature \u0027top_intra_model_count_allowed\u0027 to allintra (by reducing the number of candidates to 3), the observed results are well within the trade-off. This approach seemed to help high quality presets as well. After this patch, we shall regenerate the statistics and explore/study the angular mode search/pruning.\n\nWe validated the current patch for allintra video and still-image encode. Following are encode time reduction results when AVIF encode was tested for a typical image dataset. Bit match is verified for preset 0.\n\nFor AVIF still image encode with tune\u003dpsnr,\n\n                Instruction Count  BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr     ssim    \n         1           7.921         0.0822   0.0921\n         2           8.849         0.0733   0.0550\n         3           8.841         0.0736   0.0793\n         4           3.428         0.0093  -0.0150\n         5           3.617        -0.0180  -0.0196\n         6           1.408         0.0130  -0.0073\n\nFor AVIF still image encode with tune\u003dssim,\n\n                Instruction Count  BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr     ssim    \n         1           7.881         0.0733   0.0891\n         2           8.776         0.0663   0.0803\n         3           8.686         0.0368   0.0426\n         4           3.339        -0.0129   0.0149\n         5           3.548        -0.0055  -0.0140\n         6           1.376         0.0157   0.0221\n\nFollowing are encode time reduction results when tested libaom with all intra frame encoding for a borg setup. Bit match is verified for preset 0.\n\n               Instruction Count       BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  ovr.psnr   ssim    \n         1          7.708         0.0844    0.0843     0.0743  \n         2          8.653         0.0895    0.0898     0.0937  \n         3          8.728         0.0842    0.0840     0.0956  \n         4          3.150         0.0003    0.0011     0.0076\n         5          3.337        -0.0077   -0.0070     0.0095  \n         6          2.111         0.0216    0.0227     0.0217\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "20b5e306f15fe43791c03190ee5169057a3c590e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54c879e5_c899544a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-03T00:12:32Z",
+      "side": 1,
+      "message": "Yunqing: Please review. Thanks!",
       "revId": "20b5e306f15fe43791c03190ee5169057a3c590e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
