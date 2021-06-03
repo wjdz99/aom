@@ -209,6 +209,7 @@ static void init_txfm_param(const MACROBLOCKD *xd, int plane, TX_SIZE tx_size,
   txfm_param->intra_mode =
       (plane == AOM_PLANE_Y) ? mbmi->mode : get_uv_mode(mbmi->uv_mode);
   if ((txfm_param->intra_mode < PAETH_PRED) &&
+      !xd->lossless[mbmi->segment_id] &&
       !(mbmi->filter_intra_mode_info.use_filter_intra) && xd->enable_ist) {
     const int width = tx_size_wide[tx_size];
     const int height = tx_size_high[tx_size];
@@ -375,10 +376,7 @@ void inv_stxfm_c(tran_low_t *src, tran_low_t *dst, const PREDICTION_MODE mode,
   const int16_t *kernel =
       (size == 4) ? g_stx4x4[mode][stx_idx][0] : g_stx8x8[mode][stx_idx][0];
   int *out = dst;
-
-  assert(mode < 14);
   assert(stx_idx < 4);
-
   int shift = 7;
   int offset = 1 << (shift - 1);
 
@@ -413,9 +411,9 @@ void av1_inv_stxfm(tran_low_t *coeff, TxfmParam *txfm_param) {
                          ? tx_size_high[txfm_param->tx_size]
                          : 32;
 
-  if ((width >= 4 && height >= 4) && txfm_param->stx_type) {
+  if ((width >= 4 && height >= 4) && stx_type) {
     PREDICTION_MODE intra_mode = txfm_param->intra_mode;
-    PREDICTION_MODE mode_t;
+    PREDICTION_MODE mode = 0, mode_t = 0;
     const int log2width = tx_size_wide_log2[txfm_param->tx_size];
 
     int sbSize = (width >= 8 && height >= 8) ? 8 : 4;
@@ -432,8 +430,9 @@ void av1_inv_stxfm(tran_low_t *coeff, TxfmParam *txfm_param) {
       tmp++;
     }
     int8_t transpose = 0;
-    int mode =
-        (txfm_param->tx_type == ADST_ADST) ? intra_mode - 12 : intra_mode;
+    mode = AOMMIN(
+        (txfm_param->tx_type == ADST_ADST) ? intra_mode - 12 : intra_mode,
+        SMOOTH_H_PRED);
     if ((mode == H_PRED) || (mode == D157_PRED) || (mode == D67_PRED) ||
         (mode == SMOOTH_H_PRED))
       transpose = 1;
