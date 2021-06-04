@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8fe723c_67be474f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14062
+      },
+      "writtenOn": "2021-06-04T04:17:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis CL improves pack bitstream multi-thread performance. We observed that for frames with smaller bitstream sizes, multi-thread overheads are more than the gains achieved, leading to a performance worse than single-thread. Such frames are detected multi-threading is disabled for them using the following logic:\n\n (total abs sum of transform coeffs \u003e sqr(num_workers) * predetermined threshold) / (num_workers - 1)\n\nIf the above condition is true, then enable Multi-threading. otherwise call single-thread function. The patch leads to an overall speed improvement as follows:\n\n    CPU Preset\t                  Average encode time reduction (%)\n\t7\t\t\t\t\t0.212\n\t8\t\t\t\t\t0.201\n\t9\t\t\t\t\t0.205\n NOTE: The data has been obtained for RT mode, with threads\u003d4, 4X1 tile.\n\nThe change is helping a lot for some contents like Johnny_480p with a 4x1 tile config, where encode time reduces by 1.1% when 4 threads are used. No content loses out on speed in any of the cases tested out. For --good speed presets, the speed impact is negligible. Bit-exactness has been verified locally.\n\nKindly review the change.\n\nRegards,\nVishesh",
+      "revId": "bce281d322f9a1eab23327ffd890bb433d177317",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
