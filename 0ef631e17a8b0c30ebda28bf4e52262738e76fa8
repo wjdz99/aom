@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "49f3712f_c879dd02",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-06-04T18:52:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5aecb8a6_687d7706",
+      "range": {
+        "startLine": 12,
+        "startChar": 39,
+        "endLine": 12,
+        "endChar": 40
+      },
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "84a7f259_e4917f0d",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 2
@@ -130,6 +154,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5ee38e79_fa63f4f7",
+        "filename": "build/cmake/exports.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-06-04T18:52:50Z",
+      "side": 1,
+      "message": "Ah, I see, I will revert the specific WIN32 and APPLE changes in the script",
+      "parentUuid": "21df7758_bc01092e",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e064cc79_92661a0c",
         "filename": "build/cmake/exports.cmake",
         "patchSetId": 2
@@ -141,6 +183,24 @@
       "writtenOn": "2021-06-04T18:27:10Z",
       "side": 1,
       "message": "I\u0027m not at all certain that all CMake Visual Studio generators do the correct thing when adding a def file as a source. A more conservative approach may be better:\n\n    if(MSVC)\n      set_property(TARGET aom\n                   APPEND_STRING\n                   PROPERTY LINK_FLAGS \"/DEF:${aom_sym_file}\")\n    else()\n      target_sources(aom PRIVATE \"${aom_sym_file}\")\n    endif()",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f1278b1_7efddb34",
+        "filename": "build/cmake/exports.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-06-04T18:52:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e064cc79_92661a0c",
       "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -158,6 +218,24 @@
       "writtenOn": "2021-06-04T18:27:10Z",
       "side": 1,
       "message": "This file is executed by CMake in script mode (aka cmake -P \u003cfile\u003e). In script mode CMake has a limited subset of the information available when run normally. This is mostly because CMake generators do a lot of heavy lifting at generation time when it comes to system configuration related variables, and in script mode CMake isn\u0027t generating anything.\n\nAPPLE and WIN32 may both be set properly in script mode when host and target system are the same, but I don\u0027t think that will be true when cross compiling. This is the reason for the explicit export of vars in the COMMAND value passed to add_custom_target().",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08aeb96f_5b62d4f5",
+        "filename": "build/cmake/generate_exports.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-06-04T18:52:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "44a87453_5faad8de",
       "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
