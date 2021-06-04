@@ -51,6 +51,24 @@
       "parentUuid": "b2ba5254_58c767e3",
       "revId": "bfb4e9c1d9ce27b7afeb5a6900431ee8b5f1fd55",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2008df76_9be9e4a5",
+        "filename": "CHANGELOG",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-04T23:27:03Z",
+      "side": 1,
+      "message": "Thanks a lot for the suggestions! I examined all the CLs. None of them seem suitable for v3.1.1.\n\n\u003e https://aomedia-review.googlesource.com/c/aom/+/137962\n\nThis CL fixes bug aomedia:3058. I can\u0027t reproduce that bug on the origin/celestia branch.\n\n\u003e https://aomedia-review.googlesource.com/c/aom/+/137802\n\nThis CL modifies a newer revision of av1/encoder/tpl_model.c. The revision in origin/celestia does not have one of the two functions this CL modifies (av1_estimate_coeff_entropy).\n\n\u003e I don\u0027t know if this fixed anything because I think clear system state is a noop now:\n\u003e https://aomedia-review.googlesource.com/c/aom/+/137281\n\nThat\u0027s correct. In origin/celestia, aom_clear_system_state() is defined as a noop:\n\n#if ARCH_X86 || ARCH_X86_64\nvoid aom_reset_mmx_state(void);\n#define aom_clear_system_state()\n#else\n#define aom_clear_system_state()\n#endif  // ARCH_X86 || ARCH_X86_64\n\n\u003e this is more of a feature:\n\u003e https://aomedia-review.googlesource.com/c/aom/+/137725\n\nThis CL is quite complicated. Let\u0027s save this for the next feature release.",
+      "parentUuid": "bb91dd41_63f51426",
+      "revId": "bfb4e9c1d9ce27b7afeb5a6900431ee8b5f1fd55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
