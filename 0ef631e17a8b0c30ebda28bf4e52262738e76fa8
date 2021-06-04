@@ -1,6 +1,29 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "5aecb8a6_687d7706",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-06-04T18:27:10Z",
+      "side": 1,
+      "message": "Please be specific here: note that it\u0027s mingw-w64 lld that doesn\u0027t like version scripts.",
+      "range": {
+        "startLine": 12,
+        "startChar": 39,
+        "endLine": 12,
+        "endChar": 40
+      },
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "84a7f259_e4917f0d",
@@ -31,6 +54,92 @@
       "writtenOn": "2021-06-04T02:21:10Z",
       "side": 1,
       "message": "Hello Tom, could I ask you to review this, or potentially assign someone who could? Does AOM have any specific person who specializes in mingw-w64 or Windows in general and deals with CMake?\n\nThanks, Chris",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "919bc819_08d3de1f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-06-04T18:27:10Z",
+      "side": 1,
+      "message": "I am the correct reviewer for this type of change, but there\u0027s no mingw-w64 specialist.",
+      "parentUuid": "f4d53667_cd1332de",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "686340bd_fc329922",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-06-04T18:27:10Z",
+      "side": 1,
+      "message": "Have you tested this on a macos system? More on why I\u0027ve asked in the comments.",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c33c450_7c18cf8a",
+        "filename": "build/cmake/exports.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-06-04T18:27:10Z",
+      "side": 1,
+      "message": "If you\u0027re going to use APPLE and WIN32 in the script, you need to export them explicitly. Adding these two lines should do it:\n\n    -DAPPLE\u003d${APPLE}\n    -DWIN32\u003d${WIN32}\n    \nMore on this at the first usage site in generate_exports.cmake.",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e064cc79_92661a0c",
+        "filename": "build/cmake/exports.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-06-04T18:27:10Z",
+      "side": 1,
+      "message": "I\u0027m not at all certain that all CMake Visual Studio generators do the correct thing when adding a def file as a source. A more conservative approach may be better:\n\n    if(MSVC)\n      set_property(TARGET aom\n                   APPEND_STRING\n                   PROPERTY LINK_FLAGS \"/DEF:${aom_sym_file}\")\n    else()\n      target_sources(aom PRIVATE \"${aom_sym_file}\")\n    endif()",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44a87453_5faad8de",
+        "filename": "build/cmake/generate_exports.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-06-04T18:27:10Z",
+      "side": 1,
+      "message": "This file is executed by CMake in script mode (aka cmake -P \u003cfile\u003e). In script mode CMake has a limited subset of the information available when run normally. This is mostly because CMake generators do a lot of heavy lifting at generation time when it comes to system configuration related variables, and in script mode CMake isn\u0027t generating anything.\n\nAPPLE and WIN32 may both be set properly in script mode when host and target system are the same, but I don\u0027t think that will be true when cross compiling. This is the reason for the explicit export of vars in the COMMAND value passed to add_custom_target().",
       "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
