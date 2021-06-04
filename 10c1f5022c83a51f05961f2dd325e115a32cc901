@@ -16,6 +16,24 @@
       "message": "Madhu, thanks for the patch. Do you think it is ok to submit this patch?",
       "revId": "10c1f5022c83a51f05961f2dd325e115a32cc901",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c177a50_25304764",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-04T06:39:10Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "da4505e8_0c0057a1",
+      "revId": "10c1f5022c83a51f05961f2dd325e115a32cc901",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
