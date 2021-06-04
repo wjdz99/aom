@@ -996,8 +996,8 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_sf.intra_uv_mode_mask[TX_64X64] = UV_INTRA_DC_H_V_CFL;
     // TODO(any): "intra_y_mode_mask" doesn't help much at speed 4.
     // sf->intra_sf.intra_y_mode_mask[TX_16X16] = INTRA_DC_H_V;
-    // sf->intra_sf.intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
-    // sf->intra_sf.intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
+    sf->intra_sf.intra_y_mode_mask[TX_32X32] = INTRA_DC_H_V;
+    sf->intra_sf.intra_y_mode_mask[TX_64X64] = INTRA_DC_H_V;
     // TODO(any): Experiment with this speed feature set to 2 for higher quality
     // presets as well
     sf->intra_sf.skip_intra_in_interframe = 2;
