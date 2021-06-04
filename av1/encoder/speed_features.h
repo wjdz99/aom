@@ -895,7 +895,7 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
 
   // Prune intra mode candidates based on source block histogram of gradient.
   // Applies to luma plane only.
-  // Feasible values are 0..4. The feature is disabled for 0. An increasing
+  // Feasible values are 0..5. The feature is disabled for 0. An increasing
   // value indicates more aggressive pruning threshold.
   int intra_pruning_with_hog;
 
