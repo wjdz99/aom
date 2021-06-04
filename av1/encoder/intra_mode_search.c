@@ -966,7 +966,7 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
       cpi->oxcf.intra_mode_cfg.enable_angle_delta) {
     if (sf->intra_sf.intra_pruning_with_hog &&
         !intra_search_state->dir_mode_skip_mask_ready) {
-      const float thresh[4] = { -1.2f, 0.0f, 0.0f, 1.2f };
+      const float thresh[4] = { -1.2f, 0.0f, 0.0f, 1.2f, 1.2f };
       const int is_chroma = 0;
       prune_intra_mode_with_hog(x, bsize, cm->seq_params->sb_size,
                                 thresh[sf->intra_sf.intra_pruning_with_hog - 1],
@@ -1116,7 +1116,7 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     // Less aggressive thresholds are used here than those used in inter frame
     // encoding in av1_handle_intra_y_mode() because we want key frames/intra
     // frames to have higher quality.
-    const float thresh[4] = { -1.2f, -1.2f, -0.6f, 0.4f };
+    const float thresh[4] = { -1.2f, -1.2f, -0.6f, -0.6f, 0.4f };
     const int is_chroma = 0;
     prune_intra_mode_with_hog(
         x, bsize, cpi->common.seq_params->sb_size,
