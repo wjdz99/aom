@@ -16,6 +16,23 @@
       "message": "Changes are pushed, please check to make sure I didn\u0027t forget something\n\nI did not test these changes on macOS specifically since I didn\u0027t have access to one until just now\n\nI did test compilation on macOS with\n`cmake -B macos -DCMAKE_BUILD_TYPE\u003dRelease -DBUILD_SHARED_LIBS\u003dON`\nand it did compile successfully.\nI have also tested on linux using a similar commandline and it compiled, I have also tested cross-compilation from linux -\u003e Windows using mingw-w64 gcc using\n`cmake -B mingw-w64 -DCMAKE_BUILD_TYPE\u003dRelease -DBUILD_SHARED_LIBS\u003dON -DCMAKE_TOOLCHAIN_FILE\u003dbuild/cmake/toolchains/x86_64-mingw-gcc.cmake`\nand it compiled successfully.",
       "revId": "2da8b2fbf26eb3ded773ce5b5d41c1425ea460a2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f7b72c6_454602ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-06-04T19:18:19Z",
+      "side": 1,
+      "message": "LGTM\n+cc jzern in case something pops up after this lands.",
+      "revId": "2da8b2fbf26eb3ded773ce5b5d41c1425ea460a2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
