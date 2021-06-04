@@ -33,6 +33,114 @@
       "message": "Hi Bohan,\n\nI will review this CL today.",
       "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2161afe_41d23966",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-04T22:50:20Z",
+      "side": 1,
+      "message": "Bohan: I think the CL is correct. I have some questions for you. The most important question is the first one, concerning whether it is possible to avoid break binary compatibility.",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea4989aa_9662234e",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-04T22:50:20Z",
+      "side": 1,
+      "message": "This change breaks binary compatibility because it changes the numeric value of AOM_RC_LAST_PASS. (When we break binary compatibility, we need to bump the major version number of libaom.) Ideally we should add AOM_RC_SECOND_PASS after AOM_RC_LAST_PASS.\n\nDoes your code depend on the property that AOM_RC_FIRST_PASS has value 1 and AOM_RC_SECOND_PASS has value 2?",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6d3c3fb_9f7938e3",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1412,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-04T22:50:20Z",
+      "side": 1,
+      "message": "It seems that we should add a \u0027default\u0027 case that calls the fatal() function.",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fc0c338_afbe5c2a",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-04T22:50:20Z",
+      "side": 1,
+      "message": "Should we update this block comment?",
+      "range": {
+        "startLine": 952,
+        "startChar": 0,
+        "endLine": 954,
+        "endChar": 33
+      },
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e816560_90560205",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 3342,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-04T22:50:20Z",
+      "side": 1,
+      "message": "It seems that cpi-\u003eoxcf.pass \u003d\u003d 2 could be changed to\n\n    cpi-\u003eoxcf.pass \u003d\u003d AOM_RC_LAST_PASS\n\nor\n\n    cpi-\u003eoxcf.pass \u003d\u003d AOM_RC_SECOND_PASS\n    \nor\n\n    cpi-\u003eoxcf.pass \u003e\u003d AOM_RC_SECOND_PASS\n    \n\nCould you explain why the last one is used?",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d129063_1868a14c",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2252,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-04T22:50:20Z",
+      "side": 1,
+      "message": "It seems that cpi-\u003eoxcf.pass !\u003d 2 could be changed to\n\n    cpi-\u003eoxcf.pass \u003c AOM_RC_LAST_PASS\nor\n\n    cpi-\u003eoxcf.pass \u003c AOM_RC_SECOND_PASS\n    \nCould you explain why the second one is used?",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
