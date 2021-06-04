@@ -435,7 +435,7 @@ static INLINE void set_tx_type_prune(const SPEED_FEATURES *sf,
 
   const int prune_mode[3][2] = { { TX_TYPE_PRUNE_3, TX_TYPE_PRUNE_0 },
                                  { TX_TYPE_PRUNE_4, TX_TYPE_PRUNE_0 },
-                                 { TX_TYPE_PRUNE_5, TX_TYPE_PRUNE_2 } };
+                                 { TX_TYPE_PRUNE_5, TX_TYPE_PRUNE_3 } };
   txfm_params->prune_2d_txfm_mode =
       prune_mode[winner_mode_tx_type_pruning - 1][is_winner_mode];
 }
