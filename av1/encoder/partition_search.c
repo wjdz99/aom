@@ -1233,7 +1233,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 #if CONFIG_NEW_REF_SIGNALING
       const MOTION_MODE motion_allowed =
           cm->features.switchable_motion_mode
-              ? motion_mode_allowed(xd->global_motion_nrs, xd, mbmi,
+              ? motion_mode_allowed_nrs(xd->global_motion_nrs, xd, mbmi,
                                     cm->features.allow_warped_motion)
               : SIMPLE_TRANSLATION;
       const MOTION_MODE motion_allowed2 =
