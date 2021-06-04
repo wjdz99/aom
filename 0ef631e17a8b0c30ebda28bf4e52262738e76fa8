@@ -16,6 +16,23 @@
       "message": "confirmed it compiled successfully with mingw-w64 gcc, clang targeting x86_64-w64-windows-gnu and msvc 2019",
       "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4d53667_cd1332de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-06-04T02:21:10Z",
+      "side": 1,
+      "message": "Hello Tom, could I ask you to review this, or potentially assign someone who could? Does AOM have any specific person who specializes in mingw-w64 or Windows in general and deals with CMake?\n\nThanks, Chris",
+      "revId": "0ef631e17a8b0c30ebda28bf4e52262738e76fa8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
