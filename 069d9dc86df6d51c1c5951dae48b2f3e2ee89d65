@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0bde21c3_31e7cd51",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1433,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-04T19:35:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f3f0822_280644ce",
+      "range": {
+        "startLine": 1433,
+        "startChar": 31,
+        "endLine": 1433,
+        "endChar": 62
+      },
+      "revId": "069d9dc86df6d51c1c5951dae48b2f3e2ee89d65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4fc6edcb_da5da13d",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-04T19:13:30Z",
       "side": 1,
       "message": "I guess I made a mistake here. Ideally, we should only use get_mb_plane_block_size when either SDP or ERP is on, otherwise use get_plane_block_size.",
+      "range": {
+        "startLine": 900,
+        "startChar": 0,
+        "endLine": 901,
+        "endChar": 63
+      },
+      "revId": "069d9dc86df6d51c1c5951dae48b2f3e2ee89d65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48e06b61_b33a3a8f",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-04T19:35:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fc6edcb_da5da13d",
       "range": {
         "startLine": 900,
         "startChar": 0,
