@@ -155,6 +155,8 @@ set_aom_config_var(
 set_aom_config_var(CONFIG_IST 1 NUMBER
                    "AV2 experiment flag to enable intra secondary transform.")
 
+# Cross component sample offset
+set_aom_config_var(CONFIG_CCSO 0 "AV2 cross component sample offset flag.")
 #
 # Variables in this section control optional features of the build system.
 #
