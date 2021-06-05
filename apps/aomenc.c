@@ -437,6 +437,9 @@ const arg_def_t *av1_key_val_args[] = {
 #if CONFIG_MRLS
   &g_av1_codec_arg_defs.enable_mrls,
 #endif
+#if CONFIG_CCSO
+  &g_av1_codec_arg_defs.enable_ccso,
+#endif
   NULL,
 };
 
@@ -577,6 +580,9 @@ static void init_config(cfg_options_t *config) {
   config->enable_deblocking = 1;
   config->enable_cdef = 1;
   config->enable_restoration = 1;
+#if CONFIG_CCSO
+  config->enable_ccso = 1;
+#endif
   config->enable_obmc = 1;
   config->enable_warped_motion = 1;
   config->enable_global_motion = 1;
@@ -1438,8 +1444,14 @@ static void show_stream_config(struct stream_state *stream,
 
   fprintf(stdout,
           "Tool setting (Loop filter)     : Deblocking (%d), CDEF (%d), "
+#if CONFIG_CCSO
+          "CCSO (%d), "
+#endif
           "LoopRestortion (%d)\n",
           encoder_cfg->enable_deblocking, encoder_cfg->enable_cdef,
+#if CONFIG_CCSO
+          encoder_cfg->enable_ccso,
+#endif
           encoder_cfg->enable_restoration);
 
   fprintf(stdout,
