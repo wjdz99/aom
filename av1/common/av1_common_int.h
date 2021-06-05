@@ -9,6 +9,8 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+/** @file */
+
 #ifndef AOM_AV1_COMMON_AV1_COMMON_INT_H_
 #define AOM_AV1_COMMON_AV1_COMMON_INT_H_
 
@@ -205,6 +207,15 @@ typedef struct {
   int cdef_bits; /*!< Number of CDEF strength values in bits */
 } CdefInfo;
 
+#if CONFIG_CCSO
+typedef struct {
+  bool ccso_enable[2];
+  int8_t filter_offset[2][16];
+  uint8_t quant_idx[2];
+  uint8_t ext_filter_support[2];
+} CcsoInfo;
+#endif
+
 /*!\cond */
 
 typedef struct {
@@ -282,6 +293,9 @@ typedef struct SequenceHeader {
                                  //     enable per-frame superres flag
   uint8_t enable_cdef;           // To turn on/off CDEF
   uint8_t enable_restoration;    // To turn on/off loop restoration
+#if CONFIG_CCSO
+  uint8_t enable_ccso;  // To turn on/off CCSO
+#endif
   BITSTREAM_PROFILE profile;
 
   // Color config.
@@ -943,6 +957,13 @@ typedef struct AV1Common {
    * CDEF (Constrained Directional Enhancement Filter) parameters.
    */
   CdefInfo cdef_info;
+
+#if CONFIG_CCSO
+  /*!
+   * CCSO (Cross Component Sample Offset) parameters.
+   */
+  CcsoInfo ccso_info;
+#endif
 
   /*!
    * Parameters for film grain synthesis.
