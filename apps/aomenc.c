@@ -138,6 +138,9 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_DEBLOCKING,
                                         AV1E_SET_ENABLE_CDEF,
                                         AV1E_SET_ENABLE_RESTORATION,
+#if CONFIG_CCSO
+                                        AV1E_SET_ENABLE_CCSO,
+#endif
                                         AV1E_SET_ENABLE_RECT_PARTITIONS,
                                         AV1E_SET_ENABLE_AB_PARTITIONS,
                                         AV1E_SET_ENABLE_1TO4_PARTITIONS,
@@ -1436,11 +1439,19 @@ static void show_stream_config(struct stream_state *stream,
           "Tool setting (Transform)       : Flip & IDT (%d), TX_64 (%d)\n",
           encoder_cfg->enable_flip_idtx, encoder_cfg->enable_tx64);
 
+#if CONFIG_CCSO
+  fprintf(stdout,
+          "Tool setting (Loop filter)     : Deblocking (%d), CDEF (%d), "
+          "LoopRestortion (%d), CCSO (%d)\n",
+          encoder_cfg->enable_deblocking, encoder_cfg->enable_cdef,
+          encoder_cfg->enable_restoration, encoder_cfg->enable_ccso);
+#else
   fprintf(stdout,
           "Tool setting (Loop filter)     : Deblocking (%d), CDEF (%d), "
           "LoopRestortion (%d)\n",
           encoder_cfg->enable_deblocking, encoder_cfg->enable_cdef,
           encoder_cfg->enable_restoration);
+#endif
 
   fprintf(stdout,
           "Tool setting (Others)          : Palette (%d), IntraBC (%d)\n",
