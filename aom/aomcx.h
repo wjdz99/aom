@@ -1307,6 +1307,12 @@ enum aome_enc_control_id {
   /*!\brief Control to get frame info
    */
   AV1E_GET_FRAME_INFO = 165,
+
+#if CONFIG_CCSO
+  /*!\brief Control to enable cross-component sample offset
+  */
+  AV1E_SET_ENABLE_CCSO = 166,
+#endif
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1531,6 +1537,11 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_CDEF, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_RESTORATION, unsigned int)
 #define AOM_CTRL_AV1E_SET_ENABLE_RESTORATION
+
+#if CONFIG_CCSO
+AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_CCSO, unsigned int)
+#define AOM_CTRL_AV1E_SET_ENABLE_CCSO
+#endif
 
 AOM_CTRL_USE_TYPE(AV1E_SET_FORCE_VIDEO_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_FORCE_VIDEO_MODE
