@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df6c8a48_e42aaffd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-05T01:28:14Z",
+      "side": 1,
+      "message": "Thanks Kavi,\nThe code looks a lot simpler.",
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2a30811_8d8578b9",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-05T01:28:14Z",
+      "side": 1,
+      "message": "Let\u0027s remove the static so that we can do unit test later.",
+      "range": {
+        "startLine": 1638,
+        "startChar": 0,
+        "endLine": 1638,
+        "endChar": 6
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5da08694_127f5ead",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-05T01:28:14Z",
+      "side": 1,
+      "message": "av1_q_mode_get_q_index().",
+      "range": {
+        "startLine": 1638,
+        "startChar": 11,
+        "endLine": 1638,
+        "endChar": 41
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94315eec_cc6c1416",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-05T01:28:14Z",
+      "side": 1,
+      "message": "When pass in basic type like int / double, we usually don\u0027t add const.\nLet\u0027s rename cq_level to base_qindex?",
+      "range": {
+        "startLine": 1639,
+        "startChar": 4,
+        "endLine": 1639,
+        "endChar": 22
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16df51cb_653b7295",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-05T01:28:14Z",
+      "side": 1,
+      "message": "This part is how we compute arf_q.\nSince you already pass in arf_q in this function, maybe write to a separate function like av1_get_arf_q_index()?",
+      "range": {
+        "startLine": 1652,
+        "startChar": 0,
+        "endLine": 1663,
+        "endChar": 68
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a8a92f3_3fcc2f06",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1664,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-05T01:28:14Z",
+      "side": 1,
+      "message": "Here we can return arf_q directly.",
+      "range": {
+        "startLine": 1664,
+        "startChar": 2,
+        "endLine": 1664,
+        "endChar": 54
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
