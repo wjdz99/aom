@@ -450,6 +450,11 @@ static const arg_def_t enable_restoration = ARG_DEF(
     NULL, "enable-restoration", 1,
     "Enable the loop restoration filter (0: false (default in Realtime mode), "
     "1: true (default in Non-realtime mode))");
+#if CONFIG_CCSO
+static const arg_def_t enable_ccso = ARG_DEF(
+    NULL, "enable-ccso", 1,
+    "Enable the cross-component sample offset (0: false, 1: true (default))");
+#endif
 static const arg_def_t enable_rect_partitions =
     ARG_DEF(NULL, "enable-rect-partitions", 1,
             "Enable rectangular partitions "
@@ -872,6 +877,9 @@ static const arg_def_t *av1_args[] = { &cpu_used_av1,
                                        &enable_deblocking,
                                        &enable_cdef,
                                        &enable_restoration,
+#if CONFIG_CCSO
+                                       &enable_ccso,
+#endif
                                        &enable_rect_partitions,
                                        &enable_ab_partitions,
                                        &enable_1to4_partitions,
@@ -979,6 +987,9 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_DEBLOCKING,
                                         AV1E_SET_ENABLE_CDEF,
                                         AV1E_SET_ENABLE_RESTORATION,
+#if CONFIG_CCSO
+                                        AV1E_SET_ENABLE_CCSO,
+#endif
                                         AV1E_SET_ENABLE_RECT_PARTITIONS,
                                         AV1E_SET_ENABLE_AB_PARTITIONS,
                                         AV1E_SET_ENABLE_1TO4_PARTITIONS,
@@ -1929,11 +1940,19 @@ static void show_stream_config(struct stream_state *stream,
           "Tool setting (Transform)       : Flip & IDT (%d), TX_64 (%d)\n",
           encoder_cfg->enable_flip_idtx, encoder_cfg->enable_tx64);
 
+#if CONFIG_CCSO
+  fprintf(stdout,
+          "Tool setting (Loop filter)     : Deblocking (%d), CDEF (%d), "
+          "LoopRestortion (%d), CCSO (%d)\n",
+          encoder_cfg->enable_deblocking, encoder_cfg->enable_cdef,
+          encoder_cfg->enable_restoration, encoder_cfg->enable_ccso);
+#else
   fprintf(stdout,
           "Tool setting (Loop filter)     : Deblocking (%d), CDEF (%d), "
           "LoopRestortion (%d)\n",
           encoder_cfg->enable_deblocking, encoder_cfg->enable_cdef,
           encoder_cfg->enable_restoration);
+#endif
 
   fprintf(stdout,
           "Tool setting (Others)          : Palette (%d), IntraBC (%d)\n",
