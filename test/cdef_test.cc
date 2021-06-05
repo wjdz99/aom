@@ -296,6 +296,7 @@ using std::make_tuple;
 // structs as arguments, which makes the v256 type of the intrinsics
 // hard to support, so optimizations for this target are disabled.
 #if defined(_WIN64) || !defined(_MSC_VER) || defined(__clang__)
+
 #if HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, CDEFBlockTest,
