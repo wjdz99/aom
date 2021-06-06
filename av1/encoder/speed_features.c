@@ -620,6 +620,9 @@ static void set_good_speed_feature_framesize_dependent(
       sf->inter_sf.prune_obmc_prob_thresh = 8;
     }
 
+    if (!is_480p_or_larger)
+      sf->inter_sf.disable_interintra_wedge_var_thresh = UINT_MAX;
+
     if (is_480p_or_larger) {
       sf->tx_sf.tx_type_search.prune_tx_type_using_stats = 1;
       if (use_hbd) sf->tx_sf.prune_tx_size_level = 2;
@@ -1773,6 +1776,8 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
   if (!cpi->ppi->seq_params_locked) {
     cpi->common.seq_params->enable_masked_compound &=
         !sf->inter_sf.disable_masked_comp;
+    cpi->common.seq_params->enable_interintra_compound &=
+        (sf->inter_sf.disable_interintra_wedge_var_thresh != UINT_MAX);
   }
 
   // This is only used in motion vector unit test.
