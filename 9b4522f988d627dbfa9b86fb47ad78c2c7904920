@@ -33,6 +33,24 @@
       "message": "Is it possible to hold off this?\n\nWe have two main lines of work - core compression efficiency and ctc - to roll out soon.\nThis would cause significant conflict to the existing design.",
       "revId": "9b4522f988d627dbfa9b86fb47ad78c2c7904920",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "752d8737_a5734c16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-06-07T16:09:42Z",
+      "side": 1,
+      "message": "Hi Jingning,\n\nThank you for the quick response.\n\nThese changes were intended to reduce code duplication when alternate approach is enabled under CONFIG_FRAME_PARALLEL_ENCODE. Since it can lead to potential conflict with your planned changes, for now, we shall plan to keep the changes under CONFIG_FRAME_PARALLEL_ENCODE. Once the default path stabilises, we will plan for the extra code changes so as to reduce duplicate code.\n\nRegards,\nRemya",
+      "parentUuid": "04661316_44144d9f",
+      "revId": "9b4522f988d627dbfa9b86fb47ad78c2c7904920",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
