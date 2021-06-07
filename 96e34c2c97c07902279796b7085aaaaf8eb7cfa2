@@ -16,6 +16,24 @@
       "message": "Hi Fyodor,\nI noticed that the real-time encoder on latest checkout is very slow, i think we need to keep this GM_DISABLE_SEARCH, unless user selects the global motion feature?",
       "revId": "96e34c2c97c07902279796b7085aaaaf8eb7cfa2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae874cf0_590117c8",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1288,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-06-07T05:39:24Z",
+      "side": 1,
+      "message": "Are you running is with --enable-global-motion\u003d0 ?",
+      "parentUuid": "19328866_cf261d87",
+      "revId": "96e34c2c97c07902279796b7085aaaaf8eb7cfa2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
