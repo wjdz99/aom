@@ -89,6 +89,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4ee7e01d_6fe0a7b7",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1640,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-07T18:47:02Z",
+      "side": 1,
+      "message": "See the following comment.\nWe can infer this variable from update_type",
+      "range": {
+        "startLine": 1640,
+        "startChar": 22,
+        "endLine": 1640,
+        "endChar": 50
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c240ad3_18c0fcd1",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-07T18:47:02Z",
+      "side": 1,
+      "message": "We can infer whether the current frame is leaf frame or overlay frame from  update_type as follow.\n\nint is_leaf_or_overlay_frame \u003d gf_group-\u003eupdate_type[gf_index] \u003d\u003d LF_UPDATE || gf_group-\u003eupdate_type[gf_index] \u003d\u003d OVERLAY_UPDATE || gf_group-\u003eupdate_type[gf_index] \u003d\u003d INTNL_OVERLAY_UPDATE;",
+      "range": {
+        "startLine": 1644,
+        "startChar": 0,
+        "endLine": 1646,
+        "endChar": 76
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "16df51cb_653b7295",
         "filename": "av1/encoder/ratectrl.c",
         "patchSetId": 3
