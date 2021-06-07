@@ -89,6 +89,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b8d63eb_d4fb844c",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-07T16:58:13Z",
+      "side": 1,
+      "message": "Thanks Wan-Teh! Yeah I think it is possible not to break compatibility. The reason I did it this way is to make it logically more clear. Now AOM_RC_SECOND_PASS means we have more than 2 passes and we are at the second pass, and AOM_RC_LAST_PASS means we are at the last pass, whether it is the second or third. \n\nFor three-pass encoding, the second pass also performs a full encoding, so I used \u003e\u003d AOM_RC_SECOND_PASS to identify passes that use the first-pass stats and generates a bitstream. I think it is possible to add AOM_RC_SECOND_PASS to the end of this enum, but that would not be ideal in my opinion.\n\nLike you said, the (possibly better) alternative would be to add a \u0027passes\u0027 field, although that way we are also breaking compatibility?",
+      "parentUuid": "46454ee4_8ef3492c",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b6d3c3fb_9f7938e3",
         "filename": "apps/aomenc.c",
         "patchSetId": 1
@@ -100,6 +118,24 @@
       "writtenOn": "2021-06-04T22:50:20Z",
       "side": 1,
       "message": "It seems that we should add a \u0027default\u0027 case that calls the fatal() function.",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "059152ac_46ea7643",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1412,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-07T16:58:13Z",
+      "side": 1,
+      "message": "Will do in the new patch.",
+      "parentUuid": "b6d3c3fb_9f7938e3",
       "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -129,6 +165,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c2a89f42_90c7d33f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 954,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-07T16:58:13Z",
+      "side": 1,
+      "message": "Will update it in the new patch",
+      "parentUuid": "0fc0c338_afbe5c2a",
+      "range": {
+        "startLine": 952,
+        "startChar": 0,
+        "endLine": 954,
+        "endChar": 33
+      },
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6e816560_90560205",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 1
@@ -146,6 +206,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "818c7b0f_e911f8a4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 3342,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-07T16:58:13Z",
+      "side": 1,
+      "message": "Please see reply to the first question.",
+      "parentUuid": "6e816560_90560205",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4d129063_1868a14c",
         "filename": "av1/encoder/ethread.c",
         "patchSetId": 1
@@ -157,6 +235,24 @@
       "writtenOn": "2021-06-04T22:50:20Z",
       "side": 1,
       "message": "It seems that cpi-\u003eoxcf.pass !\u003d 2 could be changed to\n\n    cpi-\u003eoxcf.pass \u003c AOM_RC_LAST_PASS\nor\n\n    cpi-\u003eoxcf.pass \u003c AOM_RC_SECOND_PASS\n    \nCould you explain why the second one is used?",
+      "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f771adf_6a1753c2",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2252,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-07T16:58:13Z",
+      "side": 1,
+      "message": "Also see the first question.",
+      "parentUuid": "4d129063_1868a14c",
       "revId": "8808dee5417fec17e53f216c3a35f3b5b76e098f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
