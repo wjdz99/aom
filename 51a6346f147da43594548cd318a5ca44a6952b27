@@ -64,6 +64,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "065f8f53_1865e9be",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5da08694_127f5ead",
+      "range": {
+        "startLine": 1638,
+        "startChar": 11,
+        "endLine": 1638,
+        "endChar": 41
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb6ad968_0f8876c7",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1638,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2a30811_8d8578b9",
+      "range": {
+        "startLine": 1638,
+        "startChar": 0,
+        "endLine": 1638,
+        "endChar": 6
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "94315eec_cc6c1416",
@@ -77,6 +125,30 @@
       "writtenOn": "2021-06-05T01:28:14Z",
       "side": 1,
       "message": "When pass in basic type like int / double, we usually don\u0027t add const.\nLet\u0027s rename cq_level to base_qindex?",
+      "range": {
+        "startLine": 1639,
+        "startChar": 4,
+        "endLine": 1639,
+        "endChar": 22
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cadac800_6eca78d8",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94315eec_cc6c1416",
       "range": {
         "startLine": 1639,
         "startChar": 4,
@@ -110,6 +182,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "043b30cc_b19dac3c",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1640,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ee7e01d_6fe0a7b7",
+      "range": {
+        "startLine": 1640,
+        "startChar": 22,
+        "endLine": 1640,
+        "endChar": 50
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5c240ad3_18c0fcd1",
@@ -123,6 +219,30 @@
       "writtenOn": "2021-06-07T18:47:02Z",
       "side": 1,
       "message": "We can infer whether the current frame is leaf frame or overlay frame from  update_type as follow.\n\nint is_leaf_or_overlay_frame \u003d gf_group-\u003eupdate_type[gf_index] \u003d\u003d LF_UPDATE || gf_group-\u003eupdate_type[gf_index] \u003d\u003d OVERLAY_UPDATE || gf_group-\u003eupdate_type[gf_index] \u003d\u003d INTNL_OVERLAY_UPDATE;",
+      "range": {
+        "startLine": 1644,
+        "startChar": 0,
+        "endLine": 1646,
+        "endChar": 76
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "507fceb7_2e4af577",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c240ad3_18c0fcd1",
       "range": {
         "startLine": 1644,
         "startChar": 0,
@@ -180,6 +300,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9a04e6b_8333d686",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cd55ad7_66b48cf0",
+      "range": {
+        "startLine": 1652,
+        "startChar": 0,
+        "endLine": 1663,
+        "endChar": 68
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e1e0148_99a65ff0",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8cd55ad7_66b48cf0",
+      "range": {
+        "startLine": 1652,
+        "startChar": 0,
+        "endLine": 1663,
+        "endChar": 68
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a8a92f3_3fcc2f06",
@@ -193,6 +361,30 @@
       "writtenOn": "2021-06-05T01:28:14Z",
       "side": 1,
       "message": "Here we can return arf_q directly.",
+      "range": {
+        "startLine": 1664,
+        "startChar": 2,
+        "endLine": 1664,
+        "endChar": 54
+      },
+      "revId": "51a6346f147da43594548cd318a5ca44a6952b27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5da48505_9b10fd38",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1664,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-07T20:05:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a8a92f3_3fcc2f06",
       "range": {
         "startLine": 1664,
         "startChar": 2,
