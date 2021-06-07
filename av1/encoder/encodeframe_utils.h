@@ -283,6 +283,9 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
                                    int mi_row, int mi_col);
 #endif  // !CONFIG_REALTIME_ONLY
 
+int av1_get_sbq_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
+                                   int mi_row, int mi_col);
+
 void av1_set_ssim_rdmult(const AV1_COMP *const cpi, int *errorperbit,
                          const BLOCK_SIZE bsize, const int mi_row,
                          const int mi_col, int *const rdmult);
