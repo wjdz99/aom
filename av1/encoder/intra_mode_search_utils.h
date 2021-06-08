@@ -620,14 +620,18 @@ static int64_t intra_model_rd(const AV1_COMMON *cm, MACROBLOCK *const x,
  */
 static AOM_INLINE int model_intra_yrd_and_prune(const AV1_COMP *const cpi,
                                                 MACROBLOCK *x, BLOCK_SIZE bsize,
-                                                int64_t *best_model_rd) {
+                                                int64_t *best_model_rd, int thr) {
   const TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup[bsize]);
   const int plane = 0;
   const AV1_COMMON *cm = &cpi->common;
   const int64_t this_model_rd =
       intra_model_rd(cm, x, plane, bsize, tx_size, /*use_hadamard=*/1);
+
+  //printf("  %d( %ld; %ld;   %d)   ", thr, this_model_rd, *best_model_rd, this_model_rd > *best_model_rd + (*best_model_rd >> (4)));
+
+
   if (*best_model_rd != INT64_MAX &&
-      this_model_rd > *best_model_rd + (*best_model_rd >> 2)) {
+      this_model_rd > *best_model_rd + (*best_model_rd >> (2+thr))) {
     return 1;
   } else if (this_model_rd < *best_model_rd) {
     *best_model_rd = this_model_rd;
