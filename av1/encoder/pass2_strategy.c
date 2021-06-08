@@ -2951,7 +2951,7 @@ static int define_kf_interval(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     frames_to_key = num_frames_to_next_key;
 
   if (!kf_cfg->fwd_kf_enabled || scenecut_detected ||
-      twopass->stats_in >= twopass->stats_buf_ctx->stats_in_end)
+      twopass->stats_in > twopass->stats_buf_ctx->stats_in_end)
     p_rc->next_is_fwd_key = 0;
 
   return frames_to_key;
@@ -3865,7 +3865,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     }
 #endif
   }
-  assert(cpi->gf_frame_index < gf_group->size);
+//assert(cpi->gf_frame_index < gf_group->size);
 
   if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE ||
       gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE) {

@@ -3143,6 +3143,12 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
                                   frame_might_allow_warped_motion(cm);
 
   cpi->last_frame_type = current_frame->frame_type;
+  RATE_CONTROL *const rc = &cpi->rc;
+  if (cm->cur_frame->frame_type == KEY_FRAME) printf("~~~~~~~~~~~~~~KEY~~~~~~~~~~~~~~~ show %d, show ex %d, altref %d\n", 
+  cm->show_frame, cm->show_existing_frame, rc->is_src_frame_alt_ref);
+  printf("frame %d, show %d, show ex %d, altref %d\n", 
+  current_frame->display_order_hint, cm->show_frame, cm->show_existing_frame, 
+  rc->is_src_frame_alt_ref);
 
   if (frame_is_sframe(cm)) {
     GF_GROUP *gf_group = &cpi->ppi->gf_group;
