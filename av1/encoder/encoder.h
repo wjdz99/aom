@@ -270,6 +270,12 @@ typedef struct {
    */
   bool enable_mrls;
 #endif
+#if CONFIG_ORIP
+  /*!
+   * Flag to indicate if ORIP should be enabled
+   */
+  bool enable_orip;
+#endif
 } IntraModeCfg;
 
 /*!
@@ -767,6 +773,7 @@ typedef struct {
   bool enable_deblocking;
   // Indicates if CDEF should be enabled.
   bool enable_cdef;
+
   // Indicates if loop restoration filter should be enabled.
   bool enable_restoration;
   // When enabled, video mode should be used even for single frame input.
