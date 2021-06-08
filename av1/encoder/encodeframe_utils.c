@@ -580,14 +580,33 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
       ++counts->angle_delta[mbmi->mode - V_PRED]
                            [mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA];
 #endif
+
 #if CONFIG_SDP
-      update_cdf(fc->angle_delta_cdf[PLANE_TYPE_Y][mbmi->mode - V_PRED],
+#if CONFIG_ORIP
+      int signal_intra_filter = av1_signal_orip_for_horver_modes(
+          cm, mbmi, PLANE_TYPE_Y, bsize, xd->tree_type);
+      if (signal_intra_filter)
+        update_cdf(fc->angle_delta_cdf_hv[PLANE_TYPE_Y][mbmi->mode - V_PRED],
+                   get_angle_delta_to_idx(mbmi->angle_delta[PLANE_TYPE_Y]),
+                   2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA);
+      else
+#endif
+        update_cdf(fc->angle_delta_cdf[PLANE_TYPE_Y][mbmi->mode - V_PRED],
+                   mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
+                   2 * MAX_ANGLE_DELTA + 1);
+#else
+#if CONFIG_ORIP
+    int signal_intra_filter =
+        av1_signal_orip_for_horver_modes(cm, mbmi, PLANE_TYPE_Y, bsize);
+    if (signal_intra_filter)
+      update_cdf(fc->angle_delta_cdf_hv[mbmi->mode - V_PRED],
+                 get_angle_delta_to_idx(mbmi->angle_delta[PLANE_TYPE_Y]),
+                 2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA);
+    else
+#endif
+      update_cdf(fc->angle_delta_cdf[mbmi->mode - V_PRED],
                  mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
                  2 * MAX_ANGLE_DELTA + 1);
-#else
-    update_cdf(fc->angle_delta_cdf[mbmi->mode - V_PRED],
-               mbmi->angle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,
-               2 * MAX_ANGLE_DELTA + 1);
 #endif
     }
 #if CONFIG_SDP
@@ -1306,6 +1325,10 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->kf_y_cdf, ctx_tr->kf_y_cdf, INTRA_MODES);
   AVERAGE_CDF(ctx_left->angle_delta_cdf, ctx_tr->angle_delta_cdf,
               2 * MAX_ANGLE_DELTA + 1);
+#if CONFIG_ORIP
+  AVERAGE_CDF(ctx_left->angle_delta_cdf_hv, ctx_tr->angle_delta_cdf_hv,
+              2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA);
+#endif
   AVG_CDF_STRIDE(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0], MAX_TX_DEPTH,
                  CDF_SIZE(MAX_TX_DEPTH + 1));
   AVERAGE_CDF(ctx_left->tx_size_cdf[1], ctx_tr->tx_size_cdf[1],
