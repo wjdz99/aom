@@ -233,7 +233,6 @@ static int construct_multi_layer_gf_structure(
   if (use_altref) {
     gf_group->update_type[frame_index] = ARF_UPDATE;
     gf_group->arf_src_offset[frame_index] = gf_interval - cur_frame_index;
-    printf("SET OFFSET %d, int %d, cur %d\n", gf_interval - cur_frame_index, gf_interval, cur_frame_index);
     gf_group->cur_frame_idx[frame_index] = cur_frame_index;
     gf_group->layer_depth[frame_index] = 1;
     gf_group->arf_boost[frame_index] = cpi->ppi->p_rc.gfu_boost;
@@ -321,7 +320,6 @@ void av1_gop_setup_structure(AV1_COMP *cpi) {
                           (p_rc->baseline_gf_interval == 1)
                       ? OVERLAY_UPDATE
                       : GF_UPDATE;
-  printf("NEW GF, ud %d, int %d\n", first_frame_update_type, p_rc->baseline_gf_interval);
   gf_group->size = construct_multi_layer_gf_structure(
       cpi, twopass, gf_group, rc, frame_info, p_rc->baseline_gf_interval - 1,
       first_frame_update_type);
