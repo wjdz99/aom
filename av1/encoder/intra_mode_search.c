@@ -867,12 +867,13 @@ static AOM_INLINE int intra_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
  *
  * \return Returns nothing, but updates the mbmi and rd_stats.
  */
-static INLINE void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
+static INLINE
+void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
                                             BLOCK_SIZE bsize,
                                             const PICK_MODE_CONTEXT *ctx,
                                             RD_STATS *rd_stats_y, int mode_cost,
                                             int64_t best_rd,
-                                            int64_t best_rd_so_far) {
+                                            int64_t best_rd_so_far, int64_t *best_model_rd) {
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   assert(mbmi->mode == DC_PRED &&
@@ -891,6 +892,11 @@ static INLINE void handle_filter_intra_mode(const AV1_COMP *cpi, MACROBLOCK *x,
   for (FILTER_INTRA_MODE fi_mode = FILTER_DC_PRED; fi_mode < FILTER_INTRA_MODES;
        ++fi_mode) {
     mbmi->filter_intra_mode_info.filter_intra_mode = fi_mode;
+
+    if (model_intra_yrd_and_prune(cpi, x, bsize, best_model_rd)) {
+      continue;
+    }
+
     av1_pick_uniform_tx_size_type_yrd(cpi, x, &rd_stats_y_fi, bsize, best_rd);
     if (rd_stats_y_fi.rate == INT_MAX) continue;
     const int this_rate_tmp =
@@ -1001,7 +1007,7 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
 
     if (try_filter_intra) {
       handle_filter_intra_mode(cpi, x, bsize, ctx, rd_stats_y, mode_cost,
-                               best_rd, best_rd_so_far);
+                               best_rd, best_rd_so_far, best_model_rd);
     }
   }
 
