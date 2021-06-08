@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nIn this patch, tx types of winner mode are pruned more aggressively (during rd search) for speed 6. The results are as follows:\n\n cpu-used   Resolution  Instruction Count       BD-Rate Loss (%)\n                          Reduction (%)    avg.psnr   ovr.psnr    ssim       \n    6       LOWRES          2.46            0.2868     0.2991    0.2013 \n    6       MIDRES          0.88            0.1258     0.1439    0.0414\n    6       HDRES           1.42            0.2357     0.2432    0.1892\n    6       Average         1.81            0.2241     0.2366    0.1508 \n    \nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate loss\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …  \n\nPlease review the patch.\n\nThanks",
       "revId": "228ffb2c34ea3437fbb805868473961aaf2dcdfb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b791771_82163cbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-08T16:22:55Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "228ffb2c34ea3437fbb805868473961aaf2dcdfb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
