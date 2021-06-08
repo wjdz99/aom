@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bdf2be00_47fb93b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-06-08T04:10:48Z",
+      "side": 1,
+      "message": "The \"average\" result is computed by averaging the instruction count reduction over all the test cases (spanning lowres, midres, hdres) and the BD rate over all the contents. As aligned before, we use 33 lowres contents spanning 247 test cases (the different bitrate points), 24 midres contents spanning 120 test cases and 25 hdres contents spanning 125 test cases. In this case, the average thus becomes (Sum of instruction count reduction over lowres cases) / (247 + 120 + 125) and (Sum of BD rate loss over lowres contents) / (33 + 24 + 25).",
+      "parentUuid": "a6ec6b48_29123571",
+      "revId": "0645a20b8bcdeeb8b1b21ebc9f2a7f19335f9362",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "67639abb_197b93c8",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 1
@@ -49,6 +67,30 @@
       "writtenOn": "2021-06-07T17:23:33Z",
       "side": 1,
       "message": "Move this to set_good_speed_feature_framesize_dependent() and combine it with your change? It would be easy to follow if 1 feature is set in 1 place.",
+      "range": {
+        "startLine": 859,
+        "startChar": 17,
+        "endLine": 859,
+        "endChar": 52
+      },
+      "revId": "0645a20b8bcdeeb8b1b21ebc9f2a7f19335f9362",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "694ffc83_c4a85b85",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 859,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-06-08T04:10:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67639abb_197b93c8",
       "range": {
         "startLine": 859,
         "startChar": 17,
