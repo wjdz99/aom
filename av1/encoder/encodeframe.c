@@ -332,14 +332,22 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   MACROBLOCK *x = &td->mb;
   const int frame_idx = cpi->gf_frame_index;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
+=======
+  TplParams *const tpl_data = &cpi->tpl_data;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
 
   av1_zero(x->tpl_keep_ref_frame);
 
   if (frame_idx >= MAX_TPL_FRAME_IDX) return;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   if (!tpl_frame->is_valid) return;
+=======
+  if (tpl_frame->is_valid == 0) return;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) return;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return;
 

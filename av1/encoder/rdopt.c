@@ -2186,7 +2186,11 @@ static AOM_INLINE void get_block_level_tpl_stats(
   assert(IMPLIES(cpi->ppi->gf_group.size > 0,
                  cpi->gf_frame_index < cpi->ppi->gf_group.size));
   const int tpl_idx = cpi->gf_frame_index;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
+=======
+  TplParams *const tpl_data = &cpi->tpl_data;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   if (tpl_idx >= MAX_TPL_FRAME_IDX) {
     return;
   }
@@ -2578,7 +2582,11 @@ static int64_t handle_inter_mode(
   const PREDICTION_MODE this_mode = mbmi->mode;
 
   const int tpl_idx = cpi->gf_frame_index;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
+=======
+  TplParams *const tpl_data = &cpi->tpl_data;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   const int prune_modes_based_on_tpl =
       cpi->sf.inter_sf.prune_inter_modes_based_on_tpl &&
       tpl_idx < MAX_TPL_FRAME_IDX && tpl_data->tpl_frame[tpl_idx].is_valid;

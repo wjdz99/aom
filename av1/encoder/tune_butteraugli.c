@@ -27,7 +27,11 @@ static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
                                               const YV12_BUFFER_CONFIG *recon,
                                               const double K) {
   AV1_COMMON *const cm = &cpi->common;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   SequenceHeader *const seq_params = cm->seq_params;
+=======
+  SequenceHeader *const seq_params = &cm->seq_params;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const aom_color_range_t color_range =
       seq_params->color_range != 0 ? AOM_CR_FULL_RANGE : AOM_CR_STUDIO_RANGE;
@@ -42,7 +46,11 @@ static void set_mb_butteraugli_rdmult_scaling(AV1_COMP *cpi,
   if (!aom_calc_butteraugli(source, recon, bit_depth,
                             seq_params->matrix_coefficients, color_range,
                             diffmap)) {
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
     aom_internal_error(cm->error, AOM_CODEC_ERROR,
+=======
+    aom_internal_error(&cm->error, AOM_CODEC_ERROR,
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
                        "Failed to calculate Butteraugli distances.");
   }
 
@@ -307,7 +315,11 @@ void av1_setup_butteraugli_rdmult(AV1_COMP *cpi) {
   av1_set_speed_features_qindex_dependent(cpi, oxcf->speed);
   if (q_cfg->deltaq_mode != NO_DELTA_Q || q_cfg->enable_chroma_deltaq)
     av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
                        cm->seq_params->bit_depth);
+=======
+                       cm->seq_params.bit_depth);
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
 
   av1_set_variance_partition_thresholds(cpi, q_index, 0);
   av1_encode_frame(cpi);

@@ -1769,8 +1769,13 @@ void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
   const int tpl_idx = cpi->gf_frame_index;
 
   if (tpl_idx >= MAX_TPL_FRAME_IDX) return;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   TplDepFrame *tpl_frame = &cpi->ppi->tpl_data.tpl_frame[tpl_idx];
   if (!tpl_frame->is_valid) return;
+=======
+  TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
+  if (tpl_frame->is_valid == 0) return;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) return;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return;
 

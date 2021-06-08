@@ -90,8 +90,13 @@ int av1_get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const int tpl_idx = cpi->gf_frame_index;
   const int deltaq_rdmult = set_deltaq_rdmult(cpi, x);
   if (tpl_idx >= MAX_TPL_FRAME_IDX) return deltaq_rdmult;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   const TplDepFrame *tpl_frame = &cpi->ppi->tpl_data.tpl_frame[tpl_idx];
   if (!tpl_frame->is_valid) return deltaq_rdmult;
+=======
+  const TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
+  if (tpl_frame->is_valid == 0) return deltaq_rdmult;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
     return deltaq_rdmult;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return deltaq_rdmult;
@@ -683,7 +688,11 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   assert(IMPLIES(cpi->ppi->gf_group.size > 0,
                  cpi->gf_frame_index < cpi->ppi->gf_group.size));
   const int tpl_idx = cpi->gf_frame_index;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
+=======
+  TplParams *const tpl_data = &cpi->tpl_data;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
   int64_t intra_cost = 0;
   int64_t mc_dep_cost = 0;
@@ -695,7 +704,11 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   if (!tpl_frame->is_valid) return orig_rdmult;
+=======
+  if (tpl_frame->is_valid == 0) return orig_rdmult;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
 
   if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) return orig_rdmult;
 
@@ -816,7 +829,11 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   AV1_COMMON *const cm = &cpi->common;
   const int gf_group_index = cpi->gf_frame_index;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
+=======
+  TplParams *const tpl_data = &cpi->tpl_data;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
 
@@ -825,7 +842,11 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_group_index];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   if (!tpl_frame->is_valid) return;
+=======
+  if (tpl_frame->is_valid == 0) return;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
 
   int mi_count = 0;
   int count = 0;
@@ -888,7 +909,11 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   assert(IMPLIES(cpi->ppi->gf_group.size > 0,
                  cpi->gf_frame_index < cpi->ppi->gf_group.size));
   const int tpl_idx = cpi->gf_frame_index;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
+=======
+  TplParams *const tpl_data = &cpi->tpl_data;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
   int64_t intra_cost = 0;
   int64_t mc_dep_cost = 0;
@@ -901,7 +926,11 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
+<<<<<<< HEAD   (9edab3 Add documentation for q_mode strategy methods.)
   if (!tpl_frame->is_valid) return base_qindex;
+=======
+  if (tpl_frame->is_valid == 0) return base_qindex;
+>>>>>>> BRANCH (7fadc0 Change v3.1.1 release date to 2021-06-08)
 
   if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) return base_qindex;
 
