@@ -219,29 +219,21 @@ void av1_free_pc_tree_recursive(PC_TREE *pc_tree, int num_planes, int keep_best,
   if (!keep_best && !keep_none) aom_free(pc_tree);
 }
 
-static AOM_INLINE int get_pc_tree_nodes(const int is_sb_size_128,
-                                        int stat_generation_stage) {
-  const int tree_nodes_inc = is_sb_size_128 ? 1024 : 0;
-  const int tree_nodes =
-      stat_generation_stage ? 1 : (tree_nodes_inc + 256 + 64 + 16 + 4 + 1);
-  return tree_nodes;
-}
-
-void av1_setup_sms_tree(AV1_COMP *const cpi, ThreadData *td) {
+SIMPLE_MOTION_DATA_TREE *av1_setup_sms_tree(AV1_COMP *const cpi,
+                                            SIMPLE_MOTION_DATA_TREE *sms_tree) {
   AV1_COMMON *const cm = &cpi->common;
   const int stat_generation_stage = is_stat_generation_stage(cpi);
   const int is_sb_size_128 = cm->seq_params->sb_size == BLOCK_128X128;
   const int tree_nodes =
-      get_pc_tree_nodes(is_sb_size_128, stat_generation_stage);
+      av1_get_pc_tree_nodes(is_sb_size_128, stat_generation_stage);
   int sms_tree_index = 0;
   SIMPLE_MOTION_DATA_TREE *this_sms;
   int square_index = 1;
   int nodes;
 
-  aom_free(td->sms_tree);
-  CHECK_MEM_ERROR(cm, td->sms_tree,
-                  aom_calloc(tree_nodes, sizeof(*td->sms_tree)));
-  this_sms = &td->sms_tree[0];
+  aom_free(sms_tree);
+  CHECK_MEM_ERROR(cm, sms_tree, aom_calloc(tree_nodes, sizeof(*sms_tree)));
+  this_sms = &sms_tree[0];
 
   if (!stat_generation_stage) {
     const int leaf_factor = is_sb_size_128 ? 4 : 1;
@@ -249,7 +241,7 @@ void av1_setup_sms_tree(AV1_COMP *const cpi, ThreadData *td) {
 
     // Sets up all the leaf nodes in the tree.
     for (sms_tree_index = 0; sms_tree_index < leaf_nodes; ++sms_tree_index) {
-      SIMPLE_MOTION_DATA_TREE *const tree = &td->sms_tree[sms_tree_index];
+      SIMPLE_MOTION_DATA_TREE *const tree = &sms_tree[sms_tree_index];
       tree->block_size = square[0];
     }
 
@@ -257,7 +249,7 @@ void av1_setup_sms_tree(AV1_COMP *const cpi, ThreadData *td) {
     // from leafs to the root.
     for (nodes = leaf_nodes >> 2; nodes > 0; nodes >>= 2) {
       for (int i = 0; i < nodes; ++i) {
-        SIMPLE_MOTION_DATA_TREE *const tree = &td->sms_tree[sms_tree_index];
+        SIMPLE_MOTION_DATA_TREE *const tree = &sms_tree[sms_tree_index];
         tree->block_size = square[square_index];
         for (int j = 0; j < 4; j++) tree->split[j] = this_sms++;
         ++sms_tree_index;
@@ -268,13 +260,13 @@ void av1_setup_sms_tree(AV1_COMP *const cpi, ThreadData *td) {
     // Allocation for firstpass/LAP stage
     // TODO(Mufaddal): refactor square_index to use a common block_size macro
     // from firstpass.c
-    SIMPLE_MOTION_DATA_TREE *const tree = &td->sms_tree[sms_tree_index];
+    SIMPLE_MOTION_DATA_TREE *const tree = &sms_tree[sms_tree_index];
     square_index = 2;
     tree->block_size = square[square_index];
   }
 
   // Set up the root node for the largest superblock size
-  td->sms_root = &td->sms_tree[tree_nodes - 1];
+  return &sms_tree[tree_nodes - 1];
 }
 
 void av1_free_sms_tree(ThreadData *td) {

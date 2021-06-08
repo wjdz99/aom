@@ -116,7 +116,16 @@ void av1_free_pmc(PICK_MODE_CONTEXT *ctx, int num_planes);
 void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
                            PICK_MODE_CONTEXT *src_ctx);
 
-void av1_setup_sms_tree(struct AV1_COMP *const cpi, struct ThreadData *td);
+static AOM_INLINE int av1_get_pc_tree_nodes(const int is_sb_size_128,
+                                            int stat_generation_stage) {
+  const int tree_nodes_inc = is_sb_size_128 ? 1024 : 0;
+  const int tree_nodes =
+      stat_generation_stage ? 1 : (tree_nodes_inc + 256 + 64 + 16 + 4 + 1);
+  return tree_nodes;
+}
+
+SIMPLE_MOTION_DATA_TREE *av1_setup_sms_tree(struct AV1_COMP *const cpi,
+                                            SIMPLE_MOTION_DATA_TREE *sms_tree);
 void av1_free_sms_tree(struct ThreadData *td);
 
 #ifdef __cplusplus

@@ -86,7 +86,7 @@ static AOM_INLINE void alloc_compressor_data(AV1_COMP *cpi) {
                   (IntraBCMVCosts *)aom_malloc(sizeof(*cpi->td.mb.dv_costs)));
 
   av1_setup_shared_coeff_buffer(&cpi->common, &cpi->td.shared_coeff_buf);
-  av1_setup_sms_tree(cpi, &cpi->td);
+  cpi->td.sms_root = av1_setup_sms_tree(cpi, cpi->td.sms_tree);
   cpi->td.firstpass_ctx =
       av1_alloc_pmc(cpi, BLOCK_16X16, &cpi->td.shared_coeff_buf);
 }
