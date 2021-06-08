@@ -2018,6 +2018,8 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
         cm->mi_params.mi_grid_base +
         get_mi_grid_idx(&cm->mi_params, mi_row_sb, mi_col_sb);
     // Do not skip if intra or new mv is picked.
+    mi_sb[0]->skip_cdef_curr_sb =
+        !(x->color_sensitivity[0] || x->color_sensitivity[1]);
     const int skip = mi_sb[0]->skip_cdef_curr_sb &&
                      !(mbmi->mode < INTRA_MODES || mbmi->mode == NEWMV);
     // If 128x128 block is used, we need to set the flag for all 4 64x64 sub
