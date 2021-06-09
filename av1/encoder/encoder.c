@@ -81,9 +81,9 @@
 
 #if CONFIG_NEW_INTER_MODES
 #if CONFIG_REF_MV_BANK
-#define MAX_DRL_BITS 7
-#else
 #define MAX_DRL_BITS 5
+#else
+#define MAX_DRL_BITS 3
 #endif  // CONFIG_REF_MV_BANK
 #endif  // CONFIG_NEW_INTER_MODES
 
