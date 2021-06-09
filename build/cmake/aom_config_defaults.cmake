@@ -162,6 +162,8 @@ set_aom_config_var(CONFIG_EXT_RECUR_PARTITIONS 0 NUMBER
 set_aom_config_var(CONFIG_OPTFLOW_REFINEMENT 0
                    "AV2 optical flow based MV refinement experimental flag")
 set_aom_config_var(CONFIG_MVP_LESS_LINE_BUF 0 "Reduce line buffer for MVP")
+set_aom_config_var(CONFIG_MVP_INDEPENDENT_PARSING 0
+	           "Remove spatial mv dependency for drl index parsing")
 set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 0 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 0 "Enable TMVP improvement")
 
