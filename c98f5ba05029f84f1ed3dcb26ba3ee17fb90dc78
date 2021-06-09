@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e0ea9fd_6f4a55b6",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb3b0bc9_c91dc24e",
+      "range": {
+        "startLine": 104,
+        "startChar": 47,
+        "endLine": 105,
+        "endChar": 56
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "495b8187_7b9d0e9a",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-06-09T20:27:52Z",
       "side": 1,
       "message": "Is this needed?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2b6e9b6_3ad4ba02",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "495b8187_7b9d0e9a",
       "range": {
         "startLine": 1,
         "startChar": 0,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0816d14a_048dc8af",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cb7c2819_8a3197b5",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 30
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4b472159_fe8a9938",
@@ -104,6 +176,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b77f6f6_e8e5976b",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b472159_fe8a9938",
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4856f8c4_fa860483",
@@ -117,6 +207,30 @@
       "writtenOn": "2021-06-09T21:47:58Z",
       "side": 1,
       "message": "There is some extra space here.\nI would recommend to use auto clangformat to format your code before push a CL.\nPlease check \"2.1.3 Auto run clang-format\" in the following link.\nhttps://docs.google.com/document/d/1Mni7HdOy_vBa2nowjql6m8FwIN7IuPAU-BUFMKwlOE4/edit?usp\u003dsharing",
+      "range": {
+        "startLine": 11,
+        "startChar": 55,
+        "endLine": 11,
+        "endChar": 56
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1825ea8_5c649a60",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4856f8c4_fa860483",
       "range": {
         "startLine": 11,
         "startChar": 55,
@@ -173,6 +287,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd2c4b1f_12916573",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba3d90ba_2d8824e5",
+      "range": {
+        "startLine": 14,
+        "startChar": 62,
+        "endLine": 14,
+        "endChar": 78
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dddd4664_0bf5852e",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2f4e419_6ff57363",
+      "range": {
+        "startLine": 14,
+        "startChar": 7,
+        "endLine": 14,
+        "endChar": 60
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d74c3e81_9cf092e3",
@@ -186,6 +348,30 @@
       "writtenOn": "2021-06-09T21:47:58Z",
       "side": 1,
       "message": "\"width * 0.5\" or \"(double)width/2\"",
+      "range": {
+        "startLine": 15,
+        "startChar": 38,
+        "endLine": 15,
+        "endChar": 45
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65169362_29b759dd",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d74c3e81_9cf092e3",
       "range": {
         "startLine": 15,
         "startChar": 38,
@@ -242,6 +428,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b71e150_5495e55f",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "43ca4dc8_200c1308",
+      "range": {
+        "startLine": 16,
+        "startChar": 9,
+        "endLine": 16,
+        "endChar": 10
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b5a9285_879cde51",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b657381_051fe78f",
+      "range": {
+        "startLine": 16,
+        "startChar": 40,
+        "endLine": 16,
+        "endChar": 48
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c451066f_9be27034",
@@ -288,6 +522,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3146adcb_70e05f54",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "I have tested in another local project. They are reverse of each other with a small difference due to the floating point nature. I will write an unit test later just to make sure.",
+      "parentUuid": "732c8a6c_86769639",
+      "range": {
+        "startLine": 19,
+        "startChar": 5,
+        "endLine": 19,
+        "endChar": 17
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51559364_dfcb8b63",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c451066f_9be27034",
+      "range": {
+        "startLine": 19,
+        "startChar": 18,
+        "endLine": 19,
+        "endChar": 21
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d89e2fbc_ab2b26be",
@@ -301,6 +583,30 @@
       "writtenOn": "2021-06-09T20:27:52Z",
       "side": 1,
       "message": "Does x start with 0 or 1? In the codebase the convention is to start with 0. Then this should be x \u003c width?\nAlso should we wrap back to the other boundary if we are out of the rectangular region?",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 38
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36dfa4aa_3b2a289a",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d89e2fbc_ab2b26be",
       "range": {
         "startLine": 20,
         "startChar": 4,
@@ -334,6 +640,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa8c0627_a829aed3",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59f0cb3f_5c92c284",
+      "range": {
+        "startLine": 22,
+        "startChar": 18,
+        "endLine": 22,
+        "endChar": 25
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4c8c224_b198eae0",
@@ -357,6 +687,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94184a7c_8114f7cb",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4c8c224_b198eae0",
+      "range": {
+        "startLine": 23,
+        "startChar": 16,
+        "endLine": 23,
+        "endChar": 24
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1cd940cb_e5950dfe",
@@ -370,6 +724,30 @@
       "writtenOn": "2021-06-09T20:27:52Z",
       "side": 1,
       "message": "Add copy right header before this. This should be done for every new file.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 40
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4087f176_a8386138",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cd940cb_e5950dfe",
       "range": {
         "startLine": 1,
         "startChar": 0,
@@ -427,6 +805,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bcea624d_988f0b2d",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e081ae4_05254081",
+      "range": {
+        "startLine": 7,
+        "startChar": 3,
+        "endLine": 8,
+        "endChar": 53
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "98753111_36d37c60",
@@ -474,6 +876,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc78b270_63c2dd19",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "587fbabd_59ac19c8",
+      "range": {
+        "startLine": 12,
+        "startChar": 5,
+        "endLine": 12,
+        "endChar": 17
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab5c9901_36eade20",
@@ -497,6 +923,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a179512_931fc943",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab5c9901_36eade20",
+      "range": {
+        "startLine": 17,
+        "startChar": 3,
+        "endLine": 20,
+        "endChar": 46
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1f3d2e34_1d2e664c",
@@ -510,6 +960,30 @@
       "writtenOn": "2021-06-09T20:27:52Z",
       "side": 1,
       "message": "Same here, add av1_ or make it static.",
+      "range": {
+        "startLine": 22,
+        "startChar": 5,
+        "endLine": 22,
+        "endChar": 17
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b970fce_5c913e2e",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-09T22:44:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f3d2e34_1d2e664c",
       "range": {
         "startLine": 22,
         "startChar": 5,
