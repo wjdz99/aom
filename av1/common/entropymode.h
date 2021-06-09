@@ -255,6 +255,14 @@ static INLINE int16_t inter_single_mode_ctx(int16_t mode_ctx) {
   return ctx;
 }
 
+#if CONFIG_MVP_INDEPENDENT_PARSING
+static INLINE int16_t drl_mode_ctx(int16_t mode_ctx) {
+  const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
+  assert(newmv_ctx < NEWMV_MODE_CONTEXTS);
+  const int16_t ctx = (newmv_ctx >> 1);
+  return ctx;
+}
+#else
 static INLINE int16_t drl_mode_ctx(int16_t mode_ctx) {
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
   assert(newmv_ctx < NEWMV_MODE_CONTEXTS);
@@ -263,6 +271,7 @@ static INLINE int16_t drl_mode_ctx(int16_t mode_ctx) {
   assert(ctx < DRL_MODE_CONTEXTS);
   return ctx;
 }
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
 #endif  // CONFIG_NEW_INTER_MODES
 
 // Returns the context for palette color index at row 'r' and column 'c',
