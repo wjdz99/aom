@@ -511,6 +511,8 @@ struct stream_config {
 #endif
   const char *partition_info_path;
   aom_color_range_t color_range;
+  const char *two_pass_input;
+  const char *two_pass_output;
 };
 
 struct stream_state {
@@ -535,6 +537,8 @@ struct stream_state {
   int mismatch_seen;
   unsigned int chroma_subsampling_x;
   unsigned int chroma_subsampling_y;
+  const char *ori_out_fn;
+  char tmp_out_fn[40];
 };
 
 static void validate_positive_rational(const char *msg,
@@ -801,6 +805,8 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
 
   /* Output files must be specified for each stream */
   stream->config.out_fn = NULL;
+  stream->config.two_pass_input = NULL;
+  stream->config.two_pass_output = NULL;
 
   stream->next = NULL;
   return stream;
@@ -1104,6 +1110,12 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       if (arg_parse_uint(&arg) == 1) {
         warn("non-zero %s option ignored in realtime mode.\n", arg.name);
       }
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_input_file,
+                         argi)) {
+      config->two_pass_input = arg.val;
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_output_file,
+                         argi)) {
+      config->two_pass_output = arg.val;
     } else {
       int i, match = 0;
       // check if the control ID API supports this arg
@@ -1942,8 +1954,24 @@ int main(int argc, const char **argv_) {
       die("only support ivf output format while large-scale-tile=1\n");
   }
 
+  if (stream_cnt) {
+    const char *twopass_input = streams->config.two_pass_input;
+    FOREACH_STREAM(stream, streams) {
+      if ((!twopass_input && streams->config.two_pass_input) ||
+          (twopass_input && !streams->config.two_pass_input) ||
+          (twopass_input &&
+           !strcmp(twopass_input, streams->config.two_pass_input))) {
+        die("streams should have the same twopass input file.\n");
+      }
+    }
+  }
+
   /* Handle non-option arguments */
   input.filename = argv[0];
+  const char *ori_input_filename = input.filename;
+  FOREACH_STREAM(stream, streams) {
+    stream->ori_out_fn = stream->config.out_fn;
+  }
 
   if (!input.filename) {
     fprintf(stderr, "No input file specified!\n");
@@ -1960,19 +1988,50 @@ int main(int argc, const char **argv_) {
     int64_t average_rate = -1;
     int64_t lagged_count = 0;
 
+    FOREACH_STREAM(stream, streams) {
+      // reset input file to the downscaled file if provided
+      if (!global.pass && global.passes == 3 && pass != 2) {
+        if (stream->config.two_pass_input) {
+          input.filename = stream->config.two_pass_input;
+        } else {
+          // TODO(bohanli): we should downscale the input frames here to a new
+          // file
+        }
+      } else {
+        input.filename = ori_input_filename;
+      }
+
+      // set the output to the specified two-pass output file
+      if (!global.pass && global.passes == 3 && pass != 2) {
+        if (stream->config.two_pass_output) {
+          stream->config.out_fn = stream->config.two_pass_output;
+        } else {
+          snprintf(stream->tmp_out_fn, sizeof(stream->tmp_out_fn),
+                   "tmp_2pass_output_%d.ivf", stream->index);
+          stream->config.out_fn = stream->tmp_out_fn;
+        }
+      } else {
+        stream->config.out_fn = stream->ori_out_fn;
+      }
+    }
+
     open_input_file(&input, global.csp);
 
     /* If the input file doesn't specify its w/h (raw files), try to get
      * the data from the first stream's configuration.
      */
     if (!input.width || !input.height) {
-      FOREACH_STREAM(stream, streams) {
-        if (stream->config.cfg.g_w && stream->config.cfg.g_h) {
-          input.width = stream->config.cfg.g_w;
-          input.height = stream->config.cfg.g_h;
-          break;
+      if (!global.pass && global.passes == 3 && pass != 2) {
+        // TODO(bohanli): set input width and height here
+      } else {
+        FOREACH_STREAM(stream, streams) {
+          if (stream->config.cfg.g_w && stream->config.cfg.g_h) {
+            input.width = stream->config.cfg.g_w;
+            input.height = stream->config.cfg.g_h;
+            break;
+          }
         }
-      };
+      }
     }
 
     /* Update stream configurations from the input file's parameters */
@@ -2127,17 +2186,26 @@ int main(int argc, const char **argv_) {
     FOREACH_STREAM(stream, streams) { validate_stream_config(stream, &global); }
 
     /* Ensure that --passes and --pass are consistent. If --pass is set and
-     * --passes=2, ensure --fpf was set.
+     * --passes>=2, ensure --fpf was set for the first two passes.
      */
-    // TODO(bohanli): with passes == 3 and pass == 3, we could use either
-    // fpf or second pass bitstream. This should be updated when that option
-    // is added.
-    if (global.pass && global.passes >= 2) {
+    if (global.pass > 0 && global.pass <= 2 && global.passes >= 2) {
       FOREACH_STREAM(stream, streams) {
         if (!stream->config.stats_fn)
           die("Stream %d: Must specify --fpf when --pass=%d"
-              " and --passes=2\n",
-              stream->index, global.pass);
+              " and --passes=%d\n",
+              stream->index, global.pass, global.passes);
+      }
+    }
+    /* For the third pass, when run separately from the first two passes, we
+     * need to ensure we have at least the first pass file, or we have a
+     * bitstream.
+     */
+    if (global.pass == 3) {
+      FOREACH_STREAM(stream, streams) {
+        if (!stream->config.stats_fn && !stream->config.two_pass_output)
+          die("Stream %d: Must specify --fpf or --two-pass-output when "
+              "--pass=3\n",
+              stream->index);
       }
     }
 
@@ -2436,6 +2504,13 @@ int main(int argc, const char **argv_) {
     }
   }
 #endif
+
+  FOREACH_STREAM(stream, streams) {
+    if (global.passes == 3 && !global.pass && !stream->config.two_pass_output) {
+      // delete the temporary output file
+      if (stream->tmp_out_fn[0]) remove(stream->tmp_out_fn);
+    }
+  }
 
   if (allocated_raw_shift) aom_img_free(&raw_shift);
   aom_img_free(&raw);
