@@ -615,5 +615,15 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
       NULL, "vbr-corpus-complexity-lap", 1,
       "Set average corpus complexity per mb for single pass VBR using lap. "
       "(0..10000), default is 0"),
+  .two_pass_input_file = ARG_DEF(
+      NULL, "two-pass-input", 1,
+      "The input file for the first two passes for three-pass encoding."),
+  .two_pass_output_file = ARG_DEF(
+      NULL, "two-pass-output", 1,
+      "The output file for the first two passes for three-pass encoding."),
+  .two_pass_width =
+      ARG_DEF(NULL, "two-pass-width", 1, "The width of two-pass-input."),
+  .two_pass_height =
+      ARG_DEF(NULL, "two-pass-height", 1, "The height of two-pass-input."),
 #endif  // CONFIG_AV1_ENCODER
 };
