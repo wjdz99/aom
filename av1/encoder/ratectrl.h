@@ -606,6 +606,12 @@ void av1_get_one_pass_rt_params(struct AV1_COMP *cpi,
  */
 int av1_encodedframe_overshoot_cbr(struct AV1_COMP *cpi, int *q);
 
+/*!\brief Compute the q_indices for the entire GOP.
+ *
+ * Intended to be used only with AOM_Q mode.
+ */
+void av1_q_mode_compute_gop_q_indices(struct AV1_COMP *cpi, int base_q_index);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
