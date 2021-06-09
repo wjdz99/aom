@@ -2370,8 +2370,12 @@ static INLINE int get_drl_cost(int max_drl_bits, const MB_MODE_INFO *mbmi,
   int16_t mode_ctx_pristine =
       av1_mode_context_pristine(mbmi_ext->mode_context, mbmi->ref_frame);
   int cost = 0;
+#if CONFIG_MVP_INDEPENDENT_PARSING
+  const int range = max_drl_bits;
+#else
   const int range = av1_drl_range(mbmi_ext->ref_mv_count[ref_frame_type],
                                   mode_ctx_pristine >> 8, max_drl_bits);
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
   for (int idx = 0; idx < range; ++idx) {
     uint8_t drl_ctx =
         av1_drl_ctx(mbmi_ext->weight[ref_frame_type], mode_ctx_pristine, idx);
