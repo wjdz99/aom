@@ -80,7 +80,7 @@
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
 #if CONFIG_NEW_INTER_MODES
-#define MAX_DRL_BITS 5
+#define MAX_DRL_BITS 3
 #endif  // CONFIG_NEW_INTER_MODES
 
 #if CONFIG_ENTROPY_STATS
@@ -617,6 +617,16 @@ int aom_strcmp(const char *a, const char *b) {
   if (a != NULL && b == NULL) return 1;
   return strcmp(a, b);
 }
+
+#if CONFIG_NEW_INTER_MODES
+static void set_max_drl_bits(struct AV1_COMP *cpi) {
+  AV1_COMMON *const cm = &cpi->common;
+  // Add logic to choose this in the range [MIN_MAX_DRL_BITS, MAX_MAX_DRL_BITS]
+  cm->features.max_drl_bits = MAX_DRL_BITS;
+  assert(cm->features.max_drl_bits >= MIN_MAX_DRL_BITS &&
+         cm->features.max_drl_bits <= MAX_MAX_DRL_BITS);
+}
+#endif  // CONFIG_NEW_INTER_MODES
 
 void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
   AV1_COMMON *const cm = &cpi->common;
@@ -2978,6 +2988,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   } else {
     cpi->common.features.cur_frame_force_integer_mv = 0;
   }
+#if CONFIG_NEW_INTER_MODES
+  set_max_drl_bits(cpi);
+#endif  // CONFIG_NEW_INTER_MODES
 
   // Set default state for segment based loop filter update flags.
   cm->lf.mode_ref_delta_update = 0;
