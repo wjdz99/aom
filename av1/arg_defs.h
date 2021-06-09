@@ -216,6 +216,10 @@ typedef struct av1_codec_arg_definitions {
   arg_def_t use_fixed_qp_offsets;
   arg_def_t fixed_qp_offsets;
   arg_def_t vbr_corpus_complexity_lap;
+  arg_def_t two_pass_input_file;
+  arg_def_t two_pass_output_file;
+  arg_def_t two_pass_width;
+  arg_def_t two_pass_height;
 #endif  // CONFIG_AV1_ENCODER
 } av1_codec_arg_definitions_t;
 
