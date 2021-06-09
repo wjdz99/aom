@@ -82,9 +82,6 @@ set_aom_config_var(CONFIG_PIC 0 "Build with PIC enabled.")
 set_aom_config_var(CONFIG_RUNTIME_CPU_DETECT 1 "Runtime CPU detection support.")
 set_aom_config_var(CONFIG_SHARED 0 "Build shared libs.")
 set_aom_config_var(CONFIG_WEBM_IO 1 "Enables WebM support.")
-set_aom_config_var(CONFIG_MVP_LESS_LINE_BUF 0 "Enable less line buffer for MVP")
-set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 0 "Enable SMVP improvement")
-set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 0 "Enable TMVP improvement")
 
 # Debugging flags.
 set_aom_config_var(CONFIG_DEBUG 0 "Debug build flag.")
@@ -164,6 +161,11 @@ set_aom_config_var(CONFIG_EXT_RECUR_PARTITIONS 0 NUMBER
                    "AV2 Fully recursive partitions experiment flag")
 set_aom_config_var(CONFIG_OPTFLOW_REFINEMENT 0
                    "AV2 optical flow based MV refinement experimental flag")
+set_aom_config_var(CONFIG_MVP_LESS_LINE_BUF 0 "Reduce line buffer for MVP")
+set_aom_config_var(CONFIG_MVP_INDEPENDENT_PARSING 0
+	           "Remove spatial mv dependency for drl index parsing")
+set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 0 "Enable SMVP improvement")
+set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 0 "Enable TMVP improvement")
 
 #
 # Variables in this section control optional features of the build system.
