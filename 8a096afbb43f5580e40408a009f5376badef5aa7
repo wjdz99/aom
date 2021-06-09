@@ -22,6 +22,30 @@
       },
       "revId": "8a096afbb43f5580e40408a009f5376badef5aa7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52e837e6_3f48ba26",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 3248,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-09T23:31:17Z",
+      "side": 1,
+      "message": "no, just set it not too far apart for spatial consistency.",
+      "parentUuid": "c38ae284_0daf9b60",
+      "range": {
+        "startLine": 3248,
+        "startChar": 11,
+        "endLine": 3248,
+        "endChar": 61
+      },
+      "revId": "8a096afbb43f5580e40408a009f5376badef5aa7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
