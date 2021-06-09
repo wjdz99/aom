@@ -320,7 +320,7 @@ static struct av1_extracfg default_extra_cfg = {
   1,                                         // enable_cdef
   1,                                         // enable_restoration
 #if CONFIG_CCSO
-  0,  // enable_ccso
+  1,  // enable_ccso
 #endif
   0,                       // force_video_mode
   1,                       // enable_obmc
@@ -3832,7 +3832,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
 #endif
         1, 1,   1,   1, 1, 1, 1,
 #if CONFIG_CCSO
-        0,
+        1,
 #endif
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
@@ -3917,7 +3917,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
 #endif
         1, 1,   1,   1, 1, 1, 1,
 #if CONFIG_CCSO
-        0,
+        1,
 #endif
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
