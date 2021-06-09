@@ -899,6 +899,24 @@ static AOM_INLINE void setup_ref_mv_list(
                 derived_mv_weight, &derived_mv_count
 #endif
   );
+
+#if CONFIG_MVP_LESS_LINE_BUF
+  for (int idx = 2; idx <= MVREF_ROW_COLS; ++idx) {
+    const int col_offset = -(idx << 1) + 1 + col_adj;
+    if (abs(col_offset) <= abs(max_col_offset) &&
+        abs(col_offset) > processed_cols) {
+      scan_col_mbmi(cm, xd, mi_row, rf, col_offset, ref_mv_stack, ref_mv_weight,
+                    refmv_count, &col_match_count, &dummy_newmv_count,
+                    gm_mv_candidates, max_col_offset, &processed_cols
+#if CONFIG_SMVP_IMPROVEMENT
+                    ,
+                    0, single_mv, &single_mv_count, derived_mv_stack,
+                    derived_mv_weight, &derived_mv_count
+#endif
+      );
+    }
+  }
+#else
   for (int idx = 2; idx <= MVREF_ROW_COLS; ++idx) {
     const int row_offset = -(idx << 1) + 1 + row_adj;
     const int col_offset = -(idx << 1) + 1 + col_adj;
@@ -927,6 +945,7 @@ static AOM_INLINE void setup_ref_mv_list(
 #endif
       );
   }
+#endif  // CONFIG_MVP_LESS_LINE_BUF
 
   const uint8_t ref_match_count = (row_match_count > 0) + (col_match_count > 0);
 
