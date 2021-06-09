@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nThis patch separates the worker creation from tile_thr_data initialization by introducing a new function init_tile_thread_data. This is done to facilitate abstraction of workers and tile_thr_data to the primary context. \n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc. \n\nPlease review.",
       "revId": "ca621e6a1b465e2f2cd00f751af44ea36068337a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bd49ba2_e258bdbd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-09T16:13:18Z",
+      "side": 1,
+      "message": "Looks like the thread data allocation was consolidated into 1 function for 1st pass and 2nd pass. Want to confirm that this CL wouldn\u0027t change real time 1-pass encoding (CONFIG_REALTIME_ONLY case)?",
+      "parentUuid": "35079868_7aa97642",
+      "revId": "ca621e6a1b465e2f2cd00f751af44ea36068337a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
