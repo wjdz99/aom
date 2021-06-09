@@ -139,6 +139,7 @@ set_aom_config_var(CONFIG_REMOVE_DUAL_FILTER 1
                    "AV2 experiment flag to remove dual filter.")
 set_aom_config_var(CONFIG_NEW_INTER_MODES 0 NUMBER
                    "AV2 inter mode consolidation experiment flag")
+set_aom_config_var(CONFIG_MVP_LESS_LINE_BUF 0 "Reduce line buffer for MVP")
 set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 0 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 0 "Enable TMVP improvement")
 
