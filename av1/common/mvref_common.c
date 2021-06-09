@@ -1222,6 +1222,7 @@ static AOM_INLINE void setup_ref_mv_list(
         mv_ref_list[idx].as_int = ref_mv_stack[idx].this_mv.as_int;
       }
     }
+
 #if CONFIG_NEW_INTER_MODES
     // If there is extra space in the stack, copy the GLOBALMV vector into it.
     // This also guarantees the existence of at least one vector to search.
