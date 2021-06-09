@@ -267,6 +267,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6e081ae4_05254081",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-09T20:31:32Z",
+      "side": 1,
+      "message": "More context here: go/cstyle#Inputs_and_Outputs",
+      "parentUuid": "d04bc60e_ee930789",
+      "range": {
+        "startLine": 7,
+        "startChar": 3,
+        "endLine": 8,
+        "endChar": 53
+      },
+      "revId": "c98f5ba05029f84f1ed3dcb26ba3ee17fb90dc78",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "98753111_36d37c60",
         "filename": "av1/common/spherical_pred.h",
         "patchSetId": 1
