@@ -149,7 +149,7 @@ set_aom_config_var(CONFIG_COMPOUND_WARP_SAMPLES 1 NUMBER
 set_aom_config_var(
   CONFIG_MRLS 1 "AV2 experiment flag to enable multiple line intra prediction.")
 # Cross component sample offset
-set_aom_config_var(CONFIG_CCSO 0 "AV2 cross component sample offset flag.")
+set_aom_config_var(CONFIG_CCSO 1 "AV2 cross component sample offset flag.")
 #
 # Variables in this section control optional features of the build system.
 #
