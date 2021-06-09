@@ -101,8 +101,8 @@ endif()
 
 if(CONFIG_SPHERICAL_PRED)
   list(APPEND AOM_AV1_COMMON_SOURCES
-              "${AOM_ROOT}/av1/common/spherical_pred.h"
-              "${AOM_ROOT}/av1/common/spherical_pred.c")
+              "${AOM_ROOT}/av1/common/spherical_pred.c"
+              "${AOM_ROOT}/av1/common/spherical_pred.h")
 endif()
 
 if(CONFIG_LPF_MASK)
