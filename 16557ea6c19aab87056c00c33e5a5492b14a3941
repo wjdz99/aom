@@ -3,6 +3,312 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "50f0bd17_969783d4",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "There are some common parts inside the CONFIG_MRLS and CONFIG_ORIP, could you please help refactor the code and put the common parts outside of these two compiling flags?",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce82baeb_2410707b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please remove this blank line.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1c750bf_55bc3b67",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Pleae remove this blank line.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "648c972f_848e42ca",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please remove this blank line.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "547423f8_566f1fad",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please extract the common parts outside of CONFIG_ORIP to avoid duplication.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b78b6c1_87737971",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please extrac the common parts outside of CONFIG_ORIP.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b08dd14b_2b271949",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ba8b27d_5268f10b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1468,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please remove this blank line.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "299d8bea_b20e4da8",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1548,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "This part is repeated. Please refactor this code.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c152270_80fc44fc",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1755,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please remove this blank line.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75c9733e_338ccfa8",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1812,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "This part is repeated. Please refactor this code.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d67d9b1_a3656191",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1901,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please extract the common parts outside of CONFIG_ORIP to avoid duplication.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "412fb913_1bc403f0",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2098,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please extract the common parts outside of CONFIG_ORIP.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6eec935_e336fb34",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2128,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "same as above.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "effa740a_b64ff2b7",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2171,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "const",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1306a4a_493175a9",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2172,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "const",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12177980_8add9aa9",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2173,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "const",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c61ae4bf_7e3e185f",
+        "filename": "av1/common/reconintra.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "prefer a shorter function name, for example, av1_use_subblock_intra_pred_filter ().\n\nAnd one some description for this function.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5c2cc9df_419291c4",
         "filename": "av1/decoder/decodemv.c",
         "patchSetId": 3
@@ -20,6 +326,108 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c3deccd5_2c56579e",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please remove this blank line.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8938ffe_3bb2abdd",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please extract the common parts outside of CONFIG_SDP to avoid duplication. For example, \n\n#if CONFIG_ORIP\n    int signal_intra_filter \u003d av1_signal_intra_pred_filter_for_dir_mode_bsize(\n        cm, mbmi, PLANE_TYPE_Y, bsize);\naom_cdf_prob *cdf_angle \u003d\n          signal_intra_filter\n#if CONFIG_SDP\n              ? ec_ctx-\u003eangle_delta_cdf_hv[PLANE_TYPE_Y][mode - V_PRED]\n              : ec_ctx-\u003eangle_delta_cdf[PLANE_TYPE_Y][mode - V_PRED];\n#else\n              ? ec_ctx-\u003eangle_delta_cdf_hv[mode - V_PRED]\n              : ec_ctx-\u003eangle_delta_cdf[mode - V_PRED];\n#endif\n    assert(mbmi-\u003eangle_delta[PLANE_TYPE_Y] \u003e\u003d -3 \u0026\u0026\n           mbmi-\u003eangle_delta[PLANE_TYPE_Y] \u003c\u003d ANGLE_DELTA_VALUE_ORIP);\n    if (signal_intra_filter)\n      write_angle_delta_hv(w, mbmi-\u003eangle_delta[PLANE_TYPE_Y], cdf_angle);\n    else\n      write_angle_delta(w, mbmi-\u003eangle_delta[PLANE_TYPE_Y], cdf_angle);\n#endif",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfa7e930_3a82ebcd",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please extract the common parts outside of CONFIG_SDP to avoid duplication",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d885b929_def2592b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please remove this blank line.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0019f18_bf37463e",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "please remove this blank line",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4926589_4b2bf5bc",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1562,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please move the common parts outside of CONFIG_ORIP.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2d710562_daf6b0fa",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 3
@@ -31,6 +439,74 @@
       "writtenOn": "2021-06-09T20:53:45Z",
       "side": 1,
       "message": "Minor item, please add if-else braces for clarity",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11b9b781_2dce5d40",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1898,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please move this line outside of CONFIG_SDP to avoid duplication.\n\nint signal_intra_filter \u003d av1_signal_intra_pred_filter_for_dir_mode_bsize(\n          cm, mi, PLANE_TYPE_Y, bsize);",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ff31690_a2ff1f90",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5458,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Please extract the common parts outside to avoid duplication.\n\nint signal_intra_filter \u003d av1_signal_intra_pred_filter_for_dir_mode_bsize(\n          \u0026cpi-\u003ecommon, mbmi, PLANE_TYPE_Y, bsize\n#if CONFIG_SDP\n          , xd-\u003etree_type\n#endif\n          );",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1cfb9a0e_95a6fd50",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c06499fd_07de9262",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 498,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T21:13:31Z",
+      "side": 1,
+      "message": "Same comment as above.",
       "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
