@@ -1663,18 +1663,18 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
   i = 0;
   // get the determined gf group length from rc->gf_intervals
   while (i <= rc->gf_intervals[rc->cur_gf_index]) {
+    // read in the next frame
+    if (EOF == input_stats(twopass, &next_frame)) {
+      // Avoid baseline_gf_interval being set as 0 at EOF
+      if (rc->frames_to_key <= 1 && i == 0) i = 2;
+      break;
+    }
+
     ++i;
     // Accumulate error score of frames in this gf group.
     mod_frame_err = 0.0;
     // accumulate stats for this frame
     accumulate_this_frame_stats(this_frame, mod_frame_err, &gf_stats);
-
-    // read in the next frame
-    if (EOF == input_stats(twopass, &next_frame)) {
-      // Avoid baseline_gf_interval being set as 0 at EOF
-      if (rc->frames_to_key <= 1 && i == 1) i++;
-      break;
-    }
 
     // Test for the case where there is a brief flash but the prediction
     // quality back to an earlier frame is then restored.
@@ -1722,7 +1722,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     use_alt_ref =
         !is_almost_static(gf_stats.zero_motion_accumulator,
                           twopass->kf_zeromotion_pct, cpi->lap_enabled) &&
-        rc->use_arf_in_this_kf_group && (i < gf_cfg->lag_in_frames) &&
+        rc->use_arf_in_this_kf_group && (i <= gf_cfg->lag_in_frames) &&
         (i >= MIN_GF_INTERVAL);
 
     // TODO(urvang): Improve and use model for VBR, CQ etc as well.
@@ -1739,7 +1739,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     }
   } else {
     use_alt_ref =
-        rc->use_arf_in_this_kf_group && (i < gf_cfg->lag_in_frames) && (i > 2);
+        rc->use_arf_in_this_kf_group && (i <= gf_cfg->lag_in_frames) && (i > 2);
   }
 
 #define REDUCE_GF_LENGTH_THRESH 4
