@@ -115,8 +115,13 @@ static void write_drl_idx(int max_drl_bits, const int16_t mode_ctx,
   // number of bits written if there are less than 4 valid DRL indices.
   assert(mbmi->ref_mv_idx < mbmi_ext_frame->ref_mv_count);
   assert(mbmi->ref_mv_idx < max_drl_bits + 1);
+#if CONFIG_MVP_INDEPENDENT_PARSING
+  int range = max_drl_bits;
+#else
   int range =
       av1_drl_range(mbmi_ext_frame->ref_mv_count, mode_ctx >> 8, max_drl_bits);
+#endif // CONFIG_MVP_INDEPENDENT_PARSING
+
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf =
         av1_get_drl_cdf(ec_ctx, mbmi_ext_frame->weight, mode_ctx, idx);
