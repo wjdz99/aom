@@ -240,8 +240,14 @@ static void read_drl_idx(int max_drl_bits, const int16_t mode_ctx,
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   mbmi->ref_mv_idx = 0;
   assert(!mbmi->skip_mode);
+
+#if CONFIG_MVP_INDEPENDENT_PARSING
+  const int range = max_drl_bits;
+#else
   const int range = av1_drl_range(dcb->ref_mv_count[ref_frame_type],
                                   mode_ctx >> 8, max_drl_bits);
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
+
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf =
         av1_get_drl_cdf(ec_ctx, xd->weight[ref_frame_type], mode_ctx, idx);

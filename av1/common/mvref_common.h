@@ -196,7 +196,7 @@ static INLINE int16_t av1_mode_context_analyzer(
 #if CONFIG_NEW_INTER_MODES
 static INLINE uint8_t av1_drl_ctx(const uint16_t *ref_mv_weight,
                                   const int16_t mode_ctx, int ref_idx) {
-#if NO_MV_PARSING_DEP
+#if NO_MV_PARSING_DEP || CONFIG_MVP_INDEPENDENT_PARSING
   (void)ref_mv_weight;
   (void)ref_idx;
   return drl_mode_ctx(mode_ctx);
@@ -214,7 +214,7 @@ static INLINE uint8_t av1_drl_ctx(const uint16_t *ref_mv_weight,
       ref_mv_weight[ref_idx + 1] < REF_CAT_LEVEL)
     return 2;
   return 0;
-#endif  // NO_MV_PARSING_DEP
+#endif  // NO_MV_PARSING_DEP || CONFIG_MVP_INDEPENDENT_PARSING
 }
 
 static INLINE aom_cdf_prob *av1_get_drl_cdf(FRAME_CONTEXT *ec_ctx,
