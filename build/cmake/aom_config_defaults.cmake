@@ -161,6 +161,7 @@ set_aom_config_var(CONFIG_EXT_RECUR_PARTITIONS 0 NUMBER
                    "AV2 Fully recursive partitions experiment flag")
 set_aom_config_var(CONFIG_OPTFLOW_REFINEMENT 0
                    "AV2 optical flow based MV refinement experimental flag")
+set_aom_config_var(CONFIG_MVP_LESS_LINE_BUF 0 "Reduce line buffer for MVP")
 set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 0 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 0 "Enable TMVP improvement")
 
