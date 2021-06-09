@@ -154,6 +154,8 @@ set_aom_config_var(
 set_aom_config_var(CONFIG_NEW_INTER_MODES 0 NUMBER
                    "AV2 inter mode consolidation experiment flag")
 set_aom_config_var(CONFIG_MVP_LESS_LINE_BUF 0 "Reduce line buffer for MVP")
+set_aom_config_var(CONFIG_MVP_INDEPENDENT_PARSING 0
+                   "Remove spatial mv dependency for drl index parsing")
 set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 0 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 0 "Enable TMVP improvement")
 
