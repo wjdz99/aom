@@ -1739,7 +1739,7 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     }
   } else {
     use_alt_ref =
-        rc->use_arf_in_this_kf_group && (i < gf_cfg->lag_in_frames) && (i > 2);
+        rc->use_arf_in_this_kf_group && (i <= gf_cfg->lag_in_frames) && (i > 2);
   }
 
 #define REDUCE_GF_LENGTH_THRESH 4
