@@ -739,8 +739,14 @@ static void update_drl_index_stats(int max_drl_bits, const int16_t mode_ctx,
   assert(have_drl_index(mbmi->mode));
   uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   assert(mbmi->ref_mv_idx < max_drl_bits + 1);
+
+#if CONFIG_MVP_INDEPENDENT_PARSING
+  const int range = max_drl_bits;
+#else
   const int range = av1_drl_range(mbmi_ext->ref_mv_count[ref_frame_type],
                                   (mode_ctx >> 8), max_drl_bits);
+#endif  // CONFIG_MVP_INDEPENDENT_PARSING
+
   for (int idx = 0; idx < range; ++idx) {
     aom_cdf_prob *drl_cdf =
         av1_get_drl_cdf(fc, mbmi_ext->weight[ref_frame_type], mode_ctx, idx);
