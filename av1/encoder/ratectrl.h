@@ -359,6 +359,7 @@ typedef struct {
 
 struct AV1_COMP;
 struct AV1EncoderConfig;
+struct GF_GROUP;
 
 void av1_primary_rc_init(const struct AV1EncoderConfig *oxcf,
                          PRIMARY_RATE_CONTROL *p_rc);
@@ -605,6 +606,22 @@ void av1_get_one_pass_rt_params(struct AV1_COMP *cpi,
  * \return q is returned, and updates are done to \c cpi->rc.
  */
 int av1_encodedframe_overshoot_cbr(struct AV1_COMP *cpi, int *q);
+
+/*!\brief Compute the q_indices for the entire GOP.
+ *
+ * Intended to be used only with AOM_Q mode.
+ *
+ * \param[in]       gf_group          Pointer to the GOP
+ * \param[in]       gf_frame_index    Index of the current frame
+ * \param[in]       base_q_index      Base q index (cq_level)
+ * \param[in]       gfu_boost         Parameter for ARF q_index
+ * \param[in]       bit_depth         Bit depth
+ * \param[in]       arf_boost_factor  Parameter for ARF q_index
+ */
+void av1_q_mode_compute_gop_q_indices(struct GF_GROUP *gf_group,
+                                      int gf_frame_index, int base_q_index,
+                                      int gfu_boost, int bit_depth,
+                                      float_t arf_boost_factor);
 
 #ifdef __cplusplus
 }  // extern "C"
