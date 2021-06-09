@@ -1,0 +1,310 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d956586_34f0f1f0",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "This variable is not needed. Please refer to the following commit for reference:\nhttps://aomedia-review.googlesource.com/c/aom/+/132125",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23bc631d_94101846",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6c4f359_a545d783",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4b4e02c_edf3753f",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1451,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please avoid this duplication by extracting common parts out of CONFIG_CCSO.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5bdbaf2_296011af",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1675,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "This function is not needed for adding run-time flag, please remove it.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "741a5238_be5e747b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3653,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d501f51e_9e51d6e5",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please avoid the duplication by adding one variable:\n\nint ccso_blk_idx \u003d (1 \u003c\u003c CCSO_BLK_SIZE \u003e\u003e\n                            (MI_SIZE_LOG2 - xd-\u003eplane[plane].subsampling_y)) *\n                               (y \u003e\u003e CCSO_BLK_SIZE) * mi_params-\u003emi_stride +\n                           (1 \u003c\u003c CCSO_BLK_SIZE \u003e\u003e\n                            (MI_SIZE_LOG2 - xd-\u003eplane[plane].subsampling_x)) *\n                               (x \u003e\u003e CCSO_BLK_SIZE);\n                               \n    const bool use_ccso \u003d\n            (plane \u003d\u003d 1)\n                ? mi_params[ccso_blk_idx]-\u003eccso_blk_u :   mi_params[ccso_blk_idx]-\u003eccso_blk_v",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afe08bdb_d8fbac68",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "please use lowercase, such as y_start",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b53a1387_86b92644",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "same as above.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb05c986_73663555",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please add some description for this newly added function",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c50ca737_df807e08",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a76a569_24967132",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please add one variable to avoid the duplication.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cd18ae4_c17ac591",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please add the description for this newly added function.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0bb0fb0_15b34bf4",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5674,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please avoid the duplication by extracting the common parts: \n\n\n    const int optimized_loop_restoration \u003d\n #if CONFIG_CCSO\n        !use_ccso \u0026\u0026 \n #endif\n        !do_cdef \u0026\u0026 !do_superres;",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "036a9f17_97a0d6f0",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please add one variable to avoid the duplication:\n\nconst int blk_size_y \u003d (1 \u003c\u003c (CCSO_BLK_SIZE + xd-\u003eplane[1].subsampling_y - MI_SIZE_LOG2);",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fe59841_648ea8d9",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please add one variable to avoid the duplication.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24e4b313_05ec9026",
+        "filename": "av1/encoder/pickccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Please add some description for this function.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c4c0554b_8bba755e",
+        "filename": "av1/encoder/pickccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-09T17:24:58Z",
+      "side": 1,
+      "message": "Same as above.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
