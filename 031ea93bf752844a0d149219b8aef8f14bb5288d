@@ -66,6 +66,98 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bd0f672d_90806a4e",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-10T18:06:54Z",
+      "side": 1,
+      "message": "We don\u0027t need \"(double)\" here.\n\"/PI\" or \"*0.5\" will convert the variable to double automatically.",
+      "range": {
+        "startLine": 15,
+        "startChar": 20,
+        "endLine": 15,
+        "endChar": 28
+      },
+      "revId": "031ea93bf752844a0d149219b8aef8f14bb5288d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dd7c221_ff82b508",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-10T18:06:54Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 17,
+        "startChar": 24,
+        "endLine": 17,
+        "endChar": 32
+      },
+      "revId": "031ea93bf752844a0d149219b8aef8f14bb5288d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eaf819ae_4e6ca832",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-10T18:06:54Z",
+      "side": 1,
+      "message": "We don\u0027t need \"(double)\" here. \"(x - width * 0.5)\" will make the rest use double operation",
+      "range": {
+        "startLine": 23,
+        "startChar": 33,
+        "endLine": 23,
+        "endChar": 41
+      },
+      "revId": "031ea93bf752844a0d149219b8aef8f14bb5288d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4628c305_7dcdfa7b",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-10T18:06:54Z",
+      "side": 1,
+      "message": "same here.",
+      "range": {
+        "startLine": 24,
+        "startChar": 32,
+        "endLine": 24,
+        "endChar": 40
+      },
+      "revId": "031ea93bf752844a0d149219b8aef8f14bb5288d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "26e55d31_27b9a6e0",
         "filename": "av1/common/spherical_pred.h",
         "patchSetId": 2
