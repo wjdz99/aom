@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a852d93_589db93c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3129,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-10T20:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd0c7f15_366898b2",
+      "range": {
+        "startLine": 3127,
+        "startChar": 0,
+        "endLine": 3129,
+        "endChar": 0
+      },
+      "revId": "163c18b38497a9ef78aa8fed3d92d918907f1415",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e06a6bb0_d77e94b9",
@@ -66,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c16f6963_25757853",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3144,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-10T20:25:10Z",
+      "side": 1,
+      "message": "Good point.\n\nLet\u0027s run another experiment first to see if we actually need this array altogather.",
+      "parentUuid": "e06a6bb0_d77e94b9",
+      "range": {
+        "startLine": 3143,
+        "startChar": 0,
+        "endLine": 3144,
+        "endChar": 52
+      },
+      "revId": "163c18b38497a9ef78aa8fed3d92d918907f1415",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3e7bc425_9e17758e",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 5
@@ -77,6 +125,24 @@
       "writtenOn": "2021-06-10T15:11:45Z",
       "side": 1,
       "message": "The second argument to qsort() is the number of elements in the array. The coeff array seems to have coeff_count elements. Why do we pass coeff_count - 1 here?\n\nPerhaps you meant to pass \u0026coeff[1] as the first argument? (coeff[0] is 0, so it is the smallest in an array of nonnegative values.)",
+      "revId": "163c18b38497a9ef78aa8fed3d92d918907f1415",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37816248_20a76599",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3188,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-10T20:25:10Z",
+      "side": 1,
+      "message": "right, forgot to change this.",
+      "parentUuid": "3e7bc425_9e17758e",
       "revId": "163c18b38497a9ef78aa8fed3d92d918907f1415",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
