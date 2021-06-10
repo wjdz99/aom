@@ -2316,7 +2316,7 @@ void av1_collect_motion_search_features_sb(AV1_COMP *const cpi, ThreadData *td,
     }
   }
   write_motion_feature_to_file(cpi->oxcf.partition_info_path, cpi->sb_counter,
-                               block_sse, block_var, num_blocks, bsize,
+                               block_sse, block_var, idx, bsize,
                                fixed_block_size, mi_row, mi_col);
 
   aom_free(block_sse);
