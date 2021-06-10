@@ -2959,6 +2959,11 @@ typedef struct AV1_COMP {
    * Frame level Wiener filter normalization.
    */
   int64_t norm_wiener_variance;
+
+  /*!
+   * Flag to indicate current frame is not dropped.
+   */
+  bool not_frame_dropped;
 } AV1_COMP;
 
 /*!
