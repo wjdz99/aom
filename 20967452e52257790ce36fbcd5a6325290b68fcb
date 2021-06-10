@@ -50,6 +50,23 @@
       "message": "Just a note here. I think turning it off in this circumstance makes perfect sense, in part because we only have very long GOP sizes when we detect static content and choose to drop back to Golden frame only mode. Otherwise we are limited by the much tighter restrictions on GOP length that apply for lookahead buffering of ARF frames.",
       "revId": "20967452e52257790ce36fbcd5a6325290b68fcb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e505900d_7974df03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-10T20:35:07Z",
+      "side": 1,
+      "message": "Yep, I observed a performance impact but haven\u0027t got time to investigate.\nWill figure out the cause of the performance impact (probably in the next week) before submitting this CL.\n\nAnd agree, turning off TPL when gop is big makes sense.\n",
+      "revId": "20967452e52257790ce36fbcd5a6325290b68fcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
