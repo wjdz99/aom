@@ -1,0 +1,118 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f97358b1_6e3acecc",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-10T15:30:59Z",
+      "side": 1,
+      "message": "Nit: We should be able to replace delta_q_info-\u003edelta_q_res with delta_q_res here and also at line 282. I hope I didn\u0027t miss something subtle.\n\nNote: This line seems redundant with line 282.",
+      "revId": "3a3a71613eab08e6859602401e4472fd2d3ed482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf41d45d_ac2fbf68",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-10T15:30:59Z",
+      "side": 1,
+      "message": "Does this mean we need to set enable_tpl_model to true for all intra mode?",
+      "revId": "3a3a71613eab08e6859602401e4472fd2d3ed482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54662b04_03e12f8a",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1415,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-10T15:30:59Z",
+      "side": 1,
+      "message": "Nit: These two else-if\u0027s can be merged:\n\n    else if (deltaq_mode \u003d\u003d DELTA_Q_PERCEPTUAL || deltaq_mode \u003d\u003d DELTA_Q_PERCEPTUAL_AI)\n      cm-\u003edelta_q_info.delta_q_res \u003d DEFAULT_DELTA_Q_RES_PERCEPTUAL;",
+      "revId": "3a3a71613eab08e6859602401e4472fd2d3ed482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebbce9c6_258c43fc",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 969,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-10T15:30:59Z",
+      "side": 1,
+      "message": "Nit: This if statement can be split into two:\n\n  for (int row \u003d mi_row; row \u003c mi_row + mi_high; row +\u003d mi_step) {\n    if (row \u003e\u003d cm-\u003emi_params.mi_rows)\n        continue;\n    for (int col \u003d mi_col; col \u003c mi_col + mi_wide; col +\u003d mi_step) {\n      if (col \u003e\u003d cm-\u003emi_params.mi_cols)\n        continue;\n        \nAlso, it seems that the \u0027continue\u0027 can be changed to \u0027break\u0027.",
+      "range": {
+        "startLine": 966,
+        "startChar": 0,
+        "endLine": 969,
+        "endChar": 17
+      },
+      "revId": "3a3a71613eab08e6859602401e4472fd2d3ed482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17cc5b19_133e8f47",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-10T15:30:59Z",
+      "side": 1,
+      "message": "Nit: We should be able to replace the AOMMIN/AOMMAX pairs with the clamp() function?",
+      "range": {
+        "startLine": 985,
+        "startChar": 0,
+        "endLine": 989,
+        "endChar": 32
+      },
+      "revId": "3a3a71613eab08e6859602401e4472fd2d3ed482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bc89fb4_ceb1f92b",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-10T15:30:59Z",
+      "side": 1,
+      "message": "Run clang-format. The indentation is off. (I wonder why the Style Check did not detect this.)",
+      "revId": "3a3a71613eab08e6859602401e4472fd2d3ed482",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
