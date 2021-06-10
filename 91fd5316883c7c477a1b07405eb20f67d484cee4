@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb6f7138_21b910c8",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-10T23:10:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff3f516f_70a462d6",
+      "revId": "91fd5316883c7c477a1b07405eb20f67d484cee4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "12abf213_4b2aa669",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-06-10T21:47:24Z",
       "side": 1,
       "message": "Add the following before this line. This should solve the id error.\n#ifdef __cplusplus\n}  // extern \"C\"\n#endif",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 42
+      },
+      "revId": "91fd5316883c7c477a1b07405eb20f67d484cee4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37fdb72b_1d422620",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-10T23:10:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12abf213_4b2aa669",
       "range": {
         "startLine": 35,
         "startChar": 0,
