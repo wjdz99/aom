@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f69a6b3d_e4206e9c",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-10T21:40:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "71aaf1b4_cc871f55",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ce82baeb_2410707b",
@@ -382,6 +400,24 @@
       "side": 1,
       "message": "I am not sure if I understand correctly. I do not see any repeating.",
       "parentUuid": "75c9733e_338ccfa8",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28a99001_79f07730",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1812,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-10T21:40:24Z",
+      "side": 1,
+      "message": "The following codes are repeated twice, one is at line 1812, and the other one is at line 1548. Please include the following codes in one function.\n\n// Apply sub-block based filter for horizontal/vertical intra mode\n    apply_sub_block_based_refinement_filter \u0026\u003d\n        (!disable_intra_pred_filter_for_hor_ver_mode \u0026\u0026\n         (p_angle \u003d\u003d 90 || p_angle \u003d\u003d 180));\n    if (apply_sub_block_based_refinement_filter) {\n      // printf(\" ORIP is applied to directional mode\\n\");\n      av1_apply_orip_4x4subblock(dst, dst_stride, tx_size, above_row, left_col,\n                                 mode);\n    }",
+      "parentUuid": "6fd93c34_3983632d",
       "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -738,6 +774,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cdb4b8e6_74bf4432",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-10T21:40:24Z",
+      "side": 1,
+      "message": "Please help check whether the following refactor works. I checked on my local machine, it doesn\u0027t break any combination.\n\nif (use_angle_delta \u0026\u0026 av1_is_directional_mode(mode)) {\n#if CONFIG_ORIP\n      int signal_intra_filter \u003d av1_signal_orip_for_horver_modes(\n        cm, mbmi, PLANE_TYPE_Y\n#if CONFIG_SDP\n        , bsize, xd-\u003etree_type);\n#else\n        , bsize);\n#endif\n#endif\n#if CONFIG_SDP\n#if CONFIG_ORIP\n      aom_cdf_prob *cdf_angle \u003d\n          signal_intra_filter\n              ? ec_ctx-\u003eangle_delta_cdf_hv[PLANE_TYPE_Y][mode - V_PRED]\n              : ec_ctx-\u003eangle_delta_cdf[PLANE_TYPE_Y][mode - V_PRED];\n#else\n      write_angle_delta(w, mbmi-\u003eangle_delta[PLANE_TYPE_Y],\n                        ec_ctx-\u003eangle_delta_cdf[PLANE_TYPE_Y][mode - V_PRED]);\n#endif\n\n#else\n#if CONFIG_ORIP\n    aom_cdf_prob *cdf_angle \u003d signal_intra_filter\n                                  ? ec_ctx-\u003eangle_delta_cdf_hv[mode - V_PRED]\n                                  : ec_ctx-\u003eangle_delta_cdf[mode - V_PRED];\n#else\n    write_angle_delta(w, mbmi-\u003eangle_delta[PLANE_TYPE_Y],\n                      ec_ctx-\u003eangle_delta_cdf[mode - V_PRED]);\n#endif\n#endif\n#if CONFIG_ORIP\n    assert(mbmi-\u003eangle_delta[PLANE_TYPE_Y] \u003e\u003d -3 \u0026\u0026\n      mbmi-\u003eangle_delta[PLANE_TYPE_Y] \u003c\u003d ANGLE_DELTA_VALUE_ORIP);\n\n    if (signal_intra_filter)\n      write_angle_delta_hv(w, mbmi-\u003eangle_delta[PLANE_TYPE_Y], cdf_angle);\n    else\n      write_angle_delta(w, mbmi-\u003eangle_delta[PLANE_TYPE_Y], cdf_angle);\n#endif\n    }",
+      "parentUuid": "3288834c_e8b7ce60",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cfa7e930_3a82ebcd",
         "filename": "av1/encoder/encodeframe_utils.c",
         "patchSetId": 3
@@ -767,6 +821,24 @@
       "side": 1,
       "message": "No so straightforward to separate the common part. So I kept as is.",
       "parentUuid": "cfa7e930_3a82ebcd",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1eb8d03_ce4870d2",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-10T21:40:24Z",
+      "side": 1,
+      "message": "Below is one example:\n\n#if CONFIG_ORIP\n      int signal_intra_filter \u003d av1_signal_orip_for_horver_modes(\n        cm, mbmi, PLANE_TYPE_Y\n#if CONFIG_SDP\n        , bsize, xd-\u003etree_type);\n#else\n        , bsize);\n#endif\n#endif\n#if CONFIG_SDP\nif (signal_intra_filter)\n        update_cdf(fc-\u003eangle_delta_cdf_hv[PLANE_TYPE_Y][mbmi-\u003emode - V_PRED],\n                   get_angle_delta_to_idx(mbmi-\u003eangle_delta[PLANE_TYPE_Y]),\n                   2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA);\n      else\n#endif\n        update_cdf(fc-\u003eangle_delta_cdf[PLANE_TYPE_Y][mbmi-\u003emode - V_PRED],\n                   mbmi-\u003eangle_delta[PLANE_TYPE_Y] + MAX_ANGLE_DELTA,\n                   2 * MAX_ANGLE_DELTA + 1);\n#else\n.....",
+      "parentUuid": "6a2d7ff5_260d7a46",
       "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -942,6 +1014,24 @@
       "side": 1,
       "message": "Not so straightforward. So I kept as is.",
       "parentUuid": "11b9b781_2dce5d40",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41617109_c16ae460",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1898,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-10T21:40:24Z",
+      "side": 1,
+      "message": "Below is one example:\n\n#if CONFIG_ORIP\n      int signal_intra_filter \u003d av1_signal_orip_for_horver_modes(\n        cm, mbmi, PLANE_TYPE_Y\n#if CONFIG_SDP\n        , bsize, xd-\u003etree_type);\n#else\n        , bsize);\n#endif\n#endif\n#if CONFIG_SDP\n.....",
+      "parentUuid": "f75eee4e_94079c2a",
       "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
