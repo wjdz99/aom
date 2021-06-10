@@ -606,11 +606,11 @@ enum {
 #else
 #define NO_MV_PARSING_DEP 2  // 2 for strong, 1 for weaker parsing removal
 #endif                       // CONFIG_MVP_INDEPENDENT_PARSING
-#if NO_MV_PARSING_DEP
+#if NO_MV_PARSING_DEP || CONFIG_MVP_INDEPENDENT_PARSING
 #define DRL_MODE_CONTEXTS (NEWMV_MODE_CONTEXTS * GLOBALMV_MODE_CONTEXTS)
 #else
 #define DRL_MODE_CONTEXTS 3
-#endif  // NO_MV_PARSING_DEP
+#endif  // NO_MV_PARSING_DEP || CONFIG_MVP_INDEPENDENT_PARSING
 
 #else
 #define MAX_DRL_BITS 2
