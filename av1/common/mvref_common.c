@@ -682,6 +682,18 @@ static AOM_INLINE void setup_ref_mv_list(
     len = nr_len;
   }
 
+#if CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
+#if NO_MV_PARSING_DEP == 2
+  int refmv_count_max_ctx = cm->features.max_drl_bits + 1;
+#else
+  int refmv_count_max_ctx =
+      AOMMAX(*refmv_count, MAX_MV_REF_CANDIDATES) + (rf[1] == NONE_FRAME);
+#endif  // NO_MV_PARSING_DEP == 2
+  refmv_count_max_ctx = AOMMIN(refmv_count_max_ctx, MAX_REF_MV_STACK_SIZE);
+  // Add max #ref_mvs expected to second byte of mode_context
+  mode_context[ref_frame] |= (refmv_count_max_ctx << 8);
+#endif  // CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
+
   int mi_width = AOMMIN(mi_size_wide[BLOCK_64X64], xd->width);
   mi_width = AOMMIN(mi_width, cm->mi_params.mi_cols - mi_col);
   int mi_height = AOMMIN(mi_size_high[BLOCK_64X64], xd->height);
@@ -805,7 +817,7 @@ static AOM_INLINE void setup_ref_mv_list(
     }
 #endif  // CONFIG_NEW_INTER_MODES
   }
-#if CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
+#if CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP == 1
   assert(*refmv_count <= refmv_count_max_ctx);
 #endif  // CONFIG_NEW_INTER_MODES && NO_MV_PARSING_DEP
 }
