@@ -146,7 +146,7 @@ set_aom_config_var(CONFIG_SDP 1 NUMBER "AV2 Semi-Decoupled Partitioning.")
 set_aom_config_var(CONFIG_EXTQUANT 1
                    "AV2 extended quantization experiment flag")
 # Intra Secondary Transform
-set_aom_config_var(CONFIG_IST 0 NUMBER "AV2 IST experiment flag.")
+set_aom_config_var(CONFIG_IST 1 NUMBER "AV2 IST experiment flag.")
 #
 # Variables in this section control optional features of the build system.
 #
