@@ -676,7 +676,7 @@ static const aom_cdf_prob
     };
 
 static const aom_cdf_prob default_drl0_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
-#if NO_MV_PARSING_DEP
+#if NO_MV_PARSING_DEP || CONFIG_MVP_INDEPENDENT_PARSING
 #if CONFIG_REF_MV_BANK
   { AOM_CDF2(18923) }, { AOM_CDF2(12861) }, { AOM_CDF2(15472) },
   { AOM_CDF2(13796) }, { AOM_CDF2(21474) }, { AOM_CDF2(24491) },
@@ -689,16 +689,12 @@ static const aom_cdf_prob default_drl0_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(16468) }, { AOM_CDF2(21428) }, { AOM_CDF2(21326) }
 #endif  // CONFIG_REF_MV_BANK
 #else
-#if CONFIG_MVP_INDEPENDENT_PARSING
-  { AOM_CDF2(17097) }, { AOM_CDF2(26130) }, { AOM_CDF2(20733) }
-#else
   { AOM_CDF2(15648) }, { AOM_CDF2(26275) }, { AOM_CDF2(20267) }
-#endif  // CONFIG_MVP_INDEPENDENT_PARSING
 #endif  // NO_MV_PARSING_DEP
 };
 
 static const aom_cdf_prob default_drl1_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
-#if NO_MV_PARSING_DEP
+#if NO_MV_PARSING_DEP || CONFIG_MVP_INDEPENDENT_PARSING
 #if CONFIG_REF_MV_BANK
   { AOM_CDF2(6862) },  { AOM_CDF2(7013) },  { AOM_CDF2(11644) },
   { AOM_CDF2(11423) }, { AOM_CDF2(11683) }, { AOM_CDF2(12322) },
@@ -711,16 +707,12 @@ static const aom_cdf_prob default_drl1_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(22903) }, { AOM_CDF2(16244) }, { AOM_CDF2(19319) }
 #endif  // CONFIG_REF_MV_BANK
 #else
-#if CONFIG_MVP_INDEPENDENT_PARSING
-  { AOM_CDF2(10121) }, { AOM_CDF2(14387) }, { AOM_CDF2(21289) }
-#else
   { AOM_CDF2(16196) }, { AOM_CDF2(22540) }, { AOM_CDF2(12071) }
-#endif  // CONFIG_MVP_INDEPENDENT_PARSING
 #endif  // NO_MV_PARSING_DEP
 };
 
 static const aom_cdf_prob default_drl2_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
-#if NO_MV_PARSING_DEP
+#if NO_MV_PARSING_DEP || CONFIG_MVP_INDEPENDENT_PARSING
 #if CONFIG_REF_MV_BANK
   { AOM_CDF2(14694) }, { AOM_CDF2(13186) }, { AOM_CDF2(14211) },
   { AOM_CDF2(12899) }, { AOM_CDF2(12637) }, { AOM_CDF2(12295) },
@@ -733,11 +725,7 @@ static const aom_cdf_prob default_drl2_cdf[DRL_MODE_CONTEXTS][CDF_SIZE(2)] = {
   { AOM_CDF2(16618) }, { AOM_CDF2(14980) }, { AOM_CDF2(15963) }
 #endif  // CONFIG_REF_MV_BANK
 #else
-#if CONFIG_MVP_INDEPENDENT_PARSING
-  { AOM_CDF2(15052) }, { AOM_CDF2(15167) }, { AOM_CDF2(18362) }
-#else
   { AOM_CDF2(18355) }, { AOM_CDF2(18090) }, { AOM_CDF2(13689) }
-#endif  // CONFIG_MVP_INDEPENDENT_PARSING
 #endif  // NO_MV_PARSING_DEP
 };
 
