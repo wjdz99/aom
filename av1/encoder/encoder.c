@@ -80,11 +80,7 @@
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
 #if CONFIG_NEW_INTER_MODES
-#if CONFIG_REF_MV_BANK
-#define MAX_DRL_BITS 5
-#else
-#define MAX_DRL_BITS 5
-#endif  // CONFIG_REF_MV_BANK
+#define DEF_MAX_DRL_BITS 3
 #endif  // CONFIG_NEW_INTER_MODES
 
 #if CONFIG_ENTROPY_STATS
@@ -620,7 +616,13 @@ int aom_strcmp(const char *a, const char *b) {
 static void set_max_drl_bits(struct AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   // Add logic to choose this in the range [MIN_MAX_DRL_BITS, MAX_MAX_DRL_BITS]
-  cm->features.max_drl_bits = MAX_DRL_BITS;
+  if (cpi->oxcf.tool_cfg.max_drl_refmvs == 0) {
+    // TODO(any): Implement an auto mode that potentially adapts the parameter
+    // frame to frame. Currently set at a default value.
+    cm->features.max_drl_bits = DEF_MAX_DRL_BITS;
+  } else {
+    cm->features.max_drl_bits = cpi->oxcf.tool_cfg.max_drl_refmvs - 1;
+  }
   assert(cm->features.max_drl_bits >= MIN_MAX_DRL_BITS &&
          cm->features.max_drl_bits <= MAX_MAX_DRL_BITS);
 }
