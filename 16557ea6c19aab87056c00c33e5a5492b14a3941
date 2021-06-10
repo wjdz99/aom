@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "71aaf1b4_cc871f55",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-06-10T20:51:18Z",
+      "side": 1,
+      "message": "I have changed it one of my patch and Jenkins give some code style warning. \n\"apps/aomenc.c:1415:  Closing ) should be moved to the previous line  [whitespace/parens] [2]\"\n\nSo I fixed it partially.",
+      "parentUuid": "50f0bd17_969783d4",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ce82baeb_2410707b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 3
@@ -177,6 +195,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5ffbc680_643bcb4b",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-06-10T20:51:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b78b6c1_87737971",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b08dd14b_2b271949",
         "filename": "av1/common/reconintra.c",
         "patchSetId": 3
@@ -188,6 +224,24 @@
       "writtenOn": "2021-06-09T21:13:31Z",
       "side": 1,
       "message": "Same as above",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fcb01f6_0da67082",
+        "filename": "av1/common/reconintra.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-06-10T20:51:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b08dd14b_2b271949",
       "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -666,6 +720,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3288834c_e8b7ce60",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1171,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-06-10T20:51:18Z",
+      "side": 1,
+      "message": "I did not understand clearly. I think it may be better to keep as is. There are 8 combination when we do SDP, ORIP and MRLS. All 8 combinations are tested using this. So I am not sure we change any combination is broken. I prefer to keep as is.",
+      "parentUuid": "c8938ffe_3bb2abdd",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cfa7e930_3a82ebcd",
         "filename": "av1/encoder/encodeframe_utils.c",
         "patchSetId": 3
@@ -677,6 +749,24 @@
       "writtenOn": "2021-06-09T21:13:31Z",
       "side": 1,
       "message": "Please extract the common parts outside of CONFIG_SDP to avoid duplication",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a2d7ff5_260d7a46",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-06-10T20:51:18Z",
+      "side": 1,
+      "message": "No so straightforward to separate the common part. So I kept as is.",
+      "parentUuid": "cfa7e930_3a82ebcd",
       "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -805,6 +895,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7cce644f_fe78950c",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1890,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-06-10T20:51:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d710562_daf6b0fa",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "11b9b781_2dce5d40",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 3
@@ -816,6 +924,24 @@
       "writtenOn": "2021-06-09T21:13:31Z",
       "side": 1,
       "message": "Please move this line outside of CONFIG_SDP to avoid duplication.\n\nint signal_intra_filter \u003d av1_signal_intra_pred_filter_for_dir_mode_bsize(\n          cm, mi, PLANE_TYPE_Y, bsize);",
+      "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f75eee4e_94079c2a",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1898,
+      "author": {
+        "id": 25613
+      },
+      "writtenOn": "2021-06-10T20:51:18Z",
+      "side": 1,
+      "message": "Not so straightforward. So I kept as is.",
+      "parentUuid": "11b9b781_2dce5d40",
       "revId": "16557ea6c19aab87056c00c33e5a5492b14a3941",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
