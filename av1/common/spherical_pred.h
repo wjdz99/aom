@@ -12,6 +12,10 @@
 #ifndef AOM_AV1_COMMON_SPHERICAL_PRED_H_
 #define AOM_AV1_COMMON_SPHERICAL_PRED_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!\brief Convert equirectangular coordinate to plane
  * \param[in]   phi     The latitude in radian ([-pi/2, pi/2])
  * \param[in]   theta   The longitude in radian ([-pi, pi])
@@ -19,8 +23,9 @@
  * \param[in]   height  The height of the frame
  * \param[out]  x       The X coordinate on the plane
  * \param[out]  y       The Y coordinate on the plane
-*/
-void av1_sphere_to_plane_erp(double phi, double theta, int width, int height, double* x, double* y);
+ */
+void av1_sphere_to_plane_erp(double phi, double theta, int width, int height,
+                             double *x, double *y);
 
 /*!\brief Convert plane coordinate to equirectangular
  * \param[in]  x       The X coordinate on the plane
@@ -29,7 +34,12 @@ void av1_sphere_to_plane_erp(double phi, double theta, int width, int height, do
  * \param[in]  height  The height of the frame
  * \param[out] phi     The latitude in radian ([-pi/2, pi/2])
  * \param[out] theta   The longitude in radian ([-pi, pi])
-*/
-void av1_plane_to_sphere_erp(double x, double y, int width, int height, double *phi, double *theta);
+ */
+void av1_plane_to_sphere_erp(double x, double y, int width, int height,
+                             double *phi, double *theta);
 
-#endif // AOM_AV1_COMMON_SPHERICAL_PRED_H_
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+
+#endif  // AOM_AV1_COMMON_SPHERICAL_PRED_H_
