@@ -80,7 +80,7 @@
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
 #if CONFIG_NEW_INTER_MODES
-#define MAX_DRL_BITS 3
+#define DEF_MAX_DRL_REFMVS 4
 #endif  // CONFIG_NEW_INTER_MODES
 
 #if CONFIG_ENTROPY_STATS
@@ -622,7 +622,13 @@ int aom_strcmp(const char *a, const char *b) {
 static void set_max_drl_bits(struct AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   // Add logic to choose this in the range [MIN_MAX_DRL_BITS, MAX_MAX_DRL_BITS]
-  cm->features.max_drl_bits = MAX_DRL_BITS;
+  if (cpi->oxcf.tool_cfg.max_drl_refmvs == 0) {
+    // TODO(any): Implement an auto mode that potentially adapts the parameter
+    // frame to frame. Currently set at a default value.
+    cm->features.max_drl_bits = DEF_MAX_DRL_REFMVS - 1;
+  } else {
+    cm->features.max_drl_bits = cpi->oxcf.tool_cfg.max_drl_refmvs - 1;
+  }
   assert(cm->features.max_drl_bits >= MIN_MAX_DRL_BITS &&
          cm->features.max_drl_bits <= MAX_MAX_DRL_BITS);
 }
@@ -765,9 +771,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf) {
 
 #if CONFIG_NEW_INTER_MODES
   // Add logic to choose this in the range [MIN_MAX_DRL_BITS, MAX_MAX_DRL_BITS]
-  cm->features.max_drl_bits = MAX_DRL_BITS;
-  assert(cm->features.max_drl_bits >= MIN_MAX_DRL_BITS &&
-         cm->features.max_drl_bits <= MAX_MAX_DRL_BITS);
+  set_max_drl_bits(cpi);
 #endif  // CONFIG_NEW_INTER_MODES
 
   av1_set_high_precision_mv(cpi, 1, 0);
