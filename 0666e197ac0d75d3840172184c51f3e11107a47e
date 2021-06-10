@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7eafd5e0_ca8fdba3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-10T17:46:04Z",
+      "side": 1,
+      "message": "Thanks! I have uploaded a new patch that resolved the mentioned suggestions.",
+      "parentUuid": "61dab5f7_3e7d4451",
+      "revId": "0666e197ac0d75d3840172184c51f3e11107a47e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a883470a_2f2352f6",
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6b619496_85223ebf",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-10T17:46:04Z",
+      "side": 1,
+      "message": "Yeah I can understand the problem now. Maybe we can find a better way for setting numbers.",
+      "parentUuid": "a883470a_2f2352f6",
+      "revId": "0666e197ac0d75d3840172184c51f3e11107a47e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5d92321a_e7d7959a",
         "filename": "apps/aomenc.c",
         "patchSetId": 4
@@ -48,6 +84,30 @@
       "writtenOn": "2021-06-09T23:01:21Z",
       "side": 1,
       "message": "I think we can delete these two lines and just use the \"else\" part.",
+      "range": {
+        "startLine": 1419,
+        "startChar": 0,
+        "endLine": 1420,
+        "endChar": 49
+      },
+      "revId": "0666e197ac0d75d3840172184c51f3e11107a47e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a523dff8_44a6aa19",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-10T17:46:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d92321a_e7d7959a",
       "range": {
         "startLine": 1419,
         "startChar": 0,
@@ -81,6 +141,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7ac9240_60994c84",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-10T17:46:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "091304ca_f1e3af8d",
+      "range": {
+        "startLine": 618,
+        "startChar": 21,
+        "endLine": 618,
+        "endChar": 37
+      },
+      "revId": "0666e197ac0d75d3840172184c51f3e11107a47e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e0ab3da_0dcb98e3",
@@ -98,6 +182,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cd8c4fa_51765cee",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-10T17:46:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1e0ab3da_0dcb98e3",
+      "revId": "0666e197ac0d75d3840172184c51f3e11107a47e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6640ab23_2ac2ec15",
@@ -111,6 +213,24 @@
       "writtenOn": "2021-06-09T23:01:21Z",
       "side": 1,
       "message": "Should we use symbolic constants instead of 0, 1, 2, 3 in the comment?\n\nAlternatively, maybe we can change the type of \u0027pass\u0027 to int or unsinged int. But I am not sure if that\u0027s a good idea.",
+      "revId": "0666e197ac0d75d3840172184c51f3e11107a47e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fca4d32d_e31009fa",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-10T17:46:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6640ab23_2ac2ec15",
       "revId": "0666e197ac0d75d3840172184c51f3e11107a47e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
