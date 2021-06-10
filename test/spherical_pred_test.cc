@@ -66,6 +66,7 @@ TEST(SphericalMappingTest, EquiGlobeToPlaneReverseTest) {
   }
 }
 
+
 // TEST(SphericalMappingTest, EquirectangularRangeTest) {
 //   // Check the consistency between av1_estimate_coeff_entropy(),
 //   laplace_prob()

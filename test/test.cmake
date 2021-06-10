@@ -227,6 +227,7 @@ if(NOT BUILD_SHARED_LIBS)
                 "${AOM_ROOT}/test/filterintra_test.cc")
   endif()
 
+  
   if(CONFIG_SPHERICAL_PRED)
     list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
                 "${AOM_ROOT}/test/spherical_pred_test.cc")
