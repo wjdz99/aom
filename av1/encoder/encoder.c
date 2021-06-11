@@ -3186,7 +3186,7 @@ static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
                get_window_wiener_var(cpi, bsize, mi_row, mi_col + mi_wide / 2));
   }
 
-  return sb_wiener_var;
+  return sb_wiener_var + (int)cpi->reg_wiener_variance;
 }
 
 static void set_mb_wiener_variance(AV1_COMP *cpi) {
@@ -3268,8 +3268,27 @@ static void set_mb_wiener_variance(AV1_COMP *cpi) {
 
   int sb_step = mi_size_wide[cm->seq_params->sb_size];
   double sb_wiener_log = 0;
+  int64_t max_sb_wiener_var = 0;
   int sb_count = 0;
+  cpi->reg_wiener_variance = 0;
 
+  for (int mi_row = 0; mi_row < cm->mi_params.mi_rows; mi_row += sb_step) {
+    for (int mi_col = 0; mi_col < cm->mi_params.mi_cols; mi_col += sb_step) {
+      int sb_wiener_var =
+          get_var_perceptual_ai(cpi, cm->seq_params->sb_size, mi_row, mi_col);
+      sb_wiener_log += log(sb_wiener_var);
+      if (sb_wiener_var > max_sb_wiener_var) max_sb_wiener_var = sb_wiener_var;
+      ++sb_count;
+    }
+  }
+
+  if (sb_count)
+    cpi->norm_wiener_variance = (int64_t)(exp(sb_wiener_log / sb_count));
+
+  // Estimate the regularization term
+  cpi->reg_wiener_variance = max_sb_wiener_var - cpi->norm_wiener_variance;
+  sb_count = 0;
+  sb_wiener_log = 0;
   for (int mi_row = 0; mi_row < cm->mi_params.mi_rows; mi_row += sb_step) {
     for (int mi_col = 0; mi_col < cm->mi_params.mi_cols; mi_col += sb_step) {
       int sb_wiener_var =
@@ -3281,6 +3300,7 @@ static void set_mb_wiener_variance(AV1_COMP *cpi) {
 
   if (sb_count)
     cpi->norm_wiener_variance = (int64_t)(exp(sb_wiener_log / sb_count));
+
   cpi->norm_wiener_variance = AOMMAX(1, cpi->norm_wiener_variance);
 }
 
@@ -3292,6 +3312,10 @@ int av1_get_sbq_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize, int mi_row,
   int offset = 0;
   double beta = (double)cpi->norm_wiener_variance / sb_wiener_var;
   offset = av1_get_deltaq_offset(cm->seq_params->bit_depth, base_qindex, beta);
+
+  fprintf(stderr, "beta = %lf, offset = %d\n", beta, offset);
+
+
   const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
   offset = AOMMIN(offset, delta_q_info->delta_q_res * 20 - 1);
   offset = AOMMAX(offset, -delta_q_info->delta_q_res * 20 + 1);

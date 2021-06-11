@@ -2948,14 +2948,19 @@ typedef struct AV1_COMP {
 #endif  // CONFIG_RD_COMMAND
 
   /*!
-   * Buffer to store MB variance after Wiener filter.
+   * Buffer to store MB variance after Wiener variance.
    */
   int64_t *mb_wiener_variance;
 
   /*!
-   * Frame level Wiener filter normalization.
+   * Frame level Wiener variance normalization.
    */
   int64_t norm_wiener_variance;
+
+  /*!
+   * Regularization term for Wiener variance
+   */
+  int64_t reg_wiener_variance;
 } AV1_COMP;
 
 /*!
