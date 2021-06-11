@@ -615,26 +615,32 @@ static AOM_INLINE void setup_ref_mv_list(
   uint8_t dummy_newmv_count = 0;
 
   // Scan the second outer area.
-  scan_blk_mbmi(cm, xd, mi_row, mi_col, rf, -1, -1, ref_mv_stack, ref_mv_weight,
-                &row_match_count, &dummy_newmv_count, gm_mv_candidates,
-                refmv_count);
+#if CONFIG_EARLY_TERMINATION_MVP
+  if (*refmv_count < 2) {
+#endif
+    scan_blk_mbmi(cm, xd, mi_row, mi_col, rf, -1, -1, ref_mv_stack,
+      ref_mv_weight, &row_match_count, &dummy_newmv_count,
+      gm_mv_candidates, refmv_count);
 
-  for (int idx = 2; idx <= MVREF_ROW_COLS; ++idx) {
-    const int row_offset = -(idx << 1) + 1 + row_adj;
-    const int col_offset = -(idx << 1) + 1 + col_adj;
+    for (int idx = 2; idx <= MVREF_ROW_COLS; ++idx) {
+      const int row_offset = -(idx << 1) + 1 + row_adj;
+      const int col_offset = -(idx << 1) + 1 + col_adj;
 
-    if (abs(row_offset) <= abs(max_row_offset) &&
-        abs(row_offset) > processed_rows)
-      scan_row_mbmi(cm, xd, mi_col, rf, row_offset, ref_mv_stack, ref_mv_weight,
-                    refmv_count, &row_match_count, &dummy_newmv_count,
-                    gm_mv_candidates, max_row_offset, &processed_rows);
+      if (abs(row_offset) <= abs(max_row_offset) &&
+          abs(row_offset) > processed_rows)
+        scan_row_mbmi(cm, xd, mi_col, rf, row_offset, ref_mv_stack,
+          ref_mv_weight, refmv_count, &row_match_count, &dummy_newmv_count,
+          gm_mv_candidates, max_row_offset, &processed_rows);
 
-    if (abs(col_offset) <= abs(max_col_offset) &&
-        abs(col_offset) > processed_cols)
-      scan_col_mbmi(cm, xd, mi_row, rf, col_offset, ref_mv_stack, ref_mv_weight,
-                    refmv_count, &col_match_count, &dummy_newmv_count,
-                    gm_mv_candidates, max_col_offset, &processed_cols);
+      if (abs(col_offset) <= abs(max_col_offset) &&
+          abs(col_offset) > processed_cols)
+        scan_col_mbmi(cm, xd, mi_row, rf, col_offset, ref_mv_stack,
+          ref_mv_weight, refmv_count, &col_match_count, &dummy_newmv_count,
+          gm_mv_candidates, max_col_offset, &processed_cols);
+    }
+#if CONFIG_EARLY_TERMINATION_MVP
   }
+#endif
 
 #if CONFIG_COMPLEXITY_SCALABLE_MVP
   int new_ctx = 2 * nearest_match + (newmv_count > 0);

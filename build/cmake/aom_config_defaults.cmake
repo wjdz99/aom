@@ -141,6 +141,8 @@ set_aom_config_var(CONFIG_NO_MV_PARSING_DEPENDENCY 1
                    "AV2 experiment flag to remove MV parsing dependency.")
 set_aom_config_var(CONFIG_COMPLEXITY_SCALABLE_MVP 1
                    "AV2 experiment flag to enable complexity-scalable MVP.")
+set_aom_config_var(CONFIG_EARLY_TERMINATION_MVP 0
+                   "AV2 experiment flag for early termination MVP.")
 
 #
 # Variables in this section control optional features of the build system.
