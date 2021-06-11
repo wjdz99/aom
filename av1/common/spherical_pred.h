@@ -17,8 +17,8 @@ extern "C" {
 #endif
 
 /*!\brief Convert equirectangular coordinate to plane
- * \param[in]   phi     The latitude in radian ([-pi/2, pi/2])
- * \param[in]   theta   The longitude in radian ([-pi, pi])
+ * \param[in]   phi     The latitude in radian
+ * \param[in]   theta   The longitude in radian
  * \param[in]   width   The width of the frame
  * \param[in]   height  The height of the frame
  * \param[out]  x       The X coordinate on the plane
@@ -29,11 +29,11 @@ void av1_sphere_to_plane_erp(double phi, double theta, int width, int height,
 
 /*!\brief Convert plane coordinate to equirectangular
  * \param[in]  x       The X coordinate on the plane
- * \param[in]  y       The Y coordinate on the plane
+ * \param[in]  y       The Y coordinate on the plane ([0, height])
  * \param[in]  width   The width of the frame
  * \param[in]  height  The height of the frame
  * \param[out] phi     The latitude in radian ([-pi/2, pi/2])
- * \param[out] theta   The longitude in radian ([-pi, pi])
+ * \param[out] theta   The longitude in radian ([-pi, pi))
  */
 void av1_plane_to_sphere_erp(double x, double y, int width, int height,
                              double *phi, double *theta);

@@ -17,23 +17,46 @@
 
 void av1_sphere_to_plane_erp(double phi, double theta, int width, int height,
                              double *x, double *y) {
-  // The 0.01 is for issues when comparing floating point numbers
-  // TODO(yaoyaogoogle): Find a better way to solve the issue
-  assert(phi >= -PI * 0.5 - 0.01 && phi <= PI * 0.5 + 0.01 &&
-         theta >= -PI - 0.01 && theta <= PI + 0.01);
+  double phi_sign = fmod(phi, 2 * PI);
+  double phi_mod = fmod(phi_sign, PI);
+  // Every time phi cross PI/-PI, the sign should flip
+  if (phi_sign < -PI) {
+    phi_mod = PI + phi_mod;
+  } else if (phi_sign > PI) {
+    phi_mod = -PI + phi_mod;
+  }
+  // Flip phi back into [-PI/2, PI/2] if out of range
+  if (phi_mod < -0.5 * PI) {
+    phi_mod = -PI - phi_mod;
+  } else if (phi_mod > 0.5 * PI) {
+    phi_mod = PI - phi_mod;
+  }
 
+  double theta_mod = fmod(theta, 2 * PI);
+  if (theta_mod < -PI) {
+    theta_mod = theta_mod + 2 * PI;
+  } else if (theta_mod > PI) {
+    theta_mod = theta_mod - 2 * PI;
+  } else if (theta_mod == PI) {
+    theta_mod = -PI;
+  }
   // This should actually be a range related to 1/cos(phi) since x is distorted
   // TODO(yaoyaogoogle): Adjust the width of x according to the interpolation
   // mode
-  *x = theta / PI * width * 0.5 + width * 0.5;
+  *x = theta_mod / PI * width * 0.5 + width * 0.5;
+
   // No minus sign for y since we only use an imaginary upside-down globe
-  *y = phi / (PI * 0.5) * height * 0.5 + height * 0.5;
+  *y = phi_mod / (PI * 0.5) * height * 0.5 + height * 0.5;
 }
 
 void av1_plane_to_sphere_erp(double x, double y, int width, int height,
                              double *phi, double *theta) {
-  assert(x < width && x >= 0 && y < height && y >= 0);
+  assert(y >= 0 && y <= height);
 
-  *theta = (x - width * 0.5) / width * 2 * PI;
+  double x_mod = fmod(x, width);
+  x_mod = x_mod >= 0 ? x_mod : x_mod + width;
+
+  // Since x_mod is in [0, width), theta is in [-PI, PI)
+  *theta = (x_mod - width * 0.5) / width * 2 * PI;
   *phi = (y - height * 0.5) / height * PI;
 }
