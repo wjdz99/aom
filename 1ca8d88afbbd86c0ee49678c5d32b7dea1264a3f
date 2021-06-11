@@ -34,6 +34,24 @@
       "parentUuid": "7dbc7725_20628f99",
       "revId": "1ca8d88afbbd86c0ee49678c5d32b7dea1264a3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aacdf084_fce38e91",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-11T17:51:46Z",
+      "side": 1,
+      "message": "Thanks for the explanation. I think I understand it now. Even though set_config_arg_key_vals() handles \"target-seq-level-idx\" (at lines 854-861), that code path is not taken right now because the set_config_arg_ctrls() call (which is called before set_config_arg_key_vals()) will have handled the option.",
+      "parentUuid": "8be465c1_30fa5465",
+      "revId": "1ca8d88afbbd86c0ee49678c5d32b7dea1264a3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
