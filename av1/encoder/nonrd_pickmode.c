@@ -1783,6 +1783,8 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
 
   use_ref_frame[ALTREF_FRAME] = use_alt_ref_frame;
   use_ref_frame[GOLDEN_FRAME] = use_golden_ref_frame;
+
+  use_ref_frame[LAST2_FRAME] = (cpi->ref_frame_flags & AOM_LAST2_FLAG);
 }
 
 /*!\brief Estimates best intra mode for inter mode search
@@ -2109,6 +2111,7 @@ void set_color_sensitivity(AV1_COMP *cpi, MACROBLOCK *x, MACROBLOCKD *xd,
 
 static void set_compound_mode(MACROBLOCK *x, int idx, int num_inter_modes,
                               int ref_frame, int ref_frame2, int ref_mv_idx,
+                              int ref_frame_comp_nonrd,
                               int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES],
                               PREDICTION_MODE *this_mode) {
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -2119,8 +2122,11 @@ static void set_compound_mode(MACROBLOCK *x, int idx, int num_inter_modes,
   mi->compound_idx = 1;
   mi->comp_group_idx = 0;
   mi->interinter_comp.type = COMPOUND_AVERAGE;
-  const MV_REFERENCE_FRAME ref_frame_comp =
-      REF_FRAMES + FWD_REFS * BWD_REFS + LAST_GOLDEN_FRAMES;
+  MV_REFERENCE_FRAME ref_frame_comp;
+  if (ref_frame_comp_nonrd == 1)
+    ref_frame_comp = REF_FRAMES + FWD_REFS * BWD_REFS + LAST_LAST2_FRAMES;
+  else
+    ref_frame_comp = REF_FRAMES + FWD_REFS * BWD_REFS + LAST_GOLDEN_FRAMES;
   if (idx == num_inter_modes) {
     frame_mv[*this_mode][ref_frame].as_int = 0;
     frame_mv[*this_mode][ref_frame2].as_int = 0;
@@ -2288,8 +2294,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   if (num_comp_modes > 0) {
     MB_MODE_INFO *const mbmi = xd->mi[0];
     MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
-    const MV_REFERENCE_FRAME ref_frame_comp =
-        REF_FRAMES + FWD_REFS * BWD_REFS + LAST_GOLDEN_FRAMES;
+    MV_REFERENCE_FRAME ref_frame_comp;
+    if (cpi->sf.rt_sf.ref_frame_comp_nonrd == 1)
+      ref_frame_comp = REF_FRAMES + FWD_REFS * BWD_REFS + LAST_LAST2_FRAMES;
+    else
+      ref_frame_comp = REF_FRAMES + FWD_REFS * BWD_REFS + LAST_GOLDEN_FRAMES;
     av1_find_mv_refs(cm, xd, mbmi, ref_frame_comp, mbmi_ext->ref_mv_count,
                      xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
                      mbmi_ext->mode_context);
@@ -2350,10 +2359,14 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     if (idx >= num_inter_modes) {
       ref_frame = LAST_FRAME;
-      ref_frame2 = GOLDEN_FRAME;
+      if (cpi->sf.rt_sf.ref_frame_comp_nonrd == 1)
+        ref_frame2 = LAST2_FRAME;
+      else
+        ref_frame2 = GOLDEN_FRAME;
       if (!use_ref_frame_mask[ref_frame2]) continue;
       set_compound_mode(x, idx, num_inter_modes, ref_frame, ref_frame2,
-                        ref_mv_idx, frame_mv, &this_mode);
+                        ref_mv_idx, cpi->sf.rt_sf.ref_frame_comp_nonrd,
+                        frame_mv, &this_mode);
       if (this_mode != GLOBAL_GLOBALMV &&
           frame_mv[this_mode][ref_frame].as_int == 0 &&
           frame_mv[this_mode][ref_frame2].as_int == 0)
