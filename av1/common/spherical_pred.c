@@ -26,8 +26,22 @@ void av1_sphere_to_plane_erp(double phi, double theta, int width, int height,
   // TODO(yaoyaogoogle): Adjust the width of x according to the interpolation
   // mode
   *x = theta / PI * width * 0.5 + width * 0.5;
+
+  // Loop x to the other side if out of range
+  if (*x < 0) {
+    *x = *x + width;
+  } else if (*x > width) {
+    *x = *x - width;
+  }
   // No minus sign for y since we only use an imaginary upside-down globe
   *y = phi / (PI * 0.5) * height * 0.5 + height * 0.5;
+
+  // Limit y to the border if out of range
+  if (*y < 0) {
+    *y = 0;
+  } else if (*y > height) {
+    *y = height;
+  }
 }
 
 void av1_plane_to_sphere_erp(double x, double y, int width, int height,
@@ -35,5 +49,19 @@ void av1_plane_to_sphere_erp(double x, double y, int width, int height,
   assert(x < width && x >= 0 && y < height && y >= 0);
 
   *theta = (x - width * 0.5) / width * 2 * PI;
+
+  // Loop theta to the other side if out of range
+  if (*theta < -PI) {
+    *theta = *theta + 2 * PI;
+  } else if (*theta > PI) {
+    *theta = *theta - 2 * PI;
+  }
   *phi = (y - height * 0.5) / height * PI;
+
+  // Limit phi to the border if out of range
+  if (*phi < -0.5 * PI) {
+    *phi = -0.5 * PI;
+  } else if (*phi > 0.5 * PI) {
+    *phi = 0.5 * PI;
+  }
 }
