@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f13e75f_e7aa8785",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-11T16:23:57Z",
+      "side": 1,
+      "message": "Manually rebased the CL. ",
+      "revId": "57b1232e54f85ead44d966f05c7330b6ab2b4d40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

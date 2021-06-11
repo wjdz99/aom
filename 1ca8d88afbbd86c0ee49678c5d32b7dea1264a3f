@@ -16,6 +16,24 @@
       "message": "Should we also add \"target-seq-level-idx\" to this array? See lines 845-861.",
       "revId": "1ca8d88afbbd86c0ee49678c5d32b7dea1264a3f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8be465c1_30fa5465",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-11T16:23:57Z",
+      "side": 1,
+      "message": "It is currently using the control API, so I think it is not necessary to add it to the array for now. It seems to assume that we could have multiple target-seq-level-idx in one command line, in this case we need to make sure we have enough room for ARG_KEY_VAL_CNT_MAX if we do use the key \u0026 val API for it.",
+      "parentUuid": "7dbc7725_20628f99",
+      "revId": "1ca8d88afbbd86c0ee49678c5d32b7dea1264a3f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
