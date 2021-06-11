@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "66748274_aba0601a",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d956586_34f0f1f0",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23bc631d_94101846",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Same as above",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0c86395_bc554e2b",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23bc631d_94101846",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c592c7fd_691e6379",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6c4f359_a545d783",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4b4e02c_edf3753f",
@@ -65,6 +119,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Please avoid this duplication by extracting common parts out of CONFIG_CCSO.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92c6cfca_15884c79",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1451,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4b4e02c_edf3753f",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5592bcf7_12a59a31",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1675,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5bdbaf2_296011af",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "741a5238_be5e747b",
@@ -99,6 +189,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Same as above",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fe0a3fc_e03b3a42",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3653,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "741a5238_be5e747b",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +228,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5132d3bc_ea13de92",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d501f51e_9e51d6e5",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "afe08bdb_d8fbac68",
@@ -133,6 +259,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "please use lowercase, such as y_start",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ce15fa6_bf9e7e52",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afe08bdb_d8fbac68",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -154,6 +298,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1dec673_d6fe1861",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b53a1387_86b92644",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb05c986_73663555",
@@ -167,6 +329,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Please add some description for this newly added function",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ec54124_535a0110",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eb05c986_73663555",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -188,6 +368,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0904e7d_b37cc7a9",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c50ca737_df807e08",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1a76a569_24967132",
@@ -201,6 +399,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Please add one variable to avoid the duplication.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6875ef2_0d1d3bfc",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a76a569_24967132",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -222,6 +438,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff88798a_4b4eb968",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3cd18ae4_c17ac591",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0bb0fb0_15b34bf4",
@@ -235,6 +469,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Please avoid the duplication by extracting the common parts: \n\n\n    const int optimized_loop_restoration \u003d\n #if CONFIG_CCSO\n        !use_ccso \u0026\u0026 \n #endif\n        !do_cdef \u0026\u0026 !do_superres;",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a6dab6a_80f91ec7",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 5674,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a0bb0fb0_15b34bf4",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -256,6 +508,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e7e5e42_03bca26b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "036a9f17_97a0d6f0",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9fe59841_648ea8d9",
@@ -269,6 +539,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Please add one variable to avoid the duplication.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc72f697_233658f0",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fe59841_648ea8d9",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -290,6 +578,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "01333bb0_bfcae21b",
+        "filename": "av1/encoder/pickccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24e4b313_05ec9026",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4c0554b_8bba755e",
@@ -303,6 +609,24 @@
       "writtenOn": "2021-06-09T17:24:58Z",
       "side": 1,
       "message": "Same as above.",
+      "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "490bdf36_3c8da6e7",
+        "filename": "av1/encoder/pickccso.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:01:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c4c0554b_8bba755e",
       "revId": "840fbcafe2429bbfdef7fb1d1fbd2822abfe7c66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
