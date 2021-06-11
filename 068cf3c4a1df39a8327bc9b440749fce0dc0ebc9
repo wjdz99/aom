@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d88c2cc6_702d3a95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-11T17:30:32Z",
+      "side": 1,
+      "message": "Please rebase the code patch based on parent commit change.",
+      "revId": "068cf3c4a1df39a8327bc9b440749fce0dc0ebc9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
