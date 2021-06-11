@@ -16,6 +16,69 @@
       "message": "Hi Yunqing,\n\nThis patch makes the skipping of intra modes in inter frame more aggressive for speed 3 and above. If the best inter mode is both a non-newmv mode and transform skip, intra search is skipped.\n\nPlease find the detailed borg results for speed 3 below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |  LOW RES   |       1.758       | -0.0104   -0.0059    0.0257  |\n   3     |  MID RES   |       1.156       |  0.0274    0.0245   -0.0242  |\n   3     |   HD RES   |       1.008       |  0.0319    0.0305    0.0089  |\n   3     |  Average   |       1.421       |  0.0136    0.0141    0.0060  |\n\nThe speed and quality impact on speed 4 to 6 is minimal.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   4     |  LOW RES   |       0.188       |  0.0128    0.0165    0.0153  |\n   4     |  MID RES   |       0.257       | -0.0401   -0.0399   -0.0429  |\n   4     |   HD RES   |       0.487       | -0.0252   -0.0279   -0.0490  |\n   4     |  Average   |       0.281       | -0.0143   -0.0135   -0.0213  |\n         |            |                   |                              |\n   5     |  LOW RES   |       0.232       |  0.0181    0.0176    0.0042  |\n   5     |  MID RES   |       0.459       | -0.0201   -0.0147   -0.0206  |\n   5     |   HD RES   |       0.831       |  0.0215    0.0420   -0.0505  |\n   5     |  Average   |       0.439       |  0.0079    0.0156   -0.0197  |\n         |            |                   |                              |\n   6     |  LOW RES   |       0.204       | -0.0258   -0.0210   -0.0159  |\n   6     |  MID RES   |       0.377       |  0.0292    0.0291   -0.0092  |\n   6     |   HD RES   |       0.639       | -0.0215   -0.0113   -0.0245  |\n   6     |  Average   |       0.357       | -0.0084   -0.0034   -0.0165  |\n\n    \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor other speed levels, this is a bit-exact change with no speed impact (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks,\nNithya\n",
       "revId": "ca58720db72800d62a4a7a390a0272e256b74f22",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4da88d79_d78ebe11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-11T21:46:16Z",
+      "side": 1,
+      "message": "Good speedup for speed 3. Thanks!",
+      "revId": "ca58720db72800d62a4a7a390a0272e256b74f22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25236407_410aed61",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5239,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-11T21:46:16Z",
+      "side": 1,
+      "message": "To make it easy to understand, instead of using \"else if\", maybe use:\n \n if (...) {\n    search_state-\u003eintra_search_state.skip_intra_modes \u003d 1;\n    return;\n  }",
+      "range": {
+        "startLine": 5239,
+        "startChar": 4,
+        "endLine": 5239,
+        "endChar": 12
+      },
+      "revId": "ca58720db72800d62a4a7a390a0272e256b74f22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35426d95_0884a4b7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5266,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-11T21:46:16Z",
+      "side": 1,
+      "message": "This also uses skip_txfm. Not sure if this part can be combined with your change?",
+      "range": {
+        "startLine": 5266,
+        "startChar": 14,
+        "endLine": 5266,
+        "endChar": 49
+      },
+      "revId": "ca58720db72800d62a4a7a390a0272e256b74f22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
