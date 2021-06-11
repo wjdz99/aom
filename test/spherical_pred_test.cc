@@ -66,4 +66,50 @@ TEST(SphericalMappingTest, EquiGlobeToPlaneReverseTest) {
   }
 }
 
+TEST(SphericalMappingTest, EquiPlaneToGlobeRangeTest) {
+  // Check if the mapping from plane to globe is reverseable
+  int width = 400;
+  int height = 300;
+
+  double x;
+  double y;
+  double phi;
+  double theta;
+
+  const double pi = 3.141592653589793238462643383279502884;
+
+  for (x = 0; x <= width; x += 10) {
+    for (y = 0; y < height; y += 10) {
+      av1_plane_to_sphere_erp(x, y, width, height, &phi, &theta);
+      EXPECT_GE(phi, -0.5 * pi);
+      EXPECT_LE(phi, 0.5 * pi);
+      EXPECT_GE(theta, -pi);
+      EXPECT_LE(theta, pi);
+    }
+  }
+}
+
+TEST(SphericalMappingTest, EquiGlobeToPlaneRangeTest) {
+  // Check if the mapping from plane to globe is reverseable
+  int width = 400;
+  int height = 300;
+
+  double x;
+  double y;
+  double phi;
+  double theta;
+
+  const double pi = 3.141592653589793238462643383279502884;
+
+  for (phi = -0.5 * pi; phi <= 0.5 * pi; phi += 0.1) {
+    for (theta = -pi; theta <= pi; theta += 0.1) {
+      av1_sphere_to_plane_erp(phi, theta, width, height, &x, &y);
+      EXPECT_GE(x, 0);
+      EXPECT_LE(x, width);
+      EXPECT_GE(y, 0);
+      EXPECT_LE(y, height);
+    }
+  }
+}
+
 }  // namespace
