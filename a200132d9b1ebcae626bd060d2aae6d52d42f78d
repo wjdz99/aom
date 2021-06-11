@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6beaaaf5_81341292",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-11T18:20:27Z",
+      "side": 1,
+      "message": "\u003e Patch Set 6: Code-Review-1\n\u003e \n\u003e Code Style Warnings (non-blocking):\n\u003e \n\u003e    test/spherical_pred_test.cc:69:  Could not find a newline character at the end of the file.  [whitespace/ending_newline] [5]\n\nYep, I think this warning is flaky.\nWe usually don\u0027t add an extra line at the end of the code.",
+      "revId": "a200132d9b1ebcae626bd060d2aae6d52d42f78d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
