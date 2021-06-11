@@ -16,6 +16,23 @@
       "message": "PTAL. Thanks!\n\nThis CL has been verified by Leo Barnes, who reported the bug.",
       "revId": "2fe13f7a7277da255a618e1f063e53e88fc21e0e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "61bd4d39_9e9ba8a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-11T20:18:40Z",
+      "side": 1,
+      "message": "PTAL. Thanks!",
+      "revId": "2fe13f7a7277da255a618e1f063e53e88fc21e0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
