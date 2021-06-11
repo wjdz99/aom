@@ -16,6 +16,24 @@
       "message": "\u003e Patch Set 7:\n\u003e \n\u003e Cmake Style Errors:\n\u003e \n\u003e   If these files are not part of your patchset please rebase:\n\u003e   av1/av1.cmake\n\u003e   Otherwise, please apply the diff in the console output (look for CMAKE DIFF):\n\u003e   https://build.aomedia.org/jenkins/job/style-check/56758/consoleText\n\nYao - please fix the cmake style problems, and re-push the CL. ",
       "revId": "2670cbee9656c6165963cd974ceac4293257b944",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d25c8f88_bae2f862",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-11T20:36:11Z",
+      "side": 1,
+      "message": "It is fixed in Patch Set 8.",
+      "parentUuid": "722f18fa_212cb2a1",
+      "revId": "2670cbee9656c6165963cd974ceac4293257b944",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
