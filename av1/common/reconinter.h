@@ -276,34 +276,11 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 // Precision of refined MV returned, 0 being integer pel. For now, only 1/8 or
 // 1/16-pel can be used.
 #define MV_REFINE_PREC_BITS 4  // (1/16-pel)
-void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
-                                  const uint8_t *p1, int pstride1,
-                                  const int16_t *gx0, const int16_t *gy0,
-                                  const int16_t *gx1, const int16_t *gy1,
-                                  int gstride, int bw, int bh, int d0, int d1,
-                                  int grad_prec_bits, int mv_prec_bits,
-                                  int *vx0, int *vy0, int *vx1, int *vy1);
-void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
-                                   const uint16_t *p1, int pstride1,
-                                   const int16_t *gx0, const int16_t *gy0,
-                                   const int16_t *gx1, const int16_t *gy1,
-                                   int gstride, int bw, int bh, int d0, int d1,
-                                   int grad_prec_bits, int mv_prec_bits,
-                                   int *vx0, int *vy0, int *vx1, int *vy1);
-void av1_opfl_mv_refinement4_lowbd(const uint8_t *p0, int pstride0,
-                                   const uint8_t *p1, int pstride1,
-                                   const int16_t *gx0, const int16_t *gy0,
-                                   const int16_t *gx1, const int16_t *gy1,
-                                   int gstride, int bw, int bh, int d0, int d1,
-                                   int grad_prec_bits, int mv_prec_bits,
-                                   int *vx0, int *vy0, int *vx1, int *vy1);
-void av1_opfl_mv_refinement4_highbd(const uint16_t *p0, int pstride0,
-                                    const uint16_t *p1, int pstride1,
-                                    const int16_t *gx0, const int16_t *gy0,
-                                    const int16_t *gx1, const int16_t *gy1,
-                                    int gstride, int bw, int bh, int d0, int d1,
-                                    int grad_prec_bits, int mv_prec_bits,
-                                    int *vx0, int *vy0, int *vx1, int *vy1);
+void av1_opfl_mv_refinement(const int16_t *pdiff, int pstride,
+                            const int16_t *gx, const int16_t *gy, int gstride,
+                            int bw, int bh, int d0, int d1, int grad_prec_bits,
+                            int mv_prec_bits, int *vx0, int *vy0, int *vx1,
+                            int *vy1);
 static INLINE int has_one_sided_refs(const AV1_COMMON *cm,
                                      const MB_MODE_INFO *mbmi) {
   if (!mbmi->ref_frame[1]) return 0;
