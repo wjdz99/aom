@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2d862a6_bde2bee3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-06-13T16:48:30Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch, the function get_ref_frames() is modified such that, during FP2, the first frame (frame_parallel_level 1) is excluded from being used as a reference by the second frame (frame_parallel_level 2) in a parallel encode set of lower layer frames. For this purpose, the display order hint of the first frame is stored in \u0027gf_group-\u003eskip_frame_as_ref\u0027. \n\nPlease find the CQP results with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1 and num_fp_contexts \u003d 2 (test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) on a subset of hdres (10 contents) below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  Average   |      -0.105       |  1.0198    1.0183    1.0744  |\n   3     |  Average   |       0.338       |  1.0395    1.0158    1.1835  |\n   4     |  Average   |      -0.033       |  1.1136    1.1792    1.4246  |\n   5     |  Average   |       0.080       |  1.4081    1.3938    1.5715  |\n   6     |  Average   |      -0.191       |  1.7277    1.7000    1.7864  |\n \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "e66ba1e4d2f48ae091b2757c87643058e6c727b9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
