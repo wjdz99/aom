@@ -3136,25 +3136,24 @@ static int get_window_wiener_var(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   int sb_wiener_var = 0;
   int mb_stride = cpi->frame_info.mb_cols;
   int mb_count = 0;
-  int mb_wiener_var[64];
+  int64_t mb_wiener_sum = 0;
 
   for (int row = mi_row; row < mi_row + mi_high; row += mi_step) {
     for (int col = mi_col; col < mi_col + mi_wide; col += mi_step) {
       if (row >= cm->mi_params.mi_rows || col >= cm->mi_params.mi_cols)
         continue;
 
-      mb_wiener_var[mb_count] =
+      mb_wiener_sum +=
           (int)cpi->mb_wiener_variance[(row / mi_step) * mb_stride +
                                        (col / mi_step)];
       ++mb_count;
     }
   }
-  qsort(mb_wiener_var, mb_count, sizeof(*mb_wiener_var), qsort_comp);
 
-  sb_wiener_var = mb_wiener_var[mb_count / 3];
+  sb_wiener_var = (int)(mb_wiener_sum / mb_count);
   sb_wiener_var = AOMMAX(1, sb_wiener_var);
 
-  return sb_wiener_var;
+  return (int)(sqrt(sb_wiener_var));
 }
 
 static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
@@ -3292,6 +3291,10 @@ int av1_get_sbq_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize, int mi_row,
   int offset = 0;
   double beta = (double)cpi->norm_wiener_variance / sb_wiener_var;
   offset = av1_get_deltaq_offset(cm->seq_params->bit_depth, base_qindex, beta);
+
+  fprintf(stderr, "mi pos (%d, %d), beta = %lf, offset = %d\n",
+          mi_row, mi_col, beta, offset);
+
   const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
   offset = AOMMIN(offset, delta_q_info->delta_q_res * 20 - 1);
   offset = AOMMAX(offset, -delta_q_info->delta_q_res * 20 + 1);
