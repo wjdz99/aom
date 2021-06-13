@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7340f1b_fe8190e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-06-13T16:41:39Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch modifies the function get_refresh_idx(), to prevent refreshing a reference frame that is not yet displayed. Currently for a non-layer 1 frame, the function get_refresh_idx() chooses to refresh the farthest (temporally) available reference frame in the past. But with encode reordering, this logic can possibly refresh an earlier encoded frame which is not yet displayed. This patch handles the above scenario by refreshing the oldest past level 1 frame instead.  \n\nIn this patch a 2d array \u0027skip_frame_refresh\u0027 is introduced in the GF_GROUP which is populated with the list of earlier encoded and not yet displayed frames(display order hints) that could possibly get refreshed by the current frame. This is used by get_refresh_idx() to compute the correct reference refresh index.\nFor e.g., \nThe encode order for gf-interval 14 after reordering is,\n0-\u003e 14-\u003e 7-\u003e 3-\u003e 10-\u003e 5-\u003e 12-\u003e 1-\u003e 2-\u003e 4-\u003e 6-\u003e 8-\u003e 9-\u003e 11-\u003e 13.\nHere, the entries in \u0027skip_frame_refresh\u0027 would be 7 and 3 for frame 10; 3 for frame 5; 7, 3, 10 and 5 for frame 12. \n\nPlease find the CQP results with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1 and num_fp_contexts \u003d 2 (test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) on a subset of hdres (10 contents) below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  Average   |      -0.026       |  0.8917    0.8947    0.9410  |\n   3     |  Average   |       0.277       |  0.6969    0.6965    0.7612  |\n   4     |  Average   |       0.183       |  0.7756    0.7435    0.7702  |\n   5     |  Average   |      -0.106       |  1.0367    0.9834    1.1522  |\n   6     |  Average   |      -0.422       |  1.2623    1.2344    1.2311  |\n \n In the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "a11a72e41c31d8161a5dbdeb42d9b02f557ddfc2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
