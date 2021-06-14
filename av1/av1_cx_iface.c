@@ -116,8 +116,11 @@ struct av1_extracfg {
   int enable_mrls;  // enable multiple reference line selection
 #endif              // CONFIG_MRLS
 #if CONFIG_ORIP
-  int enable_orip;               // enable ORIP
-#endif                           // CONFIG_ORIP
+  int enable_orip;  // enable ORIP
+#endif              // CONFIG_ORIP
+#if CONFIG_IST
+  int enable_ist;                // enable intra secondary transform
+#endif                           // CONFIG_IST
   int min_partition_size;        // min partition size [4,8,16,32,64,128]
   int max_partition_size;        // max partition size [4,8,16,32,64,128]
   int enable_intra_edge_filter;  // enable intra-edge filter for sequence
@@ -369,6 +372,9 @@ static struct av1_extracfg default_extra_cfg = {
 #if CONFIG_ORIP
   1,    // enable ORIP
 #endif  // CONFIG_ORIP
+#if CONFIG_IST
+  0,    // enable intra secondary transform
+#endif  // CONFIG_IST
   4,    // min_partition_size
   128,  // max_partition_size
   1,    // enable intra edge filter
@@ -799,6 +805,9 @@ static void update_encoder_config(cfg_options_t *cfg,
 #if CONFIG_ORIP
   cfg->enable_orip = extra_cfg->enable_orip;
 #endif
+#if CONFIG_IST
+  cfg->enable_ist = extra_cfg->enable_ist;
+#endif
   cfg->max_partition_size = extra_cfg->max_partition_size;
   cfg->min_partition_size = extra_cfg->min_partition_size;
   cfg->enable_intra_edge_filter = extra_cfg->enable_intra_edge_filter;
@@ -855,6 +864,9 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
 #endif
 #if CONFIG_ORIP
   extra_cfg->enable_orip = cfg->enable_orip;
+#endif
+#if CONFIG_IST
+  extra_cfg->enable_ist = cfg->enable_ist;
 #endif
   extra_cfg->max_partition_size = cfg->max_partition_size;
   extra_cfg->min_partition_size = cfg->min_partition_size;
@@ -1265,6 +1277,9 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   txfm_cfg->use_intra_dct_only = extra_cfg->use_intra_dct_only;
   txfm_cfg->use_inter_dct_only = extra_cfg->use_inter_dct_only;
   txfm_cfg->use_intra_default_tx_only = extra_cfg->use_intra_default_tx_only;
+#if CONFIG_IST
+  txfm_cfg->enable_ist = extra_cfg->enable_ist;
+#endif
 
   // Set compound type configuration.
 #if !CONFIG_REMOVE_DIST_WTD_COMP
@@ -3424,6 +3439,11 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                               err_string)) {
     extra_cfg.enable_orip = arg_parse_int_helper(&arg, err_string);
 #endif
+#if CONFIG_IST
+  } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_ist, argv,
+                              err_string)) {
+    extra_cfg.enable_ist = arg_parse_int_helper(&arg, err_string);
+#endif
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.min_partition_size,
                               argv, err_string)) {
     extra_cfg.min_partition_size = arg_parse_int_helper(&arg, err_string);
@@ -3822,7 +3842,13 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       { 0 },                       // tile_heights
       0,                           // use_fixed_qp_offsets
       { -1, -1, -1, -1, -1, -1 },  // fixed_qp_offsets
-      { 0, 128, 128, 4, 1, 1, 1,
+      { 0,
+        128,
+        128,
+        4,
+        1,
+        1,
+        1,
 #if CONFIG_SDP
         1,
 #endif  // CONFIG_SDP
@@ -3832,15 +3858,42 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
 #if CONFIG_ORIP
         1,
 #endif
-        1, 1,   1,   1, 1, 1, 1,
+#if CONFIG_IST
+        0,
+#endif  // CONFIG_IST
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
 #if !CONFIG_REMOVE_DIST_WTD_COMP
         1,
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
-        1, 1,   1,   0, 0, 1, 1, 1, 1,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        1,
 #if !CONFIG_REMOVE_DUAL_FILTER
         1,
-#endif                                          // !CONFIG_REMOVE_DUAL_FILTER
-        1, 1,   1,   1, 1, 1, 1, 3, 1, 1, 0 },  // cfg
+#endif  // !CONFIG_REMOVE_DUAL_FILTER
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        3,
+        1,
+        1,
+        0 },  // cfg
   },
   {
       // NOLINT
@@ -3916,6 +3969,9 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
 #endif
 #if CONFIG_ORIP
         1,
+#endif
+#if CONFIG_IST
+        0,
 #endif
         1, 1,   1,   1, 1, 1, 1,
 #if !CONFIG_REMOVE_DIST_WTD_COMP
