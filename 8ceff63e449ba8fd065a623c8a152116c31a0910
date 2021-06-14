@@ -16,6 +16,24 @@
       "message": "Nit: The parentheses around sqrt() can be omitted:\n\n  return (int)sqrt(sb_wiener_var);\n  \nIf we take the square root, doesn\u0027t the return value become the standard deviation? If so, should we rename the get_window_wiener_var() function to reflect the new return value?",
       "revId": "8ceff63e449ba8fd065a623c8a152116c31a0910",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e6e91bc_47b559c3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3156,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-14T20:40:24Z",
+      "side": 1,
+      "message": "this can probably be further improved by introducing more relevant metrics. maybe leave the name as is, and change it later when the metric is updated.",
+      "parentUuid": "88053672_8b3b4a19",
+      "revId": "8ceff63e449ba8fd065a623c8a152116c31a0910",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
