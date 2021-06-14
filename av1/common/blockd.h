@@ -927,6 +927,12 @@ typedef struct macroblockd {
    * 'cpi->tile_thr_data[t].td->mb.tmp_pred_bufs'.
    */
   uint8_t *tmp_obmc_bufs[2];
+#if CONFIG_IST
+  /*!
+   * Enable IST for current coding block.
+   */
+  uint8_t enable_ist;
+#endif
 } MACROBLOCKD;
 
 /*!\cond */
@@ -1234,10 +1240,13 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
                                       int blk_col, TX_SIZE tx_size,
                                       int reduced_tx_set) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
+#if CONFIG_IST
+  if (xd->lossless[mbmi->segment_id]) {
+#else
   if (xd->lossless[mbmi->segment_id] || txsize_sqr_up_map[tx_size] > TX_32X32) {
+#endif
     return DCT_DCT;
   }
-
   TX_TYPE tx_type;
   if (plane_type == PLANE_TYPE_Y) {
     tx_type = xd->tx_type_map[blk_row * xd->tx_type_map_stride + blk_col];
@@ -1252,6 +1261,9 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
       blk_row <<= pd->subsampling_y;
       blk_col <<= pd->subsampling_x;
       tx_type = xd->tx_type_map[blk_row * xd->tx_type_map_stride + blk_col];
+#if CONFIG_IST
+      tx_type &= 0x0f;
+#endif
     } else {
       // In intra mode, uv planes don't share the same prediction mode as y
       // plane, so the tx_type should not be shared
@@ -1266,6 +1278,19 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
 #endif
     if (!av1_ext_tx_used[tx_set_type][tx_type]) tx_type = DCT_DCT;
   }
+#if CONFIG_IST
+#if CONFIG_SDP
+  assert(av1_ext_tx_used[av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(mbmi, xd->tree_type), reduced_tx_set)]
+                        [tx_type & 0xf]);
+#else
+  assert(av1_ext_tx_used[av1_get_ext_tx_set_type(
+      tx_size, is_inter_block(mbmi), reduced_tx_set)][tx_type & 0xf]);
+#endif
+  if (txsize_sqr_up_map[tx_size] > TX_32X32) {
+    return tx_type &= 0xf0;
+  }
+#else
   assert(tx_type < TX_TYPES);
 #if CONFIG_SDP
   assert(av1_ext_tx_used[av1_get_ext_tx_set_type(
@@ -1273,6 +1298,7 @@ static INLINE TX_TYPE av1_get_tx_type(const MACROBLOCKD *xd,
 #else
   assert(av1_ext_tx_used[av1_get_ext_tx_set_type(tx_size, is_inter_block(mbmi),
                                                  reduced_tx_set)][tx_type]);
+#endif
 #endif
   return tx_type;
 }
@@ -1596,6 +1622,18 @@ static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
   }
   return tx_size_2d[tx_size];
 }
+
+#if CONFIG_IST
+static INLINE int tx_size_to_depth(TX_SIZE tx_size, BLOCK_SIZE bsize) {
+  TX_SIZE ctx_size = max_txsize_rect_lookup[bsize];
+  int depth = 0;
+  while (tx_size != ctx_size) {
+    depth++;
+    ctx_size = sub_tx_size_map[ctx_size];
+  }
+  return depth;
+}
+#endif
 
 /*!\endcond */
 

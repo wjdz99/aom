@@ -286,7 +286,9 @@ typedef struct SequenceHeader {
 #if CONFIG_ORIP
   uint8_t enable_orip;  // To turn on/off sub-block based ORIP
 #endif
-
+#if CONFIG_IST
+  uint8_t enable_ist;  // enables/disables intra secondary transform
+#endif
   uint8_t enable_interintra_compound;  // enables/disables interintra_compound
   uint8_t enable_masked_compound;      // enables/disables masked compound
 #if !CONFIG_REMOVE_DUAL_FILTER
