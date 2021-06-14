@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9640014e_81a16d45",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-14T17:13:57Z",
+      "side": 1,
+      "message": "This test seems a bit too general. Can we add another test that makes sure with a certain width, height, phi, and theta, we can get the correct x and y, and also vice versa?",
+      "range": {
+        "startLine": 81,
+        "startChar": 2,
+        "endLine": 89,
+        "endChar": 3
+      },
+      "revId": "f6c04f0b9c7d17925b77e562b01db4687c0de0ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
