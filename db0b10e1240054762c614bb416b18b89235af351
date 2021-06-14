@@ -16,6 +16,24 @@
       "message": "Could use some hint that this is a decoder side change in the subject. s/each/decoded?",
       "revId": "db0b10e1240054762c614bb416b18b89235af351",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff8f20fc_cbad1995",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-14T16:22:57Z",
+      "side": 1,
+      "message": "Will do. I also forgot to add a unit test. I will do that and upload a new patchset.",
+      "parentUuid": "cd4efeff_cd57af70",
+      "revId": "db0b10e1240054762c614bb416b18b89235af351",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
