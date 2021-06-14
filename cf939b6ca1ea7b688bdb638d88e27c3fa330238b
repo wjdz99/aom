@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d076a0a0_493a561f",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1613,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-14T20:50:53Z",
+      "side": 1,
+      "message": "Nit: this will give unused variable warning",
+      "range": {
+        "startLine": 1612,
+        "startChar": 13,
+        "endLine": 1613,
+        "endChar": 58
+      },
+      "revId": "cf939b6ca1ea7b688bdb638d88e27c3fa330238b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4f734ad_d46c2427",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1724,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-14T20:50:53Z",
+      "side": 1,
+      "message": "Remove the ; after NULL",
+      "range": {
+        "startLine": 1724,
+        "startChar": 61,
+        "endLine": 1724,
+        "endChar": 66
+      },
+      "revId": "cf939b6ca1ea7b688bdb638d88e27c3fa330238b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db60376b_b0dcd94a",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1731,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-14T20:50:53Z",
+      "side": 1,
+      "message": "See above",
+      "range": {
+        "startLine": 1731,
+        "startChar": 63,
+        "endLine": 1731,
+        "endChar": 68
+      },
+      "revId": "cf939b6ca1ea7b688bdb638d88e27c3fa330238b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
