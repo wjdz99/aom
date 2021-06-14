@@ -73,6 +73,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "54837c02_00ad79a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-14T19:14:31Z",
+      "side": 1,
+      "message": "\u003e I do not see any speed claim in the patch introducing \u0027combine_vert_horz_lf\u0027: https://aomedia.googlesource.com/aom/+/c08f949e2f41bcdea4d288d7c63922792cc3c7e5\n\u003e I do not know how best to measure the impact. I did not found any instructions at aomedia.googlesource.com/aom and lpf_test.cc is too low level to be relevant.\n\u003e Local results of `./test_libaom --gtest_filter\u003dEncodeSmallWidthHeight* --gtest_repeat\u003d100`:\n\u003e  - combine_vert_horz_lf\u003d1 takes 1m53.408s\n\u003e  - combine_vert_horz_lf\u003d0 takes 1m53.566s\n\nThanks and sorry for the lack of detail in my request. I was thinking it might show some larger effects on the decode side. Locally with one 1080P clip I see:\n\u003d 1\n3602 decoded frames/3602 showed frames in 56231640 us (64.06 fps)\n3602 decoded frames/3602 showed frames in 54544682 us (66.04 fps)\n3602 decoded frames/3602 showed frames in 54743274 us (65.80 fps)\n\u003d 0\n3602 decoded frames/3602 showed frames in 61746306 us (58.34 fps)\n3602 decoded frames/3602 showed frames in 59466950 us (60.57 fps)\n3602 decoded frames/3602 showed frames in 60419663 us (59.62 fps)\n\nThe machine is not in performance mode which may explain some of the variance.\n\n\u003e If this sounds enough, please submit this patch because I do not have permission.\n\nYou might now, I tried adding a broader group.",
+      "parentUuid": "f14f0421_aa6e631f",
+      "revId": "d77d7f8cf3a4e9010684b6a91006f7841d24f09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "0b45a336_399ff144",
         "filename": "av1/common/av1_loopfilter.h",
         "patchSetId": 2
