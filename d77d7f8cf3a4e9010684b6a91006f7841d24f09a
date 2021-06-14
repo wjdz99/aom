@@ -55,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f14f0421_aa6e631f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14319
+      },
+      "writtenOn": "2021-06-14T12:13:15Z",
+      "side": 1,
+      "message": "I do not see any speed claim in the patch introducing \u0027combine_vert_horz_lf\u0027: https://aomedia.googlesource.com/aom/+/c08f949e2f41bcdea4d288d7c63922792cc3c7e5\nI do not know how best to measure the impact. I did not found any instructions at aomedia.googlesource.com/aom and lpf_test.cc is too low level to be relevant.\nLocal results of `./test_libaom --gtest_filter\u003dEncodeSmallWidthHeight* --gtest_repeat\u003d100`:\n - combine_vert_horz_lf\u003d1 takes 1m53.408s\n - combine_vert_horz_lf\u003d0 takes 1m53.566s\nIf this sounds enough, please submit this patch because I do not have permission.",
+      "parentUuid": "be62821c_de516f5e",
+      "revId": "d77d7f8cf3a4e9010684b6a91006f7841d24f09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "0b45a336_399ff144",
         "filename": "av1/common/av1_loopfilter.h",
         "patchSetId": 2
@@ -66,6 +84,24 @@
       "writtenOn": "2021-06-11T19:57:19Z",
       "side": 1,
       "message": "this is dead code too I think",
+      "revId": "d77d7f8cf3a4e9010684b6a91006f7841d24f09a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fffbd89_091ef753",
+        "filename": "av1/common/av1_loopfilter.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 14319
+      },
+      "writtenOn": "2021-06-14T12:13:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0b45a336_399ff144",
       "revId": "d77d7f8cf3a4e9010684b6a91006f7841d24f09a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
