@@ -85,6 +85,14 @@ extern "C" {
 #define MRL_LINE_NUMBER 4
 #endif
 
+// Intra Secondary Transform
+#if CONFIG_IST
+#define IST_4x4_WIDTH 16
+#define IST_4x4_HEIGHT 8
+#define IST_8x8_WIDTH 64
+#define IST_8x8_HEIGHT 32
+#endif  // CONFIG_IST
+
 #define DIST_PRECISION_BITS 4
 #define DIST_PRECISION (1 << DIST_PRECISION_BITS)  // 16
 
