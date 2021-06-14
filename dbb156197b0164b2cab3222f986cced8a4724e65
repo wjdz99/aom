@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecdfbcf2_a3779e41",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-06-14T03:30:48Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nDuring the parallel encode of 2 INTNL_ARF_UPDATE frames(FP2), the cdf update by the first frame (frame_parallel_level 1) is disabled in this patch, since the primary ref frame of an INTNL_ARF_UPDATE frame is the previous (encoded) INTNL_ARF_UPDATE frame. \n \nPlease find the detailed borg result with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1 and num_fp_contexts \u003d 2 (test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   0     |  Average   |       2.116       |  1.1080    1.1148    1.3510  |\n   1     |  Average   |       0.639       |  1.1231    1.1180    1.3717  |\n   2     |  Average   |       0.010       |  1.2453    1.2534    1.4711  |\n   3     |  Average   |       0.597       |  1.3856    1.4183    1.5835  |\n   4     |  Average   |       0.711       |  1.6035    1.6443    1.8543  |\n   5     |  Average   |       0.608       |  1.6515    1.6648    1.8421  |\n   6     |  Average   |       0.306       |  1.8422    1.8557    2.0255  | \n\nPlease find the CQP results with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1 and num_fp_contexts \u003d 2 (test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) on a subset of hdres (10 contents) below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   0     |  Average   |       3.110       |  0.7262    0.7919    0.7798  |\n   1     |  Average   |       2.020       |  0.8321    0.8907    0.9470  |\n   2     |  Average   |      -0.267       |  1.1687    1.1692    1.1983  |\n   3     |  Average   |       0.235       |  1.1486    1.1540    1.2898  |\n   4     |  Average   |       0.201       |  1.3947    1.3617    1.4424  |\n   5     |  Average   |       0.033       |  1.4550    1.4271    1.5457  |\n   6     |  Average   |      -0.157       |  1.7761    1.7564    1.8273  |\n   \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nBit-match is locally verified (for CONFIG_FRAME_PARALLEL_ENCODE \u003d 0) for speed 0 to 6 on a few test cases. We have internally tested this patch with CONFIG_FRAME_PARALLEL_ENCODE set as 1, CONFIG_FRAME_PARALLEL_ENCODE_2 set as 1 and num_fp_contexts set as 4 for integer, undefined, address and thread sanitizer tests locally. \n\nPlease review this patch.\n\nRegards,\nRemya  ",
+      "revId": "dbb156197b0164b2cab3222f986cced8a4724e65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
