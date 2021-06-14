@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch groups the code related to the pruning of intra modes when best inter mode is transform skip and skip_intra_in_interframe \u003e\u003d 2. Bit-match has been verified locally for a few test cases for speed 1 to 6.\n\nPlease review the patch.\n\nThanks,\nNithya",
       "revId": "5e7e63200ebe7d87bd107c5aeadbcdea96c8f9e1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffa0b3fb_9eb8bb56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-14T21:22:01Z",
+      "side": 1,
+      "message": "Thanks for the refactoring.",
+      "revId": "5e7e63200ebe7d87bd107c5aeadbcdea96c8f9e1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
