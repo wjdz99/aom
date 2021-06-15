@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9f1bd67_fe5bf580",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58d651c8_2568997c",
+      "range": {
+        "startLine": 122,
+        "startChar": 21,
+        "endLine": 122,
+        "endChar": 30
+      },
+      "revId": "a49817bc381a1ee26f0026bb05e4332ca39edf55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ac9da266_cd962941",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-15T18:09:26Z",
       "side": 1,
       "message": "same",
+      "range": {
+        "startLine": 123,
+        "startChar": 20,
+        "endLine": 123,
+        "endChar": 32
+      },
+      "revId": "a49817bc381a1ee26f0026bb05e4332ca39edf55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e873744_8dc4fcb9",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac9da266_cd962941",
       "range": {
         "startLine": 123,
         "startChar": 20,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f00372c4_b4f99994",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d0380f62_36e33fe6",
+      "range": {
+        "startLine": 125,
+        "startChar": 19,
+        "endLine": 125,
+        "endChar": 28
+      },
+      "revId": "a49817bc381a1ee26f0026bb05e4332ca39edf55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "af526a2e_0b716551",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-15T18:09:26Z",
       "side": 1,
       "message": "same",
+      "range": {
+        "startLine": 127,
+        "startChar": 18,
+        "endLine": 127,
+        "endChar": 28
+      },
+      "revId": "a49817bc381a1ee26f0026bb05e4332ca39edf55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d26516d6_74e35d10",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af526a2e_0b716551",
       "range": {
         "startLine": 127,
         "startChar": 18,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d617bf3b_40a89b3e",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24ccc840_4930eb9d",
+      "range": {
+        "startLine": 186,
+        "startChar": 2,
+        "endLine": 187,
+        "endChar": 32
+      },
+      "revId": "a49817bc381a1ee26f0026bb05e4332ca39edf55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8227716d_45b8925b",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-06-15T18:09:26Z",
       "side": 1,
       "message": "same and also the ones below too.",
+      "range": {
+        "startLine": 190,
+        "startChar": 17,
+        "endLine": 190,
+        "endChar": 28
+      },
+      "revId": "a49817bc381a1ee26f0026bb05e4332ca39edf55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82b24141_ad4cfcf9",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8227716d_45b8925b",
       "range": {
         "startLine": 190,
         "startChar": 17,
