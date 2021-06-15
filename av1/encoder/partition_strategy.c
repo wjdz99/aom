@@ -358,6 +358,10 @@ void av1_simple_motion_search_based_split(
   const float no_split_thresh =
       av1_simple_motion_search_no_split_thresh[agg][res_idx][bsize_idx];
 
+  if (agg < 0) {
+    return;
+  }
+
   float features[FEATURE_SIZE_SMS_SPLIT] = { 0.0f };
   simple_motion_search_prune_part_features(cpi, x, sms_tree, mi_row, mi_col,
                                            bsize, features,
@@ -626,7 +630,7 @@ void av1_simple_motion_search_prune_rect(
       av1_simple_motion_search_prune_rect_thresh[agg][res_idx][bsize_idx];
 
   // If there is no valid threshold, return immediately.
-  if (!nn_config || prune_thresh == 0.0f) {
+  if (!nn_config || prune_thresh == 0.0f || agg < 0) {
     return;
   }
 
@@ -1581,7 +1585,6 @@ void av1_prune_partitions_before_search(
   // must be done prior to PARTITION_SPLIT to propagate the initial mvs to a
   // smaller blocksize.
   const int try_split_only =
-      !cpi->use_screen_content_tools &&
       cpi->sf.part_sf.simple_motion_search_split && *do_square_split &&
       bsize >= BLOCK_8X8 &&
       mi_row + mi_size_high[bsize] <= mi_params->mi_rows &&
@@ -1599,7 +1602,6 @@ void av1_prune_partitions_before_search(
   // direction. The results are stored in prune_horz and prune_vert in order to
   // bypass future related pruning checks if a pruning decision has been made.
   const int try_prune_rect =
-      !cpi->use_screen_content_tools &&
       cpi->sf.part_sf.simple_motion_search_prune_rect &&
       !frame_is_intra_only(cm) && *do_rectangular_split &&
       (*do_square_split || *partition_none_allowed ||
