@@ -73,7 +73,7 @@ void av1_copy_frame_mvs(const AV1_COMMON *const cm,
   }
 }
 
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
 static AOM_INLINE void add_ref_mv_candidate(
     const MB_MODE_INFO *const candidate, const MV_REFERENCE_FRAME_NRS rf[2],
     uint8_t *refmv_count, uint8_t *ref_match_count, uint8_t *newmv_count,
@@ -218,7 +218,7 @@ static AOM_INLINE void scan_row_mbmi(
     int mi_row,
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
     int mi_col,
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
     const MV_REFERENCE_FRAME_NRS rf[2],
 #else
     const MV_REFERENCE_FRAME rf[2],
@@ -273,7 +273,7 @@ static AOM_INLINE void scan_row_mbmi(
       *processed_rows = inc - row_offset - 1;
     }
 
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion_nrs, len * weight);
@@ -292,7 +292,7 @@ static AOM_INLINE void scan_col_mbmi(
 #if CONFIG_EXT_RECUR_PARTITIONS
     int mi_col,
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
     const MV_REFERENCE_FRAME_NRS rf[2],
 #else
     const MV_REFERENCE_FRAME rf[2],
@@ -346,7 +346,7 @@ static AOM_INLINE void scan_col_mbmi(
       *processed_cols = inc - col_offset - 1;
     }
 
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion_nrs, len * weight);
@@ -450,7 +450,7 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 
   MV_REFERENCE_FRAME rf[2];
   av1_set_ref_frame(rf, ref_frame);
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME_NRS rf_nrs[2];
   rf_nrs[0] =
       convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
@@ -653,7 +653,7 @@ static AOM_INLINE void setup_ref_mv_list(
   int processed_cols = 0;
 
   av1_set_ref_frame(rf, ref_frame);
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME rf_nrs[2];
   rf_nrs[0] =
       convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
@@ -1086,7 +1086,7 @@ static AOM_INLINE void setup_ref_mv_list(
 
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       MB_MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
                       MV_REFERENCE_FRAME_NRS ref_frame_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
                       uint8_t ref_mv_count[MODE_CTX_REF_FRAMES],
@@ -1094,7 +1094,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       uint16_t ref_mv_weight[][MAX_REF_MV_STACK_SIZE],
                       int_mv mv_ref_list[][MAX_MV_REF_CANDIDATES],
                       int_mv *global_mvs, int16_t *mode_context) {
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
   (void)ref_frame_nrs;
 #endif  // CONFIG_NEW_REF_SIGNALING
   const int mi_row = xd->mi_row;
@@ -1117,7 +1117,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     } else {
       MV_REFERENCE_FRAME rf[2];
       av1_set_ref_frame(rf, ref_frame);
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
       MV_REFERENCE_FRAME rf_nrs[2];
       rf_nrs[0] =
           convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
@@ -1160,7 +1160,7 @@ void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
   cm->cur_frame->absolute_poc = cm->current_frame.absolute_poc;
   cm->cur_frame->pyramid_level = cm->current_frame.pyramid_level;
 
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME_NRS ref_frame_nrs;
   for (ref_frame_nrs = 0; ref_frame_nrs < MAX_REF_FRAMES_NRS; ++ref_frame_nrs) {
     const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref_frame_nrs);

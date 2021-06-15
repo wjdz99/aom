@@ -3281,6 +3281,15 @@ static AOM_INLINE void write_global_motion(AV1_COMP *cpi,
            cm->global_motion[frame].wmmat[1], cm->global_motion[frame].wmmat[2],
            cm->global_motion[frame].wmmat[3]);
            */
+#if CONFIG_NEW_REF_SIGNALING
+    const int ranked_frame =
+        convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, frame);
+
+    // TODO(sarahparker) Temporary assert, see aomedia:3060
+    assert(is_same_wm_params(&cm->global_motion_nrs[ranked_frame],
+                             &cm->global_motion[frame]));
+    (void)ranked_frame;
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 }
 
@@ -3720,7 +3729,8 @@ static AOM_INLINE void write_uncompressed_header_obu(
   aom_wb_write_bit(wb, features->reduced_tx_set_used);
 
 #if CONFIG_NEW_REF_SIGNALING
-  if (!frame_is_intra_only(cm)) write_global_motion_nrs(cpi, wb);
+//if (!frame_is_intra_only(cm)) write_global_motion_nrs(cpi, wb);
+  if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 #else
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 #endif  // CONFIG_NEW_REF_SIGNALING

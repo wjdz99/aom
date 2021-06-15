@@ -422,7 +422,7 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
         get_ref_scale_factors_const(cm, ref_frame);
     av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, sf, sf, num_planes);
     av1_find_mv_refs(cm, xd, mbmi, ref_frame,
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
                      ref_frame_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
                      mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
