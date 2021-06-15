@@ -824,6 +824,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.reduce_inter_modes = boosted ? 1 : 3;
     sf->inter_sf.reuse_inter_intra_mode = 1;
     sf->inter_sf.selective_ref_frame = 2;
+    sf->inter_sf.inter_mode_txfm_breakout = boosted ? 0 : 1;
 
     sf->interp_sf.use_interp_filter = 1;
 
@@ -883,7 +884,6 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 1;
     sf->inter_sf.disable_interinter_wedge_newmv_search =
         is_boosted_arf2_bwd_type ? 0 : 1;
-    sf->inter_sf.inter_mode_txfm_breakout = boosted ? 0 : 1;
 
     // TODO(Sachin): Enable/Enhance this speed feature for speed 2 & 3
     sf->interp_sf.adaptive_interp_filter_search = 1;
