@@ -47,6 +47,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e11d9498_5b404019",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-15T22:44:29Z",
+      "side": 1,
+      "message": "I saw you fix this part in the follow-up CL",
+      "parentUuid": "d5a1aa3d_3ede29db",
+      "range": {
+        "startLine": 33,
+        "startChar": 11,
+        "endLine": 33,
+        "endChar": 17
+      },
+      "revId": "e2fba1798cae44de9cb5a4ab20869b5570da217b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fa25508b_6ab66db9",
@@ -70,6 +94,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "313a8f03_dcd21ce1",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-15T22:44:29Z",
+      "side": 1,
+      "message": "I saw you added more unit test in a follow up CL",
+      "parentUuid": "fa25508b_6ab66db9",
+      "range": {
+        "startLine": 80,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 3
+      },
+      "revId": "e2fba1798cae44de9cb5a4ab20869b5570da217b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9be2f16b_1eeaf6e9",
@@ -83,6 +131,30 @@
       "writtenOn": "2021-06-15T22:21:40Z",
       "side": 1,
       "message": "Same here.\nWe can list several corner cases (2~3) and check whether the output match the expected values.",
+      "range": {
+        "startLine": 104,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 3
+      },
+      "revId": "e2fba1798cae44de9cb5a4ab20869b5570da217b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72a53084_ff37b235",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-15T22:44:29Z",
+      "side": 1,
+      "message": "I saw you added more unit test in a follow up CL",
+      "parentUuid": "9be2f16b_1eeaf6e9",
       "range": {
         "startLine": 104,
         "startChar": 0,
