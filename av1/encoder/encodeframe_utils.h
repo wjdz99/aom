@@ -228,6 +228,45 @@ typedef struct {
 #endif  // CONFIG_COLLECT_PARTITION_STATS
 } PartitionSearchState;
 
+static AOM_INLINE void av1_disable_square_split_partition(
+    PartitionSearchState *part_state) {
+  part_state->do_square_split = 0;
+}
+
+static AOM_INLINE void av1_disable_rect_partitions(
+    PartitionSearchState *part_state) {
+  part_state->do_rectangular_split = 0;
+  part_state->partition_rect_allowed[HORZ] = 0;
+  part_state->partition_rect_allowed[VERT] = 0;
+}
+
+static AOM_INLINE void av1_disable_all_splits(
+    PartitionSearchState *part_state) {
+  av1_disable_square_split_partition(part_state);
+  av1_disable_rect_partitions(part_state);
+}
+
+static AOM_INLINE void av1_set_square_split_only(
+    PartitionSearchState *part_state) {
+  part_state->partition_none_allowed = 0;
+  part_state->do_square_split = 1;
+  av1_disable_rect_partitions(part_state);
+}
+
+static AOM_INLINE bool av1_blk_has_rows_and_cols(
+    const PartitionBlkParams *blk_params) {
+  return blk_params->has_rows && blk_params->has_cols;
+}
+
+static AOM_INLINE bool av1_is_whole_blk_in_frame(
+    const PartitionBlkParams *blk_params,
+    const CommonModeInfoParams *mi_params) {
+  const int mi_row = blk_params->mi_row, mi_col = blk_params->mi_col;
+  const BLOCK_SIZE bsize = blk_params->bsize;
+  return mi_row + mi_size_high[bsize] <= mi_params->mi_rows &&
+         mi_col + mi_size_wide[bsize] <= mi_params->mi_cols;
+}
+
 static AOM_INLINE void update_filter_type_cdf(const MACROBLOCKD *xd,
                                               const MB_MODE_INFO *mbmi,
                                               int dual_filter) {
@@ -251,7 +290,7 @@ static AOM_INLINE int set_segment_rdmult(const AV1_COMP *const cpi,
                              segment_qindex + cm->quant_params.y_dc_delta_q);
 }
 
-static AOM_INLINE int do_slipt_check(BLOCK_SIZE bsize) {
+static AOM_INLINE int do_split_check(BLOCK_SIZE bsize) {
   return (bsize == BLOCK_16X16 || bsize == BLOCK_32X32);
 }
 
