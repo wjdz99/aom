@@ -1124,6 +1124,17 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL4;
   }
 
+  // TODO(chiyotsai@google.com): The models are not working very well on screen
+  // contents. Use less aggressive model settings here for conservative pruning.
+  if (allow_screen_content_tools) {
+    if (speed < 3) {
+      // Turns off pruning for lower speed.
+      sf->part_sf.simple_motion_search_prune_agg = -1;
+    } else {
+      sf->part_sf.simple_motion_search_prune_agg = 0;
+    }
+  }
+
   // Intra txb hash is currently not compatible with multi-winner mode as the
   // hashes got reset during multi-winner mode processing.
   assert(IMPLIES(
