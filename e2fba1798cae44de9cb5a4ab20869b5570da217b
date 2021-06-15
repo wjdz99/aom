@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "602eadfc_7062eec0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-15T22:52:11Z",
+      "side": 1,
+      "message": "It seems the next ",
+      "revId": "e2fba1798cae44de9cb5a4ab20869b5570da217b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a2016fee_b150207e",
@@ -14,6 +31,30 @@
       "writtenOn": "2021-06-15T22:26:21Z",
       "side": 1,
       "message": "We can define a constant expressions \"pi\" here.\nconstexpr double pi \u003d 3.141592653589793238462643383279502884;",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 30
+      },
+      "revId": "e2fba1798cae44de9cb5a4ab20869b5570da217b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90df91cd_6c08b1b6",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-15T22:52:11Z",
+      "side": 1,
+      "message": "To make thins easier,\nYou can change this part in a followup Cl.",
+      "parentUuid": "a2016fee_b150207e",
       "range": {
         "startLine": 19,
         "startChar": 0,
