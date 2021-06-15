@@ -17,6 +17,7 @@
 namespace {
 
 #define DIFF_THRESHOLD 0.00001
+constexpr double pi = 3.141592653589793238462643383279502884;
 
 TEST(SphericalMappingTest, EquiPlaneToGlobeReverseTest) {
   // Check if the mapping from plane to globe is reverseable
@@ -30,7 +31,7 @@ TEST(SphericalMappingTest, EquiPlaneToGlobeReverseTest) {
   double x_from_globe;
   double y_from_globe;
 
-  for (x = width; x < width; x += 1) {
+  for (x = 0; x < width; x += 1) {
     for (y = 0; y < height; y += 1) {
       av1_plane_to_sphere_erp(x, y, width, height, &phi, &theta);
       av1_sphere_to_plane_erp(phi, theta, width, height, &x_from_globe,
@@ -53,10 +54,8 @@ TEST(SphericalMappingTest, EquiGlobeToPlaneReverseTest) {
   double phi_from_plane;
   double theta_from_plane;
 
-  const double pi = 3.141592653589793238462643383279502884;
-
-  for (phi = -0.5 * pi; phi <= 0.5 * pi; phi += 0.1) {
-    for (theta = -pi; theta <= pi; theta += 0.1) {
+  for (phi = -0.5 * pi; phi < 0.5 * pi; phi += 0.1) {
+    for (theta = -pi; theta < pi; theta += 0.1) {
       av1_sphere_to_plane_erp(phi, theta, width, height, &x, &y);
       av1_plane_to_sphere_erp(x, y, width, height, &phi_from_plane,
                               &theta_from_plane);
@@ -76,13 +75,11 @@ TEST(SphericalMappingTest, EquiPlaneToGlobeRangeTest) {
   double phi;
   double theta;
 
-  const double pi = 3.141592653589793238462643383279502884;
-
   for (x = -2 * width; x <= 2 * width; x += 1) {
     for (y = 0; y < height; y += 1) {
       av1_plane_to_sphere_erp(x, y, width, height, &phi, &theta);
       EXPECT_GE(phi, -0.5 * pi);
-      EXPECT_LE(phi, 0.5 * pi);
+      EXPECT_LT(phi, 0.5 * pi);
       EXPECT_GE(theta, -pi);
       EXPECT_LE(theta, pi);
     }
@@ -99,16 +96,136 @@ TEST(SphericalMappingTest, EquiGlobeToPlaneRangeTest) {
   double phi;
   double theta;
 
-  const double pi = 3.141592653589793238462643383279502884;
-
-  for (phi = -0.5 * pi * 2; phi <= 0.5 * pi * 2; phi += 0.1) {
-    for (theta = -pi * 2; theta <= pi * 2; theta += 0.1) {
+  for (phi = -0.5 * pi * 4; phi <= 0.5 * pi * 4; phi += 0.1) {
+    if (fmod(phi, pi) == 0.5 * pi) {
+      continue;
+    }
+    for (theta = -pi * 4; theta <= pi * 4; theta += 0.1) {
       av1_sphere_to_plane_erp(phi, theta, width, height, &x, &y);
       EXPECT_GE(x, 0);
       EXPECT_LE(x, width);
       EXPECT_GE(y, 0);
-      EXPECT_LE(y, height);
+      EXPECT_LT(y, height);
     }
+  }
+}
+
+TEST(SphericalMappingTest, EquiPlaneToGlobeAnchorTest) {
+  // Check the correctness of mapping for some special anchor points
+  int width = 400;
+  int height = 300;
+  double phi;
+  double theta;
+
+  const int case_cnt = 9;
+
+  double test_x[case_cnt] = { width * 0.5,
+                              0,
+                              width - DIFF_THRESHOLD,
+                              0,
+                              width - DIFF_THRESHOLD,
+                              (width - DIFF_THRESHOLD) * 0.25,
+                              (width - DIFF_THRESHOLD) * 0.75,
+                              (width - DIFF_THRESHOLD) * 0.75,
+                              (width - DIFF_THRESHOLD) * 0.25 };
+  double test_y[case_cnt] = { height * 0.5,
+                              0,
+                              0,
+                              1.0 * height,
+                              1.0 * height,
+                              height * 0.25,
+                              height * 0.25,
+                              height * 0.75,
+                              height * 0.75 };
+  double expect_phi[case_cnt] = { 0,          -0.5 * pi, -0.5 * pi,
+                                  0.5 * pi,   0.5 * pi,  -0.25 * pi,
+                                  -0.25 * pi, 0.25 * pi, 0.25 * pi };
+  double expect_theta[case_cnt] = { 0,         -pi,      pi,       -pi,      pi,
+                                    -0.5 * pi, 0.5 * pi, 0.5 * pi, -0.5 * pi };
+
+  for (int i = 0; i < case_cnt; i++) {
+    av1_plane_to_sphere_erp(test_x[i], test_y[i], width, height, &phi, &theta);
+    EXPECT_NEAR(phi, expect_phi[i], DIFF_THRESHOLD);
+    EXPECT_NEAR(theta, expect_theta[i], DIFF_THRESHOLD);
+  }
+}
+
+TEST(SphericalMappingTest, EquiGlobeToPlaneAnchorTest) {
+  // Check the correctness of mapping for some special anchor points
+  int width = 400;
+  int height = 300;
+  double x;
+  double y;
+
+  const int case_cnt = 19;
+
+  double test_phi[case_cnt] = { 0,          -0.5 * pi,  -0.5 * pi,  0.5 * pi,
+                                0.5 * pi,   -0.25 * pi, -0.25 * pi, 0.25 * pi,
+                                0.25 * pi,  -0.75 * pi, -0.75 * pi, -pi,
+                                -1.25 * pi, -1.75 * pi, 0.75 * pi,  0.75 * pi,
+                                pi,         1.25 * pi,  1.75 * pi };
+  double test_theta[case_cnt] = { 0,
+                                  -pi,
+                                  pi - 0.0000001,
+                                  -pi,
+                                  pi - 0.0000001,
+                                  -0.5 * pi,
+                                  (pi - 0.0000001) * 0.5,
+                                  (pi - 0.0000001) * 0.5,
+                                  -0.5 * pi,
+                                  0,
+                                  0.5 * pi,
+                                  -0.5 * pi,
+                                  0.5 * pi,
+                                  -0.5 * pi,
+                                  0,
+                                  0.5 * pi,
+                                  -0.5 * pi,
+                                  0.5 * pi,
+                                  -0.5 * pi };
+  double expect_x[case_cnt] = { width * 0.5,
+                                0,
+                                1.0 * width,
+                                0,
+                                1.0 * width,
+                                width * 0.25,
+                                width * 0.75,
+                                width * 0.75,
+                                width * 0.25,
+                                0,
+                                width * 0.25,
+                                width * 0.75,
+                                width * 0.25,
+                                width * 0.25,
+                                0,
+                                width * 0.25,
+                                width * 0.75,
+                                width * 0.25,
+                                width * 0.25 };
+  double expect_y[case_cnt] = { height * 0.5,
+                                0,
+                                0,
+                                1.0 * height,
+                                1.0 * height,
+                                height * 0.25,
+                                height * 0.25,
+                                height * 0.75,
+                                height * 0.75,
+                                height * 0.25,
+                                height * 0.25,
+                                height * 0.5,
+                                height * 0.75,
+                                height * 0.75,
+                                height * 0.75,
+                                height * 0.75,
+                                height * 0.5,
+                                height * 0.25,
+                                height * 0.25 };
+
+  for (int i = 0; i < case_cnt; i++) {
+    av1_sphere_to_plane_erp(test_phi[i], test_theta[i], width, height, &x, &y);
+    EXPECT_NEAR(x, expect_x[i], DIFF_THRESHOLD);
+    EXPECT_NEAR(y, expect_y[i], DIFF_THRESHOLD);
   }
 }
 
