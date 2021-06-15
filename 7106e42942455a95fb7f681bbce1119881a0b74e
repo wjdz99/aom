@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79bdb62c_dc970b69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-15T18:05:29Z",
+      "side": 1,
+      "message": "Hi Yao, thanks for the new patch. However it seems some calculations in this patch are not correct. Please see my comments below and re-design these.",
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f70d694_e99c7ae3",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-15T18:05:29Z",
+      "side": 1,
+      "message": "Are these the correct way? Say I have a 91 degree phi, these will make it 1 degree, but we should be expecting a 89 degree phi and a theta changed by 180 degrees.",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 3
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84f3f1b9_3b33cf18",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-15T18:05:29Z",
+      "side": 1,
+      "message": "We should mod by 2*PI as the range of theta is from -PI to PI. Then subtract 2*PI or add 2*PI if needed. The current calculation is not correct. (try -1.5PI)",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 38,
+        "endChar": 3
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f1cfc8c_79928280",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-15T18:05:29Z",
+      "side": 1,
+      "message": "We should not minus 1 from width or height in these functions.",
+      "range": {
+        "startLine": 42,
+        "startChar": 25,
+        "endLine": 42,
+        "endChar": 34
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b49722bd_1815ab32",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-15T18:05:29Z",
+      "side": 1,
+      "message": "Should be y \u003c height.",
+      "range": {
+        "startLine": 50,
+        "startChar": 19,
+        "endLine": 50,
+        "endChar": 34
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
