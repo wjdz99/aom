@@ -687,6 +687,26 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 #define OPFL_BILINEAR_GRAD 0
 #define OPFL_BICUBIC_GRAD 0
 
+// Combine computations of interpolated gradients and the least squares
+// solver. The basic idea is that, typically we would compute the following:
+// 1. d0, d1, P0 and P1
+// 2. Gradients of P0 and P1: gx0, gx1, gy0, and gy1
+// 3. Solving least squares for vx and vy, which requires d0*gx0-d1*gx1,
+//    d0*gy0-d1*gy1, and P0-P1.
+// When this flag is turned on, we compute the following
+// 1. d0, d1, P0 and P1
+// 2. tmp0 = d0*P0-d1*P1 and tmp1 = P0-P1
+// 3. Gradients of tmp0: gx and gy
+// 4. Solving least squares for vx and vy using gx, gy and tmp1
+// Note that this only requires 2 gradient operators instead of 4 and thus
+// reduces the complexity. However, it is only feasible when gradients are
+// obtained using bilinear or bicubic interpolation. Also, it only work with
+// the 2 motion compensation framework (in the 1 MC framework, gx0, gx1, gy0,
+// gy1 are all required to refine the predicted block). Thus, this flag should
+// only be on when OPFL_SECOND_PASS_MC is on and either of OPFL_BILINEAR_GRAD
+// and OPFL_BICUBIC_GRAD is on.
+#define OPFL_COMBINE_INTERP_GRAD_LS 0
+
 // Delta to use for computing gradients in bits, with 0 referring to
 // integer-pel. The actual delta value used from the 1/8-pel original MVs
 // is 2^(3 - SUBPEL_GRAD_DELTA_BITS). The max value of this macro is 3.
@@ -835,71 +855,13 @@ void av1_opfl_build_inter_predictor_lowbd(
 // computed at unit pixel step normalization is 0 scale.
 // Negative values indicate gradient returned at reduced precision, and
 // positive values indicate gradient returned at higher precision.
-void av1_compute_subpel_gradients_highbd(
+void av1_compute_subpel_gradients_mc_highbd(
     MACROBLOCKD *xd, MB_MODE_INFO *mi, int bw, int bh, int mi_x, int mi_y,
     uint8_t **mc_buf, InterPredParams *inter_pred_params,
-    CalcSubpelParamsFunc calc_subpel_params_func, int ref, uint16_t *pred_dst16,
-    int *grad_prec_bits, int16_t *x_grad, int16_t *y_grad) {
+    CalcSubpelParamsFunc calc_subpel_params_func, int ref, int *grad_prec_bits,
+    int16_t *x_grad, int16_t *y_grad) {
   *grad_prec_bits = 3 - SUBPEL_GRAD_DELTA_BITS - 2;
 
-  // Reuse pixels in pred_dst to compute gradients
-#if OPFL_BILINEAR_GRAD
-  int id_next, id_prev, is_boundary;
-  int16_t temp = 0;
-  for (int i = 0; i < bh; i++) {
-    for (int j = 0; j < bw; j++) {
-      // Subtract interpolated pixel at (i, j+delta) by the one at (i, j-delta)
-      id_next = AOMMIN(j + 1, bw - 1);
-      id_prev = AOMMAX(j - 1, 0);
-      is_boundary = (j + 1 > bw - 1 || j - 1 < 0);
-      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS][is_boundary] *
-             ((int16_t)pred_dst16[i * bw + id_next] -
-              (int16_t)pred_dst16[i * bw + id_prev]);
-      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
-      // Subtract interpolated pixel at (i+delta, j) by the one at (i-delta, j)
-      id_next = AOMMIN(i + 1, bh - 1);
-      id_prev = AOMMAX(i - 1, 0);
-      is_boundary = (i + 1 > bh - 1 || i - 1 < 0);
-      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS][is_boundary] *
-             ((int16_t)pred_dst16[id_next * bw + j] -
-              (int16_t)pred_dst16[id_prev * bw + j]);
-      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
-    }
-  }
-#elif OPFL_BICUBIC_GRAD
-  int id_prev, id_prev2, id_next, id_next2, is_boundary;
-  int16_t temp = 0;
-  for (int i = 0; i < bh; i++) {
-    for (int j = 0; j < bw; j++) {
-      // Subtract interpolated pixel at (i, j+delta) by the one at (i, j-delta)
-      id_prev = AOMMAX(j - 1, 0);
-      id_prev2 = AOMMAX(j - 2, 0);
-      id_next = AOMMIN(j + 1, bw - 1);
-      id_next2 = AOMMIN(j + 2, bw - 1);
-      is_boundary = (j + 1 > bw - 1 || j - 1 < 0);
-      temp = coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][0][is_boundary] *
-                 ((int16_t)pred_dst16[i * bw + id_next] -
-                  (int16_t)pred_dst16[i * bw + id_prev]) +
-             coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][1][is_boundary] *
-                 ((int16_t)pred_dst16[i * bw + id_next2] -
-                  (int16_t)pred_dst16[i * bw + id_prev2]);
-      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
-      // Subtract interpolated pixel at (i+delta, j) by the one at (i-delta, j)
-      id_prev = AOMMAX(i - 1, 0);
-      id_prev2 = AOMMAX(i - 2, 0);
-      id_next = AOMMIN(i + 1, bh - 1);
-      id_next2 = AOMMIN(i + 2, bh - 1);
-      is_boundary = (i + 1 > bh - 1 || i - 1 < 0);
-      temp = coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][0][is_boundary] *
-                 ((int16_t)pred_dst16[id_next * bw + j] -
-                  (int16_t)pred_dst16[id_prev * bw + j]) +
-             coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][1][is_boundary] *
-                 ((int16_t)pred_dst16[id_next2 * bw + j] -
-                  (int16_t)pred_dst16[id_prev2 * bw + j]);
-      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
-    }
-  }
-#else
   // Original predictor
   const MV mv_orig = mi->mv[ref].as_mv;
   MV mv_modified = mv_orig;
@@ -958,7 +920,6 @@ void av1_compute_subpel_gradients_highbd(
           (int16_t)tmp_buf2[i * bw + j] - (int16_t)tmp_buf1[i * bw + j];
     }
   }
-#endif  // OPFL_BILINEAR_GRAD/OPFL_BICUBIC_GRAD
 }
 
 // Note: grad_prec_bits param returned correspond to the precision
@@ -966,71 +927,13 @@ void av1_compute_subpel_gradients_highbd(
 // computed at unit pixel step normalization is 0 scale.
 // Negative values indicate gradient returned at reduced precision, and
 // positive values indicate gradient returned at higher precision.
-void av1_compute_subpel_gradients_lowbd(
+void av1_compute_subpel_gradients_mc_lowbd(
     MACROBLOCKD *xd, MB_MODE_INFO *mi, int bw, int bh, int mi_x, int mi_y,
     uint8_t **mc_buf, InterPredParams *inter_pred_params,
-    CalcSubpelParamsFunc calc_subpel_params_func, int ref, uint8_t *pred_dst,
-    int *grad_prec_bits, int16_t *x_grad, int16_t *y_grad) {
+    CalcSubpelParamsFunc calc_subpel_params_func, int ref, int *grad_prec_bits,
+    int16_t *x_grad, int16_t *y_grad) {
   *grad_prec_bits = 3 - SUBPEL_GRAD_DELTA_BITS - 2;
 
-  // Reuse pixels in pred_dst to compute gradients
-#if OPFL_BILINEAR_GRAD
-  int id_next, id_prev, is_boundary;
-  int16_t temp = 0;
-  for (int i = 0; i < bh; i++) {
-    for (int j = 0; j < bw; j++) {
-      // Subtract interpolated pixel (i, j+delta) by (i, j-delta)
-      id_next = AOMMIN(j + 1, bw - 1);
-      id_prev = AOMMAX(j - 1, 0);
-      is_boundary = (j + 1 > bw - 1 || j - 1 < 0);
-      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS][is_boundary] *
-             ((int16_t)pred_dst[i * bw + id_next] -
-              (int16_t)pred_dst[i * bw + id_prev]);
-      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
-      // Subtract interpolated pixels (i+delta, j) by (i-delta, j)
-      id_next = AOMMIN(i + 1, bh - 1);
-      id_prev = AOMMAX(i - 1, 0);
-      is_boundary = (i + 1 > bh - 1 || i - 1 < 0);
-      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS][is_boundary] *
-             ((int16_t)pred_dst[id_next * bw + j] -
-              (int16_t)pred_dst[id_prev * bw + j]);
-      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
-    }
-  }
-#elif OPFL_BICUBIC_GRAD
-  int id_prev, id_prev2, id_next, id_next2, is_boundary;
-  int16_t temp = 0;
-  for (int i = 0; i < bh; i++) {
-    for (int j = 0; j < bw; j++) {
-      // Subtract interpolated pixel at (i, j+delta) by the one at (i, j-delta)
-      id_prev = AOMMAX(j - 1, 0);
-      id_prev2 = AOMMAX(j - 2, 0);
-      id_next = AOMMIN(j + 1, bw - 1);
-      id_next2 = AOMMIN(j + 2, bw - 1);
-      is_boundary = (j + 1 > bw - 1 || j - 1 < 0);
-      temp = coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][0][is_boundary] *
-                 ((int16_t)pred_dst[i * bw + id_next] -
-                  (int16_t)pred_dst[i * bw + id_prev]) +
-             coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][1][is_boundary] *
-                 ((int16_t)pred_dst[i * bw + id_next2] -
-                  (int16_t)pred_dst[i * bw + id_prev2]);
-      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
-      // Subtract interpolated pixel at (i+delta, j) by the one at (i-delta, j)
-      id_prev = AOMMAX(i - 1, 0);
-      id_prev2 = AOMMAX(i - 2, 0);
-      id_next = AOMMIN(i + 1, bh - 1);
-      id_next2 = AOMMIN(i + 2, bh - 1);
-      is_boundary = (i + 1 > bh - 1 || i - 1 < 0);
-      temp = coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][0][is_boundary] *
-                 ((int16_t)pred_dst[id_next * bw + j] -
-                  (int16_t)pred_dst[id_prev * bw + j]) +
-             coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][1][is_boundary] *
-                 ((int16_t)pred_dst[id_next2 * bw + j] -
-                  (int16_t)pred_dst[id_prev2 * bw + j]);
-      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
-    }
-  }
-#else
   // Original predictor
   const MV mv_orig = mi->mv[ref].as_mv;
   MV mv_modified = mv_orig;
@@ -1087,8 +990,73 @@ void av1_compute_subpel_gradients_lowbd(
           (int16_t)tmp_buf2[i * bw + j] - (int16_t)tmp_buf1[i * bw + j];
     }
   }
-#endif  // OPFL_BILINEAR_GRAD/OPFL_BICUBIC_GRAD
 }
+
+#if OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
+void av1_compute_subpel_gradients_interp(int16_t *pred_dst, int bw, int bh,
+                                         int *grad_prec_bits, int16_t *x_grad,
+                                         int16_t *y_grad) {
+  // Reuse pixels in pred_dst to compute gradients
+#if OPFL_BILINEAR_GRAD
+  int id_next, id_prev, is_boundary;
+  int16_t temp = 0;
+  for (int i = 0; i < bh; i++) {
+    for (int j = 0; j < bw; j++) {
+#if OPFL_DOWNSAMP_QUINCUNX
+      if ((i + j) % 2 == 1) continue;
+#endif
+      // Subtract interpolated pixel at (i, j+delta) by the one at (i, j-delta)
+      id_next = AOMMIN(j + 1, bw - 1);
+      id_prev = AOMMAX(j - 1, 0);
+      is_boundary = (j + 1 > bw - 1 || j - 1 < 0);
+      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS][is_boundary] *
+             (pred_dst[i * bw + id_next] - pred_dst[i * bw + id_prev]);
+      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
+      // Subtract interpolated pixel at (i+delta, j) by the one at (i-delta, j)
+      id_next = AOMMIN(i + 1, bh - 1);
+      id_prev = AOMMAX(i - 1, 0);
+      is_boundary = (i + 1 > bh - 1 || i - 1 < 0);
+      temp = coeffs_bilinear[SUBPEL_GRAD_DELTA_BITS][is_boundary] *
+             (pred_dst[id_next * bw + j] - pred_dst[id_prev * bw + j]);
+      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bilinear_bits);
+    }
+  }
+#else
+  int id_prev, id_prev2, id_next, id_next2, is_boundary;
+  int16_t temp = 0;
+  for (int i = 0; i < bh; i++) {
+    for (int j = 0; j < bw; j++) {
+#if OPFL_DOWNSAMP_QUINCUNX
+      if ((i + j) % 2 == 1) continue;
+#endif
+      // Subtract interpolated pixel at (i, j+delta) by the one at (i, j-delta)
+      id_prev = AOMMAX(j - 1, 0);
+      id_prev2 = AOMMAX(j - 2, 0);
+      id_next = AOMMIN(j + 1, bw - 1);
+      id_next2 = AOMMIN(j + 2, bw - 1);
+      is_boundary = (j + 1 > bw - 1 || j - 1 < 0);
+      temp = coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][0][is_boundary] *
+                 (pred_dst[i * bw + id_next] - pred_dst[i * bw + id_prev]) +
+             coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][1][is_boundary] *
+                 (pred_dst[i * bw + id_next2] - pred_dst[i * bw + id_prev2]);
+      x_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
+      // Subtract interpolated pixel at (i+delta, j) by the one at (i-delta, j)
+      id_prev = AOMMAX(i - 1, 0);
+      id_prev2 = AOMMAX(i - 2, 0);
+      id_next = AOMMIN(i + 1, bh - 1);
+      id_next2 = AOMMIN(i + 2, bh - 1);
+      is_boundary = (i + 1 > bh - 1 || i - 1 < 0);
+      temp = coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][0][is_boundary] *
+                 (pred_dst[id_next * bw + j] - pred_dst[id_prev * bw + j]) +
+             coeffs_bicubic[SUBPEL_GRAD_DELTA_BITS][1][is_boundary] *
+                 (pred_dst[id_next2 * bw + j] - pred_dst[id_prev2 * bw + j]);
+      y_grad[i * bw + j] = ROUND_POWER_OF_TWO_SIGNED(temp, bicubic_bits);
+    }
+  }
+#endif  // OPFL_BILINEAR_GRAD
+  *grad_prec_bits = 3 - SUBPEL_GRAD_DELTA_BITS - 2;
+}
+#endif  // OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
 
 // Optical flow based mv refinement computation function:
 //
@@ -1188,6 +1156,71 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
   *vy1 = (int)DIVIDE_AND_ROUND_SIGNED(ty1, d0);
 }
 
+#if OPFL_COMBINE_INTERP_GRAD_LS
+// Solve vx and vy given pdiff = P0 - P1 and the gradients gx/gy of
+// d0 * P0 - d1 * P1.
+void av1_opfl_mv_refinement_interp_grad(const int16_t *pdiff, int pstride0,
+                                        const int16_t *gx, const int16_t *gy,
+                                        int gstride, int bw, int bh, int d0,
+                                        int d1, int grad_prec_bits,
+                                        int mv_prec_bits, int *vx0, int *vy0,
+                                        int *vx1, int *vy1) {
+  int64_t su2 = 0;
+  int64_t suv = 0;
+  int64_t sv2 = 0;
+  int64_t suw = 0;
+  int64_t svw = 0;
+  for (int i = 0; i < bh; ++i) {
+    for (int j = 0; j < bw; ++j) {
+#if OPFL_DOWNSAMP_QUINCUNX
+      if ((i + j) % 2 == 1) continue;
+#endif
+      const int u = gx[i * gstride + j];
+      const int v = gy[i * gstride + j];
+      const int w = d0 * pdiff[i * pstride0 + j];
+      su2 += (u * u);
+      suv += (u * v);
+      sv2 += (v * v);
+      suw += (u * w);
+      svw += (v * w);
+    }
+  }
+  int bits = mv_prec_bits + grad_prec_bits;
+  const int64_t D = su2 * sv2 - suv * suv;
+  const int64_t Px = (suv * svw - sv2 * suw) * (1 << bits);
+  const int64_t Py = (suv * suw - su2 * svw) * (1 << bits);
+
+  if (D == 0) return;
+  *vx0 = (int)DIVIDE_AND_ROUND_SIGNED(Px, D);
+  *vy0 = (int)DIVIDE_AND_ROUND_SIGNED(Py, D);
+  const int tx1 = (*vx0) * d1;
+  const int ty1 = (*vy0) * d1;
+  *vx1 = (int)DIVIDE_AND_ROUND_SIGNED(tx1, d0);
+  *vy1 = (int)DIVIDE_AND_ROUND_SIGNED(ty1, d0);
+}
+
+int opfl_mv_refinement_nxn_interp_grad(const int16_t *pdiff, int pstride,
+                                       const int16_t *gx, const int16_t *gy,
+                                       int gstride, int bw, int bh, int n,
+                                       int d0, int d1, int grad_prec_bits,
+                                       int mv_prec_bits, int *vx0, int *vy0,
+                                       int *vx1, int *vy1) {
+  assert(bw % n == 0 && bh % n == 0);
+  int n_blocks = 0;
+  for (int i = 0; i < bh; i += n) {
+    for (int j = 0; j < bw; j += n) {
+      av1_opfl_mv_refinement_interp_grad(
+          pdiff + (i * pstride + j), pstride, gx + (i * gstride + j),
+          gy + (i * gstride + j), gstride, n, n, d0, d1, grad_prec_bits,
+          mv_prec_bits, vx0 + n_blocks, vy0 + n_blocks, vx1 + n_blocks,
+          vy1 + n_blocks);
+      n_blocks++;
+    }
+  }
+  return n_blocks;
+}
+#endif  // OPFL_COMBINE_INTERP_GRAD_LS
+
 // Function to compute optical flow offsets in nxn blocks
 int opfl_mv_refinement_nxn_highbd(const uint16_t *p0, int pstride0,
                                   const uint16_t *p1, int pstride1,
@@ -1274,17 +1307,60 @@ static int get_optflow_based_mv_highbd(
   int grad_prec_bits;
   int n = (bh <= 16 && bw <= 16) ? OF_MIN_BSIZE : OF_BSIZE;
 
-  // Compute gradients of P0 and P1
-  av1_compute_subpel_gradients_highbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
-                                      &params0, calc_subpel_params_func, 0,
-                                      dst0, &grad_prec_bits, gx0, gy0);
-  av1_compute_subpel_gradients_highbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
-                                      &params1, calc_subpel_params_func, 1,
-                                      dst1, &grad_prec_bits, gx1, gy1);
+#if OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
+#if OPFL_COMBINE_INTERP_GRAD_LS
+  assert(OPFL_SECOND_PASS_MC);
+  (void)gx1;
+  (void)gy1;
+
+  // Compute tmp1 = P0 - P1 and gradients of tmp0 = d0 * P0 - d1 * P1
+  int16_t *tmp0 = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
+  int16_t *tmp1 = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
+  for (int i = 0; i < bh; ++i) {
+    for (int j = 0; j < bw; ++j) {
+      tmp0[i * bw + j] =
+          d0 * (int16_t)dst0[i * bw + j] - d1 * (int16_t)dst1[i * bw + j];
+      tmp1[i * bw + j] = (int16_t)dst0[i * bw + j] - (int16_t)dst1[i * bw + j];
+    }
+  }
+  // Buffers gx0 and gy0 are used to store the gradients of tmp0
+  av1_compute_subpel_gradients_interp(tmp0, bw, bh, &grad_prec_bits, gx0, gy0);
+
+  n_blocks = opfl_mv_refinement_nxn_interp_grad(
+      tmp1, bw, gx0, gy0, bw, bw, bh, n, d0, d1, grad_prec_bits, target_prec,
+      vx0, vy0, vx1, vy1);
+
+  aom_free(tmp0);
+  aom_free(tmp1);
+#else
+  // TODO(kslu): is there a better way to cast the type?
+  int16_t *tmp = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
+  for (int i = 0; i < bh; ++i)
+    for (int j = 0; j < bw; ++j) tmp[i * bw + j] = (int16_t)dst0[i * bw + j];
+  av1_compute_subpel_gradients_interp(tmp, bw, bh, &grad_prec_bits, gx0, gy0);
+  for (int i = 0; i < bh; ++i)
+    for (int j = 0; j < bw; ++j) tmp[i * bw + j] = (int16_t)dst1[i * bw + j];
+  av1_compute_subpel_gradients_interp(tmp, bw, bh, &grad_prec_bits, gx1, gy1);
 
   n_blocks = opfl_mv_refinement_nxn_highbd(
       dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw, bw, bh, n, d0, d1,
       grad_prec_bits, target_prec, vx0, vy0, vx1, vy1);
+
+  aom_free(tmp);
+#endif  // OPFL_COMBINE_INTERP_GRAD_LS
+#else
+  // Compute gradients of P0 and P1 with MC
+  av1_compute_subpel_gradients_mc_highbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
+                                         &params0, calc_subpel_params_func, 0,
+                                         &grad_prec_bits, gx0, gy0);
+  av1_compute_subpel_gradients_mc_highbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
+                                         &params1, calc_subpel_params_func, 1,
+                                         &grad_prec_bits, gx1, gy1);
+
+  n_blocks = opfl_mv_refinement_nxn_highbd(
+      dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw, bw, bh, n, d0, d1,
+      grad_prec_bits, target_prec, vx0, vy0, vx1, vy1);
+#endif  // OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
 
   for (int i = 0; i < n_blocks; i++) {
     mbmi->mv_refined[i * 2].as_mv.row += vy0[i];
@@ -1334,17 +1410,60 @@ static int get_optflow_based_mv_lowbd(
   int grad_prec_bits;
   int n = (bh <= 16 && bw <= 16) ? OF_MIN_BSIZE : OF_BSIZE;
 
-  // Compute gradients and predictor for P0
-  av1_compute_subpel_gradients_lowbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
-                                     &params0, calc_subpel_params_func, 0, dst0,
-                                     &grad_prec_bits, gx0, gy0);
-  av1_compute_subpel_gradients_lowbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
-                                     &params1, calc_subpel_params_func, 1, dst1,
-                                     &grad_prec_bits, gx1, gy1);
+#if OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
+#if OPFL_COMBINE_INTERP_GRAD_LS
+  assert(OPFL_SECOND_PASS_MC);
+  (void)gx1;
+  (void)gy1;
+
+  // Compute tmp1 = P0 - P1 and gradients of tmp0 = d0 * P0 - d1 * P1
+  int16_t *tmp0 = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
+  int16_t *tmp1 = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
+  for (int i = 0; i < bh; ++i) {
+    for (int j = 0; j < bw; ++j) {
+      tmp0[i * bw + j] =
+          d0 * (int16_t)dst0[i * bw + j] - d1 * (int16_t)dst1[i * bw + j];
+      tmp1[i * bw + j] = (int16_t)dst0[i * bw + j] - (int16_t)dst1[i * bw + j];
+    }
+  }
+  // Buffers gx0 and gy0 are used to store the gradients of tmp0
+  av1_compute_subpel_gradients_interp(tmp0, bw, bh, &grad_prec_bits, gx0, gy0);
+
+  n_blocks = opfl_mv_refinement_nxn_interp_grad(
+      tmp1, bw, gx0, gy0, bw, bw, bh, n, d0, d1, grad_prec_bits, target_prec,
+      vx0, vy0, vx1, vy1);
+
+  aom_free(tmp0);
+  aom_free(tmp1);
+#else
+  // TODO(kslu): is there a better way to cast the type?
+  int16_t *tmp = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
+  for (int i = 0; i < bh; ++i)
+    for (int j = 0; j < bw; ++j) tmp[i * bw + j] = (int16_t)dst0[i * bw + j];
+  av1_compute_subpel_gradients_interp(tmp, bw, bh, &grad_prec_bits, gx0, gy0);
+  for (int i = 0; i < bh; ++i)
+    for (int j = 0; j < bw; ++j) tmp[i * bw + j] = (int16_t)dst1[i * bw + j];
+  av1_compute_subpel_gradients_interp(tmp, bw, bh, &grad_prec_bits, gx1, gy1);
 
   n_blocks = opfl_mv_refinement_nxn_lowbd(
       dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw, bw, bh, n, d0, d1,
       grad_prec_bits, target_prec, vx0, vy0, vx1, vy1);
+
+  aom_free(tmp);
+#endif  // OPFL_COMBINE_INTERP_GRAD_LS
+#else
+  // Compute gradients of P0 and P1 with MC
+  av1_compute_subpel_gradients_mc_lowbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
+                                        &params0, calc_subpel_params_func, 0,
+                                        &grad_prec_bits, gx0, gy0);
+  av1_compute_subpel_gradients_mc_lowbd(xd, mbmi, bw, bh, mi_x, mi_y, mc_buf,
+                                        &params1, calc_subpel_params_func, 1,
+                                        &grad_prec_bits, gx1, gy1);
+
+  n_blocks = opfl_mv_refinement_nxn_lowbd(
+      dst0, bw, dst1, bw, gx0, gy0, gx1, gy1, bw, bw, bh, n, d0, d1,
+      grad_prec_bits, target_prec, vx0, vy0, vx1, vy1);
+#endif  // OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
 
   for (int i = 0; i < n_blocks; i++) {
     mbmi->mv_refined[i * 2].as_mv.row += vy0[i];
