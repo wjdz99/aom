@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4403ca39_55dfed49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-15T18:56:07Z",
+      "side": 1,
+      "message": "Please review this CL for the celestia branch (next version: 3.1.2).",
+      "revId": "8fcc5212f6a0262ed961bdc91c0c2bf353e15875",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
