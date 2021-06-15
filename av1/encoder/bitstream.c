@@ -3720,7 +3720,8 @@ static AOM_INLINE void write_uncompressed_header_obu(
   aom_wb_write_bit(wb, features->reduced_tx_set_used);
 
 #if CONFIG_NEW_REF_SIGNALING
-  if (!frame_is_intra_only(cm)) write_global_motion_nrs(cpi, wb);
+//if (!frame_is_intra_only(cm)) write_global_motion_nrs(cpi, wb);
+  if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 #else
   if (!frame_is_intra_only(cm)) write_global_motion(cpi, wb);
 #endif  // CONFIG_NEW_REF_SIGNALING

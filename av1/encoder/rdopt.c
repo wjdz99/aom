@@ -1207,7 +1207,7 @@ static AOM_INLINE void setup_buffer_ref_mvs_inter(
 
   // Gets an initial list of candidate vectors from neighbours and orders them
   av1_find_mv_refs(cm, xd, mbmi, ref_frame,
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
                    ref_frame_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
                    mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
@@ -3616,7 +3616,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   MV_REFERENCE_FRAME_NRS ref_frame_nrs = INTRA_FRAME_NRS;
 #endif  // CONFIG_NEW_REF_SIGNALING
   av1_find_mv_refs(cm, xd, mbmi, ref_frame,
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
                    ref_frame_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
                    mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
@@ -3961,7 +3961,7 @@ static AOM_INLINE void rd_pick_skip_mode(
       return;
     }
     MB_MODE_INFO_EXT *mbmi_ext = x->mbmi_ext;
-#if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_REF_SIGNALING
     MV_REFERENCE_FRAME_NRS ref_frame_nrs = INVALID_IDX;
     if (ref_frame_type < REF_FRAMES) {
       ref_frame_nrs = convert_named_ref_to_ranked_ref_index(
@@ -3970,7 +3970,7 @@ static AOM_INLINE void rd_pick_skip_mode(
       assert(convert_ranked_ref_to_named_ref_index(
                  &cm->new_ref_frame_data, ref_frame_nrs) == ref_frame_type);
     }
-    av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, ref_frame_nrs,
+    av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, /*ref_frame_nrs,*/
                      mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
                      mbmi_ext->global_mvs, mbmi_ext->mode_context);
 #else
@@ -4634,18 +4634,21 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
       // pruned.
       if (prune_ref_frame(cpi, x, ref_frame)) continue;
 
-#if CONFIG_NEW_REF_SIGNALING
-      MV_REFERENCE_FRAME_NRS ref_frame_nrs = INVALID_IDX;
-      if (ref_frame < REF_FRAMES) {
-        ref_frame_nrs = convert_named_ref_to_ranked_ref_index(
-            &cm->new_ref_frame_data, ref_frame);
-        // TODO(sarahparker) Temporary assert, see aomedia:3060
-        assert(convert_ranked_ref_to_named_ref_index(
-                   &cm->new_ref_frame_data, ref_frame_nrs) == ref_frame);
-      }
-      av1_find_mv_refs(cm, xd, mbmi, ref_frame, ref_frame_nrs,
-                       mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight,
-                       NULL, mbmi_ext->global_mvs, mbmi_ext->mode_context);
+#if !CONFIG_NEW_REF_SIGNALING
+  //  MV_REFERENCE_FRAME_NRS ref_frame_nrs = INVALID_IDX;
+  //  if (ref_frame < REF_FRAMES) {
+  //    ref_frame_nrs = convert_named_ref_to_ranked_ref_index(
+  //        &cm->new_ref_frame_data, ref_frame);
+  //    // TODO(sarahparker) Temporary assert, see aomedia:3060
+  //    assert(convert_ranked_ref_to_named_ref_index(
+  //               &cm->new_ref_frame_data, ref_frame_nrs) == ref_frame);
+  //  }
+  //  av1_find_mv_refs(cm, xd, mbmi, ref_frame, /*ref_frame_nrs,*/
+  //                   mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight,
+  //                   NULL, mbmi_ext->global_mvs, mbmi_ext->mode_context);
+      av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
+                       xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                       mbmi_ext->mode_context);
 #else
       av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                        xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,

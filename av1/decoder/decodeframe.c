@@ -4948,9 +4948,29 @@ static AOM_INLINE void read_global_motion(AV1_COMMON *cm,
            cm->global_motion[frame].wmmat[2],
            cm->global_motion[frame].wmmat[3]);
            */
+#if CONFIG_NEW_REF_SIGNALING
+    // TODO(sarahparker) Temporary assert, see aomedia:3060
+    int ranked_frame =
+        convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, frame);
+
+    memcpy(&cm->global_motion_nrs[ranked_frame], &cm->global_motion[frame],
+           sizeof(WarpedMotionParams));
+#endif
   }
   memcpy(cm->cur_frame->global_motion, cm->global_motion,
          REF_FRAMES * sizeof(WarpedMotionParams));
+#if CONFIG_NEW_REF_SIGNALING
+  for (int frame = 0; frame < cm->new_ref_frame_data.n_total_refs; ++frame) {
+    // TODO(sarahparker) Temporary assert, see aomedia:3060
+    int named_frame =
+        convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data, frame);
+
+    memcpy(&cm->global_motion_nrs[frame], &cm->global_motion[named_frame], 
+           sizeof(WarpedMotionParams));
+  }
+  memcpy(cm->cur_frame->global_motion_nrs, cm->global_motion_nrs,
+         MAX_REF_FRAMES_NRS * sizeof(WarpedMotionParams));
+#endif
 }
 
 // Release the references to the frame buffers in cm->ref_frame_map and reset
@@ -5789,7 +5809,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
   }
 
 #if CONFIG_NEW_REF_SIGNALING
-  if (!frame_is_intra_only(cm)) read_global_motion_nrs(cm, rb);
+//if (!frame_is_intra_only(cm)) read_global_motion_nrs(cm, rb);
+  if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
 #else
   if (!frame_is_intra_only(cm)) read_global_motion(cm, rb);
 #endif  // CONFIG_NEW_REF_SIGNALING
