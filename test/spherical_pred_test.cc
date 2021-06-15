@@ -30,7 +30,7 @@ TEST(SphericalMappingTest, EquiPlaneToGlobeReverseTest) {
   double x_from_globe;
   double y_from_globe;
 
-  for (x = width; x < width; x += 1) {
+  for (x = 0; x < width; x += 1) {
     for (y = 0; y < height; y += 1) {
       av1_plane_to_sphere_erp(x, y, width, height, &phi, &theta);
       av1_sphere_to_plane_erp(phi, theta, width, height, &x_from_globe,
@@ -110,6 +110,125 @@ TEST(SphericalMappingTest, EquiGlobeToPlaneRangeTest) {
       EXPECT_LE(y, height);
     }
   }
+}
+
+TEST(SphericalMappingTest, EquiPlaneToGlobeAnchorTest) {
+  // Check the correctness of mapping for some special anchor points
+  int width = 400;
+  int height = 300;
+  double phi;
+  double theta;
+
+  double x_center = width * 0.5;
+  double y_center = height * 0.5;
+  double x_left = 0;
+  double x_right = width - DIFF_THRESHOLD;
+  double y_up = 0;
+  double y_down = height;
+
+  const double pi = 3.141592653589793238462643383279502884;
+
+  av1_plane_to_sphere_erp(x_center, y_center, width, height, &phi, &theta);
+  EXPECT_NEAR(phi, 0, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, 0, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_left, y_up, width, height, &phi, &theta);
+  EXPECT_NEAR(phi, -0.5 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, -pi, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_right, y_up, width, height, &phi, &theta);
+  EXPECT_NEAR(phi, -0.5 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, pi, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_left, y_down, width, height, &phi, &theta);
+  EXPECT_NEAR(phi, 0.5 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, -pi, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_right, y_down, width, height, &phi, &theta);
+  EXPECT_NEAR(phi, 0.5 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, pi, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_right * 0.25, y_down * 0.25, width, height, &phi,
+                          &theta);
+  EXPECT_NEAR(phi, -0.25 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, -0.5 * pi, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_right * 0.75, y_down * 0.25, width, height, &phi,
+                          &theta);
+  EXPECT_NEAR(phi, -0.25 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, 0.5 * pi, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_right * 0.75, y_down * 0.75, width, height, &phi,
+                          &theta);
+  EXPECT_NEAR(phi, 0.25 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, 0.5 * pi, DIFF_THRESHOLD);
+
+  av1_plane_to_sphere_erp(x_right * 0.25, y_down * 0.75, width, height, &phi,
+                          &theta);
+  EXPECT_NEAR(phi, 0.25 * pi, DIFF_THRESHOLD);
+  EXPECT_NEAR(theta, -0.5 * pi, DIFF_THRESHOLD);
+}
+
+TEST(SphericalMappingTest, EquiGlobeToPlaneAnchorTest) {
+  // Check the correctness of mapping for some special anchor points
+  int width = 400;
+  int height = 300;
+  double x;
+  double y;
+
+  const double pi = 3.141592653589793238462643383279502884;
+
+  double phi_zero = 0;
+  double phi_north_pole = -0.5 * pi;
+  double phi_south_pole = 0.5 * pi;
+
+  double theta_zero = 0;
+  double theta_west_border = -pi;
+  double theta_east_border = pi - 0.0000001;
+
+  av1_sphere_to_plane_erp(phi_zero, theta_zero, width, height, &x, &y);
+  EXPECT_NEAR(x, width * 0.5, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, height * 0.5, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_north_pole, theta_west_border, width, height, &x,
+                          &y);
+  EXPECT_NEAR(x, 0, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, 0, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_north_pole, theta_east_border, width, height, &x,
+                          &y);
+  EXPECT_NEAR(x, width, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, 0, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_south_pole, theta_west_border, width, height, &x,
+                          &y);
+  EXPECT_NEAR(x, 0, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, height, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_south_pole, theta_east_border, width, height, &x,
+                          &y);
+  EXPECT_NEAR(x, width, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, height, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_north_pole * 0.5, theta_west_border * 0.5, width,
+                          height, &x, &y);
+  EXPECT_NEAR(x, width * 0.25, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, height * 0.25, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_north_pole * 0.5, theta_east_border * 0.5, width,
+                          height, &x, &y);
+  EXPECT_NEAR(x, width * 0.75, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, height * 0.25, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_south_pole * 0.5, theta_east_border * 0.5, width,
+                          height, &x, &y);
+  EXPECT_NEAR(x, width * 0.75, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, height * 0.75, DIFF_THRESHOLD);
+
+  av1_sphere_to_plane_erp(phi_south_pole * 0.5, theta_west_border * 0.5, width,
+                          height, &x, &y);
+  EXPECT_NEAR(x, width * 0.25, DIFF_THRESHOLD);
+  EXPECT_NEAR(y, height * 0.75, DIFF_THRESHOLD);
 }
 
 }  // namespace
