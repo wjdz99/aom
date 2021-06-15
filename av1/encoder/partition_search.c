@@ -3315,19 +3315,21 @@ static void init_partition_search_state_params(
   part_search_state->is_block_splittable = is_partition_point(bsize);
   part_search_state->partition_none_allowed =
       blk_params->has_rows && blk_params->has_cols;
+  const BLOCK_SIZE horz_subsize = get_partition_subsize(bsize, PARTITION_HORZ);
   part_search_state->partition_rect_allowed[HORZ] =
       blk_params->has_cols && blk_params->bsize_at_least_8x8 &&
       cpi->oxcf.part_cfg.enable_rect_partitions &&
       (xd->tree_type != CHROMA_PART || bsize > BLOCK_8X8) &&
-      get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ),
-                           part_search_state->ss_x,
+      horz_subsize != BLOCK_INVALID &&
+      get_plane_block_size(horz_subsize, part_search_state->ss_x,
                            part_search_state->ss_y) != BLOCK_INVALID;
+  const BLOCK_SIZE vert_subsize = get_partition_subsize(bsize, PARTITION_VERT);
   part_search_state->partition_rect_allowed[VERT] =
       blk_params->has_rows && blk_params->bsize_at_least_8x8 &&
       (xd->tree_type != CHROMA_PART || bsize > BLOCK_8X8) &&
       cpi->oxcf.part_cfg.enable_rect_partitions &&
-      get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT),
-                           part_search_state->ss_x,
+      vert_subsize != BLOCK_INVALID &&
+      get_plane_block_size(vert_subsize, part_search_state->ss_x,
                            part_search_state->ss_y) != BLOCK_INVALID;
 #else  // !CONFIG_SDP
 #if !CONFIG_EXT_RECUR_PARTITIONS

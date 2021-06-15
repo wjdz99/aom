@@ -1359,12 +1359,12 @@ static AOM_INLINE void parse_decode_block(AV1Decoder *const pbi,
     }
   }
 #if CONFIG_SDP
-  if (mbmi->skip_txfm[xd->tree_type == CHROMA_PART])
-    av1_reset_entropy_context(xd, bsize, num_planes);
   assert(bsize == mbmi->sb_type[av1_get_sdp_idx(xd->tree_type)]);
+  if (mbmi->skip_txfm[xd->tree_type == CHROMA_PART])
 #else
-  if (mbmi->skip_txfm) av1_reset_entropy_context(xd, bsize, num_planes);
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS && !CONFIG_SDP
+  if (mbmi->skip_txfm)
+#endif  // CONFIG_SDP
+    av1_reset_entropy_context(xd, bsize, num_planes);
 #if CONFIG_SDP
   decode_token_recon_block(pbi, td, r, partition, bsize);
 #else
