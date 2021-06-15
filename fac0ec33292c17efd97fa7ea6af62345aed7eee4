@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f55dfd0_069195e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-15T16:49:35Z",
+      "side": 1,
+      "message": "Thanks for the review!",
+      "revId": "fac0ec33292c17efd97fa7ea6af62345aed7eee4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5fd1fbb2_83e8157f",
@@ -31,6 +48,24 @@
       "writtenOn": "2021-06-15T16:13:51Z",
       "side": 1,
       "message": "Any particular reason these are not added at the end of the struct?",
+      "revId": "fac0ec33292c17efd97fa7ea6af62345aed7eee4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a312553e_aa2535a7",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-15T16:49:35Z",
+      "side": 1,
+      "message": "This struct (RefCntBuffer) is an internal type, so there are no binary compatibility concerns. We can add new members at any location in the struct.\n\nI wrote this part of the patch three months ago (on March 11), so I don\u0027t remember why I added the new members here. I suspect that I may have chosen a location that is near the raw_frame_buffer member, because of the following code in av1/av1_dx_iface.c:\n\n        ctx-\u003eimg.fb_priv \u003d output_frame_buf-\u003eraw_frame_buffer.priv;\n        img \u003d \u0026ctx-\u003eimg;\n        img-\u003etemporal_id \u003d output_frame_buf-\u003etemporal_id;\n        img-\u003espatial_id \u003d output_frame_buf-\u003espatial_id;\n        \nAnother possibility is that I may have chosen a location right before the frame_type field because I considered them as closely related.",
+      "parentUuid": "5fd1fbb2_83e8157f",
       "revId": "fac0ec33292c17efd97fa7ea6af62345aed7eee4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
