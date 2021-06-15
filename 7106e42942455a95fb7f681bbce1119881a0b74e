@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f66e9df_4323f44d",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f70d694_e99c7ae3",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 3
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "84f3f1b9_3b33cf18",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-06-15T18:05:29Z",
       "side": 1,
       "message": "We should mod by 2*PI as the range of theta is from -PI to PI. Then subtract 2*PI or add 2*PI if needed. The current calculation is not correct. (try -1.5PI)",
+      "range": {
+        "startLine": 31,
+        "startChar": 2,
+        "endLine": 38,
+        "endChar": 3
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9923ca9_039053da",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84f3f1b9_3b33cf18",
       "range": {
         "startLine": 31,
         "startChar": 2,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab551c34_c9f1056e",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7f1cfc8c_79928280",
+      "range": {
+        "startLine": 42,
+        "startChar": 25,
+        "endLine": 42,
+        "endChar": 34
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b49722bd_1815ab32",
@@ -100,6 +172,30 @@
       "writtenOn": "2021-06-15T18:05:29Z",
       "side": 1,
       "message": "Should be y \u003c height.",
+      "range": {
+        "startLine": 50,
+        "startChar": 19,
+        "endLine": 50,
+        "endChar": 34
+      },
+      "revId": "7106e42942455a95fb7f681bbce1119881a0b74e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f6486f6_58f5422a",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-15T20:07:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b49722bd_1815ab32",
       "range": {
         "startLine": 50,
         "startChar": 19,
