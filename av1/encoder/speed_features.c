@@ -1123,6 +1123,7 @@ static void set_good_speed_features_framesize_independent(
 
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL4;
   }
+  sf->part_sf.simple_motion_search_prune_agg -= allow_screen_content_tools;
 
   // Intra txb hash is currently not compatible with multi-winner mode as the
   // hashes got reset during multi-winner mode processing.
