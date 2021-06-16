@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fed2b1b_11bdddcb",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-16T20:14:28Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we start from x \u003d 0?",
+      "range": {
+        "startLine": 33,
+        "startChar": 7,
+        "endLine": 33,
+        "endChar": 27
+      },
+      "revId": "098890843a4f3176e4b705ebd40cbb8e91d3da0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c49f53f6_a0e9f2eb",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-16T20:14:28Z",
+      "side": 1,
+      "message": "Could you explain why change from 10 to 1? Is there a reason to test that many points?",
+      "range": {
+        "startLine": 33,
+        "startChar": 34,
+        "endLine": 33,
+        "endChar": 35
+      },
+      "revId": "098890843a4f3176e4b705ebd40cbb8e91d3da0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7906e8a8_72b12abf",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-16T20:14:28Z",
+      "side": 1,
+      "message": "Can x be equal to width?",
+      "range": {
+        "startLine": 108,
+        "startChar": 6,
+        "endLine": 108,
+        "endChar": 26
+      },
+      "revId": "098890843a4f3176e4b705ebd40cbb8e91d3da0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
