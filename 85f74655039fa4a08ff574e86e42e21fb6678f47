@@ -70,6 +70,24 @@
       "parentUuid": "b7c6cf33_0fb3d9ee",
       "revId": "85f74655039fa4a08ff574e86e42e21fb6678f47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01af24ff_52951fcc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-16T16:31:19Z",
+      "side": 1,
+      "message": "Thanks for the testing. The first experiment (enable for all frames) result for lowres and midres looks ok. Maybe we can enable it for \u003c\u003d 480p?",
+      "parentUuid": "03cfc10b_b12b66d2",
+      "revId": "85f74655039fa4a08ff574e86e42e21fb6678f47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
