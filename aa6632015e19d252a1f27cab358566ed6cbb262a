@@ -52,6 +52,24 @@
       "parentUuid": "6b408158_28a93a30",
       "revId": "aa6632015e19d252a1f27cab358566ed6cbb262a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73a913dc_40fcfc00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-16T16:45:22Z",
+      "side": 1,
+      "message": "Yes, the result makes sense since first pass stats is mostly used for vbr. My concern is if we simplify 1st pass calculation too much, then the less precise stats could cause high coding loss for some videos. We can discuss it in the meeting.",
+      "parentUuid": "e8297053_ae0f5048",
+      "revId": "aa6632015e19d252a1f27cab358566ed6cbb262a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
