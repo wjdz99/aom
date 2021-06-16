@@ -16,6 +16,98 @@
       "message": "Thanks for the new patch. It mostly looks good now.\nPlease see my comments below. ",
       "revId": "15c589d3802849c694723312a4606f2319c3bf0e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8c6a280_d23d94ea",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-16T20:11:34Z",
+      "side": 1,
+      "message": "We don\u0027t want phi to be exactly 0.5 * PI because we want y \u003c height. But doing assertion here may bring unneeded instability. Can we instead don\u0027t do any assertion, but change y to something like (height - 0.001) at the end, if y is \u003e\u003d height?",
+      "range": {
+        "startLine": 20,
+        "startChar": 2,
+        "endLine": 20,
+        "endChar": 36
+      },
+      "revId": "15c589d3802849c694723312a4606f2319c3bf0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a908dfd_c3f9138f",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-16T20:11:34Z",
+      "side": 1,
+      "message": "Like mentioned, can we add something like:\n*y \u003d AOMMIN(*y, height - 0.001);",
+      "range": {
+        "startLine": 47,
+        "startChar": 2,
+        "endLine": 47,
+        "endChar": 58
+      },
+      "revId": "15c589d3802849c694723312a4606f2319c3bf0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "376ebc9c_25c608d7",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-16T20:11:34Z",
+      "side": 1,
+      "message": "Ideally we don\u0027t want to impose any constraint on the phi and theta here. Please see comments in the function.",
+      "range": {
+        "startLine": 20,
+        "startChar": 46,
+        "endLine": 22,
+        "endChar": 69
+      },
+      "revId": "15c589d3802849c694723312a4606f2319c3bf0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "087b48b8_f0d447e4",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-16T20:11:34Z",
+      "side": 1,
+      "message": "Why can\u0027t it be PI?",
+      "range": {
+        "startLine": 24,
+        "startChar": 24,
+        "endLine": 24,
+        "endChar": 38
+      },
+      "revId": "15c589d3802849c694723312a4606f2319c3bf0e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
