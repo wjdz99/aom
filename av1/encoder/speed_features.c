@@ -896,6 +896,8 @@ static void set_good_speed_features_framesize_independent(
 
     sf->lpf_sf.prune_wiener_based_on_src_var = 1;
     sf->lpf_sf.prune_sgr_based_on_wiener = 1;
+    sf->lpf_sf.disable_loop_restoration_chroma = boosted ? 0 : 1;
+    sf->lpf_sf.reduce_wiener_window_size = boosted ? 0 : 1;
 
     // TODO(any): Move this from speed 3 to speed 2 so that TPL multithread
     // is re-enabled at speed 2. This also makes encoder faster. After TPL MT is
@@ -972,12 +974,9 @@ static void set_good_speed_features_framesize_independent(
                       ? 1
                       : 2;
 
-    // TODO(any): evaluate if these lpf features can be moved to speed 2.
     // For screen content, "prune_sgr_based_on_wiener = 2" cause large quality
     // loss.
     sf->lpf_sf.prune_sgr_based_on_wiener = allow_screen_content_tools ? 1 : 2;
-    sf->lpf_sf.disable_loop_restoration_chroma = boosted ? 0 : 1;
-    sf->lpf_sf.reduce_wiener_window_size = !boosted;
     sf->lpf_sf.prune_wiener_based_on_src_var = 2;
   }
 
