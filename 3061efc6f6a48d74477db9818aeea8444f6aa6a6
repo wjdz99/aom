@@ -39,6 +39,30 @@
       },
       "revId": "3061efc6f6a48d74477db9818aeea8444f6aa6a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eb998269_88268ba0",
+        "filename": "av1/encoder/lookahead.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-16T18:33:18Z",
+      "side": 1,
+      "message": "Good point. The first pass stats covers both the current and next GOPs for QP decisions.\n\nTPL needs the same coverage to make a proper decision.",
+      "parentUuid": "899fb2ab_070ff057",
+      "range": {
+        "startLine": 28,
+        "startChar": 1,
+        "endLine": 29,
+        "endChar": 26
+      },
+      "revId": "3061efc6f6a48d74477db9818aeea8444f6aa6a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
