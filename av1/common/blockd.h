@@ -39,6 +39,9 @@ extern "C" {
 
 #define INTERINTRA_WEDGE_SIGN 0
 
+#define PROB_THRESH_DEFAULT_TX_TYPE 150
+#define DEFAULT_TX_TYPE DCT_DCT
+
 /*!\cond */
 
 // DIFFWTD_MASK_TYPES should not surpass 1 << MAX_DIFFWTD_MASK_BITS
@@ -1177,7 +1180,7 @@ static INLINE TX_TYPE get_default_tx_type(PLANE_TYPE plane_type,
   if (is_inter_block(mbmi) || plane_type != PLANE_TYPE_Y ||
       xd->lossless[mbmi->segment_id] || tx_size >= TX_32X32 ||
       use_screen_content_tools)
-    return DCT_DCT;
+    return DEFAULT_TX_TYPE;
 
   return intra_mode_to_tx_type(mbmi, plane_type);
 }

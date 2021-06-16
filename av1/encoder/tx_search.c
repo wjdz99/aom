@@ -1972,8 +1972,24 @@ get_tx_mask(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
   // TX_TYPES, only that specific tx type is allowed.
   TX_TYPE txk_allowed = TX_TYPES;
 
+  const FRAME_UPDATE_TYPE update_type =
+      get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
+  int *tx_type_probs;
+#if CONFIG_FRAME_PARALLEL_ENCODE
+  tx_type_probs =
+      (int *)cpi->ppi->temp_frame_probs.tx_type_probs[update_type][tx_size];
+#else
+  tx_type_probs = (int *)cpi->frame_probs.tx_type_probs[update_type][tx_size];
+#endif
+
+  int use_default_inter_tx_type = 1;
+  use_default_inter_tx_type = txfm_params->use_default_inter_tx_type;
+  if (cpi->sf.tx_sf.tx_type_search.fast_inter_tx_type_search == 1 &&
+      tx_type_probs[DEFAULT_TX_TYPE] < PROB_THRESH_DEFAULT_TX_TYPE)
+    use_default_inter_tx_type = 0;
+
   if ((!is_inter && txfm_params->use_default_intra_tx_type) ||
-      (is_inter && txfm_params->use_default_inter_tx_type)) {
+      (is_inter && use_default_inter_tx_type)) {
     txk_allowed =
         get_default_tx_type(0, xd, tx_size, cpi->use_screen_content_tools);
   } else if (x->rd_model == LOW_TXFM_RD) {
@@ -2024,15 +2040,6 @@ get_tx_mask(const AV1_COMP *cpi, MACROBLOCK *x, int plane, int block,
     assert(plane == 0);
     allowed_tx_mask = ext_tx_used_flag;
     int num_allowed = 0;
-    const FRAME_UPDATE_TYPE update_type =
-        get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
-    int *tx_type_probs;
-#if CONFIG_FRAME_PARALLEL_ENCODE
-    tx_type_probs =
-        (int *)cpi->ppi->temp_frame_probs.tx_type_probs[update_type][tx_size];
-#else
-    tx_type_probs = (int *)cpi->frame_probs.tx_type_probs[update_type][tx_size];
-#endif
     int i;
 
     if (cpi->sf.tx_sf.tx_type_search.prune_tx_type_using_stats) {
