@@ -34,6 +34,23 @@
       "parentUuid": "2cf3a107_da9ac675",
       "revId": "e4ee24f04a1e6c836ed083bc6f187946a458f270",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a312bd1d_4be3151f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-06-16T17:39:15Z",
+      "side": 1,
+      "message": "Leo/Mohammed, Could you also please add a brief description of the problem the code cleanup is solving. From the code, I infer that the changes are mostly changing the way the flags are signaled and entropy bit calculation,right?  Is that all the changes? ",
+      "revId": "e4ee24f04a1e6c836ed083bc6f187946a458f270",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
