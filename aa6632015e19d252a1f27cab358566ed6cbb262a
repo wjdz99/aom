@@ -34,6 +34,24 @@
       "parentUuid": "f81d70de_08d0cda8",
       "revId": "aa6632015e19d252a1f27cab358566ed6cbb262a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8297053_ae0f5048",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2021-06-16T14:30:14Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe see that motion search w.r.t. zeromv in first pass was existing in the initial encoder version as well.\n\nThe maximum BD-Rate loss (snow_mnt_480p) is 1.08% (ovr.psnr) and 2.56% (ssim). Also, the maximum BD-Rate gain (crew_4cif_30fps) is 1.49% (ovr.psnr) and 0.94% (ssim).  \n\nWe also tested this patch with constant q mode of encoding for snow_mnt_480p content. We observed a  BD-Rate gain of 0.1% (ovr.psnr) and 0.2% (ssim). Thus, the BD-Rate fluctuation seems to be due to vbr mode of encoding for snow_mnt_480p content.",
+      "parentUuid": "6b408158_28a93a30",
+      "revId": "aa6632015e19d252a1f27cab358566ed6cbb262a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
