@@ -1543,6 +1543,20 @@ void av1_tpl_preload_rc_estimate(AV1_COMP *cpi,
   GF_GROUP *gf_group = &cpi->ppi->gf_group;
   int bottom_index, top_index;
   cm->current_frame.frame_type = frame_params->frame_type;
+#if CONFIG_BITRATE_ACCURACY
+  double bit_budget = 800000;
+  int starting_base_q = cpi->oxcf.rc_cfg.cq_level;
+  int bit_depth = cm->seq_params->bit_depth;
+  int q = av1_q_mode_estimate_base_q(gf_group,
+                                     &cpi->ppi->tpl_data,
+                                     bit_budget,
+                                     starting_base_q,
+                                     cpi->gf_frame_index,
+                                     cpi->ppi->p_rc.gfu_boost,
+                                     bit_depth,
+                                     cpi->ppi->p_rc.arf_boost_factor);
+  printf("\nStarting Q: %d, Ending Q: %d\n", starting_base_q, q);
+#endif // CONFIG_BITRATE_ACCURACY
   for (int gf_index = cpi->gf_frame_index; gf_index < gf_group->size;
        ++gf_index) {
     cm->current_frame.frame_type = gf_group->frame_type[gf_index];
