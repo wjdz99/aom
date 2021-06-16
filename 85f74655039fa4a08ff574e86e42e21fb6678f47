@@ -52,6 +52,24 @@
       "parentUuid": "c0aef640_093e7b07",
       "revId": "85f74655039fa4a08ff574e86e42e21fb6678f47",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03cfc10b_b12b66d2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-06-16T13:32:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nAs per your suggestion, we have tried couple of experiments for speed 2. The results are not with in trade-off. \nPlease check the borg results below.\n1) Extend skip_ext_comp_nearmv_mode to speed 2 (enable for all frames) :\n   CPU Resolution   Instruction Count       BD-Rate Loss %\n                     Reduction %        avg.psnr ovr.psnr   ssim\n    2   LOW RES      1.814              0.0427   0.0420   0.0346\n    2   MID RES      1.413              0.0398   0.0449   0.0119\n    2   HD RES       1.791              0.0991   0.0911   0.1459\n    2   AVERAGE      1.711              0.0591   0.0578   0.0619\n\n2) Extend skip_ext_comp_nearmv_mode to speed 2 (enable for non-boosted frames) :\n   CPU Resolution Instruction Count      BD-Rate Loss %\n                    Reduction %        avg.psnr ovr.psnr   ssim\n    2   LOW RES      1.526              0.0580   0.0684   0.0825\n    2   MID RES      1.024              0.0208   0.0239   0.0066  \n    2   HD RES       1.536              0.0731   0.0664   0.1133\n    2   AVERAGE      1.406              0.0517   0.0547   0.0697\n\nPlease let us know your thoughts.",
+      "parentUuid": "b7c6cf33_0fb3d9ee",
+      "revId": "85f74655039fa4a08ff574e86e42e21fb6678f47",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
