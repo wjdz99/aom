@@ -418,8 +418,6 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   AV1_COMMON *cm = &cpi->common;
   const GF_GROUP *gf_group = &cpi->ppi->gf_group;
 
-  (void)gf_group;
-
   MACROBLOCKD *xd = &x->e_mbd;
   const BitDepthInfo bd_info = get_bit_depth_info(xd);
   TplParams *tpl_data = &cpi->ppi->tpl_data;
@@ -510,9 +508,13 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   }
 
   // if cpi->sf.tpl_sf.prune_intra_modes is on, then search only DC_PRED,
-  // H_PRED, and V_PRED
+  // H_PRED, and V_PRED for allowed frames.
+  const int prune_intra_modes =
+      (cpi->sf.tpl_sf.prune_intra_modes == 2) ||
+      (cpi->sf.tpl_sf.prune_intra_modes == 1 &&
+       gf_group->update_type[tpl_data->frame_idx] == LF_UPDATE);
   const PREDICTION_MODE last_intra_mode =
-      cpi->sf.tpl_sf.prune_intra_modes ? D45_PRED : INTRA_MODE_END;
+      prune_intra_modes ? D45_PRED : INTRA_MODE_END;
   const SequenceHeader *seq_params = cm->seq_params;
   for (PREDICTION_MODE mode = INTRA_MODE_START; mode < last_intra_mode;
        ++mode) {
