@@ -361,6 +361,7 @@ typedef struct {
 struct AV1_COMP;
 struct AV1EncoderConfig;
 struct GF_GROUP;
+struct TplParams;
 
 void av1_primary_rc_init(const struct AV1EncoderConfig *oxcf,
                          PRIMARY_RATE_CONTROL *p_rc);
@@ -660,6 +661,30 @@ int av1_get_arf_q_index(int base_q_index, int gfu_boost, int bit_depth,
 int av1_get_arf_q_index_q_mode(struct AV1_COMP *cpi,
                                struct TplDepFrame *tpl_frame);
 #endif
+
+/*!\brief Estimate the optimal base q index for a GOP.
+ * 
+ * \param[in]       gf_group          GOP structure
+ * \param[in]       tpl_data          Transform stats structure
+ * \param[in]       bit_budget        Minimum bitrate to achieve
+ * \param[in]       starting_base_q   cq_level
+ * \param[in]       gf_frame_index    current frame in the GOP
+ * \param[in]       gfu_boost         GFU boost
+ * \param[in]       bit_depth         Bit depth
+ * \param[in]       arf_boost_factor  ARF boost factor
+ *
+ * \return Returns the optimal base q index to use.
+ */
+int av1_q_mode_estimate_base_q(struct GF_GROUP* gf_group,
+                               struct TplParams *const tpl_data,
+                               double bit_budget,
+                               int starting_base_q,
+                               int gf_frame_index,
+                               int gfu_boost,
+                               int bit_depth,
+                               double arf_boost_factor);
+
+>>>>>>> 6dbc8c703 ([WIP] Add bitrate accuracy estimation.)
 #ifdef __cplusplus
 }  // extern "C"
 #endif
