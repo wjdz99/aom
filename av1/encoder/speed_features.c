@@ -891,6 +891,9 @@ static void set_good_speed_features_framesize_independent(
 
     sf->tpl_sf.prune_starting_mv = 1;
     sf->tpl_sf.search_method = DIAMOND;
+//    sf->tpl_sf.prune_intra_modes = 1;
+//    sf->tpl_sf.reduce_first_step_size = 6;
+    sf->tpl_sf.subpel_force_stop = QUARTER_PEL;
 
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 3 : 4;
 
@@ -951,7 +954,7 @@ static void set_good_speed_features_framesize_independent(
     sf->tpl_sf.skip_alike_starting_mv = 2;
     sf->tpl_sf.prune_intra_modes = 1;
     sf->tpl_sf.reduce_first_step_size = 6;
-    sf->tpl_sf.subpel_force_stop = QUARTER_PEL;
+//    sf->tpl_sf.subpel_force_stop = QUARTER_PEL;
 
     sf->tx_sf.adaptive_txb_search_level = boosted ? 2 : 3;
     sf->tx_sf.tx_type_search.use_skip_flag_prediction = 2;
