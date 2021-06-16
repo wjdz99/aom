@@ -871,11 +871,11 @@ void av1_read_sec_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
         ist_eob = 0;
       else if ((sbSize == 8) && (*eob > (IST_8x8_HEIGHT - 1)))
         ist_eob = 0;
-      int depth = tx_size_to_depth(tx_size, bs);
+      int is_depth0 = tx_size_is_depth0(tx_size, bs);
       bool code_stx = (*tx_type == DCT_DCT || *tx_type == ADST_ADST) &&
                       (intra_mode < PAETH_PRED) &&
                       !(mbmi->filter_intra_mode_info.use_filter_intra) &&
-                      !(depth);
+                      is_depth0;
       if (code_stx) {
         uint8_t stx_flag = 0;
         if (ist_eob) {
@@ -905,10 +905,10 @@ void av1_read_sec_tx_type(const AV1_COMMON *const cm, MACROBLOCKD *xd,
       ist_eob = 0;
     else if ((sbSize == 8) && (*eob > (IST_8x8_HEIGHT - 1)))
       ist_eob = 0;
-    int depth = tx_size_to_depth(tx_size, bs);
+    int is_depth0 = tx_size_is_depth0(tx_size, bs);
     bool code_stx = (intra_mode < PAETH_PRED) &&
                     !(mbmi->filter_intra_mode_info.use_filter_intra) &&
-                    !(depth);
+                    is_depth0;
     if (code_stx) {
       uint8_t stx_flag = 0;
       if (ist_eob) {
