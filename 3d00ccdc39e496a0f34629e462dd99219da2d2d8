@@ -60,6 +60,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "360c7d3d_b7fc332f",
+        "filename": "aom_dsp/txfm_common.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Yes. I will put in the comment and change the name to sec_tx_type",
+      "parentUuid": "609ddd5c_e34a53e1",
+      "range": {
+        "startLine": 30,
+        "startChar": 10,
+        "endLine": 30,
+        "endChar": 18
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b62e98f2_73b6543c",
         "filename": "av1/arg_defs.c",
         "patchSetId": 3
@@ -71,6 +95,30 @@
       "writtenOn": "2021-06-16T19:30:38Z",
       "side": 1,
       "message": "Minor: it\u0027s 0 by default at this patch I believe (and turned on later)",
+      "range": {
+        "startLine": 362,
+        "startChar": 0,
+        "endLine": 362,
+        "endChar": 57
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e817916_89d04987",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ok. I will edit it to 0 here and turn it on in the final patch when run time flags are turned on",
+      "parentUuid": "b62e98f2_73b6543c",
       "range": {
         "startLine": 362,
         "startChar": 0,
@@ -144,6 +192,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "040c6592_5b0555b2",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1289,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "05c71438_382efc6c",
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "060c2d91_57595929",
@@ -157,6 +223,30 @@
       "writtenOn": "2021-06-16T19:30:38Z",
       "side": 1,
       "message": "Why is this needed? Add a comment (in code).",
+      "range": {
+        "startLine": 1291,
+        "startChar": 0,
+        "endLine": 1291,
+        "endChar": 27
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94b5ee75_b84b0ae5",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1291,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "060c2d91_57595929",
       "range": {
         "startLine": 1291,
         "startChar": 0,
@@ -322,6 +412,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb971471_2fec4203",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8af7d4e8_b48abaa6",
+      "range": {
+        "startLine": 216,
+        "startChar": 4,
+        "endLine": 216,
+        "endChar": 7
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb17cd29_7db66292",
@@ -335,6 +449,30 @@
       "writtenOn": "2021-06-16T19:30:38Z",
       "side": 1,
       "message": "This logic is again tied to masks like 0x0f and 0xf0 used elsewhere. \nSo, pls put a comment in a common location (maybe \u0027stx_type\u0027 struct member itself)",
+      "range": {
+        "startLine": 222,
+        "startChar": 41,
+        "endLine": 222,
+        "endChar": 55
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69d565f8_36e38cd9",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "eb17cd29_7db66292",
       "range": {
         "startLine": 222,
         "startChar": 41,
@@ -370,6 +508,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "07180d6d_d09483c4",
+        "filename": "av1/common/idct.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Good catch. There is no need for this if condition now. I will clean it up.",
+      "parentUuid": "55ed38ad_a78d6985",
+      "range": {
+        "startLine": 224,
+        "startChar": 32,
+        "endLine": 224,
+        "endChar": 34
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d293f69d_1520f640",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 3
@@ -381,6 +543,30 @@
       "writtenOn": "2021-06-16T19:30:38Z",
       "side": 1,
       "message": "You can use AOMMAX(nz0, nz1)",
+      "range": {
+        "startLine": 164,
+        "startChar": 21,
+        "endLine": 164,
+        "endChar": 44
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "caf92416_b48fa99e",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d293f69d_1520f640",
       "range": {
         "startLine": 164,
         "startChar": 21,
@@ -414,6 +600,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3199952_7b443d61",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "253e32d5_4287884c",
+      "range": {
+        "startLine": 820,
+        "startChar": 16,
+        "endLine": 820,
+        "endChar": 19
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a914fac5_64c3fb16",
@@ -427,6 +637,30 @@
       "writtenOn": "2021-06-16T19:30:38Z",
       "side": 1,
       "message": "same here",
+      "range": {
+        "startLine": 853,
+        "startChar": 15,
+        "endLine": 853,
+        "endChar": 17
+      },
+      "revId": "3d00ccdc39e496a0f34629e462dd99219da2d2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9126e62f_c95a7122",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 16052
+      },
+      "writtenOn": "2021-06-16T22:34:04Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "a914fac5_64c3fb16",
       "range": {
         "startLine": 853,
         "startChar": 15,
