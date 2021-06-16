@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d43b6e50_6b917410",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1728,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-06-16T18:42:21Z",
+      "side": 1,
+      "message": "The -1 on 1283 is because of the way i is incremented in 1669. Without it, i will exceed lag_in_frames.",
+      "parentUuid": "64021cd8_87ede745",
+      "range": {
+        "startLine": 1728,
+        "startChar": 0,
+        "endLine": 1728,
+        "endChar": 71
+      },
+      "revId": "603869dd879a8f6b7877bc6d411d3f21ef2400e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0a7bfc38_c53893dc",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 2
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-16T18:38:07Z",
       "side": 1,
       "message": "Combo of these two conditions can be refactored to a local var",
+      "range": {
+        "startLine": 1745,
+        "startChar": 8,
+        "endLine": 1745,
+        "endChar": 68
+      },
+      "revId": "603869dd879a8f6b7877bc6d411d3f21ef2400e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7e21d9a_2481878e",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1745,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-06-16T18:42:21Z",
+      "side": 1,
+      "message": "Is it ok if I do this as a followup cleanup?",
+      "parentUuid": "0a7bfc38_c53893dc",
       "range": {
         "startLine": 1745,
         "startChar": 8,
