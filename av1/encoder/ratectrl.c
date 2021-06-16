@@ -2913,3 +2913,38 @@ void av1_q_mode_compute_gop_q_indices(int gf_frame_index, int base_q_index,
         base_q_index, gf_group->update_type[gf_index], height, arf_q);
   }
 }
+
+/*
+ * Estimate the optimal base q index for a GOP.
+ */
+int av1_q_mode_estimate_base_q(struct GF_GROUP* gf_group,
+                               TplParams *const tpl_data,
+                               double bit_budget,
+                               int starting_base_q,
+                               int gf_frame_index,
+                               int gfu_boost,
+                               int bit_depth,
+                               double arf_boost_factor) {
+
+  int q = 1;
+  while (true) {
+    av1_q_mode_compute_gop_q_indices(gf_frame_index,
+                                     q,
+                                     gfu_boost,
+                                     bit_depth,
+                                     arf_boost_factor,
+                                     gf_group);
+
+    double estimate = av1_estimate_gop_bitrate(gf_group->q_val,
+                                            gf_group->size,
+                                            tpl_data->txfm_stats_list);
+    if (estimate > bit_budget && q < starting_base_q) {
+      q++;
+    } else {
+      break;
+    }
+  }
+
+  return q;
+}
+                                
