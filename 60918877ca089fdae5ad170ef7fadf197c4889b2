@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f37c115f_97de0c42",
+        "filename": "test/ratectrl_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-17T17:12:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92d627b6_7560e28a",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "60918877ca089fdae5ad170ef7fadf197c4889b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "32426bfb_80453dde",
@@ -54,6 +78,30 @@
       "writtenOn": "2021-06-16T22:59:42Z",
       "side": 1,
       "message": "Can you check if they are needed for this file?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 19
+      },
+      "revId": "60918877ca089fdae5ad170ef7fadf197c4889b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa40d0c3_1c052800",
+        "filename": "test/ratectrl_test.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-17T17:12:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32426bfb_80453dde",
       "range": {
         "startLine": 12,
         "startChar": 0,
