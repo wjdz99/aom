@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00650b35_ecfbb7f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-17T19:11:49Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThis CL disables the sf intra_uv_mode_mask as the trade-off is seen to be worse for allintra encode.\n\nFollowing summarizes the impact on instruction count and BD rate (with this CL) when AVIF encode was tested for a typical image dataset. Bit match is verified for presets \u003c\u003d 3. We also tried some conservative experiments by setting the intra_uv_mode_mask (to UV_INTRA_DC_PAETH_H_V, UV_INTRA_DC_PAETH_H_V_CFL etc), but none of the experiments seem to be give better trade-off (than current CL). Hence, we chose to disable this sf completely (as in the current CL).\n\nwith --tune\u003dpsnr,\n\n          Instruction Count               BD-Rate Loss(%)\ncpu-used     Reduction(%)    psnr      avg.psnrCb  avg.psnrCr  ssim\n   4          -0.463        -0.3170   -0.4336     -0.7506     -0.2882\n   5          -0.619        -0.3126   -0.4763     -0.5615     -0.3034\n   6          -0.389        -0.2865    0.5680      0.3152     -0.3081\n\nwith --tune\u003dssim,\n\t   \n          Instruction Count               BD-Rate Loss(%)\ncpu-used     Reduction(%)    psnr      avg.psnrCb  avg.psnrCr  ssim\n   4          -0.517        -0.3285   -0.4620     -0.6647     -0.2903\n   5          -0.617        -0.3349   -0.3938     -0.4254     -0.2814\n   6          -0.385        -0.3494    0.5300      0.3104     -0.3759\n\nFollowing are instruction count reduction results when tested libaom with all intra frame encoding for a borg setup. Bit match is verified for presets \u003c\u003d 3.\n\n               Instruction Count                    BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  avg.psnrCb  avg.psnrCr  ovr.psnr   ssim  \n         4        -0.302\t -0.2451   -0.1893     -0.3855     -0.2466    -0.2520\n         5        -0.433\t -0.2434   -0.1737     -0.3605     -0.2446    -0.2383\n         6        -0.393\t -0.2200   -0.0749     -0.0028     -0.2196    -0.2244 \n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "8aea7a1680ff83dbd8c0e20090b34f7b70a64f24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
