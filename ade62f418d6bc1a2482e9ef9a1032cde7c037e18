@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8864ca60_9511fea5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-06-17T12:57:28Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch extends the speed feature skip_ext_comp_nearmv_mode to speed 2 for low-res and mid-res. \n\nPlease find the detailed borg results below:\nCPU Resolution Instruction Count      BD-Rate Loss %   \n                  Reduction       avg.psnr ovr.psnr ssim\n2    LOW RES       1.814           0.0427  0.0420   0.0346\n2    MID RES       1.413\t   0.0398  0.0449   0.0119\n2    HD RES        0.000           0.0000  0.0000   0.0000    \n2    AVERAGE\t   1.255\t   0.0291  0.0278   0.0200\n\nIn the commit message : \n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n\nPlease review the patch. \n\nThanks, \nAkshata",
+      "revId": "ade62f418d6bc1a2482e9ef9a1032cde7c037e18",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
