@@ -273,6 +273,11 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 CalcSubpelParamsFunc calc_subpel_params_func);
 
 #if CONFIG_OPTFLOW_REFINEMENT
+// Enable optical flow refinement only when d0 = -d1.
+#define OPFL_EQUAL_DIST_REQUIRED 0
+// Always assume d0 = d1 in optical flow refinement.
+#define OPFL_EQUAL_DIST_ASSUMED 0
+
 // Precision of refined MV returned, 0 being integer pel. For now, only 1/8 or
 // 1/16-pel can be used.
 #define MV_REFINE_PREC_BITS 4  // (1/16-pel)
@@ -310,7 +315,12 @@ static INLINE int has_one_sided_refs(const AV1_COMMON *cm,
   const unsigned int cur_index = cm->cur_frame->order_hint;
   const RefCntBuffer *const ref0 = get_ref_frame_buf(cm, mbmi->ref_frame[0]);
   const RefCntBuffer *const ref1 = get_ref_frame_buf(cm, mbmi->ref_frame[1]);
+#if OPFL_EQUAL_DIST_REQUIRED
+  return !((ref0->order_hint >= cur_index) ^ (ref1->order_hint >= cur_index)) ||
+         (ref0->order_hint + ref1->order_hint != 2 * cur_index);
+#else
   return !((ref0->order_hint >= cur_index) ^ (ref1->order_hint >= cur_index));
+#endif
 }
 #endif  // CONFIG_OPTFLOW_REFINEMENT
 
