@@ -1,0 +1,24 @@
+/usr/local/google/home/kslu/test_sets/derfs/city_cif.y4m 54 10 ofr
+/google/data/ro/projects/perf/perf stat -e instructions:u time /tmp/aomenc_551649 -o /tmp/output_551649.webm /usr/local/google/home/kslu/test_sets/derfs/city_cif.y4m --codec=av1 --cpu-used=0 --threads=0 --profile=0 --lag-in-frames=19 --min-qp=0 --max-qp=63 --auto-alt-ref=1 --passes=1 --kf-max-dist=160 --kf-min-dist=0 --drop-frame=0 --static-thresh=0 --arnr-maxframes=7 --arnr-strength=5 --sharpness=0 --undershoot-pct=100 --overshoot-pct=100 --tile-columns=0 --frame-parallel=0 --test-decode=warn -v --psnr --end-usage=q --cq-level=54 --limit=10
+time: cannot run /tmp/aomenc_551649: No such file or directory
+Command exited with non-zero status 127
+0.00user 0.00system 0:00.00elapsed 76%CPU (0avgtext+0avgdata 1076maxresident)k
+0inputs+0outputs (0major+33minor)pagefaults 0swaps
+
+ Performance counter stats for 'time /tmp/aomenc_551649 -o /tmp/output_551649.webm /usr/local/google/home/kslu/test_sets/derfs/city_cif.y4m --codec=av1 --cpu-used=0 --threads=0 --profile=0 --lag-in-frames=19 --min-qp=0 --max-qp=63 --auto-alt-ref=1 --passes=1 --kf-max-dist=160 --kf-min-dist=0 --drop-frame=0 --static-thresh=0 --arnr-maxframes=7 --arnr-strength=5 --sharpness=0 --undershoot-pct=100 --overshoot-pct=100 --tile-columns=0 --frame-parallel=0 --test-decode=warn -v --psnr --end-usage=q --cq-level=54 --limit=10':
+
+           163,651      instructions:u                                              
+
+       0.003056476 seconds time elapsed
+
+time: cannot run /tmp/aomdec_551649: No such file or directory
+Command exited with non-zero status 127
+0.00user 0.00system 0:00.00elapsed 78%CPU (0avgtext+0avgdata 1096maxresident)k
+0inputs+0outputs (0major+34minor)pagefaults 0swaps
+
+ Performance counter stats for 'time /tmp/aomdec_551649 --progress --codec=av1 -o /tmp/output_551649.webm.y4m /tmp/output_551649.webm':
+
+           163,662      instructions:u                                              
+
+       0.003081228 seconds time elapsed
+
