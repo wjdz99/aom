@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c04b91b5_6273e6d4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-17T01:31:29Z",
+      "side": 1,
+      "message": "Looks like Vidyo made the original files, but it should be easy enough to generate some new ones.",
+      "revId": "1fabe9804ed7928cdb15499d3986e3336f261f4b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
