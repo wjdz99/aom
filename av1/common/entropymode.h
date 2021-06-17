@@ -256,7 +256,7 @@ static INLINE int16_t inter_single_mode_ctx(int16_t mode_ctx) {
   return ctx;
 }
 
-static INLINE int16_t drl_mode_ctx(int16_t mode_ctx) {
+static INLINE int16_t av1_drl_ctx(int16_t mode_ctx) {
   const int16_t newmv_ctx = mode_ctx & NEWMV_CTX_MASK;
   assert(newmv_ctx < NEWMV_MODE_CONTEXTS);
   const int16_t zeromv_ctx = (mode_ctx >> GLOBALMV_OFFSET) & GLOBALMV_CTX_MASK;
