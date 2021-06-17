@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch extracts the call to av1_post_encode_updates() out of av1_get_compressed_data() to encoder_encode(). This change would separate the actual encode process (av1_get_compressed_data) from the post encode updates (av1_post_encode_updates).\nThis facilitates future changes where multiple encode calls would be initiated in parallel and post encode update of only current frame would be processed.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. \n\nPlease review.",
       "revId": "7f3551b49c6112927057ab03f2f64b5ac78e483b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7174e6c_7170a6c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-17T16:29:35Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "7f3551b49c6112927057ab03f2f64b5ac78e483b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
