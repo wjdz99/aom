@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7504b6a9_2c202830",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-06-18T10:53:35Z",
+      "side": 1,
+      "message": "Hi Yunqing\n\nThis patch introduces frame_level_rate_correction_factors variable in RATE_CONTROL (under CONFIG_FRAME_PARALLEL_ENCODE). This is a frame level variable holding the rate_correction_factors previous to the parallel frames. Any correction during the recode will be performed on this independent variable. The rate_correction_factors of individual frames are updated to the rc-\u003erate_correction_factors sequentially after all the frames are completed in parallel encode set.\n\nThe change is done only for VBR path. It is tested locally with cqp bitmatch and verified with integer sanitizer test. The bitmatch test is also done for few recipes with CONFIG_FRAME_PARALLEL_ENCODE disabled. The cumulative quality impact of all the CLs in this dependent chain are given below.\n\nPlease find the detailed vbr borg result with CONFIG_FRAME_PARALLEL_ENCODE 1 (test) vs 0 (ref) below.\n\nWith frame level contexts\u003d2:\n CPU   Resolution    Instruction Count      BD-Rate Impact %\n                       Reduction %       avg.psnr ovr.psnr   ssim\n                                         8 - bit  8 - bit  8 - bit\n  0    AVERAGE           2.726           0.6994   0.6863   0.8032\n  1    AVERAGE           1.277           0.6811   0.6694   0.7960\n  2    AVERAGE           0.382           0.7623   0.7611   0.8960\n  3    AVERAGE           0.430           0.8623   0.8724   0.9749\n  4    AVERAGE           0.358           0.9312   0.9418   1.0840\n  5    AVERAGE           0.439           1.0434   1.0399   1.1670\n  6    AVERAGE           0.022           1.2807   1.3022   1.4189\n\nWith frame level contexts\u003d3:\n CPU Resolution    Instruction Count     BD-Rate Impact %\n                      Reduction %       avg.psnr ovr.psnr   ssim\n                                         8 - bit  8 - bit  8 - bit\n  2    AVERAGE           0.385           0.7749   0.7738   0.9125\n  3    AVERAGE           0.433           0.8809   0.8917   0.9802\n  4    AVERAGE           0.350           0.9471   0.9701   1.0811\n  5    AVERAGE           0.422           1.0384   1.0443   1.1616\n  6    AVERAGE          -0.083           1.2730   1.2886   1.3922\n\nWith frame level contexts\u003d4:\n CPU Resolution    Instruction Count           BD-Rate Impact %\n                      Reduction %        avg.psnr ovr.psnr   ssim\n                                         8 - bit  8 - bit  8 - bit\n  2    AVERAGE           0.405           0.7796   0.7802   0.9168\n  3    AVERAGE           0.415           0.8733   0.8856   0.9784\n  4    AVERAGE           0.303           0.9327   0.9462   1.0678\n  5    AVERAGE           0.391           1.0448   1.0469   1.1801\n  6    AVERAGE          -0.110           1.2712   1.2838   1.3963\n\n\nPlease find the detailed vbr borg result with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1 (test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) below.\n\nWith frame level contexts\u003d2:\n CPU Resolution     Instruction Count           BD-Rate Impact %\n                       Reduction %       avg.psnr ovr.psnr   ssim\n                                         8 - bit  8 - bit  8 - bit\n  2    AVERAGE          -0.153           1.2480   1.2341   1.4748\n  3    AVERAGE           0.489           1.3583   1.3651   1.5396\n  4    AVERAGE           0.593           1.5960   1.6012   1.8442\n  5    AVERAGE           0.532           1.6571   1.6316   1.8369\n  6    AVERAGE           0.249           1.8518   1.8627   2.0621\n\nPlease review this patch.\nThanks",
+      "revId": "87f8a0afa8131b742820489cdb98866d8991097e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
