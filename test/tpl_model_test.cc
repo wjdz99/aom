@@ -229,4 +229,32 @@ TEST(TPLModelTest, TxfmStatsRecordTest) {
   }
 }
 
+TEST(TplModelTest, QModeEstimateBaseQTest) {
+  GF_GROUP gf_group = {};
+  gf_group.size = 16;
+
+  const int txfm_size = 256;  // 16x16
+  const int frame_count = 16;
+  //  unsigned char q_index_list[16];
+  TplTxfmStats stats_list[16];
+
+  for (int i = 0; i < frame_count; i++) {
+    //    q_index_list[i] = 1;
+    stats_list[i].txfm_block_count = 8;
+
+    for (int j = 0; j < txfm_size; j++) {
+      stats_list[i].abs_coeff_sum[j] = j;
+    }
+  }
+
+  double bit_budget = 800000;
+  int starting_base_q = 144;
+  int gf_frame_index = 0;
+  int arf_q = 144;
+
+  int result = av1_q_mode_estimate_base_q(&gf_group, stats_list, bit_budget,
+                                          gf_frame_index, arf_q);
+  EXPECT_LT(result, starting_base_q);
+}
+
 }  // namespace
