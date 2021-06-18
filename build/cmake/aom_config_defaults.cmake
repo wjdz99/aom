@@ -153,7 +153,7 @@ set_aom_config_var(
   "AV2 experiment flag to enable offset based refinement of intra prediction.")
 set_aom_config_var(CONFIG_NEW_INTER_MODES 1 NUMBER
                    "AV2 inter mode consolidation experiment flag")
-set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 0 "Enable SMVP improvement")
+set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 1 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 0 "Enable TMVP improvement")
 
 #
