@@ -360,7 +360,6 @@ typedef struct {
 
 struct AV1_COMP;
 struct AV1EncoderConfig;
-struct GF_GROUP;
 
 void av1_primary_rc_init(const struct AV1EncoderConfig *oxcf,
                          PRIMARY_RATE_CONTROL *p_rc);
@@ -660,6 +659,7 @@ int av1_get_arf_q_index(int base_q_index, int gfu_boost, int bit_depth,
 int av1_get_arf_q_index_q_mode(struct AV1_COMP *cpi,
                                struct TplDepFrame *tpl_frame);
 #endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
