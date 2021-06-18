@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0d73ef1_7bd72653",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-18T18:11:40Z",
+      "side": 1,
+      "message": "As discussed offline, some increase in stack usage with CONFIG_RD_DEBUG is expected.\nSo, you can increase this limit to 140000 (to keep some room for small further increases):\nhttps://aomedia.googlesource.com/aom/+/research/build/cmake/aom_configure.cmake#286\n\n\u003e Patch Set 2: Verified-1 -Code-Review\n\u003e \n\u003e Build Failed \n\u003e \n\u003e https://build.aomedia.org/jenkins/job/libaom__commit_trigger/61205/ : FAILURE\n\u003e \n\u003e In the list of tests click on the number next to the failed (red) test.\n\u003e If the test has multiple configurations, click on one of the failed (red)\n\u003e configurations. Look at the console log to see the relevant commands (like\n\u003e cmake, test_libaom etc) and the failure.\n\u003e Note: for some static analysis / sanitizer warnings, Jenkins parses the warning\n\u003e from the console log and directly provides a link like \"one new warning\".\n\n",
+      "revId": "51d215e3d32b62548daef704a115a34f9251cf56",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
