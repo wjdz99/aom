@@ -54,6 +54,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e7c0cca_497e7fae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-18T05:26:38Z",
+      "side": 1,
+      "message": "We are in a process to re-design the codec to uniformly support production setting and CTC.\nMany functions here including the decision of multiplier will be deprecated, so as the underlying GOP control modules.\n\nPlease hold off checking into this branch until both production and CTC lines are stabilized.",
+      "revId": "6beed51c0fd731eee8005cb95b1c2cfe23dd2d55",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "564942ac_4a0f99ac",
