@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8268a93_679e108c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-18T15:31:28Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThis is a follow-up patch for https://aomedia-review.googlesource.com/c/aom/+/140221. As per the details captured in that patch, we have introduced a speed feature \u0027early_term_chroma_palette_size_search\u0027 (in this CL) to skip the evaluation of higher palette_size, if header rd cost of lower palette_size is more than best_rd.\n\nTo facilitate early exit, we introduced an if-else condition to reduce the overhead cost of intra_mode_info_cost_uv() for the cases where the sf is disabled.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset.\n\nwith --tune\u003d\u003dpsnr,\n\n          Instruction Count               BD-Rate Loss(%)\ncpu-used     Reduction(%)    psnr      avg.psnrCb  avg.psnrCr  ssim\n   0           0.447         0.0000    0.0000      0.0000      0.0000\n   1           0.810         0.0000    0.0000      0.0000      0.0000\n   2           0.855         0.0000    0.0000      0.0000      0.0000\n   3           1.050         0.0000    0.0000      0.0000      0.0000\n   4           1.452         0.0000    0.0000      0.0000      0.0000\n   5           1.667         0.0000    0.0004      0.0011      0.0000\n   6           1.949        -0.0001   -0.0004      0.0002     -0.0002\n   \nwith --tune\u003d\u003dssim,\n   \n          Instruction Count               BD-Rate Loss(%)\ncpu-used     Reduction(%)    psnr      avg.psnrCb  avg.psnrCr  ssim\n   0           0.464         0.0000    0.0000      0.0000      0.0000\n   1           0.832         0.0000    0.0000      0.0000      0.0000\n   2           0.879         0.0000    0.0000      0.0000      0.0000\n   3           1.042         0.0000    0.0000      0.0002     -0.0002\n   4           1.436         0.0000   -0.0001      0.0001      0.0000\n   5           1.656        -0.0001   -0.0002      0.0001      0.0000\n   6           1.917         0.0000    0.0000     -0.0001      0.0000\n\nFor allintra video encoding, the speed feature is enabled for speed presets 0 to 6 and following are results when tested for screen content set. We observed bit-match (w.r.t. parent version) for non-screen contents when tested for speed presets 5 and 6.\n\n          Instruction Count                 BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  avg.psnrCb  avg.psnrCr  ovr.psnr  ssim\n   0           0.450       -0.0001    0.0057      0.0086      0.0000    0.0003\n   1           0.616       -0.0003    0.0015      0.0013     -0.0002   -0.0011\n   2           1.730        0.0006    0.0044      0.0023      0.0007   -0.0005\n   3           2.498        0.0028    0.0078      0.0093      0.0027    0.0023\n   4           2.890        0.0014    0.0055      0.0070      0.0009    0.0014\n   5           3.093        0.0006    0.0115      0.0105      0.0001    0.0022\n   6           3.865        0.0003    0.0046      0.0034      0.0003   -0.0040\n\nFor good video encoding, the speed feature is enabled for only speed 6 as the results are not in trade-off for other presets(0 to 5) due to lesser scope in speed-up. We also verified for bit-match (w.r.t. parent version) for speed\u003d0 to 5. \n\n          Instruction Count                 BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  avg.psnrCb  avg.psnrCr  ovr.psnr  ssim\n   6           0.656        0.0011    0.0209      0.0296     -0.0001    0.0138\n\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
