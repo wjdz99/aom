@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "489d07e8_978004e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-06-18T10:40:54Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch creates temporary variables in PRIMARY_RATE_CONTROL (under CONFIG_FRAME_PARALLEL_ENCODE macro) related to handling available bits and error propagation. These are used in deciding the current frame\u0027s target size and qindex based on previous frames bit errors. Parallel frames start with same previous frame error and the combined error bits of all the parallel frames are updated after all the frames are completed in parallel encode set.\n\nThe change is done only for VBR path. It is tested locally with cqp bitmatch and verified with integer sanitizer test. The cumulative quality impact of all the CLs in this dependent chain are given at https://aomedia-review.googlesource.com/c/aom/+/140064 \n\nPlease review this patch\nThanks",
+      "revId": "d830279fe339a793d5eaab677435dc9cd8301811",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
