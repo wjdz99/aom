@@ -22,6 +22,30 @@
       },
       "revId": "bd349ea59212d1744da1f585d157d3e2dc93cc6d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "841303a6_a41e7f54",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2021-06-18T14:36:57Z",
+      "side": 1,
+      "message": "They\u0027re part of the the directional modes, see https://aomedia.googlesource.com/aom/+/4243e62b9aaa5d2e3f4a3cbadc79f6c964ad4867/av1/common/reconintra.h#51",
+      "parentUuid": "e7ea5684_29f01531",
+      "range": {
+        "startLine": 12,
+        "startChar": 36,
+        "endLine": 12,
+        "endChar": 45
+      },
+      "revId": "bd349ea59212d1744da1f585d157d3e2dc93cc6d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
