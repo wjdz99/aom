@@ -954,6 +954,10 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
   // intra mode decision. Here, add a speed feature to reduce this number for
   // higher speeds.
   int top_intra_model_count_allowed;
+
+  // Terminate early for higher palette_size, if header rd cost of lower
+  // palette_size is more than best_rd.
+  int early_term_chroma_palette_size_search;
 } INTRA_MODE_SPEED_FEATURES;
 
 typedef struct TX_SPEED_FEATURES {
