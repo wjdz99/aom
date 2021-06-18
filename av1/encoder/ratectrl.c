@@ -33,6 +33,9 @@
 #include "av1/encoder/gop_structure.h"
 #include "av1/encoder/random.h"
 #include "av1/encoder/ratectrl.h"
+#if CONFIG_REALTIME_ONLY
+#include "av1/encoder/tpl_model.h"
+#endif // CONFIG_REALTIME_ONLY
 
 #define USE_UNRESTRICTED_Q_IN_CQ_MODE 0
 

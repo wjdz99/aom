@@ -1537,6 +1537,20 @@ void av1_tpl_preload_rc_estimate(AV1_COMP *cpi,
   GF_GROUP *gf_group = &cpi->ppi->gf_group;
   int bottom_index, top_index;
   cm->current_frame.frame_type = frame_params->frame_type;
+#if CONFIG_BITRATE_ACCURACY
+  double bit_budget = 800000;
+  int starting_base_q = cpi->oxcf.rc_cfg.cq_level;
+  int bit_depth = cm->seq_params->bit_depth;
+  int q = av1_q_mode_estimate_base_q(gf_group,
+                                     cpi->ppi->tpl_data.txfm_stats_list,
+                                     bit_budget,
+                                     starting_base_q,
+                                     cpi->gf_frame_index,
+                                     cpi->ppi->p_rc.gfu_boost,
+                                     bit_depth,
+                                     cpi->ppi->p_rc.arf_boost_factor);
+  printf("\nStarting Q: %d, Ending Q: %d\n", starting_base_q, q);
+#endif // CONFIG_BITRATE_ACCURACY
   for (int gf_index = cpi->gf_frame_index; gf_index < gf_group->size;
        ++gf_index) {
     cm->current_frame.frame_type = gf_group->frame_type[gf_index];
@@ -1942,3 +1956,38 @@ void av1_read_rd_command(const char *filepath, RD_COMMAND *rd_command) {
   fclose(fptr);
 }
 #endif  // CONFIG_RD_COMMAND
+
+/*
+ * Estimate the optimal base q index for a GOP.
+ */
+int av1_q_mode_estimate_base_q(struct GF_GROUP *gf_group,
+                               struct TplTxfmStats *stats, double bit_budget,
+                               int starting_base_q, int gf_frame_index,
+                               int gfu_boost, int bit_depth,
+                               double arf_boost_factor) {
+  int q_max = starting_base_q;
+  int q_min = 1;
+  int q = (q_max + q_min) / 2;
+
+  while (true) {
+    av1_q_mode_compute_gop_q_indices(gf_frame_index, q, gfu_boost, bit_depth,
+                                     arf_boost_factor, gf_group);
+
+    double estimate =
+        av1_estimate_gop_bitrate(gf_group->q_val, gf_group->size, stats);
+    if (q >= starting_base_q) {
+      break;
+    } else if (q_max <= q_min + 1) {
+      q = q_max;
+      break;
+    } else if (estimate > bit_budget) {
+      q_min = q;
+      q = (q_max + q_min) / 2;
+    } else if (estimate < bit_budget) {
+      q_max = q;
+      q = (q_max + q_min) / 2;
+    }
+  }
+
+  return q;
+}
