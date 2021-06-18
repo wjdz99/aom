@@ -360,7 +360,6 @@ typedef struct {
 
 struct AV1_COMP;
 struct AV1EncoderConfig;
-struct GF_GROUP;
 
 void av1_primary_rc_init(const struct AV1EncoderConfig *oxcf,
                          PRIMARY_RATE_CONTROL *p_rc);
