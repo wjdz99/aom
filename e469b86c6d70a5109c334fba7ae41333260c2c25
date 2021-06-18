@@ -70,6 +70,24 @@
       "parentUuid": "ead400a9_90e17149",
       "revId": "e469b86c6d70a5109c334fba7ae41333260c2c25",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e51b787_bd07b78b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-06-18T20:40:55Z",
+      "side": 1,
+      "message": "Yes. Here the rounding of gradients is done after compound average rather than before the averaging, so I believe this is slightly enhancing the gradients\u0027 precisions.",
+      "parentUuid": "ac21520f_6f11f0c9",
+      "revId": "e469b86c6d70a5109c334fba7ae41333260c2c25",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
