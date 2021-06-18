@@ -1942,3 +1942,63 @@ void av1_read_rd_command(const char *filepath, RD_COMMAND *rd_command) {
   fclose(fptr);
 }
 #endif  // CONFIG_RD_COMMAND
+
+/*
+ * Helper method to pick the best q value after a binary search.
+ */
+int pick_best_estimate(int q_max, int q_min, double q_max_estimate,
+                       double q_min_estimate, double bit_budget) {
+  // If bit_budget falls between q_min_estimate and q_max_estimate, we pick the
+  // lower of the two.
+  if (q_min_estimate < bit_budget && q_max_estimate > bit_budget) {
+    return q_min;
+  } else if (q_max_estimate < bit_budget && q_min_estimate > bit_budget) {
+    return q_max;
+  }
+
+  // Otherwise, pick the best q value we have.
+  if (q_max_estimate < q_min_estimate) {
+    return q_min;
+  }
+  return q_max;
+}
+
+/*
+ * Estimate the optimal base q index for a GOP.
+ */
+int av1_q_mode_estimate_base_q(GF_GROUP *gf_group,
+                               TplTxfmStats *txfm_stats_list, double bit_budget,
+                               int gf_frame_index, int gfu_boost, int bit_depth,
+                               double arf_boost_factor) {
+  int q_max = 255;
+  int q_min = 0;
+  int q = (q_max + q_min) / 2;
+  double q_max_estimate = 0;
+  double q_min_estimate = 0;
+
+  while (true) {
+    av1_q_mode_compute_gop_q_indices(gf_frame_index, q, gfu_boost, bit_depth,
+                                     arf_boost_factor, gf_group);
+
+    double estimate = av1_estimate_gop_bitrate(gf_group->q_val, gf_group->size,
+                                               txfm_stats_list);
+
+    // We want to find the lowest q that satisfies the bit budget constraint.
+    // A binary search narrows the result down to two values: q_min and q_max.
+    if (q_max <= q_min + 1) {
+      q = pick_best_estimate(q_max, q_min, q_max_estimate, q_min_estimate,
+                             bit_budget);
+      break;
+    } else if (estimate > bit_budget) {
+      q_min = q;
+      q_min_estimate = estimate;
+      q = (q_max + q_min) / 2;
+    } else if (estimate < bit_budget) {
+      q_max = q;
+      q_max_estimate = estimate;
+      q = (q_max + q_min) / 2;
+    }
+  }
+
+  return q;
+}
