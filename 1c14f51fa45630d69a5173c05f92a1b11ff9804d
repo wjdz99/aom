@@ -90,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "08b37442_a18054a7",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-18T20:40:25Z",
+      "side": 1,
+      "message": "The range control CL is already merged so we cannot change it. Please change this in this CL.",
+      "parentUuid": "a6c772ae_57ac5e73",
+      "range": {
+        "startLine": 52,
+        "startChar": 2,
+        "endLine": 52,
+        "endChar": 31
+      },
+      "revId": "1c14f51fa45630d69a5173c05f92a1b11ff9804d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ac318a17_2b25b8f3",
         "filename": "av1/common/spherical_pred.c",
         "patchSetId": 1
@@ -267,6 +291,30 @@
       "side": 1,
       "message": "It is for the uint8_t. Otherwise the compiler will give errors:\n\nIn file included from /usr/local/google/home/yaoyaogoogle/av2/aom/test/spherical_pred_test.cc:14:\n/usr/local/google/home/yaoyaogoogle/av2/aom/av1/common/spherical_pred.h:67:23: error: ‘uint8_t’ has not been declared\n   67 |                       uint8_t *ref_frame, int ref_frame_stride, int frame_width,\n      |                       ^~~~~~~\n/usr/local/google/home/yaoyaogoogle/av2/aom/av1/common/spherical_pred.h:69:23: error: ‘uint8_t’ has not been declared\n   69 |                       uint8_t *pred_block);\n      |                       ^~~~~~~",
       "parentUuid": "309cd9e1_bb5cae11",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 19
+      },
+      "revId": "1c14f51fa45630d69a5173c05f92a1b11ff9804d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "717d2889_d266fdf9",
+        "filename": "av1/common/spherical_pred.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-06-18T20:40:25Z",
+      "side": 1,
+      "message": "Ack. Thanks!",
+      "parentUuid": "0f71f1b3_9c8f65e6",
       "range": {
         "startLine": 19,
         "startChar": 0,
