@@ -55,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "62e43a5c_dc3b02b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-18T00:42:08Z",
+      "side": 1,
+      "message": "\u003e Do you think we should commit this CL?\n\nmany of the other *VideoSource calls do this:\nhttps://aomedia.googlesource.com/aom/+/refs/tags/v3.1.1/test/external_frame_buffer_test.cc#380\n\nit\u0027s safe in that we don\u0027t hold a reference, but make a copy and the lifetime of the temporary extends through the constructor. Somewhat related is:\nhttps://abseil.io/tips/116\nConclusion\nIt is still OK to pass an argument by const reference to a constructor if the argument is copied, or just used in the constructor and no reference to it is kept in the constructed object. ...",
+      "parentUuid": "bf3c90ee_3ab45889",
+      "revId": "37af490e0acaee08bb47bb4dab02ec2902442b3d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "12bc99a6_8b0163ca",
         "filename": "test/invalid_file_test.cc",
         "patchSetId": 1
