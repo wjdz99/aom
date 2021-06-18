@@ -521,7 +521,7 @@ void av1_update_ref_frame_map(AV1_COMP *cpi,
   if (is_frame_droppable(&cpi->svc, &cpi->ext_flags.refresh_frame)) return;
 
   switch (frame_update_type) {
-    case KEY_FRAME:
+    case KF_UPDATE:
       if (show_existing_frame)
         ref_map_index = stack_pop(ref_buffer_stack->arf_stack,
                                   &ref_buffer_stack->arf_stack_size);
