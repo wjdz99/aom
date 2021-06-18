@@ -33,6 +33,7 @@
 #include "av1/encoder/gop_structure.h"
 #include "av1/encoder/random.h"
 #include "av1/encoder/ratectrl.h"
+#include "av1/encoder/tpl_model.h"
 
 #define USE_UNRESTRICTED_Q_IN_CQ_MODE 0
 
@@ -2956,4 +2957,40 @@ void av1_q_mode_compute_gop_q_indices(int gf_frame_index, int base_q_index,
     gf_group->q_val[gf_index] = av1_q_mode_get_q_index(
         base_q_index, gf_group->update_type[gf_index], height, arf_q);
   }
+}
+
+/*
+ * Estimate the optimal base q index for a GOP.
+ */
+int av1_q_mode_estimate_base_q(struct GF_GROUP *gf_group,
+                               struct TplTxfmStats *stats, double bit_budget,
+                               int starting_base_q, int gf_frame_index,
+                               int gfu_boost, int bit_depth,
+                               double arf_boost_factor) {
+  int q_max = starting_base_q;
+  int q_min = 1;
+  int q = (q_max + q_min) / 2;
+
+  while (true) {
+    av1_q_mode_compute_gop_q_indices(gf_frame_index, q, gfu_boost, bit_depth,
+                                     arf_boost_factor, gf_group);
+
+    double estimate = av1_estimate_gop_bitrate(gf_group->q_val,
+                                               gf_group->size,
+                                               stats);
+    if (q >= starting_base_q) {
+      break;
+    } else if (q_max <= q_min + 1) {
+      q = q_max;
+      break;
+    } else if (estimate > bit_budget) {
+      q_min = q;
+      q = (q_max + q_min) / 2;
+    } else if (estimate < bit_budget) {
+      q_max = q;
+      q = (q_max + q_min) / 2;
+    }
+  }
+
+  return q;
 }
