@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff99e49b_309ebd49",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-18T05:23:09Z",
+      "side": 1,
+      "message": "As discussed offline, I would expect a direct scaling using ratio to either improve all the objective metrics, or reach neutral at least, for stability considerations.",
+      "range": {
+        "startLine": 406,
+        "startChar": 33,
+        "endLine": 406,
+        "endChar": 55
+      },
+      "revId": "9044f210c1292c58557069817166d9546ce8497a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
