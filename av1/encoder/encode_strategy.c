@@ -953,8 +953,6 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   // apply filtering to frame
   if (apply_filtering) {
     int show_existing_alt_ref = 0;
-    // TODO(bohanli): figure out why we need frame_type in cm here.
-    cm->current_frame.frame_type = frame_params->frame_type;
     int arf_src_index = gf_group->arf_src_offset[cpi->gf_frame_index];
     int is_forward_keyframe = 0;
     if (!frame_params->show_frame && cpi->no_show_fwd_kf) {
