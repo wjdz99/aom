@@ -16,6 +16,29 @@
       "message": "this patch affects the unit test. error as below. you might need to update the unit test as well.\n\n\nError Message\n/var/jenkins/workspace/libaom__per_commit-compile_sanitizers/sanitizer/integer/aom/test/y4m_test.cc:113\nExpected equality of these values:\n  string(md5.Get())\n    Which is: \"e5406275b9fc6bb3436c31d4a05c1cab\"\n  expected_md5\n    Which is: \"f53a40fec15254ac312527339d9c686b\"\nStacktrace\n/var/jenkins/workspace/libaom__per_commit-compile_sanitizers/sanitizer/integer/aom/test/y4m_test.cc:113\nExpected equality of these values:\n  string(md5.Get())\n    Which is: \"e5406275b9fc6bb3436c31d4a05c1cab\"\n  expected_md5\n    Which is: \"f53a40fec15254ac312527339d9c686b\"",
       "revId": "34673fe782cf45c74925c521c26f4a84da1ece91",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6fb15a6f_f379e412",
+        "filename": "common/y4minput.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 26092
+      },
+      "writtenOn": "2021-06-19T00:07:27Z",
+      "side": 1,
+      "message": "maybe just delete the code if we don\u0027t need it anymore",
+      "range": {
+        "startLine": 224,
+        "startChar": 1,
+        "endLine": 224,
+        "endChar": 2
+      },
+      "revId": "34673fe782cf45c74925c521c26f4a84da1ece91",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
