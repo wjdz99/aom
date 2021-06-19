@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "408828c1_c5d89e87",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-06-19T08:21:19Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe patch is rebased to latest master since gerrit showed merge-conflict error, \npost the recent submission in master branch. \nPlease review this patch.\n\nThanks",
+      "revId": "5c704f0062d1601b0f5e3455e58d86216bf19d04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
