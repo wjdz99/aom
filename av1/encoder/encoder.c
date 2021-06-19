@@ -3730,7 +3730,8 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   memcpy(&cpi->refresh_frame, &frame_params->refresh_frame,
          sizeof(cpi->refresh_frame));
 
-  if (current_frame->frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
+  if (current_frame->frame_type == KEY_FRAME &&
+      cpi->ppi->gf_group.refbuf_state[cpi->gf_frame_index] == REFBUF_RESET) {
     current_frame->frame_number = 0;
   }
 
@@ -4235,7 +4236,8 @@ void av1_post_encode_updates(AV1_COMP *const cpi, size_t size,
 
   if (ppi->level_params.keep_level_stats && !is_stat_generation_stage(cpi)) {
     // Initialize level info. at the beginning of each sequence.
-    if (cm->current_frame.frame_type == KEY_FRAME && !cpi->no_show_fwd_kf) {
+    if (cm->current_frame.frame_type == KEY_FRAME &&
+        ppi->gf_group.refbuf_state[cpi->gf_frame_index] == REFBUF_RESET) {
       av1_init_level_info(cpi);
     }
     av1_update_level_info(cpi, size, time_stamp, time_end);
