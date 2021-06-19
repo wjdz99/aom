@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4662a579_40692269",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-19T05:00:04Z",
+      "side": 1,
+      "message": "You can auto-link to the bug by adding \"BUG\u003daomedia:3080\" on a separate line below, so commit message should be something like:\n\"No chroma ...\n\u003cblank line\u003e\nBUG\u003daomedia:...\n\u003cblank line\u003e\nChange-Id: ....\"",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 48
+      },
+      "revId": "55c82d71b73c140058327c4b8a58773258ba5a81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "158afcde_cc5cc723",
+        "filename": "common/y4minput.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-19T05:00:04Z",
+      "side": 1,
+      "message": "Remove this as well",
+      "range": {
+        "startLine": 891,
+        "startChar": 32,
+        "endLine": 891,
+        "endChar": 43
+      },
+      "revId": "55c82d71b73c140058327c4b8a58773258ba5a81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
