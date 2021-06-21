@@ -381,32 +381,32 @@ class DatarateTestSpeedChangeRealtime
 };
 
 // Check basic rate targeting for VBR mode.
-TEST_P(DatarateTestRealtime, BasicRateTargetingVBR) {
+TEST_P(DatarateTestRealtime, DISABLED_BasicRateTargetingVBR) {
   BasicRateTargetingVBRTest();
 }
 
 // Check basic rate targeting for CBR.
-TEST_P(DatarateTestRealtime, BasicRateTargetingCBR) {
+TEST_P(DatarateTestRealtime, DISABLED_BasicRateTargetingCBR) {
   BasicRateTargetingCBRTest();
 }
 
 // Check basic rate targeting for periodic key frame.
-TEST_P(DatarateTestRealtime, PeriodicKeyFrameCBR) {
+TEST_P(DatarateTestRealtime, DISABLED_PeriodicKeyFrameCBR) {
   BasicRateTargetingCBRPeriodicKeyFrameTest();
 }
 
 // Check basic rate targeting for periodic key frame, aligned with scene change.
-TEST_P(DatarateTestRealtime, PeriodicKeyFrameCBROnSceneCuts) {
+TEST_P(DatarateTestRealtime, DISABLED_PeriodicKeyFrameCBROnSceneCuts) {
   CBRPeriodicKeyFrameOnSceneCuts();
 }
 
 // Check basic rate targeting with error resilience on for scene cuts.
-TEST_P(DatarateTestRealtime, ErrorResilienceOnSceneCuts) {
+TEST_P(DatarateTestRealtime, DISABLED_ErrorResilienceOnSceneCuts) {
   ErrorResilienceOnSceneCuts();
 }
 
 // Check basic rate targeting for CBR.
-TEST_P(DatarateTestRealtime, BasicRateTargeting444CBR) {
+TEST_P(DatarateTestRealtime, DISABLED_BasicRateTargeting444CBR) {
   BasicRateTargeting444CBRTest();
 }
 
@@ -414,11 +414,11 @@ TEST_P(DatarateTestRealtime, BasicRateTargeting444CBR) {
 // as the drop frame threshold is increased, and (2) that the total number of
 // frame drops does not decrease as we increase frame drop threshold.
 // Use a lower qp-max to force some frame drops.
-TEST_P(DatarateTestFrameDropRealtime, ChangingDropFrameThresh) {
+TEST_P(DatarateTestFrameDropRealtime, DISABLED_ChangingDropFrameThresh) {
   ChangingDropFrameThreshTest();
 }
 
-TEST_P(DatarateTestSpeedChangeRealtime, ChangingSpeedTest) {
+TEST_P(DatarateTestSpeedChangeRealtime, DISABLED_ChangingSpeedTest) {
   ChangingSpeedTest();
 }
 
