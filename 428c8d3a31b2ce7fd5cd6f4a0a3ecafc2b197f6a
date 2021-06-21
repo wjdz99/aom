@@ -22,6 +22,30 @@
       },
       "revId": "428c8d3a31b2ce7fd5cd6f4a0a3ecafc2b197f6a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3ca211c_c247f607",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-21T18:31:42Z",
+      "side": 1,
+      "message": "Still need to rethink how to cover S_FRAME systematically.. and also line 734.",
+      "parentUuid": "f359a444_8aed9fa5",
+      "range": {
+        "startLine": 728,
+        "startChar": 2,
+        "endLine": 728,
+        "endChar": 20
+      },
+      "revId": "428c8d3a31b2ce7fd5cd6f4a0a3ecafc2b197f6a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
