@@ -22,6 +22,30 @@
       },
       "revId": "e19016dc7f1f6baf0591a9a92f90282568b4ada4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "901ea4fd_94c105b3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4219,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-21T18:32:49Z",
+      "side": 1,
+      "message": "line 4233 will update the gf group index count, thus moving it into next frame.\n\nWe need the current frame\u0027s index to make decisions on level information.",
+      "parentUuid": "1a247eed_7c1d9784",
+      "range": {
+        "startLine": 4219,
+        "startChar": 2,
+        "endLine": 4219,
+        "endChar": 77
+      },
+      "revId": "e19016dc7f1f6baf0591a9a92f90282568b4ada4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
