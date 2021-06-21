@@ -1639,7 +1639,7 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
   tpl_data->estimated_gop_bitrate = av1_estimate_gop_bitrate(
       gf_group->q_val, gf_group->size, tpl_data->txfm_stats_list);
   if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE &&
-      gop_eval == 0) {
+      approx_gop_eval == 0) {
     printf("\nestimated bitrate: %f\n", tpl_data->estimated_gop_bitrate);
   }
 #endif
