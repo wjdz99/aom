@@ -1113,8 +1113,19 @@ static int is_shorter_gf_interval_better(AV1_COMP *cpi,
           !av1_tpl_setup_stats(cpi, 1, frame_params, frame_input);
       // Tpl stats is reused when the ARF is temporally filtered and GF
       // interval is not shortened.
-      if (is_temporal_filter_enabled && !shorten_gf_interval)
+      if (is_temporal_filter_enabled && !shorten_gf_interval) {
         cpi->skip_tpl_setup_stats = 1;
+        if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+#if CONFIG_BITRATE_ACCURACY
+          double gop_bit_budget = cpi->vbr_rc_info.gop_bit_budget;
+          if (gf_group->update_type[0] == KF_UPDATE &&
+              cpi->gf_frame_index != 0) {
+            gop_bit_budget -= cpi->vbr_rc_info.keyframe_bitrate;
+          }
+          // Use the gop_bit_budget to determine gf_group->q_val here.
+#endif  // CONFIG_BITRATE_ACCURACY
+        }
+      }
     }
   }
   return shorten_gf_interval;
@@ -2582,6 +2593,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     gf_stats.gf_group_err = p_rc->baseline_gf_interval;
   }
   // Calculate the bits to be allocated to the gf/arf group as a whole
+  // Angie: This is where we compute the bits budget for gf_group
+  // p_rc->gf_group_bits is the number of bits we want to use in this gop
   gf_group_bits = calculate_total_gf_group_bits(cpi, gf_stats.gf_group_err);
   p_rc->gf_group_bits = gf_group_bits;
 
@@ -2628,6 +2641,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         p_rc->baseline_gf_interval);
   }
 
+  // Angie: This is where we allocate bitbudget for each frame
+  // Since we have our own q indices assigning system, we probabily don't need
+  // this part
   av1_gop_bit_allocation(cpi, rc, gf_group, rc->frames_since_key == 0,
                          use_alt_ref, gf_group_bits);
 
@@ -2645,6 +2661,11 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     twopass->rolling_arf_group_target_bits = 1;
     twopass->rolling_arf_group_actual_bits = 1;
   }
+#if CONFIG_BITRATE_ACCURACY
+  if (is_final_pass) {
+    vbr_rc_set_gop_bit_budget(&cpi->vbr_rc_info, p_rc->baseline_gf_interval);
+  }
+#endif
 }
 
 // #define FIXED_ARF_BITS
@@ -3965,6 +3986,10 @@ void av1_init_second_pass(AV1_COMP *cpi) {
   av1_new_framerate(cpi, frame_rate);
   twopass->bits_left =
       (int64_t)(stats->duration * oxcf->rc_cfg.target_bandwidth / 10000000.0);
+
+#if CONFIG_BITRATE_ACCURACY
+  vbr_rc_init(&cpi->vbr_rc_info, cpi->ppi->twopass.bits_left, stats->count);
+#endif
 
   // This variable monitors how far behind the second ref update is lagging.
   twopass->sr_update_lag = 1;
