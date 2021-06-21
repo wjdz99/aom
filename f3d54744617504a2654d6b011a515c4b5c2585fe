@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch removes sync of workers[0] from the encoder and common multi-threading modules.\n\nThe usage of workers[0] is such that it always refers to the main thread, and hence this worker only executes the hook and never launches it(as it is not running in a thread_loop). The sync happening in sync_enc_workers and in other mt modules in common is called for this main thread worker as well. This call is not needed and hence is removed. This change facilitates frame parallel encode.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --good, --rt, --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc. We have also confirmed via timer tests that there is no noticeable change in the encode time over these configurations.\n\nPlease review.",
       "revId": "f3d54744617504a2654d6b011a515c4b5c2585fe",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db9d7a39_a892cde8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-21T19:14:09Z",
+      "side": 1,
+      "message": "Hi Ranjit and Nithya, what do you think about this change? Would the original code be more general and safer?\n",
+      "revId": "f3d54744617504a2654d6b011a515c4b5c2585fe",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
