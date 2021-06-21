@@ -2698,6 +2698,10 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
       printf("\nframe: %d, projected frame size: %d, total: %f\n",
              cpi->gf_frame_index, rc->projected_frame_size,
              cpi->ppi->tpl_data.actual_gop_bitrate);
+      if (cpi->ppi->gf_group.update_type[cpi->gf_frame_index] == KF_UPDATE) {
+        vbr_rc_set_keyframe_bitrate(&cpi->vbr_rc_info,
+                                    rc->projected_frame_size);
+      }
 #endif
     }
 
