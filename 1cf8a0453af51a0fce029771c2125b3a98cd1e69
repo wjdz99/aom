@@ -16,6 +16,74 @@
       "message": "Hi Wan-Teh,\n\nWhen we tried generating the statistics related to header cost information of palette_size, it is observed that about ~80% of the times header cost increases as palette_size increases. So, if header cost corresponds to lower palette_size is more than best_rd, then the evaluation of higher palette_size can be skipped as the chances of winning are less. The following 2 patches are planned to implement early exit based on header cost of palette_size.\n1) Change the evaluation order of palette_size search, to facilitate early exit (current CL)\n2) Introduce early exit logic based on rdcost calculated using palette_size header rate (will be submitted as dependent CL)\n\nThis change is a bit-match change w.r.t. parent version for majority of the test-cases. Following are instruction count reduction results when AVIF encode was tested for a typical image dataset. Bit match is seen for all contents except 1 or 2 contents in speed preset 3, 4 and 5.\n\nwith --tune\u003d\u003dpsnr option, all the contents are bit-matching for speed presets 0 to 6.\nwith --tune\u003d\u003dssim,\n   \n           Instruction Count             BD-Rate Loss(%)\ncpu-used     Reduction(%)     psnr     avg.psnrCb  avg.psnrCr  ssim\n   3           1.042          0.0000   0.0002     -0.0002      0.0000\n   4           1.436          0.0000  -0.0001      0.0001      0.0000\n   5           1.656         -0.0001  -0.0002      0.0001      0.0000 \n\nThe rare mis-match is seen because of rdcost comparison (i.e. this_rd \u003c *best_rd), which will change winner palette_size w.r.t. parent version in case there are multiple palette_size values with same this_rd.\n\nFor testing video encode, considered borg setup and screen content set as inputs. For allintra video encoding, bit-match is observed for speed presets 0 to 6.\n\nFor good video encoding, mis-match is seen for 1/2 contents in screen content set for speed presets 2 and 5.\n\n               Instruction Count                    BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  avg.psnrCb  avg.psnrCr  ovr.psnr   ssim  \n         2        -0.011          0.0029    0.0088      0.0037      0.0042     0.0011\n         5        -0.001         -0.0012   -0.0014     -0.0001     -0.0052    -0.0010\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "1cf8a0453af51a0fce029771c2125b3a98cd1e69",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce42200d_f118d276",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-21T17:28:05Z",
+      "side": 1,
+      "message": "Cheng: Please review.\n\nVenkata: I suggest a small change.",
+      "revId": "1cf8a0453af51a0fce029771c2125b3a98cd1e69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ed92794_1ca10eb7",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-21T17:28:05Z",
+      "side": 1,
+      "message": "Nit: I suggest moving the declaration of \u0027colors\u0027 to line 673 below (where we initialize \u0027colors\u0027).",
+      "revId": "1cf8a0453af51a0fce029771c2125b3a98cd1e69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc24141a_058aab16",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-21T17:28:05Z",
+      "side": 1,
+      "message": "Nit: Declare \u0027colors\u0027 as \u0027const int\u0027. The \u0027const\u0027 keyword should help the compiler avoid (re-evaluating the colors \u003e PALETTE_MAX_SIZE ? PALETTE_MAX_SIZE : colors) expression for each iteration of the for loop at line 723.",
+      "revId": "1cf8a0453af51a0fce029771c2125b3a98cd1e69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58522a7c_8f45176c",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 723,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-21T17:28:05Z",
+      "side": 1,
+      "message": "Nit: when written this way, the (colors \u003e PALETTE_MAX_SIZE ? PALETTE_MAX_SIZE : colors) expression is evaluated for every iteration of this loop. I believe modern compilers can optimize this. I suggest declaring \u0027colors\u0027 as \u0027const\u0027 to ensure the compilers will optimize this.",
+      "revId": "1cf8a0453af51a0fce029771c2125b3a98cd1e69",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
