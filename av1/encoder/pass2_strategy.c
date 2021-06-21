@@ -1113,8 +1113,15 @@ static int is_shorter_gf_interval_better(AV1_COMP *cpi,
           !av1_tpl_setup_stats(cpi, 1, frame_params, frame_input);
       // Tpl stats is reused when the ARF is temporally filtered and GF
       // interval is not shortened.
-      if (is_temporal_filter_enabled && !shorten_gf_interval)
-        cpi->skip_tpl_setup_stats = 1;
+      if (is_temporal_filter_enabled && !shorten_gf_interval) {
+        cpi->skip_tpl_setup_sptats = 1;
+        if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+          // Check wether cpi->gf_frame_index == 1 here.
+          // overide the gf_group->q_val here
+          // we need to do it after av1_tpl_setup_stats() because
+          // av1_tpl_setup_stats is where we compute the transform stats
+        }
+      }
     }
   }
   return shorten_gf_interval;
@@ -2582,6 +2589,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     gf_stats.gf_group_err = p_rc->baseline_gf_interval;
   }
   // Calculate the bits to be allocated to the gf/arf group as a whole
+  // Angie: This is where we compute the bits budget for gf_group
+  // p_rc->gf_group_bits is the number of bits we want to use in this gop
   gf_group_bits = calculate_total_gf_group_bits(cpi, gf_stats.gf_group_err);
   p_rc->gf_group_bits = gf_group_bits;
 
@@ -2628,6 +2637,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         p_rc->baseline_gf_interval);
   }
 
+  // Angie: This is where we allocate bitbudget for each frame
+  // Since we have our own q indices assigning system, we probabily don't need
+  // this part
   av1_gop_bit_allocation(cpi, rc, gf_group, rc->frames_since_key == 0,
                          use_alt_ref, gf_group_bits);
 

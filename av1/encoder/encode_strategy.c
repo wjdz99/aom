@@ -1015,6 +1015,11 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
     if (!cpi->skip_tpl_setup_stats) {
       av1_tpl_preload_rc_estimate(cpi, frame_params);
       av1_tpl_setup_stats(cpi, 0, frame_params, frame_input);
+      if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+        // overide the gf_group->q_val here
+        // we need to do it after av1_tpl_setup_stats() because
+        // av1_tpl_setup_stats is where we compute the transform stats
+      }
     }
   }
 
