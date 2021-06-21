@@ -1085,6 +1085,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   } else {
     if (!cpi->skip_tpl_setup_stats) {
       av1_tpl_preload_rc_estimate(cpi, frame_params);
+      // overide the gf_group->q_val here
       av1_tpl_setup_stats(cpi, 0, frame_params, frame_input);
     }
   }

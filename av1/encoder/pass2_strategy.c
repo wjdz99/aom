@@ -2541,6 +2541,8 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     gf_stats.gf_group_err = p_rc->baseline_gf_interval;
   }
   // Calculate the bits to be allocated to the gf/arf group as a whole
+  // Angie: This is where we compute the bits budget for gf_group
+  // p_rc->gf_group_bits is the number of bits we want to use in this gop
   gf_group_bits = calculate_total_gf_group_bits(cpi, gf_stats.gf_group_err);
   p_rc->gf_group_bits = gf_group_bits;
 
@@ -2587,6 +2589,9 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
         p_rc->baseline_gf_interval);
   }
 
+  // Angie: This is where we allocate bitbudget for each frame
+  // Since we have our own q indices assigning system, we probabily don't need
+  // this part
   av1_gop_bit_allocation(cpi, rc, gf_group, rc->frames_since_key == 0,
                          use_alt_ref, gf_group_bits);
 
