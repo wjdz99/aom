@@ -679,6 +679,11 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 // Use downsampled gradient arrays to compute MV offsets
 #define OPFL_DOWNSAMP_QUINCUNX 0
 
+// Restrict MV delta to 1 or 2 pixels. This restriction would reduce complexity
+// in hardware.
+#define OPFL_CLAMP_MV_DELTA 1
+#define OPFL_MV_DELTA_RANGE (1 << MV_REFINE_PREC_BITS)
+
 // Apply bilinear and bicubic interpolation for subpel gradient to avoid
 // calls of build_one_inter_predictor function. Bicubic interpolation
 // brings better quality but the speed results are neutral. As such, bilinear
@@ -1349,10 +1354,21 @@ static int get_optflow_based_mv_highbd(
 #endif  // OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
 
   for (int i = 0; i < n_blocks; i++) {
+#if OPFL_CLAMP_MV_DELTA
+    mbmi->mv_refined[i * 2].as_mv.row +=
+        clamp(vy0[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+    mbmi->mv_refined[i * 2].as_mv.col +=
+        clamp(vx0[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+    mbmi->mv_refined[i * 2 + 1].as_mv.row +=
+        clamp(vy1[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+    mbmi->mv_refined[i * 2 + 1].as_mv.col +=
+        clamp(vx1[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+#else
     mbmi->mv_refined[i * 2].as_mv.row += vy0[i];
     mbmi->mv_refined[i * 2].as_mv.col += vx0[i];
     mbmi->mv_refined[i * 2 + 1].as_mv.row += vy1[i];
     mbmi->mv_refined[i * 2 + 1].as_mv.col += vx1[i];
+#endif
   }
 
   return target_prec;
@@ -1452,10 +1468,21 @@ static int get_optflow_based_mv_lowbd(
 #endif  // OPFL_BILINEAR_GRAD || OPFL_BICUBIC_GRAD
 
   for (int i = 0; i < n_blocks; i++) {
+#if OPFL_CLAMP_MV_DELTA
+    mbmi->mv_refined[i * 2].as_mv.row +=
+        clamp(vy0[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+    mbmi->mv_refined[i * 2].as_mv.col +=
+        clamp(vx0[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+    mbmi->mv_refined[i * 2 + 1].as_mv.row +=
+        clamp(vy1[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+    mbmi->mv_refined[i * 2 + 1].as_mv.col +=
+        clamp(vx1[i], -OPFL_MV_DELTA_RANGE, OPFL_MV_DELTA_RANGE);
+#else
     mbmi->mv_refined[i * 2].as_mv.row += vy0[i];
     mbmi->mv_refined[i * 2].as_mv.col += vx0[i];
     mbmi->mv_refined[i * 2 + 1].as_mv.row += vy1[i];
     mbmi->mv_refined[i * 2 + 1].as_mv.col += vx1[i];
+#endif
   }
 
   return target_prec;
