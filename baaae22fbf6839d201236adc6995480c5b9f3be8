@@ -16,6 +16,69 @@
       "message": "Yunqing,\n\nThis patch extends the SF fast_inter_tx_type_search to speed 6. During mode evaluation of inter blocks, if the probability of DCT_DCT for the current transform size and the current frame type is greater than a certain threshold (150), the transform type is forced to be DCT_DCT.\n\nPlease find the borg results below. The trade off in BDrate SSIM for Lowres  content is slightly higher at 0.204 instead of 0.2. In the case of HDres content, the results are not in tradeoff.\nAlso, we see significant worst case drop for chinaspeed_xga, which is not classified as screen content is speed 6. Hence we have disabled the SF for HDres.                  \n                           \n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   6       LOW RES        2.92           0.5675    0.5829    0.5958\n   6       MID RES        2.386          0.3902    0.4077    0.3371\n   6        HD RES        0.000          0.0000    0.0000    0.0000\n   6       Average        2.047          0.3426    0.3539    0.3384\n\n\n In the commit message, BD rate impact column: \n [+] sign is for BD-Rate drop \n [-] sign is for BD-Rate improvement. \n The instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc … \n\nFor other speed levels and RT, this is a bit-exact change with no impact on speed (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks\n   ",
       "revId": "baaae22fbf6839d201236adc6995480c5b9f3be8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3500f123_d683f09b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-21T18:39:01Z",
+      "side": 1,
+      "message": "This feature was for real-time mode originally, and is kind of aggressive. I am a little hesitant about it. Anything can be done to improve the tradeoff? Include more tx types in the default set? What is the worst BDrate loss for lowres \u0026 midres?\n",
+      "revId": "baaae22fbf6839d201236adc6995480c5b9f3be8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "035b194c_aeb9dbf5",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-21T18:39:01Z",
+      "side": 1,
+      "message": "After this assignment, only txfm_params-\u003euse_default_inter_tx_type should be used,  right?",
+      "range": {
+        "startLine": 502,
+        "startChar": 6,
+        "endLine": 502,
+        "endChar": 44
+      },
+      "revId": "baaae22fbf6839d201236adc6995480c5b9f3be8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "671dc42c_c2b5e1e7",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1988,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-21T18:39:01Z",
+      "side": 1,
+      "message": "Since txfm_params-\u003euse_default_inter_tx_type is assigned, shouldn\u0027t use speed feature here? use_default_inter_tx_type can take more values other than 0 or 1 if needed.",
+      "range": {
+        "startLine": 1988,
+        "startChar": 6,
+        "endLine": 1988,
+        "endChar": 65
+      },
+      "revId": "baaae22fbf6839d201236adc6995480c5b9f3be8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
