@@ -620,5 +620,11 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
       NULL, "vbr-corpus-complexity-lap", 1,
       "Set average corpus complexity per mb for single pass VBR using lap. "
       "(0..10000), default is 0"),
+
+  .enable_tx_size_search = ARG_DEF(
+      NULL, "enable-tx-size-search", 1,
+      "Enable transform size search to find the best size for each block. "
+      "If false, transforms always have the largest possible size "
+      "(0: false, 1: true (default))"),
 #endif  // CONFIG_AV1_ENCODER
 };
