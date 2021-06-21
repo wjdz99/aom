@@ -22,6 +22,30 @@
       },
       "revId": "8cea72230e6963463e54b099899c86d27e2b7add",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a43a268_617bfe24",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1729,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-21T18:01:38Z",
+      "side": 1,
+      "message": "Yes, this statement is already under frame_is_intra_only() condition, so no need to check KEY_FRAME.",
+      "parentUuid": "80fac381_29039e21",
+      "range": {
+        "startLine": 1729,
+        "startChar": 61,
+        "endLine": 1729,
+        "endChar": 71
+      },
+      "revId": "8cea72230e6963463e54b099899c86d27e2b7add",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
