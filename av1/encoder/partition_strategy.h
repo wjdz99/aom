@@ -18,7 +18,7 @@
 #include "av1/encoder/encoder.h"
 
 void av1_intra_mode_cnn_partition(const AV1_COMMON *const cm, MACROBLOCK *x,
-                                  int label_idx,
+                                  int label_idx, int intra_cnn_based_part_prune_level,
                                   PartitionSearchState *part_state);
 
 // Performs a simple_motion_search with a single reference frame and extract
