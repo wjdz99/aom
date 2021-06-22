@@ -49,6 +49,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9cf86864_81004dba",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T21:20:34Z",
+      "side": 1,
+      "message": "We don\u0027t need to search the entire globe.\nWe only need to search the area near the block.\nMaybe try (1/10) frame_height and frame_width first for search range.\nThe step size need to be smaller maybe like \u003c5 pixels for now.\nWe can figure out the details later.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 56
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "effefe4a_c4b42a9e",
         "filename": "av1/common/spherical_pred.c",
         "patchSetId": 1
@@ -95,6 +118,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3a3f70a0_01a8978d",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T21:20:34Z",
+      "side": 1,
+      "message": "This might make the code cleaner.\nfor(int i \u003d -30; i \u003c\u003d 30; ++i) {\n  delta_phi \u003d i * search_step_phi\n}",
+      "range": {
+        "startLine": 125,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 0
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29b154d8_0f696d74",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T21:20:34Z",
+      "side": 1,
+      "message": "Write a function for this.\nAnd as Bohan mentioned, you can use sad here. It\u0027s faster.\nAnd we might be able to reuse AV1\u0027s optimized function later.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 7
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d47ee4eb_d92ca2a8",
         "filename": "av1/common/spherical_pred.c",
         "patchSetId": 1
@@ -111,6 +180,29 @@
         "startChar": 7,
         "endLine": 148,
         "endChar": 77
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a9edda0_bbbe54c3",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T21:20:34Z",
+      "side": 1,
+      "message": "We almost always pass these two parameters together.\nMight be good to create a new structure like SphereMV.",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 37
       },
       "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
