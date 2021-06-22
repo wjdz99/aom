@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "8fa97221_8b596162",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-22T14:35:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11b20a7b_4d78fc2a",
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c8268a93_679e108c",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -65,6 +83,30 @@
       "writtenOn": "2021-06-21T17:54:28Z",
       "side": 1,
       "message": "Nit: corresponds \u003d\u003e corresponding",
+      "range": {
+        "startLine": 764,
+        "startChar": 65,
+        "endLine": 764,
+        "endChar": 76
+      },
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "341e29ee_3f1ef130",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-22T14:35:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc6774bb_d7d8e793",
       "range": {
         "startLine": 764,
         "startChar": 65,
@@ -130,6 +172,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2632c902_df207c87",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-22T14:35:55Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs Chi-Yo mentioned, the change should not create any side effects. However, calling intra_mode_info_cost_uv() unconditionally will incur some overhead for the cases where sf is not enabled.\ne.g., In good encoding mode for speeds 0 to 5 (where sf is disabled), intra_mode_info_cost_uv() need not be called when \u0027tokenonly_rd_stats.rate\u003d\u003dINT_MAX\u0027.\n\nHence, we feel that intra_mode_info_cost_uv() needs to be called conditionally to avoid these overheads.\n\nPlease let us know your opinion on the same.\n\nThanks \u0026 Regards,\nVenkata",
+      "parentUuid": "8a1aac21_86e01c5f",
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d8bab7b0_26ee5ce1",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 4
@@ -158,6 +218,48 @@
       "writtenOn": "2021-06-22T03:34:52Z",
       "side": 1,
       "message": "I suggest to add a short description about the speed-quality tradeoff of this speed feature (and future speed features if any).\n\nFor example:\nThe speed feature reduces instruction count by 0.45%, 0.62%, ..., 3.86% for speed 0 to 6 on screen content set for all intra mode. Coding performance change is  less than 0.05%.\nA similar sentence for AVIF image encode.",
+      "range": {
+        "startLine": 960,
+        "startChar": 6,
+        "endLine": 960,
+        "endChar": 43
+      },
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "94435c44_b3359d71",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-22T14:35:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8bab7b0_26ee5ce1",
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d02b8763_b0c89edd",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-22T14:35:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "15fc90f2_17cc837a",
       "range": {
         "startLine": 960,
         "startChar": 6,
