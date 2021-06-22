@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5ffe0739_2e5ad195",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1744,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2021-06-22T11:39:02Z",
+      "side": 1,
+      "message": "I removed the enum value because tx_size_search_level is actually an int (an index in the tx_size_search_methods array). The use of an enum here was misleading.",
+      "parentUuid": "893b54d3_4aace7e9",
+      "range": {
+        "startLine": 1744,
+        "startChar": 41,
+        "endLine": 1744,
+        "endChar": 42
+      },
+      "revId": "702719da3b2baf74ef1ab514151c8bf3c5b62691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "54ac6f5a_fd2f08b6",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 2
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-21T20:37:08Z",
       "side": 1,
       "message": "This speed feature intends to separate the search process for the prediction mode and transform kernel. Your commit message seems to suggest that the intention is to disable transform block size search in all cases intead.",
+      "range": {
+        "startLine": 1848,
+        "startChar": 8,
+        "endLine": 1848,
+        "endChar": 22
+      },
+      "revId": "702719da3b2baf74ef1ab514151c8bf3c5b62691",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b1f0ea5_997e6749",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1848,
+      "author": {
+        "id": 26789
+      },
+      "writtenOn": "2021-06-22T11:39:02Z",
+      "side": 1,
+      "message": "Thanks for the comment. I looked into this further and I think it\u0027s correct. This is my understanding:\n- tx_size_search_level maps to a row in tx_size_search_methods\n- each row in tx_size_search_methods has 3 elements, one per MODE_EVAL_TYPES\n- the first MODE_EVAL_TYPES is DEFAULT_EVAL, and is used when winner mode is disabled\nSo despite being in \"winner_mode_sf\", this parameter seems to control the transform search mode whether or not winner mode is enabled.",
+      "parentUuid": "54ac6f5a_fd2f08b6",
       "range": {
         "startLine": 1848,
         "startChar": 8,
