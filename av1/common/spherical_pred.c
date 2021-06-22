@@ -98,3 +98,62 @@ void av1_get_pred_erp(int block_x, int block_y, int block_width,
     }
   }
 }
+
+void av1_motion_search_erp(int block_x, int block_y, int block_width,
+                           int block_height, uint8_t *cur_frame,
+                           uint8_t *ref_frame, int frame_stride,
+                           int frame_width, int frame_height,
+                           int pred_block_stride,
+                           uint8_t *pred_blocks[128 * 128],
+                           uint8_t *best_pred_block, int *pred_block_num,
+                           double *best_mv_phi, double *best_mv_theta) {
+  // Search range is 30 pixels on the sphere
+  const double search_step_phi = PI / frame_height;
+  const double search_step_theta = 2 * PI / frame_width;
+
+  double delta_phi;
+  double delta_theta;
+  double temp_ssd;
+  double best_ssd = 100000000;
+  int pos_curr;
+  int pos_pred;
+  *pred_block_num = 0;
+
+  // TODO(yaoyaogoogle@google.com): Should first compare current block with the
+  // block at same position on the reference frame. If SSD is 0, no need for
+  // further search.
+  for (delta_phi = -30 * search_step_phi; delta_phi <= 30 * search_step_phi;
+       delta_phi += search_step_phi) {
+    for (delta_theta = -30 * search_step_theta;
+         delta_theta <= 30 * search_step_theta;
+         delta_theta += search_step_theta) {
+      av1_get_pred_erp(block_x, block_y, block_width, block_height, delta_phi,
+                       delta_theta, ref_frame, frame_stride, frame_width,
+                       frame_height, pred_block_stride,
+                       pred_blocks[*pred_block_num]);
+
+      temp_ssd = 0;
+      for (int idx_y = 0; idx_y < block_height; idx_y++) {
+        for (int idx_x = 0; idx_x < block_width; idx_x++) {
+          // Assume the padding of frame is on the right side
+          pos_curr = block_x + idx_x + (block_y + idx_y) * frame_stride;
+          pos_pred = idx_x + idx_y * pred_block_stride;
+
+          temp_ssd +=
+              (cur_frame[pos_curr] - pred_blocks[*pred_block_num][pos_pred]) *
+              (cur_frame[pos_curr] - pred_blocks[*pred_block_num][pos_pred]);
+        }
+      }
+
+      // TODO(yaoyaogoogle@google.com): Stop when SSD is lower than threshold
+      if (temp_ssd < best_ssd) {
+        best_ssd = temp_ssd;
+        best_pred_block = pred_blocks[*pred_block_num];
+        *best_mv_phi = delta_phi;
+        *best_mv_theta = delta_theta;
+      }
+
+      (*pred_block_num)++;
+    }
+  }
+}

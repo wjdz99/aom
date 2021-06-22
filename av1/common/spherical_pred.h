@@ -68,6 +68,32 @@ void av1_get_pred_erp(int block_x, int block_y, int block_width,
                       int frame_height, int pred_block_stride,
                       uint8_t *pred_block);
 
+/*!\brief Spherical motion search for one block
+ * \param[in]       block_x             Block's upper left corner X on the plane
+ * \param[in]       block_y             Block's upper left corner Y on the plane
+ * \param[in]       block_width         Width of the block
+ * \param[in]       block_height        Height of the block
+ * \param[in]       cur_frame           Current frame data
+ * \param[in]       ref_frame           Reference frame data
+ * \param[in]       frame_stride        Stride of frame data
+ * \param[in]       frame_width         Width of frame
+ * \param[in]       frame_height        Height of frame
+ * \param[in]       pred_block_stride   Stride of the predicted block
+ * \param[in/out]   pred_blocks         Predicted blocks
+ * \param[out]      best_pred_block     Pointer to the best predicted blocks
+ * \param[out]      pred_block_num      Number of predicted blocks
+ * \param[out]      best_mv_phi         Latitude of the best motion vector
+ * \param[out]      best_mv_theta       Longitude of the best motion vector
+ */
+void av1_motion_search_erp(int block_x, int block_y, int block_width,
+                           int block_height, uint8_t *cur_frame,
+                           uint8_t *ref_frame, int frame_stride,
+                           int frame_width, int frame_height,
+                           int pred_block_stride,
+                           uint8_t *pred_blocks[128 * 128],
+                           uint8_t *best_pred_block, int *pred_block_num,
+                           double *best_mv_phi, double *best_mv_theta);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
