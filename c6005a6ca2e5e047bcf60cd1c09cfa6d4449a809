@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8094ce5d_0f53f4ea",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1549,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T20:53:53Z",
+      "side": 1,
+      "message": "This is testing code. We don\u0027t need this.",
+      "range": {
+        "startLine": 1540,
+        "startChar": 0,
+        "endLine": 1549,
+        "endChar": 31
+      },
+      "revId": "c6005a6ca2e5e047bcf60cd1c09cfa6d4449a809",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bad1aa9f_118f615b",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 14
+      },
+      "lineNbr": 1977,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T20:53:53Z",
+      "side": 1,
+      "message": "Please explain the logic here.\nPlease give an examples of when the following conditions will happen, after the update from line 1979 to 1985. (This is important for binary search)\n1) q_min \u003d q_max\n2) q_min + 1 \u003d q_max\n\nAnd I meant here you have q_min and q_max, how do you know which will give you a better estimate.",
+      "range": {
+        "startLine": 1974,
+        "startChar": 0,
+        "endLine": 1977,
+        "endChar": 18
+      },
+      "revId": "c6005a6ca2e5e047bcf60cd1c09cfa6d4449a809",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "218868b8_945e4952",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T20:53:53Z",
+      "side": 1,
+      "message": "base_q_index",
+      "range": {
+        "startLine": 252,
+        "startChar": 6,
+        "endLine": 252,
+        "endChar": 12
+      },
+      "revId": "c6005a6ca2e5e047bcf60cd1c09cfa6d4449a809",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29df01c4_bb55bf81",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-22T20:53:53Z",
+      "side": 1,
+      "message": "I would suggest to write a brute force method to find the base q_index.\nAnd use it as a reference.\nThe both methods, brute force and binary search, should give you identical result.",
+      "range": {
+        "startLine": 255,
+        "startChar": 2,
+        "endLine": 255,
+        "endChar": 37
+      },
+      "revId": "c6005a6ca2e5e047bcf60cd1c09cfa6d4449a809",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
