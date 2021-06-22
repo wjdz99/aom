@@ -42,6 +42,10 @@ int_mv av1_find_best_ref_mv_from_stack(int allow_hp,
                                        const MB_MODE_INFO_EXT *mbmi_ext,
                                        MV_REFERENCE_FRAME ref_frame,
                                        int is_integer);
+int_mv av1_find_first_ref_mv_from_stack(int allow_hp,
+                                        const MB_MODE_INFO_EXT *mbmi_ext,
+                                        MV_REFERENCE_FRAME ref_frame,
+                                        int is_integer);
 #else
 void av1_find_best_ref_mvs_from_stack(int allow_hp,
                                       const MB_MODE_INFO_EXT *mbmi_ext,
