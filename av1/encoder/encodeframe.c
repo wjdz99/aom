@@ -574,6 +574,22 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
 }
 
+static INLINE void init_simple_motion_search_mvs(
+    SIMPLE_MOTION_DATA_TREE *sms_tree, const FULLPEL_MV *start_mvs) {
+  memcpy(sms_tree->start_mvs, start_mvs, sizeof(sms_tree->start_mvs));
+  av1_zero(sms_tree->sms_none_feat);
+  av1_zero(sms_tree->sms_rect_feat);
+  av1_zero(sms_tree->sms_none_valid);
+  av1_zero(sms_tree->sms_rect_valid);
+
+  if (sms_tree->block_size >= BLOCK_8X8) {
+    init_simple_motion_search_mvs(sms_tree->split[0], start_mvs);
+    init_simple_motion_search_mvs(sms_tree->split[1], start_mvs);
+    init_simple_motion_search_mvs(sms_tree->split[2], start_mvs);
+    init_simple_motion_search_mvs(sms_tree->split[3], start_mvs);
+  }
+}
+
 // This function initializes the stats for encode_rd_sb.
 static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                                      const TileDataEnc *tile_data,
@@ -592,7 +608,23 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
        sf->part_sf.ml_early_term_after_part_split_level) &&
       !frame_is_intra_only(cm);
   if (use_simple_motion_search) {
-    init_simple_motion_search_mvs(sms_root);
+    FULLPEL_MV ref_mvs[REF_FRAMES] = { 0 };
+    // Use the NEARESTMV of the sb at the reference mv
+    const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
+    av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
+                                       sb_size);
+    MACROBLOCKD *const xd = &x->e_mbd;
+
+    MB_MODE_INFO_EXT mbmi_ext;
+    const int ref_frame =
+        cpi->rc.is_src_frame_alt_ref ? ALTREF_FRAME : LAST_FRAME;
+    av1_find_mv_refs(cm, xd, xd->mi[0], ref_frame, mbmi_ext.ref_mv_count,
+                     xd->ref_mv_stack, xd->weight, NULL, mbmi_ext.global_mvs,
+                     mbmi_ext.mode_context);
+    ref_mvs[ref_frame] =
+        get_fullmv_from_mv(&xd->ref_mv_stack[ref_frame][0].this_mv.as_mv);
+
+    init_simple_motion_search_mvs(sms_root, ref_mvs);
   }
 
 #if !CONFIG_REALTIME_ONLY
