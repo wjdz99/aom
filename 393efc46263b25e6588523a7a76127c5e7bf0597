@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "168a3b61_5924efd2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-06-22T02:51:08Z",
+      "side": 1,
+      "message": "..selection \"if\" TX64 is not...",
+      "revId": "393efc46263b25e6588523a7a76127c5e7bf0597",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
