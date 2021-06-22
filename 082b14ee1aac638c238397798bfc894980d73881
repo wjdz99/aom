@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71cea23f_257b3277",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1959,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5dca4c2_cf65986a",
+      "range": {
+        "startLine": 1959,
+        "startChar": 31,
+        "endLine": 1959,
+        "endChar": 37
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b97a0eb6_3ec451a2",
@@ -70,6 +94,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d87f1f2_93f15706",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1960,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b97a0eb6_3ec451a2",
+      "range": {
+        "startLine": 1960,
+        "startChar": 31,
+        "endLine": 1960,
+        "endChar": 37
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86ff3947_0bb7abca",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1960,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ad30cc0_b3b099aa",
+      "range": {
+        "startLine": 1960,
+        "startChar": 52,
+        "endLine": 1960,
+        "endChar": 57
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07d63db0_86c78ba2",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-06-22T02:47:10Z",
       "side": 1,
       "message": "We don\u0027t need this parameter.",
+      "range": {
+        "startLine": 1961,
+        "startChar": 35,
+        "endLine": 1961,
+        "endChar": 50
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48595a0b_ab0f27f0",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1961,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07d63db0_86c78ba2",
       "range": {
         "startLine": 1961,
         "startChar": 35,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b5b19b8_8638879c",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1963,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Will do this in a follow up CL.",
+      "parentUuid": "ca79e079_7a62db6a",
+      "range": {
+        "startLine": 1962,
+        "startChar": 31,
+        "endLine": 1963,
+        "endChar": 54
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11eee3fd_1e9e435a",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-06-22T02:47:10Z",
       "side": 1,
       "message": "This should be 255.\nThe valid q_index is between [0, 255] inclusive.",
+      "range": {
+        "startLine": 1964,
+        "startChar": 14,
+        "endLine": 1964,
+        "endChar": 29
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a326804_dc85c324",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1964,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11eee3fd_1e9e435a",
       "range": {
         "startLine": 1964,
         "startChar": 14,
@@ -162,6 +306,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1cdf2e9f_544349ce",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1965,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58c952e3_2093bb3f",
+      "range": {
+        "startLine": 1965,
+        "startChar": 6,
+        "endLine": 1965,
+        "endChar": 16
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a1ed361_1ffdcdf8",
@@ -175,6 +343,30 @@
       "writtenOn": "2021-06-22T02:47:10Z",
       "side": 1,
       "message": "It might be good to change the interface of this function to \nav1_q_mode_compute_gop_q_indices(gf_frame_index, q, bit_depth, arf_q, gf_group)\nin a follow-up CL before writing unit test.",
+      "range": {
+        "startLine": 1969,
+        "startChar": 4,
+        "endLine": 1970,
+        "endChar": 65
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bbcca1f_4ece22b8",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1970,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Will do in a follow up CL.",
+      "parentUuid": "4a1ed361_1ffdcdf8",
       "range": {
         "startLine": 1969,
         "startChar": 4,
@@ -208,6 +400,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e47d8c2_c5f9bef2",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1975,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Thanks for catching this. It will be deleted.",
+      "parentUuid": "0a29fbb1_eb14a740",
+      "range": {
+        "startLine": 1974,
+        "startChar": 0,
+        "endLine": 1975,
+        "endChar": 12
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7594cf48_72e4fbfc",
@@ -221,6 +437,30 @@
       "writtenOn": "2021-06-22T02:47:10Z",
       "side": 1,
       "message": "How do we know in this case q_min is better or q_max is better?",
+      "range": {
+        "startLine": 1976,
+        "startChar": 6,
+        "endLine": 1977,
+        "endChar": 16
+      },
+      "revId": "082b14ee1aac638c238397798bfc894980d73881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ef22d73_a3a540b3",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1977,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-22T19:03:34Z",
+      "side": 1,
+      "message": "Edited to pick the higher value of the two.",
+      "parentUuid": "7594cf48_72e4fbfc",
       "range": {
         "startLine": 1976,
         "startChar": 6,
