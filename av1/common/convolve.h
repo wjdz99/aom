@@ -28,6 +28,9 @@ typedef struct ConvolveParams {
   int is_compound;
   int fwd_offset;
   int bck_offset;
+#if CONFIG_OPTFLOW_REFINEMENT
+  int subpel_bits;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 } ConvolveParams;
 
 #define ROUND0_BITS 3
@@ -94,6 +97,12 @@ static INLINE ConvolveParams get_conv_params_no_round(int cmp_index, int plane,
   conv_params.dst = dst;
   conv_params.dst_stride = dst_stride;
   conv_params.plane = plane;
+
+#if CONFIG_OPTFLOW_REFINEMENT
+  // Use 4 bits by default. When opfl refinement is used, this will be set to
+  // higher precision (MV_REFINE_PREC_BITS).
+  conv_params.subpel_bits = SUBPEL_BITS;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   // By default, set do average to 1 if this is the second single prediction
   // in a compound mode.

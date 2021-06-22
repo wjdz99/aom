@@ -1558,6 +1558,15 @@ void av1_opfl_rebuild_inter_predictor(
   int w = inter_pred_params->block_width;
   int h = inter_pred_params->block_height;
   int n = (plane || (h <= 16 && w <= 16)) ? OF_MIN_BSIZE : OF_BSIZE;
+
+  // Use enhanced MV precision for refined motion compensation
+  inter_pred_params->conv_params.subpel_bits = MV_REFINE_PREC_BITS;
+  if (MV_REFINE_PREC_BITS >= SUBPEL_BITS) {
+    inter_pred_params->interp_filter_params[0] =
+        &av1_opfl_interp_filter_params_list[MV_REFINE_PREC_BITS - SUBPEL_BITS];
+    inter_pred_params->interp_filter_params[1] =
+        &av1_opfl_interp_filter_params_list[MV_REFINE_PREC_BITS - SUBPEL_BITS];
+  }
   make_inter_pred_of_nxn(dst, dst_stride, mv_refined, inter_pred_params, xd,
                          mi_x, mi_y, ref, mc_buf, calc_subpel_params_func, n,
                          &subpel_params);

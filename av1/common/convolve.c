@@ -229,11 +229,18 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   const int use_wtd_comp_avg = is_uneven_wtd_comp_avg(conv_params);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   // horizontal filter
   const uint8_t *src_horiz = src - fo_vert * src_stride;
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_x, subpel_x_qn & SUBPEL_MASK);
+      filter_params_x, subpel_x_qn & subpel_mask);
   for (int y = 0; y < im_h; ++y) {
     for (int x = 0; x < w; ++x) {
       int32_t sum = (1 << (bd + FILTER_BITS - 1));
@@ -249,7 +256,7 @@ void av1_dist_wtd_convolve_2d_c(const uint8_t *src, int src_stride,
   // vertical filter
   int16_t *src_vert = im_block + fo_vert * im_stride;
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_y, subpel_y_qn & SUBPEL_MASK);
+      filter_params_y, subpel_y_qn & subpel_mask);
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
@@ -295,10 +302,17 @@ void av1_dist_wtd_convolve_y_c(const uint8_t *src, int src_stride, uint8_t *dst,
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   const int use_wtd_comp_avg = is_uneven_wtd_comp_avg(conv_params);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   // vertical filter
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_y, subpel_y_qn & SUBPEL_MASK);
+      filter_params_y, subpel_y_qn & subpel_mask);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       int32_t res = 0;
@@ -343,10 +357,17 @@ void av1_dist_wtd_convolve_x_c(const uint8_t *src, int src_stride, uint8_t *dst,
   const int round_bits =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   const int use_wtd_comp_avg = is_uneven_wtd_comp_avg(conv_params);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   // horizontal filter
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_x, subpel_x_qn & SUBPEL_MASK);
+      filter_params_x, subpel_x_qn & subpel_mask);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       int32_t res = 0;
@@ -519,6 +540,24 @@ static void convolve_2d_facade_compound(
     const int subpel_y_qn, ConvolveParams *conv_params) {
   const bool need_x = subpel_x_qn != 0;
   const bool need_y = subpel_y_qn != 0;
+#if CONFIG_OPTFLOW_REFINEMENT
+  // Handle 1/32 or 1/64 pel precision
+  if (conv_params->subpel_bits > SUBPEL_BITS && (need_x || need_y)) {
+    if (need_x && need_y) {
+      av1_dist_wtd_convolve_2d_c(src, src_stride, dst, dst_stride, w, h,
+                                 filter_params_x, filter_params_y, subpel_x_qn,
+                                 subpel_y_qn, conv_params);
+    } else if (need_x && !need_y) {
+      av1_dist_wtd_convolve_x_c(src, src_stride, dst, dst_stride, w, h,
+                                filter_params_x, subpel_x_qn, conv_params);
+    } else {
+      assert(!need_x && need_y);
+      av1_dist_wtd_convolve_y_c(src, src_stride, dst, dst_stride, w, h,
+                                filter_params_y, subpel_y_qn, conv_params);
+    }
+    return;
+  }
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   if (!need_x && !need_y) {
     av1_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride, w, h,
                                   conv_params);
@@ -747,11 +786,18 @@ void av1_highbd_dist_wtd_convolve_2d_c(
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   assert(round_bits >= 0);
   const int use_wtd_comp_avg = is_uneven_wtd_comp_avg(conv_params);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   // horizontal filter
   const uint16_t *src_horiz = src - fo_vert * src_stride;
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_x, subpel_x_qn & SUBPEL_MASK);
+      filter_params_x, subpel_x_qn & subpel_mask);
   for (y = 0; y < im_h; ++y) {
     for (x = 0; x < w; ++x) {
       int32_t sum = (1 << (bd + FILTER_BITS - 1));
@@ -769,7 +815,7 @@ void av1_highbd_dist_wtd_convolve_2d_c(
   int16_t *src_vert = im_block + fo_vert * im_stride;
   const int offset_bits = bd + 2 * FILTER_BITS - conv_params->round_0;
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_y, subpel_y_qn & SUBPEL_MASK);
+      filter_params_y, subpel_y_qn & subpel_mask);
   for (y = 0; y < h; ++y) {
     for (x = 0; x < w; ++x) {
       int32_t sum = 1 << offset_bits;
@@ -816,10 +862,17 @@ void av1_highbd_dist_wtd_convolve_x_c(const uint16_t *src, int src_stride,
   const int use_wtd_comp_avg = is_uneven_wtd_comp_avg(conv_params);
   assert(round_bits >= 0);
   assert(bits >= 0);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   // horizontal filter
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_x, subpel_x_qn & SUBPEL_MASK);
+      filter_params_x, subpel_x_qn & subpel_mask);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       int32_t res = 0;
@@ -866,9 +919,16 @@ void av1_highbd_dist_wtd_convolve_y_c(const uint16_t *src, int src_stride,
   const int use_wtd_comp_avg = is_uneven_wtd_comp_avg(conv_params);
   assert(round_bits >= 0);
   assert(bits >= 0);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   // vertical filter
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_y, subpel_y_qn & SUBPEL_MASK);
+      filter_params_y, subpel_y_qn & subpel_mask);
   for (int y = 0; y < h; ++y) {
     for (int x = 0; x < w; ++x) {
       int32_t res = 0;
@@ -1029,6 +1089,26 @@ static void highbd_convolve_2d_facade_compound(
     const int subpel_y_qn, ConvolveParams *conv_params, int bd) {
   const bool need_x = subpel_x_qn != 0;
   const bool need_y = subpel_y_qn != 0;
+#if CONFIG_OPTFLOW_REFINEMENT
+  // Handle 1/32 or 1/64 pel precision
+  if (conv_params->subpel_bits > SUBPEL_BITS && (need_x || need_y)) {
+    if (need_x && need_y) {
+      av1_highbd_dist_wtd_convolve_2d_c(
+          src, src_stride, dst, dst_stride, w, h, filter_params_x,
+          filter_params_y, subpel_x_qn, subpel_y_qn, conv_params, bd);
+    } else if (need_x && !need_y) {
+      av1_highbd_dist_wtd_convolve_x_c(src, src_stride, dst, dst_stride, w, h,
+                                       filter_params_x, subpel_x_qn,
+                                       conv_params, bd);
+    } else {
+      assert(!need_x && need_y);
+      av1_highbd_dist_wtd_convolve_y_c(src, src_stride, dst, dst_stride, w, h,
+                                       filter_params_y, subpel_y_qn,
+                                       conv_params, bd);
+    }
+    return;
+  }
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   if (!need_x && !need_y) {
     av1_highbd_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride, w, h,
                                          conv_params, bd);

@@ -49,26 +49,17 @@ static void enc_calc_subpel_params(const MV *const src_mv,
   struct buf_2d *pre_buf = &inter_pred_params->ref_frame_buf;
 #if CONFIG_EXT_RECUR_PARTITIONS || CONFIG_OPTFLOW_REFINEMENT
   const int is_scaled = av1_is_scaled(sf);
+#if CONFIG_OPTFLOW_REFINEMENT
+  assert(IMPLIES(use_optflow_refinement, !is_scaled));
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   if (is_scaled || !xd) {
 #endif  // CONFIG_EXT_RECUR_PARTITIONS || CONFIG_OPTFLOW_REFINEMENT
     int ssx = inter_pred_params->subsampling_x;
     int ssy = inter_pred_params->subsampling_y;
     int orig_pos_y = inter_pred_params->pix_row << SUBPEL_BITS;
     int orig_pos_x = inter_pred_params->pix_col << SUBPEL_BITS;
-#if CONFIG_OPTFLOW_REFINEMENT
-    if (use_optflow_refinement) {
-      orig_pos_y += ROUND_POWER_OF_TWO_SIGNED(src_mv->row * (1 << SUBPEL_BITS),
-                                              MV_REFINE_PREC_BITS + ssy);
-      orig_pos_x += ROUND_POWER_OF_TWO_SIGNED(src_mv->col * (1 << SUBPEL_BITS),
-                                              MV_REFINE_PREC_BITS + ssx);
-    } else {
-      orig_pos_y += src_mv->row * (1 << (1 - ssy));
-      orig_pos_x += src_mv->col * (1 << (1 - ssx));
-    }
-#else
-  orig_pos_y += src_mv->row * (1 << (1 - ssy));
-  orig_pos_x += src_mv->col * (1 << (1 - ssx));
-#endif  // CONFIG_OPTFLOW_REFINEMENT
+    orig_pos_y += src_mv->row * (1 << (1 - ssy));
+    orig_pos_x += src_mv->col * (1 << (1 - ssx));
     int pos_y = sf->scale_value_y(orig_pos_y, sf);
     int pos_x = sf->scale_value_x(orig_pos_x, sf);
     pos_x += SCALE_EXTRA_OFF;
@@ -89,18 +80,33 @@ static void enc_calc_subpel_params(const MV *const src_mv,
     *pre = pre_buf->buf0 + (pos_y >> SCALE_SUBPEL_BITS) * pre_buf->stride +
            (pos_x >> SCALE_SUBPEL_BITS);
 #if CONFIG_EXT_RECUR_PARTITIONS || CONFIG_OPTFLOW_REFINEMENT
+#if CONFIG_OPTFLOW_REFINEMENT
+  } else if (use_optflow_refinement) {
+    int pos_x = inter_pred_params->pix_col << MV_REFINE_PREC_BITS;
+    int pos_y = inter_pred_params->pix_row << MV_REFINE_PREC_BITS;
+    const int bw = inter_pred_params->orig_width;
+    const int bh = inter_pred_params->orig_height;
+    const MV mv_qn = clamp_mv_to_umv_border_sb(
+        xd, src_mv, bw, bh, 1, inter_pred_params->subsampling_x,
+        inter_pred_params->subsampling_y);
+    // For 1/8-pel precision (or less), we still use 16 phase interpolation
+    // filter, so extra bit shift(s) will apply to subpel_x/y that maps phase
+    // indices from 0,1,...,7 to 0,2,...,14.
+    int extra_bits =
+        SCALE_EXTRA_BITS + AOMMAX(SUBPEL_BITS - MV_REFINE_PREC_BITS, 0);
+    subpel_params->xs = subpel_params->ys = SCALE_SUBPEL_SHIFTS;
+    subpel_params->subpel_x = (mv_qn.col & MV_REFINE_SUBPEL_MASK) << extra_bits;
+    subpel_params->subpel_y = (mv_qn.row & MV_REFINE_SUBPEL_MASK) << extra_bits;
+    pos_x += mv_qn.col;
+    pos_y += mv_qn.row;
+    *pre = pre_buf->buf0 + (pos_y >> MV_REFINE_PREC_BITS) * pre_buf->stride +
+           (pos_x >> MV_REFINE_PREC_BITS);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   } else {
     int pos_x = inter_pred_params->pix_col << SUBPEL_BITS;
     int pos_y = inter_pred_params->pix_row << SUBPEL_BITS;
-#if CONFIG_OPTFLOW_REFINEMENT
-    const int bw = use_optflow_refinement ? inter_pred_params->orig_width
-                                          : inter_pred_params->block_width;
-    const int bh = use_optflow_refinement ? inter_pred_params->orig_height
-                                          : inter_pred_params->block_height;
-#else
     const int bw = inter_pred_params->block_width;
     const int bh = inter_pred_params->block_height;
-#endif  // CONFIG_OPTFLOW_REFINEMENT
     const MV mv_q4 = clamp_mv_to_umv_border_sb(
         xd, src_mv, bw, bh,
 #if CONFIG_OPTFLOW_REFINEMENT

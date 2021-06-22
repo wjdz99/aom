@@ -275,7 +275,6 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_OPTFLOW_REFINEMENT
 // Precision of refined MV returned, 0 being integer pel. For now, only 1/8 or
 // 1/16-pel can be used.
-#define MV_REFINE_PREC_BITS 4  // (1/16-pel)
 void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
                                   const uint8_t *p1, int pstride1,
                                   const int16_t *gx0, const int16_t *gy0,
@@ -321,6 +320,29 @@ static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
                                            int use_optflow_refinement,
 #endif  // CONFIG_OPTFLOW_REFINEMENT
                                            int ss_x, int ss_y) {
+#if CONFIG_OPTFLOW_REFINEMENT
+  // optflow refinement operators at MV_REFINE_SUBPEL_BITS precision
+  if (use_optflow_refinement) {
+    const int spel_left = (AOM_INTERP_EXTEND + bw) << MV_REFINE_PREC_BITS;
+    const int spel_right = spel_left - MV_REFINE_SUBPEL_SHIFTS;
+    const int spel_top = (AOM_INTERP_EXTEND + bh) << MV_REFINE_PREC_BITS;
+    const int spel_bottom = spel_top - MV_REFINE_SUBPEL_SHIFTS;
+    MV clamped_mv = { (int16_t)ROUND_POWER_OF_TWO_SIGNED(src_mv->row, ss_y),
+                      (int16_t)ROUND_POWER_OF_TWO_SIGNED(src_mv->col, ss_x) };
+    int xbits = MV_REFINE_PREC_BITS - 3 - ss_x;
+    int ybits = MV_REFINE_PREC_BITS - 3 - ss_y;
+    assert(xbits >= 0 && ybits >= 0);
+    const SubpelMvLimits mv_limits = {
+      xd->mb_to_left_edge * (1 << xbits) - spel_left,
+      xd->mb_to_right_edge * (1 << xbits) + spel_right,
+      xd->mb_to_top_edge * (1 << ybits) - spel_top,
+      xd->mb_to_bottom_edge * (1 << ybits) + spel_bottom
+    };
+    clamp_mv(&clamped_mv, &mv_limits);
+    return clamped_mv;
+  }
+#endif
+
   // If the MV points so far into the UMV border that no visible pixels
   // are used for reconstruction, the subpel part of the MV can be
   // discarded and the MV limited to 16 pixels with equivalent results.
@@ -328,25 +350,10 @@ static INLINE MV clamp_mv_to_umv_border_sb(const MACROBLOCKD *xd,
   const int spel_right = spel_left - SUBPEL_SHIFTS;
   const int spel_top = (AOM_INTERP_EXTEND + bh) << SUBPEL_BITS;
   const int spel_bottom = spel_top - SUBPEL_SHIFTS;
-#if CONFIG_OPTFLOW_REFINEMENT
-  MV clamped_mv;
-  if (use_optflow_refinement) {
-    // optflow refinement always returns MVs with 1/16 precision so it is not
-    // necessary to shift the MV before clamping
-    clamped_mv.row = (int16_t)ROUND_POWER_OF_TWO_SIGNED(
-        src_mv->row * (1 << SUBPEL_BITS), MV_REFINE_PREC_BITS + ss_y);
-    clamped_mv.col = (int16_t)ROUND_POWER_OF_TWO_SIGNED(
-        src_mv->col * (1 << SUBPEL_BITS), MV_REFINE_PREC_BITS + ss_x);
-  } else {
-    clamped_mv.row = (int16_t)(src_mv->row * (1 << (1 - ss_y)));
-    clamped_mv.col = (int16_t)(src_mv->col * (1 << (1 - ss_x)));
-  }
-#else
-  MV clamped_mv = { (int16_t)(src_mv->row * (1 << (1 - ss_y))),
-                    (int16_t)(src_mv->col * (1 << (1 - ss_x))) };
-#endif  // CONFIG_OPTFLOW_REFINEMENT
   assert(ss_x <= 1);
   assert(ss_y <= 1);
+  MV clamped_mv = { (int16_t)(src_mv->row * (1 << (1 - ss_y))),
+                    (int16_t)(src_mv->col * (1 << (1 - ss_x))) };
   const SubpelMvLimits mv_limits = {
     xd->mb_to_left_edge * (1 << (1 - ss_x)) - spel_left,
     xd->mb_to_right_edge * (1 << (1 - ss_x)) + spel_right,
