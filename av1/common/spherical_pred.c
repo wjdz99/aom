@@ -98,3 +98,85 @@ void av1_get_pred_erp(int block_x, int block_y, int block_width,
     }
   }
 }
+
+double av1_get_blocks_sad(uint8_t *cur_block, uint8_t *pred_block,
+                          int block_width, int block_height,
+                          int cur_block_stride, int pred_block_stride) {
+  assert(cur_block != NULL && pred_block != NULL);
+  assert(block_width > 0 && block_height > 0);
+
+  int pos_curr;
+  int pos_pred;
+  double ret_sad = 0;
+
+  for (int idx_y = 0; idx_y < block_height; idx_y++) {
+    for (int idx_x = 0; idx_x < block_width; idx_x++) {
+      pos_curr = idx_x + idx_y * cur_block_stride;
+      pos_pred = idx_x + idx_y * pred_block_stride;
+
+      ret_sad += abs((cur_block[pos_curr] - pred_block[pos_pred]));
+    }
+  }
+
+  return ret_sad;
+}
+
+void av1_motion_search_brute_force_erp(int block_x, int block_y,
+                                       int block_width, int block_height,
+                                       uint8_t *cur_frame, uint8_t *ref_frame,
+                                       int frame_stride, int frame_width,
+                                       int frame_height,
+                                       struct SphereMV *best_mv) {
+  // Search range is 30 pixels on the sphere
+  const double search_step_phi = PI / frame_height;
+  const double search_step_theta = 2 * PI / frame_width;
+
+  double delta_phi;
+  double delta_theta;
+  double temp_sad;
+  double best_sad;
+  // Assume no padding for predicted bocks
+  int pred_block_stride = block_width;
+  int pred_block_idx = 0;
+
+  uint8_t *cur_block = &cur_frame[block_x + block_y * frame_stride];
+  uint8_t *pred_blocks[61 * 61];
+  for (int i = 0; i < 61 * 61; i++) {
+    pred_blocks[i] =
+        (uint8_t *)malloc(block_width * block_height * sizeof(uint8_t));
+  }
+
+  av1_get_pred_erp(block_x, block_y, block_width, block_height, 0, 0, ref_frame,
+                   frame_stride, frame_width, frame_height, pred_block_stride,
+                   pred_blocks[0]);
+  best_sad = av1_get_blocks_sad(cur_block, pred_blocks[0], block_width,
+                                block_height, frame_stride, pred_block_stride);
+
+  for (int i = -30; i <= 30; i++) {
+    delta_phi = i * search_step_phi;
+
+    for (int j = -30; j <= 30; j++) {
+      delta_theta = j * search_step_theta;
+
+      av1_get_pred_erp(block_x, block_y, block_width, block_height, delta_phi,
+                       delta_theta, ref_frame, frame_stride, frame_width,
+                       frame_height, pred_block_stride,
+                       pred_blocks[pred_block_idx]);
+      // Assume the padding of frame is on the right side
+      temp_sad = av1_get_blocks_sad(cur_block, pred_blocks[pred_block_idx],
+                                    block_width, block_height, frame_stride,
+                                    pred_block_stride);
+
+      if (temp_sad < best_sad) {
+        best_sad = temp_sad;
+        best_mv->phi = delta_phi;
+        best_mv->theta = delta_theta;
+      }
+
+      pred_block_idx++;
+    }
+  }
+  for (int i = 0; i < 61 * 61; i++) {
+    free(pred_blocks[i]);
+  }
+}

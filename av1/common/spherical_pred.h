@@ -18,6 +18,11 @@ extern "C" {
 
 #include <stdint.h>
 
+struct SphereMV {
+  double phi;
+  double theta;
+};
+
 /*!\brief Convert equirectangular coordinate to plane
  * \param[in]   phi     The latitude in radian. When phi passes polars,
  *                      theta will go to the other hemisphere (+ pi).
@@ -67,6 +72,38 @@ void av1_get_pred_erp(int block_x, int block_y, int block_width,
                       uint8_t *ref_frame, int ref_frame_stride, int frame_width,
                       int frame_height, int pred_block_stride,
                       uint8_t *pred_block);
+
+/*!\brief Calculate the sum of absolute differences (SAD) of two blocks
+ * \param[in]       cur_block           Pointer to the current block
+ * \param[in]       pred_block          Pointer to the predicted block
+ * \param[in]       block_width         Width of the block
+ * \param[in]       block_height        Height of the block
+ * \param[in]       cur_block_stride    Stride of current block
+ * \param[in]       pred_block_stride   Stride of predicted block
+ * \return          double              The SAD value
+ */
+double av1_get_blocks_sad(uint8_t *cur_block, uint8_t *pred_block,
+                          int block_width, int block_height,
+                          int cur_block_stride, int pred_block_stride);
+
+/*!\brief Spherical motion search for one block in brute force mode
+ * \param[in]       block_x             Block's upper left corner X on the plane
+ * \param[in]       block_y             Block's upper left corner Y on the plane
+ * \param[in]       block_width         Width of the block
+ * \param[in]       block_height        Height of the block
+ * \param[in]       cur_frame           Current frame data
+ * \param[in]       ref_frame           Reference frame data
+ * \param[in]       frame_stride        Stride of frame data
+ * \param[in]       frame_width         Width of frame
+ * \param[in]       frame_height        Height of frame
+ * \param[out]      best_mv             Best spherical motion vector
+ */
+void av1_motion_search_brute_force_erp(int block_x, int block_y,
+                                       int block_width, int block_height,
+                                       uint8_t *cur_frame, uint8_t *ref_frame,
+                                       int frame_stride, int frame_width,
+                                       int frame_height,
+                                       struct SphereMV *best_mv);
 
 #ifdef __cplusplus
 }  // extern "C"
