@@ -18,7 +18,7 @@
 #include "av1/encoder/encoder.h"
 
 void av1_intra_mode_cnn_partition(const AV1_COMMON *const cm, MACROBLOCK *x,
-                                  int bsize, int label_idx,
+                                  int bsize, int label_idx, int intra_cnn_split,
                                   int *partition_none_allowed,
                                   int *partition_horz_allowed,
                                   int *partition_vert_allowed,
