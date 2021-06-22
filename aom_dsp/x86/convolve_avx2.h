@@ -517,6 +517,55 @@ static INLINE void prepare_coeffs(const InterpFilterParams *const filter_params,
   coeffs[3] = _mm256_shuffle_epi32(coeff, 0xff);
 }
 
+#if CONFIG_OPTFLOW_REFINEMENT
+static INLINE void opfl_prepare_coeffs_qn_lowbd(
+    const InterpFilterParams *const filter_params, const int subpel_qn,
+    int subpel_mask, __m256i *const coeffs /* [4] */) {
+  const int16_t *const filter = av1_get_interp_filter_subpel_kernel(
+      filter_params, subpel_qn & subpel_mask);
+  const __m128i coeffs_8 = _mm_loadu_si128((__m128i *)filter);
+  const __m256i filter_coeffs = _mm256_broadcastsi128_si256(coeffs_8);
+
+  // right shift all filter co-efficients by 1 to reduce the bits required.
+  // This extra right shift will be taken care of at the end while rounding
+  // the result.
+  // Since all filter co-efficients are even, this change will not affect the
+  // end result
+  assert(_mm_test_all_zeros(_mm_and_si128(coeffs_8, _mm_set1_epi16(1)),
+                            _mm_set1_epi16((short)0xffff)));
+
+  const __m256i coeffs_1 = _mm256_srai_epi16(filter_coeffs, 1);
+
+  // coeffs 0 1 0 1 0 1 0 1
+  coeffs[0] = _mm256_shuffle_epi8(coeffs_1, _mm256_set1_epi16(0x0200u));
+  // coeffs 2 3 2 3 2 3 2 3
+  coeffs[1] = _mm256_shuffle_epi8(coeffs_1, _mm256_set1_epi16(0x0604u));
+  // coeffs 4 5 4 5 4 5 4 5
+  coeffs[2] = _mm256_shuffle_epi8(coeffs_1, _mm256_set1_epi16(0x0a08u));
+  // coeffs 6 7 6 7 6 7 6 7
+  coeffs[3] = _mm256_shuffle_epi8(coeffs_1, _mm256_set1_epi16(0x0e0cu));
+}
+
+static INLINE void opfl_prepare_coeffs_qn(
+    const InterpFilterParams *const filter_params, const int subpel_qn,
+    int subpel_mask, __m256i *const coeffs /* [4] */) {
+  const int16_t *filter = av1_get_interp_filter_subpel_kernel(
+      filter_params, subpel_qn & subpel_mask);
+
+  const __m128i coeff_8 = _mm_loadu_si128((__m128i *)filter);
+  const __m256i coeff = _mm256_broadcastsi128_si256(coeff_8);
+
+  // coeffs 0 1 0 1 0 1 0 1
+  coeffs[0] = _mm256_shuffle_epi32(coeff, 0x00);
+  // coeffs 2 3 2 3 2 3 2 3
+  coeffs[1] = _mm256_shuffle_epi32(coeff, 0x55);
+  // coeffs 4 5 4 5 4 5 4 5
+  coeffs[2] = _mm256_shuffle_epi32(coeff, 0xaa);
+  // coeffs 6 7 6 7 6 7 6 7
+  coeffs[3] = _mm256_shuffle_epi32(coeff, 0xff);
+}
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+
 static INLINE __m256i convolve_lowbd(const __m256i *const s,
                                      const __m256i *const coeffs) {
   const __m256i res_01 = _mm256_maddubs_epi16(s[0], coeffs[0]);

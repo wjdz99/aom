@@ -540,24 +540,6 @@ static void convolve_2d_facade_compound(
     const int subpel_y_qn, ConvolveParams *conv_params) {
   const bool need_x = subpel_x_qn != 0;
   const bool need_y = subpel_y_qn != 0;
-#if CONFIG_OPTFLOW_REFINEMENT
-  // Handle 1/32 or 1/64 pel precision
-  if (conv_params->subpel_bits > SUBPEL_BITS && (need_x || need_y)) {
-    if (need_x && need_y) {
-      av1_dist_wtd_convolve_2d_c(src, src_stride, dst, dst_stride, w, h,
-                                 filter_params_x, filter_params_y, subpel_x_qn,
-                                 subpel_y_qn, conv_params);
-    } else if (need_x && !need_y) {
-      av1_dist_wtd_convolve_x_c(src, src_stride, dst, dst_stride, w, h,
-                                filter_params_x, subpel_x_qn, conv_params);
-    } else {
-      assert(!need_x && need_y);
-      av1_dist_wtd_convolve_y_c(src, src_stride, dst, dst_stride, w, h,
-                                filter_params_y, subpel_y_qn, conv_params);
-    }
-    return;
-  }
-#endif  // CONFIG_OPTFLOW_REFINEMENT
   if (!need_x && !need_y) {
     av1_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride, w, h,
                                   conv_params);
@@ -1089,26 +1071,6 @@ static void highbd_convolve_2d_facade_compound(
     const int subpel_y_qn, ConvolveParams *conv_params, int bd) {
   const bool need_x = subpel_x_qn != 0;
   const bool need_y = subpel_y_qn != 0;
-#if CONFIG_OPTFLOW_REFINEMENT
-  // Handle 1/32 or 1/64 pel precision
-  if (conv_params->subpel_bits > SUBPEL_BITS && (need_x || need_y)) {
-    if (need_x && need_y) {
-      av1_highbd_dist_wtd_convolve_2d_c(
-          src, src_stride, dst, dst_stride, w, h, filter_params_x,
-          filter_params_y, subpel_x_qn, subpel_y_qn, conv_params, bd);
-    } else if (need_x && !need_y) {
-      av1_highbd_dist_wtd_convolve_x_c(src, src_stride, dst, dst_stride, w, h,
-                                       filter_params_x, subpel_x_qn,
-                                       conv_params, bd);
-    } else {
-      assert(!need_x && need_y);
-      av1_highbd_dist_wtd_convolve_y_c(src, src_stride, dst, dst_stride, w, h,
-                                       filter_params_y, subpel_y_qn,
-                                       conv_params, bd);
-    }
-    return;
-  }
-#endif  // CONFIG_OPTFLOW_REFINEMENT
   if (!need_x && !need_y) {
     av1_highbd_dist_wtd_convolve_2d_copy(src, src_stride, dst, dst_stride, w, h,
                                          conv_params, bd);

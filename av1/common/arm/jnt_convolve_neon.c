@@ -735,10 +735,17 @@ void av1_dist_wtd_convolve_2d_neon(const uint8_t *src, int src_stride,
   const int horiz_offset = filter_params_x->taps / 2 - 1;
   const int round_0 = conv_params->round_0 - 1;
   const uint8_t *src_ptr = src - vert_offset * src_stride - horiz_offset;
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_x, subpel_x_qn & SUBPEL_MASK);
+      filter_params_x, subpel_x_qn & subpel_mask);
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_y, subpel_y_qn & SUBPEL_MASK);
+      filter_params_y, subpel_y_qn & subpel_mask);
 
   int16_t x_filter_tmp[8];
   int16x8_t filter_x_coef = vld1q_s16(x_filter);
@@ -897,8 +904,15 @@ void av1_dist_wtd_convolve_x_neon(const uint8_t *src, int src_stride,
   const int use_wtd_comp_avg = is_uneven_wtd_comp_avg(conv_params);
 
   // horizontal filter
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_x, subpel_x_qn & SUBPEL_MASK);
+      filter_params_x, subpel_x_qn & subpel_mask);
 
   const uint8_t *src_ptr = src - horiz_offset;
 
@@ -1355,8 +1369,15 @@ void av1_dist_wtd_convolve_y_neon(const uint8_t *src, int src_stride,
   const int shift_value = (conv_params->round_1 - 1 - bits);
 
   // vertical filter
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-      filter_params_y, subpel_y_qn & SUBPEL_MASK);
+      filter_params_y, subpel_y_qn & subpel_mask);
 
   const uint8_t *src_ptr = src - (vert_offset * src_stride);
 

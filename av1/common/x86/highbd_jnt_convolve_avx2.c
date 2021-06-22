@@ -269,8 +269,20 @@ void av1_highbd_dist_wtd_convolve_2d_avx2(
   const __m256i clip_pixel_to_bd =
       _mm256_set1_epi16(bd == 10 ? 1023 : (bd == 12 ? 4095 : 255));
 
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (conv_params->subpel_bits > SUBPEL_BITS) {
+    opfl_prepare_coeffs_qn(filter_params_x, subpel_x_qn, MV_REFINE_SUBPEL_MASK,
+                           coeffs_x);
+    opfl_prepare_coeffs_qn(filter_params_y, subpel_y_qn, MV_REFINE_SUBPEL_MASK,
+                           coeffs_y);
+  } else {
+    prepare_coeffs(filter_params_x, subpel_x_qn, coeffs_x);
+    prepare_coeffs(filter_params_y, subpel_y_qn, coeffs_y);
+  }
+#else
   prepare_coeffs(filter_params_x, subpel_x_qn, coeffs_x);
   prepare_coeffs(filter_params_y, subpel_y_qn, coeffs_y);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   for (j = 0; j < w; j += 8) {
     /* Horizontal filter */
@@ -490,7 +502,13 @@ void av1_highbd_dist_wtd_convolve_x_avx2(
       _mm256_set1_epi16(bd == 10 ? 1023 : (bd == 12 ? 4095 : 255));
 
   assert(bits >= 0);
-  prepare_coeffs(filter_params_x, subpel_x_qn, coeffs_x);
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (conv_params->subpel_bits > SUBPEL_BITS)
+    opfl_prepare_coeffs_qn(filter_params_x, subpel_x_qn, MV_REFINE_SUBPEL_MASK,
+                           coeffs_x);
+  else
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    prepare_coeffs(filter_params_x, subpel_x_qn, coeffs_x);
 
   for (j = 0; j < w; j += 8) {
     /* Horizontal filter */
@@ -653,7 +671,13 @@ void av1_highbd_dist_wtd_convolve_y_avx2(
       _mm256_set1_epi16(bd == 10 ? 1023 : (bd == 12 ? 4095 : 255));
   const __m256i zero = _mm256_setzero_si256();
 
-  prepare_coeffs(filter_params_y, subpel_y_qn, coeffs_y);
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (conv_params->subpel_bits > SUBPEL_BITS)
+    opfl_prepare_coeffs_qn(filter_params_y, subpel_y_qn, MV_REFINE_SUBPEL_MASK,
+                           coeffs_y);
+  else
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    prepare_coeffs(filter_params_y, subpel_y_qn, coeffs_y);
 
   for (j = 0; j < w; j += 8) {
     const uint16_t *data = &src_ptr[j];

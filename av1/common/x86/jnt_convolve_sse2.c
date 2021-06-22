@@ -46,7 +46,13 @@ void av1_dist_wtd_convolve_x_sse2(const uint8_t *src, int src_stride,
   const __m128i rounding_const = _mm_set1_epi16((1 << rounding_shift) >> 1);
   __m128i coeffs[4];
 
-  prepare_coeffs(filter_params_x, subpel_x_qn, coeffs);
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (conv_params->subpel_bits > SUBPEL_BITS)
+    opfl_prepare_coeffs_qn(filter_params_x, subpel_x_qn, MV_REFINE_SUBPEL_MASK,
+                           coeffs);
+  else
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    prepare_coeffs(filter_params_x, subpel_x_qn, coeffs);
 
   if (w == 4) {
     do {
@@ -174,7 +180,13 @@ void av1_dist_wtd_convolve_y_sse2(const uint8_t *src, int src_stride,
   const __m128i round_shift = _mm_cvtsi32_si128(conv_params->round_1);
   __m128i coeffs[4];
 
-  prepare_coeffs(filter_params_y, subpel_y_qn, coeffs);
+#if CONFIG_OPTFLOW_REFINEMENT
+  if (conv_params->subpel_bits > SUBPEL_BITS)
+    opfl_prepare_coeffs_qn(filter_params_y, subpel_y_qn, MV_REFINE_SUBPEL_MASK,
+                           coeffs);
+  else
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+    prepare_coeffs(filter_params_y, subpel_y_qn, coeffs);
 
   if (w == 4) {
     __m128i s[8], src6, res, res_shift;
@@ -411,11 +423,18 @@ void av1_dist_wtd_convolve_2d_sse2(const uint8_t *src, int src_stride,
   const int rounding_shift =
       2 * FILTER_BITS - conv_params->round_0 - conv_params->round_1;
   const __m128i rounding_const = _mm_set1_epi16((1 << rounding_shift) >> 1);
+#if CONFIG_OPTFLOW_REFINEMENT
+  const int subpel_mask = conv_params->subpel_bits > SUBPEL_BITS
+                              ? MV_REFINE_SUBPEL_MASK
+                              : SUBPEL_MASK;
+#else
+  const int subpel_mask = SUBPEL_MASK;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
   /* Horizontal filter */
   {
     const int16_t *x_filter = av1_get_interp_filter_subpel_kernel(
-        filter_params_x, subpel_x_qn & SUBPEL_MASK);
+        filter_params_x, subpel_x_qn & subpel_mask);
     const __m128i coeffs_x = _mm_loadu_si128((__m128i *)x_filter);
 
     // coeffs 0 1 0 1 2 3 2 3
@@ -498,7 +517,7 @@ void av1_dist_wtd_convolve_2d_sse2(const uint8_t *src, int src_stride,
   /* Vertical filter */
   {
     const int16_t *y_filter = av1_get_interp_filter_subpel_kernel(
-        filter_params_y, subpel_y_qn & SUBPEL_MASK);
+        filter_params_y, subpel_y_qn & subpel_mask);
     const __m128i coeffs_y = _mm_loadu_si128((__m128i *)y_filter);
 
     // coeffs 0 1 0 1 2 3 2 3
