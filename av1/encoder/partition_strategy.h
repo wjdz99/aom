@@ -17,13 +17,11 @@
 #include "av1/encoder/encodemb.h"
 #include "av1/encoder/encoder.h"
 
-void av1_intra_mode_cnn_partition(const AV1_COMMON *const cm, MACROBLOCK *x,
-                                  int bsize, int label_idx,
-                                  int *partition_none_allowed,
-                                  int *partition_horz_allowed,
-                                  int *partition_vert_allowed,
-                                  int *do_rectangular_split,
-                                  int *do_square_split);
+void av1_intra_mode_cnn_partition(
+    const AV1_COMMON *const cm, MACROBLOCK *x, int bsize, int label_idx,
+    int intra_cnn_based_part_prune_level, int *partition_none_allowed,
+    int *partition_horz_allowed, int *partition_vert_allowed,
+    int *do_rectangular_split, int *do_square_split);
 
 // Performs a simple_motion_search with a single reference frame and extract
 // the variance of residues. Then use the features to determine whether we want
