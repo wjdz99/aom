@@ -132,13 +132,11 @@ static void write_features_to_file(const char *const path,
 //   -- add support for pruning rectangular partitions
 //   -- use reconstructed pixels instead of source pixels for padding
 //   -- use chroma pixels in addition to luma pixels
-void av1_intra_mode_cnn_partition(const AV1_COMMON *const cm, MACROBLOCK *x,
-                                  int bsize, int quad_tree_idx,
-                                  int *partition_none_allowed,
-                                  int *partition_horz_allowed,
-                                  int *partition_vert_allowed,
-                                  int *do_rectangular_split,
-                                  int *do_square_split) {
+void av1_intra_mode_cnn_partition(
+    const AV1_COMMON *const cm, MACROBLOCK *x, int bsize, int quad_tree_idx,
+    int intra_cnn_split, int *partition_none_allowed,
+    int *partition_horz_allowed, int *partition_vert_allowed,
+    int *do_rectangular_split, int *do_square_split) {
   assert(cm->seq_params->sb_size >= BLOCK_64X64 &&
          "Invalid sb_size for intra_cnn!");
   const int bsize_idx = convert_bsize_to_idx(bsize);
@@ -319,7 +317,11 @@ void av1_intra_mode_cnn_partition(const AV1_COMMON *const cm, MACROBLOCK *x,
   }
 
   if (logits[0] > split_only_thresh) {
-    *partition_none_allowed = 0;
+    // As screen contents tend to choose larger partitions, do not prune
+    // PARTITION_NONE when intra_cnn_split=1.
+    if (intra_cnn_split != 1) {
+      *partition_none_allowed = 0;
+    }
     *partition_horz_allowed = 0;
     *partition_vert_allowed = 0;
     *do_rectangular_split = 0;
@@ -1563,8 +1565,7 @@ void av1_prune_partitions_before_search(
   // A CNN-based speed feature pruning out either split or all non-split
   // partition in INTRA frame coding.
   const int try_intra_cnn_split =
-      !cpi->use_screen_content_tools && frame_is_intra_only(cm) &&
-      cpi->sf.part_sf.intra_cnn_split &&
+      frame_is_intra_only(cm) && cpi->sf.part_sf.intra_cnn_split &&
       cm->seq_params->sb_size >= BLOCK_64X64 && bsize <= BLOCK_64X64 &&
       bsize >= BLOCK_8X8 &&
       mi_row + mi_size_high[bsize] <= mi_params->mi_rows &&
@@ -1573,8 +1574,9 @@ void av1_prune_partitions_before_search(
   if (try_intra_cnn_split) {
     av1_intra_mode_cnn_partition(
         &cpi->common, x, bsize, x->part_search_info.quad_tree_idx,
-        partition_none_allowed, partition_horz_allowed, partition_vert_allowed,
-        do_rectangular_split, do_square_split);
+        cpi->sf.part_sf.intra_cnn_split, partition_none_allowed,
+        partition_horz_allowed, partition_vert_allowed, do_rectangular_split,
+        do_square_split);
   }
 
   // Use simple motion search to prune out split or non-split partitions. This
