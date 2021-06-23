@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdddad88_d95dbc17",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1990,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-23T19:00:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "611a966d_6ba545d5",
+      "range": {
+        "startLine": 1989,
+        "startChar": 0,
+        "endLine": 1990,
+        "endChar": 41
+      },
+      "revId": "8acd75ed03032ad5b8fad0d1e7287889b4a052b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c529ddf_c58fcf68",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-23T18:34:52Z",
       "side": 1,
       "message": "We need to add once more else if statement\nelse if(estimate \u003d\u003d bit_budget) {\n return q;\n}\n\nOtherwise, we might stuck in this while loop.",
+      "range": {
+        "startLine": 1992,
+        "startChar": 6,
+        "endLine": 1992,
+        "endChar": 37
+      },
+      "revId": "8acd75ed03032ad5b8fad0d1e7287889b4a052b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d25ed6f_e863445e",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1992,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-23T19:00:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c529ddf_c58fcf68",
       "range": {
         "startLine": 1992,
         "startChar": 6,
@@ -84,6 +132,30 @@
       "side": 1,
       "message": "On second thought, we don\u0027t need to set it to -1, as q_max was initialized with 255. We\u0027ll just return q_max anyways.",
       "parentUuid": "0c671224_e77c2bb6",
+      "range": {
+        "startLine": 1993,
+        "startChar": 6,
+        "endLine": 1999,
+        "endChar": 30
+      },
+      "revId": "8acd75ed03032ad5b8fad0d1e7287889b4a052b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ad481fd_2cd0eb04",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1999,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-23T19:00:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "859ff17f_66fbea9d",
       "range": {
         "startLine": 1993,
         "startChar": 6,
