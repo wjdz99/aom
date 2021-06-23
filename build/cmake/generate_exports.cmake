@@ -10,6 +10,7 @@
 #
 cmake_minimum_required(VERSION 3.5)
 
+# AOM_LIB_PREFIX can be empty
 set(REQUIRED_ARGS "AOM_ROOT" "AOM_CONFIG_DIR" "AOM_TARGET_SYSTEM" "AOM_SYM_FILE"
                   "CONFIG_AV1_DECODER" "CONFIG_AV1_ENCODER")
 
@@ -24,7 +25,7 @@ include("${AOM_ROOT}/build/cmake/exports_sources.cmake")
 if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
   set(symbol_prefix "_")
 elseif("${AOM_TARGET_SYSTEM}" MATCHES "Windows\|MSYS")
-  file(WRITE "${AOM_SYM_FILE}" "LIBRARY aom\n" "EXPORTS\n")
+  file(WRITE "${AOM_SYM_FILE}" "LIBRARY ${AOM_LIB_PREFIX}aom\n" "EXPORTS\n")
 else()
   set(symbol_suffix ";")
 endif()
@@ -34,7 +35,7 @@ set(aom_sym_file "${AOM_SYM_FILE}")
 if("${AOM_TARGET_SYSTEM}" STREQUAL "Darwin")
   file(REMOVE "${aom_sym_file}")
 elseif("${AOM_TARGET_SYSTEM}" MATCHES "Windows\|MSYS")
-  file(WRITE "${aom_sym_file}" "LIBRARY aom\n" "EXPORTS\n")
+  file(WRITE "${aom_sym_file}" "LIBRARY ${AOM_LIB_PREFIX}aom\n" "EXPORTS\n")
 else()
   file(WRITE "${aom_sym_file}" "{\nglobal:\n")
 endif()

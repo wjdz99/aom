@@ -35,6 +35,7 @@ function(setup_exports_target)
                             -DAOM_SYM_FILE="${aom_sym_file}"
                             -DAOM_MSVC=${MSVC}
                             -DAOM_XCODE=${XCODE}
+                            -DAOM_LIB_PREFIX="${CMAKE_SHARED_LIBRARY_PREFIX}"
                             -DCONFIG_NAME=$<CONFIG>
                             -DCONFIG_AV1_DECODER=${CONFIG_AV1_DECODER}
                             -DCONFIG_AV1_ENCODER=${CONFIG_AV1_ENCODER}
