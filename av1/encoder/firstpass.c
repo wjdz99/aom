@@ -268,7 +268,7 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   FULLPEL_MV start_mv = get_fullmv_from_mv(ref_mv);
   int tmp_err;
   const BLOCK_SIZE bsize = xd->mi[0]->bsize;
-  const int new_mv_mode_penalty = NEW_MV_MODE_PENALTY;
+  const int new_mv_mode_penalty = 0;  // NEW_MV_MODE_PENALTY;
   const int sr = get_search_range(&cpi->initial_dimensions);
   const int step_param = cpi->sf.fp_sf.reduce_mv_step_param + sr;
 
@@ -280,6 +280,8 @@ static AOM_INLINE void first_pass_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
   av1_make_default_fullpel_ms_params(&ms_params, cpi, x, bsize, ref_mv,
                                      first_pass_search_sites,
                                      fine_search_interval);
+  ms_params.mv_cost_params.mv_cost_type = MV_COST_NONE;
+
   av1_set_mv_search_method(&ms_params, first_pass_search_sites, NSTEP);
 
   FULLPEL_MV this_best_mv;
