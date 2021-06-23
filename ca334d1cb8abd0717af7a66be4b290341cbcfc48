@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a7f9573_6b3d406f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 24
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-23T21:33:20Z",
+      "side": 1,
+      "message": "Thanks for making all the change.\nThis CL is almost ready.\nGood job!",
+      "revId": "ca334d1cb8abd0717af7a66be4b290341cbcfc48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d4e2c40_0174d998",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1956,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-23T21:33:20Z",
+      "side": 1,
+      "message": "We need to initialize these two variables.\ndouble q_max_estimate \u003d av1_estimate_gop_bitrate(q_max, gf_group-\u003esize, txfm_stats_list);\ndouble q_min_estimate \u003d av1_estimate_gop_bitrate(q_min, gf_group-\u003esize, txfm_stats_list);\n\n\nLet say our target bitrate is very big like 1000000000.\nYour q_min_estimate might never be updated in the while loop.",
+      "range": {
+        "startLine": 1955,
+        "startChar": 0,
+        "endLine": 1956,
+        "endChar": 28
+      },
+      "revId": "ca334d1cb8abd0717af7a66be4b290341cbcfc48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4984d9d0_bb07ead8",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 24
+      },
+      "lineNbr": 1968,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-23T21:33:20Z",
+      "side": 1,
+      "message": "fabs",
+      "range": {
+        "startLine": 1968,
+        "startChar": 10,
+        "endLine": 1968,
+        "endChar": 19
+      },
+      "revId": "ca334d1cb8abd0717af7a66be4b290341cbcfc48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd6c964f_24aee740",
+        "filename": "test/ratectrl_test.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-23T21:33:20Z",
+      "side": 1,
+      "message": "If arf_q \u003d\u003d base_q_index,\nthis part should be EXPECT_EQ",
+      "range": {
+        "startLine": 62,
+        "startChar": 11,
+        "endLine": 62,
+        "endChar": 13
+      },
+      "revId": "ca334d1cb8abd0717af7a66be4b290341cbcfc48",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
