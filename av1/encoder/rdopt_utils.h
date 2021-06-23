@@ -596,7 +596,7 @@ static AOM_INLINE void init_sbuv_mode(MB_MODE_INFO *const mbmi) {
 static INLINE void store_winner_mode_stats(
     const AV1_COMMON *const cm, MACROBLOCK *x, const MB_MODE_INFO *mbmi,
     RD_STATS *rd_cost, RD_STATS *rd_cost_y, RD_STATS *rd_cost_uv,
-    THR_MODES mode_index, uint8_t *color_map, BLOCK_SIZE bsize, int64_t this_rd,
+    THR_MODES mode_index, BLOCK_SIZE bsize, int64_t this_rd,
     int multi_winner_mode_type, int txfm_search_done) {
   WinnerModeStats *winner_mode_stats = x->winner_mode_stats;
   int mode_idx = 0;
@@ -653,16 +653,6 @@ static INLINE void store_winner_mode_stats(
               .skip_txfm_cost[skip_ctx][rd_cost->skip_txfm || skip_txfm];
       winner_mode_stats[mode_idx].rate_uv = rd_cost_uv->rate;
     }
-  }
-
-  if (color_map) {
-    // Store color_index_map for palette mode
-    const MACROBLOCKD *const xd = &x->e_mbd;
-    int block_width, block_height;
-    av1_get_block_dimensions(bsize, AOM_PLANE_Y, xd, &block_width,
-                             &block_height, NULL, NULL);
-    memcpy(winner_mode_stats[mode_idx].color_index_map, color_map,
-           block_width * block_height * sizeof(color_map[0]));
   }
 
   x->winner_mode_count =
