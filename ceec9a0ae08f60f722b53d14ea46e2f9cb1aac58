@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "86ce8ab0_639a8abe",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ba04cb4_6ff51f19",
+      "range": {
+        "startLine": 102,
+        "startChar": 5,
+        "endLine": 102,
+        "endChar": 26
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "702a6224_287840aa",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-06-22T20:57:02Z",
       "side": 1,
       "message": "Let\u0027s just have one local buffer within this function for now.",
+      "range": {
+        "startLine": 107,
+        "startChar": 27,
+        "endLine": 108,
+        "endChar": 73
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "876fc4de_9e86e9fa",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "702a6224_287840aa",
       "range": {
         "startLine": 107,
         "startChar": 27,
@@ -94,6 +142,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "16717633_073c7c45",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "This is just calculating the angle corresponding to one pixel (approximately). The range is controlled by the for loop.",
+      "parentUuid": "9cf86864_81004dba",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 56
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "effefe4a_c4b42a9e",
@@ -107,6 +179,30 @@
       "writtenOn": "2021-06-22T20:57:02Z",
       "side": 1,
       "message": "Let\u0027s use sad (sum of absolute distortion). BTW the convention is SSE here (for sum of squared error), usually we do not use ssd for short.",
+      "range": {
+        "startLine": 116,
+        "startChar": 9,
+        "endLine": 116,
+        "endChar": 17
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0a11823_75747e3d",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "effefe4a_c4b42a9e",
       "range": {
         "startLine": 116,
         "startChar": 9,
@@ -140,6 +236,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "369eb6a0_02b585fe",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb828170_68579ab5",
+      "range": {
+        "startLine": 117,
+        "startChar": 20,
+        "endLine": 117,
+        "endChar": 29
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3a3f70a0_01a8978d",
@@ -153,6 +273,30 @@
       "writtenOn": "2021-06-22T21:20:34Z",
       "side": 1,
       "message": "This might make the code cleaner.\nfor(int i \u003d -30; i \u003c\u003d 30; ++i) {\n  delta_phi \u003d i * search_step_phi\n}",
+      "range": {
+        "startLine": 125,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 0
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "913a09d1_0ee20b92",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a3f70a0_01a8978d",
       "range": {
         "startLine": 125,
         "startChar": 0,
@@ -186,6 +330,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b489214_68d781fd",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29b154d8_0f696d74",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 7
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d47ee4eb_d92ca2a8",
@@ -209,6 +377,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b762a23_6e9e6f83",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d47ee4eb_d92ca2a8",
+      "range": {
+        "startLine": 148,
+        "startChar": 7,
+        "endLine": 148,
+        "endChar": 77
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1a9edda0_bbbe54c3",
@@ -222,6 +414,30 @@
       "writtenOn": "2021-06-22T21:20:34Z",
       "side": 1,
       "message": "We almost always pass these two parameters together.\nMight be good to create a new structure like SphereMV.",
+      "range": {
+        "startLine": 152,
+        "startChar": 0,
+        "endLine": 153,
+        "endChar": 37
+      },
+      "revId": "ceec9a0ae08f60f722b53d14ea46e2f9cb1aac58",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6348fdf_26cd6d24",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-06-23T16:38:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a9edda0_bbbe54c3",
       "range": {
         "startLine": 152,
         "startChar": 0,
