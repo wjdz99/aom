@@ -90,8 +90,6 @@ typedef struct {
   int rate_y;
   //! Chroma rate of the winner mode.
   int rate_uv;
-  //! The color map needed to reconstruct palette mode.
-  uint8_t color_index_map[MAX_SB_SQUARE];
   //! The current winner mode.
   THR_MODES mode_index;
 } WinnerModeStats;
