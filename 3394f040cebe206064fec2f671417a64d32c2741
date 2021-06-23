@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a288991d_13fad4b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-23T14:43:28Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have rebased the patch to latest and did sanity verification. Please review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "3394f040cebe206064fec2f671417a64d32c2741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
