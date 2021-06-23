@@ -1233,6 +1233,8 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
   if (has_no_stats_stage(cpi)) {
     for (i = 0; i < MAX_NUM_GF_INTERVALS; i++) {
       rc->gf_intervals[i] = AOMMIN(rc->max_gf_interval, max_gop_length);
+      rc->gf_intervals[i] =
+          AOMMIN(rc->gf_intervals[i], cpi->oxcf.gf_cfg.lag_in_frames);
       // When there exists a single subgop in a kf-interval, correct the
       // gf_interval appropriately.
       if (rc->gf_intervals[i] >= rc->frames_to_key && is_keyframe_subgop)
