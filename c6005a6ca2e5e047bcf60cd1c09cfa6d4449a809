@@ -165,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ee49efa_0e408184",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-23T16:55:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "218868b8_945e4952",
+      "range": {
+        "startLine": 252,
+        "startChar": 6,
+        "endLine": 252,
+        "endChar": 12
+      },
+      "revId": "c6005a6ca2e5e047bcf60cd1c09cfa6d4449a809",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "29df01c4_bb55bf81",
@@ -178,6 +202,30 @@
       "writtenOn": "2021-06-22T20:53:53Z",
       "side": 1,
       "message": "I would suggest to write a brute force method to find the base q_index.\nAnd use it as a reference.\nThe both methods, brute force and binary search, should give you identical result.",
+      "range": {
+        "startLine": 255,
+        "startChar": 2,
+        "endLine": 255,
+        "endChar": 37
+      },
+      "revId": "c6005a6ca2e5e047bcf60cd1c09cfa6d4449a809",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9928277e_3632e15c",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 14
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-06-23T16:55:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29df01c4_bb55bf81",
       "range": {
         "startLine": 255,
         "startChar": 2,
