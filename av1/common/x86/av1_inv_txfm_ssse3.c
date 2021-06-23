@@ -16,6 +16,112 @@
 #include "av1/common/x86/av1_inv_txfm_ssse3.h"
 #include "av1/common/x86/av1_txfm_sse2.h"
 
+void av1_highbd_iwht4x4_16_add_ssse3(const tran_low_t *input, uint8_t *dest8,
+                                     int stride, int bd) {
+  /* 4-point reversible, orthonormal inverse Walsh-Hadamard in 3.5 adds,
+     0.5 shifts per pixel. */
+  int i;
+  __m128i op[4], dst[4];
+  __m128i *a1, *b1, *c1, *d1;
+  __m128i e1, max_clamp;
+  const __m128i zero = _mm_setzero_si128();
+  uint16_t *dest = CONVERT_TO_SHORTPTR(dest8);
+
+  op[0] = _mm_loadu_si128((const __m128i const *)(input + 0));
+  op[1] = _mm_loadu_si128((const __m128i const *)(input + 4));
+  op[2] = _mm_loadu_si128((const __m128i const *)(input + 8));
+  op[3] = _mm_loadu_si128((const __m128i const *)(input + 12));
+  transpose_32bit_4x4(op, op);
+
+  // a1 = input[0] >> UNIT_QUANT_SHIFT;
+  // c1 = input[1] >> UNIT_QUANT_SHIFT;
+  // d1 = input[2] >> UNIT_QUANT_SHIFT;
+  // b1 = input[3] >> UNIT_QUANT_SHIFT;
+  a1 = &op[0];
+  *a1 = _mm_srai_epi32(op[0], UNIT_QUANT_SHIFT);
+  b1 = &op[1];
+  *b1 = _mm_srai_epi32(op[1], UNIT_QUANT_SHIFT);
+  c1 = &op[2];
+  *c1 = _mm_srai_epi32(op[2], UNIT_QUANT_SHIFT);
+  d1 = &op[3];
+  *d1 = _mm_srai_epi32(op[3], UNIT_QUANT_SHIFT);
+  for (i = 0; i < 2; ++i) {
+    // a1 += c1;
+    *a1 = _mm_add_epi32(*a1, *c1);
+    // d1 -= b1;
+    *d1 = _mm_sub_epi32(*d1, *b1);
+    // e1 = (a1 - d1) >> 1;
+    e1 = _mm_sub_epi32(*a1, *d1);
+    e1 = _mm_srai_epi32(e1, 1);
+    // b1 = e1 - b1;
+    *b1 = _mm_sub_epi32(e1, *b1);
+    // c1 = e1 - c1;
+    *c1 = _mm_sub_epi32(e1, *c1);
+    // a1 -= b1;
+    *a1 = _mm_sub_epi32(*a1, *b1);
+    // d1 += c1;
+    *d1 = _mm_add_epi32(*d1, *c1);
+  }
+
+  transpose_32bit_4x4(op, op);
+
+  for (i = 0; i < 4; i++) {
+    tran_low_t vals[4];
+    _mm_storeu_si128((__m128i *)vals, op[i]);
+
+    range_check_value(vals[0], bd + 1);
+    range_check_value(vals[1], bd + 1);
+    range_check_value(vals[2], bd + 1);
+    range_check_value(vals[3], bd + 1);
+  }
+
+  // Load uint16_t.
+  dst[0] = _mm_loadu_si64((__m128i const *)(dest + 0 * stride));
+  dst[1] = _mm_loadu_si64((__m128i const *)(dest + 1 * stride));
+  dst[2] = _mm_loadu_si64((__m128i const *)(dest + 2 * stride));
+  dst[3] = _mm_loadu_si64((__m128i const *)(dest + 3 * stride));
+
+  // Convert to int.
+  dst[0] = _mm_unpacklo_epi16(dst[0], zero);
+  dst[1] = _mm_unpacklo_epi16(dst[1], zero);
+  dst[2] = _mm_unpacklo_epi16(dst[2], zero);
+  dst[3] = _mm_unpacklo_epi16(dst[3], zero);
+
+  // Add to the previous results.
+  dst[0] = _mm_add_epi32(dst[0], op[0]);
+  dst[1] = _mm_add_epi32(dst[1], op[1]);
+  dst[2] = _mm_add_epi32(dst[2], op[2]);
+  dst[3] = _mm_add_epi32(dst[3], op[3]);
+
+  // Clamp.
+  dst[0] = _mm_max_epi16(dst[0], zero);
+  dst[1] = _mm_max_epi16(dst[1], zero);
+  dst[2] = _mm_max_epi16(dst[2], zero);
+  dst[3] = _mm_max_epi16(dst[3], zero);
+  switch (bd) {
+    case 8:
+    default:
+      max_clamp = _mm_set_epi16(255, 255, 255, 255, 255, 255, 255, 255);
+      break;
+    case 10:
+      max_clamp = _mm_set_epi16(1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023);
+      break;
+    case 12:
+      // This should not be needed for valid bitstreams but just in case.
+      max_clamp = _mm_set_epi16(4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095);
+      break;
+  }
+  dst[0] = _mm_min_epi16(dst[0], max_clamp);
+  dst[1] = _mm_min_epi16(dst[1], max_clamp);
+  dst[2] = _mm_min_epi16(dst[2], max_clamp);
+  dst[3] = _mm_min_epi16(dst[3], max_clamp);
+
+  _mm_storel_epi64((__m128i *)(dest + 0 * stride), dst[0]);
+  _mm_storel_epi64((__m128i *)(dest + 1 * stride), dst[1]);
+  _mm_storel_epi64((__m128i *)(dest + 2 * stride), dst[2]);
+  _mm_storel_epi64((__m128i *)(dest + 3 * stride), dst[3]);
+}
+
 // TODO(venkatsanampudi@ittiam.com): move this to header file
 
 // Sqrt2, Sqrt2^2, Sqrt2^3, Sqrt2^4, Sqrt2^5
