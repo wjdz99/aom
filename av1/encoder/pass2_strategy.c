@@ -563,35 +563,6 @@ static void average_gf_stats(const int total_frame,
     gf_stats->avg_raw_err_stdev /= gf_stats->non_zero_stdev_count;
 }
 
-static void get_features_from_gf_stats(const GF_GROUP_STATS *gf_stats,
-                                       const GF_FRAME_STATS *first_frame,
-                                       const GF_FRAME_STATS *last_frame,
-                                       const int constrained_gf_group,
-                                       const int kf_zeromotion_pct,
-                                       const int num_frames, float *features) {
-  *features++ = (float)gf_stats->abs_mv_in_out_accumulator;
-  *features++ = (float)(gf_stats->avg_new_mv_count);
-  *features++ = (float)gf_stats->avg_pcnt_second_ref;
-  *features++ = (float)gf_stats->avg_pcnt_third_ref;
-  *features++ = (float)gf_stats->avg_pcnt_third_ref_nolast;
-  *features++ = (float)(gf_stats->avg_sr_coded_error);
-  *features++ = (float)(gf_stats->avg_tr_coded_error);
-  *features++ = (float)(gf_stats->avg_wavelet_energy);
-  *features++ = (float)(constrained_gf_group);
-  *features++ = (float)gf_stats->decay_accumulator;
-  *features++ = (float)(first_frame->frame_coded_error);
-  *features++ = (float)(first_frame->frame_sr_coded_error);
-  *features++ = (float)(first_frame->frame_tr_coded_error);
-  *features++ = (float)(first_frame->frame_err);
-  *features++ = (float)(kf_zeromotion_pct);
-  *features++ = (float)(last_frame->frame_coded_error);
-  *features++ = (float)(last_frame->frame_sr_coded_error);
-  *features++ = (float)(last_frame->frame_tr_coded_error);
-  *features++ = (float)num_frames;
-  *features++ = (float)gf_stats->mv_ratio_accumulator;
-  *features++ = (float)gf_stats->non_zero_stdev_count;
-}
-
 #define BOOST_FACTOR 12.5
 static double baseline_err_per_mb(const FRAME_INFO *frame_info) {
   unsigned int screen_area = frame_info->frame_height * frame_info->frame_width;
@@ -2471,21 +2442,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
                           twopass->kf_zeromotion_pct, cpi->ppi->lap_enabled) &&
         p_rc->use_arf_in_this_kf_group && (i < gf_cfg->lag_in_frames) &&
         (i >= MIN_GF_INTERVAL);
-
-    FIRSTPASS_STATS *total_stats = twopass->stats_buf_ctx->total_stats;
-    // TODO(urvang): Improve and use model for VBR, CQ etc as well.
-    if (use_alt_ref && use_ml_model_to_decide_flat_gop(rc_cfg) &&
-        !is_fp_stats_to_predict_flat_gop_invalid(total_stats)) {
-      aom_clear_system_state();
-      float features[21];
-      get_features_from_gf_stats(&gf_stats, &first_frame_stats,
-                                 &last_frame_stats, p_rc->constrained_gf_group,
-                                 twopass->kf_zeromotion_pct, i, features);
-      // Infer using ML model.
-      float score;
-      av1_nn_predict(features, &av1_use_flat_gop_nn_config, 1, &score);
-      use_alt_ref = (score <= 0.0);
-    }
   } else {
     use_alt_ref = p_rc->use_arf_in_this_kf_group &&
                   (i < gf_cfg->lag_in_frames) && (i > 2);
