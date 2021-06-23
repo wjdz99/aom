@@ -45,12 +45,20 @@ void fwht4x4_ref(const int16_t *in, tran_low_t *out, int stride,
   av1_fwht4x4_c(in, out, stride);
 }
 
-void iwht4x4_10(const tran_low_t *in, uint8_t *out, int stride) {
+void iwht4x4_10_c(const tran_low_t *in, uint8_t *out, int stride) {
   av1_highbd_iwht4x4_16_add_c(in, out, stride, 10);
 }
 
-void iwht4x4_12(const tran_low_t *in, uint8_t *out, int stride) {
+void iwht4x4_10_sse4_1(const tran_low_t *in, uint8_t *out, int stride) {
+  av1_highbd_iwht4x4_16_add_sse4_1(in, out, stride, 10);
+}
+
+void iwht4x4_12_c(const tran_low_t *in, uint8_t *out, int stride) {
   av1_highbd_iwht4x4_16_add_c(in, out, stride, 12);
+}
+
+void iwht4x4_12_sse4_1(const tran_low_t *in, uint8_t *out, int stride) {
+  av1_highbd_iwht4x4_16_add_sse4_1(in, out, stride, 12);
 }
 
 class Trans4x4WHT : public libaom_test::TransformTestBase<tran_low_t>,
@@ -177,19 +185,19 @@ using std::make_tuple;
 
 INSTANTIATE_TEST_SUITE_P(
     C, Trans4x4WHT,
-    ::testing::Values(make_tuple(&av1_highbd_fwht4x4_c, &iwht4x4_10, DCT_DCT,
+    ::testing::Values(make_tuple(&av1_highbd_fwht4x4_c, &iwht4x4_10_c, DCT_DCT,
                                  AOM_BITS_10, 16, static_cast<FdctFunc>(NULL)),
-                      make_tuple(&av1_highbd_fwht4x4_c, &iwht4x4_12, DCT_DCT,
+                      make_tuple(&av1_highbd_fwht4x4_c, &iwht4x4_12_c, DCT_DCT,
                                  AOM_BITS_12, 16,
                                  static_cast<FdctFunc>(NULL))));
 #if HAVE_SSE4_1
 
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, Trans4x4WHT,
-    ::testing::Values(make_tuple(&av1_highbd_fwht4x4_sse4_1, &iwht4x4_10,
+    ::testing::Values(make_tuple(&av1_highbd_fwht4x4_sse4_1, &iwht4x4_10_sse4_1,
                                  DCT_DCT, AOM_BITS_10, 16,
                                  static_cast<FdctFunc>(NULL)),
-                      make_tuple(&av1_highbd_fwht4x4_sse4_1, &iwht4x4_12,
+                      make_tuple(&av1_highbd_fwht4x4_sse4_1, &iwht4x4_12_sse4_1,
                                  DCT_DCT, AOM_BITS_12, 16,
                                  static_cast<FdctFunc>(NULL))));
 
