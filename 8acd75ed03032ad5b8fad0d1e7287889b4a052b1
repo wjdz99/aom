@@ -3,6 +3,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "611a966d_6ba545d5",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1990,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-23T18:34:52Z",
+      "side": 1,
+      "message": "We will always have q_max_estimate \u003c\u003d bit_budget \u003c\u003d q_min_estimate.\nWe just need to pick the one closer to the bit_budget.",
+      "range": {
+        "startLine": 1989,
+        "startChar": 0,
+        "endLine": 1990,
+        "endChar": 41
+      },
+      "revId": "8acd75ed03032ad5b8fad0d1e7287889b4a052b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c529ddf_c58fcf68",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 17
+      },
+      "lineNbr": 1992,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-06-23T18:34:52Z",
+      "side": 1,
+      "message": "We need to add once more else if statement\nelse if(estimate \u003d\u003d bit_budget) {\n return q;\n}\n\nOtherwise, we might stuck in this while loop.",
+      "range": {
+        "startLine": 1992,
+        "startChar": 6,
+        "endLine": 1992,
+        "endChar": 37
+      },
+      "revId": "8acd75ed03032ad5b8fad0d1e7287889b4a052b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0c671224_e77c2bb6",
         "filename": "av1/encoder/tpl_model.c",
         "patchSetId": 17
