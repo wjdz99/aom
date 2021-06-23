@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nSome recent changes in construct_multi_layer_gf_structure() in the default path has resulted in the incorrect update of display_idx in GF_GROUP under CONFIG_FRAME_PARALLEL_ENCODE_2. This patch corrects the update of display_idx for different cases of first_frame_update_type.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "27badc0cd4938d50299a381f003a80da285cfa26",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dcb3dfc7_75798821",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-23T05:45:21Z",
+      "side": 1,
+      "message": "Thanks for the fix. There were more CLs checked in yesterday, and you may have to check other CLs as well.",
+      "parentUuid": "fefeb58e_dd5fd284",
+      "revId": "27badc0cd4938d50299a381f003a80da285cfa26",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
