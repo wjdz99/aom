@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "259e625a_4bae5b63",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-23T19:02:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8858e00a_4d60fca5",
+      "range": {
+        "startLine": 32,
+        "startChar": 27,
+        "endLine": 32,
+        "endChar": 40
+      },
+      "revId": "f139daaf3bb6b8c0c0021efb1951f3ff6f3be002",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c331f5a9_96162ce9",
@@ -37,6 +61,24 @@
       "writtenOn": "2021-06-23T18:17:04Z",
       "side": 1,
       "message": "this shouldn\u0027t be needed with valid bitstreams.",
+      "revId": "f139daaf3bb6b8c0c0021efb1951f3ff6f3be002",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6c98119_95661e4f",
+        "filename": "av1/common/x86/av1_inv_txfm_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-23T19:02:02Z",
+      "side": 1,
+      "message": "I added a comment. An assert(0) might have been too much in case 12 bit is used at some point.",
+      "parentUuid": "c331f5a9_96162ce9",
       "revId": "f139daaf3bb6b8c0c0021efb1951f3ff6f3be002",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
