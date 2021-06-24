@@ -307,6 +307,7 @@ static void set_allintra_speed_features_framesize_independent(
   sf->part_sf.use_best_rd_for_pruning = 1;
 
   sf->intra_sf.intra_pruning_with_hog = 1;
+  sf->intra_sf.early_term_luma_palette_size_search = 1;
   sf->intra_sf.dv_cost_upd_level = INTERNAL_COST_UPD_OFF;
 
   sf->tx_sf.adaptive_txb_search_level = 1;
@@ -340,7 +341,7 @@ static void set_allintra_speed_features_framesize_independent(
     sf->mv_sf.exhaustive_searches_thresh <<= 1;
 
     sf->intra_sf.prune_palette_search_level = 1;
-    sf->intra_sf.early_term_luma_palette_size_search = 1;
+    sf->intra_sf.early_term_luma_palette_size_search = 2;
     sf->intra_sf.top_intra_model_count_allowed = 3;
 
     sf->tx_sf.adaptive_txb_search_level = 2;
