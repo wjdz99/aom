@@ -931,6 +931,8 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
   // Terminate early in luma palette_size search.
   // 0: No early termination
   // 1: Terminate early for higher luma palette_size, if header rd cost of lower
+  // palette_size is more than 2 * best_rd.
+  // 2: Terminate early for higher luma palette_size, if header rd cost of lower
   // palette_size is more than best_rd.
   // For allintra encode, this sf reduces instruction count by 1.07% and 2.76%
   // for speed 1 and 2 on screen content set with coding performance change less

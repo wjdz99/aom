@@ -261,9 +261,12 @@ static AOM_INLINE void palette_rd_y(
     const int palette_mode_rate =
         intra_mode_info_cost_y(cpi, x, mbmi, bsize, dc_mode_cost);
     const int64_t header_rd = RDCOST(x->rdmult, palette_mode_rate, 0);
+    // Less aggressive gating when early_term_luma_palette_size_search == 1.
+    const uint8_t header_rd_shift =
+        (cpi->sf.intra_sf.early_term_luma_palette_size_search == 1) ? 1 : 0;
     // Terminate further palette_size search, if the header cost corresponding
     // to lower palette_size is more than best_rd.
-    if (header_rd > *best_rd) {
+    if ((header_rd >> header_rd_shift) > *best_rd) {
       *do_header_rd_based_breakout = true;
       return;
     }
@@ -522,10 +525,14 @@ void av1_rd_pick_palette_intra_sby(
     if (cpi->sf.intra_sf.prune_palette_search_level == 0) {
       const int max_n = AOMMIN(colors, PALETTE_MAX_SIZE),
                 min_n = PALETTE_MIN_SIZE;
+      // Less aggressive gating based on header rdcost for
+      // prune_palette_search_level == 0.
+      const bool do_header_rd_based_gating =
+          cpi->sf.intra_sf.early_term_luma_palette_size_search != 0;
       // Perform top color palette search in ascending order
       perform_top_color_palette_search(
           cpi, x, mbmi, bsize, dc_mode_cost, data, top_colors, min_n, max_n + 1,
-          1, /*do_header_rd_based_gating=*/false, &unused, color_cache, n_cache,
+          1, do_header_rd_based_gating, &unused, color_cache, n_cache,
           best_mbmi, best_palette_color_map, best_rd, rate, rate_tokenonly,
           distortion, skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map);
       // K-means clustering.
@@ -543,7 +550,7 @@ void av1_rd_pick_palette_intra_sby(
         // Perform k-means palette search in ascending order
         perform_k_means_palette_search(
             cpi, x, mbmi, bsize, dc_mode_cost, data, lower_bound, upper_bound,
-            min_n, max_n + 1, 1, /*do_header_rd_based_gating=*/false, &unused,
+            min_n, max_n + 1, 1, do_header_rd_based_gating, &unused,
             color_cache, n_cache, best_mbmi, best_palette_color_map, best_rd,
             rate, rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
             best_blk_skip, tx_type_map, color_map, rows * cols);
@@ -580,8 +587,9 @@ void av1_rd_pick_palette_intra_sby(
       const int step_size = step_size_lookup_table[max_n];
       assert(min_n >= PALETTE_MIN_SIZE);
       // Header rdcost based early gating is currently enabled only for coarse
-      // palette size search. For all other cases, the do_header_rd_based_gating
-      // is explicitly passed as 'false'.
+      // palette size search when prune_palette_search_level is 1. For finer
+      // search, the do_header_rd_based_gating parameter is explicitly passed as
+      // 'false'.
       const bool do_header_rd_based_gating =
           cpi->sf.intra_sf.early_term_luma_palette_size_search != 0;
 
