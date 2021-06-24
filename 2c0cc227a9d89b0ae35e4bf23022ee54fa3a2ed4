@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40c38d97_f2cfd0d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-06-24T15:42:38Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs per the statistics generated in luma palette search, it is observed that ~70% of the times header rdcost increases as palette_size increases. Therefore if header rdcost corresponding to a lower palette_size is more than best_rd, then the evaluation of higher palette_size could be skipped as the higher palette_sizes are less likely to win in such cases.\n\nThis patch introduces the speed feature early_term_luma_palette_size_search to terminate rd evaluation of luma palette_size based on the available header/mode cost information for luma palette_size search. Currently the changes are enabled only for coarse level luma palette_size search in speed 1 and 2. Since the finer level search happens around the best candidate from coarse level search, header rd based gating will not be helpful in finer level search.\n\nThe changes have no effect on speed \u003d 0 and speed \u003e\u003d 3. We shall plan to optimize these paths in subsequent CLs.\n\nTo facilitate early exit, we introduced an if-else condition to reduce the overhead cost of intra_mode_info_cost_y() for the cases where the sf is disabled.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset.\n\nwith --tune\u003dpsnr,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   1           1.134           0.0014     0.0002\n   2           1.291           0.0012     0.0002\n   \nwith --tune\u003dssim,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   1           1.166           0.0005    -0.0003\n   2           1.332           0.0011    -0.0026\n   \nFollowing are instruction count reduction results for allintra video encode was tested for the screen content test set.\n\n          Instruction Count        BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  ovr.psnr    ssim\n   1           1.069        0.0037    0.0036      0.0089\n   2           2.765        0.0096    0.0091      0.0016\n\nFor specific images/screen videos, speedup of up to 20% is observed.\n\nWe have verified that this patch is bit-exact in good encoding mode and for speed\u003d0 and speed \u003e\u003d3 in allintra encoding mode.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
