@@ -229,4 +229,69 @@ TEST(TPLModelTest, TxfmStatsRecordTest) {
   }
 }
 
+/*
+ * Helper method to brute-force search for the closest q_index
+ * that achieves the specified bit budget.
+ */
+int find_gop_q_iterative(double bit_budget, int arf_q, GF_GROUP gf_group,
+                         TplTxfmStats *stats_list, int gf_frame_index) {
+  // Brute force iterative method to find the optimal q.
+  // Use the result to test against the binary search result.
+  double curr_estimate = 0;
+  double prev_estimate = 0;
+  int q_test;
+  for (q_test = 255; q_test > 0; q_test--) {
+    av1_q_mode_compute_gop_q_indices(gf_frame_index, q_test, arf_q, &gf_group);
+    prev_estimate = curr_estimate;
+    curr_estimate =
+        av1_estimate_gop_bitrate(gf_group.q_val, gf_group.size, stats_list);
+    if (curr_estimate > bit_budget) {
+      if (fabs(curr_estimate - bit_budget) > fabs(prev_estimate - bit_budget)) {
+        q_test++;  // Revert to previous q
+      }
+      break;
+    }
+  }
+  if (q_test > 255) q_test = 255;
+  return q_test;
+}
+
+TEST(TplModelTest, QModeEstimateBaseQTest) {
+  GF_GROUP gf_group = {};
+  gf_group.size = 25;
+  TplTxfmStats stats_list[25];
+  int gf_group_update_types[25] = { 0, 3, 6, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1,
+                                    5, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1, 4 };
+
+  for (int i = 0; i < gf_group.size; i++) {
+    gf_group.update_type[i] = gf_group_update_types[i];
+    stats_list[i].txfm_block_count = 8;
+
+    for (int j = 0; j < 256; j++) {
+      stats_list[i].abs_coeff_sum[j] = 1000 + j;
+    }
+  }
+
+  // Test multiple bit budgets.
+  double bit_budgets[8] = {
+    0, 100, 1000, 10000, 100000, 300000, 800000, INT_MAX
+  };
+  int gf_frame_index = 0;
+  int arf_q = 144;
+
+  for (int i = 0; i < (int)(sizeof(bit_budgets) / sizeof(bit_budgets[0]));
+       i++) {
+    double bit_budget = bit_budgets[i];
+
+    // Binary search method to find the optimal q.
+    int result = av1_q_mode_estimate_base_q(&gf_group, stats_list, bit_budget,
+                                            gf_frame_index, arf_q);
+
+    int test_result = find_gop_q_iterative(bit_budget, arf_q, gf_group,
+                                           stats_list, gf_frame_index);
+
+    EXPECT_EQ(result, test_result);
+  }
+}
+
 }  // namespace
