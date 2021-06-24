@@ -229,4 +229,48 @@ TEST(TPLModelTest, TxfmStatsRecordTest) {
   }
 }
 
+TEST(TplModelTest, QModeEstimateBaseQTest) {
+  GF_GROUP gf_group = {};
+  gf_group.size = 25;
+  TplTxfmStats stats_list[25];
+  int gf_group_update_types[25] = { 0, 3, 6, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1,
+                                    5, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1, 4 };
+
+  for (int i = 0; i < gf_group.size; i++) {
+    gf_group.update_type[i] = gf_group_update_types[i];
+    stats_list[i].txfm_block_count = 8;
+
+    for (int j = 0; j < 256; j++) {
+      stats_list[i].abs_coeff_sum[j] = 1000 + j;
+    }
+  }
+
+  double bit_budget = 300000;
+  int starting_base_q = 144;
+  int gf_frame_index = 0;
+  int arf_q = 144;
+
+  // Binary search method to find the optimal q.
+  int result = av1_q_mode_estimate_base_q(&gf_group, stats_list, bit_budget,
+                                          gf_frame_index, arf_q);
+  EXPECT_LT(result, starting_base_q);
+
+  // Brute force iterative method to find the optimal q.
+  // Use the result to test against the binary search result.
+  int q_test = 255;
+  while (q_test > 0) {
+    av1_q_mode_compute_gop_q_indices(gf_frame_index, q_test, arf_q, &gf_group);
+    double estimate =
+        av1_estimate_gop_bitrate(gf_group.q_val, gf_group.size, stats_list);
+    if (estimate > bit_budget) {
+      q_test++;
+      break;
+    }
+    q_test--;
+  }
+
+  // The result of both methods should be equal.
+  EXPECT_EQ(q_test, result);
+}
+
 }  // namespace
