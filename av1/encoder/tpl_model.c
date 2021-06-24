@@ -1967,6 +1967,8 @@ int av1_q_mode_estimate_base_q(GF_GROUP *gf_group,
     double estimate = av1_estimate_gop_bitrate(gf_group->q_val, gf_group->size,
                                                txfm_stats_list);
 
+    printf("estimate: %f, q: %d\n", estimate, q);
+
     // We want to find the lowest q that satisfies the bit budget constraint.
     // A binary search narrows the result down to two values: q_min and q_max.
     if (q_max <= q_min + 1 || estimate == bit_budget) {
