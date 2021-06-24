@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d243663_d6fa2e79",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-24T17:30:45Z",
+      "side": 1,
+      "message": "Please add BUG\u003d3022 or BUG\u003daomedia:3022.",
+      "revId": "593bb5fe5c6f7b350576dd7cb23aa9ce7dec0aa0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87198d0d_1eb32a7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-24T17:30:45Z",
+      "side": 1,
+      "message": "Fyodor: Not sure if this CL is ready for review, so I checked Code-Review+1 for now. Also, it would be good to ask someone more knowledgeable than me about the encoder to take a look.",
+      "revId": "593bb5fe5c6f7b350576dd7cb23aa9ce7dec0aa0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b885284a_f7392358",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-24T17:30:45Z",
+      "side": 1,
+      "message": "Optional: You can put the bug number aomedia:3022 instead of your user id in these two TODO comments.",
+      "revId": "593bb5fe5c6f7b350576dd7cb23aa9ce7dec0aa0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
