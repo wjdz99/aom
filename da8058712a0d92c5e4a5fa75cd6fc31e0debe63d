@@ -125,6 +125,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ffba6f8c_ca2bef27",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 14731
+      },
+      "writtenOn": "2021-06-24T21:16:57Z",
+      "side": 1,
+      "message": "Comments added.",
+      "parentUuid": "7b9a6e30_2dc36afa",
+      "revId": "da8058712a0d92c5e4a5fa75cd6fc31e0debe63d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eab480e2_8ced8ae8",
         "filename": "av1/common/ccso.c",
         "patchSetId": 10
@@ -142,6 +160,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "23406404_61c99501",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 14731
+      },
+      "writtenOn": "2021-06-24T21:16:57Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "eab480e2_8ced8ae8",
+      "revId": "da8058712a0d92c5e4a5fa75cd6fc31e0debe63d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "95613ac1_64708686",
         "filename": "av1/common/ccso.c",
         "patchSetId": 10
@@ -153,6 +189,24 @@
       "writtenOn": "2021-06-23T00:02:15Z",
       "side": 1,
       "message": "Can you pls replace multiplication by 0? If the intention is to make it programmable for different offset later, pls define few macros.",
+      "revId": "da8058712a0d92c5e4a5fa75cd6fc31e0debe63d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e15e7e5b_d137cf05",
+        "filename": "av1/common/ccso.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 14731
+      },
+      "writtenOn": "2021-06-24T21:16:57Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "95613ac1_64708686",
       "revId": "da8058712a0d92c5e4a5fa75cd6fc31e0debe63d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
