@@ -16,6 +16,24 @@
       "message": "Just a comment regarding copyright string.\nI\u0027ll let Krishna continue other code review.",
       "revId": "8213847f04b3f35254530e2c272331647edfd0a6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9dda4b27_f5438b48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14731
+      },
+      "writtenOn": "2021-06-24T21:27:00Z",
+      "side": 1,
+      "message": "\u003e Just a comment regarding copyright string.\n\u003e I\u0027ll let Krishna continue other code review.\n\nThanks Urvang. The year has been updated in the copyright claim.",
+      "parentUuid": "6108f66f_06a44bb6",
+      "revId": "8213847f04b3f35254530e2c272331647edfd0a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
