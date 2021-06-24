@@ -124,6 +124,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a2db297_bb09fc81",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 608,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-24T05:29:14Z",
+      "side": 1,
+      "message": "\u003e PTAL at the latest patch. It should be already changed.\n\nAck",
+      "parentUuid": "a577f6fa_b808950a",
+      "revId": "7716aaca07a36f30e119cf4678efcede4d0d656c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b68ea97_8ba4a10d",
