@@ -16,6 +16,24 @@
       "message": "Hi Fyodor,\n\nThank you for writing this CL.\n\nDo you think we can add the following paragraph from the commit message as a block comment here (or some other appropriate place)?\n\n  Make all-intra mode speed 7 approximately equal to real-time speed 6,\n  all-intra speed 8 close to real-time speed 7, and all-intra speed 9\n  close to real-time speed 8",
       "revId": "52d368bae98e0c9ffecc9c002c305b6684ff382e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08d85f61_b7bd1ac0",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-06-24T17:06:19Z",
+      "side": 1,
+      "message": "Did this in frame size independent part. Line 488",
+      "parentUuid": "55ef04b0_2faba439",
+      "revId": "52d368bae98e0c9ffecc9c002c305b6684ff382e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
