@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7aec6230_cc73022d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-25T20:37:16Z",
+      "side": 1,
+      "message": "Pls remove the bug reference, as this is an unrelated fix.\n(But is for 16 frame subgop, fix is for 32 frame subgop)",
+      "revId": "9a840614469b65abfaa541fb31b2de88182f707f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3f7107e9_e9e91fdd",
@@ -14,6 +31,23 @@
       "writtenOn": "2021-06-25T17:53:25Z",
       "side": 1,
       "message": "I locally test this fix, the issue is still there.\n\nPlease double check it.",
+      "revId": "9a840614469b65abfaa541fb31b2de88182f707f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba09e7e8_dd50c766",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-25T20:37:16Z",
+      "side": 1,
+      "message": "Pls see suggestion below.\nAfter editing, feel free to +2 and add back verified + 1, to submit.\nAnother question (for later): shouldn\u0027t we have similar one for RA as well?",
       "revId": "9a840614469b65abfaa541fb31b2de88182f707f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
