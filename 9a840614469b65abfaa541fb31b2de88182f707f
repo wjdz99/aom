@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c516873_697a9be7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-06-25T21:31:13Z",
+      "side": 1,
+      "message": "Only the ld case uses the subgop config in the CTC. RA does not. RA uses the default dyadic structure, which works fine for 32 frame subgop. LD default is flat. So if we wanted to test 32-frame subgop in the LD case, we need this patch. Understood that this patch does not address 3086. My mistake.",
+      "parentUuid": "2235be33_bcec7521",
+      "revId": "9a840614469b65abfaa541fb31b2de88182f707f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3f7107e9_e9e91fdd",
