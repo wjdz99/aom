@@ -190,6 +190,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c58822ec_3ca5e1f5",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:31:02Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nI think the code duplication is unfortunate, but I don\u0027t have a good suggestion because I am not familiar with this code.\n\nAn alternative is:\n\n      av1_txfm_uvrd(cpi, x, \u0026tokenonly_rd_stats, bsize, *best_rd);\n      if (tokenonly_rd_stats.rate \u003d\u003d INT_MAX) continue;\n      const int palette_mode_rate \u003d\n          intra_mode_info_cost_uv(cpi, x, mbmi, bsize, dc_mode_cost);\n      if (cpi-\u003esf.intra_sf.early_term_chroma_palette_size_search) {\n        const int64_t header_rd \u003d RDCOST(x-\u003erdmult, palette_mode_rate, 0);\n        // Terminate further palette_size search, if header cost corresponds to\n        // lower palette_size is more than the best_rd.\n        if (header_rd \u003e\u003d *best_rd) break;\n      }\n      this_rate \u003d tokenonly_rd_stats.rate + palette_mode_rate;\n\nWould this work?",
+      "parentUuid": "2632c902_df207c87",
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d8bab7b0_26ee5ce1",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 4
