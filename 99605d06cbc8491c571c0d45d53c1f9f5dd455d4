@@ -208,6 +208,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "11b940a3_f582165f",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-25T05:21:42Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe goal of this patch is to avoid the rd-evaluation of palette_size (i.e., avoid av1_txfm_uvrd() call). So, the gains we have seen in this patch were due to avoiding the call of av1_txfm_uvrd(). Hence, the suggested change is not recommendable.\n\nWe understand that there is a code duplication which is unavoidable in this case, but this change is needed to get speed-up and to avoid overhead when the sf is not enabled.\n\nThanks \u0026 Regards,\nVenkata",
+      "parentUuid": "c58822ec_3ca5e1f5",
+      "revId": "99605d06cbc8491c571c0d45d53c1f9f5dd455d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d8bab7b0_26ee5ce1",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 4
