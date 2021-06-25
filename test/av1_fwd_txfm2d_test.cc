@@ -522,43 +522,51 @@ void AV1HighbdFwdTxfm2dMatchTest(TX_SIZE tx_size,
               tx_size, static_cast<TX_TYPE>(tx_type)) == false) {
         continue;
       }
-
-      FwdTxfm2dFunc ref_func = libaom_test::fwd_txfm_func_ls[tx_size];
-      if (ref_func != NULL) {
-        DECLARE_ALIGNED(32, int16_t, input[64 * 64]) = { 0 };
-        DECLARE_ALIGNED(32, int32_t, output[64 * 64]);
-        DECLARE_ALIGNED(32, int32_t, ref_output[64 * 64]);
-        int input_stride = 64;
-        ACMRandom rnd(ACMRandom::DeterministicSeed());
-        for (int cnt = 0; cnt < 500; ++cnt) {
-          if (cnt == 0) {
-            for (int r = 0; r < rows; ++r) {
-              for (int c = 0; c < cols; ++c) {
-                input[r * input_stride + c] = (1 << bd) - 1;
+      for (int lossless = 0; lossless < 2; ++lossless) {
+        if (lossless && (tx_size != TX_4X4 || tx_type != DCT_DCT)) continue;
+        FwdTxfm2dFunc ref_func = libaom_test::fwd_txfm_func_ls[tx_size];
+        if (ref_func != NULL) {
+          DECLARE_ALIGNED(32, int16_t, input[64 * 64]) = { 0 };
+          DECLARE_ALIGNED(32, int32_t, output[64 * 64]);
+          DECLARE_ALIGNED(32, int32_t, ref_output[64 * 64]);
+          int input_stride = 64;
+          ACMRandom rnd(ACMRandom::DeterministicSeed());
+          for (int cnt = 0; cnt < 500; ++cnt) {
+            if (cnt == 0) {
+              for (int r = 0; r < rows; ++r) {
+                for (int c = 0; c < cols; ++c) {
+                  input[r * input_stride + c] = (1 << bd) - 1;
+                }
+              }
+            } else {
+              for (int r = 0; r < rows; ++r) {
+                for (int c = 0; c < cols; ++c) {
+                  input[r * input_stride + c] = rnd.Rand16() % (1 << bd);
+                }
               }
             }
-          } else {
-            for (int r = 0; r < rows; ++r) {
-              for (int c = 0; c < cols; ++c) {
-                input[r * input_stride + c] = rnd.Rand16() % (1 << bd);
-              }
-            }
-          }
-          param.tx_type = (TX_TYPE)tx_type;
-          param.tx_size = (TX_SIZE)tx_size;
-          param.tx_set_type = EXT_TX_SET_ALL16;
-          param.bd = bd;
+            param.tx_type = (TX_TYPE)tx_type;
+            param.tx_size = (TX_SIZE)tx_size;
+            param.lossless = lossless;
+            param.tx_set_type = EXT_TX_SET_ALL16;
+            param.bd = bd;
 
-          ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
-          target_func(input, output, input_stride, &param);
-          const int check_rows = AOMMIN(32, rows);
-          const int check_cols = AOMMIN(32, rows * cols / check_rows);
-          for (int r = 0; r < check_rows; ++r) {
-            for (int c = 0; c < check_cols; ++c) {
-              ASSERT_EQ(ref_output[r * check_cols + c],
-                        output[r * check_cols + c])
-                  << "[" << r << "," << c << "] cnt:" << cnt
-                  << " tx_size: " << tx_size << " tx_type: " << tx_type;
+            if (lossless) {
+              assert(tx_size == TX_4X4 && tx_type == DCT_DCT);
+              av1_highbd_fwht4x4(input, ref_output, input_stride);
+            } else {
+              ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
+            }
+            target_func(input, output, input_stride, &param);
+            const int check_rows = AOMMIN(32, rows);
+            const int check_cols = AOMMIN(32, rows * cols / check_rows);
+            for (int r = 0; r < check_rows; ++r) {
+              for (int c = 0; c < check_cols; ++c) {
+                ASSERT_EQ(ref_output[r * check_cols + c],
+                          output[r * check_cols + c])
+                    << "[" << r << "," << c << "] cnt:" << cnt
+                    << " tx_size: " << tx_size << " tx_type: " << tx_type;
+              }
             }
           }
         }
@@ -583,49 +591,59 @@ void AV1HighbdFwdTxfm2dSpeedTest(TX_SIZE tx_size,
               tx_size, static_cast<TX_TYPE>(tx_type)) == false) {
         continue;
       }
+      for (int lossless = 0; lossless < 2; ++lossless) {
+        if (lossless && (tx_size != TX_4X4 || tx_type != DCT_DCT)) continue;
+        FwdTxfm2dFunc ref_func = libaom_test::fwd_txfm_func_ls[tx_size];
+        if (ref_func != NULL) {
+          DECLARE_ALIGNED(32, int16_t, input[64 * 64]) = { 0 };
+          DECLARE_ALIGNED(32, int32_t, output[64 * 64]);
+          DECLARE_ALIGNED(32, int32_t, ref_output[64 * 64]);
+          int input_stride = 64;
+          ACMRandom rnd(ACMRandom::DeterministicSeed());
 
-      FwdTxfm2dFunc ref_func = libaom_test::fwd_txfm_func_ls[tx_size];
-      if (ref_func != NULL) {
-        DECLARE_ALIGNED(32, int16_t, input[64 * 64]) = { 0 };
-        DECLARE_ALIGNED(32, int32_t, output[64 * 64]);
-        DECLARE_ALIGNED(32, int32_t, ref_output[64 * 64]);
-        int input_stride = 64;
-        ACMRandom rnd(ACMRandom::DeterministicSeed());
-
-        for (int r = 0; r < rows; ++r) {
-          for (int c = 0; c < cols; ++c) {
-            input[r * input_stride + c] = rnd.Rand16() % (1 << bd);
+          for (int r = 0; r < rows; ++r) {
+            for (int c = 0; c < cols; ++c) {
+              input[r * input_stride + c] = rnd.Rand16() % (1 << bd);
+            }
           }
+
+          param.tx_type = (TX_TYPE)tx_type;
+          param.tx_size = (TX_SIZE)tx_size;
+          param.lossless = lossless;
+          param.tx_set_type = EXT_TX_SET_ALL16;
+          param.bd = bd;
+
+          aom_usec_timer ref_timer, test_timer;
+
+          aom_usec_timer_start(&ref_timer);
+          if (lossless) {
+            assert(tx_size == TX_4X4 && tx_type == DCT_DCT);
+            for (int i = 0; i < num_loops; ++i) {
+              av1_highbd_fwht4x4(input, ref_output, input_stride);
+            }
+          } else {
+            for (int i = 0; i < num_loops; ++i) {
+              ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
+            }
+          }
+          aom_usec_timer_mark(&ref_timer);
+          const int elapsed_time_c =
+              static_cast<int>(aom_usec_timer_elapsed(&ref_timer));
+
+          aom_usec_timer_start(&test_timer);
+          for (int i = 0; i < num_loops; ++i) {
+            target_func(input, output, input_stride, &param);
+          }
+          aom_usec_timer_mark(&test_timer);
+          const int elapsed_time_simd =
+              static_cast<int>(aom_usec_timer_elapsed(&test_timer));
+
+          printf(
+              "txfm_size[%d] \t txfm_type[%d] \t c_time=%d \t simd_time=%d \t "
+              "gain=%d \n",
+              tx_size, tx_type, elapsed_time_c, elapsed_time_simd,
+              (elapsed_time_c / elapsed_time_simd));
         }
-
-        param.tx_type = (TX_TYPE)tx_type;
-        param.tx_size = (TX_SIZE)tx_size;
-        param.tx_set_type = EXT_TX_SET_ALL16;
-        param.bd = bd;
-
-        aom_usec_timer ref_timer, test_timer;
-
-        aom_usec_timer_start(&ref_timer);
-        for (int i = 0; i < num_loops; ++i) {
-          ref_func(input, ref_output, input_stride, (TX_TYPE)tx_type, bd);
-        }
-        aom_usec_timer_mark(&ref_timer);
-        const int elapsed_time_c =
-            static_cast<int>(aom_usec_timer_elapsed(&ref_timer));
-
-        aom_usec_timer_start(&test_timer);
-        for (int i = 0; i < num_loops; ++i) {
-          target_func(input, output, input_stride, &param);
-        }
-        aom_usec_timer_mark(&test_timer);
-        const int elapsed_time_simd =
-            static_cast<int>(aom_usec_timer_elapsed(&test_timer));
-
-        printf(
-            "txfm_size[%d] \t txfm_type[%d] \t c_time=%d \t simd_time=%d \t "
-            "gain=%d \n",
-            tx_size, tx_type, elapsed_time_c, elapsed_time_simd,
-            (elapsed_time_c / elapsed_time_simd));
       }
     }
   }
