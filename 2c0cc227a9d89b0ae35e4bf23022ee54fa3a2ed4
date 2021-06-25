@@ -16,6 +16,126 @@
       "message": "Hi Wan-Teh,\n\nAs per the statistics generated in luma palette search, it is observed that ~70% of the times header rdcost increases as palette_size increases. Therefore if header rdcost corresponding to a lower palette_size is more than best_rd, then the evaluation of higher palette_size could be skipped as the higher palette_sizes are less likely to win in such cases.\n\nThis patch introduces the speed feature early_term_luma_palette_size_search to terminate rd evaluation of luma palette_size based on the available header/mode cost information for luma palette_size search. Currently the changes are enabled only for coarse level luma palette_size search in speed 1 and 2. Since the finer level search happens around the best candidate from coarse level search, header rd based gating will not be helpful in finer level search.\n\nThe changes have no effect on speed \u003d 0 and speed \u003e\u003d 3. We shall plan to optimize these paths in subsequent CLs.\n\nTo facilitate early exit, we introduced an if-else condition to reduce the overhead cost of intra_mode_info_cost_y() for the cases where the sf is disabled.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset.\n\nwith --tune\u003dpsnr,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   1           1.134           0.0014     0.0002\n   2           1.291           0.0012     0.0002\n   \nwith --tune\u003dssim,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   1           1.166           0.0005    -0.0003\n   2           1.332           0.0011    -0.0026\n   \nFollowing are instruction count reduction results for allintra video encode was tested for the screen content test set.\n\n          Instruction Count        BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  ovr.psnr    ssim\n   1           1.069        0.0037    0.0036      0.0089\n   2           2.765        0.0096    0.0091      0.0016\n\nFor specific images/screen videos, speedup of up to 20% is observed.\n\nWe have verified that this patch is bit-exact in good encoding mode and for speed\u003d0 and speed \u003e\u003d3 in allintra encoding mode.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78ac79fa_c2f0f4a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:27:09Z",
+      "side": 1,
+      "message": "Cheng, Chi Yo: Please review. Thanks!",
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "006ad1ba_2a07eb69",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:27:09Z",
+      "side": 1,
+      "message": "Nit: We should document that this function assumes the caller sets *do_header_rd_based_breakout to true before calling this function.\n\n(An alternative is for this function to set *do_header_rd_based_breakout to false on entry.)",
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4ce1b0d_a1c38a09",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:27:09Z",
+      "side": 1,
+      "message": "Nit: It seems that last_n_searched is the first output parameter. It would be better to move this new input parameter before last_n_searched.",
+      "range": {
+        "startLine": 322,
+        "startChar": 40,
+        "endLine": 322,
+        "endChar": 71
+      },
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43a92129_9ed10238",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:27:09Z",
+      "side": 1,
+      "message": "Nit: If early_term_luma_palette_size_search is a boolean (equal to 0 or 1), omit !\u003d 0.\n\nThis is okay if the !\u003d 0 is used to avoid a compiler warning.",
+      "range": {
+        "startLine": 553,
+        "startChar": 62,
+        "endLine": 553,
+        "endChar": 67
+      },
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c196288_c1b2cd36",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:27:09Z",
+      "side": 1,
+      "message": "Please add a comment to explain the criteria you used to determine which functions you forward do_header_rd_based_gating to and which functions you pass false to.",
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f59aecc5_c13a2e37",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:27:09Z",
+      "side": 1,
+      "message": "Nit: I suggest adding a comment with the parameter name:\n    /*do_header_rd_based_gating\u003d*/false\n    \nBecause there are so many arguments, it is hard to figure out what argument the \u0027false\u0027 is.",
+      "range": {
+        "startLine": 571,
+        "startChar": 12,
+        "endLine": 571,
+        "endChar": 17
+      },
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
