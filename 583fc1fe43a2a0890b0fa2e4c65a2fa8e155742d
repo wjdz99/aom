@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7337c34d_c644861e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please add one description for this coding tool in the commit message.",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f90d953a_df1fa884",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please add one comment for this newly added function.",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7afa6607_5146c369",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a44137a_b6ad15b3",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "const int",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c093bc73_54c4a402",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acbe03a3_5efc9ee6",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e736734_9d04ae20",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71584012_4ce14a7c",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6fff26ed_9b73b9e3",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 824,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "637468d0_9baee888",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 838,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79453e98_4da3826e",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 21
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-25T18:01:33Z",
+      "side": 1,
+      "message": "Please remove the common parts outside of CONFIG_SMVP_IMPROVEMENT",
+      "revId": "583fc1fe43a2a0890b0fa2e4c65a2fa8e155742d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
