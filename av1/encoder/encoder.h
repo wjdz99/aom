@@ -889,6 +889,10 @@ typedef struct {
   int layer_depth[MAX_STATIC_GF_GROUP_LENGTH];
   int arf_boost[MAX_STATIC_GF_GROUP_LENGTH];
   int max_layer_depth;
+  // Maximum depth allowed for *out-of-order* coding.
+  // If 0, out-of-order coding is NOT allowed. But in-order coding CAN still use
+  // layers for quality assignment based on oxcf->gf_cfg.gf_max_pyr_height and
+  // oxcf->gf_cfg.gf_min_pyr_height.
   int max_layer_depth_allowed;
   // Flag to indicate if the frame of type OVERLAY_UPDATE in the current GF
   // interval shows existing alt-ref frame
