@@ -33,6 +33,24 @@
       "message": "Please remove this macro, and only keep the code when NO_MV_PARSING_DEP is equal to 1. As we agreed, there will be only one compiler flag for new_inter_modes + mv parsing dependency removal, and no additional compiler flag or macro.",
       "revId": "6b9a8e4e025dedcbd062c2a739c84e1d2b895699",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5617f18d_06ad88a4",
+        "filename": "av1/common/mvref_common.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-06-25T00:00:13Z",
+      "side": 1,
+      "message": "This flag is removed later in a subsequent patch. I am afraid that if we mess with the order of the patches there may be errors introduced that will take another day or two to resolve given the problems we have with the jenkins infrastructure now. Do you thunk it is strictly necessary?",
+      "parentUuid": "01ced860_d572b1ec",
+      "revId": "6b9a8e4e025dedcbd062c2a739c84e1d2b895699",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
