@@ -2005,5 +2005,8 @@ int av1_q_mode_estimate_base_q(GF_GROUP *gf_group,
     }
   }
 
+  // Before returning, update the gop q_val.
+  av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_q, gf_group);
+
   return q;
 }
