@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa8defbf_86587c67",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-25T20:13:14Z",
+      "side": 1,
+      "message": "this is all sse2, no?",
+      "range": {
+        "startLine": 148,
+        "startChar": 30,
+        "endLine": 148,
+        "endChar": 37
+      },
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba6afa39_7fbf79c2",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-25T20:13:14Z",
+      "side": 1,
+      "message": "you can scope this to the loop, the project uses c99",
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0cbdac59_03824cb0",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-25T20:13:14Z",
+      "side": 1,
+      "message": "this could be moved closer to its first use",
+      "range": {
+        "startLine": 153,
+        "startChar": 16,
+        "endLine": 153,
+        "endChar": 23
+      },
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eac3a7ca_4d9261b3",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-25T20:13:14Z",
+      "side": 1,
+      "message": "this could be localized to the loop too",
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d9c159f_fc30d93d",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-25T20:13:14Z",
+      "side": 1,
+      "message": "const __m128i *",
+      "range": {
+        "startLine": 192,
+        "startChar": 28,
+        "endLine": 192,
+        "endChar": 41
+      },
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c5f7009_3b255ef5",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-25T20:13:14Z",
+      "side": 1,
+      "message": "this clamp looks awfully involved when we have _mm_min_epi16(), no?",
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
