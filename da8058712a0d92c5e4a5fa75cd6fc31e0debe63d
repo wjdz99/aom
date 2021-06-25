@@ -73,6 +73,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a376c860_9d40af16",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 14731
+      },
+      "writtenOn": "2021-06-25T22:36:24Z",
+      "side": 1,
+      "message": "seems clang-format will misalign the comments. I aligned it manually but clang-format will revert the changes.",
+      "parentUuid": "b4f9140a_d1840e83",
+      "revId": "da8058712a0d92c5e4a5fa75cd6fc31e0debe63d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6b82c684_097dc7e3",
         "filename": "av1/common/ccso.c",
         "patchSetId": 10
