@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28747434_bc2eb942",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-06-25T14:49:35Z",
+      "side": 1,
+      "message": "Done. We have followed the alternate approach you mentioned by setting *do_header_rd_based_breakout to false on entry.\n\nWe have also moved the variable declaration of do_header_rd_based_breakout inside the palette_size loops in respective caller functions.",
+      "parentUuid": "006ad1ba_2a07eb69",
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4ce1b0d_a1c38a09",
@@ -65,6 +83,30 @@
       "writtenOn": "2021-06-25T00:27:09Z",
       "side": 1,
       "message": "Nit: It seems that last_n_searched is the first output parameter. It would be better to move this new input parameter before last_n_searched.",
+      "range": {
+        "startLine": 322,
+        "startChar": 40,
+        "endLine": 322,
+        "endChar": 71
+      },
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe732bef_4b486d99",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-06-25T14:49:35Z",
+      "side": 1,
+      "message": "Done. We had initially placed the new input parameter after n_cache since it was the last input parameter.",
+      "parentUuid": "f4ce1b0d_a1c38a09",
       "range": {
         "startLine": 322,
         "startChar": 40,
@@ -98,6 +140,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0dad9c04_4f8c40fd",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-06-25T14:49:35Z",
+      "side": 1,
+      "message": "Though a compiler warning was not observed with:\n const bool do_header_rd_based_gating \u003d\n          cpi-\u003esf.intra_sf.early_term_luma_palette_size_search;\n\nWe thought of adding a \u0027!\u003d0\u0027 check to avoid potential performance warnings with Visual Studio compiler.\n\nPlease let us know your opinion on this.",
+      "parentUuid": "43a92129_9ed10238",
+      "range": {
+        "startLine": 553,
+        "startChar": 62,
+        "endLine": 553,
+        "endChar": 67
+      },
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7c196288_c1b2cd36",
@@ -115,6 +181,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06baae2e_d89a5ad2",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-06-25T14:49:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c196288_c1b2cd36",
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f59aecc5_c13a2e37",
@@ -128,6 +212,30 @@
       "writtenOn": "2021-06-25T00:27:09Z",
       "side": 1,
       "message": "Nit: I suggest adding a comment with the parameter name:\n    /*do_header_rd_based_gating\u003d*/false\n    \nBecause there are so many arguments, it is hard to figure out what argument the \u0027false\u0027 is.",
+      "range": {
+        "startLine": 571,
+        "startChar": 12,
+        "endLine": 571,
+        "endChar": 17
+      },
+      "revId": "2c0cc227a9d89b0ae35e4bf23022ee54fa3a2ed4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d11c7a9_eb59e061",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-06-25T14:49:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f59aecc5_c13a2e37",
       "range": {
         "startLine": 571,
         "startChar": 12,
