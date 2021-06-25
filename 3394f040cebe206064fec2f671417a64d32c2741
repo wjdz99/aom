@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh,\n\nWe have rebased the patch to latest and did sanity verification. Please review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "3394f040cebe206064fec2f671417a64d32c2741",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "086b2674_7918eba8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-06-25T00:10:07Z",
+      "side": 1,
+      "message": "Cheng, Chi Yo: Would you like to take a look before I submit this CL?",
+      "revId": "3394f040cebe206064fec2f671417a64d32c2741",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
