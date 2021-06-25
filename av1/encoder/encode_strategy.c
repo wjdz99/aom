@@ -1298,14 +1298,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     return -1;
   }
 
-  // TODO(sarahparker) finish bit allocation for one pass pyramid
-  if (has_no_stats_stage(cpi)) {
-    gf_cfg->gf_max_pyr_height =
-        AOMMIN(gf_cfg->gf_max_pyr_height, USE_ALTREF_FOR_ONE_PASS);
-    gf_cfg->gf_min_pyr_height =
-        AOMMIN(gf_cfg->gf_min_pyr_height, gf_cfg->gf_max_pyr_height);
-  }
-
   if (!is_stat_generation_stage(cpi)) {
     // If this is a forward keyframe, mark as a show_existing_frame
     // TODO(bohanli): find a consistent condition for fwd keyframes
