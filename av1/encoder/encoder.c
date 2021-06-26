@@ -2493,8 +2493,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
 #if !CONFIG_RD_COMMAND
   // Determine whether to use screen content tools using two fast encoding.
-  if (!cpi->sf.hl_sf.disable_extra_sc_testing)
-    av1_determine_sc_tools_with_encoding(cpi, q);
+  // if (!cpi->sf.hl_sf.disable_extra_sc_testing)
+  //   av1_determine_sc_tools_with_encoding(cpi, q);
 #endif  // !CONFIG_RD_COMMAND
 
 #if CONFIG_TUNE_VMAF
@@ -2576,6 +2576,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     }
 #endif  // CONFIG_RD_COMMAND
 
+    // TODO(birdmark10): where we set frame level q to
+    // cpi->common.quant_params.base_qindex
     av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                       q_cfg->enable_chroma_deltaq);
     av1_set_speed_features_qindex_dependent(cpi, oxcf->speed);

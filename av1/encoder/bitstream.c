@@ -958,6 +958,7 @@ static AOM_INLINE void write_delta_q_params(AV1_COMMON *const cm,
   const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
 
   if (delta_q_info->delta_q_present_flag) {
+    // TODO(birdmark2): where we write delta_q information to decoder
     const MB_MODE_INFO *const mbmi = xd->mi[0];
     const BLOCK_SIZE bsize = mbmi->bsize;
     const int super_block_upper_left =
@@ -4053,6 +4054,8 @@ int av1_pack_bitstream(AV1_COMP *const cpi, uint8_t *dst, size_t *size,
 
   // If no non-zero delta_q has been used, reset delta_q_present_flag
   if (cm->delta_q_info.delta_q_present_flag && cpi->deltaq_used == 0) {
+    // TODO(birdmark3): where we change delta_q_present_flag based on
+    // cpi->deltaq_used
     cm->delta_q_info.delta_q_present_flag = 0;
   }
 

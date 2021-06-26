@@ -278,6 +278,7 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
 
   x->delta_qindex = current_qindex - cm->quant_params.base_qindex;
   av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+  // TODO(birdmark4): where we setup superblock level q_index
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
 
@@ -651,7 +652,17 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 
   init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row, mi_col,
                     1);
-
+  // if(sf->part_sf.partition_search_type != SEARCH_PARTITION) {
+  //   printf("mi_row %d mi_col %d pass %d partition_search_type %d order_hint
+  //   %d displa_order_hint %d\n",
+  //       mi_row, mi_col,
+  //       cpi->oxcf.pass, sf->part_sf.partition_search_type,
+  //       cpi->common.cur_frame->order_hint,
+  //       cpi->common.cur_frame->display_order_hint);
+  //   printf("gf_frame_index %d update_type %d\n",
+  //       cpi->gf_frame_index,
+  //       cpi->ppi->gf_group.update_type[cpi->gf_frame_index]);
+  // }
   // Encode the superblock
   if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     // partition search starting from a variance-based partition
@@ -707,6 +718,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     // the general concept of 1-pass/2-pass encoders.
     const int num_passes =
         cpi->oxcf.unit_test_cfg.sb_multipass_unit_test ? 2 : 1;
+    printf("\n=== HEll num_passes %d\n", num_passes);
 
     if (num_passes == 1) {
 #if CONFIG_PARTITION_SEARCH_ORDER
@@ -715,10 +727,53 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
       av1_rd_partition_search(cpi, td, tile_data, tp, sms_root, mi_row, mi_col,
                               sb_size, &this_rdc);
 #else
+      // TODO(birdmark5): Where we call av1_rd_pick_partition.
+
+      // First pass
+      SB_FIRST_PASS_STATS sb_fp_stats;
+      av1_backup_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+      PC_TREE *const pc_root_p0 = av1_alloc_pc_tree_node(sb_size);
+      av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                            &dummy_rdc, dummy_rdc, pc_root_p0, sms_root, NULL,
+                            SB_DRY_PASS, NULL);
+      printf("first: rate %d dist %ld rd %ld base_qindex %d\n", dummy_rdc.rate,
+             dummy_rdc.dist, dummy_rdc.rdcost,
+             cpi->common.quant_params.base_qindex);
+
+      int orig_base_qindex = cpi->common.quant_params.base_qindex;
+      for (int i = -10; i <= 10; i++) {
+        // 1.5 pass
+        cpi->common.quant_params.base_qindex = orig_base_qindex + i;
+        init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row,
+                          mi_col, 0);
+        av1_reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
+        av1_reset_simple_motion_tree_partition(sms_root, sb_size);
+
+        av1_restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+        PC_TREE *const temp_pc_root = av1_alloc_pc_tree_node(sb_size);
+        av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
+                              &dummy_rdc, dummy_rdc, temp_pc_root, sms_root,
+                              NULL, SB_DRY_PASS, NULL);
+        printf("i %d rate %d dist %ld rd %ld base_qindex %d\n", i,
+               dummy_rdc.rate, dummy_rdc.dist, dummy_rdc.rdcost,
+               cpi->common.quant_params.base_qindex);
+      }
+      cpi->common.quant_params.base_qindex = orig_base_qindex;
+
+      // Second pass
+      init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row,
+                        mi_col, 0);
+      av1_reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);
+      av1_reset_simple_motion_tree_partition(sms_root, sb_size);
+
+      av1_restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
       PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
       av1_rd_pick_partition(cpi, td, tile_data, tp, mi_row, mi_col, sb_size,
                             &dummy_rdc, dummy_rdc, pc_root, sms_root, NULL,
-                            SB_SINGLE_PASS, NULL);
+                            SB_WET_PASS, NULL);
+      printf("first: rate %d dist %ld rd %ld base_qindex %d\n", dummy_rdc.rate,
+             dummy_rdc.dist, dummy_rdc.rdcost,
+             cpi->common.quant_params.base_qindex);
 #endif  // CONFIG_PARTITION_SEARCH_ORDER
     } else {
       // First pass
@@ -1270,6 +1325,8 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   MultiThreadInfo *const mt_info = &cpi->mt_info;
   AV1EncRowMultiThreadInfo *const enc_row_mt = &mt_info->enc_row_mt;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  // TODO(birdmark6): we use oxcf->q_cfg.deltaq_mode to control whether to use
+  // deltaq_mode
   const DELTAQ_MODE deltaq_mode = oxcf->q_cfg.deltaq_mode;
   int i;
 
@@ -1389,14 +1446,17 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   // Fix delta q resolution for the moment
   cm->delta_q_info.delta_q_res = 0;
   if (cpi->oxcf.q_cfg.aq_mode != CYCLIC_REFRESH_AQ) {
-    if (deltaq_mode == DELTA_Q_OBJECTIVE)
+    if (deltaq_mode == DELTA_Q_OBJECTIVE) {
+      // TODO(birdmark7): where we setup delta_q_res
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_OBJECTIVE;
-    else if (deltaq_mode == DELTA_Q_PERCEPTUAL)
+    } else if (deltaq_mode == DELTA_Q_PERCEPTUAL) {
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
-    else if (deltaq_mode == DELTA_Q_PERCEPTUAL_AI)
+    } else if (deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+    }
     // Set delta_q_present_flag before it is used for the first time
     cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
+    // TODO(birdmark8): Where we set delta_q_present_flag
     cm->delta_q_info.delta_q_present_flag = deltaq_mode != NO_DELTA_Q;
 
     // Turn off cm->delta_q_info.delta_q_present_flag if objective delta_q
@@ -1409,6 +1469,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
           !is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
         cm->delta_q_info.delta_q_present_flag = 0;
     }
+    // TODO(birdmark9): we need to keep delta_q_present_flag = 1 here
 
     // Reset delta_q_used flag
     cpi->deltaq_used = 0;

@@ -747,6 +747,7 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   x->seg_skip_block = segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP);
   x->qindex = qindex;
 
+  // TODO(birdmark1): We want to use the original rdmult here
   av1_set_error_per_bit(&x->errorperbit, rdmult);
   av1_set_sad_per_bit(cpi, &x->sadperbit, qindex);
 }
