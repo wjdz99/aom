@@ -691,8 +691,8 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
                                    ? quant_params->base_qindex + x->delta_qindex
                                    : quant_params->base_qindex));
   const int qindex = av1_get_qindex(&cm->seg, segment_id, current_qindex);
-  const int rdmult =
-      av1_compute_rd_mult(cpi, qindex + quant_params->y_dc_delta_q);
+  int rdmult = av1_compute_rd_mult(cpi, qindex + quant_params->y_dc_delta_q);
+
   const int use_qmatrix = av1_use_qmatrix(quant_params, xd, segment_id);
 
   // Y
@@ -747,8 +747,10 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   x->seg_skip_block = segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP);
   x->qindex = qindex;
 
+  // TODO(birdmark1): We want to use the original rdmult here
+  rdmult = av1_compute_rd_mult(cpi, quant_params->base_qindex);
   av1_set_error_per_bit(&x->errorperbit, rdmult);
-  av1_set_sad_per_bit(cpi, &x->sadperbit, qindex);
+  av1_set_sad_per_bit(cpi, &x->sadperbit, quant_params->base_qindex);
 }
 
 void av1_frame_init_quantizer(AV1_COMP *cpi) {

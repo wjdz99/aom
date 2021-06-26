@@ -531,7 +531,9 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
                                int mi_row, int mi_col, BLOCK_SIZE bsize,
                                AQ_MODE aq_mode, MB_MODE_INFO *mbmi) {
+  // TODO(birdmark13): We set superblock level rdmult here
   x->rdmult = cpi->rd.RDMULT;
+  return;
 
   if (aq_mode != NO_AQ) {
     assert(mbmi != NULL);
@@ -556,6 +558,7 @@ static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const AV1_COMMON *const cm = &cpi->common;
   if (cm->delta_q_info.delta_q_present_flag &&
       !cpi->sf.rt_sf.use_nonrd_pick_mode) {
+    // TODO(birdmark):
     x->rdmult =
         av1_get_hier_tpl_rdmult(cpi, x, bsize, mi_row, mi_col, x->rdmult);
   }

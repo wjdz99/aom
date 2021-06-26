@@ -651,6 +651,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
       frame_is_intra_only(cm) || (cm->current_frame.frame_number & 0x07) == 1;
   int num_planes = av1_num_planes(cm);
 
+  // TODO(birdmark12): frame level rdmult
   rd->RDMULT = av1_compute_rd_mult(
       cpi, cm->quant_params.base_qindex + cm->quant_params.y_dc_delta_q);
 #if CONFIG_RD_COMMAND
