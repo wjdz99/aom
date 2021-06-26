@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d511348_98b2559e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-06-26T18:01:11Z",
+      "side": 1,
+      "message": "@urvang, Thanks for the explanation. I stepped through the code with and without the new change. Yes, I also see the values same and understand your consolidation explanation.",
+      "parentUuid": "23155ca3_891f0143",
+      "revId": "23e53099a64a823c082755b31bd38494c9e16370",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1770653_140f88a1",
