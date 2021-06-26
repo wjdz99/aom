@@ -54,6 +54,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23155ca3_891f0143",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-26T05:37:59Z",
+      "side": 1,
+      "message": "Hi Krishna, a long explanation to answer your question below.\nPls let me know if that makes sense.",
+      "revId": "23e53099a64a823c082755b31bd38494c9e16370",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1770653_140f88a1",
@@ -103,6 +120,24 @@
       "side": 1,
       "message": "@Urvang, I am trying to comprehend the change.  \ngf_group-\u003emax_layer_depth_allowed \u003d oxcf-\u003egf_cfg.gf_max_pyr_height; is replaced by \ngf_group-\u003emax_layer_depth_allowed \u003d\nAOMMIN(gf_cfg-\u003egf_max_pyr_height, USE_ALTREF_FOR_ONE_PASS);. \n\nThe later condition is different from previous restricting max_layer_depth_allowed to 1. Any comment on why this condition is changed will be helpful.",
       "parentUuid": "45bf411d_8fbc8036",
+      "revId": "23e53099a64a823c082755b31bd38494c9e16370",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c001cc2_56b8f051",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-26T05:37:59Z",
+      "side": 1,
+      "message": "Good question. I tried to explain this briefly in the commit description, but let let me explain the code flow in detail before and after:\n\n-------\nBefore:\n-------\n\nav1_encode_strategy() {\n  ....\n  \n  if (has_no_stats_stage(cpi)) {\n    gf_cfg-\u003egf_max_pyr_height \u003d\n        AOMMIN(gf_cfg-\u003egf_max_pyr_height, USE_ALTREF_FOR_ONE_PASS);\n    gf_cfg-\u003egf_min_pyr_height \u003d\n        AOMMIN(gf_cfg-\u003egf_min_pyr_height, gf_cfg-\u003egf_max_pyr_height);\n  }\n  \n  ....\n  \n  av1_get_second_pass_params(cpi, \u0026frame_params);\n}\n\nThe av1_get_second_pass_params() was eventually calling define_gf_group_pass0() (conditioned on \"if (has_no_stats_stage(cpi)\").\n\nFinally, define_gf_group_pass0() function had:\nvoid define_gf_group_pass0() {\n  ...\n  gf_group-\u003emax_layer_depth_allowed \u003d oxcf-\u003egf_cfg.gf_max_pyr_height;\n  ...\n}\n\n------\nAfter:\n------\n\nWe do nothing in av1_encode_strategy() function, but change define_gf_group_pass0() as follows:\n\nvoid define_gf_group_pass0() {\n  ...\n  gf_group-\u003emax_layer_depth_allowed \u003d\n      AOMMIN(gf_cfg-\u003egf_max_pyr_height, USE_ALTREF_FOR_ONE_PASS);\n  ...\n}\n\nSo, the net effect is:\n- We do NOT change the values of gf_cfg-\u003egf_max_pyr_height and gf_cfg-\u003egf_min_pyr_height at all.\n- We change \"gf_group-\u003emax_layer_depth_allowed\" directly to 1 at this line (as USE_ALTREF_FOR_ONE_PASS is 1).  (Earlier also, it got the same value 1 here, but it was indirectly done through gf_cfg-\u003egf_max_pyr_height).\n- The next condition (line#1492) will be true for low-delay, so \" gf_group-\u003emax_layer_depth_allowed \u003d 0\" will be the final value assigned. (Again, this is unchanged before / after).\n\nAs a side benefit, the logic is consolidated in one place as well.",
+      "parentUuid": "9d5cf9d1_e47391d5",
       "revId": "23e53099a64a823c082755b31bd38494c9e16370",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
