@@ -854,6 +854,7 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.allow_partition_search_skip = 1;
     sf->part_sf.reuse_best_prediction_for_part_ab =
         !frame_is_intra_only(&cpi->common);
+    sf->part_sf.simple_motion_search_rect_split = 1;
 
     sf->mv_sf.auto_mv_step_size = 1;
     sf->mv_sf.simple_motion_subpel_force_stop = QUARTER_PEL;
@@ -909,7 +910,6 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.less_rectangular_check_level = 2;
     sf->part_sf.simple_motion_search_prune_agg = 1;
     sf->part_sf.prune_ext_part_using_split_info = 1;
-    sf->part_sf.simple_motion_search_rect_split = 1;
 
     sf->mv_sf.full_pixel_search_level = 1;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
