@@ -434,6 +434,7 @@ typedef struct GLOBAL_MOTION_SPEED_FEATURES {
 
   // When the current GM type is set to ZEROMV, prune ZEROMV if its performance
   // is worse than NEWMV under SSE metric.
+  // Note: this only works while gm_search_type = GM_DISABLE_SEARCH.
   int prune_zero_mv_with_sse;
 } GLOBAL_MOTION_SPEED_FEATURES;
 
@@ -495,7 +496,7 @@ typedef struct PARTITION_SPEED_FEATURES {
   int allow_partition_search_skip;
 
   // The aggressiveness of pruning with simple_motion_search.
-  // Currently 0 is the lowest, and 2 the highest.
+  // Currently 0 is the lowest, and 3 the highest.
   int simple_motion_search_prune_agg;
 
   // Perform simple_motion_search on each possible subblock and use it to prune
