@@ -330,6 +330,7 @@ if(ENABLE_EXAMPLES OR ENABLE_TESTS OR ENABLE_TOOLS)
   endif()
   if(CONFIG_AV1_ENCODER)
     add_library(aom_encoder_app_util OBJECT ${AOM_ENCODER_APP_UTIL_SOURCES})
+    add_dependencies(aom_decoder_app_util aom_rtcd)
   endif()
 endif()
 

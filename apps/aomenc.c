@@ -29,6 +29,7 @@
 #include "aom/aom_encoder.h"
 #include "aom/aom_integer.h"
 #include "aom/aomcx.h"
+#include "av1/common/resize.h"
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_ports/aom_timer.h"
 #include "aom_ports/mem_ops.h"
@@ -41,6 +42,7 @@
 #include "common/webmenc.h"
 #endif
 
+#include "common/y4menc.h"
 #include "common/y4minput.h"
 #include "examples/encoder_util.h"
 #include "stats/aomstats.h"
@@ -517,6 +519,10 @@ struct stream_config {
 #endif
   const char *partition_info_path;
   aom_color_range_t color_range;
+  const char *two_pass_input;
+  const char *two_pass_output;
+  int two_pass_width;
+  int two_pass_height;
 };
 
 struct stream_state {
@@ -541,6 +547,10 @@ struct stream_state {
   int mismatch_seen;
   unsigned int chroma_subsampling_x;
   unsigned int chroma_subsampling_y;
+  const char *ori_out_fn;
+  unsigned int ori_width;
+  unsigned int ori_height;
+  char tmp_out_fn[40];
 };
 
 static void validate_positive_rational(const char *msg,
@@ -807,6 +817,10 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
 
   /* Output files must be specified for each stream */
   stream->config.out_fn = NULL;
+  stream->config.two_pass_input = NULL;
+  stream->config.two_pass_output = NULL;
+  stream->config.two_pass_width = 0;
+  stream->config.two_pass_height = 0;
 
   stream->next = NULL;
   return stream;
@@ -1110,6 +1124,16 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       if (arg_parse_uint(&arg) == 1) {
         warn("non-zero %s option ignored in realtime mode.\n", arg.name);
       }
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_input_file,
+                         argi)) {
+      config->two_pass_input = arg.val;
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_output_file,
+                         argi)) {
+      config->two_pass_output = arg.val;
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_width, argi)) {
+      config->two_pass_width = arg_parse_int(&arg);
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_height, argi)) {
+      config->two_pass_height = arg_parse_int(&arg);
     } else {
       int i, match = 0;
       // check if the control ID API supports this arg
@@ -1879,6 +1903,114 @@ static void print_time(const char *label, int64_t etl) {
   }
 }
 
+static void downscale_plane_by_2(uint8_t *src, int w, int h, int src_stride,
+                                 int dst_stride, int bd, uint8_t *dst) {
+#if CONFIG_AV1_HIGHBITDEPTH
+  if (bd > 8)
+    av1_highbd_resize_plane(src, h, w, src_stride, dst, h / 2, w / 2,
+                            dst_stride, bd);
+  else
+    av1_resize_plane(src, h, w, src_stride, dst, h / 2, w / 2, dst_stride);
+#else
+  (void)bd;
+  av1_resize_plane(src, h, w, src_stride, dst, h / 2, w / 2, dst_stride);
+#endif
+}
+static void downscale_frame_by_2(aom_image_t *src, aom_image_t *dst) {
+  // y
+  downscale_plane_by_2(src->planes[0], src->w, src->h, src->stride[0],
+                       dst->stride[0], src->bit_depth, dst->planes[0]);
+  if (!src->monochrome) {
+    // u and v
+    for (int p = 1; p <= 2; p++) {
+      downscale_plane_by_2(src->planes[p], src->w / 2, src->h / 2,
+                           src->stride[p], dst->stride[p], src->bit_depth,
+                           dst->planes[p]);
+    }
+  }
+}
+
+// TODO(bohanli): handle skip smarter. Do not need to re-scale the skipped
+// frames.
+static int scale_video_file(struct AvxInputContext *input,
+                            aom_chroma_sample_position_t csp, int ori_width,
+                            int ori_height, int ori_bd, int limit,
+                            const char *out_file) {
+  const int PLANES_YUV[] = { AOM_PLANE_Y, AOM_PLANE_U, AOM_PLANE_V };
+  const int PLANES_YVU[] = { AOM_PLANE_Y, AOM_PLANE_V, AOM_PLANE_U };
+  struct AvxInputContext ori_input = *input;
+  open_input_file(&ori_input, csp);
+  if (!ori_input.width || !ori_input.height) {
+    ori_input.width = ori_width;
+    ori_input.height = ori_height;
+  }
+  if (!ori_input.width || !ori_input.height) return -1;
+
+  if (!ori_input.bit_depth) {
+    ori_input.bit_depth = ori_bd;
+  }
+  if (!ori_input.bit_depth) return -1;
+  if (ori_input.bit_depth > 8) ori_input.fmt |= AOM_IMG_FMT_HIGHBITDEPTH;
+
+  FILE *output = fopen(out_file, "wb");
+  if (!output) return -2;
+
+  char y4m_buf[Y4M_BUFFER_SIZE] = { 0 };
+  int first_frame = 1;
+
+  aom_image_t raw;
+  aom_image_t ds_raw;
+  int ds_w = ori_input.width / 2;
+  int ds_h = ori_input.height / 2;
+  aom_img_alloc(&raw, ori_input.fmt, ori_input.width, ori_input.height, 32);
+  aom_img_alloc(&ds_raw, ori_input.fmt, ds_w, ds_h, 32);
+  int frame_avail = 1;
+  int frames_in = 0;
+
+  while (frame_avail && frames_in < limit) {
+    frame_avail = read_frame(&ori_input, &raw);
+    if (frame_avail) {
+      frames_in++;
+      downscale_frame_by_2(&raw, &ds_raw);
+      if (first_frame) {
+        y4m_write_file_header(y4m_buf, sizeof(y4m_buf), ori_input.width / 2,
+                              ori_input.height / 2, &ori_input.framerate,
+                              raw.monochrome, raw.csp, raw.fmt, raw.bit_depth,
+                              raw.range);
+        fputs(y4m_buf, output);
+        first_frame = 0;
+      }
+      y4m_write_frame_header(y4m_buf, sizeof(y4m_buf));
+      fputs(y4m_buf, output);
+      const int *planes =
+          ((AOM_IMG_FMT_UV_FLIP & raw.fmt) ? PLANES_YVU : PLANES_YUV);
+      y4m_write_image_file(&ds_raw, planes, output);
+    }
+  }
+
+  close_input_file(&ori_input);
+
+  aom_img_free(&raw);
+  aom_img_free(&ds_raw);
+  fclose(output);
+
+  return 0;
+}
+
+static void clear_stream_count_state(struct stream_state *stream) {
+  // PSNR counters
+  for (int k = 0; k < 2; k++) {
+    stream->psnr_sse_total[k] = 0;
+    stream->psnr_samples_total[k] = 0;
+    for (int i = 0; i < 4; i++) {
+      stream->psnr_totals[k][i] = 0;
+    }
+    stream->psnr_count[k] = 0;
+  }
+  // q hist
+  memset(stream->counts, 0, sizeof(stream->counts));
+}
+
 int main(int argc, const char **argv_) {
   int pass;
   aom_image_t raw;
@@ -1953,6 +2085,12 @@ int main(int argc, const char **argv_) {
 
   /* Handle non-option arguments */
   input.filename = argv[0];
+  const char *ori_input_filename = input.filename;
+  FOREACH_STREAM(stream, streams) {
+    stream->ori_out_fn = stream->config.out_fn;
+    stream->ori_width = stream->config.cfg.g_w;
+    stream->ori_height = stream->config.cfg.g_h;
+  }
 
   if (!input.filename) {
     fprintf(stderr, "No input file specified!\n");
@@ -1964,10 +2102,71 @@ int main(int argc, const char **argv_) {
     input.only_i420 = 0;
 
   for (pass = global.pass ? global.pass - 1 : 0; pass < global.passes; pass++) {
+    if (pass > 1) {
+      FOREACH_STREAM(stream, streams) { clear_stream_count_state(stream); }
+    }
+
     int frames_in = 0, seen_frames = 0;
     int64_t estimated_time_left = -1;
     int64_t average_rate = -1;
     int64_t lagged_count = 0;
+
+    /* Set the output to the specified two-pass output file, and
+       set the width and height to the proper values. */
+    FOREACH_STREAM(stream, streams) {
+      if (!global.pass && global.passes == 3 && pass == 1) {
+        if (stream->config.two_pass_output) {
+          stream->config.out_fn = stream->config.two_pass_output;
+        } else {
+          snprintf(stream->tmp_out_fn, sizeof(stream->tmp_out_fn),
+                   "tmp_2pass_output_%d.ivf", stream->index);
+          stream->config.out_fn = stream->tmp_out_fn;
+        }
+        stream->config.cfg.g_w = stream->config.two_pass_width;
+        stream->config.cfg.g_h = stream->config.two_pass_height;
+      } else {
+        stream->config.out_fn = stream->ori_out_fn;
+        stream->config.cfg.g_w = stream->ori_width;
+        stream->config.cfg.g_h = stream->ori_height;
+      }
+    }
+
+    /* Get downscaled input file for the first two passes in three-pass
+     * encoding, from the first stream's config. */
+    if (!global.pass && global.passes == 3 && pass == 1) {
+      const char *two_pass_input_file = NULL;
+      FOREACH_STREAM(stream, streams) {
+        if (stream->config.two_pass_input) {
+          two_pass_input_file = stream->config.two_pass_input;
+          break;
+        }
+      }
+      if (!two_pass_input_file) {
+        int ori_width = 0, ori_height = 0, ori_bitdepth = 0;
+        FOREACH_STREAM(stream, streams) {
+          if (stream->ori_width && stream->ori_height) {
+            ori_width = stream->ori_width;
+            ori_height = stream->ori_height;
+            break;
+          }
+        }
+        FOREACH_STREAM(stream, streams) {
+          if (stream->config.cfg.g_input_bit_depth)
+            ori_bitdepth = stream->config.cfg.g_input_bit_depth;
+          else
+            ori_bitdepth = stream->config.cfg.g_input_bit_depth =
+                (int)stream->config.cfg.g_bit_depth;
+        }
+        two_pass_input_file = "tmp_ds_input.y4m";
+        scale_video_file(&input, global.csp, ori_width, ori_height,
+                         ori_bitdepth, global.limit, two_pass_input_file);
+      }
+      if (two_pass_input_file && pass == 1) {
+        input.filename = two_pass_input_file;
+      }
+    } else {
+      input.filename = ori_input_filename;
+    }
 
     open_input_file(&input, global.csp);
 
@@ -1975,20 +2174,37 @@ int main(int argc, const char **argv_) {
      * the data from the first stream's configuration.
      */
     if (!input.width || !input.height) {
-      FOREACH_STREAM(stream, streams) {
-        if (stream->config.cfg.g_w && stream->config.cfg.g_h) {
-          input.width = stream->config.cfg.g_w;
-          input.height = stream->config.cfg.g_h;
-          break;
+      if (!global.pass && global.passes == 3 && pass == 1) {
+        FOREACH_STREAM(stream, streams) {
+          if (stream->config.two_pass_width && stream->config.two_pass_height) {
+            input.width = stream->config.two_pass_width;
+            input.height = stream->config.two_pass_height;
+            break;
+          }
         }
-      };
+      } else {
+        FOREACH_STREAM(stream, streams) {
+          if (stream->config.cfg.g_w && stream->config.cfg.g_h) {
+            input.width = stream->config.cfg.g_w;
+            input.height = stream->config.cfg.g_h;
+            break;
+          }
+        }
+      }
     }
 
     /* Update stream configurations from the input file's parameters */
-    if (!input.width || !input.height)
-      fatal(
-          "Specify stream dimensions with --width (-w) "
-          " and --height (-h)");
+    if (!input.width || !input.height) {
+      if (!global.pass && global.passes == 3 && pass == 1) {
+        fatal(
+            "Specify stream dimensions with --two-pass-width "
+            " and --two-pass-height");
+      } else {
+        fatal(
+            "Specify stream dimensions with --width (-w) "
+            " and --height (-h)");
+      }
+    }
 
     /* If input file does not specify bit-depth but input-bit-depth parameter
      * exists, assume that to be the input bit-depth. However, if the
@@ -2136,17 +2352,14 @@ int main(int argc, const char **argv_) {
     FOREACH_STREAM(stream, streams) { validate_stream_config(stream, &global); }
 
     /* Ensure that --passes and --pass are consistent. If --pass is set and
-     * --passes=2, ensure --fpf was set.
+     * --passes >= 2, ensure --fpf was set.
      */
-    // TODO(bohanli): with passes == 3 and pass == 3, we could use either
-    // fpf or second pass bitstream. This should be updated when that option
-    // is added.
-    if (global.pass && global.passes >= 2) {
+    if (global.pass > 0 && global.pass <= 3 && global.passes >= 2) {
       FOREACH_STREAM(stream, streams) {
         if (!stream->config.stats_fn)
           die("Stream %d: Must specify --fpf when --pass=%d"
-              " and --passes=2\n",
-              stream->index, global.pass);
+              " and --passes=%d\n",
+              stream->index, global.pass, global.passes);
       }
     }
 
