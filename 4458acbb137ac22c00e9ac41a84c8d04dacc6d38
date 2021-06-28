@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c254a212_a8fba633",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-28T22:18:55Z",
+      "side": 0,
+      "message": "Nice gain without these restrictions!\nDo we know why these restrictions were introduced before?",
+      "range": {
+        "startLine": 1034,
+        "startChar": 4,
+        "endLine": 1035,
+        "endChar": 18
+      },
+      "revId": "4458acbb137ac22c00e9ac41a84c8d04dacc6d38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
