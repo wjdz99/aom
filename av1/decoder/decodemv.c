@@ -140,9 +140,17 @@ static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                              aom_reader *r,
                                              CFL_ALLOWED_TYPE cfl_allowed,
                                              PREDICTION_MODE y_mode) {
+  static int count[UV_INTRA_MODES] = {0};
   const UV_PREDICTION_MODE uv_mode =
       aom_read_symbol(r, ec_ctx->uv_mode_cdf[cfl_allowed][y_mode],
                       UV_INTRA_MODES - !cfl_allowed, ACCT_STR);
+  ++count[uv_mode];
+//  fprintf(stderr, "uv_mode %d (totals ", uv_mode);
+//  for (int i = 0; i < UV_INTRA_MODES; ++i) {
+//    if (count[i] == 0) continue;
+//    fprintf(stderr, "%d(%d) ", i, count[i]);
+//  }
+//  fprintf(stderr, ")\n");
   return uv_mode;
 }
 

@@ -1123,11 +1123,11 @@ void av1_upsample_intra_edge_high_c(uint16_t *p, int sz, int bd) {
 }
 
 static void build_intra_predictors_high(
-    const MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
+    MACROBLOCKD *xd, const uint8_t *ref8, int ref_stride, uint8_t *dst8,
     int dst_stride, PREDICTION_MODE mode, int angle_delta,
     FILTER_INTRA_MODE filter_intra_mode, TX_SIZE tx_size,
     int disable_edge_filter, int n_top_px, int n_topright_px, int n_left_px,
-    int n_bottomleft_px, int plane) {
+    int n_bottomleft_px, int plane, int calc_cfl_ns_alpha, int x, int y) {
   int i;
   uint16_t *dst = CONVERT_TO_SHORTPTR(dst8);
   uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);
@@ -1137,8 +1137,9 @@ static void build_intra_predictors_high(
   uint16_t *const left_col = left_data + 16;
   const int txwpx = tx_size_wide[tx_size];
   const int txhpx = tx_size_high[tx_size];
-  int need_left = extend_modes[mode] & NEED_LEFT;
-  int need_above = extend_modes[mode] & NEED_ABOVE;
+  const int store_y = (plane == 0) && xd->cfl.store_y;
+  int need_left = (extend_modes[mode] & NEED_LEFT);
+  int need_above = (extend_modes[mode] & NEED_ABOVE);
   int need_above_left = extend_modes[mode] & NEED_ABOVELEFT;
   const uint16_t *above_ref = ref - ref_stride;
   const uint16_t *left_ref = ref - 1;
@@ -1170,6 +1171,7 @@ static void build_intra_predictors_high(
       need_above = 0, need_left = 1, need_above_left = 1;
   }
   if (use_filter_intra) need_left = need_above = need_above_left = 1;
+  if (store_y) need_above = need_left = 1;
 
   assert(n_top_px >= 0);
   assert(n_topright_px >= 0);
@@ -1246,6 +1248,18 @@ static void build_intra_predictors_high(
     }
     left_col[-1] = above_row[-1];
   }
+  // Finished computing context.
+
+  if (store_y) {
+    assert(x + txwpx <= 32);
+    assert(y + txhpx <= 32);
+    // TODO subsample if 420
+    memcpy(xd->cfl.above_ref + x + (y >> 2) * CFL_BUF_LINE, above_row, txwpx * sizeof(above_row[0]));
+    memcpy(xd->cfl.left_ref + y + (x >> 2) * CFL_BUF_LINE, left_col, txhpx * sizeof(left_col[0]));
+  } else if (calc_cfl_ns_alpha) {
+    CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
+    cfl_ns_calc_alpha_high(&xd->cfl, pred_plane, tx_size, x, y, above_row, left_col);
+  }
 
   if (use_filter_intra) {
     highbd_filter_intra_predictor(dst, dst_stride, tx_size, above_row, left_col,
@@ -1305,14 +1319,14 @@ static void build_intra_predictors_high(
   }
 }
 
-static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
+static void build_intra_predictors(MACROBLOCKD *xd, const uint8_t *ref,
                                    int ref_stride, uint8_t *dst, int dst_stride,
                                    PREDICTION_MODE mode, int angle_delta,
                                    FILTER_INTRA_MODE filter_intra_mode,
                                    TX_SIZE tx_size, int disable_edge_filter,
                                    int n_top_px, int n_topright_px,
                                    int n_left_px, int n_bottomleft_px,
-                                   int plane) {
+                                   int plane, int calc_cfl_ns_alpha, int x, int y) {
   int i;
   const uint8_t *above_ref = ref - ref_stride;
   const uint8_t *left_ref = ref - 1;
@@ -1322,6 +1336,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
   uint8_t *const left_col = left_data + 16;
   const int txwpx = tx_size_wide[tx_size];
   const int txhpx = tx_size_high[tx_size];
+  const int store_y = (plane == 0) && xd->cfl.store_y;
   int need_left = extend_modes[mode] & NEED_LEFT;
   int need_above = extend_modes[mode] & NEED_ABOVE;
   int need_above_left = extend_modes[mode] & NEED_ABOVELEFT;
@@ -1353,6 +1368,7 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
       need_above = 0, need_left = 1, need_above_left = 1;
   }
   if (use_filter_intra) need_left = need_above = need_above_left = 1;
+  if (store_y) need_left = need_above = 1;
 
   assert(n_top_px >= 0);
   assert(n_topright_px >= 0);
@@ -1426,6 +1442,26 @@ static void build_intra_predictors(const MACROBLOCKD *xd, const uint8_t *ref,
       above_row[-1] = 128;
     }
     left_col[-1] = above_row[-1];
+  }
+  // Finished computing context.
+
+  if (store_y) {
+    assert(x + txwpx <= 32);
+    assert(y + txhpx <= 32);
+    // TODO subsample if 420
+    uint16_t* above_dst = xd->cfl.above_ref + x  + (y >> 2) * CFL_BUF_LINE;
+    uint16_t* left_dst = xd->cfl.left_ref + y + (x >> 2) * CFL_BUF_LINE;
+    for (i = 0; i < txwpx; ++i) above_dst[i] = above_row[i];
+    for (i = 0; i < txhpx; ++i) left_dst[i] = left_col[i];
+  } else if (calc_cfl_ns_alpha) {
+    uint16_t above_row16[NUM_INTRA_NEIGHBOUR_PIXELS];
+    uint16_t left_col16[NUM_INTRA_NEIGHBOUR_PIXELS];
+    for (i = 0; i < txwpx; ++i) above_row16[i] = above_row[i];
+    for (i = 0; i < txhpx; ++i) left_col16[i] = left_col[i];
+
+    CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
+    cfl_ns_calc_alpha_high(&xd->cfl, pred_plane, tx_size, x, y, above_row16,
+                           left_col16);
   }
 
   if (use_filter_intra) {
@@ -1538,10 +1574,11 @@ static INLINE BLOCK_SIZE scale_chroma_bsize(BLOCK_SIZE bsize, int subsampling_x,
 }
 
 void av1_predict_intra_block(
-    const AV1_COMMON *cm, const MACROBLOCKD *xd, int wpx, int hpx,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int wpx, int hpx,
     TX_SIZE tx_size, PREDICTION_MODE mode, int angle_delta, int use_palette,
     FILTER_INTRA_MODE filter_intra_mode, const uint8_t *ref, int ref_stride,
-    uint8_t *dst, int dst_stride, int col_off, int row_off, int plane) {
+    uint8_t *dst, int dst_stride, int col_off, int row_off, int plane,
+    int calc_cfl_ns_alpha) {
   const MB_MODE_INFO *const mbmi = xd->mi[0];
   const int txwpx = tx_size_wide[tx_size];
   const int txhpx = tx_size_high[tx_size];
@@ -1569,7 +1606,7 @@ void av1_predict_intra_block(
         }
       }
     }
-    return;
+    return; // TODO might still need to store y context
   }
 
   const struct macroblockd_plane *const pd = &xd->plane[plane];
@@ -1619,7 +1656,8 @@ void av1_predict_intra_block(
         have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
         have_top_right ? AOMMIN(txwpx, xr) : 0,
         have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+        have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane,
+        calc_cfl_ns_alpha, x, y);
     return;
   }
 
@@ -1629,7 +1667,8 @@ void av1_predict_intra_block(
                          have_top ? AOMMIN(txwpx, xr + txwpx) : 0,
                          have_top_right ? AOMMIN(txwpx, xr) : 0,
                          have_left ? AOMMIN(txhpx, yd + txhpx) : 0,
-                         have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane);
+                         have_bottom_left ? AOMMIN(txhpx, yd) : 0, plane,
+                         calc_cfl_ns_alpha, x, y);
 }
 
 void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
@@ -1648,7 +1687,7 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
           : FILTER_INTRA_MODES;
   const int angle_delta = mbmi->angle_delta[plane != AOM_PLANE_Y] * ANGLE_STEP;
 
-  if (plane != AOM_PLANE_Y && mbmi->uv_mode == UV_CFL_PRED) {
+  if (plane != AOM_PLANE_Y && (mbmi->uv_mode == UV_CFL_PRED || mbmi->uv_mode == UV_CFL_NS_PRED)) {
 #if CONFIG_DEBUG
     assert(is_cfl_allowed(xd));
     const BLOCK_SIZE plane_bsize = get_plane_block_size(
@@ -1664,24 +1703,34 @@ void av1_predict_intra_block_facade(const AV1_COMMON *cm, MACROBLOCKD *xd,
 #endif
     CFL_CTX *const cfl = &xd->cfl;
     CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
-    if (cfl->dc_pred_is_cached[pred_plane] == 0) {
+    const int calc_cfl_ns_alpha = mbmi->uv_mode == UV_CFL_NS_PRED;
+    if (cfl->dc_pred_is_cached[pred_plane] == 0
+        || (calc_cfl_ns_alpha && cfl->alpha_is_cached[pred_plane] == 0)) {
       av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
                               angle_delta, use_palette, filter_intra_mode, dst,
                               dst_stride, dst, dst_stride, blk_col, blk_row,
-                              plane);
+                              plane, calc_cfl_ns_alpha);
       if (cfl->use_dc_pred_cache) {
         cfl_store_dc_pred(xd, dst, pred_plane, tx_size_wide[tx_size]);
         cfl->dc_pred_is_cached[pred_plane] = 1;
+        if (calc_cfl_ns_alpha) {
+          cfl->alpha_is_cached[pred_plane] = 1;
+        }
       }
     } else {
       cfl_load_dc_pred(xd, dst, dst_stride, tx_size, pred_plane);
     }
-    cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
+    if (mbmi->uv_mode == UV_CFL_PRED) {
+      cfl_predict_block(xd, dst, dst_stride, tx_size, plane);
+    } else {
+      cfl_ns_predict_block(xd, dst, dst_stride, tx_size, plane);
+    }
     return;
   }
   av1_predict_intra_block(cm, xd, pd->width, pd->height, tx_size, mode,
                           angle_delta, use_palette, filter_intra_mode, dst,
-                          dst_stride, dst, dst_stride, blk_col, blk_row, plane);
+                          dst_stride, dst, dst_stride, blk_col, blk_row, plane,
+                          /*calc_cfl_ns_alpha=*/0);
 }
 
 void av1_init_intra_predictors(void) {

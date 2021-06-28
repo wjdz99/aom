@@ -30,6 +30,8 @@ void cfl_init(CFL_CTX *cfl, const SequenceHeader *seq_params) {
   cfl->use_dc_pred_cache = 0;
   cfl->dc_pred_is_cached[CFL_PRED_U] = 0;
   cfl->dc_pred_is_cached[CFL_PRED_V] = 0;
+  cfl->alpha_is_cached[CFL_PRED_U] = 0;
+  cfl->alpha_is_cached[CFL_PRED_V] = 0;
 }
 
 void cfl_store_dc_pred(MACROBLOCKD *const xd, const uint8_t *input,
@@ -421,3 +423,126 @@ void cfl_store_block(MACROBLOCKD *const xd, BLOCK_SIZE bsize, TX_SIZE tx_size) {
   cfl_store(cfl, pd->dst.buf, pd->dst.stride, row, col, tx_size,
             is_cur_buf_hbd(xd));
 }
+
+static INLINE void cfl_ns_predict_lbd_c(const int16_t *ac_buf_q3, uint8_t *dst,
+                                     int dst_stride, int alpha_q12, int width,
+                                     int height) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      int scaled_luma_q15 = alpha_q12 * ac_buf_q3[i];
+      int scaled_luma_q0 = ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q15, 15);
+      dst[i] = clip_pixel(scaled_luma_q0 + dst[i]);
+    }
+    dst += dst_stride;
+    ac_buf_q3 += CFL_BUF_LINE;
+  }
+}
+
+static INLINE void cfl_ns_predict_hbd_c(const int16_t *ac_buf_q3, uint16_t *dst,
+                                     int dst_stride, int alpha_q12, int width,
+                                     int height) {
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      int scaled_luma_q15 = alpha_q12 * ac_buf_q3[i];
+      int scaled_luma_q0 = ROUND_POWER_OF_TWO_SIGNED(scaled_luma_q15, 15);
+      dst[i] = clip_pixel(scaled_luma_q0 + dst[i]);
+    }
+    dst += dst_stride;
+    ac_buf_q3 += CFL_BUF_LINE;
+  }
+}
+
+void cfl_ns_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
+                       TX_SIZE tx_size, int plane) {
+  CFL_CTX *const cfl = &xd->cfl;
+  assert(is_cfl_allowed(xd));
+
+  if (!cfl->are_parameters_computed) cfl_compute_parameters(xd, tx_size);
+
+  const CFL_PRED_TYPE pred_plane = get_cfl_pred_type(plane);
+  const int alpha_q12 = cfl->alpha_q12[pred_plane];
+  assert((tx_size_high[tx_size] - 1) * CFL_BUF_LINE + tx_size_wide[tx_size] <=
+         CFL_BUF_SQUARE);
+  if (is_cur_buf_hbd(xd)) {
+    uint16_t *dst_16 = CONVERT_TO_SHORTPTR(dst);
+    cfl_ns_predict_hbd_c(cfl->ac_buf_q3, dst_16, dst_stride, alpha_q12,
+                       tx_size_wide[tx_size], tx_size_high[tx_size]);
+    return;
+  }
+  cfl_ns_predict_lbd_c(cfl->ac_buf_q3, dst, dst_stride, alpha_q12,
+                       tx_size_wide[tx_size], tx_size_high[tx_size]);
+}
+
+static inline int32_t ClampToSigned32(int32_t v, uint32_t num_bits) {
+  assert(num_bits > 0 && num_bits < sizeof(int32_t) * 8);
+  const int32_t limit = (int32_t)1 << (num_bits - 1);
+  return clamp(v, -limit, limit - 1);
+}
+
+static void linear_regression_high(int width, int height, const uint16_t* const y_above,
+                                    const uint16_t* const y_left,
+                                    const uint16_t* const uv_above,
+                                    const uint16_t* const uv_left,
+                                    int32_t* const a, int32_t* const b) {
+  // Max precision for YUV values, excluding the sign.
+  const uint32_t kYuvMaxPrec = 9u;
+  const uint32_t kCflFracBits = 12;
+  const uint32_t kCflABits = kCflFracBits + 2 + 1;
+  const uint32_t kCflBBits = kCflFracBits + kYuvMaxPrec + 2;
+
+  // TODO make sure there are no overflows
+  int64_t num_values = width + height;
+  int64_t l_sum = 0;
+  int64_t uv_sum = 0;
+  int64_t l_uv_sum = 0;
+  int64_t l_l_sum = 0;
+  for (int i = 0; i < width; ++i) {
+    const uint16_t l = y_above[i], uv = uv_above[i];
+    l_sum += l;
+    uv_sum += uv;
+    l_uv_sum += l * uv;
+    l_l_sum += l * l;
+  }
+  for (int i = 0; i < height; ++i) {
+    const uint16_t l = y_left[i], uv = uv_left[i];
+    l_sum += l;
+    uv_sum += uv;
+    l_uv_sum += l * uv;
+    l_l_sum += l * l;
+  }
+  const int64_t num = l_uv_sum * num_values - l_sum * uv_sum;
+  const int64_t den = l_l_sum * num_values - l_sum * l_sum;
+  int32_t A = 0;
+  int32_t B = DIVIDE_AND_ROUND(uv_sum << kCflFracBits, num_values);
+  if (num != 0 && den != 0) {
+    A = DIVIDE_AND_ROUND(num << kCflFracBits, den);  // fits in 64b precision
+  }
+  B += (1 << kCflFracBits >> 1);   // include rounding constant
+
+  // Tighten the scaling/offset value to avoid obvious overflows.
+  // Warning! alpha-from-chroma heavily relies on saturating to [0..255],
+  // and generate large 'B' constants. We must not clip 'B' with min/max_value_
+  // but with the max codable range (kYuvMaxPrec = 9b) to retain this property.
+  const int32_t max_range = 2 << (kCflFracBits + kYuvMaxPrec);
+  if (abs(B) > max_range) {
+    A = 0;
+  }
+  *a = ClampToSigned32(A, kCflABits);
+  *b = ClampToSigned32(B, kCflBBits);
+}
+
+void cfl_ns_calc_alpha_high(CFL_CTX *const cfl,
+                    CFL_PRED_TYPE pred_plane,
+                    TX_SIZE tx_size,
+                    int x, int y,
+                    const uint16_t *above,
+                    const uint16_t *left) {
+  uint16_t *const y_above = cfl->above_ref + x + (y >> 2) * CFL_BUF_LINE;
+  uint16_t *const y_left = cfl->left_ref + y + (x >> 2) * CFL_BUF_LINE;
+  int32_t a;
+  int32_t b; // TODO should be passed in to match the dc predictor?
+  linear_regression_high(tx_size_wide[tx_size], tx_size_high[tx_size], y_above,
+                    y_left, above, left, &a, &b);
+  cfl->alpha_q12[pred_plane] = a;
+}
+

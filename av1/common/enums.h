@@ -446,6 +446,7 @@ enum {
   UV_SMOOTH_H_PRED,  // Horizontal interpolation
   UV_PAETH_PRED,     // Predict from the direction of smallest gradient
   UV_CFL_PRED,       // Chroma-from-Luma
+  UV_CFL_NS_PRED,    // Chroma-from-Luma, Non Signaling version
   UV_INTRA_MODES,
   UV_MODE_INVALID,  // For uv_mode in inter blocks
 } UENUM1BYTE(UV_PREDICTION_MODE);

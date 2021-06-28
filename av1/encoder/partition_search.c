@@ -2588,7 +2588,7 @@ static void rectangular_partition_search(
       // Neither palette mode nor cfl predicted.
       if (pmi->palette_size[PLANE_TYPE_Y] == 0 &&
           pmi->palette_size[PLANE_TYPE_UV] == 0) {
-        if (mbmi->uv_mode != UV_CFL_PRED)
+        if (mbmi->uv_mode != UV_CFL_PRED && mbmi->uv_mode != UV_CFL_NS_PRED)
           part_search_state->is_rect_ctx_is_ready[i] = 1;
       }
       av1_update_state(cpi, td, cur_ctx[i][sub_part_idx][0], blk_params.mi_row,
@@ -3323,7 +3323,7 @@ static void split_partition_search(
       const PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
       // Neither palette mode nor cfl predicted.
       if (pmi->palette_size[0] == 0 && pmi->palette_size[1] == 0) {
-        if (mbmi->uv_mode != UV_CFL_PRED)
+        if (mbmi->uv_mode != UV_CFL_PRED && mbmi->uv_mode != UV_CFL_NS_PRED)
           part_search_state->is_split_ctx_is_ready[idx] = 1;
       }
     }

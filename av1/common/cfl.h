@@ -53,7 +53,7 @@ static INLINE CFL_ALLOWED_TYPE store_cfl_required(const AV1_COMMON *cm,
   // If this block has chroma information, we know whether we're
   // actually going to perform a CfL prediction
   return (CFL_ALLOWED_TYPE)(!is_inter_block(mbmi) &&
-                            mbmi->uv_mode == UV_CFL_PRED);
+      (mbmi->uv_mode == UV_CFL_PRED || mbmi->uv_mode == UV_CFL_NS_PRED));
 }
 
 static INLINE int get_scaled_luma_q0(int alpha_q3, int16_t pred_buf_q3) {
@@ -79,6 +79,17 @@ void cfl_store_dc_pred(MACROBLOCKD *const xd, const uint8_t *input,
 
 void cfl_load_dc_pred(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
                       TX_SIZE tx_size, CFL_PRED_TYPE pred_plane);
+
+void cfl_ns_predict_block(MACROBLOCKD *const xd, uint8_t *dst, int dst_stride,
+                       TX_SIZE tx_size, int plane);
+
+void cfl_ns_calc_alpha_high(CFL_CTX *const cfl,
+                            CFL_PRED_TYPE pred_plane,
+                            TX_SIZE tx_size,
+                            int x, int y,
+                            const uint16_t *above,
+                            const uint16_t *left);
+
 
 // Allows the CFL_SUBSAMPLE function to switch types depending on the bitdepth.
 #define CFL_lbd_TYPE uint8_t *cfl_type

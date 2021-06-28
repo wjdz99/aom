@@ -298,6 +298,7 @@ static INLINE PREDICTION_MODE get_uv_mode(UV_PREDICTION_MODE mode) {
     SMOOTH_H_PRED,  // UV_SMOOTH_H_PRED
     PAETH_PRED,     // UV_PAETH_PRED
     DC_PRED,        // UV_CFL_PRED
+    DC_PRED,        // UV_CFL_NS_PRED
     INTRA_INVALID,  // UV_INTRA_MODES
     INTRA_INVALID,  // UV_MODE_INVALID
   };
@@ -459,16 +460,23 @@ typedef struct {
   (CFL_SUB8X8_VAL_MI_SIZE * CFL_SUB8X8_VAL_MI_SIZE)
 #endif  // CONFIG_DEBUG
 #define CFL_MAX_BLOCK_SIZE (BLOCK_32X32)
+// Spec: CfL is available to luma partitions lesser than or equal to 32x32
 #define CFL_BUF_LINE (32)
 #define CFL_BUF_LINE_I128 (CFL_BUF_LINE >> 3)
 #define CFL_BUF_LINE_I256 (CFL_BUF_LINE >> 4)
 #define CFL_BUF_SQUARE (CFL_BUF_LINE * CFL_BUF_LINE)
+#define CFL_REF_SQUARE (CFL_BUF_SQUARE >> 2)
 typedef struct cfl_ctx {
   // Q3 reconstructed luma pixels (only Q2 is required, but Q3 is used to avoid
   // shifts)
   uint16_t recon_buf_q3[CFL_BUF_SQUARE];
   // Q3 AC contributions (reconstructed luma pixels - tx block avg)
   int16_t ac_buf_q3[CFL_BUF_SQUARE];
+
+  uint16_t above_ref[CFL_REF_SQUARE];
+  uint16_t left_ref[CFL_REF_SQUARE];
+  int alpha_is_cached[CFL_PRED_PLANES];
+  int32_t alpha_q12[CFL_PRED_PLANES]; // alpha per plane
 
   // Cache the DC_PRED when performing RDO, so it does not have to be recomputed
   // for every scaling parameter
