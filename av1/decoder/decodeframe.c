@@ -2038,6 +2038,17 @@ static AOM_INLINE void setup_superres(AV1_COMMON *const cm,
   if (!seq_params->enable_superres) return;
 
   if (aom_rb_read_bit(rb)) {
+#if CONFIG_EXT_SUPERRES
+    cm->superres_scale_index =
+        (uint8_t)aom_rb_read_literal(rb, SUPERRES_SCALE_BITS);
+    cm->superres_scale_denominator =
+        superres_scale_denominators[cm->superres_scale_index];
+    cm->superres_scale_numerator =
+        superres_scale_numerators[cm->superres_scale_index];
+    av1_calculate_scaled_superres_size(width, height,
+                                       cm->superres_scale_denominator,
+                                       cm->superres_scale_numerator);
+#else   // CONFIG_EXT_SUPERRES
     cm->superres_scale_denominator =
         (uint8_t)aom_rb_read_literal(rb, SUPERRES_SCALE_BITS);
     cm->superres_scale_denominator += SUPERRES_SCALE_DENOMINATOR_MIN;
@@ -2045,9 +2056,13 @@ static AOM_INLINE void setup_superres(AV1_COMMON *const cm,
     // resized correctly
     av1_calculate_scaled_superres_size(width, height,
                                        cm->superres_scale_denominator);
+#endif  // CONFIG_EXT_SUPERRES
   } else {
     // 1:1 scaling - ie. no scaling, scale not provided
     cm->superres_scale_denominator = SCALE_NUMERATOR;
+#if CONFIG_EXT_SUPERRES
+    cm->superres_scale_numerator = SCALE_NUMERATOR;
+#endif  // CONFIG_EXT_SUPERRES
   }
 }
 
