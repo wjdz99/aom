@@ -18,6 +18,11 @@
 extern "C" {
 #endif
 
+typedef struct {
+  uint8_t scale_denom;
+  uint8_t scale_nom;
+} scale_factor;
+
 int av1_superres_in_recode_allowed(const AV1_COMP *const cpi);
 void av1_superres_post_encode(AV1_COMP *cpi);
 

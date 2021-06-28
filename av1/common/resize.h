@@ -80,6 +80,17 @@ void av1_resize_and_extend_frame_nonnormative(const YV12_BUFFER_CONFIG *src,
                                               YV12_BUFFER_CONFIG *dst, int bd,
                                               const int num_planes);
 
+#if CONFIG_EXT_SUPERRES
+// Calculates the scaled dimensions from the given original dimensions and the
+// resize scale denominator and numerator.
+void av1_calculate_scaled_size(int *width, int *height, int resize_denom,
+                               int resize_nom);
+
+// Similar to above, but calculates scaled dimensions after superres from the
+// given original dimensions and superres scale denominator.
+void av1_calculate_scaled_superres_size(int *width, int *height,
+                                        int superres_denom, int superres_nom);
+#else   // CONFIG_EXT_SUPERRES
 // Calculates the scaled dimensions from the given original dimensions and the
 // resize scale denominator.
 void av1_calculate_scaled_size(int *width, int *height, int resize_denom);
@@ -88,6 +99,7 @@ void av1_calculate_scaled_size(int *width, int *height, int resize_denom);
 // given original dimensions and superres scale denominator.
 void av1_calculate_scaled_superres_size(int *width, int *height,
                                         int superres_denom);
+#endif  // CONFIG_EXT_SUPERRES
 
 // Inverse of av1_calculate_scaled_superres_size() above: calculates the
 // original dimensions from the given scaled dimensions and the scale

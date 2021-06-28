@@ -439,6 +439,13 @@ static const int quant_dist_lookup_table[2][4][2] = {
   { { 7, 9 }, { 5, 11 }, { 4, 12 }, { 3, 13 } },
 };
 
+#if CONFIG_EXT_SUPERRES
+static const int superres_scale_numerators[SUPERRES_SCALES] = { 8, 8, 8, 8 };
+
+static const int superres_scale_denominators[SUPERRES_SCALES] = { 10, 12, 14,
+                                                                  16 };
+#endif  // CONFIG_EXT_SUPERRES
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
