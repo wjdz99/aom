@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e76652d0_e8c33e65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-06-28T16:50:22Z",
+      "side": 1,
+      "message": "Good coding gain (especially for higher res \u0026 higher speeds) without speed loss. Looks good.\n\nNoticed only 1st mv in ref_mv_stack is used. Not sure if a simpler ref_mv search would be sufficient here (i.e. search less rows/columns). But the current change didn\u0027t increase encoder time much, may be good enough.\n\n",
+      "revId": "3df0eb87754850e2a187a7a75cc3b466c626f5f4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d3a2606b_84bb7d5c",
