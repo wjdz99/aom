@@ -1538,7 +1538,8 @@ static void compute_intra_yprediction(const AV1_COMMON *cm,
       av1_predict_intra_block(cm, xd, block_size_wide[bsize],
                               block_size_high[bsize], tx_size, mode, 0, 0,
                               FILTER_INTRA_MODES, pd->dst.buf, dst_stride,
-                              pd->dst.buf, dst_stride, 0, 0, plane);
+                              pd->dst.buf, dst_stride, 0, 0, plane,
+                              /*calc_cfl_ns_alpha=*/0);
     }
   }
   p->src.buf = src_buf_base;

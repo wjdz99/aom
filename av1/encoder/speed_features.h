@@ -56,20 +56,19 @@ enum {
       (1 << UV_D45_PRED) | (1 << UV_D135_PRED) | (1 << UV_D113_PRED) |
       (1 << UV_D157_PRED) | (1 << UV_D203_PRED) | (1 << UV_D67_PRED) |
       (1 << UV_SMOOTH_PRED) | (1 << UV_SMOOTH_V_PRED) |
-      (1 << UV_SMOOTH_H_PRED) | (1 << UV_PAETH_PRED) | (1 << UV_CFL_PRED),
+      (1 << UV_SMOOTH_H_PRED) | (1 << UV_PAETH_PRED) | (1 << UV_CFL_PRED) |
+      (1 << UV_CFL_NS_PRED),
+  UV_INTRA_CFL = (1 << UV_CFL_PRED) | (1 << UV_CFL_NS_PRED),
   UV_INTRA_DC = (1 << UV_DC_PRED),
-  UV_INTRA_DC_CFL = (1 << UV_DC_PRED) | (1 << UV_CFL_PRED),
+  UV_INTRA_DC_CFL = (1 << UV_DC_PRED) | UV_INTRA_CFL,
   UV_INTRA_DC_TM = (1 << UV_DC_PRED) | (1 << UV_PAETH_PRED),
   UV_INTRA_DC_PAETH_CFL =
-      (1 << UV_DC_PRED) | (1 << UV_PAETH_PRED) | (1 << UV_CFL_PRED),
+      (1 << UV_DC_PRED) | (1 << UV_PAETH_PRED) | UV_INTRA_CFL,
   UV_INTRA_DC_H_V = (1 << UV_DC_PRED) | (1 << UV_V_PRED) | (1 << UV_H_PRED),
-  UV_INTRA_DC_H_V_CFL = (1 << UV_DC_PRED) | (1 << UV_V_PRED) |
-                        (1 << UV_H_PRED) | (1 << UV_CFL_PRED),
+  UV_INTRA_DC_H_V_CFL = UV_INTRA_DC_H_V | UV_INTRA_CFL,
   UV_INTRA_DC_PAETH_H_V = (1 << UV_DC_PRED) | (1 << UV_PAETH_PRED) |
                           (1 << UV_V_PRED) | (1 << UV_H_PRED),
-  UV_INTRA_DC_PAETH_H_V_CFL = (1 << UV_DC_PRED) | (1 << UV_PAETH_PRED) |
-                              (1 << UV_V_PRED) | (1 << UV_H_PRED) |
-                              (1 << UV_CFL_PRED),
+  UV_INTRA_DC_PAETH_H_V_CFL = UV_INTRA_DC_PAETH_H_V | UV_INTRA_CFL,
   INTRA_DC = (1 << DC_PRED),
   INTRA_DC_TM = (1 << DC_PRED) | (1 << PAETH_PRED),
   INTRA_DC_H_V = (1 << DC_PRED) | (1 << V_PRED) | (1 << H_PRED),

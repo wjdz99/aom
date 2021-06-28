@@ -24,10 +24,10 @@ static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
 };
 
 static const UV_PREDICTION_MODE uv_rd_search_mode_order[UV_INTRA_MODES] = {
-  UV_DC_PRED,     UV_CFL_PRED,   UV_H_PRED,        UV_V_PRED,
+  UV_DC_PRED, UV_CFL_PRED, UV_CFL_NS_PRED, UV_H_PRED, UV_V_PRED,
   UV_SMOOTH_PRED, UV_PAETH_PRED, UV_SMOOTH_V_PRED, UV_SMOOTH_H_PRED,
-  UV_D135_PRED,   UV_D203_PRED,  UV_D157_PRED,     UV_D67_PRED,
-  UV_D113_PRED,   UV_D45_PRED,
+  UV_D135_PRED, UV_D203_PRED, UV_D157_PRED, UV_D67_PRED,
+  UV_D113_PRED, UV_D45_PRED,
 };
 /*!\endcond */
 
@@ -431,6 +431,8 @@ static int cfl_rd_pick_alpha(MACROBLOCK *const x, const AV1_COMP *const cpi,
   xd->cfl.use_dc_pred_cache = 0;
   xd->cfl.dc_pred_is_cached[0] = 0;
   xd->cfl.dc_pred_is_cached[1] = 0;
+  xd->cfl.alpha_is_cached[0] = 0;
+  xd->cfl.alpha_is_cached[1] = 0;
   return best_rate_overhead;
 }
 
@@ -491,9 +493,12 @@ int64_t av1_rd_pick_intra_sbuv_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     mbmi->uv_mode = mode;
 
     // Init variables for cfl and angle delta
+    if ((mode == UV_CFL_PRED || mode == UV_CFL_NS_PRED)
+        && (!is_cfl_allowed(xd) || !intra_mode_cfg->enable_cfl_intra)) {
+      continue;
+    }
     int cfl_alpha_rate = 0;
     if (mode == UV_CFL_PRED) {
-      if (!is_cfl_allowed(xd) || !intra_mode_cfg->enable_cfl_intra) continue;
       assert(!is_directional_mode);
       const TX_SIZE uv_tx_size = av1_get_tx_size(AOM_PLANE_U, xd);
       cfl_alpha_rate = cfl_rd_pick_alpha(x, cpi, uv_tx_size, best_rd);
