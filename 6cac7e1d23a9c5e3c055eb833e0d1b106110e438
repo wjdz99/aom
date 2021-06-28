@@ -16,6 +16,24 @@
       "message": "Thanks Xin, Patch 14 looks good to me. Can you please clarify the patch 15? \nPlease go ahead with turning on the macro/run time flag to pass unit tests. Thanks.  ",
       "revId": "6cac7e1d23a9c5e3c055eb833e0d1b106110e438",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2359e38_046f237d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-06-28T23:02:54Z",
+      "side": 1,
+      "message": "The code patch 15 was generated due to the rebase of the subsequent code patches. Code patch 18 has reverted the code to code patch 14 and rebased the code on top of the latest commit in research branch.",
+      "parentUuid": "c6c1d3d6_93107294",
+      "revId": "6cac7e1d23a9c5e3c055eb833e0d1b106110e438",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
