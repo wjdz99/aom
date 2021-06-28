@@ -151,6 +151,8 @@ list(APPEND AOM_SOURCES
 list(APPEND AOM_COMMON_APP_UTIL_SOURCES
             "${AOM_ROOT}/av1/arg_defs.h"
             "${AOM_ROOT}/av1/arg_defs.c"
+            "${AOM_ROOT}/av1/common/resize.c"
+            "${AOM_ROOT}/av1/common/resize.h"
             "${AOM_ROOT}/common/args_helper.c"
             "${AOM_ROOT}/common/args_helper.h"
             "${AOM_ROOT}/common/args.c"
