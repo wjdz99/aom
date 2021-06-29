@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fd685a8_82f835b2",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1265,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-29T00:39:03Z",
+      "side": 1,
+      "message": "add a period at the end of this sentence",
+      "range": {
+        "startLine": 1265,
+        "startChar": 28,
+        "endLine": 1265,
+        "endChar": 29
+      },
+      "revId": "83b61519002939505cd1e6328d8076ece080a4d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e229c74_c822454e",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-29T00:39:03Z",
+      "side": 1,
+      "message": "BLOCK_SIZE?",
+      "range": {
+        "startLine": 1266,
+        "startChar": 42,
+        "endLine": 1266,
+        "endChar": 45
+      },
+      "revId": "83b61519002939505cd1e6328d8076ece080a4d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "da7daa00_f7df4437",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1270,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-29T00:39:03Z",
+      "side": 1,
+      "message": "this can be scoped to the loop",
+      "revId": "83b61519002939505cd1e6328d8076ece080a4d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95aaed54_f8fc41d3",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1278,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-29T00:39:03Z",
+      "side": 1,
+      "message": "Do not...\n\nyou also might say ...CPU intensive or to reduce CPU usage",
+      "range": {
+        "startLine": 1278,
+        "startChar": 7,
+        "endLine": 1278,
+        "endChar": 12
+      },
+      "revId": "83b61519002939505cd1e6328d8076ece080a4d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
