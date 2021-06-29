@@ -16,6 +16,23 @@
       "message": "OK from my side (as my comments were addressed).\nI\u0027ll defer to Krishna for the full review.",
       "revId": "c5bdaf3130fa784545589335ba616cf3d86396a1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3ec6c21_3e9a2f74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-06-29T20:20:17Z",
+      "side": 1,
+      "message": "Thanks for addressing all comments. LGTM.",
+      "revId": "c5bdaf3130fa784545589335ba616cf3d86396a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
