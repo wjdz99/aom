@@ -778,6 +778,9 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
       cpi->sf.tpl_sf.prune_ref_frames_in_tpl, frame_idx);
   int gop_length = get_gop_length(gf_group);
   int ref_frame_flags;
+#if CONFIG_NEW_REF_SIGNALING
+  int ref_frame_flags_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
   AV1_COMMON *cm = &cpi->common;
   int rdmult, idx;
   ThreadData *td = &cpi->td;
@@ -811,8 +814,15 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   // Work out which reference frame slots may be used.
   ref_frame_flags = get_ref_frame_flags(&cpi->sf, ref_frames_ordered,
                                         cpi->ext_flags.ref_frame_flags);
-
   enforce_max_ref_frames(cpi, &ref_frame_flags);
+
+#if CONFIG_NEW_REF_SIGNALING
+  ref_frame_flags_nrs = get_ref_frame_flags_nrs(&cpi->common, ref_frame_flags);
+
+  enforce_max_ref_frames_nrs(cpi, &ref_frame_flags_nrs);
+
+  // TODO(sarahparker) Disable tpl_data->ref_frame using ref_frame_flags_nrs
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   // Prune reference frames
   for (idx = 0; idx < INTER_REFS_PER_FRAME; ++idx) {

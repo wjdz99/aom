@@ -1313,6 +1313,11 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                                frame_params.order_offset);
     }
 
+#if CONFIG_NEW_REF_SIGNALING
+    frame_params.ref_frame_flags_nrs =
+        get_ref_frame_flags_nrs(&cpi->common, frame_params.ref_frame_flags);
+#endif  // CONFIG_NEW_REF_SIGNALING
+
     frame_params.refresh_frame_flags = av1_get_refresh_frame_flags(
         cpi, &frame_params, frame_update_type, cpi->gf_group.index,
         cur_frame_disp, ref_frame_map_pairs);

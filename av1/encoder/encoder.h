@@ -2780,6 +2780,14 @@ typedef struct EncodeFrameParams {
   int show_existing_frame;
   int existing_fb_idx_to_show;
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!\endcond */
+  /*!
+   *  NRS bitmask of which reference buffers may be referenced by this frame.
+   */
+  int ref_frame_flags_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   /*!\endcond */
   /*!
    *  Bitmask of which reference buffers may be referenced by this frame.
@@ -3181,6 +3189,23 @@ static INLINE int get_max_allowed_ref_frames(
   return AOMMIN(max_allowed_refs_for_given_speed, max_reference_frames);
 }
 
+#if CONFIG_NEW_REF_SIGNALING
+static INLINE int get_ref_frame_flags_nrs(const AV1_COMMON *const cm,
+                                   int ref_frame_flags) {
+  // TODO(sarahparker) initialize this mask without ref_frame_flags
+  int ref_frame_flags_nrs = 0;
+  for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
+    if (!(ref_frame_flags & (1 << (frame - 1)))) {
+      int ranked_ref_index =
+          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, frame);
+      if (ranked_ref_index >= 0)
+        ref_frame_flags_nrs &= ~(1 << ranked_ref_index);
+    }
+  }
+  return ref_frame_flags_nrs;
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
                                       const YV12_BUFFER_CONFIG **ref_frames,
                                       const int ext_ref_frame_flags) {
@@ -3244,6 +3269,39 @@ static AOM_INLINE void enforce_max_ref_frames(AV1_COMP *cpi,
   }
   assert(total_valid_refs <= max_allowed_refs);
 }
+
+#if CONFIG_NEW_REF_SIGNALING
+// Enforce the number of references for each arbitrary frame based on user
+// options and speed.
+static AOM_INLINE void enforce_max_ref_frames_nrs(AV1_COMP *cpi,
+                                              int *ref_frame_flags) {
+  MV_REFERENCE_FRAME_NRS ref_frame;
+  int total_valid_refs = 0;
+
+  const int n_total_refs = cpi->common.new_ref_frame_data.n_total_refs;
+  for (ref_frame = 0; ref_frame < n_total_refs; ++ref_frame) {
+    if (*ref_frame_flags & (1 << ref_frame)) {
+      total_valid_refs++;
+    }
+  }
+
+  const int max_allowed_refs =
+      get_max_allowed_ref_frames(cpi->sf.inter_sf.selective_ref_frame,
+                                 cpi->oxcf.ref_frm_cfg.max_reference_frames);
+
+  for (int i = 0; i < 4 && total_valid_refs > max_allowed_refs; ++i) {
+    const MV_REFERENCE_FRAME_NRS ref_frame_to_disable = n_total_refs - 1 - i;
+
+    if (!(*ref_frame_flags & (1 << ref_frame_to_disable))) {
+      continue;
+    }
+    *ref_frame_flags &= ~(1 << ref_frame_to_disable); 
+
+    --total_valid_refs;
+  }
+  assert(total_valid_refs <= max_allowed_refs);
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 // Returns a Sequence Header OBU stored in an aom_fixed_buf_t, or NULL upon
 // failure. When a non-NULL aom_fixed_buf_t pointer is returned by this
