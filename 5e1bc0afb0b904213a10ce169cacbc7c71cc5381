@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee0ccadd_ee963dac",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-29T21:29:27Z",
+      "side": 1,
+      "message": "\u003e It is indeed but there is no sse2 version of that file and quite a few functions in that file could be sse2. Do we want to split it ?\n\nGiven where libaom / highbd is used it isn\u0027t overly critical. Chrome does for instance still have an sse3 minimum.",
+      "parentUuid": "2d7d29bf_2269d93c",
+      "range": {
+        "startLine": 148,
+        "startChar": 30,
+        "endLine": 148,
+        "endChar": 37
+      },
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba6afa39_7fbf79c2",
@@ -120,6 +144,30 @@
       "side": 1,
       "message": "Done.\nI feel the style guide was to declare everything at the beginning of the scope.",
       "parentUuid": "0cbdac59_03824cb0",
+      "range": {
+        "startLine": 153,
+        "startChar": 16,
+        "endLine": 153,
+        "endChar": 23
+      },
+      "revId": "5e1bc0afb0b904213a10ce169cacbc7c71cc5381",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b68a28dd_279f973e",
+        "filename": "av1/common/x86/highbd_inv_txfm_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-06-29T21:29:27Z",
+      "side": 1,
+      "message": "\u003e Done.\n\u003e I feel the style guide was to declare everything at the beginning of the scope.\n\nDo you have a reference? Anything from this project likely predates the c99 shift.",
+      "parentUuid": "44c4ebb9_35b6db17",
       "range": {
         "startLine": 153,
         "startChar": 16,
