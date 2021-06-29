@@ -969,6 +969,7 @@ static void set_good_speed_features_framesize_independent(
     // TODO(any): evaluate if these lpf features can be moved to speed 2.
     // For screen content, "prune_sgr_based_on_wiener = 2" cause large quality
     // loss.
+    sf->lpf_sf.lpf_pick = LPF_PICK_FROM_FULL_IMAGE_NON_DUAL;
     sf->lpf_sf.prune_sgr_based_on_wiener = allow_screen_content_tools ? 1 : 2;
     sf->lpf_sf.disable_loop_restoration_chroma = boosted ? 0 : 1;
     sf->lpf_sf.reduce_wiener_window_size = !boosted;
