@@ -1080,6 +1080,9 @@ static int is_shorter_gf_interval_better(AV1_COMP *cpi,
       if (is_temporal_filter_enabled && !shorten_gf_interval) {
         cpi->skip_tpl_setup_stats = 1;
 #if CONFIG_BITRATE_ACCURACY
+        for (int i = 0; i < gf_group->size; i++) {
+          printf("%d, %d\n", i, gf_group->q_val[i]);
+        }
         if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
           double gop_bit_budget = cpi->vbr_rc_info.gop_bit_budget;
           if (gf_group->update_type[0] == KF_UPDATE &&
@@ -1087,6 +1090,15 @@ static int is_shorter_gf_interval_better(AV1_COMP *cpi,
             gop_bit_budget -= cpi->vbr_rc_info.keyframe_bitrate;
           }
           // Use the gop_bit_budget to determine gf_group->q_val here.
+          int arf_q = av1_get_arf_q_index_q_mode(cpi, cpi->ppi->tpl_data.tpl_frame);
+          int q_estimate = av1_q_mode_estimate_base_q(&cpi->ppi->gf_group,
+                                                      cpi->ppi->tpl_data.txfm_stats_list,
+                                                      gop_bit_budget,
+                                                      cpi->gf_frame_index,
+                                                      arf_q);
+        }
+        for (int i = 0; i < gf_group->size; i++) {
+          printf("%d, %d\n", i, gf_group->q_val[i]);
         }
 #endif  // CONFIG_BITRATE_ACCURACY
       }

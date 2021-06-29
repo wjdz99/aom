@@ -1651,10 +1651,10 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
 #if CONFIG_BITRATE_ACCURACY
   tpl_data->estimated_gop_bitrate = av1_estimate_gop_bitrate(
       gf_group->q_val, gf_group->size, tpl_data->txfm_stats_list);
-  if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE &&
-      approx_gop_eval == 0) {
-    printf("\nestimated bitrate: %f\n", tpl_data->estimated_gop_bitrate);
-  }
+  /* if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE && */
+  /*     approx_gop_eval == 0) { */
+  /*   printf("\nestimated bitrate: %f\n", tpl_data->estimated_gop_bitrate); */
+  /* } */
 #endif
 
   for (int frame_idx = tpl_gf_group_frames - 1;
@@ -1987,12 +1987,16 @@ int av1_q_mode_estimate_base_q(GF_GROUP *gf_group,
     // A binary search narrows the result down to two values: q_min and q_max.
     if (q_max <= q_min + 1 || estimate == bit_budget) {
       // Pick the estimate that lands closest to the budget.
+      double estimate_to_print = 0;
       if (fabs(q_max_estimate - bit_budget) <
           fabs(q_min_estimate - bit_budget)) {
         q = q_max;
+        //        estimate_to_print = q_max_estimate;
       } else {
         q = q_min;
+        //        estimate_to_print = q_min_estimate;
       }
+      //      printf("\ntpl_model estimated bitrate: %f\n", estimate_to_print);
       break;
     } else if (estimate > bit_budget) {
       q_min = q;
@@ -2005,5 +2009,7 @@ int av1_q_mode_estimate_base_q(GF_GROUP *gf_group,
     }
   }
 
+  // Before returning, update the gop q_val.
+  av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_q, gf_group);
   return q;
 }
