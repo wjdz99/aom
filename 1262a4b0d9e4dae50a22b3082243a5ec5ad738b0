@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54de01a1_d412e87e",
+        "filename": "av1/common/ccso.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-29T15:57:07Z",
+      "side": 1,
+      "message": "Wait, why isn\u0027t this \"AOM_AV1_COMMON_CCSO_H\"? This needs to match the file name/path.",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 29
+      },
+      "revId": "1262a4b0d9e4dae50a22b3082243a5ec5ad738b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b7864aa_8da6dce1",
+        "filename": "av1/encoder/pickccso.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-06-29T15:57:07Z",
+      "side": 1,
+      "message": "This should be \"AOM_AV1_ENCODER_PICKCCSO_H\" also",
+      "range": {
+        "startLine": 12,
+        "startChar": 8,
+        "endLine": 12,
+        "endChar": 34
+      },
+      "revId": "1262a4b0d9e4dae50a22b3082243a5ec5ad738b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
