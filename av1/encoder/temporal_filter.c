@@ -1215,10 +1215,8 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
               is_forward_keyframe);
 
   // Set showable frame.
-  if (is_forward_keyframe == 0 && update_type != KF_UPDATE) {
-    cpi->common.showable_frame = tf_ctx->num_frames == 1 || is_second_arf ||
-                                 (cpi->oxcf.algo_cfg.enable_overlay == 0);
-  }
+  cpi->common.showable_frame = tf_ctx->num_frames == 1 || is_second_arf ||
+                               (cpi->oxcf.algo_cfg.enable_overlay == 0);
 
   // Allocate and reset temporal filter buffers.
   const int is_highbitdepth = tf_ctx->is_highbitdepth;
