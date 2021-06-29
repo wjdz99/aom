@@ -623,7 +623,11 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   }
 
   if (cfg->rc_end_usage == AOM_Q) {
+#if CONFIG_QBASED_QP_OFFSET
+    RANGE_CHECK_HI(cfg, use_fixed_qp_offsets, 2);
+#else
     RANGE_CHECK_HI(cfg, use_fixed_qp_offsets, 1);
+#endif
     for (int i = 0; i < FIXED_QP_OFFSET_COUNT; ++i) {
       RANGE_CHECK_HI(cfg, fixed_qp_offsets[i], 255);
     }
@@ -900,13 +904,34 @@ static double convert_qp_offset(int qp, int qp_offset, int bit_depth) {
   return (base_q_val - new_q_val);
 }
 
+#if CONFIG_QBASED_QP_OFFSET
+static double get_modeled_qp_offset(int qp, int level, int bit_depth, int q_based_qp_offsets) {
+#else
 static double get_modeled_qp_offset(int qp, int level, int bit_depth) {
+#endif
   // 76% for keyframe was derived empirically.
   // 60% similar to rc_pick_q_and_bounds_one_pass_vbr() for Q mode ARF.
   // Rest derived similar to rc_pick_q_and_bounds_two_pass()
   static const int percents[FIXED_QP_OFFSET_COUNT] = { 76, 60, 30, 15, 8, 4 };
   const double q_val = av1_convert_qindex_to_q(qp, bit_depth);
+#if CONFIG_QBASED_QP_OFFSET
+    double factor = percents[level];
+    if(q_based_qp_offsets) {
+        factor =  AOMMIN((cbrt(q_val * 4) / 8) * 100, 76);
+        if (level == 1) {
+            factor = (factor * 7)/8;
+        } else if (level == 2) {
+            factor = factor / 2;
+        } else if (level == 3) {
+            factor = factor / 4;
+        } else if (level == 4) {
+            factor = factor / 8;
+        }
+    }
+    return q_val * factor  / 100;
+#else
   return q_val * percents[level] / 100;
+#endif
 }
 
 // update_config parameter is used to indicate whether extra command line
@@ -1088,16 +1113,34 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   q_cfg->enable_chroma_deltaq = extra_cfg->enable_chroma_deltaq;
   q_cfg->aq_mode = extra_cfg->aq_mode;
   q_cfg->deltaq_mode = extra_cfg->deltaq_mode;
+#if CONFIG_QBASED_QP_OFFSET
+    if (rc_cfg->mode == AOM_Q) {
+        q_cfg->use_fixed_qp_offsets = cfg->use_fixed_qp_offsets;
+    } else {
+        q_cfg->use_fixed_qp_offsets = 0;
+    }
+    if(q_cfg->use_fixed_qp_offsets == 2) {
+        q_cfg->q_based_qp_offsets = 1;
+    } else {
+        q_cfg->q_based_qp_offsets = 0;
+    }
+#else
   q_cfg->use_fixed_qp_offsets =
       cfg->use_fixed_qp_offsets && (rc_cfg->mode == AOM_Q);
+#endif
   for (int i = 0; i < FIXED_QP_OFFSET_COUNT; ++i) {
     if (q_cfg->use_fixed_qp_offsets) {
       if (cfg->fixed_qp_offsets[i] >= 0) {  // user-provided qp offset
         q_cfg->fixed_qp_offsets[i] = convert_qp_offset(
             rc_cfg->qp, cfg->fixed_qp_offsets[i], tool_cfg->bit_depth);
       } else {  // auto-selected qp offset
+#if CONFIG_QBASED_QP_OFFSET
+        q_cfg->fixed_qp_offsets[i] =
+              get_modeled_qp_offset(rc_cfg->qp, i, tool_cfg->bit_depth, q_cfg->q_based_qp_offsets);
+#else
         q_cfg->fixed_qp_offsets[i] =
             get_modeled_qp_offset(rc_cfg->qp, i, tool_cfg->bit_depth);
+#endif 
       }
     } else {
       q_cfg->fixed_qp_offsets[i] = -1.0;
@@ -2503,25 +2546,47 @@ static void report_stats(AV1_COMP *cpi, size_t frame_size, uint64_t cx_time) {
                              ? -1
                              : ref_poc[ref_idx];
     }
+#if 1
+     const GF_GROUP *const gf_group = &cpi->gf_group;
+     const char update_frameType[9][20] = {
+     "KF_UPDATE", "LF_UPDATE","GF_UPDATE","ARF_UPDATE", "OVERLAY_UPDATE", "INTNL_OVERLAY_UPDATE",
+     "INTNL_ARF_UPDATE", "KFFLT_UPDATE", "KFFLT_OVERLAY_UPDATE",
+     };
+    int index = gf_group->index;
+#endif
     if (cpi->b_calculate_psnr) {
       fprintf(stdout,
+#if 1
+              "POC:%6d [%s : %d - %s][Level:%d][Q:%3d]: %10" PRIu64
+#else
               "POC:%6d [%s][Level:%d][Q:%3d]: %10" PRIu64
+#endif
               " Bytes, "
               "%6.1fms, %2.4f dB(Y), %2.4f dB(U), "
               "%2.4f dB(V), "
               "%2.4f dB(Avg)",
               cm->cur_frame->absolute_poc,
               frameType[cm->current_frame.frame_type],
+#if 1
+              index,update_frameType[gf_group->update_type[gf_group->index]],
+#endif
               cm->cur_frame->pyramid_level, base_qindex, (uint64_t)frame_size,
               cx_time / 1000.0, psnr.psnr[1], psnr.psnr[2], psnr.psnr[3],
               psnr.psnr[0]);
     } else {
       fprintf(stdout,
+#if 1
+              "POC:%6d [%s : %d - %s][Level:%d][Q:%3d]: %10" PRIu64
+#else
               "POC:%6d [%s][Level:%d][Q:%3d]: %10" PRIu64
+#endif
               " Bytes, "
               "%6.1fms",
               cm->cur_frame->absolute_poc,
               frameType[cm->current_frame.frame_type],
+#if 1
+              index,update_frameType[gf_group->update_type[gf_group->index]],
+#endif
               cm->cur_frame->pyramid_level, base_qindex, (uint64_t)frame_size,
               cx_time / 1000.0);
     }
