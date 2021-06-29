@@ -33,6 +33,29 @@
       "message": "Looks good. Thanks.",
       "revId": "89b59d635d21e6369adfc48a9ad22f9f0f2c1c24",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ae470ae_d53e8190",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-06-29T18:44:11Z",
+      "side": 1,
+      "message": "Looks good to me. This (and its lowbd counterpart) should probably use intrinsic as well, but it can be done later when av1_compute_subpel_gradients_interp is being optimized. Now please feel free to submit as is.",
+      "range": {
+        "startLine": 1310,
+        "startChar": 6,
+        "endLine": 1310,
+        "endChar": 79
+      },
+      "revId": "89b59d635d21e6369adfc48a9ad22f9f0f2c1c24",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
