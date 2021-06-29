@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cc33d92_a411985d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-06-29T16:49:53Z",
+      "side": 1,
+      "message": "Hi Frank/Wan-Teh,\n\nAs per our understanding, CNN based partition pruning is not enabled for screen contents to allow larger partitions evaluation which are helpful in screen contents (Refer: https://aomedia-review.googlesource.com/c/aom/+/106769). In this CL, we have added a level to the sf intra_cnn_split to prune split and rectangular partitions (Level 1). \nFor intra_cnn_split sf, values\n0: No pruning\n1: Prune split and rectangular partitions only (introduced newly)\n2: Prune none, split and rectangular partitions (same as parent version)\n\nIn the parent version, when tune-content\u003dAOM_CONTENT_SCREEN, the flags are set as allow_screen_content_tools \u003d 1 and use_screen_content_tools \u003d0, which in turn enables the CNN based partition pruning for screen contents (which is not recommended as it might prune larger partitions). In the current CL, used \u0027allow_screen_content_tools\u0027 flag in speed feature settings to enable intra_cnn_split for screen contents (It ensures that for screen contents partition pruning is not enabled). This might result in mismatch of streams when encoded using tune-content\u003dAOM_CONTENT_SCREEN. However this behavior is expected as per our understanding.\n\nCurrently, less conservative partition pruning is enabled for speed presets 5 and 6 in allintra encoding mode. This setting has not been enabled in \u0027good\u0027 encoding mode as the quality v/s speed data is not within the trade-off.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset. Bit-match is verified for speeds \u003c\u003d4. For specific images/screen videos, speedup of up to 20% is observed.\n\nwith --tune\u003dpsnr,\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   5           1.246           0.0242     0.0104\n   6           0.669          -0.0141    -0.0042\n\nwith --tune\u003dssim,\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   5           1.156           0.0156    -0.0101\n   6           0.711          -0.0366    -0.0441\n\nFollowing are instruction count reduction results for allintra video encode was tested for the screen content test set. Bit-match is verified for speeds \u003c\u003d4. The quality v/s speed trade-off for speed 5 seems to slightly  beyond trade-off (0.109 vs 0.1)\n\n          Instruction Count        BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  ovr.psnr    ssim\n   5           34.278       3.7686    3.7633      2.8405\n   6           17.373       1.5351    1.5328      1.6781\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "07701cdb42427e5d84b35c7a0824b31cd571737c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
