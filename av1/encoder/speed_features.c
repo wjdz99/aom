@@ -961,6 +961,7 @@ static void set_good_speed_features_framesize_independent(
     sf->intra_sf.intra_pruning_with_hog = 3;
     sf->intra_sf.prune_palette_search_level = 2;
 
+    sf->tpl_sf.prune_starting_mv = 2;
     sf->tpl_sf.skip_alike_starting_mv = 2;
     sf->tpl_sf.prune_intra_modes = 1;
     sf->tpl_sf.reduce_first_step_size = 6;
@@ -1023,7 +1024,6 @@ static void set_good_speed_features_framesize_independent(
 
     sf->mv_sf.simple_motion_subpel_force_stop = HALF_PEL;
 
-    sf->tpl_sf.prune_starting_mv = 2;
     sf->tpl_sf.subpel_force_stop = HALF_PEL;
     sf->tpl_sf.search_method = FAST_BIGDIA;
     sf->tpl_sf.gop_length_decision_method = 1;
