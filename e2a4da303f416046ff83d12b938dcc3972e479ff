@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "880b71ae_e56bca98",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-29T21:55:40Z",
+      "side": 1,
+      "message": "I took at look at the clips with large SSIM drop.\nThose clips are on the easier side and have pretty hight SSIM to to start with. I think that\u0027s why they are a bit more sensitive to changes in partitioning.\n\nI am still trying a couple things to improve the SSIM, but they seem to make PSNR worse as well...\nI would check this one in first and continue to see what can be improved for screen_contents.",
+      "parentUuid": "bb3b6513_2d89c7fe",
+      "revId": "e2a4da303f416046ff83d12b938dcc3972e479ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e8842f18_0c88d359",
@@ -41,6 +59,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "404028d5_aeb1f338",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 913,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-29T21:55:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8842f18_0c88d359",
+      "range": {
+        "startLine": 913,
+        "startChar": 4,
+        "endLine": 913,
+        "endChar": 46
+      },
+      "revId": "e2a4da303f416046ff83d12b938dcc3972e479ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "72d91347_0432a01f",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-06-22T17:55:35Z",
       "side": 1,
       "message": "As mentioned above, combine this at corresponding speed levels?",
+      "range": {
+        "startLine": 1127,
+        "startChar": 2,
+        "endLine": 1136,
+        "endChar": 3
+      },
+      "revId": "e2a4da303f416046ff83d12b938dcc3972e479ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecb317c7_94a03389",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1136,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-06-29T21:55:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "72d91347_0432a01f",
       "range": {
         "startLine": 1127,
         "startChar": 2,
