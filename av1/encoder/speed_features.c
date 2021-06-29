@@ -954,6 +954,8 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_sf.tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_3;
     sf->tx_sf.tx_type_search.winner_mode_tx_type_pruning = 1;
 
+    sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 4 : 6;
+
     // TODO(any): Refactor the code related to following winner mode speed
     // features
     sf->winner_mode_sf.enable_winner_mode_for_coeff_opt = 1;
