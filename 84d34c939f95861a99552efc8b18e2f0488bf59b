@@ -16,6 +16,24 @@
       "message": "This actually fails some test vectors. We should check the coverage here.",
       "revId": "84d34c939f95861a99552efc8b18e2f0488bf59b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70b52be1_82988b33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2021-06-30T15:46:44Z",
+      "side": 1,
+      "message": "Where can I see the failures ? Nothing on the farm. Thx.",
+      "parentUuid": "ac66bb3a_35ce7b89",
+      "revId": "84d34c939f95861a99552efc8b18e2f0488bf59b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
