@@ -22,10 +22,7 @@ list(APPEND AOM_PORTS_INCLUDES
             "${AOM_ROOT}/aom_ports/mem_ops.h"
             "${AOM_ROOT}/aom_ports/mem_ops_aligned.h"
             "${AOM_ROOT}/aom_ports/msvc.h"
-            "${AOM_ROOT}/aom_ports/sanitizer.h"
-            "${AOM_ROOT}/aom_ports/system_state.h")
-
-list(APPEND AOM_PORTS_ASM_X86 "${AOM_ROOT}/aom_ports/emms.asm")
+            "${AOM_ROOT}/aom_ports/sanitizer.h")
 
 list(APPEND AOM_PORTS_INCLUDES_X86 "${AOM_ROOT}/aom_ports/x86_abi_support.asm")
 
@@ -49,7 +46,7 @@ list(APPEND AOM_PORTS_SOURCES_PPC "${AOM_ROOT}/aom_ports/ppc.h"
 # * The libaom target must exist before this function is called.
 function(setup_aom_ports_targets)
   if("${AOM_TARGET_CPU}" MATCHES "^x86")
-    add_asm_library("aom_ports" "AOM_PORTS_ASM_X86")
+    add_library(aom_ports OBJECT "")
     set(aom_ports_has_symbols 1)
   elseif("${AOM_TARGET_CPU}" MATCHES "arm")
     add_library(aom_ports OBJECT ${AOM_PORTS_SOURCES_ARM})
