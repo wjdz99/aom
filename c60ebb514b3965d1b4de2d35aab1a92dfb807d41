@@ -70,6 +70,30 @@
       },
       "revId": "c60ebb514b3965d1b4de2d35aab1a92dfb807d41",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55d2e7cb_7f988917",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-06-30T06:42:42Z",
+      "side": 0,
+      "message": "Good point. I was thinking of using both sides\u0027 frames for reference. But the current implementation only used next GOP\u0027s frames.\n\nThis is fixed in\nhttps://aomedia-review.googlesource.com/c/aom/+/141161\n\nUsing two sides reference further improves the coding performance by 1% in avg / overall PSNR BD rate.",
+      "parentUuid": "611db3ee_0841ed2c",
+      "range": {
+        "startLine": 1034,
+        "startChar": 4,
+        "endLine": 1035,
+        "endChar": 18
+      },
+      "revId": "c60ebb514b3965d1b4de2d35aab1a92dfb807d41",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
