@@ -1093,8 +1093,16 @@ static void free_pred_buffer(PRED_BUFFER *p) {
 static int cost_mv_ref(const ModeCosts *const mode_costs, PREDICTION_MODE mode,
                        int16_t mode_context) {
   if (is_inter_compound_mode(mode)) {
+#if CONFIG_OPTFLOW_REFINEMENT
+    int use_of = mode > NEW_NEWMV;
+    int comp_mode_idx =
+        use_of ? INTER_OPFL_OFFSET(mode) : INTER_COMPOUND_OFFSET(mode);
+    return mode_costs->use_optflow_cost[mode_context][use_of] +
+           mode_costs->inter_compound_mode_cost[mode_context][comp_mode_idx];
+#else
     return mode_costs
         ->inter_compound_mode_cost[mode_context][INTER_COMPOUND_OFFSET(mode)];
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   }
 
   assert(is_inter_mode(mode));
@@ -2202,6 +2210,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
     this_mode = ref_mode_set[idx].pred_mode;
     ref_frame = ref_mode_set[idx].ref_frame;
+#if CONFIG_OPTFLOW_REFINEMENT
+    // Optical modes only enabled with enable_order_hint
+    if (this_mode > NEW_NEWMV &&
+        !cm->seq_params.order_hint_info.enable_order_hint)
+      continue;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
 #if COLLECT_PICK_MODE_STAT
     aom_usec_timer_start(&ms_stat.timer1);
