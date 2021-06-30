@@ -2654,7 +2654,6 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     end_timing(cpi, av1_encode_frame_time);
 #endif
 
-
 #if CONFIG_BITRATE_ACCURACY || CONFIG_RD_COMMAND
     const int do_dummy_pack = 1;
 #else   // CONFIG_BITRATE_ACCURACY
