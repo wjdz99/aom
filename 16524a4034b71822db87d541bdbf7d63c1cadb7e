@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e86fa8de_aff84d79",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2021-06-30T06:27:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch adds functions av1_compute_num_fp_contexts() and is_fp_config().\n\nav1_compute_num_fp_contexts() computes the number of fp contexts to be created based on the total number of threads available and num_enc_workers. is_fp_config() checks whether the frame parallel encode is valid for the current configuration.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --good, --rt, --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc.\n\nPlease review.",
+      "revId": "16524a4034b71822db87d541bdbf7d63c1cadb7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
