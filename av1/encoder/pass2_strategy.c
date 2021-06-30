@@ -25,8 +25,6 @@
 #include "aom/aom_codec.h"
 #include "aom/aom_encoder.h"
 
-#include "aom_ports/system_state.h"
-
 #include "av1/common/av1_common_int.h"
 
 #include "av1/encoder/encoder.h"
@@ -824,7 +822,6 @@ static int calculate_boost_bits(int frame_count, int boost,
 // inverse of calculate_boost_bits().
 static int calculate_boost_factor(int frame_count, int bits,
                                   int64_t total_group_bits) {
-  aom_clear_system_state();
   return (int)(100.0 * frame_count * bits / (total_group_bits - bits));
 }
 
@@ -1873,7 +1870,6 @@ static void calculate_gf_length(AV1_COMP *cpi, int max_gop_length,
 
   int flash_detected;
 
-  aom_clear_system_state();
   av1_zero(next_frame);
 
   if (has_no_stats_stage(cpi)) {
@@ -2301,7 +2297,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
     cpi->gf_frame_index = 0;
   }
 
-  aom_clear_system_state();
   av1_zero(next_frame);
 
   if (has_no_stats_stage(cpi)) {
@@ -2424,7 +2419,6 @@ static void define_gf_group(AV1_COMP *cpi, FIRSTPASS_STATS *this_frame,
 
     // TODO(urvang): Improve and use model for VBR, CQ etc as well.
     if (use_alt_ref && rc_cfg->mode == AOM_Q && rc_cfg->cq_level <= 200) {
-      aom_clear_system_state();
       float features[21];
       get_features_from_gf_stats(
           &gf_stats, &first_frame_stats, &last_frame_stats, num_mbs,
@@ -3628,8 +3622,6 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       return;
     }
   }
-
-  aom_clear_system_state();
 
   if (oxcf->rc_cfg.mode == AOM_Q)
     rc->active_worst_quality = oxcf->rc_cfg.cq_level;
