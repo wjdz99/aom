@@ -160,6 +160,9 @@ set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 1 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 1 "Enable TMVP improvement")
 set_aom_config_var(
   CONFIG_CCSO 1 "AV2 experiment flag to enable cross component sample offset.")
+set_aom_config_var(CONFIG_OPTFLOW_REFINEMENT 0
+                   "AV2 experiment flag for optical flow MV refinement")
+
 #
 # Variables in this section control optional features of the build system.
 #
