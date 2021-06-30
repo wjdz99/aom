@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b88a1377_554fe334",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-06-30T16:41:56Z",
+      "side": 1,
+      "message": "\nHi Yunqing,\n\nPreviously submitted frame level probability simulation patch - https://aomedia-review.googlesource.com/c/aom/+/138581, handles only CQP path without support for recode. This patch extends support for frame level probability update in parallel frames across recodes. It introduces variables to track the probabilities across recodes under CONFIG_FRAME_PARALLEL_ENCODE macro. The probabilities for parallel frames are stored in cpi-\u003eframe_new_probs variable and updated sequentially over the recodes and parallel frames during the postencode stage.\n\nSince number of recodes allowed per frame is not explicitly available, we have locally verified with a set of recipes where we noticed maximum 4 recodes are happening per frame. In this patch, maximum of 10 recode\u0027 s probabilities can be stored per parallel frame, which will be consumed during postencode stage. Hope this upper limit is adequate.\n\nThe change is tested locally with cqp bitmatch for few hdres clips, preset 2 to 6. It is verified with integer, address, undefined and thread sanitizer test. The bitmatch test is also done for few recipes with CONFIG_FRAME_PARALLEL_ENCODE disabled. \n\nPlease find the detailed vbr borg result with CONFIG_FRAME_PARALLEL_ENCODE 1 (test) vs 0 (ref) below.\n\nWith frame level contexts\u003d4:\n CPU  Resolution      Instruction Count     BD-Rate Impact %\n                         Reduction %    avg.psnr ovr.psnr   ssim\n                                        8 - bit  8 - bit  8 - bit\n  2    AVERAGE             0.394        0.7918   0.7772   0.9177\n  3    AVERAGE             0.505        0.8860   0.8870   0.9720\n  4    AVERAGE             0.367        0.9876   1.0147   1.1475\n  5    AVERAGE             0.459        1.0736   1.0924   1.2382\n  6    AVERAGE            -0.060        1.3368   1.3446   1.4804\n\nPlease find the detailed vbr borg result with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1(test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) below.\n\nWith frame level contexts\u003d4:\n CPU  Resolution      Instruction Count       BD-Rate Impact %\n                         Reduction %    avg.psnr ovr.psnr   ssim\n                                        8 - bit  8 - bit  8 - bit\n  2    AVERAGE             -0.524       1.2755   1.2601   1.5284\n  3    AVERAGE              0.280       1.4727   1.4926   1.7042\n  4    AVERAGE              0.386       1.6982   1.7318   1.9843\n  5    AVERAGE              0.333       1.6754   1.6781   1.9105\n  6    AVERAGE              0.015       1.9705   1.9687   2.1839\n\nPlease review the patch.\nThanks",
+      "revId": "4948be9b337c8792733edbaaf51dfcd1607acba5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
