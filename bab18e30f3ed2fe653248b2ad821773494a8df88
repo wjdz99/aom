@@ -22,6 +22,23 @@
       },
       "revId": "bab18e30f3ed2fe653248b2ad821773494a8df88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00c97f91_479d00a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2021-07-01T13:25:44Z",
+      "side": 1,
+      "message": "\u003e Patch Set 2: Verified+1\n\u003e \n\u003e Build Successful \n\u003e \n\u003e https://build.aomedia.org/jenkins/job/libaom__commit_trigger/61735/ : SUCCESS\n\nI was sort of looking at this area myself yesterday though I applied limits to the final offset rather than the beta. For example   offset \u003d AOMMIN(offset, delta_q_info-\u003edelta_q_res * 10 - 1);\n  offset \u003d AOMMAX(offset, -delta_q_info-\u003edelta_q_res * 10 + 1); instead of 20-1. That also seemed to help with some of the edge cases where dq was making things worse because the adjustment was just too extreme. Assuming it passes as better on a wider range of clips I am good with this.",
+      "revId": "bab18e30f3ed2fe653248b2ad821773494a8df88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
