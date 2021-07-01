@@ -16,6 +16,29 @@
       "message": "Hi Yunqing,\n\nThis patch initializes lib_flags for frame_parallel_level 2 frames in a parallel encode set. \n\nFor FP1 approach, frame_parallel_level 2 frames in a parallel encode set are either show frames with no hidden frames or first hidden frame in encoder_encode() call. These frames start with blank lib_flags and are thus initialized to 0.\n\nFor FP2 approach, if the first frame in a parallel encode set is INTNL_ARF_UPDATE, then the second frame in the set uses the same value of lib_flags. Thus, value of lib_flags from first cpi_data is copied to all parallel_frames_data. All other encode sets are FP1 and would be initialized to 0.\n\nPlease review.",
       "revId": "60d37f48c989cf3e85fc59944be0ac4e403c73c6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7738ee7_e622b1be",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2431,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-07-01T20:13:55Z",
+      "side": 1,
+      "message": "Couldn\u0027t remember the definition of frame_parallel_level 1 or 2 frames. Could you explain? Thanks.",
+      "range": {
+        "startLine": 2431,
+        "startChar": 17,
+        "endLine": 2431,
+        "endChar": 37
+      },
+      "revId": "60d37f48c989cf3e85fc59944be0ac4e403c73c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
