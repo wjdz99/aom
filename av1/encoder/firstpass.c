@@ -361,16 +361,16 @@ static double raw_motion_error_stdev(int *raw_motion_err_list,
   return raw_err_stdev;
 }
 
-static AOM_INLINE int do_third_ref_motion_search(const RateControlCfg *rc_cfg,
-                                                 const GFConfig *gf_cfg) {
-  return use_ml_model_to_decide_flat_gop(rc_cfg) && can_disable_altref(gf_cfg);
-}
+//static AOM_INLINE int do_third_ref_motion_search(const RateControlCfg *rc_cfg,
+//                                                 const GFConfig *gf_cfg) {
+//  return use_ml_model_to_decide_flat_gop(rc_cfg) && can_disable_altref(gf_cfg);
+//}
 
-static AOM_INLINE int calc_wavelet_energy(const AV1EncoderConfig *oxcf) {
-  return (use_ml_model_to_decide_flat_gop(&oxcf->rc_cfg) &&
-          can_disable_altref(&oxcf->gf_cfg)) ||
-         (oxcf->q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL);
-}
+//static AOM_INLINE int calc_wavelet_energy(const AV1EncoderConfig *oxcf) {
+//  return (use_ml_model_to_decide_flat_gop(&oxcf->rc_cfg) &&
+//          can_disable_altref(&oxcf->gf_cfg)) ||
+//         (oxcf->q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL);
+//}
 typedef struct intra_pred_block_pass1_args {
   const SequenceHeader *seq_params;
   MACROBLOCK *x;
@@ -568,23 +568,23 @@ static int firstpass_intra_prediction(
   // Accumulate the intra error.
   stats->intra_error += (int64_t)this_intra_error;
 
-  // Stats based on wavelet energy is used in the following cases :
-  // 1. ML model which predicts if a flat structure (golden-frame only structure
-  // without ALT-REF and Internal-ARFs) is better. This ML model is enabled in
-  // constant quality mode under certain conditions.
-  // 2. Delta qindex mode is set as DELTA_Q_PERCEPTUAL.
-  // Thus, wavelet energy calculation is enabled for the above cases.
-  if (calc_wavelet_energy(&cpi->oxcf)) {
-    const int hbd = is_cur_buf_hbd(xd);
-    const int stride = x->plane[0].src.stride;
-    const int num_8x8_rows = block_size_high[fp_block_size] / 8;
-    const int num_8x8_cols = block_size_wide[fp_block_size] / 8;
-    const uint8_t *buf = x->plane[0].src.buf;
-    stats->frame_avg_wavelet_energy += av1_haar_ac_sad_mxn_uint8_input(
-        buf, stride, hbd, num_8x8_rows, num_8x8_cols);
-  } else {
-    stats->frame_avg_wavelet_energy = INVALID_FP_STATS_TO_PREDICT_FLAT_GOP;
-  }
+//  // Stats based on wavelet energy is used in the following cases :
+//  // 1. ML model which predicts if a flat structure (golden-frame only structure
+//  // without ALT-REF and Internal-ARFs) is better. This ML model is enabled in
+//  // constant quality mode under certain conditions.
+//  // 2. Delta qindex mode is set as DELTA_Q_PERCEPTUAL.
+//  // Thus, wavelet energy calculation is enabled for the above cases.
+//  if (calc_wavelet_energy(&cpi->oxcf)) {
+//    const int hbd = is_cur_buf_hbd(xd);
+//    const int stride = x->plane[0].src.stride;
+//    const int num_8x8_rows = block_size_high[fp_block_size] / 8;
+//    const int num_8x8_cols = block_size_wide[fp_block_size] / 8;
+//    const uint8_t *buf = x->plane[0].src.buf;
+//    stats->frame_avg_wavelet_energy += av1_haar_ac_sad_mxn_uint8_input(
+//        buf, stride, hbd, num_8x8_rows, num_8x8_cols);
+//  } else {
+//    stats->frame_avg_wavelet_energy = INVALID_FP_STATS_TO_PREDICT_FLAT_GOP;
+//  }
 
   return this_intra_error;
 }
@@ -704,6 +704,8 @@ static int firstpass_inter_prediction(
   const int unit_width = mi_size_wide[fp_block_size];
   const int unit_rows = get_unit_rows(fp_block_size, mi_params->mb_rows);
   const int unit_cols = get_unit_cols(fp_block_size, mi_params->mb_cols);
+  (void) alt_ref_frame;
+  (void) alt_ref_frame_yoffset;
   // Assume 0,0 motion with no mv overhead.
   FULLPEL_MV mv = kZeroFullMv;
   xd->plane[0].pre[0].buf = last_frame->y_buffer + recon_yoffset;
@@ -775,39 +777,39 @@ static int firstpass_inter_prediction(
     }
 
     // Motion search in 3rd reference frame.
-    int alt_motion_error = motion_error;
-    // The ML model to predict if a flat structure (golden-frame only structure
-    // without ALT-REF and Internal-ARFs) is better requires stats based on
-    // motion search w.r.t 3rd reference frame in the first pass. As the ML
-    // model is enabled under certain conditions, motion search in 3rd reference
-    // frame is also enabled for those cases.
-    if (do_third_ref_motion_search(&cpi->oxcf.rc_cfg, &cpi->oxcf.gf_cfg)) {
-      if (alt_ref_frame != NULL) {
-        FULLPEL_MV tmp_mv = kZeroFullMv;
-        xd->plane[0].pre[0].buf =
-            alt_ref_frame->y_buffer + alt_ref_frame_yoffset;
-        xd->plane[0].pre[0].stride = alt_ref_frame->y_stride;
-        alt_motion_error = get_prediction_error_bitdepth(
-            is_high_bitdepth, bitdepth, bsize, &x->plane[0].src,
-            &xd->plane[0].pre[0]);
-        first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &alt_motion_error);
-      }
-    }
-    if (alt_motion_error < motion_error && alt_motion_error < gf_motion_error &&
-        alt_motion_error < this_intra_error) {
-      ++stats->third_ref_count;
-    }
-    // In accumulating a score for the 3rd reference frame take the
-    // best of the motion predicted score and the intra coded error
-    // (just as will be done for) accumulation of "coded_error" for
-    // the last frame.
-    if (alt_ref_frame != NULL) {
-      stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
-    } else {
+//    int alt_motion_error = motion_error;
+//    // The ML model to predict if a flat structure (golden-frame only structure
+//    // without ALT-REF and Internal-ARFs) is better requires stats based on
+//    // motion search w.r.t 3rd reference frame in the first pass. As the ML
+//    // model is enabled under certain conditions, motion search in 3rd reference
+//    // frame is also enabled for those cases.
+//    if (do_third_ref_motion_search(&cpi->oxcf.rc_cfg, &cpi->oxcf.gf_cfg)) {
+//      if (alt_ref_frame != NULL) {
+//        FULLPEL_MV tmp_mv = kZeroFullMv;
+//        xd->plane[0].pre[0].buf =
+//            alt_ref_frame->y_buffer + alt_ref_frame_yoffset;
+//        xd->plane[0].pre[0].stride = alt_ref_frame->y_stride;
+//        alt_motion_error = get_prediction_error_bitdepth(
+//            is_high_bitdepth, bitdepth, bsize, &x->plane[0].src,
+//            &xd->plane[0].pre[0]);
+//        first_pass_motion_search(cpi, x, &kZeroMv, &tmp_mv, &alt_motion_error);
+//      }
+//    }
+//    if (alt_motion_error < motion_error && alt_motion_error < gf_motion_error &&
+//        alt_motion_error < this_intra_error) {
+//      ++stats->third_ref_count;
+//    }
+//    // In accumulating a score for the 3rd reference frame take the
+//    // best of the motion predicted score and the intra coded error
+//    // (just as will be done for) accumulation of "coded_error" for
+//    // the last frame.
+//    if (alt_ref_frame != NULL) {
+//      stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error);
+//    } else {
       // TODO(chengchen): I believe logically this should also be changed to
       // stats->tr_coded_error += AOMMIN(alt_motion_error, this_intra_error).
       stats->tr_coded_error += motion_error;
-    }
+//    }
 
     // Reset to last frame as reference buffer.
     xd->plane[0].pre[0].buf = last_frame->y_buffer + recon_yoffset;
@@ -979,12 +981,12 @@ static void update_firstpass_stats(AV1_COMP *cpi,
 
   normalize_firstpass_stats(&fps, num_mbs_16X16, cm->width, cm->height);
 
-  // Invalidate the stats related to third ref motion search if not valid.
-  // This helps to print a warning in second pass encoding.
-  if (do_third_ref_motion_search(&cpi->oxcf.rc_cfg, &cpi->oxcf.gf_cfg) == 0) {
-    fps.pcnt_third_ref = INVALID_FP_STATS_TO_PREDICT_FLAT_GOP;
-    fps.tr_coded_error = INVALID_FP_STATS_TO_PREDICT_FLAT_GOP;
-  }
+//  // Invalidate the stats related to third ref motion search if not valid.
+//  // This helps to print a warning in second pass encoding.
+//  if (do_third_ref_motion_search(&cpi->oxcf.rc_cfg, &cpi->oxcf.gf_cfg) == 0) {
+//    fps.pcnt_third_ref = INVALID_FP_STATS_TO_PREDICT_FLAT_GOP;
+//    fps.tr_coded_error = INVALID_FP_STATS_TO_PREDICT_FLAT_GOP;
+//  }
 
   // We will store the stats inside the persistent twopass struct (and NOT the
   // local variable 'fps'), and then cpi->output_pkt_list will point to it.

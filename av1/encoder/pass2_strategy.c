@@ -3368,10 +3368,10 @@ static INLINE void set_twopass_params_based_on_fp_stats(
 
   const FIRSTPASS_STATS *const total_stats =
       twopass->stats_buf_ctx->total_stats;
-  if (is_fp_wavelet_energy_invalid(total_stats) == 0) {
-    twopass->frame_avg_haar_energy =
-        log((this_frame_ptr->frame_avg_wavelet_energy) + 1.0);
-  }
+//  if (is_fp_wavelet_energy_invalid(total_stats) == 0) {
+//    twopass->frame_avg_haar_energy =
+//        log((this_frame_ptr->frame_avg_wavelet_energy) + 1.0);
+//  }
 
   // Set the frame content type flag.
   if (this_frame_ptr->intra_skip_pct >= FC_ANIMATION_THRESH)
@@ -3388,23 +3388,23 @@ static void process_first_pass_stats(AV1_COMP *cpi,
   TWO_PASS *const twopass = &cpi->ppi->twopass;
   FIRSTPASS_STATS *total_stats = twopass->stats_buf_ctx->total_stats;
 
-  if (current_frame->frame_number == 0) {
-    const GFConfig *const gf_cfg = &cpi->oxcf.gf_cfg;
-    const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
-    if (use_ml_model_to_decide_flat_gop(rc_cfg) && can_disable_altref(gf_cfg) &&
-        is_fp_stats_to_predict_flat_gop_invalid(total_stats)) {
-      // warn(
-      //     "First pass stats required in the ML model to predict a flat GOP "
-      //     "structure is invalid. Continuing encoding by disabling the ML "
-      //     "model.\n");
-      // The first pass statistics like tr_coded_error, pcnt_third_ref,
-      // frame_avg_wavelet_energy are invalid as their calculations were
-      // skipped in the first pass of encoding. As these stats are required
-      // in the ML model to predict a flat GOP structure, the ML model would be
-      // disabled. This case arises when the encode configuration used in first
-      // pass encoding is different from second pass encoding.
-    }
-  }
+//  if (current_frame->frame_number == 0) {
+//    const GFConfig *const gf_cfg = &cpi->oxcf.gf_cfg;
+//    const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
+//    if (use_ml_model_to_decide_flat_gop(rc_cfg) && can_disable_altref(gf_cfg) &&
+//        is_fp_stats_to_predict_flat_gop_invalid(total_stats)) {
+//      // warn(
+//      //     "First pass stats required in the ML model to predict a flat GOP "
+//      //     "structure is invalid. Continuing encoding by disabling the ML "
+//      //     "model.\n");
+//      // The first pass statistics like tr_coded_error, pcnt_third_ref,
+//      // frame_avg_wavelet_energy are invalid as their calculations were
+//      // skipped in the first pass of encoding. As these stats are required
+//      // in the ML model to predict a flat GOP structure, the ML model would be
+//      // disabled. This case arises when the encode configuration used in first
+//      // pass encoding is different from second pass encoding.
+//    }
+//  }
 
   if (cpi->oxcf.rc_cfg.mode != AOM_Q && current_frame->frame_number == 0 &&
       cpi->gf_frame_index == 0 && total_stats &&
