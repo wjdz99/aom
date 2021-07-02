@@ -1111,9 +1111,7 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
                                   int gstride, int bw, int bh, int d0, int d1,
                                   int grad_prec_bits, int mv_prec_bits,
                                   int *vx0, int *vy0, int *vx1, int *vy1) {
-#if OPFL_EQUAL_DIST_REQUIRED
-  assert(d0 + d1 == 0);
-#endif
+  assert(IMPLIES(OPFL_DIST_RATIO_THR == 1, d0 + d1 == 0));
   int64_t su2 = 0;
   int64_t suv = 0;
   int64_t sv2 = 0;
@@ -1124,7 +1122,7 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
 #if OPFL_DOWNSAMP_QUINCUNX
       if ((i + j) % 2 == 1) continue;
 #endif
-#if OPFL_EQUAL_DIST_REQUIRED || OPFL_EQUAL_DIST_ASSUMED
+#if OPFL_EQUAL_DIST_ASSUMED
       const int64_t u = gx0[i * gstride + j] + gx1[i * gstride + j];
       const int64_t v = gy0[i * gstride + j] + gy1[i * gstride + j];
       const int64_t w = p0[i * pstride0 + j] - p1[i * pstride1 + j];
@@ -1153,7 +1151,7 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
   if (D == 0) return;
   *vx0 = (int)divide_and_round_signed(Px, D);
   *vy0 = (int)divide_and_round_signed(Py, D);
-#if OPFL_EQUAL_DIST_REQUIRED || OPFL_EQUAL_DIST_ASSUMED
+#if OPFL_EQUAL_DIST_ASSUMED
   (void)d0;
   (void)d1;
   *vx1 = -(*vx0);
@@ -1173,9 +1171,7 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
                                    int gstride, int bw, int bh, int d0, int d1,
                                    int grad_prec_bits, int mv_prec_bits,
                                    int *vx0, int *vy0, int *vx1, int *vy1) {
-#if OPFL_EQUAL_DIST_REQUIRED
-  assert(d0 + d1 == 0);
-#endif
+  assert(IMPLIES(OPFL_DIST_RATIO_THR == 1, d0 + d1 == 0));
   int64_t su2 = 0;
   int64_t suv = 0;
   int64_t sv2 = 0;
@@ -1186,7 +1182,7 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
 #if OPFL_DOWNSAMP_QUINCUNX
       if ((i + j) % 2 == 1) continue;
 #endif
-#if OPFL_EQUAL_DIST_REQUIRED || OPFL_EQUAL_DIST_ASSUMED
+#if OPFL_EQUAL_DIST_ASSUMED
       const int64_t u = gx0[i * gstride + j] + gx1[i * gstride + j];
       const int64_t v = gy0[i * gstride + j] + gy1[i * gstride + j];
       const int64_t w = p0[i * pstride0 + j] - p1[i * pstride1 + j];
@@ -1215,7 +1211,7 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
   if (D == 0) return;
   *vx0 = (int)divide_and_round_signed(Px, D);
   *vy0 = (int)divide_and_round_signed(Py, D);
-#if OPFL_EQUAL_DIST_REQUIRED || OPFL_EQUAL_DIST_ASSUMED
+#if OPFL_EQUAL_DIST_ASSUMED
   (void)d0;
   (void)d1;
   *vx1 = -(*vx0);
@@ -1237,11 +1233,7 @@ void av1_opfl_mv_refinement_interp_grad(const int16_t *pdiff, int pstride0,
                                         int d1, int grad_prec_bits,
                                         int mv_prec_bits, int *vx0, int *vy0,
                                         int *vx1, int *vy1) {
-#if OPFL_EQUAL_DIST_REQUIRED
-  assert(d0 + d1 == 0);
-  (void)d0;
-  (void)d1;
-#endif
+  assert(IMPLIES(OPFL_DIST_RATIO_THR == 1, d0 + d1 == 0));
   int64_t su2 = 0;
   int64_t suv = 0;
   int64_t sv2 = 0;
@@ -1275,7 +1267,7 @@ void av1_opfl_mv_refinement_interp_grad(const int16_t *pdiff, int pstride0,
   if (D == 0) return;
   *vx0 = (int)divide_and_round_signed(Px, D);
   *vy0 = (int)divide_and_round_signed(Py, D);
-#if OPFL_EQUAL_DIST_REQUIRED || OPFL_EQUAL_DIST_ASSUMED
+#if OPFL_EQUAL_DIST_ASSUMED
   (void)d0;
   (void)d1;
   *vx1 = -(*vx0);
@@ -1409,7 +1401,7 @@ static int get_optflow_based_mv_highbd(
   int16_t *tmp1 = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
-#if OPFL_EQUAL_DIST_REQUIRED || OPFL_EQUAL_DIST_ASSUMED
+#if OPFL_EQUAL_DIST_ASSUMED
       tmp0[i * bw + j] = (int16_t)dst0[i * bw + j] + (int16_t)dst1[i * bw + j];
       tmp1[i * bw + j] = (int16_t)dst0[i * bw + j] - (int16_t)dst1[i * bw + j];
 #else
@@ -1520,7 +1512,7 @@ static int get_optflow_based_mv_lowbd(
   int16_t *tmp1 = aom_calloc(1, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
   for (int i = 0; i < bh; ++i) {
     for (int j = 0; j < bw; ++j) {
-#if OPFL_EQUAL_DIST_REQUIRED || OPFL_EQUAL_DIST_ASSUMED
+#if OPFL_EQUAL_DIST_ASSUMED
       tmp0[i * bw + j] = (int16_t)dst0[i * bw + j] + (int16_t)dst1[i * bw + j];
       tmp1[i * bw + j] = (int16_t)dst0[i * bw + j] - (int16_t)dst1[i * bw + j];
 #else
