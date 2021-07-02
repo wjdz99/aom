@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d999cb10_b5f3115a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-07-02T17:19:35Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch fixes the build failure due to incorrect initialization of lib_flags for parallel encode frames when CONFIG_FRAME_PARALLEL_ENCODE_2 is disabled. Also added the TODO to move ref_frame_map from AV1_COMMON to AV1_PRIIMARY as you have suggested in https://aomediareview.googlesource.com/c/aom/+/141103.\n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "53ccf8e4e2feac6ac9b68ef6bc55ef33b4bf0881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
