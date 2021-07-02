@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b3dbb26_4cac94ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-07-02T17:40:38Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch extends the SF gop_length_decision_method to speed 3.\nFollowing are the results.\n\n cpu-used  Resolution  Instruction count        BD-Rate loss (%)\n                        Reduction (%)    avg.psnr   ovr.psnr    ssim\n    3       LOWRES        1.73            0.0324     0.0438    0.0476\n    3       MIDRES        1.00           -0.0547    -0.0666    0.0639\n    3       HDRES         1.04            0.0304     0.0077    0.0678\n    3       Average       1.38            0.0063     0.0005    0.0585\n                         \n    3       ugc360p       1.88            0.0618     0.0071   -0.0201\n\nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate loss\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …  \n\nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks\t",
+      "revId": "1732edbcfb3f0c6c8754f19fef40c7cfec135561",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
