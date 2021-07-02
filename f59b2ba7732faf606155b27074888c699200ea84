@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6535ebd2_c88ebdcf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2021-07-02T20:47:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch fixes an error in num_fp_contexts calculation.\n\nThere were instances when the num_fp_contexts would be set to 0 due to max_threads being configured as 0. This is fixed by putting a lower bound of 1 on the return value of av1_compute_num_fp_contexts(). Also added comments explaining the functionality of av1_compute_num_fp_contexts() and is_fp_config(). \n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --good, --rt, --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc.\n\nPlease review.",
+      "revId": "f59b2ba7732faf606155b27074888c699200ea84",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
