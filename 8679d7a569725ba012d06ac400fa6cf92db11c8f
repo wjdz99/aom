@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f324a01c_6ac3cac3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-03T15:53:45Z",
+      "side": 1,
+      "message": "Hi Wan-Teh/Frank,\n\nThis patch introduces a separate handling for speed 0 case where the speed feature prune_palette_search_level is 0. The order of luma palette_size\nevaluation in av1_rd_pick_palette_intra_sby() is changed from descending order to ascending order in order to facilitate early exit based on palette header rdcost.\n\nThis change has negligible effect on speed and quality in speed 0 encoding for good and allintra encoding modes. This change is verified to be bit-exact for speed \u003e 0 in good and allintra encoding modes.\n\nBy changing the palette_size evaluation to ascending order, the reference best_rd value for palette_size evaluation changes and the transform search decisions change because of early exits present in search_tx_type. (sf adaptive_txb_search_level) This causes the bitstream mismatch when we change the palette_size evaluation from descending order to ascending order.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset.\n\nwith --tune\u003dpsnr,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   0           -0.001          0.0001     0.0000\n\nwith --tune\u003dssim,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   0           -0.001         -0.0002    -0.0001\n\nFollowing are instruction count reduction results when allintra video encode was tested for the screen content test set.\n\n          Instruction Count        BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  ovr.psnr    ssim\n   0          -0.044        -0.0014   -0.0015     0.0000\n\nFollowing are instruction count reduction results when good video encode was tested for the screen content test set.\n\n          Instruction Count        BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  ovr.psnr    ssim\n   0           0.031         0.0078    0.0056    -0.0094\n\nThe patch which enables early exit in palette_size search based on header rdcost in speed 0 path is submitted as a dependent patch at the link mentioned below:\nhttps://aomedia-review.googlesource.com/c/aom/+/141262\n  \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "8679d7a569725ba012d06ac400fa6cf92db11c8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
