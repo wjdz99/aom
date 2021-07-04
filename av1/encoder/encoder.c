@@ -4457,6 +4457,10 @@ int av1_init_parallel_frame_context(
         cur_cpi->ref_refresh_index =
             av1_calc_refresh_idx_for_intnl_arf(cur_cpi, ref_frame_map_pairs, i);
         cur_cpi->refresh_idx_available = true;
+        // Skip the reference frame which will be refreshed by
+        // frame_parallel_level 1 frame in a parallel encode set of lower layer
+        // frames.
+        cur_cpi->ref_idx_to_skip = first_cpi->ref_refresh_index;
       }
 #endif  // CONFIG_FRAME_PARALLEL_ENCODE_2
       parallel_frame_count++;
