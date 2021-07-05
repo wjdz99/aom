@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40bb04d7_53a4043f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-07-05T08:19:23Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch contains two fixes,\n\n1. In vbr_rate_correction(), this_frame_target is updated by fast redistribution of bits available from local undershoot. In some scenario when there is overshoot, fast_extra_bits contain -ve value which can potentially set this_frame_target as –ve, resulting in runtime error. This corner case was caught in one of the sanitizer runs with FPMT simulation on 4 parallel frames. This patch fixes the issue by updating this_frame_target only when there is an undershoot during fast redistribution. Since this was a rare corner case issue, the borg results with CONFIG_FRAME_PARALLEL_ENCODE\u003d0 (default path) shows bit-exact output.\n\n2. In vbr_rate_correction(), the condition to do fast redistribution of bits is based on rc-\u003evbr_bits_off_target_fast. In FPMT path the condition is updated with the temporary variable introduced for simulation.\n\nThis patch is bitexact for CONFIG_FRAME_PARALLEL_ENCODE macro disabled path and CQP path. There is a marginal change in results for CONFIG_FRAME_PARALLEL_ENCODE macro enabled scenario.\n\nPlease find the vbr borg result without the fix and with the fix for, CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1(test) vs CONFIG_FRAME_PARALLEL_ENCODE 0 (ref) below.\n\nWith frame level contexts\u003d4, without this fix\n CPU Resolution     Instruction Count      BD-Rate Impact %\n                       Reduction %     avg.psnr ovr.psnr   ssim\n                                        8 - bit  8 - bit  8 - bit\n  2    AVERAGE          -0.553          1.2776   1.2688   1.5083\n  5    AVERAGE           0.359          1.7002   1.6858   1.8835\n\nWith frame level contexts\u003d4, with this fix\n CPU Resolution     Instruction Count      BD-Rate Impact %\n                       Reduction %     avg.psnr ovr.psnr   ssim\n                                        8 - bit  8 - bit  8 - bit\n  2    AVERAGE          -0.565          1.2737   1.2809   1.5113\n  5    AVERAGE           0.343          1.7033   1.6962   1.8994\n\nPlease review the patch,\nThanks\n",
+      "revId": "b0a4ac1038bb611fb807b384841271d345f242c7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
