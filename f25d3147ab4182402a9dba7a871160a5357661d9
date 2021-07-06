@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c825405_ca725b5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-07-06T16:48:44Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch handles the reference frame assignment for FP2 sets during actual parallel encode of frames.\n\nConsidering the example of 2 || 6 for gf-interval 16 in FP2, the existing implementation was avoiding the use of frame 2 as reference for frame 6 based on the display order hint (of 2) in the ref_frame_map. Though this approach works during the FPMT simulation (where the encoding is sequential), in the final implementation, 2 and 6 will be encoded in parallel and the ref_frame_map seen by 6 would not yet have been refreshed by 2.\n\nIn order to mask the use of 2 as a reference for 6 during the parallel encode, this patch introduces a variable ref_idx_to_skip in cpi, which gets updated by the index of ref_frame_map which would get refreshed by 2. During the reference assignment of 6, the reference frame belonging to ref_idx_to_skip is not considered as a valid reference.\n\nPlease note that when get_ref_frames() is called from tpl, the original implementation based on display order hint is used (since frames are processed sequentially) and that the new logic will be used during the parallel encode only. The relevant use of ref_idx_to_skip is currently disabled (by overriding is_parallel_encode as 0 in get_ref_frames() in encode_strategy.c) and will be enabled in the eventual FPMT implementation.\n\nThis change is bit exact in the default path and FPMT path (verified locally on a few test cases).\nPlease review.\n\nRegards,\nRemya\n",
+      "revId": "f25d3147ab4182402a9dba7a871160a5357661d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
