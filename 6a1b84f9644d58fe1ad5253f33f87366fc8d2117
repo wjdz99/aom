@@ -16,6 +16,23 @@
       "message": "Looks good. Lets try this out on some of the edge cases images.",
       "revId": "6a1b84f9644d58fe1ad5253f33f87366fc8d2117",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7970eb1_b265aecf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2021-07-07T15:38:06Z",
+      "side": 1,
+      "message": "Lets hold off till we sort out the correct normalization. As things stand this will just be comparing the median vs the average of the medians which does not do quite what we want.",
+      "revId": "6a1b84f9644d58fe1ad5253f33f87366fc8d2117",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
