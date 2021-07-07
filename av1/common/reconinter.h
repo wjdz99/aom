@@ -358,6 +358,36 @@ static INLINE int has_one_sided_refs(const AV1_COMMON *cm,
   const RefCntBuffer *const ref1 = get_ref_frame_buf(cm, mbmi->ref_frame[1]);
   return !((ref0->order_hint >= cur_index) ^ (ref1->order_hint >= cur_index));
 }
+
+#define OPTFLOW_INTEGER_MULT_DIVIDE 1
+static INLINE int32_t divide_and_round_signed(int64_t P, int64_t D) {
+#if OPTFLOW_INTEGER_MULT_DIVIDE
+  if (llabs(D) == 1) return (int32_t)(D < 0 ? -P : P);
+  static const int optflow_prec_bits = 16;
+  int16_t shift;
+  const int signD = (D < 0 ? -1 : 1);
+  uint16_t iD = resolve_divisor_64(llabs(D), &shift);
+  shift -= optflow_prec_bits;
+  if (shift < 0) {
+    iD <<= (-shift);
+    shift = 0;
+  }
+  const int32_t v = (int32_t)ROUND_POWER_OF_TWO_SIGNED_64(
+      P * (int64_t)iD * signD, optflow_prec_bits + shift);
+#ifndef NDEBUG
+  int32_t v0 = (int32_t)DIVIDE_AND_ROUND_SIGNED(P, D);
+  if (abs(v0 - v) > 1 &&
+    abs(v0) <= 64) {  // check if error is at most 1 at usable values of v0
+    printf("Warning: D = %" PRId64 ", iD = %d, shift = %d, v0 = %d, v = %d\n",
+      D, iD, shift, v0, v);
+  }
+#endif  // NDEBUG
+#else
+  const int32_t v = (int32_t)DIVIDE_AND_ROUND_SIGNED(P, D);
+#endif  // OPTFLOW_INTEGER_MULT_DIVIDE
+  return v;
+}
+
 #endif  // CONFIG_OPTFLOW_REFINEMENT
 
 // TODO(jkoleszar): yet another mv clamping function :-(
