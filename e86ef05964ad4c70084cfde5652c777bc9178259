@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9353198_5b71ce25",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-07-07T13:19:06Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch fixes the build warnings in CONFIG_FRAME_PARALLEL_ENCODE macro enabled path related to missing comment, unused variables, shadowed declaration etc.\n\nPlease review the patch.\nThanks",
+      "revId": "e86ef05964ad4c70084cfde5652c777bc9178259",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
