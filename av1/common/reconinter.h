@@ -130,6 +130,52 @@ typedef struct InterPredParams {
   int is_intrabc;
 } InterPredParams;
 
+#if CONFIG_OPTFLOW_REFINEMENT
+
+// Apply bilinear and bicubic interpolation for subpel gradient to avoid
+// calls of build_one_inter_predictor function. Bicubic interpolation
+// brings better quality but the speed results are neutral. As such, bilinear
+// interpolation is used by default for a better trade-off between quality
+// and complexity.
+#define OPFL_BILINEAR_GRAD 0
+#define OPFL_BICUBIC_GRAD 0
+
+// Use downsampled gradient arrays to compute MV offsets
+#define OPFL_DOWNSAMP_QUINCUNX 0
+
+// Delta to use for computing gradients in bits, with 0 referring to
+// integer-pel. The actual delta value used from the 1/8-pel original MVs
+// is 2^(3 - SUBPEL_GRAD_DELTA_BITS). The max value of this macro is 3.
+#define SUBPEL_GRAD_DELTA_BITS 3
+
+// Bilinear and bicubic coefficients. Note that, at boundary, we apply
+// coefficients that are doubled because spatial distance between the two
+// interpolated pixels is halved. In other words, instead of computing
+//   coeff * (v[delta] - v[-delta]) / (2 * delta),
+// we are practically computing
+//   coeff * (v[delta] - v[0]) / (2 * delta).
+// Thus, coeff is doubled to get a better gradient quality.
+#if OPFL_BILINEAR_GRAD
+static const int bilinear_bits = 3;
+static const int32_t coeffs_bilinear[4][2] = {
+  { 8, 16 },  // delta = 1 (SUBPEL_GRAD_DELTA_BITS = 0)
+  { 4, 8 },   // delta = 0.5 (SUBPEL_GRAD_DELTA_BITS = 1)
+  { 2, 4 },   // delta = 0.25 (SUBPEL_GRAD_DELTA_BITS = 2)
+  { 1, 2 },   // delta = 0.125 (SUBPEL_GRAD_DELTA_BITS = 3)
+};
+#endif
+
+#if OPFL_BICUBIC_GRAD
+static const int bicubic_bits = 7;
+static const int32_t coeffs_bicubic[4][2][2] = {
+  { { 128, 256 }, { 0, 0 } },    // delta = 1 (SUBPEL_GRAD_DELTA_BITS = 0)
+  { { 80, 160 }, { -8, -16 } },  // delta = 0.5 (SUBPEL_GRAD_DELTA_BITS = 1)
+  { { 42, 84 }, { -5, -10 } },   // delta = 0.25 (SUBPEL_GRAD_DELTA_BITS = 2)
+  { { 21, 42 }, { -3, -6 } },    // delta = 0.125 (SUBPEL_GRAD_DELTA_BITS = 3)
+};
+#endif
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+
 void av1_init_inter_params(InterPredParams *inter_pred_params, int block_width,
                            int block_height, int pix_row, int pix_col,
                            int subsampling_x, int subsampling_y, int bit_depth,
@@ -282,6 +328,17 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
 // Always assume d0 = d1 in optical flow refinement.
 #define OPFL_EQUAL_DIST_ASSUMED 0
 
+// Apply regularized least squares (RLS). The RLS parameter is bw * bh * 2^(b-4)
+// where b = OPFL_RLS_PARAM_BITS.
+#define OPFL_REGULARIZED_LS 1
+#define OPFL_RLS_PARAM_BITS 4
+
+// Number of bits allowed for covariance matrix elements (su2, sv2, suv, suw
+// and svw) so that D, Px, and Py does not cause overflow issue in int64_t.
+// Its value must be <= (64 - mv_prec_bits - grad_prec_bits) / 2.
+#define OPFL_COV_CLAMP_BITS 30
+#define OPFL_COV_CLAMP_VAL (1 << OPFL_COV_CLAMP_BITS)
+
 // Precision of refined MV returned, 0 being integer pel. For now, only 1/8 or
 // 1/16-pel can be used.
 #define MV_REFINE_PREC_BITS 4  // (1/16-pel)
@@ -327,6 +384,36 @@ static INLINE int is_opfl_refine_allowed(const AV1_COMMON *cm,
          (AOMMAX(abs(d0), abs(d1)) <=
           OPFL_DIST_RATIO_THR * AOMMIN(abs(d0), abs(d1)));
 }
+
+#define OPTFLOW_INTEGER_MULT_DIVIDE 1
+static INLINE int32_t divide_and_round_signed(int64_t P, int64_t D) {
+#if OPTFLOW_INTEGER_MULT_DIVIDE
+  if (llabs(D) == 1) return (int32_t)(D < 0 ? -P : P);
+  static const int optflow_prec_bits = 16;
+  int16_t shift;
+  const int signD = (D < 0 ? -1 : 1);
+  uint16_t iD = resolve_divisor_64(llabs(D), &shift);
+  shift -= optflow_prec_bits;
+  if (shift < 0) {
+    iD <<= (-shift);
+    shift = 0;
+  }
+  const int32_t v = (int32_t)ROUND_POWER_OF_TWO_SIGNED_64(
+      P * (int64_t)iD * signD, optflow_prec_bits + shift);
+#ifndef NDEBUG
+  int32_t v0 = (int32_t)DIVIDE_AND_ROUND_SIGNED(P, D);
+  if (abs(v0 - v) > 1 &&
+      abs(v0) <= 64) {  // check if error is at most 1 at usable values of v0
+    printf("Warning: D = %" PRId64 ", iD = %d, shift = %d, v0 = %d, v = %d\n",
+           D, iD, shift, v0, v);
+  }
+#endif  // NDEBUG
+#else
+  const int32_t v = (int32_t)DIVIDE_AND_ROUND_SIGNED(P, D);
+#endif  // OPTFLOW_INTEGER_MULT_DIVIDE
+  return v;
+}
+
 #endif  // CONFIG_OPTFLOW_REFINEMENT
 
 // TODO(jkoleszar): yet another mv clamping function :-(
