@@ -105,6 +105,11 @@ if(NOT BUILD_SHARED_LIBS)
               "${AOM_ROOT}/test/simd_cmp_impl.h"
               "${AOM_ROOT}/test/simd_impl.h")
 
+  if(CONFIG_OPTFLOW_REFINEMENT)
+    list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
+                "${AOM_ROOT}/test/opt_flow_test.cc")
+  endif()
+
   if(CONFIG_ACCOUNTING)
     list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
                 "${AOM_ROOT}/test/accounting_test.cc")
