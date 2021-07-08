@@ -81,6 +81,7 @@
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/var_based_part.h"
 
+#define FREQUENCY_ANALYSIS 0
 #define DEFAULT_EXPLICIT_ORDER_HINT_BITS 7
 
 // #define OUTPUT_YUV_REC
@@ -3118,6 +3119,179 @@ static void calculate_frame_avg_haar_energy(AV1_COMP *cpi) {
 }
 #endif
 
+static int frequency_analysis_from_transform_coeffs(
+    AV1_COMP *cpi, const YV12_BUFFER_CONFIG *const source_frame,
+    const YV12_BUFFER_CONFIG *const filter_frame,
+    const YV12_BUFFER_CONFIG *const recon_frame) {
+  AV1_COMMON *const cm = &cpi->common;
+  const uint8_t *filtered_buffer = filter_frame->y_buffer;
+  const uint8_t *buffer = source_frame->y_buffer;
+  const uint8_t *recon_buffer = recon_frame->y_buffer;
+  const int buf_stride = cpi->source->y_stride;
+  ThreadData *td = &cpi->td;
+  MACROBLOCK *x = &td->mb;
+  MACROBLOCKD *xd = &x->e_mbd;
+  MB_MODE_INFO mbmi;
+  memset(&mbmi, 0, sizeof(mbmi));
+  MB_MODE_INFO *mbmi_ptr = &mbmi;
+  xd->mi = &mbmi_ptr;
+
+  union {
+#if CONFIG_AV1_HIGHBITDEPTH
+    DECLARE_ALIGNED(32, uint16_t, zero_pred16[32 * 32]);
+#endif
+    DECLARE_ALIGNED(32, uint8_t, zero_pred8[32 * 32]);
+  } pred_buffer_mem;
+  uint8_t *pred_buf;
+
+  DECLARE_ALIGNED(32, int16_t, src_diff[32 * 32]);
+  DECLARE_ALIGNED(32, tran_low_t, coeff[32 * 32]);
+
+  const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
+  const int enable_intra_edge_filter = cm->seq_params->enable_intra_edge_filter;
+  const BitDepthInfo bd_info = get_bit_depth_info(xd);
+  const TX_SIZE tx_size = TX_32X32;
+  const int block_size = tx_size_wide[tx_size];
+  const int coeff_count = block_size * block_size;
+  const int mb_step = mi_size_wide[BLOCK_32X32];
+  const int mb_rows_32x32 = cpi->frame_info.mb_rows >> 1;
+  const int mb_cols_32x32 = cpi->frame_info.mb_cols >> 1;
+
+#if CONFIG_AV1_HIGHBITDEPTH
+  xd->cur_buf = cpi->source;
+  if (xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH) {
+    pred_buf = CONVERT_TO_BYTEPTR(pred_buffer_mem.zero_pred16);
+    memset(pred_buffer_mem.zero_pred16, 0,
+           sizeof(*pred_buffer_mem.zero_pred16) * coeff_count);
+  } else {
+    pred_buf = pred_buffer_mem.zero_pred8;
+    memset(pred_buffer_mem.zero_pred8, 0,
+           sizeof(*pred_buffer_mem.zero_pred8) * coeff_count);
+  }
+#else
+  pred_buf = pred_buffer_mem.zero_pred8;
+  memset(pred_buffer_mem.zero_pred8, 0,
+         sizeof(*pred_buffer_mem.zero_pred8) * coeff_count);
+#endif
+
+  const SCAN_ORDER *const scan_order = &av1_scan_orders[TX_32X32][DCT_DCT];
+  int coeff_amplitude[1024] = { 0 };
+  int filter_coeff_amplitude[1024] = { 0 };
+  int recon_coeff_amplitude[1024] = { 0 };
+  for (int mb_row = 0; mb_row < mb_rows_32x32; ++mb_row) {
+    for (int mb_col = 0; mb_col < mb_cols_32x32; ++mb_col) {
+      PREDICTION_MODE best_mode = DC_PRED;
+      int best_intra_cost = INT_MAX;
+
+      int mi_row = mb_row * mb_step;
+      int mi_col = mb_col * mb_step;
+
+      xd->up_available = mi_row > 0;
+      xd->left_available = mi_col > 0;
+
+      int dst_mb_offset = mi_row * MI_SIZE * buf_stride + mi_col * MI_SIZE;
+      uint8_t *dst_buffer = xd->cur_buf->y_buffer + dst_mb_offset;
+
+      for (PREDICTION_MODE mode = INTRA_MODE_START; mode < INTRA_MODE_END;
+           ++mode) {
+        av1_predict_intra_block(xd, sb_size, enable_intra_edge_filter,
+                                block_size, block_size, tx_size, mode, 0, 0,
+                                FILTER_INTRA_MODES, dst_buffer, buf_stride,
+                                pred_buf, block_size, 0, 0, 0);
+
+        av1_subtract_block(bd_info, block_size, block_size, src_diff,
+                           block_size, dst_buffer, buf_stride, pred_buf,
+                           block_size);
+        av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+        int intra_cost = aom_satd(coeff, coeff_count);
+        if (intra_cost < best_intra_cost) {
+          best_intra_cost = intra_cost;
+          best_mode = mode;
+        }
+      }
+
+      const uint8_t *mb_buffer =
+          buffer + mb_row * block_size * buf_stride + mb_col * block_size;
+      av1_predict_intra_block(xd, sb_size, enable_intra_edge_filter, block_size,
+                              block_size, tx_size, best_mode, 0, 0,
+                              FILTER_INTRA_MODES, dst_buffer, buf_stride,
+                              pred_buf, block_size, 0, 0, 0);
+      av1_subtract_block(bd_info, block_size, block_size, src_diff, block_size,
+                         mb_buffer, buf_stride, pred_buf, block_size);
+      av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+      // Accumulate magnitude of each frequecy.
+      for (int i = 0; i < coeff_count; ++i) {
+        coeff_amplitude[i] += abs(coeff[scan_order->scan[i]]);
+      }
+
+      const uint8_t *filter_mb_buffer = filtered_buffer +
+                                        mb_row * block_size * buf_stride +
+                                        mb_col * block_size;
+      av1_predict_intra_block(xd, sb_size, enable_intra_edge_filter, block_size,
+                              block_size, tx_size, best_mode, 0, 0,
+                              FILTER_INTRA_MODES, dst_buffer, buf_stride,
+                              pred_buf, block_size, 0, 0, 0);
+      av1_subtract_block(bd_info, block_size, block_size, src_diff, block_size,
+                         filter_mb_buffer, buf_stride, pred_buf, block_size);
+      av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+      // Accumulate magnitude of each frequecy.
+      for (int i = 0; i < coeff_count; ++i) {
+        filter_coeff_amplitude[i] += abs(coeff[scan_order->scan[i]]);
+      }
+
+      const uint8_t *recon_mb_buffer =
+          recon_buffer + mb_row * block_size * buf_stride + mb_col * block_size;
+      av1_predict_intra_block(xd, sb_size, enable_intra_edge_filter, block_size,
+                              block_size, tx_size, best_mode, 0, 0,
+                              FILTER_INTRA_MODES, dst_buffer, buf_stride,
+                              pred_buf, block_size, 0, 0, 0);
+      av1_subtract_block(bd_info, block_size, block_size, src_diff, block_size,
+                         recon_mb_buffer, buf_stride, pred_buf, block_size);
+      av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+      // Accumulate magnitude of each frequecy.
+      for (int i = 0; i < coeff_count; ++i) {
+        recon_coeff_amplitude[i] += abs(coeff[scan_order->scan[i]]);
+      }
+    }
+  }
+  {
+    FILE *pfile = fopen("source_freqency_amplitude.info", "w");
+    for (int i = 0; i < coeff_count; ++i) {
+      fprintf(pfile, "%d\n", coeff_amplitude[i]);
+    }
+    fclose(pfile);
+
+    FILE *qfile = fopen("filtered_frequency_amplitude.info", "w");
+    for (int i = 0; i < coeff_count; ++i) {
+      fprintf(qfile, "%d\n", filter_coeff_amplitude[i]);
+    }
+    fclose(qfile);
+
+    FILE *rfile = fopen("recon_frequency_amplitude.info", "w");
+    for (int i = 0; i < coeff_count; ++i) {
+      fprintf(rfile, "%d\n", recon_coeff_amplitude[i]);
+    }
+    fclose(rfile);
+  }
+
+  // Estimate noise as the average amplitude of tail 50% frequencies.
+  int last_idx = coeff_count - 1;
+  while (coeff_amplitude[last_idx] == 0 && last_idx > 0) {
+    --last_idx;
+  }
+  const double tail_pct = 0.5;
+  const int start_idx = (int)(last_idx * tail_pct);
+  int64_t sum = 0;
+  for (int i = start_idx; i < last_idx; ++i) {
+    sum += coeff_amplitude[i];
+  }
+  const int num_mbs = mb_rows_32x32 * mb_cols_32x32;
+  const int avg_amplitude = (int)(sum / (num_mbs * (last_idx - start_idx + 1)));
+  const int noise = avg_amplitude;
+
+  return noise;
+}
+
 extern void av1_print_frame_contexts(const FRAME_CONTEXT *fc,
                                      const char *filename);
 
@@ -3390,6 +3564,16 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
       return AOM_CODEC_ERROR;
     }
     cpi->superres_mode = orig_superres_mode;  // restore
+  }
+
+  if (FREQUENCY_ANALYSIS) {
+    if (cpi->ppi->gf_group.update_type[cpi->gf_frame_index] == KF_UPDATE) {
+      const YV12_BUFFER_CONFIG *source_buffer = cpi->unfiltered_source;
+      const YV12_BUFFER_CONFIG *filter_buffer = cpi->source;
+      const YV12_BUFFER_CONFIG *recon_buffer = &cpi->common.cur_frame->buf;
+      frequency_analysis_from_transform_coeffs(cpi, source_buffer,
+                                               filter_buffer, recon_buffer);
+    }
   }
 
   cpi->ppi->seq_params_locked = 1;
