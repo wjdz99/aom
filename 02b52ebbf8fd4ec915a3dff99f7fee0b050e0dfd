@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4205317b_e8e652c9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-07-08T22:59:36Z",
+      "side": 1,
+      "message": "any bug associated with this or was it just observed locally?",
+      "revId": "02b52ebbf8fd4ec915a3dff99f7fee0b050e0dfd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
