@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27fbcabb_07d5974b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-07-08T17:39:25Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch initializes AV1_COMP_DATA elements such as timestamp_ratio, frame_size and flush for frame_parallel_level 2 frames in a parallel encode set.\n\nThis change is bit exact(verified locally on a few test cases).\nPlease review.\n\nRegards,\nRemya",
+      "revId": "fd426a56d06ca26c6428162458fe2b93f59f79ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
