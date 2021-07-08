@@ -3156,6 +3156,85 @@ static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   return sb_wiener_var;
 }
 
+static int estimate_noise_from_transform_coeffs(
+    MACROBLOCKD *xd, const int mb_rows, const int mb_cols,
+    const BLOCK_SIZE sb_size, const int enable_intra_edge_filter,
+    const int buf_stride, const BitDepthInfo bd_info, uint8_t *buffer,
+    uint8_t *pred_buf, int16_t *src_diff, tran_low_t *coeff) {
+  const TX_SIZE tx_size = TX_32X32;
+  const int block_size = tx_size_wide[tx_size];
+  const int coeff_count = block_size * block_size;
+  const int mb_step = mi_size_wide[BLOCK_32X32];
+  const int mb_rows_32x32 = mb_rows >> 1;
+  const int mb_cols_32x32 = mb_cols >> 1;
+  const SCAN_ORDER *const scan_order = &av1_scan_orders[TX_32X32][DCT_DCT];
+  int coeff_amplitude[1024] = { 0 };
+  for (int mb_row = 0; mb_row < mb_rows_32x32; ++mb_row) {
+    for (int mb_col = 0; mb_col < mb_cols_32x32; ++mb_col) {
+      PREDICTION_MODE best_mode = DC_PRED;
+      int best_intra_cost = INT_MAX;
+
+      int mi_row = mb_row * mb_step;
+      int mi_col = mb_col * mb_step;
+
+      xd->up_available = mi_row > 0;
+      xd->left_available = mi_col > 0;
+
+      int dst_mb_offset = mi_row * MI_SIZE * buf_stride + mi_col * MI_SIZE;
+      uint8_t *dst_buffer = xd->cur_buf->y_buffer + dst_mb_offset;
+
+      for (PREDICTION_MODE mode = INTRA_MODE_START; mode < INTRA_MODE_END;
+           ++mode) {
+        av1_predict_intra_block(xd, sb_size, enable_intra_edge_filter,
+                                block_size, block_size, tx_size, mode, 0, 0,
+                                FILTER_INTRA_MODES, dst_buffer, buf_stride,
+                                pred_buf, block_size, 0, 0, 0);
+
+        av1_subtract_block(bd_info, block_size, block_size, src_diff,
+                           block_size, dst_buffer, buf_stride, pred_buf,
+                           block_size);
+        av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+        int intra_cost = aom_satd(coeff, coeff_count);
+        if (intra_cost < best_intra_cost) {
+          best_intra_cost = intra_cost;
+          best_mode = mode;
+        }
+      }
+
+      uint8_t *mb_buffer =
+          buffer + mb_row * block_size * buf_stride + mb_col * block_size;
+      av1_predict_intra_block(xd, sb_size, enable_intra_edge_filter, block_size,
+                              block_size, tx_size, best_mode, 0, 0,
+                              FILTER_INTRA_MODES, dst_buffer, buf_stride,
+                              pred_buf, block_size, 0, 0, 0);
+      av1_subtract_block(bd_info, block_size, block_size, src_diff, block_size,
+                         mb_buffer, buf_stride, pred_buf, block_size);
+      av1_quick_txfm(0, tx_size, bd_info, src_diff, block_size, coeff);
+      // Accumulate magnitude of each frequecy.
+      for (int i = 0; i < coeff_count; ++i) {
+        coeff_amplitude[i] += abs(coeff[scan_order->scan[i]]);
+      }
+    }
+  }
+
+  // Estimate noise as the average amplitude of tail 50% frequencies.
+  int last_idx = coeff_count - 1;
+  while (coeff_amplitude[last_idx] == 0 && last_idx > 0) {
+    --last_idx;
+  }
+  const double tail_pct = 0.5;
+  const int start_idx = (int)(last_idx * tail_pct);
+  int64_t sum = 0;
+  for (int i = start_idx; i < last_idx; ++i) {
+    sum += coeff_amplitude[i];
+  }
+  const int num_mbs = mb_rows_32x32 * mb_cols_32x32;
+  const int avg_amplitude = (int)(sum / (num_mbs * (last_idx - start_idx + 1)));
+  const int noise = avg_amplitude;
+
+  return noise;
+}
+
 static void set_mb_wiener_variance(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   uint8_t *buffer = cpi->source->y_buffer;
@@ -3204,6 +3283,10 @@ static void set_mb_wiener_variance(AV1_COMP *cpi) {
   const BitDepthInfo bd_info = get_bit_depth_info(xd);
   cpi->norm_wiener_variance = 0;
 
+  const int noise_var = estimate_noise_from_transform_coeffs(
+      xd, cpi->frame_info.mb_rows, cpi->frame_info.mb_cols,
+      cm->seq_params->sb_size, cm->seq_params->enable_intra_edge_filter,
+      buf_stride, bd_info, buffer, pred_buf, src_diff, coeff);
   int mb_step = mi_size_wide[BLOCK_16X16];
 
   for (mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
@@ -3240,7 +3323,6 @@ static void set_mb_wiener_variance(AV1_COMP *cpi) {
       }
 
       int idx;
-      int16_t median_val = 0;
       uint8_t *mb_buffer =
           buffer + mb_row * block_size * buf_stride + mb_col * block_size;
       int64_t wiener_variance = 0;
@@ -3256,17 +3338,11 @@ static void set_mb_wiener_variance(AV1_COMP *cpi) {
 
       qsort(coeff, coeff_count - 1, sizeof(*coeff), qsort_comp);
 
-      // Noise level estimation
-      median_val = coeff[coeff_count / 2];
-
       // Wiener filter
       for (idx = 1; idx < coeff_count; ++idx) {
-        int64_t sqr_coeff = (int64_t)coeff[idx] * coeff[idx];
-        int64_t tmp_coeff = (int64_t)coeff[idx];
-        if (median_val) {
-          tmp_coeff = (sqr_coeff * coeff[idx]) /
-                      (sqr_coeff + (int64_t)median_val * median_val);
-        }
+        const int64_t sqr_coeff = (int64_t)coeff[idx] * coeff[idx];
+        const int64_t tmp_coeff = (sqr_coeff * coeff[idx]) /
+                                  (sqr_coeff + (int64_t)noise_var * noise_var);
         wiener_variance += tmp_coeff * tmp_coeff;
       }
       cpi->mb_wiener_variance[mb_row * cpi->frame_info.mb_cols + mb_col] =
