@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b656d42_49e05c1a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-07-08T13:25:43Z",
+      "side": 1,
+      "message": "Hi Lester, Yunqing,\nWe have submitted a CL to add SSE4.1 intrinsic optimization for Bi-cubic grad interpolation function for low-bd. We also take care of refactoring C implementation of Bi-Cubic and Bi-Linear filters which is required for intrinsic coding. To validate the intrinsic a unit test framework is also added.\nFor this patch, we observed ~12% encode time reduction for fourpeople_720p60.y4m, speed 1.\n\nPlease check the block level scaling,\nBlock size   Scaling w.r.t C\n  8X8          1.68\n  16X16        2.36\n  32X32        3.73\n  64X64        8.03\n  128X128      19.35\n\nPlease review the patch. \nThank you.\n\nRegards,\nAkshata",
+      "revId": "67ca323eb7a3e1d6dcf7f37a692820771838a185",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
