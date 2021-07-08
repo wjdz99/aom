@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch initializes \u0027prev_ts_start\u0027 and \u0027prev_ts_end\u0027 for frame_parallel_level 2 frames in a parallel encode set which are show frames, with that of its previous frame. These values are used for the correct computation of cpi-\u003eframerate in av1_new_framerate().  \n\nThis change is bit exact(verified locally on a few test cases).\nPlease review.\n\nRegards,\nRemya",
       "revId": "3b6d77004fe70aa27272f190669fe4cb87412c21",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8142e77d_38f3115b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-07-08T17:42:07Z",
+      "side": 1,
+      "message": "looks good.",
+      "revId": "3b6d77004fe70aa27272f190669fe4cb87412c21",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
