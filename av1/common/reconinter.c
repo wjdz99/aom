@@ -1107,11 +1107,11 @@ void av1_opfl_mv_refinement_lowbd(const uint8_t *p0, int pstride0,
       const int u = d0 * gx0[i * gstride + j] - d1 * gx1[i * gstride + j];
       const int v = d0 * gy0[i * gstride + j] - d1 * gy1[i * gstride + j];
       const int w = d0 * (p0[i * pstride0 + j] - p1[i * pstride1 + j]);
-      su2 += (u * u);
-      suv += (u * v);
-      sv2 += (v * v);
-      suw += (u * w);
-      svw += (v * w);
+      su2 += (int64_t)(u * u);
+      suv += (int64_t)(u * v);
+      sv2 += (int64_t)(v * v);
+      suw += (int64_t)(u * w);
+      svw += (int64_t)(v * w);
     }
   }
   int bits = mv_prec_bits + grad_prec_bits;
@@ -1153,11 +1153,11 @@ void av1_opfl_mv_refinement_highbd(const uint16_t *p0, int pstride0,
       const int u = d0 * gx0[i * gstride + j] - d1 * gx1[i * gstride + j];
       const int v = d0 * gy0[i * gstride + j] - d1 * gy1[i * gstride + j];
       const int w = d0 * (p0[i * pstride0 + j] - p1[i * pstride1 + j]);
-      su2 += (u * u);
-      suv += (u * v);
-      sv2 += (v * v);
-      suw += (u * w);
-      svw += (v * w);
+      su2 += (int64_t)(u * u);
+      suv += (int64_t)(u * v);
+      sv2 += (int64_t)(v * v);
+      suw += (int64_t)(u * w);
+      svw += (int64_t)(v * w);
     }
   }
   int bits = mv_prec_bits + grad_prec_bits;
