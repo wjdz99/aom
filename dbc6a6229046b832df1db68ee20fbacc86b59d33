@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7d80bbd_d2fda460",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T17:24:44Z",
+      "side": 1,
+      "message": "LGTM. Just some nitpicks on const. ",
+      "revId": "dbc6a6229046b832df1db68ee20fbacc86b59d33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2bb052ad_7b96779c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2941,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T17:24:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 2941,
+        "startChar": 2,
+        "endLine": 2941,
+        "endChar": 19
+      },
+      "revId": "dbc6a6229046b832df1db68ee20fbacc86b59d33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8082fb5_b260e18c",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2942,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T17:24:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 2942,
+        "startChar": 2,
+        "endLine": 2942,
+        "endChar": 15
+      },
+      "revId": "dbc6a6229046b832df1db68ee20fbacc86b59d33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23035abe_444b5a9e",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T17:24:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 405,
+        "startChar": 2,
+        "endLine": 406,
+        "endChar": 33
+      },
+      "revId": "dbc6a6229046b832df1db68ee20fbacc86b59d33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e70933d5_45a4503b",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T17:24:44Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 1148,
+        "startChar": 2,
+        "endLine": 1148,
+        "endChar": 31
+      },
+      "revId": "dbc6a6229046b832df1db68ee20fbacc86b59d33",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
