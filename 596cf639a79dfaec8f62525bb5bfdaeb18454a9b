@@ -122,6 +122,24 @@
       "parentUuid": "cf271fe2_cbcb641a",
       "revId": "596cf639a79dfaec8f62525bb5bfdaeb18454a9b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37e5ecc7_6f02135d",
+        "filename": "av1/encoder/sparse_linear_solver.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-07-09T22:21:58Z",
+      "side": 1,
+      "message": "\u003e \u003e Removed the comments in the new patch. Yeah this config is by default set to off.\n\u003e \n\u003e It should be compiled in the libaom__compile_experiments jobs:\n\u003e https://build.aomedia.org/jenkins/job/libaom__compile_experiments/35123/arch\u003dgeneric-gnu,shard\u003d8/consoleFull\n\u003e \n\u003e I\u0027m surprised the earlier patchset passed.\n\nI misread, it was just the comment in this patchset. The code is being built as expected.",
+      "parentUuid": "2350f614_07d748f3",
+      "revId": "596cf639a79dfaec8f62525bb5bfdaeb18454a9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
