@@ -117,6 +117,30 @@
       },
       "revId": "7f4e40d293162e7be066f62fa128eed27e7d30e8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63229c44_deddb59c",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-07-09T17:28:19Z",
+      "side": 1,
+      "message": "OK. I am still using 0.0001 as the precision threshold in the new code.",
+      "parentUuid": "3cf463d7_a4c979d4",
+      "range": {
+        "startLine": 153,
+        "startChar": 6,
+        "endLine": 153,
+        "endChar": 40
+      },
+      "revId": "7f4e40d293162e7be066f62fa128eed27e7d30e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
