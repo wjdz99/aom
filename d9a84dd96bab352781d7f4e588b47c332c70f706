@@ -16,6 +16,207 @@
       "message": "Thanks for uploading the CL! Please fix the style problem in rdopt.c and push another patch. I may have a few more comments too. Thanks!",
       "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6647e01_62ae64fe",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "The file should be surrounded by the macro too.",
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3813aad2_473a4b58",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Should be surrounded by macro.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 38
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7dfd0c4a_328129d2",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 689,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Could you surround this function within #if CONFIG_SPHERICAL_PRED ? Thanks!",
+      "range": {
+        "startLine": 689,
+        "startChar": 1,
+        "endLine": 689,
+        "endChar": 57
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "caa3a7af_188e0f5f",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Should be surrounded by macro.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 38
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74b8b1e9_cdc48c19",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Should be surrounded by macro.",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 68
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51273285_d30bcef7",
+        "filename": "av1/encoder/motion_search_facade.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Should be surrounded by macro.",
+      "range": {
+        "startLine": 32,
+        "startChar": 1,
+        "endLine": 34,
+        "endChar": 62
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef1f3fac_df7078fb",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Should be surrounded by macro.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 38
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "386c3aaf_0db87515",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Should be surrounded by macro.",
+      "range": {
+        "startLine": 117,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 74
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5cad773_d70213fa",
+        "filename": "av1/encoder/reconinter_enc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T20:23:13Z",
+      "side": 1,
+      "message": "Should be surrounded by macro.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 59
+      },
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
