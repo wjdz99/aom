@@ -19,10 +19,16 @@
 #include "av1/common/filter.h"
 #include "av1/common/reconinter.h"
 #include "av1/common/warped_motion.h"
+#include "av1/encoder/block.h"
+#include "av1/encoder/encoder.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+void av1_enc_build_erp_predictor(const AV1_COMP *const cpi, MACROBLOCK *x,
+                                 BLOCK_SIZE bsize, int ref_idx, int plane_from,
+                                 int plane_to, int_mv *mv);
 
 // Build single or compound reference inter predictors for all planes.
 // Can build inter-intra predictors, masked predictors etc as well.
