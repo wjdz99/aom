@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60303b97_30d34374",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-09T19:58:58Z",
+      "side": 1,
+      "message": "Thanks for uploading the CL! Please fix the style problem in rdopt.c and push another patch. I may have a few more comments too. Thanks!",
+      "revId": "d9a84dd96bab352781d7f4e588b47c332c70f706",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
