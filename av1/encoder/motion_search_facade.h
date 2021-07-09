@@ -29,6 +29,10 @@ typedef struct {
 } inter_mode_info;
 
 struct HandleInterModeArgs;
+void av1_erp_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
+                           BLOCK_SIZE bsize, int ref_idx, int *rate_mv,
+                           int search_range, int_mv *best_mv);
+
 void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
                               BLOCK_SIZE bsize, int ref_idx, int *rate_mv,
                               int search_range, inter_mode_info *mode_info,
