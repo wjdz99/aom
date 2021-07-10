@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39c09db8_96f5cc1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-07-10T00:29:57Z",
+      "side": 1,
+      "message": "Note: leave speed 4",
+      "revId": "a161352dd895117e603768d79969fabaf1dbaa5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e21b186_20abf7f9",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1303,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-07-10T00:29:57Z",
+      "side": 1,
+      "message": "Speed 0 - 3 features give good quality/speed tradeoff. Speed 4\u0027s tradeoff is bad, thus, this CL didn\u0027t include speed 4.",
+      "range": {
+        "startLine": 1302,
+        "startChar": 2,
+        "endLine": 1303,
+        "endChar": 17
+      },
+      "revId": "a161352dd895117e603768d79969fabaf1dbaa5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
