@@ -179,6 +179,4 @@ TEST_P(AV1EncodePerfTest, PerfTest) {
   }
 }
 
-AV1_INSTANTIATE_TEST_SUITE(AV1EncodePerfTest,
-                           ::testing::Values(::libaom_test::kRealTime));
 }  // namespace
