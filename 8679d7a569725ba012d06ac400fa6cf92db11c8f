@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "495a4ed5_6988f1b8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-11T16:18:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "596e3ea7_efe6ea8c",
+      "revId": "8679d7a569725ba012d06ac400fa6cf92db11c8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "479b0be5_4997af21",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-07-09T22:00:15Z",
       "side": 1,
       "message": "Optional: We should file a new bug for the CLs related to your work on screen content tools. Does such a bug already exist?",
+      "revId": "8679d7a569725ba012d06ac400fa6cf92db11c8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b560f3a_a5f5d575",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-11T16:18:31Z",
+      "side": 1,
+      "message": "Done. Created the following bug report to track CLs related to speedup of screen content tools in allintra usage:\n\nhttps://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3096",
+      "parentUuid": "479b0be5_4997af21",
       "revId": "8679d7a569725ba012d06ac400fa6cf92db11c8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -82,6 +118,24 @@
       "writtenOn": "2021-07-09T22:00:15Z",
       "side": 1,
       "message": "Since this case is similar to the \"else\" block, I suggest we restructure this if-else-if-else statement as follows:\n\n    if ((cpi-\u003esf.intra_sf.prune_palette_search_level \u003d\u003d 1) \u0026\u0026\n         (colors \u003e PALETTE_MIN_SIZE)) {\n      ... existing code ...\n    } else if (cpi-\u003esf.intra_sf.prune_palette_search_level \u003d\u003d 0) {\n      ... new code ...\n    } else {\n      ... existing code ...\n    }",
+      "revId": "8679d7a569725ba012d06ac400fa6cf92db11c8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae9650f1_cf8ac9fc",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-11T16:18:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b215d835_b86885e9",
       "revId": "8679d7a569725ba012d06ac400fa6cf92db11c8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
