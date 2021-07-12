@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "3797c407_ae75e037",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "Nit: Please remove aomedia:2959 from the commit message. (I have just marked aomedia:2959 Fixed.)",
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "332a5ac3_71dc3221",
@@ -14,6 +31,143 @@
       "writtenOn": "2021-07-11T16:27:17Z",
       "side": 1,
       "message": "Please review.",
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f39c6c05_9e7ab73e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "Hi Jayasanker,\n\nI suggest a few small changes. Thanks!",
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c20da24_a7d507c6",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "Nit: Declare this local variable as \u0027int\u0027. For local variables, it is often not necessary to use the smallest possible type.",
+      "range": {
+        "startLine": 265,
+        "startChar": 10,
+        "endLine": 265,
+        "endChar": 17
+      },
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5efcd5aa_9b9bc840",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "Nit/optional: This is documented as follows:\n\n  // 0: No early termination\n  // 1: Terminate early for higher luma palette_size, if header rd cost of lower\n  // palette_size is more than 2 * best_rd.\n  // 2: Terminate early for higher luma palette_size, if header rd cost of lower\n  // palette_size is more than best_rd.\n  \nTherefore, it seems clearer to rewrite this line as follows:\n\n    if (header_rd \u003e (*best_rd \u003c\u003c header_rd_shift)) {\n\nprovided that the left shift cannot possibly overflow. Please make sure there is no concern of overflow before making this change.",
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ede5831e_67435671",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 557,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "Should we add \"and colors \u003e PALETTE_MIN_SIZE\"? Please see the conditional expression at lines 525-526.",
+      "range": {
+        "startLine": 557,
+        "startChar": 34,
+        "endLine": 557,
+        "endChar": 65
+      },
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc57232d_daae1d59",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "I find this comment a little hard to understand. I understand that the \"for prune_palette_search_level \u003d\u003d 0\" part is referring to the test at line 607, but I don\u0027t understand the \"Less aggressive gating based on header rdcost\" part.\n\nIs it less aggressive because we are not setting do_header_rd_based_gating to false as in the original code?\n\nIt seems that this comment should simply read \"Gating based on header rdcost for prune_palette_search_level \u003d\u003d 0\". (Or the comment could be omitted altogether.)",
+      "range": {
+        "startLine": 610,
+        "startChar": 0,
+        "endLine": 611,
+        "endChar": 41
+      },
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a59cdd7a_1296d019",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 942,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "Nit: Please add a comment to point out that level 1 is less aggressive than level 2. (I assume it\u0027s less aggressive because this condition is less likely to be true.)",
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c54c9301_523d6660",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:28:12Z",
+      "side": 1,
+      "message": "Please check my summary of where each level is used.\n\nLevel 0 is used for all speeds in the good and realtime usage modes.\n\nLevel 1 is used for speed 0 in allintra mode.\n\nLevel 2 is used for speed \u003e\u003d 1 in allintra mode.\n\nDid I understand this correctly?",
       "revId": "40a80c403e4099685b284bec34610875684b85da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
