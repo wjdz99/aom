@@ -1045,14 +1045,6 @@ typedef struct macroblock {
    */
   int picked_ref_frames_mask[MAX_MIB_SIZE * MAX_MIB_SIZE];
 
-  /*! \brief Prune ref frames in real-time mode.
-   *
-   * Determines whether to prune reference frames in real-time mode. For the
-   * most part, this is the same as nonrd_prune_ref_frame_search in
-   * cpi->sf.rt_sf.nonrd_prune_ref_frame_search, but this can be selectively
-   * turned off if the only frame available is GOLDEN_FRAME.
-   */
-  int nonrd_prune_ref_frame_search;
   /**@}*/
 
   /*****************************************************************************
