@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "90e902d0_547a5dc4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T23:44:54Z",
+      "side": 1,
+      "message": "Since this is a very minor issue, I will go ahead and submit this CL.",
+      "parentUuid": "79c06672_33e102a8",
+      "revId": "00f29317c1de7f7f93267b522916705d7ab20328",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "76c18925_fc1b1be8",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
