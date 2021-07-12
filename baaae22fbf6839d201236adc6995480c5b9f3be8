@@ -94,6 +94,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b3d8ac5_6f99d1c4",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-07-12T03:21:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "035b194c_aeb9dbf5",
+      "range": {
+        "startLine": 502,
+        "startChar": 6,
+        "endLine": 502,
+        "endChar": 44
+      },
+      "revId": "baaae22fbf6839d201236adc6995480c5b9f3be8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "671dc42c_c2b5e1e7",
@@ -107,6 +131,30 @@
       "writtenOn": "2021-06-21T18:39:01Z",
       "side": 1,
       "message": "Since txfm_params-\u003euse_default_inter_tx_type is assigned, shouldn\u0027t use speed feature here? use_default_inter_tx_type can take more values other than 0 or 1 if needed.",
+      "range": {
+        "startLine": 1988,
+        "startChar": 6,
+        "endLine": 1988,
+        "endChar": 65
+      },
+      "revId": "baaae22fbf6839d201236adc6995480c5b9f3be8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5d78c53_9de9e3e8",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1988,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-07-12T03:21:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "671dc42c_c2b5e1e7",
       "range": {
         "startLine": 1988,
         "startChar": 6,
