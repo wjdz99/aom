@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-enum { PICK_MODE_RD = 0, PICK_MODE_NONRD };
-
 enum {
   SB_SINGLE_PASS,  // Single pass encoding: all ctxs get updated normally
   SB_DRY_PASS,     // First pass of multi-pass: does not update the ctxs
