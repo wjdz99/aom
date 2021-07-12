@@ -94,6 +94,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "47034751_980eea77",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:36:49Z",
+      "side": 1,
+      "message": "Nit: The term \"early gating\" does not seem to make sense. I assume it means \"gating for early termination\", where \"gating\" refers to the check/test that determines whether we should terminate the search early.\n\nIf I understand this correctly, then I suggest we remove the word \"early\". We can also say more verbosely \"gating for early termination\".",
+      "range": {
+        "startLine": 556,
+        "startChar": 29,
+        "endLine": 556,
+        "endChar": 41
+      },
+      "revId": "40a80c403e4099685b284bec34610875684b85da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ede5831e_67435671",
         "filename": "av1/encoder/palette.c",
         "patchSetId": 4
