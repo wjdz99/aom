@@ -22,6 +22,30 @@
       },
       "revId": "9d981dd4780ec202acae4b7ad5988ec336efaa9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5efde332_0c3a0ea2",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-07-12T18:18:55Z",
+      "side": 1,
+      "message": "We regulate phi to (-0.5*PI, 0.5*PI) in the equirectangular coordination system. But the polar coordination system requires phi to be in (0, PI). So we need to convert it. Otherwise we cannot convert to the Cartesian coordination correctly.\n\nI think we need to make the coordination conversion more clear in the future.",
+      "parentUuid": "ada3c274_e1acf56e",
+      "range": {
+        "startLine": 179,
+        "startChar": 6,
+        "endLine": 179,
+        "endChar": 30
+      },
+      "revId": "9d981dd4780ec202acae4b7ad5988ec336efaa9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
