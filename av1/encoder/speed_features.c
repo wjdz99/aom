@@ -1303,12 +1303,18 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   sf->winner_mode_sf.tx_size_search_level = boosted ? 0 : 2;
 
+
+
+  ////////////
+  //sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
+  sf->inter_sf.alt_ref_search_fp = 1;
+
   // TODO(Yunqing, any): speed 4 overall speed/quality tradeoff isn't good. Need
   // evaluate it.
   if (speed >= 4) {
-    sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
+//    sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
 
-    sf->inter_sf.alt_ref_search_fp = 1;
+//    sf->inter_sf.alt_ref_search_fp = 1;
 
     sf->interp_sf.skip_sharp_interp_filter_search = 1;
 
