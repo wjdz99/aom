@@ -45,6 +45,30 @@
       },
       "revId": "8e55aed2e8069ac51635c5dde9ab5023f8f0f2ca",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c4d66a3_d956f94b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-07-12T23:06:31Z",
+      "side": 1,
+      "message": "This is for decoding and the av1_enc_build_erp_predictor() is for encoding. I am not sure how the code base arrange it but I think we would want the decoder code to not rely on encoder code.",
+      "parentUuid": "ea2a1de7_237d70ce",
+      "range": {
+        "startLine": 693,
+        "startChar": 0,
+        "endLine": 695,
+        "endChar": 78
+      },
+      "revId": "8e55aed2e8069ac51635c5dde9ab5023f8f0f2ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
