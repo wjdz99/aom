@@ -327,7 +327,7 @@ static AOM_INLINE int perform_top_color_palette_search(
     MB_MODE_INFO *best_mbmi, uint8_t *best_palette_color_map, int64_t *best_rd,
     int *rate, int *rate_tokenonly, int64_t *distortion, int *skippable,
     int *beat_best_rd, PICK_MODE_CONTEXT *ctx, uint8_t *best_blk_skip,
-    uint8_t *tx_type_map) {
+    uint8_t *tx_type_map, bool *is_header_rd_based_term) {
   int centroids[PALETTE_MAX_SIZE];
   int n = start_n;
   int top_color_winner = end_n;
@@ -346,7 +346,10 @@ static AOM_INLINE int perform_top_color_palette_search(
                  tx_type_map, &beat_best_palette_rd,
                  &do_header_rd_based_breakout);
     *last_n_searched = n;
-    if (do_header_rd_based_breakout) break;
+    if (do_header_rd_based_breakout) {
+      if (is_header_rd_based_term != NULL) *is_header_rd_based_term = true;
+      break;
+    }
     if (beat_best_palette_rd) {
       top_color_winner = n;
     } else if (cpi->sf.intra_sf.prune_palette_search_level == 2) {
@@ -371,7 +374,7 @@ static AOM_INLINE int perform_k_means_palette_search(
     int64_t *best_rd, int *rate, int *rate_tokenonly, int64_t *distortion,
     int *skippable, int *beat_best_rd, PICK_MODE_CONTEXT *ctx,
     uint8_t *best_blk_skip, uint8_t *tx_type_map, uint8_t *color_map,
-    int data_points) {
+    int data_points, bool *is_header_rd_based_term) {
   int centroids[PALETTE_MAX_SIZE];
   const int max_itr = 50;
   int n = start_n;
@@ -395,7 +398,10 @@ static AOM_INLINE int perform_k_means_palette_search(
                  tx_type_map, &beat_best_palette_rd,
                  &do_header_rd_based_breakout);
     *last_n_searched = n;
-    if (do_header_rd_based_breakout) break;
+    if (do_header_rd_based_breakout) {
+      if (is_header_rd_based_term != NULL) *is_header_rd_based_term = true;
+      break;
+    }
     if (beat_best_palette_rd) {
       top_color_winner = n;
     } else if (cpi->sf.intra_sf.prune_palette_search_level == 2) {
@@ -520,6 +526,18 @@ void av1_rd_pick_palette_intra_sby(
       count_buf[top_colors[i]] = 0;
     }
 
+    // The following is the approach used for header rdcost based early
+    // gating for different prune_palette_search_level.
+    // 0: Less aggressive gating.
+    // 1: Early gating is enabled only for coarse palette size search and for
+    //    finer search do_header_rd_based_gating parameter is explicitly
+    //    passed as 'false'.
+    // 2: Early gating is enabled only for ascending palette size search and
+    //    for descending search do_header_rd_based_gating parameter is
+    //    explicitly passed as 'false'.
+    const bool do_header_rd_based_gating =
+        cpi->sf.intra_sf.prune_luma_palette_size_search_level != 0;
+
     // TODO(huisu@google.com): Try to avoid duplicate computation in cases
     // where the dominant colors and the k-means results are similar.
     if ((cpi->sf.intra_sf.prune_palette_search_level == 1) &&
@@ -553,19 +571,13 @@ void av1_rd_pick_palette_intra_sby(
       const int min_n = start_n_lookup_table[max_n];
       const int step_size = step_size_lookup_table[max_n];
       assert(min_n >= PALETTE_MIN_SIZE);
-      // Header rdcost based early gating is currently enabled only for coarse
-      // palette size search when prune_palette_search_level is 1. For finer
-      // search, the do_header_rd_based_gating parameter is explicitly passed as
-      // 'false'.
-      const bool do_header_rd_based_gating =
-          cpi->sf.intra_sf.prune_luma_palette_size_search_level != 0;
-
       // Perform top color coarse palette search to find the winner candidate
       const int top_color_winner = perform_top_color_palette_search(
           cpi, x, mbmi, bsize, dc_mode_cost, data, top_colors, min_n, max_n + 1,
           step_size, do_header_rd_based_gating, &unused, color_cache, n_cache,
           best_mbmi, best_palette_color_map, best_rd, rate, rate_tokenonly,
-          distortion, skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map);
+          distortion, skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map,
+          NULL);
       // Evaluate neighbors for the winner color (if winner is found) in the
       // above coarse search for dominant colors
       if (top_color_winner <= max_n) {
@@ -579,7 +591,7 @@ void av1_rd_pick_palette_intra_sby(
             /*do_header_rd_based_gating=*/false, &unused, color_cache, n_cache,
             best_mbmi, best_palette_color_map, best_rd, rate, rate_tokenonly,
             distortion, skippable, beat_best_rd, ctx, best_blk_skip,
-            tx_type_map);
+            tx_type_map, NULL);
       }
       // K-means clustering.
       // Perform k-means coarse palette search to find the winner candidate
@@ -588,7 +600,7 @@ void av1_rd_pick_palette_intra_sby(
           min_n, max_n + 1, step_size, do_header_rd_based_gating, &unused,
           color_cache, n_cache, best_mbmi, best_palette_color_map, best_rd,
           rate, rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
-          best_blk_skip, tx_type_map, color_map, rows * cols);
+          best_blk_skip, tx_type_map, color_map, rows * cols, NULL);
       // Evaluate neighbors for the winner color (if winner is found) in the
       // above coarse search for k-means
       if (k_means_winner <= max_n) {
@@ -602,21 +614,18 @@ void av1_rd_pick_palette_intra_sby(
             /*do_header_rd_based_gating=*/false, &unused, color_cache, n_cache,
             best_mbmi, best_palette_color_map, best_rd, rate, rate_tokenonly,
             distortion, skippable, beat_best_rd, ctx, best_blk_skip,
-            tx_type_map, color_map, rows * cols);
+            tx_type_map, color_map, rows * cols, NULL);
       }
     } else if (cpi->sf.intra_sf.prune_palette_search_level == 0) {
       const int max_n = AOMMIN(colors, PALETTE_MAX_SIZE),
                 min_n = PALETTE_MIN_SIZE;
-      // Less aggressive gating based on header rdcost for
-      // prune_palette_search_level == 0.
-      const bool do_header_rd_based_gating =
-          cpi->sf.intra_sf.prune_luma_palette_size_search_level != 0;
       // Perform top color palette search in ascending order.
       perform_top_color_palette_search(
           cpi, x, mbmi, bsize, dc_mode_cost, data, top_colors, min_n, max_n + 1,
           1, do_header_rd_based_gating, &unused, color_cache, n_cache,
           best_mbmi, best_palette_color_map, best_rd, rate, rate_tokenonly,
-          distortion, skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map);
+          distortion, skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map,
+          NULL);
       // K-means clustering.
       if (colors == PALETTE_MIN_SIZE) {
         // Special case: These colors automatically become the centroids.
@@ -635,27 +644,28 @@ void av1_rd_pick_palette_intra_sby(
             min_n, max_n + 1, 1, do_header_rd_based_gating, &unused,
             color_cache, n_cache, best_mbmi, best_palette_color_map, best_rd,
             rate, rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
-            best_blk_skip, tx_type_map, color_map, rows * cols);
+            best_blk_skip, tx_type_map, color_map, rows * cols, NULL);
       }
     } else {
       const int max_n = AOMMIN(colors, PALETTE_MAX_SIZE),
                 min_n = PALETTE_MIN_SIZE;
       // Perform top color palette search in ascending order
       int last_n_searched = min_n;
+      bool is_header_rd_based_term = false;
       perform_top_color_palette_search(
           cpi, x, mbmi, bsize, dc_mode_cost, data, top_colors, min_n, max_n + 1,
-          1, /*do_header_rd_based_gating=*/false, &last_n_searched, color_cache,
-          n_cache, best_mbmi, best_palette_color_map, best_rd, rate,
-          rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
-          best_blk_skip, tx_type_map);
-      if (last_n_searched < max_n) {
+          1, do_header_rd_based_gating, &last_n_searched, color_cache, n_cache,
+          best_mbmi, best_palette_color_map, best_rd, rate, rate_tokenonly,
+          distortion, skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map,
+          &is_header_rd_based_term);
+      if (last_n_searched < max_n && !is_header_rd_based_term) {
         // Search in descending order until we get to the previous best
         perform_top_color_palette_search(
             cpi, x, mbmi, bsize, dc_mode_cost, data, top_colors, max_n,
             last_n_searched, -1, /*do_header_rd_based_gating=*/false, &unused,
             color_cache, n_cache, best_mbmi, best_palette_color_map, best_rd,
             rate, rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
-            best_blk_skip, tx_type_map);
+            best_blk_skip, tx_type_map, NULL);
       }
       // K-means clustering.
       if (colors == PALETTE_MIN_SIZE) {
@@ -671,14 +681,15 @@ void av1_rd_pick_palette_intra_sby(
       } else {
         // Perform k-means palette search in ascending order
         last_n_searched = min_n;
+        is_header_rd_based_term = false;
         perform_k_means_palette_search(
             cpi, x, mbmi, bsize, dc_mode_cost, data, lower_bound, upper_bound,
-            min_n, max_n + 1, 1, /*do_header_rd_based_gating=*/false,
-            &last_n_searched, color_cache, n_cache, best_mbmi,
-            best_palette_color_map, best_rd, rate, rate_tokenonly, distortion,
-            skippable, beat_best_rd, ctx, best_blk_skip, tx_type_map, color_map,
-            rows * cols);
-        if (last_n_searched < max_n) {
+            min_n, max_n + 1, 1, do_header_rd_based_gating, &last_n_searched,
+            color_cache, n_cache, best_mbmi, best_palette_color_map, best_rd,
+            rate, rate_tokenonly, distortion, skippable, beat_best_rd, ctx,
+            best_blk_skip, tx_type_map, color_map, rows * cols,
+            &is_header_rd_based_term);
+        if (last_n_searched < max_n && !is_header_rd_based_term) {
           // Search in descending order until we get to the previous best
           perform_k_means_palette_search(
               cpi, x, mbmi, bsize, dc_mode_cost, data, lower_bound, upper_bound,
@@ -686,7 +697,7 @@ void av1_rd_pick_palette_intra_sby(
               &unused, color_cache, n_cache, best_mbmi, best_palette_color_map,
               best_rd, rate, rate_tokenonly, distortion, skippable,
               beat_best_rd, ctx, best_blk_skip, tx_type_map, color_map,
-              rows * cols);
+              rows * cols, NULL);
         }
       }
     }
