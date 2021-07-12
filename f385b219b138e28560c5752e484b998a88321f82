@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b204f04f_846f9ff8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:55:23Z",
+      "side": 1,
+      "message": "Please remove aomedia:2959. (I marked aomedia:2959 Fixed today.)",
+      "revId": "f385b219b138e28560c5752e484b998a88321f82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "24c5e7a2_b442ffa5",
@@ -14,6 +31,97 @@
       "writtenOn": "2021-07-12T16:11:30Z",
       "side": 1,
       "message": "Hi Wan-Teh, Chi Yo, Cheng Chen,\n\nThis patch extends the speed feature prune_luma_palette_size_search_level to\nspeed \u003e\u003d 3 with an aggressive header rdcost based breakout.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset.\n\nwith --tune\u003dpsnr,\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   3            0.781          0.0006    -0.0003\n   4            0.741          0.0004    -0.0022\n   5            0.772         -0.0009     0.0016\n   6            1.153          0.0002     0.0011\n   7            1.195          0.0000     0.0000\n   8            0.181          0.0000     0.0000\n\nwith --tune\u003dssim,\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   3            0.845          0.0014     0.0001\n   4            0.808         -0.0004    -0.0027\n   5            0.847         -0.0014    -0.0046\n   6            1.229          0.0011    -0.0004\n   7            1.230          0.0001     0.0001\n   8            0.262          0.0000     0.0000\n\nFollowing are instruction count reduction results when allintra video encode was tested for the screen content test set.\n\n          Instruction Count        BD-Rate Loss(%)\ncpu-used     Reduction(%)   avg.psnr  ovr.psnr  ssim\n   3           1.968         0.0295   0.0299    0.1150\n   4           2.086        -0.0386  -0.0437   -0.2390 \n   5           1.443         0.0387   0.0393    0.1676\n   6           1.870         0.0226   0.0227    0.1140\n\nThis change is verified to be bit-exact for speed \u003c\u003d 2 in allintra encoding mode. For libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nRegards,\nAniket.",
+      "revId": "f385b219b138e28560c5752e484b998a88321f82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46e92a1a_1d19cee2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:55:23Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nThese are just preliminary review comments.",
+      "revId": "f385b219b138e28560c5752e484b998a88321f82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5feaee0c_d7959e73",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:55:23Z",
+      "side": 1,
+      "message": "I suggest changing this \"early gating\" to either just \"gating\" or \"gating for early termination\".",
+      "range": {
+        "startLine": 529,
+        "startChar": 66,
+        "endLine": 530,
+        "endChar": 13
+      },
+      "revId": "f385b219b138e28560c5752e484b998a88321f82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b0f58b6_5ee20637",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 531,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:55:23Z",
+      "side": 1,
+      "message": "This comment seems incorrect to me. (I know you copied it from line 610 in the original code:\n\n610       // Less aggressive gating based on header rdcost for\n611       // prune_palette_search_level \u003d\u003d 0.",
+      "revId": "f385b219b138e28560c5752e484b998a88321f82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08a7cb08_61d3f83e",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:55:23Z",
+      "side": 1,
+      "message": "Note that the conditional expression at lines 543-544 tests not only cpi-\u003esf.intra_sf.prune_palette_search_level \u003d\u003d 1 but also colors \u003e PALETTE_MIN_SIZE. So it is not exactly prune_palette_search_level \u003d\u003d 1.",
+      "revId": "f385b219b138e28560c5752e484b998a88321f82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c6ebf06_2d7fba02",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-12T22:55:23Z",
+      "side": 1,
+      "message": "In lines 532 and 535, I suggest changing \"Early gating\" to \"Early termination\".",
       "revId": "f385b219b138e28560c5752e484b998a88321f82",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
