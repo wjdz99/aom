@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05d25158_372d6e62",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-12T17:17:18Z",
+      "side": 1,
+      "message": "Thanks Maryla. This seems pretty useful as discussed offline.\n\n@Leo / @Krishna: Pls review and add +2 if ok.",
+      "revId": "ca0b75d094d286e7c89584808ce13a2d59cd39c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
