@@ -16,6 +16,23 @@
       "message": "Thanks Maryla. This seems pretty useful as discussed offline.\n\n@Leo / @Krishna: Pls review and add +2 if ok.",
       "revId": "ca0b75d094d286e7c89584808ce13a2d59cd39c0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca21a92a_27926d81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-12T18:15:03Z",
+      "side": 1,
+      "message": "Thanks for providing this code patch.",
+      "revId": "ca0b75d094d286e7c89584808ce13a2d59cd39c0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
