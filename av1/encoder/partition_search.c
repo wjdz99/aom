@@ -713,6 +713,8 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   assert(IMPLIES(xd->tree_type == CHROMA_PART,
                  AOMMIN(block_size_wide[bsize], block_size_high[bsize]) > 4));
 #endif
+  assert(AOMMIN(block_size_wide[bsize], block_size_high[bsize]) >=
+         block_size_wide[x->e_mbd.mi_params.mi_alloc_bsize]);
 
   av1_set_offsets(cpi, &tile_data->tile_info, x, mi_row, mi_col, bsize,
                   &ctx->chroma_ref_info);
@@ -5661,7 +5663,9 @@ BEGIN_PARTITION_SEARCH:
 #endif  // CONFIG_SDP
       check_is_chroma_size_valid(PARTITION_HORZ_3, bsize, mi_row, mi_col,
                                  part_search_state.ss_x, part_search_state.ss_y,
-                                 pc_tree);
+                                 pc_tree) &&
+      (block_size_high[bsize] >> 2) >= blk_params->min_partition_size_1d;
+
   const int vert_3_allowed =
       partition_3_allowed && (is_square_block(bsize) || is_wide_block) &&
 #if CONFIG_SDP
@@ -5670,7 +5674,8 @@ BEGIN_PARTITION_SEARCH:
 #endif  // CONFIG_SDP
       check_is_chroma_size_valid(PARTITION_VERT_3, bsize, mi_row, mi_col,
                                  part_search_state.ss_x, part_search_state.ss_y,
-                                 pc_tree);
+                                 pc_tree) &&
+      (block_size_wide[bsize] >> 2) >= blk_params->min_partition_size_1d;
 
   // PARTITION_HORZ_3
   if (IMPLIES(should_reuse_mode(x, REUSE_PARTITION_MODE_FLAG),
