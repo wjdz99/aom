@@ -33,6 +33,42 @@
       "message": "After offline discussion with Madhu, I think that it may not be trivial efforts to add the run-time flag for new_tx_partition experiment. The reason is that new_tx_partition is not adding new transform partition into the codebase. It allows the encoder to select the best transform partition type based on the rdcost rather than implicitly deciding the transform partition type based on the shape of the coded block and the transform depth. So, I don\u0027t have strong opinion on adding run-time flag for this experiment. Please feel free to chime in. @urvang @Krishna.\n\nOne potentional rist of not having run-time flag for this experiment is that all the future coding tools are developed with CONFIG_NEW_TX_PARTITION off since it\u0027s turned off by default. So it may need additional efforts to turn this compiler flag on later because there may be some interactions with other coding tools.",
       "revId": "5d4cd4ac24c1c2df74e7a1d14bd7418fd37fb703",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a74939f_4e41af5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-13T00:45:53Z",
+      "side": 1,
+      "message": "Ok then I will hold off on trying to add the flag for now unless someone objects.",
+      "parentUuid": "b94aff93_17d31d50",
+      "revId": "5d4cd4ac24c1c2df74e7a1d14bd7418fd37fb703",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ba5b8d3_b5e3af82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-13T00:45:53Z",
+      "side": 1,
+      "message": "Ok I added commits for turning the compiler flag on and off. Let me know if there is an issue.",
+      "parentUuid": "4d37b6d2_524ae85d",
+      "revId": "5d4cd4ac24c1c2df74e7a1d14bd7418fd37fb703",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
