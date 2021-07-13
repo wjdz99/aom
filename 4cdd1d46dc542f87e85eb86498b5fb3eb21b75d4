@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b3cb8096_9cb55d32",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-07-13T01:58:04Z",
+      "side": 1,
+      "message": "Presumably you\u0027ve already tried this, but I thought I should at least ask:\n\nDoes this actually work in Xcode? It\u0027s pretty much the _worst_ generator, so just wondering if it works or silently does nothing (or worse, nags and/or spams warnings). \n\nCmake docs are, of course, unclear as to whether or not Xcode obeys the property.",
+      "range": {
+        "startLine": 59,
+        "startChar": 25,
+        "endLine": 59,
+        "endChar": 30
+      },
+      "revId": "4cdd1d46dc542f87e85eb86498b5fb3eb21b75d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "83294c1e_a3ff370e",
         "filename": "aom_dsp/aom_dsp.cmake",
         "patchSetId": 1
@@ -14,6 +37,24 @@
       "writtenOn": "2021-07-13T01:23:50Z",
       "side": 1,
       "message": "I started with a separate folder layout. Now that this is common I\u0027ll move some of the logic to add_asm_library / add_intrinsics_object_library to handle targets a little better between x86/x86-64",
+      "revId": "4cdd1d46dc542f87e85eb86498b5fb3eb21b75d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0907eeff_2dd00744",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-07-13T01:58:04Z",
+      "side": 1,
+      "message": "Sounds good-- The unwrapped/one-off stuff like examples/tests/tools/etc are fine, but I think the set_property() noise here could be reduced significantly by (ab)using $AOM_TARGET_CPU in add_asm_library()/add_intrinsics_object_library().\n\nSomething like this at the bottom of each (or in a helper macro):\n\n    if(ENABLE_FOLDERS)\n      if(x86)\n      ...\n      elseif(x86_64)\n      ...\n      elseif(neon)\n      ...\n      endif()\n    endif()",
+      "parentUuid": "83294c1e_a3ff370e",
       "revId": "4cdd1d46dc542f87e85eb86498b5fb3eb21b75d4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
