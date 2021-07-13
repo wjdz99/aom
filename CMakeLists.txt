@@ -56,6 +56,9 @@ unset(LT_CURRENT)
 unset(LT_REVISION)
 unset(LT_AGE)
 
+# Enable generators like Xcode and Visual Studio to place projects in folders.
+set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
+
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")
 include("${AOM_ROOT}/aom_mem/aom_mem.cmake")
@@ -787,12 +790,14 @@ endif()
 if(ENABLE_EXAMPLES)
   foreach(example ${AOM_EXAMPLE_TARGETS})
     list(APPEND AOM_DIST_EXAMPLES $<TARGET_FILE:${example}>)
+    set_property(TARGET ${example} PROPERTY FOLDER examples)
   endforeach()
 endif()
 
 if(ENABLE_TOOLS)
   foreach(tool ${AOM_TOOL_TARGETS})
     list(APPEND AOM_DIST_TOOLS $<TARGET_FILE:${tool}>)
+    set_property(TARGET ${tool} PROPERTY FOLDER tools)
   endforeach()
 endif()
 

@@ -554,6 +554,10 @@ endif()
 # Setup AV1 common/decoder/encoder targets. The libaom target must exist before
 # this function is called.
 function(setup_av1_targets)
+  set(AOM_IDE_AV1_COMMON_X86_FOLDER x86)
+  set(AOM_IDE_AV1_DECODER_X86_FOLDER x86)
+  set(AOM_IDE_AV1_ENCODER_X86_FOLDER x86)
+
   add_library(aom_av1_common OBJECT ${AOM_AV1_COMMON_SOURCES})
   list(APPEND AOM_LIB_TARGETS aom_av1_common)
   target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_av1_common>)
@@ -583,21 +587,31 @@ function(setup_av1_targets)
     require_compiler_flag_nomsvc("-msse2" NO)
     add_intrinsics_object_library("-msse2" "sse2" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_SSE2")
+    set_property(TARGET aom_av1_common_sse2_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_AV1_COMMON_X86_FOLDER})
     if(CONFIG_AV1_DECODER)
       if(AOM_AV1_DECODER_ASM_SSE2)
         add_asm_library("aom_av1_decoder_sse2" "AOM_AV1_DECODER_ASM_SSE2")
+        set_property(TARGET aom_av1_decoder_sse2
+                     PROPERTY FOLDER ${AOM_IDE_AV1_DECODER_X86_FOLDER})
       endif()
 
       if(AOM_AV1_DECODER_INTRIN_SSE2)
         add_intrinsics_object_library("-msse2" "sse2" "aom_av1_decoder"
                                       "AOM_AV1_DECODER_INTRIN_SSE2")
+        set_property(TARGET aom_av1_decoder_sse2_intrinsics
+                     PROPERTY FOLDER ${AOM_IDE_AV1_DECODER_X86_FOLDER})
       endif()
     endif()
 
     if(CONFIG_AV1_ENCODER)
       add_asm_library("aom_av1_encoder_sse2" "AOM_AV1_ENCODER_ASM_SSE2")
+      set_property(TARGET aom_av1_encoder_sse2
+                   PROPERTY FOLDER ${AOM_IDE_AV1_ENCODER_X86_FOLDER})
       add_intrinsics_object_library("-msse2" "sse2" "aom_av1_encoder"
                                     "AOM_AV1_ENCODER_INTRIN_SSE2")
+      set_property(TARGET aom_av1_encoder_sse2_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_AV1_ENCODER_X86_FOLDER})
     endif()
   endif()
 
@@ -606,6 +620,8 @@ function(setup_av1_targets)
     if(CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-msse3" "sse3" "aom_av1_encoder"
                                     "AOM_AV1_ENCODER_INTRIN_SSE3")
+      set_property(TARGET aom_av1_encoder_sse3_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_AV1_ENCODER_X86_FOLDER})
     endif()
   endif()
 
@@ -613,11 +629,15 @@ function(setup_av1_targets)
     require_compiler_flag_nomsvc("-mssse3" NO)
     add_intrinsics_object_library("-mssse3" "ssse3" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_SSSE3")
+    set_property(TARGET aom_av1_common_ssse3_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_AV1_COMMON_X86_FOLDER})
 
     if(CONFIG_AV1_DECODER)
       if(AOM_AV1_DECODER_INTRIN_SSSE3)
         add_intrinsics_object_library("-mssse3" "ssse3" "aom_av1_decoder"
                                       "AOM_AV1_DECODER_INTRIN_SSSE3")
+        set_property(TARGET aom_av1_decoder_ssse3_intrinsics
+                     PROPERTY FOLDER ${AOM_IDE_AV1_DECODER_X86_FOLDER})
       endif()
     endif()
   endif()
@@ -626,16 +646,22 @@ function(setup_av1_targets)
     require_compiler_flag_nomsvc("-msse4.1" NO)
     add_intrinsics_object_library("-msse4.1" "sse4" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_SSE4_1")
+    set_property(TARGET aom_av1_common_sse4_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_AV1_COMMON_X86_FOLDER})
 
     if(CONFIG_AV1_ENCODER)
       if("${AOM_TARGET_CPU}" STREQUAL "x86_64")
         add_asm_library("aom_av1_encoder_ssse3"
                         "AOM_AV1_ENCODER_ASM_SSSE3_X86_64")
+        set_property(TARGET aom_av1_encoder_ssse3
+                     PROPERTY FOLDER ${AOM_IDE_AV1_ENCODER_X86_FOLDER})
       endif()
 
       if(AOM_AV1_ENCODER_INTRIN_SSE4_1)
         add_intrinsics_object_library("-msse4.1" "sse4" "aom_av1_encoder"
                                       "AOM_AV1_ENCODER_INTRIN_SSE4_1")
+        set_property(TARGET aom_av1_encoder_sse4_intrinsics
+                     PROPERTY FOLDER ${AOM_IDE_AV1_ENCODER_X86_FOLDER})
       endif()
     endif()
   endif()
@@ -646,6 +672,8 @@ function(setup_av1_targets)
       if(AOM_AV1_ENCODER_INTRIN_SSE4_2)
         add_intrinsics_object_library("-msse4.2" "sse42" "aom_av1_encoder"
                                       "AOM_AV1_ENCODER_INTRIN_SSE4_2")
+        set_property(TARGET aom_av1_encoder_sse42_intrinsics
+                     PROPERTY FOLDER ${AOM_IDE_AV1_ENCODER_X86_FOLDER})
       endif()
     endif()
   endif()
@@ -654,10 +682,14 @@ function(setup_av1_targets)
     require_compiler_flag_nomsvc("-mavx2" NO)
     add_intrinsics_object_library("-mavx2" "avx2" "aom_av1_common"
                                   "AOM_AV1_COMMON_INTRIN_AVX2")
+    set_property(TARGET aom_av1_common_avx2_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_AV1_COMMON_X86_FOLDER})
 
     if(CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-mavx2" "avx2" "aom_av1_encoder"
                                     "AOM_AV1_ENCODER_INTRIN_AVX2")
+      set_property(TARGET aom_av1_encoder_avx2_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_AV1_ENCODER_X86_FOLDER})
     endif()
   endif()
 
