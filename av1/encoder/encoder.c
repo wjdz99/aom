@@ -1367,6 +1367,7 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
                              sizeof(*cpi->consec_zero_mv)));
 
   cpi->mb_wiener_variance = NULL;
+  cpi->mb_luminance = NULL;
 
   {
     const int bsize = BLOCK_16X16;
@@ -3084,6 +3085,16 @@ static int qsort_comp(const void *elem1, const void *elem2) {
   return 0;
 }
 
+static void init_mb_luminance_buffer(AV1_COMP *cpi) {
+  AV1_COMMON *cm = &cpi->common;
+
+  if (cpi->mb_luminance) return;
+
+  CHECK_MEM_ERROR(cm, cpi->mb_luminance,
+                  aom_calloc(cpi->frame_info.mb_rows * cpi->frame_info.mb_cols,
+                             sizeof(*cpi->mb_luminance)));
+}
+
 static void init_mb_wiener_var_buffer(AV1_COMP *cpi) {
   AV1_COMMON *cm = &cpi->common;
 
@@ -3156,6 +3167,47 @@ static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   return sb_wiener_var;
 }
 
+static void compute_block_luminance(AV1_COMP *cpi) {
+  const uint8_t *const buffer = cpi->source->y_buffer;
+  const int buf_stride = cpi->source->y_stride;
+  const int mb_step = mi_size_wide[BLOCK_16X16];
+  const int block_width = block_size_wide[BLOCK_16X16];
+  const int block_height = block_size_high[BLOCK_16X16];
+  int block_count = 0;
+
+  int64_t sum_luminance_frame = 0;
+  for (int mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
+    for (int mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
+      const int mi_row = mb_row * mb_step;
+      const int mi_col = mb_col * mb_step;
+      int64_t sum = 0;
+      const uint8_t *block_buffer =
+          &buffer[mi_row * MI_SIZE * buf_stride + mi_col * MI_SIZE];
+      int count = 0;
+      for (int dy = 0; dy < block_height; ++dy) {
+        for (int dx = 0; dx < block_width; ++dx) {
+          sum += block_buffer[dx];
+          ++count;
+        }
+        block_buffer += buf_stride;
+      }
+      const int avg_luminance = (int)(sum / count);
+      cpi->mb_luminance[mb_row * cpi->frame_info.mb_cols + mb_col] =
+          avg_luminance;
+      ++block_count;
+      sum_luminance_frame += avg_luminance;
+    }
+  }
+  const int frame_avg_luminance = sum_luminance_frame / block_count;
+
+  for (int mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
+    for (int mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
+      cpi->mb_luminance[mb_row * cpi->frame_info.mb_cols + mb_col] /=
+          (double)frame_avg_luminance;
+    }
+  }
+}
+
 static void set_mb_wiener_variance(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   uint8_t *buffer = cpi->source->y_buffer;
@@ -3205,6 +3257,9 @@ static void set_mb_wiener_variance(AV1_COMP *cpi) {
   cpi->norm_wiener_variance = 0;
 
   int mb_step = mi_size_wide[BLOCK_16X16];
+
+  // Compute luminance for each 16x16 block.
+  compute_block_luminance(cpi);
 
   for (mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
     for (mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
@@ -3271,6 +3326,11 @@ static void set_mb_wiener_variance(AV1_COMP *cpi) {
       }
       cpi->mb_wiener_variance[mb_row * cpi->frame_info.mb_cols + mb_col] =
           wiener_variance / coeff_count;
+      // weighted by luminance weighting
+      const int mb_idx = mb_row * cpi->frame_info.mb_cols + mb_col;
+      cpi->mb_wiener_variance[mb_idx] =
+          (int64_t)(cpi->mb_wiener_variance[mb_idx] *
+                    cpi->mb_luminance[mb_idx]);
       ++count;
     }
   }
@@ -3490,6 +3550,7 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_PERCEPTUAL_AI) {
     init_mb_wiener_var_buffer(cpi);
+    init_mb_luminance_buffer(cpi);
     set_mb_wiener_variance(cpi);
   }
 
