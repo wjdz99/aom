@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2ad06af_73a11244",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-07-13T06:09:16Z",
+      "side": 1,
+      "message": "Does it disable AB partition and 4-way partition?\n\nAfter digging into the code, I found both AB partition and 4-way partition need rectangular partition to be allowed. But it is non trivial. Could you add a comment here saying they depend on rectangular partition?\n\nActually, horza and horzb require horz partition.\nverta and vertb require vert partition.\nhorz 4-way require horz partition.\nvert 4-way require vert partition.",
+      "range": {
+        "startLine": 243,
+        "startChar": 23,
+        "endLine": 243,
+        "endChar": 45
+      },
+      "revId": "af86b3918c5df540ce7436a8ddedeb22a1a069af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d33acef0_f7ce47cd",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2813,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-07-13T06:09:16Z",
+      "side": 1,
+      "message": "Nit: this can be const too.",
+      "range": {
+        "startLine": 2813,
+        "startChar": 4,
+        "endLine": 2813,
+        "endChar": 20
+      },
+      "revId": "af86b3918c5df540ce7436a8ddedeb22a1a069af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
