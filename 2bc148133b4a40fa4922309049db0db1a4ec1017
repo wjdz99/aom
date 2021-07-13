@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "725a87e7_d1ba27dd",
+        "filename": "test/av1_convolve_scale_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-13T16:54:42Z",
+      "side": 1,
+      "message": "This can be taken care of in a separate commit.",
+      "parentUuid": "c40550c2_5204ec29",
+      "revId": "2bc148133b4a40fa4922309049db0db1a4ec1017",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "6bf5a994_4b8ce0d8",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-07-02T22:17:09Z",
       "side": 1,
       "message": "these kinds of things could really be in the destructor",
+      "range": {
+        "startLine": 54,
+        "startChar": 28,
+        "endLine": 54,
+        "endChar": 43
+      },
+      "revId": "2bc148133b4a40fa4922309049db0db1a4ec1017",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2af2ce8f_ea66e1ab",
+        "filename": "test/sum_squares_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-13T16:54:42Z",
+      "side": 1,
+      "message": "I\u0027m not too familiar with gtest\u0027s architecture.\nIs there a rule-of-thumb on when to use constructor/destructor vs SetUp/TearDown?",
+      "parentUuid": "6bf5a994_4b8ce0d8",
       "range": {
         "startLine": 54,
         "startChar": 28,
