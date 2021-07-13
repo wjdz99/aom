@@ -3044,6 +3044,11 @@ typedef struct AV1_COMP {
   int64_t *mb_wiener_variance;
 
   /*!
+   * Buffer to store luminance weight of each macro block.
+   */
+  double *mb_luminance;
+
+  /*!
    * Frame level Wiener filter normalization.
    */
   int64_t norm_wiener_variance;
