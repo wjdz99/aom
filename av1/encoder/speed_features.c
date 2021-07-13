@@ -1384,6 +1384,10 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     if (cpi->oxcf.kf_cfg.key_freq_max != 0 &&
         cm->width * cm->height > 640 * 480)
       sf->rt_sf.use_temporal_noise_estimate = 1;
+
+
+    ///////
+    sf->part_sf.adjust_var_based_rd_partitioning = 1;
   }
 
   // TODO(Yunqing, any): speed 6 overall speed/quality tradeoff is bad. Need
