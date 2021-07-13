@@ -141,6 +141,24 @@
       "parentUuid": "875d1f51_dd4cf31f",
       "revId": "4cdd1d46dc542f87e85eb86498b5fb3eb21b75d4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8712fbb4_2eeaf538",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-07-13T03:49:18Z",
+      "side": 1,
+      "message": "\u003e I haven\u0027t thought about the aom build in a while ,and it occurred to me that the neon bit probably needs to be something like:\n\u003e \n\u003e     elseif(${AOM_TARGET_CPU} MATCHES ^arm)\n\u003e     \n\u003e And, I always forget that x86_64 simd is all of x86 + x86_64 specific stuff when I don\u0027t stop and think for a moment, so the naive conditionals I suggested probably mean you get everything in x86_64 named folders when you do an x86_64 config. Not ideal, but maybe not a big deal since this is mainly cosmetic for the purpose of making IDEs more developer friendly.\n\nMuch simpler now just using AOM_TARGET_CPU and it seems to work with Xcode too.",
+      "parentUuid": "0df32a55_86430e05",
+      "revId": "4cdd1d46dc542f87e85eb86498b5fb3eb21b75d4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
