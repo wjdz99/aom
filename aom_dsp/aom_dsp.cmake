@@ -330,6 +330,7 @@ endif()
 # Creates aom_dsp build targets. Must not be called until after libaom target
 # has been created.
 function(setup_aom_dsp_targets)
+  set(AOM_IDE_DSP_X86_FOLDER x86)
   add_library(aom_dsp_common OBJECT ${AOM_DSP_COMMON_SOURCES})
   list(APPEND AOM_LIB_TARGETS aom_dsp_common)
   create_dummy_source_file("aom_av1" "c" "dummy_source_file")
@@ -367,23 +368,35 @@ function(setup_aom_dsp_targets)
 
   if(HAVE_SSE2)
     add_asm_library("aom_dsp_common_sse2" "AOM_DSP_COMMON_ASM_SSE2")
+    set_property(TARGET aom_dsp_common_sse2
+                 PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     add_intrinsics_object_library("-msse2" "sse2" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_SSE2")
+    set_property(TARGET aom_dsp_common_sse2_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
 
     if(CONFIG_AV1_ENCODER)
       if("${AOM_TARGET_CPU}" STREQUAL "x86_64")
         list(APPEND AOM_DSP_ENCODER_ASM_SSE2 ${AOM_DSP_ENCODER_ASM_SSE2_X86_64})
       endif()
       add_asm_library("aom_dsp_encoder_sse2" "AOM_DSP_ENCODER_ASM_SSE2")
+      set_property(TARGET aom_dsp_encoder_sse2
+                   PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
       add_intrinsics_object_library("-msse2" "sse2" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_SSE2")
+      set_property(TARGET aom_dsp_encoder_sse2_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     endif()
   endif()
 
   if(HAVE_SSSE3)
     add_asm_library("aom_dsp_common_ssse3" "AOM_DSP_COMMON_ASM_SSSE3")
+    set_property(TARGET aom_dsp_common_ssse3
+                 PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     add_intrinsics_object_library("-mssse3" "ssse3" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_SSSE3")
+    set_property(TARGET aom_dsp_common_ssse3_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
 
     if(CONFIG_AV1_ENCODER)
       if("${AOM_TARGET_CPU}" STREQUAL "x86_64")
@@ -391,17 +404,25 @@ function(setup_aom_dsp_targets)
                     ${AOM_DSP_ENCODER_ASM_SSSE3_X86_64})
       endif()
       add_asm_library("aom_dsp_encoder_ssse3" "AOM_DSP_ENCODER_ASM_SSSE3")
+      set_property(TARGET aom_dsp_encoder_ssse3
+                   PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
       add_intrinsics_object_library("-mssse3" "ssse3" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_SSSE3")
+      set_property(TARGET aom_dsp_encoder_ssse3_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     endif()
   endif()
 
   if(HAVE_SSE4_1)
     add_intrinsics_object_library("-msse4.1" "sse4_1" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_SSE4_1")
+    set_property(TARGET aom_dsp_common_sse4_1_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     if(CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-msse4.1" "sse4_1" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_SSE4_1")
+      set_property(TARGET aom_dsp_encoder_sse4_1_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     endif()
   endif()
 
@@ -409,15 +430,21 @@ function(setup_aom_dsp_targets)
     if(CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-mavx" "avx" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_AVX")
+      set_property(TARGET aom_dsp_encoder_avx_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     endif()
   endif()
 
   if(HAVE_AVX2)
     add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_AVX2")
+    set_property(TARGET aom_dsp_common_avx2_intrinsics
+                 PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     if(CONFIG_AV1_ENCODER)
       add_intrinsics_object_library("-mavx2" "avx2" "aom_dsp_encoder"
                                     "AOM_DSP_ENCODER_INTRIN_AVX2")
+      set_property(TARGET aom_dsp_encoder_avx2_intrinsics
+                   PROPERTY FOLDER ${AOM_IDE_DSP_X86_FOLDER})
     endif()
   endif()
 
