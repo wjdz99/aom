@@ -330,6 +330,7 @@ endif()
 # Creates aom_dsp build targets. Must not be called until after libaom target
 # has been created.
 function(setup_aom_dsp_targets)
+  set(AOM_IDE_DSP_X86_FOLDER x86 PARENT_SCOPE)
   add_library(aom_dsp_common OBJECT ${AOM_DSP_COMMON_SOURCES})
   list(APPEND AOM_LIB_TARGETS aom_dsp_common)
   create_dummy_source_file("aom_av1" "c" "dummy_source_file")
@@ -366,7 +367,6 @@ function(setup_aom_dsp_targets)
   endif()
 
   if(HAVE_SSE2)
-    add_asm_library("aom_dsp_common_sse2" "AOM_DSP_COMMON_ASM_SSE2")
     add_intrinsics_object_library("-msse2" "sse2" "aom_dsp_common"
                                   "AOM_DSP_COMMON_INTRIN_SSE2")
 
