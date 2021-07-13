@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "efbf47c2_67514bdd",
+        "filename": "aom_dsp/txfm_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-07-13T16:00:13Z",
+      "side": 0,
+      "message": "Avoid to call av1/... in aom_dsp files. Looks good.",
+      "range": {
+        "startLine": 16,
+        "startChar": 10,
+        "endLine": 16,
+        "endChar": 28
+      },
+      "revId": "5035d4cbfa55c530440b87a62ede364390f56351",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
