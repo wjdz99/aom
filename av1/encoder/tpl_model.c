@@ -850,6 +850,9 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
         AOMMIN(tpl_stats->recrf_rate, tpl_stats->cmp_recrf_rate[1]);
   }
 
+  // This is where we store the best motion vector in TPL
+  // After this part is done, We can use
+  // tpl_stats->mv[tpl_stats->ref_frame_index[0]] to retrieve the motion vector
   if (best_mode == NEWMV) {
     tpl_stats->mv[best_rf_idx] = best_mv[0];
     tpl_stats->ref_frame_index[0] = best_rf_idx;
