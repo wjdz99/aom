@@ -63,6 +63,30 @@
       },
       "revId": "24ab1314bd6fef8b48d62e410f871c8dc7a2bce5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02aa9898_356cbbb3",
+        "filename": "av1/encoder/k_means_template.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-14T21:35:45Z",
+      "side": 1,
+      "message": "Thanks for adding the assertion.",
+      "parentUuid": "489528f2_7b9fbe90",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 97,
+        "endChar": 74
+      },
+      "revId": "24ab1314bd6fef8b48d62e410f871c8dc7a2bce5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
