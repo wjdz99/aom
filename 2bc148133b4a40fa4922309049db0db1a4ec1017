@@ -99,6 +99,30 @@
       },
       "revId": "2bc148133b4a40fa4922309049db0db1a4ec1017",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b60a6bf7_a272d288",
+        "filename": "test/sum_squares_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-07-14T00:15:44Z",
+      "side": 1,
+      "message": "\u003e I\u0027m not too familiar with gtest\u0027s architecture.\n\u003e Is there a rule-of-thumb on when to use constructor/destructor vs SetUp/TearDown?\n\nhttps://github.com/google/googletest/blob/master/docs/faq.md#should-i-use-the-constructordestructor-of-the-test-fixture-or-setupteardown-ctorvssetup\n\nMost common would be when you wanted to ASSERT something.",
+      "parentUuid": "2af2ce8f_ea66e1ab",
+      "range": {
+        "startLine": 54,
+        "startChar": 28,
+        "endLine": 54,
+        "endChar": 43
+      },
+      "revId": "2bc148133b4a40fa4922309049db0db1a4ec1017",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
