@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "0ab63d9c_25c96109",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13ac3493_0bc1779f",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "45d949fc_56911280",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 7
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "acf34ab2_09303e5c",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Currently using a new public API for this. Waiting for James\u0027 comments too.",
+      "parentUuid": "e1d68d13_0dd4db18",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "850dad12_6cc25473",
         "filename": "apps/aomenc.c",
         "patchSetId": 7
@@ -65,6 +101,30 @@
       "writtenOn": "2021-07-12T21:36:09Z",
       "side": 1,
       "message": "\"ori\" is an uncommon abbreviation of \"original\". I suggest using the full word, or abbreviating it as \"orig\" instead.",
+      "range": {
+        "startLine": 551,
+        "startChar": 0,
+        "endLine": 553,
+        "endChar": 26
+      },
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33b66d52_56c0c11e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "850dad12_6cc25473",
       "range": {
         "startLine": 551,
         "startChar": 0,
@@ -92,6 +152,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "af7fc064_59cf70c8",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1923,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Using (h+1)/2 now.",
+      "parentUuid": "e70188ee_a1dcee14",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e2fca3c_63f44b31",
@@ -105,6 +183,30 @@
       "writtenOn": "2021-07-12T21:36:09Z",
       "side": 1,
       "message": "Nit/optional: p \u003c 3 seems more common.",
+      "range": {
+        "startLine": 1938,
+        "startChar": 20,
+        "endLine": 1938,
+        "endChar": 26
+      },
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6530851d_081e8521",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1938,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e2fca3c_63f44b31",
       "range": {
         "startLine": 1938,
         "startChar": 20,
@@ -132,6 +234,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0be87bff_55349629",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1939,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26fdaa76_0bcb7d91",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a1c6a7b_d1a25928",
@@ -145,6 +265,24 @@
       "writtenOn": "2021-07-12T21:36:09Z",
       "side": 1,
       "message": "Nit: Use the \"orig\" abbreviation, or do not abbreviate \"original\".\n\nPlease make this change throughout the file.",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e36e8db_9da20f73",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1950,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a1c6a7b_d1a25928",
       "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -166,6 +304,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9051d4a_c0ed1023",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1953,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ac35975_e2329a5e",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e4118af_d9cdfbbd",
@@ -179,6 +335,24 @@
       "writtenOn": "2021-07-12T21:36:09Z",
       "side": 1,
       "message": "Can ori_input.width be an odd number? If ori_input.width can be odd, should we use (ori_input.width + 1) / 2 instead?",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea08b698_bd62b1e2",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1976,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e4118af_d9cdfbbd",
       "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -200,6 +374,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d9ed436_3842b3c4",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1979,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a4dfffe_4acb38b0",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c986936c_3ef8ddf5",
@@ -217,6 +409,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "29377766_b7435754",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2130,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c986936c_3ef8ddf5",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13a68f36_c785a259",
@@ -230,6 +440,24 @@
       "writtenOn": "2021-07-12T21:36:09Z",
       "side": 1,
       "message": "This conditional expression is used four times in this function. It would be good to document what this conditional expression means here (the first time it\u0027s used). Also, we can save the value of this conditional expression in a local variable.",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6a4f6e0_6340aa7b",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2132,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13a68f36_c785a259",
       "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -257,6 +485,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f73cf25b_b49750f3",
+        "filename": "av1/arg_defs.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62bec413_ef08cd39",
+      "range": {
+        "startLine": 222,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 33
+      },
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "180b4f62_1f1c4e8d",
@@ -270,6 +522,24 @@
       "writtenOn": "2021-07-12T21:36:09Z",
       "side": 1,
       "message": "Optional: Please document this new struct member. I marked this as optional because many other struct members are also not documented. I assume that\u0027s because they correspond to a documented member of some other struct.",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "440b02eb_7309ec0f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "180b4f62_1f1c4e8d",
       "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -293,6 +563,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "769f47ed_c7872ca5",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1125,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Will do in a separate CL.",
+      "parentUuid": "3b212e91_52ea3673",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c379ee6b_f37cf23b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 7
@@ -310,6 +598,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5b08ee84_8dcd30c9",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3609,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Will do in a separate CL.",
+      "parentUuid": "c379ee6b_f37cf23b",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "64150184_a28d264c",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 7
@@ -321,6 +627,24 @@
       "writtenOn": "2021-07-12T21:36:09Z",
       "side": 1,
       "message": "Please document this new struct member.",
+      "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64537115_a2dd6212",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 997,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-14T17:40:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64150184_a28d264c",
       "revId": "19f870c04b9efa4960b980d76d858601105e1fdb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
