@@ -430,6 +430,15 @@ aom_metadata_t *aom_img_metadata_alloc(uint32_t type, const uint8_t *data,
  */
 void aom_img_metadata_free(aom_metadata_t *metadata);
 
+/*!\brief Down-scale image by factor of 2.
+ *
+ * Downscale an image by 2 in width and height.
+ *
+ * \param[in]    src       Pointer to the source image
+ * \param[out]   dst       Pointer to the destination image
+ */
+void aom_img_downscale_by_2(aom_image_t *src, aom_image_t *dst);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

@@ -17,6 +17,7 @@
 #include "aom/aom_integer.h"
 #include "aom/internal/aom_image_internal.h"
 #include "aom_mem/aom_mem.h"
+#include "av1/common/resize.h"
 
 static INLINE unsigned int align_image_dimension(unsigned int d,
                                                  unsigned int subsampling,
@@ -384,4 +385,37 @@ const aom_metadata_t *aom_img_get_metadata(const aom_image_t *img,
 size_t aom_img_num_metadata(const aom_image_t *img) {
   if (!img || !img->metadata) return 0;
   return img->metadata->sz;
+}
+
+static void downscale_plane_by_2(uint8_t *src, int w, int h, int src_stride,
+                                 int dst_stride, int bd, uint8_t *dst) {
+#if CONFIG_AV1_HIGHBITDEPTH
+  if (bd > 8)
+    av1_highbd_resize_plane(src, h, w, src_stride, dst, (h + 1) / 2,
+                            (w + 1) / 2, dst_stride, bd);
+  else
+    av1_resize_plane(src, h, w, src_stride, dst, (h + 1) / 2, (w + 1) / 2,
+                     dst_stride);
+#else
+  (void)bd;
+  av1_resize_plane(src, h, w, src_stride, dst, (h + 1) / 2, (w + 1) / 2,
+                   dst_stride);
+#endif
+}
+
+void aom_img_downscale_by_2(aom_image_t *src, aom_image_t *dst) {
+  // y
+  downscale_plane_by_2(src->planes[0], src->w, src->h, src->stride[0],
+                       dst->stride[0], src->bit_depth, dst->planes[0]);
+  if (!src->monochrome) {
+    const int subsampling_x = src->x_chroma_shift;
+    const int subsampling_y = src->y_chroma_shift;
+    // u and v
+    for (int p = 1; p < 3; p++) {
+      downscale_plane_by_2(
+          src->planes[p], (src->w + subsampling_x) >> subsampling_x,
+          (src->h + subsampling_y) >> subsampling_y, src->stride[p],
+          dst->stride[p], src->bit_depth, dst->planes[p]);
+    }
+  }
 }
