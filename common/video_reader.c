@@ -15,20 +15,9 @@
 #include "aom_ports/mem_ops.h"
 #include "common/ivfdec.h"
 #include "common/obudec.h"
-#include "common/tools_common.h"
+// #include "common/tools_common.h"
 #include "common/video_reader.h"
 #include "common/webmdec.h"
-
-struct AvxVideoReaderStruct {
-  AvxVideoInfo info;
-  struct AvxInputContext input_ctx;
-  struct ObuDecInputContext obu_ctx;
-  struct WebmInputContext webm_ctx;
-  uint8_t *buffer;
-  size_t buffer_size;
-  size_t frame_size;
-  aom_codec_pts_t pts;
-};
 
 AvxVideoReader *aom_video_reader_open(const char *filename) {
   AvxVideoReader *reader = NULL;
