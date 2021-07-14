@@ -16,6 +16,292 @@
       "message": "I have crosschecked the results, it matches with mine.",
       "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf3d83a7_82ed414d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "Gain looks good! Cosmetic comments below...",
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "686e1423_784d1e8c",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "Pls use brackets.\n(Exception is single line if statements like: \"if (foo) bar;\")",
+      "range": {
+        "startLine": 1396,
+        "startChar": 0,
+        "endLine": 1400,
+        "endChar": 27
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29f0583d_5f4301e0",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1409,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "sb_size",
+      "range": {
+        "startLine": 1409,
+        "startChar": 12,
+        "endLine": 1409,
+        "endChar": 18
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17340476_028236b5",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1414,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "can combine these two conditions.\nAlso use brackets:\nif () {\n....\n}",
+      "range": {
+        "startLine": 1411,
+        "startChar": 0,
+        "endLine": 1414,
+        "endChar": 16
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7120f936_62b5aed8",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1421,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "You can directly return the value (without local variable).\nOr, if you prefer to keep the local variable, combine declaration and assignment:\n\"const code_stx \u003d (primary_tx_type ....\"",
+      "range": {
+        "startLine": 1416,
+        "startChar": 0,
+        "endLine": 1421,
+        "endChar": 18
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fee7fdc_a88ade3b",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "brackets for \u0027if\u0027",
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09b8afe4_ed6e520c",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "You can move this inside the \u0027if\u0027, right? (Because in \u0027else\u0027 case, it\u0027s a no-op).\nAnd with that, \u0027stx_flag\u0027 can be a const declared inside the \u0027if\u0027.",
+      "range": {
+        "startLine": 860,
+        "startChar": 0,
+        "endLine": 860,
+        "endChar": 34
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5fb42a5_210aebe1",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 866,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "154f07d0_22ebc0ef",
+        "filename": "av1/decoder/decodemv.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "same as above.",
+      "range": {
+        "startLine": 869,
+        "startChar": 0,
+        "endLine": 869,
+        "endChar": 32
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23814e9c_9e83562b",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1023,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "Unrelated to this patch, but what\u0027s 3 here? Is there a macro you can use instead?\n(Here and another assert below)",
+      "range": {
+        "startLine": 1023,
+        "startChar": 0,
+        "endLine": 1023,
+        "endChar": 28
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e5b033d9_121c99d0",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "bracket for \u0027if\u0027",
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64d32661_bf62a883",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1033,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a048fee0_b9dcd66b",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "bracket",
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7d3e5ef_b35e8ec0",
+        "filename": "av1/encoder/encodetxb.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 693,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-14T17:06:31Z",
+      "side": 1,
+      "message": "#if ... #endif can be just around \u0027, eob\u0027 similar to function signature\n(here and 2 instances below)",
+      "range": {
+        "startLine": 693,
+        "startChar": 27,
+        "endLine": 693,
+        "endChar": 30
+      },
+      "revId": "88eb18a20a405779d8a274f99f134173d5b83905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
