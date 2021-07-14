@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ca1af93_1b79099c",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1989,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-14T04:27:18Z",
+      "side": 1,
+      "message": "*\u003d might be more intuitive here.",
+      "range": {
+        "startLine": 1989,
+        "startChar": 13,
+        "endLine": 1989,
+        "endChar": 15
+      },
+      "revId": "56997b4545f9ade58a43fab3fad2a6396ea57216",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39d5c7a1_4ae7f8c9",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-14T04:27:18Z",
+      "side": 1,
+      "message": "Please update the description here.",
+      "range": {
+        "startLine": 493,
+        "startChar": 3,
+        "endLine": 493,
+        "endChar": 47
+      },
+      "revId": "56997b4545f9ade58a43fab3fad2a6396ea57216",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
