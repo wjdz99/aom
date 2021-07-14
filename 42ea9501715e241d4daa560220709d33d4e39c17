@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "df673a5b_b57f7831",
+        "filename": "av1/encoder/k_means_template.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-14T20:25:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e36acf6_6647861e",
+      "revId": "42ea9501715e241d4daa560220709d33d4e39c17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f877126f_da948631",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-07-14T18:09:55Z",
       "side": 1,
       "message": "Does this change reduce the size of this local variable by 12 KB?\n\nI am a little surprised that a 12 KB reduction is sufficient. It does not seem big.\n\nAlso, this change is independent of the NDEBUG macro. But the compiler warning is emitted only when we do not define NDEBUG. Did you look into that?",
+      "revId": "42ea9501715e241d4daa560220709d33d4e39c17",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2085d2ad_54ed8a01",
+        "filename": "av1/encoder/k_means_template.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-14T20:25:26Z",
+      "side": 1,
+      "message": "\u003e Does this change reduce the size of this local variable by 12 KB?\n\u003e \n\u003e I am a little surprised that a 12 KB reduction is sufficient. It does not seem big.\nAck. Even though the reduction for this local variable is ~12kB, we guess the reason for the overall reduction in stack memory usage might be because of the fact that the functions av1_k_means() and perform_k_means_palette_search() are inlined at multiple places in the code, and hence the overall reduction could be additive.\n\n\u003e Also, this change is independent of the NDEBUG macro. But the compiler warning is emitted only when we do not define NDEBUG. Did you look into that?\nYes. We observed that when NDEBUG macro is enabled, the approximate stack usage for av1_rd_pick_palette_intra_sby is only 18272 bytes which is a very small number when compared to the specified limit.",
+      "parentUuid": "f877126f_da948631",
       "revId": "42ea9501715e241d4daa560220709d33d4e39c17",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
