@@ -2139,6 +2139,23 @@ static void build_inter_predictors_8x8_and_bigger(
     if (use_optflow_refinement && plane == 0) {
 #endif
 #if OPFL_SECOND_PASS_MC
+      int n = opfl_get_subblock_size(bw, bh, plane);
+      inter_pred_params.interp_filter_params[0] =
+          av1_get_interp_filter_params_with_block_size(
+#if CONFIG_REMOVE_DUAL_FILTER
+              mi->interp_fltr,
+#else
+              mi->interp_filters.as_filters.x_filter,
+#endif  // CONFIG_REMOVE_DUAL_FILTER
+              n);
+      inter_pred_params.interp_filter_params[1] =
+          av1_get_interp_filter_params_with_block_size(
+#if CONFIG_REMOVE_DUAL_FILTER
+              mi->interp_fltr,
+#else
+              mi->interp_filters.as_filters.y_filter,
+#endif  // CONFIG_REMOVE_DUAL_FILTER
+              n);
       av1_opfl_rebuild_inter_predictor(
           dst, dst_buf->stride, plane, mi->mv_refined, &inter_pred_params, xd,
           mi_x, mi_y, ref, mc_buf, calc_subpel_params_func);
