@@ -16,6 +16,193 @@
       "message": "Failure was a single timeout on Jenkins.\nSo, added verified+1 manually.",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01a0e774_f3d6e14e",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2010,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "Is allow_tx_horz2_split here trying to check whether TX_PARTITION_HORZ4 partition is allowed? If yes, please change the function name to allow_tx_horz4_split for consistence.",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3aae017_77f24949",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2017,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55bd2c9a_a20afdbe",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "I don\u0027t understand why the smallest sub_tx_size for TX_16x16 is TX_4x4. In my understanding, with new_tx_partitioning, TX_16x16 can only have TX_16x16, TX_16x8, TX_8x16, TX_8x8, TX_4x16, and TX_16x4 sub_tx. Please feel free to correct me if I didn\u0027t understand correctly.",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c3be30c_bb8de45f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "In my understanding, new_tx_partition design only produces equal-sized transform block, is it right? If yes, please move the following 3 lines before the for-loop to make the code easy to understand.\n\nconst TX_SIZE sub_tx \u003d sub_txs[cur_partition];\nbsw \u003d tx_size_wide_unit[sub_tx];\nbsh \u003d tx_size_high_unit[sub_tx];",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fb11a0c_74a4bd4f",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "Same as write_tx_partition, prefer to use only one function for reading tx_partition for intra and inter blocks.",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "230bcd80_7cfba95f",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "If I understand correctly, write_tx_partition is used to write the transform partition type for inter blocks and write_tx_partition_intra is used to write the transform partition type for intra blocks, and the most of the code in these two functions are repeated. The difference between the signaling of intra and inter transform partition type is the context, is it right? If yes, please try to use only one function to signal both the intra and inter transform partition type.",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bedcbad0_4ec22ab5",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "In my understanding, new_tx_partition design only produces equal-sized transform block, is it right? If yes, please move the following 3 lines before the for-loop to make the code easy to understand.\n\nconst TX_SIZE sub_tx \u003d sub_txs[cur_partition];\nbsw \u003d tx_size_wide_unit[sub_tx];\nbsh \u003d tx_size_high_unit[sub_tx];",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ebe0887_a5aa47a0",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "In my understanding, new_tx_partition design only produces equal-sized transform block, is it right? If yes, please move the following 3 lines before the for-loop to make the code easy to understand.\n\nconst TX_SIZE sub_tx \u003d sub_txs[cur_partition];\nbsw \u003d tx_size_wide_unit[sub_tx];\nbsh \u003d tx_size_high_unit[sub_tx];",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6250a188_a49264b1",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "Prefer to use only one function for updating cdfs for intra and inter transform partition types.",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f36b3467_6dae5460",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae47c73d_338177ac",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-14T19:22:15Z",
+      "side": 1,
+      "message": "Same as above",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
