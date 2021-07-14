@@ -16,6 +16,29 @@
       "message": "Hi Wan-Teh, Cheng, Chi-Yo,\n\nWhile analyzing the stack usage warning reported in aomedia:3100, we observed that the increase in stack usage is caused by the piece of code corresponding to k-means search. Further analysis showed that stack usage is increasing mainly due the static buffer \u0027pre_indices\u0027, declared in the function definition for void RENAME(av1_k_means) in k_means_template.h. This buffer is used to store the previous indices to be compared with the current indices in order to determine the breakout condition in the k-means clustering algorithm.\n\nHowever, the buffer was declared for a size of MAX_SB_SQUARE which corresponds to 128X128 block size whereas the maximum block dimension possible in palette search is 64. Following were the possible approaches to solve this problem:\n\n1. Move pre_indices to HEAP memory and use the pointer in the low-level function\n2. Reduce the size of pre_indices from 128X128 to 64X64\n\nWe went ahead with approach (2) as it solved majority of the problem and approach (1) could potentially increase HEAP memory usage and required appropriate handling at multiple places. (specific to MT etc.) Following are the approximate stack usages for av1_rd_pick_palette_intra_sby() obtained from gcc by lowering the -Wstack-usage value:\n\nReference commit ID: 84320 bytes\nWith this fix: 35168 bytes (58% reduction w.r.t ref)\n\nWe also tested the change that was causing the stack usage warning with this fix and we observed the approximate stack usage to be 39408 bytes, which is well below the limit of 100000. We have reintroduced the changes in the following patch:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/141862\n\nWe also observed that removing the AOM_INLINE qualifier from perform_k_means_palette_search() could further reduce the stack memory usage. But this change is not pursued currently as removing AOM_INLINE could potentially affect the encode time. Please let us know if we should pursue this in a separate patch.\n\nThis patch is verified to be bit-exact with no impact on encode time for AVIF image encoding (tested on a typical image dataset with allintra speed 6) and good video encoding use-cases (tested on screen content set with good speed 6).\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "24ab1314bd6fef8b48d62e410f871c8dc7a2bce5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ec77de3_f33322d1",
+        "filename": "av1/encoder/k_means_template.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-14T17:22:06Z",
+      "side": 1,
+      "message": "While we are at it, could you also add an additional assert that n \u003c MAX_PALETTE_BLOCK_WIDTH * MAX_PALETTE_BLOCK_HEIGHT?",
+      "range": {
+        "startLine": 97,
+        "startChar": 2,
+        "endLine": 97,
+        "endChar": 74
+      },
+      "revId": "24ab1314bd6fef8b48d62e410f871c8dc7a2bce5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
