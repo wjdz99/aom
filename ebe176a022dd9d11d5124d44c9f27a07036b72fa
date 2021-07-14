@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdd391f3_fe6190c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-14T16:51:05Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Cheng, Chi-Yo,\n\nThis patch reintroduces the following CL:\nChange the evaluation order of luma palette_size in speed 0\nhttps://aomedia-review.googlesource.com/c/aom/+/141261\n\nWith the fix for aomedia:3100, it is verified that the stack memory usage of this patch is well within the permissible limits.\n\nIt was also verified that this patch produces similar results w.r.t parent version as compared to the original patch when  AVIF encode was tested for a typical image dataset.\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "ebe176a022dd9d11d5124d44c9f27a07036b72fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
