@@ -109,13 +109,6 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     NEWMV,      // NEW_NEARMV
     GLOBALMV,   // GLOBAL_GLOBALMV
     NEWMV,      // NEW_NEWMV
-#if CONFIG_OPTFLOW_REFINEMENT
-    NEARMV,    // NEAR_NEARMV_OPTFLOW
-    NEARMV,    // NEAR_NEWMV_OPTFLOW
-    NEWMV,     // NEW_NEARMV_OPTFLOW
-    GLOBALMV,  // GLOBAL_GLOBALMV_OPTFLOW
-    NEWMV,     // NEW_NEWMV_OPTFLOW
-#endif         // CONFIG_OPTFLOW_REFINEMENT
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode) || is_inter_singleref_mode(mode));
@@ -155,13 +148,6 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     NEARMV,     // NEW_NEARMV
     GLOBALMV,   // GLOBAL_GLOBALMV
     NEWMV,      // NEW_NEWMV
-#if CONFIG_OPTFLOW_REFINEMENT
-    NEARMV,    // NEAR_NEARMV_OPTFLOW
-    NEWMV,     // NEAR_NEWMV_OPTFLOW
-    NEARMV,    // NEW_NEARMV_OPTFLOW
-    GLOBALMV,  // GLOBAL_GLOBALMV_OPTFLOW
-    NEWMV,     // NEW_NEWMV_OPTFLOW
-#endif         // CONFIG_OPTFLOW_REFINEMENT
   };
   assert(NELEMENTS(lut) == MB_MODE_COUNT);
   assert(is_inter_compound_mode(mode));
@@ -170,20 +156,12 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
 
 static INLINE int have_nearmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEARMV || mode == NEAR_NEARMV || mode == NEAR_NEWMV ||
-#if CONFIG_OPTFLOW_REFINEMENT
-          mode == NEAR_NEARMV_OPTFLOW || mode == NEAR_NEWMV_OPTFLOW ||
-          mode == NEW_NEARMV_OPTFLOW ||
-#endif  // CONFIG_OPTFLOW_REFINEMENT
           mode == NEW_NEARMV);
 }
 
 #if CONFIG_NEW_INTER_MODES
 static INLINE int have_newmv_in_inter_mode(PREDICTION_MODE mode) {
   return (mode == NEWMV || mode == NEW_NEWMV || mode == NEAR_NEWMV ||
-#if CONFIG_OPTFLOW_REFINEMENT
-          mode == NEAR_NEWMV_OPTFLOW || mode == NEW_NEARMV_OPTFLOW ||
-          mode == NEW_NEWMV_OPTFLOW ||
-#endif  // CONFIG_OPTFLOW_REFINEMENT
           mode == NEW_NEARMV);
 }
 static INLINE int have_drl_index(PREDICTION_MODE mode) {
@@ -2041,12 +2019,7 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd,
   int ref;
 
   // First check if all modes are GLOBALMV
-  if (mbmi->mode != GLOBALMV &&
-#if CONFIG_OPTFLOW_REFINEMENT
-      mbmi->mode != GLOBAL_GLOBALMV_OPTFLOW &&
-#endif  // CONFIG_OPTFLOW_REFINEMENT
-      mbmi->mode != GLOBAL_GLOBALMV)
-    return 0;
+  if (mbmi->mode != GLOBALMV && mbmi->mode != GLOBAL_GLOBALMV) return 0;
 
   if (AOMMIN(mi_size_wide[mbmi->sb_type], mi_size_high[mbmi->sb_type]) < 2)
     return 0;

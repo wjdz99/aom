@@ -508,7 +508,7 @@ void av1_setup_pre_planes(MACROBLOCKD *xd, int idx,
 
 static INLINE void set_default_interp_filters(
     MB_MODE_INFO *const mbmi, InterpFilter frame_interp_filter) {
-#if CONFIG_OPTFLOW_REFINEMENT
+#if 0 && CONFIG_OPTFLOW_REFINEMENT  // TODO(kslu): add this back
 #if CONFIG_REMOVE_DUAL_FILTER
   mbmi->interp_fltr = mbmi->mode > NEW_NEWMV
                           ? MULTITAP_SHARP

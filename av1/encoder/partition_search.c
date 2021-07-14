@@ -1284,11 +1284,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
       }
 #endif  // CONFIG_EXT_ROTATION
 
-#if CONFIG_OPTFLOW_REFINEMENT
-      if (has_second_ref(mbmi) && mbmi->mode <= NEW_NEWMV) {
-#else
       if (has_second_ref(mbmi)) {
-#endif  // CONFIG_OPTFLOW_REFINEMENT
         assert(current_frame->reference_mode != SINGLE_REFERENCE &&
                is_inter_compound_mode(mbmi->mode) &&
                mbmi->motion_mode == SIMPLE_TRANSLATION);
@@ -1355,38 +1351,16 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
     const int16_t mode_ctx =
         av1_mode_context_analyzer(mbmi_ext->mode_context, mbmi->ref_frame);
     if (has_second_ref(mbmi)) {
-#if CONFIG_OPTFLOW_REFINEMENT
-      int use_of = 0;
-      if (is_opfl_refine_allowed(cm, mbmi)) {
-        use_of = mode > NEW_NEWMV;
-#if CONFIG_ENTROPY_STATS
-        ++counts->use_optflow[mode_ctx][use_of];
-#endif
-        update_cdf(fc->use_optflow_cdf[mode_ctx], use_of, 2);
-      }
-      int comp_mode_idx =
-          use_of ? INTER_OPFL_OFFSET(mode) : INTER_COMPOUND_OFFSET(mode);
-#if CONFIG_ENTROPY_STATS
-      ++counts->inter_compound_mode[mode_ctx][comp_mode_idx];
-#endif
-      update_cdf(fc->inter_compound_mode_cdf[mode_ctx], comp_mode_idx,
-                 INTER_COMPOUND_REF_TYPES);
-#else
 #if CONFIG_ENTROPY_STATS
       ++counts->inter_compound_mode[mode_ctx][INTER_COMPOUND_OFFSET(mode)];
 #endif
       update_cdf(fc->inter_compound_mode_cdf[mode_ctx],
                  INTER_COMPOUND_OFFSET(mode), INTER_COMPOUND_MODES);
-#endif
     } else {
       av1_update_inter_mode_stats(fc, counts, mode, mode_ctx);
     }
 
-    const int new_mv = mbmi->mode == NEWMV ||
-#if CONFIG_OPTFLOW_REFINEMENT
-                       mbmi->mode == NEW_NEWMV_OPTFLOW ||
-#endif  // CONFIG_OPTFLOW_REFINEMENT
-                       mbmi->mode == NEW_NEWMV;
+    const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
 #if CONFIG_NEW_INTER_MODES
     if (have_drl_index(mbmi->mode)) {
       const int16_t mode_ctx_pristine =
@@ -1435,17 +1409,8 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
                               pb_mv_precision);
         }
 #if CONFIG_NEW_INTER_MODES
-      } else if (mbmi->mode == NEAR_NEWMV ||
-#if CONFIG_OPTFLOW_REFINEMENT
-                 mbmi->mode == NEAR_NEWMV_OPTFLOW ||
-                 mbmi->mode == NEW_NEARMV_OPTFLOW ||
-#endif  // CONFIG_OPTFLOW_REFINEMENT
-                 mbmi->mode == NEW_NEARMV) {
-        const int ref =
-#if CONFIG_OPTFLOW_REFINEMENT
-            mbmi->mode == NEAR_NEWMV_OPTFLOW ||
-#endif  // CONFIG_OPTFLOW_REFINEMENT
-            mbmi->mode == NEAR_NEWMV;
+      } else if (mbmi->mode == NEAR_NEWMV || mbmi->mode == NEW_NEARMV) {
+        const int ref = mbmi->mode == NEAR_NEWMV;
         const int_mv ref_mv = av1_get_ref_mv(x, ref);
         av1_update_mv_stats(mbmi->mv[ref].as_mv, ref_mv.as_mv, &fc->nmvc,
                             pb_mv_precision);
