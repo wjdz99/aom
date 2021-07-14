@@ -41,6 +41,7 @@
 #include "common/webmenc.h"
 #endif
 
+#include "common/y4menc.h"
 #include "common/y4minput.h"
 #include "examples/encoder_util.h"
 #include "stats/aomstats.h"
@@ -435,6 +436,7 @@ const arg_def_t *av1_ctrl_args[] = {
 
 const arg_def_t *av1_key_val_args[] = {
   &g_av1_codec_arg_defs.passes,
+  &g_av1_codec_arg_defs.two_pass_output,
   &g_av1_codec_arg_defs.fwd_kf_dist,
   NULL,
 };
@@ -517,6 +519,10 @@ struct stream_config {
 #endif
   const char *partition_info_path;
   aom_color_range_t color_range;
+  const char *two_pass_input;
+  const char *two_pass_output;
+  int two_pass_width;
+  int two_pass_height;
 };
 
 struct stream_state {
@@ -541,6 +547,10 @@ struct stream_state {
   int mismatch_seen;
   unsigned int chroma_subsampling_x;
   unsigned int chroma_subsampling_y;
+  const char *orig_out_fn;
+  unsigned int orig_width;
+  unsigned int orig_height;
+  char tmp_out_fn[40];
 };
 
 static void validate_positive_rational(const char *msg,
@@ -807,6 +817,10 @@ static struct stream_state *new_stream(struct AvxEncoderConfig *global,
 
   /* Output files must be specified for each stream */
   stream->config.out_fn = NULL;
+  stream->config.two_pass_input = NULL;
+  stream->config.two_pass_output = NULL;
+  stream->config.two_pass_width = 0;
+  stream->config.two_pass_height = 0;
 
   stream->next = NULL;
   return stream;
@@ -1110,6 +1124,14 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
       if (arg_parse_uint(&arg) == 1) {
         warn("non-zero %s option ignored in realtime mode.\n", arg.name);
       }
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_input, argi)) {
+      config->two_pass_input = arg.val;
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_output, argi)) {
+      config->two_pass_output = arg.val;
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_width, argi)) {
+      config->two_pass_width = arg_parse_int(&arg);
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.two_pass_height, argi)) {
+      config->two_pass_height = arg_parse_int(&arg);
     } else {
       int i, match = 0;
       // check if the control ID API supports this arg
@@ -1168,6 +1190,18 @@ static int parse_stream_params(struct AvxEncoderConfig *global,
     default: die("Invalid value of --passes.");
   }
   config->arg_key_val_cnt++;
+
+  // set the two_pass_output field
+  if (!config->two_pass_output && global->passes == 3) {
+    snprintf(stream->tmp_out_fn, sizeof(stream->tmp_out_fn),
+             "tmp_2pass_output_%d.ivf", stream->index);
+    stream->config.two_pass_output = stream->tmp_out_fn;
+  }
+  if (config->two_pass_output) {
+    config->arg_key_vals[config->arg_key_val_cnt][0] = "two-pass-output";
+    config->arg_key_vals[config->arg_key_val_cnt][1] = config->two_pass_output;
+    config->arg_key_val_cnt++;
+  }
 
   return eos_mark_found;
 }
@@ -1879,6 +1913,30 @@ static void print_time(const char *label, int64_t etl) {
   }
 }
 
+static void clear_stream_count_state(struct stream_state *stream) {
+  // PSNR counters
+  for (int k = 0; k < 2; k++) {
+    stream->psnr_sse_total[k] = 0;
+    stream->psnr_samples_total[k] = 0;
+    for (int i = 0; i < 4; i++) {
+      stream->psnr_totals[k][i] = 0;
+    }
+    stream->psnr_count[k] = 0;
+  }
+  // q hist
+  memset(stream->counts, 0, sizeof(stream->counts));
+}
+
+// aomenc will downscale the second pass if:
+// 1. the specific pass is not given by commandline (aomenc will perform all
+//    passes)
+// 2. there are more than 2 passes in total
+// 3. current pass is the second pass (the parameter pass starts with 0 so
+//    pass == 1)
+static int pass_need_downscale(int global_pass, int global_passes, int pass) {
+  return (!global_pass && global_passes > 2 && pass == 1);
+}
+
 int main(int argc, const char **argv_) {
   int pass;
   aom_image_t raw;
@@ -1953,6 +2011,12 @@ int main(int argc, const char **argv_) {
 
   /* Handle non-option arguments */
   input.filename = argv[0];
+  const char *orig_input_filename = input.filename;
+  FOREACH_STREAM(stream, streams) {
+    stream->orig_out_fn = stream->config.out_fn;
+    stream->orig_width = stream->config.cfg.g_w;
+    stream->orig_height = stream->config.cfg.g_h;
+  }
 
   if (!input.filename) {
     fprintf(stderr, "No input file specified!\n");
@@ -1964,10 +2028,47 @@ int main(int argc, const char **argv_) {
     input.only_i420 = 0;
 
   for (pass = global.pass ? global.pass - 1 : 0; pass < global.passes; pass++) {
+    if (pass > 1) {
+      FOREACH_STREAM(stream, streams) { clear_stream_count_state(stream); }
+    }
+
     int frames_in = 0, seen_frames = 0;
     int64_t estimated_time_left = -1;
     int64_t average_rate = -1;
     int64_t lagged_count = 0;
+    const int need_ds = pass_need_downscale(global.pass, global.passes, pass);
+
+    // Set the output to the specified two-pass output file, and
+    // set the width and height to the proper values.
+    FOREACH_STREAM(stream, streams) {
+      if (need_ds) {
+        if (stream->config.two_pass_output) {
+          stream->config.out_fn = stream->config.two_pass_output;
+        }
+      } else {
+        stream->config.out_fn = stream->orig_out_fn;
+      }
+    }
+
+    FOREACH_STREAM(stream, streams) {
+      stream->config.cfg.g_w = stream->orig_width;
+      stream->config.cfg.g_h = stream->orig_height;
+    }
+
+    // for second pass in three-pass encoding, set the input to
+    // the given file if available.
+    const char *two_pass_input_file = NULL;
+    if (need_ds) {
+      FOREACH_STREAM(stream, streams) {
+        if (stream->config.two_pass_input) {
+          two_pass_input_file = stream->config.two_pass_input;
+          break;
+        }
+      }
+      if (two_pass_input_file) input.filename = two_pass_input_file;
+    } else {
+      input.filename = orig_input_filename;
+    }
 
     open_input_file(&input, global.csp);
 
@@ -1975,20 +2076,55 @@ int main(int argc, const char **argv_) {
      * the data from the first stream's configuration.
      */
     if (!input.width || !input.height) {
-      FOREACH_STREAM(stream, streams) {
-        if (stream->config.cfg.g_w && stream->config.cfg.g_h) {
-          input.width = stream->config.cfg.g_w;
-          input.height = stream->config.cfg.g_h;
-          break;
+      if (two_pass_input_file) {
+        FOREACH_STREAM(stream, streams) {
+          if (stream->config.two_pass_width && stream->config.two_pass_height) {
+            input.width = stream->config.two_pass_width;
+            input.height = stream->config.two_pass_height;
+            break;
+          }
         }
-      };
+      } else {
+        FOREACH_STREAM(stream, streams) {
+          if (stream->config.cfg.g_w && stream->config.cfg.g_h) {
+            input.width = stream->config.cfg.g_w;
+            input.height = stream->config.cfg.g_h;
+            break;
+          }
+        }
+      }
     }
 
     /* Update stream configurations from the input file's parameters */
-    if (!input.width || !input.height)
-      fatal(
-          "Specify stream dimensions with --width (-w) "
-          " and --height (-h)");
+    if (!input.width || !input.height) {
+      if (two_pass_input_file) {
+        fatal(
+            "Specify downscaled stream dimensions with --two-pass-width "
+            " and --two-pass-height");
+      } else {
+        fatal(
+            "Specify stream dimensions with --width (-w) "
+            " and --height (-h)");
+      }
+    }
+
+    if (need_ds) {
+      FOREACH_STREAM(stream, streams) {
+        if (stream->config.two_pass_width && stream->config.two_pass_height) {
+          stream->config.cfg.g_w = stream->config.two_pass_width;
+          stream->config.cfg.g_h = stream->config.two_pass_height;
+        } else if (two_pass_input_file) {
+          stream->config.cfg.g_w = input.width;
+          stream->config.cfg.g_h = input.height;
+        } else if (stream->orig_width && stream->orig_height) {
+          stream->config.cfg.g_w = (stream->orig_width + 1) / 2;
+          stream->config.cfg.g_h = (stream->orig_height + 1) / 2;
+        } else {
+          stream->config.cfg.g_w = (input.width + 1) / 2;
+          stream->config.cfg.g_h = (input.height + 1) / 2;
+        }
+      }
+    }
 
     /* If input file does not specify bit-depth but input-bit-depth parameter
      * exists, assume that to be the input bit-depth. However, if the
@@ -2136,17 +2272,14 @@ int main(int argc, const char **argv_) {
     FOREACH_STREAM(stream, streams) { validate_stream_config(stream, &global); }
 
     /* Ensure that --passes and --pass are consistent. If --pass is set and
-     * --passes=2, ensure --fpf was set.
+     * --passes >= 2, ensure --fpf was set.
      */
-    // TODO(bohanli): with passes == 3 and pass == 3, we could use either
-    // fpf or second pass bitstream. This should be updated when that option
-    // is added.
-    if (global.pass && global.passes >= 2) {
+    if (global.pass > 0 && global.pass <= 3 && global.passes >= 2) {
       FOREACH_STREAM(stream, streams) {
         if (!stream->config.stats_fn)
           die("Stream %d: Must specify --fpf when --pass=%d"
-              " and --passes=2\n",
-              stream->index, global.pass);
+              " and --passes=%d\n",
+              stream->index, global.pass, global.passes);
       }
     }
 
