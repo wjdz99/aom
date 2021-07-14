@@ -123,6 +123,24 @@
       "parentUuid": "6d8f8025_05aea940",
       "revId": "e3f44052c7084a602261413c2a4c6e4bd305b157",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38f04393_fb222b20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-07-14T19:19:44Z",
+      "side": 1,
+      "message": "Build succeeded, the output of install was\n```\n\u003e------ Build started: Project: CMakeLists, Configuration:  ------\n  [1/2] Updating version info if necessary.\n  [1/2] Install the project...\n  -- Install configuration: \"Debug\"\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom_codec.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom_frame_buffer.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom_image.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom_integer.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom_decoder.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aomdx.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aomcx.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom_encoder.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/include/aom/aom_external_partition.h\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/lib/pkgconfig/aom.pc\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/lib/aom.lib\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/bin/aomdec.exe\n  -- Installing: D:/media-autobuild_suite/build/aom-git/out/install/x64-Debug/bin/aomenc.exe\nInstall succeeded.\n```",
+      "parentUuid": "ff78b4c2_c6afffe2",
+      "revId": "e3f44052c7084a602261413c2a4c6e4bd305b157",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
