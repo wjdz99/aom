@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4f68645_cb62ac04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2021-07-14T19:06:14Z",
+      "side": 1,
+      "message": "In general I\u0027m fine with this, but the default install prefix on Windows leads to an always broken install target w/o administrator privileges. That\u0027s the main reason for the exclusion-- I\u0027m not sure that the addition of an install target actually provides any additional value to MSVC users, but as long as ALL_BUILD isn\u0027t broken by this adding the target to MSVC is harmless.\n",
+      "revId": "29dd4e20cd6544a5a2f123736a01a720496e02ff",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
