@@ -995,6 +995,8 @@ typedef struct AV1EncoderConfig {
   // CONFIG_PARTITION_SEARCH_ORDER.
   const char *partition_info_path;
 
+  // the name of the second pass output file when passes > 2
+  const char *two_pass_output;
   /*!\endcond */
 } AV1EncoderConfig;
 
