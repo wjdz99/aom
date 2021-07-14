@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bae0a4a_5da9ec12",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-07-14T02:51:40Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch moves \u0027show_existing_alt_ref\u0027 from AV1_COMP to AV1_PRIMARY. For a given subgop, this variable is set for an ALTREF_FRAME and it persists across frames in that subgop and hence moving it to AV1_PRIMARY.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. \n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "ba4fd29cdb0d06cfa584f5ef14aa1888044f97c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
