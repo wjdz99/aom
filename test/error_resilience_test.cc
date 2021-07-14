@@ -324,6 +324,7 @@ class ErrorResilienceTestLarge
   unsigned int s_frames_[kMaxSFrames];
   libaom_test::TestMode encoding_mode_;
   int allow_mismatch_;
+ public:
   int enable_altref_;
 };
 
@@ -366,6 +367,12 @@ TEST_P(ErrorResilienceTestLarge, DropFramesWithoutRecovery) {
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
                                      0, 20);
 
+  /* TODO(anyone): Currently DropFramesWithoutRecovery is not intended to work
+   * with enable_altref_ == 1, because altref frames are not droppable.
+   * Consider expanding this test to check that the droppable frame does not
+   * fall on an invisible frame.
+   */
+  if (enable_altref_) return;
   // Set an arbitrary set of error frames same as droppable frames.
   unsigned int num_droppable_frames = 3;
   unsigned int droppable_frame_list[] = { 5, 11, 13 };
