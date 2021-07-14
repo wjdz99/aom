@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "01a278ce_d5d37852",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-07-14T18:45:10Z",
+      "side": 1,
+      "message": "\u003e don\u0027t exclude?\n\nAh, I guess I missed this part when I was rewriting to fit 50 characters",
+      "parentUuid": "1992cff6_908f2178",
+      "range": {
+        "startLine": 7,
+        "startChar": 13,
+        "endLine": 7,
+        "endChar": 18
+      },
+      "revId": "e3f44052c7084a602261413c2a4c6e4bd305b157",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3899fa42_ca1ff9f0",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 4
@@ -37,6 +61,24 @@
       "writtenOn": "2021-07-14T18:35:10Z",
       "side": 1,
       "message": "I don\u0027t remember, does this get included in the ALL_BUILD target? It might be annoying if the default install prefix is C:\\Program Files... and that step fails.",
+      "revId": "e3f44052c7084a602261413c2a4c6e4bd305b157",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d8f8025_05aea940",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-07-14T18:45:10Z",
+      "side": 1,
+      "message": "I don\u0027t think the install target is included automatically in the ALL target and needs to be explicitly called to install into \"C:\\Program Files ...\"\n\nAs a note, I am unable to test this change since my msvc install is unable to compile aom without any changes due to undefined reference to aom_winx64_fldcw and some others",
+      "parentUuid": "3899fa42_ca1ff9f0",
       "revId": "e3f44052c7084a602261413c2a4c6e4bd305b157",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
