@@ -2084,3 +2084,60 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
   }
 }
 #endif  // CONFIG_BITRATE_ACCURACY
+
+/* Helper method. */
+/* Clamp an integer value within the range 0-499. */
+int clamp_to_500(int x) {
+  if (x >= 500)
+    return 499;
+  else if (x < 0)
+    return 0;
+  return x;
+}
+
+/* For a GOP, calculate the bits used by motion vectors. */
+double av1_tpl_compute_mv_bits(const TplParams *tpl_data, GF_GROUP *gf_group,
+                               int gf_frame_index) {
+  int count_row[500] = { 0 };
+  int count_col[500] = { 0 };
+  int n = 0;  // number of MVs to process
+
+  // Loop through each frame.
+  for (int i = gf_frame_index; i < gf_group->size; i++) {
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[i];
+    TplDepStats *tpl_stats_ptr = tpl_frame->tpl_stats_ptr;
+    if (!tpl_frame->is_valid || gf_group->update_type[i] == OVERLAY_UPDATE) {
+      continue;
+    }
+
+    // Loop through each block in the frame and collect MVs.
+    const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+    const int tpl_stride = tpl_frame->stride;
+    for (int row = 0; row < tpl_frame->mi_rows; row += step) {
+      for (int col = 0; col < tpl_frame->mi_cols; col += step) {
+        const TplDepStats *tpl_stats = &tpl_stats_ptr[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+        int_mv mv = tpl_stats->mv[tpl_stats->ref_frame_index[0]];
+        count_row[clamp_to_500(mv.as_mv.row + 250)] += 1;
+        count_col[clamp_to_500(mv.as_mv.col + 250)] += 1;
+        n += 1;
+      }
+    }
+  }
+
+  // Estimate the bits used using the entropy formula.
+  double rate_row = 0;
+  double rate_col = 0;
+  for (int i = 0; i < 500; i++) {
+    if (count_row[i] != 0) {
+      double p = count_row[i] / (double)n;
+      rate_row += count_row[i] * -(log(p) / log(2));
+    }
+    if (count_col[i] != 0) {
+      double p = count_col[i] / (double)n;
+      rate_col += count_col[i] * -(log(p) / log(2));
+    }
+  }
+
+  return rate_row + rate_col;
+}

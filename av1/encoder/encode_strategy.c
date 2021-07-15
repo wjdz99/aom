@@ -1037,6 +1037,23 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       av1_vbr_rc_update_q_index_list(&cpi->vbr_rc_info, &cpi->ppi->tpl_data,
                                      gf_group, cpi->gf_frame_index,
                                      cm->seq_params->bit_depth);
+      if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
+        double mv_bits_used = av1_tpl_compute_mv_bits(
+            &cpi->ppi->tpl_data, gf_group, cpi->gf_frame_index);
+        double gop_bit_budget = cpi->vbr_rc_info.gop_bit_budget;
+        gop_bit_budget -= mv_bits_used;
+        if (gf_group->update_type[0] == KF_UPDATE && cpi->gf_frame_index != 0) {
+          gop_bit_budget -= cpi->vbr_rc_info.keyframe_bitrate;
+        }
+        // Use the gop_bit_budget to determine gf_group->q_val.
+        const double arf_qstep_ratio =
+            av1_tpl_get_qstep_ratio(&cpi->ppi->tpl_data, cpi->gf_frame_index);
+        av1_q_mode_estimate_base_q(
+            &cpi->ppi->gf_group, cpi->ppi->tpl_data.txfm_stats_list,
+            gop_bit_budget, cpi->gf_frame_index, arf_qstep_ratio,
+            cm->seq_params->bit_depth, cpi->vbr_rc_info.scale_factor,
+            cpi->vbr_rc_info.q_index_list);
+      }
 #endif
     }
   }
