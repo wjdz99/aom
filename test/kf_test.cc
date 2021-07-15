@@ -134,16 +134,42 @@ TEST_P(KeyFrameIntervalTestLarge, KeyFrameIntervalTest) {
   ASSERT_EQ(is_kf_interval_violated_, false) << kf_dist_param_;
 }
 
+typedef struct {
+  libaom_test::TestMode encoding_mode;
+  int cpu_used;
+  int auto_alt_ref;
+  int fwd_kf_enabled;
+} TestEncodeParam;
+
+const TestEncodeParam kEncodeVectors[] = {
+  { ::libaom_test::kRealTime, 7, 0, 0 },
+  { ::libaom_test::kRealTime, 9, 0, 0 },
+  { ::libaom_test::kOnePassGood, 2, 0, 0 },
+  { ::libaom_test::kOnePassGood, 2, 0, 1 },
+  { ::libaom_test::kOnePassGood, 2, 1, 0 },
+  { ::libaom_test::kOnePassGood, 2, 1, 1 },
+  { ::libaom_test::kOnePassGood, 5, 0, 0 },
+  { ::libaom_test::kOnePassGood, 5, 0, 1 },
+  { ::libaom_test::kOnePassGood, 5, 1, 0 },
+  { ::libaom_test::kOnePassGood, 5, 1, 1 },
+  { ::libaom_test::kTwoPassGood, 2, 0, 0 },
+  { ::libaom_test::kTwoPassGood, 2, 0, 1 },
+  { ::libaom_test::kTwoPassGood, 2, 1, 0 },
+  { ::libaom_test::kTwoPassGood, 2, 1, 1 },
+  { ::libaom_test::kTwoPassGood, 5, 0, 0 },
+  { ::libaom_test::kTwoPassGood, 5, 0, 1 },
+  { ::libaom_test::kTwoPassGood, 5, 1, 0 },
+  { ::libaom_test::kTwoPassGood, 5, 1, 1 },
+};
+
 // This class tests for presence and placement of application forced key frames.
 class ForcedKeyTestLarge
-    : public ::libaom_test::CodecTestWith5Params<libaom_test::TestMode, int,
-                                                 int, int, aom_rc_mode>,
+    : public ::libaom_test::CodecTestWith2Params<TestEncodeParam, aom_rc_mode>,
       public ::libaom_test::EncoderTest {
  protected:
   ForcedKeyTestLarge()
-      : EncoderTest(GET_PARAM(0)), encoding_mode_(GET_PARAM(1)),
-        auto_alt_ref_(GET_PARAM(2)), fwd_kf_enabled_(GET_PARAM(3)),
-        cpu_used_(GET_PARAM(4)), rc_end_usage_(GET_PARAM(5)) {
+      : EncoderTest(GET_PARAM(0)), test_encode_param_(GET_PARAM(1)),
+        rc_end_usage_(GET_PARAM(2)) {
     forced_kf_frame_num_ = 1;
     frame_num_ = 0;
     is_kf_placement_violated_ = false;
@@ -151,19 +177,20 @@ class ForcedKeyTestLarge
   virtual ~ForcedKeyTestLarge() {}
 
   virtual void SetUp() {
-    InitializeConfig(encoding_mode_);
+    InitializeConfig(test_encode_param_.encoding_mode);
     cfg_.rc_end_usage = rc_end_usage_;
     cfg_.g_threads = 0;
     cfg_.kf_max_dist = 30;
     cfg_.kf_min_dist = 0;
-    cfg_.fwd_kf_enabled = fwd_kf_enabled_;
+    cfg_.fwd_kf_enabled = test_encode_param_.fwd_kf_enabled;
   }
 
   virtual void PreEncodeFrameHook(::libaom_test::VideoSource *video,
                                   ::libaom_test::Encoder *encoder) {
     if (video->frame() == 0) {
-      encoder->Control(AOME_SET_CPUUSED, cpu_used_);
-      encoder->Control(AOME_SET_ENABLEAUTOALTREF, auto_alt_ref_);
+      encoder->Control(AOME_SET_CPUUSED, test_encode_param_.cpu_used);
+      encoder->Control(AOME_SET_ENABLEAUTOALTREF,
+                       test_encode_param_.auto_alt_ref);
 #if CONFIG_AV1_ENCODER
       // override test default for tile columns if necessary.
       if (GET_PARAM(0) == &libaom_test::kAV1) {
@@ -194,10 +221,7 @@ class ForcedKeyTestLarge
     return AOM_CODEC_OK == res_dec;
   }
 
-  ::libaom_test::TestMode encoding_mode_;
-  int auto_alt_ref_;
-  int fwd_kf_enabled_;
-  int cpu_used_;
+  TestEncodeParam test_encode_param_;
   aom_rc_mode rc_end_usage_;
   int forced_kf_frame_num_;
   unsigned int frame_num_;
@@ -206,16 +230,20 @@ class ForcedKeyTestLarge
 
 TEST_P(ForcedKeyTestLarge, Frame1IsKey) {
   const aom_rational timebase = { 1, 30 };
-  const int lag_values[] = { 3, 15, 25, -1 };
+  const int lag_values[] = { 0, 3, 15, 25 };
+  int num_lag_values = sizeof(lag_values) / sizeof(lag_values[0]);
 
+  if (test_encode_param_.encoding_mode == ::libaom_test::kRealTime) {
+    num_lag_values = 1;
+  }
   forced_kf_frame_num_ = 1;
-  for (int i = 0; lag_values[i] != -1; ++i) {
+  for (int i = 0; i < num_lag_values; ++i) {
     frame_num_ = 0;
     cfg_.g_lag_in_frames = lag_values[i];
     is_kf_placement_violated_ = false;
     libaom_test::I420VideoSource video(
         TestFileName(), TestFileWidth(), TestFileHeight(), timebase.den,
-        timebase.num, 0, fwd_kf_enabled_ ? 60 : 30);
+        timebase.num, 0, test_encode_param_.fwd_kf_enabled ? 60 : 30);
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_EQ(is_kf_placement_violated_, false)
         << "Frame #" << frame_num_ << " isn't a keyframe!";
@@ -226,16 +254,18 @@ TEST_P(ForcedKeyTestLarge, Frame1IsKey) {
 // forced key frames.
 TEST_P(ForcedKeyTestLarge, ForcedFrameIsKey) {
   const aom_rational timebase = { 1, 30 };
-  const int lag_values[] = { 3, 15, 25, -1 };
+  const int test_values[] = { 3, 15, 25, -1 };
 
-  for (int i = 0; lag_values[i] != -1; ++i) {
+  cfg_.g_lag_in_frames = 0;
+  for (int i = 0; test_values[i] != -1; ++i) {
     frame_num_ = 0;
-    forced_kf_frame_num_ = lag_values[i] - 1;
-    cfg_.g_lag_in_frames = lag_values[i];
+    forced_kf_frame_num_ = test_values[i] - 1;
+    if (test_encode_param_.encoding_mode != ::libaom_test::kRealTime)
+      cfg_.g_lag_in_frames = test_values[i];
     is_kf_placement_violated_ = false;
     libaom_test::I420VideoSource video(
         TestFileName(), TestFileWidth(), TestFileHeight(), timebase.den,
-        timebase.num, 0, fwd_kf_enabled_ ? 60 : 30);
+        timebase.num, 0, test_encode_param_.fwd_kf_enabled ? 60 : 30);
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_EQ(is_kf_placement_violated_, false)
         << "Frame #" << frame_num_ << " isn't a keyframe!";
@@ -244,8 +274,9 @@ TEST_P(ForcedKeyTestLarge, ForcedFrameIsKey) {
     // forced kf is placed after lag in frames.
     // TODO(anyone): Enable(uncomment) below test once above bug is fixed.
     //    frame_num_ = 0;
-    //    forced_kf_frame_num_ = lag_values[i] + 1;
-    //    cfg_.g_lag_in_frames = lag_values[i];
+    //    forced_kf_frame_num_ = test_values[i] + 1;
+    //    if (test_encode_param_.encoding_mode != ::libaom_test::kRealTime)
+    //      cfg_.g_lag_in_frames = test_values[i];
     //    is_kf_placement_violated_ = false;
     //    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     //    ASSERT_EQ(is_kf_placement_violated_, false)
@@ -256,7 +287,10 @@ TEST_P(ForcedKeyTestLarge, ForcedFrameIsKey) {
 TEST_P(ForcedKeyTestLarge, ForcedFrameIsKeyCornerCases) {
   const aom_rational timebase = { 1, 30 };
   const int kf_offsets[] = { -2, -1, 1, 2, 0 };
-  cfg_.g_lag_in_frames = 35;
+  if (test_encode_param_.encoding_mode != ::libaom_test::kRealTime)
+    cfg_.g_lag_in_frames = 35;
+  else
+    cfg_.g_lag_in_frames = 0;
 
   for (int i = 0; kf_offsets[i] != 0; ++i) {
     frame_num_ = 0;
@@ -265,7 +299,7 @@ TEST_P(ForcedKeyTestLarge, ForcedFrameIsKeyCornerCases) {
     is_kf_placement_violated_ = false;
     libaom_test::I420VideoSource video(
         TestFileName(), TestFileWidth(), TestFileHeight(), timebase.den,
-        timebase.num, 0, fwd_kf_enabled_ ? 60 : 30);
+        timebase.num, 0, test_encode_param_.fwd_kf_enabled ? 60 : 30);
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
     ASSERT_EQ(is_kf_placement_violated_, false)
         << "Frame #" << frame_num_ << " isn't a keyframe!";
@@ -281,9 +315,6 @@ AV1_INSTANTIATE_TEST_SUITE(KeyFrameIntervalTestLarge,
 // TODO(anyone): Add CBR to list of rc_modes once forced kf placement after
 // lag in frames bug is fixed.
 AV1_INSTANTIATE_TEST_SUITE(ForcedKeyTestLarge,
-                           ::testing::Values(::libaom_test::kOnePassGood,
-                                             ::libaom_test::kTwoPassGood),
-                           ::testing::Values(0, 1), ::testing::Values(0, 1),
-                           ::testing::Values(2, 5),
+                           ::testing::ValuesIn(kEncodeVectors),
                            ::testing::Values(AOM_Q, AOM_VBR, AOM_CQ));
 }  // namespace
