@@ -508,6 +508,17 @@ static aom_codec_err_t update_error_state(
   return res;
 }
 
+static int allocate_and_set_string(const char *src, const char **dst) {
+  if (!src) return -1;
+  uint64_t len = strlen(src) + 1;
+  char *tmp = aom_malloc(len * sizeof(tmp));
+  if (!tmp) return -1;
+  snprintf(tmp, len, "%s", src);
+  aom_free((void *)*dst);
+  *dst = tmp;
+  return 0;
+}
+
 #undef ERROR
 #define ERROR(str)                  \
   do {                              \
@@ -2443,8 +2454,18 @@ static void destroy_stats_buffer(STATS_BUFFER_CTX *stats_buf_context,
   aom_free(frame_stats_buffer);
 }
 
+static void destroy_extra_config(struct av1_extracfg *extra_cfg) {
+#if CONFIG_TUNE_VMAF
+  aom_free((void *)extra_cfg->vmaf_model_path);
+#endif
+  aom_free((void *)extra_cfg->two_pass_output);
+  aom_free((void *)extra_cfg->partition_info_path);
+  aom_free((void *)extra_cfg->film_grain_table_filename);
+}
+
 static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
   free(ctx->cx_data);
+  destroy_extra_config(&ctx->extra_cfg);
 
   if (ctx->ppi) {
     AV1_PRIMARY *ppi = ctx->ppi;
@@ -2476,7 +2497,6 @@ static aom_codec_err_t encoder_destroy(aom_codec_alg_priv_t *ctx) {
     av1_remove_primary_compressor(ppi);
   }
   destroy_stats_buffer(&ctx->stats_buf_context, ctx->frame_stats_buffer);
-
   aom_free(ctx);
   return AOM_CODEC_OK;
 }
@@ -3308,12 +3328,18 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
 #if CONFIG_TUNE_VMAF
   else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.vmaf_model_path, argv,
                             err_string)) {
-    extra_cfg.vmaf_model_path = value;
+    if (allocate_and_set_string(value, &extra_cfg.vmaf_model_path) < 0) {
+      snprintf(err_string, ARG_ERR_MSG_MAX_LEN,
+               "Failed to allocate space for copying parameters.");
+    }
   }
 #endif
   else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.partition_info_path,
                             argv, err_string)) {
-    extra_cfg.partition_info_path = value;
+    if (allocate_and_set_string(value, &extra_cfg.partition_info_path) < 0) {
+      snprintf(err_string, ARG_ERR_MSG_MAX_LEN,
+               "Failed to allocate space for copying parameters.");
+    }
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.cq_level, argv,
                               err_string)) {
     extra_cfg.cq_level = arg_parse_uint_helper(&arg, err_string);
@@ -3420,7 +3446,11 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
     extra_cfg.film_grain_test_vector = arg_parse_int_helper(&arg, err_string);
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.film_grain_table,
                               argv, err_string)) {
-    extra_cfg.film_grain_table_filename = value;
+    if (allocate_and_set_string(value, &extra_cfg.film_grain_table_filename) <
+        0) {
+      snprintf(err_string, ARG_ERR_MSG_MAX_LEN,
+               "Failed to allocate space for copying parameters.");
+    }
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.cdf_update_mode, argv,
                               err_string)) {
     extra_cfg.cdf_update_mode = arg_parse_int_helper(&arg, err_string);
@@ -3612,7 +3642,10 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
     extra_cfg.fwd_kf_dist = arg_parse_int_helper(&arg, err_string);
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.two_pass_output, argv,
                               err_string)) {
-    extra_cfg.two_pass_output = value;
+    if (allocate_and_set_string(value, &extra_cfg.two_pass_output) < 0) {
+      snprintf(err_string, ARG_ERR_MSG_MAX_LEN,
+               "Failed to allocate space for copying parameters.");
+    }
   } else {
     match = 0;
     snprintf(err_string, ARG_ERR_MSG_MAX_LEN, "Cannot find aom option %s",
