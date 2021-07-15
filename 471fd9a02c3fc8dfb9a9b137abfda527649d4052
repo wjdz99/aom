@@ -104,6 +104,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e2f0b6f_c7b3604f",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-15T23:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "74880021_0b2f9728",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c3be30c_bb8de45f",
@@ -135,6 +153,24 @@
       "side": 1,
       "message": "It is currently designed to support non uniform tx partition types, which is a potential future work that we planned to explore and propose. Moving this out would limit the encoder to only uniform partition types. I prefer leaving the flexibility, but if you think it is important for readability I\u0027ll go ahead and refactor all the loops.",
       "parentUuid": "1c3be30c_bb8de45f",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a29885ed_44dddfdd",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-15T23:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2ce9040f_2fcd470b",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -208,6 +244,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fdc419a6_22edf81e",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-15T23:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "202133be_c84385da",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4ebe0887_a5aa47a0",
@@ -239,6 +293,24 @@
       "side": 1,
       "message": "See comment above.",
       "parentUuid": "4ebe0887_a5aa47a0",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5da6c7ad_88c57f8d",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-15T23:03:29Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1625b298_54598508",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
