@@ -537,6 +537,15 @@ double av1_tpl_get_qstep_ratio(const TplParams *tpl_data, int gf_frame_index);
 int av1_get_q_index_from_qstep_ratio(int leaf_qindex, double qstep_ratio,
                                      aom_bit_depth_t bit_depth);
 
+/*!\brief For a GOP, calculate the bits used by motion vectors.
+ *
+ * \param[in]       tpl_data          TPL struct
+ * \param[in]       gf_group          Pointer to the GOP
+ * \param[in]       gf_frame_index    Current frame index
+ */
+double av1_tpl_compute_mv_bits(const TplParams *tpl_data,
+                               struct GF_GROUP *gf_group, int gf_frame_index);
+
 /*!\endcond */
 #ifdef __cplusplus
 }  // extern "C"
