@@ -236,9 +236,10 @@ typedef struct {
   double total_bit_budget;  // The total bit budget of the entire video
   int show_frame_count;     // Number of show frames in the entire video
 
-  int gop_showframe_count;  // The number of show frames in the current gop
-  double gop_bit_budget;    // The bitbudget for the current gop
+  int gop_showframe_count;  // The number of show frames in the current GOP
+  double gop_bit_budget;    // The bitbudget for the current GOP
   double scale_factor;      // Scale factor to improve the budget estimation
+  int leaf_qindex;          // qindex used for leaf frames in the current GOP
   int q_index_list[MAX_LENGTH_TPL_FRAME_STATS];  // q indices for the current
                                                  // GOP
 } VBR_RATECTRL_INFO;
@@ -490,7 +491,8 @@ int av1_get_overlap_area(int row_a, int col_a, int row_b, int col_b, int width,
  * \param[in]       stats             Transform stats struct
  * \param[in]       bit_budget        The specified bit budget to achieve
  * \param[in]       gf_frame_index    current frame in the GOP
- * \param[in]       arf_qstep_ratio   ARF q step ratio
+ * \param[in]       qstep_ratio_list  q step ratios agianst leaf q step
+ *                                    for frames in the GOP
  * \param[in]       bit_depth         bit depth
  * \param[in]       scale_factor      Used to improve budget estimation
  * \param[out]      q_index_list      An array to store output gop
@@ -503,7 +505,7 @@ int av1_get_overlap_area(int row_a, int col_a, int row_b, int col_b, int width,
 int av1_q_mode_estimate_base_q(const struct GF_GROUP *gf_group,
                                const TplTxfmStats *txfm_stats_list,
                                double bit_budget, int gf_frame_index,
-                               double arf_qstep_ratio,
+                               const double *qstep_ratio_list,
                                aom_bit_depth_t bit_depth, double scale_factor,
                                int *q_index_list);
 
