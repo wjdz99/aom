@@ -1310,6 +1310,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->winner_mode_sf.tx_size_search_level = frame_is_intra_only(cm) ? 0 : 2;
 
   if (speed >= 5) {
+    sf->gm_sf.gm_search_type = GM_DISABLE_SEARCH;
+
     sf->inter_sf.adaptive_rd_thresh = 4;
     sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 4;
 
@@ -1355,6 +1357,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
     sf->lpf_sf.cdef_pick_method = CDEF_FAST_SEARCH_LVL4;
     sf->lpf_sf.lpf_pick = LPF_PICK_FROM_Q;
+    sf->lpf_sf.disable_lr_filter = 1;
 
     sf->winner_mode_sf.enable_winner_mode_for_tx_size_srch = 1;
 
@@ -1386,8 +1389,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->part_sf.default_max_partition_size = BLOCK_128X128;
     sf->part_sf.default_min_partition_size = BLOCK_8X8;
     sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
-
-    sf->gm_sf.gm_search_type = GM_DISABLE_SEARCH;
 
     sf->mv_sf.search_method = FAST_DIAMOND;
     sf->mv_sf.subpel_force_stop = QUARTER_PEL;
