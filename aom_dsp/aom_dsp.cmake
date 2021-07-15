@@ -34,6 +34,8 @@ list(APPEND AOM_DSP_COMMON_SOURCES
             "${AOM_ROOT}/aom_dsp/intrapred.c"
             "${AOM_ROOT}/aom_dsp/intrapred_common.h"
             "${AOM_ROOT}/aom_dsp/loopfilter.c"
+            "${AOM_ROOT}/aom_dsp/odintrin.c"
+            "${AOM_ROOT}/aom_dsp/odintrin.h"
             "${AOM_ROOT}/aom_dsp/prob.h"
             "${AOM_ROOT}/aom_dsp/recenter.h"
             "${AOM_ROOT}/aom_dsp/simd/v128_intrinsics.h"
@@ -160,7 +162,8 @@ if(CONFIG_AV1_DECODER)
               "${AOM_ROOT}/aom_dsp/binary_codes_reader.c"
               "${AOM_ROOT}/aom_dsp/binary_codes_reader.h"
               "${AOM_ROOT}/aom_dsp/bitreader.c"
-              "${AOM_ROOT}/aom_dsp/bitreader.h" "${AOM_ROOT}/aom_dsp/entdec.c"
+              "${AOM_ROOT}/aom_dsp/bitreader.h"
+              "${AOM_ROOT}/aom_dsp/entdec.c"
               "${AOM_ROOT}/aom_dsp/entdec.h"
               "${AOM_ROOT}/aom_dsp/grain_synthesis.c"
               "${AOM_ROOT}/aom_dsp/grain_synthesis.h")
