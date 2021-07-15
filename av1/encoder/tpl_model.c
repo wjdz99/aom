@@ -1998,6 +1998,7 @@ int av1_q_mode_estimate_base_q(GF_GROUP *gf_group,
       } else {
         q = q_min;
       }
+      printf("-- bit_budget: %f, estimate: %f --\n", bit_budget, estimate);
       break;
     } else if (estimate > bit_budget) {
       q_min = q;
@@ -2060,4 +2061,50 @@ int av1_tpl_get_q_index(const TplParams *tpl_data, int gf_frame_index,
                         int leaf_qindex, aom_bit_depth_t bit_depth) {
   const double qstep_ratio = av1_tpl_get_qstep_ratio(tpl_data, gf_frame_index);
   return av1_get_q_index_from_qstep_ratio(leaf_qindex, qstep_ratio, bit_depth);
+}
+
+void av1_tpl_compute_mv_entropy(TplParams *tpl_data, GF_GROUP *gf_group) {
+  int_mv mv_list[MAX_STATIC_GF_GROUP_LENGTH];
+  for (int i = 0; i < gf_group->size; i++) {
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[i];
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+
+    if (!tpl_frame->is_valid) {
+      continue;
+    }
+
+    int_mv mv = tpl_stats->mv[tpl_stats->ref_frame_index[0]];
+    mv_list[i] = mv;
+  }
+
+  int count_row[500] = {0};
+  int count_col[500] = {0};
+  int n = 0;  // number of MVs to process
+
+  for (int i = 0; i < gf_group->size; i++) {
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[i];
+    if (!tpl_frame->is_valid) {
+      continue;
+    }
+    int_mv mv = mv_list[i];
+
+    count_row[mv.as_mv.row + 250] += 1;
+    count_col[mv.as_mv.col + 250] += 1;
+    n += 1;
+  }
+
+  double rate_row = 0;
+  double rate_col = 0;
+  for (int i = 0; i < 500; i++) {
+    if (count_row[i] != 0) {
+      double p = count_row[i] / (double) n;
+      rate_row += count_row[i] * -(log(p) / log(2));
+    }
+    if (count_col[i] != 0) {
+      double p = count_col[i] / (double) n;
+      rate_col += count_col[i] * -(log(p) / log(2));
+    }
+  }
+
+  printf("*** rate_row: %f, rate_col: %f ***\n", rate_row, rate_col);
 }

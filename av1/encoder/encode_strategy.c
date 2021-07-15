@@ -1034,6 +1034,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       av1_tpl_preload_rc_estimate(cpi, frame_params);
       av1_tpl_setup_stats(cpi, 0, frame_params, frame_input);
 #if CONFIG_BITRATE_ACCURACY
+      av1_tpl_compute_mv_entropy(&cpi->ppi->tpl_data, gf_group);
       if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE) {
         double gop_bit_budget = cpi->vbr_rc_info.gop_bit_budget;
         if (gf_group->update_type[0] == KF_UPDATE && cpi->gf_frame_index != 0) {
