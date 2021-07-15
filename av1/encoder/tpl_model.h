@@ -560,6 +560,15 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
                                     aom_bit_depth_t bit_depth);
 #endif  // CONFIG_BITRATE_ACCURACY
 
+/*!\brief For a GOP, calculate the bits used by motion vectors.
+ *
+ * \param[in]       tpl_data          TPL struct
+ * \param[in]       gf_group          Pointer to the GOP
+ * \param[in]       gf_frame_index    Current frame index
+ */
+double av1_tpl_compute_mv_bits(const TplParams *tpl_data,
+                               struct GF_GROUP *gf_group, int gf_frame_index);
+
 /*!\endcond */
 #ifdef __cplusplus
 }  // extern "C"
