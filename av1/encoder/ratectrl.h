@@ -262,7 +262,6 @@ typedef struct {
   int resize_buffer_underflow;
   int resize_count;
 #if CONFIG_FRAME_PARALLEL_ENCODE
-  int frame_level_fast_extra_bits;
   double frame_level_rate_correction_factors[RATE_FACTOR_LEVELS];
 #endif
   /*!\endcond */
@@ -450,6 +449,34 @@ typedef struct {
    * bits_left;.
    */
   int64_t temp_bits_left;
+
+  /*!
+   * Temporary variable used in simulating the delayed update of
+   * extend_minq.
+   */
+  int temp_extend_minq;
+
+  /*!
+   * Temporary variable used in simulating the delayed update of
+   * extend_maxq.
+   */
+  int temp_extend_maxq;
+
+  /*!
+   * Temporary variable used in simulating the delayed update of
+   * extend_minq_fast.
+   */
+  int temp_extend_minq_fast;
+
+  /*!
+   * Temporary variable used in simulating the delayed update of
+   * fast extra bits from vbr_bits_off_target_fast.
+   *
+   * TODO(FPMT) - In final implementation, this will be moved to
+   * RATE_CONTROL. Frame level fast_extra_bits will be stored in
+   * rc, which will be subtracted during postencode stage.
+   */
+  int frame_level_fast_extra_bits;
 #endif
 } PRIMARY_RATE_CONTROL;
 

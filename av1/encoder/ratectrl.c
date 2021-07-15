@@ -267,8 +267,15 @@ static void update_buffer_level(AV1_COMP *cpi, int encoded_frame_size) {
    * The variable temp_buffer_level is introduced for quality
    * simulation purpose, it retains the value previous to the parallel
    * encode frames. The variable is updated based on the update flag.
-   */
-  if (cpi->do_frame_data_update) {
+   *
+   * If there exist show_existing_frames between parallel frames, then to
+   * retain the temp state do not update it. */
+  int show_existing_between_parallel_frames =
+      (cpi->ppi->gf_group.update_type[cpi->gf_frame_index] ==
+           INTNL_OVERLAY_UPDATE &&
+       cpi->ppi->gf_group.frame_parallel_level[cpi->gf_frame_index - 1] == 1);
+
+  if (cpi->do_frame_data_update && !show_existing_between_parallel_frames) {
     p_rc->temp_buffer_level = rc->buffer_level;
   }
 #endif
@@ -1567,6 +1574,25 @@ static void adjust_active_best_and_worst_quality(const AV1_COMP *cpi,
   const int bit_depth = cpi->common.seq_params->bit_depth;
   int active_best_quality = *active_best;
   int active_worst_quality = *active_worst;
+  int extend_minq, extend_maxq, extend_minq_fast;
+#if CONFIG_FRAME_PARALLEL_ENCODE
+  extend_minq_fast =
+      (cpi->ppi->gf_group.frame_parallel_level[cpi->gf_frame_index] > 0)
+          ? cpi->ppi->p_rc.temp_extend_minq_fast
+          : cpi->ppi->twopass.extend_minq_fast;
+  extend_minq =
+      (cpi->ppi->gf_group.frame_parallel_level[cpi->gf_frame_index] > 0)
+          ? cpi->ppi->p_rc.temp_extend_minq
+          : cpi->ppi->twopass.extend_minq;
+  extend_maxq =
+      (cpi->ppi->gf_group.frame_parallel_level[cpi->gf_frame_index] > 0)
+          ? cpi->ppi->p_rc.temp_extend_maxq
+          : cpi->ppi->twopass.extend_maxq;
+#else
+  extend_minq_fast = cpi->ppi->twopass.extend_minq_fast;
+  extend_minq = cpi->ppi->twopass.extend_minq;
+  extend_maxq = cpi->ppi->twopass.extend_maxq;
+#endif
   // Extension to max or min Q if undershoot or overshoot is outside
   // the permitted range.
   if (cpi->oxcf.rc_cfg.mode != AOM_Q) {
@@ -1574,14 +1600,11 @@ static void adjust_active_best_and_worst_quality(const AV1_COMP *cpi,
         (!rc->is_src_frame_alt_ref &&
          (refresh_frame_flags->golden_frame || is_intrl_arf_boost ||
           refresh_frame_flags->alt_ref_frame))) {
-      active_best_quality -=
-          (cpi->ppi->twopass.extend_minq + cpi->ppi->twopass.extend_minq_fast);
-      active_worst_quality += (cpi->ppi->twopass.extend_maxq / 2);
+      active_best_quality -= (extend_minq + extend_minq_fast);
+      active_worst_quality += (extend_maxq / 2);
     } else {
-      active_best_quality -=
-          (cpi->ppi->twopass.extend_minq + cpi->ppi->twopass.extend_minq_fast) /
-          2;
-      active_worst_quality += cpi->ppi->twopass.extend_maxq;
+      active_best_quality -= (extend_minq + extend_minq_fast) / 2;
+      active_worst_quality += extend_maxq;
     }
   }
 
@@ -2171,8 +2194,14 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
    * temp_last_boosted_qindex are introduced only for quality simulation
    * purpose, it retains the value previous to the parallel encode frames. The
    * variables are updated based on the update flag.
-   */
-  if (cpi->do_frame_data_update) {
+   *
+   * If there exist show_existing_frames between parallel frames, then to
+   * retain the temp state do not update it.*/
+  int show_existing_between_parallel_frames =
+      (cpi->ppi->gf_group.update_type[cpi->gf_frame_index] ==
+           INTNL_OVERLAY_UPDATE &&
+       cpi->ppi->gf_group.frame_parallel_level[cpi->gf_frame_index - 1] == 1);
+  if (cpi->do_frame_data_update && !show_existing_between_parallel_frames) {
     for (int i = 0; i < FRAME_TYPES; i++) {
       p_rc->temp_last_q[i] = rc->last_q[i];
     }
@@ -2350,6 +2379,7 @@ void av1_rc_update_framerate(AV1_COMP *cpi, int width, int height) {
 // For VBR...adjustment to the frame target based on error from previous frames
 static void vbr_rate_correction(AV1_COMP *cpi, int *this_frame_target) {
   RATE_CONTROL *const rc = &cpi->rc;
+  PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   int64_t vbr_bits_off_target;
 #if CONFIG_FRAME_PARALLEL_ENCODE
   vbr_bits_off_target =
@@ -2400,15 +2430,11 @@ static void vbr_rate_correction(AV1_COMP *cpi, int *this_frame_target) {
       // local undershoot.
       *this_frame_target += (int)fast_extra_bits;
     }
+//    rc->vbr_bits_off_target_fast -= fast_extra_bits;
 #if CONFIG_FRAME_PARALLEL_ENCODE
-    rc->frame_level_fast_extra_bits += fast_extra_bits;
-    if (cpi->do_frame_data_update) {
-      // Subtract the previously accumulated fast extra bits.
-      rc->vbr_bits_off_target_fast -= rc->frame_level_fast_extra_bits;
-      cpi->ppi->p_rc.temp_vbr_bits_off_target_fast =
-          rc->vbr_bits_off_target_fast;
-      rc->frame_level_fast_extra_bits = 0;
-    }
+    // Store the fast_extra_bits of the frame and reduce it from
+    // vbr_bits_off_target_fast during postencode stage.
+    p_rc->frame_level_fast_extra_bits += fast_extra_bits;
 #else
     rc->vbr_bits_off_target_fast -= fast_extra_bits;
 #endif
