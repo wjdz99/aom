@@ -2061,3 +2061,52 @@ int av1_tpl_get_q_index(const TplParams *tpl_data, int gf_frame_index,
   const double qstep_ratio = av1_tpl_get_qstep_ratio(tpl_data, gf_frame_index);
   return av1_get_q_index_from_qstep_ratio(leaf_qindex, qstep_ratio, bit_depth);
 }
+
+void av1_tpl_compute_mv_entropy(TplParams *tpl_data, GF_GROUP *gf_group, int gf_frame_index) {
+  int count_row[500] = {0};
+  int count_col[500] = {0};
+  int n = 0;  // number of MVs to process
+
+  printf("size: %d\n", gf_group->size);
+  for (int i = gf_frame_index; i < gf_group->size; i++) {
+    printf("** update: %d ** \n", gf_group->update_type[i]);
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[i];
+    TplDepStats *tpl_stats_ptr = tpl_frame->tpl_stats_ptr;
+    if (!tpl_frame->is_valid || gf_group->update_type[i] == OVERLAY_UPDATE) {
+      printf("*** update: %d *** \n", gf_group->update_type[i]);
+      continue;
+    }
+
+    printf("i: %d, row: %d, col: %d\n", i, tpl_frame->mi_rows, tpl_frame->mi_cols);
+    const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+    const int tpl_stride = tpl_frame->stride;
+    for (int row = 0; row < tpl_frame->mi_rows; row += step) {
+      for (int col = 0; col < tpl_frame->mi_cols; col += step) {
+        //        printf("row: %d, col: %d\n", row, col);
+        const TplDepStats *tpl_stats = &tpl_stats_ptr[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+        int_mv mv = tpl_stats->mv[tpl_stats->ref_frame_index[0]];
+        count_row[mv.as_mv.row + 250] += 1;
+        count_col[mv.as_mv.col + 250] += 1;
+        n += 1;
+      }
+    }
+  }
+
+  double rate_row = 0;
+  double rate_col = 0;
+  for (int i = 0; i < 500; i++) {
+    if (count_row[i] != 0) {
+      double p = count_row[i] / (double) n;
+      double ent = -(log(p) / log(2));
+      rate_row += count_row[i] * ent;
+      printf("i: %d, cr: %d, rr: %f\n", i, count_row[i], rate_row);
+    }
+    /* if (count_col[i] != 0) { */
+    /*   double p = count_col[i] / (double) n; */
+    /*   rate_col += count_col[i] * -(log(p) / log(2)); */
+    /* } */
+  }
+
+  printf("\n*** rate_row: %f, rate_col: %f ***\n", rate_row, rate_col);
+}
