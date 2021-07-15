@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "19f49d26_9f338e23",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-15T19:55:32Z",
+      "side": 1,
+      "message": "Hi Leo, thanks for your review! Here are a few explanations for some of your comments. I am currently working on the code refactoring to address your remaining suggestions. ",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01a0e774_f3d6e14e",
@@ -71,6 +88,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "74880021_0b2f9728",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-15T19:55:32Z",
+      "side": 1,
+      "message": "You can think of mbmi-\u003etx_size map as an nxm grid, where nxm represents the largest possible tx_size for the prediction unit. Each cell of the grid stores the transform size that the corresponding location in the prediction unit is a part of. The grid is designed to allow different regions to have different transform sizes, even though the current implementation only allows uniform sub tx sizes.    \n\n\nThis lookup table is only used to help find the index into the mbmi-\u003etx_size map where the tx_size for a particular sub region of the full prediction unit begins. Because some partitions for TX_16X16 can produce a tx_size with either width or height of 4, the unit we use to store transform sizes is 4x4. If you want a more detailed explanation, I can send a diagram.",
+      "parentUuid": "55bd2c9a_a20afdbe",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1c3be30c_bb8de45f",
         "filename": "av1/decoder/decodeframe.c",
         "patchSetId": 12
@@ -82,6 +117,24 @@
       "writtenOn": "2021-07-14T19:22:15Z",
       "side": 1,
       "message": "In my understanding, new_tx_partition design only produces equal-sized transform block, is it right? If yes, please move the following 3 lines before the for-loop to make the code easy to understand.\n\nconst TX_SIZE sub_tx \u003d sub_txs[cur_partition];\nbsw \u003d tx_size_wide_unit[sub_tx];\nbsh \u003d tx_size_high_unit[sub_tx];",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ce9040f_2fcd470b",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-15T19:55:32Z",
+      "side": 1,
+      "message": "It is currently designed to support non uniform tx partition types, which is a potential future work that we planned to explore and propose. Moving this out would limit the encoder to only uniform partition types. I prefer leaving the flexibility, but if you think it is important for readability I\u0027ll go ahead and refactor all the loops.",
+      "parentUuid": "1c3be30c_bb8de45f",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -139,6 +192,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "202133be_c84385da",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-15T19:55:32Z",
+      "side": 1,
+      "message": "See comment above.",
+      "parentUuid": "bedcbad0_4ec22ab5",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4ebe0887_a5aa47a0",
         "filename": "av1/encoder/encodemb.c",
         "patchSetId": 12
@@ -150,6 +221,24 @@
       "writtenOn": "2021-07-14T19:22:15Z",
       "side": 1,
       "message": "In my understanding, new_tx_partition design only produces equal-sized transform block, is it right? If yes, please move the following 3 lines before the for-loop to make the code easy to understand.\n\nconst TX_SIZE sub_tx \u003d sub_txs[cur_partition];\nbsw \u003d tx_size_wide_unit[sub_tx];\nbsh \u003d tx_size_high_unit[sub_tx];",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1625b298_54598508",
+        "filename": "av1/encoder/encodemb.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-15T19:55:32Z",
+      "side": 1,
+      "message": "See comment above.",
+      "parentUuid": "4ebe0887_a5aa47a0",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
