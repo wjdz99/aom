@@ -43,7 +43,7 @@ TEST(RatectrlTest, QModeGetQIndexTest) {
 // TODO(angiebird): Move this test to tpl_mode_test.cc
 TEST(RatectrlTest, QModeComputeGOPQIndicesTest) {
   const int base_q_index = 80;
-  const double arf_qstep_ratio = 0.5;
+  const double qstep_ratio_list[5] = { 0.5, 0.5, 1, 1, 1 };
   const aom_bit_depth_t bit_depth = AOM_BITS_8;
 
   const int gf_frame_index = 0;
@@ -59,11 +59,11 @@ TEST(RatectrlTest, QModeComputeGOPQIndicesTest) {
     gf_group.update_type[i] = update_type[i];
   }
 
-  const int arf_q = av1_get_q_index_from_qstep_ratio(
-      base_q_index, arf_qstep_ratio, bit_depth);
+  const int arf_q =
+      av1_get_q_index_from_qstep_ratio(base_q_index, 0.5, bit_depth);
 
   av1_q_mode_compute_gop_q_indices(gf_frame_index, base_q_index,
-                                   arf_qstep_ratio, bit_depth, &gf_group,
+                                   qstep_ratio_list, bit_depth, &gf_group,
                                    gf_group.q_val);
 
   for (int i = 0; i < gf_group.size; i++) {

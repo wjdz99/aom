@@ -239,6 +239,7 @@ typedef struct {
   int gop_showframe_count;  // The number of show frames in the current gop
   double gop_bit_budget;    // The bitbudget for the current gop
   double scale_factor;      // Scale factor to improve the budget estimation
+  int leaf_qindex;
   int q_index_list[MAX_LENGTH_TPL_FRAME_STATS];  // q indices for the current
                                                  // GOP
 } VBR_RATECTRL_INFO;
@@ -503,7 +504,7 @@ int av1_get_overlap_area(int row_a, int col_a, int row_b, int col_b, int width,
 int av1_q_mode_estimate_base_q(const struct GF_GROUP *gf_group,
                                const TplTxfmStats *txfm_stats_list,
                                double bit_budget, int gf_frame_index,
-                               double arf_qstep_ratio,
+                               const double *qstep_ratio_list,
                                aom_bit_depth_t bit_depth, double scale_factor,
                                int *q_index_list);
 
