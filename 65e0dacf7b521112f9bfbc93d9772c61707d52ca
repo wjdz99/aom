@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d01607e8_aa0ec7e2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-07-15T13:27:42Z",
+      "side": 1,
+      "message": "Hi Lester, Yunqing,\nWe have submitted a CL to add SSE4.1 intrinsic optimization for optical flow based mv refinement function in both lowbd and highbd paths. To validate the intrinsic a unit test framework is also added.\nFor this patch, we observed ~4% encode \u0026 ~7% decode time reduction for fourpeople_720p60.y4m, speed 1.\n\nPlease review the patch. \nThank you.",
+      "revId": "65e0dacf7b521112f9bfbc93d9772c61707d52ca",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

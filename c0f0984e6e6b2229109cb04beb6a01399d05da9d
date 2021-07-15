@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "54585e34_4ccf85d0",
+        "filename": "av1/common/x86/opfl_mv_sse4.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-07-15T13:27:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cb1d596_ef781250",
+      "range": {
+        "startLine": 180,
+        "startChar": 2,
+        "endLine": 180,
+        "endChar": 56
+      },
+      "revId": "c0f0984e6e6b2229109cb04beb6a01399d05da9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4042070e_b85eee96",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8051e2b_bfaf2982",
+        "filename": "av1/common/x86/opfl_mv_sse4.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-07-15T13:27:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4042070e_b85eee96",
+      "range": {
+        "startLine": 198,
+        "startChar": 2,
+        "endLine": 198,
+        "endChar": 56
+      },
+      "revId": "c0f0984e6e6b2229109cb04beb6a01399d05da9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "974cf5b6_10e0e3ad",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-07-15T00:32:25Z",
       "side": 1,
       "message": "Same as above. Maybe change this to\nint rls_alpha \u003d 4 \u003c\u003c OPFL_RLS_PARAM_BITS;",
+      "range": {
+        "startLine": 304,
+        "startChar": 2,
+        "endLine": 304,
+        "endChar": 56
+      },
+      "revId": "c0f0984e6e6b2229109cb04beb6a01399d05da9d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96ebe67b_3c337f39",
+        "filename": "av1/common/x86/opfl_mv_sse4.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-07-15T13:27:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "974cf5b6_10e0e3ad",
       "range": {
         "startLine": 304,
         "startChar": 2,
