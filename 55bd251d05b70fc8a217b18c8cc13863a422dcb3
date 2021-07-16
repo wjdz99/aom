@@ -16,6 +16,24 @@
       "message": "\u003e Patch Set 5:\n\u003e \n\u003e (9 comments)\n\u003e \n\u003e This change is ready for review.\n\nA few hours after you posted this comment, you set \"Work In Progress\" on this CL. Is this CL still ready for review?",
       "revId": "55bd251d05b70fc8a217b18c8cc13863a422dcb3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "953f78a3_4a7fefd4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-16T09:48:16Z",
+      "side": 1,
+      "message": "We marked this CL as WIP because of the nightly build issue which was reported in the parent commits. Since the issue is resolved now, we have rebased the patch and performed some sanity verification on the latest patch-set. This patch is now ready for review.",
+      "parentUuid": "ee7a994c_b130f7bb",
+      "revId": "55bd251d05b70fc8a217b18c8cc13863a422dcb3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
