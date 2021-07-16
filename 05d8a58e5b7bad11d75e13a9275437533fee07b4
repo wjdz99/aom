@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8dada287_867abe73",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-07-16T22:52:47Z",
+      "side": 1,
+      "message": "Thanks Krishna.\nI plan to do several more patches with more of clean up work. This will include removing unnecessary elements of data structures. Those two patches are just too big to include all of the work.",
+      "parentUuid": "3a8410ab_41e48a97",
+      "revId": "05d8a58e5b7bad11d75e13a9275437533fee07b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8d2799d6_51a4bf8e",
         "filename": "av1/encoder/block.h",
         "patchSetId": 6
@@ -31,6 +49,24 @@
       "writtenOn": "2021-07-16T21:06:36Z",
       "side": 1,
       "message": "Is this parameter still needed? It seems not used after non-RD mode is removed as a part of the patch",
+      "revId": "05d8a58e5b7bad11d75e13a9275437533fee07b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0534e07_c7e2acc9",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-07-16T22:52:47Z",
+      "side": 1,
+      "message": "I am planning to do this in the next patch.",
+      "parentUuid": "8d2799d6_51a4bf8e",
       "revId": "05d8a58e5b7bad11d75e13a9275437533fee07b4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "48b3cee0_9d5e9ae7",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1394,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-07-16T22:52:47Z",
+      "side": 1,
+      "message": "Same here - I am planning to fix it in the next patch.",
+      "parentUuid": "abf0a2a7_ad1e93dd",
+      "revId": "05d8a58e5b7bad11d75e13a9275437533fee07b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8769fe34_53724173",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 6
@@ -65,6 +119,24 @@
       "writtenOn": "2021-07-16T21:06:36Z",
       "side": 1,
       "message": "Since there is not real-time mode, can this comment be rephrased.",
+      "revId": "05d8a58e5b7bad11d75e13a9275437533fee07b4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "166fd4a4_b209c5a3",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-07-16T22:52:47Z",
+      "side": 1,
+      "message": "Same",
+      "parentUuid": "8769fe34_53724173",
       "revId": "05d8a58e5b7bad11d75e13a9275437533fee07b4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
