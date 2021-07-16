@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "0559dbe3_b127ef0c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48e73767_104e1a02",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "38dc8010_a70aec0d",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 11
@@ -31,6 +49,24 @@
       "writtenOn": "2021-07-16T22:16:25Z",
       "side": 1,
       "message": "Hi Bohan,\n\nI suggest some changes. I also have some questions.\n\nSince I don\u0027t fully understand the changes in aomenc.c, I am counting on you to check the logic carefully.",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f7b6f08_d42fb051",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Thanks a lot! I\u0027ve updated the commit message so hopefully it should be more clear.",
+      "parentUuid": "38dc8010_a70aec0d",
       "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "84690065_2eae2c4e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Yeah we don\u0027t. Removed the header.",
+      "parentUuid": "4951fc2e_e6f0686d",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "63abb7e5_29e3ad3f",
@@ -69,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6f49786_532cce49",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63abb7e5_29e3ad3f",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "89a3bafc_74b7b6e4",
@@ -82,6 +154,30 @@
       "writtenOn": "2021-07-16T22:16:25Z",
       "side": 1,
       "message": "Nit: need_ds \u003d\u003e need_downscale\n\nThis variable name does not need to be short, so we don\u0027t need to abbreviate \"downscale\".",
+      "range": {
+        "startLine": 2039,
+        "startChar": 14,
+        "endLine": 2039,
+        "endChar": 21
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e736d444_cec81b56",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89a3bafc_74b7b6e4",
       "range": {
         "startLine": 2039,
         "startChar": 14,
@@ -111,6 +207,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2692197d_fc38f4d3",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2047,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Yeah this is now handled by line 1194 to 1199. I will remove this if statement since it is expected that two_pass_output is not NULL up to this point.",
+      "parentUuid": "8fe61347_7837af80",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8aa72e37_bf669038",
         "filename": "apps/aomenc.c",
         "patchSetId": 11
@@ -122,6 +236,24 @@
       "writtenOn": "2021-07-16T22:16:25Z",
       "side": 1,
       "message": "Can this for loop be merged with the for loop at lines 2043-2051?",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1eb5a509_1e525480",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2053,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "DONE.",
+      "parentUuid": "8aa72e37_bf669038",
       "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -139,6 +271,30 @@
       "writtenOn": "2021-07-16T22:16:25Z",
       "side": 1,
       "message": "It seems that these two lines merely assign the current values to these two members (see lines 2017-2018 above), so the net effect is a no-op. Can we remove this for loop?\n\nDid I misunderstand something?",
+      "range": {
+        "startLine": 2054,
+        "startChar": 0,
+        "endLine": 2055,
+        "endChar": 51
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab7ded9c_b49cba10",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "In the first iteration of the loop this is effectively no-op. But in the next iterations it is possible that g_w and g_h have been set to a different value and we need to set them back.",
+      "parentUuid": "fd569d54_4bcc37ac",
       "range": {
         "startLine": 2054,
         "startChar": 0,
@@ -172,6 +328,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab515707_8db2b0d7",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2060,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cda658de_c34ed76a",
+      "range": {
+        "startLine": 2060,
+        "startChar": 16,
+        "endLine": 2060,
+        "endChar": 35
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d50fa009_563ec359",
@@ -185,6 +365,24 @@
       "writtenOn": "2021-07-16T22:16:25Z",
       "side": 1,
       "message": "I have a similar question here: should we set input.filename if two_pass_input_file is a null pointer?\n\n      if (two_pass_input_file)\n        input.filename \u003d two_pass_input_file;\n      else\n        input.filename \u003d ...;",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f832381_6579cb80",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2068,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "If the scaled input file is not given, we will attempt to re-scale the original input, so here we don\u0027t have to assign a value as the input filename is by default the original input raw video file. But I still added an else clause here just in case.",
+      "parentUuid": "d50fa009_563ec359",
       "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -214,6 +412,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9183ff11_aceb6c22",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2124,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "I documented this in the commit message. I think we should also document this in doxygen but I\u0027m thinking of doing it in a separate CL.",
+      "parentUuid": "43316e3e_81fc39f6",
+      "range": {
+        "startLine": 2119,
+        "startChar": 0,
+        "endLine": 2124,
+        "endChar": 58
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "55ef886e_30992888",
         "filename": "av1/encoder/encoder.h",
         "patchSetId": 11
@@ -225,6 +447,24 @@
       "writtenOn": "2021-07-16T22:16:25Z",
       "side": 1,
       "message": "Since AV1EncoderConfig is an internal struct, the order of its members does not matter. So it would be good to list the two_pass_output member after the related \u0027pass\u0027 and \u0027passes\u0027 members, at line 979.",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "304a997d_13d3eed3",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 999,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-16T23:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55ef886e_30992888",
       "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
