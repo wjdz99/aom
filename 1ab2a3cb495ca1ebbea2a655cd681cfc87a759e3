@@ -1,0 +1,215 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48e73767_104e1a02",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Nit: It would be good to concisely summarize what is added, such as command-line options, etc.",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38dc8010_a70aec0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nI suggest some changes. I also have some questions.\n\nSince I don\u0027t fully understand the changes in aomenc.c, I am counting on you to check the logic carefully.",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63abb7e5_29e3ad3f",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Nit/optional: The parentheses could be omitted.",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89a3bafc_74b7b6e4",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2039,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Nit: need_ds \u003d\u003e need_downscale\n\nThis variable name does not need to be short, so we don\u0027t need to abbreviate \"downscale\".",
+      "range": {
+        "startLine": 2039,
+        "startChar": 14,
+        "endLine": 2039,
+        "endChar": 21
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8fe61347_7837af80",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2047,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Should we set stream-\u003econfig.out_fn if stream-\u003econfig.two_pass_output is a null pointer? I.e., should we have an if-else statement here?\n\n        if (stream-\u003econfig.two_pass_output) {\n          stream-\u003econfig.out_fn \u003d stream-\u003econfig.two_pass_output;\n        } else {\n          stream-\u003econfig.out_fn \u003d ...;\n        }\n\nThis is just a question, not a suggested change. (I don\u0027t really understand this code.)",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8aa72e37_bf669038",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2053,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Can this for loop be merged with the for loop at lines 2043-2051?",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd569d54_4bcc37ac",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "It seems that these two lines merely assign the current values to these two members (see lines 2017-2018 above), so the net effect is a no-op. Can we remove this for loop?\n\nDid I misunderstand something?",
+      "range": {
+        "startLine": 2054,
+        "startChar": 0,
+        "endLine": 2055,
+        "endChar": 51
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cda658de_c34ed76a",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2060,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Nit: name this local variable \"two_pass_input\" to match the struct member name (see line 2064).",
+      "range": {
+        "startLine": 2060,
+        "startChar": 16,
+        "endLine": 2060,
+        "endChar": 35
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d50fa009_563ec359",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2068,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "I have a similar question here: should we set input.filename if two_pass_input_file is a null pointer?\n\n      if (two_pass_input_file)\n        input.filename \u003d two_pass_input_file;\n      else\n        input.filename \u003d ...;",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43316e3e_81fc39f6",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2124,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "This seems to imply that the default downscale factor is 2. Should we document this somewhere?",
+      "range": {
+        "startLine": 2119,
+        "startChar": 0,
+        "endLine": 2124,
+        "endChar": 58
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55ef886e_30992888",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 999,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-16T22:16:25Z",
+      "side": 1,
+      "message": "Since AV1EncoderConfig is an internal struct, the order of its members does not matter. So it would be good to list the two_pass_output member after the related \u0027pass\u0027 and \u0027passes\u0027 members, at line 979.",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
