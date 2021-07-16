@@ -281,6 +281,9 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
   xd->mi[0]->current_qindex = current_qindex;
   av1_init_plane_quantizers(cpi, x, xd->mi[0]->segment_id);
 
+  fprintf(stderr, "mi pos (%d, %d), qp offset = %d\n",
+          mi_row, mi_col, x->delta_qindex);
+
   // keep track of any non-zero delta-q used
   td->deltaq_used |= (x->delta_qindex != 0);
 
