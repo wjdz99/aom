@@ -223,6 +223,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd846a85_aabe8228",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2047,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "Thanks for the explanation.",
+      "parentUuid": "2692197d_fc38f4d3",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8aa72e37_bf669038",
@@ -295,6 +313,30 @@
       "side": 1,
       "message": "In the first iteration of the loop this is effectively no-op. But in the next iterations it is possible that g_w and g_h have been set to a different value and we need to set them back.",
       "parentUuid": "fd569d54_4bcc37ac",
+      "range": {
+        "startLine": 2054,
+        "startChar": 0,
+        "endLine": 2055,
+        "endChar": 51
+      },
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ca174cc_152cb70a",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "You are right. I got it now. Thanks.",
+      "parentUuid": "ab7ded9c_b49cba10",
       "range": {
         "startLine": 2054,
         "startChar": 0,
@@ -383,6 +425,24 @@
       "side": 1,
       "message": "If the scaled input file is not given, we will attempt to re-scale the original input, so here we don\u0027t have to assign a value as the input filename is by default the original input raw video file. But I still added an else clause here just in case.",
       "parentUuid": "d50fa009_563ec359",
+      "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a789302d_db3c7489",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2068,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "Thanks for the explanation. I will suggest a simplification of the new logic.",
+      "parentUuid": "8f832381_6579cb80",
       "revId": "1ab2a3cb495ca1ebbea2a655cd681cfc87a759e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },

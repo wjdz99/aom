@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "00cc5271_02b767e1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "The relation between two-pass-input and two-pass-width/height should be clarified.\n\nBy analyzing the source code, I found that two-pass-width/height are used only when two-pass-input is set. Also, if two-pass-input is set, it seems that two-pass-width/height are optional -- two-pass-width/height are only needed if the two-pass input file does not provide its own width and height.\n\nDid I understand this correctly?",
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d330d4f_e53226bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nThanks a lot for the outline in commit message. It allows me to understand this CL much better.",
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb4b0920_bdcb1a8b",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2042,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "Nit: I suggest changing\n\n    set the width and height to the proper values\n\nto\n\n    restore the width and height to the original values\n\nor\n\n    set the width and height back to the original values",
+      "range": {
+        "startLine": 2042,
+        "startChar": 7,
+        "endLine": 2042,
+        "endChar": 52
+      },
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48b3bff6_53ca7e91",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2054,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "Nit: given file \u003d\u003e given two-pass input file",
+      "range": {
+        "startLine": 2054,
+        "startChar": 11,
+        "endLine": 2054,
+        "endChar": 21
+      },
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac0411fb_0ebccdba",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2070,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-18T14:21:15Z",
+      "side": 1,
+      "message": "Nit: We can simplify the logic of lines 2055-2070 by setting input.filename \u003d orig_input_filename first:\n\n    input.filename \u003d orig_input_filename;\n    const char *two_pass_input \u003d NULL;\n    if (need_downscale) {\n      FOREACH_STREAM(stream, streams) {\n        if (stream-\u003econfig.two_pass_input) {\n          two_pass_input \u003d stream-\u003econfig.two_pass_input;\n          input.filename \u003d two_pass_input;          \n          break;\n        }\n      }\n    }",
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
