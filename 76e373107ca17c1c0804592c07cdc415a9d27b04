@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "b78772f9_0f532fb4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-19T18:19:15Z",
+      "side": 1,
+      "message": "two-pass-width and two-pass-height, on the one hand, are just like -w and -h for regular inputs. They are used to get the dimensions of the two-pass-input file when we cannot derive them directly from the file itself (e.g. when we have a YUV file). This is when a two-pass-input has been given. In this case they are optional if the input file contains parsable width and height info (like in a y4m file).\n\nOn the other hand, if two-pass-input is not given (and we are down-scaling the original input), two-pass-width and two-pass-height are used to specify the downscaled dimensions. In this case they are optional and if not given we will default to downscaling by 2.\n\nSo in the end, these two parameters specifies the downscaled dimensions for the second pass for both cases.",
+      "parentUuid": "00cc5271_02b767e1",
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5d330d4f_e53226bf",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-07-18T14:21:15Z",
       "side": 1,
       "message": "Nit: I suggest changing\n\n    set the width and height to the proper values\n\nto\n\n    restore the width and height to the original values\n\nor\n\n    set the width and height back to the original values",
+      "range": {
+        "startLine": 2042,
+        "startChar": 7,
+        "endLine": 2042,
+        "endChar": 52
+      },
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93cbf871_bc2038cc",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2042,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-19T18:19:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb4b0920_bdcb1a8b",
       "range": {
         "startLine": 2042,
         "startChar": 7,
@@ -105,6 +147,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "256170df_192b6c27",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2054,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-19T18:19:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b35f3f0d_be3d556f",
+      "range": {
+        "startLine": 2054,
+        "startChar": 11,
+        "endLine": 2054,
+        "endChar": 21
+      },
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ac0411fb_0ebccdba",
@@ -136,6 +202,24 @@
       "side": 1,
       "message": "Optional: before the first line, we could add a comment like this (which I got from your reply to one of my questions):\n\n    // If the scaled input file is not given, we will attempt to re-scale\n    // the original input.\n    input.filename \u003d orig_input_filename;",
       "parentUuid": "ac0411fb_0ebccdba",
+      "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c52b0596_96961172",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2070,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-19T18:19:15Z",
+      "side": 1,
+      "message": "Done. Thanks for the suggestion!",
+      "parentUuid": "cade30af_dd572a2b",
       "revId": "76e373107ca17c1c0804592c07cdc415a9d27b04",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
