@@ -2013,6 +2013,25 @@ static void get_sse_planes(const YV12_BUFFER_CONFIG *a,
 }
 #endif  // CONFIG_CNN_RESTORATION
 
+/*!\brief Pick best loop restoration filter parameters and apply that filter.
+ */
+static void pick_and_apply_loop_restoration(AV1_COMP *cpi, AV1_COMMON *cm) {
+  av1_pick_filter_restoration(cpi->source, cpi);
+  if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
+      cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
+      cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
+    MultiThreadInfo *const mt_info = &cpi->mt_info;
+    const int num_workers = mt_info->num_workers;
+    if (num_workers > 1)
+      av1_loop_restoration_filter_frame_mt(
+          &cm->cur_frame->buf, cm, 0, mt_info->workers, num_workers,
+          &mt_info->lr_row_sync, &cpi->lr_ctxt);
+    else
+      av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
+                                        &cpi->lr_ctxt);
+  }
+}
+
 /*!\brief Select and apply cdef filters and switchable restoration filters
  *
  * \ingroup high_level_algo
@@ -2096,19 +2115,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
                            num_planes);
 
       // Try LR on all planes.
-      // TODO(urvang): Refactor.
-      av1_pick_filter_restoration(cpi->source, cpi);
-      if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-          cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-          cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-        if (num_workers > 1)
-          av1_loop_restoration_filter_frame_mt(
-              &cm->cur_frame->buf, cm, 0, mt_info->workers, num_workers,
-              &mt_info->lr_row_sync, &cpi->lr_ctxt);
-        else
-          av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
-                                            &cpi->lr_ctxt);
-      }
+      pick_and_apply_loop_restoration(cpi, cm);
 
       // Calculate errors after LR from source.
       int64_t res_errors[MAX_MB_PLANE];
@@ -2167,18 +2174,7 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
       */
     } else {
 #endif  // CONFIG_CNN_RESTORATION
-      av1_pick_filter_restoration(cpi->source, cpi);
-      if (cm->rst_info[0].frame_restoration_type != RESTORE_NONE ||
-          cm->rst_info[1].frame_restoration_type != RESTORE_NONE ||
-          cm->rst_info[2].frame_restoration_type != RESTORE_NONE) {
-        if (num_workers > 1)
-          av1_loop_restoration_filter_frame_mt(
-              &cm->cur_frame->buf, cm, 0, mt_info->workers, num_workers,
-              &mt_info->lr_row_sync, &cpi->lr_ctxt);
-        else
-          av1_loop_restoration_filter_frame(&cm->cur_frame->buf, cm, 0,
-                                            &cpi->lr_ctxt);
-      }
+      pick_and_apply_loop_restoration(cpi, cm);
 #if CONFIG_CNN_RESTORATION
     }
 #endif  // CONFIG_CNN_RESTORATION
