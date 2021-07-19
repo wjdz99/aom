@@ -1047,7 +1047,12 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     read_cdef(cm, r, xd);
 
 #if CONFIG_CCSO
+#if CONFIG_SDP
+  if (cm->seq_params.enable_ccso && xd->tree_type != LUMA_PART)
+    read_ccso(cm, r, xd);
+#else
   if (cm->seq_params.enable_ccso) read_ccso(cm, r, xd);
+#endif
 #endif
 
   read_delta_q_params(cm, xd, r);

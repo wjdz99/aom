@@ -1638,7 +1638,12 @@ static AOM_INLINE void write_mb_modes_kf(
     write_cdef(cm, xd, w, skip);
 
 #if CONFIG_CCSO
+#if CONFIG_SDP
+  if (cm->seq_params.enable_ccso && xd->tree_type != LUMA_PART)
+    write_ccso(cm, xd, w);
+#else
   if (cm->seq_params.enable_ccso) write_ccso(cm, xd, w);
+#endif
 #endif
 
   write_delta_q_params(cpi, skip, w);
