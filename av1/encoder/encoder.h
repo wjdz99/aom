@@ -3685,6 +3685,7 @@ static const MV_REFERENCE_FRAME
     };
 
 static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
+                                      const int use_one_pass_rt_params,
                                       const YV12_BUFFER_CONFIG **ref_frames,
                                       const int ext_ref_frame_flags) {
   // cpi->ext_flags.ref_frame_flags allows certain reference types to be
@@ -3698,7 +3699,7 @@ static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
     // If this_ref has appeared before, mark the corresponding ref frame as
     // invalid. For nonrd mode, only disable GOLDEN_FRAME if it's the same
     // as LAST_FRAME or ALTREF_FRAME (if ALTREF is being used in nonrd).
-    int index = (sf->rt_sf.use_nonrd_pick_mode &&
+    int index = (use_one_pass_rt_params &&
                  ref_frame_priority_order[i] == GOLDEN_FRAME)
                     ? (1 + sf->rt_sf.use_nonrd_altref_frame)
                     : i;
