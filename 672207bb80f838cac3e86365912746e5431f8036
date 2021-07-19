@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "6d6f71ee_987342c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-19T17:59:26Z",
+      "side": 1,
+      "message": "No worries, Fyodor. It\u0027s good to fix a crash quickly. I was just admitting my inadequacy for reviewing a change to rdopt.c and looking for someone more qualified than me to review it.",
+      "parentUuid": "6e30a535_4ab0bb90",
+      "revId": "672207bb80f838cac3e86365912746e5431f8036",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "dc58715b_e5087e33",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "I wanted to have a \"single point\" of decision if we need to check intrabc mode or not and it looks like it existed here... I can change it, but it will just add an extra \"if\".",
       "parentUuid": "dc58715b_e5087e33",
+      "revId": "672207bb80f838cac3e86365912746e5431f8036",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f18cb364_4be10306",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2900,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-19T17:59:26Z",
+      "side": 1,
+      "message": "Caveat: Since I am not familiar with this code, my comments are likely to be incorrect.\n\nIt is clear that the change will fix the crash but it is not clear to me whether the results computed by the caller (av1_rd_pick_intra_mode_sb) will be correct. This is why I wondered if a fix at a higher level would be better.\n\nI am sorry that I can\u0027t give a more constructive comment due to my lack of knowledge of this code.",
+      "parentUuid": "485aad83_1acb9476",
       "revId": "672207bb80f838cac3e86365912746e5431f8036",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
