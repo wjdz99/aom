@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e28ed37_b32f36ff",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-19T07:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9d8d426_85ec724b",
+      "range": {
+        "startLine": 264,
+        "startChar": 23,
+        "endLine": 264,
+        "endChar": 29
+      },
+      "revId": "7be8b7ae3cbaf3acc65f363a4ea50529feb2dd10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e6dd2b0_2853b260",
@@ -75,6 +99,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08de863d_040434f2",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 944,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-19T07:06:01Z",
+      "side": 1,
+      "message": "Done.\n\n\u003e I believe the source of my confusion is that I don\u0027t know what \"aggressive gating\" means. If we say the gating is more aggressive, do we mean the condition is easier or harder to satisfy?\n\nBy aggressive gating for early termination, we were referring to a condition which is harder to be satisfied, and hence performs the pruning more aggressively. We have replaced \u0027aggressive gating\u0027 with \u0027pruning\u0027 to avoid the confusion.",
+      "parentUuid": "2e6dd2b0_2853b260",
+      "revId": "7be8b7ae3cbaf3acc65f363a4ea50529feb2dd10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d53d0cc6_687b40ec",
@@ -88,6 +130,24 @@
       "writtenOn": "2021-07-16T23:08:37Z",
       "side": 1,
       "message": "Optional: Please add a note to say that level 1 prunes less than level 2, i.e., what level 1 prunes is a subset of what level 2 prunes.",
+      "revId": "7be8b7ae3cbaf3acc65f363a4ea50529feb2dd10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78c8b0c4_851b27d3",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-07-19T07:06:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d53d0cc6_687b40ec",
       "revId": "7be8b7ae3cbaf3acc65f363a4ea50529feb2dd10",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
