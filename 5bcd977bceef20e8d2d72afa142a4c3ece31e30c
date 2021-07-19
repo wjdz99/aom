@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "684a4a0c_7c5283fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-19T22:39:27Z",
+      "side": 1,
+      "message": "LGTM. Thanks!\n\nI made a small change to a comment (to undo what looks like an accidental change).",
+      "revId": "5bcd977bceef20e8d2d72afa142a4c3ece31e30c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
