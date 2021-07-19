@@ -1637,8 +1637,14 @@ static AOM_INLINE void write_mb_modes_kf(
 #endif
     write_cdef(cm, xd, w, skip);
 
+#if CONFIG_SDP
+  if (xd->tree_type != CHROMA_PART) {
+#endif
 #if CONFIG_CCSO
-  if (cm->seq_params.enable_ccso) write_ccso(cm, xd, w);
+    if (cm->seq_params.enable_ccso) write_ccso(cm, xd, w);
+#endif
+#if CONFIG_SDP
+  }
 #endif
 
   write_delta_q_params(cpi, skip, w);

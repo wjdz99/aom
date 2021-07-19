@@ -961,11 +961,11 @@ static void read_delta_q_params(AV1_COMMON *const cm, MACROBLOCKD *const xd,
         read_delta_qindex(cm, xd, r, mbmi) * delta_q_info->delta_q_res;
     /* Normative: Clamp to [1,MAXQ] to not interfere with lossless mode */
 #if CONFIG_EXTQUANT
-    xd->current_base_qindex = clamp(
-        xd->current_base_qindex, 1,
-        cm->seq_params.bit_depth == AOM_BITS_8
-            ? MAXQ_8_BITS
-            : cm->seq_params.bit_depth == AOM_BITS_10 ? MAXQ_10_BITS : MAXQ);
+    xd->current_base_qindex =
+        clamp(xd->current_base_qindex, 1,
+              cm->seq_params.bit_depth == AOM_BITS_8    ? MAXQ_8_BITS
+              : cm->seq_params.bit_depth == AOM_BITS_10 ? MAXQ_10_BITS
+                                                        : MAXQ);
 #else
     xd->current_base_qindex = clamp(xd->current_base_qindex, 1, MAXQ);
 #endif
@@ -1046,8 +1046,14 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 #endif
     read_cdef(cm, r, xd);
 
+#if CONFIG_SDP
+  if (xd->tree_type != CHROMA_PART) {
+#endif
 #if CONFIG_CCSO
-  if (cm->seq_params.enable_ccso) read_ccso(cm, r, xd);
+    if (cm->seq_params.enable_ccso) read_ccso(cm, r, xd);
+#endif
+#if CONFIG_SDP
+  }
 #endif
 
   read_delta_q_params(cm, xd, r);
@@ -1681,7 +1687,9 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
                          .as_int;
       break;
     }
-    default: { return 0; }
+    default: {
+      return 0;
+    }
   }
 
   int ret = is_mv_valid(&mv[0].as_mv);
