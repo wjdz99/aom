@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "6e30a535_4ab0bb90",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-07-19T17:11:37Z",
+      "side": 1,
+      "message": "Sorry, I\u0027ve submitted this already. Please let me know if something is very wrong and I will make another CL.",
+      "parentUuid": "5634c0f1_930a0791",
+      "revId": "672207bb80f838cac3e86365912746e5431f8036",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "dc58715b_e5087e33",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2021-07-19T17:07:14Z",
       "side": 1,
       "message": "I am wondering if it would be better to not call rd_pick_intrabc_mode_sb() if use_nonrd_pick_mode is true. The speed feature name \"use_nonrd_pick_mode\" seems to suggest that rd_pick_..._mode_... should not be called.",
+      "revId": "672207bb80f838cac3e86365912746e5431f8036",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "485aad83_1acb9476",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2900,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-07-19T17:11:37Z",
+      "side": 1,
+      "message": "I wanted to have a \"single point\" of decision if we need to check intrabc mode or not and it looks like it existed here... I can change it, but it will just add an extra \"if\".",
+      "parentUuid": "dc58715b_e5087e33",
       "revId": "672207bb80f838cac3e86365912746e5431f8036",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
