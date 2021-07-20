@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05b1eac5_dbfbd927",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-20T23:45:17Z",
+      "side": 1,
+      "message": "Thanks for the update, I only have one cosmetic comment below.",
+      "revId": "2b99698f35d68024bb0bfce147d23bfd41157f43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4dfc9a2c_e307a611",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 1261,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-20T23:45:17Z",
+      "side": 1,
+      "message": "Please remove this function, if it\u0027s not needed any more.",
+      "revId": "2b99698f35d68024bb0bfce147d23bfd41157f43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
