@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "000e6e65_1a7a333c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-07-20T14:10:20Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs the BUG\u003daomedia:3099 regarding allintra speed 8 has been fixed and other dependent patches have been merged, we have taken care of the comments as per your suggestion and pushed new patchset.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset.\n\nwith --tune\u003dssim,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   3            0.999          0.0007     0.0000\n   4            0.947          0.0017     0.0043\n   5            1.109         -0.0014    -0.0008\n   6            1.135          0.0007     0.0001\n   7            1.230          0.0001     0.0001\n   8            0.262          0.0000     0.0000\n\nThis change is verified to be bit-exact for speed\u003c\u003d2 and speed\u003d9 in allintra encoding mode. For libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nRegards,\nAniket.",
+      "revId": "abf3bc942812e80c14a16081b49ef34fe7c44ad2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
