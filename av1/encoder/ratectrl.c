@@ -2743,6 +2743,8 @@ static int set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
     gf_group->size = p_rc->baseline_gf_interval;
     gf_group->update_type[0] =
         (frame_type == KEY_FRAME) ? KF_UPDATE : GF_UPDATE;
+    gf_group->refbuf_state[cpi->gf_frame_index] =
+        (frame_type == KEY_FRAME) ? REFBUF_RESET : REFBUF_UPDATE;
     gf_update = 1;
   }
   return gf_update;
