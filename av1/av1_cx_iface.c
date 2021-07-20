@@ -2757,6 +2757,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
         }
       }
       av1_post_encode_updates(cpi_lap, &cpi_lap_data);
+      cpi_lap_data.pop_lookahead = 0;
     }
 
     // Get the next visible frame. Invisible frames get packed with the next
