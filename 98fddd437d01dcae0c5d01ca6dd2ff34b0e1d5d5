@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "327c06a5_ba8c454b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2021-07-20T18:06:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch moves the increment of twopass stats_in pointer to av1_twopass_postencode().\n\nIn the case of frame parallel encode, each frame level context will have its own offset into the twopass stats buffers(depending on their display order hint). Although these offsets are different, only the frame which is encoding in its correct encode order(and not ahead of time), must increment this offset so that further frames in the encode order can encode correctly. To facilitate this, the increment of stats_in is moved to the postencode stage.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --good, --rt, --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc.\n\nPlease review.",
+      "revId": "98fddd437d01dcae0c5d01ca6dd2ff34b0e1d5d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
