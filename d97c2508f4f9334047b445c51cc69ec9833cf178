@@ -56,6 +56,30 @@
       },
       "revId": "d97c2508f4f9334047b445c51cc69ec9833cf178",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1889861_3c89fa88",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-07-20T14:08:03Z",
+      "side": 1,
+      "message": "Yes, second case can be true as colors can take a value of PALETTE_MIN_SIZE (i.e. 2). Also when colors\u003d2, the evaluation order does not matter as palette evaluation is performed only for one case.",
+      "parentUuid": "d09f706f_6ad8fc65",
+      "range": {
+        "startLine": 522,
+        "startChar": 0,
+        "endLine": 523,
+        "endChar": 38
+      },
+      "revId": "d97c2508f4f9334047b445c51cc69ec9833cf178",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
