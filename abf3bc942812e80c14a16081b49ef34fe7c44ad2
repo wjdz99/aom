@@ -16,6 +16,29 @@
       "message": "Hi Wan-Teh,\n\nAs the BUG\u003daomedia:3099 regarding allintra speed 8 has been fixed and other dependent patches have been merged, we have taken care of the comments as per your suggestion and pushed new patchset.\n\nFollowing are instruction count reduction results when AVIF encode was tested for a typical image dataset.\n\nwith --tune\u003dssim,\n\n          Instruction Count    BD-Rate Loss(%)\ncpu-used     Reduction(%)      psnr       ssim\n   3            0.999          0.0007     0.0000\n   4            0.947          0.0017     0.0043\n   5            1.109         -0.0014    -0.0008\n   6            1.135          0.0007     0.0001\n   7            1.230          0.0001     0.0001\n   8            0.262          0.0000     0.0000\n\nThis change is verified to be bit-exact for speed\u003c\u003d2 and speed\u003d9 in allintra encoding mode. For libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nRegards,\nAniket.",
       "revId": "abf3bc942812e80c14a16081b49ef34fe7c44ad2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cdb81da_96cb5a22",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 964,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-20T20:08:11Z",
+      "side": 1,
+      "message": "As far as I know, prune_luma_palette_size_search_level is used to control two aspects of palette pruning.\n1. It controls the thresholds for header_rd vs best_rd in the pruning process. i.e. if it\u0027s 1, then the threshold is set as 2 * best_rd. If it\u0027s 2, then the threshold is set as best_rd.\n2. It controls how the actual search is performed. If it\u0027s 2, then we do two searches, one in ascending order and one in descending order. Furthermore, we would prune the descending search using the header constraint. If it\u0027s 1, then we would do a coarse to fine search instead.\n\nIn general, I think this gets confusing when a single speed feature controls several aspects of palette search, especially since some of the subtleties are not documented here.\nI would prefer to split this speed feature into two parts - one that controls the header_rd threshold, and one that determines the search order/strategy.\nThis is not urgent, so we can either deal with it in this commit or a separate one.",
+      "range": {
+        "startLine": 964,
+        "startChar": 6,
+        "endLine": 964,
+        "endChar": 43
+      },
+      "revId": "abf3bc942812e80c14a16081b49ef34fe7c44ad2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
