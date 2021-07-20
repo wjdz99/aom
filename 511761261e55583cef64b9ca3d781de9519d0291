@@ -16,6 +16,86 @@
       "message": "Dear Debargha and Urvang,\n\nPlease review this CL from Onur.",
       "revId": "511761261e55583cef64b9ca3d781de9519d0291",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c90ad93d_d2c58950",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-20T18:18:54Z",
+      "side": 1,
+      "message": "A few cosmetic comments, but otherwise looks good",
+      "revId": "511761261e55583cef64b9ca3d781de9519d0291",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62f7b382_5ba65728",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-20T18:18:54Z",
+      "side": 1,
+      "message": "Add explicit cast maybe, to avoid any compiler warnings.",
+      "range": {
+        "startLine": 304,
+        "startChar": 12,
+        "endLine": 304,
+        "endChar": 17
+      },
+      "revId": "511761261e55583cef64b9ca3d781de9519d0291",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a169256e_7e1019ef",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3034,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-20T18:18:54Z",
+      "side": 1,
+      "message": "Note for later: to support this, one way is to normalize pixel values in [0,1] range (normalizing depending on bit depth).",
+      "range": {
+        "startLine": 3034,
+        "startChar": 0,
+        "endLine": 3034,
+        "endChar": 50
+      },
+      "revId": "511761261e55583cef64b9ca3d781de9519d0291",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d065d40_71135328",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3036,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-20T18:18:54Z",
+      "side": 1,
+      "message": "Could you add a comment here / elsewhere appropriate on the exact order of exported data?\ne.g\nwidth,height\nsrc_frame0, pre_lr_frame0, post_lr_frame0, qstep0\n...",
+      "revId": "511761261e55583cef64b9ca3d781de9519d0291",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
