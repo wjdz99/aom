@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98c7eeed_53aa247a",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2010,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-20T20:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01a0e774_f3d6e14e",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a3aae017_77f24949",
@@ -65,6 +83,24 @@
       "writtenOn": "2021-07-14T19:22:15Z",
       "side": 1,
       "message": "same as above",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad2a781d_8f6fc39c",
+        "filename": "av1/common/av1_common_int.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 2017,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-20T20:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3aae017_77f24949",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -192,6 +228,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b03d10e_da335af1",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-20T20:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fb11a0c_74a4bd4f",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "230bcd80_7cfba95f",
@@ -205,6 +259,24 @@
       "writtenOn": "2021-07-14T19:22:15Z",
       "side": 1,
       "message": "If I understand correctly, write_tx_partition is used to write the transform partition type for inter blocks and write_tx_partition_intra is used to write the transform partition type for intra blocks, and the most of the code in these two functions are repeated. The difference between the signaling of intra and inter transform partition type is the context, is it right? If yes, please try to use only one function to signal both the intra and inter transform partition type.",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "051de356_34a14418",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-20T20:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "230bcd80_7cfba95f",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -332,6 +404,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "27a125d7_16a2c29a",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-20T20:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6250a188_a49264b1",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f36b3467_6dae5460",
@@ -351,6 +441,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ee324520_f91316fa",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-20T20:11:32Z",
+      "side": 1,
+      "message": "Same comment as earlier",
+      "parentUuid": "f36b3467_6dae5460",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ae47c73d_338177ac",
         "filename": "av1/encoder/tokenize.c",
         "patchSetId": 12
@@ -362,6 +470,24 @@
       "writtenOn": "2021-07-14T19:22:15Z",
       "side": 1,
       "message": "Same as above",
+      "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ad21028_ac1217ca",
+        "filename": "av1/encoder/tokenize.c",
+        "patchSetId": 12
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-07-20T20:11:32Z",
+      "side": 1,
+      "message": "Same comment as earlier",
+      "parentUuid": "ae47c73d_338177ac",
       "revId": "471fd9a02c3fc8dfb9a9b137abfda527649d4052",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
