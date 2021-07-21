@@ -87,6 +87,24 @@
       "parentUuid": "5a63a67a_5089de06",
       "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32d2f57d_4c9a3b68",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2365,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T22:14:36Z",
+      "side": 1,
+      "message": "I defer this decision to you. I found this location by searching for \"\\r\" in this file and I was just wondering whether every write of \u0027\\r\u0027 should be followed by a flush.\n\nIt would be helpful to add a comment to explain the flush(stderr) that you added at line 2260.",
+      "parentUuid": "8233d5bb_75075827",
+      "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
