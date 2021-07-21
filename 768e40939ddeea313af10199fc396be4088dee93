@@ -58,6 +58,48 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb741eb4_3af43c99",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f5dbcd86_ba15cb14",
+      "range": {
+        "startLine": 511,
+        "startChar": 7,
+        "endLine": 511,
+        "endChar": 10
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f489a4f3_d88700fa",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd9fb4c6_53824f88",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a04f0e57_c421d91d",
@@ -71,6 +113,30 @@
       "writtenOn": "2021-07-21T00:20:06Z",
       "side": 1,
       "message": "I think we should compare *dst !\u003d default_src instead of strcmp(*dst, default_src) !\u003d 0. The *dst !\u003d default_src check is a stronger check to verify that line 523 was executed.",
+      "range": {
+        "startLine": 517,
+        "startChar": 31,
+        "endLine": 517,
+        "endChar": 61
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff989fcb_746c4b0b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Yeah that makes more sense. Thanks!",
+      "parentUuid": "a04f0e57_c421d91d",
       "range": {
         "startLine": 517,
         "startChar": 31,
@@ -98,6 +164,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d89ce7f3_d2e9afcd",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f12d43b2_27e858e8",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e2cbfc7f_d4fa473a",
@@ -115,6 +199,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14542096_8f4e9c8b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e2cbfc7f_d4fa473a",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "731fdd3c_c1001e1e",
@@ -128,6 +230,24 @@
       "writtenOn": "2021-07-21T00:20:06Z",
       "side": 1,
       "message": "Use memcpy() instead:\n\n  memcpy(tmp, src, len);",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f564b00a_26332004",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "731fdd3c_c1001e1e",
       "revId": "768e40939ddeea313af10199fc396be4088dee93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -151,6 +271,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1782c92b_7b553bdc",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "It should stay valid as the strings are only freed when encoder_destroy was called, at which time we probably do not care about oxcf anymore.",
+      "parentUuid": "563cf3df_69ecb9bf",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "172c7950_5f469d5b",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 11
@@ -162,6 +300,24 @@
       "writtenOn": "2021-07-21T00:20:06Z",
       "side": 1,
       "message": "Note: Please make the same changes to the similar code below.\n\n1. In the error message, change \"space\" to memory.\n2. Change the return value to AOM_CODEC_MEM_ERROR. If we change allocate_and_set_string() to return aom_codec_err_t, then we can just return its return value. However, the error message is only correct for AOM_CODEC_NO_MEM, not for the !str case.",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a598543_0b3d6575",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2125,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "172c7950_5f469d5b",
       "revId": "768e40939ddeea313af10199fc396be4088dee93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -189,6 +345,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b187a819_a89ae6b0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2495,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7513ca7e_79c48bb8",
+      "range": {
+        "startLine": 2495,
+        "startChar": 29,
+        "endLine": 2495,
+        "endChar": 59
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d17771f3_4433b41e",
@@ -202,6 +382,24 @@
       "writtenOn": "2021-07-21T00:20:06Z",
       "side": 1,
       "message": "Nit: Omit the \"else\" after a return statement:\n\n  if (default_str \u0026\u0026 *ptr \u0026\u0026 strcmp(default_str, *ptr) \u003d\u003d 0) {\n    // Default should be a literal. Do not free.\n    return;\n  }\n  aom_free((void *)*ptr);\n  *ptr \u003d default_str;",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7cd87a9_a1ffaf22",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2498,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d17771f3_4433b41e",
       "revId": "768e40939ddeea313af10199fc396be4088dee93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -246,6 +444,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20684f4b_34c0bc58",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3385,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbb929f6_0cb53e23",
+      "range": {
+        "startLine": 3385,
+        "startChar": 35,
+        "endLine": 3385,
+        "endChar": 40
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "abfb935d_d111d854",
@@ -259,6 +481,24 @@
       "writtenOn": "2021-07-21T00:20:06Z",
       "side": 1,
       "message": "Nit: Ideally we should figure out a way to return AOM_CODEC_MEM_ERROR instead of AOM_CODEC_INVALID_PARAM after an allocate_and_set_string() failure.",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b24d44a0_5643fbdf",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3713,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-21T18:03:04Z",
+      "side": 1,
+      "message": "Added a variable to store the return value and check it here.",
+      "parentUuid": "abfb935d_d111d854",
       "revId": "768e40939ddeea313af10199fc396be4088dee93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
