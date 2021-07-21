@@ -1,0 +1,266 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd06fb28_35ce95f9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Bohan: I suggest some changes. Thanks!",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5dbcd86_ba15cb14",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Nit/optional: I suggest we change the return type to aom_codec_err_t so that we can return AOM_CODEC_INVALID_PARAM at line 513 and AOM_CODEC_NO_MEM at line 527. Alternatively, we can require that the caller pass a non-null \u0027src\u0027 argument to this function. Then we can remove line 513 and this function will only fail for out-of-memory errors.",
+      "range": {
+        "startLine": 511,
+        "startChar": 7,
+        "endLine": 511,
+        "endChar": 10
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd9fb4c6_53824f88",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Nit: Please add a function comment that summarizes what this function does. No need to write a Doxygen comment.",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a04f0e57_c421d91d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "I think we should compare *dst !\u003d default_src instead of strcmp(*dst, default_src) !\u003d 0. The *dst !\u003d default_src check is a stronger check to verify that line 523 was executed.",
+      "range": {
+        "startLine": 517,
+        "startChar": 31,
+        "endLine": 517,
+        "endChar": 61
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f12d43b2_27e858e8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Declare \u0027len\u0027 as size_t:\n\n    size_t len \u003d strlen(src) + 1;",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e2cbfc7f_d4fa473a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "sizeof(tmp) is incorrect because \u0027tmp\u0027 is a pointer. It should be sizeof(*tmp), sizeof(tmp[0]), or sizeof(char). Since sizeof(char) is 1 (see https://stackoverflow.com/questions/2215445/are-there-machines-where-sizeofchar-1-or-at-least-char-bit-8), I suggesr we omit the sizeof.",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "731fdd3c_c1001e1e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Use memcpy() instead:\n\n  memcpy(tmp, src, len);",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "563cf3df_69ecb9bf",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "This is another scenario where we may need to copy the string. Have you verified that extra_cfg will stay valid during the lifetime of oxcf? If so, then it is safe to just copy the string pointer (i.e., a shallow copy).",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "172c7950_5f469d5b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2125,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Note: Please make the same changes to the similar code below.\n\n1. In the error message, change \"space\" to memory.\n2. Change the return value to AOM_CODEC_MEM_ERROR. If we change allocate_and_set_string() to return aom_codec_err_t, then we can just return its return value. However, the error message is only correct for AOM_CODEC_NO_MEM, not for the !str case.",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7513ca7e_79c48bb8",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2495,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "It seems that we should check default_str \u003d\u003d *ptr instead of strcmp(default_str, *ptr) \u003d\u003d 0.",
+      "range": {
+        "startLine": 2495,
+        "startChar": 29,
+        "endLine": 2495,
+        "endChar": 59
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d17771f3_4433b41e",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2498,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Nit: Omit the \"else\" after a return statement:\n\n  if (default_str \u0026\u0026 *ptr \u0026\u0026 strcmp(default_str, *ptr) \u003d\u003d 0) {\n    // Default should be a literal. Do not free.\n    return;\n  }\n  aom_free((void *)*ptr);\n  *ptr \u003d default_str;",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11ab17f1_28398c2a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2500,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Why do we set *ptr to default_str after freeing the string?\n\nUsually we set a pointer to NULL after freeing it.",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbb929f6_0cb53e23",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3385,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Note: Please make the same change to the similar error messages below.\n\nChange \"space\" to \"memory\".",
+      "range": {
+        "startLine": 3385,
+        "startChar": 35,
+        "endLine": 3385,
+        "endChar": 40
+      },
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abfb935d_d111d854",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 3713,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T00:20:06Z",
+      "side": 1,
+      "message": "Nit: Ideally we should figure out a way to return AOM_CODEC_MEM_ERROR instead of AOM_CODEC_INVALID_PARAM after an allocate_and_set_string() failure.",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
