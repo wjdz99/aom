@@ -306,4 +306,34 @@ TEST(TplModelTest, QModeEstimateBaseQTest) {
   }
 }
 
+TEST(TplModelTest, ComputeMVBitsTest) {
+  TplDepFrame tpl_frame;
+  tpl_frame.is_valid = true;
+  tpl_frame.mi_rows = 16;
+  tpl_frame.mi_cols = 16;
+  tpl_frame.stride = 24;
+  uint8_t right_shift = 2;
+  int step = 1 << right_shift;
+  int mv_val = 0;  // Example values for motion vectors.
+
+  tpl_frame.tpl_stats_ptr = new TplDepStats[128];
+
+  for (int row = 0; row < tpl_frame.mi_rows; row += step) {
+    for (int col = 0; col < tpl_frame.mi_cols; col += step) {
+      TplDepStats tpl_stats;
+      tpl_stats.ref_frame_index[0] = 0;
+      int_mv mv;
+      mv.as_mv.row = mv_val;
+      mv.as_mv.col = mv_val;
+      mv_val++;
+      tpl_stats.mv[0] = mv;
+      tpl_frame.tpl_stats_ptr[av1_tpl_ptr_pos(row, col, tpl_frame.stride,
+                                              right_shift)] = tpl_stats;
+    }
+  }
+
+  double result = av1_tpl_compute_frame_mv_entropy(&tpl_frame, right_shift);
+  EXPECT_EQ(result, 128);
+}
+
 }  // namespace
