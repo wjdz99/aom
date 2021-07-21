@@ -16,6 +16,24 @@
       "message": "So this feature wouldn\u0027t help speed 7+, right?",
       "revId": "1d680840db256670ee260793e6e079fc3ad1efd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb85480a_482f1bbe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-21T20:21:28Z",
+      "side": 1,
+      "message": "Yes, the speed feature is disabled on speed 7+ because it provides no speed up but adds some noise to the BDRate.",
+      "parentUuid": "40459cbf_91302adb",
+      "revId": "1d680840db256670ee260793e6e079fc3ad1efd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
