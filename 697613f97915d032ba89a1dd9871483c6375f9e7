@@ -69,6 +69,24 @@
       "message": "This is the other fprintf() statement that writes a string beginning with \u0027\\r\u0027 to stderr. Should we also add flush(stderr) after this fprintf() statement?",
       "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8233d5bb_75075827",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2365,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-07-21T21:55:17Z",
+      "side": 1,
+      "message": "For this location, I\u0027m not sure if it\u0027s really needed as the main reason why the original issue was created was because a lot of stream readers rely on the presence of `\\r`, `\\n`, or `\\r\\n` to determine when to send an event for the client to read from, such as the one for dotnet https://referencesource.microsoft.com/#System/services/monitoring/system/diagnosticts/AsyncStreamReader.cs,226, and they are often used to determine when to read from aomenc to get the current frame count and fps, so I do not think it\u0027s as important to flush right before the end of a pass.\n\n\nI could send a cl for adding one here just in case if it\u0027s wanted",
+      "parentUuid": "5a63a67a_5089de06",
+      "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
