@@ -149,8 +149,38 @@ void av1_nn_softmax(const float *input, float *output, int n) {
   for (int i = 0; i < n; i++) {
     // Clamp to range [-10.0, 0.0] to prevent FE_UNDERFLOW errors.
     const float normalized_input = AOMMAX(input[i] - max_inp, -10.0f);
-    output[i] = (float)exp(normalized_input);
+    output[i] = expf(normalized_input);
     sum_out += output[i];
   }
   for (int i = 0; i < n; i++) output[i] /= sum_out;
+}
+
+static AOM_INLINE float approx_exp(float y) {
+#define A ((1 << 23) / 0.69314718056f)  // (1 << 23) / ln(2)
+#define B \
+  127  // Offset for the exponent according to IEEE floating point standard.
+#define C 60801  // Magic number controls the accuracy of approximation
+  union float_alias {
+    float as_float;
+    int32_t as_int32;
+  } container;
+  container.as_int32 = ((int32_t)(y * A)) + ((B << 23) - C);
+  return container.as_float;
+#undef A
+#undef B
+#undef C
+}
+
+void av1_nn_fast_softmax_16_c(const float *input, float *output) {
+  const int num_classes = 16;
+  float max_inp = input[0];
+  for (int i = 1; i < num_classes; i++) max_inp = AOMMAX(max_inp, input[i]);
+  float sum_out = 0.0f;
+  for (int i = 0; i < num_classes; i++) {
+    // Clamp to range [-10.0, 0.0] to prevent FE_UNDERFLOW errors.
+    const float normalized_input = AOMMAX(input[i] - max_inp, -10.0f);
+    output[i] = approx_exp(normalized_input);
+    sum_out += output[i];
+  }
+  for (int i = 0; i < num_classes; i++) output[i] /= sum_out;
 }
