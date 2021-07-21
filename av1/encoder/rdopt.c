@@ -1269,6 +1269,12 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
       }
 #if CONFIG_NEW_REF_SIGNALING
       // TODO(sarahparker) Temporary assert, see aomedia:3060
+      if (!is_same_wm_params(&cm->global_motion_nrs[ref_frames_nrs[0]],
+                               &cm->global_motion[ref_frames[0]]))
+        printf("debug\n");
+    const RefCntBuffer *const buf1 = get_ref_frame_buf_nrs(cm, ref_frames_nrs[0]);
+    const RefCntBuffer *const buf2 = get_ref_frame_buf(cm, ref_frames[0]);
+    //const int frame_order = (int)buf->display_order_hint;
       assert(is_same_wm_params(&cm->global_motion_nrs[ref_frames_nrs[0]],
                                &cm->global_motion[ref_frames[0]]));
       if (ref_mv_count == 1 &&
