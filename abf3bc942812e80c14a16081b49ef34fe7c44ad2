@@ -63,6 +63,30 @@
       },
       "revId": "abf3bc942812e80c14a16081b49ef34fe7c44ad2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49713cee_d957b1ac",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 964,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-21T17:44:01Z",
+      "side": 1,
+      "message": "Ack\nThanks for the clarification.",
+      "parentUuid": "e160c192_effeb8c6",
+      "range": {
+        "startLine": 964,
+        "startChar": 6,
+        "endLine": 964,
+        "endChar": 43
+      },
+      "revId": "abf3bc942812e80c14a16081b49ef34fe7c44ad2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
