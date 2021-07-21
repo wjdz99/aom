@@ -34,6 +34,41 @@
       "parentUuid": "e63793a0_4c5ee1e8",
       "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "440ceacb_edaf8626",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T21:43:23Z",
+      "side": 1,
+      "message": "Hi Christopher,\n\nThank you for the reply. I have a question for you at line 2365.\n\nBefore I saw this bug, I had been assuming that by default the stderr stream is\nunbuffered. While researching this bug, I found that this is only a convention\non Unix, and C99 only requires that stderr be not \"fully buffered\", which means\nstderr can be unbuffered or line buffered. So I guess mingw-w64 gcc on Windows\nchose to make stderr line buffered, even though it differs from the Unix\nconvention.\n\nHere is an excerpt from C99:\n\n    7.19.3 Files\n    \n    ...\n    \n    3  When a stream is unbuffered, characters are intended to appear from the\n       source or at the destination as soon as possible. Otherwise characters\n       may be accumulated and transmitted to or from the host environment as a\n       block. When a stream is fully buffered, characters are intended to be\n       transmitted to or from the host environment as a block when a buffer is\n       filled. When a stream is line buffered, characters are intended to be\n       transmitted to or from the host environment as a block when a new-line\n       character is encountered. ...\n\n    ...\n    \n    7  ... As initially opened, the standard error stream is not fully buffered;\n       the standard input and standard output streams are fully buffered if and\n       only if the stream can be determined not to refer to an interactive device.",
+      "parentUuid": "4a09854f_03ad170b",
+      "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a63a67a_5089de06",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2365,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-21T21:43:23Z",
+      "side": 1,
+      "message": "This is the other fprintf() statement that writes a string beginning with \u0027\\r\u0027 to stderr. Should we also add flush(stderr) after this fprintf() statement?",
+      "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
