@@ -39,6 +39,30 @@
       },
       "revId": "abf3bc942812e80c14a16081b49ef34fe7c44ad2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e160c192_effeb8c6",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 964,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-07-21T04:55:20Z",
+      "side": 1,
+      "message": "Hi Chi Yo Tsai,\nThere are two separate sfs to control the aspects you have highlighted. The sf \"prune_palette_search_level\" controls the search strategy to be used (i.e. second aspect in the above) and the sf \"prune_luma_palette_size_search_level\" (renamed from \"early_term_luma_palette_size_search\") is used to perform early termination based on header rd cost (i.e. the first aspect in the above).\n\nPlease let us know if you see any issues with above.",
+      "parentUuid": "2cdb81da_96cb5a22",
+      "range": {
+        "startLine": 964,
+        "startChar": 6,
+        "endLine": 964,
+        "endChar": 43
+      },
+      "revId": "abf3bc942812e80c14a16081b49ef34fe7c44ad2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
