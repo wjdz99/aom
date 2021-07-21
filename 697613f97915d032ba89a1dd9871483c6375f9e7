@@ -16,6 +16,24 @@
       "message": "Hi Christopher,\n\nI am wondering why it is necessary to flush stderr. The stderr stream is unbuffered by default. Does aomenc change stderr to be a buffered stream? I don\u0027t see any setbuf() or setvbuf() in libaom.",
       "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a09854f_03ad170b",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-07-21T17:16:59Z",
+      "side": 1,
+      "message": "As far as I know, mingw-w64 gcc on windows does something different from msvc and stderr is buffered, and that can cause an issue for people who use aomenc and are using the stderr to try to get progress from that output through some languages like C#, visual basic, and I assume python.\n\nThe original issue linked to https://github.com/AOMediaCodec/SVT-AV1/issues/1348\n\ndidn\u0027t realize this wasn\u0027t sent",
+      "parentUuid": "e63793a0_4c5ee1e8",
+      "revId": "697613f97915d032ba89a1dd9871483c6375f9e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
