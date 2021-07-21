@@ -1621,7 +1621,8 @@ static void generate_psnr_packet(AV1_COMP *cpi) {
   aom_codec_pkt_list_add(cpi->output_pkt_list, &pkt);
 }
 
-int av1_use_as_reference(int *ext_ref_frame_flags, int ref_frame_flags) {
+int av1_use_as_reference(int *ext_ref_frame_flags,
+                         int ref_frame_flags) {
   if (ref_frame_flags > ((1 << INTER_REFS_PER_FRAME) - 1)) return -1;
 
   *ext_ref_frame_flags = ref_frame_flags;

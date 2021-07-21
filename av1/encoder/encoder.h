@@ -2022,6 +2022,13 @@ typedef struct {
  * \brief Flags signalled by the external interface at frame level.
  */
 typedef struct {
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Bit mask to disable certain reference frame types.
+   */
+  int ref_frame_flags_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   /*!
    * Bit mask to disable certain reference frame types.
    */
