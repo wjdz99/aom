@@ -299,13 +299,27 @@ int av1_rc_get_default_max_gf_interval(double framerate, int min_gf_interval) {
   interval = AOMMAX(MAX_GF_INTERVAL, interval);
   return AOMMAX(interval, min_gf_interval);
 }
+void av1_init_avg_frame_qindex(const AV1EncoderConfig *oxcf,
+                               PRIMARY_RATE_CONTROL *p_rc) {
+  const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
+  int worst_allowed_q = rc_cfg->worst_allowed_q;
+
+  if (oxcf->target_seq_level_idx[0] < SEQ_LEVELS) {
+    worst_allowed_q = 255;
+  }
+  if (oxcf->pass == AOM_RC_ONE_PASS && rc_cfg->mode == AOM_CBR) {
+    p_rc->avg_frame_qindex[KEY_FRAME] = worst_allowed_q;
+    p_rc->avg_frame_qindex[INTER_FRAME] = worst_allowed_q;
+  } else {
+    p_rc->avg_frame_qindex[KEY_FRAME] =
+        (worst_allowed_q + rc_cfg->best_allowed_q) / 2;
+    p_rc->avg_frame_qindex[INTER_FRAME] =
+        (worst_allowed_q + rc_cfg->best_allowed_q) / 2;
+  }
+}
 
 void av1_primary_rc_init(const AV1EncoderConfig *oxcf,
                          PRIMARY_RATE_CONTROL *p_rc) {
-  const RateControlCfg *const rc_cfg = &oxcf->rc_cfg;
-
-  int worst_allowed_q = rc_cfg->worst_allowed_q;
-
   int min_gf_interval = oxcf->gf_cfg.min_gf_interval;
   int max_gf_interval = oxcf->gf_cfg.max_gf_interval;
   if (min_gf_interval == 0)
@@ -322,18 +336,7 @@ void av1_primary_rc_init(const AV1EncoderConfig *oxcf,
 
   p_rc->tot_q = 0.0;
 
-  if (oxcf->target_seq_level_idx[0] < SEQ_LEVELS) {
-    worst_allowed_q = 255;
-  }
-  if (oxcf->pass == AOM_RC_ONE_PASS && rc_cfg->mode == AOM_CBR) {
-    p_rc->avg_frame_qindex[KEY_FRAME] = worst_allowed_q;
-    p_rc->avg_frame_qindex[INTER_FRAME] = worst_allowed_q;
-  } else {
-    p_rc->avg_frame_qindex[KEY_FRAME] =
-        (worst_allowed_q + rc_cfg->best_allowed_q) / 2;
-    p_rc->avg_frame_qindex[INTER_FRAME] =
-        (worst_allowed_q + rc_cfg->best_allowed_q) / 2;
-  }
+  av1_init_avg_frame_qindex(oxcf, p_rc);
 }
 
 void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc,
@@ -360,6 +363,7 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc,
   rc->ni_tot_qi = 0;
   rc->avg_q = av1_convert_qindex_to_q(rc_cfg->worst_allowed_q,
                                       oxcf->tool_cfg.bit_depth);
+  if (rc_cfg->mode == AOM_Q) rc->active_worst_quality = oxcf->rc_cfg.cq_level;
 
   for (i = 0; i < RATE_FACTOR_LEVELS; ++i) {
     rc->rate_correction_factors[i] = 0.7;

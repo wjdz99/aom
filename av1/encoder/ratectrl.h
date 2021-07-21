@@ -473,6 +473,9 @@ double av1_convert_qindex_to_q(int qindex, aom_bit_depth_t bit_depth);
 
 void av1_rc_init_minq_luts(void);
 
+void av1_init_avg_frame_qindex(const struct AV1EncoderConfig *oxcf,
+                               PRIMARY_RATE_CONTROL *p_rc);
+
 int av1_rc_get_default_min_gf_interval(int width, int height, double framerate);
 // Note av1_rc_get_default_max_gf_interval() requires the min_gf_interval to
 // be passed in to ensure that the max_gf_interval returned is at least as bis

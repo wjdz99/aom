@@ -3625,8 +3625,6 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
     }
   }
 
-  if (oxcf->rc_cfg.mode == AOM_Q)
-    rc->active_worst_quality = oxcf->rc_cfg.cq_level;
   FIRSTPASS_STATS this_frame;
   av1_zero(this_frame);
   // call above fn

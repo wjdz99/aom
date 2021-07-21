@@ -667,6 +667,8 @@ void av1_change_config_seq(struct AV1_PRIMARY *ppi,
 #if CONFIG_AV1_HIGHBITDEPTH
   highbd_set_var_fns(ppi);
 #endif
+
+  av1_init_avg_frame_qindex(oxcf, &ppi->p_rc);
 }
 
 void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
@@ -789,6 +791,7 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   // Set absolute upper and lower quality limits
   rc->worst_quality = rc_cfg->worst_allowed_q;
   rc->best_quality = rc_cfg->best_allowed_q;
+  if (rc_cfg->mode == AOM_Q) rc->active_worst_quality = oxcf->rc_cfg.cq_level;
 
   cm->features.interp_filter =
       oxcf->tile_cfg.enable_large_scale_tile ? EIGHTTAP_REGULAR : SWITCHABLE;
