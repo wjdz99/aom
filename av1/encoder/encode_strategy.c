@@ -1449,6 +1449,31 @@ void av1_get_ref_frames(const RefBufferStack *ref_buffer_stack,
 #endif  // CONFIG_FRAME_PARALLEL_ENCODE
 }
 
+#if CONFIG_FRAME_PARALLEL_ENCODE
+static void copy_mv_stats_from_ppi_to_cpi(AV1_COMP *cpi) {
+  MV_STATS *mv_stats_ppi = &cpi->ppi->mv_stats;
+  MV_STATS *mv_stats_cpi = &cpi->mv_stats;
+
+  mv_stats_cpi->high_prec = mv_stats_ppi->high_prec;
+  mv_stats_cpi->q = mv_stats_ppi->q;
+  mv_stats_cpi->order = mv_stats_ppi->order;
+  mv_stats_cpi->inter_count = mv_stats_ppi->inter_count;
+  mv_stats_cpi->intra_count = mv_stats_ppi->intra_count;
+  mv_stats_cpi->default_mvs = mv_stats_ppi->default_mvs;
+  for (int i = 0; i < 4; i++)
+    mv_stats_cpi->mv_joint_count[i] = mv_stats_ppi->mv_joint_count[i];
+  mv_stats_cpi->last_bit_zero = mv_stats_ppi->last_bit_zero;
+  mv_stats_cpi->last_bit_nonzero = mv_stats_ppi->last_bit_nonzero;
+  mv_stats_cpi->total_mv_rate = mv_stats_ppi->total_mv_rate;
+  mv_stats_cpi->hp_total_mv_rate = mv_stats_ppi->hp_total_mv_rate;
+  mv_stats_cpi->lp_total_mv_rate = mv_stats_ppi->lp_total_mv_rate;
+  mv_stats_cpi->horz_text = mv_stats_ppi->horz_text;
+  mv_stats_cpi->vert_text = mv_stats_ppi->vert_text;
+  mv_stats_cpi->diag_text = mv_stats_ppi->diag_text;
+  mv_stats_cpi->valid = mv_stats_ppi->valid;
+}
+#endif
+
 int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
                         uint8_t *const dest, unsigned int *frame_flags,
                         int64_t *const time_stamp, int64_t *const time_end,
@@ -1513,6 +1538,8 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
         cpi->rc.frame_level_rate_correction_factors[i] =
             cpi->ppi->p_rc.temp_rate_correction_factors[i];
     }
+    // copy mv_stats from ppi to frame_level cpi.
+    copy_mv_stats_from_ppi_to_cpi(cpi);
 #endif
     av1_get_second_pass_params(cpi, &frame_params, &frame_input, *frame_flags);
 #if CONFIG_COLLECT_COMPONENT_TIMING
@@ -1821,12 +1848,6 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     return AOM_CODEC_ERROR;
   }
 #endif  // CONFIG_REALTIME_ONLY
-
-#if CONFIG_FRAME_PARALLEL_ENCODE
-  // Store current frame's largest MV component in ppi.
-  if (!is_stat_generation_stage(cpi) && cpi->do_frame_data_update)
-    cpi->ppi->max_mv_magnitude = cpi->mv_search_params.max_mv_magnitude;
-#endif
 
   if (!is_stat_generation_stage(cpi)) {
     // First pass doesn't modify reference buffer assignment or produce frame
