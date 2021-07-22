@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a0d0afa_9c23f548",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T22:42:28Z",
+      "side": 1,
+      "message": "This commit does not have any performance change.\nIf we enter the conditional statement on line 1853, then we only have one mode that\u0027s available. So the second round of pruning starting with\nif (prune_2d_txfm_mode \u003e\u003d TX_TYPE_PRUNE_4) will not actually remove any more tx_type.",
+      "parentUuid": "c0a9331b_cf9e0972",
+      "revId": "d3eb6d042f83d1b1529e496fcbd9c7022d3f685f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19c24d3f_0be84534",
@@ -55,6 +73,30 @@
       "side": 1,
       "message": "Please ignore the above comment. What you said is correct.",
       "parentUuid": "19c24d3f_0be84534",
+      "range": {
+        "startLine": 1854,
+        "startChar": 6,
+        "endLine": 1855,
+        "endChar": 27
+      },
+      "revId": "d3eb6d042f83d1b1529e496fcbd9c7022d3f685f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c4f35f06_ad50fb39",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1855,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T22:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e268909_ae147c8e",
       "range": {
         "startLine": 1854,
         "startChar": 6,
