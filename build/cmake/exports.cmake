@@ -27,6 +27,7 @@ function(setup_exports_target)
 
   set(aom_sym_file "${AOM_CONFIG_DIR}/libaom.${symbol_file_ext}")
 
+<<<<<<< HEAD   (9c45f6 rtc: Fixes to the reference structure)
   add_custom_target(
     generate_exports
     COMMAND ${CMAKE_COMMAND}
@@ -46,6 +47,25 @@ function(setup_exports_target)
             "${AOM_ROOT}/build/cmake/generate_exports.cmake"
     SOURCES ${AOM_EXPORTS_SOURCES}
     DEPENDS ${AOM_EXPORTS_SOURCES} BYPRODUCTS ${aom_sym_file})
+=======
+  add_custom_target(generate_exports
+                    COMMAND ${CMAKE_COMMAND}
+                            -DAOM_ROOT="${AOM_ROOT}"
+                            -DAOM_CONFIG_DIR="${AOM_CONFIG_DIR}"
+                            -DAOM_TARGET_SYSTEM=${AOM_TARGET_SYSTEM}
+                            -DAOM_SYM_FILE="${aom_sym_file}"
+                            -DAOM_MSVC=${MSVC}
+                            -DAOM_XCODE=${XCODE}
+                            -DCONFIG_NAME=$<CONFIG>
+                            -DCONFIG_AV1_DECODER=${CONFIG_AV1_DECODER}
+                            -DCONFIG_AV1_ENCODER=${CONFIG_AV1_ENCODER}
+                            -DCONFIG_INSPECTION=${CONFIG_INSPECTION}
+                            -DENABLE_TESTS=${ENABLE_TESTS}
+                            -P
+                            "${AOM_ROOT}/build/cmake/generate_exports.cmake"
+                    SOURCES ${AOM_EXPORTS_SOURCES}
+                    DEPENDS ${AOM_EXPORTS_SOURCES} BYPRODUCTS ${aom_sym_file})
+>>>>>>> BRANCH (ae2be8 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.1.2)
 
   # Make libaom depend on the exports file, and set flags to pick it up when
   # creating the dylib.

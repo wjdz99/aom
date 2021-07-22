@@ -10,6 +10,7 @@
  */
 
 #include <ostream>
+<<<<<<< HEAD   (9c45f6 rtc: Fixes to the reference structure)
 
 #include "test/codec_factory.h"
 #include "test/decode_test_driver.h"
@@ -63,6 +64,63 @@ class DecodeScalabilityTest
     const DecodeParam input = GET_PARAM(1);
     aom_codec_dec_cfg_t cfg = { 1, 0, 0, !FORCE_HIGHBITDEPTH_DECODING };
     libaom_test::IVFVideoSource decode_video(input.filename);
+=======
+#include <string>
+
+#include "test/codec_factory.h"
+#include "test/decode_test_driver.h"
+#include "test/ivf_video_source.h"
+#include "test/util.h"
+#include "test/video_source.h"
+#include "third_party/googletest/src/googletest/include/gtest/gtest.h"
+
+namespace {
+
+struct ObuExtensionHeader {
+  int temporal_id;
+  int spatial_id;
+};
+
+struct DecodeParam {
+  const char *filename;
+  const ObuExtensionHeader *headers;
+  size_t num_headers;
+};
+
+std::ostream &operator<<(std::ostream &os, const DecodeParam &dp) {
+  return os << "file: " << dp.filename;
+}
+
+class DecodeScalabilityTest
+    : public ::libaom_test::DecoderTest,
+      public ::libaom_test::CodecTestWithParam<DecodeParam> {
+ protected:
+  DecodeScalabilityTest()
+      : DecoderTest(GET_PARAM(0)), headers_(GET_PARAM(1).headers),
+        num_headers_(GET_PARAM(1).num_headers) {}
+
+  ~DecodeScalabilityTest() override {}
+
+  void PreDecodeFrameHook(const libaom_test::CompressedVideoSource &video,
+                          libaom_test::Decoder *decoder) override {
+    if (video.frame_number() == 0)
+      decoder->Control(AV1D_SET_OUTPUT_ALL_LAYERS, 1);
+  }
+
+  void DecompressedFrameHook(const aom_image_t &img,
+                             const unsigned int /*frame_number*/) override {
+    const ObuExtensionHeader &header = headers_[header_index_];
+    EXPECT_EQ(img.temporal_id, header.temporal_id);
+    EXPECT_EQ(img.spatial_id, header.spatial_id);
+    header_index_ = (header_index_ + 1) % num_headers_;
+  }
+
+  void RunTest() {
+    const DecodeParam input = GET_PARAM(1);
+    aom_codec_dec_cfg_t cfg = { 1, 0, 0, !FORCE_HIGHBITDEPTH_DECODING };
+    const std::string filename = input.filename;
+    libaom_test::IVFVideoSource decode_video(filename);
+>>>>>>> BRANCH (ae2be8 Update AUTHORS,CHANGELOG,CMakeLists.txt for v3.1.2)
     decode_video.Init();
 
     ASSERT_NO_FATAL_FAILURE(RunLoop(&decode_video, cfg));
