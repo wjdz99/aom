@@ -3352,6 +3352,8 @@ static AOM_INLINE void allocate_mc_tmp_buf(AV1_COMMON *const cm,
   CHECK_MEM_ERROR(cm, thread_data->tmp_conv_dst,
                   aom_memalign(32, MAX_SB_SIZE * MAX_SB_SIZE *
                                        sizeof(*thread_data->tmp_conv_dst)));
+  memset(thread_data->tmp_conv_dst, 0,
+         MAX_SB_SIZE * MAX_SB_SIZE * sizeof(*thread_data->tmp_conv_dst));
   CHECK_MEM_ERROR(cm, thread_data->seg_mask,
                   (uint8_t *)aom_memalign(
                       16, 2 * MAX_SB_SQUARE * sizeof(*thread_data->seg_mask)));

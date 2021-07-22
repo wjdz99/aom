@@ -663,6 +663,7 @@ static void make_masked_inter_predictor(const uint8_t *pre, int pre_stride,
   // a temporary buffer, then will blend that temporary buffer with that from
   // the other reference.
   DECLARE_ALIGNED(32, uint8_t, tmp_buf[2 * MAX_SB_SQUARE]);
+  memset(tmp_buf, 0, sizeof(tmp_buf));
   uint8_t *tmp_dst =
       inter_pred_params->use_hbd_buf ? CONVERT_TO_BYTEPTR(tmp_buf) : tmp_buf;
 
