@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c8089ca_0b1052f0",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-22T19:38:38Z",
+      "side": 1,
+      "message": "I would suggest do\nint pixel \u003d (int)round(sum);\npixel \u003d clamp(0, 255);\npred_block[idx_x + idx_y * pred_block_stride] \u003d (uint8_t)pixel;",
+      "range": {
+        "startLine": 198,
+        "startChar": 54,
+        "endLine": 198,
+        "endChar": 66
+      },
+      "revId": "f89ffed48a527a4dae2441b07cc0d77c77fb0e23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57ca70eb_60a7cae0",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-22T19:38:38Z",
+      "side": 1,
+      "message": "It might be better just compute the output pixel value here rather than store the position and do it later.",
+      "range": {
+        "startLine": 281,
+        "startChar": 0,
+        "endLine": 282,
+        "endChar": 33
+      },
+      "revId": "f89ffed48a527a4dae2441b07cc0d77c77fb0e23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
