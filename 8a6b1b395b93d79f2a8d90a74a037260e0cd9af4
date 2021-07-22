@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4d5c6c1_316e3783",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 4
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d2f4942_7fdb40cb",
+      "range": {
+        "startLine": 435,
+        "startChar": 15,
+        "endLine": 435,
+        "endChar": 42
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "26f12709_9a19311a",
@@ -58,6 +82,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f139fa62_cbf3d8c5",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "\u003e Nit/optional: Can we declare A, B, C as constants?\n\u003e \n\u003e     const float kA \u003d ((1 \u003c\u003c 23) / 0.69314718056f);\n\u003e     const int32_t kB \u003d 127;\n\u003e     const int32_t kC \u003d 60801;\n\u003e \n\u003e I believe the compiler will generate the same code.\n\u003e \n\u003e UPDATE: I see the version of this function in ml_sse3.c must define these as macros because C (at least C99) does not have compile-time constants (constexpr). Then I think it is fine to define these as macros for consistency.\n\nYeah, I\u0027m keeping this as a macro to keep it consistent with the intrinsics.",
+      "parentUuid": "26f12709_9a19311a",
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ce205e22_937e44b7",
@@ -71,6 +113,30 @@
       "writtenOn": "2021-07-22T18:15:41Z",
       "side": 1,
       "message": "Nit: the union tag \"float_alias\" can be omitted because the union type is only used in the declaration of the \u0027container\u0027 variable.",
+      "range": {
+        "startLine": 163,
+        "startChar": 8,
+        "endLine": 163,
+        "endChar": 19
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d43982e_ebd6be87",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce205e22_937e44b7",
       "range": {
         "startLine": 163,
         "startChar": 8,
@@ -104,6 +170,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fd58c97_20142ed0",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78766c0e_df2ecc9e",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 23
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "17cf3762_05b546f0",
@@ -117,6 +207,30 @@
       "writtenOn": "2021-07-22T18:15:41Z",
       "side": 1,
       "message": "Nit: I suggest naming this variable \"max_input\" and not abbreviating it.",
+      "range": {
+        "startLine": 176,
+        "startChar": 8,
+        "endLine": 176,
+        "endChar": 15
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e97d2766_94e51c10",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done\nI changed av1_nn_softmax as well to keep it consistent.",
+      "parentUuid": "17cf3762_05b546f0",
       "range": {
         "startLine": 176,
         "startChar": 8,
@@ -150,6 +264,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3c21571_93a153f2",
+        "filename": "av1/encoder/ml.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c93e0cac_5b2e1811",
+      "range": {
+        "startLine": 74,
+        "startChar": 41,
+        "endLine": 74,
+        "endChar": 64
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91c77f50_870d120f",
@@ -163,6 +301,30 @@
       "writtenOn": "2021-07-22T18:35:24Z",
       "side": 1,
       "message": "This function can only handle \u003c\u003d 16 classes, right? Maybe add a comment to state it. Would help if someone wants to modify this ml model?",
+      "range": {
+        "startLine": 1815,
+        "startChar": 2,
+        "endLine": 1815,
+        "endChar": 24
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c91249fa_aba35c53",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1815,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91c77f50_870d120f",
       "range": {
         "startLine": 1815,
         "startChar": 2,
@@ -190,6 +352,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0384d3b2_cc48d8c7",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d0a846b_642acfaa",
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0223c3ba_079885a2",
@@ -203,6 +383,30 @@
       "writtenOn": "2021-07-22T18:15:41Z",
       "side": 1,
       "message": "Nit: List these in alphabetical order.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 28
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9c09350_dd5eb65d",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0223c3ba_079885a2",
       "range": {
         "startLine": 22,
         "startChar": 0,
@@ -236,6 +440,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e18b2f3_ecc720ce",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14b0cf4c_758baefd",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 67
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "01162687_21b2da26",
@@ -249,6 +477,30 @@
       "writtenOn": "2021-07-22T18:15:41Z",
       "side": 1,
       "message": "Nit: These two compile-time constants should be named kRelEpsilon and kAbsEpsilon. Also in C++11 we can use constexpr instead of const for compile-time constants.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 79
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12ec7be4_dd2aae22",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01162687_21b2da26",
       "range": {
         "startLine": 31,
         "startChar": 0,
@@ -305,6 +557,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6c70b34_8d73f2ca",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cdd0862_db1b9daa",
+      "range": {
+        "startLine": 53,
+        "startChar": 2,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dcc60fc_38457880",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b82b18e_430194e8",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "847c76bd_8d813013",
@@ -318,6 +618,24 @@
       "writtenOn": "2021-07-22T18:15:41Z",
       "side": 1,
       "message": "Could you add a comment (perhaps a TODO comment) to explain why this is commented out?",
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d9196fe_18f6c93a",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-22T18:52:17Z",
+      "side": 1,
+      "message": "\u003e Could you add a comment (perhaps a TODO comment) to explain why this is commented out?\n\nThanks for catching this.\nThe intrinsic and its testcase were disabled during the rebase.\nI have re-enabled them.",
+      "parentUuid": "847c76bd_8d813013",
       "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
