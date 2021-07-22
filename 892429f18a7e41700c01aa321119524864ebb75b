@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f1400ac_fd77a7f2",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-22T15:28:32Z",
+      "side": 1,
+      "message": "If you set everything to zero, the output entropy should be zero as well.",
+      "range": {
+        "startLine": 324,
+        "startChar": 0,
+        "endLine": 325,
+        "endChar": 28
+      },
+      "revId": "892429f18a7e41700c01aa321119524864ebb75b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f035a754_3726c930",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-22T15:28:32Z",
+      "side": 1,
+      "message": "You need to assign memory to this pointer before using it.",
+      "range": {
+        "startLine": 328,
+        "startChar": 16,
+        "endLine": 328,
+        "endChar": 29
+      },
+      "revId": "892429f18a7e41700c01aa321119524864ebb75b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72a1cdfe_a1c7e790",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-22T15:28:32Z",
+      "side": 1,
+      "message": "Did you observe 128 or zero here?",
+      "range": {
+        "startLine": 334,
+        "startChar": 2,
+        "endLine": 334,
+        "endChar": 24
+      },
+      "revId": "892429f18a7e41700c01aa321119524864ebb75b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
