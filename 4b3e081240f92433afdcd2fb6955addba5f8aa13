@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "46975092_0f5e54c3",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-07-22T13:37:52Z",
+      "side": 1,
+      "message": "Yes, the variable \u0027is_header_rd_based_term\u0027 can be removed by setting *last_n_searched to end_n. Based on this suggestion, we have submitted the below CL. https://aomedia-review.googlesource.com/c/aom/+/142103",
+      "parentUuid": "bda4502c_cfcab30a",
+      "revId": "4b3e081240f92433afdcd2fb6955addba5f8aa13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0e00a87a_e4f4671e",
         "filename": "av1/encoder/palette.c",
         "patchSetId": 5
@@ -48,6 +66,24 @@
       "writtenOn": "2021-07-21T22:09:15Z",
       "side": 1,
       "message": "If prune_palette_search_level \u003d\u003d 1 and colors \u003c\u003d PALETTE_MIN_SIZE, what do we do?",
+      "revId": "4b3e081240f92433afdcd2fb6955addba5f8aa13",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a49f04e7_2280d285",
+        "filename": "av1/encoder/palette.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-07-22T13:37:52Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nIn the existing code, colors\u003c\u003d PALETTE_MIN_SIZE (i.e. colors \u003d 2) is handled in else part irrespective of prune_palette_search_level as the evaluation order does not matter because palette evaluation is performed only for one case.\nAnd also when colors\u003c\u003d PALETTE_MIN_SIZE (i.e. colors \u003d 2), descending order is avoided due to (last_n_searched \u003c max_n) check.",
+      "parentUuid": "0e00a87a_e4f4671e",
       "revId": "4b3e081240f92433afdcd2fb6955addba5f8aa13",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
