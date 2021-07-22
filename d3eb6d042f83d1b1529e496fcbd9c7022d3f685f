@@ -16,6 +16,29 @@
       "message": "Any performance change?",
       "revId": "d3eb6d042f83d1b1529e496fcbd9c7022d3f685f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19c24d3f_0be84534",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1855,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-07-22T20:55:59Z",
+      "side": 1,
+      "message": "Not sure I understand this.\n\"if (!check_bit_mask(allow_bitmask, tx_type_table_2D[max_score_i]))\" is used to avoid pruning of max_score_i.",
+      "range": {
+        "startLine": 1854,
+        "startChar": 6,
+        "endLine": 1855,
+        "endChar": 27
+      },
+      "revId": "d3eb6d042f83d1b1529e496fcbd9c7022d3f685f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
