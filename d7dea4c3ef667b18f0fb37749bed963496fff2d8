@@ -1,0 +1,187 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17ae4f5d_27727828",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nI suggest some more changes. The tricky one is to allow a NULL value for film_grain_table_filename.",
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8eb10e08_d1dccc9d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "Optional: I suggest also passing the error string buffer (ctx-\u003eppi-\u003eerror.detail) to this function and letting this function be responsible for setting the error message. This will eliminate the duplicate code at the callers.",
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8850cec5_1e621bf6",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "IMPORTANT: film_grain_table_filename can be a null pointer, so !src should not be treated as an error for film_grain_table_filename. Should we handle that case?",
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2454ada5_9b32dd1d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "I believe we can omit the !default_src check now.",
+      "range": {
+        "startLine": 520,
+        "startChar": 6,
+        "endLine": 520,
+        "endChar": 18
+      },
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "601956e6_3a9d5689",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2180,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "Please see my comment at line 516. This is not an error for film_grain_table_filename.",
+      "range": {
+        "startLine": 2178,
+        "startChar": 0,
+        "endLine": 2180,
+        "endChar": 60
+      },
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92d32e97_2ba8a30c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2518,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "I believe we can omit the default_str check now.",
+      "range": {
+        "startLine": 2518,
+        "startChar": 6,
+        "endLine": 2518,
+        "endChar": 20
+      },
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c795610_077a7061",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 2523,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "Please set *ptr to NULL.",
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "244bac73_a4fb015f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3405,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "It seems that we can use the \u0027err\u0027 variable directly here and also in the similar code below. We should not need to declare these \u0027ret\u0027 variables.",
+      "range": {
+        "startLine": 3405,
+        "startChar": 4,
+        "endLine": 3405,
+        "endChar": 29
+      },
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0b9f545_caec3f3d",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 3549,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "This is not an error for film_grain_table_filename.",
+      "range": {
+        "startLine": 3547,
+        "startChar": 0,
+        "endLine": 3549,
+        "endChar": 62
+      },
+      "revId": "d7dea4c3ef667b18f0fb37749bed963496fff2d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

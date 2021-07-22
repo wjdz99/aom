@@ -287,6 +287,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0be57c4e_c2004bfa",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "Thank you. I verified that extra_cfg and oxcf are members of the same aom_codec_alg_priv_t struct, so they are very likely to have the same lifetime.",
+      "parentUuid": "1782c92b_7b553bdc",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "172c7950_5f469d5b",
@@ -435,6 +453,24 @@
       "side": 1,
       "message": "I think both would work. Initially I was concerned that after encoder_destroy() they may still get used later for next encoder_init(). But it seems that in encoder_init() they will get assigned to default values. Do you think it is better to use NULL here?",
       "parentUuid": "11ab17f1_28398c2a",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5c96d70_e5ef6205",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2500,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T22:23:47Z",
+      "side": 1,
+      "message": "Yes, setting a pointer to NULL after freeing it is a common pattern.\n\nNote: encoder_destroy() frees its \u0027ctx\u0027 parameter, so the memory will not be used by the next encoder_init(). The \u0027ctx\u0027 parameters of encoder_init() and encoder_destroy() have different types. Here is how encoder_destroy() is invoked:\n\naom_codec_err_t aom_codec_destroy(aom_codec_ctx_t *ctx) {\n  if (!ctx) {\n    return AOM_CODEC_INVALID_PARAM;\n  }\n  if (!ctx-\u003eiface || !ctx-\u003epriv) {\n    ctx-\u003eerr \u003d AOM_CODEC_ERROR;\n    return AOM_CODEC_ERROR;\n  }\n  ctx-\u003eiface-\u003edestroy((aom_codec_alg_priv_t *)ctx-\u003epriv);\n  ctx-\u003eiface \u003d NULL;\n  ctx-\u003ename \u003d NULL;\n  ctx-\u003epriv \u003d NULL;\n  ctx-\u003eerr \u003d AOM_CODEC_OK;\n  return AOM_CODEC_OK;\n}\n\nSo ctx-\u003epriv is freed by encoder_destroy(), and then aom_codec_destroy() sets ctx-\u003epriv to NULL.",
+      "parentUuid": "57d951c8_b3f7cfcb",
       "revId": "768e40939ddeea313af10199fc396be4088dee93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
