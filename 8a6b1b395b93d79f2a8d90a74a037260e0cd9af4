@@ -1,0 +1,279 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e5a0af67_ab9c4134",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Chi Yo,\n\nI suggest some changes. Thanks!\n\nI marked some of the C++ suggestions as optional because I am not sure if you intended to write C-like C++ code. But I think my suggested changes are all basic C++11 features and it\u0027s good to use them.",
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26f12709_9a19311a",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit/optional: Can we declare A, B, C as constants?\n\n    const float kA \u003d ((1 \u003c\u003c 23) / 0.69314718056f);\n    const int32_t kB \u003d 127;\n    const int32_t kC \u003d 60801;\n\nI believe the compiler will generate the same code.\n\nUPDATE: I see the version of this function in ml_sse3.c must define these as macros because C (at least C99) does not have compile-time constants (constexpr). Then I think it is fine to define these as macros for consistency.",
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce205e22_937e44b7",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit: the union tag \"float_alias\" can be omitted because the union type is only used in the declaration of the \u0027container\u0027 variable.",
+      "range": {
+        "startLine": 163,
+        "startChar": 8,
+        "endLine": 163,
+        "endChar": 19
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78766c0e_df2ecc9e",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit/optional: Since this is a compile-time constant, it should use the naming convention for constants and be named kNumClasses.",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 23
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17cf3762_05b546f0",
+        "filename": "av1/encoder/ml.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit: I suggest naming this variable \"max_input\" and not abbreviating it.",
+      "range": {
+        "startLine": 176,
+        "startChar": 8,
+        "endLine": 176,
+        "endChar": 15
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c93e0cac_5b2e1811",
+        "filename": "av1/encoder/ml.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit/optional: we could more precisely say av1_nn_softmax(input, output, 16).",
+      "range": {
+        "startLine": 74,
+        "startChar": 41,
+        "endLine": 74,
+        "endChar": 64
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d0a846b_642acfaa",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit: This should be part of the next group of #include statements, so please move this after line 24.",
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0223c3ba_079885a2",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit: List these in alphabetical order.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 28
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14b0cf4c_758baefd",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Optional: In C++11 the type aliases can be defined with the \u0027using\u0027 keyword:\n\nusing FastSoftmaxFn \u003d void (*)(const float *const input, float *output);\n\nusing FastSoftmaxTestParams \u003d std::tuple\u003cconst FastSoftmaxFn, int\u003e;",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 67
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01162687_21b2da26",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit: These two compile-time constants should be named kRelEpsilon and kAbsEpsilon. Also in C++11 we can use constexpr instead of const for compile-time constants.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 79
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cdd0862_db1b9daa",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Optional: In C++ it is better to use the smart pointer std::unique_ptr\u003cfloat[]\u003e to manage these three dynamic arrays.\n\n1. In the constructor, we can initialize these as follows:\n\n  FastSoftmaxTest()\n      : _target_fn{ GET_PARAM(0) },\n        _num_classes(GET_PARAM(1)),\n        _ref_buf(new float[_num_classes]()),\n        _dst_buf(new float[_num_classes]()),\n        _input(new float[_num_classes]()) {\n  }\n  \nNote: The \"()\" after new float[_num_classes] can be omitted if we don\u0027t need to initialize the new arrays to all zeros. I added \"()\" to match your use of calloc().\n\n2. The destructor body will be empty and can be omitted.\n\n3. _ref_buf[idx] continues to work. If you need a pointer, use _ref_buf.get() instead of _ref_buf.",
+      "range": {
+        "startLine": 53,
+        "startChar": 2,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b82b18e_430194e8",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Nit: The naming convention for class data members is to add a trailing (not initial) underscore, like you did for \"rng_\".",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 38
+      },
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "847c76bd_8d813013",
+        "filename": "test/av1_softmax_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-22T18:15:41Z",
+      "side": 1,
+      "message": "Could you add a comment (perhaps a TODO comment) to explain why this is commented out?",
+      "revId": "8a6b1b395b93d79f2a8d90a74a037260e0cd9af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
