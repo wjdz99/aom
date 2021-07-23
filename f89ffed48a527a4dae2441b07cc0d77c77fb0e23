@@ -93,6 +93,30 @@
       },
       "revId": "f89ffed48a527a4dae2441b07cc0d77c77fb0e23",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14f66d75_bab0e045",
+        "filename": "av1/common/spherical_pred.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-07-23T17:33:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "158e7b90_d2b4c85c",
+      "range": {
+        "startLine": 281,
+        "startChar": 0,
+        "endLine": 282,
+        "endChar": 33
+      },
+      "revId": "f89ffed48a527a4dae2441b07cc0d77c77fb0e23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
