@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b54c843a_0b8198f5",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-23T01:21:52Z",
+      "side": 1,
+      "message": "If using \"new\", you will need to free the memory at the end of this function to avoid memory leak.\n\nOr you can use static array like \nTplDepStats stats_buf[128];\ntpl_frame.tpl_stats_ptr \u003d stats_buf;\n\nPlease explain why 128 is chosen here.",
+      "range": {
+        "startLine": 319,
+        "startChar": 2,
+        "endLine": 319,
+        "endChar": 49
+      },
+      "revId": "b992be43af2452531beb82b207185e4bbf3c0f43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
