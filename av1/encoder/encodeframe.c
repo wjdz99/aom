@@ -675,6 +675,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                          &dummy_rate, &dummy_dist, 1, pc_root);
     av1_free_pc_tree_recursive(pc_root, num_planes, 0, 0);
   } else if (cpi->partition_search_skippable_frame) {
+    //printf ("\n  hhhhhhh \n");
     // partition search by adjusting a fixed-size partition for which the size
     // is determined by the source variance
     av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);

@@ -3616,6 +3616,9 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       if (cpi->sf.part_sf.allow_partition_search_skip &&
           oxcf->pass >= AOM_RC_SECOND_PASS) {
         cpi->partition_search_skippable_frame = is_skippable_frame(cpi);
+
+        //printf ("\n  ARF: %d; \n", cpi->partition_search_skippable_frame);
+
       }
       const FIRSTPASS_STATS *const this_frame_ptr =
           read_frame_stats(twopass, &cpi->twopass_frame,
@@ -3848,6 +3851,7 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (cpi->sf.part_sf.allow_partition_search_skip &&
       oxcf->pass >= AOM_RC_SECOND_PASS) {
     cpi->partition_search_skippable_frame = is_skippable_frame(cpi);
+    //printf ("\n  OTH: %d; \n", cpi->partition_search_skippable_frame);
   }
 
   setup_target_rate(cpi);
