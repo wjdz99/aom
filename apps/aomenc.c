@@ -2385,6 +2385,9 @@ int main(int argc, const char **argv_) {
                   cx_time > 9999999 ? "ms" : "us", fps >= 1.0 ? fps : fps * 60,
                   fps >= 1.0 ? "fps" : "fpm");
           print_time("ETA", estimated_time_left);
+          // mingw-w64 gcc does not match msvc for stderr buffering behavior so
+          // the progress output is not real-time, the fflush() is here to make
+          // sure the progress output is sent out.
           fflush(stderr);
         }
 
