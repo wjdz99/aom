@@ -2498,6 +2498,9 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
             clamp(lap_lag_in_frames, 0, MAX_LAG_BUFFERS),
             &priv->stats_buf_context);
       }
+#if CONFIG_IBP
+      init_ibp_info(priv->cpi->common.ibp_directional_weights);
+#endif
     }
   }
 
