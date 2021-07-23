@@ -16,6 +16,24 @@
       "message": "I could see an overread in assembly, but why the C code?\nIf you want to keep this I\u0027d suggest a comment. We could also test for memory_sanitizer\n\n#if defined(__has_feature)\n#if __has_feature(memory_sanitizer)\n...",
       "revId": "98f1e8a0eeb52f81669ecd2ad138748f8b5e26be",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c56765a9_bd4130eb",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-07-23T00:05:07Z",
+      "side": 1,
+      "message": "Where is the overread in assembly?\n\nFrom the stacktrace, assembly doesn\u0027t get involved.",
+      "parentUuid": "b7a75428_4ea923ad",
+      "revId": "98f1e8a0eeb52f81669ecd2ad138748f8b5e26be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
