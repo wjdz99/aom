@@ -475,6 +475,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d4aaed0_6a9f599b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2500,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-23T20:59:53Z",
+      "side": 1,
+      "message": "Thanks for looking into this. Changed this to set the pointers to NULL.",
+      "parentUuid": "d5c96d70_e5ef6205",
+      "revId": "768e40939ddeea313af10199fc396be4088dee93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dbb929f6_0cb53e23",
