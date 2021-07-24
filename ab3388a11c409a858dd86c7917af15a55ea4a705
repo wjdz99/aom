@@ -87,6 +87,24 @@
       "parentUuid": "0da69d69_a0f82c9b",
       "revId": "ab3388a11c409a858dd86c7917af15a55ea4a705",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1698ef8_129a823b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14731
+      },
+      "writtenOn": "2021-07-24T19:16:28Z",
+      "side": 1,
+      "message": "Results summarized as follows:\n\nAV2 CTC v1:\nClass B1: -0.14% (AI), -1.19 (RA), -0.11% (LD)\n\nThe performance issue on Wikipedia (Class B1) has been resolved by this patch. There are also performance impact (coding gain and run-time) on following non-Class B sequences:\nClass A1: Neon1224_3840x2160_2997fps, TimeLapse_3840x2160_5994fps_10bit_420\nClass A2: Skater227_1920x1080_30fps\nClass A3: Vertical_Carnaby_1080x1920_5994, WalkingInStreet_1920x1080_30fps, RollerCoaster_1280x720p_5994_10bit_420\nClass A5: Vertical_Bayshore_270x480_2997\n\nMost of the above sequences show very minor coding performance impact 0.00% ~ 0.03%, except for \nVertical_Bayshore_270x480_2997 (Class A5): -0.72% RA gain with 22% enc-time increase\nWalkingInStreet_1920x1080_30fps (Class A2):-0.21% RA gain with 45% enc-time increase.\n\nIn overall, I think this patch fixes the issue. Thanks Debargha for the patch!",
+      "parentUuid": "fe1dd95d_bc655a52",
+      "revId": "ab3388a11c409a858dd86c7917af15a55ea4a705",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
