@@ -4790,6 +4790,14 @@ static void tx_search_best_inter_candidates(
   *yrd = INT64_MAX;
   int64_t best_rd_in_this_partition = INT64_MAX;
   int num_inter_mode_cands = inter_modes_info->num;
+  int newmv_mode_evaled = 0;
+  int max_allowed_cands = INT_MAX;
+  if (cpi->sf.inter_sf.limit_inter_mode_cands) {
+    const int num_allowed_cands[4] = { INT_MAX, 10, 9, 6 };
+    max_allowed_cands =
+        num_allowed_cands[cpi->sf.inter_sf.limit_inter_mode_cands];
+  }
+  int num_tx_cands = 0;
   // Iterate over best inter mode candidates and perform tx search
   for (int j = 0; j < num_inter_mode_cands; ++j) {
     const int data_idx = inter_modes_info->rd_idx_pair_arr[j].idx;
@@ -4830,6 +4838,8 @@ static void tx_search_best_inter_candidates(
       if (!eval_txfm) continue;
     }
 
+    num_tx_cands++;
+    if (have_newmv_in_inter_mode(mbmi->mode)) newmv_mode_evaled = 1;
     int64_t this_yrd = INT64_MAX;
     // Do the transform search
     if (!av1_txfm_search(cpi, x, bsize, &rd_stats, &rd_stats_y, &rd_stats_uv,
@@ -4891,6 +4901,7 @@ static void tx_search_best_inter_candidates(
         }
       }
     }
+    if ((num_tx_cands > max_allowed_cands) && newmv_mode_evaled) break;
   }
 }
 

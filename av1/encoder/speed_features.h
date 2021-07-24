@@ -876,6 +876,10 @@ typedef struct INTER_MODE_SPEED_FEATURES {
 
   // Early breakout from transform search of inter modes
   int inter_mode_txfm_breakout;
+
+  // Limit number of inter modes for txfm search based if newmv is present for
+  // the top modes.
+  int limit_inter_mode_cands;
 } INTER_MODE_SPEED_FEATURES;
 
 typedef struct INTERP_FILTER_SPEED_FEATURES {
