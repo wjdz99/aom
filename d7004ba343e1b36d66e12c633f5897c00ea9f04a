@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b41118fd_76375880",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2021-07-24T00:01:55Z",
+      "side": 1,
+      "message": "When I try to encode to 10bit with this CL I get a seg fault. avifenc in.png out.avif --speed 1 --jobs 8 -y 420 -d 10 --ignore-icc --min 0 --max 63 -a end-usage\u003dq -a cq-level\u003d8 -a tune\u003dssim ",
+      "revId": "d7004ba343e1b36d66e12c633f5897c00ea9f04a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
