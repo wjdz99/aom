@@ -168,6 +168,48 @@ static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   return sb_wiener_var;
 }
 
+static int compute_lap_opt(uint8_t *src_buf, int src_stride, int pix_row,
+                           int pix_col, int block_size, int use_hbd) {
+  int nb_count = 0;
+  int nb_sum = 0;
+  int center_pix;
+#if CONFIG_AV1_HIGHBITDEPTH
+  if (use_hbd) {
+    uint16_t *dst = CONVERT_TO_SHORTPTR(src_buf);
+    center_pix = dst[pix_row * src_stride + pix_col];
+  } else {
+    center_pix = src_buf[pix_row * src_stride + pix_col];
+  }
+#else
+  center_pix = src_buf[pix_row * src_stride + pix_col];
+  (void)use_hbd;
+#endif
+
+  for (int idy = -1; idy <= 1; ++idy) {
+    for (int idx = -1; idx <= 1; ++idx) {
+      if (pix_row + idy < 0 || pix_row + idy >= block_size) continue;
+      if (pix_col + idx < 0 || pix_col + idx >= block_size) continue;
+      if (idy == 0 && idx == 0) continue;
+      int nb_pix;
+#if CONFIG_AV1_HIGHBITDEPTH
+      if (use_hbd) {
+        uint16_t *dst = CONVERT_TO_SHORTPTR(src_buf);
+        nb_pix = dst[(pix_row + idy) * src_stride + (pix_col + idx)];
+      } else {
+        nb_pix = src_buf[(pix_row + idy) * src_stride + (pix_col + idx)];
+      }
+#else
+      nb_pix = src_buf[(pix_row + idy) * src_stride + (pix_col + idx)];
+#endif
+      nb_sum += nb_pix;
+      ++nb_count;
+    }
+  }
+
+  if (nb_count > 0) nb_sum /= nb_count;
+  return (center_pix - nb_sum) * (center_pix - nb_sum);
+}
+
 void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   uint8_t *buffer = cpi->source->y_buffer;
@@ -323,16 +365,19 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
           src_mean += src_pix;
           rec_mean += rec_pix;
           dist_mean += src_pix - rec_pix;
-          weber_stats->src_variance += src_pix * src_pix;
-          weber_stats->rec_variance += rec_pix * rec_pix;
+
+          weber_stats->src_variance +=
+              compute_lap_opt(dst_buffer, buf_stride, pix_row, pix_col,
+                              block_size, is_cur_buf_hbd(xd));
+          weber_stats->rec_variance +=
+              compute_lap_opt(pred_buf, block_size, pix_row, pix_col,
+                              block_size, is_cur_buf_hbd(xd));
           weber_stats->src_pix_max = AOMMAX(weber_stats->src_pix_max, src_pix);
           weber_stats->rec_pix_max = AOMMAX(weber_stats->rec_pix_max, rec_pix);
           weber_stats->distortion += (src_pix - rec_pix) * (src_pix - rec_pix);
         }
       }
 
-      weber_stats->src_variance -= (src_mean * src_mean) / pix_num;
-      weber_stats->rec_variance -= (rec_mean * rec_mean) / pix_num;
       weber_stats->distortion -= (dist_mean * dist_mean) / pix_num;
       weber_stats->satd = best_intra_cost;
 
