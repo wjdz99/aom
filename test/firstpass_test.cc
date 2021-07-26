@@ -74,4 +74,20 @@ TEST(FirstpassTest, FirstpassInfoPushPop) {
   aom_codec_err_t ret = av1_firstpass_info_push(&firstpass_info, &stats);
   EXPECT_EQ(ret, AOM_CODEC_ERROR);
 }
+
+TEST(FirstpassTest, FirstpassInfoTotalStats) {
+  FIRSTPASS_INFO firstpass_info;
+  av1_firstpass_info_init(&firstpass_info, NULL, 0);
+  EXPECT_EQ(firstpass_info.total_stats.frame, 0);
+  int ref_frame_sum = 0;
+  for (int i = 0; i < 10; ++i) {
+    FIRSTPASS_STATS stats;
+    av1_zero(stats);
+    stats.frame = i;
+    ref_frame_sum += i;
+    av1_firstpass_info_push(&firstpass_info, &stats);
+  }
+  EXPECT_EQ(firstpass_info.total_stats.frame, ref_frame_sum);
+}
+
 }  // namespace
