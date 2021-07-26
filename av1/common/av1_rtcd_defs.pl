@@ -116,6 +116,9 @@ if (aom_config("CONFIG_OPTFLOW_REFINEMENT") eq "yes") {
 
   add_proto qw/void av1_bicubic_grad_interpolation_highbd/, "const int16_t *pred_src,int16_t *x_grad,int16_t *y_grad,const int blk_width,const int blk_height";
   specialize qw/av1_bicubic_grad_interpolation_highbd sse4_1/;
+  
+  add_proto qw/int av1_opfl_mv_refinement_nxn_interp_grad/, " const int16_t *pdiff, int pstride,const int16_t *gx, const int16_t *gy, int gstride, int bw, int bh, int n,int d0, int d1, int grad_prec_bits,int mv_prec_bits, int *vx0, int *vy0,int *vx1, int *vy1";
+  specialize qw/av1_opfl_mv_refinement_nxn_interp_grad sse4_1/;
 }
 
 # High bitdepth functions
