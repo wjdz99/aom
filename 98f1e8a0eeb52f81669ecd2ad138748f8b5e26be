@@ -34,6 +34,24 @@
       "parentUuid": "b7a75428_4ea923ad",
       "revId": "98f1e8a0eeb52f81669ecd2ad138748f8b5e26be",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "482ae079_1d93ff34",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-07-26T21:06:01Z",
+      "side": 1,
+      "message": "\u003e Where is the overread in assembly?\n\u003e \n\u003e From the stacktrace, assembly doesn\u0027t get involved.\n\nI was just wondering why the overread could occur at all in C code if it was respecting the bounds passed in.",
+      "parentUuid": "c56765a9_bd4130eb",
+      "revId": "98f1e8a0eeb52f81669ecd2ad138748f8b5e26be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
