@@ -1560,7 +1560,9 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, ThreadData *const td,
     write_tokens_b(cpi, &td->mb, w, tok, tok_end);
 
     const int end = aom_tell_size(w);
-    td->coefficient_size += end - start;
+    td->coefficient_size +=
+        end -
+        start;  // where we compute coefficient rate for each prediction block
   }
 }
 
@@ -3759,7 +3761,9 @@ void av1_reset_pack_bs_thread_data(ThreadData *const td) {
 void av1_accumulate_pack_bs_thread_data(AV1_COMP *const cpi,
                                         ThreadData const *td) {
   int do_max_mv_magnitude_update = 1;
-  cpi->rc.coefficient_size += td->coefficient_size;
+  cpi->rc.coefficient_size +=
+      td->coefficient_size;  // where we accumulate transform coeff rate for
+                             // each frame
 
 #if CONFIG_FRAME_PARALLEL_ENCODE
   // Disable max_mv_magnitude update for parallel frames based on update flag.
