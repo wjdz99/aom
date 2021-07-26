@@ -50,7 +50,7 @@ void av1_sphere_to_plane_erp(double phi, double theta, int width, int height,
 
 void av1_plane_to_sphere_erp(double x, double y, int width, int height,
                              double *phi, double *theta) {
-  y = AOMMAX(y, 0);
+  y = AOMMAX(y, 0.00001);
   y = AOMMIN(y, height - 1);
 
   double x_mod = fmod(x, width);
@@ -61,7 +61,7 @@ void av1_plane_to_sphere_erp(double x, double y, int width, int height,
   *phi = (y - height * 0.5) / height * PI;
 }
 
-static void normalize_carte_vector(CartesianVector *carte) {
+void av1_normalize_carte_vector(CartesianVector *carte) {
   double temp =
       sqrt(carte->x * carte->x + carte->y * carte->y + carte->z * carte->z);
 
@@ -73,8 +73,8 @@ static void normalize_carte_vector(CartesianVector *carte) {
   }
 }
 
-static void sphere_polar_to_carte(const PolarVector *polar,
-                                  CartesianVector *carte) {
+void av1_sphere_polar_to_carte(const PolarVector *polar,
+                               CartesianVector *carte) {
   assert(polar != NULL && carte != NULL);
 
   carte->x = polar->r * cos(polar->theta) * sin(polar->phi);
@@ -82,8 +82,8 @@ static void sphere_polar_to_carte(const PolarVector *polar,
   carte->z = polar->r * cos(polar->phi);
 }
 
-static void sphere_carte_to_polar(const CartesianVector *carte,
-                                  PolarVector *polar) {
+void av1_sphere_carte_to_polar(const CartesianVector *carte,
+                               PolarVector *polar) {
   assert(polar != NULL && carte != NULL);
 
   polar->r =
@@ -107,16 +107,16 @@ static void sphere_carte_to_polar(const CartesianVector *carte,
   }
 }
 
-static double carte_vectors_dot_product(const CartesianVector *left,
-                                        const CartesianVector *right) {
+double av1_carte_vectors_dot_product(const CartesianVector *left,
+                                     const CartesianVector *right) {
   assert(left != NULL && right != NULL);
 
   return left->x * right->x + left->y * right->y + left->z * right->z;
 }
 
-static void carte_vectors_cross_product(const CartesianVector *left,
-                                        const CartesianVector *right,
-                                        CartesianVector *result) {
+void av1_carte_vectors_cross_product(const CartesianVector *left,
+                                     const CartesianVector *right,
+                                     CartesianVector *result) {
   assert(left != NULL && right != NULL && result != NULL);
 
   result->x = left->y * right->z - left->z * right->y;
@@ -238,16 +238,16 @@ void av1_get_pred_erp(int block_x, int block_y, int block_width,
   av1_plane_to_sphere_erp(block_x, block_y, frame_width, frame_height,
                           &block_polar.phi, &block_polar.theta);
   block_polar.phi += 0.5 * PI;
-  sphere_polar_to_carte(&block_polar, &block_v);
+  av1_sphere_polar_to_carte(&block_polar, &block_v);
 
   block_polar.phi += delta_phi;
   block_polar.theta += delta_theta;
-  sphere_polar_to_carte(&block_polar, &block_v_prime);
+  av1_sphere_polar_to_carte(&block_polar, &block_v_prime);
 
-  carte_vectors_cross_product(&block_v, &block_v_prime, &k);
-  normalize_carte_vector(&k);
+  av1_carte_vectors_cross_product(&block_v, &block_v_prime, &k);
+  av1_normalize_carte_vector(&k);
 
-  double product = carte_vectors_dot_product(&block_v, &block_v_prime);
+  double product = av1_carte_vectors_dot_product(&block_v, &block_v_prime);
   // Avoid floating point precision issues
   product = AOMMAX(product, -1.0);
   product = AOMMIN(product, 1.0);
@@ -271,8 +271,8 @@ void av1_get_pred_erp(int block_x, int block_y, int block_width,
       av1_plane_to_sphere_erp(x_current, y_current, frame_width, frame_height,
                               &v_polar.phi, &v_polar.theta);
       v_polar.phi += 0.5 * PI;
-      sphere_polar_to_carte(&v_polar, &v);
-      k_dot_v = carte_vectors_dot_product(&k, &v);
+      av1_sphere_polar_to_carte(&v_polar, &v);
+      k_dot_v = av1_carte_vectors_dot_product(&k, &v);
 
       v_prime.x = k.x * k_dot_v * (1 - cos(alpha)) + v.x * cos(alpha) +
                   (k.y * v.z - k.z * v.y) * sin(alpha);
@@ -281,7 +281,7 @@ void av1_get_pred_erp(int block_x, int block_y, int block_width,
       v_prime.z = k.z * k_dot_v * (1 - cos(alpha)) + v.z * cos(alpha) +
                   (k.x * v.y - k.y * v.x) * sin(alpha);
 
-      sphere_carte_to_polar(&v_prime, &v_prime_polar);
+      av1_sphere_carte_to_polar(&v_prime, &v_prime_polar);
       v_prime_polar.phi -= 0.5 * PI;
       av1_sphere_to_plane_erp(v_prime_polar.phi, v_prime_polar.theta,
                               frame_width, frame_height, &subpel_x_ref,
