@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "858ee70b_a6e2ad69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-07-26T17:50:05Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis change initializes screen content decisions for parallel frame contexts. Screen content decisions are taken during a key frame and need to be passed to the parallel contexts. \n\nav1_init_sc_decisions() is introduced to copy initializations to parallel cpis at the end of the key frame encode.\n\nPlease review.",
+      "revId": "0cdd943d674df3236f1e0e3f568ec87b94d6e326",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
