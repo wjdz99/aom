@@ -2675,8 +2675,9 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 #endif  // CONFIG_BITRATE_ACCURACY
     if (do_dummy_pack) {
       av1_finalize_encoded_frame(cpi);
-      int largest_tile_id = 0;  // Output from bitstream: unused here
-      rc->coefficient_size = 0;
+      int largest_tile_id = 0;   // Output from bitstream: unused here
+      rc->coefficient_size = 0;  // We init coefficient_size to zero before
+                                 // packing the bitstream for the frame
       if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) !=
           AOM_CODEC_OK) {
         return AOM_CODEC_ERROR;
