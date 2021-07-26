@@ -117,12 +117,11 @@ static int get_window_wiener_var(AV1_COMP *const cpi, BLOCK_SIZE bsize,
                                  .alpha *
                              10000);
 
-      base_num += sqrt(weber_stats->distortion) *
-                  sqrt(weber_stats->src_variance) * weber_stats->rec_pix_max;
+      base_num += sqrt(weber_stats->distortion) * (weber_stats->src_variance) *
+                  weber_stats->rec_pix_max;
 
-      base_den +=
-          fabs(weber_stats->rec_pix_max * sqrt(weber_stats->src_variance) -
-               weber_stats->src_pix_max * sqrt(weber_stats->rec_variance));
+      base_den += fabs(weber_stats->rec_pix_max * (weber_stats->src_variance) -
+                       weber_stats->src_pix_max * (weber_stats->rec_variance));
 
       base_reg +=
           sqrt(weber_stats->distortion) * sqrt(weber_stats->src_pix_max) * 0.1;
@@ -166,6 +165,48 @@ static int get_var_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   }
 
   return sb_wiener_var;
+}
+
+static int compute_lap_opt(uint8_t *src_buf, int src_stride, int pix_row,
+                           int pix_col, int block_size, int use_hbd) {
+  int lap = 0;
+  int nb_count = 0;
+  int center_pix;
+#if CONFIG_AV1_HIGHBITDEPTH
+  if (use_hbd) {
+    uint16_t *dst = CONVERT_TO_SHORTPTR(src_buf);
+    center_pix = dst[pix_row * src_stride + pix_col];
+  } else {
+    center_pix = src_buf[pix_row * src_stride + pix_col];
+  }
+#else
+  center_pix = src_buf[pix_row * src_stride + pix_col];
+#endif
+
+  for (int idy = -1; idy <= 1; ++idy) {
+    for (int idx = -1; idx <= 1; ++idx) {
+      if (pix_row + idy < 0 || pix_row + idy >= block_size) continue;
+      if (pix_col + idx < 0 || pix_col + idx >= block_size) continue;
+      if (idy == 0 && idx == 0) continue;
+      int nb_pix;
+#if CONFIG_AV1_HIGHBITDEPTH
+      if (use_hbd) {
+        uint16_t *dst = CONVERT_TO_SHORTPTR(src_buf);
+        nb_pix = dst[(pix_row + idy) * src_stride + (pix_col + idx)];
+      } else {
+        nb_pix = src_buf[(pix_row + idy) * src_stride + (pix_col + idx)];
+      }
+#else
+      nb_pix = src_buf[(pix_row + idy) * src_stride + (pix_col + idx)];
+#endif
+      lap -= nb_pix;
+      ++nb_count;
+    }
+  }
+
+  lap += nb_count * center_pix;
+
+  return abs(lap);
 }
 
 void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
@@ -323,27 +364,30 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
           src_mean += src_pix;
           rec_mean += rec_pix;
           dist_mean += src_pix - rec_pix;
-          weber_stats->src_variance += src_pix * src_pix;
-          weber_stats->rec_variance += rec_pix * rec_pix;
+
+          weber_stats->src_variance +=
+              compute_lap_opt(dst_buffer, buf_stride, pix_row, pix_col,
+                              block_size, is_cur_buf_hbd(xd));
+          weber_stats->rec_variance +=
+              compute_lap_opt(pred_buf, block_size, pix_row, pix_col,
+                              block_size, is_cur_buf_hbd(xd));
           weber_stats->src_pix_max = AOMMAX(weber_stats->src_pix_max, src_pix);
           weber_stats->rec_pix_max = AOMMAX(weber_stats->rec_pix_max, rec_pix);
           weber_stats->distortion += (src_pix - rec_pix) * (src_pix - rec_pix);
         }
       }
 
-      weber_stats->src_variance -= (src_mean * src_mean) / pix_num;
-      weber_stats->rec_variance -= (rec_mean * rec_mean) / pix_num;
       weber_stats->distortion -= (dist_mean * dist_mean) / pix_num;
       weber_stats->satd = best_intra_cost;
 
       double reg =
           sqrt(weber_stats->distortion) * sqrt(weber_stats->src_pix_max) * 0.1;
       double alpha_den =
-          fabs(weber_stats->rec_pix_max * sqrt(weber_stats->src_variance) -
-               weber_stats->src_pix_max * sqrt(weber_stats->rec_variance)) +
+          fabs(weber_stats->rec_pix_max * (weber_stats->src_variance) -
+               weber_stats->src_pix_max * (weber_stats->rec_variance)) +
           reg;
       double alpha_num = sqrt(weber_stats->distortion) *
-                             sqrt(weber_stats->src_variance) *
+                             (weber_stats->src_variance) *
                              weber_stats->rec_pix_max +
                          reg;
 
