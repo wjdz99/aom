@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96319afe_3f186821",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2685,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-27T22:06:22Z",
+      "side": 1,
+      "message": "I believe KF_UPDATE OVERLAY_UPDATE and INTNL_OVERLAY_UPDATE will not have motion vector cost. Please confirm that.",
+      "range": {
+        "startLine": 2685,
+        "startChar": 10,
+        "endLine": 2685,
+        "endChar": 21
+      },
+      "revId": "df83491e978c88d2ac7ed5dca63b38af0460a153",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "821019f3_31fd3292",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2688,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-27T22:06:22Z",
+      "side": 1,
+      "message": "I would suggest compare the motion vector rate on per frame basis not on per GOP basis.\nAt this location, you can compute this frame\u0027s estimated motion vector rate and actual motion vector rate.\nThis way, if there is a particular frame whose motion rate is far away from the estimation, we can investigate that.",
+      "range": {
+        "startLine": 2686,
+        "startChar": 0,
+        "endLine": 2688,
+        "endChar": 7
+      },
+      "revId": "df83491e978c88d2ac7ed5dca63b38af0460a153",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
