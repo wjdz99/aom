@@ -2672,6 +2672,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (do_dummy_pack) {
       av1_finalize_encoded_frame(cpi);
       int largest_tile_id = 0;  // Output from bitstream: unused here
+      int tmp = rc->coefficient_size;
       rc->coefficient_size = 0;
       if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) !=
           AOM_CODEC_OK) {
@@ -2680,6 +2681,24 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 
       // bits used for this frame
       rc->projected_frame_size = (int)(*size) << 3;
+
+      // Compute the frame's motion vector cost.
+      TplDepFrame *tpl_frame = &cpi->ppi->tpl_data.tpl_frame[cpi->gf_frame_index];
+      double mv_estimate = av1_tpl_compute_frame_mv_entropy(tpl_frame,
+                                                              cpi->ppi->tpl_data.tpl_stats_block_mis_log2);
+      printf("\ni: %d, update_type: %d\n",
+             cpi->gf_frame_index, cpi->ppi->gf_group.update_type[cpi->gf_frame_index]);
+      printf("frame mv estimate: %f\n", mv_estimate);
+      printf("projected frame size: %d\n", rc->projected_frame_size);
+      printf("coeff size: %d\n", tmp);
+      int actual_mv_cost = rc->projected_frame_size - tmp;
+      printf("actual mv cost: %d\n", actual_mv_cost);
+      printf("difference: %f\n", mv_estimate - actual_mv_cost);
+      if (cpi->ppi->gf_group.update_type[cpi->gf_frame_index] != INTNL_ARF_UPDATE
+          || tmp != 0) {
+        cpi->vbr_rc_info.total_proj_frame_size += rc->projected_frame_size;
+        cpi->vbr_rc_info.total_coeff_size += tmp;
+      }
 #if CONFIG_RD_COMMAND
       PSNR_STATS psnr;
       aom_calc_psnr(cpi->source, &cpi->common.cur_frame->buf, &psnr);
