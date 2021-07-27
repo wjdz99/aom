@@ -241,6 +241,8 @@ typedef struct {
   double scale_factor;      // Scale factor to improve the budget estimation
   int q_index_list[MAX_LENGTH_TPL_FRAME_STATS];  // q indices for the current
                                                  // GOP
+  int total_proj_frame_size;
+  int total_coeff_size;
 } VBR_RATECTRL_INFO;
 
 static INLINE void vbr_rc_init(VBR_RATECTRL_INFO *vbr_rc_info,
@@ -249,6 +251,8 @@ static INLINE void vbr_rc_init(VBR_RATECTRL_INFO *vbr_rc_info,
   vbr_rc_info->show_frame_count = show_frame_count;
   vbr_rc_info->keyframe_bitrate = 0;
   vbr_rc_info->scale_factor = 1.0;
+  vbr_rc_info->total_proj_frame_size = 0;
+  vbr_rc_info->total_coeff_size = 0;
 }
 
 static INLINE void vbr_rc_set_gop_bit_budget(VBR_RATECTRL_INFO *vbr_rc_info,
