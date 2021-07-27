@@ -39,6 +39,30 @@
       },
       "revId": "abc538f28b478e90c6b46698aae71e2feeb458de",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1961eed9_2e2bfdbe",
+        "filename": "test/spherical_pred_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 26932
+      },
+      "writtenOn": "2021-07-27T17:41:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bebdcec6_d5f68a19",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 43
+      },
+      "revId": "abc538f28b478e90c6b46698aae71e2feeb458de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
