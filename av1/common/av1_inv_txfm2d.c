@@ -122,17 +122,17 @@ static INLINE TxfmFunc inv_txfm_type_to_func(int mode, TXFM_TYPE txfm_type) {
     case TXFM_TYPE_DCT64: return av1_idct64_new;
 #if CONFIG_LGT
     case TXFM_TYPE_ADST4:
-      return (mode >= INTER_MODE_START && mode < INTER_MODE_END)
-                 ? av1_iadst4_lgt_inter
-                 : av1_iadst4_lgt_intra;
+      return is_intra_mode(mode)
+                 ? (USE_LGT_INTRA ? av1_iadst4_lgt_intra : av1_iadst4_new)
+                 : av1_iadst4_lgt_inter;
     case TXFM_TYPE_ADST8:
-      return (mode >= INTER_MODE_START && mode < INTER_MODE_END)
-                 ? av1_iadst8_lgt_inter
-                 : av1_iadst8_lgt_intra;
+      return is_intra_mode(mode)
+                 ? (USE_LGT_INTRA ? av1_iadst8_lgt_intra : av1_iadst8_new)
+                 : av1_iadst8_lgt_inter;
     case TXFM_TYPE_ADST16:
-      return (mode >= INTER_MODE_START && mode < INTER_MODE_END)
-                 ? av1_iadst16_lgt_inter
-                 : av1_iadst16_lgt_intra;
+      return is_intra_mode(mode)
+                 ? (USE_LGT_INTRA ? av1_iadst16_lgt_intra : av1_iadst16_new)
+                 : av1_iadst16_lgt_inter;
 #else
     case TXFM_TYPE_ADST4: return av1_iadst4_new;
     case TXFM_TYPE_ADST8: return av1_iadst8_new;

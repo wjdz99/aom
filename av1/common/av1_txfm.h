@@ -52,6 +52,7 @@ extern const int32_t dst7_32x32[32][32];
 #define DST_32X32_PREC_BITS 7
 #endif
 #if CONFIG_LGT
+#define USE_LGT_INTRA 0
 #define LGT_PREC_BITS 10
 extern const int32_t lgt_intra_4x4[4 * 4];
 extern const int32_t lgt_intra_8x8[8 * 8];

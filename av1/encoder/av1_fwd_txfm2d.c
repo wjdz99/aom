@@ -37,17 +37,17 @@ static INLINE TxfmFunc fwd_txfm_type_to_func(int mode, TXFM_TYPE txfm_type) {
     case TXFM_TYPE_DCT64: return av1_fdct64_new;
 #if CONFIG_LGT
     case TXFM_TYPE_ADST4:
-      return (mode >= INTER_MODE_START && mode < INTER_MODE_END)
-                 ? av1_fadst4_lgt_inter
-                 : av1_fadst4_lgt_intra;
+      return is_intra_mode(mode)
+                 ? (USE_LGT_INTRA ? av1_fadst4_lgt_intra : av1_fadst4_new)
+                 : av1_fadst4_lgt_inter;
     case TXFM_TYPE_ADST8:
-      return (mode >= INTER_MODE_START && mode < INTER_MODE_END)
-                 ? av1_fadst8_lgt_inter
-                 : av1_fadst8_lgt_intra;
+      return is_intra_mode(mode)
+                 ? (USE_LGT_INTRA ? av1_fadst8_lgt_intra : av1_fadst8_new)
+                 : av1_fadst8_lgt_inter;
     case TXFM_TYPE_ADST16:
-      return (mode >= INTER_MODE_START && mode < INTER_MODE_END)
-                 ? av1_fadst16_lgt_inter
-                 : av1_fadst16_lgt_intra;
+      return is_intra_mode(mode)
+                 ? (USE_LGT_INTRA ? av1_fadst16_lgt_intra : av1_fadst16_new)
+                 : av1_fadst16_lgt_inter;
 #else
     case TXFM_TYPE_ADST4: return av1_fadst4_new;
     case TXFM_TYPE_ADST8: return av1_fadst8_new;
