@@ -2267,6 +2267,11 @@ static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
     if (ref_frame != LAST_FRAME && mode == NEARMV) return 1;
 
     if (more_prune && bsize >= BLOCK_32X32 && mode == NEARMV) return 1;
+
+    if (extra_prune > 2) {
+      if (bsize > BLOCK_32X32 && !(mode == NEARESTMV || mode == GLOBALMV))
+        return 1;
+    }
   }
   return 0;
 }
