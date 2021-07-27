@@ -1500,6 +1500,11 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     for (int i = 0; i < BLOCK_SIZES; ++i)
       sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC;
   }
+  if (speed >= 10) {
+    sf->rt_sf.source_metrics_sb_nonrd = 0;
+    sf->rt_sf.skip_intra_pred_if_tx_skip = 1;
+    sf->rt_sf.nonrd_prune_ref_frame_search = 3;
+  }
 }
 
 static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
