@@ -332,6 +332,9 @@ static int64_t scale_part_thresh_content(int64_t threshold_base, int speed,
   (void)height;
   int64_t threshold = threshold_base;
   if (non_reference_frame) threshold = (3 * threshold) >> 1;
+  if (speed >= 10) {
+    threshold = (3 * threshold) >> 1;
+  }
   if (speed >= 8) {
     return (5 * threshold) >> 2;
   }
