@@ -1034,6 +1034,11 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       av1_tpl_preload_rc_estimate(cpi, frame_params);
       av1_tpl_setup_stats(cpi, 0, frame_params, frame_input);
 #if CONFIG_BITRATE_ACCURACY
+      double mv_bits = av1_tpl_compute_mv_bits(&cpi->ppi->tpl_data,
+                                               gf_group->size,
+                                               cpi->gf_frame_index);
+      //      printf("mv_bits: %f\n", mv_bits);
+      cpi->vbr_rc_info.gop_bit_budget -= (mv_bits * 2);
       av1_vbr_rc_update_q_index_list(&cpi->vbr_rc_info, &cpi->ppi->tpl_data,
                                      gf_group, cpi->gf_frame_index,
                                      cm->seq_params->bit_depth);
@@ -1045,6 +1050,11 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
       AOM_CODEC_OK) {
     return AOM_CODEC_ERROR;
   }
+
+  /* printf("total projected frame size: %d, total coeff size: %d\ndifference: %d\n", */
+  /*        cpi->vbr_rc_info.total_proj_frame_size, */
+  /*        cpi->vbr_rc_info.total_coeff_size, */
+  /*        cpi->vbr_rc_info.total_proj_frame_size - cpi->vbr_rc_info.total_coeff_size); */
 
   // Set frame_input source to true source for psnr calculation.
   if (apply_filtering && is_psnr_calc_enabled(cpi)) {
