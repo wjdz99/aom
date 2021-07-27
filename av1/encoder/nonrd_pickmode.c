@@ -2267,6 +2267,11 @@ static AOM_INLINE int skip_mode_by_bsize_and_ref_frame(
     if (ref_frame != LAST_FRAME && mode == NEARMV) return 1;
 
     if (more_prune && bsize >= BLOCK_32X32 && mode == NEARMV) return 1;
+
+    if (extra_prune > 2) {
+      if (bsize > BLOCK_32X32 && !(mode == NEARESTMV || mode == GLOBALMV))
+        return 1;
+    }
   }
   return 0;
 }
@@ -2373,7 +2378,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // content with low motion.
   int use_zeromv =
       ((cpi->oxcf.speed >= 9 && cpi->rc.avg_frame_low_motion > 70) ||
-       cpi->sf.rt_sf.nonrd_agressive_skip);
+       cpi->sf.rt_sf.nonrd_agressive_skip || cpi->oxcf.speed >= 10);
   const int num_inter_modes =
       use_zeromv ? NUM_INTER_MODES_REDUCED : NUM_INTER_MODES_RT;
   const REF_MODE *const ref_mode_set =
