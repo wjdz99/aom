@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2b1b30d_1bb0d0cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-28T20:45:59Z",
+      "side": 1,
+      "message": "I addressed the comments in a separate commit.",
+      "revId": "f6966ae4aa0f5f72c3e413ccfb67b9667cdac1b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0aea359a_9fa975e6",
@@ -31,6 +48,30 @@
       "writtenOn": "2021-07-28T18:14:35Z",
       "side": 1,
       "message": "Change \"size\" to \"type\" in this comment.\n\nAlso, I think it would be clearer to add \"TYPE\" to this enum name, e.g., \"TX_TYPE_2D_INVALID\" or \"TX_TYPE_INVALID\".",
+      "range": {
+        "startLine": 70,
+        "startChar": 51,
+        "endLine": 70,
+        "endChar": 55
+      },
+      "revId": "f6966ae4aa0f5f72c3e413ccfb67b9667cdac1b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a8366a8_c0afe27e",
+        "filename": "aom_dsp/txfm_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-28T20:45:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0aea359a_9fa975e6",
       "range": {
         "startLine": 70,
         "startChar": 51,
@@ -58,6 +99,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b238409_f702ec1c",
+        "filename": "av1/encoder/sorting_network.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-28T20:45:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d12932d0_b78f8741",
+      "revId": "f6966ae4aa0f5f72c3e413ccfb67b9667cdac1b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e46e9142_0dfc4bb6",
@@ -81,6 +140,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb6a3151_43af183c",
+        "filename": "av1/encoder/sorting_network.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-28T20:45:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e46e9142_0dfc4bb6",
+      "range": {
+        "startLine": 37,
+        "startChar": 55,
+        "endLine": 37,
+        "endChar": 74
+      },
+      "revId": "f6966ae4aa0f5f72c3e413ccfb67b9667cdac1b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06742690_804ff719",
@@ -94,6 +177,30 @@
       "writtenOn": "2021-07-28T18:14:35Z",
       "side": 1,
       "message": "Nit: Should we format these two lines as follows?\n\n * \\param[in,out]    v          An length-16 array of int32 serves as the\n *                              values.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 10
+      },
+      "revId": "f6966ae4aa0f5f72c3e413ccfb67b9667cdac1b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89ac8b9b_b64908e0",
+        "filename": "av1/encoder/sorting_network.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-28T20:45:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06742690_804ff719",
       "range": {
         "startLine": 40,
         "startChar": 0,
