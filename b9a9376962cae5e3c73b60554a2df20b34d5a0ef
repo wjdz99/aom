@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfda37e2_e2ea4d40",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:28:48Z",
+      "side": 1,
+      "message": "Thanks for reviewing Wan-Teh.\nI did have some experience working with vp9\u0027s firspass stats so that helps a bit. But this is still very hard for me as well.",
+      "parentUuid": "30b0eae4_702db384",
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6632801c_54d28cc0",
