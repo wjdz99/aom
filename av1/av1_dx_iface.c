@@ -1381,6 +1381,42 @@ static aom_codec_err_t ctrl_get_tile_count(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_INVALID_PARAM;
 }
 
+static aom_codec_err_t ctrl_get_base_q_idx(aom_codec_alg_priv_t *ctx,
+                                           va_list args) {
+  int *const arg = va_arg(args, int *);
+  if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
+  if (ctx->frame_worker == NULL) return AOM_CODEC_ERROR;
+  FrameWorkerData *const frame_worker_data =
+      (FrameWorkerData *)ctx->frame_worker->data1;
+  if (frame_worker_data == NULL) return AOM_CODEC_ERROR;
+  *arg = frame_worker_data->pbi->common.quant_params.base_qindex;
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_get_show_frame_flag(aom_codec_alg_priv_t *ctx,
+                                                va_list args) {
+  int *const arg = va_arg(args, int *);
+  if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
+  if (ctx->frame_worker == NULL) return AOM_CODEC_ERROR;
+  FrameWorkerData *const frame_worker_data =
+      (FrameWorkerData *)ctx->frame_worker->data1;
+  if (frame_worker_data == NULL) return AOM_CODEC_ERROR;
+  *arg = frame_worker_data->pbi->common.show_frame;
+  return AOM_CODEC_OK;
+}
+
+static aom_codec_err_t ctrl_get_order_hint(aom_codec_alg_priv_t *ctx,
+                                           va_list args) {
+  unsigned int *const arg = va_arg(args, unsigned int *);
+  if (arg == NULL) return AOM_CODEC_INVALID_PARAM;
+  if (ctx->frame_worker == NULL) return AOM_CODEC_ERROR;
+  FrameWorkerData *const frame_worker_data =
+      (FrameWorkerData *)ctx->frame_worker->data1;
+  if (frame_worker_data == NULL) return AOM_CODEC_ERROR;
+  *arg = frame_worker_data->pbi->common.current_frame.order_hint;
+  return AOM_CODEC_OK;
+}
+
 static aom_codec_err_t ctrl_set_invert_tile_order(aom_codec_alg_priv_t *ctx,
                                                   va_list args) {
   ctx->invert_tile_order = va_arg(args, int);
@@ -1568,7 +1604,9 @@ static aom_codec_ctrl_fn_map_t decoder_ctrl_maps[] = {
   { AOMD_GET_SB_SIZE, ctrl_get_sb_size },
   { AOMD_GET_SHOW_EXISTING_FRAME_FLAG, ctrl_get_show_existing_frame_flag },
   { AOMD_GET_S_FRAME_INFO, ctrl_get_s_frame_info },
-
+  { AOMD_GET_SHOW_FRAME_FLAG, ctrl_get_show_frame_flag },
+  { AOMD_GET_BASE_Q_IDX, ctrl_get_base_q_idx },
+  { AOMD_GET_ORDER_HINT, ctrl_get_order_hint },
   CTRL_MAP_END,
 };
 
