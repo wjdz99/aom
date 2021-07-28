@@ -60,6 +60,7 @@ unset(LT_AGE)
 set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
 
 include("${AOM_ROOT}/build/cmake/aom_configure.cmake")
+include("${AOM_ROOT}/common/aom_common.cmake")
 include("${AOM_ROOT}/aom_dsp/aom_dsp.cmake")
 include("${AOM_ROOT}/aom_mem/aom_mem.cmake")
 include("${AOM_ROOT}/aom_ports/aom_ports.cmake")
@@ -168,10 +169,11 @@ list(APPEND AOM_COMMON_APP_UTIL_SOURCES
             "${AOM_ROOT}/common/rawenc.c"
             "${AOM_ROOT}/common/rawenc.h"
             "${AOM_ROOT}/common/y4menc.c"
-            "${AOM_ROOT}/common/y4menc.h")
+            "${AOM_ROOT}/common/y4menc.h"
+            "${AOM_ROOT}/common/ivfdec.c"
+            "${AOM_ROOT}/common/ivfdec.h")
 
-list(APPEND AOM_DECODER_APP_UTIL_SOURCES "${AOM_ROOT}/common/ivfdec.c"
-            "${AOM_ROOT}/common/ivfdec.h" "${AOM_ROOT}/common/obudec.c"
+list(APPEND AOM_DECODER_APP_UTIL_SOURCES "${AOM_ROOT}/common/obudec.c"
             "${AOM_ROOT}/common/obudec.h" "${AOM_ROOT}/common/video_reader.c"
             "${AOM_ROOT}/common/video_reader.h")
 
@@ -293,12 +295,14 @@ if(NOT MSVC AND NOT APPLE)
 endif()
 
 # List of object and static library targets.
-set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)
+set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_common aom_rtcd aom_mem aom_scale
+                    aom)
 if(BUILD_SHARED_LIBS)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_static)
 endif()
 
 # Setup dependencies.
+setup_aom_common_targets()
 setup_aom_dsp_targets()
 setup_aom_mem_targets()
 setup_aom_ports_targets()

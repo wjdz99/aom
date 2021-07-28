@@ -16,6 +16,8 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "aom/aom_encoder.h"
+#include "av1/encoder/thirdpass.h"
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
 
@@ -1439,6 +1441,15 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
 #endif
   cm->error->setjmp = 0;
 
+  cpi->third_pass_ctx = NULL;
+  if (cpi->oxcf.pass == AOM_RC_THIRD_PASS) {
+    if (av1_init_thirdpass_ctx(&cpi->third_pass_ctx, NULL) < 0) {
+      fprintf(stderr,
+              "Failed to initialize third-pass context. Continuing with "
+              "regular encoding.");
+    }
+  }
+
   return cpi;
 }
 
@@ -1579,6 +1590,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     av1_tf_mt_dealloc(&mt_info->tf_sync);
 #endif
   }
+
+  av1_free_thirdpass_ctx(cpi->third_pass_ctx);
 
   dealloc_compressor_data(cpi);
 
@@ -4065,6 +4078,12 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
 #if CONFIG_FRAME_PARALLEL_ENCODE
     update_end_of_frame_stats(cpi);
 #endif
+  }
+
+  if (cpi->oxcf.pass == AOM_RC_THIRD_PASS && cpi->third_pass_ctx) {
+    int ret = av1_pop_third_pass_info(cpi->third_pass_ctx);
+    (void)ret;
+    assert(ret == 0 && "Failed to pop third pass frame info.");
   }
 
   if (ppi->use_svc) av1_save_layer_context(cpi);
