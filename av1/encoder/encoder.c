@@ -16,6 +16,7 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include "av1/encoder/thirdpass.h"
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
 
@@ -1439,6 +1440,15 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
 #endif
   cm->error->setjmp = 0;
 
+  cpi->third_pass_ctx = NULL;
+  if (cpi->oxcf.pass == AOM_RC_THIRD_PASS) {
+    if (av1_init_thirdpass_ctx(&cpi->third_pass_ctx, NULL) < 0) {
+      fprintf(stderr,
+              "Failed to initialize third-pass context. Continuing with "
+              "regular encoding.");
+    }
+  }
+
   return cpi;
 }
 
@@ -1579,6 +1589,8 @@ void av1_remove_compressor(AV1_COMP *cpi) {
     av1_tf_mt_dealloc(&mt_info->tf_sync);
 #endif
   }
+
+  av1_free_thirdpass_ctx(cpi->third_pass_ctx);
 
   dealloc_compressor_data(cpi);
 
