@@ -251,6 +251,11 @@ if (aom_config("CONFIG_AV1_HIGHBITDEPTH") eq "yes") {
   specialize qw/av1_highbd_dr_prediction_z3 avx2/;
 }
 
+add_proto qw/void aom_upsampled_pred/, "MACROBLOCKD *xd, const struct AV1Common *const cm, int mi_row, int mi_col,
+                                        const MV *const mv, uint8_t *comp_pred, int width, int height, int subpel_x_q3,
+                                        int subpel_y_q3, const uint8_t *ref, int ref_stride, int subpel_search";
+specialize qw/aom_upsampled_pred sse2/;
+
 # build compound seg mask functions
 add_proto qw/void av1_build_compound_diffwtd_mask/, "uint8_t *mask, DIFFWTD_MASK_TYPE mask_type, const uint8_t *src0, int src0_stride, const uint8_t *src1, int src1_stride, int h, int w";
 specialize qw/av1_build_compound_diffwtd_mask sse4_1 avx2/;
