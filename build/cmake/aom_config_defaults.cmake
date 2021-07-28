@@ -160,6 +160,15 @@ set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 1 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 1 "Enable TMVP improvement")
 set_aom_config_var(
   CONFIG_CCSO 1 "AV2 experiment flag to enable cross component sample offset.")
+set_aom_config_var(
+  CONFIG_IS_INTER_CONTEXT 1
+  "AV2 experiment flag to enable modified context for is_inter flag.")
+set_aom_config_var(
+  CONFIG_SIGN_PRED_CONTEXT 1
+  "AV2 experiment flag to enable modified context for sign bits.")
+set_aom_config_var(
+  CONFIG_ALL_ZERO_CONTEXT 1
+  "AV2 experiment flag to enable modified context for all zero flag.")
 #
 # Variables in this section control optional features of the build system.
 #

@@ -1043,6 +1043,15 @@ typedef struct macroblockd {
   /** ccso blk v */
   uint8_t ccso_blk_v;
 #endif
+
+#if CONFIG_SIGN_PRED_CONTEXT
+  // variable to store AOM_PLANE_U DC sign
+  int32_t tmp_sign[4096];
+#endif
+
+#if CONFIG_ALL_ZERO_CONTEXT
+  uint8_t eob_u_flag;
+#endif
 } MACROBLOCKD;
 
 /*!\cond */
