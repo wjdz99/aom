@@ -4082,6 +4082,12 @@ void av1_post_encode_updates(AV1_COMP *const cpi,
     compute_internal_stats(cpi, (int)cpi_data->frame_size);
   }
 #endif  // CONFIG_INTERNAL_STATS
+
+  // Release the current frame-buffer.
+  if (cm->cur_frame != NULL) {
+    --cm->cur_frame->ref_count;
+    cm->cur_frame = NULL;
+  }
 }
 
 int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
