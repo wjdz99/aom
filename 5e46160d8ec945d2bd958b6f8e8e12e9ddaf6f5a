@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53c7bedd_ab2aa2e4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2021-07-28T15:21:17Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch checks in code to add support for frame-parallelism in the multi-threading framework.\n\nThe number of level 2 workers required per parallel frame encode are tracked using num_mod_workers[MOD_FRAME_ENC]. This is to allow for creation of all workers required for frame parallel multi-threading. Additionally, some initializations to thread_data-\u003etd, thread_data-\u003estart and thread_data-\u003ethread_id are correctly handled for when fpmt will be turned on. As workers will sometimes be overloaded as both level 1 and level 2 workers, sometimes during stage mt their thread_data may contain the td of their corresponding cpi. To restore the worker\u0027s originally allocated td, an additional variable original_td has been added, and code to restore this td has been added. Some minor refactoring, and bug fixes are also checked in.\n\nThis change is bit-exact and has been locally verified with bitstream match tests.\n\nPlease review the patch.\nThanks",
+      "revId": "5e46160d8ec945d2bd958b6f8e8e12e9ddaf6f5a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
