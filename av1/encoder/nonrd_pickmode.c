@@ -428,9 +428,21 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
     memset(ref_costs_single, 0, REF_FRAMES * sizeof(*ref_costs_single));
   } else {
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
+#if CONFIG_IS_INTER_CONTEXT
+#if CONFIG_SDP
+    const int skip_txfm = xd->mi[0]->skip_txfm[xd->tree_type == CHROMA_PART];
+#else
+    const int skip_txfm = xd->mi[0]->skip_txfm;
+#endif
+    ref_costs_single[INTRA_FRAME] =
+        mode_costs->intra_inter_cost[skip_txfm][intra_inter_ctx][0];
+    unsigned int base_cost =
+        mode_costs->intra_inter_cost[skip_txfm][intra_inter_ctx][1];
+#else
     ref_costs_single[INTRA_FRAME] =
         mode_costs->intra_inter_cost[intra_inter_ctx][0];
     unsigned int base_cost = mode_costs->intra_inter_cost[intra_inter_ctx][1];
+#endif
 
     for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
       ref_costs_single[i] = base_cost;
@@ -492,7 +504,17 @@ static void estimate_comp_ref_frame_costs(
              REF_FRAMES * sizeof((*ref_costs_comp)[0]));
   } else {
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
+#if CONFIG_IS_INTER_CONTEXT
+#if CONFIG_SDP
+    const int skip_txfm = xd->mi[0]->skip_txfm[xd->tree_type == CHROMA_PART];
+#else
+    const int skip_txfm = xd->mi[0]->skip_txfm;
+#endif
+    unsigned int base_cost =
+        mode_costs->intra_inter_cost[skip_txfm][intra_inter_ctx][1];
+#else
     unsigned int base_cost = mode_costs->intra_inter_cost[intra_inter_ctx][1];
+#endif
 
     if (cm->current_frame.reference_mode != SINGLE_REFERENCE) {
       // Similar to single ref, determine cost of compound ref frames.

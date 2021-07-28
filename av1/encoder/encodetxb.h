@@ -25,8 +25,13 @@ extern "C" {
 #endif
 
 /*!\cond */
+#if CONFIG_ALL_ZERO_CONTEXT
+#define TXB_SKIP_CTX_MASK 31
+#define DC_SIGN_CTX_SHIFT 5
+#else
 #define TXB_SKIP_CTX_MASK 15
 #define DC_SIGN_CTX_SHIFT 4
+#endif
 #define DC_SIGN_CTX_MASK 3
 
 typedef struct TxbInfo {
@@ -375,12 +380,24 @@ CB_COEFF_BUFFER *av1_get_cb_coeff_buffer(const struct AV1_COMP *cpi, int mi_row,
  */
 static INLINE int av1_cost_skip_txb(const CoeffCosts *coeff_costs,
                                     const TXB_CTX *const txb_ctx, int plane,
-                                    TX_SIZE tx_size) {
+                                    TX_SIZE tx_size
+#if CONFIG_ALL_ZERO_CONTEXT
+                                    ,
+                                    MACROBLOCK *x, int block
+#endif
+) {
   const TX_SIZE txs_ctx = get_txsize_entropy_ctx(tx_size);
   const PLANE_TYPE plane_type = get_plane_type(plane);
   const LV_MAP_COEFF_COST *const coeff_costs_ =
       &coeff_costs->coeff_costs[txs_ctx][plane_type];
+#if CONFIG_ALL_ZERO_CONTEXT
+  const int txb_skip_ctx =
+      txb_ctx->txb_skip_ctx +
+      (plane == 2 ? (x->plane[AOM_PLANE_U].eobs[block] ? 1 : 0) : 0);
+  return coeff_costs_->txb_skip_cost[txb_skip_ctx][1];
+#else
   return coeff_costs_->txb_skip_cost[txb_ctx->txb_skip_ctx][1];
+#endif
 }
 
 /*!\cond */
