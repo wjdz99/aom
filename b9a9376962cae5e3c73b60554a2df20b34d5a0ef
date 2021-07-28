@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b08c6103_0dd9ad2a",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1445,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6632801c_54d28cc0",
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e1fb3a5_92c9cc13",
@@ -65,6 +83,30 @@
       "writtenOn": "2021-07-28T02:07:11Z",
       "side": 1,
       "message": "Peak \u003d\u003e Peek\n\nAlso add \"at\" after \"Peek\"",
+      "range": {
+        "startLine": 238,
+        "startChar": 10,
+        "endLine": 238,
+        "endChar": 14
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43e14e52_74fe64df",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2e1fb3a5_92c9cc13",
       "range": {
         "startLine": 238,
         "startChar": 10,
@@ -98,6 +140,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b919386_39de2a69",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d13bc1c_d61c49b8",
+      "range": {
+        "startLine": 240,
+        "startChar": 1,
+        "endLine": 240,
+        "endChar": 64
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "06420f66_af755748",
@@ -111,6 +177,30 @@
       "writtenOn": "2021-07-28T02:07:11Z",
       "side": 1,
       "message": "Please update these two lines. The output parameter became the return value.",
+      "range": {
+        "startLine": 244,
+        "startChar": 0,
+        "endLine": 245,
+        "endChar": 17
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e471214_c96df1f4",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06420f66_af755748",
       "range": {
         "startLine": 244,
         "startChar": 0,
@@ -144,6 +234,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "81f1a40d_bfa5891f",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9fdf6a4_d2e158fe",
+      "range": {
+        "startLine": 247,
+        "startChar": 42,
+        "endLine": 247,
+        "endChar": 46
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "55cf0db5_8bdcbbf7",
@@ -157,6 +271,30 @@
       "writtenOn": "2021-07-28T02:07:11Z",
       "side": 1,
       "message": "Nit: change \"struct\" to \"structure\".\n\nThe comment also has a grammatical error. One way to fix it is to say:\n\n  This is the first pass data structure, which aims at\n  replacing stats_in.\n\nor\n\n  This is the first pass data structure, which aims to\n  replace stats_in.",
+      "range": {
+        "startLine": 339,
+        "startChar": 65,
+        "endLine": 339,
+        "endChar": 76
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc506246_bc64744e",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "55cf0db5_8bdcbbf7",
       "range": {
         "startLine": 339,
         "startChar": 65,
@@ -190,6 +328,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce3d041a_bfa38353",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "sub function\nI want to change the interface of calculate_modified_err.\nBut it\u0027s called in many places.\nSo I created a sub function here to only replace the parts that matter to this bug.\nAnd later on, I will gradually replace every calculate_modified_err by calculate_modified_err_sub.\nAt that point, we can just remove \"sub\".",
+      "parentUuid": "a29e391a_810578a3",
+      "range": {
+        "startLine": 62,
+        "startChar": 36,
+        "endLine": 62,
+        "endChar": 40
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1d8a8075_503cc1e9",
@@ -203,6 +365,30 @@
       "writtenOn": "2021-07-28T16:01:31Z",
       "side": 1,
       "message": "Optional: Can we just combine calculate_modified_err and calculate_modified_err_sub into one function? It seems the extra step is not that necessary.",
+      "range": {
+        "startLine": 89,
+        "startChar": 14,
+        "endLine": 89,
+        "endChar": 36
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1869a26f_0b38c54b",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Yes, I will do that in a follow up CL.\nIt\u0027s hard to change everything at once because I will have to confirm how \"this_frame\" is generated at every places.",
+      "parentUuid": "1d8a8075_503cc1e9",
       "range": {
         "startLine": 89,
         "startChar": 14,
@@ -236,6 +422,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1af59c45_c0a1e7e2",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1938,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "032201e3_45ab5f04",
+      "range": {
+        "startLine": 1938,
+        "startChar": 6,
+        "endLine": 1938,
+        "endChar": 22
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "906bc07e_3e8f2066",
@@ -249,6 +459,30 @@
       "writtenOn": "2021-07-28T16:01:31Z",
       "side": 1,
       "message": "stats_count represents the total number of stats. Here we are looking for the number of future stats. Are they the same here?",
+      "range": {
+        "startLine": 2697,
+        "startChar": 8,
+        "endLine": 2697,
+        "endChar": 35
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e143a947_4f9188a7",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2697,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Good catch",
+      "parentUuid": "906bc07e_3e8f2066",
       "range": {
         "startLine": 2697,
         "startChar": 8,
@@ -282,6 +516,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "948f20d7_fb7655cd",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2821,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94110a03_353f2c71",
+      "range": {
+        "startLine": 2821,
+        "startChar": 55,
+        "endLine": 2821,
+        "endChar": 60
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ab6cd24_5b05f795",
@@ -305,6 +563,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b902c4dd_04b61f48",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3228,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ab6cd24_5b05f795",
+      "range": {
+        "startLine": 3228,
+        "startChar": 27,
+        "endLine": 3228,
+        "endChar": 31
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ebebed24_0e40b0bc",
@@ -318,6 +600,30 @@
       "writtenOn": "2021-07-28T16:01:31Z",
       "side": 1,
       "message": "The comment for stats-\u003eframe does say that the parameter has no real meaning for a collection of frames. This test should probably be based on other stats where the total stats matter. It feels like we should have a few sets of of certain stats and make sure that the total stats for each set is correct.",
+      "range": {
+        "startLine": 90,
+        "startChar": 46,
+        "endLine": 90,
+        "endChar": 59
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e7bc190_a9e50cc2",
+        "filename": "test/firstpass_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T19:21:56Z",
+      "side": 1,
+      "message": "I guess we can use count for now.\nWe can add more filed if it\u0027s needed later.",
+      "parentUuid": "ebebed24_0e40b0bc",
       "range": {
         "startLine": 90,
         "startChar": 46,
