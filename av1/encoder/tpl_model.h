@@ -239,6 +239,7 @@ typedef struct {
   int gop_showframe_count;  // The number of show frames in the current gop
   double gop_bit_budget;    // The bitbudget for the current gop
   double scale_factor;      // Scale factor to improve the budget estimation
+  double mv_scale_factor;   // Scale factor to improve MV entropy estimation
   int q_index_list[MAX_LENGTH_TPL_FRAME_STATS];  // q indices for the current
                                                  // GOP
 } VBR_RATECTRL_INFO;
@@ -249,6 +250,7 @@ static INLINE void vbr_rc_init(VBR_RATECTRL_INFO *vbr_rc_info,
   vbr_rc_info->show_frame_count = show_frame_count;
   vbr_rc_info->keyframe_bitrate = 0;
   vbr_rc_info->scale_factor = 1.0;
+  vbr_rc_info->mv_scale_factor = 1.0;
 }
 
 static INLINE void vbr_rc_set_gop_bit_budget(VBR_RATECTRL_INFO *vbr_rc_info,
@@ -569,7 +571,7 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
  * \return Bits used by the motion vectors for the GOP.
  */
 double av1_tpl_compute_mv_bits(const TplParams *tpl_data, int gf_group_size,
-                               int gf_frame_index);
+                               int gf_frame_index, double mv_scale_factor);
 
 /*!\brief Compute the entropy of motion vectors for a single frame.
  *
