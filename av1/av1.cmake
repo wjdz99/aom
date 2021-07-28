@@ -395,6 +395,7 @@ list(APPEND AOM_AV1_ENCODER_INTRIN_SSE2
             "${AOM_ROOT}/av1/encoder/x86/temporal_filter_sse2.c"
             "${AOM_ROOT}/av1/encoder/x86/av1_k_means_sse2.c"
             "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_sse2.c"
+            "${AOM_ROOT}/av1/encoder/x86/reconinter_enc_sse2.c"
             "${AOM_ROOT}/av1/encoder/x86/wedge_utils_sse2.c")
 
 if(CONFIG_AV1_TEMPORAL_DENOISING)
@@ -409,7 +410,8 @@ if(NOT CONFIG_AV1_HIGHBITDEPTH)
                 "${AOM_ROOT}/av1/encoder/x86/highbd_temporal_filter_sse2.c")
 endif()
 
-list(APPEND AOM_AV1_ENCODER_INTRIN_SSE3 "${AOM_ROOT}/av1/encoder/x86/ml_sse3.c")
+list(APPEND AOM_AV1_ENCODER_INTRIN_SSE3 "${AOM_ROOT}/av1/encoder/x86/ml_sse3.c"
+                "${AOM_ROOT}/av1/encoder/x86/reconinter_enc_ssse3.c")
 
 list(APPEND AOM_AV1_ENCODER_ASM_SSSE3_X86_64
             "${AOM_ROOT}/av1/encoder/x86/av1_quantize_ssse3_x86_64.asm")
