@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dffe580_64e994b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-28T21:04:36Z",
+      "side": 1,
+      "message": "I just noticed that you will need to add it after av1_tpl_setup_stats()\nin pass2_strategy.c as well.",
+      "revId": "3b53ee27dc689b438af369a4cbe376603169fcc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
