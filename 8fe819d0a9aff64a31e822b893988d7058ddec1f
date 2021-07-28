@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f90d8983_ab89fde1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-07-28T17:10:40Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis change moves update of seq_params_locked and timing_info_present out of the frame encode path, to be processed once for a sequence.\n\nseq_params_locked would be set at the end of first key frame encode and persists for the sequence. Redundant calls are cleaned and moved out of frame encode path.\ntiming_info_present and its prerequisites would be calculated during initializations. Therefore, it\u0027s update is moved out of frame encode, along with sequence initializations.\n\nThis change fixes the data race issue for these elements during FPMT.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage,  --row-mt, etc. \n\nPlease review.",
+      "revId": "8fe819d0a9aff64a31e822b893988d7058ddec1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
