@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30b0eae4_702db384",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "Hi Angie,\n\nThank you very much for writing this CL! The off-by-one error is very annoying but I don\u0027t know the code base well enough to fix it.\n\nI suggest some fixes. I only skimmed through pass2_strategy.c because there are a lot of complicated changes in that file. I hope you or someone else will check that file carefully.",
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6632801c_54d28cc0",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1445,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "IMPORTANT: I think we also need to verify index_offset is nonnegative:\n\n  if (index_offset \u003e\u003d 0 \u0026\u0026 index_offset \u003c firstpass_info-\u003estats_count) {\n  \nThe reason is that we also pass this_stats_index - 1 as the index_offset. I think this_stats_index - 1 may be equal to -1.",
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e1fb3a5_92c9cc13",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "Peak \u003d\u003e Peek\n\nAlso add \"at\" after \"Peek\"",
+      "range": {
+        "startLine": 238,
+        "startChar": 10,
+        "endLine": 238,
+        "endChar": 14
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d13bc1c_d61c49b8",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "he \u003d\u003e the\n\ncoppied \u003d\u003e copied",
+      "range": {
+        "startLine": 240,
+        "startChar": 1,
+        "endLine": 240,
+        "endChar": 64
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06420f66_af755748",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "Please update these two lines. The output parameter became the return value.",
+      "range": {
+        "startLine": 244,
+        "startChar": 0,
+        "endLine": 245,
+        "endChar": 17
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9fdf6a4_d2e158fe",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "peak \u003d\u003e peek",
+      "range": {
+        "startLine": 247,
+        "startChar": 42,
+        "endLine": 247,
+        "endChar": 46
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55cf0db5_8bdcbbf7",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "Nit: change \"struct\" to \"structure\".\n\nThe comment also has a grammatical error. One way to fix it is to say:\n\n  This is the first pass data structure, which aims at\n  replacing stats_in.\n\nor\n\n  This is the first pass data structure, which aims to\n  replace stats_in.",
+      "range": {
+        "startLine": 339,
+        "startChar": 65,
+        "endLine": 339,
+        "endChar": 76
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a29e391a_810578a3",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "What does \"_sub\" mean?",
+      "range": {
+        "startLine": 62,
+        "startChar": 36,
+        "endLine": 62,
+        "endChar": 40
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "032201e3_45ab5f04",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1938,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "This variable is computed but does not seem to be used.",
+      "range": {
+        "startLine": 1938,
+        "startChar": 6,
+        "endLine": 1938,
+        "endChar": 22
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94110a03_353f2c71",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2821,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-28T02:07:11Z",
+      "side": 1,
+      "message": "Nit: Should we change \"stats\" to \"info\"?",
+      "range": {
+        "startLine": 2821,
+        "startChar": 55,
+        "endLine": 2821,
+        "endChar": 60
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
