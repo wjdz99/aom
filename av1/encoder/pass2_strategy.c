@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 
+#include "av1/encoder/thirdpass.h"
 #include "config/aom_config.h"
 #include "config/aom_scale_rtcd.h"
 
@@ -3655,7 +3656,25 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       cpi->ppi->gf_state.arf_gf_boost_lst = 0;
     }
 
-    // TODO(jingning): Resoleve the redundant calls here.
+    int need_gf_len = 1;
+    if (cpi->third_pass_ctx && oxcf->pass == AOM_RC_THIRD_PASS) {
+      if (!cpi->third_pass_ctx->input_file_name && oxcf->two_pass_output) {
+        cpi->third_pass_ctx->input_file_name = oxcf->two_pass_output;
+      }
+      if (cpi->third_pass_ctx->input_file_name) {
+        int gf_len;
+        const int order_hint_bits =
+            cpi->common.seq_params->order_hint_info.order_hint_bits_minus_1 + 1;
+        av1_set_gop_third_pass(cpi->third_pass_ctx, gf_group, order_hint_bits,
+                               &gf_len);
+        p_rc->cur_gf_index = 0;
+        p_rc->gf_intervals[0] = gf_len;
+        need_gf_len = 0;
+      }
+    }
+
+    if (need_gf_len) {
+      // TODO(jingning): Resolve the redundant calls here.
     if (rc->intervals_till_gf_calculate_due == 0 || 1) {
       calculate_gf_length(cpi, max_gop_length, MAX_NUM_GF_INTERVALS);
     }
@@ -3669,15 +3688,26 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
           find_regions_index(p_rc->regions, p_rc->num_regions, this_idx);
       int next_region =
           find_regions_index(p_rc->regions, p_rc->num_regions, this_idx + 1);
+<<<<<<< variant A
       // TODO(angiebird): Figure out why this_region and next_region are -1 in
       // unit test like AltRefFramePresenceTestLarge (aomedia:3134)
+>>>>>>> variant B
+======= end
       int is_last_scenecut =
+<<<<<<< variant A
           p_rc->gf_intervals[p_rc->cur_gf_index] >= rc->frames_to_key ||
           (this_region != -1 &&
            p_rc->regions[this_region].type == SCENECUT_REGION) ||
           (next_region != -1 &&
+>>>>>>> variant B
+            (p_rc->gf_intervals[p_rc->cur_gf_index] >= rc->frames_to_key ||
+             p_rc->regions[this_region].type == SCENECUT_REGION ||
+======= end
            p_rc->regions[next_region].type == SCENECUT_REGION);
+<<<<<<< variant A
 
+>>>>>>> variant B
+======= end
       int ori_gf_int = p_rc->gf_intervals[p_rc->cur_gf_index];
 
       if (p_rc->gf_intervals[p_rc->cur_gf_index] > 16 &&
@@ -3695,10 +3725,15 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
           if (is_last_scenecut &&
               (ori_gf_int - p_rc->gf_intervals[p_rc->cur_gf_index] < 4)) {
             p_rc->gf_intervals[p_rc->cur_gf_index] = ori_gf_int;
+<<<<<<< variant A
+>>>>>>> variant B
+            }
+======= end
           }
         }
       }
     }
+
     define_gf_group(cpi, frame_params, max_gop_length, 0);
 
     if (gf_group->update_type[cpi->gf_frame_index] != ARF_UPDATE &&
