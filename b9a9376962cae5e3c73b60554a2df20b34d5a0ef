@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9158995_d8c3eda4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-28T16:01:31Z",
+      "side": 1,
+      "message": "Thanks for the patch! Please see my comments below. ",
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6632801c_54d28cc0",
@@ -175,6 +192,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1d8a8075_503cc1e9",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-28T16:01:31Z",
+      "side": 1,
+      "message": "Optional: Can we just combine calculate_modified_err and calculate_modified_err_sub into one function? It seems the extra step is not that necessary.",
+      "range": {
+        "startLine": 89,
+        "startChar": 14,
+        "endLine": 89,
+        "endChar": 36
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "032201e3_45ab5f04",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 7
@@ -198,6 +238,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "906bc07e_3e8f2066",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 2697,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-28T16:01:31Z",
+      "side": 1,
+      "message": "stats_count represents the total number of stats. Here we are looking for the number of future stats. Are they the same here?",
+      "range": {
+        "startLine": 2697,
+        "startChar": 8,
+        "endLine": 2697,
+        "endChar": 35
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "94110a03_353f2c71",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 7
@@ -214,6 +277,52 @@
         "startChar": 55,
         "endLine": 2821,
         "endChar": 60
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ab6cd24_5b05f795",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3228,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-28T16:01:31Z",
+      "side": 1,
+      "message": "Here it should be \"peek\" I guess?",
+      "range": {
+        "startLine": 3228,
+        "startChar": 27,
+        "endLine": 3228,
+        "endChar": 31
+      },
+      "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebebed24_0e40b0bc",
+        "filename": "test/firstpass_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-07-28T16:01:31Z",
+      "side": 1,
+      "message": "The comment for stats-\u003eframe does say that the parameter has no real meaning for a collection of frames. This test should probably be based on other stats where the total stats matter. It feels like we should have a few sets of of certain stats and make sure that the total stats for each set is correct.",
+      "range": {
+        "startLine": 90,
+        "startChar": 46,
+        "endLine": 90,
+        "endChar": 59
       },
       "revId": "b9a9376962cae5e3c73b60554a2df20b34d5a0ef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
