@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch enables frame parallel multi-threading for up to 2 frames in parallel.\n\nPreviously checked in facilitation modules are integrated into the newly added av1_compress_parallel_frames(). FPMT is enabled for the conditions listed under is_fp_config(), and for a thread configuration which allows for at least two frame parallel contexts as per av1_compute_num_fp_contexts(). \n\nThere are some thread sanitizer issues with this patch, and we are working on fixing them.\n\nThe encode time reductions are listed below for 720p (fourpeople, Netflix_RollerCoaster), 1080p (Wheat, AOV5, blue_sky), 2160p (Netflix_ToddlerFountain, Netflix_TunnelFlag, crowd_run) across 60 frames for CQP encode (QP \u003d 20, 55).\n```\n| Speed | Resolution | Threads | Encode Time Reduction % |\n|:-----:|:----------:|:-------:|:-----------------------:|\n|   1   |    720p    |    10   |          15.08          |\n|   1   |    1080p   |    16   |          17.53          |\n|   1   |    2160p   |    32   |          19.75          |\n|       |            |         |                         |\n|   2   |    720p    |    10   |          12.86          |\n|   2   |    1080p   |    16   |          13.17          |\n|   2   |    2160p   |    32   |          18.15          |\n|       |            |         |                         |\n|   3   |    720p    |    10   |          11.48          |\n|   3   |    1080p   |    16   |          12.66          |\n|   3   |    2160p   |    32   |          17.45          |\n|       |            |         |                         |\n|   4   |    720p    |    10   |          12.96          |\n|   4   |    1080p   |    16   |          14.09          |\n|   4   |    2160p   |    32   |          19.62          |\n|       |            |         |                         |\n|   5   |    720p    |    10   |           9.51          |\n|   5   |    1080p   |    16   |          13.75          |\n|   5   |    2160p   |    32   |          17.10          |\n|       |            |         |                         |\n|   6   |    720p    |    10   |           8.24          |\n|   6   |    1080p   |    16   |          13.98          |\n|   6   |    2160p   |    32   |          16.76          |\n```\nPlease review the patch.\nThanks",
       "revId": "d7ba9464a46eb8e02197d173c6093edb455b7997",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9a1f03d_3ae79c51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-07-28T21:50:51Z",
+      "side": 1,
+      "message": "Thanks for getting the 2-frame-in-parallel speedup numbers! Looks good!\n\nSo the baseline it compared against is row-mt\u003d1 and using 10/16/32 threads?\nWhy choose these many threads (10/16/32) in testing? Do they give better speedup number than using less threads?",
+      "parentUuid": "e4af0e6e_672fb97f",
+      "revId": "d7ba9464a46eb8e02197d173c6093edb455b7997",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
