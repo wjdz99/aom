@@ -22,6 +22,30 @@
       },
       "revId": "85201012b0456059c900611bea14b1f29400ea76",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1de9dc0f_06eb5610",
+        "filename": "aom_dsp/txfm_common.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-07-28T22:13:02Z",
+      "side": 1,
+      "message": "I usually keep a comma at the end of the list so it\u0027s easier to add an extra enum in the future. This also has the benefit of making the output of `git diff` one line shorter.\n\nIt doesn\u0027t look like we are consistent in our codebase. In the last CL (https://aomedia-review.googlesource.com/c/aom/+/142702), DCT_ADST_TX_MASK also has a trailing comma.\n\nI can\u0027t seem to find a rule for it in the style guide.",
+      "parentUuid": "dacbff8c_6adc3c38",
+      "range": {
+        "startLine": 70,
+        "startChar": 23,
+        "endLine": 70,
+        "endChar": 24
+      },
+      "revId": "85201012b0456059c900611bea14b1f29400ea76",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
