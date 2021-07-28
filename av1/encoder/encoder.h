@@ -2389,6 +2389,16 @@ typedef struct AV1_PRIMARY {
   YV12_BUFFER_CONFIG alt_ref_buffer;
 
   /*!
+   * Frame filtered buffer.
+   */
+  YV12_BUFFER_CONFIG filtered_buffer;
+
+  /*!
+   * Frame saliency map.
+   */
+  YV12_BUFFER_CONFIG saliency_buffer;
+
+  /*!
    * Elements part of the sequence header, that are applicable for all the
    * frames in the video.
    */

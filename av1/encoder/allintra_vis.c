@@ -11,6 +11,158 @@
 
 #include "av1/encoder/allintra_vis.h"
 
+static void median_filt_frame(const uint8_t *buffer, const int buf_stride,
+                              const int frame_width, const int frame_height,
+                              uint8_t *output_buffer) {
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      int vals[25];
+      int count = 0;
+      // Get neighbor 5x5 pixels
+      for (int dy = -2; dy <= 2; ++dy) {
+        for (int dx = -2; dx <= 2; ++dx) {
+          const int r = row + dy;
+          const int c = col + dx;
+          if (r >= 0 && r < frame_height && c >= 0 && c < frame_width) {
+            vals[count] = buffer[r * buf_stride + c];
+            ++count;
+          }
+        }
+      }
+      // bubble sort
+      for (int i = 0; i < count; ++i) {
+        for (int j = i; j < count; ++j) {
+          if (vals[j] > vals[i]) {
+            const int tmp = vals[j];
+            vals[j] = vals[i];
+            vals[i] = tmp;
+          }
+        }
+      }
+      output_buffer[row * buf_stride + col] = vals[count / 2];
+    }
+  }
+}
+
+static int calc_histogram(const uint8_t *buffer, const int buf_stride,
+                          const int frame_width, const int frame_height,
+                          int *histogram) {
+  int num_unique_colors = 0;
+  const uint8_t *buf = buffer;
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      const int val = buf[col];
+      if (histogram[val] == 0) ++num_unique_colors;
+      ++histogram[val];
+    }
+    buf += buf_stride;
+  }
+  return num_unique_colors;
+}
+
+static int saliency_dist(int x, int y) {
+  return abs(x - y);
+  // return (x - y) * (x - y);
+}
+
+static void saliency_smoothing(double saliency[256], int window) {
+  double orig_saliency[256];
+  for (int i = 0; i < 256; ++i) orig_saliency[i] = saliency[i];
+  const int half_win = window / 2;
+  for (int i = 0; i < 256; ++i) {
+    if (orig_saliency[i] == 0) continue;
+    int sum_dist = 0;
+    int count = 0;
+    for (int j = -half_win; j <= half_win; ++j) {
+      if (i + j >= 0 && i + j < 256 && orig_saliency[i + j] > 0) {
+        sum_dist += saliency_dist(i, i + j);
+        ++count;
+      }
+    }
+    saliency[i] = 0;
+    for (int j = -half_win; j <= half_win; ++j) {
+      if (i + j >= 0 && i + j < 256 && orig_saliency[i + j] > 0) {
+        saliency[i] +=
+            (sum_dist - saliency_dist(i, i + j)) * orig_saliency[i + j];
+      }
+    }
+    saliency[i] /= ((count - 1) * sum_dist);
+  }
+}
+
+static void build_saliency_map(AV1_COMP *cpi) {
+  const uint8_t *buffer = cpi->source->y_buffer;
+  const int buf_stride = cpi->source->y_stride;
+  const int frame_width = cpi->frame_info.frame_width;
+  const int frame_height = cpi->frame_info.frame_height;
+  uint8_t *filtered_buffer = cpi->ppi->filtered_buffer.y_buffer;
+  uint8_t *saliency_map = cpi->ppi->saliency_buffer.y_buffer;
+
+  // Filter the source
+  median_filt_frame(buffer, buf_stride, frame_width, frame_height,
+                    filtered_buffer);
+
+  // Compute Y channel color histogram
+  // Here we assume it is 8-bit, therefore 256 colors.
+  int histogram[256] = { 0 };
+  double saliency[256] = { 0 };
+  calc_histogram(filtered_buffer, buf_stride, frame_width, frame_height,
+                 histogram);
+
+  // Calculate saliency
+  for (int i = 0; i < 256; ++i) {
+    if (histogram[i] == 0) continue;
+    for (int j = 0; j < 256; ++j) {
+      if (i == j || histogram[j] == 0) continue;
+      saliency[i] += saliency_dist(i, j) * histogram[j];
+    }
+  }
+
+  // Normalize
+  double max_saliency = 0;
+  for (int i = 0; i < 256; ++i) {
+    max_saliency = AOMMAX(max_saliency, saliency[i]);
+  }
+  for (int i = 0; i < 256; ++i) {
+    if (saliency[i] > 0) {
+      saliency[i] /= max_saliency;
+    }
+  }
+
+  // Color space smoothing
+  saliency_smoothing(saliency, /*window=*/8);
+
+  // Assign saliency map
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      const int val = filtered_buffer[row * buf_stride + col];
+      saliency_map[row * buf_stride + col] = (uint8_t)(saliency[val] * 255);
+    }
+  }
+
+  /*
+  // Write to file
+  FILE *pfile = fopen("saliency_map.csv", "w");
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      fprintf(pfile, "%d", saliency_map[row * buf_stride + col]);
+      if (col < frame_width - 1) fprintf(pfile, ",");
+    }
+    fprintf(pfile, "\n");
+  }
+  fclose(pfile);
+
+  pfile = fopen("histogram.csv", "w");
+  for (int i = 0; i < 256; ++i) {
+    fprintf(pfile, "%d", histogram[i]);
+    if (i < 255) fprintf(pfile, ",");
+  }
+  fclose(pfile);
+  */
+
+  // printf("saliency map generated.\n");
+}
+
 // Process the wiener variance in 16x16 block basis.
 static int qsort_comp(const void *elem1, const void *elem2) {
   int a = *((const int *)elem1);
@@ -104,6 +256,9 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   memset(&mbmi, 0, sizeof(mbmi));
   MB_MODE_INFO *mbmi_ptr = &mbmi;
   xd->mi = &mbmi_ptr;
+
+  build_saliency_map(cpi);
+  uint8_t *saliency_map = cpi->ppi->saliency_buffer.y_buffer;
 
   union {
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -212,6 +367,80 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
     }
   }
 
+  // Take saliency into consideration as weights for wiener variance
+  int64_t max_wiener_var = 0;
+  int64_t min_wiener_var = INT64_MAX;
+  for (mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
+    for (mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
+      max_wiener_var =
+          AOMMAX(max_wiener_var,
+                 cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col]
+                     .mb_wiener_variance);
+      min_wiener_var =
+          AOMMIN(min_wiener_var,
+                 cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col]
+                     .mb_wiener_variance);
+    }
+  }
+  /*
+  printf("-----------------------\n");
+  printf("max wiener var: %ld, min wiener var: %ld \n",
+         max_wiener_var, min_wiener_var);
+  */
+  for (mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
+    for (mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
+      double block_saliency = 0;
+      int pixel_count = 0;
+      for (int r = 0; r < block_size; ++r) {
+        for (int c = 0; c < block_size; ++c) {
+          const int row = mb_row * block_size + r;
+          const int col = mb_col * block_size + c;
+          if (row >= cpi->frame_info.frame_height ||
+              col >= cpi->frame_info.frame_width) {
+            continue;
+          }
+          block_saliency += saliency_map[row * buf_stride + col];
+          ++pixel_count;
+        }
+      }
+      block_saliency /= 256;
+      block_saliency /= pixel_count;
+      /*
+      printf("saliency %.3f, wiener variance %ld ", block_saliency,
+             cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col]
+                 .mb_wiener_variance);
+      */
+      const double weighted_wiener_var =
+          pow(cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col]
+                  .mb_wiener_variance,
+              0.1) /
+          (block_saliency * block_saliency);
+      //(double)max_wiener_var;
+      cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col]
+          .mb_wiener_variance = (int64_t)(weighted_wiener_var);
+      /*
+      printf("after %ld \n",
+             cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col]
+                 .mb_wiener_variance);
+      */
+    }
+  }
+
+  /*
+  FILE *pfile = fopen("mask.csv", "w");
+  fprintf(pfile, "%d,%d,%ld\n", cpi->frame_info.frame_height,
+          cpi->frame_info.frame_width, max_wiener_var);
+  for (mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
+    for (mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
+      fprintf(pfile, "%ld,",
+              cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols +
+  mb_col].mb_wiener_variance);
+    }
+    fprintf(pfile, "\n");
+  }
+  fclose(pfile);
+  */
+
   int sb_step = mi_size_wide[cm->seq_params->sb_size];
   double sb_wiener_log = 0;
   int sb_count = 0;
@@ -227,6 +456,7 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
 
   if (sb_count)
     cpi->norm_wiener_variance = (int64_t)(exp(sb_wiener_log / sb_count));
+  // printf("norm_wiener_variance %ld\n", cpi->norm_wiener_variance);
   cpi->norm_wiener_variance = AOMMAX(1, cpi->norm_wiener_variance);
 }
 
@@ -237,9 +467,11 @@ int av1_get_sbq_perceptual_ai(AV1_COMP *const cpi, BLOCK_SIZE bsize, int mi_row,
   int sb_wiener_var = get_var_perceptual_ai(cpi, bsize, mi_row, mi_col);
   int offset = 0;
   double beta = (double)cpi->norm_wiener_variance / sb_wiener_var;
+  /*
   // Cap beta such that the delta q value is not much far away from the base q.
   beta = AOMMIN(beta, 4);
   beta = AOMMAX(beta, 0.25);
+  */
   offset = av1_get_deltaq_offset(cm->seq_params->bit_depth, base_qindex, beta);
   const DeltaQInfo *const delta_q_info = &cm->delta_q_info;
   offset = AOMMIN(offset, delta_q_info->delta_q_res * 20 - 1);
