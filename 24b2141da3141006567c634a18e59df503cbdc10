@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bab92bbb_ddd2367a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-07-28T21:17:16Z",
+      "side": 1,
+      "message": "@Leo: after this patch, I get a different sanitizer error from the same function.\nCan you check if this is related / different issue?\n\n[ RUN      ] AV1/EndToEndTestLarge.EndtoEndPSNRTest/34                                                              \n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d                                                   \n\u003d\u003d1038566\u003d\u003dERROR: AddressSanitizer: stack-buffer-underflow on address 0x7ffcad41d55c at pc 0x000001839101 bp 0x7ffca\nd41d1f0 sp 0x7ffcad41d1e8                                                                                           \nREAD of size 2 at 0x7ffcad41d55c thread T0                                                                          \n    #0 0x1839100 in highbd_dr_prediction_32bit_z2_HxW_avx2 /usr/local/google/home/urvang/work/3rd_aomedia/aom/aom_ds\np/x86/intrapred_avx2.c:3040:51                                                                                      \n    #1 0x18334f7 in av1_highbd_dr_prediction_z2_avx2 /usr/local/google/home/urvang/work/3rd_aomedia/aom/aom_dsp/x86/\nintrapred_avx2.c:3333:9                                                                                             \n    #2 0x18f709a in highbd_dr_predictor /usr/local/google/home/urvang/work/3rd_aomedia/aom/av1/common/reconintra.c:9\n03:5                                                                                                                \n    #3 0x18f04b9 in build_intra_predictors_high /usr/local/google/home/urvang/work/3rd_aomedia/aom/av1/common/reconi\nntra.c:1514:5                                                                                                       \n    #4 0x18eeb05 in av1_predict_intra_block /usr/local/google/home/urvang/work/3rd_aomedia/aom/av1/common/reconintra\n.c:1971:5                                                                                                           \n    #5 0x18f20d9 in av1_predict_intra_block_facade /usr/local/google/home/urvang/work/3rd_aomedia/aom/av1/common/rec\nonintra.c:2103:3                                                                                                    \n    #6 0x1b2d5a6 in intra_model_yrd /usr/local/google/home/urvang/work/3rd_aomedia/aom/av1/encoder/intra_mode_search\n_utils.h:455:7",
+      "revId": "24b2141da3141006567c634a18e59df503cbdc10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
