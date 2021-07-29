@@ -120,7 +120,9 @@ struct av1_extracfg {
   int enable_dist_wtd_comp;          // enable dist wtd compound for sequence
 #endif                               // !CONFIG_REMOVE_DIST_WTD_COMP
   int max_reference_frames;          // maximum number of references per frame
+#if !CONFIG_NEW_REF_SIGNALING
   int enable_reduced_reference_set;  // enable reduced set of references
+#endif  // !CONFIG_NEW_REF_SIGNALING
   int enable_ref_frame_mvs;          // sequence level
   int allow_ref_frame_mvs;           // frame level
   int enable_masked_comp;            // enable masked compound for sequence
@@ -363,7 +365,9 @@ static struct av1_extracfg default_extra_cfg = {
   1,                       // dist-wtd compound
 #endif                     // !CONFIG_REMOVE_DIST_WTD_COMP
   7,                       // max_reference_frames
+#if !CONFIG_NEW_REF_SIGNALING
   0,                       // enable_reduced_reference_set
+#endif  // !CONFIG_NEW_REF_SIGNALING
   1,                       // enable_ref_frame_mvs sequence level
   1,                       // allow ref_frame_mvs frame level
   1,                       // enable masked compound at sequence level
@@ -663,7 +667,9 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   }
 
   RANGE_CHECK(extra_cfg, max_reference_frames, 3, 7);
+#if !CONFIG_NEW_REF_SIGNALING
   RANGE_CHECK(extra_cfg, enable_reduced_reference_set, 0, 1);
+#endif  // !CONFIG_NEW_REF_SIGNALING
   RANGE_CHECK_HI(extra_cfg, chroma_subsampling_x, 1);
   RANGE_CHECK_HI(extra_cfg, chroma_subsampling_y, 1);
 
@@ -793,7 +799,9 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->enable_ref_frame_mvs =
       (extra_cfg->allow_ref_frame_mvs || extra_cfg->enable_ref_frame_mvs);
   cfg->enable_onesided_comp = extra_cfg->enable_onesided_comp;
+#if !CONFIG_NEW_REF_SIGNALING
   cfg->enable_reduced_reference_set = extra_cfg->enable_reduced_reference_set;
+#endif  // !CONFIG_NEW_REF_SIGNALING
   cfg->reduced_tx_type_set = extra_cfg->reduced_tx_type_set;
 }
 
@@ -840,7 +848,9 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
   extra_cfg->enable_trellis_quant = cfg->enable_trellis_quant;
   extra_cfg->enable_ref_frame_mvs = cfg->enable_ref_frame_mvs;
   extra_cfg->enable_onesided_comp = cfg->enable_onesided_comp;
+#if !CONFIG_NEW_REF_SIGNALING
   extra_cfg->enable_reduced_reference_set = cfg->enable_reduced_reference_set;
+#endif  // !CONFIG_NEW_REF_SIGNALING
   extra_cfg->reduced_tx_type_set = cfg->reduced_tx_type_set;
 }
 
@@ -1204,8 +1214,10 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   // Set reference frame related configuration.
   oxcf->ref_frm_cfg.max_reference_frames = extra_cfg->max_reference_frames;
+#if !CONFIG_NEW_REF_SIGNALING
   oxcf->ref_frm_cfg.enable_reduced_reference_set =
       extra_cfg->enable_reduced_reference_set;
+#endif  // !CONFIG_NEW_REF_SIGNALING
   oxcf->ref_frm_cfg.enable_onesided_comp = extra_cfg->enable_onesided_comp;
 
   oxcf->row_mt = extra_cfg->row_mt;
@@ -1830,6 +1842,7 @@ static aom_codec_err_t ctrl_set_max_reference_frames(aom_codec_alg_priv_t *ctx,
   return update_extra_cfg(ctx, &extra_cfg);
 }
 
+#if !CONFIG_NEW_REF_SIGNALING
 static aom_codec_err_t ctrl_set_enable_reduced_reference_set(
     aom_codec_alg_priv_t *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
@@ -1837,6 +1850,7 @@ static aom_codec_err_t ctrl_set_enable_reduced_reference_set(
       CAST(AV1E_SET_REDUCED_REFERENCE_SET, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
 static aom_codec_err_t ctrl_set_enable_ref_frame_mvs(aom_codec_alg_priv_t *ctx,
                                                      va_list args) {
@@ -3420,10 +3434,12 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.max_reference_frames,
                               argv, err_string)) {
     extra_cfg.max_reference_frames = arg_parse_int_helper(&arg, err_string);
+#if !CONFIG_NEW_REF_SIGNALING
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.reduced_reference_set,
                               argv, err_string)) {
     extra_cfg.enable_reduced_reference_set =
         arg_parse_int_helper(&arg, err_string);
+#endif  // !CONFIG_NEW_REF_SIGNALING
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_ref_frame_mvs,
                               argv, err_string)) {
     extra_cfg.enable_ref_frame_mvs = arg_parse_int_helper(&arg, err_string);
@@ -3642,7 +3658,9 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_ENABLE_DIST_WTD_COMP, ctrl_set_enable_dist_wtd_comp },
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
   { AV1E_SET_MAX_REFERENCE_FRAMES, ctrl_set_max_reference_frames },
+#if !CONFIG_NEW_REF_SIGNALING
   { AV1E_SET_REDUCED_REFERENCE_SET, ctrl_set_enable_reduced_reference_set },
+#endif  // !CONFIG_NEW_REF_SIGNALING
   { AV1E_SET_ENABLE_REF_FRAME_MVS, ctrl_set_enable_ref_frame_mvs },
   { AV1E_SET_ALLOW_REF_FRAME_MVS, ctrl_set_allow_ref_frame_mvs },
   { AV1E_SET_ENABLE_MASKED_COMP, ctrl_set_enable_masked_comp },
