@@ -4309,6 +4309,9 @@ static AOM_INLINE void disable_inter_references_except_altref(
   disable_reference(ALTREF2_FRAME, ref_combo);
 }
 
+#if CONFIG_NEW_REF_SIGNALING
+typedef enum { REF_SET_FULL } REF_SET;
+#else
 static const MV_REFERENCE_FRAME reduced_ref_combos[][2] = {
   { LAST_FRAME, NONE_FRAME },     { ALTREF_FRAME, NONE_FRAME },
   { LAST_FRAME, ALTREF_FRAME },   { GOLDEN_FRAME, NONE_FRAME },
@@ -4328,9 +4331,16 @@ static const MV_REFERENCE_FRAME real_time_ref_combos[][2] = {
 };
 
 typedef enum { REF_SET_FULL, REF_SET_REDUCED, REF_SET_REALTIME } REF_SET;
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 static AOM_INLINE void default_skip_mask(mode_skip_mask_t *mask,
                                          REF_SET ref_set) {
+#if CONFIG_NEW_REF_SIGNALING
+  // REF_SET_FULL is only ref set allowed for NRS,
+  // Everything available by default.
+  (void)ref_set;
+  memset(mask, 0, sizeof(*mask));
+#else
   if (ref_set == REF_SET_FULL) {
     // Everything available by default.
     memset(mask, 0, sizeof(*mask));
@@ -4366,6 +4376,7 @@ static AOM_INLINE void default_skip_mask(mode_skip_mask_t *mask,
       mask->ref_combo[this_combo[0]][this_combo[1] + 1] = false;
     }
   }
+#endif  // CONFIG_NEW_REF_SIGNALING
 }
 
 static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
@@ -4381,15 +4392,21 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
   const SPEED_FEATURES *const sf = &cpi->sf;
   REF_SET ref_set = REF_SET_FULL;
 
+#if !CONFIG_NEW_REF_SIGNALING
   if (sf->rt_sf.use_real_time_ref_set)
     ref_set = REF_SET_REALTIME;
   else if (cpi->oxcf.ref_frm_cfg.enable_reduced_reference_set)
     ref_set = REF_SET_REDUCED;
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   default_skip_mask(mask, ref_set);
 
   int min_pred_mv_sad = INT_MAX;
   MV_REFERENCE_FRAME ref_frame;
+#if CONFIG_NEW_REF_SIGNALING
+    for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+      min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref_frame]);
+#else
   if (ref_set == REF_SET_REALTIME) {
     // For real-time encoding, we only look at a subset of ref frames. So the
     // threshold for pruning should be computed from this subset as well.
@@ -4405,6 +4422,7 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
     for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
       min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref_frame]);
   }
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     if (!(cpi->common.ref_frame_flags & av1_ref_frame_flag_list[ref_frame])) {
@@ -4623,7 +4641,11 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
           AOMMIN(x->best_pred_mv_sad, x->pred_mv_sad[ref_frame]);
   }
   // ref_frame = ALTREF_FRAME
+#if CONFIG_NEW_REF_SIGNALING
+  if (is_comp_ref_allowed(bsize)) {
+#else
   if (!cpi->sf.rt_sf.use_real_time_ref_set && is_comp_ref_allowed(bsize)) {
+#endif  // CONFIG_NEW_REF_SIGNALING
     // No second reference on RT ref set, so no need to initialize
     for (; ref_frame < MODE_CTX_REF_FRAMES; ++ref_frame) {
       x->mbmi_ext->mode_context[ref_frame] = 0;
