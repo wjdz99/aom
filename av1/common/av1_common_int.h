@@ -2029,8 +2029,14 @@ static INLINE PARTITION_TYPE get_partition(const AV1_COMMON *const cm,
   const int sshigh = mi_size_high[subsize];
   const int sswide = mi_size_wide[subsize];
 
+#if CONFIG_EXT_RECUR_PARTITIONS
+  if (is_bsize_gt(bsize, BLOCK_8X8) &&
+      mi_row + bwide / 2 < mi_params->mi_rows &&
+      mi_col + bhigh / 2 < mi_params->mi_cols) {
+#else
   if (bsize > BLOCK_8X8 && mi_row + bwide / 2 < mi_params->mi_rows &&
       mi_col + bhigh / 2 < mi_params->mi_cols) {
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
     // In this case, the block might be using an extended partition
     // type.
     const MB_MODE_INFO *const mbmi_right = mi[bwide / 2];
