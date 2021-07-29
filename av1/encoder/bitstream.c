@@ -1230,7 +1230,9 @@ static AOM_INLINE void write_cdef(AV1_COMMON *cm, MACROBLOCKD *const xd,
 static AOM_INLINE void write_ccso(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   aom_writer *w) {
   if (cm->features.coded_lossless) return;
+#if !CONFIG_CCSO_IBC
   if (cm->features.allow_intrabc) return;
+#endif
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
@@ -2678,7 +2680,9 @@ static AOM_INLINE void encode_cdef(const AV1_COMMON *cm,
 #if CONFIG_CCSO
 static AOM_INLINE void encode_ccso(const AV1_COMMON *cm,
                                    struct aom_write_bit_buffer *wb) {
+#if !CONFIG_CCSO_IBC
   if (cm->features.allow_intrabc) return;
+#endif
   const int ccso_offset[8] = { 0, 1, -1, 3, -3, 5, -5, -7 };
   for (int plane = 0; plane < 2; plane++) {
     aom_wb_write_literal(wb, cm->ccso_info.ccso_enable[plane], 1);

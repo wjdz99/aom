@@ -29,6 +29,11 @@ void ccso_search(AV1_COMMON *cm, MACROBLOCKD *xd, int rdmult,
                  const uint16_t *ext_rec_y, uint16_t *rec_uv[2],
                  uint16_t *org_uv[2]);
 
+#if CONFIG_CCSO_IBC
+void ccso_search_ibc(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
+                     AV1_COMMON *cm, MACROBLOCKD *xd, int rdmult);
+#endif
+
 void compute_distortion(const uint16_t *org, const int org_stride,
                         const uint8_t *rec8, const uint16_t *rec16,
                         const int rec_stride, const int height, const int width,
