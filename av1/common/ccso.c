@@ -293,3 +293,51 @@ void ccso_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
     }
   }
 }
+
+#if CONFIG_CCSO_IBC
+void ccso_frame_ibc(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
+                    MACROBLOCKD *xd) {
+  uint16_t *ext_rec_y;
+  const int num_planes = av1_num_planes(cm);
+  av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, frame, 0, 0, 0,
+                       num_planes);
+  const int ccso_stride_ext = xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1);
+  ext_rec_y = aom_malloc(sizeof(*ext_rec_y) *
+                         (xd->plane[0].dst.height + (CCSO_PADDING_SIZE << 1)) *
+                         (xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1)));
+  int pic_height = xd->plane[0].dst.height;
+  int pic_width = xd->plane[0].dst.width;
+  const int dst_stride = xd->plane[0].dst.stride;
+  for (int r = 0; r < pic_height; ++r) {
+    for (int c = 0; c < pic_width; ++c) {
+      if (cm->seq_params.use_highbitdepth) {
+        ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                  CCSO_PADDING_SIZE] =
+            CONVERT_TO_SHORTPTR(xd->plane[0].dst.buf)[r * dst_stride + c];
+      } else {
+        ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                  CCSO_PADDING_SIZE] = xd->plane[0].dst.buf[r * dst_stride + c];
+      }
+    }
+  }
+  extend_ccso_border(ext_rec_y, CCSO_PADDING_SIZE, xd);
+  const uint8_t quant_sz[4] = { 16, 8, 32, 64 };
+  for (int plane = 1; plane < 3; plane++) {
+    const int dst_stride2 = xd->plane[plane].dst.stride;
+    uint8_t quant_step_size = quant_sz[cm->ccso_info.quant_idx[plane - 1]];
+    if (cm->ccso_info.ccso_enable[plane - 1]) {
+      if (cm->seq_params.use_highbitdepth) {
+        apply_ccso_filter_hbd(cm, xd, plane, ext_rec_y,
+                              &CONVERT_TO_SHORTPTR(xd->plane[plane].dst.buf)[0],
+                              dst_stride2, NULL, quant_step_size,
+                              cm->ccso_info.ext_filter_support[plane - 1]);
+      } else {
+        apply_ccso_filter(
+            cm, xd, plane, ext_rec_y, &xd->plane[plane].dst.buf[0], dst_stride2,
+            NULL, quant_step_size, cm->ccso_info.ext_filter_support[plane - 1]);
+      }
+    }
+  }
+  aom_free(ext_rec_y);
+}
+#endif

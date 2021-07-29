@@ -2228,7 +2228,9 @@ static AOM_INLINE void setup_cdef(AV1_COMMON *cm,
 #if CONFIG_CCSO
 static AOM_INLINE void setup_ccso(AV1_COMMON *cm,
                                   struct aom_read_bit_buffer *rb) {
+#if !CONFIG_CCSO_IBC
   if (cm->features.allow_intrabc) return;
+#endif
   const int ccso_offset[8] = { 0, 1, -1, 3, -3, 5, -5, -7 };
   for (int plane = 1; plane < 3; plane++) {
     cm->ccso_info.ccso_enable[plane - 1] = aom_rb_read_literal(rb, 1);
@@ -5903,6 +5905,16 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
       }
     }
   }
+
+#if CONFIG_CCSO_IBC
+  if (cm->features.allow_intrabc && !tiles->single_tile_decoding) {
+    const int use_ccso =
+    cm->ccso_info.ccso_enable[0] || cm->ccso_info.ccso_enable[1];
+    if (use_ccso)
+      ccso_frame_ibc(&cm->cur_frame->buf, cm, xd);
+  }
+#endif
+
 #if CONFIG_LPF_MASK
   av1_zero_array(cm->lf.lfm, cm->lf.lfm_num);
 #endif
