@@ -16,6 +16,24 @@
       "message": "Hi Paul,\nI tested this CL on mixedformat1080.y4m\nThe with or without this CL, the\nkey frames appears at the same positions as follows and the coding stats are identical.\nKey frame positions.\n1:I\n51:I\n67:I\n83:I\n98:I\n114:I\n130:I\n146:I\n",
       "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2d1244b_e36f4f22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-29T21:51:52Z",
+      "side": 1,
+      "message": "For the one pass mode\nWith this CL, the key frame locations are|\n1:I\n    --\u003e missing 51:I \n67:I\n83:I\n98:I\n114:I\n130:I\n146:I\n\n51:I is missing because the define_kf_interval() assumes the current frame will not be the keyframe. Therefore, frames_to_key starts at one.\nThis is true for two pass mode. However, for one pass mode, we call define_kf_interval at the beginning of each GOP. If the first frame of the GOP should be key frame, we will miss that.\n\nAnyway, I will come-up with a follow-up CL to address that part if you guys think it\u0027s okay to check this in first.\n\nWithout this CL, the key frame locations are\n1:I\n52:I --\u003e off by one error\n67:I\n83:I\n98:I\n114:I\n130:I\n146:I\n\nI guess there is still some corner cases that I didn\u0027t notice.",
+      "parentUuid": "26405cc2_fa6a63e9",
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
