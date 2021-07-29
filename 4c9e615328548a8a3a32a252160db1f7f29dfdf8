@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e434b3a3_11196a90",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-07-29T23:03:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f476c6c_26262e57",
+      "range": {
+        "startLine": 2094,
+        "startChar": 2,
+        "endLine": 2095,
+        "endChar": 1
+      },
+      "revId": "4c9e615328548a8a3a32a252160db1f7f29dfdf8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6f5aad9_085ccbd4",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-07-29T20:17:19Z",
       "side": 1,
       "message": "I remember 4.0 perform the best.\nShould we use 4.0 instead?",
+      "range": {
+        "startLine": 253,
+        "startChar": 2,
+        "endLine": 253,
+        "endChar": 37
+      },
+      "revId": "4c9e615328548a8a3a32a252160db1f7f29dfdf8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72f45769_632316f5",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-07-29T23:03:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6f5aad9_085ccbd4",
       "range": {
         "startLine": 253,
         "startChar": 2,
