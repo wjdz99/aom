@@ -133,6 +133,21 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
   cm->new_ref_frame_data.n_past_refs = n_past;
   cm->new_ref_frame_data.n_future_refs = n_future;
 }
+
+int get_furthest_future_ref_index(const AV1_COMMON *const cm) {
+  int index = -1;
+  int ref_disp_order = -1;
+  for (int i = 0; i < cm->new_ref_frame_data.n_future_refs; i++) {
+    const int ref = cm->new_ref_frame_data.future_refs[i];
+    const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref);
+    if (buf == NULL) continue;
+    if ((int)buf->display_order_hint > ref_disp_order) {
+      index = ref;
+      ref_disp_order = (int)buf->display_order_hint;
+    }
+  }
+  return index;
+}
 #endif  // CONFIG_NEW_REF_SIGNALING
 
 // Add a reference buffer index to a named reference slot

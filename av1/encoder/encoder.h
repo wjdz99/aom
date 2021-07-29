@@ -624,8 +624,10 @@ typedef struct {
 typedef struct {
   // Indicates the maximum number of reference frames allowed per frame.
   unsigned int max_reference_frames;
+#if !CONFIG_NEW_REF_SIGNALING
   // Indicates if the reduced set of references should be enabled.
   bool enable_reduced_reference_set;
+#endif  // !CONFIG_NEW_REF_SIGNALING
   // Indicates if one-sided compound should be enabled.
   bool enable_onesided_comp;
 } RefFrameCfg;

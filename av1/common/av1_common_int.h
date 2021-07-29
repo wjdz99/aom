@@ -1329,7 +1329,7 @@ static INLINE int get_ref_frame_map_idx(const AV1_COMMON *const cm,
                : INVALID_IDX;
   } else {
     NewRefFramesData ref_data = cm->new_ref_frame_data;
-    return (ref_frame >= 0 && ref_frame < MAX_REF_FRAMES_NRS)
+    return (ref_frame >= 0 && ref_frame < (MAX_REF_FRAMES_NRS - 1))
                ? ref_data.ref_frame_score_map[ref_frame]
                : INVALID_IDX;
   }

@@ -411,7 +411,9 @@ static void set_good_speed_features_framesize_independent(
   sf->tx_sf.tx_type_search.use_reduced_intra_txset = 1;
 
   sf->rt_sf.use_nonrd_pick_mode = 0;
+#if !CONFIG_NEW_REF_SIGNALING
   sf->rt_sf.use_real_time_ref_set = 0;
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   if (cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION ||
       cpi->is_screen_content_type) {
@@ -602,7 +604,9 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.prune_ab_partition_using_split_info = 1;
     sf->part_sf.early_term_after_none_split = 1;
 
+#if !CONFIG_NEW_REF_SIGNALING
     sf->inter_sf.alt_ref_search_fp = 1;
+#endif  // !CONFIG_NEW_REF_SIGNALING
     sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 4;
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 3;
@@ -764,7 +768,9 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->rt_sf.use_comp_ref_nonrd = 1;
   sf->rt_sf.use_nonrd_filter_search = 1;
   sf->rt_sf.use_nonrd_pick_mode = 0;
+#if !CONFIG_NEW_REF_SIGNALING
   sf->rt_sf.use_real_time_ref_set = 0;
+#endif  // !CONFIG_NEW_REF_SIGNALING
   sf->rt_sf.check_scene_detection = 0;
   sf->rt_sf.overshoot_detection_cbr = NO_DETECTION;
   sf->tx_sf.adaptive_txb_search_level = 1;
@@ -874,7 +880,9 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   if (speed >= 4) {
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
 
+#if !CONFIG_NEW_REF_SIGNALING
     sf->inter_sf.alt_ref_search_fp = 1;
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
 #if !CONFIG_REMOVE_DUAL_FILTER
     sf->interp_sf.skip_sharp_interp_filter_search = 1;
@@ -939,7 +947,9 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.num_inter_modes_for_tx_search = 5;
     sf->rt_sf.skip_interp_filter_search = 1;
     sf->rt_sf.use_comp_ref_nonrd = 0;
+#if !CONFIG_NEW_REF_SIGNALING
     sf->rt_sf.use_real_time_ref_set = 1;
+#endif  // !CONFIG_NEW_REF_SIGNALING
     sf->rt_sf.use_simple_rd_model = 1;
 
     if (cpi->oxcf.rc_cfg.mode == AOM_CBR) {
@@ -1116,7 +1126,9 @@ static AOM_INLINE void init_inter_sf(INTER_MODE_SPEED_FEATURES *inter_sf) {
   inter_sf->adaptive_rd_thresh = 0;
   inter_sf->model_based_post_interp_filter_breakout = 0;
   inter_sf->reduce_inter_modes = 0;
+#if !CONFIG_NEW_REF_SIGNALING
   inter_sf->alt_ref_search_fp = 0;
+#endif  // !CONFIG_NEW_REF_SIGNALING
   inter_sf->selective_ref_frame = 0;
   inter_sf->prune_ref_frame_for_rect_partitions = 0;
   inter_sf->disable_wedge_search_var_thresh = 0;

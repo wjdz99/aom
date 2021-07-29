@@ -4277,6 +4277,17 @@ static AOM_INLINE void refine_winner_mode_tx(
   }
 }
 
+#if CONFIG_NEW_REF_SIGNALING
+/*!\endcond */
+// Update 'ref_combo' mask to disable given 'ref' in single and compound modes.
+static AOM_INLINE void disable_reference_nrs(
+    MV_REFERENCE_FRAME_NRS ref, bool ref_combo[MAX_REF_FRAMES_NRS][MAX_REF_FRAMES_NRS + 1]) {
+  for (MV_REFERENCE_FRAME ref2 = -1; ref2 <= MAX_REF_FRAMES_NRS; ++ref2) {
+    ref_combo[ref][ref2 + 1] = true;
+  }
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 /*!\cond */
 typedef struct {
   // Mask for each reference frame, specifying which prediction modes to NOT try
@@ -4287,6 +4298,16 @@ typedef struct {
   // Note: indexing with 'j + 1' is due to the fact that 2nd reference can be -1
   // (NONE_FRAME).
   bool ref_combo[REF_FRAMES][REF_FRAMES + 1];
+#if CONFIG_NEW_REF_SIGNALING
+  // Mask for each reference frame, specifying which prediction modes to NOT try
+  // during search.
+  uint32_t pred_modes_nrs[MAX_REF_FRAMES_NRS];
+  // If ref_combo_nrs[i][j + 1] is true, do NOT try prediction using combination
+  // of reference frames (i, j).
+  // Note: indexing with 'j + 1' is due to the fact that 2nd reference can be -1
+  // (INVALID_IDX), indicating a single reference prediction.
+  bool ref_combo_nrs[MAX_REF_FRAMES_NRS][MAX_REF_FRAMES_NRS + 1];
+#endif  // CONFIG_NEW_REF_SIGNALING
 } mode_skip_mask_t;
 /*!\endcond */
 
@@ -4297,6 +4318,18 @@ static AOM_INLINE void disable_reference(
     ref_combo[ref][ref2 + 1] = true;
   }
 }
+
+#if CONFIG_NEW_REF_SIGNALING
+// Update 'ref_combo' mask to disable all inter references except a specified
+// reference.
+static AOM_INLINE void disable_inter_references_except_one_nrs(
+    bool ref_combo[MAX_REF_FRAMES_NRS][MAX_REF_FRAMES_NRS + 1], 
+    MV_REFERENCE_FRAME_NRS ref_idx) {
+  for (int i = 0; i < MAX_REF_FRAMES_NRS; i++) {
+    if (ref_idx != i) disable_reference(i, ref_combo);
+  }
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 // Update 'ref_combo' mask to disable all inter references except ALTREF.
 static AOM_INLINE void disable_inter_references_except_altref(
@@ -4327,10 +4360,18 @@ static const MV_REFERENCE_FRAME real_time_ref_combos[][2] = {
   { INTRA_FRAME, NONE_FRAME }
 };
 
-typedef enum { REF_SET_FULL, REF_SET_REDUCED, REF_SET_REALTIME } REF_SET;
+typedef enum { REF_SET_FULL, 
+#if !CONFIG_NEW_REF_SIGNALING
+REF_SET_REDUCED, REF_SET_REALTIME 
+#endif  // !CONFIG_NEW_REF_SIGNALING
+} REF_SET;
 
 static AOM_INLINE void default_skip_mask(mode_skip_mask_t *mask,
                                          REF_SET ref_set) {
+#if CONFIG_NEW_REF_SIGNALING
+  // REF_SET_FULL is only ref set allowed for NRS
+  memset(mask, 0, sizeof(*mask));
+#else
   if (ref_set == REF_SET_FULL) {
     // Everything available by default.
     memset(mask, 0, sizeof(*mask));
@@ -4366,25 +4407,91 @@ static AOM_INLINE void default_skip_mask(mode_skip_mask_t *mask,
       mask->ref_combo[this_combo[0]][this_combo[1] + 1] = false;
     }
   }
+#endif  // CONFIG_NEW_REF_SIGNALING
 }
+
+#if CONFIG_NEW_REF_SIGNALING
+static AOM_INLINE void init_mode_skip_mask_nrs(mode_skip_mask_t *mask,
+                                           const AV1_COMP *cpi, MACROBLOCK *x,
+                                           BLOCK_SIZE bsize) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const SPEED_FEATURES *const sf = &cpi->sf;
+  REF_SET ref_set = REF_SET_FULL;
+  const int arf_index = get_furthest_future_ref_index(cm);
+  if (arf_index < 0) assert(!cpi->rc.is_src_frame_alt_ref);
+
+  default_skip_mask(mask, ref_set);
+
+  int min_pred_mv_sad = INT_MAX;
+  MV_REFERENCE_FRAME_NRS ref_frame;
+  for (ref_frame = 0; ref_frame < MAX_REF_FRAMES_NRS; ++ref_frame)
+    min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad_nrs[ref_frame]);
+
+  for (ref_frame = 0; ref_frame < MAX_REF_FRAMES_NRS; ++ref_frame) {
+    if (!(cpi->common.ref_frame_flags_nrs & (1 << ref_frame))) {
+      // Skip checking missing reference in both single and compound reference
+      // modes.
+      disable_reference_nrs(ref_frame, mask->ref_combo_nrs);
+    } else {
+      // Skip fixed mv modes for poor references
+      if ((x->pred_mv_sad_nrs[ref_frame] >> 2) > min_pred_mv_sad) {
+        mask->pred_modes_nrs[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
+      }
+    }
+    // TODO(sarahparker) Disable refs according to the segmentation mask here
+    // when the reference segmentation is added for nrs. See aomedia:3122
+  }
+
+  // Only consider GLOBALMV for the farthest future reference,
+  // unless ARNR filtering is enabled in which case we want
+  // an unfiltered alternative. We allow near/nearest as well
+  // because they may result in zero-zero MVs but be cheaper.
+  if (cpi->rc.is_src_frame_alt_ref &&
+      (cpi->oxcf.algo_cfg.arnr_max_frames == 0)) {
+    disable_inter_references_except_one_nrs(arf_index, mask->ref_combo_nrs);
+
+    mask->pred_modes_nrs[arf_index] = ~INTER_NEAREST_NEAR_ZERO;
+    const MV_REFERENCE_FRAME_NRS tmp_ref_frames[2] = { arf_index, -1 };
+    int_mv near_mv, global_mv;
+    //sarahparker
+    get_this_mv(&near_mv, NEARMV, 0, 0, 0, tmp_ref_frames, x->mbmi_ext);
+    get_this_mv(&global_mv, GLOBALMV, 0, 0, 0, tmp_ref_frames, x->mbmi_ext);
+    if (near_mv.as_int != global_mv.as_int)
+      mask->pred_modes[ALTREF_FRAME] |= (1 << NEARMV);
+#if !CONFIG_NEW_INTER_MODES
+    int_mv nearest_mv;
+    get_this_mv(&nearest_mv, NEARESTMV, 0, 0, 0, tmp_ref_frames, x->mbmi_ext);
+    if (nearest_mv.as_int != global_mv.as_int)
+      mask->pred_modes[ALTREF_FRAME] |= (1 << NEARESTMV);
+#endif  // !CONFIG_NEW_INTER_MODES
+  }
+
+  if (bsize > sf->part_sf.max_intra_bsize) {
+    disable_reference_nrs(INTRA_FRAME_NRS, mask->ref_combo_nrs);
+  }
+
+  mask->pred_modes_nrs[INTRA_FRAME_NRS] |=
+      ~(sf->intra_sf.intra_y_mode_mask[max_txsize_lookup[bsize]]);
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
                                            const AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize) {
   const AV1_COMMON *const cm = &cpi->common;
-#if !CONFIG_NEW_REF_SIGNALING
+  const struct segmentation *const seg = &cm->seg;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
-  const struct segmentation *const seg = &cm->seg;
   unsigned char segment_id = mbmi->segment_id;
-#endif  // !CONFIG_NEW_REF_SIGNALING
   const SPEED_FEATURES *const sf = &cpi->sf;
   REF_SET ref_set = REF_SET_FULL;
 
+#if !CONFIG_NEW_REF_SIGNALING
   if (sf->rt_sf.use_real_time_ref_set)
     ref_set = REF_SET_REALTIME;
   else if (cpi->oxcf.ref_frm_cfg.enable_reduced_reference_set)
     ref_set = REF_SET_REDUCED;
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   default_skip_mask(mask, ref_set);
 
@@ -4617,13 +4724,19 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
 #endif  // CONFIG_NEW_REF_SIGNALING
     }
     // Store the best pred_mv_sad across all past frames
+#if !CONFIG_NEW_REF_SIGNALING
     if (cpi->sf.inter_sf.alt_ref_search_fp &&
         cpi->ref_frame_dist_info.ref_relative_dist[ref_frame - LAST_FRAME] < 0)
       x->best_pred_mv_sad =
           AOMMIN(x->best_pred_mv_sad, x->pred_mv_sad[ref_frame]);
+#endif  // !CONFIG_NEW_REF_SIGNALING
   }
   // ref_frame = ALTREF_FRAME
+#if !CONFIG_NEW_REF_SIGNALING
   if (!cpi->sf.rt_sf.use_real_time_ref_set && is_comp_ref_allowed(bsize)) {
+#else
+  if (is_comp_ref_allowed(bsize)) {
+#endif  // !CONFIG_NEW_REF_SIGNALING
     // No second reference on RT ref set, so no need to initialize
     for (; ref_frame < MODE_CTX_REF_FRAMES; ++ref_frame) {
       x->mbmi_ext->mode_context[ref_frame] = 0;

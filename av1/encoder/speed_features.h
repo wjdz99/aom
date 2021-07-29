@@ -628,7 +628,9 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // 2 implies prune horiz, vert and extended partition
   int prune_ref_frame_for_rect_partitions;
 
+#if !CONFIG_NEW_REF_SIGNALING
   int alt_ref_search_fp;
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   // flag to skip NEWMV mode in drl if the motion search result is the same
   int skip_repeated_newmv;
@@ -1028,8 +1030,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Use compound reference for non-RD mode.
   int use_comp_ref_nonrd;
 
+#if !CONFIG_NEW_REF_SIGNALING
   // use reduced ref set for real-time mode
   int use_real_time_ref_set;
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   // Skip a number of expensive mode evaluations for blocks with very low
   // temporal variance.
