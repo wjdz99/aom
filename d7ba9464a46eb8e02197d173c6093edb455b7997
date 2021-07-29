@@ -34,6 +34,24 @@
       "parentUuid": "e4af0e6e_672fb97f",
       "revId": "d7ba9464a46eb8e02197d173c6093edb455b7997",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f43ae74_07b95d21",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15075
+      },
+      "writtenOn": "2021-07-29T15:00:17Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThanks for reviewing and merging the patch. Yes, the baseline was with row-mt\u003d1 and 10/16/32 number of threads.\n\nWe have used approximately 2 * max_enc_workers since we are testing for 2 frames in parallel. We are working on profiling lower number of threads and will get back to you with the speed up for those cases in detail soon. \n\nThanks.",
+      "parentUuid": "c9a1f03d_3ae79c51",
+      "revId": "d7ba9464a46eb8e02197d173c6093edb455b7997",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
