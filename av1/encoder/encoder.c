@@ -2209,6 +2209,13 @@ static void cdef_restoration_frame(AV1_COMP *cpi, AV1_COMMON *cm,
 #endif
 }
 
+#if CONFIG_CCSO_IBC
+static void ccso_ibc(AV1_COMP *cpi, AV1_COMMON *cm, MACROBLOCKD *xd) {
+  ccso_search_ibc(&cm->cur_frame->buf, cpi->source, cm, xd, cpi->td.mb.rdmult);
+  ccso_frame_ibc(&cm->cur_frame->buf, cm, xd);
+}
+#endif
+
 /*!\brief Select and apply in-loop deblocking filters, cdef filters, and
  * restoration filters
  *
@@ -2752,6 +2759,13 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
+
+#if CONFIG_CCSO_IBC
+  if (cm->features.allow_intrabc && !cm->features.coded_lossless &&
+      !cm->tiles.large_scale) {
+    ccso_ibc(cpi, cm, &cpi->td.mb.e_mbd);
+  }
+#endif
 
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(&cm->cur_frame->buf, av1_num_planes(cm));

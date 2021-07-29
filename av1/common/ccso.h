@@ -48,6 +48,10 @@ void apply_ccso_filter_hbd(AV1_COMMON *cm, MACROBLOCKD *xd, const int plane,
 void ccso_frame(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd,
                 uint16_t *ext_rec_y);
 
+#if CONFIG_CCSO_IBC
+void ccso_frame_ibc(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm, MACROBLOCKD *xd);
+#endif
+
 typedef void (*ccso_filter_block_func)(
     const uint16_t *temp_rec_y_buf, uint16_t *rec_uv_16, const int x,
     const int y, const int pic_width_c, const int pic_height_c,
