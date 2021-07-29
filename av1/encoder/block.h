@@ -1133,6 +1133,17 @@ typedef struct macroblock {
   /*****************************************************************************
    * \name Reference Frame Searc
    ****************************************************************************/
+#if CONFIG_NEW_REF_SIGNALING
+  /**@{*/
+  /*! \brief Sum absolute distortion of the predicted mv for each ref frame.
+   *
+   * This is used to measure how viable a reference frame is.
+   */
+  int pred_mv_sad_nrs[MAX_REF_FRAMES_NRS];
+  //! The minimum of \ref pred_mv_sad.
+  int best_pred_mv_sad_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   /**@{*/
   /*! \brief Sum absolute distortion of the predicted mv for each ref frame.
    *
