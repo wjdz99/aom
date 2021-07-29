@@ -457,3 +457,82 @@ void ccso_search(AV1_COMMON *cm, MACROBLOCKD *xd, int rdmult,
   derive_ccso_filter(cm, AOM_PLANE_V, xd, org_uv[AOM_PLANE_V - 1], ext_rec_y,
                      rec_uv[AOM_PLANE_V - 1], rdmult);
 }
+
+#if CONFIG_CCSO_IBC
+void ccso_search_ibc(YV12_BUFFER_CONFIG *frame, const YV12_BUFFER_CONFIG *ref,
+                     AV1_COMMON *cm, MACROBLOCKD *xd, int rdmult) {
+  uint16_t *rec_yuv[3];
+  uint16_t *org_yuv[3];
+  uint16_t *ext_rec_y;
+  double rdmult_weight =
+      clamp_dbl(0.012 * pow(2, 0.0456 * cm->quant_params.base_qindex), 1, 37);
+  rdmult *= (int)rdmult_weight;
+  const int num_planes = av1_num_planes(cm);
+  ccso_stride = xd->plane[0].dst.width;
+  ccso_stride_ext = xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1);
+  ext_rec_y = aom_malloc(sizeof(*ext_rec_y) *
+                         (xd->plane[0].dst.height + (CCSO_PADDING_SIZE << 1)) *
+                         (xd->plane[0].dst.width + (CCSO_PADDING_SIZE << 1)));
+  av1_setup_dst_planes(xd->plane, cm->seq_params.sb_size, frame, 0, 0, 0,
+                       num_planes);
+  for (int pli = 0; pli < num_planes; pli++) {
+    uint8_t *ref_buffer;
+    int ref_stride;
+    switch (pli) {
+      case 0:
+        ref_buffer = ref->y_buffer;
+        ref_stride = ref->y_stride;
+        break;
+      case 1:
+        ref_buffer = ref->u_buffer;
+        ref_stride = ref->uv_stride;
+        break;
+      case 2:
+        ref_buffer = ref->v_buffer;
+        ref_stride = ref->uv_stride;
+        break;
+    }
+    rec_yuv[pli] =
+        aom_malloc(sizeof(*rec_yuv) * xd->plane[0].dst.height * ccso_stride);
+    org_yuv[pli] =
+        aom_malloc(sizeof(*org_yuv) * xd->plane[0].dst.height * ccso_stride);
+    int pic_height = xd->plane[pli].dst.height;
+    int pic_width = xd->plane[pli].dst.width;
+    const int dst_stride = xd->plane[pli].dst.stride;
+    for (int r = 0; r < pic_height; ++r) {
+      for (int c = 0; c < pic_width; ++c) {
+        if (cm->seq_params.use_highbitdepth) {
+          org_yuv[pli][r * ccso_stride + c] =
+              CONVERT_TO_SHORTPTR(ref_buffer)[r * ref_stride + c];
+          if (pli == 0)
+            ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                      CCSO_PADDING_SIZE] =
+                CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+          rec_yuv[pli][r * ccso_stride + c] =
+              CONVERT_TO_SHORTPTR(xd->plane[pli].dst.buf)[r * dst_stride + c];
+        } else {
+          if (pli == 0)
+            ext_rec_y[(r + CCSO_PADDING_SIZE) * ccso_stride_ext + c +
+                      CCSO_PADDING_SIZE] =
+                xd->plane[pli].dst.buf[r * dst_stride + c];
+          org_yuv[pli][r * ccso_stride + c] = ref_buffer[r * ref_stride + c];
+          rec_yuv[pli][r * ccso_stride + c] =
+              xd->plane[pli].dst.buf[r * dst_stride + c];
+        }
+      }
+    }
+  }
+  extend_ccso_border(ext_rec_y, CCSO_PADDING_SIZE, xd);
+  derive_ccso_filter(cm, AOM_PLANE_U, xd, org_yuv[AOM_PLANE_U],
+    ext_rec_y, rec_yuv[AOM_PLANE_U], rdmult);
+  derive_ccso_filter(cm, AOM_PLANE_V, xd, org_yuv[AOM_PLANE_V],
+    ext_rec_y, rec_yuv[AOM_PLANE_V], rdmult);
+  // fprintf(stderr, "u = %d, v = %d\n", cm->ccso_info.ccso_enable[0],
+  // cm->ccso_info.ccso_enable[1]);
+  for (int pli = 0; pli < num_planes; pli++) {
+    aom_free(rec_yuv[pli]);
+    aom_free(org_yuv[pli]);
+  }
+  aom_free(ext_rec_y);
+}
+#endif
