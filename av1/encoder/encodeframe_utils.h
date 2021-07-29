@@ -93,8 +93,10 @@ typedef struct {
   int min_partition_size_1d;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 
+#if !CONFIG_EXT_RECUR_PARTITIONS
   // Flag to indicate if partition is 8x8 or higher size.
   int bsize_at_least_8x8;
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
   // Indicates edge blocks in frame.
   int has_rows;
