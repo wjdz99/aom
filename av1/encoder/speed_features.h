@@ -1028,8 +1028,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Use compound reference for non-RD mode.
   int use_comp_ref_nonrd;
 
+#if !CONFIG_NEW_REF_SIGNALING
   // use reduced ref set for real-time mode
   int use_real_time_ref_set;
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   // Skip a number of expensive mode evaluations for blocks with very low
   // temporal variance.
