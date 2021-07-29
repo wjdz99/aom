@@ -2137,7 +2137,11 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         cm->quant_params.base_qindex > 190 && bsize <= BLOCK_32X32 &&
         !frame_is_intra_only(cm)))) {
     // Check if any of the sub blocks are further split.
+#if CONFIG_EXT_RECUR_PARTITIONS
+    if (partition == PARTITION_SPLIT && is_bsize_gt(subsize, BLOCK_8X8)) {
+#else
     if (partition == PARTITION_SPLIT && subsize > BLOCK_8X8) {
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
       sub_subsize = get_partition_subsize(subsize, PARTITION_SPLIT);
       splits_below = 1;
       for (int i = 0; i < SUB_PARTITIONS_SPLIT; i++) {
@@ -3263,7 +3267,11 @@ static void init_partition_search_state_params(
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
   blk_params->subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
   blk_params->split_bsize2 = blk_params->subsize;
+#if CONFIG_EXT_RECUR_PARTITIONS
+  blk_params->bsize_at_least_8x8 = is_bsize_geq(bsize, BLOCK_8X8);
+#else
   blk_params->bsize_at_least_8x8 = (bsize >= BLOCK_8X8);
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
   blk_params->bsize = bsize;
 
   // Check if the partition corresponds to edge block.
@@ -3280,7 +3288,7 @@ static void init_partition_search_state_params(
 
   // Set partition plane context index.
   part_search_state->pl_ctx_idx =
-      blk_params->bsize_at_least_8x8
+      is_partition_point(bsize)
           ? partition_plane_context(xd, mi_row, mi_col, bsize)
           : 0;
 
@@ -3346,37 +3354,50 @@ static void init_partition_search_state_params(
   part_search_state->do_square_split =
       blk_params->bsize_at_least_8x8 &&
       (xd->tree_type != CHROMA_PART || bsize > BLOCK_8X8);
-#endif  // !CONFIG_EXT_RECUR_PARTITIONS
   part_search_state->do_rectangular_split =
       cpi->oxcf.part_cfg.enable_rect_partitions &&
       (xd->tree_type != CHROMA_PART || bsize > BLOCK_8X8);
+#else
+  part_search_state->do_rectangular_split =
+      cpi->oxcf.part_cfg.enable_rect_partitions &&
+      (xd->tree_type != CHROMA_PART || is_bsize_gt(bsize, BLOCK_8X8));
+#endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
   av1_zero(part_search_state->prune_rect_part);
 
+  const BLOCK_SIZE horz_subsize = get_partition_subsize(bsize, PARTITION_HORZ);
+  const BLOCK_SIZE vert_subsize = get_partition_subsize(bsize, PARTITION_VERT);
 #if CONFIG_EXT_RECUR_PARTITIONS
   // TODO(chiyotsai,yuec@google.com): Fix the rect_allowed condition when both
   // SDP and ERP are on.
-  const int is_chroma_size_valid_horz =
+  const int is_horz_size_valid =
       is_partition_valid(bsize, PARTITION_HORZ) &&
       IMPLIES(xd->tree_type == SHARED_PART,
               check_is_chroma_size_valid(PARTITION_HORZ, bsize, mi_row, mi_col,
                                          part_search_state->ss_x,
                                          part_search_state->ss_y, pc_tree)) &&
       IMPLIES(xd->tree_type != SHARED_PART,
-              get_plane_block_size(get_partition_subsize(bsize, PARTITION_HORZ),
-                                   part_search_state->ss_x,
+              get_plane_block_size(horz_subsize, part_search_state->ss_x,
                                    part_search_state->ss_y) != BLOCK_INVALID);
 
-  const int is_chroma_size_valid_vert =
+  const int is_vert_size_valid =
       is_partition_valid(bsize, PARTITION_VERT) &&
       IMPLIES(xd->tree_type == SHARED_PART,
               check_is_chroma_size_valid(PARTITION_VERT, bsize, mi_row, mi_col,
                                          part_search_state->ss_x,
                                          part_search_state->ss_y, pc_tree)) &&
       IMPLIES(xd->tree_type != SHARED_PART,
-              get_plane_block_size(get_partition_subsize(bsize, PARTITION_VERT),
-                                   part_search_state->ss_x,
+              get_plane_block_size(vert_subsize, part_search_state->ss_x,
                                    part_search_state->ss_y) != BLOCK_INVALID);
+#else
+  const int is_horz_size_valid =
+      horz_subsize != BLOCK_INVALID &&
+      get_plane_block_size(horz_subsize, part_search_state->ss_x,
+                           part_search_state->ss_y) != BLOCK_INVALID;
+  const int is_vert_size_valid =
+      vert_subsize != BLOCK_INVALID &&
+      get_plane_block_size(vert_subsize, part_search_state->ss_x,
+                           part_search_state->ss_y) != BLOCK_INVALID;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
   const bool no_sub_16_chroma_part =
       xd->tree_type != CHROMA_PART ||
@@ -3386,31 +3407,27 @@ static void init_partition_search_state_params(
   part_search_state->is_block_splittable = is_partition_point(bsize);
   part_search_state->partition_none_allowed =
       blk_params->has_rows && blk_params->has_cols;
-  const BLOCK_SIZE horz_subsize = get_partition_subsize(bsize, PARTITION_HORZ);
   part_search_state->partition_rect_allowed[HORZ] =
-      blk_params->has_cols && blk_params->bsize_at_least_8x8 &&
+      blk_params->has_cols &&
+#if !CONFIG_EXT_RECUR_PARTITIONS
+      blk_params->bsize_at_least_8x8 &&
+#endif  //  !CONFIG_EXT_RECUR_PARTITIONS
       cpi->oxcf.part_cfg.enable_rect_partitions && no_sub_16_chroma_part &&
 #if CONFIG_EXT_RECUR_PARTITIONS
       is_bsize_geq(horz_subsize, blk_params->min_partition_size) &&
-      is_chroma_size_valid_horz;
-#else
-      horz_subsize != BLOCK_INVALID &&
-      get_plane_block_size(horz_subsize, part_search_state->ss_x,
-                           part_search_state->ss_y) != BLOCK_INVALID;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
-  const BLOCK_SIZE vert_subsize = get_partition_subsize(bsize, PARTITION_VERT);
+      is_horz_size_valid;
   part_search_state->partition_rect_allowed[VERT] =
-      blk_params->has_rows && blk_params->bsize_at_least_8x8 &&
+      blk_params->has_rows &&
+#if !CONFIG_EXT_RECUR_PARTITIONS
+      blk_params->bsize_at_least_8x8 &&
+#endif  //  !CONFIG_EXT_RECUR_PARTITIONS
       no_sub_16_chroma_part && cpi->oxcf.part_cfg.enable_rect_partitions &&
 #if CONFIG_EXT_RECUR_PARTITIONS
       is_bsize_geq(vert_subsize, blk_params->min_partition_size) &&
-      is_chroma_size_valid_vert;
-#else
-      vert_subsize != BLOCK_INVALID &&
-      get_plane_block_size(vert_subsize, part_search_state->ss_x,
-                           part_search_state->ss_y) != BLOCK_INVALID;
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
-#else   // !CONFIG_SDP
+      is_vert_size_valid;
+#else  // !CONFIG_SDP
 #if !CONFIG_EXT_RECUR_PARTITIONS
   part_search_state->do_square_split = blk_params->bsize_at_least_8x8;
 #endif  // !CONFIG_EXT_RECUR_PARTITIONS
