@@ -34,6 +34,109 @@
       "parentUuid": "26405cc2_fa6a63e9",
       "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c2804d2_3ff1ff0d",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1445,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-30T03:06:48Z",
+      "side": 1,
+      "message": "It seems that the callers of av1_firstpass_info_peek() ensure this condition is true. If so, then we can remove this check or replace it with an assertion.",
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65c3939d_3910620c",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-30T03:06:48Z",
+      "side": 1,
+      "message": "Nit: Align this with \"struct of firstpass_info.\" in the line above?",
+      "range": {
+        "startLine": 232,
+        "startChar": 36,
+        "endLine": 232,
+        "endChar": 48
+      },
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9154beac_1b64c42b",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-30T03:06:48Z",
+      "side": 1,
+      "message": "Nit: This comment still has grammatical errors. 1) We need to add \"that\" or \"which\" before \"aims\". 2. After the word \"at\", we need to change \"replace\" to \"replacing\". Alternatively, we can change \"at\" to \"to\".\n\nOr maybe \"This is the first pass data structure intended to replace stats_in\"?",
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79814e77_305df0b3",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-30T03:06:48Z",
+      "side": 1,
+      "message": "Optional: Thank you for explaining that \"_sub\" means a sub function. This is an uncommon abbreviation, but I don\u0027t have a good suggestion. Maybe \"_new\" (with a comment to explain this is the new version of the function) or \"_v2\".",
+      "range": {
+        "startLine": 62,
+        "startChar": 36,
+        "endLine": 62,
+        "endChar": 40
+      },
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6da5ce5a_dcffe849",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2707,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-07-30T03:06:48Z",
+      "side": 1,
+      "message": "I am just wondering why we subtract 1 here.",
+      "range": {
+        "startLine": 2707,
+        "startChar": 59,
+        "endLine": 2707,
+        "endChar": 63
+      },
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
