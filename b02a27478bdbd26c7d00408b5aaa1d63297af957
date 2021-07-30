@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c71e0f86_43aa433a",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2114,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "Use upper and left neighbor block as reference mv, compute the minimum difference between current mv and reference mv.",
+      "range": {
+        "startLine": 2114,
+        "startChar": 3,
+        "endLine": 2114,
+        "endChar": 65
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67450118_3ff23761",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2115,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "compute_mv_difference.",
+      "range": {
+        "startLine": 2115,
+        "startChar": 21,
+        "endLine": 2115,
+        "endChar": 46
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f65edb22_f9114257",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2124,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "We can just do abs(current_mv.as_mv.row) + abs(current_mv.as_mv.col) here and use int.\n\nInteger operation is faster than double operation.\n\nOr you can add a sub function to compute the magnitude of mv.",
+      "range": {
+        "startLine": 2124,
+        "startChar": 6,
+        "endLine": 2124,
+        "endChar": 76
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd82de9c_0b58cfed",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2127,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "We can use int here.",
+      "range": {
+        "startLine": 2127,
+        "startChar": 2,
+        "endLine": 2127,
+        "endChar": 8
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1b53576_6485379b",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2128,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "up_mv_diff",
+      "range": {
+        "startLine": 2128,
+        "startChar": 9,
+        "endLine": 2128,
+        "endChar": 14
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7599a5ba_49353b27",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2136,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "abs(up_mv_diff.row) + abs(up_mv_diff.col)",
+      "range": {
+        "startLine": 2136,
+        "startChar": 8,
+        "endLine": 2136,
+        "endChar": 78
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc151f31_f81dd5cc",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2140,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "left_mv_diff",
+      "range": {
+        "startLine": 2140,
+        "startChar": 9,
+        "endLine": 2140,
+        "endChar": 16
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7422e003_dffe6b7d",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2148,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "abs(left_mv_diff.row) + abs(left_mv_diff.col)",
+      "range": {
+        "startLine": 2147,
+        "startChar": 17,
+        "endLine": 2148,
+        "endChar": 56
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "174a8dcb_8a43b91a",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2177,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:23:22Z",
+      "side": 1,
+      "message": "I will suggest not check-in this part until you tune the scale factor.",
+      "range": {
+        "startLine": 2176,
+        "startChar": 0,
+        "endLine": 2177,
+        "endChar": 69
+      },
+      "revId": "b02a27478bdbd26c7d00408b5aaa1d63297af957",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
