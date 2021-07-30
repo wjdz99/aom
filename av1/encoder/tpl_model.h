@@ -249,8 +249,8 @@ static INLINE void vbr_rc_init(VBR_RATECTRL_INFO *vbr_rc_info,
   vbr_rc_info->total_bit_budget = total_bit_budget;
   vbr_rc_info->show_frame_count = show_frame_count;
   vbr_rc_info->keyframe_bitrate = 0;
-  vbr_rc_info->scale_factor = 1.2;
-  vbr_rc_info->mv_scale_factor = 4.0;
+  vbr_rc_info->scale_factor = 1.0;
+  vbr_rc_info->mv_scale_factor = 1.0;
 }
 
 static INLINE void vbr_rc_set_gop_bit_budget(VBR_RATECTRL_INFO *vbr_rc_info,
