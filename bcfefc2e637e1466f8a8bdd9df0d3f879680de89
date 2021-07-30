@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8240833d_37727cf0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-30T05:23:52Z",
+      "side": 1,
+      "message": "Thanks for the update.",
+      "revId": "bcfefc2e637e1466f8a8bdd9df0d3f879680de89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f61426e3_58f94ee4",
+        "filename": "tools/convexhull_framework/src/Config.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-07-30T05:23:52Z",
+      "side": 1,
+      "message": "The first qp for still image coding should be 60 rather than 80.",
+      "revId": "bcfefc2e637e1466f8a8bdd9df0d3f879680de89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
