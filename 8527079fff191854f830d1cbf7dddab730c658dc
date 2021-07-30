@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17a5853a_afc7dc4a",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1445,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:41:34Z",
+      "side": 1,
+      "message": "I think it\u0027s okay to return NULL.\nSo users can use the return value to check whether the stats they need is available or not.",
+      "parentUuid": "3c2804d2_3ff1ff0d",
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "65c3939d_3910620c",
@@ -66,6 +84,30 @@
       "writtenOn": "2021-07-30T03:06:48Z",
       "side": 1,
       "message": "Nit: Align this with \"struct of firstpass_info.\" in the line above?",
+      "range": {
+        "startLine": 232,
+        "startChar": 36,
+        "endLine": 232,
+        "endChar": 48
+      },
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9a8e5a4_54796c2b",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:41:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65c3939d_3910620c",
       "range": {
         "startLine": 232,
         "startChar": 36,
@@ -93,6 +135,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b66b91e5_b79dc55d",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:41:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9154beac_1b64c42b",
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79814e77_305df0b3",
@@ -116,6 +176,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ef03a72_7c839938",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:41:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79814e77_305df0b3",
+      "range": {
+        "startLine": 62,
+        "startChar": 36,
+        "endLine": 62,
+        "endChar": 40
+      },
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6da5ce5a_dcffe849",
@@ -129,6 +213,30 @@
       "writtenOn": "2021-07-30T03:06:48Z",
       "side": 1,
       "message": "I am just wondering why we subtract 1 here.",
+      "range": {
+        "startLine": 2707,
+        "startChar": 59,
+        "endLine": 2707,
+        "endChar": 63
+      },
+      "revId": "8527079fff191854f830d1cbf7dddab730c658dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc1cf67f_b9b335c4",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 2707,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-07-30T18:41:34Z",
+      "side": 1,
+      "message": "So thats_count - this_stats_index is the number of available stats including this stats and the rest.\nWe do \"-1\" to exclude this stats.",
+      "parentUuid": "6da5ce5a_dcffe849",
       "range": {
         "startLine": 2707,
         "startChar": 59,
