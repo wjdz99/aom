@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f61110c_aa9da3c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-07-30T09:51:23Z",
+      "side": 1,
+      "message": "Hi Lester, Yunqing,\nWe have submitted a CL to add SSE4.1 intrinsic optimization to copy prediction array. This CL also adds the unit test to validate the intrinsic code.\nFor this optimization, encoder and decoder speedup is negligible.\n\nPlease check the block wise scaling in the table for the configurations below,\nConfig 1: OPFL_COMBINE_INTERP_GRAD_LS \u003d 1 and OPFL_EQUAL_DIST_ASSUMED \u003d 1\nConfig 2: OPFL_COMBINE_INTERP_GRAD_LS\u003d 1 and OPFL_EQUAL_DIST_ASSUMED \u003d 0\nConfig 3: OPFL_COMBINE_INTERP_GRAD_LS\u003d 0 and OPFL_EQUAL_DIST_ASSUMED \u003d 0\n\nLow-bd :\nBlock_size           Config 1                Config 2                Config 3\n8X8                          7.54                      7.94                         4.17\n16X16                      8.82                      7.02                        7.31\n32X32                      3.30                      3.48                        3.16\n64X64                      2.38                      3.31                        2.17\n128X128                  1.21                      1.71                        1.03\n\nHigh-bd :\nBlock_size           Config 1                Config 2                Config 3\n8X8                         7.99                        9.16                        5.08\n16X16                     4.75                       7.98                         2.58\n32X32                     3.48                       7.42                         1.59\n64X64                     2.25                       7.39                         2.41\n128X128                1.00                       2.24                          1.49\n\nPlease review the patch .\nThank you!\nRegards,\nAkshata\n\n",
+      "revId": "d05d110b7ce8c1be63982ccab223ccd1f5a9bbc3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
