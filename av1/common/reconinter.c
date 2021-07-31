@@ -1524,6 +1524,7 @@ static int get_optflow_based_mv_lowbd(
   (void)gy1;
 
   // Compute tmp1 = P0 - P1 and gradients of tmp0 = d0 * P0 - d1 * P1
+  int32_t tmp_dst = 0;
   int16_t *tmp0 =
       (int16_t *)aom_memalign(16, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
   int16_t *tmp1 =
@@ -1534,10 +1535,12 @@ static int get_optflow_based_mv_lowbd(
       tmp0[i * bw + j] = (int16_t)dst0[i * bw + j] + (int16_t)dst1[i * bw + j];
       tmp1[i * bw + j] = (int16_t)dst0[i * bw + j] - (int16_t)dst1[i * bw + j];
 #else
-      tmp0[i * bw + j] =
-          d0 * (int16_t)dst0[i * bw + j] - d1 * (int16_t)dst1[i * bw + j];
-      tmp1[i * bw + j] =
-          d0 * ((int16_t)dst0[i * bw + j] - (int16_t)dst1[i * bw + j]);
+      // To avoid overflow, we clamp d0*P0-d1*P1 and P0-P1. Since d0 and d1 are
+      // at most 5 bits, this clamping is only required in highbd.
+      tmp_dst = d0 * (int32_t)dst0[i * bw + j] - d1 * (int32_t)dst1[i * bw + j];
+      tmp0[i * bw + j] = clamp(tmp_dst, INT16_MIN, INT16_MAX);
+      tmp_dst = (int32_t)dst0[i * bw + j] - (int32_t)dst1[i * bw + j];
+      tmp1[i * bw + j] = clamp(tmp_dst, INT16_MIN, INT16_MAX);
 #endif
     }
   }
