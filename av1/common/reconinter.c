@@ -1613,6 +1613,7 @@ static int get_optflow_based_mv_lowbd(
   (void)gy1;
 
   // Compute tmp1 = P0 - P1 and gradients of tmp0 = d0 * P0 - d1 * P1
+  int32_t tmp_dst = 0;
   int16_t *tmp0 =
       (int16_t *)aom_memalign(16, MAX_SB_SIZE * MAX_SB_SIZE * sizeof(int16_t));
   int16_t *tmp1 =
