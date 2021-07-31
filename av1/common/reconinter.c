@@ -1354,10 +1354,13 @@ static AOM_FORCE_INLINE void compute_pred_using_interp_grad(
       dst1[i * bw + j] = (int16_t)src1[i * bw + j] + (int16_t)src2[i * bw + j];
       dst2[i * bw + j] = (int16_t)src1[i * bw + j] - (int16_t)src2[i * bw + j];
 #else
-      dst1[i * bw + j] =
-          d0 * (int16_t)src1[i * bw + j] - d1 * (int16_t)src2[i * bw + j];
-      dst2[i * bw + j] =
-          d0 * ((int16_t)src1[i * bw + j] - (int16_t)src2[i * bw + j]);
+      // To avoid overflow, we clamp d0*P0-d1*P1 and P0-P1. Since d0 and d1 are
+      // at most 5 bits, this clamping is only required in highbd.
+      int32_t tmp_dst =
+          d0 * (int32_t)src1[i * bw + j] - d1 * (int32_t)src2[i * bw + j];
+      dst1[i * bw + j] = clamp(tmp_dst, INT16_MIN, INT16_MAX);
+      tmp_dst = d0 * ((int32_t)src1[i * bw + j] - (int32_t)src2[i * bw + j]);
+      dst2[i * bw + j] = clamp(tmp_dst, INT16_MIN, INT16_MAX);
 #endif  // OPFL_EQUAL_DIST_ASSUMED
     }
   }
@@ -1410,7 +1413,7 @@ static AOM_FORCE_INLINE void compute_pred_using_interp_grad_highbd(
       int32_t tmp_dst =
           d0 * (int32_t)src1[i * bw + j] - d1 * (int32_t)src2[i * bw + j];
       dst1[i * bw + j] = clamp(tmp_dst, INT16_MIN, INT16_MAX);
-      tmp_dst = (int32_t)src1[i * bw + j] - (int32_t)src2[i * bw + j];
+      tmp_dst = d0 * ((int32_t)src1[i * bw + j] - (int32_t)src2[i * bw + j]);
       dst2[i * bw + j] = clamp(tmp_dst, INT16_MIN, INT16_MAX);
 #endif  // OPFL_EQUAL_DIST_ASSUMED
     }
