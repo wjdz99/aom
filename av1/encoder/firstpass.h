@@ -163,6 +163,12 @@ typedef struct {
 } FIRSTPASS_STATS;
 
 /*!\cond */
+// We want to keep at least one past stats for key frame detection
+#define FIRSTPASS_INFO_STATS_PAST_MIN 1
+
+// The size of static buffer.
+#define FIRSTPASS_INFO_STATIC_BUF_SIZE \
+  (MAX_LAP_BUFFERS + FIRSTPASS_INFO_STATS_PAST_MIN)
 typedef struct {
   /*!
    * An static buffer that will be used when no ext_stats_buf is assigned.
@@ -173,7 +179,7 @@ typedef struct {
    * encode the video in the same pass. In this scenario, the stats will
    * be pushed and popped from static_stats_buf.
    */
-  FIRSTPASS_STATS static_stats_buf[MAX_LAP_BUFFERS];
+  FIRSTPASS_STATS static_stats_buf[FIRSTPASS_INFO_STATIC_BUF_SIZE];
   /*!
    * A pointer point to first pass stats.
    * Note that this buffer will be used as ring buffer.
@@ -184,13 +190,29 @@ typedef struct {
    */
   int stats_buf_size;
   /*!
-   * start_index of the current frame's stats
+   * start index of the available frame stats
    */
   int start_index;
+
   /*!
    * count available stats stored in stats_buf
    */
   int stats_count;
+
+  /*!
+   *  index of the current frame's stats
+   */
+  int curr_index;
+
+  /*!
+   * count available future stats including current stats
+   */
+  int curr_stats_count_future;
+
+  /*!
+   * count available past stats EXCLUDING current stats
+   */
+  int curr_stats_count_past;
 
   /*!
    * Accumulation of the stats being pushed into firstpass_info
@@ -214,15 +236,30 @@ aom_codec_err_t av1_firstpass_info_init(FIRSTPASS_INFO *firstpass_info,
                                         FIRSTPASS_STATS *ext_stats_buf,
                                         int ext_stats_buf_size);
 
+/*!\brief Move curr_index by 1
+ *
+ * \ingroup rate_control
+ * \param[out]   firstpass_info      struct of firstpass_info.
+ * \return status
+ */
+aom_codec_err_t av1_firstpass_info_move_curr(FIRSTPASS_INFO *firstpass_info);
+
 /*!\brief Pop a stats from firstpass_info
  *
  * \ingroup rate_control
  * \param[out]   firstpass_info      struct of firstpass_info.
- * \param[out]   output_stats        output stats
  * \return status
  */
-aom_codec_err_t av1_firstpass_info_pop(FIRSTPASS_INFO *firstpass_info,
-                                       FIRSTPASS_STATS *output_stats);
+aom_codec_err_t av1_firstpass_info_pop(FIRSTPASS_INFO *firstpass_info);
+
+/*!\brief Move curr_index by 1 and pop a stats from firstpass_info
+ *
+ * \ingroup rate_control
+ * \param[out]   firstpass_info      struct of firstpass_info.
+ * \return status
+ */
+aom_codec_err_t av1_firstpass_info_move_curr_and_pop(
+    FIRSTPASS_INFO *firstpass_info);
 
 /*!\brief Push a stats into firstpass_info
  *
@@ -239,12 +276,42 @@ aom_codec_err_t av1_firstpass_info_push(FIRSTPASS_INFO *firstpass_info,
  *
  * \ingroup rate_control
  * \param[in]  firstpass_info      struct of firstpass_info.
- * \param[in]  stats_index_offset  index offset.
+ * \param[in]  offset_from_curr  index offset from curr_index.
  * \return pointer to the stats. The pointer will be NULL if
  *         stats_index_offset is invalid.
  */
 const FIRSTPASS_STATS *av1_firstpass_info_peek(
-    const FIRSTPASS_INFO *firstpass_info, int stats_index_offset);
+    const FIRSTPASS_INFO *firstpass_info, int offset_from_curr);
+
+/*!\brief Count the future stats from the target in firstpass_info
+ * Note that the target stats will be counted as well.
+ * The target index is as follows.
+ * (curr_index + offset_from_curr) % firstpass_info->stats_buf_size
+ *
+ * \ingroup rate_control
+ * \param[in]  firstpass_info    struct of firstpass_info.
+ * \param[in]  offset_from_curr  target stats's index offset
+ *                               from curr_index.
+ * \return Number of stats in the future after the target stats
+ *         including itself.
+ */
+int av1_firstpass_info_future_count(const FIRSTPASS_INFO *firstpass_info,
+                                    int offset_from_curr);
+
+/*!\brief Count the past stats before the target in firstpass_info
+ * Note that the target stats will NOT be counted.
+ * The target index is as follows.
+ * (curr_index + offset_from_curr) % firstpass_info->stats_buf_size
+ *
+ * \ingroup rate_control
+ * \param[in]  firstpass_info    struct of firstpass_info.
+ * \param[in]  offset_from_curr  target stats's index offset
+ *                               from curr_index.
+ * \return Number of stats in the past before the target stats
+ *         excluding itself.
+ */
+int av1_firstpass_info_past_count(const FIRSTPASS_INFO *firstpass_info,
+                                  int offset_from_curr);
 
 #define FC_ANIMATION_THRESH 0.15
 enum {
