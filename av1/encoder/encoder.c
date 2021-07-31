@@ -3942,8 +3942,14 @@ void print_internal_stats(AV1_PRIMARY *const ppi) {
 static AOM_INLINE void update_keyframe_counters(AV1_COMP *cpi) {
   if (cpi->common.show_frame && cpi->rc.frames_to_key) {
 #if !CONFIG_REALTIME_ONLY
-    FIRSTPASS_STATS dummy_stats;
-    av1_firstpass_info_pop(&cpi->ppi->twopass.firstpass_info, &dummy_stats);
+    const FIRSTPASS_INFO *firstpass_info = &cpi->ppi->twopass.firstpass_info;
+    if (firstpass_info->curr_stats_count_past > FIRSTPASS_INFO_STATS_PAST_MIN) {
+      av1_firstpass_info_move_curr_and_pop(&cpi->ppi->twopass.firstpass_info);
+    } else {
+      // When there is not enough past stats, we move the current
+      // index without poping the past stats
+      av1_firstpass_info_move_curr(&cpi->ppi->twopass.firstpass_info);
+    }
 #endif
     cpi->rc.frames_since_key++;
     cpi->rc.frames_to_key--;
