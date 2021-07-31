@@ -334,20 +334,8 @@ static int parse_sequence_header(const uint8_t *const buffer, size_t length,
   }
 
   AV1C_READ_BIT_OR_RETURN_ERROR(use_128x128_superblock);
-#if CONFIG_SDP
-  AV1C_READ_BIT_OR_RETURN_ERROR(enable_sdp);
-#endif
-#if CONFIG_MRLS
-  AV1C_READ_BIT_OR_RETURN_ERROR(enable_mrls);
-#endif
   AV1C_READ_BIT_OR_RETURN_ERROR(enable_filter_intra);
   AV1C_READ_BIT_OR_RETURN_ERROR(enable_intra_edge_filter);
-#if CONFIG_ORIP
-  AV1C_READ_BIT_OR_RETURN_ERROR(enable_orip);
-#endif
-#if CONFIG_IST
-  AV1C_READ_BIT_OR_RETURN_ERROR(enable_ist);
-#endif
   if (!reduced_still_picture_header) {
     AV1C_READ_BIT_OR_RETURN_ERROR(enable_interintra_compound);
     AV1C_READ_BIT_OR_RETURN_ERROR(enable_masked_compound);
@@ -388,9 +376,6 @@ static int parse_sequence_header(const uint8_t *const buffer, size_t length,
   AV1C_READ_BIT_OR_RETURN_ERROR(enable_superres);
   AV1C_READ_BIT_OR_RETURN_ERROR(enable_cdef);
   AV1C_READ_BIT_OR_RETURN_ERROR(enable_restoration);
-#if CONFIG_CCSO
-  AV1C_READ_BIT_OR_RETURN_ERROR(enable_ccso);
-#endif
 
   if (parse_color_config(reader, config) != 0) {
     fprintf(stderr, "av1c: color_config() parse failed.\n");
@@ -398,7 +383,39 @@ static int parse_sequence_header(const uint8_t *const buffer, size_t length,
   }
 
   AV1C_READ_BIT_OR_RETURN_ERROR(film_grain_params_present);
+
+  // Sequence header for coding tools beyond AV1
+  parse_sequence_header_beyond_av1(buffer, length, config);
+
   return 0;
+}
+
+// Parse Sequence Header OBU for coding tools beyond AV1
+static int parse_sequence_header_beyond_av1(const uint8_t *const buffer,
+                                            size_t length, Av1Config *config) {
+  int result = 0;
+  // The reader instance is local to this function, but a pointer to the
+  // reader instance is used within this function and throughout this file to
+  // allow use of the helper macros that reduce parse error checking verbosity.
+  struct aom_read_bit_buffer reader_instance = { buffer, buffer + length, 0,
+                                                 &result,
+                                                 bitreader_error_handler };
+  struct aom_read_bit_buffer* reader = &reader_instance;
+#if CONFIG_SDP
+  AV1C_READ_BIT_OR_RETURN_ERROR(enable_sdp);
+#endif
+#if CONFIG_IST
+  AV1C_READ_BIT_OR_RETURN_ERROR(enable_ist);
+#endif
+#if CONFIG_MRLS
+  AV1C_READ_BIT_OR_RETURN_ERROR(enable_mrls);
+#endif
+#if CONFIG_CCSO
+  AV1C_READ_BIT_OR_RETURN_ERROR(enable_ccso);
+#endif
+#if CONFIG_ORIP
+  AV1C_READ_BIT_OR_RETURN_ERROR(enable_orip);
+#endif
 }
 
 int get_av1config_from_obu(const uint8_t *buffer, size_t length, int is_annexb,
