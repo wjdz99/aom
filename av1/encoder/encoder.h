@@ -699,6 +699,11 @@ typedef struct {
   // - Given by the user, and stored in 'fixed_qp_offsets' array, OR
   // - Picked automatically from qp.
   int use_fixed_qp_offsets;
+#if CONFIG_QBASED_QP_OFFSET
+  // It true, the offset factor depends on the QP value
+  // else fixed value is used.
+  int q_based_qp_offsets;
+#endif
   // Indicates the minimum flatness of the quantization matrix.
   int qm_minlevel;
   // Indicates the maximum flatness of the quantization matrix.
