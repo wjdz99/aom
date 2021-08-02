@@ -16,6 +16,24 @@
       "message": "What\u0027s the impact of the fix?",
       "revId": "48bca4a1dc27e3da0f5acf743054aae7dc945665",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a403cd4b_d3ab3436",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-08-02T20:32:50Z",
+      "side": 1,
+      "message": "A factor was missing in the highbd path in https://aomedia-review.googlesource.com/c/aom/+/141121, which caused a big drop of gain in highbd. We have not tested highbd path in OPFL_COMBINE_INTERP_GRAD_LS until recently the drop of gain emerges after the intrinsic implementation was done. Now the ideal gain will show after this fix.",
+      "parentUuid": "3d6c6899_b3a0df13",
+      "revId": "48bca4a1dc27e3da0f5acf743054aae7dc945665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
