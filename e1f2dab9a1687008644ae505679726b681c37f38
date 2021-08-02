@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7c0769f_1ec5ce4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2021-08-02T06:22:49Z",
+      "side": 1,
+      "message": "This segfaults when encoding to 10 bit.",
+      "revId": "e1f2dab9a1687008644ae505679726b681c37f38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
