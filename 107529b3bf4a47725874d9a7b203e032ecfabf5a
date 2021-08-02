@@ -87,6 +87,24 @@
       "parentUuid": "0cca3951_c4ce0521",
       "revId": "107529b3bf4a47725874d9a7b203e032ecfabf5a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "042f74c0_b2624868",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-08-02T14:14:28Z",
+      "side": 1,
+      "message": "Hi Lester,\nPrior to the patch (https://aomedia-review.googlesource.com/c/aom/+/142922), there was a difference in calculation of \u0027tmp1\u0027 between lowbd and highbd paths.\n\nComputation in low-bd:\ntmp1[i * bw + j] \u003d d0 * ((int16_t)dst0[i * bw + j] - (int16_t)dst1[i * bw + j]);\n\nComputation in high-bd:\ntmp_dst \u003d (int32_t)dst0[i * bw + j] - (int32_t)dst1[i * bw + j];\ntmp1[i * bw + j] \u003d clamp(tmp_dst, INT16_MIN, INT16_MAX);\n\nSo the intrinsic (please refer the following patch: https://aomedia-review.googlesource.com/c/aom/+/142821) was implemented accordingly.\n\nWith your recent patch, the \u0027C\u0027 code is giving bit-exact output for both the runs. So, the intrinsic has to be modified accordingly.",
+      "parentUuid": "29e7fb55_d6c60b86",
+      "revId": "107529b3bf4a47725874d9a7b203e032ecfabf5a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
