@@ -134,6 +134,22 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
 #if CONFIG_MRLS
   av1_cost_tokens_from_cdf(mode_costs->mrl_index_cost, fc->mrl_index_cdf, NULL);
 #endif
+#if CONFIG_AIMC
+  av1_cost_tokens_from_cdf(mode_costs->y_primary_flag_cost, fc->y_mode_set_cdf,
+                           NULL);
+  for (i = 0; i < Y_MODE_CONTEXTS; ++i) {
+    // y mode costs
+    av1_cost_tokens_from_cdf(mode_costs->y_first_mode_costs[i],
+                             fc->y_first_mode_cdf[i], NULL);
+    av1_cost_tokens_from_cdf(mode_costs->y_second_mode_costs[i],
+                             fc->y_second_mode_cdf[i], NULL);
+  }
+  for (i = 0; i < UV_MODE_CONTEXTS; ++i) {
+    // uv mode costs
+    av1_cost_tokens_from_cdf(mode_costs->uv_first_mode_costs[i],
+                             fc->uv_first_mode_cdf[i], NULL);
+  }
+#endif  // CONFIG_AIMC
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
     av1_cost_tokens_from_cdf(mode_costs->mbmode_cost[i], fc->y_mode_cdf[i],
@@ -268,26 +284,11 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
     }
   }
 
-#if CONFIG_ORIP
-  for (i = 0; i < PARTITION_STRUCTURE_NUM; ++i) {
-    for (j = 0; j < TOTAL_NUM_ORIP_ANGLE_DELTA; ++j) {
-      av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost_hv[i][j],
-                               fc->angle_delta_cdf_hv[i][j], NULL);
-    }
-  }
-#endif
-
 #else
   for (i = 0; i < DIRECTIONAL_MODES; ++i) {
     av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost[i],
                              fc->angle_delta_cdf[i], NULL);
   }
-#if CONFIG_ORIP
-  for (i = 0; i < TOTAL_NUM_ORIP_ANGLE_DELTA; ++i) {
-    av1_cost_tokens_from_cdf(mode_costs->angle_delta_cost_hv[i],
-                             fc->angle_delta_cdf_hv[i], NULL);
-  }
-#endif
 #endif  // CONFIG_SDP
 
   av1_cost_tokens_from_cdf(mode_costs->intrabc_cost, fc->intrabc_cdf, NULL);

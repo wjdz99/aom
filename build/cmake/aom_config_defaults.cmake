@@ -162,6 +162,7 @@ set_aom_config_var(
   CONFIG_CCSO 1 "AV2 experiment flag to enable cross component sample offset.")
 set_aom_config_var(CONFIG_QBASED_QP_OFFSET 1
                    "AV2 experiment flag to adjust q_offset based on QP.")
+set_aom_config_var(CONFIG_AIMC 0 "AV2 luma intra mode coding flag.")
 #
 # Variables in this section control optional features of the build system.
 #

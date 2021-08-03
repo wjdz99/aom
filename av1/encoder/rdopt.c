@@ -5799,28 +5799,27 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   for (i = 0; i < TOP_INTRA_MODEL_COUNT; i++) {
     top_intra_model_rd[i] = INT64_MAX;
   }
+#if CONFIG_AIMC
+  get_luma_intra_prediction_mode_set(mbmi, xd);
+#endif  // CONFIG_AIMC
 #if CONFIG_MRLS
   uint8_t enable_mrls_flag = cm->seq_params.enable_mrls;
   for (int mrl_index = 0; mrl_index < (enable_mrls_flag ? MRL_LINE_NUMBER : 1);
        mrl_index++) {
     mbmi->mrl_index = mrl_index;
 #endif
-
-#if CONFIG_ORIP
-    int total_num_mode = cpi->common.seq_params.enable_orip
-                             ? (LUMA_MODE_COUNT + TOTAL_NUM_ORIP_ANGLE_DELTA)
-                             : LUMA_MODE_COUNT;
-    for (int mode_idx = INTRA_MODE_START; mode_idx < total_num_mode;
+    for (int mode_idx = INTRA_MODE_START; mode_idx < LUMA_MODE_COUNT;
          ++mode_idx) {
-#else
-
-  for (int mode_idx = INTRA_MODE_START; mode_idx < LUMA_MODE_COUNT;
-       ++mode_idx) {
-#endif
       if (sf->intra_sf.skip_intra_in_interframe &&
           search_state.intra_search_state.skip_intra_modes)
         break;
-      set_y_mode_and_delta_angle(mode_idx, mbmi);
+#if CONFIG_AIMC
+      mbmi->mode_idx = mode_idx;
+      mbmi->joint_y_mode = mbmi->y_intra_mode_list[mode_idx];
+      set_y_mode_and_delta_angle(mbmi->joint_y_mode, mbmi);
+#else
+    set_y_mode_and_delta_angle(mode_idx, mbmi);
+#endif  // CONFIG_AIMC
       THR_MODES mode_enum = 0;
       for (i = 0; i < INTRA_MODE_END; i++) {
         if (mbmi->mode == av1_mode_defs[intra_mode_idx_ls[i]].mode) {
@@ -5836,22 +5835,16 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
       if (!cpi->oxcf.intra_mode_cfg.enable_paeth_intra &&
           mbmi->mode == PAETH_PRED)
         continue;
+#if !CONFIG_AIMC
       if (av1_is_directional_mode(mbmi->mode) &&
           av1_use_angle_delta(bsize) == 0 &&
           mbmi->angle_delta[PLANE_TYPE_Y] != 0)
         continue;
+#endif  // !CONFIG_AIMC
 #if CONFIG_MRLS
       if (mbmi->mrl_index > 0 && av1_is_directional_mode(mbmi->mode) == 0) {
         continue;
       }
-#endif
-
-#if CONFIG_ORIP
-      int signal_intra_filter = av1_signal_orip_for_horver_modes(
-          &cpi->common, mbmi, PLANE_TYPE_Y, bsize);
-      if (!signal_intra_filter &&
-          mbmi->angle_delta[PLANE_TYPE_Y] == ANGLE_DELTA_VALUE_ORIP)
-        continue;
 #endif
       const PREDICTION_MODE this_mode = mbmi->mode;
 

@@ -68,6 +68,7 @@ static AOM_INLINE void loop_restoration_write_sb_coeffs(
     const AV1_COMMON *const cm, MACROBLOCKD *xd, const RestorationUnitInfo *rui,
     aom_writer *const w, int plane, FRAME_COUNTS *counts);
 
+#if !CONFIG_AIMC
 static AOM_INLINE void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
                                              const MB_MODE_INFO *mi,
                                              const MB_MODE_INFO *above_mi,
@@ -83,7 +84,7 @@ static AOM_INLINE void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
   aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
                    INTRA_MODES);
 }
-
+#endif  // !CONFIG_AIMC
 static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
                                         FRAME_CONTEXT *ec_ctx,
                                         const int16_t mode_ctx) {
@@ -823,14 +824,6 @@ static AOM_INLINE void write_filter_intra_mode_info(
   }
 }
 
-#if CONFIG_ORIP
-static AOM_INLINE void write_angle_delta_hv(aom_writer *w, int angle_delta,
-                                            aom_cdf_prob *cdf) {
-  aom_write_symbol(w, get_angle_delta_to_idx(angle_delta), cdf,
-                   2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA);
-}
-#endif
-
 static AOM_INLINE void write_angle_delta(aom_writer *w, int angle_delta,
                                          aom_cdf_prob *cdf) {
   aom_write_symbol(w, angle_delta + MAX_ANGLE_DELTA, cdf,
@@ -1161,7 +1154,7 @@ static AOM_INLINE void write_mrl_index(FRAME_CONTEXT *ec_ctx, uint8_t mrl_index,
   aom_write_symbol(w, mrl_index, ec_ctx->mrl_index_cdf, MRL_LINE_NUMBER);
 }
 #endif
-
+#if !CONFIG_AIMC
 static AOM_INLINE void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
                                            UV_PREDICTION_MODE uv_mode,
                                            PREDICTION_MODE y_mode,
@@ -1170,7 +1163,7 @@ static AOM_INLINE void write_intra_uv_mode(FRAME_CONTEXT *frame_ctx,
   aom_write_symbol(w, uv_mode, frame_ctx->uv_mode_cdf[cfl_allowed][y_mode],
                    UV_INTRA_MODES - !cfl_allowed);
 }
-
+#endif
 static AOM_INLINE void write_cfl_alphas(FRAME_CONTEXT *const ec_ctx,
                                         uint8_t idx, int8_t joint_sign,
                                         aom_writer *w) {
@@ -1350,8 +1343,48 @@ static AOM_INLINE void write_delta_q_params(AV1_COMP *cpi, int skip,
   }
 }
 
+#if CONFIG_AIMC
+static AOM_INLINE void write_intra_luma_mode(MACROBLOCKD *const xd,
+                                             aom_writer *w) {
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int mode_idx = mbmi->mode_idx;
+  assert(mode_idx >= 0 && mode_idx < LUMA_MODE_COUNT);
+  assert(mbmi->joint_y_mode >= 0 && mbmi->joint_y_mode < LUMA_MODE_COUNT);
+  if (mbmi->joint_y_mode < NON_DIRECTIONAL_MODES_COUNT)
+    assert(mbmi->joint_y_mode == mbmi->mode_idx);
+  const int context = get_intra_y_mode_context(xd);
+  int primary_flag = mode_idx < FIRST_MODE_COUNT ? 0 : 1;
+  primary_flag += ((mode_idx - FIRST_MODE_COUNT) / SECOND_MODE_COUNT);
+  aom_write_symbol(w, primary_flag, ec_ctx->y_mode_set_cdf, INTRA_MODE_SETS);
+  if (primary_flag == 0) {
+    aom_write_symbol(w, mode_idx, ec_ctx->y_first_mode_cdf[context],
+                     FIRST_MODE_COUNT);
+  } else {
+    aom_write_symbol(
+        w, mode_idx - FIRST_MODE_COUNT - (primary_flag - 1) * SECOND_MODE_COUNT,
+        ec_ctx->y_second_mode_cdf[context], SECOND_MODE_COUNT);
+  }
+  if (mbmi->joint_y_mode < NON_DIRECTIONAL_MODES_COUNT)
+    assert(mbmi->joint_y_mode == mbmi->mode_idx);
+}
+
+static AOM_INLINE void write_intra_uv_mode(MACROBLOCKD *const xd,
+                                           aom_writer *w) {
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int uv_mode_idx = mbmi->uv_mode_idx;
+  assert(uv_mode_idx >= 0 && uv_mode_idx < UV_INTRA_MODES);
+  const int context = av1_is_directional_mode(mbmi->mode) ? 1 : 0;
+  aom_write_symbol(w, uv_mode_idx, ec_ctx->uv_first_mode_cdf[context],
+                   UV_INTRA_MODES);
+}
+#endif  // CONFIG_AIMC
+
 static AOM_INLINE void write_intra_prediction_modes(AV1_COMP *cpi,
+#if !CONFIG_AIMC
                                                     int is_keyframe,
+#endif
                                                     aom_writer *w) {
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCK *const x = &cpi->td.mb;
@@ -1364,60 +1397,37 @@ static AOM_INLINE void write_intra_prediction_modes(AV1_COMP *cpi,
 #else
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #endif
+#if !CONFIG_AIMC
+  const int use_angle_delta = av1_use_angle_delta(bsize);
+#endif
 
   // Y mode.
 #if CONFIG_SDP
-  const int use_angle_delta = av1_use_angle_delta(bsize);
   if (xd->tree_type != CHROMA_PART) {
 #endif
-    if (is_keyframe) {
-      const MB_MODE_INFO *const above_mi = xd->above_mbmi;
-      const MB_MODE_INFO *const left_mi = xd->left_mbmi;
-      write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi, mode, w);
-    } else {
-      write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
-    }
-
-#if CONFIG_MRLS && CONFIG_ORIP
-    // Encoding reference line index before angle delta if ORIP is enable
-    if (cm->seq_params.enable_mrls && av1_is_directional_mode(mode)) {
-      write_mrl_index(ec_ctx, mbmi->mrl_index, w);
-    }
-#endif
-
-    // Y angle delta.
-#if !CONFIG_SDP
-    const int use_angle_delta = av1_use_angle_delta(bsize);
-#endif
-    if (use_angle_delta && av1_is_directional_mode(mode)) {
-#if CONFIG_ORIP
-      int signal_intra_filter =
-          av1_signal_orip_for_horver_modes(cm, mbmi, PLANE_TYPE_Y, bsize);
-      aom_cdf_prob *cdf_angle =
-          signal_intra_filter
-#if CONFIG_SDP
-              ? ec_ctx->angle_delta_cdf_hv[PLANE_TYPE_Y][mode - V_PRED]
-              : ec_ctx->angle_delta_cdf[PLANE_TYPE_Y][mode - V_PRED];
+#if CONFIG_AIMC
+    write_intra_luma_mode(xd, w);
 #else
-              ? ec_ctx->angle_delta_cdf_hv[mode - V_PRED]
-              : ec_ctx->angle_delta_cdf[mode - V_PRED];
+  if (is_keyframe) {
+    const MB_MODE_INFO *const above_mi = xd->above_mbmi;
+    const MB_MODE_INFO *const left_mi = xd->left_mbmi;
+    write_intra_y_mode_kf(ec_ctx, mbmi, above_mi, left_mi, mode, w);
+  } else {
+    write_intra_y_mode_nonkf(ec_ctx, bsize, mode, w);
+  }
 
-#endif  // CONFIG_SDP
-      assert(mbmi->angle_delta[PLANE_TYPE_Y] >= -3 &&
-             mbmi->angle_delta[PLANE_TYPE_Y] <= ANGLE_DELTA_VALUE_ORIP);
-      if (signal_intra_filter)
-        write_angle_delta_hv(w, mbmi->angle_delta[PLANE_TYPE_Y], cdf_angle);
-      else
-        write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y], cdf_angle);
-#elif CONFIG_SDP
+  // Y angle delta.
+  if (use_angle_delta && av1_is_directional_mode(mode)) {
+#if CONFIG_SDP
     write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
                       ec_ctx->angle_delta_cdf[PLANE_TYPE_Y][mode - V_PRED]);
 #else
     write_angle_delta(w, mbmi->angle_delta[PLANE_TYPE_Y],
                       ec_ctx->angle_delta_cdf[mode - V_PRED]);
-#endif  // CONFIG_ORIP
-    }
-#if CONFIG_MRLS && !CONFIG_ORIP
+#endif  // CONFIG_SDP
+  }
+#endif  // CONFIG_AIMC
+#if CONFIG_MRLS
     // Encoding reference line index
     if (cm->seq_params.enable_mrls && av1_is_directional_mode(mode)) {
       write_mrl_index(ec_ctx, mbmi->mrl_index, w);
@@ -1435,9 +1445,10 @@ static AOM_INLINE void write_intra_prediction_modes(AV1_COMP *cpi,
   if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
 #endif
     const UV_PREDICTION_MODE uv_mode = mbmi->uv_mode;
+#if CONFIG_AIMC
+    write_intra_uv_mode(xd, w);
+#else
     write_intra_uv_mode(ec_ctx, uv_mode, mode, is_cfl_allowed(xd), w);
-    if (uv_mode == UV_CFL_PRED)
-      write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
     if (use_angle_delta && av1_is_directional_mode(get_uv_mode(uv_mode))) {
 #if CONFIG_SDP
       if (cm->seq_params.enable_sdp) {
@@ -1454,6 +1465,9 @@ static AOM_INLINE void write_intra_prediction_modes(AV1_COMP *cpi,
                         ec_ctx->angle_delta_cdf[uv_mode - V_PRED]);
 #endif
     }
+#endif  // CONFIG_AIMC
+    if (uv_mode == UV_CFL_PRED)
+      write_cfl_alphas(ec_ctx, mbmi->cfl_alpha_idx, mbmi->cfl_alpha_signs, w);
   }
 
   // Palette.
@@ -1561,7 +1575,11 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
   if (mbmi->skip_mode) return;
 
   if (!is_inter) {
+#if CONFIG_AIMC
+    write_intra_prediction_modes(cpi, w);
+#else
     write_intra_prediction_modes(cpi, 0, w);
+#endif
   } else {
     int16_t mode_ctx;
 
@@ -1769,8 +1787,11 @@ static AOM_INLINE void write_mb_modes_kf(
     if (is_intrabc_block(mbmi)) return;
 #endif
   }
-
+#if CONFIG_AIMC
+  write_intra_prediction_modes(cpi, w);
+#else
   write_intra_prediction_modes(cpi, 1, w);
+#endif
 }
 
 #if CONFIG_RD_DEBUG

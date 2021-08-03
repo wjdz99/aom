@@ -31,10 +31,11 @@
 #define ACCT_STR __func__
 
 #define DEC_MISMATCH_DEBUG 0
-
+#if !CONFIG_AIMC
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
   return (PREDICTION_MODE)aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR);
 }
+#endif
 
 static void read_cdef(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
 #if CONFIG_SDP
@@ -201,7 +202,7 @@ static uint8_t read_mrl_index(FRAME_CONTEXT *ec_ctx, aom_reader *r) {
   return mrl_index;
 }
 #endif
-
+#if !CONFIG_AIMC
 static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                                              aom_reader *r,
                                              CFL_ALLOWED_TYPE cfl_allowed,
@@ -211,7 +212,7 @@ static UV_PREDICTION_MODE read_intra_mode_uv(FRAME_CONTEXT *ec_ctx,
                       UV_INTRA_MODES - !cfl_allowed, ACCT_STR);
   return uv_mode;
 }
-
+#endif
 static uint8_t read_cfl_alphas(FRAME_CONTEXT *const ec_ctx, aom_reader *r,
                                int8_t *signs_out) {
   const int8_t joint_sign =
@@ -729,20 +730,12 @@ static void read_palette_mode_info(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     }
   }
 }
-
-#if CONFIG_ORIP
-static int read_angle_delta_hv(aom_reader *r, aom_cdf_prob *cdf) {
-  const int sym = aom_read_symbol(
-      r, cdf, 2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA, ACCT_STR);
-  return get_idx_to_angle_delta(sym);
-}
-#endif
-
+#if !CONFIG_AIMC
 static int read_angle_delta(aom_reader *r, aom_cdf_prob *cdf) {
   const int sym = aom_read_symbol(r, cdf, 2 * MAX_ANGLE_DELTA + 1, ACCT_STR);
   return sym - MAX_ANGLE_DELTA;
 }
-
+#endif  // !CONFIG_AIMC
 static void read_filter_intra_mode_info(const AV1_COMMON *const cm,
                                         MACROBLOCKD *const xd, aom_reader *r) {
   MB_MODE_INFO *const mbmi = xd->mi[0];
@@ -1008,12 +1001,55 @@ static void read_delta_q_params(AV1_COMMON *const cm, MACROBLOCKD *const xd,
   }
 }
 
+#if CONFIG_AIMC
+static void read_luma_mode_info(MACROBLOCKD *const xd, aom_reader *r) {
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  uint8_t mode_idx = 0;
+  const int context = get_intra_y_mode_context(xd);
+  int primaryModeFlag =
+      aom_read_symbol(r, ec_ctx->y_mode_set_cdf, INTRA_MODE_SETS, ACCT_STR);
+  if (primaryModeFlag == 0) {
+    mode_idx = aom_read_symbol(r, ec_ctx->y_first_mode_cdf[context],
+                               FIRST_MODE_COUNT, ACCT_STR);
+  } else {
+    mode_idx = FIRST_MODE_COUNT + (primaryModeFlag - 1) * SECOND_MODE_COUNT +
+               aom_read_symbol(r, ec_ctx->y_second_mode_cdf[context],
+                               SECOND_MODE_COUNT, ACCT_STR);
+  }
+  assert(mode_idx >= 0 && mode_idx < LUMA_MODE_COUNT);
+  get_luma_intra_prediction_mode_set(mbmi, xd);
+  mbmi->joint_y_mode = mbmi->y_intra_mode_list[mode_idx];
+  set_y_mode_and_delta_angle(mbmi->joint_y_mode, mbmi);
+  mbmi->mode_idx = mode_idx;
+  if (mbmi->joint_y_mode < NON_DIRECTIONAL_MODES_COUNT)
+    assert(mbmi->joint_y_mode == mbmi->mode_idx);
+}
+static void read_uv_mode_info(MACROBLOCKD *const xd, aom_reader *r) {
+  FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  const int context = av1_is_directional_mode(mbmi->mode) ? 1 : 0;
+  const int uv_mode_idx = aom_read_symbol(r, ec_ctx->uv_first_mode_cdf[context],
+                                          UV_INTRA_MODES, ACCT_STR);
+  assert(uv_mode_idx >= 0 && uv_mode_idx < UV_INTRA_MODES);
+  get_uv_intra_prediction_mode_set(mbmi);
+  mbmi->uv_mode = mbmi->uv_intra_mode_list[uv_mode_idx];
+  if (mbmi->uv_mode == mbmi->mode)
+    mbmi->angle_delta[PLANE_TYPE_UV] = mbmi->angle_delta[PLANE_TYPE_Y];
+  else
+    mbmi->angle_delta[PLANE_TYPE_UV] = 0;
+  // mbmi->uv_mode_idx = uv_mode_idx;
+}
+#endif  // CONFIG_AIMC
+
 static void read_intra_frame_mode_info(AV1_COMMON *const cm,
                                        DecoderCodingBlock *dcb, aom_reader *r) {
   MACROBLOCKD *const xd = &dcb->xd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
+#if !CONFIG_AIMC
   const MB_MODE_INFO *above_mi = xd->above_mbmi;
   const MB_MODE_INFO *left_mi = xd->left_mbmi;
+#endif
 #if CONFIG_SDP
   const BLOCK_SIZE bsize = mbmi->sb_type[xd->tree_type == CHROMA_PART];
 #else
@@ -1088,66 +1124,35 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     if (is_intrabc_block(mbmi)) return;
 #endif
   }
-
+#if !CONFIG_AIMC
   const int use_angle_delta = av1_use_angle_delta(bsize);
+#endif
 #if CONFIG_SDP
   if (xd->tree_type != CHROMA_PART) {
 #endif  // CONFIG_SDP
-    mbmi->mode = read_intra_mode(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi));
-#if CONFIG_ORIP
-#if CONFIG_MRLS
-    // when both ORIP and MRLS are enabled, mrl index are signalled right after
-    // intra mode and before angle delta
-    // Parsing reference line index
-    mbmi->mrl_index =
-        (cm->seq_params.enable_mrls && av1_is_directional_mode(mbmi->mode))
-            ? read_mrl_index(ec_ctx, r)
-            : 0;
-#endif  // CONFIG_MRLS
-
-    if (use_angle_delta && av1_is_directional_mode(mbmi->mode)) {
-      int signal_intra_filter =
-          av1_signal_orip_for_horver_modes(cm, mbmi, PLANE_TYPE_Y, bsize);
-      aom_cdf_prob *anglecdf =
-          signal_intra_filter
-#if CONFIG_SDP
-              ? ec_ctx->angle_delta_cdf_hv[PLANE_TYPE_Y][mbmi->mode - V_PRED]
-              : ec_ctx->angle_delta_cdf[PLANE_TYPE_Y][mbmi->mode - V_PRED];
+#if CONFIG_AIMC
+    read_luma_mode_info(xd, r);
 #else
-              ? ec_ctx->angle_delta_cdf_hv[mbmi->mode - V_PRED]
-              : ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED];
-#endif  // CONFIG_SDP
-
-      mbmi->angle_delta[PLANE_TYPE_Y] = signal_intra_filter
-                                            ? read_angle_delta_hv(r, anglecdf)
-                                            : read_angle_delta(r, anglecdf);
-    } else {
-      mbmi->angle_delta[PLANE_TYPE_Y] = 0;
-    }
-#elif CONFIG_SDP
+  mbmi->mode = read_intra_mode(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi));
+#if CONFIG_SDP
   mbmi->angle_delta[PLANE_TYPE_Y] =
       (use_angle_delta && av1_is_directional_mode(mbmi->mode))
           ? read_angle_delta(
                 r, ec_ctx->angle_delta_cdf[PLANE_TYPE_Y][mbmi->mode - V_PRED])
           : 0;
 #else
-mbmi->angle_delta[PLANE_TYPE_Y] =
-    (use_angle_delta && av1_is_directional_mode(mbmi->mode))
-        ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
-        : 0;
-#endif  // CONFIG_ORIP
-
-#if CONFIG_MRLS && !CONFIG_ORIP
-    // When both ORIP and MRLS are enabled, mrl index are signalled right after
-    // intra mode and before angle delta
-    // However when MRLS is enabled but ORIP is disabled, mrl_index is signalled
-    // here ( after angle delta)
-    // Parsing reference line index
+  mbmi->angle_delta[PLANE_TYPE_Y] =
+      (use_angle_delta && av1_is_directional_mode(mbmi->mode))
+          ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
+          : 0;
+#endif  // CONFIG_SDP
+#endif  // CONFIG_AIMC
+#if CONFIG_MRLS
     mbmi->mrl_index =
         (cm->seq_params.enable_mrls && av1_is_directional_mode(mbmi->mode))
             ? read_mrl_index(ec_ctx, r)
             : 0;
-#endif
+#endif  // CONFIG_MRLS
 
 #if CONFIG_SDP
   }
@@ -1157,30 +1162,29 @@ mbmi->angle_delta[PLANE_TYPE_Y] =
   if (xd->tree_type != LUMA_PART) {
 #endif
     if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
-      mbmi->uv_mode =
-          read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
-      if (mbmi->uv_mode == UV_CFL_PRED) {
-        mbmi->cfl_alpha_idx =
-            read_cfl_alphas(ec_ctx, r, &mbmi->cfl_alpha_signs);
-      }
+#if CONFIG_AIMC
+      read_uv_mode_info(xd, r);
+#else
+    mbmi->uv_mode =
+        read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
 #if CONFIG_SDP
-      if (cm->seq_params.enable_sdp) {
-        mbmi->angle_delta[PLANE_TYPE_UV] =
-            (use_angle_delta &&
-             av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
-                ? read_angle_delta(
-                      r, ec_ctx->angle_delta_cdf[PLANE_TYPE_UV]
-                                                [mbmi->uv_mode - V_PRED])
-                : 0;
-      } else {
-        mbmi->angle_delta[PLANE_TYPE_UV] =
-            (use_angle_delta &&
-             av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
-                ? read_angle_delta(
-                      r, ec_ctx->angle_delta_cdf[PLANE_TYPE_Y]
-                                                [mbmi->uv_mode - V_PRED])
-                : 0;
-      }
+    if (cm->seq_params.enable_sdp) {
+      mbmi->angle_delta[PLANE_TYPE_UV] =
+          (use_angle_delta &&
+           av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
+              ? read_angle_delta(
+                    r, ec_ctx->angle_delta_cdf[PLANE_TYPE_UV]
+                                              [mbmi->uv_mode - V_PRED])
+              : 0;
+    } else {
+      mbmi->angle_delta[PLANE_TYPE_UV] =
+          (use_angle_delta &&
+           av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
+              ? read_angle_delta(
+                    r, ec_ctx->angle_delta_cdf[PLANE_TYPE_Y]
+                                              [mbmi->uv_mode - V_PRED])
+              : 0;
+    }
 #else
     mbmi->angle_delta[PLANE_TYPE_UV] =
         (use_angle_delta && av1_is_directional_mode(get_uv_mode(mbmi->uv_mode)))
@@ -1188,6 +1192,11 @@ mbmi->angle_delta[PLANE_TYPE_Y] =
                                ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED])
             : 0;
 #endif
+#endif  // CONFIG_AIMC
+      if (mbmi->uv_mode == UV_CFL_PRED) {
+        mbmi->cfl_alpha_idx =
+            read_cfl_alphas(ec_ctx, r, &mbmi->cfl_alpha_signs);
+      }
     } else {
       // Avoid decoding angle_info if there is is no chroma prediction
       mbmi->uv_mode = UV_DC_PRED;
@@ -1455,46 +1464,18 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
 #else
   const BLOCK_SIZE bsize = mbmi->sb_type;
 #endif
-  const int use_angle_delta = av1_use_angle_delta(bsize);
 
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
-
+#if CONFIG_AIMC
+  read_luma_mode_info(xd, r);
+#else
+  const int use_angle_delta = av1_use_angle_delta(bsize);
   mbmi->mode = read_intra_mode(r, ec_ctx->y_mode_cdf[size_group_lookup[bsize]]);
 
-#if CONFIG_MRLS && CONFIG_ORIP
 #if CONFIG_SDP
-  if (xd->tree_type != CHROMA_PART)
-#endif
-    // Parsing reference line index
-    mbmi->mrl_index =
-        (cm->seq_params.enable_mrls && av1_is_directional_mode(mbmi->mode))
-            ? read_mrl_index(ec_ctx, r)
-            : 0;
-#endif
-
-#if CONFIG_ORIP
-  if (use_angle_delta && av1_is_directional_mode(mbmi->mode)) {
-    int signal_intra_filter =
-        av1_signal_orip_for_horver_modes(cm, mbmi, PLANE_TYPE_Y, bsize);
-    aom_cdf_prob *anglecdf =
-        signal_intra_filter
-#if CONFIG_SDP
-            ? ec_ctx->angle_delta_cdf_hv[PLANE_TYPE_Y][mbmi->mode - V_PRED]
-            : ec_ctx->angle_delta_cdf[PLANE_TYPE_Y][mbmi->mode - V_PRED];
-#else
-            ? ec_ctx->angle_delta_cdf_hv[mbmi->mode - V_PRED]
-            : ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED];
-#endif
-    mbmi->angle_delta[PLANE_TYPE_Y] = signal_intra_filter
-                                          ? read_angle_delta_hv(r, anglecdf)
-                                          : read_angle_delta(r, anglecdf);
-  } else {
-    mbmi->angle_delta[PLANE_TYPE_Y] = 0;
-  }
-#elif CONFIG_SDP
   mbmi->angle_delta[PLANE_TYPE_Y] =
       use_angle_delta && av1_is_directional_mode(mbmi->mode)
           ? read_angle_delta(
@@ -1505,9 +1486,10 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
       use_angle_delta && av1_is_directional_mode(mbmi->mode)
           ? read_angle_delta(r, ec_ctx->angle_delta_cdf[mbmi->mode - V_PRED])
           : 0;
-#endif  // CONFIG_ORIP
+#endif  // CONFIG_SDP
+#endif  // CONFIG_AIMC
 
-#if CONFIG_MRLS && !CONFIG_ORIP
+#if CONFIG_MRLS
 #if CONFIG_SDP
   if (xd->tree_type != CHROMA_PART)
 #endif
@@ -1516,15 +1498,14 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
         (cm->seq_params.enable_mrls && av1_is_directional_mode(mbmi->mode))
             ? read_mrl_index(ec_ctx, r)
             : 0;
-#endif
+#endif  // CONFIG_MRLS
 
   if (!cm->seq_params.monochrome && xd->is_chroma_ref) {
+#if CONFIG_AIMC
+    read_uv_mode_info(xd, r);
+#else
     mbmi->uv_mode =
         read_intra_mode_uv(ec_ctx, r, is_cfl_allowed(xd), mbmi->mode);
-    if (mbmi->uv_mode == UV_CFL_PRED) {
-      mbmi->cfl_alpha_idx =
-          read_cfl_alphas(xd->tile_ctx, r, &mbmi->cfl_alpha_signs);
-    }
 #if CONFIG_SDP
     if (cm->seq_params.enable_sdp) {
       mbmi->angle_delta[PLANE_TYPE_UV] =
@@ -1548,6 +1529,11 @@ static void read_intra_block_mode_info(AV1_COMMON *const cm,
                                ec_ctx->angle_delta_cdf[mbmi->uv_mode - V_PRED])
             : 0;
 #endif
+#endif  // CONFIG_AIMC
+    if (mbmi->uv_mode == UV_CFL_PRED) {
+      mbmi->cfl_alpha_idx =
+          read_cfl_alphas(xd->tile_ctx, r, &mbmi->cfl_alpha_signs);
+    }
   } else {
     // Avoid decoding angle_info if there is is no chroma prediction
     mbmi->uv_mode = UV_DC_PRED;

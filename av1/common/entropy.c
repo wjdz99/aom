@@ -159,6 +159,12 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
 #if CONFIG_MRLS
   RESET_CDF_COUNTER(fc->mrl_index_cdf, MRL_LINE_NUMBER);
 #endif
+#if CONFIG_AIMC
+  RESET_CDF_COUNTER(fc->y_mode_set_cdf, INTRA_MODE_SETS);
+  RESET_CDF_COUNTER(fc->y_first_mode_cdf, FIRST_MODE_COUNT);
+  RESET_CDF_COUNTER(fc->y_second_mode_cdf, SECOND_MODE_COUNT);
+  RESET_CDF_COUNTER(fc->uv_first_mode_cdf, UV_INTRA_MODES);
+#endif
   RESET_CDF_COUNTER(fc->filter_intra_cdfs, 2);
   RESET_CDF_COUNTER(fc->filter_intra_mode_cdf, FILTER_INTRA_MODES);
   RESET_CDF_COUNTER(fc->switchable_restore_cdf, RESTORE_SWITCHABLE_TYPES);
@@ -196,10 +202,6 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
 #endif
   RESET_CDF_COUNTER(fc->switchable_interp_cdf, SWITCHABLE_FILTERS);
   RESET_CDF_COUNTER(fc->kf_y_cdf, INTRA_MODES);
-#if CONFIG_ORIP
-  RESET_CDF_COUNTER(fc->angle_delta_cdf_hv,
-                    2 * MAX_ANGLE_DELTA + 1 + ADDITIONAL_ANGLE_DELTA);
-#endif
 
   RESET_CDF_COUNTER(fc->angle_delta_cdf, 2 * MAX_ANGLE_DELTA + 1);
 #if CONFIG_NEW_TX_PARTITION
