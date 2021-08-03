@@ -160,6 +160,7 @@ set_aom_config_var(CONFIG_SMVP_IMPROVEMENT 1 "Enable SMVP improvement")
 set_aom_config_var(CONFIG_TMVP_IMPROVEMENT 1 "Enable TMVP improvement")
 set_aom_config_var(
   CONFIG_CCSO 1 "AV2 experiment flag to enable cross component sample offset.")
+set_aom_config_var(CONFIG_AIMC 0 "AV2 luma intra mode coding flag.")
 #
 # Variables in this section control optional features of the build system.
 #
