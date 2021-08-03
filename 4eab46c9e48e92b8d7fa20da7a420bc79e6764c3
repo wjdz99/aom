@@ -58,6 +58,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d886d63_ab30b513",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-03T21:31:40Z",
+      "side": 1,
+      "message": "One general question: could you please turn off the compiler flag in this commit, and add another code patch to turn on the compiler flag?",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dd7d2c18_7116422d",
@@ -232,6 +249,40 @@
         "endLine": 700,
         "endChar": 35
       },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b2627c8_e9614e48",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-03T21:31:40Z",
+      "side": 1,
+      "message": "One general question: is the default value for this variable oxcf-\u003eq_cfg.use_fixed_qp_offsets equal to 1?",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e87fd98_78d990ee",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-03T21:31:40Z",
+      "side": 1,
+      "message": "When turning on this compiler flag, does it affect CTC results?",
       "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
