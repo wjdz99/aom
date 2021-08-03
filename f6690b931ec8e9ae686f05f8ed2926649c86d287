@@ -805,6 +805,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "411d952a_a3d228b3",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T20:33:17Z",
+      "side": 1,
+      "message": "In the newest patch, I declared a new decoder interface instance that uses decoder_inspect() for the decode function. The instance is used within thirdpass.c to initialize the decoder interface.",
+      "parentUuid": "9c920c3b_e4e409b7",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a483ade7_f7e87342",
         "filename": "av1/encoder/thirdpass.c",
         "patchSetId": 6
@@ -1647,6 +1665,30 @@
       "side": 1,
       "message": "It is possible to move these to av1_common, but it then also becomes a bit confusing as all other container-related files are in the /common directory, especially ivfenc.c and ivfenc.h.\n\nInstead, can we make this target\u0027s name something like aom_ivf?",
       "parentUuid": "3bc15465_020bdd46",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 42
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83a2242c_ea6ebd0f",
+        "filename": "common/aom_common.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T20:33:17Z",
+      "side": 1,
+      "message": "In the latest patch I changed the target name to ivf_dec and hopefully that is more clear.",
+      "parentUuid": "b3193a30_581173ac",
       "range": {
         "startLine": 16,
         "startChar": 0,
