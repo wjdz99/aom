@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2238e7cc_68725e82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-08-03T13:51:56Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch limits the number of inter modes going through transform search in tx_search_best_inter_candidates() for LF_UPDATE frames. When a newmv mode gets evaluated for transform search, the newly introduced speed feature limit_inter_mode_cands will cap the number of inter mode candidates based on the aggressiveness level.\n\nPlease find the detailed borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOW RES   |       2.759       |  0.0570    0.0589    0.0515  |\n   2     |  MID RES   |       2.528       |  0.0969    0.0980    0.0953  |\n   2     |   HD RES*  |       4.416       |  0.0890    0.0931    0.0507  |\n   2     |  Average   |       3.124       |  0.0784    0.0808    0.0641  |\n         |            |                   |                              |\n   3     |  LOW RES   |       0.515       |  0.0306    0.0316    0.0251  |\n   3     |  MID RES   |       0.477       |  0.0445    0.0498    0.0611  |\n   3     |   HD RES   |       0.688       |  0.0285    0.0307    0.0145  |\n   3     |  Average   |       0.550       |  0.0340    0.0366    0.0324  |\n         |            |                   |                              |\n   4     |  LOW RES   |       0.057       |  0.0185    0.0249    0.0307  |\n   4     |  MID RES   |       0.208       | -0.0690   -0.0651   -0.0994  |\n   4     |   HD RES   |       0.058       | -0.0136    0.0002    0.0031  |\n   4     |  Average   |       0.094       | -0.0169   -0.0090   -0.0158  |\n         |            |                   |                              |\n   5     |  LOW RES   |       0.098       | -0.0353   -0.0345   -0.0212  |\n   5     |  MID RES   |      -0.042       |  0.0429    0.0462    0.0041  |\n   5     |   HD RES   |       0.150       | -0.0530   -0.0459   -0.0301  |\n   5     |  Average   |       0.077       | -0.0178   -0.0144   -0.0165  |\n         |            |                   |                              |\n   6     |  LOW RES   |       0.013       |  0.0169    0.0206    0.0292  |\n   6     |  MID RES   |      -0.015       |  0.0182    0.0085   -0.0247  |\n   6     |   HD RES   |       0.028       | -0.0148   -0.0204    0.0146  |\n   6     |  Average   |       0.010       |  0.0076    0.0046    0.0090  |\n   \n   *60 frame runs\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor speed 2, midres is out of tradeoff, and the impact on speed \u003e\u003d 3 is minimal.\n\nFor other speed levels, this is a bit-exact change with no speed impact (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "4ff26d9ed6b9cb890bcfcde1de7f73338b97006b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
