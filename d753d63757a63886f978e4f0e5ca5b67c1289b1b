@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "12ac42a3_1f443b18",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3945,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8796261d_6b141be8",
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24a853e8_8eccb51a",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-08-02T23:42:04Z",
       "side": 1,
       "message": "Is this /*!\\cond */ comment still at the right location? I am wondering if this /*!\\cond */ comment must be right before the \"typedef struct {\" line (line 172).",
+      "range": {
+        "startLine": 165,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 11
+      },
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c25dab5_75c9350b",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24a853e8_8eccb51a",
       "range": {
         "startLine": 165,
         "startChar": 0,
@@ -81,6 +123,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c785269b_f9b83135",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ead5e59e_3a80e58e",
+      "range": {
+        "startLine": 169,
+        "startChar": 15,
+        "endLine": 169,
+        "endChar": 28
+      },
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1828d45_941f43fa",
@@ -98,6 +164,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4e49366_266aa704",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1828d45_941f43fa",
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b79f63a2_05192047",
@@ -111,6 +195,24 @@
       "writtenOn": "2021-08-02T23:42:04Z",
       "side": 1,
       "message": "The names of this and the next members are confusing. I am wondering if we should rename this member \"future_stats_count\" and the next member \"past_stats_count\".",
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b3d6b66_8f40860a",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b79f63a2_05192047",
       "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -138,6 +240,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7930bd74_e84a5f9e",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67234c04_9c08ea5c",
+      "range": {
+        "startLine": 207,
+        "startChar": 0,
+        "endLine": 219,
+        "endChar": 28
+      },
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2261c870_0dc90cf6",
@@ -151,6 +277,24 @@
       "writtenOn": "2021-08-02T23:42:04Z",
       "side": 1,
       "message": "Nit: Add the following comment?\n\n * The target index is as follows.\n * (curr_index + offset_from_curr) % firstpass_info-\u003estats_buf_size",
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73a2cfa9_3de72ba3",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2261c870_0dc90cf6",
       "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -178,6 +322,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "acd88776_65bd2ca9",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2673,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18579a74_bebfc383",
+      "range": {
+        "startLine": 2673,
+        "startChar": 12,
+        "endLine": 2673,
+        "endChar": 16
+      },
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b64c512_58ee414e",
@@ -191,6 +359,30 @@
       "writtenOn": "2021-08-02T23:42:04Z",
       "side": 1,
       "message": "Nit: This should be named like a constant: kRefStaticBufSize. But why don\u0027t we use FIRSTPASS_INFO_STATIC_BUF_SIZE directly?",
+      "range": {
+        "startLine": 20,
+        "startChar": 14,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "d753d63757a63886f978e4f0e5ca5b67c1289b1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32c2ea00_b409e5d1",
+        "filename": "test/firstpass_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-03T22:40:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b64c512_58ee414e",
       "range": {
         "startLine": 20,
         "startChar": 14,
