@@ -116,6 +116,41 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "22e39286_9319c79d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:41:04Z",
+      "side": 1,
+      "message": "Thanks Leo for the comments.I will address the comment in the next patch in few hours. ",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96fbbb5f_84ecbedf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:41:04Z",
+      "side": 1,
+      "message": "Will do, thanks!",
+      "parentUuid": "7d886d63_ab30b513",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dd7d2c18_7116422d",
@@ -499,6 +534,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c3fe121b_9431f894",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:41:04Z",
+      "side": 1,
+      "message": "Yes, the default is equal to 1.",
+      "parentUuid": "2b2627c8_e9614e48",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5e87fd98_78d990ee",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 5
@@ -510,6 +563,24 @@
       "writtenOn": "2021-08-03T21:31:40Z",
       "side": 1,
       "message": "When turning on this compiler flag, does it affect CTC results?",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89794a36_fe8d7820",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:41:04Z",
+      "side": 1,
+      "message": "No, it does not affect the CTC results. When q_cfg.use_fixed_qp_offsets is set to \u003d 2, it affects the CTC results by Average 0.5% BD-rate",
+      "parentUuid": "5e87fd98_78d990ee",
       "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
