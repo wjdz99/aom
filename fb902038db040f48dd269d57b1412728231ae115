@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a09e219f_ea55409f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, I uploaded a new patch with some fixes. Regarding the usage of CONFIG_INSPECTION, I am working on a fix on that and have not finished yet. Will update this CL when it is finished. ",
+      "revId": "fb902038db040f48dd269d57b1412728231ae115",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "2f8880a8_15b7d4a5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2602a89_fcb57f4f",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7aed380d_6b1e1005",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 6
@@ -31,6 +49,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Hi Bohan,\n\nThis is the first round of review comments. Although many of the comments are nits and easy to address, there are a few thorny issues.\n\n1. The requirement to build libaom with CONFIG_INSPECTION\u003d1.\n\n2. If av1_init_thirdpass_ctx) or av1_set_gop_third_pass() fails, should we report an error or automatically continue with regular encoding?\n\n3. How to change the build system to allow libaom (the library) to use common/ivfdec.{c,h}.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d9375aa_ba45d8d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Thanks, Wan-Teh! This is a large patch and your help is appreciated a lot 😊",
+      "parentUuid": "7aed380d_6b1e1005",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -48,6 +84,30 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Please follow the examples here and document the parameter types for the new codec controls added in this CL.",
+      "range": {
+        "startLine": 304,
+        "startChar": 0,
+        "endLine": 313,
+        "endChar": 5
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "761257f6_fbdb446b",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33031c7e_4df93945",
       "range": {
         "startLine": 304,
         "startChar": 0,
@@ -81,6 +141,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eae493ce_3c99f343",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e9787f5_59e7c7cb",
+      "range": {
+        "startLine": 1386,
+        "startChar": 44,
+        "endLine": 1386,
+        "endChar": 56
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd1d17c0_2de082fa",
@@ -94,6 +178,30 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: I know you copied this control structure from the ctrl_get_tile_count() function above. But I prefer the early-error-return control structure you used in the two functions below.",
+      "range": {
+        "startLine": 1388,
+        "startChar": 0,
+        "endLine": 1399,
+        "endChar": 33
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f36ff5d_29d419de",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1399,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done. Changed to using the same routines in the following two functions.",
+      "parentUuid": "cd1d17c0_2de082fa",
       "range": {
         "startLine": 1388,
         "startChar": 0,
@@ -127,6 +235,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "490eb4b9_ca1e5a23",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1407,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done. Also added a check of the new variable.",
+      "parentUuid": "6c713183_9b4f9565",
+      "range": {
+        "startLine": 1407,
+        "startChar": 10,
+        "endLine": 1407,
+        "endChar": 53
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "304b5dc7_9678f3d2",
@@ -140,6 +272,30 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: The two order_hint struct members used below are both declared as unsigned int. So it seems better to use unsigned int * here.",
+      "range": {
+        "startLine": 1413,
+        "startChar": 32,
+        "endLine": 1413,
+        "endChar": 37
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e156b8ff_7c470cc5",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1413,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "304b5dc7_9678f3d2",
       "range": {
         "startLine": 1413,
         "startChar": 32,
@@ -167,6 +323,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d7464ea_0cf11161",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1416,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Thanks for the catch. This was an experimental check that I meant to remove, but missed. Updated in the new patch.",
+      "parentUuid": "0d8da9dd_bb988ce2",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80ca4826_856b52e3",
@@ -180,6 +354,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: Delete this blank line. The three new codec controls belong to the \"Getters\" group, so a blank line would appear to separate them from the Getters group.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a34774f_7d1961e4",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1614,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80ca4826_856b52e3",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -203,6 +395,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0ada453f_9db2b6ba",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4495,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Yes it is related. I used cm-\u003ecurrent_frame.order_hint as it is from the decoded symbol and cm-\u003ecur_frame-\u003eorder_hint actually copies from it. Although I guess either would work after this change?",
+      "parentUuid": "9c51d14b_d1bae464",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fbb5deea_88c0e99c",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 6
@@ -220,6 +430,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3ee735ae_95506a3a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1448,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "I changed av1_init_thirdpass_ctx to use CHECK_MEM_ERROR as it seems the long hump is set at the beginning of the function av1_create_compressor and CHECK_MEM_ERROR is used multiple times in this function.",
+      "parentUuid": "fbb5deea_88c0e99c",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7c6f7e13_ae166eae",
         "filename": "av1/encoder/firstpass.h",
         "patchSetId": 6
@@ -231,6 +459,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Is this forward declaration necessary? Is it because this file cannot include av1/encoder/encoder.h?",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "867c373e_b25356f4",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Yes, as encoder.h also includes this header file for multiple struct definitions, too. Without this forward declaration there are related warnings when compiling, and if I include encoder.h there are errors when process encoder.h.",
+      "parentUuid": "7c6f7e13_ae166eae",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -258,6 +504,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c532f00_1ec75bcf",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 3756,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "That makes sense. I have changed the functions to use aom_internal_error() instead.",
+      "parentUuid": "4441fe1f_a07273c5",
+      "range": {
+        "startLine": 3754,
+        "startChar": 0,
+        "endLine": 3756,
+        "endChar": 41
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ec380eb_62e10900",
@@ -271,6 +541,42 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "This comment applies to all the fprintf() statements in this file: in general a library should not emit error messages.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52e5721a_b6c57697",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ec380eb_62e10900",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "831d0388_3688e3eb",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Using aom_internal_error instead.",
+      "parentUuid": "9ec380eb_62e10900",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -292,6 +598,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62b06e25_acd5b1ad",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c993cec_6746edf4",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5bfc5ad4_f5ac44ee",
@@ -309,6 +633,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "55e2e7be_55a8bda5",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5bfc5ad4_f5ac44ee",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "56615dda_833aab72",
@@ -322,6 +664,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: add \"iface\" to the name of this variable, e.g., \"decoder_iface\" or just \"iface\".",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db98c187_444a95cc",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56615dda_833aab72",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -349,6 +709,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "067f01bf_d16a3be1",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "return is not needed anymore as we are using long jmp.",
+      "parentUuid": "3e2e2c0e_c710ebff",
+      "range": {
+        "startLine": 73,
+        "startChar": 2,
+        "endLine": 73,
+        "endChar": 11
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d237926f_5aee3824",
@@ -362,6 +746,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Document the return value (which may be -1, 0, and 1).",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f085d77_0f57f3c8",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d237926f_5aee3824",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -385,6 +787,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9c920c3b_e4e409b7",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Yes that is true. I haven\u0027t fixed this yet but I think it would be possible if we have a function that does similar things as decoder_inspect, and we use it directly without exposing it to external applications.",
+      "parentUuid": "523e0608_8956b1b2",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a483ade7_f7e87342",
         "filename": "av1/encoder/thirdpass.c",
         "patchSetId": 6
@@ -396,6 +816,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Document the return value (which may be -1, 0, and 1).",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fb6801f2_2e7e6694",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a483ade7_f7e87342",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -417,6 +855,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9bae1062_d094afbe",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a6fd2bf_f32890fa",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cbd7195a_6e1d18a3",
@@ -430,6 +886,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Can cur_idx be equal to 0 here? If cur_idx is 0, then cur_idx - 1 will be negative.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "10f76bfc_9fd18ae2",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "This should not happen. I added a check in av1_set_gop_third_pass for this also.",
+      "parentUuid": "cbd7195a_6e1d18a3",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -451,6 +925,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "77efd49e_f124600b",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8f9bc6a_fe833054",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42c35828_d81d2512",
@@ -464,6 +956,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Can cur_idx be equal to 0 here? If cur_idx is 0, then cur_idx - 1 will be negative.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77879d19_283036dd",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Added the check in av1_set_gop_third_pass.",
+      "parentUuid": "42c35828_d81d2512",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -485,6 +995,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce0c0fb8_e3280c93",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c32da53f_6b1608ee",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5a76394c_d5fa2367",
@@ -498,6 +1026,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Can cur_idx be equal to 0 here? If cur_idx is 0, then cur_idx - 1 will be negative.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40a5eca2_a862246e",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a76394c_d5fa2367",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -521,6 +1067,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7c2cdae7_9987ee15",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "The concern here is that it is possible for *gf_len to be negative. In that case we need to add N to it so we end up with a positive number.",
+      "parentUuid": "b638990b_4459ebec",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8e85a801_187c27b0",
         "filename": "av1/encoder/thirdpass.c",
         "patchSetId": 6
@@ -532,6 +1096,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: Document that this removes ctx-\u003eframe_info[0] from ctx-\u003eframe_info[] if ctx-\u003eframe_info[] is nonempty.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d87075a1_522a92cf",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e85a801_187c27b0",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -553,6 +1135,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36b381ed_09fcc8f6",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "The member frame_info is not set here so I used calloc. I removed unnecessary initializations in this function.",
+      "parentUuid": "910f7d08_c731c7bd",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f960bed3_99a5e850",
@@ -570,6 +1170,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2891306_d80a0811",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Added a line to free *ctx first before allocating the buffers.",
+      "parentUuid": "f960bed3_99a5e850",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "67e0250d_e55fe9e4",
@@ -583,6 +1201,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "IMPORTANT: We should deep-copy \u0027file\u0027.",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9f91f0c_a367bf46",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "This file comes from oxcf-\u003etwo_pass_output, which is deep-copied from the relevant APIs. It feels it is safe to just copy the pointer here?",
+      "parentUuid": "67e0250d_e55fe9e4",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -612,6 +1248,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3533f5d3_cddc7a86",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Yes it seems many header files in libaom put #include inside extern C blocks.",
+      "parentUuid": "0f1e1e34_071ba412",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "69a46889_fcff3b74",
         "filename": "av1/encoder/thirdpass.h",
         "patchSetId": 6
@@ -623,6 +1283,24 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: is_show_existing \u003d\u003e is_show_existing_frame",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac789795_443254a7",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "69a46889_fcff3b74",
       "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -640,6 +1318,30 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: order_hint seems to be declared as unsigned int in libaom elsewhere.",
+      "range": {
+        "startLine": 32,
+        "startChar": 2,
+        "endLine": 32,
+        "endChar": 5
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32215891_2bc5b2ba",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a54915bf_7c74e991",
       "range": {
         "startLine": 32,
         "startChar": 2,
@@ -673,6 +1375,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3755be66_2348c8fb",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c3c1d91_d06dd19e",
+      "range": {
+        "startLine": 38,
+        "startChar": 14,
+        "endLine": 38,
+        "endChar": 18
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab41f53b_181d0e29",
@@ -686,6 +1412,30 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit: name this member \"decoder\"?",
+      "range": {
+        "startLine": 42,
+        "startChar": 18,
+        "endLine": 42,
+        "endChar": 23
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "427e2b02_04369084",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab41f53b_181d0e29",
       "range": {
         "startLine": 42,
         "startChar": 18,
@@ -719,6 +1469,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5819a068_9f89bc69",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24869d8d_7a7f1ec8",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 29
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "88c44c20_61f06ee0",
@@ -732,6 +1506,30 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "Nit/optional: maybe name this \"frame_info_size\" or \"frame_info_count\"?",
+      "range": {
+        "startLine": 61,
+        "startChar": 6,
+        "endLine": 61,
+        "endChar": 25
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17179821_9d51085a",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88c44c20_61f06ee0",
       "range": {
         "startLine": 61,
         "startChar": 6,
@@ -759,6 +1557,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fa98419_1e82441c",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "These functions do not return anything now.",
+      "parentUuid": "34978bed_061e48c4",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba7421eb_85c744b3",
@@ -776,6 +1592,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2293993a_9a095a21",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "The function does not return anything now.",
+      "parentUuid": "ba7421eb_85c744b3",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3bc15465_020bdd46",
@@ -789,6 +1623,30 @@
       "writtenOn": "2021-08-02T02:57:27Z",
       "side": 1,
       "message": "IMPORTANT: It is confusing that the aom_common build target does not include all the files in the ${AOM_ROOT}/common directory.\n\nI think it would be a good idea to move ivfdec.c and ivfdec.h files to av1/common or a new top-level aom_common directory.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 42
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3193a30_581173ac",
+        "filename": "common/aom_common.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-03T18:47:31Z",
+      "side": 1,
+      "message": "It is possible to move these to av1_common, but it then also becomes a bit confusing as all other container-related files are in the /common directory, especially ivfenc.c and ivfenc.h.\n\nInstead, can we make this target\u0027s name something like aom_ivf?",
+      "parentUuid": "3bc15465_020bdd46",
       "range": {
         "startLine": 16,
         "startChar": 0,
