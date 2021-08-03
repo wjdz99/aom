@@ -388,7 +388,7 @@ static const struct av1_extracfg default_extra_cfg = {
   128,                          // max_partition_size
   1,                            // enable intra edge filter
   1,                            // frame order hint
-  1,                            // enable 64-pt transform usage
+  0,                            // enable 64-pt transform usage
   1,                            // enable flip and identity transform
   1,                            // enable rectangular transform usage
   1,                            // dist-wtd compound
