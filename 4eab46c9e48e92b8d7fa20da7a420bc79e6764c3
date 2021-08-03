@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6a00cdd_6a1fdd85",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Will do in the next patch",
+      "parentUuid": "7464e6c1_15d1450c",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 32
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "2127ba77_1281f9f6",
@@ -75,6 +99,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3a103f6_e4a65f1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Thanks Urvang for the comments. I will address them in the next patch in few hours.",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dd7d2c18_7116422d",
@@ -88,6 +129,30 @@
       "writtenOn": "2021-08-03T07:07:24Z",
       "side": 1,
       "message": "A few formatting suggestions:\n- Use single line comment \"//\"\n- Start with a capital and end with period: \"At higher end of QP, .... qp_threshold.\"",
+      "range": {
+        "startLine": 967,
+        "startChar": 3,
+        "endLine": 967,
+        "endChar": 4
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d79c84c_b25c1316",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "dd7d2c18_7116422d",
       "range": {
         "startLine": 967,
         "startChar": 3,
@@ -123,6 +188,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "548d0204_bd270687",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "bc71b170_fba34fdd",
+      "range": {
+        "startLine": 970,
+        "startChar": 2,
+        "endLine": 970,
+        "endChar": 5
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "07c848fd_6b259656",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 5
@@ -134,6 +223,30 @@
       "writtenOn": "2021-08-03T07:07:24Z",
       "side": 1,
       "message": "Refactor common part out:\n\n#if CONFIG_EXTQUANT\n  const int max_q \u003d (bit_depth \u003d\u003d AOM_BITS_8)\n                           ? MAXQ_8_BITS\n                           : (bit_depth \u003d\u003d AOM_BITS_10) ? MAXQ_10_BITS : MAXQ;\n#else\n  const int max_q \u003d MAXQ;\n#endif  // CONFIG_EXTQUANT\n  const int qp_threshold \u003d max_q * 7 / 10;",
+      "range": {
+        "startLine": 976,
+        "startChar": 0,
+        "endLine": 976,
+        "endChar": 37
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "714a470b_3e26bd76",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Please elaborate the refactoring you wish to have, thanks!",
+      "parentUuid": "07c848fd_6b259656",
       "range": {
         "startLine": 976,
         "startChar": 0,
@@ -167,6 +280,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c93c56a_939d6554",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Ack, will do in next patch.",
+      "parentUuid": "2a49155b_f8869371",
+      "range": {
+        "startLine": 979,
+        "startChar": 6,
+        "endLine": 979,
+        "endChar": 24
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1f02c808_16307c7b",
@@ -184,6 +321,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "65806ce9_8b768c1a",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 994,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1f02c808_16307c7b",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2bdd09b8_79ffde10",
@@ -197,6 +352,30 @@
       "writtenOn": "2021-08-03T07:07:24Z",
       "side": 1,
       "message": "This block is logically same as the block in #else.\nSo, the original #else part can be common outside #if...#else",
+      "range": {
+        "startLine": 1182,
+        "startChar": 0,
+        "endLine": 1186,
+        "endChar": 3
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f90aab8_cf46b465",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1186,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2bdd09b8_79ffde10",
       "range": {
         "startLine": 1182,
         "startChar": 0,
@@ -230,6 +409,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "96378a6c_41639d4b",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1191,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "82eb6bc4_41a897f8",
+      "range": {
+        "startLine": 1187,
+        "startChar": 0,
+        "endLine": 1191,
+        "endChar": 3
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d874a88_90e942f5",
@@ -243,6 +446,30 @@
       "writtenOn": "2021-08-03T07:07:24Z",
       "side": 1,
       "message": "Can you update comment about what value \u00272\u0027 means (in case of CONFIG_QBASED_QP_OFFSET)",
+      "range": {
+        "startLine": 698,
+        "startChar": 0,
+        "endLine": 700,
+        "endChar": 35
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef20924f_1d4870da",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-03T21:38:41Z",
+      "side": 1,
+      "message": "Will do.",
+      "parentUuid": "2d874a88_90e942f5",
       "range": {
         "startLine": 698,
         "startChar": 0,
