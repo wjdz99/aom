@@ -992,8 +992,12 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 #else
   if (!is_inter_block(mbmi)) {
 #endif
-    av1_sum_intra_stats(cm, td->counts, xd, mbmi, xd->above_mbmi, xd->left_mbmi,
-                        frame_is_intra_only(cm));
+    av1_sum_intra_stats(cm, td->counts, xd, mbmi
+#if !CONFIG_INTRA_MODE_CODING
+                        ,
+                        xd->above_mbmi, xd->left_mbmi, frame_is_intra_only(cm)
+#endif  // !CONFIG_INTRA_MODE_CODING
+    );
   }
 #if CONFIG_SDP
   if (av1_allow_intrabc(cm) && xd->tree_type != CHROMA_PART) {

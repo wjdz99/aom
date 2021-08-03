@@ -32,6 +32,9 @@
 #include "av1/common/reconintra.h"
 
 #include "av1/encoder/encodemv.h"
+#if CONFIG_INTRA_MODE_CODING
+#include "av1/encoder/intra_mode_search.h"
+#endif  // CONFIG_INTRA_MODE_CODING
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
 
@@ -1612,12 +1615,7 @@ static void compute_intra_yprediction(const AV1_COMMON *cm,
       av1_predict_intra_block(cm, xd, block_size_wide[bsize],
                               block_size_high[bsize], tx_size, mode, 0, 0,
                               FILTER_INTRA_MODES, pd->dst.buf, dst_stride,
-                              pd->dst.buf, dst_stride, 0, 0,
-#if CONFIG_ORIP
-                              plane, 0);
-#else
-                              plane);
-#endif
+                              pd->dst.buf, dst_stride, 0, 0, plane);
     }
   }
   p->src.buf = src_buf_base;
@@ -1635,12 +1633,18 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
   const TX_SIZE intra_tx_size =
       AOMMIN(max_txsize_lookup[bsize],
              tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
+#if CONFIG_INTRA_MODE_CODING
+  get_luma_intra_prediction_mode_set(mi, xd);
+  const int context = get_intra_y_mode_context(xd);
+  int mode_costs = 0;
+#else
   int *bmode_costs;
   const MB_MODE_INFO *above_mi = xd->above_mbmi;
   const MB_MODE_INFO *left_mi = xd->left_mbmi;
   const PREDICTION_MODE A = av1_above_block_mode(above_mi);
   const PREDICTION_MODE L = av1_left_block_mode(left_mi);
   bmode_costs = x->mode_costs.y_mode_costs[A][L];
+#endif  // CONFIG_INTRA_MODE_CODING
 
   av1_invalid_rd_stats(&best_rdc);
   av1_invalid_rd_stats(&this_rdc);
@@ -1650,10 +1654,17 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
 
   // Change the limit of this loop to add other intra prediction
   // mode tests.
+#if CONFIG_INTRA_MODE_CODING
+  for (int i = 0; i < FIRST_MODE_COUNT; ++i) {
+    set_y_mode_and_delta_angle(i, mi);
+    mode_costs = x->mode_costs.y_first_mode_costs[context][i];
+    PREDICTION_MODE this_mode = mi->mode;
+#else
   for (int i = 0; i < 4; ++i) {
     PREDICTION_MODE this_mode = intra_mode_list[i];
-    this_rdc.dist = this_rdc.rate = 0;
     args.mode = this_mode;
+#endif  // CONFIG_INTRA_MODE_CODING
+    this_rdc.dist = this_rdc.rate = 0;
     args.skippable = 1;
     args.rdc = &this_rdc;
 #if CONFIG_SDP
@@ -1670,7 +1681,11 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
     } else {
       this_rdc.rate += av1_cost_symbol(av1_get_skip_txfm_cdf(xd)[0]);
     }
+#if CONFIG_INTRA_MODE_CODING
+    this_rdc.rate += mode_costs;
+#else
     this_rdc.rate += bmode_costs[this_mode];
+#endif  // CONFIG_INTRA_MODE_CODING
     this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
 
     if (this_rdc.rdcost < best_rdc.rdcost) {
@@ -1923,37 +1938,18 @@ static void estimate_intra_mode(
     }
 
     int mode_cost = 0;
+#if !CONFIG_INTRA_MODE_CODING
     if (av1_is_directional_mode(this_mode) && av1_use_angle_delta(bsize)) {
-#if CONFIG_ORIP
-      int signal_intra_filter =
-          av1_signal_orip_for_horver_modes(cm, mi, PLANE_TYPE_Y, bsize);
-      if (signal_intra_filter) {
-        mode_cost +=
+      mode_cost +=
 #if CONFIG_SDP
-            x->mode_costs
-                .angle_delta_cost_hv[PLANE_TYPE_Y][this_mode - V_PRED]
-                                    [get_angle_delta_to_idx(
-                                        mi->angle_delta[PLANE_TYPE_Y])];
-#else
-            x->mode_costs
-                .angle_delta_cost_hv[this_mode - V_PRED][get_angle_delta_to_idx(
-                    mi->angle_delta[PLANE_TYPE_Y])];
-#endif
-
-      } else {
-#endif  // CONFIG_ORIP
-        mode_cost +=
-#if CONFIG_SDP
-            x->mode_costs.angle_delta_cost[PLANE_TYPE_Y][this_mode - V_PRED]
+          x->mode_costs.angle_delta_cost[PLANE_TYPE_Y][this_mode - V_PRED]
 #else
           x->mode_costs.angle_delta_cost[this_mode - V_PRED]
 #endif
-                                          [MAX_ANGLE_DELTA +
-                                           mi->angle_delta[PLANE_TYPE_Y]];
-#if CONFIG_ORIP
-      }
-#endif  // CONFIG_ORIP
+                                        [MAX_ANGLE_DELTA +
+                                         mi->angle_delta[PLANE_TYPE_Y]];
     }
+#endif  // !CONFIG_INTRA_MODE_CODING
     if (this_mode == DC_PRED && av1_filter_intra_allowed_bsize(cm, bsize)) {
       mode_cost += x->mode_costs.filter_intra_cost[bsize][0];
     }
