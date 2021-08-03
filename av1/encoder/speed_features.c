@@ -1186,7 +1186,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   } else {
     if (speed >= 7) {
       sf->rt_sf.use_comp_ref_nonrd = 1;
-      sf->rt_sf.ref_frame_comp_nonrd = 2;  // LAST_ALTREF
+      sf->rt_sf.ref_frame_comp_nonrd[2] = 1;  // LAST_ALTREF
     }
     if (speed == 8 && !cpi->ppi->use_svc) {
       sf->rt_sf.short_circuit_low_temp_var = 0;
@@ -1209,17 +1209,11 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.estimate_motion_for_var_based_partition = 0;
     }
   }
-  // TODO(marpan): Fix this for SVC: allow for any combination
-  // of the 3 reference pairs for compound prediction in nonrd.
-  if (cpi->ppi->use_svc && cpi->svc.use_comp_pred &&
-      (cpi->svc.reference[GOLDEN_FRAME - 1] == 1 ||
-       cpi->svc.reference[LAST2_FRAME - 1] == 1 ||
-       cpi->svc.reference[ALTREF_FRAME - 1] == 1)) {
+  if (cpi->ppi->use_svc) {
     sf->rt_sf.use_comp_ref_nonrd = 1;
-    sf->rt_sf.ref_frame_comp_nonrd =
-        (cpi->svc.reference[GOLDEN_FRAME - 1] == 1)
-            ? 0
-            : ((cpi->svc.reference[LAST2_FRAME - 1] == 1) ? 1 : 2);
+    sf->rt_sf.ref_frame_comp_nonrd[0] = cpi->svc.ref_frame_comp[0];
+    sf->rt_sf.ref_frame_comp_nonrd[1] = cpi->svc.ref_frame_comp[1];
+    sf->rt_sf.ref_frame_comp_nonrd[2] = cpi->svc.ref_frame_comp[2];
   }
 }
 
@@ -1295,7 +1289,10 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->rt_sf.hybrid_intra_pickmode = 1;
   sf->rt_sf.nonrd_prune_ref_frame_search = 0;
   sf->rt_sf.reuse_inter_pred_nonrd = 0;
-  sf->rt_sf.use_comp_ref_nonrd = 1;
+  sf->rt_sf.use_comp_ref_nonrd = 0;
+  sf->rt_sf.ref_frame_comp_nonrd[0] = 0;
+  sf->rt_sf.ref_frame_comp_nonrd[1] = 0;
+  sf->rt_sf.ref_frame_comp_nonrd[2] = 0;
   sf->rt_sf.use_nonrd_filter_search = 1;
   sf->rt_sf.use_nonrd_pick_mode = 0;
   sf->rt_sf.use_real_time_ref_set = 0;
@@ -1381,7 +1378,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
     sf->rt_sf.num_inter_modes_for_tx_search = 5;
     sf->rt_sf.skip_interp_filter_search = 1;
-    sf->rt_sf.use_comp_ref_nonrd = 0;
     sf->rt_sf.use_real_time_ref_set = 1;
     sf->rt_sf.use_simple_rd_model = 1;
 
@@ -1431,9 +1427,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.reuse_inter_pred_nonrd = 0;
     sf->rt_sf.short_circuit_low_temp_var = 0;
     sf->rt_sf.skip_interp_filter_search = 0;
-    sf->rt_sf.use_comp_ref_nonrd = 0;
-    // 1 for LAST_LAST2, otherwise LAST_GOLDEN.
-    sf->rt_sf.ref_frame_comp_nonrd = 0;
     // For spatial layers, only LAST and GOLDEN are currently used in the SVC
     // for nonrd. The flag use_nonrd_altref_frame can disable GOLDEN in the
     // get_ref_frame_flags() for some patterns, so disable it here for
@@ -1494,7 +1487,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.nonrd_prune_ref_frame_search = 2;
     sf->rt_sf.nonrd_check_partition_merge_mode = 0;
     sf->rt_sf.nonrd_check_partition_split = 0;
-    sf->rt_sf.use_modeled_non_rd_cost = 1;
+    sf->rt_sf.use_modeled_non_rd_cost = 0;
     sf->rt_sf.source_metrics_sb_nonrd = 1;
     sf->rt_sf.skip_intra_pred_if_tx_skip = 0;
     sf->interp_sf.cb_pred_filter_search = 1;
