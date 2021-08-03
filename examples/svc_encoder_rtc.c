@@ -287,9 +287,6 @@ static void parse_command_line(int argc, const char **argv_,
       if (app_input->speed > 9) {
         warn("Mapping speed %d to speed 9.\n", app_input->speed);
       }
-      if (app_input->speed <= 6) {
-        die("Encoder speed setting should be in [7, 9].\n");
-      }
     } else if (arg_match(&arg, &aqmode_arg, argi)) {
       app_input->aq_mode = arg_parse_uint(&arg);
     } else if (arg_match(&arg, &threads_arg, argi)) {
@@ -571,7 +568,9 @@ static void set_layer_pattern(int layering_mode, int superframe_cnt,
   layer_id->spatial_layer_id = spatial_layer_id;
   int lag_index = 0;
   int base_count = superframe_cnt >> 2;
-  ref_frame_config->use_comp_pred = 0;
+  ref_frame_config->ref_frame_comp[0] = 0;  // GOLDEN_LAST
+  ref_frame_config->ref_frame_comp[1] = 0;  // LAST2_LAST
+  ref_frame_config->ref_frame_comp[2] = 0;  // ALTREF_LAST
   // Set the reference map buffer idx for the 7 references:
   // LAST_FRAME (0), LAST2_FRAME(1), LAST3_FRAME(2), GOLDEN_FRAME(3),
   // BWDREF_FRAME(4), ALTREF2_FRAME(5), ALTREF_FRAME(6).
@@ -1242,6 +1241,8 @@ int main(int argc, const char **argv) {
   aom_codec_control(&codec, AV1E_SET_AQ_MODE, app_input.aq_mode ? 3 : 0);
   aom_codec_control(&codec, AV1E_SET_GF_CBR_BOOST_PCT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_CDEF, 1);
+  aom_codec_control(&codec, AV1E_SET_ENABLE_WARPED_MOTION, 0);
+  aom_codec_control(&codec, AV1E_SET_ENABLE_OBMC, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_ORDER_HINT, 0);
   aom_codec_control(&codec, AV1E_SET_ENABLE_TPL_MODEL, 0);
   aom_codec_control(&codec, AV1E_SET_DELTAQ_MODE, 0);
