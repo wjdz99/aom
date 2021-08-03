@@ -34,6 +34,23 @@
       "parentUuid": "3d6c6899_b3a0df13",
       "revId": "48bca4a1dc27e3da0f5acf743054aae7dc945665",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "996846c8_de176892",
+        "filename": "av1/common/x86/optflow_refine_sse4.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 1585,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-08-03T04:20:30Z",
+      "side": 1,
+      "message": "Clamp should be implemented, after multiplication. Similar handling is required in lowbd function as well.\nWe are preparing a patch for the same.\nThank you.",
+      "revId": "48bca4a1dc27e3da0f5acf743054aae7dc945665",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
