@@ -50,6 +50,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ad9ee6b9_63e92ee6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-08-04T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6a00cdd_6a1fdd85",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 32
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "2127ba77_1281f9f6",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 5
@@ -245,6 +269,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0704691_066b1bff",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-08-04T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "548d0204_bd270687",
+      "range": {
+        "startLine": 970,
+        "startChar": 2,
+        "endLine": 970,
+        "endChar": 5
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "07c848fd_6b259656",
@@ -282,6 +330,30 @@
       "side": 1,
       "message": "Please elaborate the refactoring you wish to have, thanks!",
       "parentUuid": "07c848fd_6b259656",
+      "range": {
+        "startLine": 976,
+        "startChar": 0,
+        "endLine": 976,
+        "endChar": 37
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "932a0410_51478d23",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-08-04T21:24:06Z",
+      "side": 1,
+      "message": "I mentioned the refactored code snippet in previous comment, actually.\nCan you check again? Let me know if you can\u0027t see it for some reason.",
+      "parentUuid": "714a470b_3e26bd76",
       "range": {
         "startLine": 976,
         "startChar": 0,
@@ -515,6 +587,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "08e4c4cf_6de3a07d",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-08-04T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ef20924f_1d4870da",
+      "range": {
+        "startLine": 698,
+        "startChar": 0,
+        "endLine": 700,
+        "endChar": 35
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2b2627c8_e9614e48",
@@ -550,6 +646,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a13140c6_5fa530ee",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1073,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-08-04T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3fe121b_9431f894",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5e87fd98_78d990ee",
@@ -581,6 +695,24 @@
       "side": 1,
       "message": "No, it does not affect the CTC results. When q_cfg.use_fixed_qp_offsets is set to \u003d 2, it affects the CTC results by Average 0.5% BD-rate",
       "parentUuid": "5e87fd98_78d990ee",
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86439d50_7052ffaf",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-08-04T21:24:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "89794a36_fe8d7820",
       "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
