@@ -366,6 +366,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "58c82c38_d524247f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-04T22:42:42Z",
+      "side": 1,
+      "message": "I see it. Thanks. Changes done in the patch.",
+      "parentUuid": "932a0410_51478d23",
+      "range": {
+        "startLine": 976,
+        "startChar": 0,
+        "endLine": 976,
+        "endChar": 37
+      },
+      "revId": "4eab46c9e48e92b8d7fa20da7a420bc79e6764c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2a49155b_f8869371",
         "filename": "av1/av1_cx_iface.c",
         "patchSetId": 5
