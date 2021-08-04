@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "838b3e77_461f7ae5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-08-04T16:28:47Z",
+      "side": 1,
+      "message": "Hi Lester, Yunqing,\nThis patch adds intrinsic support of OPFL_DOWNSAMP_QUINCUNX and OPFL_EQUAL_DIST_ASSUMED in optical flow based mv refinement function for both lowbd and highbd paths.\n\nFor this patch, with configuration OPFL_DOWNSAMP_QUINCUNX\u003d1 \u0026 OPFL_EQUAL_DIST_ASSUMED\u003d1, we observed 3.1% encode \u0026 ~4.5% decode time reduction for fourpeople_720p60.y4m, speed 1.\n\nPlease review the patch.\nThank you.",
+      "revId": "965c437e4cc459dffc1a2fdc585835a7470d056a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
