@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "99145eeb_9aeb2511",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7383d5e_6670b7fa",
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "14454092_f161c012",
@@ -41,6 +59,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f800c72d_bda76abd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14454092_f161c012",
+      "range": {
+        "startLine": 12,
+        "startChar": 5,
+        "endLine": 12,
+        "endChar": 15
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2e5b4213_714485eb",
@@ -54,6 +96,30 @@
       "writtenOn": "2021-08-04T22:31:43Z",
       "side": 1,
       "message": "Optional: Since av1_firstpass_info_move_cur_and_pop() and av1_firstpass_info_move_cur() are only called here, we can consider merging the two functions into a function that moves cur_index and then optionally pop.",
+      "range": {
+        "startLine": 3945,
+        "startChar": 0,
+        "endLine": 3952,
+        "endChar": 5
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f08c5a22_54b3c712",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3952,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "I think it\u0027s a slightly clearer the way it is.\nWe now this function is either moving cur_index or\nmoving cur_index and pop a stats out of the buffer.",
+      "parentUuid": "2e5b4213_714485eb",
       "range": {
         "startLine": 3945,
         "startChar": 0,
@@ -89,6 +155,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ea3d4626_de322f19",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76ad8b84_53fba822",
+      "range": {
+        "startLine": 168,
+        "startChar": 29,
+        "endLine": 168,
+        "endChar": 36
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "b7f3b291_2f2c8f31",
         "filename": "av1/encoder/firstpass.h",
         "patchSetId": 4
@@ -100,6 +190,30 @@
       "writtenOn": "2021-08-04T22:31:43Z",
       "side": 1,
       "message": "Note that the struct tag \"FIRSTPASS_INFO\" is optional because the code always uses the typedef \"FIRSTPASS_INFO\". So it is not necessary to make this change in this CL. But it is fine by me.",
+      "range": {
+        "startLine": 175,
+        "startChar": 15,
+        "endLine": 175,
+        "endChar": 29
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d47ab2a3_8bec985a",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7f3b291_2f2c8f31",
       "range": {
         "startLine": 175,
         "startChar": 15,
@@ -127,6 +241,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "df10443e_9ee9ff31",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0179d082_9f71bd89",
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ed5effb0_a2b01740",
@@ -150,6 +282,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "26f34a1e_095208ff",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed5effb0_a2b01740",
+      "range": {
+        "startLine": 289,
+        "startChar": 15,
+        "endLine": 289,
+        "endChar": 31
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3153138_73ecab29",
@@ -163,6 +319,24 @@
       "writtenOn": "2021-08-04T22:31:43Z",
       "side": 1,
       "message": "It seems that you moved the /*!\\cond */ comment here from line 165 in the original code. Correct?",
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c422e651_04e90161",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-04T23:26:36Z",
+      "side": 1,
+      "message": "Yep,\nnow all the functions and struct are well documented. We don\u0027t need /*!\\cond */  for them.\n\n/*!\\cond */ and /*!\\endcond */ are markers for skipping doxygen detection",
+      "parentUuid": "f3153138_73ecab29",
       "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
