@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3470cb96_afa95f5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-08-04T08:08:19Z",
+      "side": 1,
+      "message": "Hi Lester, Yunqing,\nWe have submitted a patch to fix the bug in OPFL_COMBINE_INTERP_GRAD_LS in intrinsic function. \nThis patch has changes as below,\n•\tmissing scaling (d0) in high-bd intrinsic is added\n•\toutput of low-bd intrinsic is clamped\n•\tlow-bd intrinsic function is refactored\n\nFor this change encoder/decoder time reduction is negligible.\nPlease find block wise scaling numbers for low-bd and high-bd after this fix.\nConfig: OPFL_COMBINE_INTERP_GRAD_LS \u003d 1 and OPFL_EQUAL_DIST_ASSUMED \u003d 0\n\nLow-bd : \nBlock_size         Config: Block scaling w.r.t C     \n8X8                           7.45\n16X16                      8.50\n32X32                      8.59\n64X64                      8.11\n128X128                 3.30\n\nHigh-bd :\nBlock_size        Config:Block scaling w.r.t C     \n8X8                               9.28            \n16X16                          10.41            \n32X32                          10.35            \n64X64                          9.91            \n128X128                     2.83             \n\nPlease review the patch\n\nThanks and Regards,\nAkshata\n",
+      "revId": "ed58e888fd2c77592843b986e21f2cde0a7046bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
