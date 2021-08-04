@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "aom_dsp/txfm_common.h"
 #include "av1/common/enums.h"
 #include "av1/common/idct.h"
 
@@ -31,7 +32,7 @@ void av1_init_mb_wiener_var_buffer(AV1_COMP *cpi) {
   if (cpi->mb_weber_stats) return;
 
   CHECK_MEM_ERROR(cm, cpi->mb_weber_stats,
-                  aom_calloc(cpi->frame_info.mb_rows * cpi->frame_info.mb_cols,
+                  aom_calloc(cpi->frame_info.mi_rows * cpi->frame_info.mi_cols,
                              sizeof(*cpi->mb_weber_stats)));
 }
 
@@ -41,8 +42,8 @@ static int64_t get_satd(AV1_COMP *const cpi, BLOCK_SIZE bsize, int mi_row,
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
 
-  const int mi_step = mi_size_wide[BLOCK_16X16];
-  int mb_stride = cpi->frame_info.mb_cols;
+  const int mi_step = mi_size_wide[BLOCK_8X8];
+  int mb_stride = cpi->frame_info.mi_cols;
   int mb_count = 0;
   int64_t satd = 0;
 
@@ -69,8 +70,8 @@ static int64_t get_sse(AV1_COMP *const cpi, BLOCK_SIZE bsize, int mi_row,
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
 
-  const int mi_step = mi_size_wide[BLOCK_16X16];
-  int mb_stride = cpi->frame_info.mb_cols;
+  const int mi_step = mi_size_wide[BLOCK_8X8];
+  int mb_stride = cpi->frame_info.mi_cols;
   int mb_count = 0;
   int64_t distortion = 0;
 
@@ -98,9 +99,9 @@ static int get_window_wiener_var(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
 
-  const int mi_step = mi_size_wide[BLOCK_16X16];
+  const int mi_step = mi_size_wide[BLOCK_8X8];
   int sb_wiener_var = 0;
-  int mb_stride = cpi->frame_info.mb_cols;
+  int mb_stride = cpi->frame_info.mi_cols;
   int mb_count = 0;
   int64_t mb_wiener_sum = 0;
   double base_num = 1;
@@ -201,18 +202,18 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
   DECLARE_ALIGNED(32, tran_low_t, dqcoeff[32 * 32]);
 
   int mb_row, mb_col, count = 0;
-  const TX_SIZE tx_size = TX_16X16;
+  const TX_SIZE tx_size = TX_8X8;
   const int block_size = tx_size_wide[tx_size];
   const int coeff_count = block_size * block_size;
 
   const BitDepthInfo bd_info = get_bit_depth_info(xd);
   cpi->norm_wiener_variance = 0;
 
-  int mb_step = mi_size_wide[BLOCK_16X16];
-  BLOCK_SIZE bsize = BLOCK_16X16;
+  BLOCK_SIZE bsize = BLOCK_8X8;
+  int mb_step = mi_size_wide[bsize];
 
-  for (mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
-    for (mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
+  for (mb_row = 0; mb_row < cpi->frame_info.mi_rows / mb_step; ++mb_row) {
+    for (mb_col = 0; mb_col < cpi->frame_info.mi_cols / mb_step; ++mb_col) {
       PREDICTION_MODE best_mode = DC_PRED;
       int best_intra_cost = INT_MAX;
 
@@ -293,7 +294,7 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
       av1_inverse_transform_block(xd, dqcoeff, 0, DCT_DCT, tx_size, dst_buffer,
                                   dst_buffer_stride, eob, 0);
       WeberStats *weber_stats =
-          &cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col];
+          &cpi->mb_weber_stats[mb_row * cpi->frame_info.mi_cols + mb_col];
 
       weber_stats->rec_pix_max = 1;
       weber_stats->rec_variance = 0;
@@ -369,7 +370,7 @@ void av1_set_mb_wiener_variance(AV1_COMP *cpi) {
         }
         wiener_variance += tmp_coeff * tmp_coeff;
       }
-      cpi->mb_weber_stats[mb_row * cpi->frame_info.mb_cols + mb_col]
+      cpi->mb_weber_stats[mb_row * cpi->frame_info.mi_cols + mb_col]
           .mb_wiener_variance = wiener_variance / coeff_count;
       ++count;
     }
