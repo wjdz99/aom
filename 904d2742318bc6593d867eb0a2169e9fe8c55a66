@@ -1,0 +1,170 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7383d5e_6670b7fa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "Nit: curr_index \u003d\u003e cur_index",
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14454092_f161c012",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "Nit: curr_index \u003d\u003e cur_index",
+      "range": {
+        "startLine": 12,
+        "startChar": 5,
+        "endLine": 12,
+        "endChar": 15
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e5b4213_714485eb",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 3952,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "Optional: Since av1_firstpass_info_move_cur_and_pop() and av1_firstpass_info_move_cur() are only called here, we can consider merging the two functions into a function that moves cur_index and then optionally pop.",
+      "range": {
+        "startLine": 3945,
+        "startChar": 0,
+        "endLine": 3952,
+        "endChar": 5
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76ad8b84_53fba822",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "Nit/optional: used by \u003d\u003e in ?\n\nbecause this static buffer is the static_stats_buf member in the FIRSTPASS_INFO struct.",
+      "range": {
+        "startLine": 168,
+        "startChar": 29,
+        "endLine": 168,
+        "endChar": 36
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7f3b291_2f2c8f31",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "Note that the struct tag \"FIRSTPASS_INFO\" is optional because the code always uses the typedef \"FIRSTPASS_INFO\". So it is not necessary to make this change in this CL. But it is fine by me.",
+      "range": {
+        "startLine": 175,
+        "startChar": 15,
+        "endLine": 175,
+        "endChar": 29
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0179d082_9f71bd89",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "Nit/optional: I suggest changing \"move_cur\" to \"move_cur_index\" in this function name and in \"av1_firstpass_info_move_cur_and_pop\".\n\nI hope that won\u0027t make the function names too long.",
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed5effb0_a2b01740",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "Nit: Please search for \"offset_from_curr\" and replace them with \"offset_from_cur\".",
+      "range": {
+        "startLine": 289,
+        "startChar": 15,
+        "endLine": 289,
+        "endChar": 31
+      },
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3153138_73ecab29",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-04T22:31:43Z",
+      "side": 1,
+      "message": "It seems that you moved the /*!\\cond */ comment here from line 165 in the original code. Correct?",
+      "revId": "904d2742318bc6593d867eb0a2169e9fe8c55a66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
