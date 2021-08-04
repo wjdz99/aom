@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14467d88_c5334dad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-08-04T12:46:32Z",
+      "side": 1,
+      "message": "Hi Yunqing, \nThis patch makes the speed feature mv_cost_upd_level, more aggressive for speed 5, low-res and mid-res. \n\nPlease find the detailed borg results below: \nCPU Resolution Instruction Count    BD-Rate Impact %\n                Reduction %       avg.psnr ovr.psnr   ssim\n 5   LOW RES      1.590           -0.0211  -0.0206   0.0140\n 5   HD RES       0.000           0.0000   0.0000    0.0000\n 5   MID RES      0.855           0.0235   -0.0060   -0.0028\n 5   AVERAGE      1.007          -0.0016   -0.0100   0.0048\n\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions : u ./aomenc … \n\nPlease review the patch. \nThanks, \nAkshata\n",
+      "revId": "95479489aee0438c0206a1767e592c05b821a0c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
