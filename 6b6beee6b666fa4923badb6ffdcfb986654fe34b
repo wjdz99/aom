@@ -1,0 +1,203 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af24259c_53343115",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Bohan: I suggest some changes. Most of my suggestions are simple. The most important one is that I believe it is unsafe to call av1_free_thirdpass_ctx(ctx) before calling aom_internal_error(), Please see my comment marked with \"IMPORTANT\" at thirdpass.c:56.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "890bdc70_e4f2d689",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "It seems that decoder_inspect should also do this. We should look into this.\n\nThis code releases references to the output frames and film grain image frames from the previous decode call. It seems that the reference to the output frame will be released again (if not yet released) in update_frame_buffers() (if output_all_layers is false), so the first part is optional. It seems that the second part is only necessary if we call aom_codec_get_frame().\n\nIn any case, please take a quick look and add a TODO comment (with a bug number)",
+      "range": {
+        "startLine": 593,
+        "startChar": 0,
+        "endLine": 614,
+        "endChar": 3
+      },
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "849827d4_c30b8c44",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1391,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Nit: I suggest we omit the null pointer checks for frame_worker_data. This is for consistency with the other functions in this file. They have null pointer checks for ctx-\u003eframe_worker but not for ctx-\u003eframe_worker-\u003edata1.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2fcad36_d855f235",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1416,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Nit: will it work for both the show_existing_frame and non-show_existing_frame cases if we use cur_frame-\u003eorder_hint instead of current_frame.order_hint here?\n\nNote: I have not figured out the relation between pbi-\u003ecommon.current_frame and pbi-\u003ecommon.cur_frame :-)",
+      "range": {
+        "startLine": 1416,
+        "startChar": 40,
+        "endLine": 1416,
+        "endChar": 64
+      },
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88b84740_b3ba9b52",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Nit: Please add a comment to document how this interface differs from aom_codec_av1_dx_algo. I believe they differ only in the aom_codec_decode_fn_t field: decoder_decode vs. decoder_inspect.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf1d5d68_468fa8a3",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Nit: This string probably should be different from the string for aom_codec_av1_dx_algo at line 1618.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be068a67_30a595a9",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Optional: We should avoid manually declaring a variable or a function like this. Is there a suitable header where we can declare this global variable? Perhaps av1/decoder/inspection.h or av1/decoder/decoder.h or av1/av1_iface_common.h?",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "599528d3_b3e3f714",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "IMPORTANT: This comment also applies to all the av1_free_thirdpass_ctx(ctx) calls below.\n\nI think it is unsafe to free \u0027ctx\u0027 in this function, because \u0027ctx\u0027 is a member of the encoder object. We should let aom_internal_error() return control via longjmp() to some top-level function, and then the caller of that top-level function will destroy the encoder object, which will free \u0027ctx\u0027.\n\nNOTE: The fclose(infile) and aom_free(aom_input_ctx) calls that I asked you to add to setup_two_pass_stream_input() are different. \u0027infile\u0027 and \u0027aom_input_ctx\u0027 are local variables in setup_two_pass_stream_input(). So if we can only close/free them in that function before calling aom_internal_error.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcf7089e_065250ee",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "I am just curious why you added this check.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6da151c_02df8f76",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Optional: Checking last_idx here works, but it seems clearer to check for this error condition in get_current_gop_end() so that it never returns a negative last_idx value. I suspect you check last_idx here so that there is only one check (vs 3). I leave this decision to you.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fc176aa_e54af513",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T21:32:12Z",
+      "side": 1,
+      "message": "Optional: Another option is to have av1_init_thirdpass_ctx() save cm-\u003eerror in *ctx. Then we won\u0027t need to pass the err_info parameter to av1_pop_third_pass_info() and av1_set_gop_third_pass().",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
