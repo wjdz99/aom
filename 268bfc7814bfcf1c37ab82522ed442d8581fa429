@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ba16cf7_ecd648a1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T19:16:05Z",
+      "side": 1,
+      "message": "Angie: I only did a superficial review. I suggest two simple comment changes.",
+      "revId": "268bfc7814bfcf1c37ab82522ed442d8581fa429",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c7e1052_5abde306",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3146,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T19:16:05Z",
+      "side": 1,
+      "message": "Nit: For this kind of function argument comment, the Style Guide suggests this format:\n\n    /*search_start_idx\u003d*/1\n    \nSee https://google.github.io/styleguide/cppguide.html#Function_Argument_Comments. There is an example of this kind of comment for the \u0027nullptr\u0027 argument:\n\n  const DecimalNumber product \u003d\n      CalculateProduct(values, options, /*completion_callback\u003d*/nullptr);",
+      "revId": "268bfc7814bfcf1c37ab82522ed442d8581fa429",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9e9607e_aa616ffc",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3625,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-05T19:16:05Z",
+      "side": 1,
+      "message": "Nit: Similarly, please change this to:\n\n    /*search_start_idx\u003d*/0",
+      "revId": "268bfc7814bfcf1c37ab82522ed442d8581fa429",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
