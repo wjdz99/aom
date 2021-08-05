@@ -721,6 +721,8 @@ static void av1_disable_ml_based_partition_sf(SPEED_FEATURES *const sf) {
   sf->simple_motion_search_split = 0;
   sf->simple_motion_search_prune_rect = 0;
   sf->simple_motion_search_early_term_none = 0;
+  sf->tx_type_search.prune_mode = NO_PRUNE;
+  sf->tx_type_search.ml_tx_split_thresh = -1;
 
   for (int i = 0; i < PARTITION_BLOCK_SIZES; ++i) {
     sf->ml_partition_search_breakout_thresh[i] = -1;
