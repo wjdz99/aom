@@ -167,8 +167,9 @@ TEST(TPLModelTest, EstimateFrameRateTest) {
     }
   }
 
+  VBR_RATECTRL_INFO vbr_rc_info;
   double result =
-      av1_estimate_gop_bitrate(q_index_list, frame_count, stats_list);
+      av1_estimate_gop_bitrate(q_index_list, frame_count, stats_list, &vbr_rc_info);
   EXPECT_NEAR(result, 0, 0.1);
 }
 
@@ -242,8 +243,9 @@ int find_gop_q_iterative(double bit_budget, double arf_qstep_ratio,
   // Initial estimate when q = 255
   av1_q_mode_compute_gop_q_indices(gf_frame_index, 255, arf_qstep_ratio,
                                    bit_depth, &gf_group, gf_group.q_val);
+  VBR_RATECTRL_INFO vbr_rc_info;
   double curr_estimate =
-      av1_estimate_gop_bitrate(gf_group.q_val, gf_group.size, stats_list);
+      av1_estimate_gop_bitrate(gf_group.q_val, gf_group.size, stats_list, &vbr_rc_info);
   double best_estimate_budget_distance = fabs(curr_estimate - bit_budget);
   int best_q = 255;
 
@@ -252,7 +254,7 @@ int find_gop_q_iterative(double bit_budget, double arf_qstep_ratio,
     av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_qstep_ratio,
                                      bit_depth, &gf_group, gf_group.q_val);
     curr_estimate =
-        av1_estimate_gop_bitrate(gf_group.q_val, gf_group.size, stats_list);
+        av1_estimate_gop_bitrate(gf_group.q_val, gf_group.size, stats_list, &vbr_rc_info);
     double curr_estimate_budget_distance = fabs(curr_estimate - bit_budget);
     if (curr_estimate_budget_distance <= best_estimate_budget_distance) {
       best_estimate_budget_distance = curr_estimate_budget_distance;
@@ -273,6 +275,9 @@ TEST(TplModelTest, QModeEstimateBaseQTest) {
   const aom_bit_depth_t bit_depth = AOM_BITS_8;
   const double scale_factor = 1.0;
 
+  VBR_RATECTRL_INFO vbr_rc_info;
+  vbr_rc_info.scale_factor = scale_factor;
+
   for (int i = 0; i < gf_group.size; i++) {
     gf_group.update_type[i] = gf_group_update_types[i];
     stats_list[i].txfm_block_count = 8;
@@ -291,7 +296,7 @@ TEST(TplModelTest, QModeEstimateBaseQTest) {
     // Binary search method to find the optimal q.
     const int result = av1_q_mode_estimate_base_q(
         &gf_group, stats_list, bit_budget, gf_frame_index, arf_qstep_ratio,
-        bit_depth, scale_factor, gf_group.q_val);
+        bit_depth, &vbr_rc_info);
     const int test_result =
         find_gop_q_iterative(bit_budget, arf_qstep_ratio, gf_group, stats_list,
                              gf_frame_index, bit_depth);

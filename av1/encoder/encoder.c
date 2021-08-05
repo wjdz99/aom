@@ -2699,10 +2699,19 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
 #endif  // CONFIG_RD_COMMAND
 
 #if CONFIG_BITRATE_ACCURACY
+      cpi->vbr_rc_info.actual_bitrate_byframe[cpi->gf_frame_index] = rc->projected_frame_size;
       cpi->ppi->tpl_data.actual_gop_bitrate += rc->projected_frame_size;
       if (cpi->ppi->gf_group.update_type[cpi->gf_frame_index] == KF_UPDATE) {
         vbr_rc_set_keyframe_bitrate(&cpi->vbr_rc_info,
                                     rc->projected_frame_size);
+      }
+      VBR_RATECTRL_INFO info = cpi->vbr_rc_info;
+      for (int i = 0; i < cpi->ppi->gf_group.size; i++) {
+        printf("i: %d, estimated_bitrate: %f, estimated_mv_bitrate: %f, actual_bitrate: %d\n",
+               i,
+               info.estimated_bitrate_byframe[i],
+               info.estimated_mv_bitrate_byframe[i],
+               info.actual_bitrate_byframe[i]);
       }
 #endif
     }

@@ -1653,7 +1653,7 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
 
 #if CONFIG_BITRATE_ACCURACY
   tpl_data->estimated_gop_bitrate = av1_estimate_gop_bitrate(
-      gf_group->q_val, gf_group->size, tpl_data->txfm_stats_list);
+      gf_group->q_val, gf_group->size, tpl_data->txfm_stats_list, &cpi->vbr_rc_info);
 #endif
 
   for (int frame_idx = tpl_gf_group_frames - 1;
@@ -1884,7 +1884,8 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
 }
 
 double av1_estimate_gop_bitrate(const int *q_index_list, const int frame_count,
-                                const TplTxfmStats *stats_list) {
+                                const TplTxfmStats *stats_list,
+                                VBR_RATECTRL_INFO *vbr_rc_info) {
   double gop_bitrate = 0;
   for (int frame_index = 0; frame_index < frame_count; frame_index++) {
     int q_index = q_index_list[frame_index];
@@ -1900,6 +1901,7 @@ double av1_estimate_gop_bitrate(const int *q_index_list, const int frame_count,
     double frame_bitrate = av1_laplace_estimate_frame_rate(
         q_index, frame_stats.txfm_block_count, abs_coeff_mean, 256);
     gop_bitrate += frame_bitrate;
+    vbr_rc_info->estimated_bitrate_byframe[frame_index] = frame_bitrate;
   }
   return gop_bitrate;
 }
@@ -1964,8 +1966,10 @@ int av1_q_mode_estimate_base_q(const GF_GROUP *gf_group,
                                const TplTxfmStats *txfm_stats_list,
                                double bit_budget, int gf_frame_index,
                                double arf_qstep_ratio,
-                               aom_bit_depth_t bit_depth, double scale_factor,
-                               int *q_index_list) {
+                               aom_bit_depth_t bit_depth,
+                               VBR_RATECTRL_INFO *vbr_rc_info) {
+  double scale_factor = vbr_rc_info->scale_factor;
+  int *q_index_list = vbr_rc_info->q_index_list;
   int q_max = 255;  // Maximum q value.
   int q_min = 0;    // Minimum q value.
   int q = (q_max + q_min) / 2;
@@ -1973,18 +1977,18 @@ int av1_q_mode_estimate_base_q(const GF_GROUP *gf_group,
   av1_q_mode_compute_gop_q_indices(gf_frame_index, q_max, arf_qstep_ratio,
                                    bit_depth, gf_group, q_index_list);
   double q_max_estimate =
-      av1_estimate_gop_bitrate(q_index_list, gf_group->size, txfm_stats_list);
+      av1_estimate_gop_bitrate(q_index_list, gf_group->size, txfm_stats_list, vbr_rc_info);
   av1_q_mode_compute_gop_q_indices(gf_frame_index, q_min, arf_qstep_ratio,
                                    bit_depth, gf_group, q_index_list);
   double q_min_estimate =
-      av1_estimate_gop_bitrate(q_index_list, gf_group->size, txfm_stats_list);
+      av1_estimate_gop_bitrate(q_index_list, gf_group->size, txfm_stats_list, vbr_rc_info);
 
   while (true) {
     av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_qstep_ratio,
                                      bit_depth, gf_group, q_index_list);
 
     double estimate =
-        av1_estimate_gop_bitrate(q_index_list, gf_group->size, txfm_stats_list);
+        av1_estimate_gop_bitrate(q_index_list, gf_group->size, txfm_stats_list, vbr_rc_info);
 
     estimate *= scale_factor;
 
@@ -2079,8 +2083,7 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
     // rather than gf_group->q_val to avoid conflicts with the existing code.
     av1_q_mode_estimate_base_q(gf_group, tpl_data->txfm_stats_list,
                                gop_bit_budget, gf_frame_index, arf_qstep_ratio,
-                               bit_depth, vbr_rc_info->scale_factor,
-                               vbr_rc_info->q_index_list);
+                               bit_depth, vbr_rc_info);
   }
 }
 
@@ -2089,7 +2092,7 @@ void av1_vbr_estimate_mv_and_update(const TplParams *tpl_data,
                                     int gf_group_size, int gf_frame_index,
                                     VBR_RATECTRL_INFO *vbr_rc_info) {
   double mv_bits = av1_tpl_compute_mv_bits(
-      tpl_data, gf_group_size, gf_frame_index, vbr_rc_info->mv_scale_factor);
+      tpl_data, gf_group_size, gf_frame_index, vbr_rc_info);
   // Subtract the motion vector entropy from the bit budget.
   vbr_rc_info->gop_bit_budget -= mv_bits;
 }
@@ -2097,18 +2100,20 @@ void av1_vbr_estimate_mv_and_update(const TplParams *tpl_data,
 
 /* For a GOP, calculate the bits used by motion vectors. */
 double av1_tpl_compute_mv_bits(const TplParams *tpl_data, int gf_group_size,
-                               int gf_frame_index, double mv_scale_factor) {
+                               int gf_frame_index, VBR_RATECTRL_INFO *vbr_rc_info) {
   double total_mv_bits = 0;
 
   // Loop through each frame.
   for (int i = gf_frame_index; i < gf_group_size; i++) {
     TplDepFrame *tpl_frame = &tpl_data->tpl_frame[i];
-    total_mv_bits += av1_tpl_compute_frame_mv_entropy(
+    double frame_mv_bits = av1_tpl_compute_frame_mv_entropy(
         tpl_frame, tpl_data->tpl_stats_block_mis_log2);
+    total_mv_bits += frame_mv_bits;
+    vbr_rc_info->estimated_mv_bitrate_byframe[i] = frame_mv_bits;
   }
 
   // Scale the final result by the scale factor.
-  return total_mv_bits * mv_scale_factor;
+  return total_mv_bits * vbr_rc_info->mv_scale_factor;
 }
 
 // Use upper and left neighbor block as the reference MVs.
