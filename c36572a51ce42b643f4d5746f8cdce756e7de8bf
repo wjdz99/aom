@@ -39,6 +39,30 @@
       },
       "revId": "c36572a51ce42b643f4d5746f8cdce756e7de8bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b90d78c6_f7e040f7",
+        "filename": "av1/encoder/firstpass.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-05T18:50:46Z",
+      "side": 1,
+      "message": "I will send a followup CL to fix this part.",
+      "parentUuid": "5e537b48_bcc955f7",
+      "range": {
+        "startLine": 303,
+        "startChar": 28,
+        "endLine": 303,
+        "endChar": 32
+      },
+      "revId": "c36572a51ce42b643f4d5746f8cdce756e7de8bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
