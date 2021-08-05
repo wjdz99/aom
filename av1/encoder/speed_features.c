@@ -711,6 +711,11 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   }
 }
 
+static void av1_disable_ml_based_tx_sf(SPEED_FEATURES *const sf) {
+  sf->tx_type_search.prune_mode = NO_PRUNE;
+  sf->tx_type_search.ml_tx_split_thresh = -1;
+}
+
 static void av1_disable_ml_based_partition_sf(SPEED_FEATURES *const sf) {
   sf->ml_prune_4_partition = 0;
   sf->ml_prune_ab_partition = 0;
@@ -721,7 +726,6 @@ static void av1_disable_ml_based_partition_sf(SPEED_FEATURES *const sf) {
   sf->simple_motion_search_split = 0;
   sf->simple_motion_search_prune_rect = 0;
   sf->simple_motion_search_early_term_none = 0;
-
   for (int i = 0; i < PARTITION_BLOCK_SIZES; ++i) {
     sf->ml_partition_search_breakout_thresh[i] = -1;
   }
@@ -743,6 +747,8 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
 
   if (oxcf->disable_ml_partition_speed_features)
     av1_disable_ml_based_partition_sf(sf);
+  if (oxcf->disable_ml_tx_speed_features)
+    av1_disable_ml_based_tx_sf(sf);
 }
 
 void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
