@@ -1278,7 +1278,7 @@ class AV1OptFlowCopyPredTest : public AV1OptFlowTest<pred_buffer_copy> {
 
     oh_info.enable_order_hint = 1;
     for (int oh_bits = oh_start_bits; oh_bits <= kMaxOrderHintBits; oh_bits++) {
-      for (int count = 0; count < numIter; count++) {
+      for (int count = 0; count < numIter;) {
         const int cur_frm_idx = RandomFrameIdx(oh_bits);
         const int ref0_frm_idx = RandomFrameIdx(oh_bits);
         const int ref1_frm_idx = RandomFrameIdx(oh_bits);
@@ -1292,24 +1292,24 @@ class AV1OptFlowCopyPredTest : public AV1OptFlowTest<pred_buffer_copy> {
         RandomInput8(src_buf2_, GetParam());
         TestCopyPredArray(src_buf1_, src_buf2_, dst_buf1_ref_, dst_buf2_ref_,
                           dst_buf1_test_, dst_buf2_test_, d0, d1, is_speed);
+        count++;
       }
     }
     if (is_speed) return;
-    for (int oh_bits = oh_start_bits; oh_bits <= kMaxOrderHintBits; oh_bits++) {
-      for (int count = 0; count < numIter; count++) {
-        const int cur_frm_idx = RandomFrameIdx(oh_bits);
-        const int ref0_frm_idx = RandomFrameIdx(oh_bits);
-        const int ref1_frm_idx = RandomFrameIdx(oh_bits);
 
-        oh_info.order_hint_bits_minus_1 = oh_bits - 1;
-        const int d0 = get_relative_dist(&oh_info, cur_frm_idx, ref0_frm_idx);
-        const int d1 = get_relative_dist(&oh_info, cur_frm_idx, ref1_frm_idx);
+    // Extreme value test
+    for (int oh_bits = oh_start_bits; oh_bits <= kMaxOrderHintBits;
+         oh_bits += kMaxOrderHintBits - 1) {
+      for (int count = 0; count < numIter;) {
+        const int d0 = RelativeDistExtreme(oh_bits);
+        const int d1 = RelativeDistExtreme(oh_bits);
         if (!d0 || !d1) continue;
 
         RandomInput8Extreme(src_buf1_, GetParam());
         RandomInput8Extreme(src_buf2_, GetParam());
         TestCopyPredArray(src_buf1_, src_buf2_, dst_buf1_ref_, dst_buf2_ref_,
                           dst_buf1_test_, dst_buf2_test_, d0, d1, 0);
+        count++;
       }
     }
   }
@@ -1451,7 +1451,7 @@ class AV1OptFlowCopyPredHighbdTest
 
     oh_info.enable_order_hint = 1;
     for (int oh_bits = oh_start_bits; oh_bits <= kMaxOrderHintBits; oh_bits++) {
-      for (int count = 0; count < numIter; count++) {
+      for (int count = 0; count < numIter;) {
         const int cur_frm_idx = RandomFrameIdx(oh_bits);
         const int ref0_frm_idx = RandomFrameIdx(oh_bits);
         const int ref1_frm_idx = RandomFrameIdx(oh_bits);
@@ -1465,24 +1465,24 @@ class AV1OptFlowCopyPredHighbdTest
         RandomInput16(src_buf2_, GetParam(), bd);
         TestCopyPredArray(src_buf1_, src_buf2_, dst_buf1_ref_, dst_buf2_ref_,
                           dst_buf1_test_, dst_buf2_test_, d0, d1, is_speed);
+        count++;
       }
     }
     if (is_speed) return;
-    for (int oh_bits = oh_start_bits; oh_bits <= kMaxOrderHintBits; oh_bits++) {
-      for (int count = 0; count < numIter; count++) {
-        const int cur_frm_idx = RandomFrameIdx(oh_bits);
-        const int ref0_frm_idx = RandomFrameIdx(oh_bits);
-        const int ref1_frm_idx = RandomFrameIdx(oh_bits);
 
-        oh_info.order_hint_bits_minus_1 = oh_bits - 1;
-        const int d0 = get_relative_dist(&oh_info, cur_frm_idx, ref0_frm_idx);
-        const int d1 = get_relative_dist(&oh_info, cur_frm_idx, ref1_frm_idx);
+    // Extreme value test
+    for (int oh_bits = oh_start_bits; oh_bits <= kMaxOrderHintBits;
+         oh_bits += kMaxOrderHintBits - 1) {
+      for (int count = 0; count < numIter;) {
+        const int d0 = RelativeDistExtreme(oh_bits);
+        const int d1 = RelativeDistExtreme(oh_bits);
         if (!d0 || !d1) continue;
 
         RandomInput16Extreme(src_buf1_, GetParam(), bd);
         RandomInput16Extreme(src_buf2_, GetParam(), bd);
         TestCopyPredArray(src_buf1_, src_buf2_, dst_buf1_ref_, dst_buf2_ref_,
                           dst_buf1_test_, dst_buf2_test_, d0, d1, 0);
+        count++;
       }
     }
   }
