@@ -16,6 +16,29 @@
       "message": "Hi Yunqing,\nThis patch correctly handles the error propagation from enoder_encode() across parallel frames. Previously, there was a single instance of error (single longjmp) across the parallel frames corresponding to ppi, which could result in undefined behavior if any parallel_cpi (except first cpi which always runs from master thread) gives rises to an internal error.\n\nIn this patch, a jump point is added for an error in any of the parallel frames to return to the beginning of av1_get_compressed_data(), thereby propagating it to ppi.\n\nThe change is verified by inducing error for a frame with frame_parallel_level\u003d2 inside encode_frame_to_data_rate(). Segmentation fault (core dumped) was observed without this change, while clean exit was observed with this change.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows,     --tile-columns, --cpu-used, --end-usage, --row-mt, etc. \n\nPlease review.\n",
       "revId": "50f84d6b6a0334c44283bc0d358616fd97e1a2f2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fdf5bde0_af6bd110",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1257,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-06T21:53:29Z",
+      "side": 1,
+      "message": "Each frame has its own cm-\u003eerror instead of using ppi-\u003eerror? Is this a bug fix?",
+      "range": {
+        "startLine": 1257,
+        "startChar": 2,
+        "endLine": 1257,
+        "endChar": 11
+      },
+      "revId": "50f84d6b6a0334c44283bc0d358616fd97e1a2f2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
