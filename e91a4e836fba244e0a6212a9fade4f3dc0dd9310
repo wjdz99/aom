@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca23fb52_a3c0708e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-08-06T11:15:27Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch extends skip_intra_in_interframe \u003d 2 for LF_UPDATE frames in speed 2. This also corrects the size of \u0027thresh\u0027 array in skip_intra_modes_in_interframe as per the valid values that the speed feature skip_intra_in_interframe can take. An assert() is also added to check for the supported values of skip_intra_in_interframe where it is used to access \u0027thresh[].\u0027\n\nPlease find the detailed borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOW RES   |       2.420       | -0.0044   -0.0025   0.03180  |\n   2     |  MID RES   |       1.448       |  0.0074    0.0124   0.02779  |\n   2     |   HD RES*  |       1.553       |  0.0254    0.0259   0.03143  |\n   2     |  Average   |       1.962       |  0.0081    0.0105   0.03050  |\n     \n\t     *60 frame runs\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor other speed levels, this is a bit-exact change with no speed impact (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "e91a4e836fba244e0a6212a9fade4f3dc0dd9310",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
