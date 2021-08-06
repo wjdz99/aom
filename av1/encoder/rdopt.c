@@ -4374,8 +4374,8 @@ static AOM_INLINE void default_skip_mask(mode_skip_mask_t *mask,
 static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
                                            const AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize) {
-  const AV1_COMMON *const cm = &cpi->common;
 #if !CONFIG_NEW_REF_SIGNALING
+  const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const struct segmentation *const seg = &cm->seg;
@@ -4462,6 +4462,7 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
     }
   }
 
+#if !CONFIG_NEW_REF_SIGNALING
   if (cpi->rc.is_src_frame_alt_ref) {
     if (sf->inter_sf.alt_ref_search_fp) {
       assert(cpi->common.ref_frame_flags &
@@ -4485,6 +4486,7 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
       }
     }
   }
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   if (bsize > sf->part_sf.max_intra_bsize) {
     disable_reference(INTRA_FRAME, mask->ref_combo);
@@ -4655,11 +4657,13 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
       setup_buffer_ref_mvs_inter(cpi, x, ref_frame, bsize, yv12_mb);
 #endif  // CONFIG_NEW_REF_SIGNALING
     }
+#if !CONFIG_NEW_REF_SIGNALING
     // Store the best pred_mv_sad across all past frames
     if (cpi->sf.inter_sf.alt_ref_search_fp &&
         cpi->ref_frame_dist_info.ref_relative_dist[ref_frame - LAST_FRAME] < 0)
       x->best_pred_mv_sad =
           AOMMIN(x->best_pred_mv_sad, x->pred_mv_sad[ref_frame]);
+#endif  // !CONFIG_NEW_REF_SIGNALING
   }
   // ref_frame = ALTREF_FRAME
   if (!cpi->sf.rt_sf.use_real_time_ref_set && is_comp_ref_allowed(bsize)) {
