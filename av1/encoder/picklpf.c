@@ -273,6 +273,16 @@ void av1_pick_filter_level(const YV12_BUFFER_CONFIG *sd, AV1_COMP *cpi,
       last_frame_filter_level[3] = lf->filter_level_v;
 #endif
     }
+    const SequenceHeader *const seq_params = cm->seq_params;
+    // The frame buffer last_frame_uf is used to store the non-loop filtered
+    // reconstructed frame during loop filter search.
+    if (aom_realloc_frame_buffer(
+            &cpi->last_frame_uf, cm->width, cm->height,
+            seq_params->subsampling_x, seq_params->subsampling_y,
+            seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
+            cm->features.byte_alignment, NULL, NULL, NULL, 0))
+      aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate last frame buffer");
 
     lf->filter_level[0] = lf->filter_level[1] =
         search_filter_level(sd, cpi, method == LPF_PICK_FROM_SUBIMAGE,
