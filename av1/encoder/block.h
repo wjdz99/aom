@@ -1134,6 +1134,40 @@ typedef struct macroblock {
    * \name Reference Frame Searc
    ****************************************************************************/
   /**@{*/
+#if CONFIG_NEW_REF_SIGNALING
+  /*! \brief Sum absolute distortion of the predicted mv for each nrs ref frame.
+   *
+   * This is used to measure how viable a reference frame is.
+   */
+  int pred_mv_sad_nrs[MAX_REF_FRAMES_NRS];
+  //! The minimum of \ref pred_mv_sad.
+  int best_pred_mv_sad_nrs;
+
+  /*! \brief Disables certain nrs ref frame pruning based on tpl.
+   *
+   * Determines whether a given ref frame is "good" based on data from the TPL
+   * model. If so, this stops selective_ref frame from pruning the given ref
+   * frame at block level.
+   */
+  uint8_t tpl_keep_ref_frame_nrs[MAX_REF_FRAMES_NRS];
+
+  /*! \brief NRS ref frames picked by the square subblocks in a superblock.
+   *
+   * Keeps track of ref frames that are selected by square partition blocks
+   * within a superblock, in MI resolution. They can be used to prune ref frames
+   * for rectangular blocks.
+   */
+  int picked_ref_frames_mask_nrs[MAX_MIB_SIZE * MAX_MIB_SIZE];
+
+  /*! \brief Prune nrs ref frames in real-time mode.
+   *
+   * Determines whether to prune reference frames in real-time mode. For the
+   * most part, this is the same as nonrd_prune_ref_frame_search in
+   * cpi->sf.rt_sf.nonrd_prune_ref_frame_search, but this can be selectively
+   * turned off if the only frame available is GOLDEN_FRAME.
+   */
+  int nonrd_prune_ref_frame_search_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
   /*! \brief Sum absolute distortion of the predicted mv for each ref frame.
    *
    * This is used to measure how viable a reference frame is.
