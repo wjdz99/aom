@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffa07cbc_6e75d253",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2715,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "We only need to print out this message when the gop coding finished.\nSo we can do\nif(cpi-\u003egf_frame_index + 1 \u003d\u003d gf_group.size) {\n print stuff here\n I would recommend print out the following information for debugging\n 1) i\n 2) q_index \n 3) gf_group update_type\n 4) estimated coefficient rate\n 5) estimated mv rate\n 6) actual coefficient rate\n 7) actual mv rate\n \n The way to gather actual coeff rate and mv rate is here\n https://aomedia-review.googlesource.com/c/aom/+/142581\n actual coefficient rate + actual mv rate \u003d projected_frame_size\n}",
+      "range": {
+        "startLine": 2708,
+        "startChar": 0,
+        "endLine": 2715,
+        "endChar": 7
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71f3859e_2677c60c",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "We don\u0027t need this part anymore because we now use vbr_rc_info-\u003eq_index_list to stored the q indices.\nMoreover, vbr_rc_info-\u003eq_index_list is not set yet here.",
+      "range": {
+        "startLine": 1654,
+        "startChar": 0,
+        "endLine": 1658,
+        "endChar": 0
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f13b642_8cf0ca03",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1888,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "I would suggest not pass in vbr_rc_info here.\nIt\u0027s hard to tell which part of vbr_rc_info is changed without reading the code.\nInstead, pass in a pointer like\ndouble* bitrate_byframe_list;\nThen we can allow user to pass in an actual pointer or a NULL.\nif(bitrate_byframe_list!\u003d NULL) {\n  bitrate_byframe_list \u003d frame_bitrate\n}",
+      "range": {
+        "startLine": 1888,
+        "startChar": 32,
+        "endLine": 1888,
+        "endChar": 62
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7e27774_10562807",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1904,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "if(bitrate_byframe_list!\u003d NULL) {\n\n  bitrate_byframe_list[frame_index] \u003d frame_bitrate;\n}",
+      "range": {
+        "startLine": 1904,
+        "startChar": 4,
+        "endLine": 1904,
+        "endChar": 72
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d90e3fc_66b2fba7",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1980,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "NULL",
+      "range": {
+        "startLine": 1980,
+        "startChar": 78,
+        "endLine": 1980,
+        "endChar": 89
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28ba617e_0d41b42b",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1984,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "NULL",
+      "range": {
+        "startLine": 1984,
+        "startChar": 78,
+        "endLine": 1984,
+        "endChar": 89
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "179d94e2_9b979ccf",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1991,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "NULL",
+      "range": {
+        "startLine": 1991,
+        "startChar": 80,
+        "endLine": 1991,
+        "endChar": 91
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13059fc0_0b011387",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2019,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "Call av1_estimate_gop_bitrate() and pass in vbr_rc_info-\u003eestimated_bitrate_byframe\nhere",
+      "range": {
+        "startLine": 2018,
+        "startChar": 2,
+        "endLine": 2019,
+        "endChar": 70
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2694211_3573ce8d",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "We don\u0027t need to change this part.\nWe want to know why 1.2/5.0 works for 17 frames but not for 150 frames.\n(We need to maintain the peak performance of 17 frames setting.)\n\nWe only need to make sure the print out number doesn\u0027t use scale factor, but for actual encoding, we should still use the tuned scale factor.",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 258,
+        "endChar": 37
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6be41281_5440a215",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "Pleas also init the following array to zero here.\nestimated_bitrate_byframe\nestimated_mv_bitrate_byframe\nactual_bitrate_byframe\nq_index_list\nYou can use av1_zero like \nav1_zero(q_index_list);",
+      "range": {
+        "startLine": 259,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 1
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "202c3568_7676412e",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "NULL",
+      "range": {
+        "startLine": 172,
+        "startChar": 70,
+        "endLine": 172,
+        "endChar": 82
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be35d43b_f98cd395",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "NULL",
+      "range": {
+        "startLine": 248,
+        "startChar": 74,
+        "endLine": 248,
+        "endChar": 86
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04c96446_6bdee1c9",
+        "filename": "test/tpl_model_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-06T05:59:31Z",
+      "side": 1,
+      "message": "NULL",
+      "range": {
+        "startLine": 257,
+        "startChar": 76,
+        "endLine": 257,
+        "endChar": 88
+      },
+      "revId": "817c39db07272bfe31e8872c189406c22e060feb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
