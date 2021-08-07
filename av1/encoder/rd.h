@@ -192,17 +192,18 @@ struct TileDataEnc;
 struct AV1_COMP;
 struct macroblock;
 
+int av1_init_rdmult(struct AV1_COMP *cpi);
+
+int read_rdmult_info(struct AV1_COMP *cpi);
+
 /*!\brief Compute rdmult based on q index and frame update type
  *
- * \param[in]       bit_depth       bit depth
- * \param[in]       update_type     frame update type
+ * \param[in]       AV1_COMP        cpi
  * \param[in]       qindex          q index
  *
  * \return rdmult
  */
-int av1_compute_rd_mult_based_on_qindex(aom_bit_depth_t bit_depth,
-                                        FRAME_UPDATE_TYPE update_type,
-                                        int qindex);
+int av1_compute_rd_mult_based_on_qindex(const struct AV1_COMP *cpi, int qindex);
 
 int av1_compute_rd_mult(const struct AV1_COMP *cpi, int qindex);
 
