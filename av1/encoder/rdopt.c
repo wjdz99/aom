@@ -4577,6 +4577,9 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   unsigned char segment_id = mbmi->segment_id;
 
   init_neighbor_pred_buf(&x->obmc_buffer, args, is_cur_buf_hbd(&x->e_mbd));
+#if CONFIG_NEW_REF_SIGNALING
+  av1_collect_neighbors_ref_counts_nrs(cm, xd);
+#endif  // CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts(xd);
   estimate_ref_frame_costs(cm, xd, &x->mode_costs, segment_id, ref_costs_single,
                            ref_costs_comp);
@@ -4585,6 +4588,9 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   const int mi_col = xd->mi_col;
   MV_REFERENCE_FRAME ref_frame;
   x->best_pred_mv_sad = INT_MAX;
+#if CONFIG_NEW_REF_SIGNALING
+  x->best_pred_mv_sad_nrs = INT_MAX;
+#endif  // CONFIG_NEW_REF_SIGNALING
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;
@@ -6620,6 +6626,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   (void)mi_col;
   (void)tile_data;
 
+#if CONFIG_NEW_REF_SIGNALING
+  av1_collect_neighbors_ref_counts_nrs(cm, xd);
+#endif  // CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts(xd);
 
   estimate_ref_frame_costs(cm, xd, mode_costs, segment_id, ref_costs_single,

@@ -414,6 +414,9 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
   (void)tile_data;
 
   x->pred_mv_sad[ref_frame] = INT_MAX;
+#if CONFIG_NEW_REF_SIGNALING
+  x->pred_mv_sad_nrs[ref_frame_nrs] = INT_MAX;
+#endif  // CONFIG_NEW_REF_SIGNALING
   frame_mv[NEWMV][ref_frame].as_int = INVALID_MV;
   // TODO(kyslov) this needs various further optimizations. to be continued..
   assert(yv12 != NULL);
@@ -2155,6 +2158,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   init_best_pickmode(&best_pickmode);
 
+#if CONFIG_NEW_REF_SIGNALING
+  av1_collect_neighbors_ref_counts_nrs(cm, xd);
+#endif  // CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts(xd);
 
   const ModeCosts *mode_costs = &x->mode_costs;
