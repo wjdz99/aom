@@ -1060,6 +1060,10 @@ typedef struct AV1Common {
   int64_t txcoeff_cost_timer;
   int64_t txcoeff_cost_count;
 #endif  // TXCOEFF_COST_TIMER
+  /*!
+   * lambda value for Key, GF/ARF, Inter frame
+   */
+  int rdmult[3][QINDEX_RANGE];
 } AV1_COMMON;
 
 /*!\cond */

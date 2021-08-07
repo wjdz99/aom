@@ -1371,6 +1371,11 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_TX_SIZE_SEARCH = 146,
 
+  /*!\brief Codec control to set the file for lambda read and write.
+   * const char * parameter.
+   */
+  AV1E_SET_RDMULT_INFO_FILE = 147,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -1919,6 +1924,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_DIRECTIONAL_INTRA, int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_ENABLE_TX_SIZE_SEARCH, int)
 #define AOM_CTRL_AV1E_SET_ENABLE_TX_SIZE_SEARCH
+
+AOM_CTRL_USE_TYPE(AV1E_SET_RDMULT_INFO_FILE, const char *)
+#define AOM_CTRL_AV1E_SET_RDMULT_INFO_FILE
 
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */

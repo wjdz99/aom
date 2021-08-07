@@ -837,6 +837,9 @@ void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
   if (lap_lag_in_frames != -1) {
     cpi->oxcf.gf_cfg.lag_in_frames = lap_lag_in_frames;
   }
+
+  // read external lambda table
+  read_rdmult_info(cpi);
 }
 
 static INLINE void init_frame_info(FRAME_INFO *frame_info,
@@ -1439,6 +1442,8 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
   av1_init_quantizer(&cpi->enc_quant_dequant_params, &cm->quant_params,
                      cm->seq_params->bit_depth);
   av1_qm_init(&cm->quant_params, av1_num_planes(cm));
+
+  av1_init_rdmult(cpi);
 
   av1_loop_filter_init(cm);
   cm->superres_scale_denominator = SCALE_NUMERATOR;
@@ -3003,8 +3008,8 @@ static int encode_with_and_without_superres(AV1_COMP *cpi, size_t *size,
     if (err != AOM_CODEC_OK) return err;
 
     // Note: Both use common rdmult based on base qindex of fullres.
-    const int64_t rdmult = av1_compute_rd_mult_based_on_qindex(
-        bit_depth, update_type, cm->quant_params.base_qindex);
+    const int64_t rdmult = av1_compute_rd_mult_based_on_qindex(cpi,
+        cm->quant_params.base_qindex);
 
     // Find the best rdcost among all superres denoms.
     int best_denom = -1;
@@ -3067,8 +3072,8 @@ static int encode_with_and_without_superres(AV1_COMP *cpi, size_t *size,
     if (err != AOM_CODEC_OK) return err;
 
     // Note: Both use common rdmult based on base qindex of fullres.
-    const int64_t rdmult = av1_compute_rd_mult_based_on_qindex(
-        bit_depth, update_type, cm->quant_params.base_qindex);
+    const int64_t rdmult = av1_compute_rd_mult_based_on_qindex(cpi,
+        cm->quant_params.base_qindex);
     proj_rdcost1 =
         RDCOST_DBL_WITH_NATIVE_BD_DIST(rdmult, rate1, sse1, bit_depth);
     const double proj_rdcost2 =
