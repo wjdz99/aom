@@ -4563,6 +4563,157 @@ static AOM_INLINE int is_ref_frame_used_in_cache(MV_REFERENCE_FRAME ref_frame,
 }
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
 
+#if CONFIG_NEW_REF_SIGNALING
+// Please add/modify parameter setting in this function, making it consistent
+// and easy to read and maintain.
+static AOM_INLINE void set_params_rd_pick_inter_mode_nrs(
+    const AV1_COMP *cpi, MACROBLOCK *x, HandleInterModeArgs *args,
+    BLOCK_SIZE bsize, mode_skip_mask_t *mode_skip_mask, int skip_ref_frame_mask,
+    unsigned int *ref_costs_single, unsigned int (*ref_costs_comp)[REF_FRAMES],
+    struct buf_2d (*yv12_mb)[MAX_MB_PLANE]) {
+  const AV1_COMMON *const cm = &cpi->common;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO *const mbmi = xd->mi[0];
+  MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+  unsigned char segment_id = mbmi->segment_id;
+
+  init_neighbor_pred_buf(&x->obmc_buffer, args, is_cur_buf_hbd(&x->e_mbd));
+  av1_collect_neighbors_ref_counts(xd);
+  estimate_ref_frame_costs(cm, xd, &x->mode_costs, segment_id, ref_costs_single,
+                           ref_costs_comp);
+
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  MV_REFERENCE_FRAME ref_frame;
+  x->best_pred_mv_sad = INT_MAX;
+#if CONFIG_NEW_REF_SIGNALING
+    x->best_pred_mv_sad_nrs = INT_MAX;
+#endif  // CONFIG_NEW_REF_SIGNALING
+  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+    x->pred_mv_sad[ref_frame] = INT_MAX;
+    x->mbmi_ext->mode_context[ref_frame] = 0;
+    mbmi_ext->ref_mv_count[ref_frame] = UINT8_MAX;
+    if (cpi->common.ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
+      if (mbmi->partition != PARTITION_NONE &&
+          mbmi->partition != PARTITION_SPLIT) {
+        if (skip_ref_frame_mask & (1 << ref_frame) &&
+            !is_ref_frame_used_by_compound_ref(ref_frame, skip_ref_frame_mask)
+#if CONFIG_EXT_RECUR_PARTITIONS
+            && !(should_reuse_mode(x, REUSE_INTER_MODE_IN_INTERFRAME_FLAG) &&
+                 is_ref_frame_used_in_cache(ref_frame, x->inter_mode_cache))
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
+        ) {
+          continue;
+        }
+      }
+      assert(get_ref_frame_yv12_buf(cm, ref_frame) != NULL);
+#if CONFIG_NEW_REF_SIGNALING
+      MV_REFERENCE_FRAME_NRS ref_frame_nrs =
+          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
+                                                ref_frame);
+      // TODO(sarahparker) Temporary assert, see aomedia:3060
+      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+                                                   ref_frame_nrs) == ref_frame);
+      setup_buffer_ref_mvs_inter(cpi, x, ref_frame, ref_frame_nrs, bsize,
+                                 yv12_mb);
+#else
+      setup_buffer_ref_mvs_inter(cpi, x, ref_frame, bsize, yv12_mb);
+#endif  // CONFIG_NEW_REF_SIGNALING
+    }
+    // Store the best pred_mv_sad across all past frames
+    if (cpi->sf.inter_sf.alt_ref_search_fp &&
+        cpi->ref_frame_dist_info.ref_relative_dist[ref_frame - LAST_FRAME] < 0)
+      x->best_pred_mv_sad =
+          AOMMIN(x->best_pred_mv_sad, x->pred_mv_sad[ref_frame]);
+  }
+  // ref_frame = ALTREF_FRAME
+  if (!cpi->sf.rt_sf.use_real_time_ref_set && is_comp_ref_allowed(bsize)) {
+    // No second reference on RT ref set, so no need to initialize
+    for (; ref_frame < MODE_CTX_REF_FRAMES; ++ref_frame) {
+      x->mbmi_ext->mode_context[ref_frame] = 0;
+      mbmi_ext->ref_mv_count[ref_frame] = UINT8_MAX;
+      const MV_REFERENCE_FRAME *rf = ref_frame_map[ref_frame - REF_FRAMES];
+      if (!((cpi->common.ref_frame_flags & av1_ref_frame_flag_list[rf[0]]) &&
+            (cpi->common.ref_frame_flags & av1_ref_frame_flag_list[rf[1]]))) {
+        continue;
+      }
+
+      if (mbmi->partition != PARTITION_NONE &&
+          mbmi->partition != PARTITION_SPLIT) {
+        if (skip_ref_frame_mask & (1 << ref_frame)
+#if CONFIG_EXT_RECUR_PARTITIONS
+            && !(should_reuse_mode(x, REUSE_INTER_MODE_IN_INTERFRAME_FLAG) &&
+                 is_ref_frame_used_in_cache(ref_frame, x->inter_mode_cache))
+#endif  // CONFIG_EXT_RECUR_PARTITIONS
+        ) {
+          continue;
+        }
+      }
+      // Ref mv list population is not required, when compound references are
+      // pruned.
+      if (prune_ref_frame(cpi, x, ref_frame)) continue;
+
+#if CONFIG_NEW_REF_SIGNALING
+      MV_REFERENCE_FRAME_NRS ref_frame_nrs = INVALID_IDX;
+      if (ref_frame < REF_FRAMES) {
+        ref_frame_nrs = convert_named_ref_to_ranked_ref_index(
+            &cm->new_ref_frame_data, ref_frame);
+        // TODO(sarahparker) Temporary assert, see aomedia:3060
+        assert(convert_ranked_ref_to_named_ref_index(
+                   &cm->new_ref_frame_data, ref_frame_nrs) == ref_frame);
+      }
+      av1_find_mv_refs(cm, xd, mbmi, ref_frame, ref_frame_nrs,
+                       mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight,
+                       NULL, mbmi_ext->global_mvs, mbmi_ext->mode_context);
+#else
+      av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
+                       xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                       mbmi_ext->mode_context);
+#endif  // CONFIG_NEW_REF_SIGNALING
+      // TODO(Ravi): Populate mbmi_ext->ref_mv_stack[ref_frame][4] and
+      // mbmi_ext->weight[ref_frame][4] inside av1_find_mv_refs.
+      av1_copy_usable_ref_mv_stack_and_weight(xd, mbmi_ext, ref_frame);
+    }
+  }
+
+  av1_count_overlappable_neighbors(cm, xd);
+  const FRAME_UPDATE_TYPE update_type = get_frame_update_type(&cpi->gf_group);
+  const int prune_obmc = cpi->frame_probs.obmc_probs[update_type][bsize] <
+                         cpi->sf.inter_sf.prune_obmc_prob_thresh;
+  if (cpi->oxcf.motion_mode_cfg.enable_obmc && !cpi->sf.inter_sf.disable_obmc &&
+      !prune_obmc) {
+    if (check_num_overlappable_neighbors(mbmi) &&
+        is_motion_variation_allowed_bsize(bsize, mi_row, mi_col)) {
+      int dst_width1[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+      int dst_width2[MAX_MB_PLANE] = { MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1,
+                                       MAX_SB_SIZE >> 1 };
+      int dst_height1[MAX_MB_PLANE] = { MAX_SB_SIZE >> 1, MAX_SB_SIZE >> 1,
+                                        MAX_SB_SIZE >> 1 };
+      int dst_height2[MAX_MB_PLANE] = { MAX_SB_SIZE, MAX_SB_SIZE, MAX_SB_SIZE };
+      av1_build_prediction_by_above_preds(cm, xd, args->above_pred_buf,
+                                          dst_width1, dst_height1,
+                                          args->above_pred_stride);
+      av1_build_prediction_by_left_preds(cm, xd, args->left_pred_buf,
+                                         dst_width2, dst_height2,
+                                         args->left_pred_stride);
+      const int num_planes = av1_num_planes(cm);
+      av1_setup_dst_planes(xd->plane, &cm->cur_frame->buf, mi_row, mi_col, 0,
+                           num_planes, &mbmi->chroma_ref_info);
+      calc_target_weighted_pred(
+          cm, x, xd, args->above_pred_buf[0], args->above_pred_stride[0],
+          args->left_pred_buf[0], args->left_pred_stride[0]);
+    }
+  }
+
+  init_mode_skip_mask(mode_skip_mask, cpi, x, bsize);
+
+  // Set params for mode evaluation
+  set_mode_eval_params(cpi, x, MODE_EVAL);
+
+  x->comp_rd_stats_idx = 0;
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 // Please add/modify parameter setting in this function, making it consistent
 // and easy to read and maintain.
 static AOM_INLINE void set_params_rd_pick_inter_mode(
@@ -4585,6 +4736,9 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   const int mi_col = xd->mi_col;
   MV_REFERENCE_FRAME ref_frame;
   x->best_pred_mv_sad = INT_MAX;
+#if CONFIG_NEW_REF_SIGNALING
+    x->best_pred_mv_sad_nrs = INT_MAX;
+#endif  // CONFIG_NEW_REF_SIGNALING
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;
