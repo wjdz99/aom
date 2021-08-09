@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c09af30_f4d02b6a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-08-09T07:32:20Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch disables luma loop restoration for low and high qindex ranges for non-boosted, non-internal-arf frames in speed 4. This is based on our observation on LR search results that the chance of RESTORE_NONE winning was high in LF_UPDATE and overlay frames in the low and high qindex range.\n\nPlease find the detailed borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   4     |  LOW RES   |       1.358       |  0.0510    0.0597    0.0631  |\n   4     |  MID RES   |       1.654       |  0.0629    0.0718    0.0831  |\n   4     |   HD RES   |       1.834       |  0.0858    0.0944    0.1155  |\n   4     |  Average   |       1.551       |  0.0651    0.0738    0.0850  |\n\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nFor other speed levels, this is a bit-exact change with no speed impact (verified locally on a few test cases).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "0eea90a1296a0e5e627707e3c0180857f036cd56",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
