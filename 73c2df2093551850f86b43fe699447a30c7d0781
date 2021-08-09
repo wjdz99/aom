@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "43bb48ff_283bb1bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-09T21:42:35Z",
+      "side": 1,
+      "message": "Thanks for the patch. Please find few comments. \nPlease clarify \"cb\"in the title, Thanks!",
+      "revId": "73c2df2093551850f86b43fe699447a30c7d0781",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "448912e8_b38fd217",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-09T21:42:35Z",
+      "side": 1,
+      "message": "Please add the default value e.g (0 - default).Also to be consistent with other comments, a newline for 0 and 1 would be good. Thanks!",
+      "revId": "73c2df2093551850f86b43fe699447a30c7d0781",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea2f88d0_21abcee4",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-09T21:42:35Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this call also be in the function frame size_independent? My understanding is this is intended as a override functionality (applicable even in first pass). Could you please verify.",
+      "revId": "73c2df2093551850f86b43fe699447a30c7d0781",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
