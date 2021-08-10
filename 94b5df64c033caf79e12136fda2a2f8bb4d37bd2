@@ -53,6 +53,46 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "13c280f1_2dfa9dc5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-10T17:50:31Z",
+      "side": 1,
+      "message": "I see. Please see my comment. It is fine to address comments in a separate CL.",
+      "revId": "94b5df64c033caf79e12136fda2a2f8bb4d37bd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05d834ee_97359ef8",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1705,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-10T17:50:31Z",
+      "side": 1,
+      "message": "So this is the difference between 2 (current version) and 2 (parent version)? If it is right, maybe just replace 2 (parent version) since nobody uses it? So we don\u0027t need another level here.",
+      "range": {
+        "startLine": 1704,
+        "startChar": 33,
+        "endLine": 1705,
+        "endChar": 69
+      },
+      "revId": "94b5df64c033caf79e12136fda2a2f8bb4d37bd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3694519_f3beaa5d",
