@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "59d704ba_9f807f4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-10T01:27:01Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "e74b63c6_088b5e77",
+      "revId": "73c2df2093551850f86b43fe699447a30c7d0781",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "448912e8_b38fd217",
@@ -73,6 +91,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "05b4890b_6d17689a",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-10T01:27:01Z",
+      "side": 1,
+      "message": "Thanks, One minor aspect, I see that coding style for other definitions in this enum have a new line e.g \n0 \u003d disable (default)\n1 \u003d enable\nIt would be nice to align, thanks!",
+      "parentUuid": "7a872f6e_184c8b90",
+      "revId": "73c2df2093551850f86b43fe699447a30c7d0781",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ea2f88d0_21abcee4",
         "filename": "av1/encoder/speed_features.c",
         "patchSetId": 3
@@ -102,6 +138,24 @@
       "side": 1,
       "message": "Some of the ML features are size-dependent, and are configured in set_good_speed_feature_framesize_dependent().\nav1_disable_ml_based_partition_sf() is located here right after this to make sure those features are overwritten properly.",
       "parentUuid": "ea2f88d0_21abcee4",
+      "revId": "73c2df2093551850f86b43fe699447a30c7d0781",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4093ce4_95fc2db5",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 22137
+      },
+      "writtenOn": "2021-08-10T01:27:01Z",
+      "side": 1,
+      "message": "Some part of the code, e.g first pass --\u003e av1_set_speed_features_framesize_independent() is not followed by set_good_speed_feature_framesize_dependent(). When this flag is enabled, all the ML features should be disabled even for those path, but ML based partition decisions would be enabled in that path. please confirm.",
+      "parentUuid": "c3da8b60_37134e46",
       "revId": "73c2df2093551850f86b43fe699447a30c7d0781",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
