@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d94ea095_ec6c3e42",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2692,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70c6a509_aaafd83b",
+      "range": {
+        "startLine": 2690,
+        "startChar": 0,
+        "endLine": 2692,
+        "endChar": 6
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "04883cef_56aa8bf2",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-08-10T00:18:28Z",
       "side": 1,
       "message": "rc-\u003ecoefficient_size",
+      "range": {
+        "startLine": 2715,
+        "startChar": 75,
+        "endLine": 2715,
+        "endChar": 78
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee18247d_7a03c5e4",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2715,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04883cef_56aa8bf2",
       "range": {
         "startLine": 2715,
         "startChar": 75,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7afc922d_efad889b",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2717,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c547275_b2814f28",
+      "range": {
+        "startLine": 2717,
+        "startChar": 37,
+        "endLine": 2717,
+        "endChar": 41
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f5a1e56_c8abacbe",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-08-10T00:18:28Z",
       "side": 1,
       "message": "Put this under\n#if 0\n#endif\n\nAdd comment explain why we use \"+2\"",
+      "range": {
+        "startLine": 2724,
+        "startChar": 0,
+        "endLine": 2738,
+        "endChar": 7
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "451943df_74fd99d0",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2738,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f5a1e56_c8abacbe",
       "range": {
         "startLine": 2724,
         "startChar": 0,
@@ -116,6 +212,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "896a553a_326c8ef9",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2014,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2543d292_6eac20d8",
+      "range": {
+        "startLine": 2014,
+        "startChar": 2,
+        "endLine": 2014,
+        "endChar": 24
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9ca22720_40ff7aeb",
@@ -129,6 +249,30 @@
       "writtenOn": "2021-08-10T00:18:28Z",
       "side": 1,
       "message": "This line should happened after av1_q_mode_compute_gop_q_indices() because\nq_index_list is updated there and this function use q_index_list to estimate bitrate.",
+      "range": {
+        "startLine": 2015,
+        "startChar": 2,
+        "endLine": 2016,
+        "endChar": 54
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0307a2c5_fc20478a",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2016,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ca22720_40ff7aeb",
       "range": {
         "startLine": 2015,
         "startChar": 2,
@@ -162,6 +306,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "61e18cf0_9f78556d",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86742bbb_b04c9901",
+      "range": {
+        "startLine": 512,
+        "startChar": 0,
+        "endLine": 514,
+        "endChar": 20
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "44dc630d_4a527f54",
@@ -175,6 +343,30 @@
       "writtenOn": "2021-08-10T00:18:28Z",
       "side": 1,
       "message": "Let\u0027 be consistent with other description.\n\"vbr_rc_info       Rate control info struct\"",
+      "range": {
+        "startLine": 594,
+        "startChar": 20,
+        "endLine": 595,
+        "endChar": 26
+      },
+      "revId": "05ce6262aa0840967ebf6a81c66a02a57545c676",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d31f0a07_1a6988fc",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-10T19:43:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44dc630d_4a527f54",
       "range": {
         "startLine": 594,
         "startChar": 20,
