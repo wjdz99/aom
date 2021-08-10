@@ -16,6 +16,69 @@
       "message": "Hi Yunqing,\nWe have improved the speed feature aggressive level of adjust_var_based_rd_partitioning in this CL. The existing aggressive level \u003d2 allows to merge leaf partitions (merge as none partition) for bsize \u003c\u003d 32x32. We have introduced an aggressive level to merge leaf partition up to 64x64 for larger q indices. Also, we have added a breakout condition before evaluating split partition if skip_txfm flag of none partition is true. The logic of breakout is similar to aggressive level \u003d 1.\n\nFrom Borg test, we observed that the newly introduced aggressive level has performance issues in few scenarios. And the issues are handled as follows,\n1. Encoder time increase is seen for resolutions lower than 360 [min(width, height) \u003c 360]. The issue is resolved by avoiding merger of 64x64 leaf partition for such resolutions.\n2. To contain the quality drop seen in some of the contents, breakout condition added for split partition evaluation is avoided for Intra and relatively static Inter blocks.\n\nThe newly introduced level is mapped to 2. So, the existing 2 \u0026 3 levels are mapped to 3 \u0026 4 respectively. This maintains the aggressiveness order of adjust_var_based_rd_partitioning sf.\n\nPlease find the Borg results below.\n\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   5         rtc          1.503         -0.1005   -0.1310   -0.2100\n   5       rtc_derf       9.002          0.2935    0.3192    0.0453\n   5       Average        5.201          0.0632    0.0564   -0.1032\n   \nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally for few test cases).",
       "revId": "94b5df64c033caf79e12136fda2a2f8bb4d37bd2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38c70947_4967f86b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-10T17:01:10Z",
+      "side": 1,
+      "message": "The gain and the tradeoff are very good. Couldn\u0027t see where you set  adjust_var_based_rd_partitioning to be 3 or 4?",
+      "revId": "94b5df64c033caf79e12136fda2a2f8bb4d37bd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3694519_f3beaa5d",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1708,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-10T17:01:10Z",
+      "side": 1,
+      "message": "Change to the following?\n\nconst int condition \u003d ...\nif  (condition) { ... }",
+      "range": {
+        "startLine": 1700,
+        "startChar": 6,
+        "endLine": 1708,
+        "endChar": 34
+      },
+      "revId": "94b5df64c033caf79e12136fda2a2f8bb4d37bd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38726ae5_5b8091d8",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1822,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-10T17:01:10Z",
+      "side": 1,
+      "message": "Can these 2 be combined together? Something like\nif (none_rdc.rate \u003c INT_MAX \u0026\u0026 none_rdc.skip_txfm \u003d\u003d 1) {\n// handle different adjust_var_based_rd_partitioning\n}",
+      "range": {
+        "startLine": 1807,
+        "startChar": 0,
+        "endLine": 1822,
+        "endChar": 7
+      },
+      "revId": "94b5df64c033caf79e12136fda2a2f8bb4d37bd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
