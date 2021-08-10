@@ -2602,6 +2602,7 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
   AV1_COMP *cpi = ppi->cpi;
   volatile aom_codec_pts_t ptsvol = pts;
   AV1_COMP_DATA cpi_data = { 0 };
+  printf("Dummy print");
 
   cpi_data.timestamp_ratio = &ctx->timestamp_ratio;
   cpi_data.flush = !img;
