@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d376aa1_6d1766e9",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1697,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-08-10T18:06:58Z",
+      "side": 1,
+      "message": "Nit: Rename this variable to is_480p_or_larger to be consistent with the usage in speed_features.c",
+      "range": {
+        "startLine": 1697,
+        "startChar": 12,
+        "endLine": 1697,
+        "endChar": 25
+      },
+      "revId": "a46db3a0ba3c6e23669651f40102f5505ec61b87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
