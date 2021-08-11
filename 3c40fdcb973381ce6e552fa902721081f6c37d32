@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4849b12b_bda519ce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15030
+      },
+      "writtenOn": "2021-08-11T11:05:17Z",
+      "side": 1,
+      "message": "Yunqing,\nThis patch combines the speed features fast_inter_tx_type_search and default_inter_tx_type_prob_thresh\ninto a single speed feature namely, fast_inter_tx_type_prob_thresh. This is a bit exact change for all speed levels.",
+      "revId": "3c40fdcb973381ce6e552fa902721081f6c37d32",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
