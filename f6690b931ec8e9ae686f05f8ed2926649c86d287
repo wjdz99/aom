@@ -1155,6 +1155,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52366aeb_d5027c73",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "This will be replaced in a later cl where we will not directly use the orderhint. So leaving it as is for now.",
+      "parentUuid": "3fdec7c2_0f5e226f",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8e85a801_187c27b0",
@@ -1809,6 +1827,30 @@
       "side": 1,
       "message": "Yes, the target name is good.\n\nThere are still two potential problems.\n\n1. Currently the top-level \u0027common\u0027 directory only contains files used by \u0027apps\u0027. This will no longer be true after this CL. But this is not necessarily a problem. It is also possible that I misunderstand the purpose of the top-level \u0027common\u0027 directory.\n\n2. In a shared library build, aomenc will contain two copies of ivfdec.o: one is in libaom.so, the other is in aomenc. Please do a shared library build and make sure aomenc still works.",
       "parentUuid": "83a2242c_ea6ebd0f",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 42
+      },
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0d28225_4a38dcf8",
+        "filename": "common/aom_common.cmake",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "I am also not quite familiar with the purpose of the common directory. I suggest we keep this as is for now and in the meantime try to determine if this is good this way. If no we can always create wrappers and core functions as we did before.\n\nIn my test a shared lib build still works with 3 pass encoding.",
+      "parentUuid": "c7047243_1caf539f",
       "range": {
         "startLine": 16,
         "startChar": 0,

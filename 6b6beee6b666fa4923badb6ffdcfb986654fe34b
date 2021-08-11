@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f7417fc_effd7ca6",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "890bdc70_e4f2d689",
+      "range": {
+        "startLine": 593,
+        "startChar": 0,
+        "endLine": 614,
+        "endChar": 3
+      },
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "849827d4_c30b8c44",
@@ -54,6 +78,24 @@
       "writtenOn": "2021-08-05T21:32:12Z",
       "side": 1,
       "message": "Nit: I suggest we omit the null pointer checks for frame_worker_data. This is for consistency with the other functions in this file. They have null pointer checks for ctx-\u003eframe_worker but not for ctx-\u003eframe_worker-\u003edata1.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4365a28_0e075212",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1391,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "849827d4_c30b8c44",
       "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -81,6 +123,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce9e7b02_b2aaaed2",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1416,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "I think it would still work as you said. But it feels using current_frame.order_hint is actually more straight-forward.",
+      "parentUuid": "f2fcad36_d855f235",
+      "range": {
+        "startLine": 1416,
+        "startChar": 40,
+        "endLine": 1416,
+        "endChar": 64
+      },
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "88b84740_b3ba9b52",
@@ -94,6 +160,24 @@
       "writtenOn": "2021-08-05T21:32:12Z",
       "side": 1,
       "message": "Nit: Please add a comment to document how this interface differs from aom_codec_av1_dx_algo. I believe they differ only in the aom_codec_decode_fn_t field: decoder_decode vs. decoder_inspect.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ea1405d_b8063858",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "88b84740_b3ba9b52",
       "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -115,6 +199,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fec193b_1f7254af",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 1647,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf1d5d68_468fa8a3",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "be068a67_30a595a9",
@@ -128,6 +230,24 @@
       "writtenOn": "2021-08-05T21:32:12Z",
       "side": 1,
       "message": "Optional: We should avoid manually declaring a variable or a function like this. Is there a suitable header where we can declare this global variable? Perhaps av1/decoder/inspection.h or av1/decoder/decoder.h or av1/av1_iface_common.h?",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be2456b8_e43ca34d",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Thanks for the suggestions. Moved it to av1_iface_common.h.",
+      "parentUuid": "be068a67_30a595a9",
       "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -149,6 +269,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c559ae9a_07df6682",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Makes sense. I\u0027ve removed the calls to av1_free_thirdpass_ctx here.",
+      "parentUuid": "599528d3_b3e3f714",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bcf7089e_065250ee",
@@ -162,6 +300,24 @@
       "writtenOn": "2021-08-05T21:32:12Z",
       "side": 1,
       "message": "I am just curious why you added this check.",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f59dc9bd_49f62015",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Just in case that we are expecting a arf\u0027s overlay, but we\u0027ve reached the end of file before we have met that.",
+      "parentUuid": "bcf7089e_065250ee",
       "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -183,6 +339,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb73de8d_b39ce71f",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 9
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "This is also going to be replaced by the later CL. Last_idx can be smaller than 0, indicating that this GOP has no frames (won\u0027t happen normally, but if it does happen it means something\u0027s wrong with reading the GOP length)",
+      "parentUuid": "f6da151c_02df8f76",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4fc176aa_e54af513",
@@ -196,6 +370,24 @@
       "writtenOn": "2021-08-05T21:32:12Z",
       "side": 1,
       "message": "Optional: Another option is to have av1_init_thirdpass_ctx() save cm-\u003eerror in *ctx. Then we won\u0027t need to pass the err_info parameter to av1_pop_third_pass_info() and av1_set_gop_third_pass().",
+      "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f25ba7ee_01f4e9d5",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-11T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4fc176aa_e54af513",
       "revId": "6b6beee6b666fa4923badb6ffdcfb986654fe34b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
