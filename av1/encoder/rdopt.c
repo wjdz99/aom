@@ -4588,9 +4588,6 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   const int mi_col = xd->mi_col;
   MV_REFERENCE_FRAME ref_frame;
   x->best_pred_mv_sad = INT_MAX;
-#if CONFIG_NEW_REF_SIGNALING
-  x->best_pred_mv_sad_nrs = INT_MAX;
-#endif  // CONFIG_NEW_REF_SIGNALING
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     x->pred_mv_sad[ref_frame] = INT_MAX;
     x->mbmi_ext->mode_context[ref_frame] = 0;

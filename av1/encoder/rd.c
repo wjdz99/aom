@@ -1256,12 +1256,6 @@ void av1_mv_pred(const AV1_COMP *cpi, MACROBLOCK *x, uint8_t *ref_y_buffer,
   // Note the index of the mv that worked best in the reference list.
   x->max_mv_context[ref_frame] = max_mv;
   x->pred_mv_sad[ref_frame] = best_sad;
-#if CONFIG_NEW_REF_SIGNALING
-  const MV_REFERENCE_FRAME ranked_ref_frame =
-      convert_named_ref_to_ranked_ref_index(&cpi->common.new_ref_frame_data,
-                                            ref_frame);
-  x->pred_mv_sad_nrs[ranked_ref_frame] = best_sad;
-#endif  // CONFIG_NEW_REF_SIGNALING
 }
 
 void av1_setup_pred_block(const MACROBLOCKD *xd,
