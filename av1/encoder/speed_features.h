@@ -1295,6 +1295,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Forces larger partition blocks in variance based partitioning for intra
   // frames
   int force_large_partition_blocks_intra;
+
+  // Skip evaluation of no split in tx size section for merge partition
+  int skip_tx_no_split_var_based_partition;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
