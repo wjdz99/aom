@@ -466,6 +466,36 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
   if (seg_ref_active) {
     memset(ref_costs_single, 0, REF_FRAMES * sizeof(*ref_costs_single));
   } else {
+#if CONFIG_NEW_REF_SIGNALING
+    // SARAH ?????????????????????
+    int intra_inter_ctx = av1_get_intra_inter_context(xd);
+    ref_costs_single[INTRA_FRAME_NRS] = // FIX INTRA_FRAME_NRS
+        mode_costs->intra_inter_cost[intra_inter_ctx][0];
+    unsigned int base_cost = mode_costs->intra_inter_cost[intra_inter_ctx][1];
+    for (int i = 0; i < MAX_REF_FRAMES_NRS - 1; ++i) // MAX_REF_FRAMES -1? 
+      ref_costs_single[i] = base_cost;
+
+     const int n_refs = cm->new_ref_frame_data.n_total_refs;
+      //const MV_REFERENCE_FRAME_NRS ref0_nrs = mbmi->ref_frame_nrs[0];
+      for (int i = 0; i < n_refs - 1; i++) {
+        for (int j = i; j < n_refs - 1; j++) {
+          // TODO get ctx
+          const int bit = i == j;
+          ref_costs_single[j] = 
+            mode_costs->single_ref_cost[ctx][i][bit]; 
+        }
+      }
+/*
+  for (int i = 0; i < n_refs - 1; i++) {
+    const int bit = ref0_nrs == i;
+    update_cdf(av1_get_pred_cdf_single_ref_nrs(xd, i, n_refs), bit, 2);
+#if CONFIG_ENTROPY_STATS
+    counts->single_ref[av1_get_pred_context_single_ref_nrs(xd, i, n_refs)][i][bit]++;
+#endif  // CONFIG_ENTROPY_STATS
+    if (bit) break;
+  } 
+*/
+#else
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
     ref_costs_single[INTRA_FRAME] =
         mode_costs->intra_inter_cost[intra_inter_ctx][0];
@@ -519,6 +549,7 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
     ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p6][5][0];
     ref_costs_single[ALTREF2_FRAME] +=
         mode_costs->single_ref_cost[ctx_p6][5][1];
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 }
 
@@ -2127,8 +2158,13 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
   const InterpFilter filter_ref = cm->features.interp_filter;
   int best_early_term = 0;
+#if CONFIG_NEW_REF_SIGNALING
+  unsigned int ref_costs_single[MAX_REF_FRAMES_NRS];
+  unsigned int ref_costs_comp[REF_FRAMES][REF_FRAMES];
+#else
   unsigned int ref_costs_single[REF_FRAMES],
       ref_costs_comp[REF_FRAMES][REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
   int force_skip_low_temp_var = 0;
   int use_ref_frame_mask[REF_FRAMES] = { 0 };
   unsigned int sse_zeromv_norm = UINT_MAX;
@@ -2503,6 +2539,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         av1_mode_context_analyzer(mbmi_ext->mode_context, mi->ref_frame);
     this_rdc.rate += cost_mv_ref(mode_costs, this_mode, mode_ctx);
 
+    //SARAHPARKER
     this_rdc.rate += ref_costs_single[ref_frame];
 
     this_rdc.rdcost = RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist);
