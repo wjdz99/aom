@@ -746,7 +746,7 @@ void av1_frame_init_quantizer(AV1_COMP *cpi) {
 }
 
 void av1_set_quantizer(AV1_COMMON *const cm, int min_qmlevel, int max_qmlevel,
-                       int q, int enable_chroma_deltaq) {
+                       int q, int enable_chroma_deltaq, int enable_hdr_deltaq) {
   // quantizer has to be reinitialized with av1_init_quantizer() if any
   // delta_q changes.
   CommonQuantParams *quant_params = &cm->quant_params;
@@ -764,6 +764,24 @@ void av1_set_quantizer(AV1_COMMON *const cm, int min_qmlevel, int max_qmlevel,
     quant_params->u_ac_delta_q = 0;
     quant_params->v_dc_delta_q = 0;
     quant_params->v_ac_delta_q = 0;
+  }
+
+  // following section 8.3.2 in T-REC-H.Sup15 document
+  // to apply to AV1 qindex in the range of [0, 255], QPs in
+  // HEVC is multiplied by 4 to mapped to qindex
+  if (enable_hdr_deltaq) {
+    const float Ccb = 1.0;
+    const float Ccr = 1.0;
+    double k = -0.46;
+    double l = 9.26 * 4;
+    int qindex = quant_params->base_qindex;
+    int qpCb = CLIP((int)floor(Ccb * (k * qindex + l) + 0.5), -12 * 4, 0);
+    int qpCr = CLIP((int)floor(Ccr * (k * qindex + l) + 0.5), -12 * 4, 0);
+    quant_params->u_dc_delta_q = quant_params->u_ac_delta_q = qpCb;
+    quant_params->v_dc_delta_q = quant_params->v_dc_delta_q = qpCr;
+    if (qpCb != qpCr) {
+      cm->seq_params->separate_uv_delta_q = 1;
+    }
   }
 
   quant_params->qmatrix_level_y =
