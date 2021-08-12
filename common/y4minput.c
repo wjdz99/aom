@@ -895,10 +895,10 @@ int y4m_input_open(y4m_input *y4m_ctx, FILE *file, char *skip_buffer,
             "for 420mpeg2 input\n");
     return -1;
   }
-  if (csp == AOM_CSP_COLOCATED) {
-    fprintf(stderr, "Colocated chroma sample position not supported in Y4M\n");
-    return -1;
-  }
+  //if (csp == AOM_CSP_COLOCATED) {
+  //  fprintf(stderr, "Colocated chroma sample position not supported in Y4M\n");
+  //  return -1;
+  //}
   y4m_ctx->aom_fmt = AOM_IMG_FMT_I420;
   y4m_ctx->bps = 12;
   y4m_ctx->bit_depth = 8;
