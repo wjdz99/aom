@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc4aa9ef_7207efc6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-08-12T14:42:43Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nCurrently during FPMT, parallel encode frames individually call the function av1_scale_references() and update the ref_counts of frame buffers referenced by its cpi-\u003escaled_ref_buf. This can result in incorrect value of ref_counts. Also, the setting of \u0027ref_counts\u0027, \u0027buf.y_crop_width\u0027 and \u0027buf.y_crop_height\u0027 in av1_scale_references() by the parallel frames causes data race. This patch addresses these two scenarios by abstracting the logic of av1_scale_references() for the parallel frames during the initialization of the parallel frame contexts.\n\nThe newly added function av1_scale_references_fpmt() called during av1_init_parallel_frame_context() ensures populating cpi-\u003escaled_ref_buf for frames in the given parallel encode set. The increment and decrement of ref_counts corresponding to this is unified with the help of the bitmask \u0027ref_buffers_used_map\u0027 and the functions av1_increment_scaled_ref_counts_fpmt() and av1_decrement_ref_counts_fpmt().\n\nThis patch also refactors the interface of functions av1_get_ref_frames() and get_ref_frames() to silence build time warnings.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc.\n \nPlease review.\n\nRegards,\nRemya\n",
+      "revId": "aab5543be10a021a113c23f78bc9aeb6263f7ff0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
