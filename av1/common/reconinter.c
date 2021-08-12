@@ -696,7 +696,7 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 // Negative values indicate gradient returned at reduced precision, and
 // positive values indicate gradient returned at higher precision.
 int av1_compute_subpel_gradients_highbd(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mi,
     int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func, int ref, uint16_t *pred_dst16,
     int *grad_prec_bits, int16_t *x_grad, int16_t *y_grad) {
@@ -839,7 +839,7 @@ int av1_compute_subpel_gradients_highbd(
 // Negative values indicate gradient returned at reduced precision, and
 // positive values indicate gradient returned at higher precision.
 int av1_compute_subpel_gradients_lowbd(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mi,
     int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func, int ref, uint8_t *pred_dst,
     int *grad_prec_bits, int16_t *x_grad, int16_t *y_grad) {
