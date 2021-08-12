@@ -1214,6 +1214,104 @@ static AOM_INLINE void setup_prune_ref_frame_mask(AV1_COMP *cpi) {
   }
 }
 
+static void estimate_noise_level(AV1_COMP *cpi, double *mean,
+                                 double *variance) {
+  ThreadData *const td = &cpi->td;
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  YV12_BUFFER_CONFIG *frame = cpi->source;
+  uint8_t *y_buffer = frame->y_buffer;
+  const int y_stride = frame->y_stride;
+  const int frame_width = cpi->frame_info.frame_width;
+  const int frame_height = cpi->frame_info.frame_height;
+  const int pix_num = frame_width * frame_height;
+  double sum = 0;
+  double square_sum = 0;
+
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+#if CONFIG_AV1_HIGHBITDEPTH
+      if (is_cur_buf_hbd(xd)) {
+        uint16_t *y_buf = CONVERT_TO_SHORTPTR(y_buffer);
+        sum += y_buf[row * y_stride + col];
+        square_sum += y_buf[row * y_stride + col] * y_buf[row * y_stride + col];
+      } else {
+        sum += y_buffer[row * y_stride + col];
+        square_sum +=
+            y_buffer[row * y_stride + col] * y_buffer[row * y_stride + col];
+      }
+#else
+      sum += y_buffer[row * y_stride + col];
+      square_sum +=
+          y_buffer[row * y_stride + col] * y_buffer[row * y_stride + col];
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+    }
+  }
+
+  *mean = sum / pix_num;
+  *variance = square_sum / pix_num - *mean * *mean;
+}
+
+static void add_noise(AV1_COMP *cpi, const int noise_level) {
+  ThreadData *const td = &cpi->td;
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  AV1_COMMON *const cm = &cpi->common;
+  const int bit_depth = cm->seq_params->bit_depth;
+  YV12_BUFFER_CONFIG *frame = cpi->source;
+  uint8_t *y_buffer = frame->y_buffer;
+  const int y_stride = frame->y_stride;
+  const int frame_width = cpi->frame_info.frame_width;
+  const int frame_height = cpi->frame_info.frame_height;
+  int *noise_image =
+      aom_calloc(frame_width * frame_height, sizeof(*noise_image));
+
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+#if CONFIG_AV1_HIGHBITDEPTH
+      if (is_cur_buf_hbd(xd)) {
+        int val = (rand() % noise_level) << (bit_depth - 8);
+        noise_image[row * frame_width + col] = val;
+        const int sign = (rand() % 10) > 5;
+        uint16_t *y_buf = CONVERT_TO_SHORTPTR(y_buffer);
+        val = sign * val + y_buf[row * y_stride + col];
+        val = AOMMIN(AOMMAX(val, 0), (1 << bit_depth) - 1);
+        y_buf[row * y_stride + col] = val;
+      } else {
+        int val = rand() % noise_level;
+        noise_image[row * frame_width + col] = val;
+        const int sign = (rand() % 10) > 5;
+        val = sign * val + y_buffer[row * y_stride + col];
+        val = AOMMIN(AOMMAX(val, 0), 255);
+        y_buffer[row * y_stride + col] = val;
+      }
+#else
+      int val = rand() % noise_level;
+      noise_image[row * frame_width + col] = val;
+      const int sign = (rand() % 10) > 5;
+      val = sign * val + y_buffer[row * y_stride + col];
+      val = AOMMIN(AOMMAX(val, 0), 255);
+      y_buffer[row * y_stride + col] = val;
+#endif  // CONFIG_AV1_HIGHBITDEPTH
+    }
+  }
+  /*
+  {
+    FILE *pfile = fopen("noise.csv", "w");
+    for (int row = 0; row < frame_height; ++row) {
+      for (int col = 0; col < frame_width; ++col) {
+        fprintf(pfile, "%d", noise_image[row * frame_width + col]);
+        if (col != frame_width - 1) fprintf(pfile, ",");
+      }
+      fprintf(pfile, "\n");
+    }
+    fclose(pfile);
+  }
+  */
+
+  aom_free(noise_image);
+}
+
 /*!\brief Encoder setup(only for the current frame), encoding, and recontruction
  * for a single frame
  *
@@ -1448,6 +1546,13 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   enc_row_mt->sync_read_ptr = av1_row_mt_sync_read_dummy;
   enc_row_mt->sync_write_ptr = av1_row_mt_sync_write_dummy;
   mt_info->row_mt_enabled = 0;
+
+  // Add noise
+  double mean, var;
+  estimate_noise_level(cpi, &mean, &var);
+  const double std = sqrt(var);
+  const int noise_level = AOMMIN((int)(std * 0.2), 10);
+  add_noise(cpi, noise_level);
 
   if (oxcf->row_mt && (mt_info->num_workers > 1)) {
     mt_info->row_mt_enabled = 1;
