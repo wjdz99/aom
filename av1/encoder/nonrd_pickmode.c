@@ -466,6 +466,9 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
   if (seg_ref_active) {
     memset(ref_costs_single, 0, REF_FRAMES * sizeof(*ref_costs_single));
   } else {
+#if CONFIG_NEW_REF_SIGNALING
+    // SARAH
+#else
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
     ref_costs_single[INTRA_FRAME] =
         mode_costs->intra_inter_cost[intra_inter_ctx][0];
@@ -519,6 +522,7 @@ static void estimate_single_ref_frame_costs(const AV1_COMMON *cm,
     ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p6][5][0];
     ref_costs_single[ALTREF2_FRAME] +=
         mode_costs->single_ref_cost[ctx_p6][5][1];
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 }
 

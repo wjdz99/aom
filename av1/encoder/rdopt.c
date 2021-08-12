@@ -1010,6 +1010,9 @@ static AOM_INLINE void estimate_ref_frame_costs(
       memset(ref_costs_comp[ref_frame], 0,
              REF_FRAMES * sizeof((*ref_costs_comp)[0]));
   } else {
+#if CONFIG_NEW_REF_SIGNALING
+  //SARAH
+#else
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
     ref_costs_single[INTRA_FRAME] =
         mode_costs->intra_inter_cost[intra_inter_ctx][0];
@@ -1063,6 +1066,7 @@ static AOM_INLINE void estimate_ref_frame_costs(
     ref_costs_single[BWDREF_FRAME] += mode_costs->single_ref_cost[ctx_p6][5][0];
     ref_costs_single[ALTREF2_FRAME] +=
         mode_costs->single_ref_cost[ctx_p6][5][1];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
     if (cm->current_frame.reference_mode != SINGLE_REFERENCE) {
       // Similar to single ref, determine cost of compound ref frames.
