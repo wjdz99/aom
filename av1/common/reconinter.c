@@ -132,7 +132,7 @@ void av1_init_comp_mode(InterPredParams *inter_pred_params) {
 
 void av1_init_warp_params(InterPredParams *inter_pred_params,
                           const WarpTypesAllowed *warp_types, int ref,
-                          const MACROBLOCKD *xd, MB_MODE_INFO *mi) {
+                          const MACROBLOCKD *xd, const MB_MODE_INFO *const mi) {
   if (inter_pred_params->block_height < 8 || inter_pred_params->block_width < 8)
     return;
 
