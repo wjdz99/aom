@@ -710,6 +710,25 @@ static AOM_INLINE void write_segment_id(AV1_COMP *cpi,
 #define WRITE_REF_BIT(bname, pname) \
   aom_write_symbol(w, bname, av1_get_pred_cdf_##pname(xd), 2)
 
+#if CONFIG_NEW_REF_SIGNALING
+static AOM_INLINE void write_single_ref_nrs(const MB_MODE_INFO *const mbmi, 
+                                            NewRefFramesData *new_ref_frame_data,
+                                            aom_writer *w) {
+  MV_REFERENCE_FRAME_NRS ref = mbmi->ref_frame_nrs[0];
+  const int bit0 = ref == 0; 
+  const int n_refs = cm->new_ref_frae_data.n_total_refs;
+  for (int i = 0; i < n_refs; i++) {
+    if (i == n_refs - 1) {
+      assert(ref == (n_refs - 1));
+      return;
+    }; 
+    const int bit = ref == i;
+    aom_write_symbol(w, bit, av1_get_pred_cdf_single_ref_nrs(xd, i, n_refs), 2)
+    if (bit) return;
+  } 
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 // This function encodes the reference frame
 static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
                                         const MACROBLOCKD *xd, aom_writer *w) {
@@ -727,9 +746,9 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
     assert(!is_compound);
     assert(mbmi->ref_frame[0] ==
            get_segdata(&cm->seg, segment_id, SEG_LVL_REF_FRAME));
-#endif  // CONFIG_NEW_REF_SIGNALING
   } else if (segfeature_active(&cm->seg, segment_id, SEG_LVL_SKIP) ||
              segfeature_active(&cm->seg, segment_id, SEG_LVL_GLOBALMV)) {
+#endif  // CONFIG_NEW_REF_SIGNALING
     assert(!is_compound);
     assert(mbmi->ref_frame[0] == LAST_FRAME);
   } else {
@@ -792,6 +811,9 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
       }
 
     } else {
+#if CONFIG_NEW_REF_SIGNALING
+      write_single_ref_nrs(mbmi);
+#else
       const int bit0 = (mbmi->ref_frame[0] <= ALTREF_FRAME &&
                         mbmi->ref_frame[0] >= BWDREF_FRAME);
       WRITE_REF_BIT(bit0, single_ref_p1);
@@ -816,6 +838,7 @@ static AOM_INLINE void write_ref_frames(const AV1_COMMON *cm,
           WRITE_REF_BIT(bit4, single_ref_p5);
         }
       }
+#endif  // CONFIG_NEW_REF_SIGNALING
     }
   }
 }
