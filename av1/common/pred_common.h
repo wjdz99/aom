@@ -422,6 +422,19 @@ static INLINE aom_cdf_prob *av1_get_pred_cdf_comp_bwdref_p1(
 }
 
 // == Single contexts ==
+#if CONFIG_NEW_REF_SIGNALING
+int av1_get_single_ref_pred_context_nrs(const MACROBLOCKD *xd,
+                                           MV_REFERENCE_FRAME_NRS ref,
+                                           int n_total_refs);
+
+static INLINE aom_cdf_prob *av1_get_pred_cdf_single_ref_nrs(
+    const MACROBLOCKD *xd, MV_REFERENCE_FRAME_NRS ref,
+                                           int n_total_refs) {
+  assert((ref + 1) < n_total_refs);
+  return xd->tile_ctx
+      ->single_ref_cdf[av1_get_single_ref_pred_context_nrs(xd, ref, n_total_refs)][ref];
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 int av1_get_pred_context_single_ref_p1(const MACROBLOCKD *xd);
 

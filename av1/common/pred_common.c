@@ -639,6 +639,22 @@ int av1_get_pred_context_uni_comp_ref_p2(const MACROBLOCKD *xd) {
 
 // == Common context functions for both comp and single ref ==
 //
+#if CONFIG_NEW_REF_SIGNALING
+int av1_get_single_ref_pred_context_nrs(const MACROBLOCKD *xd,
+                                           MV_REFERENCE_FRAME_NRS ref,
+                                           int n_total_refs) {
+  assert((ref + 1) < n_total_refs);
+  const uint8_t *const ref_counts = &xd->neighbors_ref_counts_nrs[0];
+  const int this_ref_count = ref_counts[ref];
+  const int next_ref_count = ref_counts[ref + 1];
+
+  const int pred_context =
+      (this_ref_count == next_ref_count) ? 1 : ((this_ref_count < next_ref_count) ? 0 : 2);
+
+  assert(pred_context >= 0 && pred_context < REF_CONTEXTS);
+  return pred_context;
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
 // Obtain contexts to signal a reference frame to be either LAST/LAST2 or
 // LAST3/GOLDEN.
 static int get_pred_context_ll2_or_l3gld(const MACROBLOCKD *xd) {
