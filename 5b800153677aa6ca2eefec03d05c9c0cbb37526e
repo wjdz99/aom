@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e90cde91_19825c8c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-08-13T15:23:55Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch fixes the temporary variables updates in vbr path. The updates of temp variables happens based on do_frame_udpate_flag, which is set to true for show_existing_frames. So when show_existing_frames are present in between the parallel frames, to retain the simulated value these variables are not updated. This patch also fixes the fast redistribution bit calculation from local undershoot in FPMT path, by introducing temporary variables appropriately. \n\nThis fix is submitted in order to retain the proper simulation patches, since these simulation patches are used in testing the bitmatch of final FPMT changes in VBR path. The temporary variables in this patch will be removed in the following abstraction patches in this relation chain.\n\nThe changes are tested locally and its giving trivial quality impact overall. Please find the vbr borg result on patchset-3, with CONFIG_FRAME_PARALLEL_ENCODE 1 (test) vs 0 (ref), num_fp_context\u003d2 on a subset of hdres (10 contents) below.\n\nWithout this fix:\n\n CPU Resolution  Instruction Count    BD-Rate Impact %\n                   Reduction %      avg.psnr ovr.psnr   ssim\n                                     8 - bit  8 - bit  8 - bit\n  2    AVERAGE        -0.736         0.8138   0.8088   0.9486\n  5    AVERAGE        -0.117         0.7469   0.7387   0.8393\n\nWith this fix:\n\n CPU Resolution  Instruction Count     BD-Rate Impact %\n                   Reduction %      avg.psnr ovr.psnr   ssim\n                                     8 - bit  8 - bit  8 - bit\n  2    AVERAGE        -0.688         0.8275   0.8238   1.0167\n  5    AVERAGE        -0.035         0.8006   0.8151   1.0191\n\nPlease review the changes.\nThanks",
+      "revId": "5b800153677aa6ca2eefec03d05c9c0cbb37526e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
