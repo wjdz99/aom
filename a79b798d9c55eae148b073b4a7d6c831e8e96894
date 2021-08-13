@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74e757a5_cc77571f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-08-13T16:15:39Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis CL enables skip_newmv_in_drl speed feature for RT, speed 5 and 6. This speed feature does not impact non-rd path (speed 7 to 9).\nPlease find the borg results below.\n\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   5         rtc          2.316          0.1873    0.1650    0.2173\n   5       rtc_derf       2.871          0.0427    0.0820    0.0135\n   5       Average        2.587          0.1270    0.1304    0.1323\n      \n   6         rtc          1.840          0.1273    0.1425    0.1893\n   6       rtc_derf       2.662          0.1166    0.1493    0.1972\n   6       Average        2.241          0.1228    0.1453    0.1926\n   \nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement.\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally for few\ntest cases).\nPlease review the patch.\n\nThank you.\n   \n   ",
+      "revId": "a79b798d9c55eae148b073b4a7d6c831e8e96894",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
