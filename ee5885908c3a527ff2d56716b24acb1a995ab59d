@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nThis patch refactors the condition evaluations related to adjust_var_based_rd_partitioning sf to a function named \u0027is_adjust_var_based_part_enabled()\u0027. We have also taken care of the suggestion given by Chi Yo Tsai.\nPlease review the same.\nThank you.",
       "revId": "ee5885908c3a527ff2d56716b24acb1a995ab59d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24e9524d_59248e55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-13T00:14:44Z",
+      "side": 1,
+      "message": "Thanks for getting it done. Looks good.",
+      "parentUuid": "21063a32_c5affa21",
+      "revId": "ee5885908c3a527ff2d56716b24acb1a995ab59d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
