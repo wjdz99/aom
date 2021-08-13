@@ -206,6 +206,11 @@ typedef struct {
    */
   bool disable_ml_partition_speed_features;
   /*!
+   * Flag to indicate if ml-based speed-up for transform search should be
+   * disabled.
+   */
+  bool disable_ml_transform_speed_features;
+  /*!
    * Flag to indicate if rectanguar partitions should be enabled.
    */
   bool enable_rect_partitions;

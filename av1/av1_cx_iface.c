@@ -110,6 +110,7 @@ struct av1_extracfg {
   unsigned int motion_vector_unit_test;
   unsigned int cdf_update_mode;
   int disable_ml_partition_speed_features;
+  int disable_ml_transform_speed_features;
   int enable_rect_partitions;  // enable rectangular partitions for sequence
   int enable_ab_partitions;    // enable AB partitions for sequence
   int enable_1to4_partitions;  // enable 1:4 and 4:1 partitions for sequence
@@ -386,6 +387,7 @@ static struct av1_extracfg default_extra_cfg = {
   0,                            // motion_vector_unit_test
   1,                            // CDF update mode
   0,                            // disable ML based partition speed up features
+  0,                            // disable ML based transform speed up features
   1,                            // enable rectangular partitions
   1,                            // enable ab shape partitions
   1,                            // enable 1:4 and 4:1 partitions
@@ -838,6 +840,8 @@ static void update_encoder_config(cfg_options_t *cfg,
   cfg->enable_angle_delta = extra_cfg->enable_angle_delta;
   cfg->disable_ml_partition_speed_features =
       extra_cfg->disable_ml_partition_speed_features;
+  cfg->disable_ml_transform_speed_features =
+      extra_cfg->disable_ml_transform_speed_features;
   cfg->enable_rect_partitions = extra_cfg->enable_rect_partitions;
   cfg->enable_ab_partitions = extra_cfg->enable_ab_partitions;
   cfg->enable_1to4_partitions = extra_cfg->enable_1to4_partitions;
@@ -1350,6 +1354,8 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   // Set partition related configuration.
   part_cfg->disable_ml_partition_speed_features =
       extra_cfg->disable_ml_partition_speed_features;
+  part_cfg->disable_ml_transform_speed_features =
+      extra_cfg->disable_ml_transform_speed_features;
   part_cfg->enable_rect_partitions = extra_cfg->enable_rect_partitions;
   part_cfg->enable_ab_partitions = extra_cfg->enable_ab_partitions;
   part_cfg->enable_1to4_partitions = extra_cfg->enable_1to4_partitions;
@@ -1885,6 +1891,14 @@ static aom_codec_err_t ctrl_set_disable_ml_partition_speed_features(
     aom_codec_alg_priv_t *ctx, va_list args) {
   struct av1_extracfg extra_cfg = ctx->extra_cfg;
   extra_cfg.disable_ml_partition_speed_features =
+      CAST(AV1E_SET_DISABLE_ML_PARTITION_SPEED_FEATURES, args);
+  return update_extra_cfg(ctx, &extra_cfg);
+}
+
+static aom_codec_err_t ctrl_set_disable_ml_transform_speed_features(
+    aom_codec_alg_priv_t *ctx, va_list args) {
+  struct av1_extracfg extra_cfg = ctx->extra_cfg;
+  extra_cfg.disable_ml_transform_speed_features =
       CAST(AV1E_SET_DISABLE_ML_PARTITION_SPEED_FEATURES, args);
   return update_extra_cfg(ctx, &extra_cfg);
 }
@@ -3543,6 +3557,12 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                  argv, err_string)) {
     extra_cfg.disable_ml_partition_speed_features =
         arg_parse_int_helper(&arg, err_string);
+  } else if (arg_match_helper(
+                 &arg,
+                 &g_av1_codec_arg_defs.disable_ml_transform_speed_features,
+                 argv, err_string)) {
+    extra_cfg.disable_ml_transform_speed_features =
+        arg_parse_int_helper(&arg, err_string);
 #if CONFIG_SDP
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.enable_sdp, argv,
                               err_string)) {
@@ -3803,6 +3823,8 @@ static aom_codec_ctrl_fn_map_t encoder_ctrl_maps[] = {
   { AV1E_SET_S_FRAME_MODE, ctrl_set_s_frame_mode },
   { AV1E_SET_DISABLE_ML_PARTITION_SPEED_FEATURES,
     ctrl_set_disable_ml_partition_speed_features },
+  { AV1E_SET_DISABLE_ML_TRANSFORM_SPEED_FEATURES,
+    ctrl_set_disable_ml_transform_speed_features },
   { AV1E_SET_ENABLE_RECT_PARTITIONS, ctrl_set_enable_rect_partitions },
   { AV1E_SET_ENABLE_AB_PARTITIONS, ctrl_set_enable_ab_partitions },
   { AV1E_SET_ENABLE_1TO4_PARTITIONS, ctrl_set_enable_1to4_partitions },
@@ -3970,7 +3992,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = { {
     0,                           // use_fixed_qp_offsets
     { -1, -1, -1, -1, -1, -1 },  // fixed_qp_offsets
     {
-        0, 128, 128, 4, 1, 1, 1, 0,
+        0, 128, 128, 4, 1, 1, 1, 0, 0,
 #if CONFIG_SDP
         1,
 #endif  // CONFIG_SDP
