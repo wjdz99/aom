@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch abstracts previous frame q related members from RATE_CONTROL to PRIMARY_RATE_CONTROL. After the integration, these members will be consistent across parallel frames and updated in the post encode process sequentially.\n\nThis change implements the simulation in https://aomedia-review.googlesource.com/c/aom/+/140062\n\nThis change is bit-exact and has been locally verified with bitstream match tests with CONFIG_FRAME_PARALLEL_ENCODE enabled, num_fp_contexts\u003d2. This change is also verified for CONFIG_FRAME_PARALLEL_ENCODE disabled.\n\nPlease review the patch.\nThanks",
       "revId": "42b1597436e86e7318736d04f7c6252a5b751db4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e15a8c09_7bec6c36",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-13T16:55:19Z",
+      "side": 1,
+      "message": "Please rebase the CL.",
+      "revId": "42b1597436e86e7318736d04f7c6252a5b751db4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
