@@ -2699,15 +2699,16 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
     if (do_dummy_pack) {
       av1_finalize_encoded_frame(cpi);
       int largest_tile_id = 0;  // Output from bitstream: unused here
-#if CONFIG_BITRATE_ACCURACY
-      cpi->vbr_rc_info.actual_coeff_bitrate_byframe[cpi->gf_frame_index] =
-          rc->coefficient_size;
-#endif
       rc->coefficient_size = 0;
       if (av1_pack_bitstream(cpi, dest, size, &largest_tile_id) !=
           AOM_CODEC_OK) {
         return AOM_CODEC_ERROR;
       }
+
+#if CONFIG_BITRATE_ACCURACY
+      cpi->vbr_rc_info.actual_coeff_bitrate_byframe[cpi->gf_frame_index] =
+          rc->coefficient_size;
+#endif
 
       // bits used for this frame
       rc->projected_frame_size = (int)(*size) << 3;
@@ -2734,7 +2735,7 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
                                     rc->projected_frame_size);
       }
 
-#if 0
+#if 1
       // Add +2 here because this is the last frame this method is called at.
       if (cpi->gf_frame_index + 2 >= cpi->ppi->gf_group.size) {
         printf(
