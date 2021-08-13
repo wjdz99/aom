@@ -22,6 +22,30 @@
       },
       "revId": "b335f72219e1b2285167b1ba4f78f169b9d435de",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1c9f295_bd90ada2",
+        "filename": "tools/gop_bitrate/python/pinv.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-13T20:46:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "54ca0906_75da87cd",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 11
+      },
+      "revId": "b335f72219e1b2285167b1ba4f78f169b9d435de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
