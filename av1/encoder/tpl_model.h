@@ -413,7 +413,7 @@ double av1_laplace_estimate_frame_rate(int q_index, int block_count,
  * \return The estimated GOP bitrate.
  *
  */
-double av1_estimate_gop_bitrate(const int *q_index_list, const int frame_count,
+double av1_estimate_gop_bitrate(const int *q_index_list, const int* valid_list, const int frame_count,
                                 const TplTxfmStats *stats,
                                 double *bitrate_byframe_list);
 
@@ -510,19 +510,21 @@ int av1_get_overlap_area(int row_a, int col_a, int row_b, int col_b, int width,
  * a binary search to find q to achieve the specified bit rate.
  *
  * \param[in]       gf_group          GOP structure
- * \param[in]       stats             Transform stats struct
+ * \param[in]       txfm_stats_list   Transform stats struct
+ * \param[in]       stats_valid_list  List indicates whether transform stats exists
  * \param[in]       bit_budget        The specified bit budget to achieve
  * \param[in]       gf_frame_index    current frame in the GOP
  * \param[in]       arf_qstep_ratio   ARF q step ratio
  * \param[in]       bit_depth         bit depth
  * \param[in]       scale_factor      Scale factor to improve budget estimation
- * \param[in]       q_index_list      array of q_index, one per frame
- * \param[in]       estimated_bitrate_byframe    bit depth
+ * \param[out]       q_index_list     array of q_index, one per frame
+ * \param[out]      estimated_bitrate_byframe  bits usage per frame in the GOP
  *
  * \return Returns the optimal base q index to use.
  */
 int av1_q_mode_estimate_base_q(const struct GF_GROUP *gf_group,
                                const TplTxfmStats *txfm_stats_list,
+                               const int* stats_valid_list,
                                double bit_budget, int gf_frame_index,
                                double arf_qstep_ratio,
                                aom_bit_depth_t bit_depth, double scale_factor,
