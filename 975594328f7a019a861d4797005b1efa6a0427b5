@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "34100a7c_6246aca0",
+        "filename": "av1/common/entropymode.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-15T00:02:56Z",
+      "side": 1,
+      "message": "The person who originally did the experiment ought to have trained it on a training set. In my experience, the difference would be sub 0.1%.",
+      "parentUuid": "cbcf8e9b_1cee77a1",
+      "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f8ff1d6_57a62ef2",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-08-14T01:00:48Z",
       "side": 1,
       "message": "Directly return false instead of assign a value to existing and break to avoid the following if branch condition check, would it be better?",
+      "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6142141f_f3b2eccc",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-15T00:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f8ff1d6_57a62ef2",
       "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4326175e_4ca12529",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-15T00:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d058d53f_ee1b5eb5",
+      "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "43209bbd_0e89da64",
@@ -65,6 +119,24 @@
       "writtenOn": "2021-08-14T01:00:48Z",
       "side": 1,
       "message": "When remove REF_MV_BANK_COLS related code, do {} while conditional check can be moved into the for loop.",
+      "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f515c887_7d8f72b5",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1190,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-15T00:02:56Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "43209bbd_0e89da64",
       "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7fab9f89_9ef036a9",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1198,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-15T00:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5a7ab19_fafc3b54",
+      "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8700122f_36987755",
@@ -103,6 +193,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3edb9f3c_9375366e",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-15T00:02:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8700122f_36987755",
+      "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a7270de6_085fe3f7",
@@ -116,6 +224,24 @@
       "writtenOn": "2021-08-14T01:00:48Z",
       "side": 1,
       "message": "Should we move the above code into a new function to make the code be more clean?",
+      "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98c2ce49_677193c0",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1223,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-15T00:02:56Z",
+      "side": 1,
+      "message": "Since I am removing most of the code above in the next patch, it does not matter much.",
+      "parentUuid": "a7270de6_085fe3f7",
       "revId": "975594328f7a019a861d4797005b1efa6a0427b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
