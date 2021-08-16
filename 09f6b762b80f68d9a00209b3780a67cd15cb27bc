@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81b9561d_b2dfa118",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-08-16T17:23:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch extends the SF prune_nearmv_using_neighbours  from speed 6 to speed 5. This SF prunes NEARMV and NEAR_NEARMV mode based on qindex. Blocks with qindex in the range ( 0 – 85) are pruned for all lowres and midres contents . In HDres contents, blocks with q index in the range (0 – 170)  are pruned .We have used an enum for various aggressive levels, as we wanted to link the size of threshold array (thresholds) to the max aggressive level value. \n\nPlease find below detailed borg result :\n\nCPU Resolution    Instruction Count      BD-Rate Impact %\n                   Reduction %      avg.psnr ovr.psnr   ssim\n 5  LOW RES         1.375           0.0918   0.0884     0.0766\n 5  HD RES          1.939           0.2109   0.2257     0.2465\n 5  MID RES         0.778           0.0440   0.0506     0.0515\n 5  AVERAGE         1.373           0.1141   0.1192     0.1211\n\nIn the commit message, BD-Rate Loss column:\n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc ... \n\nWe have verified that the patch in bit exact  for other speed presets.\n\nPlease review the patch.\n\nThank you!\nRegards,\nAkshata\n",
+      "revId": "09f6b762b80f68d9a00209b3780a67cd15cb27bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
