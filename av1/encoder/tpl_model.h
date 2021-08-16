@@ -238,8 +238,8 @@ typedef struct {
 
   int gop_showframe_count;  // The number of show frames in the current gop
   double gop_bit_budget;    // The bitbudget for the current gop
-  double scale_factor;      // Scale factor to improve the budget estimation
-  double mv_scale_factor;   // Scale factor to improve MV entropy estimation
+  double scale_factor[7]; 
+  double mv_scale_factor[7];
   int q_index_list[MAX_LENGTH_TPL_FRAME_STATS];  // q indices for the current
                                                  // GOP
 
@@ -256,8 +256,12 @@ static INLINE void vbr_rc_init(VBR_RATECTRL_INFO *vbr_rc_info,
   vbr_rc_info->total_bit_budget = total_bit_budget;
   vbr_rc_info->show_frame_count = show_frame_count;
   vbr_rc_info->keyframe_bitrate = 0;
-  vbr_rc_info->scale_factor = 1.2;
-  vbr_rc_info->mv_scale_factor = 5.0;
+  double scale_factors[7] = {1.502147394448, 0.9597289947284872, 1.0, 1.050120452793167, 0.11808360748029786, 0.7060884653388972, 1.1523057372721983};
+  double mv_scale_factors[7] = {0.0, 1.9344991194819992, 1.0, 9.651797331764516, 0.9369095747976784, -4.432472965440904, 3.8361626245650875};
+  for (int i = 0; i < 7; i++) {
+    vbr_rc_info->scale_factor[i] = scale_factors[i];
+    vbr_rc_info->mv_scale_factor[i] = mv_scale_factors[i];
+  }
   av1_zero(vbr_rc_info->estimated_bitrate_byframe);
   av1_zero(vbr_rc_info->estimated_mv_bitrate_byframe);
   av1_zero(vbr_rc_info->actual_bitrate_byframe);
@@ -584,6 +588,7 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
  */
 void av1_vbr_estimate_mv_and_update(const TplParams *tpl_data,
                                     int gf_group_size, int gf_frame_index,
+                                    int gf_update_type,
                                     VBR_RATECTRL_INFO *vbr_rc_info);
 
 /*!\brief For a GOP, calculate the bits used by motion vectors.
@@ -596,7 +601,7 @@ void av1_vbr_estimate_mv_and_update(const TplParams *tpl_data,
  * \return Bits used by the motion vectors for the GOP.
  */
 double av1_tpl_compute_mv_bits(const TplParams *tpl_data, int gf_group_size,
-                               int gf_frame_index,
+                               int gf_frame_index, int gf_update_type,
                                VBR_RATECTRL_INFO *vbr_rc_info);
 #endif  // CONFIG_BITRATE_ACCURACY
 

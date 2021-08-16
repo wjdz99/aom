@@ -2064,6 +2064,7 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
   // This will make the q indices for the entire gop more consistent
   if (gf_frame_index == 0) {
     double gop_bit_budget = vbr_rc_info->gop_bit_budget;
+    int gf_update_type = gf_group->update_type[gf_frame_index];
     // Use the gop_bit_budget to determine q_index_list.
     const double arf_qstep_ratio =
         av1_tpl_get_qstep_ratio(tpl_data, gf_frame_index);
@@ -2071,7 +2072,7 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
     // rather than gf_group->q_val to avoid conflicts with the existing code.
     av1_q_mode_estimate_base_q(
         gf_group, tpl_data->txfm_stats_list, gop_bit_budget, gf_frame_index,
-        arf_qstep_ratio, bit_depth, vbr_rc_info->scale_factor,
+        arf_qstep_ratio, bit_depth, vbr_rc_info->scale_factor[gf_update_type],
         vbr_rc_info->q_index_list, vbr_rc_info->estimated_bitrate_byframe);
   }
 }
@@ -2079,16 +2080,18 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
 /* Estimate the entropy of motion vectors and update vbr_rc_info. */
 void av1_vbr_estimate_mv_and_update(const TplParams *tpl_data,
                                     int gf_group_size, int gf_frame_index,
+                                    int gf_update_type,
                                     VBR_RATECTRL_INFO *vbr_rc_info) {
   double mv_bits = av1_tpl_compute_mv_bits(tpl_data, gf_group_size,
-                                           gf_frame_index, vbr_rc_info);
+                                           gf_frame_index, gf_update_type,
+                                           vbr_rc_info);
   // Subtract the motion vector entropy from the bit budget.
   vbr_rc_info->gop_bit_budget -= mv_bits;
 }
 
 /* For a GOP, calculate the bits used by motion vectors. */
 double av1_tpl_compute_mv_bits(const TplParams *tpl_data, int gf_group_size,
-                               int gf_frame_index,
+                               int gf_frame_index, int gf_update_type,
                                VBR_RATECTRL_INFO *vbr_rc_info) {
   double total_mv_bits = 0;
 
@@ -2102,7 +2105,7 @@ double av1_tpl_compute_mv_bits(const TplParams *tpl_data, int gf_group_size,
   }
 
   // Scale the final result by the scale factor.
-  return total_mv_bits * vbr_rc_info->mv_scale_factor;
+  return total_mv_bits * vbr_rc_info->mv_scale_factor[gf_update_type];
 }
 #endif  // CONFIG_BITRATE_ACCURACY
 
