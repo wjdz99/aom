@@ -16,6 +16,108 @@
       "message": "Thanks",
       "revId": "8837e8f1e56efffc1bb88b22507ef6551d33a23e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c14ae85_f282cd07",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T18:48:55Z",
+      "side": 1,
+      "message": "Please submit another code patch to address my comments, thanks.",
+      "revId": "8837e8f1e56efffc1bb88b22507ef6551d33a23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "940beaa5_8ab5c40f",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1317,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T18:48:55Z",
+      "side": 1,
+      "message": "Please remove this code change. This is not needed since key-value based parameter method has been merged from master branch to research branch.",
+      "revId": "8837e8f1e56efffc1bb88b22507ef6551d33a23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa824569_13442a46",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1582,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T18:48:55Z",
+      "side": 1,
+      "message": "Same as above comment. It\u0027s prefered to only add key-value based method for this run-time flag into the code base. Please refer to enable-sdp for your reference.",
+      "revId": "8837e8f1e56efffc1bb88b22507ef6551d33a23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "954586bd_a33bf0c9",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T18:48:55Z",
+      "side": 1,
+      "message": "Is there any reason why are you adding this function back? Since we already have the key-value based method for adding run-time flag. Please use key-value based method to add run-time flag.",
+      "revId": "8837e8f1e56efffc1bb88b22507ef6551d33a23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e095ecb8_63212b28",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 1884,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T18:48:55Z",
+      "side": 1,
+      "message": "Please remove this function.",
+      "revId": "8837e8f1e56efffc1bb88b22507ef6551d33a23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d97e0360_8a29d46f",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3804,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T18:48:55Z",
+      "side": 1,
+      "message": "Please also remove this function.",
+      "revId": "8837e8f1e56efffc1bb88b22507ef6551d33a23e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
