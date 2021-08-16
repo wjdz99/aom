@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4328d286_b48992c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T19:08:22Z",
+      "side": 1,
+      "message": "Please use key-value based method to add run-time flag.",
+      "revId": "b4a7b270823516c0e2947bd77cb443384370a3cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe3cbe94_d5b71db9",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1325,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T19:08:22Z",
+      "side": 1,
+      "message": "This code change is not needed. It\u0027s perfered to only use key-value based method to add run-time flag. Please refer to enable-sdp for your reference.",
+      "revId": "b4a7b270823516c0e2947bd77cb443384370a3cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1070e6cf_711b1267",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1593,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T19:08:22Z",
+      "side": 1,
+      "message": "This line is also not needed.",
+      "revId": "b4a7b270823516c0e2947bd77cb443384370a3cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e3cc118_08c20703",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-16T19:08:22Z",
+      "side": 1,
+      "message": "This is not needed.",
+      "revId": "b4a7b270823516c0e2947bd77cb443384370a3cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
