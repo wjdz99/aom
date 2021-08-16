@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch enables FPMT for AOM_VBR by setting the AOM_VBR rc mode in is_fp_config(), which decides the num_fp_contexts. The changes are verified locally for bitmatch with CONFIG_FRAME_PARALLEL_ENCODE enabled and disabled. \n\nThe encode time reductions are similar to CQP results. Please find the encode time reductions for 1080p (Wheat, AOV5, blue_sky) across 60 frames for CONFIG_FRAME_PARALLEL_ENCODE macro enabled, num_fp_contexts\u003d2, VBR encode, target-bitrate\u003d10000,15000 on patchset-2.\n\n Speed  Resolution  Threads  Encode Time Reduction%\n   5      1080p       16             16.23%           \n   6      1080p       16             16.19%           \n\nPlease review the patch.\nThanks",
       "revId": "126afe69860bb2064ba4a0216cf61242b31f08ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29652bdc_899fe362",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-16T15:25:44Z",
+      "side": 1,
+      "message": "Thanks for providing the test results. Looks good.",
+      "parentUuid": "175ebc58_5bbce25e",
+      "revId": "126afe69860bb2064ba4a0216cf61242b31f08ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
