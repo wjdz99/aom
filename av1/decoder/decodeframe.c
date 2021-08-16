@@ -686,8 +686,13 @@ static void dec_calc_subpel_params(
     block->y0 = pos_y >> SUBPEL_BITS;
 
     // Get reference block bottom right coordinate.
+#if CONFIG_OPTFLOW_REFINEMENT
+    block->x1 = (pos_x >> SUBPEL_BITS) + inter_pred_params->block_width;
+    block->y1 = (pos_y >> SUBPEL_BITS) + inter_pred_params->block_height;
+#else
     block->x1 = (pos_x >> SUBPEL_BITS) + (bw - 1) + 1;
     block->y1 = (pos_y >> SUBPEL_BITS) + (bh - 1) + 1;
+#endif
 
     scaled_mv->row = mv_q4.row;
     scaled_mv->col = mv_q4.col;
