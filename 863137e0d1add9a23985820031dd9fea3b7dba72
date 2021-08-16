@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7805a31f_0fb5f993",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-08-16T16:48:20Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have submitted a CL to optimize heap memory usage of PC_TREE_SHARED_BUFFERS data structures based on the SB size chosen, sub-sampling and number of planes.\nThis CL is verified to be bit-exact with no impact on encode-time.\n\nMemory is measured using the command\nvalgrind --tool\u003dmassif ./aomenc ...\n\nPlease check the memory reduction results for this patch.\nFor RT preset, cpu \u003d 5\n                        Memory Reduction (%)\n                        Single      Multi\nResolution    Tile      thread      thread\n640x360       2x1        1.59       2.75 (2 threads)\n832x480       2x1        1.23       1.89 (2 threads)\n1280x720      2x2        0.43       0.99 (4 threads)\n1920x1080     4x2        0.19       1.05 (8 threads)\nAverage (content-wise)   0.93       1.71\n\nMemory reduction for Good preset is mostly negligible.\nFor Good preset, cpu \u003d 5\n                        Memory Reduction (%)\n                        Single      Multi\nResolution    Tile      thread      thread\n640x360       2x1        0.50       1.02  (2 threads)\n832x480       2x1        0.35       0.68  (2 threads)\n1280x720      2x2        0.11       0.45  (4 threads)\n1920x1080     4x2        0.05       0.39  (8 threads)\nAverage (content-wise)   0.27       0.64\n\nMemory saving is similar for other speed levels of RT and Good presets as well.\nPlease review.\n\nThank you.\n",
+      "revId": "863137e0d1add9a23985820031dd9fea3b7dba72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
