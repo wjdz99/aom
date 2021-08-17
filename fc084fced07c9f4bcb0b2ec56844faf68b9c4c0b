@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf98f967_2e0fabe0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-08-17T11:41:06Z",
+      "side": 1,
+      "message": "Hi Yunqing, \nThis patch extends the speed feature prune_mesh_search from speed 5 to speed 4.\n\nPlease find the detailed borg results below: \n\nCPU Resolution Instruction Count      BD-Rate Impact %    \n                Reduction %      avg.psnr ovr.psnr  ssim  \n 4   LOW RES     2.012           -0.0272  -0.0324   -0.0528 \n 4   HD RES      1.746           -0.0094  -0.0040   0.0454  \n 4   MID RES     2.609           0.1172   0.1133    0.0289    \n 4   AVERAGE     2.090           0.0205   0.0189    0.0011    \n\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \n\nWe have verified that the patch in bit exact for other speed presets.\nPlease review the patch. \n\nThanks, \nAkshata\n",
+      "revId": "fc084fced07c9f4bcb0b2ec56844faf68b9c4c0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
