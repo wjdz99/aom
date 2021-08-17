@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68f3cee7_f68bff33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-08-17T14:10:56Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nAs per your suggestion we have modified the num_planes computation based on monochrome flag in SequenceHeader structure and removed the same from the function argument. We also changed the order of function arguments.\nPlease review.\n\nThank you.",
+      "revId": "cd8c1a724d06ed07371314f2d2247904f6f07f94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
