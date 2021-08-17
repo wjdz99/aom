@@ -1325,7 +1325,9 @@ void av1_set_rd_speed_thresholds(AV1_COMP *cpi) {
   av1_zero(rd->thresh_mult);
 
 #if CONFIG_NEW_REF_SIGNALING
+#if !CONFIG_NEW_INTER_MODES
   rd->thresh_mult[NEARESTMV] = 300;
+#endif  // !CONFIG_NEW_INTER_MODES
   rd->thresh_mult[NEWMV] = 1000;
   rd->thresh_mult[NEARMV] = 1000;
   rd->thresh_mult[GLOBALMV] = 2200;
