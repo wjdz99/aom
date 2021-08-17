@@ -39,8 +39,8 @@ void av1_copy_tree_context(PICK_MODE_CONTEXT *dst_ctx,
 
 void av1_setup_shared_coeff_buffer(struct aom_internal_error_info *error,
                                    PC_TREE_SHARED_BUFFERS *shared_bufs,
-                                   const SequenceHeader *const seq_params,
-                                   int num_planes) {
+                                   const SequenceHeader *const seq_params) {
+  const int num_planes = seq_params->monochrome ? 1 : MAX_MB_PLANE;
   const int max_sb_square_y = 1 << num_pels_log2_lookup[seq_params->sb_size];
   const int max_sb_square_uv = max_sb_square_y >> (seq_params->subsampling_x +
                                                    seq_params->subsampling_y);
