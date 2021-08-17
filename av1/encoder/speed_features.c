@@ -1080,6 +1080,8 @@ static void set_good_speed_features_framesize_independent(
     sf->rd_sf.perform_coeff_opt = is_boosted_arf2_bwd_type ? 5 : 7;
     sf->rd_sf.tx_domain_dist_thres_level = 2;
 
+    sf->mv_sf.prune_mesh_search = 1;
+
     // TODO(any): Extend multi-winner mode processing support for inter frames
     sf->winner_mode_sf.multi_winner_mode_type =
         frame_is_intra_only(&cpi->common) ? MULTI_WINNER_MODE_DEFAULT
@@ -1116,8 +1118,6 @@ static void set_good_speed_features_framesize_independent(
     sf->lpf_sf.use_coarse_filter_level_search =
         frame_is_intra_only(&cpi->common) ? 0 : 1;
     sf->lpf_sf.disable_lr_filter = 1;
-
-    sf->mv_sf.prune_mesh_search = 1;
 
     sf->tpl_sf.prune_starting_mv = 3;
     sf->tpl_sf.use_y_only_rate_distortion = 1;
