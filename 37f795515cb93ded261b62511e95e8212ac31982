@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d31b0e97_1230a637",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-08-18T18:49:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch brings the initialization of all multi-threaded modules under the purview of FPMT framework, so as to ensure that all the parallel_cpi[] elements are initialized based on the no. of workers available for a level 0 frame (i.e., non-parallel frame, which gets processed by all the available workers).\n\nEarlier, only temporal filtering, tpl, global motion and encode stages were initialized for all parallel_cpi[] considering the total available workers, whereas loop filter, CDEF and loop restoration MT allocation used to dynamically change based on the no. of workers available for the frame. This could cause issue when parallel frames are present with fewer than maximum workers (as per the resolution and module limits) processing the frame. \n\nFor example, for a 1080p encode, the maximum workers that can process a frame is 8 for all modules except temporal filtering. So, in the parent version, if 16 threads are available and 2 parallel frames, each frame gets 8 workers to process it, which equals the maximum workers. The lpf, CDEF and LR MT buffers for each parallel_cpi[] would then get created for 8 workers, which is the upper bound. However, if there were only 8 threads available, then for a parallel frame, only 4 workers are available and the cpi corresponding to the level 2 frame would have been initialized for lpf, CDEF and LR buffers for 4 workers only. Later on, when this cpi corresponds to a level 0 frame, there would be uninitialized memory access since a level 0 frame needs 8 workers.\n\nThis patch solves this issue by folding the initialization of all MT modules (including pack bitstream) in one place (inside av1_init_mt_sync()). Additionally, the MT buffers needed across frames (AV1CdefWorkerData) are abstracted to PrimaryMultiThreadInfo, with pointers to corresponding frame level buffers kept in MultiThreadInfo. It also saves/restores the worker states (for LR and CDEF) with the original/common buffers for those workers that switch across using the buffers from worker data or AV1_COMMON across frames.\n\nThis change has been verified to be bit-exact with no speed impact for the default path (CONFIG_FRAME_PARALLEL_ENCODE\u003d0) for RT (speed 7, 8, 9 for single-thread and multi-tile, multi-thread encodes) and good preset encodes. We have also verified that for CONFIG_FRAME_PARALLEL_ENCODE\u003d1, this change has no performance impact on 1080p encode with 16 threads.\n\nWith the changes in this patch, all sanitizer issues (address, integer, undefined, thread) are resolved for CONFIG_FRAME_PARALLEL_ENCODE\u003d1, 2 parallel frames, for fixed-Q and VBR encodes for single-tile use-case.\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "37f795515cb93ded261b62511e95e8212ac31982",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
