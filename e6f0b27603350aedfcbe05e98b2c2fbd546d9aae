@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a80eeca9_ffbd9bdf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-08-18T18:47:04Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch abstracts the logic to compute the number of workers to be considered while allocating thread specific memory to a separate function, namely av1_get_num_mod_workers_for_alloc(). This CL aids the changes in the follow-up CLs.\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "e6f0b27603350aedfcbe05e98b2c2fbd546d9aae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
