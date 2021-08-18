@@ -2455,9 +2455,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   estimate_single_ref_frame_costs(cm, xd, mode_costs, segment_id,
                                   ref_costs_single);
-  if (cpi->sf.rt_sf.use_comp_ref_nonrd)
-    estimate_comp_ref_frame_costs(cm, xd, mode_costs, segment_id,
-                                  ref_costs_comp);
 
   memset(&mode_checked[0][0], 0, MB_MODE_COUNT * REF_FRAMES);
   if (reuse_inter_pred) {
