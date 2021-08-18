@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "542a179a_67026d99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-08-18T18:48:16Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch makes the functions that allocate memory for loop filter, CDEF and loop restoration modules non-static to aid the follow-up CL that subsumes all multi-threaded modules related initializations under the FPMT framework.\n\nAlso, the interface of alloc_cdef_buffers() is modified to include a flag to indicate whether cdef_worker (AV1CdefWorkerData) allocation is to be done or not. This is to ensure that in the subsequent CL, when alloc_cdef_buffers() is called for a parallel frame, cdef_worker should not be reallocated for the fewer no. of threads. As an example, if we have total 8 threads and 2 parallel frames, then level 0 frames will be processed by all 8 workers while level 1 and level 2 frames will be processed by 4 workers each. In alloc_cdef_buffers(), cdef_worker is reallocated for a frame whenever there is a change in the no. of workers, which should not happen for parallel frame encode. The newly introduced flag init_worker helps to decouple the initialization of cdef_worker from the rest of the initializations inside the function, thereby ensuring that unwanted re-initialization of cdef_worker would not occur for a parallel frame (more details are present in the dependent CL).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "e571ed6d5513b17bfc471e565af78aaa3b86dbae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
