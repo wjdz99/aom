@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch disables the speed feature prune_tx_type_est_rd in speed 4 and 5. We have retained the relevant code in the code base , so that the drop in the quality gain achieved by this SF can be investigated.\n\nPlease find detailed borg result below :\n\nCPU Resolution Instruction Count        BD-Rate Impact %\n                 Reduction %      avg.psnr ovr.psnr   ssim\n 4   LOW RES      4.215           0.0655   0.0635     0.1251\n 4   HD RES       3.239           -0.0863  -0.0878    0.0101\n 4   MID RES      2.930           0.0971   0.0824     0.1160\n 4   AVERAGE      3.654           0.0285   0.0229     0.0874\n\n 5   LOW RES      0.621           0.0309   0.0461     -0.0017\n 5   HD RES       2.197           -0.0412  -0.0550    0.0029\n 5   MID RES      2.655           0.0765   0.0809     0.0638\n 5   AVERAGE      1.518           0.0223   0.0255     0.0189\n\nIn the commit message : \n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n\nWe have verified that the patch in bit exact for other speed presets. \nPlease review the patch. \n\nThanks,\nAkshata\n\n",
       "revId": "b9ae80f8de45fee14a3d7bf494494ff1a5d67c80",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d081f0fc_af3833ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-18T15:24:38Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "b9ae80f8de45fee14a3d7bf494494ff1a5d67c80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
