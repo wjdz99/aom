@@ -376,6 +376,16 @@ static AOM_INLINE void scan_row_mbmi(
     else if (abs(row_offset) > 1)
       len = AOMMAX(len, width_8x8);
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP  // Don't update processed rows, and don't
+                                    // add weight to outer area
+    uint16_t weight = row_offset < -1 ? 0 : 2;
+    if (xd->width >= width_8x8 && xd->width <= n4_w) {
+      uint16_t inc = AOMMIN(-max_row_offset + row_offset + 1,
+                            mi_size_high[candidate_bsize]);
+      // Update processed rows.
+      *processed_rows = inc - row_offset - 1;
+    }
+#else
     uint16_t weight = 2;
     if (xd->width >= width_8x8 && xd->width <= n4_w) {
       uint16_t inc = AOMMIN(-max_row_offset + row_offset + 1,
@@ -385,6 +395,7 @@ static AOM_INLINE void scan_row_mbmi(
       // Update processed rows.
       *processed_rows = inc - row_offset - 1;
     }
+#endif
 
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
@@ -438,6 +449,16 @@ static AOM_INLINE void scan_col_mbmi(
     else if (abs(col_offset) > 1)
       len = AOMMAX(len, n8_h_8);
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP  // Don't update processed rows, and don't
+                                    // add weight to outer area
+    uint16_t weight = col_offset < -1 ? 0 : 2;
+    if (xd->height >= n8_h_8 && xd->height <= n4_h) {
+      int inc = AOMMIN(-max_col_offset + col_offset + 1,
+                       mi_size_wide[candidate_bsize]);
+      // Update processed cols.
+      *processed_cols = inc - col_offset - 1;
+    }
+#else
     int weight = 2;
     if (xd->height >= n8_h_8 && xd->height <= n4_h) {
       int inc = AOMMIN(-max_col_offset + col_offset + 1,
@@ -447,6 +468,7 @@ static AOM_INLINE void scan_col_mbmi(
       // Update processed cols.
       *processed_cols = inc - col_offset - 1;
     }
+#endif
 
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
@@ -483,6 +505,17 @@ static AOM_INLINE void scan_blk_mbmi(
         xd->mi[mi_pos.row * xd->mi_stride + mi_pos.col];
     const int len = mi_size_wide[BLOCK_8X8];
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP  // Don't add weight to (-1,-1)
+    uint16_t weight = row_offset == -1 && col_offset == -1 ? 0 : 2;
+    add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
+                         newmv_count, ref_mv_stack, ref_mv_weight,
+                         gm_mv_candidates, cm->global_motion,
+#if CONFIG_SMVP_IMPROVEMENT
+                         cm, add_more_mvs, single_mv, single_mv_count,
+                         derived_mv_stack, derived_mv_weight, derived_mv_count,
+#endif  // CONFIG_SMVP_IMPROVEMENT
+                         weight * len);
+#else
     add_ref_mv_candidate(candidate, rf, refmv_count, ref_match_count,
                          newmv_count, ref_mv_stack, ref_mv_weight,
                          gm_mv_candidates, cm->global_motion,
@@ -491,6 +524,7 @@ static AOM_INLINE void scan_blk_mbmi(
                          derived_mv_stack, derived_mv_weight, derived_mv_count,
 #endif  // CONFIG_SMVP_IMPROVEMENT
                          2 * len);
+#endif
   }  // Analyze a single 8x8 block motion information.
 }
 
@@ -901,6 +935,12 @@ static AOM_INLINE void setup_ref_mv_list(
   }
 #endif  // CONFIG_SMVP_IMPROVEMENT
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP  // Redefine contexts
+  int new_ctx = 2 * nearest_match + (newmv_count > 0);
+  int ref_ctx = 2 * nearest_match + (newmv_count < 3);
+  mode_context[ref_frame] |= new_ctx;
+  mode_context[ref_frame] |= (ref_ctx << REFMV_OFFSET);
+#else
   const uint8_t ref_match_count = (row_match_count > 0) + (col_match_count > 0);
 
   switch (nearest_match) {
@@ -928,6 +968,7 @@ static AOM_INLINE void setup_ref_mv_list(
       mode_context[ref_frame] |= (5 << REFMV_OFFSET);
       break;
   }
+#endif
 
   // Rank the likelihood and assign nearest and near mvs.
   int len = nearest_refmv_count;
@@ -947,6 +988,8 @@ static AOM_INLINE void setup_ref_mv_list(
     len = nr_len;
   }
 
+#if CONFIG_COMPLEXITY_SCALABLE_MVP  // Don't sort outer area
+#else
   len = *refmv_count;
   while (len > nearest_refmv_count) {
     int nr_len = nearest_refmv_count;
@@ -963,6 +1006,7 @@ static AOM_INLINE void setup_ref_mv_list(
     }
     len = nr_len;
   }
+#endif
 
 #if CONFIG_SMVP_IMPROVEMENT
 #if CONFIG_NEW_INTER_MODES
