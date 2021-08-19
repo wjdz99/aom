@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e6738d8_d0290dbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-08-19T13:31:21Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have submitted a CL to modify the allocation of InterModesInfo structure conditionally for rd encoding only as the structure is used only in rd encoding path. This patch can save heap memory usage of RT speed 7,8,9 as those presets use non-rd encoding.\nFor this change, the allocation of InterModesInfo structure is moved from av1_create_compressor() function to av1_alloc_mb_data().\nThis CL is verified to be bit-exact with no impact on encode-time.\n\nMemory is measured using the command\nvalgrind --tool\u003dmassif ./aomenc ...\n\nPlease check the memory reduction results for this patch.\nFor RT preset, cpu \u003d 7\n\n                        Memory Reduction (%)\n                        Single      Multi\nResolution    Tile      thread      thread\n640x360       2x1        1.249       2.230 (2 threads)\n832x480       2x1        0.842       1.569 (2 threads)\n1280x720      2x2        0.339       1.582 (4 threads)\n1920x1080     4x2        0.260       1.583 (8 threads)\nAverage (content-wise)   0.706       1.704\n\nMemory saving is similar for RT cpu 8, 9 as well and no impact in Good presets.\nPlease review.\n\nThank you.",
+      "revId": "25a5368c6d09db9101f3686332fb8a125985f5a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
