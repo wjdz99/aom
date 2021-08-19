@@ -22,6 +22,30 @@
       },
       "revId": "ed6277750f43a9f6970f480edce57f11f2038aee",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b13db5c_31c7b652",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-19T22:02:01Z",
+      "side": 1,
+      "message": "I added [0] to change it from a one element array to an int.",
+      "parentUuid": "c1244c9d_a3a03c40",
+      "range": {
+        "startLine": 38,
+        "startChar": 23,
+        "endLine": 38,
+        "endChar": 26
+      },
+      "revId": "ed6277750f43a9f6970f480edce57f11f2038aee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
