@@ -63,6 +63,30 @@
       },
       "revId": "e571ed6d5513b17bfc471e565af78aaa3b86dbae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80628698_16d757e0",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-19T16:19:11Z",
+      "side": 1,
+      "message": "Sounds good. Thanks for the explanation. As we discussed, adding a comment might be helpful.",
+      "parentUuid": "420d48cb_9342b2f6",
+      "range": {
+        "startLine": 230,
+        "startChar": 30,
+        "endLine": 230,
+        "endChar": 41
+      },
+      "revId": "e571ed6d5513b17bfc471e565af78aaa3b86dbae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
