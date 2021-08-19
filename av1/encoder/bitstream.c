@@ -68,6 +68,12 @@ static AOM_INLINE void loop_restoration_write_sb_coeffs(
     const AV1_COMMON *const cm, MACROBLOCKD *xd, const RestorationUnitInfo *rui,
     aom_writer *const w, int plane, FRAME_COUNTS *counts);
 
+#if CONFIG_IBC_INTER
+static AOM_INLINE void write_intrabc_info(
+  MACROBLOCKD *xd, const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame,
+  aom_writer *w);
+#endif
+
 static AOM_INLINE void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
                                              const MB_MODE_INFO *mi,
                                              const MB_MODE_INFO *above_mi,
@@ -1188,7 +1194,11 @@ static AOM_INLINE void write_cfl_alphas(FRAME_CONTEXT *const ec_ctx,
 
 static AOM_INLINE void write_cdef(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   aom_writer *w, int skip) {
+#if CONFIG_IBC_REF_CONS
+  if (cm->features.coded_lossless) return;
+#else
   if (cm->features.coded_lossless || cm->features.allow_intrabc) return;
+#endif
 
   // At the start of a superblock, mark that we haven't yet written CDEF
   // strengths for any of the CDEF units contained in this superblock.
@@ -1230,7 +1240,9 @@ static AOM_INLINE void write_cdef(AV1_COMMON *cm, MACROBLOCKD *const xd,
 static AOM_INLINE void write_ccso(AV1_COMMON *cm, MACROBLOCKD *const xd,
                                   aom_writer *w) {
   if (cm->features.coded_lossless) return;
+#if !CONFIG_IBC_REF_CONS
   if (cm->features.allow_intrabc) return;
+#endif
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
@@ -1527,9 +1539,19 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
 #endif
   const int allow_hp = cm->features.allow_high_precision_mv;
 #if CONFIG_SDP
+#if CONFIG_IBC_INTER
+  const int is_intrabc = is_intrabc_block(mbmi, xd->tree_type);
+  const int is_inter = is_inter_block(mbmi, xd->tree_type) && !is_intrabc;
+#else
   const int is_inter = is_inter_block(mbmi, xd->tree_type);
+#endif
+#else
+#if CONFIG_IBC_INTER
+  const int is_intrabc = is_intrabc_block(mbmi);
+  const int is_inter = is_inter_block(mbmi) && !is_intrabc;
 #else
   const int is_inter = is_inter_block(mbmi);
+#endif
 #endif
   const int is_compound = has_second_ref(mbmi);
   int ref;
@@ -1559,6 +1581,17 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
   if (!mbmi->skip_mode) write_is_inter(cm, xd, mbmi->segment_id, w, is_inter);
 
   if (mbmi->skip_mode) return;
+
+#if CONFIG_IBC_INTER
+#if CONFIG_SDP
+  if (!is_inter && av1_allow_intrabc(cm) && xd->tree_type != CHROMA_PART) {
+#else
+  if (!is_inter && av1_allow_intrabc(cm)) {
+#endif
+    write_intrabc_info(xd, mbmi_ext_frame, w);
+    if (is_intrabc_block(mbmi, xd->tree_type)) return;
+  }
+#endif
 
   if (!is_inter) {
     write_intra_prediction_modes(cpi, 0, w);
@@ -2138,6 +2171,9 @@ static AOM_INLINE void write_modes_b(AV1_COMP *cpi, const TileInfo *const tile,
 #endif
     write_tokens_b(cpi, w, tok, tok_end);
   }
+#if CONFIG_IBC_REF_CONS
+  av1_mark_block_as_coded(xd, mi_row, mi_col, bsize, cm->seq_params.sb_size);
+#endif
 }
 
 static AOM_INLINE void write_partition(const AV1_COMMON *const cm,
@@ -2353,6 +2389,9 @@ static AOM_INLINE void write_modes(AV1_COMP *const cpi,
 
     for (int mi_col = mi_col_start; mi_col < mi_col_end;
          mi_col += cm->seq_params.mib_size) {
+#if CONFIG_IBC_REF_CONS
+    av1_reset_is_mi_coded_map(xd, cm->seq_params.mib_size);
+#endif
       cpi->td.mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
 #if CONFIG_SDP
       const int total_loop_num =
@@ -2381,7 +2420,9 @@ static AOM_INLINE void encode_restoration_mode(
     AV1_COMMON *cm, struct aom_write_bit_buffer *wb) {
   assert(!cm->features.all_lossless);
   if (!cm->seq_params.enable_restoration) return;
+#if !CONFIG_IBC_REF_CONS
   if (cm->features.allow_intrabc) return;
+#endif
   const int num_planes = av1_num_planes(cm);
   int all_none = 1, chroma_none = 1;
   for (int p = 0; p < num_planes; ++p) {
@@ -2608,7 +2649,9 @@ static bool is_mode_ref_delta_meaningful(AV1_COMMON *cm) {
 static AOM_INLINE void encode_loopfilter(AV1_COMMON *cm,
                                          struct aom_write_bit_buffer *wb) {
   assert(!cm->features.coded_lossless);
+#if !CONFIG_IBC_REF_CONS
   if (cm->features.allow_intrabc) return;
+#endif
   const int num_planes = av1_num_planes(cm);
   struct loopfilter *lf = &cm->lf;
 
@@ -2661,7 +2704,9 @@ static AOM_INLINE void encode_cdef(const AV1_COMMON *cm,
                                    struct aom_write_bit_buffer *wb) {
   assert(!cm->features.coded_lossless);
   if (!cm->seq_params.enable_cdef) return;
+#if !CONFIG_IBC_REF_CONS
   if (cm->features.allow_intrabc) return;
+#endif
   const int num_planes = av1_num_planes(cm);
   int i;
   aom_wb_write_literal(wb, cm->cdef_info.cdef_damping - 3, 2);
@@ -2678,7 +2723,9 @@ static AOM_INLINE void encode_cdef(const AV1_COMMON *cm,
 #if CONFIG_CCSO
 static AOM_INLINE void encode_ccso(const AV1_COMMON *cm,
                                    struct aom_write_bit_buffer *wb) {
+#if !CONFIG_IBC_REF_CONS
   if (cm->features.allow_intrabc) return;
+#endif
   const int ccso_offset[8] = { 0, 1, -1, 3, -3, 5, -5, -7 };
   for (int plane = 0; plane < 2; plane++) {
     aom_wb_write_literal(wb, cm->ccso_info.ccso_enable[plane], 1);
@@ -3697,6 +3744,10 @@ static AOM_INLINE void write_uncompressed_header_obu(
         aom_wb_write_bit(wb, features->allow_intrabc);
     } else if (current_frame->frame_type == INTER_FRAME ||
                frame_is_sframe(cm)) {
+#if CONFIG_IBC_INTER
+      if (features->allow_screen_content_tools && !av1_superres_scaled(cm))
+        aom_wb_write_bit(wb, features->allow_intrabc);
+#endif
       MV_REFERENCE_FRAME ref_frame;
 
       // NOTE: Error resilient mode turns off frame_refs_short_signaling
@@ -3797,9 +3848,11 @@ static AOM_INLINE void write_uncompressed_header_obu(
     if (delta_q_info->delta_q_present_flag) {
       aom_wb_write_literal(wb, get_msb(delta_q_info->delta_q_res), 2);
       xd->current_base_qindex = quant_params->base_qindex;
+#if !CONFIG_IBC_REF_CONS
       if (features->allow_intrabc)
         assert(delta_q_info->delta_lf_present_flag == 0);
       else
+#endif
         aom_wb_write_bit(wb, delta_q_info->delta_lf_present_flag);
       if (delta_q_info->delta_lf_present_flag) {
         aom_wb_write_literal(wb, get_msb(delta_q_info->delta_lf_res), 2);

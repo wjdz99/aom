@@ -216,3 +216,5 @@ set_aom_option_var(ENABLE_AVX "Enables AVX optimizations on x86/x86_64 targets."
                    ON)
 set_aom_option_var(ENABLE_AVX2
                    "Enables AVX2 optimizations on x86/x86_64 targets." ON)
+set_aom_config_var(CONFIG_IBC_REF_CONS 1 "Enables IBC with local reference ranges")
+set_aom_config_var(CONFIG_IBC_INTER 1 "Enables IBC in inter frames")

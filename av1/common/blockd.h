@@ -661,6 +661,11 @@ typedef struct macroblockd {
   int mi_row; /*!< Row position in mi units. */
   int mi_col; /*!< Column position in mi units. */
   /**@}*/
+#if CONFIG_IBC_REF_CONS
+  /* An array for recording whether an mi(4x4) is coded. Reset at sb level */
+  uint8_t is_mi_coded[1024];
+  int is_mi_coded_stride;
+#endif
 
   /*!
    * Same as cm->mi_params.mi_stride, copied here for convenience.
@@ -1727,11 +1732,19 @@ motion_mode_allowed(const WarpedMotionParams *gm_params, const MACROBLOCKD *xd,
 #if CONFIG_SDP
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi,
                                            int tree_type) {
+#if CONFIG_IBC_INTER
+  return (is_inter_block(mbmi,tree_type) && !is_intrabc_block(mbmi, tree_type));
+#else
   return (is_inter_block(mbmi, tree_type));
+#endif
 }
 #else
 static INLINE int is_neighbor_overlappable(const MB_MODE_INFO *mbmi) {
+#if CONFIG_IBC_INTER
+    return (is_inter_block(mbmi)&& !is_intrabc_block(mbmi));
+#else
   return (is_inter_block(mbmi));
+#endif
 }
 #endif
 
@@ -1842,6 +1855,15 @@ static INLINE int av1_get_max_eob(TX_SIZE tx_size) {
   }
   return tx_size_2d[tx_size];
 }
+
+#if CONFIG_IBC_REF_CONS
+void av1_reset_is_mi_coded_map(MACROBLOCKD *xd, int stride);
+void av1_mark_block_as_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
+    BLOCK_SIZE bsize, BLOCK_SIZE sb_size);
+void av1_mark_block_as_not_coded(MACROBLOCKD *xd, int mi_row, int mi_col,
+    BLOCK_SIZE bsize, BLOCK_SIZE sb_size);
+#endif
+
 /*!\endcond */
 
 #ifdef __cplusplus

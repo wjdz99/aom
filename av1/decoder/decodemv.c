@@ -43,10 +43,12 @@ static void read_cdef(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
   const int skip_txfm = xd->mi[0]->skip_txfm;
 #endif
   if (cm->features.coded_lossless) return;
+#if !CONFIG_IBC_REF_CONS
   if (cm->features.allow_intrabc) {
     assert(cm->cdef_info.cdef_bits == 0);
     return;
   }
+#endif
 
   // At the start of a superblock, mark that we haven't yet read CDEF strengths
   // for any of the CDEF units contained in this superblock.
@@ -88,7 +90,9 @@ static void read_cdef(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
 #if CONFIG_CCSO
 static void read_ccso(AV1_COMMON *cm, aom_reader *r, MACROBLOCKD *const xd) {
   if (cm->features.coded_lossless) return;
+#if !CONFIG_IBC_REF_CONS
   if (cm->features.allow_intrabc) return;
+#endif
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
@@ -934,7 +938,12 @@ static void read_intrabc_info(AV1_COMMON *const cm, DecoderCodingBlock *dcb,
     av1_find_best_ref_mvs(0, ref_mvs[INTRA_FRAME], &nearestmv, &nearmv, 0);
     int_mv dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
     if (dv_ref.as_int == 0)
+#if CONFIG_IBC_REF_CONS
+      av1_find_ref_dv(&dv_ref, &xd->tile, cm->seq_params.mib_size, xd->mi_row, bsize);
+
+#else
       av1_find_ref_dv(&dv_ref, &xd->tile, cm->seq_params.mib_size, xd->mi_row);
+#endif
     // Ref DV should not have sub-pel.
     int valid_dv = (dv_ref.as_mv.col & 7) == 0 && (dv_ref.as_mv.row & 7) == 0;
     dv_ref.as_mv.col = (dv_ref.as_mv.col >> 3) * 8;
@@ -2076,6 +2085,22 @@ static void read_inter_frame_mode_info(AV1Decoder *const pbi,
       cm->above_contexts.txfm[xd->tile.tile_row] + xd->mi_col;
   xd->left_txfm_context =
       xd->left_txfm_context_buffer + (xd->mi_row & MAX_MIB_MASK);
+
+#if CONFIG_IBC_INTER
+#if CONFIG_SDP
+  if (!inter_block && av1_allow_intrabc(cm) && xd->tree_type != CHROMA_PART) {
+
+#else
+  if (!inter_block && av1_allow_intrabc(cm)) {
+#endif
+    mbmi->ref_frame[0] = INTRA_FRAME;
+    mbmi->ref_frame[1] = NONE_FRAME;
+    mbmi->palette_mode_info.palette_size[0] = 0;
+    mbmi->palette_mode_info.palette_size[1] = 0;
+    read_intrabc_info(cm, dcb, r);
+    if (is_intrabc_block(mbmi,xd->tree_type)) return;
+  }
+#endif
 
   if (inter_block)
     read_inter_block_mode_info(pbi, dcb, mbmi, r);

@@ -736,15 +736,59 @@ static AOM_FORCE_INLINE void calc_int_sad_list(
 
   // Refresh the costlist it does not contain valid sad
   if (!costlist_has_sad) {
+#if CONFIG_IBC_REF_CONS
+    if (ms_params->is_intra_mode)
+    {
+      if (av1_is_full_dv_valid(&best_mv, ms_params->cm
+        , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+        , ms_params->mib_size_log2))
+      {
+        cost_list[0] = get_mvpred_sad(
+          ms_params, src, get_buf_from_fullmv(ref, &best_mv), ref_stride);
+      }
+      else
+      {
+        cost_list[0] = INT_MAX;
+      }
+    }
+    else
+    {
+      cost_list[0] = get_mvpred_sad(
+        ms_params, src, get_buf_from_fullmv(ref, &best_mv), ref_stride);
+    }
+#else
     cost_list[0] = get_mvpred_sad(
         ms_params, src, get_buf_from_fullmv(ref, &best_mv), ref_stride);
+#endif
 
     if (check_bounds(&ms_params->mv_limits, br, bc, 1)) {
       for (int i = 0; i < 4; i++) {
         const FULLPEL_MV this_mv = { br + neighbors[i].row,
                                      bc + neighbors[i].col };
+#if CONFIG_IBC_REF_CONS
+        if (ms_params->is_intra_mode)
+        {
+          if (av1_is_full_dv_valid(&this_mv, ms_params->cm
+            , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+            , ms_params->mib_size_log2))
+          {
+            cost_list[i + 1] = get_mvpred_sad(
+              ms_params, src, get_buf_from_fullmv(ref, &this_mv), ref_stride);
+          }
+          else
+          {
+            cost_list[i + 1] = INT_MAX;
+          }
+        }
+        else
+        {
+          cost_list[i + 1] = get_mvpred_sad(
+            ms_params, src, get_buf_from_fullmv(ref, &this_mv), ref_stride);
+        }
+#else
         cost_list[i + 1] = get_mvpred_sad(
             ms_params, src, get_buf_from_fullmv(ref, &this_mv), ref_stride);
+#endif
       }
     } else {
       for (int i = 0; i < 4; i++) {
@@ -753,8 +797,30 @@ static AOM_FORCE_INLINE void calc_int_sad_list(
         if (!av1_is_fullmv_in_range(&ms_params->mv_limits, this_mv)) {
           cost_list[i + 1] = INT_MAX;
         } else {
+#if CONFIG_IBC_REF_CONS
+          if (ms_params->is_intra_mode)
+          {
+            if (av1_is_full_dv_valid(&this_mv, ms_params->cm
+              , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+              , ms_params->mib_size_log2))
+            {
+              cost_list[i + 1] = get_mvpred_sad(
+                ms_params, src, get_buf_from_fullmv(ref, &this_mv), ref_stride);
+            }
+            else
+            {
+              cost_list[i + 1] = INT_MAX;
+            }
+          }
+          else
+          {
+            cost_list[i + 1] = get_mvpred_sad(
+              ms_params, src, get_buf_from_fullmv(ref, &this_mv), ref_stride);
+          }
+#else
           cost_list[i + 1] = get_mvpred_sad(
               ms_params, src, get_buf_from_fullmv(ref, &this_mv), ref_stride);
+#endif
         }
       }
     }
@@ -1247,10 +1313,35 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
   *best_mv = start_mv;
 
   // Check the starting position
+
+#if CONFIG_IBC_REF_CONS
+  if (ms_params->is_intra_mode)
+  {
+    if (av1_is_full_dv_valid(&start_mv, ms_params->cm
+      , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+      , ms_params->mib_size_log2))
+    {
+          best_address = get_buf_from_fullmv(ref, &start_mv);
+          bestsad = get_mvpred_compound_sad(ms_params, src, best_address, ref_stride);
+          bestsad += mvsad_err_cost_(best_mv, &ms_params->mv_cost_params);
+      }
+      else
+      {
+          best_address = get_buf_from_fullmv(ref, &start_mv);
+          bestsad = INT_MAX;
+      }
+  }
+  else
+  {
+      best_address = get_buf_from_fullmv(ref, &start_mv);
+      bestsad = get_mvpred_compound_sad(ms_params, src, best_address, ref_stride);
+      bestsad += mvsad_err_cost_(best_mv, &ms_params->mv_cost_params);
+  }
+#else
   best_address = get_buf_from_fullmv(ref, &start_mv);
   bestsad = get_mvpred_compound_sad(ms_params, src, best_address, ref_stride);
   bestsad += mvsad_err_cost_(best_mv, &ms_params->mv_cost_params);
-
+#endif
   int next_step_size = tot_steps > 2 ? cfg->radius[tot_steps - 2] : 1;
   for (int step = tot_steps - 1; step >= 0; --step) {
     const search_site *site = cfg->site[step];
@@ -1264,6 +1355,19 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
     all_in &= best_mv->col + site[3].mv.col >= ms_params->mv_limits.col_min;
     all_in &= best_mv->col + site[4].mv.col <= ms_params->mv_limits.col_max;
 
+#if CONFIG_IBC_REF_CONS
+    if (ms_params->is_intra_mode)
+    {
+        for (j = 0; j < 4; j++)
+        {
+          const FULLPEL_MV this_mv = { best_mv->row + site[1 + j].mv.row,
+            best_mv->col + site[1 + j].mv.col };
+            all_in &= av1_is_full_dv_valid(&this_mv, ms_params->cm
+                , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+                , ms_params->mib_size_log2);
+        }
+    }
+#endif
     // TODO(anyone): Implement 4 points search for msdf&sdaf
     if (all_in && !mask && !second_pred) {
       const uint8_t *src_buf = src->buf;
@@ -1271,6 +1375,21 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
       for (int idx = 1; idx <= cfg->searches_per_step[step]; idx += 4) {
         unsigned char const *block_offset[4];
         unsigned int sads[4];
+
+#if CONFIG_IBC_REF_CONS
+        int valid = 1;
+        for (j = 0; j < 4; j++) {
+            if (ms_params->is_intra_mode)
+            {
+              const FULLPEL_MV this_mv = { best_mv->row + site[idx + j].mv.row,
+                best_mv->col + site[idx + j].mv.col };
+                valid &= av1_is_full_dv_valid(&this_mv, ms_params->cm
+                  , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+                  , ms_params->mib_size_log2);
+            }
+        }
+        if (!valid) continue;
+#endif
 
         for (j = 0; j < 4; j++)
           block_offset[j] = site[idx + j].offset + best_address;
@@ -1295,6 +1414,16 @@ static int diamond_search_sad(FULLPEL_MV start_mv,
                                      best_mv->col + site[idx].mv.col };
 
         if (av1_is_fullmv_in_range(&ms_params->mv_limits, this_mv)) {
+#if CONFIG_IBC_REF_CONS
+            if (ms_params->is_intra_mode)
+            {
+                int valid = av1_is_full_dv_valid(&this_mv, ms_params->cm
+                  , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+                  , ms_params->mib_size_log2);
+                if (!valid) continue;
+            }
+#endif
+
           const uint8_t *const check_here = site[idx].offset + best_address;
           unsigned int thissad;
 
@@ -1410,9 +1539,33 @@ static int exhaustive_mesh_search(FULLPEL_MV start_mv,
 
   clamp_fullmv(&start_mv, &ms_params->mv_limits);
   *best_mv = start_mv;
+#if CONFIG_IBC_REF_CONS
+  if (ms_params->is_intra_mode)
+  {
+      if (av1_is_full_dv_valid(&start_mv, ms_params->cm
+        , ms_params->xd, ms_params->mi_row, ms_params->mi_col, ms_params->bsize
+        , ms_params->mib_size_log2))
+      {
+          best_sad = get_mvpred_sad(ms_params, src, get_buf_from_fullmv(ref, &start_mv),
+              ref_stride);
+          best_sad += mvsad_err_cost_(&start_mv, mv_cost_params);
+      }
+      else
+      {
+          best_sad = INT_MAX;
+      }
+  }
+  else
+  {
+      best_sad = get_mvpred_sad(ms_params, src, get_buf_from_fullmv(ref, &start_mv),
+          ref_stride);
+      best_sad += mvsad_err_cost_(&start_mv, mv_cost_params);
+  }
+#else
   best_sad = get_mvpred_sad(ms_params, src, get_buf_from_fullmv(ref, &start_mv),
                             ref_stride);
   best_sad += mvsad_err_cost_(&start_mv, mv_cost_params);
+#endif
   start_row = AOMMAX(-range, ms_params->mv_limits.row_min - start_mv.row);
   start_col = AOMMAX(-range, ms_params->mv_limits.col_min - start_mv.col);
   end_row = AOMMIN(range, ms_params->mv_limits.row_max - start_mv.row);
@@ -1423,6 +1576,15 @@ static int exhaustive_mesh_search(FULLPEL_MV start_mv,
       // Step > 1 means we are not checking every location in this pass.
       if (step > 1) {
         const FULLPEL_MV mv = { start_mv.row + r, start_mv.col + c };
+#if CONFIG_IBC_REF_CONS
+        if (ms_params->is_intra_mode)
+        {
+            if (!av1_is_full_dv_valid(&mv
+                , ms_params->cm, ms_params->xd, ms_params->mi_row
+                , ms_params->mi_col, ms_params->bsize
+                , ms_params->mib_size_log2)) continue;
+        }
+#endif
         unsigned int sad = get_mvpred_sad(
             ms_params, src, get_buf_from_fullmv(ref, &mv), ref_stride);
         update_mvs_and_sad(sad, &mv, mv_cost_params, &best_sad,
@@ -1432,10 +1594,26 @@ static int exhaustive_mesh_search(FULLPEL_MV start_mv,
         if (c + 3 <= end_col) {
           unsigned int sads[4];
           const uint8_t *addrs[4];
+#if CONFIG_IBC_REF_CONS
+          int valid = 1;
+#endif
           for (i = 0; i < 4; ++i) {
             const FULLPEL_MV mv = { start_mv.row + r, start_mv.col + c + i };
+#if CONFIG_IBC_REF_CONS
+            if (ms_params->is_intra_mode)
+            {
+                valid &= av1_is_full_dv_valid(&mv
+                  , ms_params->cm, ms_params->xd, ms_params->mi_row
+                  , ms_params->mi_col, ms_params->bsize
+                  , ms_params->mib_size_log2);
+            }
+#endif
             addrs[i] = get_buf_from_fullmv(ref, &mv);
           }
+#if CONFIG_IBC_REF_CONS
+          if (!valid)
+              continue;
+#endif
 
           ms_params->sdx4df(src->buf, src->stride, addrs, ref_stride, sads);
 
@@ -1450,6 +1628,16 @@ static int exhaustive_mesh_search(FULLPEL_MV start_mv,
         } else {
           for (i = 0; i < end_col - c; ++i) {
             const FULLPEL_MV mv = { start_mv.row + r, start_mv.col + c + i };
+#if CONFIG_IBC_REF_CONS
+            if (ms_params->is_intra_mode)
+            {
+                if (!av1_is_full_dv_valid(&mv
+                    , ms_params->cm, ms_params->xd, ms_params->mi_row
+                    , ms_params->mi_col, ms_params->bsize
+                    , ms_params->mib_size_log2)) continue;
+            }
+#endif
+
             unsigned int sad = get_mvpred_sad(
                 ms_params, src, get_buf_from_fullmv(ref, &mv), ref_stride);
             update_mvs_and_sad(sad, &mv, mv_cost_params, &best_sad,
@@ -1797,7 +1985,9 @@ int av1_intrabc_hash_search(const AV1_COMP *cpi, const MACROBLOCKD *xd,
       FULLPEL_MV hash_mv;
       hash_mv.col = ref_block_hash.x - x_pos;
       hash_mv.row = ref_block_hash.y - y_pos;
+#if !CONFIG_IBC_INTER
       if (!av1_is_fullmv_in_range(mv_limits, hash_mv)) continue;
+#endif
       const int refCost = get_mvpred_var_cost(ms_params, &hash_mv);
       if (refCost < best_hash_cost) {
         best_hash_cost = refCost;

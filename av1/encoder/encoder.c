@@ -2739,6 +2739,9 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
   cm->cur_frame->buf.render_height = cm->render_height;
 
   // Pick the loop filter level for the frame.
+#if CONFIG_IBC_REF_CONS
+  loopfilter_frame(cpi, cm);
+#else
   if (!cm->features.allow_intrabc) {
     loopfilter_frame(cpi, cm);
   } else {
@@ -2752,6 +2755,7 @@ static int encode_with_recode_loop_and_filter(AV1_COMP *cpi, size_t *size,
     cm->rst_info[1].frame_restoration_type = RESTORE_NONE;
     cm->rst_info[2].frame_restoration_type = RESTORE_NONE;
   }
+#endif
 
   // TODO(debargha): Fix mv search range on encoder side
   // aom_extend_frame_inner_borders(&cm->cur_frame->buf, av1_num_planes(cm));
@@ -2971,10 +2975,14 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   start_timing(cpi, encode_frame_to_data_rate_time);
 #endif
 
+#if !CONFIG_IBC_INTER
   if (frame_is_intra_only(cm)) {
+#endif
     av1_set_screen_content_options(cpi, features);
     cpi->is_screen_content_type = features->allow_screen_content_tools;
+#if !CONFIG_IBC_INTER
   }
+#endif
 
   // frame type has been decided outside of this function call
   cm->cur_frame->frame_type = current_frame->frame_type;

@@ -299,18 +299,143 @@ uint8_t av1_findSamples(const AV1_COMMON *cm, MACROBLOCKD *xd, int *pts,
 
 #define INTRABC_DELAY_PIXELS 256  //  Delay of 256 pixels
 #define INTRABC_DELAY_SB64 (INTRABC_DELAY_PIXELS / 64)
-
+#if CONFIG_IBC_REF_CONS
+static INLINE void av1_find_ref_dv(int_mv *ref_dv, const TileInfo *const tile,
+                                   int mib_size, int mi_row, BLOCK_SIZE bsize
+#else
 static INLINE void av1_find_ref_dv(int_mv *ref_dv, const TileInfo *const tile,
                                    int mib_size, int mi_row) {
+#endif
+) {
+#if CONFIG_IBC_REF_CONS
+  const int w = block_size_wide[bsize];
+  const int h = block_size_high[bsize];
+#endif
+
   if (mi_row - mib_size < tile->mi_row_start) {
+#if CONFIG_IBC_REF_CONS
+    ref_dv->as_fullmv.row = 0;
+    ref_dv->as_fullmv.col = -w;
+#else
     ref_dv->as_fullmv.row = 0;
     ref_dv->as_fullmv.col = -MI_SIZE * mib_size - INTRABC_DELAY_PIXELS;
+#endif
   } else {
+#if CONFIG_IBC_REF_CONS
+    ref_dv->as_fullmv.row = -h;
+    ref_dv->as_fullmv.col = 0;
+#else
     ref_dv->as_fullmv.row = -MI_SIZE * mib_size;
     ref_dv->as_fullmv.col = 0;
+#endif
   }
   convert_fullmv_to_mv(ref_dv);
 }
+
+#if CONFIG_IBC_REF_CONS
+static INLINE int av1_is_dv_in_2superblock(const MV dv, const MACROBLOCKD *xd,
+  int mi_row, int mi_col, int bh, int bw, int mib_size_log2)
+{
+  const int SCALE_PX_TO_MV = 8;
+  const int src_top_edge = mi_row * MI_SIZE * SCALE_PX_TO_MV + dv.row;
+  const int src_left_edge = mi_col * MI_SIZE * SCALE_PX_TO_MV + dv.col;
+  const int src_bottom_edge = (mi_row * MI_SIZE + bh) * SCALE_PX_TO_MV + dv.row;
+  const int src_right_edge = (mi_col * MI_SIZE + bw) * SCALE_PX_TO_MV + dv.col;
+
+  const int src_top_y = src_top_edge >> 3;
+  const int src_left_x = src_left_edge >> 3;
+  const int src_bottom_y = (src_bottom_edge >> 3) - 1;
+  const int src_right_x = (src_right_edge >> 3) - 1;
+
+  const int active_left_x = mi_col * MI_SIZE;
+  const int active_top_y = mi_row * MI_SIZE;
+
+  const int sb_size_log2 = mib_size_log2 + MI_SIZE_LOG2;
+
+  //ref block can not be in the above super block row
+  if ((src_top_y >> sb_size_log2) < (active_top_y >> sb_size_log2))
+    return 0;
+
+  //ref block can not be in the below super block row
+  if ((src_bottom_y >> sb_size_log2) > (active_top_y >> sb_size_log2))
+    return 0;
+
+  if (((dv.col >> 3) + bw) > 0 && ((dv.row >> 3) + bh) > 0)
+    return 0;
+
+  const int numLeftSB = (1 << ((7 - sb_size_log2) << 1)) - ((sb_size_log2 < 7) ? 1 : 0);
+  const int valid_SB = ((src_right_x >> sb_size_log2) <= (active_left_x >> sb_size_log2)) && ((src_left_x >> sb_size_log2) >= ((active_left_x >> sb_size_log2) - numLeftSB));
+
+  if (!valid_SB)  // only the current or the left sb can be reffered
+    return 0;
+
+  int TL_same_sb = 0; 
+  int BR_same_sb = 0; 
+  const int sb_size = 1 << sb_size_log2;
+  const int sb_mi_size = sb_size >> MI_SIZE_LOG2;
+
+
+  if ((sb_size_log2 == 7))
+  {
+    if ((src_left_x >> sb_size_log2) == ((active_left_x >> sb_size_log2) - 1)) // in the left sb
+    {
+
+      const int src_colo_left_x = src_left_x + sb_size;
+      const int src_colo_top_y = src_top_y;
+      const int offset64x = (src_colo_left_x >> 6) << 6;
+      const int offset64y = (src_colo_top_y >> 6) << 6;
+      const int mi_col_offset = (offset64x >> MI_SIZE_LOG2) & (sb_mi_size - 1);
+      const int mi_row_offset = (offset64y >> MI_SIZE_LOG2) & (sb_mi_size - 1);
+      const int pos = mi_row_offset * xd->is_mi_coded_stride + mi_col_offset;
+
+      if (xd->is_mi_coded[pos])
+        return 0;
+      if (offset64x == active_left_x && offset64y == active_top_y)
+        return 0;
+
+      TL_same_sb = 0;
+    }
+    else
+    {
+      TL_same_sb = 1;
+    }
+  }
+  else if (sb_size_log2 == 6)
+  {
+
+    if ((src_left_x >> sb_size_log2) < (active_left_x >> sb_size_log2))
+    {
+      TL_same_sb = 0;
+    }
+    else
+    {
+      TL_same_sb = 1;
+    }
+  }
+
+  if (TL_same_sb)
+  {
+    const int LT_mi_col_offset = (src_left_x >> MI_SIZE_LOG2) & (sb_mi_size - 1);
+    const int LT_mi_row_offset = (src_top_y >> MI_SIZE_LOG2) & (sb_mi_size - 1);
+    const int LT_pos = LT_mi_row_offset * xd->is_mi_coded_stride + LT_mi_col_offset;
+    if (xd->is_mi_coded[LT_pos] == 0)
+      return 0;
+  }
+
+  BR_same_sb = (src_right_x >> sb_size_log2) == (active_left_x >> sb_size_log2);
+  if (BR_same_sb)
+  {
+    const int BR_mi_col_offset = (src_right_x >> MI_SIZE_LOG2) & (sb_mi_size - 1);
+    const int BR_mi_row_offset = (src_bottom_y >> MI_SIZE_LOG2) & (sb_mi_size - 1);
+    const int BR_pos = BR_mi_row_offset * xd->is_mi_coded_stride + BR_mi_col_offset;
+    if (xd->is_mi_coded[BR_pos] == 0)
+      return 0;
+    assert(src_right_x < active_left_x || src_bottom_y < active_top_y);
+  }
+
+  return 1;
+}
+#endif
 
 static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
                                   const MACROBLOCKD *xd, int mi_row, int mi_col,
@@ -320,6 +445,11 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
   const int SCALE_PX_TO_MV = 8;
   // Disallow subpixel for now
   // SUBPEL_MASK is not the correct scale
+#if CONFIG_IBC_REF_CONS
+  if (bw > 64 || bh > 64)
+      return 0;
+#endif
+
   if (((dv.row & (SCALE_PX_TO_MV - 1)) || (dv.col & (SCALE_PX_TO_MV - 1))))
     return 0;
 
@@ -349,6 +479,25 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
       if (src_top_edge < tile_top_edge + 4 * SCALE_PX_TO_MV) return 0;
   }
 
+#if CONFIG_IBC_REF_CONS
+  if (xd->is_chroma_ref && av1_num_planes(cm) > 1)
+  {
+      const struct macroblockd_plane* const pd = &xd->plane[1];
+      if ((bw < 8 && pd->subsampling_x) && (bh < 8 && pd->subsampling_y))
+      {
+          return av1_is_dv_in_2superblock(dv, xd, mi_row / 2 * 2, mi_col / 2 * 2, 8, 8, mib_size_log2);
+      }
+      else if (bw < 8 && pd->subsampling_x)
+      {
+          return av1_is_dv_in_2superblock(dv, xd, mi_row, mi_col / 2 * 2, bh, 8, mib_size_log2);
+      }
+      else if (bh < 8 && pd->subsampling_y)
+      {
+          return av1_is_dv_in_2superblock(dv, xd, mi_row / 2 * 2, mi_col, 8, bw, mib_size_log2);
+      }
+  }
+  return av1_is_dv_in_2superblock(dv, xd, mi_row, mi_col, bh, bw, mib_size_log2);
+#else
   // Is the bottom right within an already coded SB? Also consider additional
   // constraints to facilitate HW decoder.
   const int max_mib_size = 1 << mib_size_log2;
@@ -371,7 +520,16 @@ static INLINE int av1_is_dv_valid(const MV dv, const AV1_COMMON *cm,
     return 0;
 
   return 1;
+#endif
 }
+#if CONFIG_IBC_REF_CONS
+static INLINE int av1_is_full_dv_valid(const FULLPEL_MV *full_dv, const AV1_COMMON *cm,
+                                       const MACROBLOCKD *xd, int mi_row, int mi_col,
+                                       BLOCK_SIZE bsize, int mib_size_log2) {
+  MV sub_mv = get_mv_from_fullmv(full_dv);
+  return av1_is_dv_valid(sub_mv, cm, xd, mi_row, mi_col, bsize, mib_size_log2);
+}
+#endif
 
 #ifdef __cplusplus
 }  // extern "C"

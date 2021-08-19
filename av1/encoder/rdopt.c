@@ -3374,9 +3374,17 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   MV_REFERENCE_FRAME ref_frame = INTRA_FRAME;
+
+#if CONFIG_IBC_INTER
+  mbmi->use_intrabc[xd->tree_type == CHROMA_PART] = 1;
+#endif
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                    xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
                    mbmi_ext->mode_context);
+#if CONFIG_IBC_INTER
+  mbmi->use_intrabc[xd->tree_type == CHROMA_PART] = 0;
+#endif
+
   // TODO(Ravi): Populate mbmi_ext->ref_mv_stack[ref_frame][4] and
   // mbmi_ext->weight[ref_frame][4] inside av1_find_mv_refs.
   av1_copy_usable_ref_mv_stack_and_weight(xd, mbmi_ext, ref_frame);
@@ -3401,7 +3409,11 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
   int_mv dv_ref = nearestmv.as_int == 0 ? nearmv : nearestmv;
 #endif  // CONFIG_NEW_INTER_MODES
   if (dv_ref.as_int == 0) {
-    av1_find_ref_dv(&dv_ref, tile, cm->seq_params.mib_size, mi_row);
+    av1_find_ref_dv(&dv_ref, tile, cm->seq_params.mib_size, mi_row
+#if CONFIG_IBC_REF_CONS
+        , bsize
+#endif
+    );
   }
   // Ref DV should not have sub-pel.
   assert((dv_ref.as_mv.col & 7) == 0);
@@ -3433,11 +3445,39 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                                      &dv_ref.as_mv, lookahead_search_sites,
                                      /*fine_search_interval=*/0);
   fullms_params.is_intra_mode = 1;
+#if CONFIG_IBC_REF_CONS
+  fullms_params.xd = xd;
+  fullms_params.cm = cm;
+  fullms_params.mib_size_log2 = cm->seq_params.mib_size_log2;
+  fullms_params.mi_col = mi_col;
+  fullms_params.mi_row = mi_row;
 
+  int left_coded_mi_edge = AOMMAX((sb_col - 1) * cm->seq_params.mib_size, tile->mi_col_start);
+  int right_coded_mi_edge = AOMMIN((sb_col + 1) * cm->seq_params.mib_size, tile->mi_col_end);
+  int up_coded_mi_edge = AOMMAX((sb_row)* cm->seq_params.mib_size, tile->mi_row_start);
+  int bottom_coded_mi_edge = AOMMIN((sb_row + 1) * cm->seq_params.mib_size, tile->mi_row_end);
+#endif
+
+#if CONFIG_IBC_INTER
+  int_mv best_hash_mv;
+  int hashsme = INT_MAX;
+  IntraBCHashInfo *intrabc_hash_info = &x->intrabc_hash_info;
+  hashsme = av1_intrabc_hash_search(
+    cpi, xd, &fullms_params, intrabc_hash_info, &best_hash_mv.as_fullmv);
+#endif
   for (enum IntrabcMotionDirection dir = IBC_MOTION_ABOVE;
        dir < IBC_MOTION_DIRECTIONS; ++dir) {
     switch (dir) {
       case IBC_MOTION_ABOVE:
+#if CONFIG_IBC_REF_CONS
+        fullms_params.mv_limits.col_min = 
+            (left_coded_mi_edge - mi_col) * MI_SIZE;
+        fullms_params.mv_limits.col_max =
+            (right_coded_mi_edge - mi_col) * MI_SIZE - w;
+        fullms_params.mv_limits.row_min =
+            (up_coded_mi_edge - mi_row) * MI_SIZE;
+        fullms_params.mv_limits.row_max = -h;
+#else
         fullms_params.mv_limits.col_min =
             (tile->mi_col_start - mi_col) * MI_SIZE;
         fullms_params.mv_limits.col_max =
@@ -3446,8 +3486,18 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
             (tile->mi_row_start - mi_row) * MI_SIZE;
         fullms_params.mv_limits.row_max =
             (sb_row * cm->seq_params.mib_size - mi_row) * MI_SIZE - h;
+#endif
         break;
       case IBC_MOTION_LEFT:
+#if CONFIG_IBC_REF_CONS
+          fullms_params.mv_limits.col_min =
+              (left_coded_mi_edge - mi_col) * MI_SIZE;
+          fullms_params.mv_limits.col_max = -w;
+          fullms_params.mv_limits.row_min =
+              (up_coded_mi_edge - mi_row) * MI_SIZE;
+          fullms_params.mv_limits.row_max =
+              (bottom_coded_mi_edge - mi_row) * MI_SIZE - h;
+#else
         fullms_params.mv_limits.col_min =
             (tile->mi_col_start - mi_col) * MI_SIZE;
         fullms_params.mv_limits.col_max =
@@ -3460,6 +3510,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
             AOMMIN((sb_row + 1) * cm->seq_params.mib_size, tile->mi_row_end);
         fullms_params.mv_limits.row_max =
             (bottom_coded_mi_edge - mi_row) * MI_SIZE - h;
+#endif
         break;
       default: assert(0);
     }
@@ -3477,6 +3528,18 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 
     const int step_param = cpi->mv_search_params.mv_step_param;
     const FULLPEL_MV start_mv = get_fullmv_from_mv(&dv_ref.as_mv);
+#if CONFIG_IBC_INTER
+    int_mv best_mv;
+    int bestsme = hashsme == INT_MAX ? av1_full_pixel_search(start_mv, &fullms_params, step_param,
+      NULL, &best_mv.as_fullmv, NULL) : INT_MAX;
+    if (hashsme < bestsme) {
+      int flag = GET_MV_RAWPEL(best_mbmi.mv[0].as_mv.col) == best_hash_mv.as_fullmv.col
+        &&  GET_MV_RAWPEL(best_mbmi.mv[0].as_mv.row) == best_hash_mv.as_fullmv.row;
+      best_mv = best_hash_mv;
+      bestsme = hashsme;
+      if (flag) continue;
+    }
+#else
     IntraBCHashInfo *intrabc_hash_info = &x->intrabc_hash_info;
     int_mv best_mv, best_hash_mv;
 
@@ -3488,6 +3551,7 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
       best_mv = best_hash_mv;
       bestsme = hashsme;
     }
+#endif
 
     if (bestsme == INT_MAX) continue;
     const MV dv = get_mv_from_fullmv(&best_mv.as_fullmv);
@@ -3724,6 +3788,10 @@ static AOM_INLINE void rd_pick_skip_mode(
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->ref_frame[0] = ref_frame;
   mbmi->ref_frame[1] = second_ref_frame;
+#if CONFIG_IBC_INTER
+  mbmi->use_intrabc[xd->tree_type == CHROMA_PART] = 0;
+#endif
+
   const uint8_t ref_frame_type = av1_ref_frame_type(mbmi->ref_frame);
   if (x->mbmi_ext->ref_mv_count[ref_frame_type] == UINT8_MAX) {
     if (x->mbmi_ext->ref_mv_count[ref_frame] == UINT8_MAX ||
@@ -4586,7 +4654,11 @@ static int inter_mode_search_order_independent_skip(
 
 static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
                              const MV_REFERENCE_FRAME *ref_frames,
-                             const AV1_COMMON *cm) {
+                             const AV1_COMMON *cm
+#if CONFIG_IBC_INTER
+  , MACROBLOCKD *const xd
+#endif
+) {
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
   mbmi->ref_mv_idx = 0;
   mbmi->mode = curr_mode;
@@ -4600,6 +4672,9 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->interintra_mode = (INTERINTRA_MODE)(II_DC_PRED - 1);
   set_default_interp_filters(mbmi, cm->features.interp_filter);
+#if CONFIG_IBC_INTER
+  mbmi->use_intrabc[xd->tree_type == CHROMA_PART] = 0;
+#endif
 }
 
 static AOM_INLINE void collect_single_states(const FeatureFlags *const features,
@@ -5414,7 +5489,9 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   const ModeCosts *mode_costs = &x->mode_costs;
   const int *comp_inter_cost =
       mode_costs->comp_inter_cost[av1_get_reference_mode_context(xd)];
-
+#if CONFIG_IBC_INTER
+  mbmi->use_intrabc[xd->tree_type == CHROMA_PART] = 0;
+#endif
   InterModeSearchState search_state;
   init_inter_mode_search_state(&search_state, cpi, x, bsize, best_rd_so_far);
   INTERINTRA_MODE interintra_modes[REF_FRAMES] = {
@@ -5622,7 +5699,11 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
         ref_frame > INTRA_FRAME && second_ref_frame == NONE_FRAME;
     const int comp_pred = second_ref_frame > INTRA_FRAME;
 
-    init_mbmi(mbmi, this_mode, ref_frames, cm);
+    init_mbmi(mbmi, this_mode, ref_frames, cm
+#if CONFIG_IBC_INTER
+      , xd
+#endif
+    );
 
     txfm_info->skip_txfm = 0;
     num_single_modes_processed += is_single_pred;
@@ -5857,7 +5938,11 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
 
       assert(av1_mode_defs[mode_enum].ref_frame[0] == INTRA_FRAME);
       assert(av1_mode_defs[mode_enum].ref_frame[1] == NONE_FRAME);
-      init_mbmi(mbmi, this_mode, av1_mode_defs[mode_enum].ref_frame, cm);
+      init_mbmi(mbmi, this_mode, av1_mode_defs[mode_enum].ref_frame, cm 
+#if CONFIG_IBC_INTER
+        ,xd
+#endif
+      );
       txfm_info->skip_txfm = 0;
 
       RD_STATS intra_rd_stats, intra_rd_stats_y, intra_rd_stats_uv;
@@ -5941,6 +6026,41 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
       rd_pick_skip_mode(rd_cost, &search_state, cpi, x, bsize, yv12_mb);
     }
   }
+
+#if CONFIG_IBC_INTER
+  if(search_state.best_skip2 == 0)
+  {
+    const int try_intrabc =
+      cpi->oxcf.kf_cfg.enable_intrabc &&
+      av1_allow_intrabc(cm) && (xd->tree_type != CHROMA_PART);
+    RD_STATS this_rd_cost;
+    if (try_intrabc) {
+      this_rd_cost.rdcost = INT64_MAX;
+      mbmi->ref_frame[0] = INTRA_FRAME;
+      mbmi->ref_frame[1] = NONE_FRAME;
+      mbmi->use_intrabc[xd->tree_type == CHROMA_PART] = 0;
+      mbmi->mv[0].as_int = 0;
+      mbmi->skip_mode = 0;
+      rd_pick_intrabc_mode_sb(cpi, x, ctx, &this_rd_cost, bsize, search_state.best_rd);
+
+      if (this_rd_cost.rdcost < search_state.best_rd) {
+        search_state.best_mode_index = THR_DC;
+        rd_cost->rate = this_rd_cost.rate;
+        rd_cost->dist = this_rd_cost.dist;
+        rd_cost->rdcost = this_rd_cost.rdcost;
+
+        search_state.best_rd = rd_cost->rdcost;
+        search_state.best_mbmode = *mbmi;
+        search_state.best_skip2 = mbmi->skip_txfm[xd->tree_type == CHROMA_PART];
+        search_state.best_mode_skippable = mbmi->skip_txfm[xd->tree_type == CHROMA_PART];
+        memcpy(ctx->blk_skip, txfm_info->blk_skip,
+          sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
+        av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
+        ctx->rd_stats.skip_txfm = mbmi->skip_txfm[xd->tree_type == CHROMA_PART];
+      }
+    }
+  }
+#endif
 
   // Make sure that the ref_mv_idx is only nonzero when we're
   // using a mode which can support ref_mv_idx

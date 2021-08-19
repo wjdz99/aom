@@ -2972,9 +2972,14 @@ static INLINE int frame_is_kf_gf_arf(const AV1_COMP *cpi) {
 
 // TODO(huisu@google.com, youzhou@microsoft.com): enable hash-me for HBD.
 static INLINE int av1_use_hash_me(const AV1_COMP *const cpi) {
+#if CONFIG_IBC_INTER
+  return (cpi->common.features.allow_screen_content_tools &&
+    cpi->common.features.allow_intrabc);
+#else
   return (cpi->common.features.allow_screen_content_tools &&
           cpi->common.features.allow_intrabc &&
           frame_is_intra_only(&cpi->common));
+#endif
 }
 
 static INLINE const YV12_BUFFER_CONFIG *get_ref_frame_yv12_buf(

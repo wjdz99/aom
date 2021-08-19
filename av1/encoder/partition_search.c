@@ -616,6 +616,9 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
     }
   }
 #endif
+#if CONFIG_IBC_REF_CONS
+  av1_mark_block_as_coded(xd, mi_row, mi_col, bsize, cm->seq_params.sb_size);
+#endif
 }
 
 static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
