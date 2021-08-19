@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1244c9d_a3a03c40",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-19T20:57:57Z",
+      "side": 1,
+      "message": "Why do we need a [0] here?\nFrom line 33 and 34, it looks like r_i is a single variable?",
+      "range": {
+        "startLine": 38,
+        "startChar": 23,
+        "endLine": 38,
+        "endChar": 26
+      },
+      "revId": "ed6277750f43a9f6970f480edce57f11f2038aee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
