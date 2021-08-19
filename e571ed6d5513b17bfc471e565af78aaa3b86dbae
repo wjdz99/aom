@@ -39,6 +39,30 @@
       },
       "revId": "e571ed6d5513b17bfc471e565af78aaa3b86dbae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "420d48cb_9342b2f6",
+        "filename": "av1/common/alloccommon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-08-19T02:43:31Z",
+      "side": 1,
+      "message": "The flag init_worker is introduced to ensure that decoder behaviour is not affected. Now reallocation happens if cdef_info-\u003eallocated_num_workers !\u003d num_workers and init_worker \u003d 1 (when called from decoder, init_worker is always passed as 1). In the encoder side, we need to control the reallocation based on whether the frame is a parallel frame or not. For parallel frames, reallocation of cdef_worker need not happen. The follow-up CL contains the change where there are separate calls for parallel frames where init_worker is made 0, so that only cm buffers and cdef_sync are initialized.",
+      "parentUuid": "c9b77387_850e7abb",
+      "range": {
+        "startLine": 230,
+        "startChar": 30,
+        "endLine": 230,
+        "endChar": 41
+      },
+      "revId": "e571ed6d5513b17bfc471e565af78aaa3b86dbae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
