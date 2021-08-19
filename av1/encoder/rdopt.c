@@ -4532,6 +4532,35 @@ static AOM_INLINE int prune_ref_frame(const AV1_COMP *cpi, const MACROBLOCK *x,
   return 0;
 }
 
+#if CONFIG_NEW_REF_SIGNALING
+static AOM_INLINE int prune_ref_frame_nrs(const AV1_COMP *cpi,
+                                          const MACROBLOCK *x,
+                                          MV_REFERENCE_FRAME_NRS *rf) {
+  const int comp_pred = (rf[1] != INVALID_IDX);
+  if (comp_pred) {
+    if (!cpi->oxcf.ref_frm_cfg.enable_onesided_comp ||
+        cpi->sf.inter_sf.disable_onesided_comp) {
+      // Disable all compound references
+      if (cpi->all_one_sided_refs) return 1;
+      // If both references are on the same side prune
+      if (get_dir_rank(cm, rf[0], NULL) == get_dir_rank(cm, rf[1], NULL))
+        return 1;
+    } else if (!cpi->sf.rt_sf.use_nonrd_pick_mode &&
+               cpi->sf.inter_sf.selective_ref_frame >= 2) {
+      // If both references are on the same side prune
+      if (get_dir_rank(cm, rf[0], NULL) == get_dir_rank(cm, rf[1], NULL))
+        return 1;
+    }
+  }
+
+  if (prune_ref_by_selective_ref_frame_nrs(cpi, x, rf)) {
+    return 1;
+  }
+
+  return 0;
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 static AOM_INLINE int is_ref_frame_used_by_compound_ref(
     int ref_frame, int skip_ref_frame_mask) {
   for (int r = ALTREF_FRAME + 1; r < MODE_CTX_REF_FRAMES; ++r) {

@@ -110,6 +110,30 @@ static INLINE int get_furthest_future_ref_index(const AV1_COMMON *const cm) {
   }
   return index;
 }
+
+// Gets directional i.e. past/future ref rank from overall rank
+// in dir_refrank[0]/[1] respectively. Returns 0 if found in past
+// list, 1 if found in future list, -1 if not found in either (error).
+static INLINE int get_dir_rank(AV1_COMMON *const cm, int refrank,
+                               int dir_refrank[2]) {
+  assert(refrank < cm->new_ref_frame_data.n_total_refs);
+  dir_refrank[0] = -1;
+  dir_refrank[1] = -1;
+  for (int i = 0; i < cm->new_ref_frame_data.n_past_refs; ++i) {
+    if (cm->new_ref_frame_data.past_refs[i] == refrank) {
+      dir_refrank[0] = i;
+      return 0;
+    }
+  }
+  for (int i = 0; i < cm->new_ref_frame_data.n_future_refs; ++i) {
+    if (cm->new_ref_frame_data.future_refs[i] == refrank) {
+      dir_refrank[1] = i;
+      return 1;
+    }
+  }
+  return -1;
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
 #endif  // NEW_REF_SIGNALING
 
 static INLINE int get_segment_id(const CommonModeInfoParams *const mi_params,
