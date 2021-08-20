@@ -4635,7 +4635,6 @@ typedef struct {
   int skip_ref_frame_mask;
   int reach_first_comp_mode;
   int mode_thresh_mul_fact;
-  int *intra_mode_idx_ls;
   int num_single_modes_processed;
   int prune_cpd_using_sr_stats_ready;
 } InterModeSFArgs;
@@ -4967,10 +4966,8 @@ static void handle_winner_cand(
  * \ingroup intra_mode_search
  *
  * This function searches for the best intra mode when the current frame is an
- * interframe. The list of luma intra mode candidates to be searched are stored
- * in InterModeSFArgs::intra_mode_idx_ls. This function however does *not*
- * handle luma palette mode. Palette mode is currently handled by \ref
- * av1_search_palette_mode.
+ * interframe. This function however does *not* handle luma palette mode.
+ * Palette mode is currently handled by \ref av1_search_palette_mode.
  *
  * This function will first iterate through the luma mode candidates to find the
  * best luma intra mode. Once the best luma mode it's found, it will then search
@@ -4999,8 +4996,6 @@ static void handle_winner_cand(
  * \param[in,out] ctx               Structure to hold the number of 4x4 blks to
  *                                  copy the tx_type and txfm_skip arrays.
  *                                  for only the Y plane.
- * \param[in,out] sf_args           Stores the list of intra mode candidates
- *                                  to be searched.
  * \param[in]     intra_ref_frame_cost  The entropy cost for signaling that the
  *                                      current ref frame is an intra frame.
  * \param[in]     yrd_threshold     The rdcost threshold for luma intra mode to
@@ -5037,8 +5032,7 @@ static AOM_INLINE void search_intra_modes_in_interframe(
   for (int i = 0; i < TOP_INTRA_MODEL_COUNT; i++) {
     top_intra_model_rd[i] = INT64_MAX;
   }
-  for (int mode_idx = INTRA_MODE_START; mode_idx < LUMA_MODE_COUNT;
-       ++mode_idx) {
+  for (int mode_idx = 0; mode_idx < LUMA_MODE_COUNT; ++mode_idx) {
     if (sf->intra_sf.skip_intra_in_interframe &&
         search_state->intra_search_state.skip_intra_modes)
       break;
@@ -5048,13 +5042,8 @@ static AOM_INLINE void search_intra_modes_in_interframe(
     if (sf_args->mode_skip_mask->pred_modes[INTRA_FRAME] & (1 << mbmi->mode))
       continue;
 
-    THR_MODES mode_enum = 0;
-    for (int i = 0; i < INTRA_MODE_END; ++i) {
-      if (mbmi->mode == av1_mode_defs[sf_args->intra_mode_idx_ls[i]].mode) {
-        mode_enum = sf_args->intra_mode_idx_ls[i];
-        break;
-      }
-    }
+    const THR_MODES mode_enum =
+        get_prediction_mode_idx(mbmi->mode, INTRA_FRAME, NONE_FRAME);
     if ((!cpi->oxcf.intra_mode_cfg.enable_smooth_intra ||
          cpi->sf.intra_sf.disable_smooth_intra) &&
         (mbmi->mode == SMOOTH_PRED || mbmi->mode == SMOOTH_H_PRED ||
@@ -5393,10 +5382,6 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
         cpi->sf.rt_sf.force_tx_search_off);
   InterModesInfo *inter_modes_info = x->inter_modes_info;
   inter_modes_info->num = 0;
-  int intra_mode_idx_ls[INTRA_MODES];
-  for (i = 0; i < INTRA_MODES; ++i) {
-    intra_mode_idx_ls[i] = i + THR_DC;
-  }
 
   // Temporary buffers used by handle_inter_mode().
   uint8_t *const tmp_buf = get_buf_by_bd(xd, x->tmp_pred_bufs[0]);
@@ -5468,7 +5453,6 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
                               skip_ref_frame_mask,
                               0,
                               mode_thresh_mul_fact,
-                              intra_mode_idx_ls,
                               0,
                               0 };
   int64_t best_inter_yrd = INT64_MAX;
