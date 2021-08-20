@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "014230e8_82a68fec",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 18227
+      },
+      "writtenOn": "2021-08-20T21:38:53Z",
+      "side": 1,
+      "message": "This array was added back by https://aomedia-review.googlesource.com/c/aom/+/143421/7, please remove this unnecessary array.",
+      "revId": "6a66b14e2575a2f89bcedaec024fae4c9831c27f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
