@@ -5058,6 +5058,9 @@ static int inter_mode_search_order_independent_skip(
 }
 
 static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
+#if CONFIG_NEW_REF_SIGNALING
+                             const MV_REFERENCE_FRAME_NRS *ref_frames_nrs,
+#endif  // CONFIG_NEW_REF_SIGNALING
                              const MV_REFERENCE_FRAME *ref_frames,
                              const AV1_COMMON *cm, const SB_INFO *sbi) {
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
@@ -5067,10 +5070,16 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->ref_frame[0] = ref_frames[0];
   mbmi->ref_frame[1] = ref_frames[1];
 #if CONFIG_NEW_REF_SIGNALING
-  mbmi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
+  mbmi->ref_frame_nrs[0] = ref_frames_nrs[0];
+/*
+    convert_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame[0]);
-  mbmi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
+*/
+  mbmi->ref_frame_nrs[1] = ref_frames_nrs[1];
+/*
+    convert_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame[1]);
+*/
 #endif  // CONFIG_NEW_REF_SIGNALING
   pmi->palette_size[0] = 0;
   pmi->palette_size[1] = 0;
@@ -6128,21 +6137,32 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   // This is the main loop of this function. It loops over all possible modes
   // and calls handle_inter_mode() to compute the RD for each.
 #if CONFIG_NEW_REF_SIGNALING
+  const int n_refs = cm->new_ref_frame_data.n_total_refs;
   for (PREDICTION_MODE this_mode = 0; this_mode < MB_MODE_COUNT; ++this_mode) {
-    for (MV_REFERENCE_FRAME ref_frame = 0; ref_frame < REF_FRAMES;
+    for (MV_REFERENCE_FRAME_NRS ref_frame = 0; ref_frame < n_refs;
          ++ref_frame) {
-      if (this_mode < INTRA_MODE_END && ref_frame != INTRA_FRAME) continue;
+      if (this_mode < INTRA_MODE_END && ref_frame != INTRA_FRAME_NRS) continue;
       for (MV_REFERENCE_FRAME second_ref_frame = -1;
-           second_ref_frame < REF_FRAMES; ++second_ref_frame) {
+           second_ref_frame < n_refs; ++second_ref_frame) {
         if (second_ref_frame == INTRA_FRAME) continue;
         if (second_ref_frame != NONE_FRAME && this_mode < COMP_INTER_MODE_START)
           continue;
         if (this_mode >= COMP_INTER_MODE_START &&
             this_mode < COMP_INTER_MODE_END && second_ref_frame <= INTRA_FRAME)
           continue;
-        if (skip_compound_search(ref_frame, second_ref_frame)) continue;
-        const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame,
+        if (second_ref_frame != INVALID_IDX && second_ref_frame < ref_frame) continue;
+
+        const MV_REFERENCE_FRAME ref_frames_nrs[2] = { ref_frame,
                                                    second_ref_frame };
+        const MV_REFERENCE_FRAME ref_frames[2];
+        ref_frames[0] = 
+          convert_ranked_ref_to_named_ref_index(
+            &cm->new_ref_frame_data, ref_frames_nrs[0]);
+        ref_frames[1] = 
+          convert_ranked_ref_to_named_ref_index(
+            &cm->new_ref_frame_data, ref_frames_nrs[1]);
+        // TODO(sarahparker) delete this
+        if (skip_compound_search(ref_frames[0], ref_frames[1])) continue;
 #else
   for (THR_MODES midx = THR_MODE_START; midx < THR_MODE_END; ++midx) {
     // Get the actual prediction mode we are trying in this iteration
