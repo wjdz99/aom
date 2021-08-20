@@ -1342,23 +1342,27 @@ void av1_predict_intra_block(
       col_off || (ss_x ? xd->chroma_left_available : xd->left_available);
   const int mi_row = -xd->mb_to_top_edge >> (3 + MI_SIZE_LOG2);
   const int mi_col = -xd->mb_to_left_edge >> (3 + MI_SIZE_LOG2);
+#if CONFIG_SDP
+  BLOCK_SIZE bsize = mbmi->sb_type[plane > 0];
+#else   // CONFIG_SDP
+  BLOCK_SIZE bsize = mbmi->sb_type;
+#endif  // CONFIG_SDP
+  const int mi_wide = mi_size_wide[bsize];
+  const int mi_high = mi_size_high[bsize];
 
   // Distance between the right edge of this prediction block to
-  // the frame right edge
-  const int xr = (xd->mb_to_right_edge >> (3 + ss_x)) + wpx - x - txwpx;
+  // the tile right edge
+  const int xr = ((xd->tile.mi_col_end - mi_col - mi_wide) << (2 - ss_x)) +
+                 wpx - x - txwpx;
   // Distance between the bottom edge of this prediction block to
-  // the frame bottom edge
-  const int yd = (xd->mb_to_bottom_edge >> (3 + ss_y)) + hpx - y - txhpx;
+  // the tile bottom edge
+  const int yd = ((xd->tile.mi_row_end - mi_row - mi_high) << (2 - ss_y)) +
+                 hpx - y - txhpx;
   const int right_available =
       mi_col + ((col_off + txw) << ss_x) < xd->tile.mi_col_end;
   const int bottom_available =
       (yd > 0) && (mi_row + ((row_off + txh) << ss_y) < xd->tile.mi_row_end);
 
-#if CONFIG_SDP
-  BLOCK_SIZE bsize = mbmi->sb_type[plane > 0];
-#else
-  BLOCK_SIZE bsize = mbmi->sb_type;
-#endif
   const BLOCK_SIZE init_bsize = bsize;
   // force 4x4 chroma component block size.
   if (ss_x || ss_y) {
