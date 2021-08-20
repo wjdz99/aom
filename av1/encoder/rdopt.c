@@ -5058,6 +5058,9 @@ static int inter_mode_search_order_independent_skip(
 }
 
 static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
+#if CONFIG_NEW_REF_SIGNALING
+                             const MV_REFERENCE_FRAME_NRS *ref_frames_nrs,
+#endif  // CONFIG_NEW_REF_SIGNALING
                              const MV_REFERENCE_FRAME *ref_frames,
                              const AV1_COMMON *cm, const SB_INFO *sbi) {
   PALETTE_MODE_INFO *const pmi = &mbmi->palette_mode_info;
@@ -5067,10 +5070,16 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->ref_frame[0] = ref_frames[0];
   mbmi->ref_frame[1] = ref_frames[1];
 #if CONFIG_NEW_REF_SIGNALING
-  mbmi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
+  mbmi->ref_frame_nrs[0] = ref_frames_nrs[0];
+/*
+    convert_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame[0]);
-  mbmi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
+*/
+  mbmi->ref_frame_nrs[1] = ref_frames_nrs[1];
+/*
+    convert_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame[1]);
+*/
 #endif  // CONFIG_NEW_REF_SIGNALING
   pmi->palette_size[0] = 0;
   pmi->palette_size[1] = 0;
@@ -5587,6 +5596,7 @@ typedef struct {
 #if CONFIG_NEW_REF_SIGNALING
   PREDICTION_MODE *intra_mode_idx_ls;
   MV_REFERENCE_FRAME (*intra_mode_ref_frames)[2];
+  MV_REFERENCE_FRAME_NRS (*intra_mode_ref_frames_nrs)[2];
 #else
   int *intra_mode_idx_ls;
 #endif  // CONFIG_NEW_REF_SIGNALING
@@ -5687,6 +5697,8 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
     args->intra_mode_idx_ls[(*args->intra_mode_num)] = this_mode;
     args->intra_mode_ref_frames[(*args->intra_mode_num)][0] = ref_frames[0];
     args->intra_mode_ref_frames[(*args->intra_mode_num)][1] = ref_frames[1];
+    args->intra_mode_ref_frames_nrs[(*args->intra_mode_num)][0] = ref_frames_nrs[0];
+    args->intra_mode_ref_frames_nrs[(*args->intra_mode_num)][1] = ref_frames_nrs[1];
     (*args->intra_mode_num)++;
 #else
     args->intra_mode_idx_ls[(*args->intra_mode_num)++] = mode_enum;
@@ -6016,6 +6028,7 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
 #if CONFIG_NEW_REF_SIGNALING
   PREDICTION_MODE intra_mode_idx_ls[INTRA_MODES];
   MV_REFERENCE_FRAME intra_mode_ref_frames[INTRA_MODES][2];
+  MV_REFERENCE_FRAME_NRS intra_mode_ref_frames_nrs[INTRA_MODES][2];
 #else
   int intra_mode_idx_ls[INTRA_MODES];
 #endif  // CONFIG_NEW_REF_SIGNALING
@@ -6119,6 +6132,7 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     intra_mode_idx_ls,
 #if CONFIG_NEW_REF_SIGNALING
     intra_mode_ref_frames,
+    intra_mode_ref_frames_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
     &intra_mode_num,
     &num_single_modes_processed,
@@ -6128,21 +6142,31 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   // This is the main loop of this function. It loops over all possible modes
   // and calls handle_inter_mode() to compute the RD for each.
 #if CONFIG_NEW_REF_SIGNALING
+  const int n_refs = cm->new_ref_frame_data.n_total_refs;
   for (PREDICTION_MODE this_mode = 0; this_mode < MB_MODE_COUNT; ++this_mode) {
-    for (MV_REFERENCE_FRAME ref_frame = 0; ref_frame < REF_FRAMES;
-         ++ref_frame) {
-      if (this_mode < INTRA_MODE_END && ref_frame != INTRA_FRAME) continue;
-      for (MV_REFERENCE_FRAME second_ref_frame = -1;
-           second_ref_frame < REF_FRAMES; ++second_ref_frame) {
-        if (second_ref_frame == INTRA_FRAME) continue;
-        if (second_ref_frame != NONE_FRAME && this_mode < COMP_INTER_MODE_START)
+    for (MV_REFERENCE_FRAME_NRS ref0 = 0; ref0 < n_refs;
+         ++ref0) {
+      if (this_mode < INTRA_MODE_END && ref0 != INTRA_FRAME_NRS) continue;
+      for (MV_REFERENCE_FRAME ref1 = -1;
+           ref1 < n_refs; ++ref1) {
+        if (ref1 == INTRA_FRAME) continue;
+        if (ref1 != NONE_FRAME && this_mode < COMP_INTER_MODE_START)
           continue;
         if (this_mode >= COMP_INTER_MODE_START &&
-            this_mode < COMP_INTER_MODE_END && second_ref_frame <= INTRA_FRAME)
+            this_mode < COMP_INTER_MODE_END && ref1 <= INTRA_FRAME)
           continue;
-        if (skip_compound_search(ref_frame, second_ref_frame)) continue;
-        const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame,
-                                                   second_ref_frame };
+        if (ref1 != INVALID_IDX && ref1 < ref0) continue;
+
+        const MV_REFERENCE_FRAME ref_frames_nrs[2] = { ref0, ref1 };
+        // TODO(sarahparker) delete this
+        MV_REFERENCE_FRAME ref_frame = 
+          convert_ranked_ref_to_named_ref_index(
+            &cm->new_ref_frame_data, ref0);
+        MV_REFERENCE_FRAME second_ref_frame  = 
+          convert_ranked_ref_to_named_ref_index(
+            &cm->new_ref_frame_data, ref1);
+        const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame, second_ref_frame };
+        if (skip_compound_search(ref_frames[0], ref_frames[1])) continue;
 #else
   for (THR_MODES midx = THR_MODE_START; midx < THR_MODE_END; ++midx) {
     // Get the actual prediction mode we are trying in this iteration
@@ -6164,7 +6188,11 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
             ref_frame > INTRA_FRAME && second_ref_frame == NONE_FRAME;
         const int comp_pred = second_ref_frame > INTRA_FRAME;
 
-        init_mbmi(mbmi, this_mode, ref_frames, cm, xd->sbi);
+        init_mbmi(mbmi, this_mode,
+#if CONFIG_NEW_REF_SIGNALING
+                  ref_frames_nrs,
+#endif  // CONFIG_NEW_REF_SIGNALING
+                  ref_frames, cm, xd->sbi);
 
         txfm_info->skip_txfm = 0;
         num_single_modes_processed += is_single_pred;
@@ -6346,10 +6374,14 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     const PREDICTION_MODE this_mode = intra_mode_idx_ls[j];
     MV_REFERENCE_FRAME refs[2] = { intra_mode_ref_frames[j][0],
                                    intra_mode_ref_frames[j][1] };
+    MV_REFERENCE_FRAME_NRS refs_nrs[2] = { intra_mode_ref_frames_nrs[j][0],
+                                   intra_mode_ref_frames_nrs[j][1] };
 
     assert(refs[0] == INTRA_FRAME);
     assert(refs[1] == NONE_FRAME);
-    init_mbmi(mbmi, this_mode, refs, cm, xd->sbi);
+    assert(refs_nrs[0] == INTRA_FRAME_NRS);
+    assert(refs_nrs[1] == INVALID_IDX);
+    init_mbmi(mbmi, this_mode, refs_nrs, refs, cm, xd->sbi);
 #else
     const THR_MODES mode_enum = intra_mode_idx_ls[j];
     const MODE_DEFINITION *mode_def = &av1_mode_defs[mode_enum];
