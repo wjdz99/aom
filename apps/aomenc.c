@@ -139,7 +139,6 @@ static const int av1_arg_ctrl_map[] = {
   AV1E_SET_ENABLE_DEBLOCKING,
   AV1E_SET_ENABLE_CDEF,
   AV1E_SET_ENABLE_RESTORATION,
-  AV1E_SET_DISABLE_ML_PARTITION_SPEED_FEATURES,
   AV1E_SET_ENABLE_RECT_PARTITIONS,
   AV1E_SET_ENABLE_AB_PARTITIONS,
   AV1E_SET_ENABLE_1TO4_PARTITIONS,
@@ -341,7 +340,6 @@ const arg_def_t *av1_ctrl_args[] = {
   &g_av1_codec_arg_defs.enable_deblocking,
   &g_av1_codec_arg_defs.enable_cdef,
   &g_av1_codec_arg_defs.enable_restoration,
-  &g_av1_codec_arg_defs.disable_ml_partition_speed_features,
   &g_av1_codec_arg_defs.enable_rect_partitions,
   &g_av1_codec_arg_defs.enable_ab_partitions,
   &g_av1_codec_arg_defs.enable_1to4_partitions,
@@ -453,6 +451,7 @@ const arg_def_t *av1_key_val_args[] = {
 #if CONFIG_CCSO
   &g_av1_codec_arg_defs.enable_ccso,
 #endif
+  &g_av1_codec_arg_defs.disable_ml_partition_speed_features,
   NULL,
 };
 
@@ -584,6 +583,7 @@ static void init_config(cfg_options_t *config) {
   config->enable_rect_partitions = 1;
   config->enable_1to4_partitions = 1;
   config->disable_ml_transform_speed_features = 0;
+  config->disable_ml_partition_speed_features = 0;
 #if CONFIG_SDP
   config->enable_sdp = 1;
 #endif
