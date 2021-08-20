@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "604a0191_5cc57d60",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-20T23:40:53Z",
+      "side": 1,
+      "message": "Do we still this version?\nminimize_percentage_error_model_a() is in the other file already.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 0
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e47234c1_729e5542",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error_model_b.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-20T23:40:53Z",
+      "side": 1,
+      "message": "should we use remove_zero_entries_sync() here?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 31
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc601722_089ab730",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error_model_b.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-20T23:40:53Z",
+      "side": 1,
+      "message": "Our goal is to compare model A and model B here.\nWe shouldn\u0027t use model A in model B.\nIt\u0027s fine if the input is zero.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 63
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5105bff6_ec34412b",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error_model_b.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-08-20T23:40:53Z",
+      "side": 1,
+      "message": "Our goal is to compare model A and model B.\nWe should evaluate two sets of model paramters like follows.\nxa \u003d minimize_percentage_error_model_a(A, B)\nxb \u003d minimize_percentage_error_model_b(A, mv, B)\n\nThen evaluate the error for each of them.\nLike\nerror_a \u003d average_error_model_a(A, B, xa)\nerror_b \u003d average_error_model_a(A, mv, B, xb)\n\nThen compare error_a and error_b.",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 55
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
