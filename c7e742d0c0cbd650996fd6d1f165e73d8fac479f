@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eea4f245_c6c683cb",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-23T20:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "604a0191_5cc57d60",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 0
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e47234c1_729e5542",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-08-20T23:40:53Z",
       "side": 1,
       "message": "should we use remove_zero_entries_sync() here?",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 31
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b4787de_e4310f52",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error_model_b.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-23T20:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e47234c1_729e5542",
       "range": {
         "startLine": 16,
         "startChar": 0,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b88e1f3_0feba3a2",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error_model_b.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-23T20:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc601722_089ab730",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 63
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5105bff6_ec34412b",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-08-20T23:40:53Z",
       "side": 1,
       "message": "Our goal is to compare model A and model B.\nWe should evaluate two sets of model paramters like follows.\nxa \u003d minimize_percentage_error_model_a(A, B)\nxb \u003d minimize_percentage_error_model_b(A, mv, B)\n\nThen evaluate the error for each of them.\nLike\nerror_a \u003d average_error_model_a(A, B, xa)\nerror_b \u003d average_error_model_a(A, mv, B, xb)\n\nThen compare error_a and error_b.",
+      "range": {
+        "startLine": 106,
+        "startChar": 8,
+        "endLine": 106,
+        "endChar": 55
+      },
+      "revId": "c7e742d0c0cbd650996fd6d1f165e73d8fac479f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6c024fd_58542e82",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error_model_b.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-08-23T20:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5105bff6_ec34412b",
       "range": {
         "startLine": 106,
         "startChar": 8,
