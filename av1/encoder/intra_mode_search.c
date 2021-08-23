@@ -1000,6 +1000,8 @@ int av1_handle_intra_y_mode(IntraModeSearchState *intra_search_state,
           intra_mode_info_cost_y(cpi, x, mbmi, bsize, mode_cost);
       best_rd_so_far = RDCOST(x->rdmult, tmp_rate, rd_stats_y->dist);
       try_filter_intra = (best_rd_so_far / 2) <= best_rd;
+    } else if (sf->intra_sf.skip_filter_intra_in_inter_frames >= 1) {
+      try_filter_intra = 0;
     }
 
     if (try_filter_intra) {
