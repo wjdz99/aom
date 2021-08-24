@@ -16,6 +16,24 @@
       "message": "This looks good but I just want to check the results on the lowres2 set",
       "revId": "41ea139999fa0b19ea304ff7b4feaec2a2545b23",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7af236b4_8b09cfcd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-24T19:44:30Z",
+      "side": 1,
+      "message": "There is approx. ~0.14% drop for selective ref frame and gm patches combined. It seems most of the drop comes from the first patch. So this patch is more or less neutral.",
+      "parentUuid": "5d877c7e_84aef305",
+      "revId": "41ea139999fa0b19ea304ff7b4feaec2a2545b23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
