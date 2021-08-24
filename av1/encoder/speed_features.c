@@ -1399,7 +1399,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->winner_mode_sf.tx_size_search_level = 1;
 
     sf->rt_sf.mode_search_skip_flags |= FLAG_SKIP_INTRA_DIRMISMATCH;
-    sf->rt_sf.num_inter_modes_for_tx_search = 5;
+    //sf->rt_sf.num_inter_modes_for_tx_search = 5;
     sf->rt_sf.skip_interp_filter_search = 1;
     sf->rt_sf.use_real_time_ref_set = 1;
     sf->rt_sf.use_simple_rd_model = 1;
