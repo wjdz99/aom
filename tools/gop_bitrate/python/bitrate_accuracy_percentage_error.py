@@ -1,33 +1,34 @@
 import numpy as np
 
+def lstsq_solution(A, B):
+    A_inv = np.linalg.pinv(A)
+    x = np.matmul(A_inv, B)
+    return x[0][0]
+
 # Finds the coefficient to multiply A by to minimize
 # the percentage error between A and B.
 def minimize_percentage_error_model_a(A, B):
-    z = np.where(B == 0)[0]
-    A = np.delete(A, z, axis=0)
-    B = np.delete(B, z, axis=0)
-    z = np.where(A == 0)[0]
-    A = np.delete(A, z, axis=0)
-    B = np.delete(B, z, axis=0)
-
     R = np.divide(A, B)
     num = 0
     den = 0
+    best_x = 0
+    best_error = 100
     for r_i in R:
         num += r_i
         den += r_i**2
+        curr_x = (num/den)[0]
+        curr_error = average_error_model_a(A, B, curr_x)
+
+        if curr_error < best_error:
+            best_error = curr_error
+            best_x = curr_x
     if den == 0:
         x = 0
     else:
         x = (num / den)[0]
-    return x
+    return best_x
 
 def minimize_percentage_error_model_b(r_e, r_m, r_f):
-    z = np.where(r_f == 0)[0]
-    r_e = np.delete(r_e, z, axis=0)
-    r_m = np.delete(r_m, z, axis=0)
-    r_f = np.delete(r_f, z, axis=0)
-
     r_ef = np.divide(r_e, r_f)
     r_mf = np.divide(r_m, r_f)
     sum_ef = np.sum(r_ef)
@@ -48,16 +49,22 @@ def minimize_percentage_error_model_b(r_e, r_m, r_f):
 
 # Calculates the average percentage error between A and B.
 def average_error_model_a(A, B, x):
-    error = 0
+    actual_error = 0
+    estimated_error = 0
+    n = 0
     for i, a in enumerate(A):
         a = a[0]
         b = B[i][0]
         if b == 0:
             continue
-        error += abs(x*a - b) / b
-    error *= 100
-    error /= A.shape[0]
-    return error
+        actual_error_i = (abs(a-b)/b)*100
+        estimated_error_i = (abs(x*a-b)/b)*100
+        n += 1
+        actual_error += actual_error_i
+        estimated_error += estimated_error_i
+    actual_error /= n
+    estimated_error /= n
+    return estimated_error
 
 def average_error_model_b(A, M, B, x):
     error = 0
@@ -90,6 +97,20 @@ def print_solutions(file_path):
 
     for array in split:
         A, mv, B, update = np.hsplit(array, 4)
+
+        z = np.where(B == 0)[0]
+        r_e = np.delete(A, z, axis=0)
+        r_m = np.delete(mv, z, axis=0)
+        r_f = np.delete(B, z, axis=0)
+
+        A = r_e
+        mv = r_m
+        B = r_f
+
+        all_zeros = not A.any()
+        if all_zeros:
+            continue
+
         print("update type:", update[0][0])
         xa = minimize_percentage_error_model_a(A, B)
         xb = minimize_percentage_error_model_b(A, mv, B)
@@ -103,4 +124,4 @@ def print_solutions(file_path):
         print()
 
 if __name__ == "__main__":
-    print_solutions("data2/lowres_17f_target150_data.txt")
+    print_solutions("data2/lowres_17f_target400_data.txt")
