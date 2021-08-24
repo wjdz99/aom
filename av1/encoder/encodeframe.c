@@ -241,6 +241,8 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
     current_qindex = av1_get_sbq_perceptual_ai(cpi, sb_size, mi_row, mi_col);
   } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
     current_qindex = av1_get_sbq_user_rating_based(cpi, mi_row, mi_col);
+  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_ITERATIVE) {
+    current_qindex = av1_get_sb_qindex(cpi, mi_row, mi_col);
   }
 
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -1366,6 +1368,8 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     else if (deltaq_mode == DELTA_Q_PERCEPTUAL_AI)
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
     else if (deltaq_mode == DELTA_Q_USER_RATING_BASED)
+      cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+    else if (deltaq_mode == DELTA_Q_ITERATIVE)
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
 
     // Set delta_q_present_flag before it is used for the first time

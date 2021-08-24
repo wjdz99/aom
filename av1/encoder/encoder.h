@@ -159,6 +159,7 @@ enum {
   DELTA_Q_PERCEPTUAL = 2,     // Modulation to improve video perceptual quality
   DELTA_Q_PERCEPTUAL_AI = 3,  // Perceptual quality opt for all intra mode
   DELTA_Q_USER_RATING_BASED = 4,  // User rating based delta q mode
+  DELTA_Q_ITERATIVE = 5,  // SB qindex is determined iteratively
   DELTA_Q_MODE_COUNT  // This should always be the last member of the enum
 } UENUM1BYTE(DELTAQ_MODE);
 
@@ -2141,6 +2142,7 @@ typedef struct WeberStats {
   int64_t satd;
   double alpha;
   double max_scale;
+  double entropy;
 } WeberStats;
 
 typedef struct {
@@ -3182,6 +3184,17 @@ typedef struct AV1_COMP {
    * Context needed for third pass encoding.
    */
   THIRD_PASS_DEC_CTX *third_pass_ctx;
+
+  /*!
+   * Qindex of each superblock
+   */
+  int *sb_qindex;
+
+  /*!
+   * Estimated best prediction mode selected for each macroblock (16x16) in the
+   * allintra coding mode.
+   */
+  PREDICTION_MODE *est_best_mode;
 } AV1_COMP;
 
 /*!

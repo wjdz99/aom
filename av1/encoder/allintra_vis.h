@@ -34,4 +34,10 @@ void av1_set_mb_ur_variance(AV1_COMP *cpi);
 
 int av1_get_sbq_user_rating_based(AV1_COMP *const cpi, int mi_row, int mi_col);
 
+// Iterative sb qindex mode
+void av1_init_sb_qindex_buffer(AV1_COMP *cpi);
+
+void av1_set_sb_qindex(AV1_COMP *cpi);
+
+int av1_get_sb_qindex(AV1_COMP *const cpi, int mi_row, int mi_col);
 #endif  // AOM_AV1_ENCODER_ALLINTRA_VIS_H_

@@ -20,6 +20,7 @@
 #include "config/aom_dsp_rtcd.h"
 
 #include "aom/aomcx.h"
+#include "encoder.h"
 
 #if CONFIG_DENOISE
 #include "aom_dsp/grain_table.h"
@@ -1369,6 +1370,9 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
 
   cpi->mb_weber_stats = NULL;
   cpi->mb_delta_q = NULL;
+  cpi->mb_variance = NULL;
+  cpi->sb_qindex = NULL;
+  cpi->est_best_mode = NULL;
 
   {
     const int bsize = BLOCK_16X16;
@@ -3386,6 +3390,11 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_USER_RATING_BASED) {
     av1_init_mb_ur_var_buffer(cpi);
     av1_set_mb_ur_variance(cpi);
+  }
+
+  if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_ITERATIVE) {
+    av1_init_sb_qindex_buffer(cpi);
+    av1_set_sb_qindex(cpi);
   }
 
 #if CONFIG_INTERNAL_STATS
