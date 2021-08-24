@@ -120,11 +120,17 @@ void av1_enc_build_one_inter_predictor(uint8_t *dst, int dst_stride,
 }
 
 static void enc_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                       int plane, MB_MODE_INFO *mi, int bw,
-                                       int bh, int mi_x, int mi_y) {
-  av1_build_inter_predictors(cm, xd, plane, mi, 0 /* build_for_obmc */, bw, bh,
-                             mi_x, mi_y, NULL /* mc_buf */,
-                             enc_calc_subpel_params);
+                                       int plane, MB_MODE_INFO *mi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                       int_mv *mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                                       int bw, int bh, int mi_x, int mi_y) {
+  av1_build_inter_predictors(cm, xd, plane, mi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                             mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                             0 /* build_for_obmc */, bw, bh, mi_x, mi_y,
+                             NULL /* mc_buf */, enc_calc_subpel_params);
 }
 
 void av1_enc_build_inter_predictor_y(MACROBLOCKD *xd, int mi_row, int mi_col) {
@@ -159,12 +165,19 @@ void av1_enc_build_inter_predictor(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                    int mi_row, int mi_col,
                                    const BUFFER_SET *ctx, BLOCK_SIZE bsize,
                                    int plane_from, int plane_to) {
+#if CONFIG_OPTFLOW_REFINEMENT
+  int_mv mv_refined[2 * N_OF_OFFSETS];
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   for (int plane = plane_from; plane <= plane_to; ++plane) {
     if (plane && !xd->is_chroma_ref) break;
     const int mi_x = mi_col * MI_SIZE;
     const int mi_y = mi_row * MI_SIZE;
-    enc_build_inter_predictors(cm, xd, plane, xd->mi[0], xd->plane[plane].width,
-                               xd->plane[plane].height, mi_x, mi_y);
+    enc_build_inter_predictors(cm, xd, plane, xd->mi[0],
+#if CONFIG_OPTFLOW_REFINEMENT
+                               mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                               xd->plane[plane].width, xd->plane[plane].height,
+                               mi_x, mi_y);
 
     if (is_interintra_pred(xd->mi[0])) {
       BUFFER_SET default_ctx = {

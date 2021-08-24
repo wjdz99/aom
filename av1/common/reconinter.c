@@ -629,6 +629,10 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 }
 
 #if CONFIG_OPTFLOW_REFINEMENT
+
+// Whether to refine chroma MV or not
+#define OPFL_REFINE_CHROMA 0
+
 // Use second-pass motion compensation or not
 #define OPFL_SECOND_PASS_MC 1
 
@@ -2057,6 +2061,9 @@ static void build_inter_predictors_sub8x8(
 
 static void build_inter_predictors_8x8_and_bigger(
     const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mi,
+#if CONFIG_OPTFLOW_REFINEMENT
+    int_mv *mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     int build_for_obmc, int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func) {
   const int is_compound = has_second_ref(mi);
@@ -2090,7 +2097,6 @@ static void build_inter_predictors_8x8_and_bigger(
   const int pre_y = (mi_y + MI_SIZE * row_start) >> ss_y;
 
 #if CONFIG_OPTFLOW_REFINEMENT
-  int_mv mv_refined[2 * N_OF_OFFSETS];
   const int use_optflow_refinement =
       (mi->mode > NEW_NEWMV) && is_compound && is_opfl_refine_allowed(cm, mi);
   assert(IMPLIES(use_optflow_refinement, !build_for_obmc));
@@ -2200,7 +2206,14 @@ static void build_inter_predictors_8x8_and_bigger(
     }
 
 #if CONFIG_OPTFLOW_REFINEMENT
+#if OPFL_REFINE_CHROMA
+    // For luma, always apply offset MVs. For chroma, use the MVs derived for
+    // luma if luma subblock size is 8x8 (i.e., chroma block size > 8x8),
+    // and otherwise apply normal compound average.
+    if (use_optflow_refinement && (plane == 0 || bh > 8 || bw > 8)) {
+#else
     if (use_optflow_refinement && plane == 0) {
+#endif
 #if OPFL_SECOND_PASS_MC
       int n = opfl_get_subblock_size(bw, bh, plane);
       inter_pred_params.interp_filter_params[0] =
@@ -2266,9 +2279,12 @@ static void build_inter_predictors_8x8_and_bigger(
 }
 
 void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
-                                int plane, MB_MODE_INFO *mi, int build_for_obmc,
-                                int bw, int bh, int mi_x, int mi_y,
-                                uint8_t **mc_buf,
+                                int plane, MB_MODE_INFO *mi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                int_mv *mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                                int build_for_obmc, int bw, int bh, int mi_x,
+                                int mi_y, uint8_t **mc_buf,
                                 CalcSubpelParamsFunc calc_subpel_params_func) {
 #if CONFIG_SDP
   if (is_sub8x8_inter(xd, plane, mi->sb_type[PLANE_TYPE_Y],
@@ -2281,9 +2297,12 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
     build_inter_predictors_sub8x8(cm, xd, plane, mi, mi_x, mi_y, mc_buf,
                                   calc_subpel_params_func);
   } else {
-    build_inter_predictors_8x8_and_bigger(cm, xd, plane, mi, build_for_obmc, bw,
-                                          bh, mi_x, mi_y, mc_buf,
-                                          calc_subpel_params_func);
+    build_inter_predictors_8x8_and_bigger(cm, xd, plane, mi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                          mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                                          build_for_obmc, bw, bh, mi_x, mi_y,
+                                          mc_buf, calc_subpel_params_func);
   }
 }
 void av1_setup_dst_planes(struct macroblockd_plane *planes, BLOCK_SIZE bsize,

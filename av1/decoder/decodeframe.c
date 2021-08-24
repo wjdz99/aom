@@ -769,10 +769,17 @@ static void dec_calc_subpel_params_and_extend(
 
 static void dec_build_inter_predictors(const AV1_COMMON *cm,
                                        DecoderCodingBlock *dcb, int plane,
-                                       MB_MODE_INFO *mi, int build_for_obmc,
-                                       int bw, int bh, int mi_x, int mi_y) {
-  av1_build_inter_predictors(cm, &dcb->xd, plane, mi, build_for_obmc, bw, bh,
-                             mi_x, mi_y, dcb->mc_buf,
+                                       MB_MODE_INFO *mi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                                       int_mv *mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                                       int build_for_obmc, int bw, int bh,
+                                       int mi_x, int mi_y) {
+  av1_build_inter_predictors(cm, &dcb->xd, plane, mi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                             mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                             build_for_obmc, bw, bh, mi_x, mi_y, dcb->mc_buf,
                              dec_calc_subpel_params_and_extend);
 }
 
@@ -782,13 +789,19 @@ static AOM_INLINE void dec_build_inter_predictor(const AV1_COMMON *cm,
                                                  BLOCK_SIZE bsize) {
   MACROBLOCKD *const xd = &dcb->xd;
   const int num_planes = av1_num_planes(cm);
+#if CONFIG_OPTFLOW_REFINEMENT
+  int_mv mv_refined[2 * N_OF_OFFSETS];
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   for (int plane = 0; plane < num_planes; ++plane) {
     if (plane && !xd->is_chroma_ref) break;
     const int mi_x = mi_col * MI_SIZE;
     const int mi_y = mi_row * MI_SIZE;
-    dec_build_inter_predictors(cm, dcb, plane, xd->mi[0], 0,
-                               xd->plane[plane].width, xd->plane[plane].height,
-                               mi_x, mi_y);
+    dec_build_inter_predictors(cm, dcb, plane, xd->mi[0],
+#if CONFIG_OPTFLOW_REFINEMENT
+                               mv_refined,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                               0, xd->plane[plane].width,
+                               xd->plane[plane].height, mi_x, mi_y);
     if (is_interintra_pred(xd->mi[0])) {
       BUFFER_SET ctx = { { xd->plane[0].dst.buf, xd->plane[1].dst.buf,
                            xd->plane[2].dst.buf },
@@ -830,7 +843,11 @@ static INLINE void dec_build_prediction_by_above_pred(
 
     if (av1_skip_u4x4_pred_in_obmc(bsize, pd, 0)) continue;
     dec_build_inter_predictors(ctxt->cm, (DecoderCodingBlock *)ctxt->dcb, j,
-                               &backup_mbmi, 1, bw, bh, mi_x, mi_y);
+                               &backup_mbmi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                               NULL,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                               1, bw, bh, mi_x, mi_y);
   }
 }
 
@@ -893,7 +910,11 @@ static INLINE void dec_build_prediction_by_left_pred(
 
     if (av1_skip_u4x4_pred_in_obmc(bsize, pd, 1)) continue;
     dec_build_inter_predictors(ctxt->cm, (DecoderCodingBlock *)ctxt->dcb, j,
-                               &backup_mbmi, 1, bw, bh, mi_x, mi_y);
+                               &backup_mbmi,
+#if CONFIG_OPTFLOW_REFINEMENT
+                               NULL,
+#endif  // CONFIG_OPTFLOW_REFINEMENT
+                               1, bw, bh, mi_x, mi_y);
   }
 }
 
