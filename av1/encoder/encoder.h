@@ -2138,6 +2138,7 @@ typedef struct WeberStats {
   int64_t satd;
   double alpha;
   double max_scale;
+  double entropy;
 } WeberStats;
 
 typedef struct {
@@ -3169,6 +3170,11 @@ typedef struct AV1_COMP {
    * Frame level twopass status and control data
    */
   TWO_PASS_FRAME twopass_frame;
+
+  /*!
+   * Qindex of each superblock
+   */
+  int *sb_qindex;
 } AV1_COMP;
 
 /*!
