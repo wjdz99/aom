@@ -37,4 +37,4 @@ def print_solutions(file_path):
         print()
 
 if __name__ == "__main__":
-    print_solutions("data/lowres_64f_target150_data.txt")
+    print_solutions("data2/lowres_17f_target400_data.txt")
