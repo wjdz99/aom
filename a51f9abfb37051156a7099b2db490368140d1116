@@ -16,6 +16,24 @@
       "message": "You will need to convert the nrs gm parameters to the old framework and store them in cm-\u003eglobal_motion. There are a few places that still use the old gm parameters, I think mainly in mvref_common.c",
       "revId": "a51f9abfb37051156a7099b2db490368140d1116",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f2da1f6_6bd8af6a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-08-24T18:47:01Z",
+      "side": 1,
+      "message": "Yes mvref_common I saw. Where else are we using the cm-\u003eglobal_motion?",
+      "parentUuid": "b621e93f_61460585",
+      "revId": "a51f9abfb37051156a7099b2db490368140d1116",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
