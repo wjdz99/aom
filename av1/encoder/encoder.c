@@ -1378,6 +1378,7 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
                              sizeof(*cpi->consec_zero_mv)));
 
   cpi->mb_weber_stats = NULL;
+  cpi->sb_qindex = NULL;
   cpi->mb_variance = NULL;
 
   {
