@@ -138,6 +138,56 @@ static INLINE void av1_set_ref_frame(MV_REFERENCE_FRAME *rf,
   }
 }
 
+#if CONFIG_NEW_REF_SIGNALING
+static INLINE void comb2single(int n, int8_t combindex, int8_t *rf) {
+  assert(combindex < n * (n - 1) / 2);
+  int i = n - 1, j = n - 1;
+  rf[0] = 0;
+  while (i <= combindex) {
+    rf[0]++;
+    j--;
+    i += j;
+  }
+  rf[1] = combindex - i + j + rf[0] + 1;
+}
+
+static INLINE int8_t single2comb(int n, const int8_t *const rf) {
+  assert(rf[0] < n && rf[1] < n && rf[1] > rf[0]);
+  int off = n * rf[0] - rf[0] * (rf[0] + 1) / 2;
+  int combindex = off + rf[1] - rf[0] - 1;
+  return combindex;
+}
+
+static INLINE int8_t
+av1_ref_frame_type_nrs(const MV_REFERENCE_FRAME_NRS *const rf) {
+  if (rf[0] == INTRA_FRAME_NRS || rf[0] == INVALID_IDX) {
+    // Intra or invalid
+    return rf[0];
+  } else if (rf[1] == INTRA_FRAME_NRS || rf[1] == INVALID_IDX) {
+    // single ref
+    return rf[0];
+  } else {
+    // compound ref
+    assert(rf[0] < INTER_REFS_PER_FRAME_NRS);
+    assert(rf[1] < INTER_REFS_PER_FRAME_NRS);
+    assert(rf[1] > rf[0]);
+    return single2comb(INTER_REFS_PER_FRAME_NRS, rf) + INTER_REFS_PER_FRAME_NRS;
+  }
+}
+
+static INLINE void av1_set_ref_frame_nrs(
+    MV_REFERENCE_FRAME_NRS *rf, MV_REFERENCE_FRAME_NRS ref_frame_type) {
+  if (ref_frame_type == INTRA_FRAME_NRS ||
+      ref_frame_type < INTER_REFS_PER_FRAME_NRS) {
+    rf[0] = ref_frame_type;
+    rf[1] = INVALID_IDX;
+  } else {
+    comb2single(INTER_REFS_PER_FRAME_NRS, ref_frame_type, rf);
+  }
+  return;
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 static uint16_t compound_mode_ctx_map[3][COMP_NEWMV_CTXS] = {
   { 0, 1, 1, 1, 1 },
   { 1, 2, 3, 4, 4 },
