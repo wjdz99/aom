@@ -16,6 +16,24 @@
       "message": "Wan-Teh, these set of tests shall largely be deprecated or re-worked.\n\nHow about we disabled them for now, as I need a few days to properly cover those? Thanks.",
       "revId": "baae33cc676ef75c51bd44ed4b38913d2605eb70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28dc289c_5153d23f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-25T17:39:22Z",
+      "side": 1,
+      "message": "Jingning,\n\nThank you for the reply. As the AOM tree sheriff of the week, I need to make sure Jenkins nightly test failures are fixed quickly. In this particular case I lack the expertise to suggest the best course of action.\n\nCould you please write a CL to disable the tests? Because I don\u0027t know whether we should disable some or all of the test cases.\n\nThanks,\nWan-Teh",
+      "parentUuid": "7abf7c6e_fb3feb24",
+      "revId": "baae33cc676ef75c51bd44ed4b38913d2605eb70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
