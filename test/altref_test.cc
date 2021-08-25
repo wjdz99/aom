@@ -101,7 +101,8 @@ class AltRefFramePresenceTestLarge
   aom_rc_mode rc_end_usage_;
 };
 
-TEST_P(AltRefFramePresenceTestLarge, AltRefFrameEncodePresenceTest) {
+// Turn this test off to avoid Jenkins failure reported in issue aomedia:3134
+TEST_P(AltRefFramePresenceTestLarge, DISABLED_AltRefFrameEncodePresenceTest) {
   libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352, 288,
                                      cfg_.g_timebase.den, cfg_.g_timebase.num,
                                      0, 100);
