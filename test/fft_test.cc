@@ -132,6 +132,7 @@ TEST_P(FFT2DTest, Benchmark) {
     sum += output_[0];
     input_[i % (n * n)] = 0;
   }
+  (void)sum;
 }
 
 INSTANTIATE_TEST_SUITE_P(C, FFT2DTest,
@@ -227,6 +228,7 @@ TEST_P(IFFT2DTest, Benchmark) {
     sum += output_[0];
     input_[i % (n * n)] = 0;
   }
+  (void)sum;
 }
 INSTANTIATE_TEST_SUITE_P(
     C, IFFT2DTest,
