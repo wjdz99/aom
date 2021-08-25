@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93503e36_5949e0bc",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-25T22:17:27Z",
+      "side": 1,
+      "message": "Neil: An obvious fix is to remove the local variable \u0027sum\u0027. Since these tests are named \"Benchmark\", I am wondering if summing the output_[0] values is an important part of the benchmarks. So I simply added a void cast to discard the final \u0027sum\u0027 value.",
+      "revId": "4f01785d369e8fba6fe5c7ad912dee59f1f10206",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
