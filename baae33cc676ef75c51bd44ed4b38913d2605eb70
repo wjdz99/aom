@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7abf7c6e_fb3feb24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-08-25T07:30:58Z",
+      "side": 1,
+      "message": "Wan-Teh, these set of tests shall largely be deprecated or re-worked.\n\nHow about we disabled them for now, as I need a few days to properly cover those? Thanks.",
+      "revId": "baae33cc676ef75c51bd44ed4b38913d2605eb70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
