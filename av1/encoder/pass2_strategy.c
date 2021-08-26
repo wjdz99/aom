@@ -3670,9 +3670,15 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       int next_region =
           find_regions_index(p_rc->regions, p_rc->num_regions, this_idx + 1);
       int is_last_scenecut =
-          (p_rc->gf_intervals[p_rc->cur_gf_index] >= rc->frames_to_key ||
-           p_rc->regions[this_region].type == SCENECUT_REGION ||
-           p_rc->regions[next_region].type == SCENECUT_REGION);
+          p_rc->gf_intervals[p_rc->cur_gf_index] >= rc->frames_to_key;
+      // TODO(angiebird): Figure out why this_region and next_region are -1 in
+      // unit test like AltRefFramePresenceTestLarge
+      if (this_region != -1 && p_rc->regions[this_region].type == SCENECUT_REGION) {
+        is_last_scenecut = 1;
+      }
+      if (next_region != -1 && p_rc->regions[next_region].type == SCENECUT_REGION) {
+        is_last_scenecut = 1;
+      }
       int ori_gf_int = p_rc->gf_intervals[p_rc->cur_gf_index];
 
       if (p_rc->gf_intervals[p_rc->cur_gf_index] > 16 &&
