@@ -121,7 +121,11 @@ typedef struct {
 
 typedef struct {
   int_mv mv;
+#if CONFIG_NEW_REF_SIGNALING
+  MV_REFERENCE_FRAME_NRS ref_frame;
+#else
   MV_REFERENCE_FRAME ref_frame;
+#endif  // CONFIG_NEW_REF_SIGNALING
 } MV_REF;
 
 typedef struct RefCntBuffer {
