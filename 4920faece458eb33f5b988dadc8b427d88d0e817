@@ -76,6 +76,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "adfeb848_20ed02e5",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2051,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-26T21:22:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6d0c8260_e64dad8c",
+      "range": {
+        "startLine": 2050,
+        "startChar": 0,
+        "endLine": 2051,
+        "endChar": 38
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d41de400_611d69c4",
@@ -89,6 +113,30 @@
       "writtenOn": "2021-08-26T16:33:22Z",
       "side": 1,
       "message": "Nit: decoder inspect \u003d\u003e decoder_inspect",
+      "range": {
+        "startLine": 596,
+        "startChar": 25,
+        "endLine": 596,
+        "endChar": 40
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a926a1d_aafa1dbd",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-26T21:22:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d41de400_611d69c4",
       "range": {
         "startLine": 596,
         "startChar": 25,
@@ -122,6 +170,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3779cf33_dd6ed536",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-26T21:22:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e55216a1_c31592a9",
+      "range": {
+        "startLine": 637,
+        "startChar": 25,
+        "endLine": 637,
+        "endChar": 40
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a11249e_a6b871f1",
@@ -141,6 +213,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9465c6b3_29541627",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1415,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-26T21:22:55Z",
+      "side": 1,
+      "message": "I just quickly ran some test and realized that the reason I used current_frame instead of cur_frame is that cur_frame is not available after decoding, and therefore would give a segfault error here if we try to query for its member after decoding a frame. \n\nThe extra line I added in read_uncompressed_header only sets the order_hint when it is show_existing and I believe does not influence anything in the decoder side.",
+      "parentUuid": "7a11249e_a6b871f1",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e33f0ba3_f1f093f4",
         "filename": "av1/av1_dx_iface.c",
         "patchSetId": 10
@@ -152,6 +242,30 @@
       "writtenOn": "2021-08-26T16:33:22Z",
       "side": 1,
       "message": "Nit: it is shown \u003d\u003e the frame is shown\n\nThe reason \"it\" is confusing is that \"it\" refers to the decoder interface earlier in this sentence.",
+      "range": {
+        "startLine": 1646,
+        "startChar": 69,
+        "endLine": 1646,
+        "endChar": 80
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0198c859_5bf3df43",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-26T21:22:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e33f0ba3_f1f093f4",
       "range": {
         "startLine": 1646,
         "startChar": 69,
@@ -181,6 +295,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0e0cbcaa_cbe3173c",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-26T21:22:55Z",
+      "side": 1,
+      "message": "Thanks! In the new patch I still kept the comments, since I expect we will potentially add more here to gather other information from the bitstream. It feels in that case these comments serve as better reminders.",
+      "parentUuid": "523f87cc_dc53fdef",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6dca24f6_9a0034c9",
         "filename": "av1/encoder/thirdpass.c",
         "patchSetId": 10
@@ -192,6 +324,24 @@
       "writtenOn": "2021-08-26T16:33:22Z",
       "side": 1,
       "message": "Nit: Remove the \"else\" after a return statement.",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19f01ad1_8116dc58",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-08-26T21:22:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6dca24f6_9a0034c9",
       "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
