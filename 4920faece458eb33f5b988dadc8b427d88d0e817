@@ -16,6 +16,184 @@
       "message": "ping? any update on this?",
       "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2df9e41d_d2999b89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nIt\u0027s been a while since I last reviewed this CL, so I forgot most of the details. I only reviewed the diffs between patchsets 9 and 10. I suggest a few small changes.",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da23cdb3_c843e5f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "I am sorry that I forgot to review the new patchset after I returned from vacation. Bohan uploaded the new patchset a day or two after I went on vacation.",
+      "parentUuid": "d6d9e1fe_31aa48e5",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d0c8260_e64dad8c",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2051,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "Please add a comment to explain why we must write to IVF if we need to downscale.",
+      "range": {
+        "startLine": 2050,
+        "startChar": 0,
+        "endLine": 2051,
+        "endChar": 38
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d41de400_611d69c4",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "Nit: decoder inspect \u003d\u003e decoder_inspect",
+      "range": {
+        "startLine": 596,
+        "startChar": 25,
+        "endLine": 596,
+        "endChar": 40
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e55216a1_c31592a9",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "Nit: decoder inspect \u003d\u003e decoder_inspect",
+      "range": {
+        "startLine": 637,
+        "startChar": 25,
+        "endLine": 637,
+        "endChar": 40
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a11249e_a6b871f1",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1415,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "An advantage of using cur_frame-\u003eorder_hint instead of current_frame.order_hint here is that we will not need the change to read_uncompressed_header() in av1/decoder/decodeframe.c. I would prefer we avoid changing read_uncompressed_header() and just use cur_frame-\u003eorder_hint here.",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e33f0ba3_f1f093f4",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "Nit: it is shown \u003d\u003e the frame is shown\n\nThe reason \"it\" is confusing is that \"it\" refers to the decoder interface earlier in this sentence.",
+      "range": {
+        "startLine": 1646,
+        "startChar": 69,
+        "endLine": 1646,
+        "endChar": 80
+      },
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "523f87cc_dc53fdef",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "Nit/optional: These \"Get xxx\" comments are generally considered not useful because they merely repeat the code (aom_codec_control(\u0026ctx-\u003edecoder, AOMD_GET_XXX)).\n\nIt is okay to keep these comments if you prefer.",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6dca24f6_9a0034c9",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T16:33:22Z",
+      "side": 1,
+      "message": "Nit: Remove the \"else\" after a return statement.",
+      "revId": "4920faece458eb33f5b988dadc8b427d88d0e817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
