@@ -1084,6 +1084,47 @@ static AOM_INLINE void setup_ref_mv_list(
 #endif  // CONFIG_REF_MV_BANK
 }
 
+#if 0   // CONFIG_NEW_REF_SIGNALING
+void av1_find_mv_refs_nrs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
+                          MB_MODE_INFO *mi,
+                          MV_REFERENCE_FRAME_NRS ref_frame_nrs,
+                          uint8_t ref_mv_count[MODE_CTX_REF_FRAMES],
+                          CANDIDATE_MV ref_mv_stack[][MAX_REF_MV_STACK_SIZE],
+                          uint16_t ref_mv_weight[][MAX_REF_MV_STACK_SIZE],
+                          int_mv mv_ref_list[][MAX_MV_REF_CANDIDATES],
+                          int_mv *global_mvs, int16_t *mode_context) {
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  int_mv gm_mv[2];
+
+  if (ref_frame_nrs == INTRA_FRAME_NRS) {
+    gm_mv[0].as_int = gm_mv[1].as_int = 0;
+  } else {
+    const BLOCK_SIZE bsize = mi->sb_type;
+    const int fr_mv_precision = cm->features.fr_mv_precision;
+    if (ref_frame_nrs < INTER_REFS_PER_FRAME_NRS) {
+      gm_mv[0] = gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs],
+                                      fr_mv_precision, bsize, mi_col, mi_row);
+      gm_mv[1].as_int = 0;
+      if (global_mvs != NULL) global_mvs[ref_frame_nrs] = gm_mv[0];
+    } else {
+      MV_REFERENCE_FRAME_NRS rf[2];
+      av1_set_ref_frame_nrs(rf, ref_frame_nrs);
+      gm_mv[0] = gm_get_motion_vector(&cm->global_motion_nrs[rf[0]],
+                                      fr_mv_precision, bsize, mi_col, mi_row);
+      gm_mv[1] = gm_get_motion_vector(&cm->global_motion_nrs[rf[1]],
+                                      fr_mv_precision, bsize, mi_col, mi_row);
+    }
+  }
+
+  setup_ref_mv_list_nrs(cm, xd, ref_frame, &ref_mv_count[ref_frame_nrs],
+                        ref_mv_stack[ref_frame_nrs],
+                        ref_mv_weight[ref_frame_nrs],
+                        mv_ref_list ? mv_ref_list[ref_frame_nrs] : NULL, gm_mv,
+                        mi_row, mi_col, mode_context);
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       MB_MODE_INFO *mi, MV_REFERENCE_FRAME ref_frame,
 #if CONFIG_NEW_REF_SIGNALING
@@ -1093,19 +1134,20 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       CANDIDATE_MV ref_mv_stack[][MAX_REF_MV_STACK_SIZE],
                       uint16_t ref_mv_weight[][MAX_REF_MV_STACK_SIZE],
                       int_mv mv_ref_list[][MAX_MV_REF_CANDIDATES],
-                      int_mv *global_mvs, int16_t *mode_context) {
+                      int_mv *global_mvs,
 #if CONFIG_NEW_REF_SIGNALING
-  (void)ref_frame_nrs;
+                      int_mv *global_mvs_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
+                      int16_t *mode_context) {
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
   int_mv gm_mv[2];
+#if CONFIG_NEW_REF_SIGNALING
+  int_mv gm_mv_nrs[2];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   if (ref_frame == INTRA_FRAME) {
     gm_mv[0].as_int = gm_mv[1].as_int = 0;
-    if (global_mvs != NULL) {
-      global_mvs[ref_frame].as_int = INVALID_MV;
-    }
   } else {
     const BLOCK_SIZE bsize = mi->sb_type;
     const int fr_mv_precision = cm->features.fr_mv_precision;
@@ -1114,26 +1156,50 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                       fr_mv_precision, bsize, mi_col, mi_row);
       gm_mv[1].as_int = 0;
       if (global_mvs != NULL) global_mvs[ref_frame] = gm_mv[0];
+#if CONFIG_NEW_REF_SIGNALING
+      assert(convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
+                                                   ref_frame) == ref_frame_nrs);
+      gm_mv_nrs[0] =
+          gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs],
+                               fr_mv_precision, bsize, mi_col, mi_row);
+      gm_mv_nrs[1].as_int = 0;
+      assert(gm_mv_nrs[0].as_int == gm_mv[0].as_int);
+      if (global_mvs_nrs != NULL) global_mvs_nrs[ref_frame_nrs] = gm_mv_nrs[0];
+#endif  // CONFIG_NEW_REF_SIGNALING
     } else {
       MV_REFERENCE_FRAME rf[2];
       av1_set_ref_frame(rf, ref_frame);
-#if CONFIG_NEW_REF_SIGNALING
-      MV_REFERENCE_FRAME rf_nrs[2];
-      rf_nrs[0] =
-          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
-      rf_nrs[1] =
-          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[1]);
-      // TODO(sarahparker) Temporary assert, see aomedia:3060
-      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                   rf_nrs[0]) == rf[0]);
-      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                   rf_nrs[1]) == rf[1]);
-      (void)rf_nrs;
-#endif  // CONFIG_NEW_REF_SIGNALING
       gm_mv[0] = gm_get_motion_vector(&cm->global_motion[rf[0]],
                                       fr_mv_precision, bsize, mi_col, mi_row);
       gm_mv[1] = gm_get_motion_vector(&cm->global_motion[rf[1]],
                                       fr_mv_precision, bsize, mi_col, mi_row);
+#if CONFIG_NEW_REF_SIGNALING
+      MV_REFERENCE_FRAME rf_nrs_[2];
+      rf_nrs_[0] =
+          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
+      rf_nrs_[1] =
+          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[1]);
+      // TODO(sarahparker) Temporary assert, see aomedia:3060
+      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+                                                   rf_nrs_[0]) == rf[0]);
+      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+                                                   rf_nrs_[1]) == rf[1]);
+      MV_REFERENCE_FRAME rf_nrs[2];
+      av1_set_ref_frame_nrs(rf_nrs, ref_frame_nrs);
+      gm_mv_nrs[0] =
+          gm_get_motion_vector(&cm->global_motion_nrs[rf_nrs[0]],
+                               fr_mv_precision, bsize, mi_col, mi_row);
+      gm_mv_nrs[1] =
+          gm_get_motion_vector(&cm->global_motion_nrs[rf_nrs[1]],
+                               fr_mv_precision, bsize, mi_col, mi_row);
+      if (rf_nrs_[0] == rf_nrs[0]) {
+        assert(gm_mv_nrs[0].as_int == gm_mv[0].as_int);
+        assert(gm_mv_nrs[1].as_int == gm_mv[1].as_int);
+      } else {
+        assert(gm_mv_nrs[0].as_int == gm_mv[1].as_int);
+        assert(gm_mv_nrs[1].as_int == gm_mv[0].as_int);
+      }
+#endif  // CONFIG_NEW_REF_SIGNALING
     }
   }
 
