@@ -19,7 +19,6 @@
 
 #include <stdint.h>
 
-#include "av1/encoder/thirdpass.h"
 #include "config/aom_config.h"
 #include "config/aom_scale_rtcd.h"
 
@@ -35,6 +34,7 @@
 #include "av1/encoder/ratectrl.h"
 #include "av1/encoder/rc_utils.h"
 #include "av1/encoder/temporal_filter.h"
+#include "av1/encoder/thirdpass.h"
 #include "av1/encoder/tpl_model.h"
 #include "av1/encoder/encode_strategy.h"
 
@@ -3727,6 +3727,8 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       process_first_pass_stats(cpi, &this_frame);
 
     define_gf_group(cpi, frame_params, max_gop_length, 1);
+
+    av1_write_second_pass_gop_info(cpi);
 
     rc->frames_till_gf_update_due = p_rc->baseline_gf_interval;
     assert(cpi->gf_frame_index == 0);

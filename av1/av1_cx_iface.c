@@ -166,6 +166,7 @@ struct av1_extracfg {
   int fwd_kf_dist;
   // the name of the second pass output file when passes > 2
   const char *two_pass_output;
+  const char *second_pass_file;
 };
 
 #if CONFIG_REALTIME_ONLY
@@ -315,6 +316,7 @@ static const struct av1_extracfg default_extra_cfg = {
   -1,            // passes
   -1,            // fwd_kf_dist
   NULL,          // two_pass_output
+  NULL,          // second_pass_file
 };
 #else
 static const struct av1_extracfg default_extra_cfg = {
@@ -451,6 +453,7 @@ static const struct av1_extracfg default_extra_cfg = {
   -1,           // passes
   -1,           // fwd_kf_dist
   NULL,         // two_pass_output
+  NULL,         // second_pass_file
 };
 #endif
 
@@ -1159,6 +1162,8 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
 
   if (extra_cfg->two_pass_output)
     oxcf->two_pass_output = extra_cfg->two_pass_output;
+
+  oxcf->second_pass_file = extra_cfg->second_pass_file;
 
   // Set Key frame configuration.
   kf_cfg->fwd_kf_enabled = cfg->fwd_kf_enabled;
@@ -2534,6 +2539,8 @@ static void destroy_extra_config(struct av1_extracfg *extra_cfg) {
 #endif
   check_and_free_string(default_extra_cfg.two_pass_output,
                         &extra_cfg->two_pass_output);
+  check_and_free_string(default_extra_cfg.two_pass_output,
+                        &extra_cfg->second_pass_file);
   check_and_free_string(default_extra_cfg.partition_info_path,
                         &extra_cfg->partition_info_path);
   check_and_free_string(default_extra_cfg.film_grain_table_filename,
@@ -3741,6 +3748,10 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                               err_string)) {
     err = allocate_and_set_string(value, default_extra_cfg.two_pass_output,
                                   &extra_cfg.two_pass_output, err_string);
+  } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.second_pass_file,
+                              argv, err_string)) {
+    err = allocate_and_set_string(value, default_extra_cfg.second_pass_file,
+                                  &extra_cfg.second_pass_file, err_string);
   } else {
     match = 0;
     snprintf(err_string, ARG_ERR_MSG_MAX_LEN, "Cannot find aom option %s",
