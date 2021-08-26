@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47b16703_d7e8169a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-08-26T17:13:25Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nIn this CL, we have introduced a speed feature ‘skip_filter_intra_in_inter_frames’ to speed-up RTC encoding.\nThe speed feature skips filter intra mode evaluation in inter frames if rd evaluation of luma dc mode results in invalid rd stats and rd_stats_y-\u003erate would have been set to INT_MAX in this case. \nWhen we tried further aggressive pruning using best_rd_so_far and best_rd, the incremental speed-up we got was lesser with more quality drop. Hence we used the pruning logic as in the current CL.\n\nThis patch is applicable for --rt, speed 5 and 6 and has no effect for other presets.\n\nPlease find the Borg results below.\n\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim  \n  5        rtc             5.276     \t 0.0505   0.0393    0.0157   \n  5   \trtc_derf           5.493     \t 0.0534   0.0563    0.0107    \n  5      Average           5.382     \t 0.0517   0.0464    0.0136   \n  6        rtc             3.472     \t 0.0498   0.0575    0.0512   \n  6   \trtc_derf           3.606     \t 0.0576   0.0318    0.0465 \n  6      Average           3.537     \t 0.0531   0.0468    0.0493   \n\nPlease review the patch and let us know your opinion. We shall check the feasibility of extending the sf for different presets of \u0027good\u0027 usage and speed\u003d4 of \u0027realtime\u0027 usage, once this patch is merged.\n   \nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \n\nRegards,\nRanjit",
+      "revId": "730792115fabe7658ceec0e2f61150c3d25f5867",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
