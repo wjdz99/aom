@@ -3381,6 +3381,9 @@ static AOM_INLINE void write_sequence_header(
       aom_wb_write_bit(wb, seq_params->order_hint_info.enable_dist_wtd_comp);
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
       aom_wb_write_bit(wb, seq_params->order_hint_info.enable_ref_frame_mvs);
+#if CONFIG_OPTFLOW_REFINEMENT
+      aom_wb_write_bit(wb, seq_params->enable_opfl_refine);
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     }
     if (seq_params->force_screen_content_tools == 2) {
       aom_wb_write_bit(wb, 1);

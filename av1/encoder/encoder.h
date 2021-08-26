@@ -833,6 +833,10 @@ typedef struct {
 #if CONFIG_NEW_INTER_MODES
   unsigned int max_drl_refmvs;
 #endif  // CONFIG_NEW_INTER_MODES
+#if CONFIG_OPTFLOW_REFINEMENT
+  // Indicates if optical flow refinement should be enabled
+  bool enable_opfl_refine;
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 } ToolCfg;
 
 #define MAX_SUBGOP_CONFIGS 64

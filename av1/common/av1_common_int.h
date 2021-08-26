@@ -322,6 +322,9 @@ typedef struct SequenceHeader {
 #endif
   uint8_t enable_interintra_compound;  // enables/disables interintra_compound
   uint8_t enable_masked_compound;      // enables/disables masked compound
+#if CONFIG_OPTFLOW_REFINEMENT
+  uint8_t enable_opfl_refine;  // enables/disables optical flow refinement
+#endif
 #if !CONFIG_REMOVE_DUAL_FILTER
   uint8_t enable_dual_filter;    // 0 - disable dual interpolation filter
 #endif                           // !CONFIG_REMOVE_DUAL_FILTER
@@ -1339,7 +1342,8 @@ static INLINE int frame_might_allow_warped_motion(const AV1_COMMON *cm) {
 // Returns 1 if this frame might use optical flow refinement
 static INLINE int frame_might_allow_opfl_refine(const AV1_COMMON *cm) {
   return !cm->features.error_resilient_mode && !frame_is_intra_only(cm) &&
-         cm->seq_params.order_hint_info.enable_order_hint;
+         cm->seq_params.order_hint_info.enable_order_hint &&
+         cm->seq_params.enable_opfl_refine;
 }
 #endif  // CONFIG_OPTFLOW_REFINEMENT
 

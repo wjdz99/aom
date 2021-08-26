@@ -468,6 +468,11 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
   .enable_angle_delta =
       ARG_DEF(NULL, "enable-angle-delta", 1,
               "Enable intra angle delta (0: false, 1: true (default))"),
+#if CONFIG_OPTFLOW_REFINEMENT
+  .enable_opfl_refine =
+      ARG_DEF(NULL, "enable-opfl-refine", 1,
+              "Enable optical flow refinement (0: false, 1: true (default))"),
+#endif  // CONFIG_OPTFLOW_REFINEMENT
   .enable_trellis_quant =
       ARG_DEF(NULL, "enable-trellis-quant", 1,
               "Enable trellis optimization of quantized coefficients "
