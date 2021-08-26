@@ -1170,7 +1170,7 @@ static int get_ref_frame_flags_nrs(const AV1_COMMON *const cm,
   for (int frame = LAST_FRAME; frame <= ALTREF_FRAME; frame++) {
     if ((ref_frame_flags & (1 << (frame - 1)))) {
       int ranked_ref_index =
-          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, frame);
+          convert_single_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, frame);
       if (ranked_ref_index >= 0) ref_frame_flags_nrs |= (1 << ranked_ref_index);
     }
   }
@@ -1187,7 +1187,7 @@ static void verify_ref_frame_flags_nrs(const AV1_COMMON *const cm,
     if ((ref_frame_flags & (1 << (frame - 1)))) {
       n_enabled++;
       const int ranked_ref_index =
-          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, frame);
+          convert_single_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, frame);
       (void)ranked_ref_index;
       assert((ref_frame_flags_nrs & (1 << ranked_ref_index)));
     }

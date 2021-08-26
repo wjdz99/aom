@@ -78,7 +78,8 @@ void av1_init_new_ref_frame_map(AV1_COMMON *const cm,
                                 RefFrameMapPair *ref_frame_map_pairs,
                                 int cur_frame_disp);
 
-static INLINE int convert_named_ref_to_ranked_ref_index(
+
+static INLINE int convert_single_named_ref_to_ranked_ref_index(
     const NewRefFramesData *const ref_frame_data, int named_idx) {
   // NONE_FRAME and INVALID_IDX are both equal to -1, simplify by using only
   // INVALID_IDX for this purpose
@@ -88,11 +89,57 @@ static INLINE int convert_named_ref_to_ranked_ref_index(
   return ref_frame_data->named_to_ranked_refs[named_idx];
 }
 
-static INLINE int convert_ranked_ref_to_named_ref_index(
+static INLINE void convert_named_refs_to_ranked_refs_index(
+    const NewRefFramesData *const ref_frame_data, const MV_REFERENCE_FRAME *const named_refs,
+    MV_REFERENCE_FRAME_NRS *ranked_refs) {
+  MV_REFERENCE_FRAME_NRS temp_refs[2] = { 0 };
+  temp_refs[0] = convert_single_named_ref_to_ranked_ref_index(ref_frame_data, named_refs[0]);
+  temp_refs[1] = convert_single_named_ref_to_ranked_ref_index(ref_frame_data, named_refs[1]);
+  
+  if (temp_refs[1] != INVALID_IDX) {
+    // Compound case
+    if (temp_refs[0] > temp_refs[1]) {
+      assert(temp_refs[1] != INTRA_FRAME_NRS);
+      ranked_refs[0] = temp_refs[1];
+      ranked_refs[1] = temp_refs[0];
+    } else {
+      ranked_refs[0] = temp_refs[0];
+      ranked_refs[1] = temp_refs[1];
+    }
+  } else {
+    // Single ref case
+    ranked_refs[0] = temp_refs[0];
+    ranked_refs[1] = temp_refs[1];
+  }
+}
+
+static INLINE int convert_single_ranked_ref_to_named_ref_index(
     const NewRefFramesData *const ref_frame_data, int ranked_idx) {
   if (ranked_idx == INVALID_IDX) return INVALID_IDX;
   if (ranked_idx == INTRA_FRAME_NRS) return INTRA_FRAME;
   return ref_frame_data->ranked_to_named_refs[ranked_idx];
+}
+
+static INLINE void convert_ranked_refs_to_named_refs_index(
+    const NewRefFramesData *const ref_frame_data, const MV_REFERENCE_FRAME_NRS *const ranked_refs,
+    MV_REFERENCE_FRAME *named_refs) {
+  MV_REFERENCE_FRAME temp_refs[2] = { 0 };
+  temp_refs[0] = convert_single_ranked_ref_to_named_ref_index(ref_frame_data, ranked_refs[0]);
+  temp_refs[1] = convert_single_ranked_ref_to_named_ref_index(ref_frame_data, ranked_refs[1]);
+  if (temp_refs[1] > INTRA_FRAME) {
+    // Compound case
+    if (temp_refs[0] > temp_refs[1]) {
+      named_refs[0] = temp_refs[1];
+      named_refs[1] = temp_refs[0];
+    } else {
+      named_refs[0] = temp_refs[0];
+      named_refs[1] = temp_refs[1];
+    }
+  } else {
+    // Single ref case
+    named_refs[0] = temp_refs[0];
+    named_refs[1] = temp_refs[1];
+  }
 }
 
 // Find the reference that is furthest in the future

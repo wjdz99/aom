@@ -4874,9 +4874,8 @@ static AOM_INLINE void read_global_motion_nrs(AV1_COMMON *cm,
 #endif
       cm->global_motion_nrs[frame].invalid = 1;
     }
-    // TODO(sarahparker) Temporary assert, see aomedia:3060
     int named_frame =
-        convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data, frame);
+        convert_single_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data, frame);
 
     memcpy(&cm->global_motion[named_frame], &cm->global_motion_nrs[frame],
            sizeof(WarpedMotionParams));

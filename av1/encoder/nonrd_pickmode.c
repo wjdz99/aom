@@ -1074,16 +1074,12 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE pred_mode,
   mbmi->ref_frame[0] = ref_frame0;
   mbmi->ref_frame[1] = ref_frame1;
 #if CONFIG_NEW_REF_SIGNALING
-  mbmi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, mbmi->ref_frame[0]);
-  mbmi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, mbmi->ref_frame[1]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mbmi->ref_frame_nrs[0]) ==
-         mbmi->ref_frame[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mbmi->ref_frame_nrs[1]) ==
-         mbmi->ref_frame[1]);
+  convert_named_refs_to_ranked_refs_index(
+    &cm->new_ref_frame_data, mbmi->ref_frame, mbmi->ref_frame_nrs);
+  MV_REFERENCE_FRAME tmp[2];
+  convert_ranked_refs_to_named_refs_index(
+    &cm->new_ref_frame_data, mbmi->ref_frame_nrs, tmp);
+  assert(tmp[0] == mbmi->ref_frame[0] && tmp[1] == mbmi->ref_frame[1]);
 #endif  // CONFIG_NEW_REF_SIGNALING
   pmi->palette_size[0] = 0;
   pmi->palette_size[1] = 0;
@@ -1952,16 +1948,8 @@ static void estimate_intra_mode(
     mi->ref_frame[0] = INTRA_FRAME;
     mi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-    mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
-        &cm->new_ref_frame_data, mi->ref_frame[0]);
-    mi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-        &cm->new_ref_frame_data, mi->ref_frame[1]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                 mi->ref_frame_nrs[0]) ==
-           mi->ref_frame[0]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                 mi->ref_frame_nrs[1]) ==
-           mi->ref_frame[1]);
+    mi->ref_frame_nrs[0] = INTRA_FRAME_NRS;
+    mi->ref_frame_nrs[1] = INVALID_IDX;
 #endif  // CONFIG_NEW_REF_SIGNALING
 
     av1_invalid_rd_stats(&this_rdc);
@@ -2190,16 +2178,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->ref_frame[0] = NONE_FRAME;
   mi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-  mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, mi->ref_frame[0]);
-  mi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, mi->ref_frame[1]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mi->ref_frame_nrs[0]) ==
-         mi->ref_frame[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mi->ref_frame_nrs[1]) ==
-         mi->ref_frame[1]);
+  mi->ref_frame_nrs[0] = INVALID_IDX;
+  mi->ref_frame_nrs[1] = INVALID_IDX;
 #endif  // CONFIG_NEW_REF_SIGNALING
 
   const int gf_temporal_ref = is_same_gf_and_last_scale(cm);
@@ -2211,10 +2191,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
        ref_frame_iter <= ALTREF_FRAME; ++ref_frame_iter) {
 #if CONFIG_NEW_REF_SIGNALING
     MV_REFERENCE_FRAME_NRS ref_frame_nrs =
-        convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
+        convert_single_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
                                               ref_frame_iter);
     // TODO(sarahparker) Temporary assert, see aomedia:3060
-    assert(convert_ranked_ref_to_named_ref_index(
+    assert(convert_single_ranked_ref_to_named_ref_index(
                &cm->new_ref_frame_data, ref_frame_nrs) == ref_frame_iter);
 #endif  // CONFIG_NEW_REF_SIGNALING
     if (use_ref_frame_mask[ref_frame_iter]) {
@@ -2288,14 +2268,14 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->mode = this_mode;
     mi->ref_frame[0] = ref_frame;
 #if CONFIG_NEW_REF_SIGNALING
-    mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
+    mi->ref_frame_nrs[0] = convert_single_named_ref_to_ranked_ref_index(
         &cm->new_ref_frame_data, mi->ref_frame[0]);
 #endif  // CONFIG_NEW_REF_SIGNALING
 
     if (!use_ref_frame_mask[ref_frame]) continue;
 
 #if CONFIG_NEW_REF_SIGNALING
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+    assert(convert_single_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                  mi->ref_frame_nrs[0]) ==
            mi->ref_frame[0]);
 #endif  // CONFIG_NEW_REF_SIGNALING
@@ -2358,16 +2338,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->ref_frame[0] = ref_frame;
     mi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-    mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
+    mi->ref_frame_nrs[0] = convert_single_named_ref_to_ranked_ref_index(
         &cm->new_ref_frame_data, mi->ref_frame[0]);
-    mi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-        &cm->new_ref_frame_data, mi->ref_frame[1]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+    mi->ref_frame_nrs[1] = INVALID_IDX; 
+    assert(convert_single_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                  mi->ref_frame_nrs[0]) ==
            mi->ref_frame[0]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                 mi->ref_frame_nrs[1]) ==
-           mi->ref_frame[1]);
 #endif  // CONFIG_NEW_REF_SIGNALING
     set_ref_ptrs(cm, xd, ref_frame, NONE_FRAME);
 
@@ -2557,9 +2533,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   memset(mi->inter_tx_size, mi->tx_size, sizeof(mi->inter_tx_size));
   mi->ref_frame[0] = best_pickmode.best_ref_frame;
 #if CONFIG_NEW_REF_SIGNALING
-  mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
+  mi->ref_frame_nrs[0] = convert_single_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mi->ref_frame[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+  assert(mi->ref_frame[1] == NONE_FRAME);
+  assert(convert_single_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                mi->ref_frame_nrs[0]) ==
          mi->ref_frame[0]);
 #endif  // CONFIG_NEW_REF_SIGNALING
@@ -2581,9 +2558,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->mode = best_pickmode.best_mode;
   mi->ref_frame[0] = best_pickmode.best_ref_frame;
 #if CONFIG_NEW_REF_SIGNALING
-  mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
+  mi->ref_frame_nrs[0] = convert_single_named_ref_to_ranked_ref_index(
       &cm->new_ref_frame_data, mi->ref_frame[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+  assert(mi->ref_frame[1] == NONE_FRAME);
+  assert(convert_single_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                mi->ref_frame_nrs[0]) ==
          mi->ref_frame[0]);
 #endif  // CONFIG_NEW_REF_SIGNALING

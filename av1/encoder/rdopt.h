@@ -322,10 +322,8 @@ static INLINE int prune_ref_by_selective_ref_frame_nrs(
     // use x->tpl_keep_ref_frame_nrs[ranked_ref] when tpl_keep_ref_frame_nrs[]
     // is ready.
     MV_REFERENCE_FRAME converted_ref_frame[2];
-    converted_ref_frame[0] = convert_ranked_ref_to_named_ref_index(
-        &cm->new_ref_frame_data, ref_frame[0]);
-    converted_ref_frame[1] = convert_ranked_ref_to_named_ref_index(
-        &cm->new_ref_frame_data, ref_frame[1]);
+    convert_ranked_refs_to_named_refs_index(
+      &cm->new_ref_frame_data, ref_frame, converted_ref_frame);
     if (sf->inter_sf.selective_ref_frame >= 2 ||
         (sf->inter_sf.selective_ref_frame == 1 && comp_pred)) {
       if (x->tpl_keep_ref_frame[LAST3_FRAME] &&
@@ -398,28 +396,6 @@ static INLINE int prune_ref_by_selective_ref_frame_nrs(
   }
   return 0;
 }
-
-#if 0
-static INLINE int prune_ref_by_selective_ref_frame_nrs_tmp(
-    const AV1_COMP *const cpi, const MACROBLOCK *const x,
-    const MV_REFERENCE_FRAME_NRS *const ref_frame,
-    const unsigned int *const ref_display_order_hint) {
-  const AV1_COMMON *const cm = &cpi->common;
-  MV_REFERENCE_FRAME converted_ref_frame[2];
-  converted_ref_frame[0] = convert_ranked_ref_to_named_ref_index(
-      &cm->new_ref_frame_data, ref_frame[0]);
-  converted_ref_frame[1] = convert_ranked_ref_to_named_ref_index(
-      &cm->new_ref_frame_data, ref_frame[1]);
-
-  // TODO(sarahparker) Temporary assert, see aomedia:3060
-  assert(convert_named_ref_to_ranked_ref_index(
-             &cm->new_ref_frame_data, converted_ref_frame[0]) == ref_frame[0]);
-  assert(convert_named_ref_to_ranked_ref_index(
-             &cm->new_ref_frame_data, converted_ref_frame[1]) == ref_frame[1]);
-  return prune_ref_by_selective_ref_frame(cpi, x, converted_ref_frame,
-                                          ref_display_order_hint);
-}
-#endif
 #endif  // CONFIG_NEW_REF_SIGNALING
 
 // This function will copy the best reference mode information from
