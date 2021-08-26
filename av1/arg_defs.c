@@ -643,5 +643,7 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
       ARG_DEF(NULL, "two-pass-width", 1, "The width of two-pass-input."),
   .two_pass_height =
       ARG_DEF(NULL, "two-pass-height", 1, "The height of two-pass-input."),
+  .second_pass_file =
+      ARG_DEF("spf", "second-pass-file", 1, "Out-put from second pass."),
 #endif  // CONFIG_AV1_ENCODER
 };
