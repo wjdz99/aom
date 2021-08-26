@@ -33,6 +33,24 @@
       "message": "Paul, is this CL ready to check in, or you prefer to do some fine tuning?",
       "revId": "85d4108f8e6c8747163c56d98b1aa78b4793edf4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc986742_df536548",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2021-08-26T14:18:47Z",
+      "side": 1,
+      "message": "I have been running some test with different thresholds and also looking at how the behavior of the patch changes at different Q and for different speed settings. I certainly think that it is worth backing off a bit on the threshold for high speed settings and we may also wish to consider only using it within a range of Q values. It is already only enabled by the all-intra flag but we could optionally put it behind some other perceptual quality flag as it will have some negative impact on traditional metrics.\n\nI will check in a slight revision later in regard to encode speed but we can always tweak this further at a later date.",
+      "parentUuid": "260d7ad0_d34c1e26",
+      "revId": "85d4108f8e6c8747163c56d98b1aa78b4793edf4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
