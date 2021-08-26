@@ -315,35 +315,32 @@ static INLINE void av1_collect_neighbors_ref_counts_nrs(
   const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
   const int above_in_image = xd->up_available;
   const int left_in_image = xd->left_available;
+  MV_REFERENCE_FRAME tmp[2];
 
   // Above neighbor
   if (above_in_image && is_inter_block(above_mbmi)) {
+    convert_named_refs_to_ranked_refs_index(
+      &cm->new_ref_frame_data, above_mbmi->ref_frame, tmp);
     // TODO(sarahparker) Temporary assert, see aomedia:3060
-    assert(convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
-                                                 above_mbmi->ref_frame[0]) ==
-           above_mbmi->ref_frame_nrs[0]);
+    assert(tmp[0] == above_mbmi->ref_frame_nrs[0]);
     ref_counts[above_mbmi->ref_frame_nrs[0]]++;
     if (has_second_ref(above_mbmi)) {
       // TODO(sarahparker) Temporary assert, see aomedia:3060
-      assert(convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
-                                                   above_mbmi->ref_frame[1]) ==
-             above_mbmi->ref_frame_nrs[1]);
+      assert(tmp[1] == above_mbmi->ref_frame_nrs[1]);
       ref_counts[above_mbmi->ref_frame_nrs[1]]++;
     }
   }
 
   // Left neighbor
   if (left_in_image && is_inter_block(left_mbmi)) {
+    convert_named_refs_to_ranked_refs_index(
+      &cm->new_ref_frame_data, left_mbmi->ref_frame, tmp);
     // TODO(sarahparker) Temporary assert, see aomedia:3060
-    assert(convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
-                                                 left_mbmi->ref_frame[0]) ==
-           left_mbmi->ref_frame_nrs[0]);
+    assert(tmp[0] == left_mbmi->ref_frame_nrs[0]);
     ref_counts[left_mbmi->ref_frame_nrs[0]]++;
     if (has_second_ref(left_mbmi)) {
       // TODO(sarahparker) Temporary assert, see aomedia:3060
-      assert(convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
-                                                   left_mbmi->ref_frame[1]) ==
-             left_mbmi->ref_frame_nrs[1]);
+      assert(tmp[1] == left_mbmi->ref_frame_nrs[1]);
       ref_counts[left_mbmi->ref_frame_nrs[1]]++;
     }
   }

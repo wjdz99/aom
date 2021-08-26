@@ -3232,7 +3232,7 @@ static AOM_INLINE void write_global_motion_nrs(
                                wb, cm->features.fr_mv_precision);
 
     const int named_frame =
-        convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data, frame);
+        convert_single_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data, frame);
 
     // TODO(sarahparker) Temporary assert, see aomedia:3060
     assert(is_same_wm_params(&cm->global_motion_nrs[frame],

@@ -358,11 +358,7 @@ static int firstpass_intra_prediction(
   xd->mi[0]->sb_type = bsize;
   xd->mi[0]->ref_frame[0] = INTRA_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-  xd->mi[0]->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, xd->mi[0]->ref_frame[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               xd->mi[0]->ref_frame_nrs[0]) ==
-         xd->mi[0]->ref_frame[0]);
+  xd->mi[0]->ref_frame_nrs[0] = INTRA_FRAME_NRS;
 #endif  // CONFIG_NEW_REF_SIGNALING
   set_mi_row_col(xd, tile, mb_row * mb_scale, mi_size_high[bsize],
                  mb_col * mb_scale, mi_size_wide[bsize], mi_params->mi_rows,
@@ -694,16 +690,12 @@ static int firstpass_inter_prediction(
     xd->mi[0]->ref_frame[0] = LAST_FRAME;
     xd->mi[0]->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-    xd->mi[0]->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
+    xd->mi[0]->ref_frame_nrs[0] = convert_single_named_ref_to_ranked_ref_index(
         &cm->new_ref_frame_data, xd->mi[0]->ref_frame[0]);
-    xd->mi[0]->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-        &cm->new_ref_frame_data, xd->mi[0]->ref_frame[1]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
+    xd->mi[0]->ref_frame_nrs[1] = INVALID_IDX;
+    assert(convert_single_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                  xd->mi[0]->ref_frame_nrs[0]) ==
            xd->mi[0]->ref_frame[0]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                 xd->mi[0]->ref_frame_nrs[1]) ==
-           xd->mi[0]->ref_frame[1]);
 #endif  // CONFIG_NEW_REF_SIGNALING
     av1_enc_build_inter_predictor(cm, xd, mb_row * mb_scale, mb_col * mb_scale,
                                   NULL, bsize, AOM_PLANE_Y, AOM_PLANE_Y);

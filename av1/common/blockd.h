@@ -465,6 +465,10 @@ static INLINE PARTITION_TYPE_REC get_symbol_from_partition_rec_block(
 static INLINE int has_second_ref(const MB_MODE_INFO *mbmi) {
 #if CONFIG_NEW_REF_SIGNALING
   // TODO(sarahparker) Temporary assert, see aomedia:3060
+  if ((mbmi->ref_frame_nrs[1] != INTRA_FRAME_NRS &&
+          mbmi->ref_frame_nrs[1] != INVALID_IDX) !=
+         (mbmi->ref_frame[1] > INTRA_FRAME))
+    printf("debug\n");
   assert((mbmi->ref_frame_nrs[1] != INTRA_FRAME_NRS &&
           mbmi->ref_frame_nrs[1] != INVALID_IDX) ==
          (mbmi->ref_frame[1] > INTRA_FRAME));

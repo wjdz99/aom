@@ -741,16 +741,12 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
   mi->ref_frame[0] = LAST_FRAME;
   mi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-  mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, mi->ref_frame[0]);
-  mi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, mi->ref_frame[1]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mi->ref_frame_nrs[0]) ==
-         mi->ref_frame[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mi->ref_frame_nrs[1]) ==
-         mi->ref_frame[1]);
+  convert_named_refs_to_ranked_refs_index(
+    &cm->new_ref_frame_data, mi->ref_frame, mi->ref_frame_nrs);
+  MV_REFERENCE_FRAME tmp[2];
+  convert_ranked_refs_to_named_refs_index(
+    &cm->new_ref_frame_data, mi->ref_frame_nrs, tmp);
+  assert(tmp[0] == mi->ref_frame[0] && tmp[1] == mi->ref_frame[1]);
 #endif  // CONFIG_NEW_REF_SIGNALING
   mi->sb_type = cm->seq_params.sb_size;
   mi->mv[0].as_int = 0;
@@ -780,11 +776,12 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
                          NULL);
     mi->ref_frame[0] = GOLDEN_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-    mi->ref_frame_nrs[0] = convert_named_ref_to_ranked_ref_index(
-        &cm->new_ref_frame_data, mi->ref_frame[0]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                 mi->ref_frame_nrs[0]) ==
-           mi->ref_frame[0]);
+  convert_named_refs_to_ranked_refs_index(
+    &cm->new_ref_frame_data, mi->ref_frame, mi->ref_frame_nrs);
+  MV_REFERENCE_FRAME tmp2[2];
+  convert_ranked_refs_to_named_refs_index(
+    &cm->new_ref_frame_data, mi->ref_frame_nrs, tmp2);
+  assert(tmp2[0] == mi->ref_frame[0] && tmp2[1] == mi->ref_frame[1]);
 #endif  // CONFIG_NEW_REF_SIGNALING
     mi->mv[0].as_int = 0;
     *y_sad = *y_sad_g;

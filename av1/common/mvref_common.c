@@ -452,15 +452,13 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
   av1_set_ref_frame(rf, ref_frame);
 #if CONFIG_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME_NRS rf_nrs[2];
-  rf_nrs[0] =
-      convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
-  rf_nrs[1] =
-      convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[1]);
+  convert_named_refs_to_ranked_refs_index(
+    &cm->new_ref_frame_data, rf, rf_nrs);
+  MV_REFERENCE_FRAME tmp[2];
+  convert_ranked_refs_to_named_refs_index(
+    &cm->new_ref_frame_data, rf_nrs, tmp);
   // TODO(sarahparker) Temporary assert, see aomedia:3060
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               rf_nrs[0]) == rf[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               rf_nrs[1]) == rf[1]);
+  assert(tmp[0] == rf[0] && tmp[1] == rf[1]);
   (void)rf_nrs;
 #endif  // CONFIG_NEW_REF_SIGNALING
 
@@ -654,16 +652,14 @@ static AOM_INLINE void setup_ref_mv_list(
 
   av1_set_ref_frame(rf, ref_frame);
 #if CONFIG_NEW_REF_SIGNALING
-  MV_REFERENCE_FRAME rf_nrs[2];
-  rf_nrs[0] =
-      convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
-  rf_nrs[1] =
-      convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[1]);
+  MV_REFERENCE_FRAME_NRS rf_nrs[2];
+  convert_named_refs_to_ranked_refs_index(
+    &cm->new_ref_frame_data, rf, rf_nrs);
+  MV_REFERENCE_FRAME tmp[2];
+  convert_ranked_refs_to_named_refs_index(
+    &cm->new_ref_frame_data, rf_nrs, tmp);
   // TODO(sarahparker) Temporary assert, see aomedia:3060
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               rf_nrs[0]) == rf[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               rf_nrs[1]) == rf[1]);
+  assert(tmp[0] == rf[0] && tmp[1] == rf[1]);
   (void)rf_nrs;
 #endif  // CONFIG_NEW_REF_SIGNALING
   mode_context[ref_frame] = 0;
@@ -1095,6 +1091,9 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       int_mv mv_ref_list[][MAX_MV_REF_CANDIDATES],
                       int_mv *global_mvs, int16_t *mode_context) {
 #if CONFIG_NEW_REF_SIGNALING
+  // TODO(sarahparker,debargha) This is currently set to INVALID_IDX. It
+  //  will need to be passed in correctly when the compound indexing is
+  // checked in.
   (void)ref_frame_nrs;
 #endif  // CONFIG_NEW_REF_SIGNALING
   const int mi_row = xd->mi_row;
@@ -1118,16 +1117,14 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       MV_REFERENCE_FRAME rf[2];
       av1_set_ref_frame(rf, ref_frame);
 #if CONFIG_NEW_REF_SIGNALING
-      MV_REFERENCE_FRAME rf_nrs[2];
-      rf_nrs[0] =
-          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[0]);
-      rf_nrs[1] =
-          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, rf[1]);
+      MV_REFERENCE_FRAME_NRS rf_nrs[2];
+      convert_named_refs_to_ranked_refs_index(
+        &cm->new_ref_frame_data, rf, rf_nrs);
+      MV_REFERENCE_FRAME tmp[2];
+      convert_ranked_refs_to_named_refs_index(
+        &cm->new_ref_frame_data, rf_nrs, tmp);
       // TODO(sarahparker) Temporary assert, see aomedia:3060
-      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                   rf_nrs[0]) == rf[0]);
-      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                   rf_nrs[1]) == rf[1]);
+      assert(tmp[0] == rf[0] && tmp[1] == rf[1]);
       (void)rf_nrs;
 #endif  // CONFIG_NEW_REF_SIGNALING
       gm_mv[0] = gm_get_motion_vector(&cm->global_motion[rf[0]],
@@ -1208,7 +1205,7 @@ void av1_setup_frame_sign_bias(AV1_COMMON *cm) {
     }
 #if CONFIG_NEW_REF_SIGNALING
     if (cm->new_ref_frame_data.n_total_refs > 0) {
-      int ranked_ref = convert_named_ref_to_ranked_ref_index(
+      int ranked_ref = convert_single_named_ref_to_ranked_ref_index(
           &cm->new_ref_frame_data, ref_frame);
       (void)ranked_ref;
       assert(cm->ref_frame_sign_bias_nrs[ranked_ref] ==
@@ -1383,7 +1380,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
     else if (order_hint == cur_order_hint)
       cm->ref_frame_side[ref_frame] = -1;
 #if CONFIG_NEW_REF_SIGNALING
-    int ranked_ref = convert_named_ref_to_ranked_ref_index(
+    int ranked_ref = convert_single_named_ref_to_ranked_ref_index(
         &cm->new_ref_frame_data, ref_frame);
     (void)ranked_ref;
     assert(cm->ref_frame_side_nrs[ranked_ref] == cm->ref_frame_side[ref_frame]);
