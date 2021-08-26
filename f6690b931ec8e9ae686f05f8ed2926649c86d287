@@ -431,6 +431,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "14499132_9ab8cbef",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 4495,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-26T23:34:00Z",
+      "side": 1,
+      "message": "I understand this change now. Please move this line (4495) after the unlock_buffer_pool(pool) at line 4497, because we don\u0027t need to do this while locking the buffer pool.\n\nAlso, we can use the \u0027current_frame\u0027 local variable (declared at line 4427), and use frame_to_show instead of cm-\u003ecur_frame:\n\n      current_frame-\u003eorder_hint \u003d frame_to_show-\u003eorder_hint;",
+      "parentUuid": "1bd01215_7186352b",
+      "revId": "f6690b931ec8e9ae686f05f8ed2926649c86d287",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fbb5deea_88c0e99c",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 6
