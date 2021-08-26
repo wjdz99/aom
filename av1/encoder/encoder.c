@@ -1445,6 +1445,8 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
     av1_init_thirdpass_ctx(cm, &cpi->third_pass_ctx, NULL);
   }
 
+  cpi->second_pass_file_ptr = NULL;
+
   cm->error->setjmp = 0;
   return cpi;
 }
@@ -1594,6 +1596,7 @@ void av1_remove_compressor(AV1_COMP *cpi) {
   }
 
   av1_free_thirdpass_ctx(cpi->third_pass_ctx);
+  if (cpi->second_pass_file_ptr) fclose(cpi->second_pass_file_ptr);
 
   dealloc_compressor_data(cpi);
 

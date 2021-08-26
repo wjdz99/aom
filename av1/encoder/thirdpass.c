@@ -13,6 +13,7 @@
 #include "aom/aomdx.h"
 #include "aom_mem/aom_mem.h"
 #include "av1/av1_iface_common.h"
+#include "av1/encoder/encoder.h"
 #include "av1/encoder/firstpass.h"
 #include "av1/encoder/thirdpass.h"
 #include "av1/common/blockd.h"
@@ -300,4 +301,53 @@ void av1_free_thirdpass_ctx(THIRD_PASS_DEC_CTX *ctx) {
 #endif
   if (ctx->buf) free(ctx->buf);
   aom_free(ctx);
+}
+
+void av1_write_second_pass_gop_info(AV1_COMP *cpi) {
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+  const GF_GROUP *const gf_group = &cpi->ppi->gf_group;
+  const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
+
+  if (oxcf->pass == AOM_RC_SECOND_PASS && oxcf->second_pass_file) {
+    // Note down the GOP length in a file.
+    if (!cpi->second_pass_file_ptr) {
+      cpi->second_pass_file_ptr = fopen(cpi->oxcf.second_pass_file, "wb");
+    }
+
+    if (!cpi->second_pass_file_ptr) {
+      aom_internal_error(cpi->common.error, AOM_CODEC_ERROR,
+                         "Could not open second pass file!");
+    }
+
+    THIRD_PASS_GOP_INFO gop_info;
+
+    gop_info.num_frames = gf_group->size;
+    gop_info.use_arf = (gf_group->arf_index >= 0);
+    gop_info.gf_length = p_rc->baseline_gf_interval;
+
+    fwrite(&gop_info, 1, sizeof(gop_info), cpi->second_pass_file_ptr);
+  }
+}
+
+void av1_read_second_pass_gop_info(AV1_COMP *cpi,
+                                   THIRD_PASS_GOP_INFO *gop_info) {
+  const AV1EncoderConfig *const oxcf = &cpi->oxcf;
+
+  if (oxcf->pass == AOM_RC_THIRD_PASS) {
+    if (oxcf->second_pass_file == NULL) {
+      aom_internal_error(cpi->common.error, AOM_CODEC_INVALID_PARAM,
+                         "No second pass file specified for the third pass!");
+    }
+    // Note down the GOP length in a file.
+    if (!cpi->second_pass_file_ptr) {
+      cpi->second_pass_file_ptr = fopen(cpi->oxcf.second_pass_file, "rb");
+    }
+
+    if (!cpi->second_pass_file_ptr) {
+      aom_internal_error(cpi->common.error, AOM_CODEC_ERROR,
+                         "Could not open second pass file!");
+    }
+
+    fread(gop_info, sizeof(*gop_info), 1, cpi->second_pass_file_ptr);
+  }
 }
