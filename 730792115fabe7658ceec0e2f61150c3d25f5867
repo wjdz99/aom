@@ -34,6 +34,24 @@
       "parentUuid": "47b16703_d7e8169a",
       "revId": "730792115fabe7658ceec0e2f61150c3d25f5867",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cf9fd34_aa8ca81b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2021-08-27T17:26:37Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nYes. dc_pred is worse than best inter mode in this case.\n\nWe tried enabling the sf for different usages/presets, please find our observations below:\n1) For --rt, speed\u003d4, speed-quality data is as per allowed trade-off for \u0027rtc\u0027 set, but not for \u0027rtc_derf\u0027. Hence the sf can be enabled for resolutions \u003e\u003d 360p.  \n2) For --good usage,\n\ta) The data of speed\u003d6 and speed\u003d2 are as per trade-off allowed\n\tb) For speed\u003d5, overall data is as per trade-off allowed whereas mid-res is out of trade-off allowed\n\tc) For speed\u003d4, overall data, mid-res data and hd-res data are out of trade-off allowed\n\td) For speed\u003d3, overall data and mid-res data are out of trade-off allowed\n\nBased on above, we feel that the sf can be extended to --good, speed\u003d6 and --rt, speed\u003d4 (for resolutions \u003e\u003d 360p). \n\nThe speed and quality impact for different presets (by extending the sf) can be found below:\n\nFor --rt usage,\nCPU Resolution Instruction Count           BD-Rate Impact %\n                   Reduction %   avg.psnr ovr.psnr   ssim   \n                                  8 - bit  8 - bit  8 - bit \n  4    Average        1.619       0.0994   0.1063   0.1434 \n  4   rtc_derf        1.650       0.1796   0.1845   0.2542 \n  4     rtc           1.591       0.0421   0.0504   0.0642 \n\nFor --good usage,\nCPU  Resolution Instruction Count           BD-Rate Impact %\n                    Reduction %   avg.psnr ovr.psnr   ssim\n                                   8 - bit  8 - bit  8 - bit\n  2     LOW RES       3.844       0.0307   0.0308  -0.0240\n  2      HD RES       2.475       0.0454   0.0461   0.0266\n  2     MID RES       2.514       0.0458   0.0538  -0.0214\n  2 \tAVERAGE       3.172       0.0396   0.0422  -0.0078\n\n  3     LOW RES       2.315       0.0180   0.0031   0.0032\n  3      HD RES       1.485       0.0085  -0.0029   0.0153\n  3     MID RES       1.709       0.1980   0.1757   0.1619\n  3 \tAVERAGE       1.956       0.0678   0.0518   0.0533\n\n  4     LOW RES       1.782       0.0430   0.0405   0.0592\n  4      HD RES       1.005       0.0759   0.0718   0.0976\n  4     MID RES       1.326       0.1151   0.1179   0.1153\n  4 \tAVERAGE       1.474       0.0741   0.0727   0.0873\n\n  5     LOW RES       1.100       0.0332   0.0327   0.0043\n  5      HD RES       0.533       0.0036  -0.0070   0.0550\n  5     MID RES       0.889       0.1165   0.1587   0.1289\n  5 \tAVERAGE       0.905       0.0486   0.0575   0.0562\n\n  6     LOW RES       1.370      -0.0134  -0.0167  -0.0959\n  6      HD RES       0.676       0.0990   0.0944   0.1060\n  6     MID RES       0.944       0.0250   0.0344   0.0295\n  6 \tAVERAGE       1.090       0.0321   0.0321   0.0023\n\nRegards,\nRanjit",
+      "parentUuid": "19ea478e_e865cf4a",
+      "revId": "730792115fabe7658ceec0e2f61150c3d25f5867",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
