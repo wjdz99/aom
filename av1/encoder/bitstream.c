@@ -176,7 +176,8 @@ static AOM_INLINE void write_inter_compound_mode(MACROBLOCKD *xd, aom_writer *w,
   assert(is_inter_compound_mode(mode));
 #if CONFIG_OPTFLOW_REFINEMENT
   int use_of = 0;
-  if (is_opfl_refine_allowed(cm, mbmi)) {
+  if (cm->features.opfl_refine_type == REFINE_SWITCHABLE &&
+      is_opfl_refine_allowed(cm, mbmi)) {
     use_of = mode > NEW_NEWMV;
     aom_write_symbol(w, use_of, xd->tile_ctx->use_optflow_cdf[mode_ctx], 2);
   }
@@ -862,7 +863,7 @@ static AOM_INLINE void write_mb_interp_filter(AV1_COMMON *const cm,
 
   if (!av1_is_interp_needed(xd)) {
 #if CONFIG_OPTFLOW_REFINEMENT
-    // In optical flow refinement, use the sharp filter instead
+    // In switchable optical flow refinement, use the sharp filter instead
     int mb_interp_filter =
         mbmi->mode > NEW_NEWMV ? MULTITAP_SHARP : cm->features.interp_filter;
 #else
@@ -3817,6 +3818,15 @@ static AOM_INLINE void write_uncompressed_header_obu(
       }
       write_frame_interp_filter(features->interp_filter, wb);
       aom_wb_write_bit(wb, features->switchable_motion_mode);
+#if CONFIG_OPTFLOW_REFINEMENT
+      if (frame_might_allow_opfl_refine(cm)) {
+        aom_wb_write_bit(wb, features->opfl_refine_type >> 1);
+        if (features->opfl_refine_type <= 1)
+          aom_wb_write_bit(wb, features->opfl_refine_type & 1);
+      } else {
+        assert(features->opfl_refine_type == 0);
+      }
+#endif  // CONFIG_OPTFLOW_REFINEMENT
       if (frame_might_allow_ref_frame_mvs(cm)) {
         aom_wb_write_bit(wb, features->allow_ref_frame_mvs);
       } else {
