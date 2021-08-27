@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d848af6a_70a3b6e3",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-27T20:17:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "657a79c9_ab58b674",
+      "revId": "4f01785d369e8fba6fe5c7ad912dee59f1f10206",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "149dedcf_cabdc088",
@@ -84,6 +102,24 @@
       "writtenOn": "2021-08-27T17:02:54Z",
       "side": 1,
       "message": "This one, the input is complex (and indexing doesn\u0027t exercise the entire input space), but the following check should still hold:\n  const int num_trials \u003d 1000 * (64 - n);\n  for (int i \u003d 0; i \u003c num_trials; ++i) {...}\n  \n  EXPECT_GE(sum, num_trials / 2);",
+      "revId": "4f01785d369e8fba6fe5c7ad912dee59f1f10206",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a78c641_d9af74f3",
+        "filename": "test/fft_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-08-27T20:17:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "149dedcf_cabdc088",
       "revId": "4f01785d369e8fba6fe5c7ad912dee59f1f10206",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
