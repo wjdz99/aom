@@ -2088,15 +2088,29 @@ static void build_inter_predictors_8x8_and_bigger(
 #if CONFIG_OPTFLOW_REFINEMENT
   int_mv mv_refined[2 * N_OF_OFFSETS];
   const int use_optflow_refinement =
-      (mi->mode > NEW_NEWMV) && is_compound && is_opfl_refine_allowed(cm, mi);
+      (mi->mode > NEW_NEWMV ||
+       (cm->features.opfl_refine_type == REFINE_ALL &&
+        mi->interinter_comp.type == COMPOUND_AVERAGE)) &&
+      is_compound && is_opfl_refine_allowed(cm, mi);
 
+  assert(IMPLIES(mi->mode > NEW_NEWMV,
+                 cm->features.opfl_refine_type == REFINE_SWITCHABLE));
   assert(IMPLIES(use_optflow_refinement, !build_for_obmc));
+
+  // Optical flow refinement with masked comp types or with non-sharp
+  // interpolation filter should only exist in REFINE_ALL.
+  assert(IMPLIES(
+      use_optflow_refinement && mi->interinter_comp.type != COMPOUND_AVERAGE,
+      cm->features.opfl_refine_type == REFINE_ALL));
 #if CONFIG_REMOVE_DUAL_FILTER
-  assert(IMPLIES(use_optflow_refinement, mi->interp_fltr == MULTITAP_SHARP));
+  assert(IMPLIES(use_optflow_refinement && mi->interp_fltr != MULTITAP_SHARP,
+                 cm->features.opfl_refine_type == REFINE_ALL));
 #else
-  assert(IMPLIES(use_optflow_refinement,
-                 mi->interp_filters.as_filters.x_filter == MULTITAP_SHARP &&
-                     mi->interp_filters.as_filters.y_filter == MULTITAP_SHARP));
+  assert(
+      IMPLIES(use_optflow_refinement &&
+                  (mi->interp_filters.as_filters.x_filter != MULTITAP_SHARP ||
+                   mi->interp_filters.as_filters.y_filter != MULTITAP_SHARP),
+              cm->features.opfl_refine_type == REFINE_ALL));
 #endif
 
   // Arrays to hold optical flow offsets.

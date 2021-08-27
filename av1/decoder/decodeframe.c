@@ -5443,6 +5443,14 @@ static int read_uncompressed_header(AV1Decoder *pbi,
       }
       features->interp_filter = read_frame_interp_filter(rb);
       features->switchable_motion_mode = aom_rb_read_bit(rb);
+#if CONFIG_OPTFLOW_REFINEMENT
+      if (frame_might_allow_opfl_refine(cm)) {
+        features->opfl_refine_type = aom_rb_read_bit(rb) << 1;
+        if (!features->opfl_refine_type) {
+          features->opfl_refine_type += aom_rb_read_bit(rb);
+        }
+      }
+#endif  // CONFIG_OPTFLOW_REFINEMENT
     }
 
     cm->prev_frame = get_primary_ref_frame_buf(cm);
