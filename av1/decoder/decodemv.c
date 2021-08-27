@@ -356,10 +356,12 @@ static PREDICTION_MODE read_inter_compound_mode(MACROBLOCKD *xd, aom_reader *r,
 #endif  // CONFIG_OPTFLOW_REFINEMNET
                                                 int16_t ctx) {
 #if CONFIG_OPTFLOW_REFINEMENT
-  const int use_of =
-      is_opfl_refine_allowed(cm, mbmi)
-          ? aom_read_symbol(r, xd->tile_ctx->use_optflow_cdf[ctx], 2, ACCT_STR)
-          : 0;
+  int use_of = 0;
+  if (cm->features.opfl_refine_type == REFINE_SWITCHABLE &&
+      is_opfl_refine_allowed(cm, mbmi)) {
+    use_of =
+        aom_read_symbol(r, xd->tile_ctx->use_optflow_cdf[ctx], 2, ACCT_STR);
+  }
 #endif  // CONFIG_OPTFLOW_REFINEMENT
   const int mode =
       aom_read_symbol(r, xd->tile_ctx->inter_compound_mode_cdf[ctx],

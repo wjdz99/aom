@@ -925,7 +925,8 @@ static int cost_mv_ref(const ModeCosts *const mode_costs, PREDICTION_MODE mode,
   if (is_inter_compound_mode(mode)) {
 #if CONFIG_OPTFLOW_REFINEMENT
     int use_of = 0, use_of_cost = 0;
-    if (is_opfl_refine_allowed(cm, mbmi)) {
+    if (cm->features.opfl_refine_type == REFINE_SWITCHABLE &&
+        is_opfl_refine_allowed(cm, mbmi)) {
       use_of = mode > NEW_NEWMV;
       use_of_cost = mode_costs->use_optflow_cost[mode_context][use_of];
     }
@@ -5779,6 +5780,10 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     if (this_mode > NEW_NEWMV &&
         (!cm->seq_params.order_hint_info.enable_order_hint ||
          !has_second_ref(mbmi) || !is_opfl_refine_allowed(cm, mbmi)))
+      continue;
+    // In REFINE_ALL, optical flow refinement has been applied to regular
+    // compound modes.
+    if (this_mode > NEW_NEWMV && cm->features.opfl_refine_type == REFINE_ALL)
       continue;
 #endif  // CONFIG_OPTFLOW_REFINEMENT
 
