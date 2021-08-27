@@ -3146,6 +3146,11 @@ typedef struct AV1_COMP {
   WeberStats *mb_weber_stats;
 
   /*!
+   * Buffer to store MB variance after Wiener filter.
+   */
+  BLOCK_SIZE weber_bsize;
+
+  /*!
    * Frame level Wiener filter normalization.
    */
   int64_t norm_wiener_variance;
