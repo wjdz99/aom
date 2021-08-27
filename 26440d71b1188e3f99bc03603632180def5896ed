@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch adds the check on whether a frame is temporally filtered or not during the decision to mark it as eligible for parallel encode. Since the cross-frame dependencies w.r.t. temporal filtering are not handled, no temporally filtered frame should belong to a parallel encode set. The previous logic for marking frame_parallel_level was not explicitly checking for the frame to be not temporally filtered, resulting in rare cases where a temporally filtered internal ARF frame getting inadvertently marked as frame_parallel_level\u003d2. This patch adds the appropriate check while setting frame_parallel_level during construct_multi_layer_gf_structure().\n\nWith this check on an internal ARF frame being temporally filtered or not, for FP2 (where lower layer frames can also be encoded in parallel), the internal ARF frames of gf-internal 14 with the encode reorder become invalid frames for parallel encode set since they are temporally filtered. Hence, this patch also disables the encode reordering of gf-interval 14 for FP2 so that only gf-intervals 16 and 32 are currently valid for FP2.\n\nThis patch was found to have negligible encode time impact for FP1 (CONFIG_FRAME_PARALLEL_ENCODE 1) with 2 parallel frames (num_fp_contexts \u003d 2) when tested on 1080p encode (Wheat, AOV5, blue_sky) with 16 threads for speed 4, 5, 6, while providing a slight BD rate improvement for FP1 and negligible impact on BD rate for FP2 for CQP encode, as provided below.\n\nFP1: CONFIG_FRAME_PARALLEL_ENCODE 1, and num_fp_contexts \u003d 4: with this patch (test) and without this patch (ref).\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  Average   |      -0.085       |  -0.2193   -0.2213  -0.2263  |\n   3     |  Average   |      -0.011       |  -0.0958   -0.1143  -0.2306  |\n   4     |  Average   |       0.017       |  -0.0762   -0.0792  -0.0653  |\n   5     |  Average   |       0.107       |  -0.0816   -0.0791  -0.0724  |\n   6     |  Average   |       0.093       |  -0.1543   -0.1387  -0.1362  | \n   \nFP2: CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1 and num_fp_contexts \u003d 2: with this patch (test) and without this patch (ref).\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   0     |  Average   |      -0.283       |  -0.0053   -0.0077   -0.0032 |\n   1     |  Average   |      -0.076       |  -0.0082   -0.0092   -0.0086 |\n   2     |  Average   |      -0.046       |  -0.0060   -0.0110   -0.0157 |\n   3     |  Average   |      -0.022       |   0.0003   -0.0122   -0.0079 |\n   4     |  Average   |       0.024       |  -0.0059   -0.0203   -0.0196 |\n   5     |  Average   |       0.041       |  -0.0508   -0.0494   -0.0579 |\n   6     |  Average   |      -0.024       |  -0.0011    0.0031   -0.0058 |\n   \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review this patch.\n\nRegards,\nRemya",
       "revId": "26440d71b1188e3f99bc03603632180def5896ed",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9d164ab_2d0c89fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-27T15:33:38Z",
+      "side": 1,
+      "message": "Looks good. This is an FPMT improvement that is mainly under CONFIG_FRAME_PARALLEL_ENCODE.",
+      "revId": "26440d71b1188e3f99bc03603632180def5896ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
