@@ -1207,6 +1207,9 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
 #endif
     }
   } else {
+    // TODO(any): Experiment and enable the sf
+    // 'skip_filter_intra_in_inter_frames' for speed <= 3
+    if (speed >= 4) sf->intra_sf.skip_filter_intra_in_inter_frames = 1;
     if (speed >= 7) {
       sf->rt_sf.use_comp_ref_nonrd = 1;
       sf->rt_sf.ref_frame_comp_nonrd[2] = 1;  // LAST_ALTREF
