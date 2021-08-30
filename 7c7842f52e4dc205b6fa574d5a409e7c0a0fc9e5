@@ -16,6 +16,29 @@
       "message": "Hi Yunqing,\nIn this CL, we have extended the speed feature ‘skip_filter_intra_in_inter_frames’ to --rt, speed \u003d 4 as per our discussion in the gerrit link below.\nhttps://aomedia-review.googlesource.com/c/aom/+/144802\nTo enable the sf \u0027skip_filter_intra_in_inter_frames\u0027, we used speed \u003e\u003d 4 check. We hope it is fine.\n\nPlease find the detailed Borg results below:\n \n  CPU Resolution   Instruction Count          BD-Rate Loss %\n                      Reduction %   \tavg.psnr ovr.psnr    ssim                                    \n  4    Average           0.815     \t0.0246    0.0294    0.0375 \n  4    rtc_derf         -0.000     \t0.0000    0.0000    0.0000 \n  4      rtc             1.591     \t0.0421    0.0504    0.0642 \n\nPlease review the patch and let us know your opinion. \n   \nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \n\nRegards,\nRanjit",
       "revId": "7c7842f52e4dc205b6fa574d5a409e7c0a0fc9e5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b3a3f16_8f4e4a02",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-30T18:44:09Z",
+      "side": 1,
+      "message": "Would suggest to remove this part since speed 0 to 4 is the same thing, you can enable this as a default feature. Hopefully we don\u0027t need to maintain \u0026 test more speeds by keeping less speeds around.",
+      "range": {
+        "startLine": 1210,
+        "startChar": 4,
+        "endLine": 1212,
+        "endChar": 19
+      },
+      "revId": "7c7842f52e4dc205b6fa574d5a409e7c0a0fc9e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
