@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b9d4173_f6d8b060",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 28072
+      },
+      "writtenOn": "2021-08-30T12:18:16Z",
+      "side": 1,
+      "message": "git fetch https://aomedia.googlesource.com/aom refs/changes/21/144921/1 \u0026\u0026 git checkout FETCH_HEAD",
+      "revId": "3bdbe6b765935ba2bbc7bdc0b7a8172a5ae3a0e8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
