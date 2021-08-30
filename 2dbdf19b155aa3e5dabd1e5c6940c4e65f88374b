@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "7c922af9_2fb919df",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 12300
+      },
+      "writtenOn": "2021-08-30T21:44:36Z",
+      "side": 1,
+      "message": "Thanks for the review, didn\u0027t realize these were missing a newline at the end.\n\nI agree, `warn()` is very generic, I can send another CL for that, or should that be rolled into this?",
+      "parentUuid": "f4a1a41c_671a4e9b",
+      "revId": "2dbdf19b155aa3e5dabd1e5c6940c4e65f88374b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "edaef011_7837e439",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
