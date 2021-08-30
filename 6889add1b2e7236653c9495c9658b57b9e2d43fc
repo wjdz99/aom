@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf3d7ec3_0e91ecef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2021-08-30T23:03:53Z",
+      "side": 1,
+      "message": "This was required due to a previous change in README (on Gitlab). Not needed here.",
+      "revId": "6889add1b2e7236653c9495c9658b57b9e2d43fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
