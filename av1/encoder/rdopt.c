@@ -2614,7 +2614,11 @@ static int64_t handle_inter_mode(
   // First, perform a simple translation search for each of the indices. If
   // an index performs well, it will be fully searched in the main loop
   // of this function.
-  const int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
+  int ref_set = get_drl_refmv_count(x, mbmi->ref_frame, this_mode);
+
+  if (this_mode == NEARMV && ref_set == 3) {
+    ref_set = 1;
+  }
   // Save MV results from first 2 ref_mv_idx.
   int_mv save_mv[MAX_REF_MV_SEARCH - 1][2];
   int best_ref_mv_idx = -1;
