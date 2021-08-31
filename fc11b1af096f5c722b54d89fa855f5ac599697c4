@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c745d47f_67e52851",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 7
+      },
+      "lineNbr": 3838,
+      "author": {
+        "id": 5186
+      },
+      "writtenOn": "2021-08-31T00:42:13Z",
+      "side": 1,
+      "message": "Maybe I misunderstood in our discussion, but I thought you only needed this ordering to be used when you get your reference index? I\u0027m pretty sure having the order of mbmi-\u003eref_frame_nrs and mbmi-\u003eref_frame out of sync will break a lot of stuff. Let me know if I am misunderstanding.",
+      "range": {
+        "startLine": 3837,
+        "startChar": 0,
+        "endLine": 3838,
+        "endChar": 63
+      },
+      "revId": "fc11b1af096f5c722b54d89fa855f5ac599697c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
