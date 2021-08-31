@@ -63,6 +63,30 @@
       },
       "revId": "7c7842f52e4dc205b6fa574d5a409e7c0a0fc9e5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3eccdfcb_a5fede34",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1212,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-08-31T17:48:06Z",
+      "side": 1,
+      "message": "Hi Ranjit, thanks for pointing out that speed 0 is different from speed 1 to 4! I didn\u0027t notice that. Will take a look. For now, since nobody uses speed \u003c 5, the purpose that we look at speed \u003c 5 features is to make speed 5 better. The tradeoff for speed 0 is fine, and feel free to make the change.",
+      "parentUuid": "3399aeb1_da93f843",
+      "range": {
+        "startLine": 1210,
+        "startChar": 4,
+        "endLine": 1212,
+        "endChar": 19
+      },
+      "revId": "7c7842f52e4dc205b6fa574d5a409e7c0a0fc9e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
