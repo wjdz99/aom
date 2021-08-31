@@ -114,7 +114,7 @@ typedef struct {
   const char *debug_file;
 } noise_model_args_t;
 
-static void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
+static void parse_args(noise_model_args_t *noise_args, char **argv) {
   struct arg arg;
   static const arg_def_t *main_args[] = { &help,
                                           &input_arg,
@@ -129,7 +129,8 @@ static void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
                                           &use_i444,
                                           &debug_file_arg,
                                           NULL };
-  for (int argi = *argc + 1; *argv; argi++, argv++) {
+  for (; *argv; argv += arg.argv_step) {
+    arg.argv_step = 1;
     if (arg_match(&arg, &help, argv)) {
       fprintf(stdout, "\nOptions:\n");
       arg_show_usage(stdout, main_args);
@@ -286,6 +287,7 @@ static void print_debug_info(FILE *debug_file, aom_image_t *raw,
 }
 
 int main(int argc, char *argv[]) {
+  (void)argc;
   noise_model_args_t args = { 0,  0, { 25, 1 }, 0, 0, 0,   AOM_IMG_FMT_I420,
                               32, 8, 1,         0, 1, NULL };
   aom_image_t raw, denoised;
@@ -295,7 +297,7 @@ int main(int argc, char *argv[]) {
   memset(&info, 0, sizeof(info));
 
   exec_name = argv[0];
-  parse_args(&args, &argc, argv + 1);
+  parse_args(&args, argv + 1);
 
   info.frame_width = args.width;
   info.frame_height = args.height;
@@ -413,7 +415,7 @@ int main(int argc, char *argv[]) {
   grain.random_seed = random_seed;
   aom_film_grain_table_append(&grain_table, prev_timestamp, INT64_MAX, &grain);
   if (args.output_grain_table) {
-    struct aom_internal_error_info error_info;
+    struct aom_internal_error_info error_info = {};
     if (AOM_CODEC_OK != aom_film_grain_table_write(&grain_table,
                                                    args.output_grain_table,
                                                    &error_info)) {
