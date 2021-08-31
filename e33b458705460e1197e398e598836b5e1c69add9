@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88e335fe_408b36fe",
+        "filename": "av1/encoder/allintra_vis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-08-31T18:18:52Z",
+      "side": 1,
+      "message": "What\u0027s changed in this iteration?",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 403,
+        "endChar": 49
+      },
+      "revId": "e33b458705460e1197e398e598836b5e1c69add9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
