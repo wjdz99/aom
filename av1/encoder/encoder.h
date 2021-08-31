@@ -159,7 +159,7 @@ enum {
   DELTA_Q_PERCEPTUAL = 2,     // Modulation to improve video perceptual quality
   DELTA_Q_PERCEPTUAL_AI = 3,  // Perceptual quality opt for all intra mode
   DELTA_Q_USER_RATING_BASED = 4,  // User rating based delta q mode
-  DELTA_Q_ITERATIVE = 5,  // SB qindex is determined iteratively
+  DELTA_Q_ITERATIVE = 5,          // SB qindex is determined iteratively
   DELTA_Q_MODE_COUNT  // This should always be the last member of the enum
 } UENUM1BYTE(DELTAQ_MODE);
 
@@ -2433,6 +2433,16 @@ typedef struct AV1_PRIMARY {
   YV12_BUFFER_CONFIG alt_ref_buffer;
 
   /*!
+   * Frame filtered buffer.
+   */
+  YV12_BUFFER_CONFIG filtered_buffer;
+
+  /*!
+   * Frame saliency map.
+   */
+  YV12_BUFFER_CONFIG saliency_buffer;
+
+  /*!
    * Elements part of the sequence header, that are applicable for all the
    * frames in the video.
    */
@@ -3162,6 +3172,11 @@ typedef struct AV1_COMP {
    * Buffer to store delta-q values for delta-q mode 4.
    */
   int *mb_delta_q;
+
+  /*!
+   * Buffer to store variance
+   */
+  int *mb_variance;
 
   /*!
    * Flag to indicate that current frame is dropped.

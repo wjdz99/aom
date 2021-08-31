@@ -1509,6 +1509,8 @@ static AOM_INLINE void free_thread_data(AV1_PRIMARY *ppi) {
 void av1_remove_primary_compressor(AV1_PRIMARY *ppi) {
   if (!ppi) return;
   aom_free_frame_buffer(&ppi->alt_ref_buffer);
+  aom_free_frame_buffer(&ppi->filtered_buffer);
+  aom_free_frame_buffer(&ppi->saliency_buffer);
   for (int i = 0; i < MAX_NUM_OPERATING_POINTS; ++i) {
     aom_free(ppi->level_params.level_info[i]);
   }
@@ -1961,6 +1963,7 @@ void av1_check_initial_width(AV1_COMP *cpi, int use_highbitdepth,
 
     if (!is_stat_generation_stage(cpi)) {
       alloc_altref_frame_buffer(cpi);
+      alloc_saliency_frame_buffer(cpi);
       alloc_util_frame_buffers(cpi);
     }
     init_ref_frame_bufs(cpi);
@@ -3393,7 +3396,9 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
   }
 
   if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_ITERATIVE) {
+    av1_init_mb_ur_var_buffer(cpi);
     av1_init_sb_qindex_buffer(cpi);
+    av1_set_mb_ur_variance(cpi);
     av1_set_sb_qindex(cpi);
   }
 
