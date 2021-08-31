@@ -16,6 +16,24 @@
       "message": "James: Is it okay to use the aom_ prefix? I am wondering if the aom_ prefix is reserved for the libaom library.\n\nIf not, how about the tools_ prefix?",
       "revId": "3e6bb3baf4f7a70a6d8106fe5bb2c32f4e105571",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6793d3bb_e77215ee",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-08-31T00:33:00Z",
+      "side": 1,
+      "message": "\u003e James: Is it okay to use the aom_ prefix? I am wondering if the aom_ prefix is reserved for the libaom library.\n\u003e \n\u003e If not, how about the tools_ prefix?\n\nThere\u0027s no official structure for this, but like C++ namespaces I think we should avoid common top-level names. To distinguish the tools/examples from the main lib aom_tools_ might work. In the end all of tools_common.h should be prefixed for consistency.",
+      "parentUuid": "69aad1e4_5b96b825",
+      "revId": "3e6bb3baf4f7a70a6d8106fe5bb2c32f4e105571",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
