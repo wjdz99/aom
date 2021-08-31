@@ -114,7 +114,7 @@ typedef struct {
   const char *debug_file;
 } noise_model_args_t;
 
-static void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
+static void parse_args(noise_model_args_t *noise_args, char **argv) {
   struct arg arg;
   static const arg_def_t *main_args[] = { &help,
                                           &input_arg,
@@ -129,7 +129,8 @@ static void parse_args(noise_model_args_t *noise_args, int *argc, char **argv) {
                                           &use_i444,
                                           &debug_file_arg,
                                           NULL };
-  for (int argi = *argc + 1; *argv; argi++, argv++) {
+  for (; *argv; argv += arg.argv_step) {
+    arg.argv_step = 1;
     if (arg_match(&arg, &help, argv)) {
       fprintf(stdout, "\nOptions:\n");
       arg_show_usage(stdout, main_args);
@@ -295,7 +296,7 @@ int main(int argc, char *argv[]) {
   memset(&info, 0, sizeof(info));
 
   exec_name = argv[0];
-  parse_args(&args, &argc, argv + 1);
+  parse_args(&args, argv + 1);
 
   info.frame_width = args.width;
   info.frame_height = args.height;
@@ -413,7 +414,7 @@ int main(int argc, char *argv[]) {
   grain.random_seed = random_seed;
   aom_film_grain_table_append(&grain_table, prev_timestamp, INT64_MAX, &grain);
   if (args.output_grain_table) {
-    struct aom_internal_error_info error_info;
+    struct aom_internal_error_info error_info = {};
     if (AOM_CODEC_OK != aom_film_grain_table_write(&grain_table,
                                                    args.output_grain_table,
                                                    &error_info)) {
