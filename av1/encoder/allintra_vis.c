@@ -256,10 +256,128 @@ static double estimate_txfm_block_entropy(int q_index,
 }
 
 static void adjust_qindex(int *base_qindex, const int last_qindex,
+                          const int orig_base_qindex,
                           const double avg_mb_entropy, const double mb_entropy,
-                          double upper_mb_entropy, double lower_mb_entropy,
-                          double *orig_entropy, const int iter) {
-  (void)avg_mb_entropy;
+                          double *upper_mb_entropy, double *lower_mb_entropy,
+                          double *orig_entropy, const double avg_var,
+                          const double this_mb_var, const double avg_saliency,
+                          const double block_saliency, const double avg_mscn,
+                          const double block_mscn, const int iter,
+                          const int sb_row, const int sb_col) {
+  (void)sb_row;
+  (void)sb_col;
+  // If a block has a large variance, we expect the block's entropy is above
+  // average and it tolerates higher entropy.
+  const double var_ratio = sqrt(this_mb_var / avg_var);
+
+  // If a block has a high saliency score, we expect to use more bits/entropy.
+  const double saliency_ratio = block_saliency / avg_saliency;
+
+  // If a block has a high mscn score, we expect the block has more fine
+  // structure or context, which means it tolerates higher entropy.
+  const double mscn_ratio = block_mscn / avg_mscn;
+
+  // const double weights[] = { 1, 1, 1 };
+  // const double ratio = weights[0] * var_ratio + weights[1] * (1 -
+  // saliency_ratio) + weights[2] * mscn_ratio;
+
+  if (iter == 0) return;
+  if (iter == 1) {
+    *orig_entropy = mb_entropy;
+    // Adjust upper and lower mb entropy limit according to variance
+    if (*orig_entropy > *upper_mb_entropy) {
+      const double complexity = (var_ratio + mscn_ratio) / 2;
+      /*
+      if (sb_row == 11 && sb_col == 11) {
+        printf("orig upper_mb_entropy %.0f, ", *upper_mb_entropy);
+      }
+      */
+      *upper_mb_entropy *= (1.5 * complexity);
+      /*
+      if (sb_row == 11 && sb_col == 11) {
+        printf("complexity %.2f, upper_mb_entropy %.0f\n", complexity,
+      *upper_mb_entropy);
+      }
+      */
+      *upper_mb_entropy = AOMMIN(*upper_mb_entropy, 2.5 * avg_mb_entropy);
+    }
+    if (*orig_entropy < *lower_mb_entropy) {
+      const double complexity = (var_ratio + mscn_ratio) / 2;
+      *lower_mb_entropy *= (1.5 * complexity);
+      *lower_mb_entropy = AOMMAX(*lower_mb_entropy, 0.25 * avg_mb_entropy);
+    }
+  }
+
+  // const double entropy_ratio = mb_entropy / avg_mb_entropy;
+
+  if (*orig_entropy > avg_mb_entropy) {
+    double delta_qindex = 10;
+    if (mb_entropy > avg_mb_entropy) {
+      if (var_ratio > 1 && mb_entropy > *upper_mb_entropy) {
+        delta_qindex *= AOMMIN(var_ratio, 2);
+      } else if (var_ratio < 1) {
+        delta_qindex /= AOMMAX(var_ratio, 0.5);
+      }
+      if (saliency_ratio > 1) {
+        delta_qindex /= AOMMIN(saliency_ratio, 4);
+      } else {
+        delta_qindex /= AOMMAX(saliency_ratio, 0.5);
+      }
+      if (mscn_ratio < 1) {
+        delta_qindex /= AOMMAX(mscn_ratio, 0.5);
+      }
+      // Cap qindex such that the new q is not much far away from the base q.
+      *base_qindex =
+          AOMMIN(last_qindex + (int)delta_qindex, 2 * orig_base_qindex);
+      *base_qindex = AOMMIN(*base_qindex, MAXQ);
+    } else if (mb_entropy < *lower_mb_entropy) {
+      // Cap qindex such that the new q is not much far away from the base q.
+      *base_qindex =
+          AOMMAX(last_qindex - (int)delta_qindex, orig_base_qindex / 2);
+      ;
+      *base_qindex = AOMMAX(*base_qindex, 0);
+    }
+  } else {
+    double delta_qindex = 10;
+    if (mb_entropy < avg_mb_entropy) {
+      if (var_ratio > 1) {
+        delta_qindex *= var_ratio;
+      } else {
+        delta_qindex /= AOMMAX(var_ratio, 0.5);
+      }
+      if (saliency_ratio > 1) {
+        delta_qindex *= saliency_ratio;
+      } else {
+        delta_qindex *= AOMMAX(saliency_ratio, 0.25);
+      }
+      if (mscn_ratio > 1) {
+        delta_qindex *= AOMMIN(mscn_ratio, 3);
+      }
+      // Cap qindex such that the new q is not much far away from the base q.
+      *base_qindex =
+          AOMMAX(last_qindex - (int)delta_qindex, orig_base_qindex / 2);
+      ;
+      *base_qindex = AOMMAX(*base_qindex, 0);
+    } else if (mb_entropy > *upper_mb_entropy) {
+      // Cap qindex such that the new q is not much far away from the base q.
+      *base_qindex =
+          AOMMIN(last_qindex + (int)delta_qindex, 2 * orig_base_qindex);
+      *base_qindex = AOMMIN(*base_qindex, MAXQ);
+    }
+  }
+  /*
+  if (sb_row == 11 && sb_col == 11) {
+    printf(
+        "iter %d, var_ratio %.2f, saliency_ratio %.2f, mscn_ratio %.2f, "
+        "orig_entropy %.2f, avg_mb_entropy %.2f, mb_entropy %.2f, "
+        "base_qindex %d, last_qindex %d\n",
+        iter, var_ratio, saliency_ratio, mscn_ratio, *orig_entropy,
+        avg_mb_entropy, mb_entropy, *base_qindex, last_qindex);
+  }
+  */
+
+  /*
+  // old strategy based on entropy only.
   if (iter == 0) return;
   if (iter == 1) *orig_entropy = mb_entropy;
 
@@ -280,11 +398,14 @@ static void adjust_qindex(int *base_qindex, const int last_qindex,
       *base_qindex = AOMMAX(0, last_qindex - delta_qindex);
     }
   }
+  */
 }
 
-static void entropy_based_sb_q(AV1_COMP *cpi, double *abs_coeff_mean,
-                               const double sum_frame_entropy,
-                               const double sum_frame_rate) {
+static void entropy_based_sb_q(
+    AV1_COMP *cpi, double *abs_coeff_mean, const double sum_frame_entropy,
+    const double sum_frame_rate, const double avg_var,
+    const double *const saliency_map, const double avg_saliency,
+    const double *const mscn_map, const double avg_mscn) {
   (void)sum_frame_rate;
   AV1_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = cm->seq_params;
@@ -326,25 +447,47 @@ static void entropy_based_sb_q(AV1_COMP *cpi, double *abs_coeff_mean,
   const int orig_base_qindex = cpi->common.quant_params.base_qindex;
   const int num_mbs = cpi->frame_info.mb_rows * cpi->frame_info.mb_cols;
   const double avg_mb_entropy = sum_frame_entropy / num_mbs;
-
-  const double upper_mb_entropy = 1.25 * avg_mb_entropy;
-  const double lower_mb_entropy = 0.75 * avg_mb_entropy;
-  const int max_iter = 10;
-  int base_qindex = orig_base_qindex;
+  const int max_iter = 5;
 
   // Iterate though each super block
   for (int sb_row = 0; sb_row < num_row_sbs; ++sb_row) {
     for (int sb_col = 0; sb_col < num_col_sbs; ++sb_col) {
-      base_qindex = orig_base_qindex;
+      const int sb_idx = sb_row * num_col_sbs + sb_col;
+      double upper_mb_entropy = 1.25 * avg_mb_entropy;
+      double lower_mb_entropy = 0.75 * avg_mb_entropy;
+      int base_qindex = orig_base_qindex;
       double mb_entropy = 0;
       int iter = 0;
       int last_qindex = base_qindex;
       double orig_entropy = 0;
-      double mb_variance = 0;
+      const double this_mb_var = cpi->mb_variance[sb_idx];
+      double block_saliency = 0;
+      int pixel_count = 0;
+      double block_mscn = 0;
+      for (int r = 0; r < block_size_high[sb_size]; ++r) {
+        for (int c = 0; c < block_size_wide[sb_size]; ++c) {
+          const int row = sb_row * block_size_high[sb_size] + r;
+          const int col = sb_col * block_size_wide[sb_size] + c;
+          if (row >= cpi->frame_info.frame_height ||
+              col >= cpi->frame_info.frame_width) {
+            continue;
+          }
+          block_saliency +=
+              saliency_map[row * cpi->frame_info.frame_width + col];
+          block_mscn += fabs(mscn_map[row * cpi->frame_info.frame_width + col]);
+          ++pixel_count;
+        }
+      }
+      block_saliency /= pixel_count;
+      block_mscn /= pixel_count;
+
       do {
         // Adjust qindex based on the last qindex and corresponding sb entropy
-        adjust_qindex(&base_qindex, last_qindex, avg_mb_entropy, mb_entropy,
-                      upper_mb_entropy, lower_mb_entropy, &orig_entropy, iter);
+        adjust_qindex(&base_qindex, last_qindex, orig_base_qindex,
+                      avg_mb_entropy, mb_entropy, &upper_mb_entropy,
+                      &lower_mb_entropy, &orig_entropy, avg_var, this_mb_var,
+                      avg_saliency, block_saliency, avg_mscn, block_mscn, iter,
+                      sb_row, sb_col);
         last_qindex = base_qindex;
         cm->quant_params.base_qindex = base_qindex;
         av1_frame_init_quantizer(cpi);
@@ -359,7 +502,8 @@ static void entropy_based_sb_q(AV1_COMP *cpi, double *abs_coeff_mean,
                 cpi->est_best_mode[mb_row * cpi->frame_info.mb_cols + mb_col];
             const int mi_row = sb_row * sb_height + mb_row * mb_step;
             const int mi_col = sb_col * sb_width + mb_col * mb_step;
-            if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) continue;
+            if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols)
+              continue;
             xd->up_available = mi_row > 0;
             xd->left_available = mi_col > 0;
             const int mi_width = mi_size_wide[bsize];
@@ -378,14 +522,6 @@ static void entropy_based_sb_q(AV1_COMP *cpi, double *abs_coeff_mean,
             uint8_t *dst_buffer = xd->plane[0].dst.buf;
             uint8_t *mb_buffer =
                 buffer + mi_row * MI_SIZE * buf_stride + mi_col * MI_SIZE;
-            struct buf_2d buf;
-            buf.buf = mb_buffer;
-            buf.stride = buf_stride;
-            if (is_cur_buf_hbd(xd)) {
-              mb_variance += av1_high_get_sby_perpixel_variance(cpi, &buf, BLOCK_16X16, xd->bd);
-            } else {
-              mb_variance += av1_get_sby_perpixel_variance(cpi, &buf, BLOCK_16X16);
-            }
             av1_predict_intra_block(xd, cm->seq_params->sb_size,
                                     cm->seq_params->enable_intra_edge_filter,
                                     block_size, block_size, tx_size, best_mode,
@@ -423,25 +559,27 @@ static void entropy_based_sb_q(AV1_COMP *cpi, double *abs_coeff_mean,
           }
         }
         mb_entropy /= count;
-        mb_variance /= count;
         /*
-        if (sb_row == 1 && sb_col == 12) {
-          printf("iter %d, base_qindex %d, avg_mb_entropy %.0f, mb_entropy
-        %.0f\n", iter, base_qindex, avg_mb_entropy, mb_entropy);
+        if (sb_row == 11 && sb_col == 11) {
+          printf("iter %d, base_qindex %d, avg_mb_entropy %.0f, mb_entropy %.0f,
+        upper %.0f, lower %.0f\n", iter, base_qindex, avg_mb_entropy,
+        mb_entropy, upper_mb_entropy, lower_mb_entropy);
         }
         */
       } while (iter < max_iter && (mb_entropy > upper_mb_entropy ||
                                    mb_entropy < lower_mb_entropy));
       if (iter == 1) orig_entropy = mb_entropy;
+      /*
       FILE *pfile = fopen("entropy.stat", "a");
-      //fprintf(pfile, "(%d, %d), iter %d, avg_mb_entropy %.0f, orig_entropy %.0f, entropy %.0f, ratio %.2f, base_qindex %d\n",
-      //        sb_row, sb_col, iter, avg_mb_entropy, orig_entropy, mb_entropy, mb_entropy / orig_entropy, base_qindex);
+      //fprintf(pfile, "(%d, %d), iter %d, avg_mb_entropy %.0f, orig_entropy
+      %.0f, entropy %.0f, ratio %.2f, base_qindex %d\n",
+      //        sb_row, sb_col, iter, avg_mb_entropy, orig_entropy, mb_entropy,
+      mb_entropy / orig_entropy, base_qindex);
       //fprintf(pfile, "%.4f\n", orig_entropy / avg_mb_entropy);
-      fprintf(pfile, "%.4f,%.4f\n", mb_entropy, mb_variance);
       fclose(pfile);
+      */
 
-      //printf("sb (%d, %d), iter %d\n", sb_row, sb_col, iter);
-      const int sb_idx = sb_row * num_col_sbs + sb_col;
+      // printf("sb (%d, %d), iter %d\n", sb_row, sb_col, iter);
       cpi->sb_qindex[sb_idx] = base_qindex;
     }
   }
@@ -743,6 +881,7 @@ void av1_set_mb_ur_variance(AV1_COMP *cpi) {
     for (int col = 0; col < num_cols; ++col) {
       double var = 0.0, num_of_var = 0.0;
       const int index = row * num_cols + col;
+      double sum_var = 0.0;
 
       // Loop through each 8x8 block.
       for (int mi_row = row * num_mi_h;
@@ -769,10 +908,12 @@ void av1_set_mb_ur_variance(AV1_COMP *cpi) {
 
           block_variance = block_variance < 1.0 ? 1.0 : block_variance;
           var += log(block_variance);
+          sum_var += block_variance;
           num_of_var += 1.0;
         }
       }
       var = exp(var / num_of_var);
+      cpi->mb_variance[index] = (int)(sum_var / num_of_var);
       cpi->mb_delta_q[index] = (int)(a * exp(-b * var) + c + 0.5);
       delta_q_avg += cpi->mb_delta_q[index];
     }
@@ -810,6 +951,7 @@ int av1_get_sbq_user_rating_based(AV1_COMP *const cpi, int mi_row, int mi_col) {
 
 void av1_init_sb_qindex_buffer(AV1_COMP *cpi) {
   if (cpi->sb_qindex) return;
+  if (cpi->mb_variance) return;
 
   AV1_COMMON *cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cpi->common.mi_params;
@@ -828,6 +970,334 @@ void av1_init_sb_qindex_buffer(AV1_COMP *cpi) {
   CHECK_MEM_ERROR(cm, cpi->est_best_mode,
                   aom_calloc(cpi->frame_info.mb_rows * cpi->frame_info.mb_cols,
                              sizeof(*cpi->est_best_mode)));
+
+  CHECK_MEM_ERROR(cm, cpi->mb_variance,
+                  aom_calloc(cpi->frame_info.mb_rows * cpi->frame_info.mb_cols,
+                             sizeof(*cpi->mb_variance)));
+}
+
+static double compute_avg_variance(AV1_COMP *cpi) {
+  const CommonModeInfoParams *const mi_params = &cpi->common.mi_params;
+  const int block_size = cpi->common.seq_params->sb_size;
+  const int num_mi_w = mi_size_wide[block_size];
+  const int num_mi_h = mi_size_high[block_size];
+  const int num_cols = (mi_params->mi_cols + num_mi_w - 1) / num_mi_w;
+  const int num_rows = (mi_params->mi_rows + num_mi_h - 1) / num_mi_h;
+
+  double sum_var = 0;
+  int count = 0;
+  for (int row = 0; row < num_rows; ++row) {
+    for (int col = 0; col < num_cols; ++col) {
+      const int index = row * num_cols + col;
+      // Note: cpi->mb_variance is the averaged var of a super block
+      // in the unit of 8x8.
+      int num_8x8 = 0;
+      for (int mi_row = row * num_mi_h;
+           mi_row < mi_params->mi_rows && mi_row < (row + 1) * num_mi_h;
+           mi_row += 2) {
+        for (int mi_col = col * num_mi_w;
+             mi_col < mi_params->mi_cols && mi_col < (col + 1) * num_mi_w;
+             mi_col += 2) {
+          ++num_8x8;
+        }
+      }
+      sum_var += cpi->mb_variance[index] * num_8x8;
+      count += num_8x8;
+    }
+  }
+  const double avg_var = sum_var / count;
+  return avg_var;
+}
+
+static void median_filt_frame(const uint8_t *buffer, const int buf_stride,
+                              const int frame_width, const int frame_height,
+                              const int use_hbd, uint8_t *output_buffer) {
+  uint16_t *buf_16 = CONVERT_TO_SHORTPTR(buffer);
+  uint16_t *output_16 = CONVERT_TO_SHORTPTR(output_buffer);
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      int vals[25];
+      int count = 0;
+      // Get neighbor 5x5 pixels
+      for (int dy = -2; dy <= 2; ++dy) {
+        for (int dx = -2; dx <= 2; ++dx) {
+          const int r = row + dy;
+          const int c = col + dx;
+          if (r >= 0 && r < frame_height && c >= 0 && c < frame_width) {
+            if (use_hbd) {
+              vals[count] = buf_16[r * buf_stride + c];
+            } else {
+              vals[count] = buffer[r * buf_stride + c];
+            }
+            ++count;
+          }
+        }
+      }
+      // bubble sort
+      for (int i = 0; i < count; ++i) {
+        for (int j = i; j < count; ++j) {
+          if (vals[j] > vals[i]) {
+            const int tmp = vals[j];
+            vals[j] = vals[i];
+            vals[i] = tmp;
+          }
+        }
+      }
+      if (use_hbd) {
+        output_16[row * buf_stride + col] = vals[count / 2];
+      } else {
+        output_buffer[row * buf_stride + col] = vals[count / 2];
+      }
+    }
+  }
+}
+
+static int calc_histogram(const uint8_t *buffer, const int buf_stride,
+                          const int frame_width, const int frame_height,
+                          const int use_hbd, int *histogram) {
+  int num_unique_colors = 0;
+  const uint8_t *buf = buffer;
+  const uint16_t *buf_16 = CONVERT_TO_SHORTPTR(buffer);
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      const int val = use_hbd ? buf_16[col] : buf[col];
+      if (histogram[val] == 0) ++num_unique_colors;
+      ++histogram[val];
+    }
+    if (use_hbd) {
+      buf_16 += buf_stride;
+    } else {
+      buf += buf_stride;
+    }
+  }
+  return num_unique_colors;
+}
+
+static int saliency_dist(int x, int y) {
+  return abs(x - y);
+  // return (x - y) * (x - y);
+}
+
+static void saliency_smoothing(double saliency[256], int window) {
+  double orig_saliency[256];
+  for (int i = 0; i < 256; ++i) orig_saliency[i] = saliency[i];
+  const int half_win = window / 2;
+  for (int i = 0; i < 256; ++i) {
+    if (orig_saliency[i] == 0) continue;
+    int sum_dist = 0;
+    int count = 0;
+    for (int j = -half_win; j <= half_win; ++j) {
+      if (i + j >= 0 && i + j < 256 && orig_saliency[i + j] > 0) {
+        sum_dist += saliency_dist(i, i + j);
+        ++count;
+      }
+    }
+    saliency[i] = 0;
+    for (int j = -half_win; j <= half_win; ++j) {
+      if (i + j >= 0 && i + j < 256 && orig_saliency[i + j] > 0) {
+        saliency[i] +=
+            (sum_dist - saliency_dist(i, i + j)) * orig_saliency[i + j];
+      }
+    }
+    saliency[i] /= ((count - 1) * sum_dist);
+  }
+}
+
+static double build_saliency_map(AV1_COMP *cpi, double *saliency_map) {
+  const uint8_t *buffer = cpi->source->y_buffer;
+  const int buf_stride = cpi->source->y_stride;
+  const int frame_width = cpi->frame_info.frame_width;
+  const int frame_height = cpi->frame_info.frame_height;
+  uint8_t *filtered_buffer = cpi->ppi->filtered_buffer.y_buffer;
+  const int use_hbd = cpi->source->flags & YV12_FLAG_HIGHBITDEPTH;
+
+  // Filter the source
+  median_filt_frame(buffer, buf_stride, frame_width, frame_height, use_hbd,
+                    filtered_buffer);
+
+  // Compute Y channel color histogram
+  // Here we assume it is 8-bit, therefore 256 colors.
+  int histogram[256] = { 0 };
+  double saliency[256] = { 0 };
+  calc_histogram(filtered_buffer, buf_stride, frame_width, frame_height,
+                 use_hbd, histogram);
+
+  // Calculate saliency
+  for (int i = 0; i < 256; ++i) {
+    if (histogram[i] == 0) continue;
+    for (int j = 0; j < 256; ++j) {
+      if (i == j || histogram[j] == 0) continue;
+      saliency[i] += saliency_dist(i, j) * histogram[j];
+    }
+  }
+
+  // Normalize
+  double max_saliency = 0;
+  for (int i = 0; i < 256; ++i) {
+    max_saliency = AOMMAX(max_saliency, saliency[i]);
+  }
+  for (int i = 0; i < 256; ++i) {
+    if (saliency[i] > 0) {
+      saliency[i] /= max_saliency;
+    }
+  }
+
+  // Color space smoothing
+  saliency_smoothing(saliency, /*window=*/8);
+
+  // Assign saliency map
+  double sum_saliency = 0;
+  const uint8_t *filt_buf = filtered_buffer;
+  const uint16_t *filt_buf_16 = CONVERT_TO_SHORTPTR(filtered_buffer);
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      const int val = use_hbd ? filt_buf_16[row * buf_stride + col]
+                              : filt_buf[row * buf_stride + col];
+      saliency_map[row * frame_width + col] = saliency[val];
+      sum_saliency += saliency[val];
+    }
+  }
+  const double avg_saliency = sum_saliency / (frame_width * frame_height);
+  return avg_saliency;
+
+  /*
+  // Write to file
+  FILE *pfile = fopen("saliency_map.csv", "w");
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      fprintf(pfile, "%d", saliency_map[row * frame_width + col]);
+      if (col < frame_width - 1) fprintf(pfile, ",");
+    }
+    fprintf(pfile, "\n");
+  }
+  fclose(pfile);
+
+  pfile = fopen("histogram.csv", "w");
+  for (int i = 0; i < 256; ++i) {
+    fprintf(pfile, "%d", histogram[i]);
+    if (i < 255) fprintf(pfile, ",");
+  }
+  fclose(pfile);
+  */
+
+  // printf("saliency map generated.\n");
+}
+
+static double build_mscn_map(AV1_COMP *cpi, double *mscn_map) {
+  const uint8_t *buffer = cpi->source->y_buffer;
+  const uint16_t *buf_16 = CONVERT_TO_SHORTPTR(buffer);
+  const int buf_stride = cpi->source->y_stride;
+  const int frame_width = cpi->frame_info.frame_width;
+  const int frame_height = cpi->frame_info.frame_height;
+  const int use_hbd = cpi->source->flags & YV12_FLAG_HIGHBITDEPTH;
+  const int half_win = 3;
+
+  /*
+  // Generate mscn map
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      double sum = 0;
+      double sum_square = 0;
+      int count = 0;
+      for (int dy = -half_win; dy <= half_win; ++dy) {
+        for (int dx = -half_win; dx <= half_win; ++dx) {
+          if (row + dy < 0 || row + dy >= frame_height ||
+              col + dx < 0 || col + dx >= frame_width) {
+            continue;
+          }
+          const int pix = buffer[(row + dy) * buf_stride + col + dx];
+          sum += pix;
+          sum_square += pix * pix;
+          ++count;
+        }
+      }
+      const double mean = sum / count;
+      const double sigma = sqrt(sum_square / count - mean * mean);
+      mscn_map[row * frame_width + col] =
+          (buffer[row * buf_stride + col] - mean) / (sigma + 1.0);
+    }
+  }
+  */
+
+  // h = round(fspecial('gaussian', 7, 3.0) * 1000)
+  const int gauss_kernel[] = { 11, 15, 18, 19, 18, 15, 11, 15, 20, 23,
+                               25, 23, 20, 15, 18, 23, 27, 29, 27, 23,
+                               18, 19, 25, 29, 31, 29, 25, 19, 18, 23,
+                               27, 29, 27, 23, 18, 15, 20, 23, 25, 23,
+                               20, 15, 11, 15, 18, 19, 18, 15, 11 };
+  // const int kernel_sum = 1003;
+
+  // Generate mscn map with Gaussian kernel weights.
+  double *mean_map = aom_calloc(frame_width * frame_height, sizeof(*mean_map));
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      double weighted_sum = 0;
+      int count = 0;
+      for (int dy = -half_win; dy <= half_win; ++dy) {
+        for (int dx = -half_win; dx <= half_win; ++dx) {
+          if (row + dy < 0 || row + dy >= frame_height || col + dx < 0 ||
+              col + dx >= frame_width) {
+            continue;
+          }
+          const int pix = use_hbd ? buf_16[(row + dy) * buf_stride + col + dx]
+                                  : buffer[(row + dy) * buf_stride + col + dx];
+          weighted_sum +=
+              pix * gauss_kernel[(dy + half_win) * (2 * half_win + 1) +
+                                 (dx + half_win)];
+          count += gauss_kernel[(dy + half_win) * (2 * half_win + 1) +
+                                (dx + half_win)];
+        }
+      }
+      const double weighted_mean = weighted_sum / count;
+      mean_map[row * frame_width + col] = weighted_mean;
+    }
+  }
+  double sum_mscn = 0;
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      double weighted_sum = 0;
+      double count = 0;
+      const double mean = mean_map[row * frame_width + col];
+      for (int dy = -half_win; dy <= half_win; ++dy) {
+        for (int dx = -half_win; dx <= half_win; ++dx) {
+          if (row + dy < 0 || row + dy >= frame_height || col + dx < 0 ||
+              col + dx >= frame_width) {
+            continue;
+          }
+          const int pix = use_hbd ? buf_16[(row + dy) * buf_stride + col + dx]
+                                  : buffer[(row + dy) * buf_stride + col + dx];
+          const double weight =
+              gauss_kernel[(dy + half_win) * (2 * half_win + 1) +
+                           (dx + half_win)];
+          weighted_sum += weight * (pix - mean) * (pix - mean);
+          count += weight;
+        }
+      }
+      const double sigma = sqrt(weighted_sum / count);
+      const int val = use_hbd ? buf_16[row * buf_stride + col]
+                              : buffer[row * buf_stride + col];
+      mscn_map[row * frame_width + col] = (val - mean) / (sigma + 1.0);
+      sum_mscn += fabs(mscn_map[row * frame_width + col]);
+    }
+  }
+  aom_free(mean_map);
+  const double avg_mscn = sum_mscn / (frame_width * frame_height);
+  return avg_mscn;
+
+  /*
+  // Write to file
+  FILE *pfile = fopen("mscn_map.csv", "w");
+  for (int row = 0; row < frame_height; ++row) {
+    for (int col = 0; col < frame_width; ++col) {
+      fprintf(pfile, "%.4f", mscn_map[row * frame_width + col]);
+      if (col < frame_width - 1) fprintf(pfile, ",");
+    }
+    fprintf(pfile, "\n");
+  }
+  fclose(pfile);
+
+  printf("mscn map generated.\n");
+  */
 }
 
 void av1_set_sb_qindex(AV1_COMP *cpi) {
@@ -873,7 +1343,6 @@ void av1_set_sb_qindex(AV1_COMP *cpi) {
   double abs_coeff_mean[16 * 16] = { 0 };
   const int pix_num = 1 << num_pels_log2_lookup[txsize_to_bsize[tx_size]];
 
-  printf("start entropy info collection...\n");
   // --------------- First compute mean qcoeff and store best mode -----------
   for (mb_row = 0; mb_row < cpi->frame_info.mb_rows; ++mb_row) {
     for (mb_col = 0; mb_col < cpi->frame_info.mb_cols; ++mb_col) {
@@ -1032,12 +1501,23 @@ void av1_set_sb_qindex(AV1_COMP *cpi) {
     }
   }
 
-  printf("start sb q adjustment...\n");
+  av1_set_mb_ur_variance(cpi);
+  const int frame_width = cpi->frame_info.frame_width;
+  const int frame_height = cpi->frame_info.frame_height;
+  const double avg_var = compute_avg_variance(cpi);
+  double *saliency_map =
+      aom_calloc(frame_width * frame_height, sizeof(*saliency_map));
+  const double avg_saliency = build_saliency_map(cpi, saliency_map);
+  double *mscn_map = aom_calloc(frame_width * frame_height, sizeof(*mscn_map));
+  const double avg_mscn = build_mscn_map(cpi, mscn_map);
+
   // determine qindex for each superblock based on even entropy distribution
-  entropy_based_sb_q(cpi, abs_coeff_mean, sum_frame_entropy, sum_frame_rate);
-  printf("finish sb q adjustment.\n");
+  entropy_based_sb_q(cpi, abs_coeff_mean, sum_frame_entropy, sum_frame_rate,
+                     avg_var, saliency_map, avg_saliency, mscn_map, avg_mscn);
 
   aom_free_frame_buffer(&cm->cur_frame->buf);
+  aom_free(saliency_map);
+  aom_free(mscn_map);
 }
 
 int av1_get_sb_qindex(AV1_COMP *const cpi, int mi_row, int mi_col) {
