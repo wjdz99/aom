@@ -1216,7 +1216,11 @@ static AOM_INLINE void setup_buffer_ref_mvs_inter(
                    ref_frame_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
                    mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
-                   mbmi_ext->global_mvs, mbmi_ext->mode_context);
+                   mbmi_ext->global_mvs,
+#if CONFIG_NEW_REF_SIGNALING
+                   mbmi_ext->global_mvs_nrs,
+#endif  // CONFIG_NEW_REF_SIGNALING
+                   mbmi_ext->mode_context);
   // TODO(Ravi): Populate mbmi_ext->ref_mv_stack[ref_frame][4] and
   // mbmi_ext->weight[ref_frame][4] inside av1_find_mv_refs.
   av1_copy_usable_ref_mv_stack_and_weight(xd, mbmi_ext, ref_frame);
@@ -3625,7 +3629,11 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
                    ref_frame_nrs,
 #endif  // CONFIG_NEW_REF_SIGNALING
                    mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
-                   mbmi_ext->global_mvs, mbmi_ext->mode_context);
+                   mbmi_ext->global_mvs,
+#if CONFIG_NEW_REF_SIGNALING
+                   mbmi_ext->global_mvs_nrs,
+#endif  // CONFIG_NEW_REF_SIGNALING
+                   mbmi_ext->mode_context);
   // TODO(Ravi): Populate mbmi_ext->ref_mv_stack[ref_frame][4] and
   // mbmi_ext->weight[ref_frame][4] inside av1_find_mv_refs.
   av1_copy_usable_ref_mv_stack_and_weight(xd, mbmi_ext, ref_frame);
@@ -3977,7 +3985,8 @@ static AOM_INLINE void rd_pick_skip_mode(
     }
     av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, ref_frame_nrs,
                      mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
-                     mbmi_ext->global_mvs, mbmi_ext->mode_context);
+                     mbmi_ext->global_mvs, mbmi_ext->global_mvs_nrs,
+                     mbmi_ext->mode_context);
 #else
     av1_find_mv_refs(cm, xd, mbmi, ref_frame_type, mbmi_ext->ref_mv_count,
                      xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
@@ -4698,7 +4707,8 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
       if (prune_ref_frame_nrs(cpi, x, ref_frame_nrs)) continue;
       av1_find_mv_refs(cm, xd, mbmi, ref_frame, ref_frame_nrs[0],
                        mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight,
-                       NULL, mbmi_ext->global_mvs, mbmi_ext->mode_context);
+                       NULL, mbmi_ext->global_mvs, mbmi_ext->global_mvs_nrs,
+                       mbmi_ext->mode_context);
 #else
       // Ref mv list population is not required, when compound references are
       // pruned.
