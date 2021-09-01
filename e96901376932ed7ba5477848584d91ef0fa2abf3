@@ -3,6 +3,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "db755737_74132d73",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-09-01T21:17:53Z",
+      "side": 1,
+      "message": "Should use FRAME_UPDATE_TYPES",
+      "range": {
+        "startLine": 241,
+        "startChar": 23,
+        "endLine": 241,
+        "endChar": 24
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10c9b8f7_fe2ce9b8",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-09-01T21:17:53Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 271,
+        "startChar": 2,
+        "endLine": 272,
+        "endChar": 69
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8c98613_c8796317",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-09-01T21:17:53Z",
+      "side": 1,
+      "message": "consider using memcpy?",
+      "range": {
+        "startLine": 273,
+        "startChar": 2,
+        "endLine": 276,
+        "endChar": 3
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "06ba62b8_e48c8948",
         "filename": "tools/gop_bitrate/python/bitrate_accuracy.py",
         "patchSetId": 8
