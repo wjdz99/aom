@@ -4515,11 +4515,10 @@ static AOM_INLINE void init_neighbor_pred_buf(
 }
 
 #if CONFIG_NEW_REF_SIGNALING
-static AOM_INLINE int prune_ref_frame_nrs(
-    const AV1_COMP *cpi, const MACROBLOCK *x,
-    const MV_REFERENCE_FRAME_NRS ref_frame_type_nrs) {
-  MV_REFERENCE_FRAME_NRS rf[2];
-  av1_set_ref_frame_nrs(rf, ref_frame_type_nrs);
+// Note: rf is an array of two ranked references
+static AOM_INLINE int prune_ref_frame_nrs(const AV1_COMP *cpi,
+                                          const MACROBLOCK *x,
+                                          const MV_REFERENCE_FRAME_NRS *rf) {
   const AV1_COMMON *const cm = &cpi->common;
   const int comp_pred = (rf[1] != INVALID_IDX && rf[1] != INTRA_FRAME_NRS);
   if (comp_pred) {
@@ -4708,7 +4707,7 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
       }
       MV_REFERENCE_FRAME_NRS ref_frame_type_nrs =
           av1_ref_frame_type_nrs(rf_nrs);
-      if (prune_ref_frame_nrs(cpi, x, ref_frame_type_nrs)) continue;
+      if (prune_ref_frame_nrs(cpi, x, rf_nrs)) continue;
       av1_find_mv_refs(cm, xd, mbmi, ref_frame, ref_frame_type_nrs,
                        mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight,
                        NULL, mbmi_ext->global_mvs, mbmi_ext->global_mvs_nrs,
@@ -5024,8 +5023,7 @@ static int inter_mode_search_order_independent_skip(
 
   const int ref_type = av1_ref_frame_type(ref_frame);
 #if CONFIG_NEW_REF_SIGNALING
-  const int ref_type_nrs = av1_ref_frame_type_nrs(ref_frame_nrs);
-  if (prune_ref_frame_nrs(cpi, x, ref_type_nrs)) return 1;
+  if (prune_ref_frame_nrs(cpi, x, ref_frame_nrs)) return 1;
 #else
   if (prune_ref_frame(cpi, x, ref_type)) return 1;
 #endif  // CONFIG_NEW_REF_SIGNALING
