@@ -3612,6 +3612,10 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
                                           oxcf->algo_cfg.arnr_max_frames / 2)
             : MAX_GF_LENGTH_LAP;
 
+    // Use the provided gop size in low delay setting
+    if (oxcf->gf_cfg.lag_in_frames == 0)
+      max_gop_length = rc->max_gf_interval;
+
     // Identify regions if needed.
     // TODO(bohanli): identify regions for all stats available.
     if (rc->frames_since_key == 0 || rc->frames_since_key == 1 ||
