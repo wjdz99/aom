@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "06ba62b8_e48c8948",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-01T01:58:19Z",
+      "side": 1,
+      "message": "Please remove debugging message.",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 19
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed000aa9_03ac26f5",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-01T01:58:19Z",
+      "side": 1,
+      "message": "Remove debugging message.",
+      "range": {
+        "startLine": 46,
+        "startChar": 8,
+        "endLine": 46,
+        "endChar": 19
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "094e7024_80ff3816",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-01T01:58:19Z",
+      "side": 1,
+      "message": "Python scripts should be in a different CL.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 18
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6661670d_13ab24d1",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-01T01:58:19Z",
+      "side": 1,
+      "message": "Please explain what\u0027s the design behind this part.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 27
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "990f5523_38858ef2",
+        "filename": "tools/gop_bitrate/python/bitrate_accuracy_percentage_error.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-01T01:58:19Z",
+      "side": 1,
+      "message": "Please explain this change.\nactual_error does not seem to be used at all.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 26
+      },
+      "revId": "e96901376932ed7ba5477848584d91ef0fa2abf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
