@@ -37,6 +37,7 @@ static void setup_two_pass_stream_input(
   aom_input_ctx->filename = input_file_name;
   aom_input_ctx->file = infile;
 
+#if CONFIG_THREE_PASS_IVF
   if (file_is_ivf(aom_input_ctx)) {
     aom_input_ctx->file_type = FILE_TYPE_IVF;
   } else {
@@ -45,6 +46,12 @@ static void setup_two_pass_stream_input(
     aom_internal_error(err_info, AOM_CODEC_INVALID_PARAM,
                        "Unrecognized input file type.");
   }
+#else
+  fclose(infile);
+  aom_free(aom_input_ctx);
+  aom_internal_error(err_info, AOM_CODEC_ERROR,
+                     "Cannot parse bitstream without CONFIG_THREE_PASS_IVF.");
+#endif
   *input_ctx_ptr = aom_input_ctx;
 }
 
@@ -80,6 +87,7 @@ static int read_frame(THIRD_PASS_DEC_CTX *ctx) {
   if (!ctx->input_ctx || !ctx->decoder.iface) {
     init_third_pass(ctx);
   }
+#if CONFIG_THREE_PASS_IVF
   if (!ctx->have_frame) {
     if (ivf_read_frame(ctx->input_ctx->file, &ctx->buf, &ctx->bytes_in_buffer,
                        &ctx->buffer_size, NULL) != 0) {
@@ -93,6 +101,10 @@ static int read_frame(THIRD_PASS_DEC_CTX *ctx) {
     ctx->end_frame = ctx->frame + ctx->bytes_in_buffer;
     ctx->have_frame = 1;
   }
+#else
+  aom_internal_error(ctx->err_info, AOM_CODEC_ERROR,
+                     "Cannot parse bitstream without CONFIG_THREE_PASS_IVF.");
+#endif
   Av1DecodeReturn adr;
   if (aom_codec_decode(&ctx->decoder, ctx->frame,
                        (unsigned int)ctx->bytes_in_buffer,
