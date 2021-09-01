@@ -3,31 +3,28 @@ import numpy as np
 # Finds the coefficient to multiply A by to minimize
 # the percentage error between A and B.
 def minimize_percentage_error_model_a(A, B):
-    z = np.where(B == 0)[0]
-    A = np.delete(A, z, axis=0)
-    B = np.delete(B, z, axis=0)
-    z = np.where(A == 0)[0]
-    A = np.delete(A, z, axis=0)
-    B = np.delete(B, z, axis=0)
-
     R = np.divide(A, B)
     num = 0
     den = 0
+    best_x = 0
+    best_error = 100
     for r_i in R:
         num += r_i
         den += r_i**2
-    if den == 0:
-        x = 0
-    else:
-        x = (num / den)[0]
-    return x
 
+        # Calculate the training error after each loop.
+        # Return the solution with the least training error.
+        curr_x = (num/den)[0]
+        curr_error = average_error_model_a(A, B, curr_x)
+        if curr_error < best_error:
+            best_error = curr_error
+            best_x = curr_x
+
+    return best_x
+
+# Finds the coefficients to multiply to the frame bitrate
+# and the motion vector bitrate to minimize the percent error.
 def minimize_percentage_error_model_b(r_e, r_m, r_f):
-    z = np.where(r_f == 0)[0]
-    r_e = np.delete(r_e, z, axis=0)
-    r_m = np.delete(r_m, z, axis=0)
-    r_f = np.delete(r_f, z, axis=0)
-
     r_ef = np.divide(r_e, r_f)
     r_mf = np.divide(r_m, r_f)
     sum_ef = np.sum(r_ef)
@@ -35,10 +32,8 @@ def minimize_percentage_error_model_b(r_e, r_m, r_f):
     sum_mf = np.sum(r_mf)
     sum_mf_sq = np.sum(np.square(r_mf))
     sum_ef_mf = np.sum(np.multiply(r_ef, r_mf))
-
     # Divides x by y. If y is zero, returns 0.
     divide = lambda x, y : 0 if y == 0 else x / y
-
     # Set up and solve the matrix equation
     A = np.array([[1, divide(sum_ef_mf, sum_ef_sq)],[divide(sum_ef_mf, sum_mf_sq), 1]])
     B = np.array([divide(sum_ef, sum_ef_sq), divide(sum_mf, sum_mf_sq)])
@@ -46,19 +41,24 @@ def minimize_percentage_error_model_b(r_e, r_m, r_f):
     x = np.matmul(A_inv, B)
     return x
 
+# Model A only.
 # Calculates the average percentage error between A and B.
 def average_error_model_a(A, B, x):
     error = 0
+    n = 0
     for i, a in enumerate(A):
         a = a[0]
         b = B[i][0]
         if b == 0:
             continue
-        error += abs(x*a - b) / b
-    error *= 100
-    error /= A.shape[0]
+        n += 1
+        error_i = (abs(x*a-b)/b)*100
+        error += error_i
+    error /= n
     return error
 
+# Model B only.
+# Calculates the average percentage error between A and B.
 def average_error_model_b(A, M, B, x):
     error = 0
     for i, a in enumerate(A):
@@ -90,6 +90,20 @@ def print_solutions(file_path):
 
     for array in split:
         A, mv, B, update = np.hsplit(array, 4)
+
+        z = np.where(B == 0)[0]
+        r_e = np.delete(A, z, axis=0)
+        r_m = np.delete(mv, z, axis=0)
+        r_f = np.delete(B, z, axis=0)
+
+        A = r_e
+        mv = r_m
+        B = r_f
+
+        all_zeros = not A.any()
+        if all_zeros:
+            continue
+
         print("update type:", update[0][0])
         xa = minimize_percentage_error_model_a(A, B)
         xb = minimize_percentage_error_model_b(A, mv, B)
@@ -103,4 +117,4 @@ def print_solutions(file_path):
         print()
 
 if __name__ == "__main__":
-    print_solutions("data2/lowres_17f_target150_data.txt")
+    print_solutions("data2/lowres_17f_target400_data.txt")
