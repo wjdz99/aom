@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d61f7f2e_b4b18e61",
+        "filename": "examples/photon_noise_table.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2021-09-02T16:12:31Z",
+      "side": 1,
+      "message": "nit: I think most of the other examples that are C files use C style comments (//), except for the copyright header which uses C++ (/* */).",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 2
+      },
+      "revId": "38f0a7b4e9a257b32afddd7adbc0db2697b7ddc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b07dd945_930dee7e",
         "filename": "examples/photon_noise_table.c",
         "patchSetId": 2
