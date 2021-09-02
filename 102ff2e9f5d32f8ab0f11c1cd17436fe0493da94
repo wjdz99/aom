@@ -34,6 +34,23 @@
       "parentUuid": "dee2fb3f_2fb4918e",
       "revId": "102ff2e9f5d32f8ab0f11c1cd17436fe0493da94",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d695871f_c0755f76",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-09-02T16:36:01Z",
+      "side": 1,
+      "message": "Looks OK. We may have an opportunity to select filter based on some block stats (or prediction mode)",
+      "revId": "102ff2e9f5d32f8ab0f11c1cd17436fe0493da94",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
