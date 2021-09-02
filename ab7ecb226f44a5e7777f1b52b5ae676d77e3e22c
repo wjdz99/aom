@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch modifies the conditions for reallocation of LR MT buffers so that there is no occurrence of deallocation-allocation for parallel frames. In the parent version, if luma restoration type is chosen as RESTORE_NONE and chroma restoration type is RESTORE_WIENER or RESTORE_SGRPROJ, the LR MT buffers are reallocated as per the size of the chroma planes. If such a case occurs for a parallel frame, the reallocation is done considering the lower no. of workers of the parallel frame, causing issues during the free of the corresponding parallel_cpi in av1_remove_compressor. \n\nTo resolve this issue for FPMT, the reallocation of LR MT buffers is made to occur only when the size of the buffers for the current frame is larger than the already allocated size. \n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc. \nThe decoder MT path is also validated by running the decoder fuzzer tests.\n",
       "revId": "ab7ecb226f44a5e7777f1b52b5ae676d77e3e22c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e6817e5_1c945d0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-02T00:20:08Z",
+      "side": 1,
+      "message": "Looks good. Thanks for the fix.",
+      "revId": "ab7ecb226f44a5e7777f1b52b5ae676d77e3e22c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
