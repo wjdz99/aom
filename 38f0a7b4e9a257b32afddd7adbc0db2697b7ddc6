@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5684db7f_514d9ae0",
+        "filename": "examples/photon_noise_table.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 28097
+      },
+      "writtenOn": "2021-09-02T17:14:00Z",
+      "side": 1,
+      "message": "Oh, indeed, thanks.",
+      "parentUuid": "d61f7f2e_b4b18e61",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 2
+      },
+      "revId": "38f0a7b4e9a257b32afddd7adbc0db2697b7ddc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b07dd945_930dee7e",
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5f930852_991eb77b",
+        "filename": "examples/photon_noise_table.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 28097
+      },
+      "writtenOn": "2021-09-02T17:14:00Z",
+      "side": 1,
+      "message": "Good point. This refers to “Coding-independent code points” from https://www.iso.org/standard/73412.html / https://www.itu.int/rec/T-REC-H.273 which appears to have been adopted by AV1 and AVIF as a way to signal colorspace information: https://aomedia.googlesource.com/aom/+/cee0573c0af8f4a392072bca411bf7178eceb9e1/aom/aom_image.h#78\n\n`avifenc` exposes this directly (https://github.com/AOMediaCodec/libavif/blob/efed118564495228be8af6b2a640c473375c039b/apps/avifenc.c#L62-L65), however `aomenc` insteads defines an enum arg for it: https://aomedia.googlesource.com/aom/+/cee0573c0af8f4a392072bca411bf7178eceb9e1/av1/arg_defs.c#100\n\nDo you think an enum like that would make sense?",
+      "parentUuid": "b07dd945_930dee7e",
+      "range": {
+        "startLine": 45,
+        "startChar": 17,
+        "endLine": 45,
+        "endChar": 21
+      },
+      "revId": "38f0a7b4e9a257b32afddd7adbc0db2697b7ddc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "19b72415_1ed99619",
         "filename": "examples/photon_noise_table.c",
         "patchSetId": 2
@@ -60,6 +108,30 @@
       "writtenOn": "2021-09-02T16:10:47Z",
       "side": 1,
       "message": "Does it make a difference if it is a different number?",
+      "range": {
+        "startLine": 364,
+        "startChar": 28,
+        "endLine": 364,
+        "endChar": 32
+      },
+      "revId": "38f0a7b4e9a257b32afddd7adbc0db2697b7ddc6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d218d642_87a54088",
+        "filename": "examples/photon_noise_table.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 28097
+      },
+      "writtenOn": "2021-09-02T17:14:00Z",
+      "side": 1,
+      "message": "Probably not a very meaningful difference. I merely took the same value as in: https://aomedia.googlesource.com/aom/+/cee0573c0af8f4a392072bca411bf7178eceb9e1/examples/noise_model.c#182",
+      "parentUuid": "19b72415_1ed99619",
       "range": {
         "startLine": 364,
         "startChar": 28,
