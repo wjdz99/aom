@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "81a529d4_40a35b7b",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-09-02T16:49:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df911c01_53e41dad",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 18
+      },
+      "revId": "3d3fb025781c1a1c205706f1038c7174fff8d02d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b498aa0e_115fb37e",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-09-02T16:41:06Z",
       "side": 1,
       "message": "Nit/optional: it seems we can directly use gf_index here?",
+      "range": {
+        "startLine": 827,
+        "startChar": 4,
+        "endLine": 827,
+        "endChar": 27
+      },
+      "revId": "3d3fb025781c1a1c205706f1038c7174fff8d02d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "48cb000d_45a5e06d",
+        "filename": "av1/encoder/gop_structure.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-09-02T16:49:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b498aa0e_115fb37e",
       "range": {
         "startLine": 827,
         "startChar": 4,
