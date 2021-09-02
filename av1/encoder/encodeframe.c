@@ -1133,6 +1133,15 @@ static int check_skip_mode_enabled(AV1_COMP *const cpi) {
   // High Latency: Turn off skip mode if all refs are fwd.
   if (cpi->all_one_sided_refs && cpi->oxcf.gf_cfg.lag_in_frames > 0) return 0;
 
+#if CONFIG_NEW_REF_SIGNALING
+  const int ref_frame[2] = {
+    cm->current_frame.skip_mode_info.ref_frame_idx_0,
+    cm->current_frame.skip_mode_info.ref_frame_idx_1
+  };
+  if (!(cpi->common.ref_frame_flags_nrs & (1 << ref_frame[0])) ||
+      !(cpi->common.ref_frame_flags_nrs & (1 << ref_frame[1])))
+    return 0;
+#else
   static const int flag_list[REF_FRAMES] = { 0,
                                              AOM_LAST_FLAG,
                                              AOM_LAST2_FLAG,
@@ -1148,6 +1157,7 @@ static int check_skip_mode_enabled(AV1_COMP *const cpi) {
   if (!(cpi->common.ref_frame_flags & flag_list[ref_frame[0]]) ||
       !(cpi->common.ref_frame_flags & flag_list[ref_frame[1]]))
     return 0;
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   return 1;
 }

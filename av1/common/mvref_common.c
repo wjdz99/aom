@@ -2034,9 +2034,15 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *cm) {
 
   // Identify the nearest forward and backward references.
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+#if CONFIG_NEW_REF_SIGNALING
+    const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, i);
+#else
     const RefCntBuffer *const buf = get_ref_frame_buf(cm, LAST_FRAME + i);
+#endif  // CONFIG_NEW_REF_SIGNALING
     if (buf == NULL) continue;
 
+    // TODO(debargha, sarahparker): This could be implemented better based
+    // on past and future lists, but this also works.
     const int ref_order_hint = buf->order_hint;
     if (get_relative_dist(order_hint_info, ref_order_hint, cur_order_hint) <
         0) {
@@ -2069,7 +2075,11 @@ void av1_setup_skip_mode_allowed(AV1_COMMON *cm) {
     // Identify the second nearest forward reference.
     ref_order_hints[1] = -1;
     for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+#if CONFIG_NEW_REF_SIGNALING
+      const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, i);
+#else
       const RefCntBuffer *const buf = get_ref_frame_buf(cm, LAST_FRAME + i);
+#endif  // CONFIG_NEW_REF_SIGNALING
       if (buf == NULL) continue;
 
       const int ref_order_hint = buf->order_hint;
