@@ -16,6 +16,23 @@
       "message": "Can you check the behavior with this revision Sai re the issue you identified.\n\nIt is still likely that the change will cause slight visual regression on some images, especially at very low rates but it is a balance of gain vs loss and seems less of a problem at lower speed settings. If need be we can add some sort of Q threshold as well though I am slightly wary of this. Also, for still images we will generally be concerned with quite high quality settings where I don\u0027t think there will be a problem.",
       "revId": "75ff56bd616fca8a8061d641d5f837d8f60af724",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3ee2fc6_8e153275",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13184
+      },
+      "writtenOn": "2021-09-02T16:53:07Z",
+      "side": 1,
+      "message": "I just ran an example (so I may be wrong), in speed 1 and I feel like the threshold is more related to block qp value and the source variance. (for example it looks better even in speed 6 for low qp or high variance blocks)",
+      "revId": "75ff56bd616fca8a8061d641d5f837d8f60af724",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
