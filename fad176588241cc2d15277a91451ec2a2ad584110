@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c53bbaf1_a6a29b05",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-09-03T13:42:57Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nIn this CL, we have extended the speed feature fast_inter_tx_type_prob_thresh to real time speed\u003d5. We have set the probability threshold to 350 for non-boosted frames and resolutions\u003e\u003d360p. \nAverage bd-rate drop is slightly away from trade-off (trade-off achieved is 0.063).\n\nPlease find the detailed borg result below.\n\n CPU Resolution   Instruction Count          BD-Rate Loss %\n                      Reduction %       avg.psnr ovr.psnr    ssim                                    \n  5    Average           0.912     \t0.0575    0.0177   -0.0301 \n  5    rtc_derf          0.000     \t0.0000    0.0000    0.0000 \n  5      rtc             1.780     \t0.0986    0.0303   -0.0517\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally for few test cases). \n\nPlease review the patch. \n \nThank you.   ",
+      "revId": "fad176588241cc2d15277a91451ec2a2ad584110",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
