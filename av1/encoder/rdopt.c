@@ -1196,8 +1196,13 @@ static AOM_INLINE void setup_buffer_ref_mvs_inter(
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
+#if CONFIG_NEW_REF_SIGNALING
+  const struct scale_factors *const sf =
+      get_ref_scale_factors_const_nrs(cm, ref_frame_nrs);
+#else
   const struct scale_factors *const sf =
       get_ref_scale_factors_const(cm, ref_frame);
+#endif  // CONFIG_NEW_REF_SIGNALING
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, ref_frame);
   assert(yv12 != NULL);
 

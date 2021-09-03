@@ -418,8 +418,13 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
   // TODO(kyslov) this needs various further optimizations. to be continued..
   assert(yv12 != NULL);
   if (yv12 != NULL) {
+#if CONFIG_NEW_REF_SIGNALING
+    const struct scale_factors *const sf =
+        get_ref_scale_factors_const_nrs(cm, ref_frame_nrs);
+#else
     const struct scale_factors *const sf =
         get_ref_scale_factors_const(cm, ref_frame);
+#endif  // CONFIG_NEW_REF_SIGNALING
     av1_setup_pred_block(xd, yv12_mb[ref_frame], yv12, sf, sf, num_planes);
     av1_find_mv_refs(cm, xd, mbmi, ref_frame,
 #if CONFIG_NEW_REF_SIGNALING
