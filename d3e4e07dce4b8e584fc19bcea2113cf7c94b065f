@@ -70,6 +70,24 @@
       "parentUuid": "3f769633_727fb647",
       "revId": "d3e4e07dce4b8e584fc19bcea2113cf7c94b065f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0b7cc0ef_23ec6fcd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-09-03T02:07:26Z",
+      "side": 1,
+      "message": "\u003e Sorry but I\u0027m not really sure if I fully understand the comments. Are you suggesting that we should have a flag CONFIG_THREE_PASS flag that covers everything related to three-pass encoding? That is doable I think, although we do need to cover many changes that we\u0027ve introduced over the last few months.\n\nGiven your other comment about it being difficult to remove all of the 3 pass code with a CONFIG at the moment and that using CONFIG_THREE_PASS_IVF would break the implementation, I was just suggesting you use CONFIG_THREE_PASS as the name. Even if everything isn\u0027t stripped out three pass won\u0027t work without it being set.",
+      "parentUuid": "4a166571_1a73a61f",
+      "revId": "d3e4e07dce4b8e584fc19bcea2113cf7c94b065f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
