@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c7c6d33_2c2005b9",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-09-03T18:58:29Z",
+      "side": 1,
+      "message": "these 2, CONFIG_RD_COMMAND and others aren\u0027t being built, nor is the new one due to the wording in the text. The job was expecting \u0027AV[12] experiment flag...\u0027. I\u0027ll liberalize it and rerun this one, though it may uncover existing issues.",
+      "revId": "7ced0fbdb629e2d621138ed3f666cb34a02530cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b97d5c77_8d116ffb",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-09-03T18:58:29Z",
+      "side": 1,
+      "message": "you could say ...to enable three-pass encoding, but either one is correct.",
+      "range": {
+        "startLine": 157,
+        "startChar": 38,
+        "endLine": 157,
+        "endChar": 52
+      },
+      "revId": "7ced0fbdb629e2d621138ed3f666cb34a02530cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
