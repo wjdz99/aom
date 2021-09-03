@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7b783a23_3031eb6d",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-09-03T19:57:39Z",
+      "side": 1,
+      "message": "Thanks for the CL. I also changed the wording of the this flag in the new patch.",
+      "parentUuid": "bf3eef9c_e3f0082b",
+      "revId": "7ced0fbdb629e2d621138ed3f666cb34a02530cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b97d5c77_8d116ffb",
         "filename": "build/cmake/aom_config_defaults.cmake",
         "patchSetId": 7
@@ -49,6 +67,30 @@
       "writtenOn": "2021-09-03T18:58:29Z",
       "side": 1,
       "message": "you could say ...to enable three-pass encoding, but either one is correct.",
+      "range": {
+        "startLine": 157,
+        "startChar": 38,
+        "endLine": 157,
+        "endChar": 52
+      },
+      "revId": "7ced0fbdb629e2d621138ed3f666cb34a02530cd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67af10a3_fd703503",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-09-03T19:57:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b97d5c77_8d116ffb",
       "range": {
         "startLine": 157,
         "startChar": 38,
