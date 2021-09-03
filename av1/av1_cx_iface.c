@@ -2911,7 +2911,8 @@ static aom_codec_err_t encoder_encode(aom_codec_alg_priv_t *ctx,
       if (!cpi_data.frame_size) continue;
       assert(cpi_data.cx_data != NULL && cpi_data.cx_data_sz != 0);
       const int write_temporal_delimiter =
-          !cpi->common.spatial_layer_id && !ctx->pending_cx_data_sz;
+          !cpi->common.spatial_layer_id && !ctx->pending_cx_data_sz &&
+          !cpi->common.seq_params->still_picture;
 
       if (write_temporal_delimiter) {
         uint32_t obu_header_size = 1;
