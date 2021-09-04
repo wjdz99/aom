@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93ff3e97_48247006",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-09-04T02:56:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch enables FPMT up to 4 frames.\n\nThe average encode time reductions for FPMT degree 4 (num_fp_contexts \u003d 4) are listed below for  2160p (Netflix_ToddlerFountain, Netflix_TunnelFlag, crowd_run), 1080p (Wheat, AOV5, blue_sky) and 720p (fourpeople, Netflix_RollerCoaster), across 60 frames for CQP encode (QP \u003d 20, 55) for speed presets 2, 4 and 6 for varying thread configurations.\n\n                       | % Average encode time reduction|\n| Resolution | Threads | Speed 2  | Speed 4  | Speed 6  |\n|:----------:|:-------:|:--------:|:--------:|:--------:|\n|    2160p   |    16   |   24.75  |   24.48  |   25.29  |\n|    2160p   |    24   |   29.09  |   27.57  |   27.71  |\n|    2160p   |    32   |   30.33  |   28.17  |   28.25  |\n|------------|---------|----------|----------|----------|\n|    1080p   |     8   |   24.33  |   22.03  |   25.50  |\n|    1080p   |    12   |   26.95  |   24.13  |   26.97  |\n|    1080p   |    16   |   27.54  |   24.25  |   26.31  |\n|------------|---------|----------|----------|----------|\n|    720p    |     4   |   17.70  |   18.57  |   17.74  |\n|    720p    |     6   |   21.10  |   20.62  |   23.17  |\n|    720p    |     8   |   23.45  |   21.43  |   23.35  |\n|    720p    |    10   |   23.90  |   21.04  |   20.75  |\n|------------|---------|----------|----------|----------|\n\nPlease review the patch.\n\nRegards,\nRemya",
+      "revId": "7188afc55d4a01c6ca40d3fc1bc55f1382fddbcb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
