@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe13fbc9_8b7032cc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-09-04T02:54:29Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch modifies the worker distribution per frame in a given parallel encode set such that in cases where equal number of workers are not available for all the frames in a parallel encode set, more workers are distributed to frame_parallel_level 2 frames in the set.\n\nThe average encode time reductions for FPMT degree 3 (num_fp_contexts \u003d 3) are listed below for  2160p (Netflix_ToddlerFountain, Netflix_TunnelFlag, crowd_run), 1080p (Wheat, AOV5, blue_sky) and 720p (fourpeople, Netflix_RollerCoaster), across 60 frames for CQP encode (QP \u003d 20, 55) for speed presets 2, 4 and 6 for varying thread configurations.\n\n                      |% Average encode time reduction|\n| Resolution| Threads | Speed 2  | Speed 4  | Speed 6 |\n|:---------:|:-------:|:--------:|:--------:|:-------:|\n|  2160p    |     8   |    9.84  |   10.05  |   8.80  |\n|  2160p    |    12   |   19.15  |   18.61  |  19.02  |\n|  2160p    |    16   |   24.09  |   23.96  |  24.60  |\n|  2160p    |    24   |   28.37  |   26.94  |  26.83  |\n|  2160p    |    32   |   29.65  |   27.55  |  27.59  |\n|-----------|---------|----------|----------|---------|\n|  1080p    |     4   |    9.69  |    7.60  |   6.92  |\n|  1080p    |     6   |   18.36  |   15.79  |  18.21  |\n|  1080p    |     8   |   23.29  |   21.11  |  24.76  |\n|  1080p    |    12   |   25.71  |   22.93  |  25.87  |\n|  1080p    |    16   |   26.18  |   22.98  |  24.99  |\n|-----------|---------|----------|----------|---------|\n|  720p     |     3   |   11.29  |    8.35  |   5.86  |\n|  720p     |     4   |   16.90  |   17.89  |  17.32  |\n|  720p     |     6   |   20.24  |   19.86  |  22.26  |\n|  720p     |     8   |   22.11  |   20.23  |  22.31  |\n|  720p     |    10   |   22.57  |   19.92  |  19.21  |\n|-----------|---------|----------|----------|---------|\n\nPlease review the patch.\n\nRegards,\nRemya",
+      "revId": "5e0acbf0ed48725724194223fedce173b075b74d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
