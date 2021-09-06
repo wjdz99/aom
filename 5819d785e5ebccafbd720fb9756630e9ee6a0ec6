@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a81a89a3_3a54aee0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-09-06T14:55:30Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have introduced a speed feature ‘prune_nearest_near_mv_using_refmv_weight’ to skip NEARESTMV and NEARMV modes based on mv weight computed in ref mv list population.\nIdea of the pruning logic is similar to the existing speed feature \u0027reduce_inter_modes\u0027 in which mode pruning is limited to few ref frames and NEARMV, NEWMV modes, whereas the SF introduced in this patch is applicable for all ref frames and NEARESTMV, NEARMV modes.\nThe speed feature is enabled for speed 4 and above for all frames except boosted frames.\n\nPlease check resolution-wise speed and quality results below.\n                      Instruction Count      BD-Rate Loss(%)\ncpu-used  Resolution    Reduction(%)    avg.psnr  ovr.psnr    ssim\n    4      LOWRES          1.918         0.0801    0.0751    0.1166\n    4      MIDRES          0.891         0.0442    0.0040    0.1705\n    4      HDRES           0.668         0.0403    0.0348    0.0880\n    4      Average         1.350         0.0575    0.0420    0.1236\n\n    5      LOWRES          1.226         0.0419    0.0451    0.1384\n    5      MIDRES          0.632         0.0674    0.0894    0.1454\n    5      HDRES           0.388         0.0289    0.0190    0.0348\n    5      Average         0.868         0.0454    0.0501    0.1089\n\n    6      LOWRES          0.712        -0.0466   -0.0467   -0.0651\n    6      MIDRES          0.124        -0.0247   -0.0409    0.0038\n    6      HDRES           0.434         0.0052    0.0171    0.0020\n    6      Average         0.498        -0.0244   -0.0256   -0.0245\n    \nPlease note that though average speed and quality is within trade-off for speed 4, 5 and 6, the trade-off is slightly away for hd-res (speed 4) and mid-res (speed 5).\n\nIn the commit message: \n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
+      "revId": "5819d785e5ebccafbd720fb9756630e9ee6a0ec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
