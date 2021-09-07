@@ -561,6 +561,8 @@ static void estimate_comp_ref_frame_costs(
       memset(ref_costs_comp[ref_frame], 0,
              REF_FRAMES * sizeof((*ref_costs_comp)[0]));
   } else {
+#if CONFIG_NEW_REF_SIGNALING
+#else
     int intra_inter_ctx = av1_get_intra_inter_context(xd);
     unsigned int base_cost = mode_costs->intra_inter_cost[intra_inter_ctx][1];
 
@@ -654,6 +656,7 @@ static void estimate_comp_ref_frame_costs(
       ref_costs_comp[LAST_FRAME][GOLDEN_FRAME] = 512;
       ref_costs_comp[BWDREF_FRAME][ALTREF_FRAME] = 512;
     }
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 }
 
@@ -2154,7 +2157,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #if CONFIG_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME_NRS ref_frame_nrs;
   unsigned int ref_costs_single[REF_FRAMES_NRS];
-  unsigned int ref_costs_comp[REF_FRAMES][REF_FRAMES];
+  unsigned int ref_costs_comp[REF_FRAMES_NRS][REF_FRAMES_NRS];
 #else
   unsigned int ref_costs_single[REF_FRAMES],
       ref_costs_comp[REF_FRAMES][REF_FRAMES];

@@ -787,6 +787,8 @@ typedef struct {
 #if CONFIG_NEW_REF_SIGNALING
   //! single_ref_cost
   int single_ref_cost[REF_CONTEXTS][INTER_REFS_PER_FRAME_NRS - 1][2];
+  //! compound_ref_cost
+  int compound_ref_cost[REF_CONTEXTS][INTER_REFS_PER_FRAME_NRS - 1][2];
 #else
   //! single_ref_cost
   int single_ref_cost[REF_CONTEXTS][SINGLE_REFS - 1][2];
