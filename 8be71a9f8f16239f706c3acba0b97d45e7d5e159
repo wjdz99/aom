@@ -16,6 +16,52 @@
       "message": "Hi Yunqing,\n\nThis patch enables FPMT for 3 frames and modifies the computation of \u0027num_fp_contexts\u0027 in av1_compute_num_fp_contexts() to use \u0027max_num_enc_workers\u0027 possible for each resolution. The \u0027workers_per_frame\u0027 computation is tuned to enable higher degrees of FPMT at a lower thread count.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "8be71a9f8f16239f706c3acba0b97d45e7d5e159",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82d96856_1816f0b8",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 877,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-07T16:27:21Z",
+      "side": 1,
+      "message": "This comment needs to be updated?",
+      "range": {
+        "startLine": 876,
+        "startChar": 39,
+        "endLine": 877,
+        "endChar": 20
+      },
+      "revId": "8be71a9f8f16239f706c3acba0b97d45e7d5e159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5d9aa16_c9ce90e1",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-07T16:27:21Z",
+      "side": 1,
+      "message": "Why is this divided by 4 instead of 3 (3 frames in parallel)?",
+      "range": {
+        "startLine": 879,
+        "startChar": 64,
+        "endLine": 879,
+        "endChar": 65
+      },
+      "revId": "8be71a9f8f16239f706c3acba0b97d45e7d5e159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
