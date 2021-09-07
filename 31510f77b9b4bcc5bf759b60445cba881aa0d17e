@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch releases the previously used frame buffer by a frame_parallel_level 1 frame during av1_init_parallel_frame_context(), before launching the parallel frame encodes. In the parent version, the release of the previously used frame buffer by a frame_parallel_level 1 frame was happening within its av1_get_compressed_data() call which can cause a potential data race when the same frame buffer is simultaneously accessed by a frame_parallel_level 2 frame during its parallel encode. This patch fixes the above mentioned scenario.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "31510f77b9b4bcc5bf759b60445cba881aa0d17e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c45d45bc_a7c49c55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-07T16:01:24Z",
+      "side": 1,
+      "message": "Looks good. Thanks for fixing it.",
+      "revId": "31510f77b9b4bcc5bf759b60445cba881aa0d17e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
