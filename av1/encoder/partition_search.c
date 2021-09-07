@@ -1088,6 +1088,22 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
       }
 
       if (has_second_ref(mbmi)) {
+#if CONFIG_NEW_REF_SIGNALING
+        MV_REFERENCE_FRAME_NRS ref0 = mbmi->ref_frame_nrs[0];
+        MV_REFERENCE_FRAME_NRS ref1 = mbmi->ref_frame_nrs[1];
+        const int n_refs = cm->new_ref_frame_data.n_total_refs;
+        int n_bits = 0;
+        for (int i = 0; i < n_refs - 1; i++) {
+          const int bit = ref0 == i || ref1 == i;
+          update_cdf(av1_get_pred_cdf_compound_ref_nrs(xd, i, n_refs), bit, 2);
+#if CONFIG_ENTROPY_STATS
+          counts->comp_ref[av1_get_pred_context_single_ref_nrs(xd, i, n_refs)]
+                            [i][bit]++;
+#endif  // CONFIG_ENTROPY_STATS
+          n_bits += bit;
+          if (n_bits == 2) break;
+        }
+#else
         const COMP_REFERENCE_TYPE comp_ref_type = has_uni_comp_refs(mbmi)
                                                       ? UNIDIR_COMP_REFERENCE
                                                       : BIDIR_COMP_REFERENCE;
@@ -1157,6 +1173,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 #endif  // CONFIG_ENTROPY_STATS
           }
         }
+#endif  // CONFIG_NEW_REF_SIGNALING
       } else {
 #if CONFIG_NEW_REF_SIGNALING
         const int n_refs = cm->new_ref_frame_data.n_total_refs;
