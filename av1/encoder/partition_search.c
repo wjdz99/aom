@@ -1088,6 +1088,8 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
       }
 
       if (has_second_ref(mbmi)) {
+#if CONFIG_NEW_REF_SIGNALING
+#else
         const COMP_REFERENCE_TYPE comp_ref_type = has_uni_comp_refs(mbmi)
                                                       ? UNIDIR_COMP_REFERENCE
                                                       : BIDIR_COMP_REFERENCE;
@@ -1157,6 +1159,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 #endif  // CONFIG_ENTROPY_STATS
           }
         }
+#endif  // CONFIG_NEW_REF_SIGNALING
       } else {
 #if CONFIG_NEW_REF_SIGNALING
         const int n_refs = cm->new_ref_frame_data.n_total_refs;

@@ -1084,6 +1084,51 @@ static AOM_INLINE void estimate_ref_frame_costs(
         mode_costs->single_ref_cost[ctx_p6][5][1];
 #endif  // CONFIG_NEW_REF_SIGNALING
 
+#if CONFIG_NEW_REF_SIGNALING
+////////////// here
+/*
+  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  MV_REFERENCE_FRAME_NRS ref0 = mbmi->ref_frame_nrs[0];
+  MV_REFERENCE_FRAME_NRS ref1 = mbmi->ref_frame_nrs[1];
+  const int n_refs = new_ref_frame_data->n_total_refs;
+  const int bit0 = ref0 < ref1;
+  aom_write_bit(w, bit0);
+  // TODO(sarahparker) use write symbol instead
+//aom_write_symbol(w, bit, av1_get_comp_reference_type_cdf(xd),
+//                 2);
+  int n_bits = 0;
+  for (int i = 0; i < n_refs - 1; i++) {
+    const int bit = ref0 == i || ref1 == i;
+    aom_write_symbol(w, bit, av1_get_pred_cdf_compound_ref_nrs(xd, i, n_refs), 2);
+    n_bits += bit;
+    if (n_bits == 2) return;
+  }
+/////////////////////////////////////
+
+    const int n_refs = cm->new_ref_frame_data.n_total_refs;
+    for (int i = 0; i < n_refs; i++) {
+      for (int j = 0; j <= AOMMIN(i, n_refs - 2); j++) {
+        aom_cdf_prob ctx = av1_get_single_ref_pred_context_nrs(xd, j, n_refs);
+        const int bit = i == j;
+        ref_costs_single[i] += mode_costs->single_ref_cost[ctx][j][bit];
+      }
+    }
+    for (int i = n_refs; i < INTER_REFS_PER_FRAME_NRS; i++)
+      ref_costs_single[i] = INT_MAX;
+*/
+    if (cm->current_frame.reference_mode != SINGLE_REFERENCE) {
+      const int base_cost_comp = base_cost + 1; // is 1 bit cost == 1? 
+      const int n_refs = cm->new_ref_frame_data.n_total_refs;
+      int n_bits = 0;
+      for (int i = 0; i < n_refs; i++) {
+        for (int j = 0; j <= AOMMIN(i, n_refs - 2); j++) {
+          aom_cdf_prob ctx = av1_get_compound_ref_pred_context_nrs(xd, j, n_refs);
+          const int bit = i == j;
+          ref_costs_compound[i] += mode_costs->compound_ref_cost[ctx][j][bit];
+        }
+      }
+
+#else
     if (cm->current_frame.reference_mode != SINGLE_REFERENCE) {
       // Similar to single ref, determine cost of compound ref frames.
       // cost_compound_refs = cost_first_ref + cost_second_ref
@@ -1176,6 +1221,7 @@ static AOM_INLINE void estimate_ref_frame_costs(
       ref_costs_comp[LAST_FRAME][GOLDEN_FRAME] = 512;
       ref_costs_comp[BWDREF_FRAME][ALTREF_FRAME] = 512;
     }
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 }
 
@@ -6565,11 +6611,12 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
 #if CONFIG_NEW_REF_SIGNALING
   struct buf_2d yv12_mb[REF_FRAMES_NRS][MAX_MB_PLANE];
   unsigned int ref_costs_single[REF_FRAMES_NRS];
+  unsigned int ref_costs_comp[REF_FRAMES_NRS][REF_FRAMES_NRS];
 #else
   struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE];
   unsigned int ref_costs_single[REF_FRAMES];
-#endif  // CONFIG_NEW_REF_SIGNALING
   unsigned int ref_costs_comp[REF_FRAMES][REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
   // init params, set frame modes, speed features
   set_params_rd_pick_inter_mode(cpi, x, &args, bsize, &mode_skip_mask,
                                 skip_ref_frame_mask, ref_costs_single,
@@ -6822,7 +6869,7 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
                                                      ref_frame) ==
                mbmi->ref_frame_nrs[0]);
         const int ref_frame_cost =
-            comp_pred ? ref_costs_comp[ref_frame][second_ref_frame]
+            comp_pred ? ref_costs_comp[mbmi->ref_frame_nrs[0]][mbmi->ref_frame_nrs[1]]
                       : ref_costs_single[mbmi->ref_frame_nrs[0]];
 #else
     const int ref_frame_cost = comp_pred
@@ -7242,10 +7289,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   int64_t best_pred_diff[REFERENCE_MODES];
 #if CONFIG_NEW_REF_SIGNALING
   unsigned int ref_costs_single[REF_FRAMES_NRS];
+  unsigned int ref_costs_comp[REF_FRAMES_NRS][REF_FRAMES_NRS];
 #else
   unsigned int ref_costs_single[REF_FRAMES];
-#endif  // CONFIG_NEW_REF_SIGNALING
   unsigned int ref_costs_comp[REF_FRAMES][REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
   const ModeCosts *mode_costs = &x->mode_costs;
   const int *comp_inter_cost =
       mode_costs->comp_inter_cost[av1_get_reference_mode_context(xd)];
