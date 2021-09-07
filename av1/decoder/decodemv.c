@@ -1103,6 +1103,7 @@ static REFERENCE_MODE read_block_reference_mode(AV1_COMMON *cm,
 #define READ_REF_BIT(pname) \
   aom_read_symbol(r, av1_get_pred_cdf_##pname(xd), 2, ACCT_STR)
 
+#if !CONFIG_NEW_REF_SIGNALING
 static COMP_REFERENCE_TYPE read_comp_reference_type(const MACROBLOCKD *xd,
                                                     aom_reader *r) {
   const int ctx = av1_get_comp_reference_type_context(xd);
@@ -1111,6 +1112,7 @@ static COMP_REFERENCE_TYPE read_comp_reference_type(const MACROBLOCKD *xd,
           r, xd->tile_ctx->comp_ref_type_cdf[ctx], 2, ACCT_STR);
   return comp_ref_type;  // UNIDIR_COMP_REFERENCE or BIDIR_COMP_REFERENCE
 }
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
 #if CONFIG_NEW_REF_SIGNALING
 static void set_ref_frames_for_skip_mode_nrs(
@@ -1140,6 +1142,30 @@ static AOM_INLINE void read_single_ref_nrs(
     }
   }
   ref_frame_nrs[0] = n_refs - 1;
+}
+
+static AOM_INLINE void read_compound_ref_nrs(
+    const MACROBLOCKD *xd, MV_REFERENCE_FRAME_NRS ref_frame_nrs[2], 
+    const NewRefFramesData *const new_ref_frame_data,
+    aom_reader *r) {
+  const int n_refs = new_ref_frame_data->n_total_refs;
+  const int bit0 = aom_read_bit(r, ACCT_STR);
+  int n_bits = 0;
+  for (int i = 0; i < n_refs - 1; i++) {
+    const int bit = aom_read_symbol(
+        r, av1_get_pred_cdf_single_ref_nrs(xd, i, n_refs), 2, ACCT_STR);
+    if (bit) {
+      ref_frame_nrs[n_bits] = i;
+      n_bits++;
+      if (n_bits == 2) return;
+    }
+  }
+  ref_frame_nrs[1] = n_refs - 1;
+  if (!bit0) {
+    MV_REFERENCE_FRAME_NRS tmp = ref_frame_nrs[0];
+    ref_frame_nrs[0] = ref_frame_nrs[1];
+    ref_frame_nrs[1] = tmp;
+  }
 }
 #endif  // CONFIG_NEW_REF_SIGNALING
 
@@ -1180,8 +1206,16 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
     ref_frame[1] = NONE_FRAME;
   } else {
     const REFERENCE_MODE mode = read_block_reference_mode(cm, xd, r);
-
     if (mode == COMPOUND_REFERENCE) {
+#if CONFIG_NEW_REF_SIGNALING
+      read_compound_ref_nrs(xd, ref_frame_nrs, &cm->new_ref_frame_data, r);
+      ref_frame[0] = convert_ranked_ref_to_named_ref_index(
+          &cm->new_ref_frame_data, ref_frame_nrs[0]);
+      assert(convert_named_ref_to_ranked_ref_index(
+                 &cm->new_ref_frame_data, ref_frame[0]) == ref_frame_nrs[0]);
+      ref_frame[1] = NONE_FRAME;
+
+#else
       const COMP_REFERENCE_TYPE comp_ref_type = read_comp_reference_type(xd, r);
 
       if (comp_ref_type == UNIDIR_COMP_REFERENCE) {
@@ -1230,6 +1264,7 @@ static void read_ref_frames(AV1_COMMON *const cm, MACROBLOCKD *const xd,
       } else {
         ref_frame[idx] = ALTREF_FRAME;
       }
+#endif  // CONFIG_NEW_REF_SIGNALING
     } else if (mode == SINGLE_REFERENCE) {
 #if CONFIG_NEW_REF_SIGNALING
       read_single_ref_nrs(xd, ref_frame_nrs, &cm->new_ref_frame_data, r);
