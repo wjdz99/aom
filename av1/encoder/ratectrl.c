@@ -2964,6 +2964,8 @@ void av1_q_mode_compute_gop_q_indices(int gf_frame_index, int base_q_index,
                                       aom_bit_depth_t bit_depth,
                                       const struct GF_GROUP *gf_group,
                                       int *q_index_list) {
+  // TODO: use qstep_ratio_list to get q indices for the GOP
+  
   const int arf_q = av1_get_q_index_from_qstep_ratio(
       base_q_index, arf_qstep_ratio, bit_depth);
   for (int gf_index = gf_frame_index; gf_index < gf_group->size; ++gf_index) {

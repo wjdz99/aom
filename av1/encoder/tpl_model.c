@@ -1968,6 +1968,8 @@ int av1_q_mode_estimate_base_q(const GF_GROUP *gf_group,
   int q_min = 0;    // Minimum q value.
   int q = (q_max + q_min) / 2;
 
+  // TODO: pass in qstep_ratio_list to compute_gop_q_indices instead of arf_qstep_ratio
+
   av1_q_mode_compute_gop_q_indices(gf_frame_index, q_max, arf_qstep_ratio,
                                    bit_depth, gf_group, q_index_list);
   double q_max_estimate = av1_estimate_gop_bitrate(
@@ -2069,6 +2071,9 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
   if (gf_frame_index == 0) {
     vbr_rc_info->q_index_list_ready = 1;
     double gop_bit_budget = vbr_rc_info->gop_bit_budget;
+
+    // TODO: Instead of only assigning a qstep_ratio to the ARF, now assign a qstep_ratio to each frame in the GOP and store it in vbr_rc_info.qstep_ratio_list.
+    
     // Use the gop_bit_budget to determine q_index_list.
     const double arf_qstep_ratio =
         av1_tpl_get_qstep_ratio(tpl_data, gf_frame_index);

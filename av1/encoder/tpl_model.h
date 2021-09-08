@@ -254,6 +254,8 @@ typedef struct {
   int actual_bitrate_byframe[MAX_LENGTH_TPL_FRAME_STATS];
   int actual_mv_bitrate_byframe[MAX_LENGTH_TPL_FRAME_STATS];
   int actual_coeff_bitrate_byframe[MAX_LENGTH_TPL_FRAME_STATS];
+
+  // TODO: Add a field qstep_ratio_list here.
 } VBR_RATECTRL_INFO;
 
 static INLINE void vbr_rc_reset_gop_data(VBR_RATECTRL_INFO *vbr_rc_info) {
@@ -279,6 +281,8 @@ static INLINE void vbr_rc_init(VBR_RATECTRL_INFO *vbr_rc_info,
          sizeof(scale_factors[0]) * FRAME_UPDATE_TYPES);
   memcpy(vbr_rc_info->mv_scale_factors, mv_scale_factors,
          sizeof(mv_scale_factors[0]) * FRAME_UPDATE_TYPES);
+
+  // TODO: Initialize q_step_ratio_list
 
   vbr_rc_reset_gop_data(vbr_rc_info);
 }
