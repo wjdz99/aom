@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch disables 8x4 and 4x8 rectangular partitions at very low quantizers. We have extended SF prune_rectangular_split_based_on_qidx to speed 4 (and 5).  We also considered using the SF rect_partition_eval_thresh to achieve the same. As the SF rect_partition_eval_thresh uses frame level q index and prune_rectangular_split_based_on_qidx uses block level q index, we chose prune_rectangular_split_based_on_qidx.\n\nPlease find below detailed borg result :\nCPU Resolution Instruction Count           BD-Rate Loss %\n                 Reduction %      avg.psnr ovr.psnr     ssim\n 4   LOW RES       2.588          0.1209     0.1148     0.0638\n 4   MID RES       0.426          0.0021     0.0006     0.0074\n 4   HD RES        1.471          0.0511     0.0397     0.0292\n 4   AVERAGE       1.777          0.0648     0.0585     0.0367 \n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nThe changes are bit-exact for all other speed levels with no impact on speed. Although we have enabled the SF for speed 5, the changes are bit exact , as all the sub 8x8 partitions are already pruned in speed 5 using prune_sub_8x8_partition_level SF.\n\nPlease review the patch.\nRegards,\nAkshata\n",
       "revId": "30180fde7fa1cc4f02e5398bb4443fe207d35674",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2951bacc_d55269bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-08T18:31:25Z",
+      "side": 1,
+      "message": "Looks good. Nice speedup and good speed/quality tradeoff!",
+      "revId": "30180fde7fa1cc4f02e5398bb4443fe207d35674",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
