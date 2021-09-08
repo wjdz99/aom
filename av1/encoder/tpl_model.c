@@ -1139,7 +1139,7 @@ static AOM_INLINE void init_mc_flow_dispenser_nrs(AV1_COMP *cpi, int frame_idx,
   // Store the reference frames based on priority order
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
     ref_frames_ordered[i] =
-        tpl_data->ref_frame[ref_frame_priority_order[i] - 1];
+        cpi->tpl_data.ref_frame[ref_frame_priority_order[i] - 1];
   }
 
   // Work out which reference frame slots may be used.
@@ -2024,7 +2024,11 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
 
   assert(IMPLIES(gf_group->size > 0, tpl_idx < gf_group->size));
 
+#if CONFIG_NEW_REF_SIGNALING
+  TplParams *const tpl_data = &cpi->tpl_data_nrs;
+#else
   TplParams *const tpl_data = &cpi->tpl_data;
+#endif  // CONFIG_NEW_REF_SIGNALING
   const TplDepFrame *const tpl_frame = &tpl_data->tpl_frame[tpl_idx];
 
   if (!tpl_frame->is_valid) return;
@@ -2078,7 +2082,11 @@ void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
   const int tpl_idx = cpi->gf_group.index;
+#if CONFIG_NEW_REF_SIGNALING
+  TplDepFrame *tpl_frame = &cpi->tpl_data_nrs.tpl_frame[tpl_idx];
+#else
   TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   if (tpl_frame->is_valid == 0) return;
   if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return;
