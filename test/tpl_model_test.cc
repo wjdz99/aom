@@ -231,86 +231,86 @@ TEST(TPLModelTest, TxfmStatsRecordTest) {
   }
 }
 
-/*
- * Helper method to brute-force search for the closest q_index
- * that achieves the specified bit budget.
- */
-int find_gop_q_iterative(double bit_budget, double arf_qstep_ratio,
-                         GF_GROUP gf_group, const int *stats_valid_list,
-                         TplTxfmStats *stats_list, int gf_frame_index,
-                         aom_bit_depth_t bit_depth) {
-  // Brute force iterative method to find the optimal q.
-  // Use the result to test against the binary search result.
+// /*
+//  * Helper method to brute-force search for the closest q_index
+//  * that achieves the specified bit budget.
+//  */
+// int find_gop_q_iterative(double bit_budget, double arf_qstep_ratio,
+//                          GF_GROUP gf_group, const int *stats_valid_list,
+//                          TplTxfmStats *stats_list, int gf_frame_index,
+//                          aom_bit_depth_t bit_depth) {
+//   // Brute force iterative method to find the optimal q.
+//   // Use the result to test against the binary search result.
 
-  // Initial estimate when q = 255
-  av1_q_mode_compute_gop_q_indices(gf_frame_index, 255, arf_qstep_ratio,
-                                   bit_depth, &gf_group, gf_group.q_val);
-  double curr_estimate = av1_estimate_gop_bitrate(
-      gf_group.q_val, gf_group.size, stats_list, stats_valid_list, NULL);
-  double best_estimate_budget_distance = fabs(curr_estimate - bit_budget);
-  int best_q = 255;
+//   // Initial estimate when q = 255
+//   av1_q_mode_compute_gop_q_indices(gf_frame_index, 255, arf_qstep_ratio,
+//                                    bit_depth, &gf_group, gf_group.q_val);
+//   double curr_estimate = av1_estimate_gop_bitrate(
+//       gf_group.q_val, gf_group.size, stats_list, stats_valid_list, NULL);
+//   double best_estimate_budget_distance = fabs(curr_estimate - bit_budget);
+//   int best_q = 255;
 
-  // Start at q = 254 because we already have an estimate for q = 255.
-  for (int q = 254; q >= 0; q--) {
-    av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_qstep_ratio,
-                                     bit_depth, &gf_group, gf_group.q_val);
-    curr_estimate = av1_estimate_gop_bitrate(
-        gf_group.q_val, gf_group.size, stats_list, stats_valid_list, NULL);
-    double curr_estimate_budget_distance = fabs(curr_estimate - bit_budget);
-    if (curr_estimate_budget_distance <= best_estimate_budget_distance) {
-      best_estimate_budget_distance = curr_estimate_budget_distance;
-      best_q = q;
-    }
-  }
-  return best_q;
-}
+//   // Start at q = 254 because we already have an estimate for q = 255.
+//   for (int q = 254; q >= 0; q--) {
+//     av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_qstep_ratio,
+//                                      bit_depth, &gf_group, gf_group.q_val);
+//     curr_estimate = av1_estimate_gop_bitrate(
+//         gf_group.q_val, gf_group.size, stats_list, stats_valid_list, NULL);
+//     double curr_estimate_budget_distance = fabs(curr_estimate - bit_budget);
+//     if (curr_estimate_budget_distance <= best_estimate_budget_distance) {
+//       best_estimate_budget_distance = curr_estimate_budget_distance;
+//       best_q = q;
+//     }
+//   }
+//   return best_q;
+// }
 
-TEST(TplModelTest, QModeEstimateBaseQTest) {
-  GF_GROUP gf_group = {};
-  gf_group.size = 25;
-  TplTxfmStats stats_list[25];
-  int q_index_list[25];
-  const int gf_group_update_types[25] = { 0, 3, 6, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1,
-                                          5, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1, 4 };
-  int stats_valid_list[25] = { 0 };
-  const int gf_frame_index = 0;
-  const double arf_qstep_ratio = 2;
-  const aom_bit_depth_t bit_depth = AOM_BITS_8;
-  const double scale_factor = 1.0;
+// TEST(TplModelTest, QModeEstimateBaseQTest) {
+//   GF_GROUP gf_group = {};
+//   gf_group.size = 25;
+//   TplTxfmStats stats_list[25];
+//   int q_index_list[25];
+//   const int gf_group_update_types[25] = { 0, 3, 6, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1,
+//                                           5, 6, 6, 1, 5, 1, 5, 6, 1, 5, 1, 4 };
+//   int stats_valid_list[25] = { 0 };
+//   const int gf_frame_index = 0;
+//   const double arf_qstep_ratio = 2;
+//   const aom_bit_depth_t bit_depth = AOM_BITS_8;
+//   const double scale_factor = 1.0;
 
-  for (int i = 0; i < gf_group.size; i++) {
-    stats_valid_list[i] = 1;
-    gf_group.update_type[i] = gf_group_update_types[i];
-    stats_list[i].txfm_block_count = 8;
+//   for (int i = 0; i < gf_group.size; i++) {
+//     stats_valid_list[i] = 1;
+//     gf_group.update_type[i] = gf_group_update_types[i];
+//     stats_list[i].txfm_block_count = 8;
 
-    for (int j = 0; j < 256; j++) {
-      stats_list[i].abs_coeff_sum[j] = 1000 + j;
-    }
-  }
+//     for (int j = 0; j < 256; j++) {
+//       stats_list[i].abs_coeff_sum[j] = 1000 + j;
+//     }
+//   }
 
-  // Test multiple bit budgets.
-  const std::vector<double> bit_budgets = { 0,      100,    1000,   10000,
-                                            100000, 300000, 500000, 750000,
-                                            800000, DBL_MAX };
+//   // Test multiple bit budgets.
+//   const std::vector<double> bit_budgets = { 0,      100,    1000,   10000,
+//                                             100000, 300000, 500000, 750000,
+//                                             800000, DBL_MAX };
 
-  for (double bit_budget : bit_budgets) {
-    // Binary search method to find the optimal q.
-    const int result = av1_q_mode_estimate_base_q(
-        &gf_group, stats_list, stats_valid_list, bit_budget, gf_frame_index,
-        arf_qstep_ratio, bit_depth, scale_factor, q_index_list, NULL);
-    const int test_result = find_gop_q_iterative(
-        bit_budget, arf_qstep_ratio, gf_group, stats_valid_list, stats_list,
-        gf_frame_index, bit_depth);
+//   for (double bit_budget : bit_budgets) {
+//     // Binary search method to find the optimal q.
+//     const int result = av1_q_mode_estimate_base_q(
+//         &gf_group, stats_list, stats_valid_list, bit_budget, gf_frame_index,
+//         arf_qstep_ratio, bit_depth, scale_factor, q_index_list, NULL);
+//     const int test_result = find_gop_q_iterative(
+//         bit_budget, arf_qstep_ratio, gf_group, stats_valid_list, stats_list,
+//         gf_frame_index, bit_depth);
 
-    if (bit_budget == 0) {
-      EXPECT_EQ(result, 255);
-    } else if (bit_budget == DBL_MAX) {
-      EXPECT_EQ(result, 0);
-    }
+//     if (bit_budget == 0) {
+//       EXPECT_EQ(result, 255);
+//     } else if (bit_budget == DBL_MAX) {
+//       EXPECT_EQ(result, 0);
+//     }
 
-    EXPECT_EQ(result, test_result);
-  }
-}
+//     EXPECT_EQ(result, test_result);
+//   }
+// }
 
 TEST(TplModelTest, ComputeMVDifferenceTest) {
   TplDepFrame tpl_frame_small;

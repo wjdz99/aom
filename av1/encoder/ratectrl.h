@@ -670,7 +670,7 @@ int av1_encodedframe_overshoot_cbr(struct AV1_COMP *cpi, int *q);
  *                                    greater than gf_group.size()
  */
 void av1_q_mode_compute_gop_q_indices(int gf_frame_index, int base_q_index,
-                                      double arf_qstep_ratio,
+                                      double *qstep_ratio_list,
                                       aom_bit_depth_t bit_depth,
                                       const struct GF_GROUP *gf_group,
                                       int *q_index_list);

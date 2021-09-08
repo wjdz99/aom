@@ -1960,25 +1960,27 @@ void get_tpl_stats_valid_list(const TplParams *tpl_data, int gop_size,
 int av1_q_mode_estimate_base_q(const GF_GROUP *gf_group,
                                const TplTxfmStats *txfm_stats_list,
                                const int *stats_valid_list, double bit_budget,
-                               int gf_frame_index, double arf_qstep_ratio,
+                               int gf_frame_index,
                                aom_bit_depth_t bit_depth, double scale_factor,
-                               int *q_index_list,
+                               double *qstep_ratio_list, int *q_index_list,
                                double *estimated_bitrate_byframe) {
   int q_max = 255;  // Maximum q value.
   int q_min = 0;    // Minimum q value.
   int q = (q_max + q_min) / 2;
 
-  av1_q_mode_compute_gop_q_indices(gf_frame_index, q_max, arf_qstep_ratio,
+  // TODO: pass in qstep_ratio_list to compute_gop_q_indices instead of arf_qstep_ratio
+
+  av1_q_mode_compute_gop_q_indices(gf_frame_index, q_max, qstep_ratio_list,
                                    bit_depth, gf_group, q_index_list);
   double q_max_estimate = av1_estimate_gop_bitrate(
       q_index_list, gf_group->size, txfm_stats_list, stats_valid_list, NULL);
-  av1_q_mode_compute_gop_q_indices(gf_frame_index, q_min, arf_qstep_ratio,
+  av1_q_mode_compute_gop_q_indices(gf_frame_index, q_min, qstep_ratio_list,
                                    bit_depth, gf_group, q_index_list);
   double q_min_estimate = av1_estimate_gop_bitrate(
       q_index_list, gf_group->size, txfm_stats_list, stats_valid_list, NULL);
 
   while (true) {
-    av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_qstep_ratio,
+    av1_q_mode_compute_gop_q_indices(gf_frame_index, q, qstep_ratio_list,
                                      bit_depth, gf_group, q_index_list);
 
     double estimate = av1_estimate_gop_bitrate(
@@ -2009,7 +2011,7 @@ int av1_q_mode_estimate_base_q(const GF_GROUP *gf_group,
   }
 
   // Update q_index_list and vbr_rc_info.
-  av1_q_mode_compute_gop_q_indices(gf_frame_index, q, arf_qstep_ratio,
+  av1_q_mode_compute_gop_q_indices(gf_frame_index, q, qstep_ratio_list,
                                    bit_depth, gf_group, q_index_list);
   av1_estimate_gop_bitrate(q_index_list, gf_group->size, txfm_stats_list,
                            stats_valid_list, estimated_bitrate_byframe);
@@ -2017,6 +2019,7 @@ int av1_q_mode_estimate_base_q(const GF_GROUP *gf_group,
 }
 
 double av1_tpl_get_qstep_ratio(const TplParams *tpl_data, int gf_frame_index) {
+  printf("0\n");
   const TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_frame_index];
   const TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
 
@@ -2024,19 +2027,23 @@ double av1_tpl_get_qstep_ratio(const TplParams *tpl_data, int gf_frame_index) {
   int64_t intra_cost_base = 0;
   int64_t mc_dep_cost_base = 0;
   const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
-
+  printf("1\n");
   for (int row = 0; row < tpl_frame->mi_rows; row += step) {
     for (int col = 0; col < tpl_frame->mi_cols; col += step) {
+      printf("3\n");
       const TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
           row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+      printf("4\n");
       const int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
       intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
       mc_dep_cost_base += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      printf("5\n");
     }
   }
   const double r0 = (double)intra_cost_base / mc_dep_cost_base;
+  printf("2\n");  
   return sqrt(r0);
 }
 
@@ -2069,9 +2076,25 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
   if (gf_frame_index == 0) {
     vbr_rc_info->q_index_list_ready = 1;
     double gop_bit_budget = vbr_rc_info->gop_bit_budget;
-    // Use the gop_bit_budget to determine q_index_list.
-    const double arf_qstep_ratio =
-        av1_tpl_get_qstep_ratio(tpl_data, gf_frame_index);
+
+    // TODO: Instead of only assigning a qstep_ratio to the ARF, now assign a qstep_ratio to each frame in the GOP and store it in vbr_rc_info.qstep_ratio_list.
+    for (int i = gf_frame_index; i < gf_group->size; i++) {
+      printf("start\n");
+      const TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_frame_index];
+      const TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+      if (!tpl_frame->is_valid) {
+        vbr_rc_info->qstep_ratio_list[i] = 1;
+      } else {
+        vbr_rc_info->qstep_ratio_list[i] =
+            av1_tpl_get_qstep_ratio(tpl_data, i);
+      }
+      printf("end\n");
+    }
+
+    for (int i = gf_frame_index; i < gf_group->size; i++) {
+      printf("%f", vbr_rc_info->qstep_ratio_list[i]);
+    }
+
     // We update the q indices in vbr_rc_info in vbr_rc_info->q_index_list
     // rather than gf_group->q_val to avoid conflicts with the existing code.
     int stats_valid_list[MAX_LENGTH_TPL_FRAME_STATS] = { 0 };
@@ -2089,8 +2112,9 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
 
     av1_q_mode_estimate_base_q(
         gf_group, tpl_data->txfm_stats_list, stats_valid_list, gop_bit_budget,
-        gf_frame_index, arf_qstep_ratio, bit_depth, scale_factor,
-        vbr_rc_info->q_index_list, vbr_rc_info->estimated_bitrate_byframe);
+        gf_frame_index, bit_depth, scale_factor,
+        vbr_rc_info->qstep_ratio_list, vbr_rc_info->q_index_list,
+        vbr_rc_info->estimated_bitrate_byframe);
   }
 }
 
