@@ -942,6 +942,226 @@ static void mc_flow_synthesizer(AV1_COMP *cpi, int frame_idx) {
   }
 }
 
+#if CONFIG_NEW_REF_SIGNALING
+static AOM_INLINE void init_gop_frames_for_tpl_nrs(
+    AV1_COMP *cpi, const EncodeFrameParams *const init_frame_params,
+    GF_GROUP *gf_group, int gop_eval, int *tpl_group_frames,
+    const EncodeFrameInput *const frame_input, int *pframe_qindex) {
+  AV1_COMMON *cm = &cpi->common;
+  int cur_frame_idx = gf_group->index;
+  *pframe_qindex = 0;
+  RefFrameMapPair ref_frame_map_pairs[REF_FRAMES_NRS];
+  init_ref_map_pair(
+      cm, ref_frame_map_pairs,
+      cpi->gf_group.update_type[cpi->gf_group.index] == KEY_FRAME);
+
+  EncodeFrameParams frame_params = *init_frame_params;
+  TplParams *const tpl_data = &cpi->tpl_data;
+
+  int ref_picture_map[INTER_REFS_PER_FRAME_NRS];
+
+  for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i) {
+    if (frame_params.frame_type == KEY_FRAME || gop_eval) {
+      tpl_data->tpl_frame_nrs[-i - 1].gf_picture = NULL;
+      tpl_data->tpl_frame_nrs[-1 - 1].rec_picture = NULL;
+      tpl_data->tpl_frame_nrs[-i - 1].frame_display_index = 0;
+    } else {
+      tpl_data->tpl_frame_nrs[-i - 1].gf_picture = &cm->ref_frame_map[i]->buf;
+      tpl_data->tpl_frame_nrs[-i - 1].rec_picture = &cm->ref_frame_map[i]->buf;
+      tpl_data->tpl_frame_nrs[-i - 1].frame_display_index =
+          cm->ref_frame_map[i]->display_order_hint;
+    }
+
+    ref_picture_map[i] = -i - 1;
+  }
+
+  *tpl_group_frames = cur_frame_idx;
+
+  int gf_index;
+  int anc_frame_offset = gf_group->cur_frame_idx[cur_frame_idx];
+  int process_frame_count = 0;
+  const int gop_length = get_gop_length(gf_group);
+
+  for (gf_index = cur_frame_idx; gf_index < gop_length; ++gf_index) {
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_index];
+    FRAME_UPDATE_TYPE frame_update_type = gf_group->update_type[gf_index];
+    int frame_display_index = gf_index == gf_group->size
+                                  ? cpi->rc.baseline_gf_interval
+                                  : gf_group->cur_frame_idx[gf_index] +
+                                        gf_group->arf_src_offset[gf_index];
+    int lookahead_index = frame_display_index - anc_frame_offset;
+    frame_params.show_frame = frame_update_type != ARF_UPDATE &&
+                              frame_update_type != KFFLT_UPDATE &&
+                              frame_update_type != INTNL_ARF_UPDATE;
+    frame_params.show_existing_frame =
+        frame_update_type == INTNL_OVERLAY_UPDATE ||
+        frame_update_type == OVERLAY_UPDATE ||
+        frame_update_type == KFFLT_OVERLAY_UPDATE;
+    frame_params.frame_type =
+        (frame_update_type == KF_UPDATE ||
+         av1_check_keyframe_arf(gf_index, gf_group, cpi->rc.frames_since_key))
+            ? KEY_FRAME
+            : INTER_FRAME;
+
+    if (frame_update_type == LF_UPDATE)
+      *pframe_qindex = gf_group->q_val[gf_index];
+
+    if (gf_index == cur_frame_idx) {
+      struct lookahead_entry *buf = av1_lookahead_peek(
+          cpi->lookahead, lookahead_index, cpi->compressor_stage);
+      tpl_frame->gf_picture = gop_eval ? &buf->img : frame_input->source;
+    } else {
+      struct lookahead_entry *buf = av1_lookahead_peek(
+          cpi->lookahead, lookahead_index, cpi->compressor_stage);
+      if (buf == NULL) break;
+      tpl_frame->gf_picture = &buf->img;
+    }
+    // 'cm->current_frame.frame_number' is the display number
+    // of the current frame.
+    // 'anc_frame_offset' is the number of frames displayed so
+    // far within the gf group. 'cm->current_frame.frame_number -
+    // anc_frame_offset' is the offset of the first frame in the gf group.
+    // 'frame display index' is frame offset within the gf group.
+    // 'frame_display_index + cm->current_frame.frame_number - anc_frame_offset'
+    // is the display index of the frame.
+    tpl_frame->frame_display_index =
+        frame_display_index + cm->current_frame.frame_number - anc_frame_offset;
+
+    if (frame_update_type != OVERLAY_UPDATE &&
+        frame_update_type != KFFLT_OVERLAY_UPDATE &&
+        frame_update_type != INTNL_OVERLAY_UPDATE) {
+      tpl_frame->rec_picture = &tpl_data->tpl_rec_pool[process_frame_count];
+      tpl_frame->tpl_stats_ptr = tpl_data->tpl_stats_pool[process_frame_count];
+      ++process_frame_count;
+    }
+
+    const int true_disp =
+        (int)(tpl_frame->frame_display_index) -
+        (gf_group->subgop_cfg != NULL && frame_params.show_frame);
+    av1_get_ref_frames(cm, true_disp, ref_frame_map_pairs);
+    int refresh_mask =
+        av1_get_refresh_frame_flags(cpi, &frame_params, frame_update_type,
+                                    gf_index, true_disp, ref_frame_map_pairs);
+
+    int refresh_frame_map_index = av1_get_refresh_ref_frame_map_nrs(refresh_mask);
+
+    if (refresh_frame_map_index < REF_FRAMES_NRS) {
+      ref_frame_map_pairs[refresh_frame_map_index].disp_order =
+          AOMMAX(0, true_disp);
+      ref_frame_map_pairs[refresh_frame_map_index].pyr_level =
+          get_true_pyr_level(gf_group->layer_depth[gf_index], true_disp,
+                             cpi->gf_group.max_layer_depth);
+    }
+
+    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
+      tpl_frame->ref_map_index_nrs[i] =
+          ref_picture_map[cm->new_ref_frame_data.ref_frame_score_map[i]];
+
+    if (refresh_mask) ref_picture_map[refresh_frame_map_index] = gf_index;
+
+    ++*tpl_group_frames;
+  }
+
+  if (cpi->rc.frames_since_key == 0) return;
+
+  int extend_frame_count = 0;
+  int extend_frame_length = AOMMIN(
+      MAX_TPL_EXTEND, cpi->rc.frames_to_key - cpi->rc.baseline_gf_interval);
+  int frame_display_index = gf_group->cur_frame_idx[gop_length - 1] +
+                            gf_group->arf_src_offset[gop_length - 1] + 1;
+
+  for (;
+       gf_index < MAX_TPL_FRAME_IDX && extend_frame_count < extend_frame_length;
+       ++gf_index) {
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_index];
+    FRAME_UPDATE_TYPE frame_update_type = LF_UPDATE;
+    frame_params.show_frame = frame_update_type != ARF_UPDATE &&
+                              frame_update_type != KFFLT_UPDATE &&
+                              frame_update_type != INTNL_ARF_UPDATE;
+    frame_params.show_existing_frame =
+        frame_update_type == INTNL_OVERLAY_UPDATE;
+    frame_params.frame_type = INTER_FRAME;
+    int lookahead_index = frame_display_index - anc_frame_offset;
+
+    struct lookahead_entry *buf = av1_lookahead_peek(
+        cpi->lookahead, lookahead_index, cpi->compressor_stage);
+
+    if (buf == NULL) break;
+
+    tpl_frame->gf_picture = &buf->img;
+    tpl_frame->rec_picture = &tpl_data->tpl_rec_pool[process_frame_count];
+    tpl_frame->tpl_stats_ptr = tpl_data->tpl_stats_pool[process_frame_count];
+    // 'cm->current_frame.frame_number' is the display number
+    // of the current frame.
+    // 'anc_frame_offset' is the number of frames displayed so
+    // far within the gf group. 'cm->current_frame.frame_number -
+    // anc_frame_offset' is the offset of the first frame in the gf group.
+    // 'frame display index' is frame offset within the gf group.
+    // 'frame_display_index + cm->current_frame.frame_number - anc_frame_offset'
+    // is the display index of the frame.
+    tpl_frame->frame_display_index =
+        frame_display_index + cm->current_frame.frame_number - anc_frame_offset;
+
+    ++process_frame_count;
+
+    gf_group->update_type[gf_index] = LF_UPDATE;
+    gf_group->q_val[gf_index] = *pframe_qindex;
+
+    const int true_disp =
+        (int)(tpl_frame->frame_display_index) -
+        (gf_group->subgop_cfg != NULL && frame_params.show_frame);
+    av1_get_ref_frames(cm, true_disp, ref_frame_map_pairs);
+    // TODO(sarahparker) av1_get_refresh_frame_flags()
+    // will execute default behavior even when
+    // subgop cfg is enabled. This should be addressed if we ever remove the
+    // frame_update_type.
+    int refresh_mask =
+        av1_get_refresh_frame_flags(cpi, &frame_params, frame_update_type, -1,
+                                    true_disp, ref_frame_map_pairs);
+    int refresh_frame_map_index = av1_get_refresh_ref_frame_map(refresh_mask);
+    if (refresh_frame_map_index < REF_FRAMES) {
+      ref_frame_map_pairs[refresh_frame_map_index].disp_order =
+          AOMMAX(0, true_disp);
+      ref_frame_map_pairs[refresh_frame_map_index].pyr_level =
+          get_true_pyr_level(gf_group->layer_depth[gf_index], true_disp,
+                             cpi->gf_group.max_layer_depth);
+    }
+
+#if CONFIG_NEW_REF_SIGNALING
+    for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i)
+      tpl_frame->ref_map_index_nrs[i] =
+          ref_picture_map[cm->new_ref_frame_data.ref_frame_score_map[i]];
+#endif  // CONFIG_NEW_REF_SIGNALING
+
+/*
+    for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
+      tpl_frame->ref_map_index[i - LAST_FRAME] =
+          ref_picture_map[cm->remapped_ref_idx[i - LAST_FRAME]];
+
+    tpl_frame->ref_map_index[ALTREF_FRAME - LAST_FRAME] = -1;
+    tpl_frame->ref_map_index[LAST3_FRAME - LAST_FRAME] = -1;
+    tpl_frame->ref_map_index[BWDREF_FRAME - LAST_FRAME] = -1;
+    tpl_frame->ref_map_index[ALTREF2_FRAME - LAST_FRAME] = -1;
+*/
+
+    if (refresh_mask) ref_picture_map[refresh_frame_map_index] = gf_index;
+
+    ++*tpl_group_frames;
+    ++extend_frame_count;
+    ++frame_display_index;
+  }
+
+  TplDepFrame *tpl_frame = &tpl_data->tpl_frame[cur_frame_idx];
+  const int true_disp =
+      (int)(tpl_frame->frame_display_index) -
+      (gf_group->subgop_cfg != NULL && init_frame_params->show_frame);
+  init_ref_map_pair(
+      cm, ref_frame_map_pairs,
+      cpi->gf_group.update_type[cpi->gf_group.index] == KEY_FRAME);
+  av1_get_ref_frames(cm, true_disp, ref_frame_map_pairs);
+}
+#endif  // CONFIG_NEW_REF_SIGNALING
+
 static AOM_INLINE void init_gop_frames_for_tpl(
     AV1_COMP *cpi, const EncodeFrameParams *const init_frame_params,
     GF_GROUP *gf_group, int gop_eval, int *tpl_group_frames,
