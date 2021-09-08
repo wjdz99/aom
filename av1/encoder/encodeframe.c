@@ -332,11 +332,23 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
   const int frame_idx = cpi->gf_group.index;
   TplParams *const tpl_data = &cpi->tpl_data;
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+#if CONFIG_NEW_REF_SIGNALING
+  TplParams *const tpl_data_nrs = &cpi->tpl_data_nrs;
+  TplDepFrame *tpl_frame_nrs = &tpl_data_nrs->tpl_frame[frame_idx];
+  const uint8_t block_mis_log2 = tpl_data_nrs->tpl_stats_block_mis_log2;
+  assert(block_mis_log2 == tpl_data->tpl_stats_block_mis_log2);
+#else
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   av1_zero(x->tpl_keep_ref_frame);
 
+#if CONFIG_NEW_REF_SIGNALING
+  assert(tpl_frame->is_valid == tpl_frame_nrs->is_valid);
+  if (tpl_frame_nrs->is_valid == 0) return;
+#else
   if (tpl_frame->is_valid == 0) return;
+#endif  // CONFIG_NEW_REF_SIGNALING
   if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return;
   if (frame_idx >= MAX_TPL_FRAME_IDX) return;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return;
@@ -349,8 +361,13 @@ static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
     return;
   }
 
+#if CONFIG_NEW_REF_SIGNALING
+  TplDepStats *tpl_stats = tpl_frame_nrs->tpl_stats_ptr;
+  const int tpl_stride = tpl_frame_nrs->stride;
+#else
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   const int tpl_stride = tpl_frame->stride;
+#endif  // CONFIG_NEW_REF_SIGNALING
   int64_t inter_cost[INTER_REFS_PER_FRAME] = { 0 };
   const int step = 1 << block_mis_log2;
   const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
