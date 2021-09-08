@@ -336,7 +336,7 @@ static AOM_INLINE void mode_estimation_nrs(AV1_COMP *cpi, MACROBLOCK *x,
 
   best_mv.as_int = INVALID_MV;
 
-  for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
+  for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME_NRS; ++rf_idx) { //smparker1201 
     if (tpl_data->ref_frame[rf_idx] == NULL ||
         tpl_data->src_ref_frame[rf_idx] == NULL) {
       tpl_stats->mv[rf_idx].as_int = INVALID_MV;
@@ -427,7 +427,7 @@ static AOM_INLINE void mode_estimation_nrs(AV1_COMP *cpi, MACROBLOCK *x,
       }
     }
 
-    tpl_stats->mv[rf_idx].as_int = best_rfidx_mv.as_int;
+    tpl_stats->mv[rf_idx].as_int = best_rfidx_mv.as_int; //smparker1201
 
     struct buf_2d ref_buf = { NULL, ref_frame_ptr->y_buffer,
                               ref_frame_ptr->y_width, ref_frame_ptr->y_height,
@@ -454,7 +454,7 @@ static AOM_INLINE void mode_estimation_nrs(AV1_COMP *cpi, MACROBLOCK *x,
       best_mv.as_int = best_rfidx_mv.as_int;
       if (best_inter_cost < best_intra_cost) {
         best_mode = NEWMV;
-        xd->mi[0]->ref_frame[0] = best_rf_idx + LAST_FRAME;
+        xd->mi[0]->ref_frame_nrs[0] = best_rf_idx;
         // TODO(sarahparker) Convert this ref frame index for NEW_REF_SIGNALING
         xd->mi[0]->mv[0].as_int = best_mv.as_int;
       }
@@ -519,6 +519,7 @@ static AOM_INLINE void mode_estimation_nrs(AV1_COMP *cpi, MACROBLOCK *x,
   if (best_rf_idx >= 0) {
     tpl_stats->mv[best_rf_idx].as_int = best_mv.as_int;
     tpl_stats->ref_frame_index = best_rf_idx;
+    printf("rfi set %d\n", tpl_stats->ref_frame_index);
   }
 
   for (int idy = 0; idy < mi_height; ++idy) {
@@ -960,10 +961,13 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
       &tpl_frame[tpl_frame[frame_idx].ref_map_index[ref_frame_index]];
   TplDepStats *ref_stats_ptr = ref_tpl_frame->tpl_stats_ptr;
 
+//printf("UPDATE idx %d rfi %d\n", frame_idx, ref_frame_index);
   if (tpl_frame[frame_idx].ref_map_index[ref_frame_index] < 0) return;
+//printf("UPDATE\n");
 
   const FULLPEL_MV full_mv =
       get_fullmv_from_mv(&tpl_stats_ptr->mv[ref_frame_index].as_mv);
+  //printf("mv row %d col %d\n", full_mv.row, full_mv.col);
   const int ref_pos_row = mi_row * MI_SIZE + full_mv.row;
   const int ref_pos_col = mi_col * MI_SIZE + full_mv.col;
 
@@ -992,6 +996,7 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
     int grid_pos_row = grid_pos_row_base + bh * (block >> 1);
     int grid_pos_col = grid_pos_col_base + bw * (block & 0x01);
 
+   // printf("pos row %d bh %d pos col %d bw %d, mirow %d micol %d\n", grid_pos_row_base, bh, grid_pos_col_base, bw, mi_row, mi_col);
     if (grid_pos_row >= 0 && grid_pos_row < ref_tpl_frame->mi_rows * MI_SIZE &&
         grid_pos_col >= 0 && grid_pos_col < ref_tpl_frame->mi_cols * MI_SIZE) {
       int overlap_area = get_overlap_area(
@@ -1070,6 +1075,7 @@ static AOM_INLINE void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row,
       memcpy(tpl_ptr->pred_error, src_stats->pred_error,
              sizeof(tpl_ptr->pred_error));
       tpl_ptr->ref_frame_index = src_stats->ref_frame_index;
+      //printf("rfi set2 %d\n", tpl_ptr->ref_frame_index);
       ++tpl_ptr;
     }
   }
@@ -1135,27 +1141,30 @@ static AOM_INLINE void init_mc_flow_dispenser_nrs(AV1_COMP *cpi, int frame_idx,
   }
 
   // TODO(sarahparker) Delete this once the new TPL model is applied
-  const YV12_BUFFER_CONFIG *ref_frames_ordered[INTER_REFS_PER_FRAME];
+//const YV12_BUFFER_CONFIG *ref_frames_ordered[INTER_REFS_PER_FRAME];
   // Store the reference frames based on priority order
-  for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    ref_frames_ordered[i] =
-        tpl_data->ref_frame[ref_frame_priority_order[i] - 1];
-  }
+//for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+//  ref_frames_ordered[i] =
+//      cpi->tpl_data.ref_frame[ref_frame_priority_order[i] - 1];
+//}
 
-  // Work out which reference frame slots may be used.
-  int ref_frame_flags_base = get_ref_frame_flags(
-      &cpi->sf, ref_frames_ordered, cpi->ext_flags.ref_frame_flags);
-  // Work out which reference frame slots may be used.
-  ref_frame_flags = get_ref_frame_flags_nrs(&cpi->common, ref_frame_flags_base);
+//// Work out which reference frame slots may be used.
+//int ref_frame_flags_base = get_ref_frame_flags(
+//    &cpi->sf, ref_frames_ordered, cpi->ext_flags.ref_frame_flags);
+//// Work out which reference frame slots may be used.
+//ref_frame_flags = get_ref_frame_flags_nrs(&cpi->common, ref_frame_flags_base);
 
-  enforce_max_ref_frames_nrs(cpi, &ref_frame_flags);
+//enforce_max_ref_frames_nrs(cpi, &ref_frame_flags);
 
-  // Prune reference frames
-  for (idx = 0; idx < INTER_REFS_PER_FRAME_NRS; ++idx) {
-    if ((ref_frame_flags & (1 << idx)) == 0) {
-      tpl_data->ref_frame[idx] = NULL;
-    }
-  }
+//// Prune reference frames
+//for (idx = 0; idx < INTER_REFS_PER_FRAME_NRS; ++idx) {
+//  if ((ref_frame_flags & (1 << idx)) == 0) {
+//    printf("no %d\n", idx);
+//    tpl_data->ref_frame[idx] = NULL;
+//  } else {
+//    printf("yes %d\n", idx);
+//  }
+//}
 
   // Skip motion estimation w.r.t. reference frames which are not
   // considered in RD search, using "selective_ref_frame" speed feature.
@@ -1428,7 +1437,7 @@ static void mc_flow_synthesizer(AV1_COMP *cpi, int frame_idx) {
   for (int mi_row = 0; mi_row < cm->mi_params.mi_rows; mi_row += mi_height) {
     for (int mi_col = 0; mi_col < cm->mi_params.mi_cols; mi_col += mi_width) {
       if (frame_idx) {
-        tpl_model_update(tpl_data, mi_row, mi_col, bsize, frame_idx);
+        //tpl_model_update(tpl_data, mi_row, mi_col, bsize, frame_idx);
 #if CONFIG_NEW_REF_SIGNALING
         tpl_model_update(tpl_data_nrs, mi_row, mi_col, bsize, frame_idx);
 #endif  // CONFIG_NEW_REF_SIGNALING
@@ -1560,9 +1569,12 @@ static AOM_INLINE void init_gop_frames_for_tpl_nrs(
                              cpi->gf_group.max_layer_depth);
     }
 
-    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i)
+    for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i) {
       tpl_frame->ref_map_index[i] =
           ref_picture_map[cm->new_ref_frame_data.ref_frame_score_map[i]];
+      printf("%d ", tpl_frame->ref_map_index[i]);
+    }
+    printf("\n");
 
     if (refresh_mask) ref_picture_map[refresh_frame_map_index] = gf_index;
 
@@ -1640,9 +1652,12 @@ static AOM_INLINE void init_gop_frames_for_tpl_nrs(
                              cpi->gf_group.max_layer_depth);
     }
 
-    for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i)
+    for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i) {
       tpl_frame->ref_map_index[i] =
           ref_picture_map[cm->new_ref_frame_data.ref_frame_score_map[i]];
+      printf("%d ", tpl_frame->ref_map_index[i]);
+    }
+    printf("\n");
 
     /*
         for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
@@ -2024,7 +2039,11 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
 
   assert(IMPLIES(gf_group->size > 0, tpl_idx < gf_group->size));
 
+#if CONFIG_NEW_REF_SIGNALING
+  TplParams *const tpl_data = &cpi->tpl_data_nrs;
+#else
   TplParams *const tpl_data = &cpi->tpl_data;
+#endif  // CONFIG_NEW_REF_SIGNALING
   const TplDepFrame *const tpl_frame = &tpl_data->tpl_frame[tpl_idx];
 
   if (!tpl_frame->is_valid) return;
@@ -2078,7 +2097,11 @@ void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
   const int tpl_idx = cpi->gf_group.index;
+#if CONFIG_NEW_REF_SIGNALING
+  TplDepFrame *tpl_frame = &cpi->tpl_data_nrs.tpl_frame[tpl_idx];
+#else
   TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   if (tpl_frame->is_valid == 0) return;
   if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return;
@@ -2124,6 +2147,8 @@ void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
 
   double scale_adj = log(scaling_factor) - log_sum / base_block_count;
   scale_adj = exp(scale_adj);
+//printf("scale adj %f, new_rd %d orig_rd %d, scaling %f logsum %f base_count %f\n", scale_adj, 
+//        new_rdmult, orig_rdmult, scaling_factor, log_sum, base_block_count);
 
   for (row = mi_row / num_mi_w;
        row < num_rows && row < mi_row / num_mi_w + num_brows; ++row) {

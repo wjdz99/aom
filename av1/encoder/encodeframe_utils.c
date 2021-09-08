@@ -90,7 +90,11 @@ int av1_get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
   const int tpl_idx = cpi->gf_group.index;
+#if CONFIG_NEW_REF_SIGNALING
+  const TplDepFrame *tpl_frame = &cpi->tpl_data_nrs.tpl_frame[tpl_idx];
+#else
   const TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
+#endif  // CONFIG_NEW_REF_SINGALING
   const int deltaq_rdmult = set_deltaq_rdmult(cpi, x);
   if (tpl_frame->is_valid == 0) return deltaq_rdmult;
   if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return deltaq_rdmult;
@@ -125,6 +129,7 @@ int av1_get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
          ++col) {
       const int index = row * num_cols + col;
       geom_mean_of_scale += log(cpi->tpl_sb_rdmult_scaling_factors[index]);
+      printf("%f\n", log(cpi->tpl_sb_rdmult_scaling_factors[index]));
       base_block_count += 1.0;
     }
   }
@@ -138,6 +143,8 @@ int av1_get_hier_tpl_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
     assert(rdmult_sb == rdmult);
     (void)rdmult_sb;
   }
+  printf("rdmult %d r %d c %d\n", rdmult, mi_row, mi_col);
+//return 3500;
   return rdmult;
 }
 
@@ -724,7 +731,11 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
   const int tpl_idx = cpi->gf_group.index;
+#if CONFIG_NEW_REF_SIGNALING
+  TplParams *const tpl_data = &cpi->tpl_data_nrs;
+#else
   TplParams *const tpl_data = &cpi->tpl_data;
+#endif  // CONFIG_NEW_REF_SIGNALING
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
@@ -758,6 +769,7 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
       int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
+      //printf("delta %ld\n", mc_dep_delta);
       intra_cost += this_stats->recrf_dist << RDDIV_BITS;
       mc_dep_cost += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
       mi_count++;
@@ -783,6 +795,7 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   rdmult = AOMMAX(1, rdmult);
 
+  printf("rdmult %d\n", rdmult);
   return rdmult;
 }
 
@@ -831,7 +844,11 @@ void av1_get_tpl_stats_sb(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
 
   AV1_COMMON *const cm = &cpi->common;
   const int gf_group_index = cpi->gf_group.index;
+#if !CONFIG_NEW_REF_SIGNALING
+  TplParams *const tpl_data = &cpi->tpl_data_nrs;
+#else
   TplParams *const tpl_data = &cpi->tpl_data;
+#endif  // CONFIG_NEW_REF_SIGNALING
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[gf_group_index];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   int tpl_stride = tpl_frame->stride;
@@ -902,7 +919,11 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
   const int tpl_idx = cpi->gf_group.index;
+#if CONFIG_NEW_REF_SIGNALING
+  TplParams *const tpl_data = &cpi->tpl_data_nrs;
+#else
   TplParams *const tpl_data = &cpi->tpl_data;
+#endif  // CONFIG_NEW_REF_SIGNALING
   TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
@@ -937,6 +958,8 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
       int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
+      //printf("delta %ld\n", mc_dep_delta);
+      //printf("%d %ld %ld\n", tpl_frame->base_rdmult, this_stats->mc_dep_rate, this_stats->mc_dep_dist); 
       intra_cost += this_stats->recrf_dist << RDDIV_BITS;
       mc_dep_cost += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
       mi_count++;
@@ -972,6 +995,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
 #endif
   qindex = AOMMAX(qindex, MINQ);
 
+  printf("qindex %d\n", qindex);
   return qindex;
 }
 #endif  // !CONFIG_REALTIME_ONLY
