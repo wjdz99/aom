@@ -1233,7 +1233,12 @@ static AOM_INLINE void setup_buffer_ref_mvs_inter(
   // in full and choose the best as the center point for subsequent searches.
   // The current implementation doesn't support scaling.
   av1_mv_pred(cpi, x, yv12_mb[ref_frame][0].buf, yv12_mb[ref_frame][0].stride,
-              ref_frame, block_size);
+#if CONFIG_NEW_REF_SIGNALING
+              ref_frame_nrs,
+#else
+              ref_frame,
+#endif  // CONFIG_NEW_REF_SIGNALING
+              block_size);
 
   // Go back to unscaled reference.
   if (scaled_ref_frame) {
@@ -4433,7 +4438,7 @@ static AOM_INLINE void default_skip_mask_nrs(mode_skip_mask_t *mask,
     memset(mask->pred_modes, 0, sizeof(mask->pred_modes));
     // All references disabled first.
     bool *mask_ref_combo = &mask->ref_combo[0][0];
-    for (int k = 0; k < REF_FRAMES * (REF_FRAMES + 1); k++)
+    for (int k = 0; k < REF_FRAMES_NRS * (REF_FRAMES_NRS + 1); k++)
       mask_ref_combo[k] = true;
 
     const MV_REFERENCE_FRAME(*ref_set_combos)[2];
@@ -4530,7 +4535,8 @@ static AOM_INLINE void init_mode_skip_mask_nrs(mode_skip_mask_t *mask,
         // pred_mv_sad is converted to the new ref framework.
         const MV_REFERENCE_FRAME refo =
             convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data, ref);
-        min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[refo]);
+        min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sado[refo]);
+        // min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref]);
       }
     }
   } else {
@@ -4540,7 +4546,11 @@ static AOM_INLINE void init_mode_skip_mask_nrs(mode_skip_mask_t *mask,
       // pred_mv_sad is converted to the new ref framework.
       const MV_REFERENCE_FRAME refo = convert_ranked_ref_to_named_ref_index(
           &cm->new_ref_frame_data, ref_frame);
-      min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[refo]);
+      if (x->pred_mv_sado[refo] != x->pred_mv_sad[ref_frame])
+        printf("Trouble: [%d/%d, %d/%d]\n", refo, x->pred_mv_sado[refo],
+               ref_frame, x->pred_mv_sad[ref_frame]);
+      min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sado[refo]);
+      // min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref_frame]);
     }
   }
   for (ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_total_refs;
@@ -4553,9 +4563,14 @@ static AOM_INLINE void init_mode_skip_mask_nrs(mode_skip_mask_t *mask,
       // Skip fixed mv modes for poor references
       const MV_REFERENCE_FRAME refo = convert_ranked_ref_to_named_ref_index(
           &cm->new_ref_frame_data, ref_frame);
-      if ((x->pred_mv_sad[refo] >> 2) > min_pred_mv_sad) {
+      if ((x->pred_mv_sado[refo] >> 2) > min_pred_mv_sad) {
         mask->pred_modes[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
       }
+      /*
+      if ((x->pred_mv_sad[ref_frame] >> 2) > min_pred_mv_sad) {
+        mask->pred_modes[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
+      }
+      */
     }
   }
 
@@ -4815,7 +4830,17 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   MV_REFERENCE_FRAME ref_frame;
   x->best_pred_mv_sad = INT_MAX;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+#if CONFIG_NEW_REF_SIGNALING
+    MV_REFERENCE_FRAME_NRS ref_frame_nrs =
+        convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
+                                              ref_frame);
+    assert(ref_frame_nrs != INTRA_FRAME_NRS);
+    assert(ref_frame_nrs < cm->new_ref_frame_data.n_total_refs);
+    x->pred_mv_sad[ref_frame_nrs] = INT_MAX;
+    x->pred_mv_sado[ref_frame] = INT_MAX;
+#else
     x->pred_mv_sad[ref_frame] = INT_MAX;
+#endif  // CONFIG_NEW_REF_SIGNALING
     x->mbmi_ext->mode_context[ref_frame] = 0;
     mbmi_ext->ref_mv_count[ref_frame] = UINT8_MAX;
     if (cpi->common.ref_frame_flags & av1_ref_frame_flag_list[ref_frame]) {
@@ -4833,9 +4858,6 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
       }
       assert(get_ref_frame_yv12_buf(cm, ref_frame) != NULL);
 #if CONFIG_NEW_REF_SIGNALING
-      MV_REFERENCE_FRAME_NRS ref_frame_nrs =
-          convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data,
-                                                ref_frame);
       // TODO(sarahparker) Temporary assert, see aomedia:3060
       assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                    ref_frame_nrs) == ref_frame);
@@ -5064,10 +5086,10 @@ static AOM_INLINE void init_inter_mode_search_state(
 static bool mask_says_skip_nrs(const mode_skip_mask_t *mode_skip_mask,
                                const MV_REFERENCE_FRAME_NRS *ref_frame,
                                const PREDICTION_MODE this_mode) {
-  const MV_REFERENCE_FRAME_NRS rf0 =
+  const MV_REFERENCE_FRAME_NRS rfn =
       (ref_frame[0] == INTRA_FRAME_NRS ? INTER_REFS_PER_FRAME_NRS
                                        : ref_frame[0]);
-  if (mode_skip_mask->pred_modes[rf0] & (1 << this_mode)) {
+  if (mode_skip_mask->pred_modes[rfn] & (1 << this_mode)) {
     return true;
   }
 
@@ -7008,7 +7030,12 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
                            ref_costs_comp);
 
   for (i = 0; i < REF_FRAMES; ++i) x->pred_sse[i] = INT_MAX;
+#if CONFIG_NEW_REF_SIGNALING
+  for (i = 0; i < REF_FRAMES_NRS; ++i) x->pred_mv_sad[i] = INT_MAX;
+  for (i = LAST_FRAME; i < REF_FRAMES; ++i) x->pred_mv_sado[i] = INT_MAX;
+#else
   for (i = LAST_FRAME; i < REF_FRAMES; ++i) x->pred_mv_sad[i] = INT_MAX;
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   rd_cost->rate = INT_MAX;
 
