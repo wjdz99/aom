@@ -1885,6 +1885,13 @@ static void init_ref_frame_bufs(AV1_COMP *cpi) {
   int i;
   BufferPool *const pool = cm->buffer_pool;
   cm->cur_frame = NULL;
+
+#if CONFIG_NEW_REF_SIGNALING
+  for (i = 0; i < REF_FRAMES_NRS; ++i) {
+    cm->ref_frame_map_nrs[i] = NULL;
+  }
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   for (i = 0; i < REF_FRAMES; ++i) {
     cm->ref_frame_map[i] = NULL;
   }

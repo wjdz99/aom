@@ -101,6 +101,9 @@ typedef struct TplDepFrame {
   TplDepStats *tpl_stats_ptr;
   const YV12_BUFFER_CONFIG *gf_picture;
   YV12_BUFFER_CONFIG *rec_picture;
+#if CONFIG_NEW_REF_SIGNALING
+  int ref_map_index_nrs[REF_FRAMES_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
   int ref_map_index[REF_FRAMES];
   int stride;
   int width;
@@ -146,6 +149,13 @@ typedef struct TplParams {
    */
   YV12_BUFFER_CONFIG tpl_rec_pool[MAX_LAG_BUFFERS];
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Pointer to tpl_stats_buffer.
+   */
+  TplDepFrame *tpl_frame_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
+
   /*!
    * Pointer to tpl_stats_buffer.
    */
@@ -161,6 +171,21 @@ typedef struct TplParams {
    */
   int frame_idx;
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * Array of pointers to the frame buffers holding the source frame.
+   * src_ref_frame[i] stores the pointer to the source frame of the ith
+   * reference frame type.
+   */
+  const YV12_BUFFER_CONFIG *src_ref_frame_nrs[INTER_REFS_PER_FRAME_NRS];
+
+  /*!
+   * Array of pointers to the frame buffers holding the tpl reconstructed frame.
+   * ref_frame[i] stores the pointer to the tpl reconstructed frame of the ith
+   * reference frame type.
+   */
+  const YV12_BUFFER_CONFIG *ref_frame_nrs[INTER_REFS_PER_FRAME_NRS];
+#endif  // CONFIG_NEW_REF_SIGNALING
   /*!
    * Array of pointers to the frame buffers holding the source frame.
    * src_ref_frame[i] stores the pointer to the source frame of the ith
