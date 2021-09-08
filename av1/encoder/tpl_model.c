@@ -336,7 +336,7 @@ static AOM_INLINE void mode_estimation_nrs(AV1_COMP *cpi, MACROBLOCK *x,
 
   best_mv.as_int = INVALID_MV;
 
-  for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME; ++rf_idx) {
+  for (rf_idx = 0; rf_idx < INTER_REFS_PER_FRAME_NRS; ++rf_idx) {
     if (tpl_data->ref_frame[rf_idx] == NULL ||
         tpl_data->src_ref_frame[rf_idx] == NULL) {
       tpl_stats->mv[rf_idx].as_int = INVALID_MV;
@@ -454,7 +454,7 @@ static AOM_INLINE void mode_estimation_nrs(AV1_COMP *cpi, MACROBLOCK *x,
       best_mv.as_int = best_rfidx_mv.as_int;
       if (best_inter_cost < best_intra_cost) {
         best_mode = NEWMV;
-        xd->mi[0]->ref_frame[0] = best_rf_idx + LAST_FRAME;
+        xd->mi[0]->ref_frame_nrs[0] = best_rf_idx;
         // TODO(sarahparker) Convert this ref frame index for NEW_REF_SIGNALING
         xd->mi[0]->mv[0].as_int = best_mv.as_int;
       }
@@ -1110,7 +1110,6 @@ static AOM_INLINE void init_mc_flow_dispenser_nrs(AV1_COMP *cpi, int frame_idx,
       gf_group, cpi->sf.inter_sf.selective_ref_frame,
       cpi->sf.tpl_sf.prune_ref_frames_in_tpl, frame_idx);
   int gop_length = get_gop_length(gf_group);
-  int ref_frame_flags;
   AV1_COMMON *cm = &cpi->common;
   int rdmult, idx;
   ThreadData *td = &cpi->td;
@@ -1134,28 +1133,9 @@ static AOM_INLINE void init_mc_flow_dispenser_nrs(AV1_COMP *cpi, int frame_idx,
     tpl_data->src_ref_frame[idx] = tpl_ref_frame->gf_picture;
   }
 
-  // TODO(sarahparker) Delete this once the new TPL model is applied
-  const YV12_BUFFER_CONFIG *ref_frames_ordered[INTER_REFS_PER_FRAME];
-  // Store the reference frames based on priority order
-  for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
-    ref_frames_ordered[i] =
-        tpl_data->ref_frame[ref_frame_priority_order[i] - 1];
-  }
-
-  // Work out which reference frame slots may be used.
-  int ref_frame_flags_base = get_ref_frame_flags(
-      &cpi->sf, ref_frames_ordered, cpi->ext_flags.ref_frame_flags);
-  // Work out which reference frame slots may be used.
-  ref_frame_flags = get_ref_frame_flags_nrs(&cpi->common, ref_frame_flags_base);
-
-  enforce_max_ref_frames_nrs(cpi, &ref_frame_flags);
-
-  // Prune reference frames
-  for (idx = 0; idx < INTER_REFS_PER_FRAME_NRS; ++idx) {
-    if ((ref_frame_flags & (1 << idx)) == 0) {
-      tpl_data->ref_frame[idx] = NULL;
-    }
-  }
+  // TODO(debargha,kslu) Apply ref_frame_flags and prune references here.
+  // See example of how this is done in init_mc_flow_dispenser().
+  // aomedia:3159
 
   // Skip motion estimation w.r.t. reference frames which are not
   // considered in RD search, using "selective_ref_frame" speed feature.
@@ -1560,7 +1540,7 @@ static AOM_INLINE void init_gop_frames_for_tpl_nrs(
                              cpi->gf_group.max_layer_depth);
     }
 
-    for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) {
+    for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i) {
       if (cm->new_ref_frame_data.ref_frame_score_map[i] != -1) {
         tpl_frame->ref_map_index[i] =
             ref_picture_map[cm->new_ref_frame_data.ref_frame_score_map[i]];
@@ -1645,24 +1625,14 @@ static AOM_INLINE void init_gop_frames_for_tpl_nrs(
                              cpi->gf_group.max_layer_depth);
     }
 
-    for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i)
+    for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i) {
       if (cm->new_ref_frame_data.ref_frame_score_map[i] != -1) {
         tpl_frame->ref_map_index[i] =
             ref_picture_map[cm->new_ref_frame_data.ref_frame_score_map[i]];
       } else {
         tpl_frame->ref_map_index[i] = 0;
       }
-
-    /*
-        for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i)
-          tpl_frame->ref_map_index[i - LAST_FRAME] =
-              ref_picture_map[cm->remapped_ref_idx[i - LAST_FRAME]];
-
-        tpl_frame->ref_map_index[ALTREF_FRAME - LAST_FRAME] = -1;
-        tpl_frame->ref_map_index[LAST3_FRAME - LAST_FRAME] = -1;
-        tpl_frame->ref_map_index[BWDREF_FRAME - LAST_FRAME] = -1;
-        tpl_frame->ref_map_index[ALTREF2_FRAME - LAST_FRAME] = -1;
-    */
+    }
 
     if (refresh_mask) ref_picture_map[refresh_frame_map_index] = gf_index;
 
@@ -2033,7 +2003,11 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
 
   assert(IMPLIES(gf_group->size > 0, tpl_idx < gf_group->size));
 
+#if CONFIG_NEW_REF_SIGNALING
+  TplParams *const tpl_data = &cpi->tpl_data_nrs;
+#else
   TplParams *const tpl_data = &cpi->tpl_data;
+#endif  // CONFIG_NEW_REF_SIGNALING
   const TplDepFrame *const tpl_frame = &tpl_data->tpl_frame[tpl_idx];
 
   if (!tpl_frame->is_valid) return;
@@ -2087,7 +2061,11 @@ void av1_tpl_rdmult_setup_sb(AV1_COMP *cpi, MACROBLOCK *const x,
   assert(IMPLIES(cpi->gf_group.size > 0,
                  cpi->gf_group.index < cpi->gf_group.size));
   const int tpl_idx = cpi->gf_group.index;
+#if CONFIG_NEW_REF_SIGNALING
+  TplDepFrame *tpl_frame = &cpi->tpl_data_nrs.tpl_frame[tpl_idx];
+#else
   TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   if (tpl_frame->is_valid == 0) return;
   if (!is_frame_tpl_eligible(gf_group, gf_group->index)) return;
