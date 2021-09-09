@@ -372,8 +372,8 @@ static PREDICTION_MODE read_inter_compound_mode(MACROBLOCKD *xd, aom_reader *r,
 #if CONFIG_NEW_INTER_MODES
 #if CONFIG_OPTFLOW_REFINEMENT
   if (use_of) {
-    assert(is_inter_compound_mode(NEAR_NEARMV_OPTFLOW + mode));
-    return NEAR_NEARMV_OPTFLOW + mode;
+    assert(is_inter_compound_mode(comp_idx_to_opfl_mode[mode]));
+    return comp_idx_to_opfl_mode[mode];
   }
 #endif  // CONFIG_OPTFLOW_REFINEMENT
   assert(is_inter_compound_mode(NEAR_NEARMV + mode));
@@ -1713,11 +1713,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
       mv[1].as_int = near_mv[1].as_int;
       break;
     }
-    case GLOBAL_GLOBALMV:
-#if CONFIG_OPTFLOW_REFINEMENT
-    case GLOBAL_GLOBALMV_OPTFLOW:
-#endif  // CONFIG_OPTFLOW_REFINEMENT
-    {
+    case GLOBAL_GLOBALMV: {
       assert(is_compound);
       mv[0].as_int = gm_get_motion_vector(&cm->global_motion[ref_frame[0]],
                                           features->allow_high_precision_mv,
