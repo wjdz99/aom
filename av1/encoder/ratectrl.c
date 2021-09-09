@@ -2453,6 +2453,7 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
     ext_refresh_frame_flags->golden_frame = 1;
     svc->refresh[gld_idx] = 1;
   }
+  svc->gld_idx_1layer = gld_idx;
 }
 
 /*!\brief Check for scene detection, for 1 pass real-time mode.

@@ -290,6 +290,63 @@ void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
       }
     }
   }
+
+  ResizePendingParams *const resize_pending_params =
+      &cpi->resize_pending_params;
+  const int resize_pending =
+      (resize_pending_params->width && resize_pending_params->height &&
+       (cpi->common.width != resize_pending_params->width ||
+        cpi->common.height != resize_pending_params->height));
+  if (!resize_pending && !rc->high_source_sad) {
+    // Check if we should disable GF refresh (if period is up),
+    // or force a GF refresh update (if we are at least halfway through
+    // period) based on QP. Look into adding condition on the past
+    // amount of segement QP as well.
+    PRIMARY_RATE_CONTROL *p_rc = &cpi->ppi->p_rc;
+    GF_GROUP *const gf_group = &cpi->ppi->gf_group;
+    int avg_qp = p_rc->avg_frame_qindex[INTER_FRAME];
+    int gf_update_changed = 0;
+    int thresh = 87;
+    if (rc->frames_till_gf_update_due == 1 && cpi->svc.temporal_layer_id == 0 &&
+        cpi->svc.spatial_layer_id == 0 &&
+        cm->quant_params.base_qindex > avg_qp) {
+      // Disable GF refresh since QP is above the runninhg average QP.
+      svc->refresh[svc->gld_idx_1layer] = 0;
+      gf_update_changed = 1;
+    } else if (rc->frames_till_gf_update_due <
+                   (p_rc->baseline_gf_interval >> 1) &&
+               cm->quant_params.base_qindex < (thresh * avg_qp / 100)) {
+      // Force refresh since QP is well below average QP.
+      svc->refresh[svc->gld_idx_1layer] = 1;
+      gf_update_changed = 1;
+    }
+    if (gf_update_changed) {
+      av1_cyclic_refresh_set_golden_update(cpi);
+      if (p_rc->baseline_gf_interval > rc->frames_to_key)
+        p_rc->baseline_gf_interval = rc->frames_to_key;
+      rc->frames_till_gf_update_due = p_rc->baseline_gf_interval;
+      p_rc->constrained_gf_group =
+          (p_rc->baseline_gf_interval >= rc->frames_to_key) ? 1 : 0;
+      cpi->gf_frame_index = 0;
+      gf_group->size = p_rc->baseline_gf_interval;
+      for (int layer = 0;
+           layer < svc->number_spatial_layers * svc->number_temporal_layers;
+           ++layer) {
+        LAYER_CONTEXT *const lc = &svc->layer_context[layer];
+        lc->p_rc.baseline_gf_interval = p_rc->baseline_gf_interval;
+        lc->p_rc.gfu_boost = p_rc->gfu_boost;
+        lc->p_rc.constrained_gf_group = p_rc->constrained_gf_group;
+        lc->rc.frames_till_gf_update_due = rc->frames_till_gf_update_due;
+        lc->group_index = 0;
+      }
+      int refresh_mask = 0;
+      for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++) {
+        int ref_frame_map_idx = svc->ref_idx[i];
+        refresh_mask |= svc->refresh[ref_frame_map_idx] << ref_frame_map_idx;
+      }
+      cm->current_frame.refresh_frame_flags = refresh_mask;
+    }
+  }
 }
 
 void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
