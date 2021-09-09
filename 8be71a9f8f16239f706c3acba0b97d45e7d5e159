@@ -134,6 +134,30 @@
       },
       "revId": "8be71a9f8f16239f706c3acba0b97d45e7d5e159",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0ad1739_72b34689",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-09-09T03:29:11Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\n\u0027worker_per_frame\u0027 calculation was modified from 1/2 the max_num_enc_workers to 1/4th the max_num_enc_workers so that FPMT can be enabled with a lower thread count. This is not related to the number of frames in the parallel encode set.\n\nFor e.g. In the case of a 1080p content, max_num_enc_workers \u003d 8. \u0027worker_per_frame\u0027 would be 2 here if taken as 1/4th of max_num_workers (with 0.5 rounding). Hence with minimum 4 threads, FP1 degree 2 can be enabled, with 6 threads FP1 degree 3 can be enabled and with 8 threads FP1 degree 4 can be enabled.\n\nRegards,\nRemya",
+      "parentUuid": "0162961a_fe20ac08",
+      "range": {
+        "startLine": 879,
+        "startChar": 64,
+        "endLine": 879,
+        "endChar": 65
+      },
+      "revId": "8be71a9f8f16239f706c3acba0b97d45e7d5e159",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
