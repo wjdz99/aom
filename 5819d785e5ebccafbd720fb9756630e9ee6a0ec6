@@ -63,6 +63,30 @@
       },
       "revId": "5819d785e5ebccafbd720fb9756630e9ee6a0ec6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "648fbf06_bc9f3117",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1762,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-09T14:52:42Z",
+      "side": 1,
+      "message": "Thanks for the explanation. Maybe add the assumption to the comment - \"NEARESTMV mode is pruned only when nearest_refmv_count \u003d 0, ...\" to make it easy to understand?",
+      "parentUuid": "5d60a785_3c2ef4e3",
+      "range": {
+        "startLine": 1761,
+        "startChar": 40,
+        "endLine": 1762,
+        "endChar": 55
+      },
+      "revId": "5819d785e5ebccafbd720fb9756630e9ee6a0ec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
