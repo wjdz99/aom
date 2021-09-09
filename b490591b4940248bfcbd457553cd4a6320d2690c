@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbbe2d7c_47da5584",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-09-09T04:45:23Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch prunes the rectangular and extended partitions based on the winning mode of PARTITION_NONE in speed \u003e\u003d 3. When the speed feature skip_non_sq_part_based_on_none is set as 1 (for lowres and midres), the extended partitions are pruned if the none partition has a transform skip. When skip_non_sq_part_based_on_none is set to 2 (for hdres and above), additionally, the rectangular partitions are pruned if the none partition chooses a non-newmv inter mode and is skippable. The pruning logic is enabled for 16x16 and larger blocks.\n\nPlease find the detailed borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |  LOW RES   |       0.777       |  0.0164    0.0152   -0.0711  |\n   3     |  MID RES   |       0.890       |  0.0598    0.0691    0.0180  |\n   3     |   HD RES   |       1.425       | -0.0062   -0.0002   -0.0470  |\n   3     |  Average   |       0.969       |  0.0222    0.0263   -0.0377  |\n         |            |                   |                              |\n   4     |  LOW RES   |       0.359       |  0.0116    0.0072    0.0175  |\n   4     |  MID RES   |       0.779       | -0.0197   -0.0297    0.0304  |\n   4     |   HD RES   |       0.538       |  0.0277    0.0348    0.0898  |\n   4     |  Average   |       0.507       |  0.0073    0.0048    0.0433  |\n         |            |                   |                              |\n   5     |  LOW RES   |       0.476       |  0.0004    0.0069    0.0304  |\n   5     |  MID RES   |       1.037       |  0.1471    0.1595    0.1858  |\n   5     |   HD RES   |       0.768       |  0.0668    0.0650    0.1006  |\n   5     |  Average   |       0.687       |  0.0636    0.0693    0.0973  |\n         |            |                   |                              |\n   6     |  LOW RES   |       0.002       |  0.0018    0.0019   -0.0006  |\n   6     |  MID RES   |      -0.002       | -0.0014   -0.0014   -0.0035  |\n   6     |   HD RES   |       0.261       |  0.0176    0.0158    0.0126  |\n   6     |  Average   |       0.067       |  0.0057    0.0052    0.0026  |\n\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks,\nNithya\n",
+      "revId": "b490591b4940248bfcbd457553cd4a6320d2690c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
