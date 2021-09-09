@@ -113,7 +113,6 @@ static INLINE PREDICTION_MODE compound_ref0_mode(PREDICTION_MODE mode) {
     NEARMV,    // NEAR_NEARMV_OPTFLOW
     NEARMV,    // NEAR_NEWMV_OPTFLOW
     NEWMV,     // NEW_NEARMV_OPTFLOW
-    GLOBALMV,  // GLOBAL_GLOBALMV_OPTFLOW
     NEWMV,     // NEW_NEWMV_OPTFLOW
 #endif         // CONFIG_OPTFLOW_REFINEMENT
   };
@@ -159,7 +158,6 @@ static INLINE PREDICTION_MODE compound_ref1_mode(PREDICTION_MODE mode) {
     NEARMV,    // NEAR_NEARMV_OPTFLOW
     NEWMV,     // NEAR_NEWMV_OPTFLOW
     NEARMV,    // NEW_NEARMV_OPTFLOW
-    GLOBALMV,  // GLOBAL_GLOBALMV_OPTFLOW
     NEWMV,     // NEW_NEWMV_OPTFLOW
 #endif         // CONFIG_OPTFLOW_REFINEMENT
   };
@@ -1850,12 +1848,7 @@ static INLINE int is_nontrans_global_motion(const MACROBLOCKD *xd,
   int ref;
 
   // First check if all modes are GLOBALMV
-  if (mbmi->mode != GLOBALMV &&
-#if CONFIG_OPTFLOW_REFINEMENT
-      mbmi->mode != GLOBAL_GLOBALMV_OPTFLOW &&
-#endif  // CONFIG_OPTFLOW_REFINEMENT
-      mbmi->mode != GLOBAL_GLOBALMV)
-    return 0;
+  if (mbmi->mode != GLOBALMV && mbmi->mode != GLOBAL_GLOBALMV) return 0;
 #if CONFIG_SDP
   if (AOMMIN(mi_size_wide[mbmi->sb_type[PLANE_TYPE_Y]],
              mi_size_high[mbmi->sb_type[PLANE_TYPE_Y]]) < 2)

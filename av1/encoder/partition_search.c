@@ -1342,8 +1342,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
 #endif
         update_cdf(fc->use_optflow_cdf[mode_ctx], use_of, 2);
       }
-      int comp_mode_idx =
-          use_of ? INTER_OPFL_OFFSET(mode) : INTER_COMPOUND_OFFSET(mode);
+      int comp_mode_idx = opfl_get_comp_idx(mode);
 #if CONFIG_ENTROPY_STATS
       ++counts->inter_compound_mode[mode_ctx][comp_mode_idx];
 #endif

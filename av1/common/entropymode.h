@@ -29,9 +29,6 @@ extern "C" {
 #if CONFIG_NEW_INTER_MODES
 #define INTER_OFFSET(mode) ((mode)-NEARMV)
 #define INTER_COMPOUND_OFFSET(mode) (uint8_t)((mode)-NEAR_NEARMV)
-#if CONFIG_OPTFLOW_REFINEMENT
-#define INTER_OPFL_OFFSET(mode) (uint8_t)((mode)-NEAR_NEARMV_OPTFLOW)
-#endif  // CONFIG_OPTFLOW_REFINEMENT
 #else
 #define INTER_OFFSET(mode) ((mode)-NEARESTMV)
 #define INTER_COMPOUND_OFFSET(mode) (uint8_t)((mode)-NEAREST_NEARESTMV)
@@ -288,6 +285,28 @@ static INLINE int16_t av1_drl_ctx(int16_t mode_ctx) {
   return ctx;
 }
 #endif  // CONFIG_NEW_INTER_MODES
+
+#if CONFIG_OPTFLOW_REFINEMENT
+static const int comp_idx_to_opfl_mode[5] = {
+  NEAR_NEARMV_OPTFLOW, NEAR_NEWMV_OPTFLOW, NEW_NEARMV_OPTFLOW, -1,
+  NEW_NEWMV_OPTFLOW
+};
+
+static INLINE int opfl_get_comp_idx(int mode) {
+  switch (mode) {
+    case NEAR_NEARMV:
+    case NEAR_NEARMV_OPTFLOW: return INTER_COMPOUND_OFFSET(NEAR_NEARMV);
+    case NEAR_NEWMV:
+    case NEAR_NEWMV_OPTFLOW: return INTER_COMPOUND_OFFSET(NEAR_NEWMV);
+    case NEW_NEARMV:
+    case NEW_NEARMV_OPTFLOW: return INTER_COMPOUND_OFFSET(NEW_NEARMV);
+    case NEW_NEWMV:
+    case NEW_NEWMV_OPTFLOW: return INTER_COMPOUND_OFFSET(NEW_NEWMV);
+    case GLOBAL_GLOBALMV: return INTER_COMPOUND_OFFSET(GLOBAL_GLOBALMV);
+    default: assert(0); return 0;
+  }
+}
+#endif  // CONFIG_OPTFLOW_REFINEMENT
 
 // Returns the context for palette color index at row 'r' and column 'c',
 // along with the 'color_order' of neighbors and the 'color_idx'.
