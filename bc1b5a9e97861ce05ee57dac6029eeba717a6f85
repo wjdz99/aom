@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nThis patch fixes the extraction of frame size of a parallel frame during its actual encode call.\n\nCurrently, the frame_size in the parallel_frames_data is added to the \nfirst_cpi_data-\u003eframe_size. This worked fine for FP1 because \nfirst_cpi_data-\u003eframe_size is 0 when it reaches av1_get_parallel_frame_data() which always happened in a separate encoder_encode(). For FP2, in case of parallel encode of internal ARFs, av1_get_parallel_frame_data() is reached just after a frame with frame_parallel_level\u003d1 finishes. The first_cpi_data-\u003eframe_size is not reset and still holds the frame_size of this previous frame. This lead to incorrect progression of cx_data pointer and corrupted bitstream.\n\nIt is fixed to assign the parallel_frames_data-\u003eframe_size to the\nfirst_cpi_data-\u003eframe_size during the actual encode call of a frame_parallel_level\u003d2 frame.\n\nThis change is bit-exact for FP1 and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc.\n\nPlease review.",
       "revId": "bc1b5a9e97861ce05ee57dac6029eeba717a6f85",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db773eaf_3eadd184",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-09T22:16:39Z",
+      "side": 1,
+      "message": "Thanks for fixing it!",
+      "parentUuid": "83d207a9_facaa9f5",
+      "revId": "bc1b5a9e97861ce05ee57dac6029eeba717a6f85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
