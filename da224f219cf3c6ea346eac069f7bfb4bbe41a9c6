@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fab60731_fcaf2ffa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-10T17:10:09Z",
+      "side": 1,
+      "message": "LGTM. Sorry about the late review.",
+      "revId": "da224f219cf3c6ea346eac069f7bfb4bbe41a9c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61691a1f_797483d5",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-10T17:10:09Z",
+      "side": 1,
+      "message": "It would be good to add a source code comment to note that CONFIG_THREE_PASS actually only enables IVF file decoding, which is required by three-pass encoding.",
+      "revId": "da224f219cf3c6ea346eac069f7bfb4bbe41a9c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
