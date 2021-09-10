@@ -696,7 +696,7 @@ static AOM_INLINE void init_smooth_interintra_masks() {
 // Negative values indicate gradient returned at reduced precision, and
 // positive values indicate gradient returned at higher precision.
 int av1_compute_subpel_gradients_highbd(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mi,
     int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func, int ref, uint16_t *pred_dst16,
     int *grad_prec_bits, int16_t *x_grad, int16_t *y_grad) {
@@ -839,7 +839,7 @@ int av1_compute_subpel_gradients_highbd(
 // Negative values indicate gradient returned at reduced precision, and
 // positive values indicate gradient returned at higher precision.
 int av1_compute_subpel_gradients_lowbd(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mi,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mi,
     int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func, int ref, uint8_t *pred_dst,
     int *grad_prec_bits, int16_t *x_grad, int16_t *y_grad) {
@@ -1116,7 +1116,7 @@ int opfl_mv_refinement_nxn_lowbd(const uint8_t *p0, int pstride0,
 #endif  // USE_OF_NXN
 
 static int get_optflow_based_mv_highbd(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mbmi,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mbmi,
     int_mv *mv_refined, int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func) {
   // Arrays to hold optical flow offsets. If the experiment USE_OF_NXN is off,
@@ -1191,7 +1191,7 @@ exit_refinement:
 }
 
 static int get_optflow_based_mv_lowbd(
-    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, const MB_MODE_INFO *mbmi,
+    const AV1_COMMON *cm, MACROBLOCKD *xd, int plane, MB_MODE_INFO *mbmi,
     int_mv *mv_refined, int bw, int bh, int mi_x, int mi_y, uint8_t **mc_buf,
     CalcSubpelParamsFunc calc_subpel_params_func) {
   // Arrays to hold optical flow offsets. If the experiment USE_OF_NXN is off,
@@ -1268,7 +1268,7 @@ exit_refinement:
 // Refine MV using optical flow. The final output MV will be in 1/16
 // precision.
 int av1_get_optflow_based_mv(const AV1_COMMON *cm, MACROBLOCKD *xd, int plane,
-                             const MB_MODE_INFO *mbmi, int_mv *mv_refined,
+                             MB_MODE_INFO *mbmi, int_mv *mv_refined,
                              int bw, int bh, int mi_x, int mi_y,
                              uint8_t **mc_buf,
                              CalcSubpelParamsFunc calc_subpel_params_func) {
