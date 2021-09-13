@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82c2b2a5_2e49c2ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-09-13T13:22:16Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch modifies the setting of the speed feature skip_non_sq_part_based_on_none for resolutions \u003e\u003d 720p to be applicable only for LF_UPDATE frames (it was set for all non-boosted frames earlier). It also modifies the pruning logic for skip_non_sq_part_based_on_none \u003d 2 such that the pruning of rectangular partitions occurs only if the qindex is lower than or equal to 200.\n\nWith these changes, some of the quality lost with the introduction of skip_non_sq_part_based_on_none in hdres2 for speed 3 is recovered (with 1.5% BD rate gain on factory_1080p30 which was having a higher quality loss earlier).\n\nPlease find the results on hdres2 for various speed levels below (with 150 frames, lag-in-frames \u003d 35, minsection-pct \u003d 5, maxsection-pct \u003d 1000, bias-pct \u003d 50).\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |   hdres2   |      -0.046       | -0.0391   -0.0719   -0.0799  |\n   4     |   hdres2   |      -0.074       |  0.0220   -0.0054    0.0247  |\n   5     |   hdres2   |      -0.085       | -0.0293   -0.0248   -0.0366  |\n   6     |   hdres2   |      -0.018       | -0.0039   -0.0015    0.0536  |\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "209341b6fce40260e2a124f0dc2e0d587c9925e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
