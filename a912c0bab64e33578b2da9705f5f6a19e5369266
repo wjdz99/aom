@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb9b9d5b_7a243b02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-09-13T16:49:51Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nAs per your suggestion we have improved the code comment about mode pruning logic of prune_nearest_near_mv_using_refmv_weight speed feature. Please review.\nThank you.\n",
+      "revId": "a912c0bab64e33578b2da9705f5f6a19e5369266",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
