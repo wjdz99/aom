@@ -283,7 +283,8 @@ else()
     # providing higher stack limit than usual.
     add_c_flag_if_supported("-Wstack-usage=170000")
     add_cxx_flag_if_supported("-Wstack-usage=270000")
-  elseif(CONFIG_RD_DEBUG) # Another case where higher stack usage is expected.
+  elseif(CONFIG_RD_DEBUG OR CONFIG_ENTROPY_STATS)
+    # Another case where higher stack usage is expected.
     add_c_flag_if_supported("-Wstack-usage=140000")
     add_cxx_flag_if_supported("-Wstack-usage=270000")
   else()
