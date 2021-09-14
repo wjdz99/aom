@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad4d12b9_182e6c54",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-09-14T12:08:12Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have modified the aggressiveness of \u0027dc_blk_pred_level\u0027 speed feature based on frame type.\nWe noticed that quality was slightly better for similar speed up if this speed feature is disabled for key frame. Hence the SF is disabled for key frame. \nThe speed feature is enabled for speed 5 and 6.\n\nPlease check the resolution-wise speed and quality results as mentioned below. Average bd-rate drop is slightly away from trade-off for speed 5.\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   5         rtc          1.756          0.0874    0.1448    0.1266\n   5       rtc_derf       2.210          0.1811   -0.0011    0.1630\n   5       Average        1.978          0.1265    0.0840    0.1418\n   6         rtc          1.665          0.1251    0.1553    0.1519\n   6       rtc_derf       2.247          0.0783    0.0890    0.2602\n   6       Average        1.949          0.1056    0.1277    0.1970\n    \nIn the commit message: \n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
+      "revId": "4c355037c8d491bd2ea58f7dede9235e467b9d46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
