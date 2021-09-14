@@ -3665,6 +3665,8 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
 
     define_gf_group(cpi, frame_params, 1);
 
+    av1_tf_info_filtering(&cpi->ppi->tf_info, cpi, gf_group);
+
     rc->frames_till_gf_update_due = p_rc->baseline_gf_interval;
     assert(cpi->gf_frame_index == 0);
 #if ARF_STATS_OUTPUT
