@@ -133,6 +133,63 @@ typedef struct {
   int q_factor;
 } TemporalFilterCtx;
 
+/*!
+ * buffer count in TEMPORAL_FILTER_INFO
+ * Currently we only apply filtering on KEY and ARF after
+ * define_gf_group(). Hence, the count is two.
+ */
+#define TF_INFO_BUF_COUNT 2
+/*!
+ * \brief Temporal filter info for a gop
+ */
+typedef struct TEMPORAL_FILTER_INFO {
+  /*!
+   * buffers used for temporal filtering in a GOP
+   */
+  YV12_BUFFER_CONFIG tf_buf[TF_INFO_BUF_COUNT];
+  /*!
+   * whether to show the buffer directly or not.
+   */
+  int show_tf_buf[TF_INFO_BUF_COUNT];
+  /*!
+   * the corresponding gf_index for the buffer.
+   */
+  int tf_buf_gf_index[TF_INFO_BUF_COUNT];
+  /*!
+   * whether the buf is valid or not.
+   */
+  int tf_buf_valid[TF_INFO_BUF_COUNT];
+} TEMPORAL_FILTER_INFO;
+
+/*!\brief Allocate buffers for TEMPORAL_FILTER_INFO
+ * \param[in,out]   tf_info           Temporal filter info for a gop
+ * \param[in,out]   cpi               Top level encoder instance structure
+ */
+void av1_tf_info_alloc(TEMPORAL_FILTER_INFO *tf_info, struct AV1_COMP *cpi);
+
+/*!\brief Free buffers for TEMPORAL_FILTER_INFO
+ * \param[in,out]   tf_info           Temporal filter info for a gop
+ */
+void av1_tf_info_free(TEMPORAL_FILTER_INFO *tf_info);
+
+/*!\brief Apply temporal filter for key frame and ARF in a gop
+ * \param[in,out]   tf_info           Temporal filter info for a gop
+ * \param[in,out]   cpi               Top level encoder instance structure
+ * \param[in]       gf_group          GF/ARF group data structure
+ */
+void av1_tf_info_filtering(TEMPORAL_FILTER_INFO *tf_info, struct AV1_COMP *cpi,
+                           const GF_GROUP *gf_group);
+
+/*!\brief Get a filtered buffer from TEMPORAL_FILTER_INFO
+ * \param[in,out]   tf_info           Temporal filter info for a gop
+ * \param[in]       gf_index          gf_index for the target buffer
+ * \param[out]      show_tf_buf       whether the target buffer can be shown
+ * directly
+ */
+YV12_BUFFER_CONFIG *av1_tf_info_get_filtered_buf(TEMPORAL_FILTER_INFO *tf_info,
+                                                 int gf_index,
+                                                 int *show_tf_buf);
+
 /*!\cond */
 
 // Sum and SSE source vs filtered frame difference returned by
