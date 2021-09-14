@@ -1654,17 +1654,21 @@ static void encode_sb(const AV1_COMP *const cpi, ThreadData *td,
 
 static AOM_INLINE int is_adjust_var_based_part_enabled(
     AV1_COMMON *const cm, const PARTITION_SPEED_FEATURES *const part_sf,
-    BLOCK_SIZE bsize) {
+    BLOCK_SIZE bsize, const int is_boosted) {
   if (part_sf->partition_search_type != VAR_BASED_PARTITION) return 0;
   if (part_sf->adjust_var_based_rd_partitioning == 0 ||
       part_sf->adjust_var_based_rd_partitioning > 3)
     return 0;
 
-  const int is_larger_qindex = cm->quant_params.base_qindex > 190;
   if (part_sf->adjust_var_based_rd_partitioning == 1) {
-    return !frame_is_intra_only(cm) && is_larger_qindex && bsize <= BLOCK_32X32;
+    if (frame_is_intra_only(cm)) return 0;
+    if (bsize > BLOCK_32X32) return 0;
+    const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
+    const int q_threshold = is_boosted ? 190 : (is_720p_or_larger ? 120 : 150);
+    return cm->quant_params.base_qindex > q_threshold;
   } else {
     if (bsize <= BLOCK_32X32) return 1;
+    const int is_larger_qindex = cm->quant_params.base_qindex > 190;
     if (part_sf->adjust_var_based_rd_partitioning == 2) {
       const int is_360p_or_larger = AOMMIN(cm->width, cm->height) >= 360;
       return is_360p_or_larger && is_larger_qindex && bsize == BLOCK_64X64;
@@ -1764,7 +1768,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   const int orig_rdmult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
 
-  if (is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize)) {
+  if (is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize,
+                                       frame_is_kf_gf_arf(cpi))) {
     // Check if any of the sub blocks are further split.
     if (partition == PARTITION_SPLIT && subsize > BLOCK_8X8) {
       sub_subsize = get_partition_subsize(subsize, PARTITION_SPLIT);
