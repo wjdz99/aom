@@ -940,6 +940,7 @@ static void set_good_speed_features_framesize_independent(
     sf->inter_sf.disable_interinter_wedge_newmv_search =
         is_boosted_arf2_bwd_type ? 0 : 1;
     sf->inter_sf.inter_mode_txfm_breakout = boosted ? 0 : 1;
+    sf->inter_sf.alt_ref_search_fp = 1;
 
     sf->interp_sf.adaptive_interp_filter_search = 1;
     sf->interp_sf.disable_dual_filter = 1;
@@ -1053,7 +1054,6 @@ static void set_good_speed_features_framesize_independent(
         (allow_screen_content_tools || frame_is_intra_only(&cpi->common)) ? 0
                                                                           : 1;
 
-    sf->inter_sf.alt_ref_search_fp = 1;
     sf->inter_sf.txfm_rd_gate_level = boosted ? 0 : 3;
 
     sf->inter_sf.prune_inter_modes_based_on_tpl = boosted ? 0 : 2;
