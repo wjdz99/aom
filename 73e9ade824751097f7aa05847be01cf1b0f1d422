@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nIn this CL, we have extended the speed feature early_term_after_none_split to --rt, speed \u003d 4.\nThis change is applicable for speed 4 only, as the speed feature is related to recursive partition. \nAverage bd-rate drop is slightly away from trade-off (trade-off achieved is 0.0589).\n\nPlease find the detailed borg result below.\n\n CPU Resolution   Instruction Count      BD-Rate Loss %\n                      Reduction %   avg.psnr  ovr.psnr  ssim                                    \n   4    rtc_derf         6.327      0.3124    0.3036    0.1284 \n   4      rtc            5.865      0.3915    0.3569    0.0869\n   4    Average          6.090      0.3585    0.3347    0.1042\n \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally for few test cases). \n\nPlease review the patch.\n\nThank you. ",
       "revId": "73e9ade824751097f7aa05847be01cf1b0f1d422",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54f5b5db_0985cfd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-14T16:05:02Z",
+      "side": 1,
+      "message": "Looks good.",
+      "parentUuid": "3d50c503_00594d0c",
+      "revId": "73e9ade824751097f7aa05847be01cf1b0f1d422",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
