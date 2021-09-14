@@ -13,6 +13,7 @@
 #include <limits.h>
 
 #include "config/aom_config.h"
+#include "config/aom_scale_rtcd.h"
 
 #include "aom_dsp/aom_dsp_common.h"
 #include "aom_dsp/odintrin.h"
@@ -912,6 +913,13 @@ static void tf_do_filtering(AV1_COMP *cpi) {
   tf_restore_state(mbd, input_mb_mode_info, input_buffer, num_planes);
 }
 
+int av1_calc_arf_boost(const TWO_PASS *twopass,
+                       const TWO_PASS_FRAME *twopass_frame,
+                       const PRIMARY_RATE_CONTROL *p_rc, FRAME_INFO *frame_info,
+                       int offset, int f_frames, int b_frames,
+                       int *num_fpstats_used, int *num_fpstats_required,
+                       int project_gfu_boost);
+
 /*!\brief Setups the frame buffer for temporal filtering. This fuction
  * determines how many frames will be used for temporal filtering and then
  * groups them into a buffer. This function will also estimate the noise level
@@ -946,15 +954,11 @@ static void tf_setup_filtering_buffer(AV1_COMP *cpi,
   const int lookahead_depth =
       av1_lookahead_depth(cpi->ppi->lookahead, cpi->compressor_stage);
 
-  int arf_src_offset = cpi->ppi->gf_group.arf_src_offset[cpi->gf_frame_index];
-  const FRAME_TYPE frame_type =
-      cpi->ppi->gf_group.frame_type[cpi->gf_frame_index];
-
   // Temporal filtering should not go beyond key frames
   const int key_to_curframe =
-      AOMMAX(cpi->rc.frames_since_key + arf_src_offset, 0);
+      AOMMAX(cpi->rc.frames_since_key + filter_frame_lookahead_idx, 0);
   const int curframe_to_key =
-      AOMMAX(cpi->rc.frames_to_key - arf_src_offset - 1, 0);
+      AOMMAX(cpi->rc.frames_to_key - filter_frame_lookahead_idx - 1, 0);
 
   // Number of buffered frames before the to-filter frame.
   int max_before = AOMMIN(filter_frame_lookahead_idx, key_to_curframe);
@@ -1017,11 +1021,16 @@ static void tf_setup_filtering_buffer(AV1_COMP *cpi,
   }
   num_frames = AOMMIN(num_frames + adjust_num, lookahead_depth);
 
-  if (frame_type == KEY_FRAME) {
+  if (update_type == KF_UPDATE) {
     num_before = is_forward_keyframe ? num_frames / 2 : 0;
     num_after = AOMMIN(num_frames - 1, max_after);
   } else {
-    num_frames = AOMMIN(num_frames, cpi->ppi->p_rc.gfu_boost / 150);
+    int gfu_boost = av1_calc_arf_boost(&cpi->ppi->twopass, &cpi->twopass_frame,
+                                       &cpi->ppi->p_rc, &cpi->frame_info,
+                                       filter_frame_lookahead_idx, max_before,
+                                       max_after, NULL, NULL, 0);
+
+    num_frames = AOMMIN(num_frames, gfu_boost / 150);
     num_frames += !(num_frames & 1);  // Make the number odd.
     // Only use 2 neighbours for the second ARF.
     if (is_second_arf) num_frames = AOMMIN(num_frames, 3);
@@ -1277,5 +1286,64 @@ int av1_temporal_filter(AV1_COMP *cpi, const int filter_frame_lookahead_idx,
   }
 
   return 1;
+}
+
+void av1_tf_info_alloc(TEMPORAL_FILTER_INFO *tf_info, AV1_COMP *cpi) {
+  AV1_COMMON *cm = &cpi->common;
+  const SequenceHeader *const seq_params = cm->seq_params;
+  const AV1EncoderConfig *oxcf = &cpi->oxcf;
+  for (int i = 0; i < TF_INFO_BUF_COUNT; ++i) {
+    int ret = aom_realloc_frame_buffer(
+        &tf_info->tf_buf[i], oxcf->frm_dim_cfg.width, oxcf->frm_dim_cfg.height,
+        seq_params->subsampling_x, seq_params->subsampling_y,
+        seq_params->use_highbitdepth, cpi->oxcf.border_in_pixels,
+        cm->features.byte_alignment, NULL, NULL, NULL,
+        cpi->oxcf.tool_cfg.enable_global_motion);
+    if (ret) {
+      aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
+                         "Failed to allocate tf_info");
+    }
+  }
+}
+
+void av1_tf_info_free(TEMPORAL_FILTER_INFO *tf_info) {
+  for (int i = 0; i < TF_INFO_BUF_COUNT; ++i) {
+    aom_free_frame_buffer(&tf_info->tf_buf[i]);
+  }
+}
+
+void av1_tf_info_filtering(TEMPORAL_FILTER_INFO *tf_info, AV1_COMP *cpi,
+                           const GF_GROUP *gf_group) {
+  const AV1_COMMON *const cm = &cpi->common;
+  av1_zero(tf_info->tf_buf_valid);
+  av1_zero(tf_info->tf_buf_gf_index);
+  for (int i = 0; i < gf_group->size; ++i) {
+    int cur_update_type = gf_group->update_type[i];
+    if (cur_update_type == KF_UPDATE || cur_update_type == ARF_UPDATE) {
+      int buf_idx = cur_update_type == ARF_UPDATE;
+      int lookahead_idx =
+          gf_group->arf_src_offset[i] + gf_group->cur_frame_idx[i];
+      YV12_BUFFER_CONFIG *out_buf = &tf_info->tf_buf[buf_idx];
+      av1_temporal_filter(cpi, lookahead_idx, cur_update_type, 0,
+                          &tf_info->show_tf_buf[buf_idx], out_buf);
+      aom_extend_frame_borders(out_buf, av1_num_planes(cm));
+      tf_info->tf_buf_gf_index[buf_idx] = i;
+      tf_info->tf_buf_valid[buf_idx] = 1;
+    }
+  }
+}
+
+YV12_BUFFER_CONFIG *av1_tf_info_get_filtered_buf(TEMPORAL_FILTER_INFO *tf_info,
+                                                 int gf_index,
+                                                 int *show_tf_buf) {
+  YV12_BUFFER_CONFIG *out_buf = NULL;
+  *show_tf_buf = 0;
+  for (int i = 0; i < TF_INFO_BUF_COUNT; ++i) {
+    if (tf_info->tf_buf_valid[i] && tf_info->tf_buf_gf_index[i] == gf_index) {
+      out_buf = &tf_info->tf_buf[i];
+      *show_tf_buf = tf_info->show_tf_buf[i];
+    }
+  }
+  return out_buf;
 }
 /*!\endcond */
