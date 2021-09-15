@@ -2098,6 +2098,14 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
         gf_group, tpl_data->txfm_stats_list, stats_valid_list, gop_bit_budget,
         gf_frame_index, bit_depth, scale_factor, vbr_rc_info->qstep_ratio_list,
         vbr_rc_info->q_index_list, vbr_rc_info->estimated_bitrate_byframe);
+  } else if (gf_frame_index == 1) {
+    for (int i = gf_frame_index; i < gf_group->size; i++) {
+      vbr_rc_info->qstep_ratio_list[i] = av1_tpl_get_qstep_ratio(tpl_data, i);
+    }
+    int base_q_index = vbr_rc_info->q_index_list[0];
+    av1_q_mode_compute_gop_q_indices(gf_frame_index, base_q_index,
+                                     vbr_rc_info->qstep_ratio_list, bit_depth,
+                                     gf_group, vbr_rc_info->q_index_list);
   }
 }
 
