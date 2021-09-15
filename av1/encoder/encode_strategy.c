@@ -221,8 +221,14 @@ static void adjust_frame_rate(AV1_COMP *cpi, int64_t ts_start, int64_t ts_end) {
   }
 
   if (this_duration) {
+    double *framerate;
+#if CONFIG_FRAME_PARALLEL_ENCODE
+    framerate = &cpi->new_framerate;
+#else
+    framerate = &cpi->framerate;
+#endif
     if (step) {
-      av1_new_framerate(cpi, 10000000.0 / this_duration);
+      *framerate = (10000000.0 / this_duration);
     } else {
       // Average this frame's rate into the last second's average
       // frame rate. If we haven't seen 1 second yet, then average
@@ -232,10 +238,18 @@ static void adjust_frame_rate(AV1_COMP *cpi, int64_t ts_start, int64_t ts_end) {
       double avg_duration = 10000000.0 / cpi->framerate;
       avg_duration *= (interval - avg_duration + this_duration);
       avg_duration /= interval;
-
-      av1_new_framerate(cpi, 10000000.0 / avg_duration);
+      *framerate = (10000000.0 / avg_duration);
+#if CONFIG_FRAME_PARALLEL_ENCODE
+      // For parallel frames update cpi->framerate with new_framerate
+      // during av1_post_encode_updates()
+      if (cpi->ppi->gf_group.frame_parallel_level[cpi->gf_frame_index] > 0) {
+        *framerate = cpi->framerate;
+      }
+#endif
     }
+    av1_new_framerate(cpi, *framerate);
   }
+
   time_stamps->prev_ts_start = ts_start;
   time_stamps->prev_ts_end = ts_end;
 }
