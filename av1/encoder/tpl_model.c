@@ -2071,7 +2071,21 @@ void av1_vbr_rc_update_q_index_list(VBR_RATECTRL_INFO *vbr_rc_info,
                                     aom_bit_depth_t bit_depth) {
   // We always update q_index_list when gf_frame_index is zero.
   // This will make the q indices for the entire gop more consistent
-  if (gf_frame_index == 0) {
+  if (gf_frame_index == 0 || gf_frame_index == 1) {
+    if (gf_frame_index == 1) {
+      for (int i = gf_frame_index; i < gf_group->size; i++) {
+        vbr_rc_info->qstep_ratio_list[i] = av1_tpl_get_qstep_ratio(tpl_data, i);
+      }
+      int base_q_index = vbr_rc_info->q_index_list[0];
+      av1_q_mode_compute_gop_q_indices(gf_frame_index,
+                                       base_q_index,
+                                       vbr_rc_info->qstep_ratio_list,
+                                       bit_depth,
+                                       gf_group,
+                                       vbr_rc_info->q_index_list);
+      return;
+    }
+    
     vbr_rc_info->q_index_list_ready = 1;
     double gop_bit_budget = vbr_rc_info->gop_bit_budget;
 
