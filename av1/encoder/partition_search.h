@@ -45,7 +45,8 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_SDP && CONFIG_EXT_RECUR_PARTITIONS
                            SIMPLE_MOTION_DATA_TREE *sms_tree, int64_t *none_rd,
                            SB_MULTI_PASS_MODE multi_pass_mode,
-                           RD_RECT_PART_WIN_INFO *rect_part_win_info);
+                           RD_RECT_PART_WIN_INFO *rect_part_win_info,
+                           bool enable_full_recursion);
 #if CONFIG_EXT_RECUR_PARTITIONS
 void av1_build_partition_tree_fixed_partitioning(AV1_COMMON *const cm,
                                                  int mi_row, int mi_col,

@@ -3854,7 +3854,7 @@ static void rectangular_partition_search(
 #if CONFIG_SDP
                             track_ptree_luma ? ptree_luma->sub_tree[0] : NULL,
 #endif  // CONFIG_SDP
-                            NULL, NULL, multi_pass_mode, NULL);
+                            NULL, NULL, multi_pass_mode, NULL, true);
       av1_rd_cost_update(x->rdmult, &this_rdc);
       if (this_rdc.rate == INT_MAX) {
         sum_rdc->rdcost = INT64_MAX;
@@ -3875,7 +3875,7 @@ static void rectangular_partition_search(
 #if CONFIG_SDP
                               track_ptree_luma ? ptree_luma->sub_tree[1] : NULL,
 #endif  // CONFIG_SDP
-                              NULL, NULL, multi_pass_mode, NULL);
+                              NULL, NULL, multi_pass_mode, NULL, true);
         av1_rd_cost_update(x->rdmult, &this_rdc);
         part_search_state->rect_part_rd[HORZ][1] = this_rdc.rdcost;
 
@@ -3932,7 +3932,7 @@ static void rectangular_partition_search(
 #if CONFIG_SDP
                             track_ptree_luma ? ptree_luma->sub_tree[0] : NULL,
 #endif  // CONFIG_SDP
-                            NULL, NULL, multi_pass_mode, NULL);
+                            NULL, NULL, multi_pass_mode, NULL, true);
 
       av1_rd_cost_update(x->rdmult, &this_rdc);
 
@@ -3954,7 +3954,7 @@ static void rectangular_partition_search(
 #if CONFIG_SDP
                               track_ptree_luma ? ptree_luma->sub_tree[1] : NULL,
 #endif  // CONFIG_SDP
-                              NULL, NULL, multi_pass_mode, NULL);
+                              NULL, NULL, multi_pass_mode, NULL, true);
         av1_rd_cost_update(x->rdmult, &this_rdc);
         part_search_state->rect_part_rd[VERT][1] = this_rdc.rdcost;
 
@@ -5356,7 +5356,8 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
 #endif  // CONFIG_SDP && CONFIG_EXT_RECUR_PARTITIONS
                            SIMPLE_MOTION_DATA_TREE *sms_tree, int64_t *none_rd,
                            SB_MULTI_PASS_MODE multi_pass_mode,
-                           RD_RECT_PART_WIN_INFO *rect_part_win_info) {
+                           RD_RECT_PART_WIN_INFO *rect_part_win_info,
+                           bool enable_full_recursion) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -5606,15 +5607,17 @@ BEGIN_PARTITION_SEARCH:
 #endif  // !CONFIG_EXT_RECUR_PARTITIONS
 
   // Rectangular partitions search stage.
-  rectangular_partition_search(cpi, td, tile_data, tp, x, pc_tree, &x_ctx,
-                               &part_search_state, &best_rdc,
+  if (enable_full_recursion) {
+    rectangular_partition_search(cpi, td, tile_data, tp, x, pc_tree, &x_ctx,
+                                 &part_search_state, &best_rdc,
 #if CONFIG_EXT_RECUR_PARTITIONS
-                               multi_pass_mode,
+                                 multi_pass_mode,
 #if CONFIG_SDP
-                               ptree_luma,
+                                 ptree_luma,
 #endif  // CONFIG_SDP
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
-                               rect_part_win_info);
+                                 rect_part_win_info);
+  }
 
   if (pb_source_variance == UINT_MAX) {
     av1_setup_src_planes(x, cpi->source, mi_row, mi_col, num_planes, NULL);
@@ -5704,7 +5707,7 @@ BEGIN_PARTITION_SEARCH:
   const int ext_partition_allowed =
       (blk_params.has_rows && blk_params.has_cols) || !is_square_block(bsize);
   const int partition_3_allowed =
-      ext_partition_allowed && bsize != BLOCK_128X128;
+      ext_partition_allowed && bsize != BLOCK_128X128 && enable_full_recursion;
   const int is_wide_block = block_size_wide[bsize] > block_size_high[bsize];
   const int is_tall_block = block_size_wide[bsize] < block_size_high[bsize];
   const int horz_3_allowed =
