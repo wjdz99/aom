@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6c91d2e_adbdd588",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2105,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-15T18:45:48Z",
+      "side": 1,
+      "message": "This is key frame\u0027s q index NOT base_q_index.\nYou will need to record the base_q_index computed by av1_q_mode_estimate_base_q()\nwhen gf_frame_index \u003d\u003d 0 and use it here.",
+      "range": {
+        "startLine": 2105,
+        "startChar": 4,
+        "endLine": 2105,
+        "endChar": 52
+      },
+      "revId": "bb43a0706b5b305fdbb3c6b8e4bc25a50175fe6f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
