@@ -917,13 +917,18 @@ static double convert_qp_offset(int cq_level, int q_offset, int bit_depth) {
   return (base_q_val - new_q_val);
 }
 
-static double get_modeled_qp_offset(int qp, int level, int bit_depth) {
-  // 76% for keyframe was derived empirically.
-  // 60% similar to rc_pick_q_and_bounds_one_pass_vbr() for Q mode ARF.
-  // Rest derived similar to rc_pick_q_and_bounds_two_pass()
-  static const int percents[FIXED_QP_OFFSET_COUNT] = { 76, 60, 30, 15, 8, 4 };
+static double get_modeled_qp_offset(int qp, int level, unsigned int gf_max_pyr_height, int bit_depth) {
+
+    static const int percents[2][FIXED_QP_OFFSET_COUNT] =
+    {
+        { 75, 70, 60, 20, 15, 0 } , // All were empirically derived (used for only 6L)
+        { 76, 60, 30, 15, 8,  4 }   // 76% for keyframe was derived empirically.
+                                    // 60% similar to rc_pick_q_and_bounds_one_pass_vbr() for Q mode ARF.
+                                    // Rest derived similar to rc_pick_q_and_bounds_two_pass()
+    };
+
   const double q_val = av1_convert_qindex_to_q(qp, bit_depth);
-  return q_val * percents[level] / 100;
+  return q_val * percents[gf_max_pyr_height < 5][level] / 100;
 }
 
 static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
@@ -1117,7 +1122,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
             rc_cfg->cq_level, cfg->fixed_qp_offsets[i], tool_cfg->bit_depth);
       } else {  // auto-selected qp offset
         q_cfg->fixed_qp_offsets[i] =
-            get_modeled_qp_offset(rc_cfg->cq_level, i, tool_cfg->bit_depth);
+            get_modeled_qp_offset(rc_cfg->cq_level, i, extra_cfg->gf_max_pyr_height, tool_cfg->bit_depth);
       }
     } else {
       q_cfg->fixed_qp_offsets[i] = -1.0;
