@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af9a396e_08b15bc6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-09-15T13:58:37Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch handles the update of the cpi-\u003eframerate for parallel frames by moving it to av1_twopass_postencode_update(). The newly introduced variable cpi-\u003enew_framerate stores the current parallel frame\u0027s updated framerate computed during the encode call of the frame, which is then copied to cpi-\u003eframerate during the post-encode update of the frame. Since the update of cpi-\u003eframerate for a frame depends on the previous frame’s value of cpi-\u003eframerate, this ensures that at the end of a parallel encode set, cpi-\u003eframerate will have the correct value.\n\nThe changes are tested locally and has been found to have very minimal quality impact. Please find the borg results with CONFIG_FRAME_PARALLEL_ENCODE 1, num_fp_context\u003d4, with fix (test) vs without fix (ref) below,\n\n CPU   Resolution   Instruction Count     BD-Rate Impact %\n                       Reduction %   avg.psnr ovr.psnr   ssim\n                                     8 - bit  8 - bit  8 - bit\n  2    AVERAGE           0.000        0.0000   0.0000   0.0000\n  3    AVERAGE           0.000        0.0008   0.0008   0.0003\n  4    AVERAGE           0.000        0.0000   0.0000   0.0000\n  5    AVERAGE           0.000        0.0000   0.0000   0.0000\n\nPlease review the changes.\nThanks",
+      "revId": "fa772a7afe62a5f6245e9f7f85637bad217de0ea",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
