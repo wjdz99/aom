@@ -22,6 +22,30 @@
       },
       "revId": "bb43a0706b5b305fdbb3c6b8e4bc25a50175fe6f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90b2dd81_17cf29c9",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2105,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-09-15T23:15:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6c91d2e_adbdd588",
+      "range": {
+        "startLine": 2105,
+        "startChar": 4,
+        "endLine": 2105,
+        "endChar": 52
+      },
+      "revId": "bb43a0706b5b305fdbb3c6b8e4bc25a50175fe6f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
