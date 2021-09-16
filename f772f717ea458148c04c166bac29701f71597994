@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "003f8c67_2bf313cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 28237
+      },
+      "writtenOn": "2021-09-16T18:21:39Z",
+      "side": 1,
+      "message": "Hello Jingning,\n\nI just confirmed that the patch does not modify the coding stats, while it does when evaluated @ revision 2deaf2a. It looks like the output of get_modeled_qp_offset() is not anymore used (please note that @ revision 2deaf2a, it was still used for Layer1 \u0026 higher ). I will try to identify the commit that overwrites the output of get_modeled_qp_offset(), then check whether changes could coexist.\n\nThanks,\nHassen",
+      "parentUuid": "c910cfe8_bf5a8251",
+      "revId": "f772f717ea458148c04c166bac29701f71597994",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0a208bb9_38a0cac1",
