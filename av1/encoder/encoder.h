@@ -87,6 +87,13 @@ extern "C" {
 // Lookahead index threshold to enable temporal filtering for second arf.
 #define TF_LOOKAHEAD_IDX_THR 7
 
+#define HDR_QP_LEVELS 10
+#define CHROMA_CB_QP_SCALE 1.04
+#define CHROMA_CR_QP_SCALE 1.39
+#define CHROMA_QP_SCALE -0.46
+#define CHROMA_QP_OFFSET 9.26
+#define QP_SCALE_FACTOR 3.0
+
 // Rational number with an int64 numerator
 // This structure holds a fractional value
 typedef struct aom_rational64 {
@@ -158,11 +165,8 @@ enum {
   DELTA_Q_OBJECTIVE = 1,      // Modulation to improve objective quality
   DELTA_Q_PERCEPTUAL = 2,     // Modulation to improve video perceptual quality
   DELTA_Q_PERCEPTUAL_AI = 3,  // Perceptual quality opt for all intra mode
-<<<<<<< HEAD
   DELTA_Q_USER_RATING_BASED = 4,  // User rating based delta q mode
-=======
-  DELTA_Q_HDR = 4,            // QP adjustment based on HDR block pixel average
->>>>>>> ff9503f2b (add support to adjust deltaQ for HDR video)
+  DELTA_Q_HDR = 5,            // QP adjustment based on HDR block pixel average
   DELTA_Q_MODE_COUNT  // This should always be the last member of the enum
 } UENUM1BYTE(DELTAQ_MODE);
 
