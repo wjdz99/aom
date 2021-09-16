@@ -154,6 +154,7 @@ int av1_log_block_avg(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
 
   sum = 0;
   num_pix = 0;
+  avg = 0;
   int row = mi_row << MI_SIZE_LOG2;
   int col = mi_col << MI_SIZE_LOG2;
   for (r = row; (r < (row + bh)) && (r < pic_h); r++) {
@@ -162,7 +163,9 @@ int av1_log_block_avg(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
       num_pix++;
     }
   }
-  avg = sum / num_pix;
+  if (num_pix != 0) {
+    avg = sum / num_pix;
+  }
   return avg;
 }
 
