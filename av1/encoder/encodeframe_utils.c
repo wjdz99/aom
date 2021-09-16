@@ -977,7 +977,7 @@ int av1_get_q_for_hdr(AV1_COMP *const cpi, MACROBLOCK *const x,
   int offset = 0;
   for (int i = 0; i < HDR_QP_LEVELS; i++) {
     if (block_luma_avg >= hdr_thres[i] && block_luma_avg < hdr_thres[i + 1]) {
-      offset = hdr10_qp_offset[i] * 4;
+      offset = hdr10_qp_offset[i] * 5;
       break;
     }
   }
