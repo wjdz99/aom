@@ -137,13 +137,26 @@ int aom_arm_cpu_caps(void) {
           flags |= HAS_NEON;
         }
       }
-#endif /* HAVE_NEON */
+#endif                   /* HAVE_NEON */
     }
     fclose(fin);
   }
   return flags & mask;
 }
-#else  /* end __linux__ */
+#elif defined(__APPLE__) /* end __linux__ */
+int aom_arm_cpu_caps(void) {
+  int flags;
+  int mask;
+  if (!arm_cpu_env_flags(&flags)) {
+    return flags;
+  }
+  mask = arm_cpu_env_mask();
+#if HAVE_NEON
+  flags |= HAS_NEON;
+#endif /* HAVE_NEON */
+  return flags & mask;
+}
+#else  /* end __APPLE__ */
 #error \
     "Runtime CPU detection selected, but no CPU detection method " \
 "available for your platform. Rerun cmake with -DCONFIG_RUNTIME_CPU_DETECT=0."
