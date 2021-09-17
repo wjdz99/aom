@@ -69,6 +69,24 @@
       "parentUuid": "87f2bce0_1b0ec238",
       "revId": "680dd2c8c378ba12b0909289d58439bedd6d56bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c543a82c_c26324e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-17T17:47:43Z",
+      "side": 1,
+      "message": "Yes, I feel the same. Removing \"cpi-\u003eoxcf.speed \u003e\u003d 5\" from the following code makes rt speeds behave consistently, which sounds like a better fix to me.\n\n    if (cpi-\u003eoxcf.speed \u003e\u003d 5 \u0026\u0026 cpi-\u003eppi-\u003enumber_spatial_layers \u003d\u003d 1 \u0026\u0026\n        cpi-\u003eppi-\u003enumber_temporal_layers \u003d\u003d 1)\n      av1_set_reference_structure_one_pass_rt(cpi, cpi-\u003egf_frame_index \u003d\u003d 0);\n      \nVishnu, what do you think?\n\nAlso, Marco, if svc-\u003eset_ref_frame_config is always 1 for rt cases, can we remove it and maybe use \"cpi-\u003eoxcf.mode \u003d\u003d REALTIME\" instead?",
+      "parentUuid": "e177398b_dc85b45f",
+      "revId": "680dd2c8c378ba12b0909289d58439bedd6d56bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
