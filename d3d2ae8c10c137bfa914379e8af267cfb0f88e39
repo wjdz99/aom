@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "468247ae_3bcbe1a3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-09-17T21:08:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "652c0d7a_abf68e5d",
+      "range": {
+        "startLine": 9,
+        "startChar": 7,
+        "endLine": 9,
+        "endChar": 22
+      },
+      "revId": "d3d2ae8c10c137bfa914379e8af267cfb0f88e39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4953c969_1d4a3e59",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "398794f3_fa033d61",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-09-17T21:08:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4953c969_1d4a3e59",
+      "range": {
+        "startLine": 11,
+        "startChar": 59,
+        "endLine": 11,
+        "endChar": 60
+      },
+      "revId": "d3d2ae8c10c137bfa914379e8af267cfb0f88e39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19b95af5_1274ed8b",
@@ -60,6 +108,30 @@
       "writtenOn": "2021-09-17T01:48:06Z",
       "side": 1,
       "message": "The results are measure on lowres dataset with --limit\u003d17",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 7
+      },
+      "revId": "d3d2ae8c10c137bfa914379e8af267cfb0f88e39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "443a9d64_e0d81204",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 26677
+      },
+      "writtenOn": "2021-09-17T21:08:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19b95af5_1274ed8b",
       "range": {
         "startLine": 13,
         "startChar": 0,
