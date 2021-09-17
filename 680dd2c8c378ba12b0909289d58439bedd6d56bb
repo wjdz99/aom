@@ -34,6 +34,23 @@
       "parentUuid": "a161291c_1200b1f4",
       "revId": "680dd2c8c378ba12b0909289d58439bedd6d56bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87f2bce0_1b0ec238",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-17T16:55:50Z",
+      "side": 1,
+      "message": "Hi Marco, could you look at this? This crash only happens at speed 4. I can see it relates to svc-\u003eset_ref_frame_config value, which is 0 for speed 4, but 1 for speed \u003e\u003d5. What does svc-\u003eset_ref_frame_config mean? Should it be 1 for all rt cases?",
+      "revId": "680dd2c8c378ba12b0909289d58439bedd6d56bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
