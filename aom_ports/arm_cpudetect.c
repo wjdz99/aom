@@ -21,6 +21,7 @@
 #endif
 #endif
 
+static int arm_cpu_env_flags(int *flags) __attribute__((unused));
 static int arm_cpu_env_flags(int *flags) {
   char *env;
   env = getenv("AOM_SIMD_CAPS");
@@ -32,6 +33,7 @@ static int arm_cpu_env_flags(int *flags) {
   return -1;
 }
 
+static int arm_cpu_env_mask(void) __attribute__((unused));
 static int arm_cpu_env_mask(void) {
   char *env;
   env = getenv("AOM_SIMD_CAPS_MASK");
@@ -137,13 +139,15 @@ int aom_arm_cpu_caps(void) {
           flags |= HAS_NEON;
         }
       }
-#endif /* HAVE_NEON */
+#endif                   /* HAVE_NEON */
     }
     fclose(fin);
   }
   return flags & mask;
 }
-#else  /* end __linux__ */
+#elif defined(__APPLE__) /* end __linux__ */
+int aom_arm_cpu_caps(void) { return HAS_EDSP | HAS_MEDIA | HAS_NEON; }
+#else                    /* end __APPLE__ */
 #error \
     "Runtime CPU detection selected, but no CPU detection method " \
 "available for your platform. Rerun cmake with -DCONFIG_RUNTIME_CPU_DETECT=0."
