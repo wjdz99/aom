@@ -105,6 +105,24 @@
       "parentUuid": "c543a82c_c26324e1",
       "revId": "680dd2c8c378ba12b0909289d58439bedd6d56bb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21f0bb29_a3a73b88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-09-17T17:55:09Z",
+      "side": 1,
+      "message": "i prefer not to remove svc-\u003eset_ref_frame_config, as its used in the encoder control for applications that choose to set their own layered reference structure.",
+      "parentUuid": "c543a82c_c26324e1",
+      "revId": "680dd2c8c378ba12b0909289d58439bedd6d56bb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
