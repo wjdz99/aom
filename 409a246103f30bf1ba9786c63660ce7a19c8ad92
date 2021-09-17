@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5a33695_feb3e2b7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-17T01:37:18Z",
+      "side": 1,
+      "message": "remove for",
+      "range": {
+        "startLine": 19,
+        "startChar": 56,
+        "endLine": 19,
+        "endChar": 60
+      },
+      "revId": "409a246103f30bf1ba9786c63660ce7a19c8ad92",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33f1ed12_4d7453e6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-09-17T01:37:18Z",
+      "side": 1,
+      "message": "We evaluate this CL on lowres dataset with --limit\u003d17. The results are below.",
+      "range": {
+        "startLine": 20,
+        "startChar": 14,
+        "endLine": 20,
+        "endChar": 48
+      },
+      "revId": "409a246103f30bf1ba9786c63660ce7a19c8ad92",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
