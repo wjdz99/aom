@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33a750a5_6004f84c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-20T21:53:04Z",
+      "side": 1,
+      "message": "Hi Ranjit,\n\nJingning asked about this. I kind of remember you(or someone else?) evaluated use_inter_txb_hash before. Could you share your previous results/CLs related to its speed \u0026 quality impact? Thanks.\n\nYunqing\n",
+      "revId": "09aa61a1ca90b557496bc750bc38bddc18b4f8a3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
