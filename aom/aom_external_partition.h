@@ -30,7 +30,7 @@
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures.
  */
-#define AOM_EXT_PART_ABI_VERSION (2)
+#define AOM_EXT_PART_ABI_VERSION (3)
 
 #ifdef __cplusplus
 extern "C" {
