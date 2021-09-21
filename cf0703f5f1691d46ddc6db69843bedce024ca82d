@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d3d88a5_cdffdd72",
+        "filename": ".mailmap",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-21T00:52:47Z",
+      "side": 1,
+      "message": "1. Please undo the change to .mailcap. We will update the .mailcap file, if necessary, when we prepare a new libaom release.\n\n2. Please fill out a contributor license agreement:\nhttps://aomedia.googlesource.com/aom/+/master/README.md#contributor-agreement",
+      "revId": "cf0703f5f1691d46ddc6db69843bedce024ca82d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02c0357b_c735ca43",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-21T00:52:47Z",
+      "side": 1,
+      "message": "Please add a link to the bug report:\n\nBUG\u003daomedia:3147",
+      "revId": "cf0703f5f1691d46ddc6db69843bedce024ca82d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5affae29_928d3737",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-21T00:52:47Z",
+      "side": 1,
+      "message": "Hi Link,\n\nThank you very much for the patch. I suggest some changes.",
+      "revId": "cf0703f5f1691d46ddc6db69843bedce024ca82d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2724efd4_b3a98e28",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-21T00:52:47Z",
+      "side": 1,
+      "message": "Please remove this line and line 36, because we will use these two functions as I suggested in my comment at line 58.",
+      "revId": "cf0703f5f1691d46ddc6db69843bedce024ca82d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f3461a5_6580236a",
+        "filename": "aom_ports/arm_cpudetect.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-21T00:52:47Z",
+      "side": 1,
+      "message": "I believe we should copy lines 49-58 to the new function.\n\nNote: We don\u0027t need to set HAS_EDSP and HAS_MEDIA because these two flags are not used. The HAS_EDSP and HAS_MEDIA flags probably should be removed as a cleanup.",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 22
+      },
+      "revId": "cf0703f5f1691d46ddc6db69843bedce024ca82d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
