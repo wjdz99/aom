@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ddcf23b_a32cc5f7",
+        "filename": "av1/common/common_data.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-09-21T04:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d37e19c0_2c463013",
+      "range": {
+        "startLine": 443,
+        "startChar": 0,
+        "endLine": 446,
+        "endChar": 71
+      },
+      "revId": "cae75c77bf9c5ad4f9be9693a963b41302fef3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86ffef5c_a6876cc4",
@@ -37,6 +61,30 @@
       "writtenOn": "2021-07-14T22:20:14Z",
       "side": 1,
       "message": "Is this macro still used?",
+      "range": {
+        "startLine": 687,
+        "startChar": 8,
+        "endLine": 687,
+        "endChar": 38
+      },
+      "revId": "cae75c77bf9c5ad4f9be9693a963b41302fef3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "44a86b8d_add07a99",
+        "filename": "av1/common/enums.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-09-21T04:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86ffef5c_a6876cc4",
       "range": {
         "startLine": 687,
         "startChar": 8,
@@ -70,6 +118,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7fce71a_037e6bc0",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1354,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-09-21T04:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f5efb72_36ba3f52",
+      "range": {
+        "startLine": 1354,
+        "startChar": 66,
+        "endLine": 1354,
+        "endChar": 69
+      },
+      "revId": "cae75c77bf9c5ad4f9be9693a963b41302fef3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "08a5ef63_834c36e8",
@@ -83,6 +155,30 @@
       "writtenOn": "2021-07-14T22:20:14Z",
       "side": 1,
       "message": "I believe this function is for regular resize? If so, do you need \"numerator\" passed to this func?",
+      "range": {
+        "startLine": 86,
+        "startChar": 5,
+        "endLine": 86,
+        "endChar": 30
+      },
+      "revId": "cae75c77bf9c5ad4f9be9693a963b41302fef3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cef7e644_6289b9df",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-09-21T04:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08a5ef63_834c36e8",
       "range": {
         "startLine": 86,
         "startChar": 5,
@@ -118,6 +214,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "928a5cfc_83288186",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-09-21T04:44:08Z",
+      "side": 1,
+      "message": "Removed this parameter since we don\u0027t need it",
+      "parentUuid": "1c99a7ef_3a5597da",
+      "range": {
+        "startLine": 87,
+        "startChar": 35,
+        "endLine": 87,
+        "endChar": 45
+      },
+      "revId": "cae75c77bf9c5ad4f9be9693a963b41302fef3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "49664ff5_079541ce",
         "filename": "av1/encoder/superres_scale.h",
         "patchSetId": 1
@@ -129,6 +249,30 @@
       "writtenOn": "2021-07-14T22:20:14Z",
       "side": 1,
       "message": "Please use CamelCase for new structs: \"ScaleFactor\"",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 14
+      },
+      "revId": "cae75c77bf9c5ad4f9be9693a963b41302fef3d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d23be27_e58edeee",
+        "filename": "av1/encoder/superres_scale.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-09-21T04:44:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49664ff5_079541ce",
       "range": {
         "startLine": 24,
         "startChar": 2,
