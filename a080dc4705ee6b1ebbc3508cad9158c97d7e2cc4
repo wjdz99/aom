@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4156edbe_a1b1e712",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-09-21T20:21:36Z",
+      "side": 1,
+      "message": "you could also add that this accounts for the changes to the structs in this file between:\n\nhttps://aomedia.googlesource.com/aom/+log/v3.1.1-483-gd663fd976..v3.1.2-778-gf81be37aa/aom/aom_external_partition.h",
+      "revId": "a080dc4705ee6b1ebbc3508cad9158c97d7e2cc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a92a81ea_cd1079ed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-09-21T20:21:36Z",
+      "side": 1,
+      "message": "the ABI change isn\u0027t cosmetic, I would split that out to its own change",
+      "revId": "a080dc4705ee6b1ebbc3508cad9158c97d7e2cc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
