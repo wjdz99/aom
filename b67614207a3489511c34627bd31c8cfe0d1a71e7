@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3b7aeda_52f2f327",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-09-22T13:38:07Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch enables using \u0027cpi-\u003eref_idx_to_skip\u0027 instead of \u0027gf_group-\u003eskip_frame_as_ref\u0027 for handling the reference frame assignment of frame_parallel_level 2 frame during the parallel encode of lower layer frames (FP2) by using the correct value of \u0027is_parallel_encode\u0027 as is passed to the function get_ref_frames().\n\nIn the parent version, with CONFIG_FRAME_PARALLEL_ENCODE_2 enabled, the parallel encode stage was making use of \u0027gf_group-\u003eskip_frame_as_ref\u0027 for handling the reference frame assignment of frame_parallel_level 2 frame in an FP2 set. When parallel encode of an FP2 set happens, the frame_parallel_level 2 frame is not supposed to use the frame that would get refreshed by frame_parallel_level 1 frame as its reference. Despite not explicitly handling this by making use of \u0027cpi-\u003eref_idx_to_skip\u0027, the intended behaviour was obtained due to the frame (that should have been skipped) getting eliminated during reference assignment by the function set_unmapped_ref() in get_ref_frames() for the frame_parallel_level 2 frame. Hence this change is bit exact.\n\nMore details on the use of the respective flags can be found at https://aomedia-review.googlesource.com/c/aom/+/141443 in which \u0027cpi-\u003eref_idx_to_skip\u0027 was introduced.\n\nThis change has been tested to be bit-exact with CONFIG_FRAME_PARALLEL_ENCODE_2 set to 1 with bitstream match tests for the CQP Hdres set (5 720p + 5 1080p) for presets 2 to 6 with 32 threads.\n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "b67614207a3489511c34627bd31c8cfe0d1a71e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
