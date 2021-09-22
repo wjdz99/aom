@@ -495,10 +495,6 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
                            &td->mb.e_mbd);
 
     cfl_init(&td->mb.e_mbd.cfl, cm->seq_params);
-    if (td->mb.txfm_search_info.txb_rd_records != NULL) {
-      av1_crc32c_calculator_init(
-          &td->mb.txfm_search_info.txb_rd_records->mb_rd_record.crc_calculator);
-    }
 
     av1_encode_sb_row(cpi, td, tile_row, tile_col, current_mi_row);
 #if CONFIG_MULTITHREAD

@@ -231,74 +231,6 @@ typedef struct {
   uint16_t cb_offset[PLANE_TYPES];
 } MB_MODE_INFO_EXT_FRAME;
 
-/*! \brief Txfm search results for a partition
- */
-typedef struct {
-  //! Txfm size used if the current mode is intra mode.
-  TX_SIZE tx_size;
-  //! Txfm sizes used if the current mode is inter mode.
-  TX_SIZE inter_tx_size[INTER_TX_SIZE_BUF_LEN];
-  //! Map showing which txfm block skips the txfm process.
-  uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
-  //! Map showing the txfm types for each block.
-  uint8_t tx_type_map[MAX_MIB_SIZE * MAX_MIB_SIZE];
-  //! Rd_stats for the whole partition block.
-  RD_STATS rd_stats;
-  //! Hash value of the current record.
-  uint32_t hash_value;
-} MB_RD_INFO;
-
-/*! \brief Hash records of txfm search results for the partition block.
- */
-typedef struct {
-  //! Circular buffer that stores the txfm search results.
-  MB_RD_INFO tx_rd_info[RD_RECORD_BUFFER_LEN];  // Circular buffer.
-  //! Index to insert the newest \ref TXB_RD_INFO.
-  int index_start;
-  //! Number of info stored in this record.
-  int num;
-  //! Hash function
-  CRC32C crc_calculator;
-} MB_RD_RECORD;
-
-/*! \brief Txfm search results for a tx block.
- */
-typedef struct {
-  //! Distortion after the txfm process
-  int64_t dist;
-  //! SSE of the prediction before the txfm process
-  int64_t sse;
-  //! Rate used to encode the txfm.
-  int rate;
-  //! Location of the end of non-zero entries.
-  uint16_t eob;
-  //! Transform type used on the current block.
-  TX_TYPE tx_type;
-  //! Unknown usage
-  uint16_t entropy_context;
-  //! Context used to code the coefficients.
-  uint8_t txb_entropy_ctx;
-  //! Whether the current info block contains  valid info
-  uint8_t valid;
-  //! Unused
-  uint8_t fast;
-  //! Whether trellis optimization is done.
-  uint8_t perform_block_coeff_opt;
-} TXB_RD_INFO;
-
-/*! \brief Hash records of txfm search result for each tx block.
- */
-typedef struct {
-  //! The hash values.
-  uint32_t hash_vals[TX_SIZE_RD_RECORD_BUFFER_LEN];
-  //! The txfm search results
-  TXB_RD_INFO tx_rd_info[TX_SIZE_RD_RECORD_BUFFER_LEN];
-  //! Index to insert the newest \ref TXB_RD_INFO.
-  int index_start;
-  //! Number of info stored in this record.
-  int num;
-} TXB_RD_RECORD;
-
 //! Number of compound rd stats
 #define MAX_COMP_RD_STATS 64
 /*! \brief Rdcost stats in compound mode.
@@ -480,38 +412,6 @@ typedef struct {
 #define MAX_NUM_64X64_TXBS ((MAX_MIB_SIZE >> 4) * (MAX_MIB_SIZE >> 4))
 /*!\endcond */
 
-/*! \brief Txfm hash records
- *
- * Hash records of the transform search results based on the residue. There
- * are two main types here:
- * - MB_RD_RECORD: records a whole *partition block*'s inter-mode txfm result.
- *   Since this operates on the partition block level, this can give us a
- *   whole txfm partition tree.
- * - TXB_RD_RECORD: records a txfm search result within a transform block
- *   itself. This operates on txb level only and only applies to square
- *   txfms.
- */
-typedef struct {
-  /*****************************************************************************
-   * \name TXB RD Record
-   ****************************************************************************/
-  /**@{*/
-  //! Txfm hash record for the whole coding block.
-  MB_RD_RECORD mb_rd_record;
-
-  //! Inter mode txfm hash record for TX_8X8 blocks.
-  TXB_RD_RECORD txb_rd_record_8X8[MAX_NUM_8X8_TXBS];
-  //! Inter mode txfm hash record for TX_16X16 blocks.
-  TXB_RD_RECORD txb_rd_record_16X16[MAX_NUM_16X16_TXBS];
-  //! Inter mode txfm hash record for TX_32X32 blocks.
-  TXB_RD_RECORD txb_rd_record_32X32[MAX_NUM_32X32_TXBS];
-  //! Inter mode txfm hash record for TX_64X64 blocks.
-  TXB_RD_RECORD txb_rd_record_64X64[MAX_NUM_64X64_TXBS];
-  //! Intra mode txfm hash record for square tx blocks.
-  TXB_RD_RECORD txb_rd_record_intra;
-  /**@}*/
-} TxbRdRecords;
-
 /*! \brief Stores various encoding/search decisions related to txfm search.
  *
  * This struct contains a cache of previous txfm results, and some buffers for
@@ -540,19 +440,6 @@ typedef struct {
    * to pick_sb_mode instead.
    */
   uint8_t tx_type_map_[MAX_MIB_SIZE * MAX_MIB_SIZE];
-
-  /*! \brief Txfm hash records
-   *
-   * Hash records of the transform search results based on the residue. There
-   * are two main types here:
-   * - MB_RD_RECORD: records a whole *partition block*'s inter-mode txfm result.
-   *   Since this operates on the partition block level, this can give us a
-   *   whole txfm partition tree.
-   * - TXB_RD_RECORD: records a txfm search result within a transform block
-   *   itself. This operates on txb level only and only applies to square
-   *   txfms.
-   */
-  TxbRdRecords *txb_rd_records;
 
   /*! \brief Number of txb splits.
    *
