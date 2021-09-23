@@ -1683,11 +1683,10 @@ int evaluate_ab_partition_based_on_split(
   // Threshold for number of winners
   // Conservative pruning for high quantizers
   const int num_win_thresh = AOMMIN(3 * (2 * (MAXQ - qindex) / MAXQ), 3);
-  int sub_part_win = (rect_part_win_info == NULL)
-                         ? (pc_tree->partitioning == rect_part)
-                         : (rect_part == PARTITION_HORZ)
-                               ? rect_part_win_info->rect_part_win[HORZ]
-                               : rect_part_win_info->rect_part_win[VERT];
+  int sub_part_win =
+      (rect_part_win_info == NULL)    ? (pc_tree->partitioning == rect_part)
+      : (rect_part == PARTITION_HORZ) ? rect_part_win_info->rect_part_win[HORZ]
+                                      : rect_part_win_info->rect_part_win[VERT];
   num_win += (sub_part_win) ? 1 : 0;
   if (pc_tree->split[split_idx1]) {
     num_win +=
@@ -1950,7 +1949,7 @@ static bool ext_ml_model_decision_before_none(
 
   // Setup features.
   aom_partition_features_t features;
-  features.id = FEATURE_BEFORE_PART_NONE;
+  features.id = AOM_EXT_PART_FEATURE_BEFORE_PART_NONE;
   for (int i = 0; i < FEATURE_SIZE_SMS_SPLIT; ++i) {
     features.before_part_none.f[i] = features_from_motion[i];
   }
@@ -1987,7 +1986,7 @@ static bool ext_ml_model_decision_before_none_part2(
 
   // Setup features.
   aom_partition_features_t features;
-  features.id = FEATURE_BEFORE_PART_NONE_PART2;
+  features.id = AOM_EXT_PART_FEATURE_BEFORE_PART_NONE_PART2;
   for (int i = 0; i < FEATURE_SIZE_SMS_PRUNE_PART; ++i) {
     features.before_part_none.f_part2[i] = features_from_motion[i];
   }
@@ -2020,7 +2019,7 @@ bool ext_ml_model_decision_after_none(
 
   // Setup features.
   aom_partition_features_t features;
-  features.id = FEATURE_AFTER_PART_NONE;
+  features.id = AOM_EXT_PART_FEATURE_AFTER_PART_NONE;
   for (int i = 0; i < 4; ++i) {
     features.after_part_none.f[i] = features_after_none[i];
   }
@@ -2053,7 +2052,7 @@ bool ext_ml_model_decision_after_none_part2(
 
   // Setup features.
   aom_partition_features_t features;
-  features.id = FEATURE_AFTER_PART_NONE_PART2;
+  features.id = AOM_EXT_PART_FEATURE_AFTER_PART_NONE_PART2;
   for (int i = 0; i < FEATURE_SIZE_SMS_TERM_NONE; ++i) {
     features.after_part_none.f_terminate[i] = features_terminate[i];
   }
@@ -2087,7 +2086,7 @@ bool ext_ml_model_decision_after_split(AV1_COMP *const cpi,
 
   // Setup features.
   aom_partition_features_t features;
-  features.id = FEATURE_AFTER_PART_SPLIT;
+  features.id = AOM_EXT_PART_FEATURE_AFTER_PART_SPLIT;
   for (int i = 0; i < 31; ++i) {
     features.after_part_split.f_terminate[i] = features_terminate[i];
   }
@@ -2121,7 +2120,7 @@ bool ext_ml_model_decision_after_split_part2(
 
   // Setup features.
   aom_partition_features_t features;
-  features.id = FEATURE_AFTER_PART_SPLIT_PART2;
+  features.id = AOM_EXT_PART_FEATURE_AFTER_PART_SPLIT_PART2;
   for (int i = 0; i < 9; ++i) {
     features.after_part_split.f_prune_rect[i] = features_prune[i];
   }
@@ -2157,7 +2156,7 @@ static bool ext_ml_model_decision_after_rect(
 
   // Setup features.
   aom_partition_features_t features;
-  features.id = FEATURE_AFTER_PART_RECT;
+  features.id = AOM_EXT_PART_FEATURE_AFTER_PART_RECT;
   for (int i = 0; i < 10; ++i) {
     features.after_part_rect.f[i] = features_after_rect[i];
   }
@@ -2196,7 +2195,7 @@ static bool ext_ml_model_decision_after_part_ab(
   if (!frame_is_intra_only(cm) && ext_part_controller->ready) {
     // Setup features.
     aom_partition_features_t features;
-    features.id = FEATURE_AFTER_PART_AB;
+    features.id = AOM_EXT_PART_FEATURE_AFTER_PART_AB;
     prepare_features_after_part_ab(cpi, x, bsize, part_ctx, best_rd,
                                    rect_part_rd, split_rd, pb_source_variance,
                                    mi_row, mi_col, &features);
