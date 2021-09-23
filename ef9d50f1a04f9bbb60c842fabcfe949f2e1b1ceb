@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77516d86_b00d4050",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-23T16:42:50Z",
+      "side": 1,
+      "message": "Cheng: Thanks for the CL. I suggest some changes.\n\nJames: I have a question for you about AOM_EXT_PART_ABI_VERSION in aom/aom_external_partition.h.",
+      "revId": "ef9d50f1a04f9bbb60c842fabcfe949f2e1b1ceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a22b1269_fd512a3d",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-23T16:42:50Z",
+      "side": 1,
+      "message": "This CL changes the source code interface but not the binary interface. Since this macro is called the \"ABI\" version, I am not sure if we need to bump it.\n\nJames, what do you think?",
+      "revId": "ef9d50f1a04f9bbb60c842fabcfe949f2e1b1ceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab50ace4_32ac9461",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-23T16:42:50Z",
+      "side": 1,
+      "message": "Optional: For these two enums, since the enum type is named aom_ext_part_decision_mode_t, you can consider using the AOM_EXT_PART_DECISION_ prefix, if you think it makes the enums clearer and is not too long.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 94,
+        "endChar": 28
+      },
+      "revId": "ef9d50f1a04f9bbb60c842fabcfe949f2e1b1ceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4bf41c67_8ba6ecd2",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-23T16:42:50Z",
+      "side": 1,
+      "message": "Optional: Do you think we can omit the second \"PART\" in these enum names? For example, shorten AOM_EXT_PART_FEATURE_BEFORE_PART_NONE to AOM_EXT_PART_FEATURE_BEFORE_NONE. Would the shorter enum names still be clear enough?",
+      "revId": "ef9d50f1a04f9bbb60c842fabcfe949f2e1b1ceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67f35e14_39cb0fba",
+        "filename": "aom/aom_external_partition.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-09-23T16:42:50Z",
+      "side": 1,
+      "message": "Please also add the AOM_EXT_ prefix to the enum type\u0027s name: AOM_EXT_PART_FEATURE_ID",
+      "range": {
+        "startLine": 169,
+        "startChar": 2,
+        "endLine": 169,
+        "endChar": 17
+      },
+      "revId": "ef9d50f1a04f9bbb60c842fabcfe949f2e1b1ceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
