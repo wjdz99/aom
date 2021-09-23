@@ -2264,6 +2264,10 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
     target = ((p_rc->starting_buffer_level / 2) > INT_MAX)
                  ? INT_MAX
                  : (int)(p_rc->starting_buffer_level / 2);
+    if (cpi->svc.number_temporal_layers > 1) {
+      int shift_tl = cpi->svc.number_temporal_layers > 2 ? 4 : 2;
+      target = target << shift_tl;
+    }
   } else {
     int kf_boost = 32;
     double framerate = cpi->framerate;
