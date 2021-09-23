@@ -3950,6 +3950,7 @@ static int read_partition_tree(AV1_COMP *const cpi, PC_TREE *const pc_tree,
     assert(partitioning >= PARTITION_NONE &&
            partitioning < EXT_PARTITION_TYPES);
     PC_TREE *node = tree_node_queue[q_idx];
+    bsize = node->block_size;
     if (node != NULL) node->partitioning = partitioning;
     if (partitioning == PARTITION_SPLIT) {
       const BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
@@ -3961,7 +3962,6 @@ static int read_partition_tree(AV1_COMP *const cpi, PC_TREE *const pc_tree,
           ++last_idx;
         }
       }
-      bsize = subsize;
     }
     --num_nodes;
     ++q_idx;
