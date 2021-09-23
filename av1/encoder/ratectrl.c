@@ -789,6 +789,7 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
   int q =
       find_closest_qindex_by_rate(target_bits_per_mb, cpi, correction_factor,
                                   active_best_quality, active_worst_quality);
+
   if (cpi->oxcf.rc_cfg.mode == AOM_CBR && has_no_stats_stage(cpi))
     return adjust_q_cbr(cpi, q, active_worst_quality);
 
@@ -2264,6 +2265,10 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
     target = ((p_rc->starting_buffer_level / 2) > INT_MAX)
                  ? INT_MAX
                  : (int)(p_rc->starting_buffer_level / 2);
+    if (cpi->svc.number_temporal_layers > 1) {
+      int shift_tl = cpi->svc.number_temporal_layers > 2 ? 4 : 2;
+      target = target << shift_tl;
+    }
   } else {
     int kf_boost = 32;
     double framerate = cpi->framerate;
