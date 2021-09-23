@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5979323_2d434deb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-09-23T10:20:07Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch corrects the cur_disp_index set in construct_multi_layer_gf_structure(). Frame number used to set this variable is updated based on KEY_FRAME after the gf_group structure is allocated, this causes the incorrect initialization in some corner cases. Since this variable is used in handling the reference frames in FP2 path, the initialization is corrected appropriately.\n\nThe changes are tested locally and has been found to have very minimal quality impact. Please find the borg results with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1, num_fp_context\u003d4, with fix (test) vs without fix (ref) below,\n\n  CPU Resolution   Instruction Count     BD-Rate Impact %\n                     Reduction %     avg.psnr ovr.psnr   ssim\n                                     8 - bit  8 - bit  8 - bit\n  4    AVERAGE        -0.004         -0.0134  -0.0143  -0.0161\n  5    AVERAGE        -0.001         -0.0096  -0.0120  -0.0105\n \nPlease review the changes.\nThanks\n",
+      "revId": "39fdeed0beb4e9038eed196c7e47e1467774c0bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
