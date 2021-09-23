@@ -34,6 +34,24 @@
       "parentUuid": "5d530e0b_f84d1dbe",
       "revId": "a207865309bd18fb840701e7754b8a3b90383b40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0930a236_af3d121b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-09-23T17:46:58Z",
+      "side": 1,
+      "message": "Would leaving the codes in the codebase be an option?\nThe speed up we get from this speed feature gets bigger on the more difficult clips, where we go down to smaller bsizes.\nWe might want to re-implement a hash-based speed feature after your experiments are concluded anyway.",
+      "parentUuid": "1d952e86_90ab9216",
+      "revId": "a207865309bd18fb840701e7754b8a3b90383b40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
