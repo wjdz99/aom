@@ -124,6 +124,24 @@
       "parentUuid": "b1602fd5_bfad8d21",
       "revId": "a207865309bd18fb840701e7754b8a3b90383b40",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe83dbe8_1174ca04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-09-23T18:20:16Z",
+      "side": 1,
+      "message": "We could disable this for speed 2+, but keep it for speed \u003c\u003d 1. The speed difference at speed 2+ is pretty negligible.",
+      "parentUuid": "dffba43f_9b74b722",
+      "revId": "a207865309bd18fb840701e7754b8a3b90383b40",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
