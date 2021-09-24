@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\nWe have submitted this CL to improve speed quality trade-off of adjust_var_based_rd_partitioning speed feature for speed\u003d6, RT preset.\nWhile benchmarking the speed features, we observed that the sf \u0027adjust_var_based_rd_partitioning\u003d1\u0027 was way out of trade-off.\nPlease check the borg test results of adjust_var_based_rd_partitioning setting changed from aggressive level 1 to level 2 as below. Please note for this SF, level 1 is more aggressive than level 2.\n\n  CPU Resolution Instruction Count         BD-Rate Impact %\n                   Reduction %   avg.psnr ovr.psnr   ssim   \n  6    Average         -10.505    -4.2337  -4.1183  -4.0680 \n  6   rtc_derf          -9.538    -4.5010  -4.7964  -4.6795 \n  6        rtc         -11.426    -4.0428  -3.6339  -3.6313  \nThe above results shows that \u0027adjust_var_based_rd_partitioning\u003d1’ is not within speed quality trade-off for speed 6.\n\nWe investigated it further and learned that sf \u0027adjust_var_based_rd_partitioning\u0027 is playing a very key role in variance based partition search. So, instead of confining the partition adjustment logic to larger q indices, we relaxed the thresholds to moderate q indices for non-boosted frames. In this process, we have also included frame type and resolution to choose the q index threshold.\n\nPlease check the borg test results of this patch with the above modifications.\n\nCPU Resolution Instruction Count           BD-Rate Impact %\n                   Reduction %   avg.psnr ovr.psnr   ssim  \n  6    Average          -2.531    -2.3773  -2.5218  -2.6672\n  6   rtc_derf          -2.064    -2.5428  -2.9051  -3.0035\n  6        rtc          -3.098    -2.2592  -2.2480  -2.4269   \n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \n\nThis patch is applicable for RT speed 6 and has no effect on RT speed \u003c\u003d 5 and speed \u003e\u003d 7. We verified the patch locally.\nPlease review the same and let us know your thoughts.\nThank you.",
       "revId": "ae96461fac191029ca90d2d549a46302bb99f4cf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d7fc275_a59f84bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-24T16:11:22Z",
+      "side": 1,
+      "message": "Nice improvement to get back ~2% coding gain! Thanks for verifying that this won\u0027t affect other speeds.",
+      "parentUuid": "01ec3e3d_ad9c8440",
+      "revId": "ae96461fac191029ca90d2d549a46302bb99f4cf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
