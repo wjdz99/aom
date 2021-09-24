@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch defines CONFIG_FRAME_PARALLEL_ENCODE_2 independent of CONFIG_FRAME_PARALLEL_ENCODE in aom_config_defaults.cmake file in order to silence compile time warnings. Since CONFIG_FRAME_PARALLEL_ENCODE_2 is always used when CONFIG_FRAME_PARALLEL_ENCODE is enabled, enabling CONFIG_FRAME_PARALLEL_ENCODE_2 alone has no effect and this was locally tested.\n\nThis patch was tested to be bit-exact in the default path as well as with CONFIG_FRAME_PARALLEL_ENCODE set to 1.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "d1fafac8fc8029829a29d08be97d3341503c9576",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4808ef2_c45cab3e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-24T16:18:07Z",
+      "side": 1,
+      "message": "For FP2 to work, we need both CONFIG_FRAME_PARALLEL_ENCODE\u003d1 and CONFIG_FRAME_PARALLEL_ENCODE_2\u003d1, right?",
+      "parentUuid": "2df26f29_ccc586f7",
+      "revId": "d1fafac8fc8029829a29d08be97d3341503c9576",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
