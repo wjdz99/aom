@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1164164d_db928dc1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-09-24T11:57:48Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch initializes avg_frame_bandwidth, min_frame_bandwidth and max_frame_bandwidth for frame_parallel_level 2 frame(s) in a given parallel encode set with that of frame_parallel_level 1 frame during av1_init_parallel_frame_context(). This fixes a few corner case mismatches between the simulation and the FPMT runs.\n\nThe changes are tested locally with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1, num_fp_context\u003d4, with fix (test) vs without fix (ref) in VBR borg set and found to be bit exact on preset 4 and preset 5.\n\nPlease review the changes.\nThanks\n",
+      "revId": "3a42fb6e38ee633df90edd2a5a3818a5e5d2194a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
