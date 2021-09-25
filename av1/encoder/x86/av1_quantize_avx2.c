@@ -163,13 +163,14 @@ void av1_quantize_lp_avx2(const int16_t *coeff_ptr, intptr_t n_coeffs,
                           const int16_t *round_ptr, const int16_t *quant_ptr,
                           int16_t *qcoeff_ptr, int16_t *dqcoeff_ptr,
                           const int16_t *dequant_ptr, uint16_t *eob_ptr,
-                          const int16_t *scan) {
+                          const int16_t *scan, const int16_t *iscan) {
+  (void)scan;
   __m128i eob;
   __m256i round256, quant256, dequant256;
   __m256i eob256, thr256;
 
   coeff_ptr += n_coeffs;
-  scan += n_coeffs;
+  iscan += n_coeffs;
   qcoeff_ptr += n_coeffs;
   dqcoeff_ptr += n_coeffs;
   n_coeffs = -n_coeffs;
@@ -205,7 +206,7 @@ void av1_quantize_lp_avx2(const int16_t *coeff_ptr, intptr_t n_coeffs,
       _mm256_storeu_si256((__m256i *)(dqcoeff_ptr + n_coeffs), coeff256);
     }
 
-    eob256 = scan_eob_256((const __m256i *)(scan + n_coeffs), &coeff256);
+    eob256 = scan_eob_256((const __m256i *)(iscan + n_coeffs), &coeff256);
     n_coeffs += 8 * 2;
   }
 
@@ -233,7 +234,7 @@ void av1_quantize_lp_avx2(const int16_t *coeff_ptr, intptr_t n_coeffs,
       coeff256 = _mm256_mullo_epi16(qcoeff256, dequant256);
       _mm256_storeu_si256((__m256i *)(dqcoeff_ptr + n_coeffs), coeff256);
       eob256 = _mm256_max_epi16(
-          eob256, scan_eob_256((const __m256i *)(scan + n_coeffs), &coeff256));
+          eob256, scan_eob_256((const __m256i *)(iscan + n_coeffs), &coeff256));
     } else {
       store_zero_tran_low(qcoeff_ptr + n_coeffs);
       store_zero_tran_low(dqcoeff_ptr + n_coeffs);
