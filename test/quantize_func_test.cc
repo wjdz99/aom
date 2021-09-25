@@ -37,6 +37,11 @@ using libaom_test::ACMRandom;
 
 typedef void (*QuantizeFunc)(QUAN_PARAM_LIST);
 typedef void (*QuantizeFuncHbd)(QUAN_PARAM_LIST, int log_scale);
+typedef void (*QuantizeLpFunc)(const int16_t *coeff_ptr, intptr_t n_coeffs,
+                               const int16_t *round_ptr,
+                               const int16_t *quant_ptr, int16_t *qcoeff_ptr,
+                               int16_t *dqcoeff_ptr, const int16_t *dequant_ptr,
+                               uint16_t *eob_ptr, const int16_t *scan);
 
 #define HBD_QUAN_FUNC                                                      \
   fn(coeff_ptr, n_coeffs, zbin_ptr, round_ptr, quant_ptr, quant_shift_ptr, \
@@ -62,6 +67,16 @@ template <QuantizeFuncHbd fn>
 void highbd_quan64x64_wrapper(QUAN_PARAM_LIST) {
   const int log_scale = 2;
   HBD_QUAN_FUNC;
+}
+
+template <QuantizeLpFunc fn>
+void quantize_lp_wrapper(QUAN_PARAM_LIST) {
+  (void)zbin_ptr;
+  (void)quant_shift_ptr;
+  (void)iscan;
+
+  fn((const int16_t *)coeff_ptr, n_coeffs, round_ptr, quant_ptr,
+     (int16_t *)qcoeff_ptr, (int16_t *)dqcoeff_ptr, dequant_ptr, eob_ptr, scan);
 }
 
 enum QuantType { TYPE_B, TYPE_DC, TYPE_FP };
@@ -529,7 +544,20 @@ const QuantizeParam kQParamArraySSE2[] = {
              static_cast<TX_SIZE>(TX_64X32), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_quantize_b_64x64_adaptive_c,
              &aom_quantize_b_64x64_adaptive_sse2,
-             static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8)
+             static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8),
+
+  // av1_quantize_lp is only called in nonrd_pickmode.c, and is used for 16X16,
+  // 8X8, and 4X4.
+  //             make_tuple(&quantize_lp_wrapper<av1_quantize_lp_c>,
+  //             &quantize_lp_wrapper<av1_quantize_lp_sse2>,
+  //                        static_cast<TX_SIZE>(TX_16X16), TYPE_FP,
+  //                        AOM_BITS_8),
+  //             make_tuple(&quantize_lp_wrapper<av1_quantize_lp_c>,
+  //             &quantize_lp_wrapper<av1_quantize_lp_sse2>,
+  //                        static_cast<TX_SIZE>(TX_8X8), TYPE_FP, AOM_BITS_8),
+  make_tuple(&quantize_lp_wrapper<av1_quantize_lp_c>,
+             &quantize_lp_wrapper<av1_quantize_lp_sse2>,
+             static_cast<TX_SIZE>(TX_4X4), TYPE_FP, AOM_BITS_8)
 };
 
 INSTANTIATE_TEST_SUITE_P(SSE2, FullPrecisionQuantizeTest,
