@@ -529,7 +529,7 @@ const QuantizeParam kQParamArraySSE2[] = {
              static_cast<TX_SIZE>(TX_64X32), TYPE_B, AOM_BITS_8),
   make_tuple(&aom_quantize_b_64x64_adaptive_c,
              &aom_quantize_b_64x64_adaptive_sse2,
-             static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8)
+             static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_8),
 };
 
 INSTANTIATE_TEST_SUITE_P(SSE2, FullPrecisionQuantizeTest,

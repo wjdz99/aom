@@ -163,7 +163,7 @@ void av1_quantize_lp_avx2(const int16_t *coeff_ptr, intptr_t n_coeffs,
                           const int16_t *round_ptr, const int16_t *quant_ptr,
                           int16_t *qcoeff_ptr, int16_t *dqcoeff_ptr,
                           const int16_t *dequant_ptr, uint16_t *eob_ptr,
-                          const int16_t *scan) {
+                          const int16_t *scan, const int16_t *iscan) {
   __m128i eob;
   __m256i round256, quant256, dequant256;
   __m256i eob256, thr256;
