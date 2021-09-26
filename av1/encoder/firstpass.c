@@ -1273,7 +1273,8 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
 
   av1_set_quantizer(cm, cpi->oxcf.q_cfg.qm_minlevel,
                     cpi->oxcf.q_cfg.qm_maxlevel, qindex,
-                    cpi->oxcf.q_cfg.enable_chroma_deltaq);
+                    cpi->oxcf.q_cfg.enable_chroma_deltaq,
+                    cpi->oxcf.q_cfg.enable_hdr_deltaq);
 
   av1_setup_block_planes(xd, seq_params->subsampling_x,
                          seq_params->subsampling_y, num_planes);
