@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n \nThis patch sets \u0027gf_group-\u003earf_boost\u0027 for frames in a subgop when set_multi_layer_params_for_fp() is called. Please note that set_multi_layer_params_for_gf14() is unused now and hence 0s are passed as start and end indices to set_params_for_leaf_frames() here.\n \nThis patch is tested to be bit exact when FP2 is enabled (CONFIG_FRAME_PARALLEL_ENCODE 1 , CONFIG_FRAME_PARALLEL_ENCODE_2 1) with 32 threads over 10 Hdres clips (5 720p + 5 1080p) for presets 4 and 5.\n \nPlease review.\n\nRegards,\nRemya\n",
       "revId": "c5ed6021c47378363eb65f3394afd6ecb4b63817",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6186328_24a7e559",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-27T16:22:32Z",
+      "side": 1,
+      "message": "Thanks. Looks good.",
+      "revId": "c5ed6021c47378363eb65f3394afd6ecb4b63817",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
