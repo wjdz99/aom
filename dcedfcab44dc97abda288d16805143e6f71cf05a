@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19f72cad_e400a002",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-09-27T16:03:51Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch removes calc_frame_data_update_flag() which was required only during FPMT simulation to mark the last frames in a parallel set to update to ppi. It is now handled in av1_init_parallel_frame_context() and separate function is not required.\n\nThis patch also refactors and renames few FPMT functions.\n\nPlease review.",
+      "revId": "dcedfcab44dc97abda288d16805143e6f71cf05a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
