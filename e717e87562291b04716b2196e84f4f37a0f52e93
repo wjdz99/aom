@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nThis patch initializes intervals_till_gf_calculate_due in frame_parallel_level 2 frame\u0027s cpi with that of frame_parallel_level 1 frame\u0027s cpi during av1_init_parallel_frame_context(). Though this variable is used as one of the conditions to call calculate_gf_length() in av1_get_second_pass_params(), its impact is overridden in the current code. Hence, this is a bit-exact change, and will ensure that any future use of intervals_till_gf_calculate_due will be correct when FPMT is enabled.\n\nThe changes are tested locally with CONFIG_FRAME_PARALLEL_ENCODE 1, CONFIG_FRAME_PARALLEL_ENCODE_2 1, num_fp_context\u003d4, with fix (test) vs without fix (ref) in VBR borg set and found to be bit exact on preset 3 and preset 5.\n\nPlease review the changes.\nThanks\n",
       "revId": "e717e87562291b04716b2196e84f4f37a0f52e93",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc840d91_b1726b82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-27T16:23:25Z",
+      "side": 1,
+      "message": "Looks good.",
+      "revId": "e717e87562291b04716b2196e84f4f37a0f52e93",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
