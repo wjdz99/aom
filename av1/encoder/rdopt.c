@@ -1320,7 +1320,12 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
                             const MV_REFERENCE_FRAME_NRS ref_frames_nrs[2],
 #endif  // CONFIG_NEW_REF_SIGNALING
                             InterModeSearchState *search_state) {
+#if CONFIG_NEW_REF_SIGNALING
+  const int is_comp_pred = (ref_frames_nrs[1] != INTRA_FRAME_NRS &&
+                            ref_frames_nrs[1] != INVALID_IDX);
+#else
   const int is_comp_pred = ref_frames[1] > INTRA_FRAME;
+#endif  // CONFIG_NEW_REF_SIGNALING
   const uint8_t ref_frame_type = av1_ref_frame_type(ref_frames);
   const MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int ref_mv_count = mbmi_ext->ref_mv_count[ref_frame_type];
@@ -1419,8 +1424,16 @@ static int64_t handle_newmv(const AV1_COMP *const cpi, MACROBLOCK *const x,
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const int is_comp_pred = has_second_ref(mbmi);
   const PREDICTION_MODE this_mode = mbmi->mode;
+#if CONFIG_NEW_REF_SIGNALING
+  const int refs[2] = { mbmi->ref_frame_nrs[0],
+                        mbmi->ref_frame_nrs[1] == INVALID_IDX ||
+                                mbmi->ref_frame_nrs[1] == INTRA_FRAME_NRS
+                            ? INTRA_FRAME_INDEX_NRS
+                            : mbmi->ref_frame_nrs[1] };
+#else
   const int refs[2] = { mbmi->ref_frame[0],
                         mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1] };
+#endif  // CONFIG_NEW_REF_SIGNALING
   const int ref_mv_idx = mbmi->ref_mv_idx;
   const MvSubpelPrecision max_mv_precision = mbmi->max_mv_precision;
 
@@ -2432,7 +2445,11 @@ static INLINE int is_single_newmv_valid(const HandleInterModeArgs *const args,
                                         PREDICTION_MODE this_mode) {
   for (int ref_idx = 0; ref_idx < 2; ++ref_idx) {
     const PREDICTION_MODE single_mode = get_single_mode(this_mode, ref_idx);
+#if CONFIG_NEW_REF_SIGNALING
+    const MV_REFERENCE_FRAME_NRS ref = mbmi->ref_frame_nrs[ref_idx];
+#else
     const MV_REFERENCE_FRAME ref = mbmi->ref_frame[ref_idx];
+#endif  // CONFIG_NEW_REF_SIGNALING
     if (single_mode == NEWMV &&
         args->single_newmv_valid[mbmi->ref_mv_idx][ref] == 0) {
       return 0;
@@ -2992,6 +3009,9 @@ static int skip_repeated_newmv(
     RD_STATS *best_rd_stats, RD_STATS *best_rd_stats_y,
     RD_STATS *best_rd_stats_uv, inter_mode_info *mode_info,
     HandleInterModeArgs *args, int drl_cost, const MV_REFERENCE_FRAME *refs,
+#if CONFIG_NEW_REF_SIGNALING
+    const MV_REFERENCE_FRAME_NRS *refs_nrs,
+#endif  // CONFIG_NEW_REF_SIGNALING
     int_mv *cur_mv, int64_t *best_rd, const BUFFER_SET orig_dst,
     int ref_mv_idx) {
   // This feature only works for NEWMV when a previous mv has been searched
@@ -3005,8 +3025,8 @@ static int skip_repeated_newmv(
   int i;
   for (i = 0; i < ref_mv_idx; ++i) {
     // Check if the motion search result same as previous results
-    if (cur_mv[0].as_int == args->single_newmv[i][refs[0]].as_int &&
-        args->single_newmv_valid[i][refs[0]]) {
+    if (cur_mv[0].as_int == args->single_newmv[i][refs_nrs[0]].as_int &&
+        args->single_newmv_valid[i][refs_nrs[0]]) {
       // If the compared mode has no valid rd, it is unlikely this
       // mode will be the best mode
       if (mode_info[i].rd == INT64_MAX) {
@@ -3316,6 +3336,14 @@ static int64_t handle_inter_mode(
   const MV_REFERENCE_FRAME refs[2] = {
     mbmi->ref_frame[0], (mbmi->ref_frame[1] < 0 ? 0 : mbmi->ref_frame[1])
   };
+#if CONFIG_NEW_REF_SIGNALING
+  const MV_REFERENCE_FRAME_NRS refs_nrs[2] = {
+    mbmi->ref_frame_nrs[0], mbmi->ref_frame_nrs[1] == INVALID_IDX ||
+                                    mbmi->ref_frame_nrs[1] == INTRA_FRAME_NRS
+                                ? INTRA_FRAME_INDEX_NRS
+                                : mbmi->ref_frame_nrs[1]
+  };
+#endif  // CONFIG_NEW_REF_SIGNALING
   int rate_mv = 0;
   int64_t rd = INT64_MAX;
   // Do first prediction into the destination buffer. Do the next
@@ -3470,11 +3498,15 @@ static int64_t handle_inter_mode(
       // skip NEWMV mode in drl if the motion search result is the same
       // as a previous result
       if (cpi->sf.inter_sf.skip_repeated_newmv &&
-          skip_repeated_newmv(
-              cpi, x, bsize, do_tx_search, this_mode, mbmi->max_mv_precision,
-              &best_mbmi, motion_mode_cand, &ref_best_rd, &best_rd_stats,
-              &best_rd_stats_y, &best_rd_stats_uv, mode_info, args, drl_cost,
-              refs, cur_mv, &best_rd, orig_dst, ref_mv_idx))
+          skip_repeated_newmv(cpi, x, bsize, do_tx_search, this_mode,
+                              mbmi->max_mv_precision, &best_mbmi,
+                              motion_mode_cand, &ref_best_rd, &best_rd_stats,
+                              &best_rd_stats_y, &best_rd_stats_uv, mode_info,
+                              args, drl_cost, refs,
+#if CONFIG_NEW_REF_SIGNALING
+                              refs_nrs,
+#endif  // CONFIG_NEW_REF_SIGNALING
+                              cur_mv, &best_rd, orig_dst, ref_mv_idx))
         continue;
     }
     // Copy the motion vector for this mode into mbmi struct
@@ -6415,6 +6447,11 @@ static void tx_search_best_inter_candidates(
 
     const MV_REFERENCE_FRAME refs[2] = { mbmi->ref_frame[0],
                                          mbmi->ref_frame[1] };
+#if CONFIG_NEW_REF_SIGNALING
+    const MV_REFERENCE_FRAME_NRS refs_nrs[2] = { mbmi->ref_frame_nrs[0],
+                                                 mbmi->ref_frame_nrs[1] };
+    (void)refs_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
 
     // Collect mode stats for multiwinner mode processing
     const int txfm_search_done = 1;
@@ -6976,11 +7013,11 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
       break;
 #if CONFIG_NEW_REF_SIGNALING
     const PREDICTION_MODE this_mode = intra_mode_idx_ls[j];
-    MV_REFERENCE_FRAME refs[2] = { intra_mode_ref_frames[j][0],
-                                   intra_mode_ref_frames[j][1] };
+    MV_REFERENCE_FRAME_NRS refs[2] = { intra_mode_ref_frames[j][0],
+                                       intra_mode_ref_frames[j][1] };
 
     assert(refs[0] == INTRA_FRAME);
-    assert(refs[1] == NONE_FRAME);
+    assert(refs[1] == INVALID_IDX);
     init_mbmi(mbmi, this_mode, refs, cm, xd->sbi);
 #else
     const THR_MODES mode_enum = intra_mode_idx_ls[j];
