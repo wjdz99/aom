@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf1f3053_2fd217a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-09-27T16:03:03Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch enables frame parallelism to be supported with multi-tile encoding. It disables FPMT for large-scale tile coding because of potential data race in av1_setup_frame_contexts() and would be enabled after resolution.\n\nThis change is bit-exact and has been locally verified with bitstream match tests over a combination of various configuration values for --threads, --tile-rows, --tile-columns, --cpu-used, --end-usage, --row-mt, etc.\n\nPlease review.",
+      "revId": "098dfbe5ae119acba60c2fbb11b1717bbffbabf0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
