@@ -521,22 +521,39 @@ INSTANTIATE_TEST_SUITE_P(
 #endif
 
 typedef int (*SatdFunc)(const tran_low_t *coeffs, int length);
-typedef ::testing::tuple<int, SatdFunc, SatdFunc> SatdTestParam;
-class SatdTest : public ::testing::Test,
-                 public ::testing::WithParamInterface<SatdTestParam> {
- protected:
-  virtual void SetUp() {
-    satd_size_ = GET_PARAM(0);
-    satd_func_ref_ = GET_PARAM(1);
-    satd_func_simd_ = GET_PARAM(2);
+typedef int (*SatdLpFunc)(const int16_t *coeffs, int length);
 
+// typedef ::testing::tuple<int, SatdFunc, SatdFunc> SatdTestParam;
+// typedef ::testing::tuple<int, SatdLpFunc, SatdLpFunc> SatdLpTestParam;
+
+template <typename SatdFuncType>
+struct SatdTestParam {
+  SatdTestParam(int s, SatdFuncType f1, SatdFuncType f2)
+      : satd_size(s), func_ref(f1), func_simd(f2) {}
+  int satd_size;
+  SatdFuncType func_ref;
+  SatdFuncType func_simd;
+  // using Tuple = ::testing::tuple<int, SatdFuncType, SatdFuncType>;
+};
+
+template <typename CoeffType, typename SatdFuncType>
+class SatdTestBase
+    : public ::testing::Test,
+      public ::testing::WithParamInterface<SatdTestParam<SatdFuncType>> {
+ protected:
+  explicit SatdTestBase(const SatdTestParam<SatdFuncType> &func_param) {
+    satd_size_ = func_param.satd_size;
+    satd_func_ref_ = func_param.func_ref;
+    satd_func_simd_ = func_param.func_simd;
+  }
+  virtual void SetUp() {
     rnd_.Reset(ACMRandom::DeterministicSeed());
-    src_ = reinterpret_cast<tran_low_t *>(
+    src_ = reinterpret_cast<CoeffType *>(
         aom_memalign(32, sizeof(*src_) * satd_size_));
     ASSERT_TRUE(src_ != NULL);
   }
   virtual void TearDown() { aom_free(src_); }
-  void FillConstant(const tran_low_t val) {
+  void FillConstant(const CoeffType val) {
     for (int i = 0; i < satd_size_; ++i) src_[i] = val;
   }
   void FillRandom() {
@@ -597,10 +614,15 @@ class SatdTest : public ::testing::Test,
   int satd_size_;
 
  private:
-  tran_low_t *src_;
-  SatdFunc satd_func_ref_;
-  SatdFunc satd_func_simd_;
+  CoeffType *src_;
+  SatdFuncType satd_func_ref_;
+  SatdFuncType satd_func_simd_;
   ACMRandom rnd_;
+};
+
+class SatdTest : public SatdTestBase<tran_low_t, SatdFunc> {
+ public:
+  SatdTest() : SatdTestBase(GetParam()) {}
 };
 
 TEST_P(SatdTest, MinValue) {
@@ -639,7 +661,7 @@ TEST_P(SatdTest, DISABLED_Speed) {
 }
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(SatdTest);
 
-#if HAVE_NEON
+#if 0 && HAVE_NEON
 INSTANTIATE_TEST_SUITE_P(
     NEON, SatdTest,
     ::testing::Values(make_tuple(16, &aom_satd_c, &aom_satd_neon),
@@ -657,19 +679,89 @@ INSTANTIATE_TEST_SUITE_P(
 #if HAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
     AVX2, SatdTest,
-    ::testing::Values(make_tuple(16, &aom_satd_c, &aom_satd_avx2),
-                      make_tuple(64, &aom_satd_c, &aom_satd_avx2),
-                      make_tuple(256, &aom_satd_c, &aom_satd_avx2),
-                      make_tuple(1024, &aom_satd_c, &aom_satd_avx2)));
+    ::testing::Values(SatdTestParam<SatdFunc>(16, &aom_satd_c, &aom_satd_avx2),
+                      SatdTestParam<SatdFunc>(64, &aom_satd_c, &aom_satd_avx2),
+                      SatdTestParam<SatdFunc>(256, &aom_satd_c, &aom_satd_avx2),
+                      SatdTestParam<SatdFunc>(1024, &aom_satd_c,
+                                              &aom_satd_avx2)));
 #endif
 
-#if HAVE_SSE2
+#if 0 && HAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, SatdTest,
     ::testing::Values(make_tuple(16, &aom_satd_c, &aom_satd_sse2),
                       make_tuple(64, &aom_satd_c, &aom_satd_sse2),
                       make_tuple(256, &aom_satd_c, &aom_satd_sse2),
                       make_tuple(1024, &aom_satd_c, &aom_satd_sse2)));
+#endif
+
+class SatdLpTest : public SatdTestBase<int16_t, SatdLpFunc> {
+ public:
+  SatdLpTest() : SatdTestBase(GetParam()) {}
+};
+
+TEST_P(SatdLpTest, MinValue) {
+  const int kMin = -32640;
+  const int expected = -kMin * satd_size_;
+  FillConstant(kMin);
+  Check(expected);
+}
+TEST_P(SatdLpTest, MaxValue) {
+  const int kMax = 32640;
+  const int expected = kMax * satd_size_;
+  FillConstant(kMax);
+  Check(expected);
+}
+TEST_P(SatdLpTest, Random) {
+  int expected;
+  switch (satd_size_) {
+    case 16: expected = 205298; break;
+    case 64: expected = 1113950; break;
+    case 256: expected = 4268415; break;
+    case 1024: expected = 16954082; break;
+    default:
+      FAIL() << "Invalid satd size (" << satd_size_
+             << ") valid: 16/64/256/1024";
+  }
+  FillRandom();
+  Check(expected);
+}
+TEST_P(SatdLpTest, Match) {
+  FillRandom();
+  RunComparison();
+}
+TEST_P(SatdLpTest, DISABLED_Speed) {
+  FillRandom();
+  RunSpeedTest();
+}
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(SatdLpTest);
+
+#if 0 && HAVE_NEON
+INSTANTIATE_TEST_SUITE_P(
+    NEON, SatdLpTest,
+    ::testing::Values(SatdTestParam(16, &aom_satd_lp_c, &aom_satd_lp_neon),
+                      SatdTestParam(64, &aom_satd_lp_c, &aom_satd_lp_neon),
+                      SatdTestParam(256, &aom_satd_lp_c, &aom_satd_lp_neon),
+                      SatdTestParam(1024, &aom_satd_lp_c, &aom_satd_lp_neon)));
+#endif
+
+#if HAVE_AVX2
+INSTANTIATE_TEST_SUITE_P(
+    AVX2, SatdLpTest,
+    ::testing::Values(
+        SatdTestParam<SatdLpFunc>(16, &aom_satd_lp_c, &aom_satd_lp_avx2),
+        SatdTestParam<SatdLpFunc>(64, &aom_satd_lp_c, &aom_satd_lp_avx2),
+        SatdTestParam<SatdLpFunc>(256, &aom_satd_lp_c, &aom_satd_lp_avx2),
+        SatdTestParam<SatdLpFunc>(1024, &aom_satd_lp_c, &aom_satd_lp_avx2)));
+#endif
+
+#if 0 && HAVE_SSE2
+INSTANTIATE_TEST_SUITE_P(
+    SSE2, SatdLpTest,
+    ::testing::Values(make_tuple(16, &aom_satd_lp_c, &aom_satd_lp_sse2),
+                      make_tuple(64, &aom_satd_lp_c, &aom_satd_lp_sse2),
+                      make_tuple(256, &aom_satd_lp_c, &aom_satd_lp_sse2),
+                      make_tuple(1024, &aom_satd_lp_c, &aom_satd_lp_sse2)));
 #endif
 
 }  // namespace
