@@ -1208,10 +1208,10 @@ void av1_find_mv_refs_nrs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                     mv_ref_list ? mv_ref_list[ref_frame_nrs] : NULL, gm_mv,
                     mi_row, mi_col, mode_context);
   /*
-  printf("[%d, %d](%d): count %d\n", mi_row, mi_col, mi->sb_type,
-         ref_mv_count[ref_frame_nrs]);
-  for (int i = 0; i < ref_mv_count[ref_frame_nrs]; ++i) {
-    printf(" {%d, %d}", ref_mv_stack[ref_frame_nrs][i].this_mv.as_mv.row,
+  printf("{%d}[%d, %d](%d): reftype %d, count %d\n",
+  cm->current_frame.order_hint, mi_row, mi_col, mi->sb_type, ref_frame_nrs,
+  ref_mv_count[ref_frame_nrs]); for (int i = 0; i < ref_mv_count[ref_frame_nrs];
+  ++i) { printf(" {%d, %d}", ref_mv_stack[ref_frame_nrs][i].this_mv.as_mv.row,
            ref_mv_stack[ref_frame_nrs][i].this_mv.as_mv.col);
   }
   printf("\n");
@@ -1301,9 +1301,9 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                     mv_ref_list ? mv_ref_list[ref_frame] : NULL, gm_mv, mi_row,
                     mi_col, mode_context);
   /*
-  printf("[%d, %d](%d): count %d\n", mi_row, mi_col, mi->sb_type,
-         ref_mv_count[ref_frame]);
-  for (int i = 0; i < ref_mv_count[ref_frame]; ++i) {
+  printf("{%d}[%d, %d](%d): reftype %d, count %d\n",
+  cm->current_frame.order_hint, mi_row, mi_col, mi->sb_type, ref_frame,
+  ref_mv_count[ref_frame]); for (int i = 0; i < ref_mv_count[ref_frame]; ++i) {
     printf(" {%d, %d}", ref_mv_stack[ref_frame][i].this_mv.as_mv.row,
            ref_mv_stack[ref_frame][i].this_mv.as_mv.col);
   }
@@ -1562,7 +1562,7 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
     tpl_mvs_base[idx].ref_frame_offset = 0;
   }
 
-  const RefCntBuffer *ref_buf[INTER_REFS_PER_FRAME];
+  const RefCntBuffer *ref_buf[INTER_REFS_PER_FRAME] = { 0 };
   int ref_order_hint[INTER_REFS_PER_FRAME];
 
 #if CONFIG_NEW_REF_SIGNALING && USE_NEW_REF_SIGNALING
@@ -1618,8 +1618,8 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
   // overlay frames in the list of references
   int n_refs_used = 0;
   int refs_used[INTER_REFS_PER_FRAME_NRS] = { 0 };
-  for (int ref_frame = 0;
-       ref_frame < AOMMAX(1, cm->new_ref_frame_data.n_past_refs); ref_frame++) {
+  for (int ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_past_refs;
+       ref_frame++) {
     const int index = cm->new_ref_frame_data.past_refs[ref_frame];
     if (!is_ref_overlay_nrs(cm, index)) {
       motion_field_projection(cm, index, 2);
@@ -1627,10 +1627,9 @@ void av1_setup_motion_field(AV1_COMMON *cm) {
     }
     refs_used[index] = 1;
   }
-  for (int ref_frame = 0;
-       ref_frame < AOMMAX(1, cm->new_ref_frame_data.n_future_refs);
+  for (int ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_future_refs;
        ref_frame++) {
-    const int index = cm->new_ref_frame_data.past_refs[ref_frame];
+    const int index = cm->new_ref_frame_data.future_refs[ref_frame];
     if (!is_ref_overlay_nrs(cm, index)) {
       motion_field_projection(cm, index, 0);
       n_refs_used++;
