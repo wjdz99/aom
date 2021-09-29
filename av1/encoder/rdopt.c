@@ -1345,6 +1345,7 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
                             const MV_REFERENCE_FRAME_NRS ref_frames_nrs[2],
 #endif  // CONFIG_NEW_REF_SIGNALING
                             InterModeSearchState *search_state) {
+  (void)ref_frames;
 #if CONFIG_NEW_REF_SIGNALING
   const int is_comp_pred = (ref_frames_nrs[1] != INTRA_FRAME_NRS &&
                             ref_frames_nrs[1] != INVALID_IDX);
@@ -1366,9 +1367,6 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
         compare_mode = NEARESTMV;
       }
 #if CONFIG_NEW_REF_SIGNALING
-      // TODO(sarahparker) Temporary assert, see aomedia:3060
-      assert(is_same_wm_params(&cm->global_motion_nrs[ref_frames_nrs[0]],
-                               &cm->global_motion[ref_frames[0]]));
       if (ref_mv_count == 1 &&
           cm->global_motion_nrs[ref_frames_nrs[0]].wmtype <= TRANSLATION) {
 #else
@@ -1381,9 +1379,6 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
     }
     if (this_mode == GLOBALMV) {
 #if CONFIG_NEW_REF_SIGNALING
-      // TODO(sarahparker) Temporary assert, see aomedia:3060
-      assert(is_same_wm_params(&cm->global_motion_nrs[ref_frames_nrs[0]],
-                               &cm->global_motion[ref_frames[0]]));
       if (ref_mv_count == 0 &&
           cm->global_motion_nrs[ref_frames_nrs[0]].wmtype <= TRANSLATION) {
 #else
@@ -7218,6 +7213,10 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
         MV_REFERENCE_FRAME second_ref_frame =
             convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                   second_ref_frame_nrs);
+        // if (second_ref_frame_nrs != INVALID_IDX && ref_frame_nrs !=
+        // INTRA_FRAME_NRS &&
+        //     ref_frame_nrs >= second_ref_frame_nrs)
+        //   continue;
         if (second_ref_frame_nrs != INVALID_IDX &&
             this_mode < COMP_INTER_MODE_START)
           continue;
@@ -7228,9 +7227,21 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
         // TODO(debargha, sarahparker): when the compound mode
         // signaling in new ref framework is in place to support
         // n_total_refs choose 2 modes, the skip_compound_search()
-        // call can be removed and instead the two lines following
+        // call can be removed and instead the lines following
         // must be uncommented.
         if (skip_compound_search(ref_frame, second_ref_frame)) continue;
+        /*
+        if (skip_compound_search(ref_frame, second_ref_frame)) {
+          if (skip_compound_search(second_ref_frame, ref_frame)) {
+            continue;
+          } else {
+            // Swap
+            MV_REFERENCE_FRAME tmprf = ref_frame;
+            ref_frame = second_ref_frame;
+            second_ref_frame = tmprf;
+          }
+        }
+        */
         // if (second_ref_frame_nrs != INVALID_IDX &&
         //     second_ref_frame_nrs <= ref_frame_nrs) continue;
         const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame,
@@ -7345,9 +7356,12 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
             &args, ref_best_rd, tmp_buf, &x->comp_rd_buffer, &best_est_rd,
             do_tx_search, inter_modes_info, &motion_mode_cand, skip_rd,
             &inter_cost_info_from_tpl);
-        // printf("rd{%d}[%d, %d](%d): mode %d, rd %" PRId64 "\n",
-        //        cm->current_frame.order_hint,
-        //        mi_row, mi_col, bsize, this_mode, this_rd);
+        /*
+        if (comp_pred)
+          printf("rd{%d}[%d, %d](%d): mode %d, rd %" PRId64 "\n",
+                 cm->current_frame.order_hint,
+                 mi_row, mi_col, bsize, this_mode, this_rd);
+                 */
 
         if (sf->inter_sf.prune_comp_search_by_single_result > 0 &&
             is_inter_singleref_mode(this_mode)) {
