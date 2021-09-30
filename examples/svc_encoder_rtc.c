@@ -646,14 +646,9 @@ static void set_layer_pattern(int layering_mode, int superframe_cnt,
 
       // Keep golden fixed at slot 3.
       ref_frame_config->ref_idx[SVC_GOLDEN_FRAME] = 3;
-      // Cyclically refresh slots 5, 6, 7, for lag altref.
-      lag_index = 5;
-      if (base_count > 0) {
-        lag_index = 5 + (base_count % 3);
-        if (superframe_cnt % 4 != 0) lag_index = 5 + ((base_count + 1) % 3);
-      }
-      // Set the altref slot to lag_index.
-      ref_frame_config->ref_idx[SVC_ALTREF_FRAME] = lag_index;
+      // Cyclically refresh slots 6, 7, for lag altref.
+      lag_index = 6;
+      lag_index = 6 + (base_count % 2);
       if (superframe_cnt % 4 == 0) {
         // Base layer.
         layer_id->temporal_layer_id = 0;
@@ -666,10 +661,12 @@ static void set_layer_pattern(int layering_mode, int superframe_cnt,
         ref_frame_config->refresh[lag_index] = 1;
       } else if ((superframe_cnt - 1) % 4 == 0) {
         layer_id->temporal_layer_id = 2;
+        lag_index = 6 + ((base_count + 1) % 2);
         // First top layer: no updates, only reference LAST (TL0).
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
       } else if ((superframe_cnt - 2) % 4 == 0) {
         layer_id->temporal_layer_id = 1;
+        lag_index = 6 + ((base_count + 1) % 2);
         // Middle layer (TL1): update LAST2, only reference LAST (TL0).
         ref_frame_config->refresh[1] = 1;
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
@@ -682,6 +679,8 @@ static void set_layer_pattern(int layering_mode, int superframe_cnt,
         ref_frame_config->ref_idx[SVC_LAST2_FRAME] = 0;
         ref_frame_config->reference[SVC_LAST_FRAME] = 1;
       }
+      // Set the altref slot to lag_index.
+      ref_frame_config->ref_idx[SVC_ALTREF_FRAME] = lag_index;
       // Every frame can reference GOLDEN AND ALTREF.
       ref_frame_config->reference[SVC_GOLDEN_FRAME] = 1;
       ref_frame_config->reference[SVC_ALTREF_FRAME] = 1;
