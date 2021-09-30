@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nIn this CL we have removed the unused speed feature comp_inter_joint_search_thresh.\nThis patch is bit-exact and no impact on encoder speed.\n\nPlease review the patch.\n\nThank you.",
       "revId": "7d6c8170b56985a7cff893677a0becca2799f5fc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91a20bf6_8824b367",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-09-30T16:32:40Z",
+      "side": 1,
+      "message": "Thanks for the cleanup. Looks good.",
+      "revId": "7d6c8170b56985a7cff893677a0becca2799f5fc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
