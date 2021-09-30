@@ -155,6 +155,7 @@ void av1_cyclic_reset_segment_skip(const AV1_COMP *cpi, MACROBLOCK *const x,
   const AV1_COMMON *const cm = &cpi->common;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
+  int sh = cpi->cyclic_refresh->skip_over4x4 ? 2 : 1;
   const int prev_segment_id = mbmi->segment_id;
   mbmi->segment_id = av1_get_spatial_seg_pred(cm, xd, &cdf_num);
   if (prev_segment_id != mbmi->segment_id) {
@@ -164,8 +165,8 @@ void av1_cyclic_reset_segment_skip(const AV1_COMP *cpi, MACROBLOCK *const x,
     const int xmis = AOMMIN(cm->mi_params.mi_cols - mi_col, bw);
     const int ymis = AOMMIN(cm->mi_params.mi_rows - mi_row, bh);
     const int block_index = mi_row * cm->mi_params.mi_cols + mi_col;
-    for (int mi_y = 0; mi_y < ymis; mi_y++) {
-      for (int mi_x = 0; mi_x < xmis; mi_x++) {
+    for (int mi_y = 0; mi_y < ymis; mi_y += sh) {
+      for (int mi_x = 0; mi_x < xmis; mi_x += sh) {
         const int map_offset =
             block_index + mi_y * cm->mi_params.mi_cols + mi_x;
         cr->map[map_offset] = 0;
@@ -200,6 +201,7 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi, MACROBLOCK *const x,
   const int block_index = mi_row * cm->mi_params.mi_cols + mi_col;
   const int refresh_this_block =
       candidate_refresh_aq(cr, mbmi, rate, dist, bsize);
+  int sh = cpi->cyclic_refresh->skip_over4x4 ? 2 : 1;
   // Default is to not update the refresh map.
   int new_map_value = cr->map[block_index];
 
@@ -229,8 +231,8 @@ void av1_cyclic_refresh_update_segment(const AV1_COMP *cpi, MACROBLOCK *const x,
 
   // Update entries in the cyclic refresh map with new_map_value, and
   // copy mbmi->segment_id into global segmentation map.
-  for (int mi_y = 0; mi_y < ymis; mi_y++) {
-    for (int mi_x = 0; mi_x < xmis; mi_x++) {
+  for (int mi_y = 0; mi_y < ymis; mi_y += sh) {
+    for (int mi_x = 0; mi_x < xmis; mi_x += sh) {
       const int map_offset = block_index + mi_y * cm->mi_params.mi_cols + mi_x;
       cr->map[map_offset] = new_map_value;
       cpi->enc_seg.map[map_offset] = mbmi->segment_id;
@@ -399,6 +401,13 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   double weight_segment = 0;
   int qp_thresh = AOMMIN(20, rc->best_quality << 1);
   int qp_max_thresh = 118 * MAXQ >> 7;
+  // Although this segment feature for RTC is only used for
+  // blocks >= 8X8, for more efficient coding of the seg map
+  // cur_frame->seg_map needs to set at 4x4 along with the
+  // function av1_cyclic_reset_segment_skip(). Skipping over
+  // 4x4 will therefore have small bdrate loss (~0.2%), so
+  // we use it only for speed > 9 for now.
+  cr->skip_over4x4 = (cpi->oxcf.speed > 9) ? 1 : 0;
   cr->apply_cyclic_refresh = 1;
   if (frame_is_intra_only(cm) || is_lossless_requested(&cpi->oxcf.rc_cfg) ||
       cpi->svc.temporal_layer_id > 0 ||
