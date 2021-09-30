@@ -111,6 +111,7 @@ struct CYCLIC_REFRESH {
   int qindex_delta[3];
   double weight_segment;
   int apply_cyclic_refresh;
+  int skip_over4x4;
   /*!\endcond */
 };
 
