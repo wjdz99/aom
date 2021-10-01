@@ -544,6 +544,11 @@ void av1_set_mb_ur_variance(AV1_COMP *cpi) {
     scaling_factor = (double)(MAXQ - cq_level) / (MAXQ - delta_q_avg[1]);
   }
 
+  scaling_factor *= (double)cpi->oxcf.q_cfg.deltaq_strength / 100.0;
+
+  printf("\ncq_level = %d, delta_q_avg[0] = %d, delta_q_avg[1] = %d\n",
+         cq_level, delta_q_avg[0], delta_q_avg[1]);
+
   const double new_delta_q_avg =
       delta_q_avg[0] + scaling_factor * (delta_q_avg[1] - delta_q_avg[0]);
   for (int row = 0; row < num_rows; ++row) {

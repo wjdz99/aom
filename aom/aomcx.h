@@ -1372,6 +1372,10 @@ enum aome_enc_control_id {
    */
   AV1E_SET_ENABLE_TX_SIZE_SEARCH = 146,
 
+  /*!\brief Set --deltaq-mode strength.
+   */
+  AV1E_SET_DELTAQ_STRENGTH = 147,
+
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
@@ -1763,6 +1767,9 @@ AOM_CTRL_USE_TYPE(AV1E_SET_AQ_MODE, unsigned int)
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DELTAQ_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_DELTAQ_MODE
+
+AOM_CTRL_USE_TYPE(AV1E_SET_DELTAQ_STRENGTH, unsigned int)
+#define AOM_CTRL_AV1E_SET_DELTAQ_STRENGTH
 
 AOM_CTRL_USE_TYPE(AV1E_SET_DELTALF_MODE, unsigned int)
 #define AOM_CTRL_AV1E_SET_DELTALF_MODE
