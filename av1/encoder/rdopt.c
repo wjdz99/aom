@@ -2747,6 +2747,16 @@ static int64_t handle_inter_mode(
         if (this_sse < args->best_single_sse_in_refs[ref]) {
           args->best_single_sse_in_refs[ref] = this_sse;
         }
+
+        if (cpi->sf.rt_sf.early_skip_newMV) {
+          double scale_factor[BLOCK_SIZES_ALL] = { 0.7, 0.7, 0.7, 0.7, 0.7, 0.7,
+                                                   0.7, 0.8, 0.8, 0.8, 0.9, 0.9,
+                                                   0.9, 0.9, 0.9, 0.9, 0.9, 0.7,
+                                                   0.7, 0.7, 0.7, 0.7 };
+          if (args->best_pred_sse < scale_factor[bsize] * this_sse) {
+            continue;
+          }
+        }
       }
 
       rd_stats->rate += rate_mv;
@@ -5606,6 +5616,7 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
     args.single_newmv_valid = search_state.single_newmv_valid;
     args.single_comp_cost = real_compmode_cost;
     args.ref_frame_cost = ref_frame_cost;
+    args.best_pred_sse = search_state.best_pred_sse;
 
     int64_t skip_rd[2] = { search_state.best_skip_rd[0],
                            search_state.best_skip_rd[1] };
