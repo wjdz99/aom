@@ -33,6 +33,24 @@
       "message": "Marco: Please feel free to suggest a better struct name or a better member name.\n\nI think the new struct name \"aom_svc_ref_frame_comp_pred\" is okay, but the member name \"ref_frame_comp\" repeats most of the struct name. One idea I have is to shorten the member name to \"use\" or \"enable\".",
       "revId": "e700847ae2e8a1bc68f088ef897ebd1fdd2fb739",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cd3c958_d60affa3",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1519,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-10-04T22:52:28Z",
+      "side": 1,
+      "message": "Yeah how about: svc_use_comp_pred",
+      "parentUuid": "8051fc1c_3e127ded",
+      "revId": "e700847ae2e8a1bc68f088ef897ebd1fdd2fb739",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
