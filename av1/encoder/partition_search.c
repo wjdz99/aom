@@ -4443,7 +4443,7 @@ static void log_sub_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
   const int bh = MI_SIZE * mi_size_high[bs] - bottom_overflow;
 
   // Initialize min to a large value and max to 0 at
-  *var_min = 10.0;
+  *var_min = 99.0;
   *var_max = 0.0;
 
   for (i = 0; i < bh; i += 4) {
@@ -4454,13 +4454,13 @@ static void log_sub_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
                           x->plane[0].src.buf + i * x->plane[0].src.stride + j,
                           x->plane[0].src.stride,
                           CONVERT_TO_BYTEPTR(highbd_all_zeros), 0, &sse) /
-                          16);
+                          16.0);
       } else {
         var =
             log(1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
                           x->plane[0].src.buf + i * x->plane[0].src.stride + j,
                           x->plane[0].src.stride, all_zeros, 0, &sse) /
-                          16);
+                          16.0);
       }
       *var_min = AOMMIN(*var_min, var);
       *var_max = AOMMAX(*var_max, var);
