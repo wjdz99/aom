@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37ce63e7_97416260",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-05T21:08:04Z",
+      "side": 1,
+      "message": "Cheng: It seems that if method !\u003d LPF_PICK_FROM_FULL_IMAGE_NON_DUAL, then the result of the first search_filter_level() call at line 271 will be overwritten by the search_filter_level() calls at line 275 and 278. I am wondering if we should rewrite lines 270-280 as follows to avoid doing wasted work:\n\n    if (method \u003d\u003d LPF_PICK_FROM_FULL_IMAGE_NON_DUAL) {\n      lf-\u003efilter_level[0] \u003d lf-\u003efilter_level[1] \u003d\n          search_filter_level(sd, cpi, /*partial_frame\u003d*/0,\n                              last_frame_filter_level, 0, 2);\n    } else {\n      lf-\u003efilter_level[0] \u003d\n          search_filter_level(sd, cpi, method \u003d\u003d LPF_PICK_FROM_SUBIMAGE,\n                              last_frame_filter_level, 0, 0);\n      lf-\u003efilter_level[1] \u003d\n          search_filter_level(sd, cpi, method \u003d\u003d LPF_PICK_FROM_SUBIMAGE,\n                              last_frame_filter_level, 0, 1);\n    }",
+      "revId": "5031f1e6404000ab5c087fc5426f46ff17b01380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
