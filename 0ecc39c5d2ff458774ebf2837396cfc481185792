@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4619ccda_3080d14c",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-05T21:12:42Z",
+      "side": 0,
+      "message": "Ideally we should put this aom_realloc_frame_buffer() inside an if statement, similar to lines 369-377:\n\n  if (use_restoration) {\n    if (aom_realloc_frame_buffer(\n            \u0026cpi-\u003etrial_frame_rst, cm-\u003esuperres_upscaled_width,\n            cm-\u003esuperres_upscaled_height, seq_params-\u003esubsampling_x,\n            seq_params-\u003esubsampling_y, seq_params-\u003euse_highbitdepth,\n            AOM_RESTORATION_FRAME_BORDER, byte_alignment, NULL, NULL, NULL, 0))\n      aom_internal_error(cm-\u003eerror, AOM_CODEC_MEM_ERROR,\n                         \"Failed to allocate trial restored frame buffer\");\n  }\n\nCould you find out if we can do this?\n\nI am worried that the proposed new code may call aom_realloc_frame_buffer(\u0026cpi-\u003elast_frame_uf, ...) repeatedly. Although only the first call will actually allocate the frame buffer, the subsequent calls still need to do some work to realize that the current frame buffer meets the requirements and does not need to be reallocated.",
+      "revId": "0ecc39c5d2ff458774ebf2837396cfc481185792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
