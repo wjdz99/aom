@@ -34,6 +34,24 @@
       "parentUuid": "37ce63e7_97416260",
       "revId": "5031f1e6404000ab5c087fc5426f46ff17b01380",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99daf7ff_f62d43e2",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-05T21:44:20Z",
+      "side": 1,
+      "message": "Thank you for explaining (in Chat) that search_filter_level() may read and write the lf-\u003efilter_level array internally, i.e., it has side effects.",
+      "parentUuid": "ec94be0d_f79326af",
+      "revId": "5031f1e6404000ab5c087fc5426f46ff17b01380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
