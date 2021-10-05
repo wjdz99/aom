@@ -16,6 +16,24 @@
       "message": "Cheng: It seems that if method !\u003d LPF_PICK_FROM_FULL_IMAGE_NON_DUAL, then the result of the first search_filter_level() call at line 271 will be overwritten by the search_filter_level() calls at line 275 and 278. I am wondering if we should rewrite lines 270-280 as follows to avoid doing wasted work:\n\n    if (method \u003d\u003d LPF_PICK_FROM_FULL_IMAGE_NON_DUAL) {\n      lf-\u003efilter_level[0] \u003d lf-\u003efilter_level[1] \u003d\n          search_filter_level(sd, cpi, /*partial_frame\u003d*/0,\n                              last_frame_filter_level, 0, 2);\n    } else {\n      lf-\u003efilter_level[0] \u003d\n          search_filter_level(sd, cpi, method \u003d\u003d LPF_PICK_FROM_SUBIMAGE,\n                              last_frame_filter_level, 0, 0);\n      lf-\u003efilter_level[1] \u003d\n          search_filter_level(sd, cpi, method \u003d\u003d LPF_PICK_FROM_SUBIMAGE,\n                              last_frame_filter_level, 0, 1);\n    }",
       "revId": "5031f1e6404000ab5c087fc5426f46ff17b01380",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec94be0d_f79326af",
+        "filename": "av1/encoder/picklpf.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-10-05T21:20:16Z",
+      "side": 1,
+      "message": "No we can\u0027t rewrite it this way.\nif (method \u003d\u003d LPF_PICK_FROM_FULL_IMAGE_NON_DUAL), then we only do one call to \"search_filter_level\".\n\nOtherwise, three calls are needed.\nBecause, in AV1, the loop filter level for horizontal and vertical edges can be different, which is designed by purpose.\nHere, we do the first call of \"search_filter_level\", to get a filter level L0 for both horizontal and vertical directions.\nThe second call is to search for a proper filter level L1 for the vertical direction. During the search, filter level for the horizontal direction is set to L0.\nThe third call is to search for a proper filter level L2 for the horizontal direction. During the search ,filter level for the vertical direction is L1.",
+      "parentUuid": "37ce63e7_97416260",
+      "revId": "5031f1e6404000ab5c087fc5426f46ff17b01380",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
