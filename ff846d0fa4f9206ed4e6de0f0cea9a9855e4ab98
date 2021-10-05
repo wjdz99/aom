@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Yunqing,\n\nIn this patch, the memory allocation for mv_costs structure, which is a member of the MACROBLOCK structure, is made conditional by avoiding the allocation for allintra encoding mode. We are also setting cost_upd_freq.mv to COST_UPD_OFF in case of allintra mode so that the memory allocation of mv_costs for worker threads (in ethread.c) will be avoided by virtue of the existing checks.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe validated the heap memory reduction and multi-thread speed-up for speed\u003d9 as well. For AVIF image encode with speed\u003d9 and threads\u003d4,\n\n               HEAP Memory     Encode time \nResolution     reduction(%)    reduction(%)\n360p-720p         5.96            3.85\n\nThe speed-up is seen as this patch avoids the allocation of mv_costs and skips av1_fill_mv_costs() for allintra encoding mode. The speed-up was measured across cq-levels 17, 29 and 63.\n\nPlease review this patch.\n\nRegards,\nJayasanker.",
       "revId": "ff846d0fa4f9206ed4e6de0f0cea9a9855e4ab98",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02c75ae9_9c609143",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-05T22:01:47Z",
+      "side": 1,
+      "message": "Chi Yo, Fyodor: Please review. Thanks!",
+      "revId": "ff846d0fa4f9206ed4e6de0f0cea9a9855e4ab98",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
