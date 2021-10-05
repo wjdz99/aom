@@ -1169,7 +1169,7 @@ static void update_stats(const AV1_COMMON *const cm, ThreadData *td) {
           const int bit = ref0_nrs == i;
           update_cdf(av1_get_pred_cdf_single_ref_nrs(xd, i, n_refs), bit, 2);
 #if CONFIG_ENTROPY_STATS
-          counts->single_ref[av1_get_pred_context_single_ref_nrs(xd, i, n_refs)]
+          counts->single_ref[av1_get_single_ref_pred_context_nrs(xd, i, n_refs)]
                             [i][bit]++;
 #endif  // CONFIG_ENTROPY_STATS
           if (bit) break;
