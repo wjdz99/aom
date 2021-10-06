@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Cheng,\n\nWe have rebased the patch and have addressed the comments given by Wan-Teh.\nWe also performed some sanity verification on the latest patch-set.\n\nPlease review.",
       "revId": "66d9196cc5ee30978421d2fc8b413792d3679461",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24b35836_fc8ebb80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-10-06T17:32:39Z",
+      "side": 1,
+      "message": "The change makes sense to me.",
+      "revId": "66d9196cc5ee30978421d2fc8b413792d3679461",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
