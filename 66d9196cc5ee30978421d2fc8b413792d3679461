@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47c1eb94_f5e7999e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-10-06T11:39:22Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Cheng,\n\nWe have rebased the patch and have addressed the comments given by Wan-Teh.\nWe also performed some sanity verification on the latest patch-set.\n\nPlease review.",
+      "revId": "66d9196cc5ee30978421d2fc8b413792d3679461",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
