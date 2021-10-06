@@ -16,6 +16,46 @@
       "message": "Hi Yunqing,\nWe have introduced the speed feature ‘skip_newmv_mode_based_on_sse’ for RTC encoding in this CL.\n\nThis SF adds an early termination logic for NEWMV mode evaluation after motion search based on best sse so far. The logic skips the process of building inter predictor, motion mode and transform search. The thresholds used to compare current sse with best sse is set proportional to block size. \n\nThis patch is applicable for RT, speed 5 and 6 and have no effect on RT, speed \u003c\u003d 4 and speed \u003e\u003d 7.\n\nPlease find the Borg results below.\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   5         rtc          1.326         -0.0141   -0.0153   -0.0568\n   5       rtc_derf       1.972         -0.0336   -0.0459   -0.1035\n   5       Average        1.641         -0.0222   -0.0280   -0.0763\n   6         rtc          1.098          0.0143    0.0123    0.0132\n   6       rtc_derf       1.515          0.0457    0.0489    0.0204\n   6       Average        1.302          0.0274    0.0276    0.0162\n   \nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally for few test cases).",
       "revId": "85c5c27f4bc2aa76b7fbeaf48c8176c1cc357c4f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cceffec_fb92f490",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-10-06T16:28:43Z",
+      "side": 1,
+      "message": "Nice optimization and improvement. Thanks.",
+      "revId": "85c5c27f4bc2aa76b7fbeaf48c8176c1cc357c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c1895dd_02c813ed",
+        "filename": "av1/encoder/interp_search.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-10-06T16:28:43Z",
+      "side": 1,
+      "message": "In realtime case, this probably is similar to the min sse stored in best_single_sse_in_refs[REF_FRAMES]?",
+      "range": {
+        "startLine": 156,
+        "startChar": 15,
+        "endLine": 156,
+        "endChar": 28
+      },
+      "revId": "85c5c27f4bc2aa76b7fbeaf48c8176c1cc357c4f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
