@@ -307,41 +307,6 @@ static void set_good_speed_feature_framesize_dependent(
   }
 }
 
-static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
-                                                     SPEED_FEATURES *const sf,
-                                                     int speed) {
-  const AV1_COMMON *const cm = &cpi->common;
-  const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
-  const int is_480p_or_larger = AOMMIN(cm->width, cm->height) >= 480;
-  const int is_360p_or_larger = AOMMIN(cm->width, cm->height) >= 360;
-
-  (void)is_720p_or_larger;  // Not used so far
-
-  if (!is_360p_or_larger) {
-    if (speed >= 6) sf->rt_sf.force_tx_search_off = 1;
-    if (speed >= 8) {
-      sf->rt_sf.use_modeled_non_rd_cost = 0;
-      sf->rt_sf.use_nonrd_filter_search = 0;
-    }
-    if (speed >= 9) {
-      sf->rt_sf.use_modeled_non_rd_cost = 1;
-    }
-  }
-  if (!is_480p_or_larger) {
-    if (speed == 7) {
-      sf->rt_sf.nonrd_check_partition_merge_mode = 2;
-    }
-    if (speed >= 8) {
-      sf->mv_sf.subpel_search_method = SUBPEL_TREE;
-      sf->rt_sf.estimate_motion_for_var_based_partition = 1;
-    }
-    if (speed >= 9) {
-      sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
-      sf->rt_sf.estimate_motion_for_var_based_partition = 0;
-    }
-  }
-}
-
 static void set_good_speed_features_framesize_independent(
     const AV1_COMP *const cpi, SPEED_FEATURES *const sf, int speed) {
   const AV1_COMMON *const cm = &cpi->common;
@@ -408,9 +373,9 @@ static void set_good_speed_features_framesize_independent(
   sf->tx_sf.intra_tx_size_search_init_depth_sqr = 1;
   sf->tx_sf.model_based_prune_tx_search_level = 1;
   sf->tx_sf.tx_type_search.use_reduced_intra_txset = 1;
-
-  sf->rt_sf.use_nonrd_pick_mode = 0;
-  sf->rt_sf.use_real_time_ref_set = 0;
+#if CONFIG_IST
+  sf->tx_sf.tx_type_search.skip_stx_search = 0;
+#endif
 
   if (cpi->twopass.fr_content_type == FC_GRAPHICS_ANIMATION ||
       cpi->is_screen_content_type) {
@@ -463,7 +428,11 @@ static void set_good_speed_features_framesize_independent(
     sf->tx_sf.inter_tx_size_search_init_depth_sqr = 1;
     sf->tx_sf.intra_tx_size_search_init_depth_rect = 1;
     sf->tx_sf.model_based_prune_tx_search_level = 0;
+#if CONFIG_NEW_TX_PARTITION
+    sf->tx_sf.tx_type_search.ml_tx_split_thresh = 400;
+#else
     sf->tx_sf.tx_type_search.ml_tx_split_thresh = 4000;
+#endif  // CONFIG_NEW_TX_PARTITION
     sf->tx_sf.tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_2;
     sf->tx_sf.tx_type_search.skip_tx_search = 1;
     sf->tx_sf.use_intra_txb_hash = 1;
@@ -507,7 +476,9 @@ static void set_good_speed_features_framesize_independent(
     sf->interp_sf.adaptive_interp_filter_search = 1;
     sf->interp_sf.disable_dual_filter = 1;
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
-
+#if CONFIG_IST
+    sf->tx_sf.tx_type_search.skip_stx_search = 1;
+#endif
     sf->intra_sf.disable_smooth_intra =
         !frame_is_intra_only(&cpi->common) || (cpi->rc.frames_to_key != 1);
 
@@ -702,6 +673,7 @@ static void set_good_speed_features_framesize_independent(
       !sf->tx_sf.use_intra_txb_hash));
 }
 
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 // TODO(kyslov): now this is very similar to
 // set_good_speed_features_framesize_independent
 //               except it sets non-rd flag on speed8. This function will likely
@@ -1014,6 +986,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   }
 }
 
+=======
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
   // best quality defaults
   hl_sf->frame_parameter_update = 1;
@@ -1186,7 +1160,14 @@ static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
   tx_sf->tx_size_search_lgr_block = 0;
   tx_sf->model_based_prune_tx_search_level = 0;
   tx_sf->tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_1;
+#if CONFIG_NEW_TX_PARTITION
+  tx_sf->tx_type_search.ml_tx_split_thresh = 400;
+  tx_sf->tx_type_search.ml_tx_split_horzvert_thresh = 4000;
+  tx_sf->tx_type_search.prune_inter_4way_split = 1;
+  tx_sf->tx_type_search.prune_intra_4way_split = 1;
+#else
   tx_sf->tx_type_search.ml_tx_split_thresh = 8500;
+#endif  // CONFIG_NEW_TX_PARTITION
   tx_sf->tx_type_search.use_skip_flag_prediction = 1;
   tx_sf->tx_type_search.use_reduced_intra_txset = 0;
   tx_sf->tx_type_search.fast_intra_tx_type_search = 0;
@@ -1257,15 +1238,29 @@ static AOM_INLINE void init_lpf_sf(LOOP_FILTER_SPEED_FEATURES *lpf_sf) {
   lpf_sf->disable_lr_filter = 0;
 }
 
-static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
-  rt_sf->mode_search_skip_flags = 0;
-  rt_sf->skip_interp_filter_search = 0;
-  rt_sf->force_tx_search_off = 0;
-  rt_sf->num_inter_modes_for_tx_search = INT_MAX;
-  rt_sf->use_simple_rd_model = 0;
-  rt_sf->nonrd_check_partition_merge_mode = 0;
-  rt_sf->nonrd_check_partition_split = 0;
-  rt_sf->skip_intra_pred_if_tx_skip = 0;
+static void av1_disable_ml_based_transform_sf(TX_SPEED_FEATURES *const tx_sf) {
+  tx_sf->tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_0;
+  tx_sf->tx_type_search.ml_tx_split_thresh = -1;
+#if CONFIG_NEW_TX_PARTITION
+  tx_sf->tx_type_search.ml_tx_split_horzvert_thresh = -1;
+#endif  // CONFIG_NEW_TX_PARTITION
+}
+
+static void av1_disable_ml_based_partition_sf(
+    PARTITION_SPEED_FEATURES *const part_sf) {
+  part_sf->ml_prune_4_partition = 0;
+  part_sf->ml_prune_ab_partition = 0;
+  part_sf->ml_prune_rect_partition = 0;
+  part_sf->ml_early_term_after_part_split_level = 0;
+  part_sf->auto_max_partition_based_on_simple_motion = NOT_IN_USE;
+  part_sf->intra_cnn_split = 0;
+  part_sf->simple_motion_search_split = 0;
+  part_sf->simple_motion_search_prune_rect = 0;
+  part_sf->simple_motion_search_early_term_none = 0;
+
+  for (int i = 0; i < PARTITION_BLOCK_SIZES; ++i) {
+    part_sf->ml_partition_search_breakout_thresh[i] = -1;
+  }
 }
 
 #if CONFIG_EXT_RECUR_PARTITIONS
@@ -1292,8 +1287,6 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
 
   if (oxcf->mode == GOOD) {
     set_good_speed_feature_framesize_dependent(cpi, sf, speed);
-  } else if (oxcf->mode == REALTIME) {
-    set_rt_speed_feature_framesize_dependent(cpi, sf, speed);
   }
 
   // This is only used in motion vector unit test.
@@ -1302,10 +1295,18 @@ void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
   else if (cpi->oxcf.unit_test_cfg.motion_vector_unit_test == 2)
     cpi->mv_search_params.find_fractional_mv_step = av1_return_min_sub_pixel_mv;
 
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 #if CONFIG_EXT_RECUR_PARTITIONS
   if (oxcf->part_cfg.disable_ml_partition_speed_features)
     av1_disable_ml_based_partition_sf(&sf->part_sf);
 #endif  // CONFIG_EXT_RECUR_PARTITIONS
+=======
+  if (oxcf->part_cfg.disable_ml_partition_speed_features)
+    av1_disable_ml_based_partition_sf(&sf->part_sf);
+
+  if (oxcf->txfm_cfg.disable_ml_transform_speed_features)
+    av1_disable_ml_based_transform_sf(&sf->tx_sf);
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 }
 
 void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
@@ -1326,12 +1327,9 @@ void av1_set_speed_features_framesize_independent(AV1_COMP *cpi, int speed) {
   init_rd_sf(&sf->rd_sf, oxcf);
   init_winner_mode_sf(&sf->winner_mode_sf);
   init_lpf_sf(&sf->lpf_sf);
-  init_rt_sf(&sf->rt_sf);
 
   if (oxcf->mode == GOOD)
     set_good_speed_features_framesize_independent(cpi, sf, speed);
-  else if (oxcf->mode == REALTIME)
-    set_rt_speed_features_framesize_independent(cpi, sf, speed);
 
   if (!cpi->seq_params_locked) {
 #if !CONFIG_REMOVE_DUAL_FILTER
@@ -1470,8 +1468,18 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
   const int boosted = frame_is_boosted(cpi);
   const int is_720p_or_larger = AOMMIN(cm->width, cm->height) >= 720;
   const int is_1080p_or_larger = AOMMIN(cm->width, cm->height) >= 1080;
+#if CONFIG_EXTQUANT
+  const int qindex_offset = MAXQ_OFFSET * (cm->seq_params.bit_depth - 8);
+#endif  // CONFIG_EXTQUANT
   if (is_720p_or_larger && cpi->oxcf.mode == GOOD && speed == 0) {
-    if (cm->quant_params.base_qindex <= 128) {
+#if CONFIG_EXTQUANT
+    const int qindex_thresh = 124 + qindex_offset;
+    const int qindex_thresh2 = 113 + qindex_offset;
+#else
+    const int qindex_thresh = 128;
+    const int qindex_thresh2 = 108;
+#endif  // CONFIG_EXTQUANT
+    if (cm->quant_params.base_qindex <= qindex_thresh) {
       sf->rd_sf.perform_coeff_opt = 2 + is_1080p_or_larger;
       memcpy(winner_mode_params->coeff_opt_dist_threshold,
              coeff_opt_dist_thresholds[sf->rd_sf.perform_coeff_opt],
@@ -1484,14 +1492,19 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
       sf->inter_sf.skip_repeated_newmv = 1;
       sf->tx_sf.model_based_prune_tx_search_level = 0;
 
-      if (is_1080p_or_larger && cm->quant_params.base_qindex <= 108) {
+      if (is_1080p_or_larger &&
+          cm->quant_params.base_qindex <= qindex_thresh2) {
         sf->inter_sf.selective_ref_frame = 2;
         sf->rd_sf.tx_domain_dist_level = boosted ? 1 : 2;
         sf->rd_sf.tx_domain_dist_thres_level = 1;
         sf->part_sf.simple_motion_search_early_term_none = 1;
         sf->part_sf.simple_motion_search_split =
             cm->features.allow_screen_content_tools ? 1 : 2;
+#if CONFIG_NEW_TX_PARTITION
+        sf->tx_sf.tx_type_search.ml_tx_split_thresh = 400;
+#else
         sf->tx_sf.tx_type_search.ml_tx_split_thresh = 4000;
+#endif  // CONFIG_NEW_TX_PARTITION
         sf->interp_sf.cb_pred_filter_search = 0;
         sf->tx_sf.tx_type_search.prune_2d_txfm_mode = TX_TYPE_PRUNE_2;
         sf->tx_sf.tx_type_search.skip_tx_search = 1;
@@ -1502,8 +1515,13 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
 
   if (cpi->oxcf.mode == GOOD && speed >= 3) {
     // Disable extended partitions for lower quantizers
+#if CONFIG_EXTQUANT
+    const int qindex_thresh =
+        (cm->features.allow_screen_content_tools ? 85 : 108) + qindex_offset;
+#else
     const int qindex_thresh =
         cm->features.allow_screen_content_tools ? 50 : 100;
+#endif  // CONFIG_EXTQUANT
     if (cm->quant_params.base_qindex <= qindex_thresh && !boosted) {
       sf->part_sf.ext_partition_eval_thresh = BLOCK_128X128;
     }
@@ -1511,7 +1529,11 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
 
   if (cpi->oxcf.mode == GOOD && speed >= 4) {
     // Disable extended partitions for lower quantizers
+#if CONFIG_EXTQUANT
+    const int qindex_thresh = (boosted ? 100 : 119) + qindex_offset;
+#else
     const int qindex_thresh = boosted ? 80 : 120;
+#endif  // CONFIG_EXTQUANT
     if (cm->quant_params.base_qindex <= qindex_thresh &&
         !frame_is_intra_only(&cpi->common)) {
       sf->part_sf.ext_partition_eval_thresh = BLOCK_128X128;
@@ -1519,7 +1541,11 @@ void av1_set_speed_features_qindex_dependent(AV1_COMP *cpi, int speed) {
   }
 
   if (cpi->oxcf.mode == GOOD && speed >= 5) {
+#if CONFIG_EXTQUANT
+    const int qindex_thresh = (boosted ? 108 : 143) + qindex_offset;
+#else
     const int qindex_thresh = boosted ? 100 : 160;
+#endif  // CONFIG_EXTQUANT
     if (cm->quant_params.base_qindex <= qindex_thresh &&
         !frame_is_intra_only(&cpi->common)) {
       sf->part_sf.ext_partition_eval_thresh = BLOCK_128X128;

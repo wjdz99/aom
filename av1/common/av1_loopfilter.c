@@ -31,11 +31,19 @@ static const SEG_LVL_FEATURES seg_lvl_lf_lut[MAX_MB_PLANE][2] = {
 static const int delta_lf_id_lut[MAX_MB_PLANE][2] = { { 0, 1 },
                                                       { 2, 2 },
                                                       { 3, 3 } };
+#if CONFIG_NEW_INTER_MODES
+static const int mode_lf_lut[] = {
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // INTRA_MODES
+  1, 0, 1,                                // INTER_SINGLE_MODES (GLOBALMV == 0)
+  1, 1, 1, 0, 1,  // INTER_COMPOUND_MODES (GLOBAL_GLOBALMV == 0)
+};
+#else
 static const int mode_lf_lut[] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  // INTRA_MODES
   1, 1, 0, 1,                             // INTER_SINGLE_MODES (GLOBALMV == 0)
   1, 1, 1, 1, 1, 1, 0, 1  // INTER_COMPOUND_MODES (GLOBAL_GLOBALMV == 0)
 };
+#endif  // CONFIG_NEW_INTER_MODES
 
 static void update_sharpness(loop_filter_info_n *lfi, int sharpness_lvl) {
   int lvl;
@@ -198,7 +206,12 @@ static TX_SIZE get_transform_size(const MACROBLOCKD *const xd,
   assert(mbmi != NULL);
   if (xd && xd->lossless[mbmi->segment_id]) return TX_4X4;
 #if CONFIG_SDP
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
   const int plane_type = av1_get_sdp_idx(tree_type);
+=======
+  const int plane_type =
+      (frame_is_intra_only(cm) && plane > 0 && cm->seq_params.enable_sdp);
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 #endif
 #if CONFIG_EXT_RECUR_PARTITIONS && CONFIG_SDP
   const BLOCK_SIZE bsize_base =
@@ -265,6 +278,7 @@ static TX_SIZE set_lpf_parameters(
   params->filter_length = 0;
 
 #if CONFIG_SDP
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
   TREE_TYPE tree_type = SHARED_PART;
   const bool is_sdp_eligible = frame_is_intra_only(cm) &&
                                !cm->seq_params.monochrome &&
@@ -274,6 +288,11 @@ static TX_SIZE set_lpf_parameters(
   }
   const int plane_type = is_sdp_eligible && plane > 0;
 #endif  // CONFIG_SDP
+=======
+  const int plane_type =
+      (frame_is_intra_only(cm) && plane > 0 && cm->seq_params.enable_sdp);
+#endif
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 
   // no deblocking is required
   const uint32_t width = plane_ptr->dst.width;
@@ -321,7 +340,11 @@ static TX_SIZE set_lpf_parameters(
           av1_get_filter_level(cm, &cm->lf_info, edge_dir, plane, mbmi);
 #if CONFIG_SDP
       const int curr_skipped =
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
           mbmi->skip_txfm[plane_type] && is_inter_block(mbmi, tree_type);
+=======
+          mbmi->skip_txfm[plane_type] && is_inter_block(mbmi, xd->tree_type);
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 #else
       const int curr_skipped = mbmi->skip_txfm && is_inter_block(mbmi);
 #endif
@@ -348,7 +371,11 @@ static TX_SIZE set_lpf_parameters(
           const int pv_skip_txfm =
 #if CONFIG_SDP
               mi_prev->skip_txfm[plane_type] &&
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
               is_inter_block(mi_prev, tree_type);
+=======
+              is_inter_block(mi_prev, xd->tree_type);
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 #else
               mi_prev->skip_txfm && is_inter_block(mi_prev);
 #endif
