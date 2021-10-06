@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 /*
  * Copyright (c) 2016, Alliance for Open Media. All rights reserved
  *
@@ -2451,3 +2452,5 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif  // COLLECT_PICK_MODE_STAT
   *rd_cost = best_rdc;
 }
+=======
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
