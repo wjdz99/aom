@@ -58,9 +58,7 @@
 #include "av1/encoder/ml.h"
 #include "av1/encoder/motion_search_facade.h"
 #include "av1/encoder/partition_strategy.h"
-#if !CONFIG_REALTIME_ONLY
 #include "av1/encoder/partition_model_weights.h"
-#endif
 #include "av1/encoder/partition_search.h"
 #include "av1/encoder/rd.h"
 #include "av1/encoder/rdopt.h"
@@ -68,7 +66,6 @@
 #include "av1/encoder/segmentation.h"
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tpl_model.h"
-#include "av1/encoder/var_based_part.h"
 
 #if CONFIG_TUNE_VMAF
 #include "av1/encoder/tune_vmaf.h"
@@ -216,7 +213,6 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
   }
 }
 
-#if !CONFIG_REALTIME_ONLY
 /*!\brief Assigns different quantization parameters to each super
  * block based on its TPL weight.
  *
@@ -443,11 +439,11 @@ static AOM_INLINE void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x,
     x->rdmult = dr;
   }
 }
-#endif  // !CONFIG_REALTIME_ONLY
 
 #define AVG_CDF_WEIGHT_LEFT 3
 #define AVG_CDF_WEIGHT_TOP_RIGHT 1
 
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 /*!\brief Encode a superblock (minimal RD search involved)
  *
  * \ingroup partition_search
@@ -539,6 +535,8 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 #endif
 }
 
+=======
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 // This function initializes the stats for encode_rd_sb.
 static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                                      const TileDataEnc *tile_data,
@@ -560,35 +558,20 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     init_simple_motion_search_mvs(sms_root);
   }
 
-#if !CONFIG_REALTIME_ONLY
-  if (has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
-      cpi->oxcf.gf_cfg.lag_in_frames == 0) {
-    (void)tile_info;
-    (void)mi_row;
-    (void)mi_col;
-    (void)gather_tpl_data;
-  } else {
-    init_ref_frame_space(cpi, td, mi_row, mi_col);
-    x->sb_energy_level = 0;
-    x->part_search_info.cnn_output_valid = 0;
-    if (gather_tpl_data) {
-      if (cm->delta_q_info.delta_q_present_flag) {
-        const int num_planes = av1_num_planes(cm);
-        const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
-        setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
-        av1_tpl_rdmult_setup_sb(cpi, x, sb_size, mi_row, mi_col);
-      }
-      if (cpi->oxcf.algo_cfg.enable_tpl_model) {
-        adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
-      }
+  init_ref_frame_space(cpi, td, mi_row, mi_col);
+  x->sb_energy_level = 0;
+  x->part_search_info.cnn_output_valid = 0;
+  if (gather_tpl_data) {
+    if (cm->delta_q_info.delta_q_present_flag) {
+      const int num_planes = av1_num_planes(cm);
+      const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
+      setup_delta_q(cpi, td, x, tile_info, mi_row, mi_col, num_planes);
+      av1_tpl_rdmult_setup_sb(cpi, x, sb_size, mi_row, mi_col);
+    }
+    if (cpi->oxcf.algo_cfg.enable_tpl_model) {
+      adjust_rdmult_tpl_model(cpi, x, mi_row, mi_col);
     }
   }
-#else
-  (void)tile_info;
-  (void)mi_row;
-  (void)mi_col;
-  (void)gather_tpl_data;
-#endif
 
   // Reset hash state for transform/mode rd hash information
   reset_hash_records(&x->txfm_search_info, cpi->sf.tx_sf.use_inter_txb_hash);
@@ -634,10 +617,13 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   (void)num_planes;
   (void)mi;
 
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 #if CONFIG_REALTIME_ONLY || CONFIG_EXT_RECUR_PARTITIONS
   (void)seg_skip;
 #endif  // CONFIG_REALTIME_ONLY || CONFIG_EXT_RECUR_PARTITIONS
 
+=======
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 #if CONFIG_SDP
   const int total_loop_num =
       (frame_is_intra_only(cm) && !cm->seq_params.monochrome &&
@@ -657,6 +643,7 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
                     1);
 
   // Encode the superblock
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
   if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
     // partition search starting from a variance-based partition
     av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col,
@@ -684,6 +671,9 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   }
 #if !CONFIG_REALTIME_ONLY
   else if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
+=======
+  if (sf->part_sf.partition_search_type == FIXED_PARTITION || seg_skip) {
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
     // partition search by adjusting a fixed-size partition
     av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size, NULL);
     const BLOCK_SIZE bsize =
@@ -887,7 +877,10 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     end_timing(cpi, rd_pick_partition_time);
 #endif
   }
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 #endif  // !CONFIG_REALTIME_ONLY || CONFIG_EXT_RECUR_PARTITIONS
+=======
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 
   // Update the inter rd model
   // TODO(angiebird): Let inter_mode_rd_model_estimation support multi-tile.
@@ -921,8 +914,6 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
   const int mib_size = cm->seq_params.mib_size;
   const int mib_size_log2 = cm->seq_params.mib_size_log2;
   const int sb_row = (mi_row - tile_info->mi_row_start) >> mib_size_log2;
-
-  const int use_nonrd_mode = cpi->sf.rt_sf.use_nonrd_pick_mode;
 
 #if CONFIG_COLLECT_COMPONENT_TIMING
   start_timing(cpi, encode_sb_time);
@@ -970,11 +961,6 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
     // Update the rate cost tables for some symbols
     av1_set_cost_upd_freq(cpi, td, tile_info, mi_row, mi_col);
 
-    // Reset color coding related parameters
-    x->color_sensitivity[0] = 0;
-    x->color_sensitivity[1] = 0;
-    x->content_state_sb = 0;
-
     xd->cur_frame_force_integer_mv = cm->features.cur_frame_force_integer_mv;
     x->source_variance = UINT_MAX;
     td->mb.cb_coef_buff = av1_get_cb_coeff_buffer(cpi, mi_row, mi_col);
@@ -992,11 +978,7 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
     }
 
     // encode the superblock
-    if (use_nonrd_mode) {
-      encode_nonrd_sb(cpi, td, tile_data, tp, mi_row, mi_col, seg_skip);
-    } else {
-      encode_rd_sb(cpi, td, tile_data, tp, mi_row, mi_col, seg_skip);
-    }
+    encode_rd_sb(cpi, td, tile_data, tp, mi_row, mi_col, seg_skip);
 
     // Update the top-right context in row_mt coding
     if (tile_data->allow_update_cdf && row_mt_enabled &&
@@ -1128,7 +1110,7 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
       &cpi->tile_data[tile_row * cm->tiles.cols + tile_col];
   const TileInfo *const tile_info = &this_tile->tile_info;
 
-  if (!cpi->sf.rt_sf.use_nonrd_pick_mode) av1_inter_mode_data_init(this_tile);
+  av1_inter_mode_data_init(this_tile);
 
   av1_zero_above_context(cm, &td->mb.e_mbd, tile_info->mi_col_start,
                          tile_info->mi_col_end, tile_row);
@@ -1295,8 +1277,7 @@ static AOM_INLINE void setup_prune_ref_frame_mask(AV1_COMP *cpi) {
       cpi->all_one_sided_refs) {
     // Disable all compound references
     cpi->prune_ref_frame_mask = (1 << MODE_CTX_REF_FRAMES) - (1 << REF_FRAMES);
-  } else if (!cpi->sf.rt_sf.use_nonrd_pick_mode &&
-             cpi->sf.inter_sf.selective_ref_frame >= 2) {
+  } else if (cpi->sf.inter_sf.selective_ref_frame >= 2) {
     AV1_COMMON *const cm = &cpi->common;
     const int cur_frame_display_order_hint =
         cm->current_frame.display_order_hint;
@@ -1367,9 +1348,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   const DELTAQ_MODE deltaq_mode = oxcf->q_cfg.deltaq_mode;
   int i;
 
-  if (!cpi->sf.rt_sf.use_nonrd_pick_mode) {
-    mi_params->setup_mi(mi_params);
-  }
+  mi_params->setup_mi(mi_params);
 
   set_mi_offsets(mi_params, xd, 0, 0);
 
@@ -1397,8 +1376,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   }
 
   int hash_table_created = 0;
-  if (!is_stat_generation_stage(cpi) && av1_use_hash_me(cpi) &&
-      !cpi->sf.rt_sf.use_nonrd_pick_mode) {
+  if (!is_stat_generation_stage(cpi) && av1_use_hash_me(cpi)) {
     // TODO(any): move this outside of the recoding loop to avoid recalculating
     // the hash table.
     // add to hash table
@@ -1457,12 +1435,29 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   const CommonQuantParams *quant_params = &cm->quant_params;
   for (i = 0; i < MAX_SEGMENTS; ++i) {
     const int qindex =
-        cm->seg.enabled ? av1_get_qindex(&cm->seg, i, quant_params->base_qindex)
-                        : quant_params->base_qindex;
+        cm->seg.enabled
+#if CONFIG_EXTQUANT
+            ? av1_get_qindex(&cm->seg, i, quant_params->base_qindex,
+                             cm->seq_params.bit_depth)
+#else
+            ? av1_get_qindex(&cm->seg, i, quant_params->base_qindex)
+#endif
+            : quant_params->base_qindex;
+
+#if CONFIG_EXTQUANT
+    xd->lossless[i] =
+        qindex == 0 &&
+        (quant_params->y_dc_delta_q + cm->seq_params.base_y_dc_delta_q <= 0) &&
+        (quant_params->u_dc_delta_q + cm->seq_params.base_uv_dc_delta_q <= 0) &&
+        quant_params->u_ac_delta_q <= 0 &&
+        (quant_params->v_dc_delta_q + cm->seq_params.base_uv_dc_delta_q <= 0) &&
+        quant_params->v_ac_delta_q <= 0;
+#else
     xd->lossless[i] =
         qindex == 0 && quant_params->y_dc_delta_q == 0 &&
         quant_params->u_dc_delta_q == 0 && quant_params->u_ac_delta_q == 0 &&
         quant_params->v_dc_delta_q == 0 && quant_params->v_ac_delta_q == 0;
+#endif
     if (xd->lossless[i]) cpi->enc_seg.has_lossless_segment = 1;
     xd->qindex[i] = qindex;
     if (xd->lossless[i]) {
@@ -1554,6 +1549,10 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   start_timing(cpi, av1_setup_motion_field_time);
 #endif
   if (features->allow_ref_frame_mvs) av1_setup_motion_field(cm);
+#if CONFIG_SMVP_IMPROVEMENT
+  else
+    av1_setup_ref_frame_sides(cm);
+#endif  // CONFIG_SMVP_IMPROVEMENT
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, av1_setup_motion_field_time);
 #endif
@@ -1678,8 +1677,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   }
 #endif  // !CONFIG_REMOVE_DUAL_FILTER
 
-  if ((!is_stat_generation_stage(cpi) && av1_use_hash_me(cpi) &&
-       !cpi->sf.rt_sf.use_nonrd_pick_mode) ||
+  if ((!is_stat_generation_stage(cpi) && av1_use_hash_me(cpi)) ||
       hash_table_created) {
     av1_hash_table_destroy(&intrabc_hash_info->intrabc_hash_table);
   }
