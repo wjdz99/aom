@@ -1,3 +1,4 @@
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 /*
  * Copyright (c) 2019, Alliance for Open Media. All rights reserved
  *
@@ -1121,3 +1122,5 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   if (vt) aom_free(vt);
   return 0;
 }
+=======
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
