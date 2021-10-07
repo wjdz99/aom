@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "28c80b87_2e1c8c52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-10-07T01:23:44Z",
+      "side": 1,
+      "message": "\u003e Patch Set 7:\n\u003e \n\u003e WARNING: libaom__encoder_check/default detected a potential change:\n\u003e If your commit message contains STATS_CHANGED this is just fyi. If it does not,\n\u003e this is fatal.\n\u003e \n\u003e In order to highlight changes which cause the encoder output to change,\n\u003e you must update the commit message body with\n\u003e STATS_CHANGED:\n\u003e and a description of the expected behavior of the new encode process. For\n\u003e example, if the motion search has been changed, or rate distortion weighting\n\u003e changed, or a normative change to the bitstream has added or removed flags\n\u003e or a feature.\n\u003e \n\u003e bus_1_pass differs.\n\u003e \n\u003e md5sum of ivf output:\n\u003e current:  20b960b391b9c122bdd482a3c8e162ca\n\u003e previous: 6ebf01ee4e8689780f3dca0930c2223c\n\u003e \n\u003e file sizes:\n\u003e 78273 01:03 commit\u003dcurrent-low,config\u003dbus_1_pass/file.ivf\n\u003e 76928 01:01 commit\u003dprevious-low,config\u003dbus_1_pass/file.ivf\n\u003e \n\u003e current         Bitrate(kbps)  |  PSNR(Y)  |  PSNR(U)  |  PSNR(V)  |  PSNR(Avg)  |  PSNR(Overall)  |  Encoding time (FPS)\n\u003e previous        Bitrate(kbps)  |  PSNR(Y)  |  PSNR(U)  |  PSNR(V)  |  PSNR(Avg)  |  PSNR(Overall)  |  Encoding time (FPS)\n\u003e \n\u003e \n\u003e city_2_pass differs.\n\u003e \n\u003e md5sum of ivf output:\n\u003e current:  23b3fa55c7b72531b2c8f9b976ccb261\n\u003e previous: bbbce1dea2b0c7dd2da94960277eb5e3\n\u003e \n\u003e file sizes:\n\u003e 54391 01:03 commit\u003dcurrent-low,config\u003dcity_2_pass/file.ivf\n\u003e 37425 00:59 commit\u003dprevious-low,config\u003dcity_2_pass/file.ivf\n\u003e \n\u003e current         Bitrate(kbps)  |  PSNR(Y)  |  PSNR(U)  |  PSNR(V)  |  PSNR(Avg)  |  PSNR(Overall)  |  Encoding time (FPS)\n\u003e previous        Bitrate(kbps)  |  PSNR(Y)  |  PSNR(U)  |  PSNR(V)  |  PSNR(Avg)  |  PSNR(Overall)  |  Encoding time (FPS)\n\u003e \n\u003e \n\u003e To see the encode process look up the libaom__encoder_run which triggered this.\n\u003e It is listed in the description here:\n\u003e https://build.aomedia.org/jenkins/job/libaom__encoder_check/default/21752/\n\nThe stats change is probably caused by tpl model.",
+      "revId": "c74ab46771e139f3447afddf02bf18490495c525",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
