@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1a453dc_9521b007",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-07T23:20:05Z",
+      "side": 1,
+      "message": "Thanks for the review!",
+      "revId": "caf838a988bbc1806f8ca79e419d638a66963b4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8dd17495_2475b832",
@@ -14,6 +31,24 @@
       "writtenOn": "2021-10-07T22:44:39Z",
       "side": 1,
       "message": "I didn\u0027t check, I know there are additions, but does this satisfy #6?\n\n6. If any interfaces have been removed or changed since the last public release, then set age to 0.",
+      "revId": "caf838a988bbc1806f8ca79e419d638a66963b4e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "97c5cbd6_de44ae44",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-07T23:20:05Z",
+      "side": 1,
+      "message": "No interfaces have been removed. Two interfaces were changed, but those problems have been corrected in https://crbug.com/aomedia/3148 and https://crbug.com/aomedia/3150.",
+      "parentUuid": "8dd17495_2475b832",
       "revId": "caf838a988bbc1806f8ca79e419d638a66963b4e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
