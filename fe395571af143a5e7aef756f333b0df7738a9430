@@ -22,6 +22,30 @@
       },
       "revId": "fe395571af143a5e7aef756f333b0df7738a9430",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a47bf154_93f71620",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-10-07T04:13:14Z",
+      "side": 1,
+      "message": "Perhaps test the changes using the q mode and the following configurations:\n--max-gf-interval\u003d32 --min-gf-interval\u003d32 --fwd-kf-dist\u003d64 --use-fixed-qp-offsets\u003d1\nfor 160 frames.",
+      "parentUuid": "3fbeb2c4_9884fe43",
+      "range": {
+        "startLine": 1024,
+        "startChar": 21,
+        "endLine": 1024,
+        "endChar": 30
+      },
+      "revId": "fe395571af143a5e7aef756f333b0df7738a9430",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
