@@ -109,12 +109,13 @@ static void write_features_to_file(const char *const path,
                                    const int feature_size, const int id,
                                    const int bsize, const int mi_row,
                                    const int mi_col) {
-  if (!WRITE_FEATURE_TO_FILE && !is_test_mode) return;
+  if (!(WRITE_FEATURE_TO_FILE && is_test_mode)) return;
 
   char filename[256];
   snprintf(filename, sizeof(filename), "%s/%s", path,
            get_feature_file_name(id));
   FILE *pfile = fopen(filename, "a");
+  if (pfile == NULL) return;
   if (!is_test_mode) {
     fprintf(pfile, "%d,%d,%d,%d,%d\n", id, bsize, mi_row, mi_col, feature_size);
   }
