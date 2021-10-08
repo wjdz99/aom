@@ -22,6 +22,30 @@
       },
       "revId": "ef9bf5997be09eb7a6ca7c7d5410c9a07fb3aaf9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83d3e3f8_0c4c3749",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-08T23:20:24Z",
+      "side": 1,
+      "message": "\u003e This entire if statement should be deleted because !is_test_mode must be false at this point.\n\ngood point, I didn\u0027t read through the function that closely. maybe I misunderstood the intent of the initial check. Cheng, should that just have been !WRITE_FEATURE_TO_FILE? or did you only want to write a file with is_test_mode\u003dtrue?",
+      "parentUuid": "00b7adc8_316575c4",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 3
+      },
+      "revId": "ef9bf5997be09eb7a6ca7c7d5410c9a07fb3aaf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
