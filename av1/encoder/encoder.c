@@ -2079,10 +2079,7 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
   if (!is_stat_generation_stage(cpi)) av1_init_cdef_worker(cpi);
 
 #if !CONFIG_REALTIME_ONLY
-  const int use_restoration = cm->seq_params->enable_restoration &&
-                              !cm->features.all_lossless &&
-                              !cm->tiles.large_scale;
-  if (use_restoration) {
+  if (is_restoration_enabled(cm)) {
     const int frame_width = cm->superres_upscaled_width;
     const int frame_height = cm->superres_upscaled_height;
     set_restoration_unit_size(frame_width, frame_height,
@@ -2214,9 +2211,6 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       !cm->features.coded_lossless && !cm->tiles.large_scale;
   const int use_cdef = cm->seq_params->enable_cdef &&
                        !cm->features.coded_lossless && !cm->tiles.large_scale;
-  const int use_restoration = cm->seq_params->enable_restoration &&
-                              !cm->features.all_lossless &&
-                              !cm->tiles.large_scale;
   const int cur_width = cm->cur_frame->width;
   const int cur_height = cm->cur_frame->height;
   const int cur_width_mib = cm->mi_params.mi_cols * MI_SIZE;
@@ -2248,7 +2242,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   end_timing(cpi, loop_filter_time);
 #endif
 
-  cdef_restoration_frame(cpi, cm, xd, use_restoration, use_cdef);
+  cdef_restoration_frame(cpi, cm, xd, is_restoration_enabled(cm), use_cdef);
 }
 
 /*!\brief Encode a frame without the recode loop, usually used in one-pass
