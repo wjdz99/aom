@@ -714,9 +714,8 @@ void av1_build_one_inter_predictor(
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
 void av1_dist_wtd_comp_weight_assign(const AV1_COMMON *cm,
-                                     const MB_MODE_INFO *mbmi, int order_idx,
-                                     int *fwd_offset, int *bck_offset,
-                                     int is_compound) {
+                                     const MB_MODE_INFO *mbmi, int *fwd_offset,
+                                     int *bck_offset, int is_compound) {
   assert(fwd_offset != NULL && bck_offset != NULL);
   if (!is_compound || mbmi->compound_idx) {
     *fwd_offset = 1 << (DIST_PRECISION_BITS - 1);
@@ -742,8 +741,8 @@ void av1_dist_wtd_comp_weight_assign(const AV1_COMMON *cm,
   const int order = d0 <= d1;
 
   if (d0 == 0 || d1 == 0) {
-    *fwd_offset = quant_dist_lookup_table[order_idx][3][order];
-    *bck_offset = quant_dist_lookup_table[order_idx][3][1 - order];
+    *fwd_offset = quant_dist_lookup_table[3][order];
+    *bck_offset = quant_dist_lookup_table[3][1 - order];
     return;
   }
 
@@ -756,8 +755,8 @@ void av1_dist_wtd_comp_weight_assign(const AV1_COMMON *cm,
     if ((d0 > d1 && d0_c0 < d1_c1) || (d0 <= d1 && d0_c0 > d1_c1)) break;
   }
 
-  *fwd_offset = quant_dist_lookup_table[order_idx][i][order];
-  *bck_offset = quant_dist_lookup_table[order_idx][i][1 - order];
+  *fwd_offset = quant_dist_lookup_table[i][order];
+  *bck_offset = quant_dist_lookup_table[i][1 - order];
 }
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
@@ -820,14 +819,26 @@ static void build_inter_predictors_sub8x8(
   const bool ss_y = pd->subsampling_y;
   const int b4_w = block_size_wide[bsize] >> ss_x;
   const int b4_h = block_size_high[bsize] >> ss_y;
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
   const BLOCK_SIZE plane_bsize = plane ? mi->chroma_ref_info.bsize_base : bsize;
   const int b8_w = block_size_wide[plane_bsize] >> ss_x;
   const int b8_h = block_size_high[plane_bsize] >> ss_y;
+=======
+  const BLOCK_SIZE plane_bsize = get_plane_block_size(bsize, ss_x, ss_y);
+  const int b8_w = block_size_wide[plane_bsize];
+  const int b8_h = block_size_high[plane_bsize];
+  const int is_compound = has_second_ref(mi);
+  assert(!is_compound);
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 #if CONFIG_SDP
   assert(!is_intrabc_block(mi, xd->tree_type));
 #else
   assert(!is_intrabc_block(mi));
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
 #endif  // CONFIG_SDP
+=======
+#endif
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
 
   // For sub8x8 chroma blocks, we may be covering more than one luma block's
   // worth of pixels. Thus (mi_x, mi_y) may not be the correct coordinates for
@@ -957,7 +968,7 @@ static void build_inter_predictors_8x8_and_bigger(
 
 #if !CONFIG_REMOVE_DIST_WTD_COMP
     av1_dist_wtd_comp_weight_assign(
-        cm, mi, 0, &inter_pred_params.conv_params.fwd_offset,
+        cm, mi, &inter_pred_params.conv_params.fwd_offset,
         &inter_pred_params.conv_params.bck_offset, is_compound);
 #endif  // !CONFIG_REMOVE_DIST_WTD_COMP
 
@@ -991,7 +1002,14 @@ void av1_build_inter_predictors(const AV1_COMMON *cm, MACROBLOCKD *xd,
                                 int mi_y, uint8_t **mc_buf,
                                 CalcSubpelParamsFunc calc_subpel_params_func) {
 #if CONFIG_SDP
+<<<<<<< HEAD   (89e23a ERP: Fix rd_cost accounting when rect parts are invalid)
   if (is_sub8x8_inter(xd, mi, plane, is_intrabc_block(mi, xd->tree_type),
+=======
+  if (is_sub8x8_inter(xd, plane, mi->sb_type[PLANE_TYPE_Y],
+                      is_intrabc_block(mi, xd->tree_type), build_for_obmc)) {
+#else
+  if (is_sub8x8_inter(xd, plane, mi->sb_type, is_intrabc_block(mi),
+>>>>>>> BRANCH (098800 Bugfix for global motion with 16bit internal.)
                       build_for_obmc)) {
 #else
   if (is_sub8x8_inter(xd, mi, plane, is_intrabc_block(mi), build_for_obmc)) {
@@ -1436,11 +1454,15 @@ void av1_build_intra_predictors_for_interintra(const AV1_COMMON *cm,
 #else
   assert(xd->mi[0]->use_intrabc == 0);
 #endif
-
   av1_predict_intra_block(cm, xd, pd->width, pd->height,
                           max_txsize_rect_lookup[plane_bsize], mode, 0, 0,
                           FILTER_INTRA_MODES, ctx->plane[plane],
-                          ctx->stride[plane], dst, dst_stride, 0, 0, plane);
+                          ctx->stride[plane], dst, dst_stride, 0, 0,
+#if CONFIG_ORIP
+                          plane, 0);
+#else
+                          plane);
+#endif
 }
 
 void av1_combine_interintra(MACROBLOCKD *xd, BLOCK_SIZE bsize, int plane,
