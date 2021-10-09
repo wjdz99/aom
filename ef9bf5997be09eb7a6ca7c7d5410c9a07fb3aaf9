@@ -1,6 +1,46 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "917e61c5_69aec6e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-10-09T00:48:31Z",
+      "side": 1,
+      "message": "I also found that the cl below should be reverted.\nhttps://aomedia-review.googlesource.com/c/aom/+/144882\n\nBecause, line 665 early returns, as WRITE_FEATURE_TO_FILE is always 0.\nAnd the check is skipped. The unit test is not actually executed.\n\nI do not have a good solution to this right now. How about just disable the test?",
+      "revId": "ef9bf5997be09eb7a6ca7c7d5410c9a07fb3aaf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9ebb33a_4accd97e",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-10-09T00:48:31Z",
+      "side": 1,
+      "message": "I go back and check the code. The original logic is correct. It can\u0027t be changed.",
+      "range": {
+        "startLine": 112,
+        "startChar": 3,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "ef9bf5997be09eb7a6ca7c7d5410c9a07fb3aaf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00b7adc8_316575c4",
