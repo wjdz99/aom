@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "220a6692_7b602200",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-09T02:05:54Z",
+      "side": 1,
+      "message": "\u003e I also found that the cl below should be reverted.\n\u003e https://aomedia-review.googlesource.com/c/aom/+/144882\n\u003e \n\u003e Because, line 665 early returns, as WRITE_FEATURE_TO_FILE is always 0.\n\u003e And the check is skipped. The unit test is not actually executed.\n\u003e \n\u003e I do not have a good solution to this right now. How about just disable the test?\n\nWe can move the check up in the test to skip the encode and make it noop, but I\u0027m not sure I understand the purpose of this check.",
+      "parentUuid": "917e61c5_69aec6e6",
+      "revId": "ef9bf5997be09eb7a6ca7c7d5410c9a07fb3aaf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9ebb33a_4accd97e",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-10-09T00:48:31Z",
       "side": 1,
       "message": "I go back and check the code. The original logic is correct. It can\u0027t be changed.",
+      "range": {
+        "startLine": 112,
+        "startChar": 3,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "ef9bf5997be09eb7a6ca7c7d5410c9a07fb3aaf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e678bd3f_2de18f26",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-09T02:05:54Z",
+      "side": 1,
+      "message": "\u003e I go back and check the code. The original logic is correct. It can\u0027t be changed.\n\nIt seems without WRITE_FEATURE_TO_FILE this should be a noop like in the test, so maybe we should just remove the check on is_test_mode. How is that used by the callers?",
+      "parentUuid": "c9ebb33a_4accd97e",
       "range": {
         "startLine": 112,
         "startChar": 3,
