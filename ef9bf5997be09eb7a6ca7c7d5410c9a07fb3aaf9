@@ -36,6 +36,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c9b99c6_4370b51f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-10-11T18:36:32Z",
+      "side": 1,
+      "message": "My intent of using \"WRITE_FEATURE_TO_FILE\" and \"is_test_mode\" is:\n(1). WRITE_FEATURE_TO_FILE is set to 0 by default so that is doesn\u0027t affect the encoder\u0027s default behavior. We can set to 1 to get print text information for feature information.\n(2). \"is_test_mode\" is used in the test. The test first sets it to 0 and run the encoder to ask the function to print features to text. Then the test sets it to 1 and run the encoder, this time no text print, but pass feature information through a callback function.\nAnd finally the test compares feature information between these two runs.\n\n\nI realize that here using two variables to determine whether to call a function seems not straight forward.\nWithout the unit test, I think there will be no confusion.\nI think I can refactor the test, for example, adding a separate but exact function and let the test call that function.",
+      "revId": "ef9bf5997be09eb7a6ca7c7d5410c9a07fb3aaf9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9ebb33a_4accd97e",
