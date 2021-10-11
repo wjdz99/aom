@@ -34,6 +34,24 @@
       "parentUuid": "e1e0f2bb_4ba43365",
       "revId": "dadc6023db85567f98cefae4af9b000c487b058f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51ce8abd_9ba5aa9b",
+        "filename": "test/av1_external_partition_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-11T20:41:29Z",
+      "side": 0,
+      "message": "\u003e I add some comments in that thread.\n\nThanks. Let\u0027s get things stable with regard to error checking and then if you want to move forward with some refactoring we can build off of that. I think this revert can be skipped for now since it has additional error checking as part of it.",
+      "parentUuid": "c053ce14_43b1acf7",
+      "revId": "dadc6023db85567f98cefae4af9b000c487b058f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
