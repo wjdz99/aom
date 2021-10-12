@@ -1173,6 +1173,7 @@ static AOM_INLINE void read_compound_ref_nrs(
     }
   }
   if (n_bits < 2) ref_frame_nrs[1] = n_refs - 1;
+#if !USE_NEW_REF_SIGNALING
   const int swap_refs = convert_ranked_ref_to_named_ref_index(
                             new_ref_frame_data, ref_frame_nrs[0]) >
                         convert_ranked_ref_to_named_ref_index(
@@ -1182,6 +1183,7 @@ static AOM_INLINE void read_compound_ref_nrs(
     ref_frame_nrs[0] = ref_frame_nrs[1];
     ref_frame_nrs[1] = tmp;
   }
+#endif  // !USE_NEW_REF_SIGNALING
 }
 #endif  // CONFIG_NEW_REF_SIGNALING
 
