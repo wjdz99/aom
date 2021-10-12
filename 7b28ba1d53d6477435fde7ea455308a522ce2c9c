@@ -16,6 +16,24 @@
       "message": "this one should be removed to keep binary compatibility",
       "revId": "7b28ba1d53d6477435fde7ea455308a522ce2c9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "357e5884_47e3b174",
+        "filename": "av1/exports_dec",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-12T23:53:58Z",
+      "side": 1,
+      "message": "I know the ABI check failed because a function was added. That seems to be a bug in the ABI check because adding a new function does not break binary compatibility with older versions of libaom. Removing a function or changing the prototype of a function breaks binary compatibility with older versions of libaom.\n\nThe aom_add_film_grain function needs to be exported so that the noise_model example can be built in the -DBUILD_SHARED_LIBS\u003d1 build. If I remove this line, then the -DBUILD_SHARED_LIBS\u003d1 build fails with a linker error;\n\n[ 98%] Linking CXX executable examples/noise_model\n/usr/bin/ld: CMakeFiles/noise_model.dir/examples/noise_model.c.o: in function `main\u0027:\nnoise_model.c:(.text.startup+0x676): undefined reference to `aom_add_film_grain\u0027\ncollect2: error: ld returned 1 exit status\nmake[2]: *** [CMakeFiles/noise_model.dir/build.make:184: examples/noise_model] Error 1\nmake[1]: *** [CMakeFiles/Makefile2:11011: CMakeFiles/noise_model.dir/all] Error 2",
+      "parentUuid": "d8bb0327_b2c746c2",
+      "revId": "7b28ba1d53d6477435fde7ea455308a522ce2c9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
