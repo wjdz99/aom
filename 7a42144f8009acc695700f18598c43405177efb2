@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh,\n\nIn this patch, the scaled source buffers (scaled_source and scaled_last_source) are allocated on-the-fly in order to reduce the heap memory usage caused by these buffers when they are not required. The scaled source buffers will now be allocated for the required target dimensions on a need basis.\n\nWe have modified the function av1_scale_if_required to take care of the allocation/reallocation of scaled source buffers when scaling is required (i.e. when the flag ‘scaling_required’ is true). The function is renamed as av1_realloc_and_scale_if_required. Also in init_motion_estimation(), the y_stride value which was taken from scaled_source is now calculated by replicating the stride computation that happens in calc_stride_and_planesize().\n\nWe had also thought of keeping a condition in alloc_util_frame_buffers() where the allocation is happening currently but we didn’t pursue that approach as it required a different handling for scaled_source and scaled_last_source based on their respective unscaled dimensions. We felt that the current approach could handle the allocations for both approaches in a cleaner way. The current approach is ensured to take care of allocating/reallocating the buffers in all conditions.\n\nThe speedup mentioned in the commit message is observed because the memset operation for scaled_source buffer is avoided for AVIF image encode.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe validated the heap memory reduction for speed\u003d6 as well. \nFor AVIF image encode with speed\u003d6 and threads\u003d4,\n\n                HEAP Memory\nResolution      reduction(%)\t  \n360p-720p\t   2.80     \n\nThis patch is also applicable for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes when scaling is not enabled.\n\nFor libaom \u0027RT\u0027 usage with cpu-used \u003d 5,\n\n                        HEAP Memory reduction(%)\n                        Single      Multi\nResolution    Tile      thread      thread\n640x360       2x1        7.10        6.41 (2 threads)\n832x480       2x1        6.91        6.36 (2 threads)\n1280x720      2x2        6.09        5.47 (4 threads)\n1920x1080     4x2        5.95        5.19 (8 threads)\n\nFor libaom \u0027GOOD\u0027 usage with cpu-used \u003d 6,\n\n                        HEAP Memory reduction(%)\n                        Single      Multi\nResolution    Tile      thread      thread\n640x360       2x1        2.29        2.18 (2 threads)\n832x480       2x1        2.15        2.08 (2 threads)\n1280x720      2x2        1.97        1.91 (4 threads)\n1920x1080     4x2        1.87        1.80 (8 threads)\n\nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./aomenc …\n\nThe memory reductions seen in AVIF/allintra encode are only due to scaled_source buffer not being allocated as scaled_last_source buffer allocation was already avoided for allintra encoding. Whereas the heap memory reductions seen in ‘GOOD’ and ‘RT’ usage are resulting from not allocating both scaled_source and scaled_last_source buffers.\n\nPlease review this patch.\n\nRegards,\nJayasanker.\n",
       "revId": "7a42144f8009acc695700f18598c43405177efb2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8d497d8_5cacfbfe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-12T21:31:17Z",
+      "side": 1,
+      "message": "Urvang: PTAL. Thanks!",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
