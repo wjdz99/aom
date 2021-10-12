@@ -2767,9 +2767,11 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
   }
   // Set frame type.
   if ((!cpi->ppi->use_svc && rc->frames_to_key == 0) ||
-      (cpi->ppi->use_svc && svc->spatial_layer_id == 0 &&
-       (cpi->oxcf.kf_cfg.key_freq_max == 0 ||
-        svc->current_superframe % cpi->oxcf.kf_cfg.key_freq_max == 0)) ||
+      (cpi->ppi->use_svc && cpi->oxcf.kf_cfg.auto_key &&
+       svc->spatial_layer_id == 0 &&
+       (cpi->oxcf.kf_cfg.auto_key &&
+        (cpi->oxcf.kf_cfg.key_freq_max == 0 ||
+         svc->current_superframe % cpi->oxcf.kf_cfg.key_freq_max == 0))) ||
       (frame_flags & FRAMEFLAGS_KEY)) {
     frame_params->frame_type = KEY_FRAME;
     p_rc->this_key_frame_forced =
