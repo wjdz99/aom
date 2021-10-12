@@ -185,6 +185,10 @@ int aom_add_film_grain_run(const aom_film_grain_t *grain_params, uint8_t *luma,
 int aom_add_film_grain(const aom_film_grain_t *grain_params,
                        const aom_image_t *src, aom_image_t *dst);
 
+/* Deprecated. Use aom_add_film_grain() instead. */
+int av1_add_film_grain(const aom_film_grain_t *grain_params,
+                       const aom_image_t *src, aom_image_t *dst);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
