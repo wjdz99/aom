@@ -5113,17 +5113,6 @@ static AOM_INLINE int prune_ref_frame_nrs(
   const AV1_COMMON *const cm = &cpi->common;
   MV_REFERENCE_FRAME_NRS rf[2];
   av1_set_ref_frame_nrs(rf, ref_frame_type_nrs);
-  // TODO(debargha): Remove the swapping once we have switched to
-  // low, high order for rf indices fully
-  MV_REFERENCE_FRAME rfo[2];
-  convert_ranked_ref_to_named_ref_pair(&cm->new_ref_frame_data, rf, 0, rfo);
-  if (skip_compound_search(rfo[0], rfo[1])) {
-    assert(!skip_compound_search(rfo[1], rfo[0]));
-    // Swap rf
-    MV_REFERENCE_FRAME_NRS tmprf = rf[0];
-    rf[0] = rf[1];
-    rf[1] = tmprf;
-  }
   const int comp_pred = (rf[1] != INVALID_IDX && rf[1] != INTRA_FRAME_NRS);
   if (comp_pred) {
     if (!cpi->oxcf.ref_frm_cfg.enable_onesided_comp ||
@@ -5356,22 +5345,6 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
       if (!((cpi->common.ref_frame_flags_nrs & (1 << rf_nrs[0])) &&
             (cpi->common.ref_frame_flags_nrs & (1 << rf_nrs[1])))) {
         continue;
-      }
-
-      // TODO(debargha, sarahparker): This is a hack currently to get the
-      // correct ref_frame by trying both unflipped and flipped versions of
-      // the references to see which one is allowed. This should become
-      // unnecessary when the compound modes have switched over completely
-      // to the new framework.
-      MV_REFERENCE_FRAME rf[2];
-      convert_ranked_ref_to_named_ref_pair(&cm->new_ref_frame_data, rf_nrs, 0,
-                                           rf);
-      if (skip_compound_search(rf[0], rf[1])) {
-        if (skip_compound_search(rf[1], rf[0])) continue;
-        MV_REFERENCE_FRAME tmp = rf[0];
-        // Flip and recompute ref_frame type
-        rf[0] = rf[1];
-        rf[1] = tmp;
       }
 
       if (mbmi->partition != PARTITION_NONE &&
@@ -7312,10 +7285,6 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
         MV_REFERENCE_FRAME second_ref_frame =
             convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                   second_ref_frame_nrs);
-        // if (second_ref_frame_nrs != INVALID_IDX && ref_frame_nrs !=
-        // INTRA_FRAME_NRS &&
-        //     ref_frame_nrs >= second_ref_frame_nrs)
-        //   continue;
         if (second_ref_frame_nrs != INVALID_IDX &&
             this_mode < COMP_INTER_MODE_START)
           continue;
@@ -7323,26 +7292,10 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
             this_mode < COMP_INTER_MODE_END &&
             second_ref_frame_nrs == INVALID_IDX)
           continue;
-        // TODO(debargha, sarahparker): when the compound mode
-        // signaling in new ref framework is in place to support
-        // n_total_refs choose 2 modes, the skip_compound_search()
-        // call can be removed and instead the lines following
-        // must be uncommented.
-        if (skip_compound_search(ref_frame, second_ref_frame)) continue;
-        /*
-        if (skip_compound_search(ref_frame, second_ref_frame)) {
-          if (skip_compound_search(second_ref_frame, ref_frame)) {
-            continue;
-          } else {
-            // Swap
-            MV_REFERENCE_FRAME tmprf = ref_frame;
-            ref_frame = second_ref_frame;
-            second_ref_frame = tmprf;
-          }
-        }
-        */
-        // if (second_ref_frame_nrs != INVALID_IDX &&
-        //     second_ref_frame_nrs <= ref_frame_nrs) continue;
+        if (second_ref_frame_nrs != INVALID_IDX &&
+            second_ref_frame_nrs <= ref_frame_nrs)
+          continue;
+
         const MV_REFERENCE_FRAME ref_frames[2] = { ref_frame,
                                                    second_ref_frame };
         const MV_REFERENCE_FRAME_NRS ref_frames_nrs[2] = {
