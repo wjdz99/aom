@@ -483,17 +483,6 @@ static int add_tpl_ref_mv(const AV1_COMMON *cm, const MACROBLOCKD *xd,
 #if CONFIG_NEW_REF_SIGNALING && USE_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME_NRS rf[2];
   av1_set_ref_frame_nrs(rf, ref_frame);
-  // TODO(debargha): Remove the swapping once we have switched to
-  // low, high order for rf indices fully
-  MV_REFERENCE_FRAME rfo[2];
-  convert_ranked_ref_to_named_ref_pair(&cm->new_ref_frame_data, rf, 0, rfo);
-  if (skip_compound_search(rfo[0], rfo[1])) {
-    assert(!skip_compound_search(rfo[1], rfo[0]));
-    // Swap rf
-    MV_REFERENCE_FRAME_NRS tmprf = rf[0];
-    rf[0] = rf[1];
-    rf[1] = tmprf;
-  }
 #else
   MV_REFERENCE_FRAME rf[2];
   av1_set_ref_frame(rf, ref_frame);
@@ -746,17 +735,6 @@ static AOM_INLINE void setup_ref_mv_list(
 #if CONFIG_NEW_REF_SIGNALING && USE_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME_NRS rf[2];
   av1_set_ref_frame_nrs(rf, ref_frame);
-  MV_REFERENCE_FRAME rfo[2];
-  // TODO(debargha): Remove the swapping once we have switched to
-  // low, high order for rf indices fully
-  convert_ranked_ref_to_named_ref_pair(&cm->new_ref_frame_data, rf, 0, rfo);
-  if (skip_compound_search(rfo[0], rfo[1])) {
-    assert(!skip_compound_search(rfo[1], rfo[0]));
-    // Swap rf
-    MV_REFERENCE_FRAME_NRS tmprf = rf[0];
-    rf[0] = rf[1];
-    rf[1] = tmprf;
-  }
 #else
   MV_REFERENCE_FRAME rf[2];
   av1_set_ref_frame(rf, ref_frame);
