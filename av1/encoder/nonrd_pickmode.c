@@ -371,7 +371,6 @@ static INLINE void find_predictors(AV1_COMP *cpi, MACROBLOCK *x,
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, ref_frame);
   const int num_planes = av1_num_planes(cm);
   (void)tile_data;
-
   x->pred_mv_sad[ref_frame] = INT_MAX;
   x->pred_mv0_sad[ref_frame] = INT_MAX;
   x->pred_mv1_sad[ref_frame] = INT_MAX;

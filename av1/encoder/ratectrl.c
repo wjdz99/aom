@@ -2745,6 +2745,30 @@ static void dynamic_resize_one_pass_cbr(AV1_COMP *cpi) {
   return;
 }
 
+static INLINE int set_key_frame(AV1_COMP *cpi, unsigned int frame_flags) {
+  RATE_CONTROL *const rc = &cpi->rc;
+  AV1_COMMON *const cm = &cpi->common;
+  SVC *const svc = &cpi->svc;
+
+  // Very first frame has to be key frame.
+  if (cm->current_frame.frame_number == 0) return 1;
+  // Set key frame if forced by frame flags.
+  if (frame_flags & FRAMEFLAGS_KEY) return 1;
+  if (!cpi->ppi->use_svc) {
+    // Non-SVC
+    if (cpi->oxcf.kf_cfg.auto_key && rc->frames_to_key == 0) return 1;
+  } else {
+    // SVC
+    if (svc->spatial_layer_id == 0 &&
+        (cpi->oxcf.kf_cfg.auto_key &&
+         (cpi->oxcf.kf_cfg.key_freq_max == 0 ||
+          svc->current_superframe % cpi->oxcf.kf_cfg.key_freq_max == 0)))
+      return 1;
+  }
+
+  return 0;
+}
+
 void av1_get_one_pass_rt_params(AV1_COMP *cpi,
                                 EncodeFrameParams *const frame_params,
                                 unsigned int frame_flags) {
@@ -2766,11 +2790,7 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
     av1_restore_layer_context(cpi);
   }
   // Set frame type.
-  if ((!cpi->ppi->use_svc && rc->frames_to_key == 0) ||
-      (cpi->ppi->use_svc && svc->spatial_layer_id == 0 &&
-       (cpi->oxcf.kf_cfg.key_freq_max == 0 ||
-        svc->current_superframe % cpi->oxcf.kf_cfg.key_freq_max == 0)) ||
-      (frame_flags & FRAMEFLAGS_KEY)) {
+  if (set_key_frame(cpi, frame_flags)) {
     frame_params->frame_type = KEY_FRAME;
     p_rc->this_key_frame_forced =
         cm->current_frame.frame_number != 0 && rc->frames_to_key == 0;
