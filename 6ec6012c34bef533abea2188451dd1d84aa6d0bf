@@ -16,6 +16,24 @@
       "message": "Thanks Wan-Teh for fixing this.",
       "revId": "6ec6012c34bef533abea2188451dd1d84aa6d0bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddfd2262_d86468cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-13T22:34:26Z",
+      "side": 1,
+      "message": "I am afraid that I need to abandon this CL.\n\nThis formatting difference is caused by different versions of clang-format. If I use the clang-format in Chromium\u0027s depot_tools, which has the version\n\n  clang-format version 11.0.0 (https://github.com/llvm/llvm-project eb85e90350e93a64279139e7eca9ca40c8fbf5eb)\n  \nthen I get the current formatting.\n\nAnother solution is to change our internal libaom update script to not run clang-format after modifying the test files.",
+      "parentUuid": "2cddbe3e_35193e72",
+      "revId": "6ec6012c34bef533abea2188451dd1d84aa6d0bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
