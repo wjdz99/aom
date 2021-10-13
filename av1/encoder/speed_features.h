@@ -1313,6 +1313,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Define gf length multiplier.
   // Level 0: use large multiplier, level 1: use medium multiplier.
   int gf_length_lvl;
+
+  // Prune reference frame search in rd path.
+  int prune_ref_frames;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
