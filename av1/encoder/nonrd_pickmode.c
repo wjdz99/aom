@@ -33,6 +33,7 @@
 #include "av1/encoder/encodemv.h"
 #include "av1/encoder/rdopt.h"
 #include "av1/encoder/reconinter_enc.h"
+#include "av1/encoder/var_based_part.h"
 
 extern int g_pick_inter_mode_cnt;
 /*!\cond */
@@ -1336,9 +1337,9 @@ static void recheck_zeromv_after_denoising(
 }
 #endif  // CONFIG_AV1_TEMPORAL_DENOISING
 
-static INLINE int get_force_skip_low_temp_var_small_sb(uint8_t *variance_low,
-                                                       int mi_row, int mi_col,
-                                                       BLOCK_SIZE bsize) {
+int av1_get_force_skip_low_temp_var_small_sb(const uint8_t *variance_low,
+                                             int mi_row, int mi_col,
+                                             BLOCK_SIZE bsize) {
   // Relative indices of MB inside the superblock.
   const int mi_x = mi_row & 0xF;
   const int mi_y = mi_col & 0xF;
@@ -1385,8 +1386,8 @@ static INLINE int get_force_skip_low_temp_var_small_sb(uint8_t *variance_low,
   return force_skip_low_temp_var;
 }
 
-static INLINE int get_force_skip_low_temp_var(uint8_t *variance_low, int mi_row,
-                                              int mi_col, BLOCK_SIZE bsize) {
+int av1_get_force_skip_low_temp_var(const uint8_t *variance_low, int mi_row,
+                                    int mi_col, BLOCK_SIZE bsize) {
   int force_skip_low_temp_var = 0;
   int x, y;
   x = (mi_col & 0x1F) >> 4;
@@ -1915,10 +1916,10 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
   if (cpi->sf.rt_sf.short_circuit_low_temp_var &&
       x->nonrd_prune_ref_frame_search) {
     if (is_small_sb)
-      *force_skip_low_temp_var = get_force_skip_low_temp_var_small_sb(
+      *force_skip_low_temp_var = av1_get_force_skip_low_temp_var_small_sb(
           &x->part_search_info.variance_low[0], mi_row, mi_col, bsize);
     else
-      *force_skip_low_temp_var = get_force_skip_low_temp_var(
+      *force_skip_low_temp_var = av1_get_force_skip_low_temp_var(
           &x->part_search_info.variance_low[0], mi_row, mi_col, bsize);
     // If force_skip_low_temp_var is set, skip golden reference.
     if (*force_skip_low_temp_var) {

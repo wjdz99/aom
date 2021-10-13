@@ -69,6 +69,7 @@
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/tpl_model.h"
 #include "av1/encoder/tx_search.h"
+#include "av1/encoder/var_based_part.h"
 
 #define LAST_NEW_MV_INDEX 6
 
@@ -5375,6 +5376,31 @@ static AOM_INLINE void skip_intra_modes_in_interframe(
   }
 }
 
+static AOM_INLINE int get_block_temp_var(const AV1_COMP *cpi,
+                                         const MACROBLOCK *x,
+                                         BLOCK_SIZE bsize) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const SPEED_FEATURES *const sf = &cpi->sf;
+
+  if (sf->part_sf.partition_search_type != VAR_BASED_PARTITION ||
+      !sf->rt_sf.short_circuit_low_temp_var || !sf->rt_sf.prune_ref_frames) {
+    return 0;
+  }
+
+  const int mi_row = x->e_mbd.mi_row;
+  const int mi_col = x->e_mbd.mi_col;
+  int is_low_temp_var = 0;
+
+  if (cm->seq_params->sb_size == BLOCK_64X64)
+    is_low_temp_var = av1_get_force_skip_low_temp_var_small_sb(
+        &x->part_search_info.variance_low[0], mi_row, mi_col, bsize);
+  else
+    is_low_temp_var = av1_get_force_skip_low_temp_var(
+        &x->part_search_info.variance_low[0], mi_row, mi_col, bsize);
+
+  return is_low_temp_var;
+}
+
 // TODO(chiyotsai@google.com): See the todo for av1_rd_pick_intra_mode_sb.
 void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
                             struct macroblock *x, struct RD_STATS *rd_cost,
@@ -5420,6 +5446,9 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
                                { 0 },
                                { 0 },
                                UINT_MAX };
+  // Currently, is_low_temp_var is used in real time encoding.
+  const int is_low_temp_var = get_block_temp_var(cpi, x, bsize);
+
   for (i = 0; i < MODE_CTX_REF_FRAMES; ++i) args.cmp_mode[i] = -1;
   // Indicates the appropriate number of simple translation winner modes for
   // exhaustive motion mode evaluation
@@ -5591,6 +5620,9 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
     const int is_single_pred =
         ref_frame > INTRA_FRAME && second_ref_frame == NONE_FRAME;
     const int comp_pred = second_ref_frame > INTRA_FRAME;
+
+    // This is for real time encoding.
+    if (is_low_temp_var && !comp_pred && ref_frame != LAST_FRAME && this_mode != NEARESTMV) continue;
 
     init_mbmi(mbmi, this_mode, ref_frames, cm);
 
@@ -5843,6 +5875,17 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
   // macroblock modes
   *mbmi = search_state.best_mbmode;
   txfm_info->skip_txfm |= search_state.best_skip2;
+
+
+
+//    const FRAME_UPDATE_TYPE update_type =
+//        get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
+//    const int comp_pred = mbmi->ref_frame[1] > INTRA_FRAME;
+//    if (is_low_temp_var && !comp_pred && (mbmi->ref_frame[0] != LAST_FRAME && mbmi->ref_frame[0] != INTRA_FRAME && mbmi->mode != NEARESTMV))
+//    printf("\n !!!(%d,%d)%d,  mbmi->mode=%d;  refs:%d, %d;   update_type: %d; q: %d; \n",
+//           mi_row, mi_col, bsize,  mbmi->mode, mbmi->ref_frame[0], mbmi->ref_frame[1],
+//           update_type, cm->quant_params.base_qindex);
+
 
   // Note: this section is needed since the mode may have been forced to
   // GLOBALMV by the all-zero mode handling of ref-mv.
