@@ -81,9 +81,9 @@ static INLINE uint32_t get_block_residue_hash(MACROBLOCK *x, BLOCK_SIZE bsize) {
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   const int16_t *diff = x->plane[0].src_diff;
-  const uint32_t hash = av1_get_crc32c_value(
-      &x->txfm_search_info.txb_rd_records->mb_rd_record.crc_calculator,
-      (uint8_t *)diff, 2 * rows * cols);
+  const uint32_t hash =
+      av1_get_crc32c_value(&x->txfm_search_info.mb_rd_records->crc_calculator,
+                           (uint8_t *)diff, 2 * rows * cols);
   return (hash << 5) + bsize;
 }
 
@@ -3332,7 +3332,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   // Hashing based speed feature. If the hash of the prediction residue block is
   // found in the hash table, use previous search results and terminate early.
   uint32_t hash = 0;
-  MB_RD_RECORD *mb_rd_record = NULL;
+  MB_RD_RECORD *mb_rd_records = NULL;
   const int mi_row = x->e_mbd.mi_row;
   const int mi_col = x->e_mbd.mi_col;
   const int within_border =
@@ -3345,10 +3345,10 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   const int n4 = bsize_to_num_blk(bsize);
   if (is_mb_rd_hash_enabled) {
     hash = get_block_residue_hash(x, bsize);
-    mb_rd_record = &x->txfm_search_info.txb_rd_records->mb_rd_record;
-    const int match_index = find_mb_rd_info(mb_rd_record, ref_best_rd, hash);
+    mb_rd_records = x->txfm_search_info.mb_rd_records;
+    const int match_index = find_mb_rd_info(mb_rd_records, ref_best_rd, hash);
     if (match_index != -1) {
-      MB_RD_INFO *tx_rd_info = &mb_rd_record->tx_rd_info[match_index];
+      MB_RD_INFO *tx_rd_info = &mb_rd_records->tx_rd_info[match_index];
       fetch_tx_rd_info(n4, tx_rd_info, rd_stats, x);
       return;
     }
@@ -3363,7 +3363,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
     set_skip_txfm(x, rd_stats, bsize, dist);
     // Save the RD search results into tx_rd_record.
     if (is_mb_rd_hash_enabled)
-      save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
+      save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_records);
     return;
   }
 #if CONFIG_SPEED_STATS
@@ -3384,8 +3384,8 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
 
   // Save the RD search results into tx_rd_record.
   if (is_mb_rd_hash_enabled) {
-    assert(mb_rd_record != NULL);
-    save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_record);
+    assert(mb_rd_records != NULL);
+    save_tx_rd_info(n4, hash, x, rd_stats, mb_rd_records);
   }
 }
 
@@ -3406,7 +3406,7 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   // block is found in the table, use previously saved search results and
   // terminate early.
   uint32_t hash = 0;
-  MB_RD_RECORD *mb_rd_record = NULL;
+  MB_RD_RECORD *mb_rd_records = NULL;
   const int num_blks = bsize_to_num_blk(bs);
   if (is_inter && cpi->sf.rd_sf.use_mb_rd_hash) {
     const int within_border =
@@ -3416,10 +3416,10 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
         (mi_col + mi_size_wide[bs] < xd->tile.mi_col_end);
     if (within_border) {
       hash = get_block_residue_hash(x, bs);
-      mb_rd_record = &x->txfm_search_info.txb_rd_records->mb_rd_record;
-      const int match_index = find_mb_rd_info(mb_rd_record, ref_best_rd, hash);
+      mb_rd_records = x->txfm_search_info.mb_rd_records;
+      const int match_index = find_mb_rd_info(mb_rd_records, ref_best_rd, hash);
       if (match_index != -1) {
-        MB_RD_INFO *tx_rd_info = &mb_rd_record->tx_rd_info[match_index];
+        MB_RD_INFO *tx_rd_info = &mb_rd_records->tx_rd_info[match_index];
         fetch_tx_rd_info(num_blks, tx_rd_info, rd_stats, x);
         return;
       }
@@ -3436,8 +3436,8 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
     // Populate rdstats as per skip decision
     set_skip_txfm(x, rd_stats, bs, dist);
     // Save the RD search results into tx_rd_record.
-    if (mb_rd_record) {
-      save_tx_rd_info(num_blks, hash, x, rd_stats, mb_rd_record);
+    if (mb_rd_records) {
+      save_tx_rd_info(num_blks, hash, x, rd_stats, mb_rd_records);
     }
     return;
   }
@@ -3452,8 +3452,8 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
   }
 
   // Save the RD search results into tx_rd_record for possible reuse in future.
-  if (mb_rd_record) {
-    save_tx_rd_info(num_blks, hash, x, rd_stats, mb_rd_record);
+  if (mb_rd_records) {
+    save_tx_rd_info(num_blks, hash, x, rd_stats, mb_rd_records);
   }
 }
 
