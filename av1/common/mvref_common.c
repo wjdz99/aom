@@ -1315,6 +1315,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
       gm_mv[1] = gm_get_motion_vector(&cm->global_motion[rf[1]],
                                       fr_mv_precision, bsize, mi_col, mi_row);
 #if CONFIG_NEW_REF_SIGNALING
+      /*
       MV_REFERENCE_FRAME_NRS rf_nrs_[2];
       convert_named_ref_to_ranked_ref_pair(&cm->new_ref_frame_data, rf, 0,
                                            rf_nrs_);
@@ -1323,6 +1324,7 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                                                    rf_nrs_[0]) == rf[0]);
       assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                    rf_nrs_[1]) == rf[1]);
+                                                   */
       MV_REFERENCE_FRAME_NRS rf_nrs[2];
       av1_set_ref_frame_nrs(rf_nrs, ref_frame_nrs);
       gm_mv_nrs[0] =

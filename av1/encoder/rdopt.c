@@ -1836,6 +1836,9 @@ static int64_t motion_mode_rd(
   int pts0[SAMPLES_ARRAY_SIZE], pts_inref0[SAMPLES_ARRAY_SIZE];
 
   assert(mbmi->ref_frame[1] != INTRA_FRAME);
+#if CONFIG_NEW_REF_SIGNALING
+  const MV_REFERENCE_FRAME_NRS ref_frame_1_nrs = mbmi->ref_frame_nrs[1];
+#endif  // CONFIG_NEW_REF_SIGNALING
   const MV_REFERENCE_FRAME ref_frame_1 = mbmi->ref_frame[1];
   (void)tile_data;
   av1_invalid_rd_stats(&best_rd_stats);
@@ -1909,7 +1912,11 @@ static int64_t motion_mode_rd(
       mbmi->motion_mode = SIMPLE_TRANSLATION;
     } else {
       mbmi->motion_mode = (MOTION_MODE)mode_index;
+#if CONFIG_NEW_REF_SIGNALING
+      assert(mbmi->ref_frame_nrs[1] != INTRA_FRAME_NRS);
+#else
       assert(mbmi->ref_frame[1] != INTRA_FRAME);
+#endif  // CONFIG_NEW_REF_SIGNALING
     }
 
     // Do not search OBMC if the probability of selecting it is below a
@@ -2153,10 +2160,19 @@ static int64_t motion_mode_rd(
     if (interintra_allowed) {
       rd_stats->rate +=
           mode_costs->interintra_cost[size_group_lookup[bsize]]
+#if CONFIG_NEW_REF_SIGNALING
+                                     [mbmi->ref_frame_nrs[1] == INTRA_FRAME_NRS];
+#else
                                      [mbmi->ref_frame[1] == INTRA_FRAME];
+#endif  // CONFIG_NEW_REF_SIGNALING
     }
     if ((last_motion_mode_allowed > SIMPLE_TRANSLATION) &&
-        (mbmi->ref_frame[1] != INTRA_FRAME)) {
+#if CONFIG_NEW_REF_SIGNALING
+        (mbmi->ref_frame_nrs[1] != INTRA_FRAME_NRS)
+#else
+        (mbmi->ref_frame[1] != INTRA_FRAME)
+#endif  // CONFIG_NEW_REF_SIGNALING
+       ) {
       if (last_motion_mode_allowed == WARPED_CAUSAL) {
         rd_stats->rate +=
             mode_costs->motion_mode_cost[bsize][mbmi->motion_mode];
@@ -2195,6 +2211,9 @@ static int64_t motion_mode_rd(
       est_rd = RDCOST(x->rdmult, rd_stats->rate + est_residue_cost, est_dist);
       if (est_rd * 0.80 > *best_est_rd) {
         mbmi->ref_frame[1] = ref_frame_1;
+#if CONFIG_NEW_REF_SIGNALING
+        mbmi->ref_frame_nrs[1] = ref_frame_1_nrs;
+#endif  // CONFIG_NEW_REF_SIGNALING
         continue;
       }
       const int mode_rate = rd_stats->rate;
@@ -2298,8 +2317,7 @@ static int64_t motion_mode_rd(
   // Update RD and mbmi stats for selected motion mode
   mbmi->ref_frame[1] = ref_frame_1;
 #if CONFIG_NEW_REF_SIGNALING
-  mbmi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, mbmi->ref_frame[1]);
+  mbmi->ref_frame_nrs[1] = ref_frame_1_nrs;
   // TODO(sarahparker) Temporary assert, see aomedia:3060
   assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                mbmi->ref_frame_nrs[1]) ==
@@ -3683,16 +3701,16 @@ static int64_t handle_inter_mode(
     mbmi->interinter_comp.type = COMPOUND_AVERAGE;
     mbmi->comp_group_idx = 0;
     mbmi->compound_idx = 1;
+#if CONFIG_NEW_REF_SIGNALING
+    if (mbmi->ref_frame_nrs[1] == INTRA_FRAME_NRS) {
+      mbmi->ref_frame_nrs[1] = INVALID_IDX;
+      mbmi->ref_frame[1] = NONE_FRAME;
+    }
+#else
     if (mbmi->ref_frame[1] == INTRA_FRAME) {
       mbmi->ref_frame[1] = NONE_FRAME;
-#if CONFIG_NEW_REF_SIGNALING
-      mbmi->ref_frame_nrs[1] = convert_named_ref_to_ranked_ref_index(
-          &cm->new_ref_frame_data, mbmi->ref_frame[1]);
-      assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                   mbmi->ref_frame_nrs[1]) ==
-             mbmi->ref_frame[1]);
-#endif  // CONFIG_NEW_REF_SIGNALING
     }
+#endif  // CONFIG_NEW_REF_SIGNALING
 
     mbmi->num_proj_ref = 0;
     mbmi->motion_mode = SIMPLE_TRANSLATION;
@@ -4205,14 +4223,8 @@ void av1_rd_pick_intra_mode_sb(const struct AV1_COMP *cpi, struct macroblock *x,
   mbmi->ref_frame[0] = INTRA_FRAME;
   mbmi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-  convert_named_ref_to_ranked_ref_pair(&cm->new_ref_frame_data, mbmi->ref_frame,
-                                       0, mbmi->ref_frame_nrs);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mbmi->ref_frame_nrs[0]) ==
-         mbmi->ref_frame[0]);
-  assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                               mbmi->ref_frame_nrs[1]) ==
-         mbmi->ref_frame[1]);
+  mbmi->ref_frame_nrs[0] = INTRA_FRAME_NRS;
+  mbmi->ref_frame_nrs[1] = INVALID_IDX;
 #endif  // CONFIG_NEW_REF_SIGNALING
   mbmi->use_intrabc = 0;
   mbmi->mv[0].as_int = 0;
@@ -4474,17 +4486,8 @@ static AOM_INLINE void rd_pick_skip_mode(
     search_state->best_mbmode.ref_frame[0] = mbmi->ref_frame[0];
     search_state->best_mbmode.ref_frame[1] = mbmi->ref_frame[1];
 #if CONFIG_NEW_REF_SIGNALING
-    convert_named_ref_to_ranked_ref_pair(
-        &cm->new_ref_frame_data, search_state->best_mbmode.ref_frame, 0,
-        search_state->best_mbmode.ref_frame_nrs);
-    assert(convert_ranked_ref_to_named_ref_index(
-               &cm->new_ref_frame_data,
-               search_state->best_mbmode.ref_frame_nrs[0]) ==
-           search_state->best_mbmode.ref_frame[0]);
-    assert(convert_ranked_ref_to_named_ref_index(
-               &cm->new_ref_frame_data,
-               search_state->best_mbmode.ref_frame_nrs[1]) ==
-           search_state->best_mbmode.ref_frame[1]);
+    search_state->best_mbmode.ref_frame_nrs[0] = mbmi->ref_frame_nrs[0];
+    search_state->best_mbmode.ref_frame_nrs[1] = mbmi->ref_frame_nrs[1];
 #endif  // CONFIG_NEW_REF_SIGNALING
 
     search_state->best_mbmode.mv[0].as_int = mbmi->mv[0].as_int;
@@ -5996,10 +5999,6 @@ static INLINE void init_mbmi(MB_MODE_INFO *mbmi, PREDICTION_MODE curr_mode,
   mbmi->uv_mode = UV_DC_PRED;
   mbmi->ref_frame[0] = ref_frames[0];
   mbmi->ref_frame[1] = ref_frames[1];
-#if CONFIG_NEW_REF_SIGNALING
-  convert_named_ref_to_ranked_ref_pair(&cm->new_ref_frame_data, mbmi->ref_frame,
-                                       0, mbmi->ref_frame_nrs);
-#endif  // CONFIG_NEW_REF_SIGNALING
   pmi->palette_size[0] = 0;
   pmi->palette_size[1] = 0;
   mbmi->filter_intra_mode_info.use_filter_intra = 0;
@@ -7672,14 +7671,8 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
     mbmi->ref_frame[0] = INTRA_FRAME;
     mbmi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-    convert_named_ref_to_ranked_ref_pair(
-        &cm->new_ref_frame_data, mbmi->ref_frame, 0, mbmi->ref_frame_nrs);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                 mbmi->ref_frame_nrs[0]) ==
-           mbmi->ref_frame[0]);
-    assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
-                                                 mbmi->ref_frame_nrs[1]) ==
-           mbmi->ref_frame[1]);
+    mbmi->ref_frame_nrs[0] = INTRA_FRAME_NRS;
+    mbmi->ref_frame_nrs[1] = INVALID_IDX;
 #endif  // CONFIG_NEW_REF_SIGNALING
     mbmi->filter_intra_mode_info.use_filter_intra = 0;
     mbmi->palette_mode_info.palette_size[0] = 0;
@@ -7805,7 +7798,10 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   if (!cpi->rc.is_src_frame_alt_ref && cpi->sf.inter_sf.adaptive_rd_thresh) {
     av1_update_rd_thresh_fact(
         cm, x->thresh_freq_fact, sf->inter_sf.adaptive_rd_thresh, bsize,
-        search_state.best_mbmode.ref_frame, search_state.best_mbmode.mode);
+#if !CONFIG_NEW_REF_SIGNALING
+        search_state.best_mbmode.ref_frame,
+#endif  // !CONFIG_NEW_REF_SIGNALING
+        search_state.best_mbmode.mode);
   }
   // macroblock modes
   *mbmi = search_state.best_mbmode;
@@ -7918,17 +7914,15 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   mbmi->mode = GLOBALMV;
   mbmi->motion_mode = SIMPLE_TRANSLATION;
   mbmi->uv_mode = UV_DC_PRED;
-#if !CONFIG_NEW_REF_SIGNALING
-  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME))
-    mbmi->ref_frame[0] = get_segdata(&cm->seg, segment_id, SEG_LVL_REF_FRAME);
-  else
-    mbmi->ref_frame[0] = LAST_FRAME;
-#endif  // !CONFIG_NEW_REF_SIGNALING
-  mbmi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
-  mbmi->ref_frame[0] = LAST_FRAME;
-  convert_named_ref_to_ranked_ref_pair(&cm->new_ref_frame_data, mbmi->ref_frame,
-                                       0, mbmi->ref_frame_nrs);
+  mbmi->ref_frame_nrs[0] = 0;  // Assign to 0
+  mbmi->ref_frame_nrs[1] = INVALID_IDX;
+  mbmi->ref_frame[0] = convert_ranked_ref_to_named_ref_index(
+      &cm->new_ref_frame_data, mbmi->ref_frame_nrs[0]);
+  mbmi->ref_frame[1] = NONE_FRAME;
+  // mbmi->ref_frame[0] = LAST_FRAME;
+  // convert_named_ref_to_ranked_ref_pair(&cm->new_ref_frame_data, mbmi->ref_frame,
+  //                                      0, mbmi->ref_frame_nrs);
   // TODO(sarahparker) Temporary assert, see aomedia:3060
   assert(convert_ranked_ref_to_named_ref_index(&cm->new_ref_frame_data,
                                                mbmi->ref_frame_nrs[0]) ==
@@ -7946,6 +7940,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
                               features->fr_mv_precision, bsize, mi_col, mi_row)
              .as_int);
 #else
+  mbmi->ref_frame[1] = NONE_FRAME;
+  if (segfeature_active(&cm->seg, segment_id, SEG_LVL_REF_FRAME))
+    mbmi->ref_frame[0] = get_segdata(&cm->seg, segment_id, SEG_LVL_REF_FRAME);
+  else
+    mbmi->ref_frame[0] = LAST_FRAME;
   mbmi->mv[0].as_int =
       gm_get_motion_vector(&cm->global_motion[mbmi->ref_frame[0]],
                            features->fr_mv_precision, bsize, mi_col, mi_row)
@@ -8015,8 +8014,9 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
     // Estimate the reference frame signaling cost and add it
     // to the rolling cost variable.
 #if CONFIG_NEW_REF_SIGNALING
-  int last_index = convert_named_ref_to_ranked_ref_index(
-      &cm->new_ref_frame_data, LAST_FRAME);
+  // int last_index = convert_named_ref_to_ranked_ref_index(
+  //     &cm->new_ref_frame_data, LAST_FRAME);
+  int last_index = 0;  // Assign to 0
   rate2 += ref_costs_single[last_index];
 #else
   rate2 += ref_costs_single[LAST_FRAME];
@@ -8041,10 +8041,15 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 #endif  // CONFIG_REMOVE_DUAL_FILTER
 
   if (cpi->sf.inter_sf.adaptive_rd_thresh) {
+#if !CONFIG_NEW_REF_SIGNALING
     MV_REFERENCE_FRAME global_mv_refs[2] = { LAST_FRAME, INTRA_FRAME };
+#endif  // !CONFIG_NEW_REF_SIGNALING
     av1_update_rd_thresh_fact(cm, x->thresh_freq_fact,
                               cpi->sf.inter_sf.adaptive_rd_thresh, bsize,
-                              global_mv_refs, GLOBALMV);
+#if !CONFIG_NEW_REF_SIGNALING
+                              global_mv_refs,
+#endif  // !CONFIG_NEW_REF_SIGNALING
+                              GLOBALMV);
   }
 
   av1_zero(best_pred_diff);
