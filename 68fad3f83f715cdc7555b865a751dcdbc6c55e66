@@ -16,6 +16,40 @@
       "message": "Hi Wan-Teh,\n\nWhile analyzing the heap memory map from AVIF encoder, we observed that the buffer rst_tmpbuf is allocated even when the loop restoration filter is not enabled. In this patch, we allocated this memory conditionally based on loop restoration sf. We introduced ‘is_restoration_enabled()’ to handle the specific cases related to LR filter.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe validated the heap memory reduction for cpu-used 6, 9 with threads \u003d4,\n\t\t\t          \n cpu-used     Resolution    HEAP Memory reduction(%)\n    6\t       360p-720p          13.31\n    9\t       360p-720p          13.36\n\nThis patch is also applicable for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes when loop restoration filtering is not enabled.\n\nFor libaom \u0027RT\u0027 usage with cpu-used \u003d 5,\n\n Resolution    Tile   HEAP Memory reduction(%) \n 832x480       2x1      2.98 (2 threads)\n 640x360       2x1      4.09 (2 threads)\n 1280x720      2x2      4.23 (4 threads)\n 1920x1080     4x2      4.79 (8 threads)\n\nFor libaom \u0027GOOD\u0027 usage with cpu-used \u003d 6,\n\n Resolution    Tile   HEAP Memory reduction(%) \n 640x360       2x1      1.44 (2 threads)\n 832x480       2x1      0.93 (2 threads)\n 1280x720      2x2      1.51 (4 threads)\n 1920x1080     4x2      1.68 (8 threads)\n\n\nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./aomenc …\n\nPlease review this patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "68fad3f83f715cdc7555b865a751dcdbc6c55e66",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c22b06dc_9debf97f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2245,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-13T21:44:38Z",
+      "side": 1,
+      "message": "I resurrected the local variable \u0027use_restoration\u0027 for symmetry with the local variable \u0027use_cdef\u0027.",
+      "revId": "68fad3f83f715cdc7555b865a751dcdbc6c55e66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26c7f913_908b7b85",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 3849,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-13T21:44:38Z",
+      "side": 1,
+      "message": "I renamed this function \"is_restoration_used\" (because it is more than cm-\u003eseq_params-\u003eenable_restoration) and removed the parentheses in the return statement.",
+      "revId": "68fad3f83f715cdc7555b865a751dcdbc6c55e66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
