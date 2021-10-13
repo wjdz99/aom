@@ -59,7 +59,6 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
   const int ref = mbmi->ref_frame[ref_idx];
 #if CONFIG_NEW_REF_SIGNALING
   const MV_REFERENCE_FRAME_NRS ref_nrs = mbmi->ref_frame_nrs[ref_idx];
-  //    convert_named_ref_to_ranked_ref_index(&cm->new_ref_frame_data, ref);
   const YV12_BUFFER_CONFIG *scaled_ref_frame =
       av1_get_scaled_ref_frame(cpi, ref_nrs);
 #else
