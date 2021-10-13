@@ -1320,6 +1320,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Prune inter modes with golden frame as reference for NEARMV and NEWMV modes
   int prune_inter_modes_with_golden_ref;
+
+  // Prune reference frame search in rd path.
+  int prune_ref_frames;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
