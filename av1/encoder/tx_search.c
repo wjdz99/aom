@@ -44,11 +44,6 @@ typedef struct {
   TX_TYPE tx_type;
 } TxCandidateInfo;
 
-typedef struct {
-  int leaf;
-  int8_t children[4];
-} RD_RECORD_IDX_NODE;
-
 // origin_threshold * 128 / 100
 static const uint32_t skip_pred_threshold[3][BLOCK_SIZES_ALL] = {
   {
@@ -86,9 +81,9 @@ static INLINE uint32_t get_block_residue_hash(MACROBLOCK *x, BLOCK_SIZE bsize) {
   const int rows = block_size_high[bsize];
   const int cols = block_size_wide[bsize];
   const int16_t *diff = x->plane[0].src_diff;
-  const uint32_t hash = av1_get_crc32c_value(
-      &x->txfm_search_info.txb_rd_records->mb_rd_record.crc_calculator,
-      (uint8_t *)diff, 2 * rows * cols);
+  const uint32_t hash =
+      av1_get_crc32c_value(&x->txfm_search_info.mb_rd_record->crc_calculator,
+                           (uint8_t *)diff, 2 * rows * cols);
   return (hash << 5) + bsize;
 }
 
@@ -2270,6 +2265,7 @@ static AOM_INLINE void tx_type_rd(const AV1_COMP *cpi, MACROBLOCK *x,
                                   RD_STATS *rd_stats,
                                   FAST_TX_SEARCH_MODE ftxs_mode,
                                   int64_t ref_rdcost) {
+  assert(is_inter_block(x->e_mbd.mi[0]));
   RD_STATS this_rd_stats;
   const int skip_trellis = 0;
   search_tx_type(cpi, x, 0, block, blk_row, blk_col, plane_bsize, tx_size,
@@ -3349,7 +3345,7 @@ void av1_pick_recursive_tx_size_type_yrd(const AV1_COMP *cpi, MACROBLOCK *x,
   const int n4 = bsize_to_num_blk(bsize);
   if (is_mb_rd_hash_enabled) {
     hash = get_block_residue_hash(x, bsize);
-    mb_rd_record = &x->txfm_search_info.txb_rd_records->mb_rd_record;
+    mb_rd_record = x->txfm_search_info.mb_rd_record;
     const int match_index = find_mb_rd_info(mb_rd_record, ref_best_rd, hash);
     if (match_index != -1) {
       MB_RD_INFO *tx_rd_info = &mb_rd_record->tx_rd_info[match_index];
@@ -3420,7 +3416,7 @@ void av1_pick_uniform_tx_size_type_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
         (mi_col + mi_size_wide[bs] < xd->tile.mi_col_end);
     if (within_border) {
       hash = get_block_residue_hash(x, bs);
-      mb_rd_record = &x->txfm_search_info.txb_rd_records->mb_rd_record;
+      mb_rd_record = x->txfm_search_info.mb_rd_record;
       const int match_index = find_mb_rd_info(mb_rd_record, ref_best_rd, hash);
       if (match_index != -1) {
         MB_RD_INFO *tx_rd_info = &mb_rd_record->tx_rd_info[match_index];

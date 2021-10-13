@@ -495,9 +495,9 @@ static int enc_row_mt_worker_hook(void *arg1, void *unused) {
                            &td->mb.e_mbd);
 
     cfl_init(&td->mb.e_mbd.cfl, cm->seq_params);
-    if (td->mb.txfm_search_info.txb_rd_records != NULL) {
+    if (td->mb.txfm_search_info.mb_rd_record != NULL) {
       av1_crc32c_calculator_init(
-          &td->mb.txfm_search_info.txb_rd_records->mb_rd_record.crc_calculator);
+          &td->mb.txfm_search_info.mb_rd_record->crc_calculator);
     }
 
     av1_encode_sb_row(cpi, td, tile_row, tile_col, current_mi_row);
@@ -1209,8 +1209,7 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
                sizeof(IntraBCMVCosts));
       }
     }
-    av1_alloc_mb_data(cm, &thread_data->td->mb,
-                      cpi->sf.rt_sf.use_nonrd_pick_mode);
+    av1_alloc_mb_data(cm, &cpi->sf, &thread_data->td->mb);
 
     // Reset cyclic refresh counters.
     av1_init_cyclic_refresh_counters(&thread_data->td->mb);
@@ -1284,8 +1283,7 @@ static AOM_INLINE void fp_prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       }
     }
 
-    av1_alloc_mb_data(cm, &thread_data->td->mb,
-                      cpi->sf.rt_sf.use_nonrd_pick_mode);
+    av1_alloc_mb_data(cm, &cpi->sf, &thread_data->td->mb);
   }
 }
 #endif

@@ -591,7 +591,7 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   (void)gather_tpl_data;
 #endif
 
-  reset_hash_records(&x->txfm_search_info);
+  reset_hash_records(x->txfm_search_info.mb_rd_record);
   av1_zero(x->picked_ref_frames_mask);
   av1_invalid_rd_stats(rd_cost);
 }
@@ -999,9 +999,9 @@ void av1_encode_tile(AV1_COMP *cpi, ThreadData *td, int tile_row,
   if (cpi->oxcf.intra_mode_cfg.enable_cfl_intra)
     cfl_init(&td->mb.e_mbd.cfl, cm->seq_params);
 
-  if (td->mb.txfm_search_info.txb_rd_records != NULL) {
+  if (td->mb.txfm_search_info.mb_rd_record != NULL) {
     av1_crc32c_calculator_init(
-        &td->mb.txfm_search_info.txb_rd_records->mb_rd_record.crc_calculator);
+        &td->mb.txfm_search_info.mb_rd_record->crc_calculator);
   }
 
   for (int mi_row = tile_info->mi_row_start; mi_row < tile_info->mi_row_end;
@@ -1029,7 +1029,7 @@ static AOM_INLINE void encode_tiles(AV1_COMP *cpi) {
   if (cpi->allocated_tiles < tile_cols * tile_rows) av1_alloc_tile_data(cpi);
 
   av1_init_tile_data(cpi);
-  av1_alloc_mb_data(cm, mb, cpi->sf.rt_sf.use_nonrd_pick_mode);
+  av1_alloc_mb_data(cm, &cpi->sf, mb);
 
   for (tile_row = 0; tile_row < tile_rows; ++tile_row) {
     for (tile_col = 0; tile_col < tile_cols; ++tile_col) {
