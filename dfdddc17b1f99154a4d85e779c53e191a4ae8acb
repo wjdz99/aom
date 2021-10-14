@@ -22,6 +22,30 @@
       },
       "revId": "dfdddc17b1f99154a4d85e779c53e191a4ae8acb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a693fad_b54ba346",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-10-14T18:00:02Z",
+      "side": 1,
+      "message": "May not always be, but this is a proxy for the fast search logic, which should work similarly.",
+      "parentUuid": "0079fa3a_66ac702a",
+      "range": {
+        "startLine": 736,
+        "startChar": 0,
+        "endLine": 736,
+        "endChar": 57
+      },
+      "revId": "dfdddc17b1f99154a4d85e779c53e191a4ae8acb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
