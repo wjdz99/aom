@@ -560,7 +560,11 @@ static void set_layer_pattern(
     int layering_mode, int superframe_cnt, aom_svc_layer_id_t *layer_id,
     aom_svc_ref_frame_config_t *ref_frame_config,
     aom_svc_ref_frame_comp_pred_t *ref_frame_comp_pred, int *use_svc_control,
+<<<<<<< HEAD   (af43e2 Make KF_DISABLED work for rtc)
     int spatial_layer_id, int is_key_frame, int ksvc_mode, int speed) {
+=======
+    int spatial_layer_id, int is_key_frame, int ksvc_mode) {
+>>>>>>> BRANCH (287164 Update CHANGELOG for v3.2.0-rc3)
   int i;
   int enable_longterm_temporal_ref = 1;
   int shift = (layering_mode == 8) ? 2 : 0;
@@ -1313,7 +1317,11 @@ int main(int argc, const char **argv) {
         set_layer_pattern(app_input.layering_mode, frame_cnt, &layer_id,
                           &ref_frame_config, &ref_frame_comp_pred,
                           &use_svc_control, slx, is_key_frame,
+<<<<<<< HEAD   (af43e2 Make KF_DISABLED work for rtc)
                           (app_input.layering_mode == 10), app_input.speed);
+=======
+                          (app_input.layering_mode == 10));
+>>>>>>> BRANCH (287164 Update CHANGELOG for v3.2.0-rc3)
         aom_codec_control(&codec, AV1E_SET_SVC_LAYER_ID, &layer_id);
         if (use_svc_control) {
           aom_codec_control(&codec, AV1E_SET_SVC_REF_FRAME_CONFIG,

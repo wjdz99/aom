@@ -47,9 +47,15 @@ endif()
 # passed to libtool.
 #
 # We set SO_FILE_VERSION = [c-a].a.r
+<<<<<<< HEAD   (af43e2 Make KF_DISABLED work for rtc)
 set(LT_CURRENT 4)
 set(LT_REVISION 3)
 set(LT_AGE 1)
+=======
+set(LT_CURRENT 5)
+set(LT_REVISION 0)
+set(LT_AGE 2)
+>>>>>>> BRANCH (287164 Update CHANGELOG for v3.2.0-rc3)
 math(EXPR SO_VERSION "${LT_CURRENT} - ${LT_AGE}")
 set(SO_FILE_VERSION "${SO_VERSION}.${LT_AGE}.${LT_REVISION}")
 unset(LT_CURRENT)

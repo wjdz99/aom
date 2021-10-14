@@ -30,7 +30,11 @@
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures.
  */
+<<<<<<< HEAD   (af43e2 Make KF_DISABLED work for rtc)
 #define AOM_EXT_PART_ABI_VERSION 5
+=======
+#define AOM_EXT_PART_ABI_VERSION 3
+>>>>>>> BRANCH (287164 Update CHANGELOG for v3.2.0-rc3)
 
 #ifdef __cplusplus
 extern "C" {
@@ -240,6 +244,7 @@ typedef struct aom_partition_features {
   int frame_width;                ///< Frame width
   int frame_height;               ///< Frame height
   int block_size;                 ///< As "BLOCK_SIZE" in av1/common/enums.h
+<<<<<<< HEAD   (af43e2 Make KF_DISABLED work for rtc)
   /*!
    * Valid partition types. A bitmask is used.  "1" represents the
    * corresponding type is vaild. The bitmask follows the enum order for
@@ -252,6 +257,8 @@ typedef struct aom_partition_features {
   int qindex;         ///< Quantization index, range: [0, 255]
   int rdmult;         ///< Rate-distortion multiplier
   int pyramid_level;  ///< The level of this frame in the hierarchical structure
+=======
+>>>>>>> BRANCH (287164 Update CHANGELOG for v3.2.0-rc3)
 } aom_partition_features_t;
 
 /*!\brief Partition decisions received from the external model.

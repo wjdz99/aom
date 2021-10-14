@@ -334,6 +334,7 @@ INSTANTIATE_TEST_SUITE_P(AVX2, FullPrecisionQuantizeLpTest,
                          ::testing::ValuesIn(kQParamArrayAVX2));
 #endif
 
+<<<<<<< HEAD   (af43e2 Make KF_DISABLED work for rtc)
 #if HAVE_SSE2
 const QuantizeParam kQParamArraySSE2[] = {
   make_tuple(&av1_quantize_lp_c, &av1_quantize_lp_sse2,
@@ -348,6 +349,8 @@ INSTANTIATE_TEST_SUITE_P(SSE2, FullPrecisionQuantizeLpTest,
                          ::testing::ValuesIn(kQParamArraySSE2));
 #endif
 
+=======
+>>>>>>> BRANCH (287164 Update CHANGELOG for v3.2.0-rc3)
 #if HAVE_NEON
 const QuantizeParam kQParamArrayNEON[] = {
   make_tuple(&av1_quantize_lp_c, &av1_quantize_lp_neon,
