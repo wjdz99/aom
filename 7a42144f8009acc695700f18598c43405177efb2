@@ -33,6 +33,165 @@
       "message": "Urvang: PTAL. Thanks!",
       "revId": "7a42144f8009acc695700f18598c43405177efb2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "284374b0_96f08905",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Hi Jayasanker,\n\nThank you very much for the CL. I suggest a few small changes. I also have some questions. Please note the question marked with \"IMPORTANT\".",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "680cd281_f3e6b259",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Nit: luma \u003d\u003e y\n\nSee the next comment.",
+      "range": {
+        "startLine": 173,
+        "startChar": 15,
+        "endLine": 173,
+        "endChar": 19
+      },
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9d140cf_a9164c5c",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Nit: I suggest renaming this function \u0027aom_calc_y_stride\u0027.",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ed9ea1d_5ff44142",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Nit: I suggest renaming these two variable \u0027target_width\u0027 and \u0027target_height\u0027.",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6677f2d_03453d98",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Could you comment on the number of aom_realloc_frame_buffer() calls on cpi-\u003escaled_source and cpi-\u003escaled_last_source before and after this CL? Does the number increase, decrease, or stay roughly the same?",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5cdfb3b_ddec551d",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "IMPORTANT: The original code always passes cm-\u003ewidth and cm-\u003eheight to the aom_realloc_frame_buffer() calls. See line 377 and line 392 in av1/encoder/encoder_alloc.h of the orignal code.\n\nWhy does the new code pass scaled_width and scaled_height (the target dimensions)? Is this a bug fix?",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "032d1fea_bdecc2ac",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Nit: the \u0027scaled\u0027 parameter may refer to either \"scaled source buffer\" or \"scaled last source buffer\", so this error message is not always accurate. Perhaps we can just say \"scaled buffer\"? Or we can pass \"scaled source buffer\" or \"scaled last source buffer\" as an input parameter for use in this error message.",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f33e59a8_257176e4",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Optional: I suggest renaming this parameter \u0027alloc_y_buffer_8bit\u0027.",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61847415_817c7ca5",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-14T01:22:45Z",
+      "side": 1,
+      "message": "Nit: I suggest using the same expression as in aom_realloc_frame_buffer():\n\n    const int aligned_width \u003d (cm-\u003ewidth + 7) \u0026 ~7;",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
