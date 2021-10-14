@@ -75,6 +75,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bda19c5_524307f8",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "680cd281_f3e6b259",
+      "range": {
+        "startLine": 173,
+        "startChar": 15,
+        "endLine": 173,
+        "endChar": 19
+      },
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9d140cf_a9164c5c",
@@ -88,6 +112,24 @@
       "writtenOn": "2021-10-14T01:22:45Z",
       "side": 1,
       "message": "Nit: I suggest renaming this function \u0027aom_calc_y_stride\u0027.",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8267ff91_e83c4513",
+        "filename": "aom_scale/yv12config.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9d140cf_a9164c5c",
       "revId": "7a42144f8009acc695700f18598c43405177efb2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -109,6 +151,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b627993_645da8af",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ed9ea1d_5ff44142",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6677f2d_03453d98",
@@ -122,6 +182,24 @@
       "writtenOn": "2021-10-14T01:22:45Z",
       "side": 1,
       "message": "Could you comment on the number of aom_realloc_frame_buffer() calls on cpi-\u003escaled_source and cpi-\u003escaled_last_source before and after this CL? Does the number increase, decrease, or stay roughly the same?",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25be4090_53e14123",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "Let us consider two scenarios:\n\n1) When scaling_required \u003d false:\n\nIn the reference version for video encode, there used to be 1(init) + n(per frame encode) number of calls to aom_realloc_frame_buffer() for each of the buffers scaled_source and scaled_last_source. The memory allocation used to happen only once per buffer because the target dimensions are constant throughout the encoding. With the current CL, all these calls are avoided because aom_realloc_frame_buffer() will be called for scaled_source and scaled_last_source buffers only when scaling is required.\n\n2) When scaling_required \u003d true:\n\nIn the reference version for video encode, there used to be at least 1(init) + n(per frame encode) number of calls to aom_realloc_frame_buffer() for each of the buffers scaled_source and scaled_last_source. The memory allocation used to happen whenever there is a change in the target dimensions. With this CL, the number of calls to aom_realloc_frame_buffer() for scaled_source and scaled_last_source buffers will reduce slightly as the calls during av1_set_frame_size() and av1_check_initial_width() are avoided and av1_realloc_and_scale_if_required() is called on the fly instead. But, the number of frame buffer allocations would remain constant between the reference version and the current CL.\n\nPlease let us know if there are any concerns.",
+      "parentUuid": "c6677f2d_03453d98",
       "revId": "7a42144f8009acc695700f18598c43405177efb2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -143,6 +221,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9f793b6_8ebe7a8a",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1362,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "The values of scaled_width and scaled_height (now renamed as target_width and target_height) will be equal to cm-\u003ewidth and cm-\u003eheight except when scaling is performed for PSNR calculation. When scaling is done for PSNR calculation, the frame buffer allocation is called with the target dimensions  as in realloc_and_scale_source().",
+      "parentUuid": "b5cdfb3b_ddec551d",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "032d1fea_bdecc2ac",
@@ -156,6 +252,24 @@
       "writtenOn": "2021-10-14T01:22:45Z",
       "side": 1,
       "message": "Nit: the \u0027scaled\u0027 parameter may refer to either \"scaled source buffer\" or \"scaled last source buffer\", so this error message is not always accurate. Perhaps we can just say \"scaled buffer\"? Or we can pass \"scaled source buffer\" or \"scaled last source buffer\" as an input parameter for use in this error message.",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2826b683_1ac1155c",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "Ack. We have changed the error message to \"Failed to allocate scaled buffer\".",
+      "parentUuid": "032d1fea_bdecc2ac",
       "revId": "7a42144f8009acc695700f18598c43405177efb2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -177,6 +291,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d839bd6_3d9cd312",
+        "filename": "av1/common/resize.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f33e59a8_257176e4",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61847415_817c7ca5",
@@ -190,6 +322,24 @@
       "writtenOn": "2021-10-14T01:22:45Z",
       "side": 1,
       "message": "Nit: I suggest using the same expression as in aom_realloc_frame_buffer():\n\n    const int aligned_width \u003d (cm-\u003ewidth + 7) \u0026 ~7;",
+      "revId": "7a42144f8009acc695700f18598c43405177efb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73b93ad4_f2ae5e31",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-14T16:19:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61847415_817c7ca5",
       "revId": "7a42144f8009acc695700f18598c43405177efb2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
