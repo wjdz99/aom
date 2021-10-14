@@ -33,6 +33,24 @@
       "message": "Yunqing,\nThis patch adds a SF that disables global motion (GM) param estimation at frame level. It is disabled based on the number of valid global motion models found so far in the GF group.\nIt was observed that, typically all the frames in a GF group have GM or none of the frames have GM. Therefore, the first few frames in every group, can be used to estimate if the GF group has GM. In this patch,  for every GF group, GM param estimation is done for all frames, until 1 each of ARF_UPDATE , INTNL_ARF_UPDATE and LF_UPDATE frames are encoded in the GF group. For subsequent frames in the GF group,  GM estimation is disabled if no valid global motion models have been found in all the three frame update types listed above.\n\nFurther, in the case of flat GOP(GOPs with no ARF frames), GM stats related to future frames will be absent and only stats from the past frames(GF_UPDATE  and LF_UPDATE) will be present. Disabling GM estimation based on GM stats of the past frames alone, could potentially lead to quality loss in contents with GM. Hence this SF is disabled in such cases.\n\nPlease find the detailed borg results for speed 2 \n   \n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOW RES2  |       2.435       | -0.0043\t-0.0064  -0.0048 |\n   2     |  MID RES2  |       4.731       |  0.0004\t 0.0005   0.0039 |\n   2     |  HD RES2   |       4.403       |  0.0023\t 0.003    0.0054 |\n   2     |  Average   |       3.856       | -0.0007\t-0.0013  -0.0006 |\n   \nWe have also verified that the worst case quality drop is around 0.1% , for netflix_foodmarket (which is one of the GM contents) in lowres2.\n\nIn the commit message, BD rate impact column: [+] sign is for BD-Rate drop [-] sign is for BD-Rate improvement. The instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc … \nFor other speed levels, this is a bit-exact change with no impact on speed (verified locally on a few test cases). \n\nPlease review the patch.",
       "revId": "6e19bb75723fa18f645233064f550728eb997699",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91d26aa6_68d48125",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-10-14T20:33:57Z",
+      "side": 1,
+      "message": "Hi Hamsalekha, this is a great optimization. Nice speedup without coding performance loss. The change looks good to me. Thanks!",
+      "parentUuid": "6a95133f_ae4c20f6",
+      "revId": "6e19bb75723fa18f645233064f550728eb997699",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
