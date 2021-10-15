@@ -4276,6 +4276,7 @@ static AOM_INLINE void rd_pick_skip_mode(
   const MV_REFERENCE_FRAME ref_frame_nrs = skip_mode_info->ref_frame_idx_0;
   const MV_REFERENCE_FRAME second_ref_frame_nrs =
       skip_mode_info->ref_frame_idx_1;
+  // assert(ref_frame_nrs < second_ref_frame_nrs);
 #else
   const MV_REFERENCE_FRAME ref_frame =
       LAST_FRAME + skip_mode_info->ref_frame_idx_0;

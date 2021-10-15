@@ -77,6 +77,22 @@ void av1_get_ref_frames(AV1_COMMON *const cm, int cur_frame_disp,
 void av1_get_ref_frames_nrs(AV1_COMMON *const cm, int cur_frame_disp,
                             RefFrameMapPair *ref_frame_map_pairs);
 
+// Find the reference that is closest in the future
+static INLINE int get_closest_future_ref_index(const AV1_COMMON *const cm) {
+  int index = INVALID_IDX;
+  int ref_disp_order = INT_MAX;
+  for (int i = 0; i < cm->new_ref_frame_data.n_future_refs; i++) {
+    const int ref = cm->new_ref_frame_data.future_refs[i];
+    const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref);
+    if (buf == NULL) continue;
+    if ((int)buf->display_order_hint < ref_disp_order) {
+      index = ref;
+      ref_disp_order = (int)buf->display_order_hint;
+    }
+  }
+  return index;
+}
+
 // Find the reference that is furthest in the future
 static INLINE int get_furthest_future_ref_index(const AV1_COMMON *const cm) {
   int index = INVALID_IDX;
@@ -118,6 +134,30 @@ static INLINE int get_closest_past_ref_index(const AV1_COMMON *const cm) {
     }
   }
   return index;
+}
+
+static INLINE int get_second_closest_past_ref_index(
+    const AV1_COMMON *const cm) {
+  if (cm->new_ref_frame_data.n_past_refs < 2) return INVALID_IDX;
+  int index = 0;
+  int second_best_index = INVALID_IDX;
+  int best_dist = cm->new_ref_frame_data
+                      .ref_frame_distance[cm->new_ref_frame_data.past_refs[0]];
+  int second_best_dist = INT_MAX;
+  for (int i = 1; i < cm->new_ref_frame_data.n_past_refs; i++) {
+    const int ref = cm->new_ref_frame_data.past_refs[i];
+    const int dist = cm->new_ref_frame_data.ref_frame_distance[ref];
+    if (dist < best_dist) {
+      second_best_index = index;
+      index = ref;
+      second_best_dist = best_dist;
+      best_dist = dist;
+    } else if (dist < second_best_dist) {
+      second_best_index = ref;
+      second_best_dist = dist;
+    }
+  }
+  return second_best_index;
 }
 
 static INLINE int get_closest_pastcur_ref_index(const AV1_COMMON *const cm) {
