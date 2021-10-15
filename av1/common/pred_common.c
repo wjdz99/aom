@@ -500,6 +500,7 @@ int av1_get_reference_mode_context(const MACROBLOCKD *xd) {
   return ctx;
 }
 
+#if !CONFIG_NEW_REF_SIGNALING
 int av1_get_comp_reference_type_context(const MACROBLOCKD *xd) {
   int pred_context;
   const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
@@ -569,6 +570,7 @@ int av1_get_comp_reference_type_context(const MACROBLOCKD *xd) {
   assert(pred_context >= 0 && pred_context < COMP_REF_TYPE_CONTEXTS);
   return pred_context;
 }
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
 // Returns a context number for the given MB prediction signal
 //
