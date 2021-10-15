@@ -75,11 +75,7 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
   RefScoreData scores[REF_FRAMES];
   memset(scores, 0, REF_FRAMES * sizeof(*scores));
   for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; i++) {
-    cm->new_ref_frame_data.ranked_to_named_refs[i] = -1;
     cm->new_ref_frame_data.ref_frame_score_map[i] = -1;
-  }
-  for (int i = 0; i < REF_FRAMES; i++) {
-    cm->new_ref_frame_data.named_to_ranked_refs[i] = -1;
   }
   int n_ranked = 0;
   // Compute a score for each reference buffer
@@ -131,10 +127,6 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
   for (int i = 0; i < n_ranked; i++) {
     cm->new_ref_frame_data.ref_frame_score_map[i] = scores[i].index;
     cm->new_ref_frame_data.ref_frame_distance[i] = scores[i].distance;
-    cm->new_ref_frame_data.ranked_to_named_refs[i] = scores[i].named_ref[0];
-    for (int j = 0; j < scores[i].n_named_refs; j++) {
-      cm->new_ref_frame_data.named_to_ranked_refs[scores[i].named_ref[j]] = i;
-    }
     if (scores[i].distance < 0) {
       cm->new_ref_frame_data.future_refs[n_future] = i;
       n_future++;
