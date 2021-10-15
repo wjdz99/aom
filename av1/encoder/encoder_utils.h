@@ -115,8 +115,7 @@ static AOM_INLINE void enc_setup_mi(CommonModeInfoParams *mi_params) {
 }
 
 #if CONFIG_NEW_REF_SIGNALING
-static AOM_INLINE void init_ranked_buffer_indices(
-    NewRefFramesData *frame_data) {
+static AOM_INLINE void init_buffer_indices_nrs(NewRefFramesData *frame_data) {
   frame_data->n_total_refs = REF_FRAMES_NRS - 1;
   for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; i++) {
     frame_data->ref_frame_score_map[i] = i;
@@ -126,8 +125,7 @@ static AOM_INLINE void init_ranked_buffer_indices(
     frame_data->named_to_ranked_refs[i] = i - 1;
   }
 }
-#endif  // CONFIG_NEW_REF_SIGNALING
-
+#else
 static AOM_INLINE void init_buffer_indices(
     ForceIntegerMVInfo *const force_intpel_info, int *const remapped_ref_idx) {
   int fb_idx;
@@ -136,6 +134,7 @@ static AOM_INLINE void init_buffer_indices(
   force_intpel_info->rate_index = 0;
   force_intpel_info->rate_size = 0;
 }
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 #define HIGHBD_BFP(BT, SDF, SDAF, VF, SVF, SVAF, SDX4DF, JSDAF, JSVAF) \
   cpi->fn_ptr[BT].sdf = SDF;                                           \

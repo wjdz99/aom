@@ -3460,14 +3460,22 @@ static int check_frame_refs_short_signaling(AV1_COMMON *const cm) {
   // We only turn on frame_refs_short_signaling when the encoder side decision
   // on ref frames is identical to that at the decoder side.
   int frame_refs_short_signaling = 1;
+#if CONFIG_NEW_REF_SIGNALING
+  for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME_NRS; ++ref_idx) {
+#else
   for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME; ++ref_idx) {
+#endif  // CONFIG_NEW_REF_SIGNALING
     // Compare the buffer index between two reference frames indexed
     // respectively by the encoder and the decoder side decisions.
     RefCntBuffer *ref_frame_buf_new = NULL;
     if (remapped_ref_idx_decoder[ref_idx] != INVALID_IDX) {
       ref_frame_buf_new = cm->ref_frame_map[remapped_ref_idx_decoder[ref_idx]];
     }
+#if CONFIG_NEW_REF_SIGNALING
+    if (get_ref_frame_buf_nrs(cm, ref_idx) != ref_frame_buf_new) {
+#else
     if (get_ref_frame_buf(cm, LAST_FRAME + ref_idx) != ref_frame_buf_new) {
+#endif  // CONFIG_NEW_REF_SIGNALING
       frame_refs_short_signaling = 0;
       break;
     }

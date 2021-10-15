@@ -1367,6 +1367,12 @@ static INLINE int frame_is_sframe(const AV1_COMMON *cm) {
 }
 
 #if CONFIG_NEW_REF_SIGNALING
+#define REMAPPED_REF_IDX (cm->new_ref_frame_data.ref_frame_score_map)
+#else
+#define REMAPPED_REF_IDX (cm->remapped_ref_idx)
+#endif  // CONFIG_NEW_REF_SIGNALING
+
+#if CONFIG_NEW_REF_SIGNALING
 static INLINE int get_ref_frame_map_idx(const AV1_COMMON *const cm,
                                         const int ref_frame, int use_old) {
   if (use_old) {
