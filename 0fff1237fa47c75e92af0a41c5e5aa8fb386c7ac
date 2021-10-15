@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "97d70393_5f1511b8",
+        "filename": "av1/common/blockd.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-10-15T18:44:49Z",
+      "side": 1,
+      "message": "Not yet - this is done in later patches after various issues have been resolved.",
+      "parentUuid": "dddcd712_444221be",
+      "range": {
+        "startLine": 344,
+        "startChar": 2,
+        "endLine": 344,
+        "endChar": 34
+      },
+      "revId": "0fff1237fa47c75e92af0a41c5e5aa8fb386c7ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ee3f30df_6844efff",
         "filename": "av1/encoder/rdopt.c",
         "patchSetId": 4
@@ -37,6 +61,30 @@
       "writtenOn": "2021-10-15T18:41:08Z",
       "side": 1,
       "message": "These two lines can be removed?",
+      "range": {
+        "startLine": 4354,
+        "startChar": 2,
+        "endLine": 4356,
+        "endChar": 0
+      },
+      "revId": "0fff1237fa47c75e92af0a41c5e5aa8fb386c7ac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6fea085a_dc54300b",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 4356,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-10-15T18:44:49Z",
+      "side": 1,
+      "message": "Still needed because all through the pipeline we have been mixing use of old and new refs. Those are resolved in subsequent patches.",
+      "parentUuid": "ee3f30df_6844efff",
       "range": {
         "startLine": 4354,
         "startChar": 2,
