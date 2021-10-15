@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c684ffd_bd56ac35",
+        "filename": "av1/common/pred_common.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-10-15T17:03:13Z",
+      "side": 1,
+      "message": "Can we also move this into !CONFIG_NEW_REF_SIGNALING?",
+      "range": {
+        "startLine": 474,
+        "startChar": 0,
+        "endLine": 475,
+        "endChar": 66
+      },
+      "revId": "16107190aad3a06c57b59ff968578ae881cefa8b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
