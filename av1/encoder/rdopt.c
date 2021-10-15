@@ -7888,9 +7888,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   const MV_REFERENCE_FRAME_NRS last_frame = get_closest_pastcur_ref_index(cm);
   mbmi->ref_frame_nrs[0] = last_frame;
   mbmi->ref_frame_nrs[1] = INVALID_IDX;
+  /*
   mbmi->ref_frame[0] = convert_ranked_ref_to_named_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame_nrs[0]);
   mbmi->ref_frame[1] = NONE_FRAME;
+  */
   mbmi->mv[0].as_int =
       gm_get_motion_vector(&cm->global_motion_nrs[mbmi->ref_frame_nrs[0]],
                            features->fr_mv_precision, bsize, mi_col, mi_row)
