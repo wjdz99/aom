@@ -287,11 +287,6 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_NEW_REF_SIGNALING
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed_nrs(
       xd->global_motion_nrs, xd, mbmi, cm->features.allow_warped_motion);
-  const MOTION_MODE last_motion_mode_allowed2 = motion_mode_allowed(
-      xd->global_motion, xd, mbmi, cm->features.allow_warped_motion);
-  // TODO(sarahparker) Temporary assert, see aomedia:3060
-  assert(last_motion_mode_allowed == last_motion_mode_allowed2);
-  (void)last_motion_mode_allowed2;
 #else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
       xd->global_motion, xd, mbmi, cm->features.allow_warped_motion);
@@ -931,11 +926,12 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
 
   mbmi->current_qindex = xd->current_base_qindex;
 
-  mbmi->ref_frame[0] = INTRA_FRAME;
-  mbmi->ref_frame[1] = NONE_FRAME;
 #if CONFIG_NEW_REF_SIGNALING
   mbmi->ref_frame_nrs[0] = INTRA_FRAME_NRS;
   mbmi->ref_frame_nrs[1] = INVALID_IDX;
+#else
+  mbmi->ref_frame[0] = INTRA_FRAME;
+  mbmi->ref_frame[1] = NONE_FRAME;
 #endif  // CONFIG_NEW_REF_SIGNALING
   mbmi->palette_mode_info.palette_size[0] = 0;
   mbmi->palette_mode_info.palette_size[1] = 0;
@@ -1682,8 +1678,9 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
 
 #if CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts_nrs(cm, xd);
-#endif  // CONFIG_NEW_REF_SIGNALING
+#else
   av1_collect_neighbors_ref_counts(xd);
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   read_ref_frames(cm, xd, r, mbmi->segment_id,
 #if CONFIG_NEW_REF_SIGNALING
