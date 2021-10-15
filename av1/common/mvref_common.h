@@ -21,8 +21,6 @@
 extern "C" {
 #endif
 
-#define PURE_NEW_REF_SIGNALING 1
-
 #define MVREF_ROW_COLS 3
 
 // Set the upper limit of the motion vector component magnitude.
@@ -208,16 +206,6 @@ static INLINE void av1_set_ref_frame_nrs(
                 ref_frame_type - INTER_REFS_PER_FRAME_NRS, rf);
   }
   return;
-}
-
-static INLINE MV_REFERENCE_FRAME convert_ranked_ref_to_named_ref_type(
-    const NewRefFramesData *const ref_frame_data,
-    MV_REFERENCE_FRAME_NRS ref_type_nrs) {
-  MV_REFERENCE_FRAME_NRS rf_nrs[2];
-  av1_set_ref_frame_nrs(rf_nrs, ref_type_nrs);
-  MV_REFERENCE_FRAME rf[2];
-  convert_ranked_ref_to_named_ref_pair(ref_frame_data, rf_nrs, 0, rf);
-  return av1_ref_frame_type(rf);
 }
 #endif  // CONFIG_NEW_REF_SIGNALING
 
