@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf01d83d_86e0aa9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-10-15T14:45:28Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe buffers \u0027obmc_buffer\u0027 and \u0027comp_rd_buffer\u0027 are used in inter frames to store intermediate inter mode prediction results and are not required for allintra encoding mode. Hence, these buffers are not allocated for allintra encoding mode.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe validated the heap memory reduction for speed\u003d9 as well. For AVIF image encode with speed\u003d9 and threads\u003d4,\n \n               HEAP Memory\nResolution     reduction(%)  \t     \n360p-720p         6.33  \n               \nPlease review the patch. \n\nRegards,\nMudassir.",
+      "revId": "4fdb0a5c4ad1c5cac606ccf742e0f3ac453556d0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
