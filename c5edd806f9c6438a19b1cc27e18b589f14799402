@@ -33,6 +33,74 @@
       "message": "Chi Yo: Please review. Thanks!",
       "revId": "c5edd806f9c6438a19b1cc27e18b589f14799402",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31bb5156_e2cf7a2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T04:24:23Z",
+      "side": 1,
+      "message": "I suggest a few small changes.",
+      "revId": "c5edd806f9c6438a19b1cc27e18b589f14799402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5904d83_78817bda",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T04:24:23Z",
+      "side": 1,
+      "message": "Could you update or delete this comment? The \"when intra mode pruning based on hog is enabled\" part is no longer accurate.",
+      "revId": "c5edd806f9c6438a19b1cc27e18b589f14799402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7154abcf_9c94b45a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2306,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T04:24:23Z",
+      "side": 1,
+      "message": "Nit: I suggest moving the declaration of \u0027sf\u0027 here.",
+      "revId": "c5edd806f9c6438a19b1cc27e18b589f14799402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfc39439_f7abdb71",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T04:24:23Z",
+      "side": 1,
+      "message": "Nit: Omit the outermost parentheses:\n\n  return frame_is_intra_only(\u0026cpi-\u003ecommon) \u0026\u0026 !sf-\u003ert_sf.use_nonrd_pick_mode \u0026\u0026          \n         (sf-\u003epart_sf.partition_search_type \u003d\u003d SEARCH_PARTITION) \u0026\u0026\n         (sf-\u003eintra_sf.intra_pruning_with_hog ||\n          sf-\u003eintra_sf.chroma_intra_pruning_with_hog);",
+      "revId": "c5edd806f9c6438a19b1cc27e18b589f14799402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
