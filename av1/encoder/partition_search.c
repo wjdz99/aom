@@ -1670,6 +1670,7 @@ static void encode_b(const AV1_COMP *const cpi, TileDataEnc *tile_data,
         if (is_inter_block(mbmi)) {
 #if CONFIG_NEW_REF_SIGNALING
           av1_collect_neighbors_ref_counts_nrs(cm, xd);
+#else
 #endif  // CONFIG_NEW_REF_SIGNALING
           av1_collect_neighbors_ref_counts(xd);
           if (cm->current_frame.reference_mode == REFERENCE_MODE_SELECT) {

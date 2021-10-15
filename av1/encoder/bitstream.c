@@ -1482,6 +1482,7 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, aom_writer *w) {
 
 #if CONFIG_NEW_REF_SIGNALING
     av1_collect_neighbors_ref_counts_nrs(cm, xd);
+#else
 #endif  // CONFIG_NEW_REF_SIGNALING
     av1_collect_neighbors_ref_counts(xd);
 

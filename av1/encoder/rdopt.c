@@ -5242,8 +5242,10 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
   init_neighbor_pred_buf(&x->obmc_buffer, args, is_cur_buf_hbd(&x->e_mbd));
 #if CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts_nrs(cm, xd);
+#else
 #endif  // CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts(xd);
+
   estimate_ref_frame_costs(cm, xd, &x->mode_costs, segment_id, ref_costs_single,
                            ref_costs_comp);
 
@@ -5584,7 +5586,8 @@ static bool mask_says_skip_nrs(const mode_skip_mask_t *mode_skip_mask,
                                const MV_REFERENCE_FRAME_NRS *ref_frame_nrs,
                                const PREDICTION_MODE this_mode) {
   const MV_REFERENCE_FRAME_NRS rfn =
-      (ref_frame_nrs[0] == INTRA_FRAME_NRS ? INTRA_FRAME_INDEX_NRS : ref_frame_nrs[0]);
+      (ref_frame_nrs[0] == INTRA_FRAME_NRS ? INTRA_FRAME_INDEX_NRS
+                                           : ref_frame_nrs[0]);
   if (mode_skip_mask->pred_modes[rfn] & (1 << this_mode)) {
     return true;
   }
@@ -7857,6 +7860,7 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
 
 #if CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts_nrs(cm, xd);
+#else
 #endif  // CONFIG_NEW_REF_SIGNALING
   av1_collect_neighbors_ref_counts(xd);
 
@@ -7885,9 +7889,11 @@ void av1_rd_pick_inter_mode_sb_seg_skip(const AV1_COMP *cpi,
   const MV_REFERENCE_FRAME_NRS last_frame = get_closest_pastcur_ref_index(cm);
   mbmi->ref_frame_nrs[0] = last_frame;
   mbmi->ref_frame_nrs[1] = INVALID_IDX;
+  /*
   mbmi->ref_frame[0] = convert_ranked_ref_to_named_ref_index(
       &cm->new_ref_frame_data, mbmi->ref_frame_nrs[0]);
   mbmi->ref_frame[1] = NONE_FRAME;
+  */
   mbmi->mv[0].as_int =
       gm_get_motion_vector(&cm->global_motion_nrs[mbmi->ref_frame_nrs[0]],
                            features->fr_mv_precision, bsize, mi_col, mi_row)
