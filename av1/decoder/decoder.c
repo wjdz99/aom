@@ -455,9 +455,12 @@ static void update_frame_buffers(AV1Decoder *pbi, int frame_decoded) {
 
   if (!pbi->camera_frame_header_ready) {
     // Invalidate these references until the next frame starts.
-    for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++) {
-      cm->remapped_ref_idx[ref_index] = INVALID_IDX;
-    }
+#if CONFIG_NEW_REF_SIGNALING
+    for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME_NRS; ref_index++)
+#else
+    for (ref_index = 0; ref_index < INTER_REFS_PER_FRAME; ref_index++)
+#endif  // CONFIG_NEW_REF_SIGNALING
+      REMAPPED_REF_IDX[ref_index] = INVALID_IDX;
   }
 }
 

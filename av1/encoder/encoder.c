@@ -603,10 +603,12 @@ static void init_config(struct AV1_COMP *cpi, AV1EncoderConfig *oxcf) {
   resize_pending_params->width = 0;
   resize_pending_params->height = 0;
 
-  init_buffer_indices(&cpi->force_intpel_info, cm->remapped_ref_idx);
-
 #if CONFIG_NEW_REF_SIGNALING
-  init_ranked_buffer_indices(&cm->new_ref_frame_data);
+  init_buffer_indices_nrs(&cpi->force_intpel_info, &cm->new_ref_frame_data);
+  for (int fb_idx = 0; fb_idx < REF_FRAMES; ++fb_idx)
+    cm->remapped_ref_idx[fb_idx] = fb_idx;
+#else
+  init_buffer_indices(&cpi->force_intpel_info, cm->remapped_ref_idx);
 #endif  // CONFIG_NEW_REF_SIGNALING
 
   av1_noise_estimate_init(&cpi->noise_estimate, cm->width, cm->height);
@@ -3298,10 +3300,10 @@ int av1_encode(AV1_COMP *const cpi, uint8_t *const dest,
   cm->show_existing_frame = frame_params->show_existing_frame;
   cpi->existing_fb_idx_to_show = frame_params->existing_fb_idx_to_show;
 
+#if !CONFIG_NEW_REF_SIGNALING
   memcpy(cm->remapped_ref_idx, frame_params->remapped_ref_idx,
          REF_FRAMES * sizeof(*cm->remapped_ref_idx));
 
-#if !CONFIG_NEW_REF_SIGNALING
   memcpy(&cpi->refresh_frame, &frame_params->refresh_frame,
          sizeof(cpi->refresh_frame));
 #endif  // !CONFIG_NEW_REF_SIGNALING

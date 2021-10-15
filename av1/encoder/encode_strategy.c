@@ -328,8 +328,7 @@ static int choose_primary_ref_frame(
   const int n_refs = cm->new_ref_frame_data.n_total_refs;
   for (int ref_frame = 0; ref_frame < n_refs; ref_frame++) {
     if (get_ref_frame_map_idx(cm, ref_frame, 0) == wanted_fb) {
-      primary_ref_frame =
-          cm->new_ref_frame_data.ranked_to_named_refs[ref_frame] - LAST_FRAME;
+      primary_ref_frame = ref_frame;
     }
   }
 #else
@@ -1464,8 +1463,12 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
     if (!ext_flags->refresh_frame.update_pending) {
       av1_get_ref_frames(cm, cur_frame_disp, ref_frame_map_pairs);
     } else if (cpi->svc.external_ref_frame_config) {
+#if CONFIG_NEW_REF_SIGNALING
+      for (unsigned int i = 0; i < INTER_REFS_PER_FRAME_NRS; i++)
+#else
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME; i++)
-        cm->remapped_ref_idx[i] = cpi->svc.ref_idx[i];
+#endif  // CONFIG_NEW_REF_SIGNALING
+        REMAPPED_REF_IDX[i] = cpi->svc.ref_idx[i];
     }
 
 #if CONFIG_NEW_REF_SIGNALING
@@ -1551,8 +1554,10 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // frame_params->remapped_ref_idx here and they will be used when encoding
   // this frame.  If frame_params->remapped_ref_idx is setup independently of
   // cm->remapped_ref_idx then update_ref_frame_map() will have no effect.
+#if !CONFIG_NEW_REF_SIGNALING
   memcpy(frame_params.remapped_ref_idx, cm->remapped_ref_idx,
-         REF_FRAMES * sizeof(*cm->remapped_ref_idx));
+         REF_FRAMES * sizeof(*frame_params.remapped_ref_idx));
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   cpi->td.mb.delta_qindex = 0;
 

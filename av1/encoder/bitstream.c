@@ -3447,13 +3447,8 @@ static int check_frame_refs_short_signaling(AV1_COMMON *const cm) {
   // be derived at the decoder side.
   int remapped_ref_idx_decoder[REF_FRAMES];
 
-#if CONFIG_NEW_REF_SIGNALING
-  const int lst_map_idx = get_ref_frame_map_idx(cm, LAST_FRAME, 1);
-  const int gld_map_idx = get_ref_frame_map_idx(cm, GOLDEN_FRAME, 1);
-#else
   const int lst_map_idx = get_ref_frame_map_idx(cm, LAST_FRAME);
   const int gld_map_idx = get_ref_frame_map_idx(cm, GOLDEN_FRAME);
-#endif  // CONFIG_NEW_REF_SIGNALING
 
   // Set up the frame refs mapping indexes according to the
   // frame_refs_short_signaling policy.
