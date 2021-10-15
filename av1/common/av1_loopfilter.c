@@ -98,15 +98,26 @@ uint8_t av1_get_filter_level(const AV1_COMMON *cm,
 
     if (cm->lf.mode_ref_delta_enabled) {
       const int scale = 1 << (lvl_seg >> 5);
+#if CONFIG_NEW_REF_SIGNALING
+      lvl_seg += cm->lf.ref_deltas[mbmi->ref_frame_nrs[0]] * scale;
+      if (mbmi->ref_frame_nrs[0] != INTRA_FRAME_NRS &&
+          mbmi->ref_frame_nrs[0] != INVALID_IDX)
+#else
       lvl_seg += cm->lf.ref_deltas[mbmi->ref_frame[0]] * scale;
       if (mbmi->ref_frame[0] > INTRA_FRAME)
+#endif  // CONFIG_NEW_REF_SIGNALING
         lvl_seg += cm->lf.mode_deltas[mode_lf_lut[mbmi->mode]] * scale;
       lvl_seg = clamp(lvl_seg, 0, MAX_LOOP_FILTER);
     }
     return lvl_seg;
   } else {
+#if CONFIG_NEW_REF_SIGNALING
+    return lfi_n->lvl[plane][segment_id][dir_idx][mbmi->ref_frame_nrs[0]]
+                     [mode_lf_lut[mbmi->mode]];
+#else
     return lfi_n->lvl[plane][segment_id][dir_idx][mbmi->ref_frame[0]]
                      [mode_lf_lut[mbmi->mode]];
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 }
 
@@ -180,10 +191,23 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int plane_start,
         } else {
           int ref, mode;
           const int scale = 1 << (lvl_seg >> 5);
+#if CONFIG_NEW_REF_SIGNALING
+          const int intra_lvl =
+              lvl_seg + lf->ref_deltas[INTRA_FRAME_INDEX_NRS] * scale;
+          lfi->lvl[plane][seg_id][dir][INTRA_FRAME_INDEX_NRS][0] =
+              clamp(intra_lvl, 0, MAX_LOOP_FILTER);
+          for (ref = 0; ref < cm->new_ref_frame_data.n_total_refs; ++ref) {
+            for (mode = 0; mode < MAX_MODE_LF_DELTAS; ++mode) {
+              const int inter_lvl = lvl_seg + lf->ref_deltas[ref] * scale +
+                                    lf->mode_deltas[mode] * scale;
+              lfi->lvl[plane][seg_id][dir][ref][mode] =
+                  clamp(inter_lvl, 0, MAX_LOOP_FILTER);
+            }
+          }
+#else
           const int intra_lvl = lvl_seg + lf->ref_deltas[INTRA_FRAME] * scale;
           lfi->lvl[plane][seg_id][dir][INTRA_FRAME][0] =
               clamp(intra_lvl, 0, MAX_LOOP_FILTER);
-
           for (ref = LAST_FRAME; ref < REF_FRAMES; ++ref) {
             for (mode = 0; mode < MAX_MODE_LF_DELTAS; ++mode) {
               const int inter_lvl = lvl_seg + lf->ref_deltas[ref] * scale +
@@ -192,6 +216,7 @@ void av1_loop_filter_frame_init(AV1_COMMON *cm, int plane_start,
                   clamp(inter_lvl, 0, MAX_LOOP_FILTER);
             }
           }
+#endif  // CONFIG_NEW_REF_SIGNALING
         }
       }
     }
