@@ -69,6 +69,240 @@
       "parentUuid": "3f78ff3f_58693a8f",
       "revId": "7635140986159141fd8247b932f4b559aad334d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09be38c8_63abe7b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Hi Bohan,\n\nI suggest renaming \"second_pass_file\" as \"second_pass_log\" or \"second_pass_log_file\", and change \"output\" to \"log\" in the comments and description message.\n\nIn the comments please change \"second pass file\" to \"second pass log file\".",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d371159c_fc442bfc",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Nit: Out-put \u003d\u003e Log file",
+      "range": {
+        "startLine": 645,
+        "startChar": 45,
+        "endLine": 645,
+        "endChar": 52
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31b12c41_c20350b0",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "I am just wondering why we check if extra_cfg-\u003etwo_pass_output is a null pointer, but we don\u0027t check extra_cfg-\u003esecond_pass_file below.",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3c9ff35_7faf18d2",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3205,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Nit: two-pass \u003d\u003e second pass ?",
+      "range": {
+        "startLine": 3205,
+        "startChar": 21,
+        "endLine": 3205,
+        "endChar": 29
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c7ef19e_b7df64a4",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3207,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Nit: I am inclined to suggest we change \"ptr\" to \"handle\" or \"stream\", because it was not clear to me what \"file pointer\" means. (Now I know it means a pointer to FILE.)",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b88b8b8_d3d75839",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Nit: \"Note down\" sounds a little strange. Perhaps \"Note\" or \"Write down\" or just \"Write\"?",
+      "range": {
+        "startLine": 311,
+        "startChar": 7,
+        "endLine": 311,
+        "endChar": 16
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80a6b6bc_4b09118c",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Nit: Move this into the previous if statement:\n\n    if (!cpi-\u003esecond_pass_file_ptr) {\n      cpi-\u003esecond_pass_file_ptr \u003d fopen(cpi-\u003eoxcf.second_pass_file, \"wb\");\n      if (!cpi-\u003esecond_pass_file_ptr) {\n        aom_internal_error(cpi-\u003ecommon.error, AOM_CODEC_ERROR,\n                         \"Could not open second pass file!\");\n      }\n    }",
+      "range": {
+        "startLine": 316,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 5
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44d50499_cf127859",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "IMPORTANT: Since file I/O errors are out of our control, we need to check for the failure of fwrite() and fread() and call aom_internal_error() on failure.",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f57d4e3_65b5b16c",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Please see my suggested change at line 311.",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dea9d215_4d16894e",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "Nit: Move this into the previous if statement.",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 348,
+        "endChar": 5
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c626a33c_27ece5a2",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "IMPORTANT: Call aom_internal_error() on failure of fread().",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0138b657_82515062",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-15T22:46:21Z",
+      "side": 1,
+      "message": "I am curious why you forward-declare struct AV1_COMP. Is it because this file cannot include av1/encoder/encoder.h?",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
