@@ -1564,9 +1564,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   // frame_params->remapped_ref_idx here and they will be used when encoding
   // this frame.  If frame_params->remapped_ref_idx is setup independently of
   // cm->remapped_ref_idx then update_ref_frame_map() will have no effect.
-#if !CONFIG_NEW_REF_SIGNALING
+#if CONFIG_NEW_REF_SIGNALING
   memcpy(frame_params.remapped_ref_idx, cm->remapped_ref_idx,
          REF_FRAMES * sizeof(*frame_params.remapped_ref_idx));
+#else
+  memcpy(frame_params.remapped_ref_idx,
+         cm->new_ref_frame_data.ref_frame_score_map,
+         INTER_REFS_PER_FRAME_NRS * sizeof(*frame_params.remapped_ref_idx));
 #endif  // !CONFIG_NEW_REF_SIGNALING
 
   cpi->td.mb.delta_qindex = 0;
