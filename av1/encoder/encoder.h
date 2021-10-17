@@ -3021,6 +3021,12 @@ static INLINE int enc_is_ref_frame_buf(const AV1_COMMON *const cm,
   return (ref_frame < INTER_REFS_PER_FRAME_NRS);
 }
 #else
+static INLINE const YV12_BUFFER_CONFIG *get_ref_frame_yv12_buf(
+    const AV1_COMMON *const cm, MV_REFERENCE_FRAME ref_frame) {
+  const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
+  return buf != NULL ? &buf->buf : NULL;
+}
+
 static INLINE int enc_is_ref_frame_buf(const AV1_COMMON *const cm,
                                        const RefCntBuffer *const frame_buf) {
   MV_REFERENCE_FRAME ref_frame;
@@ -3032,12 +3038,6 @@ static INLINE int enc_is_ref_frame_buf(const AV1_COMMON *const cm,
   return (ref_frame <= ALTREF_FRAME);
 }
 #endif  // CONFIG_NEW_REF_SIGNALING
-
-static INLINE const YV12_BUFFER_CONFIG *get_ref_frame_yv12_buf(
-    const AV1_COMMON *const cm, MV_REFERENCE_FRAME ref_frame) {
-  const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
-  return buf != NULL ? &buf->buf : NULL;
-}
 
 static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, RefCntBuffer *buf) {
   assert(buf != NULL);
