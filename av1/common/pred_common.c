@@ -127,9 +127,7 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
     scores[n_ranked].pyr_level = ref_frame_level;
     /*
     for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME; ref_idx++) {
-      int named_ref = ref_frame_priority_order[ref_idx];
-      const RefCntBuffer *const buf = get_ref_frame_buf(cm, named_ref);
-      // const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref_idx);
+      const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref_idx);
       if (buf == NULL) continue;
       if ((int)buf->display_order_hint == ref_disp) {
         scores[n_ranked].n_named_refs++;
@@ -379,151 +377,152 @@ void av1_get_ref_frames(AV1_COMMON *const cm, int cur_frame_disp,
 }
 #endif  // CONFIG_NEW_REF_SIGNALING
 
-// Returns a context number for the given MB prediction signal
-static InterpFilter get_ref_filter_type(const MB_MODE_INFO *ref_mbmi,
-                                        const MACROBLOCKD *xd, int dir,
+  // Returns a context number for the given MB prediction signal
+  static InterpFilter get_ref_filter_type(const MB_MODE_INFO *ref_mbmi,
+                                          const MACROBLOCKD *xd, int dir,
 #if CONFIG_NEW_REF_SIGNALING
-                                        MV_REFERENCE_FRAME_NRS ref_frame_nrs
+                                          MV_REFERENCE_FRAME_NRS ref_frame_nrs
 #else
                                         MV_REFERENCE_FRAME ref_frame
 #endif  // CONFIG_NEW_REF_SIGNALING
-) {
-  (void)xd;
+  ) {
+    (void)xd;
 
 #if CONFIG_NEW_REF_SIGNALING
-  if (ref_mbmi->ref_frame_nrs[0] != ref_frame_nrs &&
-      ref_mbmi->ref_frame_nrs[1] != ref_frame_nrs) {
+    if (ref_mbmi->ref_frame_nrs[0] != ref_frame_nrs &&
+        ref_mbmi->ref_frame_nrs[1] != ref_frame_nrs) {
 #else
   if (ref_mbmi->ref_frame[0] != ref_frame &&
       ref_mbmi->ref_frame[1] != ref_frame) {
 #endif  // CONFIG_NEW_REF_SIGNALING
-    return SWITCHABLE_FILTERS;
-  }
+      return SWITCHABLE_FILTERS;
+    }
 #if CONFIG_REMOVE_DUAL_FILTER
-  (void)dir;
-  return ref_mbmi->interp_fltr;
+    (void)dir;
+    return ref_mbmi->interp_fltr;
 #else
   return av1_extract_interp_filter(ref_mbmi->interp_filters, dir & 0x01);
 #endif  // CONFIG_REMOVE_DUAL_FILTER
-}
+  }
 
-int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
-  const MB_MODE_INFO *const mbmi = xd->mi[0];
+  int av1_get_pred_context_switchable_interp(const MACROBLOCKD *xd, int dir) {
+    const MB_MODE_INFO *const mbmi = xd->mi[0];
 #if CONFIG_NEW_REF_SIGNALING
-  const int ctx_offset = (mbmi->ref_frame_nrs[1] != INTRA_FRAME_NRS &&
-                          mbmi->ref_frame_nrs[1] != INVALID_IDX) *
-                         INTER_FILTER_COMP_OFFSET;
-  const MV_REFERENCE_FRAME_NRS ref_frame = mbmi->ref_frame_nrs[0];
+    const int ctx_offset = (mbmi->ref_frame_nrs[1] != INTRA_FRAME_NRS &&
+                            mbmi->ref_frame_nrs[1] != INVALID_IDX) *
+                           INTER_FILTER_COMP_OFFSET;
+    const MV_REFERENCE_FRAME_NRS ref_frame = mbmi->ref_frame_nrs[0];
 #else
   const int ctx_offset =
       (mbmi->ref_frame[1] > INTRA_FRAME) * INTER_FILTER_COMP_OFFSET;
   const MV_REFERENCE_FRAME ref_frame = mbmi->ref_frame[0];
 #endif  // CONFIG_NEW_REF_SIGNALING
-  assert(dir == 0 || dir == 1);
-  // Note:
+    assert(dir == 0 || dir == 1);
+    // Note:
+    // The mode info data structure has a one element border above and to the
+    // left of the entries corresponding to real macroblocks.
+    // The prediction flags in these dummy entries are initialized to 0.
+    int filter_type_ctx = ctx_offset + (dir & 0x01) * INTER_FILTER_DIR_OFFSET;
+    int left_type = SWITCHABLE_FILTERS;
+    int above_type = SWITCHABLE_FILTERS;
+
+    if (xd->left_available)
+      left_type = get_ref_filter_type(xd->mi[-1], xd, dir, ref_frame);
+
+    if (xd->up_available)
+      above_type =
+          get_ref_filter_type(xd->mi[-xd->mi_stride], xd, dir, ref_frame);
+
+    if (left_type == above_type) {
+      filter_type_ctx += left_type;
+    } else if (left_type == SWITCHABLE_FILTERS) {
+      assert(above_type != SWITCHABLE_FILTERS);
+      filter_type_ctx += above_type;
+    } else if (above_type == SWITCHABLE_FILTERS) {
+      assert(left_type != SWITCHABLE_FILTERS);
+      filter_type_ctx += left_type;
+    } else {
+      filter_type_ctx += SWITCHABLE_FILTERS;
+    }
+
+    return filter_type_ctx;
+  }
+
+  static void palette_add_to_cache(uint16_t * cache, int *n, uint16_t val) {
+    // Do not add an already existing value
+    if (*n > 0 && val == cache[*n - 1]) return;
+
+    cache[(*n)++] = val;
+  }
+
+  int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
+                            uint16_t *cache) {
+    const int row = -xd->mb_to_top_edge >> 3;
+    // Do not refer to above SB row when on SB boundary.
+    const MB_MODE_INFO *const above_mi =
+        (row % (1 << MIN_SB_SIZE_LOG2)) ? xd->above_mbmi : NULL;
+    const MB_MODE_INFO *const left_mi = xd->left_mbmi;
+    int above_n = 0, left_n = 0;
+    if (above_mi)
+      above_n = above_mi->palette_mode_info.palette_size[plane != 0];
+    if (left_mi) left_n = left_mi->palette_mode_info.palette_size[plane != 0];
+    if (above_n == 0 && left_n == 0) return 0;
+    int above_idx = plane * PALETTE_MAX_SIZE;
+    int left_idx = plane * PALETTE_MAX_SIZE;
+    int n = 0;
+    const uint16_t *above_colors =
+        above_mi ? above_mi->palette_mode_info.palette_colors : NULL;
+    const uint16_t *left_colors =
+        left_mi ? left_mi->palette_mode_info.palette_colors : NULL;
+    // Merge the sorted lists of base colors from above and left to get
+    // combined sorted color cache.
+    while (above_n > 0 && left_n > 0) {
+      uint16_t v_above = above_colors[above_idx];
+      uint16_t v_left = left_colors[left_idx];
+      if (v_left < v_above) {
+        palette_add_to_cache(cache, &n, v_left);
+        ++left_idx, --left_n;
+      } else {
+        palette_add_to_cache(cache, &n, v_above);
+        ++above_idx, --above_n;
+        if (v_left == v_above) ++left_idx, --left_n;
+      }
+    }
+    while (above_n-- > 0) {
+      uint16_t val = above_colors[above_idx++];
+      palette_add_to_cache(cache, &n, val);
+    }
+    while (left_n-- > 0) {
+      uint16_t val = left_colors[left_idx++];
+      palette_add_to_cache(cache, &n, val);
+    }
+    assert(n <= 2 * PALETTE_MAX_SIZE);
+    return n;
+  }
+
   // The mode info data structure has a one element border above and to the
   // left of the entries corresponding to real macroblocks.
   // The prediction flags in these dummy entries are initialized to 0.
-  int filter_type_ctx = ctx_offset + (dir & 0x01) * INTER_FILTER_DIR_OFFSET;
-  int left_type = SWITCHABLE_FILTERS;
-  int above_type = SWITCHABLE_FILTERS;
+  // 0 - inter/inter, inter/--, --/inter, --/--
+  // 1 - intra/inter, inter/intra
+  // 2 - intra/--, --/intra
+  // 3 - intra/intra
+  int av1_get_intra_inter_context(const MACROBLOCKD *xd) {
+    const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+    const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+    const int has_above = xd->up_available;
+    const int has_left = xd->left_available;
 
-  if (xd->left_available)
-    left_type = get_ref_filter_type(xd->mi[-1], xd, dir, ref_frame);
-
-  if (xd->up_available)
-    above_type =
-        get_ref_filter_type(xd->mi[-xd->mi_stride], xd, dir, ref_frame);
-
-  if (left_type == above_type) {
-    filter_type_ctx += left_type;
-  } else if (left_type == SWITCHABLE_FILTERS) {
-    assert(above_type != SWITCHABLE_FILTERS);
-    filter_type_ctx += above_type;
-  } else if (above_type == SWITCHABLE_FILTERS) {
-    assert(left_type != SWITCHABLE_FILTERS);
-    filter_type_ctx += left_type;
-  } else {
-    filter_type_ctx += SWITCHABLE_FILTERS;
-  }
-
-  return filter_type_ctx;
-}
-
-static void palette_add_to_cache(uint16_t *cache, int *n, uint16_t val) {
-  // Do not add an already existing value
-  if (*n > 0 && val == cache[*n - 1]) return;
-
-  cache[(*n)++] = val;
-}
-
-int av1_get_palette_cache(const MACROBLOCKD *const xd, int plane,
-                          uint16_t *cache) {
-  const int row = -xd->mb_to_top_edge >> 3;
-  // Do not refer to above SB row when on SB boundary.
-  const MB_MODE_INFO *const above_mi =
-      (row % (1 << MIN_SB_SIZE_LOG2)) ? xd->above_mbmi : NULL;
-  const MB_MODE_INFO *const left_mi = xd->left_mbmi;
-  int above_n = 0, left_n = 0;
-  if (above_mi) above_n = above_mi->palette_mode_info.palette_size[plane != 0];
-  if (left_mi) left_n = left_mi->palette_mode_info.palette_size[plane != 0];
-  if (above_n == 0 && left_n == 0) return 0;
-  int above_idx = plane * PALETTE_MAX_SIZE;
-  int left_idx = plane * PALETTE_MAX_SIZE;
-  int n = 0;
-  const uint16_t *above_colors =
-      above_mi ? above_mi->palette_mode_info.palette_colors : NULL;
-  const uint16_t *left_colors =
-      left_mi ? left_mi->palette_mode_info.palette_colors : NULL;
-  // Merge the sorted lists of base colors from above and left to get
-  // combined sorted color cache.
-  while (above_n > 0 && left_n > 0) {
-    uint16_t v_above = above_colors[above_idx];
-    uint16_t v_left = left_colors[left_idx];
-    if (v_left < v_above) {
-      palette_add_to_cache(cache, &n, v_left);
-      ++left_idx, --left_n;
+    if (has_above && has_left) {  // both edges available
+      const int above_intra = !is_inter_block(above_mbmi);
+      const int left_intra = !is_inter_block(left_mbmi);
+      return left_intra && above_intra ? 3 : left_intra || above_intra;
+    } else if (has_above || has_left) {  // one edge available
+      return 2 * !is_inter_block(has_above ? above_mbmi : left_mbmi);
     } else {
-      palette_add_to_cache(cache, &n, v_above);
-      ++above_idx, --above_n;
-      if (v_left == v_above) ++left_idx, --left_n;
+      return 0;
     }
   }
-  while (above_n-- > 0) {
-    uint16_t val = above_colors[above_idx++];
-    palette_add_to_cache(cache, &n, val);
-  }
-  while (left_n-- > 0) {
-    uint16_t val = left_colors[left_idx++];
-    palette_add_to_cache(cache, &n, val);
-  }
-  assert(n <= 2 * PALETTE_MAX_SIZE);
-  return n;
-}
-
-// The mode info data structure has a one element border above and to the
-// left of the entries corresponding to real macroblocks.
-// The prediction flags in these dummy entries are initialized to 0.
-// 0 - inter/inter, inter/--, --/inter, --/--
-// 1 - intra/inter, inter/intra
-// 2 - intra/--, --/intra
-// 3 - intra/intra
-int av1_get_intra_inter_context(const MACROBLOCKD *xd) {
-  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
-  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
-  const int has_above = xd->up_available;
-  const int has_left = xd->left_available;
-
-  if (has_above && has_left) {  // both edges available
-    const int above_intra = !is_inter_block(above_mbmi);
-    const int left_intra = !is_inter_block(left_mbmi);
-    return left_intra && above_intra ? 3 : left_intra || above_intra;
-  } else if (has_above || has_left) {  // one edge available
-    return 2 * !is_inter_block(has_above ? above_mbmi : left_mbmi);
-  } else {
-    return 0;
-  }
-}
 
 #if CONFIG_NEW_REF_SIGNALING
 #define IS_BACKWARD_REF_FRAME(ref_frame) \
@@ -534,88 +533,88 @@ int av1_get_intra_inter_context(const MACROBLOCKD *xd) {
 #define IS_BACKWARD_REF_FRAME(ref_frame) CHECK_BACKWARD_REFS(ref_frame)
 #endif  // CONFIG_NEW_REF_SIGNALING
 
-int av1_get_reference_mode_context(const AV1_COMMON *cm,
-                                   const MACROBLOCKD *xd) {
-  (void)cm;
-  int ctx;
-  const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
-  const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
-  const int has_above = xd->up_available;
-  const int has_left = xd->left_available;
+  int av1_get_reference_mode_context(const AV1_COMMON *cm,
+                                     const MACROBLOCKD *xd) {
+    (void)cm;
+    int ctx;
+    const MB_MODE_INFO *const above_mbmi = xd->above_mbmi;
+    const MB_MODE_INFO *const left_mbmi = xd->left_mbmi;
+    const int has_above = xd->up_available;
+    const int has_left = xd->left_available;
 
-  // Note:
-  // The mode info data structure has a one element border above and to the
-  // left of the entries corresponding to real macroblocks.
-  // The prediction flags in these dummy entries are initialized to 0.
-  if (has_above && has_left) {  // both edges available
-    if (!has_second_ref(above_mbmi) && !has_second_ref(left_mbmi))
-    // neither edge uses comp pred (0/1)
+    // Note:
+    // The mode info data structure has a one element border above and to the
+    // left of the entries corresponding to real macroblocks.
+    // The prediction flags in these dummy entries are initialized to 0.
+    if (has_above && has_left) {  // both edges available
+      if (!has_second_ref(above_mbmi) && !has_second_ref(left_mbmi))
+      // neither edge uses comp pred (0/1)
 #if CONFIG_NEW_REF_SIGNALING
-      ctx = IS_BACKWARD_REF_FRAME(above_mbmi->ref_frame_nrs[0]) ^
-            IS_BACKWARD_REF_FRAME(left_mbmi->ref_frame_nrs[0]);
+        ctx = IS_BACKWARD_REF_FRAME(above_mbmi->ref_frame_nrs[0]) ^
+              IS_BACKWARD_REF_FRAME(left_mbmi->ref_frame_nrs[0]);
 #else
       ctx = IS_BACKWARD_REF_FRAME(above_mbmi->ref_frame[0]) ^
             IS_BACKWARD_REF_FRAME(left_mbmi->ref_frame[0]);
 #endif  // CONFIG_NEW_REF_SIGNALING
-    else if (!has_second_ref(above_mbmi))
-    // one of two edges uses comp pred (2/3)
+      else if (!has_second_ref(above_mbmi))
+      // one of two edges uses comp pred (2/3)
 #if CONFIG_NEW_REF_SIGNALING
-      ctx = 2 + (IS_BACKWARD_REF_FRAME(above_mbmi->ref_frame_nrs[0]) ||
-                 !is_inter_block(above_mbmi));
+        ctx = 2 + (IS_BACKWARD_REF_FRAME(above_mbmi->ref_frame_nrs[0]) ||
+                   !is_inter_block(above_mbmi));
 #else
       ctx = 2 + (IS_BACKWARD_REF_FRAME(above_mbmi->ref_frame[0]) ||
                  !is_inter_block(above_mbmi));
 #endif  // CONFIG_NEW_REF_SIGNALING
-    else if (!has_second_ref(left_mbmi))
-    // one of two edges uses comp pred (2/3)
+      else if (!has_second_ref(left_mbmi))
+      // one of two edges uses comp pred (2/3)
 #if CONFIG_NEW_REF_SIGNALING
-      ctx = 2 + (IS_BACKWARD_REF_FRAME(left_mbmi->ref_frame_nrs[0]) ||
-                 !is_inter_block(left_mbmi));
+        ctx = 2 + (IS_BACKWARD_REF_FRAME(left_mbmi->ref_frame_nrs[0]) ||
+                   !is_inter_block(left_mbmi));
 #else
       ctx = 2 + (IS_BACKWARD_REF_FRAME(left_mbmi->ref_frame[0]) ||
                  !is_inter_block(left_mbmi));
-#endif    // CONFIG_NEW_REF_SIGNALING
-    else  // both edges use comp pred (4)
-      ctx = 4;
-  } else if (has_above || has_left) {  // one edge available
-    const MB_MODE_INFO *edge_mbmi = has_above ? above_mbmi : left_mbmi;
+#endif      // CONFIG_NEW_REF_SIGNALING
+      else  // both edges use comp pred (4)
+        ctx = 4;
+    } else if (has_above || has_left) {  // one edge available
+      const MB_MODE_INFO *edge_mbmi = has_above ? above_mbmi : left_mbmi;
 
-    if (!has_second_ref(edge_mbmi))
-    // edge does not use comp pred (0/1)
+      if (!has_second_ref(edge_mbmi))
+      // edge does not use comp pred (0/1)
 #if CONFIG_NEW_REF_SIGNALING
-      ctx = IS_BACKWARD_REF_FRAME(edge_mbmi->ref_frame_nrs[0]);
+        ctx = IS_BACKWARD_REF_FRAME(edge_mbmi->ref_frame_nrs[0]);
 #else
       ctx = IS_BACKWARD_REF_FRAME(edge_mbmi->ref_frame[0]);
 #endif  // CONFIG_NEW_REF_SIGNALING
-    else
-      // edge uses comp pred (3)
-      ctx = 3;
-  } else {  // no edges available (1)
-    ctx = 1;
+      else
+        // edge uses comp pred (3)
+        ctx = 3;
+    } else {  // no edges available (1)
+      ctx = 1;
+    }
+    assert(ctx >= 0 && ctx < COMP_INTER_CONTEXTS);
+    return ctx;
   }
-  assert(ctx >= 0 && ctx < COMP_INTER_CONTEXTS);
-  return ctx;
-}
 
 #if CONFIG_NEW_REF_SIGNALING
-int av1_get_ref_pred_context_nrs(const MACROBLOCKD *xd,
-                                 MV_REFERENCE_FRAME_NRS ref, int n_total_refs) {
-  assert((ref + 1) < n_total_refs);
-  const uint8_t *const ref_counts = &xd->neighbors_ref_counts_nrs[0];
-  const int this_ref_count = ref_counts[ref];
-  int next_refs_count = 0;
+  int av1_get_ref_pred_context_nrs(
+      const MACROBLOCKD *xd, MV_REFERENCE_FRAME_NRS ref, int n_total_refs) {
+    assert((ref + 1) < n_total_refs);
+    const uint8_t *const ref_counts = &xd->neighbors_ref_counts_nrs[0];
+    const int this_ref_count = ref_counts[ref];
+    int next_refs_count = 0;
 
-  for (int i = ref + 1; i < n_total_refs; i++) {
-    next_refs_count += ref_counts[i];
+    for (int i = ref + 1; i < n_total_refs; i++) {
+      next_refs_count += ref_counts[i];
+    }
+
+    const int pred_context = (this_ref_count == next_refs_count)
+                                 ? 1
+                                 : ((this_ref_count < next_refs_count) ? 0 : 2);
+
+    assert(pred_context >= 0 && pred_context < REF_CONTEXTS);
+    return pred_context;
   }
-
-  const int pred_context = (this_ref_count == next_refs_count)
-                               ? 1
-                               : ((this_ref_count < next_refs_count) ? 0 : 2);
-
-  assert(pred_context >= 0 && pred_context < REF_CONTEXTS);
-  return pred_context;
-}
 #else
 int av1_get_comp_reference_type_context(const MACROBLOCKD *xd) {
   int pred_context;
