@@ -2475,9 +2475,17 @@ static AOM_INLINE void setup_frame_size_with_refs(
   int width, height;
   int found = 0;
   int has_valid_ref_frame = 0;
+#if CONFIG_NEW_REF_SIGNALING
+  for (int i = 0; i < INTER_REFS_PER_FRAME_NRS; ++i) {
+#else
   for (int i = LAST_FRAME; i <= ALTREF_FRAME; ++i) {
+#endif  // CONFIG_NEW_REF_SIGNALING
     if (aom_rb_read_bit(rb)) {
+#if CONFIG_NEW_REF_SIGNALING
+      const RefCntBuffer *const ref_buf = get_ref_frame_buf_nrs(cm, i);
+#else
       const RefCntBuffer *const ref_buf = get_ref_frame_buf(cm, i);
+#endif  // CONFIG_NEW_REF_SIGNALING
       // This will never be NULL in a normal stream, as streams are required to
       // have a shown keyframe before any inter frames, which would refresh all
       // the reference buffers. However, it might be null if we're starting in
@@ -5465,8 +5473,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
           init_ref_map_pair(cm, ref_frame_map_pairs,
                             current_frame->frame_type == KEY_FRAME);
           // Derive the reference frame mapping
-          av1_get_ref_frames(cm, current_frame->display_order_hint,
-                             ref_frame_map_pairs);
+          // av1_get_ref_frames(cm, current_frame->display_order_hint,
+          //                    ref_frame_map_pairs);
         }
       }
       av1_init_new_ref_frame_map(cm, ref_frame_map_pairs,
