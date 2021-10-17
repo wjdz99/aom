@@ -127,9 +127,7 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
     scores[n_ranked].pyr_level = ref_frame_level;
     /*
     for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME; ref_idx++) {
-      int named_ref = ref_frame_priority_order[ref_idx];
-      const RefCntBuffer *const buf = get_ref_frame_buf(cm, named_ref);
-      // const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref_idx);
+      const RefCntBuffer *const buf = get_ref_frame_buf_nrs(cm, ref_idx);
       if (buf == NULL) continue;
       if ((int)buf->display_order_hint == ref_disp) {
         scores[n_ranked].n_named_refs++;
