@@ -962,6 +962,14 @@ typedef struct AV1Common {
    */
   RefCntBuffer *cur_frame;
 
+#if CONFIG_NEW_REF_SIGNALING
+  /*!
+   * An alternative to remapped_ref_idx (above) which contains a mapping to
+   * ref_frame_map[] according to a "usefulness" score. It also contains all
+   * other relevant data to aid the reference mapping and signaling.
+   */
+  NewRefFramesData new_ref_frame_data;
+#else
   /*!
    * For encoder, we have a two-level mapping from reference frame type to the
    * corresponding buffer in the buffer pool:
@@ -983,15 +991,7 @@ typedef struct AV1Common {
    * have a remapped index for the same.
    */
   int remapped_ref_idx[REF_FRAMES];
-
-#if CONFIG_NEW_REF_SIGNALING
-  /*!
-   * An alternative to remapped_ref_idx (above) which contains a mapping to
-   * ref_frame_map[] according to a "usefulness" score. It also contains all
-   * other relevant data to aid the reference mapping and signaling.
-   */
-  NewRefFramesData new_ref_frame_data;
-#endif
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   /*!
    * Scale of the current frame with respect to itself.
@@ -1365,21 +1365,16 @@ static INLINE int frame_is_sframe(const AV1_COMMON *cm) {
 
 #if CONFIG_NEW_REF_SIGNALING
 static INLINE int get_ref_frame_map_idx(const AV1_COMMON *const cm,
-                                        const int ref_frame, int use_old) {
-  if (use_old) {
-    return (ref_frame >= LAST_FRAME && ref_frame <= EXTREF_FRAME)
-               ? cm->remapped_ref_idx[ref_frame - LAST_FRAME]
-               : INVALID_IDX;
-  } else {
-    NewRefFramesData ref_data = cm->new_ref_frame_data;
-    return (ref_frame >= 0 && ref_frame < INTER_REFS_PER_FRAME_NRS)
-               ? ref_data.ref_frame_score_map[ref_frame]
-               : INVALID_IDX;
-  }
+                                        const int ref_frame) {
+  NewRefFramesData ref_data = cm->new_ref_frame_data;
+  return (ref_frame >= 0 && ref_frame < INTER_REFS_PER_FRAME_NRS)
+             ? ref_data.ref_frame_score_map[ref_frame]
+             : INVALID_IDX;
 }
+
 static INLINE RefCntBuffer *get_ref_frame_buf_nrs(
     const AV1_COMMON *const cm, const MV_REFERENCE_FRAME_NRS ref_frame) {
-  const int map_idx = get_ref_frame_map_idx(cm, ref_frame, 0);
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
   return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
 }
 
@@ -1387,13 +1382,13 @@ static INLINE RefCntBuffer *get_ref_frame_buf_nrs(
 // can be used with a const AV1_COMMON if needed.
 static INLINE const struct scale_factors *get_ref_scale_factors_const_nrs(
     const AV1_COMMON *const cm, const MV_REFERENCE_FRAME_NRS ref_frame) {
-  const int map_idx = get_ref_frame_map_idx(cm, ref_frame, 0);
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
   return (map_idx != INVALID_IDX) ? &cm->ref_scale_factors[map_idx] : NULL;
 }
 
 static INLINE struct scale_factors *get_ref_scale_factors_nrs(
     AV1_COMMON *const cm, const MV_REFERENCE_FRAME_NRS ref_frame) {
-  const int map_idx = get_ref_frame_map_idx(cm, ref_frame, 0);
+  const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
   return (map_idx != INVALID_IDX) ? &cm->ref_scale_factors[map_idx] : NULL;
 }
 #else
@@ -1406,15 +1401,10 @@ static INLINE int get_ref_frame_map_idx(const AV1_COMMON *const cm,
              ? cm->remapped_ref_idx[ref_frame - LAST_FRAME]
              : INVALID_IDX;
 }
-#endif  // CONFIG_NEW_REF_SIGNALING
 
 static INLINE RefCntBuffer *get_ref_frame_buf(
     const AV1_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
-#if CONFIG_NEW_REF_SIGNALING
-  const int map_idx = get_ref_frame_map_idx(cm, ref_frame, 1);
-#else
   const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
-#endif  // CONFIG_NEW_REF_SIGNALING
   return (map_idx != INVALID_IDX) ? cm->ref_frame_map[map_idx] : NULL;
 }
 
@@ -1422,30 +1412,23 @@ static INLINE RefCntBuffer *get_ref_frame_buf(
 // can be used with a const AV1_COMMON if needed.
 static INLINE const struct scale_factors *get_ref_scale_factors_const(
     const AV1_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
-#if CONFIG_NEW_REF_SIGNALING
-  const int map_idx = get_ref_frame_map_idx(cm, ref_frame, 1);
-#else
   const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
-#endif  // CONFIG_NEW_REF_SIGNALING
   return (map_idx != INVALID_IDX) ? &cm->ref_scale_factors[map_idx] : NULL;
 }
 
 static INLINE struct scale_factors *get_ref_scale_factors(
     AV1_COMMON *const cm, const MV_REFERENCE_FRAME ref_frame) {
-#if CONFIG_NEW_REF_SIGNALING
-  const int map_idx = get_ref_frame_map_idx(cm, ref_frame, 1);
-#else
   const int map_idx = get_ref_frame_map_idx(cm, ref_frame);
-#endif  // CONFIG_NEW_REF_SIGNALING
   return (map_idx != INVALID_IDX) ? &cm->ref_scale_factors[map_idx] : NULL;
 }
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 static INLINE RefCntBuffer *get_primary_ref_frame_buf(
     const AV1_COMMON *const cm) {
   const int primary_ref_frame = cm->features.primary_ref_frame;
   if (primary_ref_frame == PRIMARY_REF_NONE) return NULL;
 #if CONFIG_NEW_REF_SIGNALING
-  const int map_idx = get_ref_frame_map_idx(cm, primary_ref_frame, 0);
+  const int map_idx = get_ref_frame_map_idx(cm, primary_ref_frame);
 #else
   const int map_idx = get_ref_frame_map_idx(cm, primary_ref_frame + 1);
 #endif  // CONFIG_NEW_REF_SIGNALING
