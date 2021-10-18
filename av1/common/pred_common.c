@@ -25,32 +25,14 @@ typedef struct {
 } RefBufMapData;
 /*!\endcond */
 
-// Comparison function to sort reference frames in ascending display order
-static int compare_map_idx_pair_asc(const void *a, const void *b) {
-  if (((RefBufMapData *)a)->disp_order == ((RefBufMapData *)b)->disp_order) {
-    return 0;
-  } else if (((const RefBufMapData *)a)->disp_order >
-             ((const RefBufMapData *)b)->disp_order) {
-    return 1;
-  } else {
-    return -1;
-  }
-}
-
-// Checks to see if a particular reference frame is already in the reference
-// frame map
-static int is_in_ref_map(RefBufMapData *map, int disp_order, int n_frames) {
-  for (int i = 0; i < n_frames; i++) {
-    if (disp_order == map[i].disp_order) return 1;
-  }
-  return 0;
-}
-
 #if CONFIG_NEW_REF_SIGNALING
+/*!\cond */
 typedef struct {
   int score;
   int index;
   int distance;
+  int disp_order;
+  int pyr_level;
   int n_named_refs;
 } RefScoreData;
 /*!\endcond */
@@ -67,6 +49,42 @@ static int compare_score_data_asc(const void *a, const void *b) {
   }
 }
 
+// Checks to see if a particular reference frame is already in the reference
+// frame map
+static int is_in_ref_score(RefScoreData *map, int disp_order, int score,
+                           int n_frames) {
+  for (int i = 0; i < n_frames; i++) {
+    if (disp_order == map[i].disp_order && score == map[i].score) return 1;
+  }
+  return 0;
+}
+
+static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
+                            int cur_frame_disp) {
+  const int low_level_frames_thresh = 5;
+  int max_dist = 0;
+  int unmapped_idx = INVALID_IDX;
+  int min_level = INT_MAX;
+  int n_min_level_refs = 0;
+  if (n_bufs < INTER_REFS_PER_FRAME_NRS) return unmapped_idx;
+  for (int i = n_bufs - 1; i >= 0; i--)
+    if (scores[i].pyr_level < min_level) min_level = scores[i].pyr_level;
+  for (int i = n_bufs - 1; i >= 0; i--)
+    if (scores[i].pyr_level == min_level) n_min_level_refs++;
+  for (int i = 0; i < n_bufs; i++) {
+    if (scores[i].pyr_level != min_level ||
+        n_min_level_refs >= low_level_frames_thresh) {
+      int dist = abs(cur_frame_disp - scores[i].disp_order);
+      if (dist > max_dist) {
+        max_dist = dist;
+        unmapped_idx = i;
+      }
+    }
+  }
+  assert(unmapped_idx >= 0 && "Unmapped reference not found");
+  return unmapped_idx;
+}
+
 #define JOINT_DIST_QINDEX_ORDERING 1
 void av1_init_new_ref_frame_map(AV1_COMMON *cm,
                                 RefFrameMapPair *ref_frame_map_pairs,
@@ -78,6 +96,7 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
     cm->new_ref_frame_data.ref_frame_score_map[i] = INVALID_IDX;
   }
   int n_ranked = 0;
+  int min_level = INT_MAX;
   // Compute a score for each reference buffer
   for (int i = 0; i < REF_FRAMES; i++) {
     // Get reference frame buffer
@@ -85,6 +104,7 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
     if (cur_ref.disp_order == -1) continue;
     const int ref_disp = cur_ref.disp_order;
     const int ref_base_qindex = cur_ref.base_qindex;
+    const int ref_frame_level = cur_ref.pyr_level;
 
     // Sort frames based on distance from current frame and
     // qindex difference from current frame
@@ -95,9 +115,17 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
 #else
     const int score = 2 * abs(disp_diff);
 #endif  // JOINT_DIST_QINDEX_ORDERING
+    if (is_in_ref_score(scores, ref_disp, score, n_ranked)) continue;
+    // Keep track of the lowest and highest levels that currently exist
+    if (ref_frame_level < min_level) min_level = ref_frame_level;
+    // if (ref_frame_level > max_level) max_level = ref_frame_level;
+
     scores[n_ranked].index = i;
     scores[n_ranked].score = score;
     scores[n_ranked].distance = disp_diff;
+    scores[n_ranked].disp_order = ref_disp;
+    scores[n_ranked].pyr_level = ref_frame_level;
+    /*
     for (int ref_idx = 0; ref_idx < INTER_REFS_PER_FRAME; ref_idx++) {
       int named_ref = ref_frame_priority_order[ref_idx];
       const RefCntBuffer *const buf = get_ref_frame_buf(cm, named_ref);
@@ -112,8 +140,11 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
     if (scores[n_ranked].n_named_refs == 0) {
       scores[n_ranked].score = INT_MAX;
     }
+    */
     n_ranked++;
   }
+  const int unmapped_idx = get_unmapped_ref(scores, n_ranked, cur_frame_disp);
+  if (unmapped_idx != INVALID_IDX) scores[unmapped_idx].score = INT_MAX;
 
   // Sort the references according to their score
   qsort(scores, n_ranked, sizeof(scores[0]), compare_score_data_asc);
@@ -149,7 +180,28 @@ void av1_init_new_ref_frame_map(AV1_COMMON *cm,
   }
 }
 
-#endif  // CONFIG_NEW_REF_SIGNALING
+#else
+
+// Comparison function to sort reference frames in ascending display order
+static int compare_map_idx_pair_asc(const void *a, const void *b) {
+  if (((RefBufMapData *)a)->disp_order == ((RefBufMapData *)b)->disp_order) {
+    return 0;
+  } else if (((const RefBufMapData *)a)->disp_order >
+             ((const RefBufMapData *)b)->disp_order) {
+    return 1;
+  } else {
+    return -1;
+  }
+}
+
+// Checks to see if a particular reference frame is already in the reference
+// frame map
+static int is_in_ref_map(RefBufMapData *map, int disp_order, int n_frames) {
+  for (int i = 0; i < n_frames; i++) {
+    if (disp_order == map[i].disp_order) return 1;
+  }
+  return 0;
+}
 
 // Add a reference buffer index to a named reference slot
 static void add_ref_to_slot(RefBufMapData *ref, int *const remapped_ref_idx,
@@ -325,6 +377,7 @@ void av1_get_ref_frames(AV1_COMMON *const cm, int cur_frame_disp,
   for (int i = 0; i < REF_FRAMES; ++i)
     if (remapped_ref_idx[i] == INVALID_IDX) remapped_ref_idx[i] = 0;
 }
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 // Returns a context number for the given MB prediction signal
 static InterpFilter get_ref_filter_type(const MB_MODE_INFO *ref_mbmi,

@@ -1469,7 +1469,9 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
 
   if (!is_stat_generation_stage(cpi)) {
     if (!ext_flags->refresh_frame.update_pending) {
+#if !CONFIG_NEW_REF_SIGNALING
       av1_get_ref_frames(cm, cur_frame_disp, ref_frame_map_pairs);
+#endif  // !CONFIG_NEW_REF_SIGNALING
     } else if (cpi->svc.external_ref_frame_config) {
 #if CONFIG_NEW_REF_SIGNALING
       for (unsigned int i = 0; i < INTER_REFS_PER_FRAME_NRS; i++)
