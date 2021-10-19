@@ -1689,7 +1689,8 @@ static void update_quantizer_histogram(struct stream_state *stream) {
 }
 
 static void get_cx_data(struct stream_state *stream,
-                        struct AvxEncoderConfig *global, int *got_data) {
+                        struct AvxEncoderConfig *global, int *got_data,
+                        size_t *frame_size) {
   const aom_codec_cx_pkt_t *pkt;
   const struct aom_codec_enc_cfg *cfg = &stream->config.cfg;
   aom_codec_iter_t iter = NULL;
@@ -1702,8 +1703,7 @@ static void get_cx_data(struct stream_state *stream,
     switch (pkt->kind) {
       case AOM_CODEC_CX_FRAME_PKT:
         ++stream->frames_out;
-        if (!global->quiet)
-          fprintf(stderr, " %6luF", (unsigned long)pkt->data.frame.sz);
+        *frame_size = pkt->data.frame.sz;
 
         update_rate_histogram(stream->rate_hist, cfg, pkt);
 #if CONFIG_WEBM_IO
@@ -1955,6 +1955,7 @@ int main(int argc, const char **argv_) {
   int stream_cnt = 0;
   int res = 0;
   int profile_updated = 0;
+  size_t frame_size = 0;
 
   memset(&input, 0, sizeof(input));
   memset(&raw, 0, sizeof(raw));
@@ -2394,6 +2395,8 @@ int main(int argc, const char **argv_) {
                   cx_time > 9999999 ? "ms" : "us", fps >= 1.0 ? fps : fps * 60,
                   fps >= 1.0 ? "fps" : "fpm");
           print_time("ETA", estimated_time_left);
+
+          if (frame_size > 0) fprintf(stderr, " %6luF", (unsigned long)frame_size);
           // mingw-w64 gcc does not match msvc for stderr buffering behavior
           // and uses line buffering, thus the progress output is not
           // real-time. The fflush() is here to make sure the progress output
@@ -2445,7 +2448,7 @@ int main(int argc, const char **argv_) {
 
         got_data = 0;
         FOREACH_STREAM(stream, streams) {
-          get_cx_data(stream, &global, &got_data);
+          get_cx_data(stream, &global, &got_data, &frame_size);
         }
 
         if (!got_data && input.length && streams != NULL &&
