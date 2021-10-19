@@ -1184,6 +1184,9 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   (void)is_720p_or_larger;  // Not used so far
 
   if (!is_360p_or_larger) {
+    if (speed >= 5) {
+      sf->winner_mode_sf.winner_mode_ifs = 1;
+    }
     if (speed >= 6) sf->rt_sf.force_tx_search_off = 1;
     if (speed >= 7) sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
     if (speed >= 8) {
@@ -1801,6 +1804,7 @@ static AOM_INLINE void init_winner_mode_sf(
   winner_mode_sf->enable_winner_mode_for_use_tx_domain_dist = 0;
   winner_mode_sf->multi_winner_mode_type = 0;
   winner_mode_sf->dc_blk_pred_level = 0;
+  winner_mode_sf->winner_mode_ifs = 0;
 }
 
 static AOM_INLINE void init_lpf_sf(LOOP_FILTER_SPEED_FEATURES *lpf_sf) {
