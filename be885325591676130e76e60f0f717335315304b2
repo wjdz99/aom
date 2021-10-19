@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df01f087_8fc831c7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2381,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-10-19T16:49:22Z",
+      "side": 1,
+      "message": "The macro can also be cleaned up (the same for many functions below).",
+      "range": {
+        "startLine": 2377,
+        "startChar": 0,
+        "endLine": 2381,
+        "endChar": 35
+      },
+      "revId": "be885325591676130e76e60f0f717335315304b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48629b37_9b0f50a8",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-10-19T16:49:22Z",
+      "side": 1,
+      "message": "The macro can be cleaned up.",
+      "range": {
+        "startLine": 720,
+        "startChar": 0,
+        "endLine": 724,
+        "endChar": 35
+      },
+      "revId": "be885325591676130e76e60f0f717335315304b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
