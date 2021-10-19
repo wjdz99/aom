@@ -55,6 +55,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "76228b6a_17fc6b15",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1062,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T20:58:20Z",
+      "side": 1,
+      "message": "I used the name INVALID_MV_ROW_COL that you suggested because it is shorter.",
+      "parentUuid": "dd019512_d4691803",
+      "revId": "6412f48adf6704a016e07df589d118baad3e7dfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ba689bf3_129fbecc",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 2
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "May be define a new constant?\n#define INVALID_MV_ROW_COL -32768",
       "parentUuid": "ba689bf3_129fbecc",
+      "revId": "6412f48adf6704a016e07df589d118baad3e7dfc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cd63fc1_b7556e3c",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T20:58:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b53dbab0_812db946",
       "revId": "6412f48adf6704a016e07df589d118baad3e7dfc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
