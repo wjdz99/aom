@@ -33,7 +33,7 @@ typedef struct {
   int distance;
   int disp_order;
   int pyr_level;
-  int n_named_refs;
+  int base_qindex;
 } RefScoreData;
 /*!\endcond */
 
@@ -59,21 +59,24 @@ static int is_in_ref_score(RefScoreData *map, int disp_order, int score,
   return 0;
 }
 
+#if 0
 static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
                             int cur_frame_disp) {
-  const int low_level_frames_thresh = 5;
-  int max_dist = 0;
+  // const int low_level_frames_thresh = 5;
   int unmapped_idx = INVALID_IDX;
   int min_level = INT_MAX;
-  int n_min_level_refs = 0;
   if (n_bufs < INTER_REFS_PER_FRAME_NRS) return unmapped_idx;
   for (int i = n_bufs - 1; i >= 0; i--)
     if (scores[i].pyr_level < min_level) min_level = scores[i].pyr_level;
-  for (int i = n_bufs - 1; i >= 0; i--)
-    if (scores[i].pyr_level == min_level) n_min_level_refs++;
+
+  // int n_min_level_refs = 0;
+  // for (int i = n_bufs - 1; i >= 0; i--)
+  //   if (scores[i].pyr_level == min_level) n_min_level_refs++;
+
+  int max_dist = 0;
   for (int i = 0; i < n_bufs; i++) {
-    if (scores[i].pyr_level != min_level ||
-        n_min_level_refs >= low_level_frames_thresh) {
+    if (scores[i].pyr_level == min_level ||
+        0 /*n_min_level_refs >= low_level_frames_thresh*/) {
       int dist = abs(cur_frame_disp - scores[i].disp_order);
       if (dist > max_dist) {
         max_dist = dist;
@@ -81,9 +84,39 @@ static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
       }
     }
   }
-  assert(unmapped_idx >= 0 && "Unmapped reference not found");
   return unmapped_idx;
 }
+#else
+static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
+                            int cur_frame_disp) {
+  // const int low_level_frames_thresh = 5;
+  int unmapped_idx = INVALID_IDX;
+  if (n_bufs < INTER_REFS_PER_FRAME_NRS) return unmapped_idx;
+
+  int min_q = INT_MAX;
+  int max_q = INT_MIN;
+  for (int i = n_bufs - 1; i >= 0; i--) {
+    min_q = AOMMIN(min_q, scores[i].base_qindex);
+    max_q = AOMMAX(max_q, scores[i].base_qindex);
+  }
+  const int q_thresh = (max_q * 3 + min_q + 2) / 4;
+  // int n_min_level_refs = 0;
+  // for (int i = n_bufs - 1; i >= 0; i--)
+  //   if (scores[i].base_qindex >= q_thresh) n_min_level_refs++;
+
+  int max_dist = 0;
+  for (int i = 0; i < n_bufs; i++) {
+    if (scores[i].base_qindex >= q_thresh) {
+      int dist = abs(cur_frame_disp - scores[i].disp_order);
+      if (dist > max_dist) {
+        max_dist = dist;
+        unmapped_idx = i;
+      }
+    }
+  }
+  return unmapped_idx;
+}
+#endif
 
 #define JOINT_DIST_QINDEX_ORDERING 1
 void av1_get_ref_frames_nrs(AV1_COMMON *cm, int cur_frame_disp,
@@ -121,6 +154,7 @@ void av1_get_ref_frames_nrs(AV1_COMMON *cm, int cur_frame_disp,
     scores[n_ranked].distance = disp_diff;
     scores[n_ranked].disp_order = ref_disp;
     scores[n_ranked].pyr_level = ref_frame_level;
+    scores[n_ranked].base_qindex = ref_base_qindex;
     n_ranked++;
   }
   const int unmapped_idx = get_unmapped_ref(scores, n_ranked, cur_frame_disp);
