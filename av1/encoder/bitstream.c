@@ -386,6 +386,16 @@ static int write_skip_mode(const AV1_COMMON *cm, const MACROBLOCKD *xd,
     return 0;
   }
   const int ctx = av1_get_skip_mode_context(xd);
+#if 1
+#if CONFIG_NEW_REF_SIGNALING
+  if (skip_mode)
+    fprintf(stderr, "r0 %d r1 %d\n", mi->ref_frame_nrs[0],
+            mi->ref_frame_nrs[1]);
+#else
+  if (skip_mode)
+    fprintf(stderr, "r0 %d r1 %d\n", mi->ref_frame[0], mi->ref_frame[1]);
+#endif
+#endif
   aom_write_symbol(w, skip_mode, xd->tile_ctx->skip_mode_cdfs[ctx], 2);
   return skip_mode;
 }
