@@ -5474,8 +5474,8 @@ static int read_uncompressed_header(AV1Decoder *pbi,
                             current_frame->frame_type == KEY_FRAME);
         }
       }
-      av1_init_new_ref_frame_map(cm, ref_frame_map_pairs,
-                                 current_frame->display_order_hint);
+      av1_get_ref_frames_nrs(cm, current_frame->display_order_hint,
+                             ref_frame_map_pairs);
 #else
       int frame_refs_short_signaling = 0;
       // Frame refs short signaling is off when error resilient mode is on.
