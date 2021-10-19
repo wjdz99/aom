@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dfba0e6a_a452e443",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 497,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-10-19T16:48:58Z",
+      "side": 1,
+      "message": "Do we also want to clean up the macro here?",
+      "range": {
+        "startLine": 493,
+        "startChar": 0,
+        "endLine": 497,
+        "endChar": 35
+      },
+      "revId": "455b474faed70c2a9fb17b368c64bd0bd300d666",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b218720_11ad40ff",
+        "filename": "av1/common/mvref_common.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 537,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-10-19T16:48:58Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 533,
+        "startChar": 0,
+        "endLine": 537,
+        "endChar": 35
+      },
+      "revId": "455b474faed70c2a9fb17b368c64bd0bd300d666",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc8e5e65_ff885229",
+        "filename": "av1/decoder/decodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2488,
+      "author": {
+        "id": 7230
+      },
+      "writtenOn": "2021-10-19T16:48:58Z",
+      "side": 1,
+      "message": "clean up the macro?",
+      "range": {
+        "startLine": 2484,
+        "startChar": 0,
+        "endLine": 2488,
+        "endChar": 35
+      },
+      "revId": "455b474faed70c2a9fb17b368c64bd0bd300d666",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
