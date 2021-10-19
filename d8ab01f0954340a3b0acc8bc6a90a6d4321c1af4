@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88581e76_ab15b553",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-10-19T22:04:47Z",
+      "side": 1,
+      "message": "Looks like this fixed the issue.\n\nJames, originally it was\n#ifndef SIMD_INLINE\n#define SIMD_INLINE static AOM_FORCE_INLINE\n#endif\n\n#undef SIMD_INLINE\n#define SIMD_INLINE static inline\n\nNow it changes to:\n#undef SIMD_INLINE\n#define SIMD_INLINE static inline\n\n#ifndef SIMD_INLINE\n#define SIMD_INLINE static AOM_FORCE_INLINE\n#endif\n\nLooks the same to me?\n\nAlso, the issue only showed for test files instead of files in codec. Any ideas about it?\n\n",
+      "revId": "d8ab01f0954340a3b0acc8bc6a90a6d4321c1af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
