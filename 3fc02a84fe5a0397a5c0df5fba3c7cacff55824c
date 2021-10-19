@@ -16,6 +16,23 @@
       "message": "Hi Yunqing and Wan-Teh,\n\nThe structure MB_RD_RECORD is used to store a partition block\u0027s inter-mode txfm results under use_mb_rd_hash sf. Hence, this patch allocates the memory for MB_RD_RECORD conditionally using the sf use_mb_rd_hash. And also as a part of clean-up, we have removed  prototypes of the structures RD_RECORD_IDX_NODE and TxbRdRecords and the code related to TxbRdRecords is cleaned-up.\n\nWe have also introduced an assert to check inter block in tx_type_rd(), which was missed during the below patch submission.\nhttps://aomedia-review.googlesource.com/c/aom/+/146161/2/av1/encoder/tx_search.c#b2641\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe observed ~0.33% heap memory reduction for AVIF encode with cpu-used 6 and 4 threads for 360p-720p resolutions.\n\nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./avifenc …\n\nPlease review this patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37802061_55218109",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T00:14:15Z",
+      "side": 1,
+      "message": "Chi Yo, Fyodor: Please review. Thanks!",
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
