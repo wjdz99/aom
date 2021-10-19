@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "c2fc7fd4_3273efab",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T00:51:30Z",
+      "side": 1,
+      "message": "Nit/optional: prototypes \u003d\u003e definitions ?\n\nIn C, the word \"prototype\" is usually used with a function.",
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "786db22d_a34e5fbe",
@@ -31,6 +48,115 @@
       "writtenOn": "2021-10-19T00:14:15Z",
       "side": 1,
       "message": "Chi Yo, Fyodor: Please review. Thanks!",
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b55ca470_85ea7a6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T00:51:30Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nI suggest moving the cleanup changes in this CL into two new CLs.\n\nThe first one covers these two simple changes:\n1. Add back an assertion that was accidentally deleted from tx_type_rd() in https://aomedia-review.googlesource.com/c/aom/+/146161.\n2. Remove the definition of struct RD_RECORD_IDX_NODE, which is unused after https://aomedia-review.googlesource.com/c/aom/+/146161.\n\nThe second one removes struct TxbRdRecords.\n\nThen, this CL can focus on allocating MB_RD_RECORD conditionally.",
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "250e66c8_70cc2729",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T00:51:30Z",
+      "side": 1,
+      "message": "Nit: This doesn\u0027t really matter, but I am just curious why you added the word \"whole\" to this comment. Is it to contrast with a partial partition block?",
+      "range": {
+        "startLine": 252,
+        "startChar": 4,
+        "endLine": 252,
+        "endChar": 9
+      },
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f16dc51_9cf51a20",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T00:51:30Z",
+      "side": 1,
+      "message": "Nit: Also change \"txfm search\" to \"inter-mode txfm\" here?",
+      "range": {
+        "startLine": 255,
+        "startChar": 38,
+        "endLine": 255,
+        "endChar": 49
+      },
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cd097e4_22bdd19a",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T00:51:30Z",
+      "side": 1,
+      "message": "Nit: It seems better to name this field as \"mb_rd_records\" to imply that this is a dynamically-allocated array.",
+      "range": {
+        "startLine": 482,
+        "startChar": 16,
+        "endLine": 482,
+        "endChar": 28
+      },
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52dd951b_91924769",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-19T00:51:30Z",
+      "side": 1,
+      "message": "Declare this as const: const struct SPEED_FEATURES *sf,\n\nNote: It seems clearer to pass the two speed features than the whole \u0027sf\u0027 struct to this function.",
+      "range": {
+        "startLine": 428,
+        "startChar": 41,
+        "endLine": 428,
+        "endChar": 66
+      },
       "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
