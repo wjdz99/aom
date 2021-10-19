@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "088c9508_ad3c8f09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-10-19T13:36:21Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch extends the speed feature dc_blk_pred_level to speed 4 for non-boosted frames. Please note that the clip blue_sky_480p25 has the worst quality drop of 1.7%. On investigating this, we found that this is due to the change in the GOP length , which is decided based on TPL stats. The quality drop does not seem to be caused by the extension of the SF, directly.\n\nPlease find below detailed borg result.\n\n                  Instruction Count          BD-Rate Loss(%)\ncpu   Resolution   Reduction(%)       avg.psnr   ovr.psnr  ssim   \n4       LOWRES2      1.037            -0.0181    -0.0312   -0.0069 \n4       MIDRES2      0.951            -0.0320    0.0017    -0.0105  \n4       HDRES2       0.994            0.0187     -0.1209   -0.0152  \n4       Average      0.994            -0.0128    -0.0538   -0.0114 \n\nIn the commit message : \n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n\nWe have verified that the patch in bit exact for other speed presets. \nPlease review the patch. \n\nThanks,\nAkshata",
+      "revId": "0967df31ceeed2f14c0a5a2ccbcc1ea9591d1669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
