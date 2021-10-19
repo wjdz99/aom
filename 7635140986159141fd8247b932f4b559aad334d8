@@ -111,6 +111,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d27c9411_68b49f14",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d371159c_fc442bfc",
+      "range": {
+        "startLine": 645,
+        "startChar": 45,
+        "endLine": 645,
+        "endChar": 52
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31b12c41_c20350b0",
@@ -124,6 +148,24 @@
       "writtenOn": "2021-10-15T22:46:21Z",
       "side": 1,
       "message": "I am just wondering why we check if extra_cfg-\u003etwo_pass_output is a null pointer, but we don\u0027t check extra_cfg-\u003esecond_pass_file below.",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1db283e8_bab198a4",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "I think it is because oxcf-\u003etwo_pass_output can be set by aomenc too. And it we further specify it in extra_cfg, here we override it if it is provided via API. For second_pass_file we don\u0027t set this value in aomenc, so we don\u0027t need to check it.",
+      "parentUuid": "31b12c41_c20350b0",
       "revId": "7635140986159141fd8247b932f4b559aad334d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -151,6 +193,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "56039464_38049bff",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3205,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3c9ff35_7faf18d2",
+      "range": {
+        "startLine": 3205,
+        "startChar": 21,
+        "endLine": 3205,
+        "endChar": 29
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5c7ef19e_b7df64a4",
@@ -168,6 +234,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "acc5e905_edca1c52",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 3207,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c7ef19e_b7df64a4",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2b88b8b8_d3d75839",
@@ -181,6 +265,30 @@
       "writtenOn": "2021-10-15T22:46:21Z",
       "side": 1,
       "message": "Nit: \"Note down\" sounds a little strange. Perhaps \"Note\" or \"Write down\" or just \"Write\"?",
+      "range": {
+        "startLine": 311,
+        "startChar": 7,
+        "endLine": 311,
+        "endChar": 16
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "05d935f1_3998a344",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b88b8b8_d3d75839",
       "range": {
         "startLine": 311,
         "startChar": 7,
@@ -214,6 +322,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9fe2fcd2_b1fa08c0",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80a6b6bc_4b09118c",
+      "range": {
+        "startLine": 316,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 5
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "44d50499_cf127859",
@@ -231,6 +363,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f38f9593_b862efce",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44d50499_cf127859",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9f57d4e3_65b5b16c",
@@ -244,6 +394,24 @@
       "writtenOn": "2021-10-15T22:46:21Z",
       "side": 1,
       "message": "Please see my suggested change at line 311.",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c0c4502_ac987674",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f57d4e3_65b5b16c",
       "revId": "7635140986159141fd8247b932f4b559aad334d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -271,6 +439,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ad9f50f_1937778a",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dea9d215_4d16894e",
+      "range": {
+        "startLine": 345,
+        "startChar": 0,
+        "endLine": 348,
+        "endChar": 5
+      },
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c626a33c_27ece5a2",
@@ -288,6 +480,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c9e02286_c022481a",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c626a33c_27ece5a2",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0138b657_82515062",
@@ -301,6 +511,24 @@
       "writtenOn": "2021-10-15T22:46:21Z",
       "side": 1,
       "message": "I am curious why you forward-declare struct AV1_COMP. Is it because this file cannot include av1/encoder/encoder.h?",
+      "revId": "7635140986159141fd8247b932f4b559aad334d8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a979ab38_b4e34d38",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-19T20:35:01Z",
+      "side": 1,
+      "message": "With this change it is ok to include encoder.h, but I remember in a later change where tpl was included, there was a problem including encoder.h, so I had to forward declare AV1_COMP here instead.",
+      "parentUuid": "0138b657_82515062",
       "revId": "7635140986159141fd8247b932f4b559aad334d8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
