@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16c3e453_2ba41cb1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-20T23:56:59Z",
+      "side": 1,
+      "message": "LGTM. I only made some minor edits.",
+      "revId": "a57ea2b7ff28b43339454ac072773ad96430aa5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb31be5f_152f8738",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-20T23:56:59Z",
+      "side": 1,
+      "message": "This function parameter probably should be renamed \"mb_rd_record\". I did not deal with this issue in this CL.",
+      "range": {
+        "startLine": 288,
+        "startChar": 53,
+        "endLine": 288,
+        "endChar": 66
+      },
+      "revId": "a57ea2b7ff28b43339454ac072773ad96430aa5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b354256c_a158552d",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3364,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-20T23:56:59Z",
+      "side": 1,
+      "message": "There are several comments like this that mention \"tx_rd_record\" in a function that does not have a variable/parameter by that name. I am wondering if we should change \"tx_rd_record\" to \"mb_rd_record\" in these comments. I did not deal with this issue in this CL.",
+      "range": {
+        "startLine": 3364,
+        "startChar": 39,
+        "endLine": 3364,
+        "endChar": 51
+      },
+      "revId": "a57ea2b7ff28b43339454ac072773ad96430aa5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
