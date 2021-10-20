@@ -4352,6 +4352,14 @@ static bool recursive_partition(AV1_COMP *const cpi, ThreadData *td,
     const int pyramid_level =
         cpi->ppi->gf_group.layer_depth[cpi->gf_frame_index];
     x->rdmult = orig_rdmult;
+    // Prepare simple motion search stats as features
+    unsigned int block_sse = -1;
+    unsigned int block_var = -1;
+    unsigned int sub_block_sse[4] = { -1, -1, -1, -1 };
+    unsigned int sub_block_var[4] = { -1, -1, -1, -1 };
+    av1_prepare_motion_search_features_block(cpi, td, tile_data, mi_row, mi_col,
+                                             bsize, &block_sse, &block_var,
+                                             sub_block_sse, sub_block_var);
     // Prepare tpl stats for the current block as features
     int64_t tpl_intra_cost = -1;
     int64_t tpl_inter_cost = -1;
