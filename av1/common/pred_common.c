@@ -32,7 +32,6 @@ typedef struct {
   int index;
   int distance;
   int disp_order;
-  int pyr_level;
   int base_qindex;
 } RefScoreData;
 /*!\endcond */
@@ -59,34 +58,6 @@ static int is_in_ref_score(RefScoreData *map, int disp_order, int score,
   return 0;
 }
 
-#if 0
-static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
-                            int cur_frame_disp) {
-  // const int low_level_frames_thresh = 5;
-  int unmapped_idx = INVALID_IDX;
-  int min_level = INT_MAX;
-  if (n_bufs < INTER_REFS_PER_FRAME_NRS) return unmapped_idx;
-  for (int i = n_bufs - 1; i >= 0; i--)
-    if (scores[i].pyr_level < min_level) min_level = scores[i].pyr_level;
-
-  // int n_min_level_refs = 0;
-  // for (int i = n_bufs - 1; i >= 0; i--)
-  //   if (scores[i].pyr_level == min_level) n_min_level_refs++;
-
-  int max_dist = 0;
-  for (int i = 0; i < n_bufs; i++) {
-    if (scores[i].pyr_level == min_level ||
-        0 /*n_min_level_refs >= low_level_frames_thresh*/) {
-      int dist = abs(cur_frame_disp - scores[i].disp_order);
-      if (dist > max_dist) {
-        max_dist = dist;
-        unmapped_idx = i;
-      }
-    }
-  }
-  return unmapped_idx;
-}
-#else
 static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
                             int cur_frame_disp) {
   // const int low_level_frames_thresh = 5;
@@ -99,10 +70,7 @@ static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
     min_q = AOMMIN(min_q, scores[i].base_qindex);
     max_q = AOMMAX(max_q, scores[i].base_qindex);
   }
-  const int q_thresh = (max_q * 3 + min_q + 2) / 4;
-  // int n_min_level_refs = 0;
-  // for (int i = n_bufs - 1; i >= 0; i--)
-  //   if (scores[i].base_qindex >= q_thresh) n_min_level_refs++;
+  const int q_thresh = (max_q * 7 + min_q + 4) / 8;
 
   int max_dist = 0;
   for (int i = 0; i < n_bufs; i++) {
@@ -116,7 +84,6 @@ static int get_unmapped_ref(RefScoreData *scores, int n_bufs,
   }
   return unmapped_idx;
 }
-#endif
 
 #define JOINT_DIST_QINDEX_ORDERING 1
 void av1_get_ref_frames_nrs(AV1_COMMON *cm, int cur_frame_disp,
@@ -135,7 +102,6 @@ void av1_get_ref_frames_nrs(AV1_COMMON *cm, int cur_frame_disp,
     if (cur_ref.disp_order == -1) continue;
     const int ref_disp = cur_ref.disp_order;
     const int ref_base_qindex = cur_ref.base_qindex;
-    const int ref_frame_level = cur_ref.pyr_level;
 
     // Sort frames based on distance from current frame and
     // qindex difference from current frame
@@ -153,12 +119,13 @@ void av1_get_ref_frames_nrs(AV1_COMMON *cm, int cur_frame_disp,
     scores[n_ranked].score = score;
     scores[n_ranked].distance = disp_diff;
     scores[n_ranked].disp_order = ref_disp;
-    scores[n_ranked].pyr_level = ref_frame_level;
     scores[n_ranked].base_qindex = ref_base_qindex;
     n_ranked++;
   }
-  const int unmapped_idx = get_unmapped_ref(scores, n_ranked, cur_frame_disp);
-  if (unmapped_idx != INVALID_IDX) scores[unmapped_idx].score = INT_MAX;
+  if (n_ranked > INTER_REFS_PER_FRAME_NRS) {
+    const int unmapped_idx = get_unmapped_ref(scores, n_ranked, cur_frame_disp);
+    if (unmapped_idx != INVALID_IDX) scores[unmapped_idx].score = INT_MAX;
+  }
 
   // Sort the references according to their score
   qsort(scores, n_ranked, sizeof(scores[0]), compare_score_data_asc);
