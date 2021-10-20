@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dd64ec48_838072a2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-20T04:59:28Z",
+      "side": 1,
+      "message": "try to break long lines in commit messages. In the body the length should be \u003c\u003d 72 (80 is ok too):\n\nhttps://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines",
+      "revId": "d8ab01f0954340a3b0acc8bc6a90a6d4321c1af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "88581e76_ab15b553",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -14,6 +31,41 @@
       "writtenOn": "2021-10-19T22:04:47Z",
       "side": 1,
       "message": "Looks like this fixed the issue.\n\nJames, originally it was\n#ifndef SIMD_INLINE\n#define SIMD_INLINE static AOM_FORCE_INLINE\n#endif\n\n#undef SIMD_INLINE\n#define SIMD_INLINE static inline\n\nNow it changes to:\n#undef SIMD_INLINE\n#define SIMD_INLINE static inline\n\n#ifndef SIMD_INLINE\n#define SIMD_INLINE static AOM_FORCE_INLINE\n#endif\n\nLooks the same to me?\n\nAlso, the issue only showed for test files instead of files in codec. Any ideas about it?\n\n",
+      "revId": "d8ab01f0954340a3b0acc8bc6a90a6d4321c1af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4263859c_aac13550",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-20T04:59:28Z",
+      "side": 1,
+      "message": "\u003e Looks like this fixed the issue.\n\u003e \n\u003e James, originally it was\n\u003e #ifndef SIMD_INLINE\n\u003e #define SIMD_INLINE static AOM_FORCE_INLINE\n\u003e #endif\n\u003e \n\u003e #undef SIMD_INLINE\n\u003e #define SIMD_INLINE static inline\n\u003e \n\u003e Now it changes to:\n\u003e #undef SIMD_INLINE\n\u003e #define SIMD_INLINE static inline\n\u003e \n\u003e #ifndef SIMD_INLINE\n\u003e #define SIMD_INLINE static AOM_FORCE_INLINE\n\u003e #endif\n\u003e \n\u003e Looks the same to me?\n\u003e \n\u003e Also, the issue only showed for test files instead of files in codec. Any ideas about it?\n\u003e \n\u003e \n\nI think it has to do with the structure of the test in that it\u0027s passing function pointers around with template supplied types. Forcing inline in that case won\u0027t make sense unless further compiler optimization passes are done to resolve the types.",
+      "parentUuid": "88581e76_ab15b553",
+      "revId": "d8ab01f0954340a3b0acc8bc6a90a6d4321c1af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1871d31_96b51bac",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-20T04:59:28Z",
+      "side": 1,
+      "message": "I think a comment should be added to indicate why this is being done similar to the previous one.",
       "revId": "d8ab01f0954340a3b0acc8bc6a90a6d4321c1af4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
