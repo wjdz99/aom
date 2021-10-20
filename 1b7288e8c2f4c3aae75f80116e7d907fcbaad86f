@@ -22,6 +22,30 @@
       },
       "revId": "1b7288e8c2f4c3aae75f80116e7d907fcbaad86f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f04cb223_4cf54fad",
+        "filename": "test/quantize_func_test.cc",
+        "patchSetId": 11
+      },
+      "lineNbr": 571,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-10-20T05:01:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9196332_1edd03d1",
+      "range": {
+        "startLine": 571,
+        "startChar": 4,
+        "endLine": 571,
+        "endChar": 13
+      },
+      "revId": "1b7288e8c2f4c3aae75f80116e7d907fcbaad86f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
