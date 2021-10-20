@@ -53,6 +53,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "198f7e8a_2f9e44b4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-10-20T18:39:07Z",
+      "side": 1,
+      "message": "Hi Robert, please address James\u0027s comments, and submit a new patchset for review.",
+      "revId": "d8ab01f0954340a3b0acc8bc6a90a6d4321c1af4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1871d31_96b51bac",
