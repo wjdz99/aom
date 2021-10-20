@@ -286,7 +286,7 @@ static MOTION_MODE read_motion_mode(AV1_COMMON *cm, MACROBLOCKD *xd,
 
 #if CONFIG_NEW_REF_SIGNALING
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed_nrs(
-      xd->global_motion_nrs, xd, mbmi, cm->features.allow_warped_motion);
+      xd->global_motion, xd, mbmi, cm->features.allow_warped_motion);
 #else
   const MOTION_MODE last_motion_mode_allowed = motion_mode_allowed(
       xd->global_motion, xd, mbmi, cm->features.allow_warped_motion);
@@ -1448,7 +1448,7 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_NEW_REF_SIGNALING
       // TODO(sarahparker) Temporary assert, see aomedia:3060
       mv[0].as_int =
-          gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs[0]],
+          gm_get_motion_vector(&cm->global_motion[ref_frame_nrs[0]],
                                features->fr_mv_precision, bsize, xd->mi_col,
                                xd->mi_row)
               .as_int;
@@ -1537,12 +1537,12 @@ static INLINE int assign_mv(AV1_COMMON *cm, MACROBLOCKD *xd,
 #if CONFIG_NEW_REF_SIGNALING
       // TODO(sarahparker) Temporary assert, see aomedia:3060
       mv[0].as_int =
-          gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs[0]],
+          gm_get_motion_vector(&cm->global_motion[ref_frame_nrs[0]],
                                features->fr_mv_precision, bsize, xd->mi_col,
                                xd->mi_row)
               .as_int;
       mv[1].as_int =
-          gm_get_motion_vector(&cm->global_motion_nrs[ref_frame_nrs[1]],
+          gm_get_motion_vector(&cm->global_motion[ref_frame_nrs[1]],
                                features->fr_mv_precision, bsize, xd->mi_col,
                                xd->mi_row)
               .as_int;
