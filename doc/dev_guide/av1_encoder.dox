@@ -278,7 +278,7 @@ and stored in the \ref AV1_COMP.speed field of the main compressor instance
 data structure (<b>cpi</b>).
 
 The control flags for the speed trade off are stored the \ref AV1_COMP.sf
-field of the compressor instancve and are set in the following functions:-
+field of the compressor instance and are set in the following functions:-
 
 - \ref av1_set_speed_features_framesize_independent()
 - \ref av1_set_speed_features_framesize_dependent()
