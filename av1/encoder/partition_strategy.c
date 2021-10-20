@@ -2364,6 +2364,44 @@ void av1_collect_motion_search_features_sb(AV1_COMP *const cpi, ThreadData *td,
   }
 }
 
+void av1_prepare_motion_search_features_block(
+    AV1_COMP *const cpi, ThreadData *td, TileDataEnc *tile_data,
+    const int mi_row, const int mi_col, const BLOCK_SIZE bsize,
+    unsigned int *block_sse, unsigned int *block_var,
+    unsigned int sub_block_sse[4], unsigned int sub_block_var[4]) {
+  const AV1_COMMON *const cm = &cpi->common;
+  if (frame_is_intra_only(cm)) return;
+  MACROBLOCK *const x = &td->mb;
+  SIMPLE_MOTION_DATA_TREE *sms_tree = NULL;
+  SIMPLE_MOTION_DATA_TREE *sms_root = setup_sms_tree(cpi, sms_tree);
+  TileInfo *const tile_info = &tile_data->tile_info;
+  av1_set_offsets_without_segment_id(cpi, tile_info, x, mi_row, mi_col, bsize);
+  av1_reset_simple_motion_tree_partition(sms_root, bsize);
+  const int ref_list[] = { cpi->rc.is_src_frame_alt_ref ? ALTREF_FRAME
+                                                        : LAST_FRAME };
+  simple_motion_search_get_best_ref(
+      cpi, x, sms_root, mi_row, mi_col, bsize, ref_list, /*num_refs=*/1,
+      /*use_subpixel=*/1, /*save_mv=*/1, block_sse, block_var);
+  if (block_size_wide[bsize] >= 8 &&
+      block_size_wide[bsize] == block_size_high[bsize]) {
+    const BLOCK_SIZE subsize = get_partition_subsize(bsize, PARTITION_SPLIT);
+    const int sub_mi_width = mi_size_wide[subsize];
+    const int sub_mi_height = sub_mi_width;
+    for (int i = 0; i < 4; ++i) {
+      const int row = mi_row + (i >> 1) * sub_mi_height;
+      const int col = mi_col + (i & 1) * sub_mi_width;
+      simple_motion_search_get_best_ref(cpi, x, sms_root, row, col, subsize,
+                                        ref_list, /*num_refs=*/1,
+                                        /*use_subpixel=*/1, /*save_mv=*/1,
+                                        &sub_block_sse[i], &sub_block_var[i]);
+    }
+  }
+  aom_free(sms_tree);
+  if (sms_tree != NULL) {
+    aom_free(sms_tree);
+    sms_tree = NULL;
+  }
+}
 #endif  // !CONFIG_REALTIME_ONLY
 
 static INLINE void init_simple_motion_search_mvs(
