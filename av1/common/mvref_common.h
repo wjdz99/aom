@@ -415,9 +415,6 @@ void av1_find_mv_refs(const AV1_COMMON *cm, const MACROBLOCKD *xd,
                       uint16_t ref_mv_weight[][MAX_REF_MV_STACK_SIZE],
                       int_mv mv_ref_list[][MAX_MV_REF_CANDIDATES],
                       int_mv *global_mvs,
-#if CONFIG_NEW_REF_SIGNALING
-                      int_mv *global_mvs_nrs,
-#endif  // CONFIG_NEW_REF_SIGNALING
                       int16_t *mode_context);
 #endif  // CONFIG_NEW_REF_SIGNALING
 
