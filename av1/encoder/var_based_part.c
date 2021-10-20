@@ -869,10 +869,16 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
         cpi->sf.rt_sf.nonrd_prune_ref_frame_search;
   }
 
-  set_ref_ptrs(cm, xd, mi->ref_frame[0], mi->ref_frame[1]);
-  av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL,
-                                cm->seq_params->sb_size, AOM_PLANE_Y,
-                                AOM_PLANE_Y);
+  // Only calculate the predictor for non-zero MV.
+  if (mi->mv[0].as_int != 0) {
+    // Only full_mv is used, so copy directly from the reference frame.
+    const uint8_t *pre = xd->plane[0].pre[0].buf +
+                         mi->mv[0].as_fullmv.row * xd->plane[0].pre[0].stride +
+                         mi->mv[0].as_fullmv.col;
+    int s = is_small_sb ? 64 : 128;
+    aom_convolve_copy(pre, xd->plane[0].pre[0].stride, xd->plane[0].dst.buf,
+                        xd->plane[0].dst.stride, s, s);
+  }
 }
 
 int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
@@ -974,8 +980,16 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   if (!is_key_frame) {
     setup_planes(cpi, x, &y_sad, &y_sad_g, &ref_frame_partition, mi_row,
                  mi_col);
-    d = xd->plane[0].dst.buf;
-    dp = xd->plane[0].dst.stride;
+
+    MB_MODE_INFO *mi = xd->mi[0];
+    // Use reference SB directly for zero mv.
+    if (mi->mv[0].as_int != 0) {
+      d = xd->plane[0].dst.buf;
+      dp = xd->plane[0].dst.stride;
+    } else {
+      d = xd->plane[0].pre[0].buf;
+      dp = xd->plane[0].pre[0].stride;
+    }
   } else {
     d = AV1_VAR_OFFS;
     dp = 0;
