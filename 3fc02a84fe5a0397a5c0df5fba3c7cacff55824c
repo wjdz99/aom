@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "330d822f_7e95118e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T12:00:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c2fc7fd4_3273efab",
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "786db22d_a34e5fbe",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -89,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0e14417b_a9224dc3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T12:00:55Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs per the suggestion, we have segregated the current CL into following CL\u0027s.\n\n1) https://aomedia-review.googlesource.com/c/aom/+/147504\n\nThis CL, removes unused structure definition \"RD_RECORD_IDX_NODE\" and reintroduces the assert check that was removed in an earlier patch related to hash cleanup.\n \n2) https://aomedia-review.googlesource.com/c/aom/+/147505\n\nThis CL, removes the structure definition of \"TxbRdRecords\" and cleans up the code related to the same.\n\n3) The current CL, handles changes corresponding to allocating memory for MB_RD_RECORD conditionally based on sf use_mb_rd_hash.",
+      "parentUuid": "49488527_ab62b056",
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "250e66c8_70cc2729",
         "filename": "av1/encoder/block.h",
         "patchSetId": 1
@@ -100,6 +136,30 @@
       "writtenOn": "2021-10-19T00:51:30Z",
       "side": 1,
       "message": "Nit: This doesn\u0027t really matter, but I am just curious why you added the word \"whole\" to this comment. Is it to contrast with a partial partition block?",
+      "range": {
+        "startLine": 252,
+        "startChar": 4,
+        "endLine": 252,
+        "endChar": 9
+      },
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38ca0bb2_c549bbe2",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T12:00:55Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs per our understanding, earlier hash logic correspoding to intra/inter stores records at txfm size/type level (partial partition block level), where as the hash records of MB_RD_RECORD are stored at partition level which consists whole txfm partition tree for the correspoding whole partition block. Currenlty, as hash records are not stored at partial partition block level we can remove whole word from comment, but we thought of keeping it for better understanding \n\nThanks\u0026 Regards,\nVenkata",
+      "parentUuid": "250e66c8_70cc2729",
       "range": {
         "startLine": 252,
         "startChar": 4,
@@ -133,6 +193,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62b01715_bd4d0dad",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T12:00:55Z",
+      "side": 1,
+      "message": "Done. This change is addressed in https://aomedia-review.googlesource.com/c/aom/+/147505/1/av1/encoder/block.h#255",
+      "parentUuid": "8f16dc51_9cf51a20",
+      "range": {
+        "startLine": 255,
+        "startChar": 38,
+        "endLine": 255,
+        "endChar": 49
+      },
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3cd097e4_22bdd19a",
@@ -156,6 +240,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a386b2a_452a8402",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 482,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T12:00:55Z",
+      "side": 1,
+      "message": "Done. This change is addressed in https://aomedia-review.googlesource.com/c/aom/+/147505/1/av1/encoder/block.h#482",
+      "parentUuid": "3cd097e4_22bdd19a",
+      "range": {
+        "startLine": 482,
+        "startChar": 16,
+        "endLine": 482,
+        "endChar": 28
+      },
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "52dd951b_91924769",
@@ -169,6 +277,30 @@
       "writtenOn": "2021-10-19T00:51:30Z",
       "side": 1,
       "message": "Declare this as const: const struct SPEED_FEATURES *sf,\n\nNote: It seems clearer to pass the two speed features than the whole \u0027sf\u0027 struct to this function.",
+      "range": {
+        "startLine": 428,
+        "startChar": 41,
+        "endLine": 428,
+        "endChar": 66
+      },
+      "revId": "3fc02a84fe5a0397a5c0df5fba3c7cacff55824c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2989e363_5da9cf82",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T12:00:55Z",
+      "side": 1,
+      "message": "As per the suggestion, passing 2 speed features as an arguments rather than passing whole sf structure.",
+      "parentUuid": "52dd951b_91924769",
       "range": {
         "startLine": 428,
         "startChar": 41,

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbe5236f_f018fbd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T12:00:55Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have modified the patch as per the suggestions and the current CL handles the changes related to the allocation of the structure MB_RD_RECORD based on the sf use_mb_rd_hash.\n\nAs a part of the CL, we wanted to change the function prototype of av1_alloc_mb_data() as  below (appropriate ordering of input and output arguments, using const qualifier)\n\n static AOM_INLINE void av1_alloc_mb_data(const struct AV1Common *const cm,\n                                         const int use_nonrd_pick_mode,\n                                         const int use_mb_rd_hash,\n                                         struct macroblock *const mb);\n\t\t\t\t\t\t\t\t\t\t \nHowever we did not pursue the same to maintain consistency with other function prototypes in the same file (eg, av1_set_fixed_partitioning(), av1_save_context(), av1_update_inter_mode_stats(), etc.). Please let us know if we need to take care of the above mentioned changes. \n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nFor AVIF encode, we have validated that cumulative heap memory reduction for 360p-720p resolutions is ~0.27%  (averaged across multiple runs) for cpu-used 6 with 4 threads.\n\nPlease review this patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "35bc82e0326947171ee6af8b2cce8b631b5a113f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
