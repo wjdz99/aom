@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16a5d531_58db9389",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-20T11:57:00Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe structure TxbRdRecords holds an instance of type MB_RD_RECORD. Hence, this CL removes the definition of TxbRdRecords structure and the code related to TxbRdRecords is cleaned-up.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nAs per the gerrit build of the patch, we saw “Code-Review-1” (non-blocking) for style-check due to comment change in block.h (line number: 255). As the build is successful, we submitted the patch for review.\n\nPlease let us know your opinion.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "fc89c3659051061d123020660a47ef3134c2295c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
