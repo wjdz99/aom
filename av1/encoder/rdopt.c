@@ -1325,8 +1325,8 @@ static AOM_INLINE void setup_buffer_ref_mvs_inter(
   // Gets an initial list of candidate vectors from neighbours and orders them
 #if CONFIG_NEW_REF_SIGNALING
   av1_find_mv_refs_nrs(cm, xd, mbmi, ref_frame_nrs, mbmi_ext->ref_mv_count,
-                       xd->ref_mv_stack, xd->weight, NULL,
-                       mbmi_ext->global_mvs, mbmi_ext->mode_context);
+                       xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                       mbmi_ext->mode_context);
 #else
   av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
                    xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
@@ -3086,11 +3086,7 @@ static AOM_INLINE void get_block_level_tpl_stats(
   AV1_COMMON *const cm = &cpi->common;
   assert(IMPLIES(gf_group->size > 0, gf_group->index < gf_group->size));
   const int tpl_idx = gf_group->index;
-#if CONFIG_NEW_REF_SIGNALING
-  TplParams *const tpl_data = &cpi->tpl_data_nrs;
-#else
   TplParams *const tpl_data = &cpi->tpl_data;
-#endif  // CONFIG_NEW_REF_SIGNALING
   const TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_idx];
   if (tpl_idx >= MAX_TPL_FRAME_IDX || !tpl_frame->is_valid) {
     return;
@@ -3561,11 +3557,7 @@ static int64_t handle_inter_mode(
 
   const GF_GROUP *const gf_group = &cpi->gf_group;
   const int tpl_idx = gf_group->index;
-#if CONFIG_NEW_REF_SIGNALING
-  TplDepFrame *tpl_frame = &cpi->tpl_data_nrs.tpl_frame[tpl_idx];
-#else
   TplDepFrame *tpl_frame = &cpi->tpl_data.tpl_frame[tpl_idx];
-#endif  // CONFIG_NEW_REF_SIGNALING
   const int prune_modes_based_on_tpl =
       cpi->sf.inter_sf.prune_inter_modes_based_on_tpl &&
       tpl_idx < MAX_TPL_FRAME_IDX && tpl_frame->is_valid;
@@ -3987,12 +3979,11 @@ static int64_t rd_pick_intrabc_mode_sb(const AV1_COMP *cpi, MACROBLOCK *x,
 #if CONFIG_NEW_REF_SIGNALING
   MV_REFERENCE_FRAME ref_frame_nrs = INTRA_FRAME_NRS;
   av1_find_mv_refs_nrs(cm, xd, mbmi, ref_frame_nrs, mbmi_ext->ref_mv_count,
-                       xd->ref_mv_stack, xd->weight, NULL,
-                       mbmi_ext->global_mvs, mbmi_ext->mode_context);
+                       xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                       mbmi_ext->mode_context);
 #else
-  av1_find_mv_refs(cm, xd, mbmi, ref_frame,
-                   mbmi_ext->ref_mv_count, xd->ref_mv_stack, xd->weight, NULL,
-                   mbmi_ext->global_mvs,
+  av1_find_mv_refs(cm, xd, mbmi, ref_frame, mbmi_ext->ref_mv_count,
+                   xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
                    mbmi_ext->mode_context);
 #endif  // CONFIG_NEW_REF_SIGNALING
   // TODO(Ravi): Populate mbmi_ext->ref_mv_stack[ref_frame][4] and
@@ -7170,11 +7161,7 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
   if (do_pruning && sf->intra_sf.skip_intra_in_interframe) {
     // Only consider full SB.
     const BLOCK_SIZE sb_size = cm->seq_params.sb_size;
-#if CONFIG_NEW_REF_SIGNALING
-    const int tpl_bsize_1d = cpi->tpl_data_nrs.tpl_bsize_1d;
-#else
     const int tpl_bsize_1d = cpi->tpl_data.tpl_bsize_1d;
-#endif  // CONFIG_NEW_REF_SIGNALING
     const int len = (block_size_wide[sb_size] / tpl_bsize_1d) *
                     (block_size_high[sb_size] / tpl_bsize_1d);
     SuperBlockEnc *sb_enc = &x->sb_enc;
