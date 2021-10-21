@@ -62,6 +62,30 @@
       },
       "revId": "a57ea2b7ff28b43339454ac072773ad96430aa5c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec309f11_ddeb6a71",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3364,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-21T13:29:09Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n \nRegarding the clean-up of comments/variable names, we will check the other places where the changes are needed and should plan for a patch with clean-up of the same.\n\nRegards,\nVenkata",
+      "parentUuid": "b354256c_a158552d",
+      "range": {
+        "startLine": 3364,
+        "startChar": 39,
+        "endLine": 3364,
+        "endChar": 51
+      },
+      "revId": "a57ea2b7ff28b43339454ac072773ad96430aa5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

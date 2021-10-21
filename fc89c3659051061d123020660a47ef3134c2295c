@@ -43,6 +43,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "4600a6e8_c1a55356",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-21T13:29:09Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe hash records gets stored are dependent on block residue. Hence, we shall modify this comment as ‘Hash records of the transform search results for \nthe partition block based on the residue’.\n\nRegards,\nVenkata",
+      "parentUuid": "8cbd4001_27710768",
+      "range": {
+        "startLine": 477,
+        "startChar": 5,
+        "endLine": 477,
+        "endChar": 71
+      },
+      "revId": "fc89c3659051061d123020660a47ef3134c2295c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "6d0fd19d_a77bfed8",
         "filename": "av1/encoder/block.h",
         "patchSetId": 1
