@@ -1416,9 +1416,10 @@ typedef struct RD_COUNTS {
   int64_t comp_pred_diff[REFERENCE_MODES];
   // Stores number of 4x4 blocks using global motion per reference frame.
 #if CONFIG_NEW_REF_SIGNALING
-  int global_motion_used_nrs[INTER_REFS_PER_FRAME_NRS];
-#endif  // CONFIG_NEW_REF_SIGNALING
+  int global_motion_used[INTER_REFS_PER_FRAME_NRS];
+#else
   int global_motion_used[REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
   int compound_ref_used_flag;
   int skip_mode_used_flag;
   int tx_type_used[TX_SIZES_ALL][TX_TYPES];
@@ -1734,21 +1735,16 @@ typedef struct {
    */
   int type_cost[TRANS_TYPES];
 
+  /*!
+   * Array to store the cost for signalling a particular global motion model for
+   * each reference frame. gmparams_cost[i] stores the cost of signalling global
+   * motion for the ith reference frame.
+   */
 #if CONFIG_NEW_REF_SIGNALING
-  /*!
-   * Array to store the cost for signalling a particular global motion model for
-   * each reference frame. gmparams_cost[i] stores the cost of signalling global
-   * motion for the ith reference frame.
-   */
-  int params_cost_nrs[INTER_REFS_PER_FRAME_NRS];
-#endif  // CONFIG_NEW_REF_SIGNALING
-
-  /*!
-   * Array to store the cost for signalling a particular global motion model for
-   * each reference frame. gmparams_cost[i] stores the cost of signalling global
-   * motion for the ith reference frame.
-   */
+  int params_cost[INTER_REFS_PER_FRAME_NRS];
+#else
   int params_cost[REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
 
   /*!
    * Flag to indicate if global motion search needs to be rerun.

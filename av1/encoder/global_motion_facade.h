@@ -18,9 +18,13 @@ extern "C" {
 struct yv12_buffer_config;
 struct AV1_COMP;
 
+void av1_compute_gm_for_valid_ref_frames(
+    AV1_COMP *cpi,
 #if CONFIG_NEW_REF_SIGNALING
-void av1_compute_gm_for_valid_ref_frames_nrs(
-    AV1_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME_NRS],
+    YV12_BUFFER_CONFIG *ref_buf[INTER_REFS_PER_FRAME_NRS],
+#else
+    YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES],
+#endif  // CONFIG_NEW_REF_SIGNALING
     int frame,
 #if CONFIG_GM_MODEL_CODING
     int *base_frame,
@@ -28,7 +32,6 @@ void av1_compute_gm_for_valid_ref_frames_nrs(
     int num_src_corners, int *src_corners, unsigned char *src_buffer,
     MotionModel *params_by_motion, uint8_t *segment_map, int segment_map_w,
     int segment_map_h);
-#endif  // CONFIG_NEW_REF_SIGNALING
 
 void av1_compute_gm_for_valid_ref_frames(
     struct AV1_COMP *cpi, YV12_BUFFER_CONFIG *ref_buf[REF_FRAMES], int frame,
