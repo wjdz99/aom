@@ -295,7 +295,7 @@ static void set_allintra_speed_feature_framesize_dependent(
 }
 
 static void set_allintra_speed_features_framesize_independent(
-    const AV1_COMP *const cpi, SPEED_FEATURES *const sf, int speed) {
+    AV1_COMP *const cpi, SPEED_FEATURES *const sf, int speed) {
   const AV1_COMMON *const cm = &cpi->common;
   const int allow_screen_content_tools =
       cm->features.allow_screen_content_tools;
@@ -516,6 +516,11 @@ static void set_allintra_speed_features_framesize_independent(
   }
 
   if (speed >= 9) {
+    cpi->oxcf.cost_upd_freq.coeff = COST_UPD_TILE;
+    cpi->oxcf.cost_upd_freq.mode = COST_UPD_TILE;
+    cpi->oxcf.cost_upd_freq.mv = COST_UPD_TILE;
+    cpi->oxcf.cost_upd_freq.dv = COST_UPD_TILE;
+
     sf->rt_sf.nonrd_check_partition_merge_mode = 0;
     sf->rt_sf.hybrid_intra_pickmode = 0;
   }
