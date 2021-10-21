@@ -3150,16 +3150,19 @@ static int selective_disable_cdf_rtc(AV1_COMP *cpi) {
       cpi->svc.number_temporal_layers == 1) {
     // Don't disable on intra_only, scene change (high_source_sad = 1),
     // or resized frame. Don't disable for some consecutive frames after
-    // key, or for some consecutive frames before the golden_refresh
-    // (cpi->rc.frames_till_gf_update_due < 6).
+    // key, and for frames where there is big content/motion change
+    // (i.e., large avg_source_sad), with some minium separation.
     // To avoid quality loss for now, force enable at every x frames.
     if (frame_is_intra_only(cm) || is_frame_resize_pending(cpi) ||
         rc->high_source_sad || rc->frames_since_key < 10 ||
-        rc->frames_till_gf_update_due < 5 ||
-        cm->current_frame.frame_number % 10 == 0)
+        (rc->avg_source_sad > 25000 &&
+         cm->current_frame.frame_number - rc->last_update_cdf2 > 5) ||
+        cm->current_frame.frame_number % 10 == 0) {
+      rc->last_update_cdf2 = cm->current_frame.frame_number;
       return 0;
-    else
+    } else {
       return 1;
+    }
   } else if (cpi->svc.number_temporal_layers > 1) {
     // Disable only on top temporal enhancement layer for now.
     return cpi->svc.temporal_layer_id == cpi->svc.number_temporal_layers - 1;
