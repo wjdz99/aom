@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "87611835_24bafbfe",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1349,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-21T19:06:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c084bf11_7eb261d9",
+      "revId": "232cb14bf8eb34e4c148bc172c75df13f2425cc9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4e6fcec_d799ce9d",
@@ -65,6 +83,24 @@
       "writtenOn": "2021-10-15T00:31:08Z",
       "side": 1,
       "message": "IMPORTANT: I still believe the behavior is changed when for_psnr is true.\n\nThe original code allocates cpi-\u003escaled_source with the dimensions cm-\u003ewidth and cm-\u003eheight at line 377 in av1/encoder/encoder_alloc.h, whether for_psnr is true or not. The new code will allocate cpi-\u003escaled_source with the dimensions cm-\u003esuperres_upscaled_width and cm-\u003esuperres_upscaled_height when for_psnr is true. Isn\u0027t the behavior changed?\n\nIn addition, if encode_show_existing_frame(cm) is true, the following code is called before we arrive here:\n\n    if (is_psnr_calc_enabled(cpi)) {\n      cpi-\u003esource \u003d\n          realloc_and_scale_source(cpi, cm-\u003ecur_frame-\u003ebuf.y_crop_width,\n                                   cm-\u003ecur_frame-\u003ebuf.y_crop_height);\n    }\n   \nIn this case cpi-\u003escaled_source has been allocated with the dimensions cm-\u003ecur_frame-\u003ebuf.y_crop_width and cm-\u003ecur_frame-\u003ebuf.y_crop_height. Are cm-\u003esuperres_upscaled_width and cm-\u003esuperres_upscaled_height equal to cm-\u003ecur_frame-\u003ebuf.y_crop_width and cm-\u003ecur_frame-\u003ebuf.y_crop_height? If they are different, then this CL also changes the behavior in this case.\n\nI analyzed the code carefully but I am not familiar with this part of libaom. Is there an error in my analysis?\n\nNote: I noticed that realloc_and_scale_source() passes AOM_BORDER_IN_PIXELS to aom_realloc_frame_buffer(). If cpi-\u003eoxcf.border_in_pixels is not equal to AOM_BORDER_IN_PIXELS, then this is another change of behavior. Please see my comment at line 1064 below.",
+      "revId": "232cb14bf8eb34e4c148bc172c75df13f2425cc9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5e2ec71_c4e72c11",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1351,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-21T19:06:44Z",
+      "side": 1,
+      "message": "\u003e The original code allocates cpi-\u003escaled_source with the dimensions cm-\u003ewidth and cm-\u003eheight at line 377 in av1/encoder/encoder_alloc.h, whether for_psnr is true or not. The new code will allocate cpi-\u003escaled_source with the dimensions cm-\u003esuperres_upscaled_width and cm-\u003esuperres_upscaled_height when for_psnr is true. Isn\u0027t the behavior changed?\n\nThe behaviour will not change as the scaled source buffer is reallocated to superres upscaled dimensions in av1_superres_post_encode(). PFB our analysis for different configurations when for_psnr is true:\n\n1. When neither resize nor super-res is enabled: In this case, the PSNR calculation happens with the unscaled source buffer.\n2. When only resize is enabled: In this case, the coded dimensions (cm-\u003ewidth and cm-\u003eheight) are the same as scaled dimensions. Hence, scaling is done accordingly.\n3. When only superres is enabled: In this case, the coded dimensions (cm-\u003ewidth and cm-\u003eheight) are different from the superres upscaled dimensions, which in turn is equal to the unscaled source dimensions. Even though the allocation of scaled source buffer used to happen with the coded dimensions in the reference version, it was not being used for PSNR computation as scaling_required was false. In this CL, the allocation of scaled source will not happen in this case as the super-res upscaled dimensions are same as the unscaled source dimensions.\n4. When both superres and resize are enabled: In this case, the super-res upscaled dimensions will be equal to the resize dimensions. The scaled_source buffer is being reallocated to the superres upscaled dimensions by calling realloc_and_scale_source() from av1_superres_post_encode().Hence for PSNR calculation, scaling is done with the superres upscaled dimensions as the target dimensions. This behaviour is same as the parent version.\n\nWe have verified locally that the bit-streams and the PSNR outputs with this CL are matching those from the reference version for the above cases.\n\n\u003e In addition, if encode_show_existing_frame(cm) is true, the following code is called before we arrive here:\n\u003e    if (is_psnr_calc_enabled(cpi)) {\n\u003e      cpi-\u003esource \u003d\n\u003e          realloc_and_scale_source(cpi, cm-\u003ecur_frame-\u003ebuf.y_crop_width,\n\u003e                                   cm-\u003ecur_frame-\u003ebuf.y_crop_height);\n\u003e    }\n\u003e   \n\u003e In this case cpi-\u003escaled_source has been allocated with the dimensions cm\u003e\u003ecur_frame-\u003ebuf.y_crop_width and cm-\u003ecur_frame-\u003ebuf.y_crop_height. Are cm-\u003esuperres_upscaled_width and cm-\u003esuperres_upscaled_height equal to cm-\u003ecur_frame-\u003ebuf.y_crop_width and cm-\u003ecur_frame-\u003ebuf.y_crop_height? If they are different, then this CL also changes the behavior in this case.\n\nAs per our understanding, the values of cm-\u003ecur_frame-\u003ebuf.y_crop_width and cm-\u003ecur_frame-\u003ebuf.y_crop_height correspond to the dimensions of the unfiltered source frame buffer in this case. These values are equal to superres upscaled dimensions when superres is enabled. Hence this behaviour is consistent with av1_realloc_and_scale_if_required().\n\nPlease let us know your opinion on our understanding.",
+      "parentUuid": "e4e6fcec_d799ce9d",
       "revId": "232cb14bf8eb34e4c148bc172c75df13f2425cc9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "889d44f2_e06f97cc",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-21T19:06:44Z",
+      "side": 1,
+      "message": "As per our understanding, the value of cpi-\u003eoxcf.border_in_pixels will be equal to AOM_BORDER_IN_PIXELS when scaling is required. Hence, passing either of both will have the same effect.\n\nPlease let us know if we should replace cpi-\u003eoxcf.border_in_pixels with AOM_BORDER_IN_PIXELS.",
+      "parentUuid": "ec4f2698_34027f11",
+      "revId": "232cb14bf8eb34e4c148bc172c75df13f2425cc9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c0c0893_ccd8be4f",
@@ -99,6 +153,30 @@
       "writtenOn": "2021-10-15T00:31:08Z",
       "side": 1,
       "message": "Optional/later: This function only allocates the cpi-\u003etrial_frame_rst buffer now, so we can rename the function to be more exact. We can do this in a follow-up CL.",
+      "range": {
+        "startLine": 356,
+        "startChar": 23,
+        "endLine": 356,
+        "endChar": 47
+      },
+      "revId": "232cb14bf8eb34e4c148bc172c75df13f2425cc9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad33b60a_a55cff2d",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-21T19:06:44Z",
+      "side": 1,
+      "message": "Ack. We shall address this in a subsequent CL.",
+      "parentUuid": "1c0c0893_ccd8be4f",
       "range": {
         "startLine": 356,
         "startChar": 23,
