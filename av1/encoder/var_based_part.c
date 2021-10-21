@@ -931,7 +931,7 @@ static void fill_variance_tree_leaves(
 }
 
 static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
-                         unsigned int *y_sad_g,
+                         unsigned int *y_sad_g, unsigned int *y_sad_a,
                          MV_REFERENCE_FRAME *ref_frame_partition, int mi_row,
                          int mi_col) {
   AV1_COMMON *const cm = &cpi->common;
@@ -945,6 +945,7 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
   const YV12_BUFFER_CONFIG *yv12 = get_ref_frame_yv12_buf(cm, LAST_FRAME);
   assert(yv12 != NULL);
   const YV12_BUFFER_CONFIG *yv12_g = NULL;
+  const YV12_BUFFER_CONFIG *yv12_a = NULL;
 
   // For non-SVC GOLDEN is another temporal reference. Check if it should be
   // used as reference for partitioning.
@@ -954,6 +955,17 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
       av1_setup_pre_planes(xd, 0, yv12_g, mi_row, mi_col,
                            get_ref_scale_factors(cm, GOLDEN_FRAME), num_planes);
       *y_sad_g = cpi->ppi->fn_ptr[bsize].sdf(
+          x->plane[0].src.buf, x->plane[0].src.stride, xd->plane[0].pre[0].buf,
+          xd->plane[0].pre[0].stride);
+    }
+  }
+
+  if (!cpi->ppi->use_svc && (cpi->ref_frame_flags & AOM_ALT_FLAG)) {
+    yv12_a = get_ref_frame_yv12_buf(cm, ALTREF_FRAME);
+    if (yv12_a && yv12_a != yv12) {
+      av1_setup_pre_planes(xd, 0, yv12_a, mi_row, mi_col,
+                           get_ref_scale_factors(cm, ALTREF_FRAME), num_planes);
+      *y_sad_a = cpi->ppi->fn_ptr[bsize].sdf(
           x->plane[0].src.buf, x->plane[0].src.stride, xd->plane[0].pre[0].buf,
           xd->plane[0].pre[0].stride);
     }
@@ -988,6 +1000,14 @@ static void setup_planes(AV1_COMP *cpi, MACROBLOCK *x, unsigned int *y_sad,
     mi->mv[0].as_int = 0;
     *y_sad = *y_sad_g;
     *ref_frame_partition = GOLDEN_FRAME;
+    x->nonrd_prune_ref_frame_search = 0;
+  } else if (*y_sad_a < 0.9 * *y_sad) {
+    av1_setup_pre_planes(xd, 0, yv12_a, mi_row, mi_col,
+                         get_ref_scale_factors(cm, ALTREF_FRAME), num_planes);
+    mi->ref_frame[0] = ALTREF_FRAME;
+    mi->mv[0].as_int = 0;
+    *y_sad = *y_sad_a;
+    *ref_frame_partition = ALTREF_FRAME;
     x->nonrd_prune_ref_frame_search = 0;
   } else {
     *ref_frame_partition = LAST_FRAME;
@@ -1041,6 +1061,7 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
 
   unsigned int y_sad = UINT_MAX;
   unsigned int y_sad_g = UINT_MAX;
+  unsigned int y_sad_a = UINT_MAX;
   BLOCK_SIZE bsize = is_small_sb ? BLOCK_64X64 : BLOCK_128X128;
 
   // Ref frame used in partitioning.
@@ -1098,8 +1119,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   }
 
   if (!is_key_frame) {
-    setup_planes(cpi, x, &y_sad, &y_sad_g, &ref_frame_partition, mi_row,
-                 mi_col);
+    setup_planes(cpi, x, &y_sad, &y_sad_g, &y_sad_a, &ref_frame_partition,
+                 mi_row, mi_col);
     d = xd->plane[0].dst.buf;
     dp = xd->plane[0].dst.stride;
   } else {
