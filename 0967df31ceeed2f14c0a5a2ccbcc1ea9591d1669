@@ -33,6 +33,23 @@
       "message": "Hi Yunqing,\nPlease review the patch and let us know your inputs.\nRegards,\nAkshata",
       "revId": "0967df31ceeed2f14c0a5a2ccbcc1ea9591d1669",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21393ca2_666b618c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-10-22T23:35:22Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "0967df31ceeed2f14c0a5a2ccbcc1ea9591d1669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
