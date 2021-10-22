@@ -1122,13 +1122,16 @@ static AOM_INLINE void estimate_ref_frame_costs(
             ref_costs_comp[j][i] = prev_cost;
             if (j < n_refs - 1) {
               aom_cdf_prob ctx = av1_get_ref_pred_context_nrs(xd, j, n_refs);
+              const int bit_type = av1_get_compound_ref_bit_type(
+                  1, &cm->new_ref_frame_data, i, j);
               ref_costs_comp[i][j] +=
-                  mode_costs->compound_ref_cost[ctx][1][j - 1][1];
+                  mode_costs->compound_ref_cost[ctx][bit_type][j - 1][1];
               ref_costs_comp[j][i] +=
-                  mode_costs->compound_ref_cost[ctx][1][j - 1][1];
+                  mode_costs->compound_ref_cost[ctx][bit_type][j - 1][1];
               // Maintain the cost of sending a 0 bit for the 2nd reference to
               // be used in the next iteration.
-              prev_cost += mode_costs->compound_ref_cost[ctx][1][j - 1][0];
+              prev_cost +=
+                  mode_costs->compound_ref_cost[ctx][bit_type][j - 1][0];
             }
           }
         }
