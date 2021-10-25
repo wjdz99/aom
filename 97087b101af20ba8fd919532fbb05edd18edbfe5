@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b0702b3_bafb03d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-10-25T11:27:00Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nIn this CL, we have modified the comments and function/variable names w.r.t. the structure MB_RD_RECORD. This CL also removes an unused macro TX_SIZE_RD_RECORD_BUFFER_LEN.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.\n",
+      "revId": "97087b101af20ba8fd919532fbb05edd18edbfe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
