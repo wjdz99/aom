@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5eb7d132_5ba0ea08",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T20:02:05Z",
+      "side": 1,
+      "message": "LGTM. Thanks! I suggest a small change.",
+      "revId": "4f2859203ea2265d009b45d6c7ee9a3c0fca1ccc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a967f011_752b226e",
+        "filename": "test/simd_cmp_impl.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T20:02:05Z",
+      "side": 1,
+      "message": "Nit: No need to add the blank lines at line 19 and line 23.\n\nOptional: Do you think it would be clearer to place the comment before the #undef, like the following?\n\n// Inlining not forced for the compiler due to some tests calling\n// SIMD_INLINE functions via function pointers\n#undef SIMD_INLINE\n#define SIMD_INLINE static inline",
+      "revId": "4f2859203ea2265d009b45d6c7ee9a3c0fca1ccc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
