@@ -141,11 +141,10 @@ TEST_P(AVxFirstPassEncoderThreadTest, FirstPassStatsTest) {
   // 4. row_mt_=1 and threads=4
   // 5. row_mt_=1 and threads=8
 
-  // 4 comparisons will be made:
+  // 3 comparisons will be made:
   // 1. Between run 1 and run 2.
   // 2. Between run 2 and run 3.
-  // 3. Between run 3 and run 4.
-  // 4. Between run 4 and run 5.
+  // 3. Between run 4 and run 5.
 
   // Test row_mt_: 0 vs 1 at single thread case(threads = 1)
   cfg_.g_threads = 1;
@@ -182,13 +181,6 @@ TEST_P(AVxFirstPassEncoderThreadTest, FirstPassStatsTest) {
   cfg_.g_threads = 4;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 
-  // offset to the 3rd and 4th run
-  firstpass_stats.buf = reinterpret_cast<void *>(
-      reinterpret_cast<uint8_t *>(firstpass_stats_.buf) + single_run_sz * 2);
-
-  // Comparison 3 (between threads=2 and threads=4).
-  ASSERT_NO_FATAL_FAILURE(compare_fp_stats_md5(&firstpass_stats));
-
   cfg_.g_threads = 8;
   ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
 
@@ -196,7 +188,7 @@ TEST_P(AVxFirstPassEncoderThreadTest, FirstPassStatsTest) {
   firstpass_stats.buf = reinterpret_cast<void *>(
       reinterpret_cast<uint8_t *>(firstpass_stats_.buf) + single_run_sz * 3);
 
-  // Comparison 4 (between threads=4 and threads=8).
+  // Comparison 3 (between threads=4 and threads=8).
   compare_fp_stats_md5(&firstpass_stats);
 }
 #endif  // !CONFIG_REALTIME_ONLY
