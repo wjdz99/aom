@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "bda6153e_e0df2144",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T18:15:42Z",
+      "side": 1,
+      "message": "Nit: It would be good to provide examples of aomenc output before and after this CL in the commit message.",
+      "revId": "f36b63c9521542176072ed8a5641c3c67e6598dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "f68d726c_2a56926e",
@@ -14,6 +31,74 @@
       "writtenOn": "2021-10-22T09:33:01Z",
       "side": 1,
       "message": "Requesting review from reviewers of other nearby changes, please feel free to suggest other reviewers if they would be more relevant",
+      "revId": "f36b63c9521542176072ed8a5641c3c67e6598dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ada212ef_219f5108",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T18:15:42Z",
+      "side": 1,
+      "message": "Peter:\n\nThank you very much for the CL. I suggest a few small changes.",
+      "revId": "f36b63c9521542176072ed8a5641c3c67e6598dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8295675d_03341b7e",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1698,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T18:15:42Z",
+      "side": 1,
+      "message": "It is better to initialize the output parameter *frame_size to 0 here, so that we don\u0027t rely on the caller setting frame_size to 0 before calling this function.",
+      "revId": "f36b63c9521542176072ed8a5641c3c67e6598dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "88957616_3137fb19",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1738,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T18:15:42Z",
+      "side": 1,
+      "message": "Nit: I suggest moving line 1706 here, to make it clearer that *got_data and *frame_size are set at the same time.",
+      "revId": "f36b63c9521542176072ed8a5641c3c67e6598dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "363a771f_66bf0ef2",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2399,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T18:15:42Z",
+      "side": 1,
+      "message": "Please remove the \u0027unsigned long\u0027 typecast and print frame_size using the %zu format (for the size_t type, a C99 feature) instead of the %lu format.\n\nWhat does the \u0027F\u0027 at the end of \" %6luF\" stand for?",
       "revId": "f36b63c9521542176072ed8a5641c3c67e6598dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
