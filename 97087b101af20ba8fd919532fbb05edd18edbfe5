@@ -16,6 +16,46 @@
       "message": "Hi Wan-Teh,\n\nIn this CL, we have modified the comments and function/variable names w.r.t. the structure MB_RD_RECORD. This CL also removes an unused macro TX_SIZE_RD_RECORD_BUFFER_LEN.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.\n",
       "revId": "97087b101af20ba8fd919532fbb05edd18edbfe5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1acb85be_af766655",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T23:15:39Z",
+      "side": 1,
+      "message": "Chi Yo, Jingning: Please review. Thanks!",
+      "revId": "97087b101af20ba8fd919532fbb05edd18edbfe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db241da7_a967dc2d",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T23:15:39Z",
+      "side": 1,
+      "message": "Nit/optional: Consider moving this comment to the definition of struct MD_RD_RECORD at line 249.\n\nThe mb_rd_record member here points to a dynamically-allocated MD_RD_RECORD struct. So the description of struct MD_RD_RECORD should ideally be centralized at the definition of the struct.",
+      "range": {
+        "startLine": 477,
+        "startChar": 0,
+        "endLine": 479,
+        "endChar": 57
+      },
+      "revId": "97087b101af20ba8fd919532fbb05edd18edbfe5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
