@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "4acd081c_c4129d57",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-10-25T23:04:38Z",
+      "side": 1,
+      "message": "There are two more examples in av1/encoder/intra_mode_search_utils.h. Search for \"av1_use_angle_delta\" in av1/encoder/intra_mode_search_utils.h, you will see code like the following:\n\n  if (av1_is_directional_mode(mbmi-\u003emode)) {\n    if (av1_use_angle_delta(bsize)) {\n      total_rate +\u003d\n          ...\n    }\n  }\n\nShould we add \u0026\u0026 intra_mode_cfg-\u003eenable_angle_delta to the conditional expression of the inner if statement?",
+      "parentUuid": "1052a141_815949e1",
+      "revId": "202bf6e8605e7065e62a5223b1d16f8374e10aba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "7c65a1ab_0093ad78",
