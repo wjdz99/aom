@@ -1048,6 +1048,9 @@ typedef struct AV1EncoderConfig {
   // Indicates if row-based multi-threading should be enabled or not.
   bool row_mt;
 
+  // Indicates if frame parallel multi-threading should be disabled or not.
+  bool disable_fpmt;
+
   // Indicates if 16bit frame buffers are to be used i.e., the content is >
   // 8-bit.
   bool use_highbitdepth;
