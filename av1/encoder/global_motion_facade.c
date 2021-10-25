@@ -128,7 +128,7 @@ static AOM_INLINE void compute_global_motion_for_ref_frame(
 #if CONFIG_NEW_REF_SIGNALING
   const int ref_frame_dist = get_relative_dist(
       &cm->seq_params.order_hint_info, cm->current_frame.order_hint,
-      cm->cur_frame->ref_order_hints_nrs[frame]);
+      cm->cur_frame->ref_order_hints[frame]);
 #else
   const int ref_frame_dist = get_relative_dist(
       &cm->seq_params.order_hint_info, cm->current_frame.order_hint,
