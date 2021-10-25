@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "928b22b8_87728ffb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-10-25T17:51:26Z",
+      "side": 1,
+      "message": "the new system streamlines this into our regular coding settings. no need to run a separate path for its funcationality",
+      "parentUuid": "84121a82_ef39c5e7",
+      "revId": "e2fd71f598f91617dbc02ade841d3443d957eb12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "93cd0d32_a889d4de",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2021-10-25T17:32:34Z",
       "side": 1,
       "message": "I think you can add 2808, 2809, 2810 to this list.\nAdding FIXED\u003d or Fixed: with the entries might close the bug automatically. I don\u0027t know if this functionality is hooked up for our project.",
+      "revId": "e2fd71f598f91617dbc02ade841d3443d957eb12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d72f9f75_13ea8082",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-10-25T17:51:26Z",
+      "side": 1,
+      "message": "shall the format be like\nBUG\u003daomedia:2807,2080 ?",
+      "parentUuid": "93cd0d32_a889d4de",
       "revId": "e2fd71f598f91617dbc02ade841d3443d957eb12",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
