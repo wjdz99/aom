@@ -16,6 +16,24 @@
       "message": "There was an issue opened for this a little while ago that we decided not to move forward on:\nhttps://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3126#c1\n\nI think any choice is dependent on the use case, it\u0027s unlikely a default will suit everyone.",
       "revId": "5fb72658948a930bd9c3d3bf1a203487147e7d7f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e53f776_be048340",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21182
+      },
+      "writtenOn": "2021-10-25T23:55:05Z",
+      "side": 1,
+      "message": "I completely disagree on that.\n\n240/250 frames makes it so that any kind of stream at any kind of framerate will be able to seek decently in any kind of content.\n\nI think it\u0027s better to set a reasonable default: if someone wants to deviate from default, then they can change to a very high amount max-kf-dist or a very low amount.\n\nAn amount like 240/250 frames is therefore perfectly reasonable.",
+      "parentUuid": "8ad348fc_9f708ff7",
+      "revId": "5fb72658948a930bd9c3d3bf1a203487147e7d7f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
