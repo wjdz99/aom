@@ -3987,7 +3987,7 @@ static const aom_codec_enc_cfg_t encoder_usage_cfg[] = {
       0,                       // fwd_kf_enabled
       AOM_KF_AUTO,             // kf_mode
       0,                       // kf_min_dist
-      9999,                    // kf_max_dist
+      250,                     // kf_max_dist
       0,                       // sframe_dist
       1,                       // sframe_mode
       0,                       // large_scale_tile
