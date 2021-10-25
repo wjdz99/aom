@@ -102,14 +102,6 @@ static const int mode_threshold_mul_factor[QINDEX_RANGE] = {
   4144,  4120,  4096
 };
 
-#if CONFIG_NEW_REF_SIGNALING
-#define COMPACT_INDEX0_NRS(r) \
-  (((r) == INTRA_FRAME_NRS) ? INTRA_FRAME_INDEX_NRS : (r))
-
-#define COMPACT_INDEX1_NRS(r) \
-  (((r) == INTRA_FRAME_NRS || (r) == INVALID_IDX) ? INTRA_FRAME_INDEX_NRS : (r))
-#endif  // CONFIG_NEW_REF_SIGNALING
-
 #if !CONFIG_NEW_REF_SIGNALING
 #if CONFIG_NEW_INTER_MODES
 static const THR_MODES av1_default_mode_order[MAX_MODES] = {
@@ -1115,7 +1107,8 @@ static AOM_INLINE void estimate_ref_frame_costs(
             // Keep track of the cost to encode the first reference
             aom_cdf_prob ctx = av1_get_ref_pred_context_nrs(xd, j, n_refs);
             const int bit = i == j;
-            prev_cost += mode_costs->compound_ref_cost[ctx][0][j][bit];
+            if (j < n_refs - 2)
+              prev_cost += mode_costs->compound_ref_cost[ctx][0][j][bit];
           } else {
             // Assign the cost of signaling both references
             ref_costs_comp[i][j] = prev_cost;
@@ -2190,7 +2183,7 @@ static int64_t motion_mode_rd(
             cpi, bsize, x, xd, 0, num_planes - 1, &est_residue_cost, &est_dist,
             NULL, &curr_sse, NULL, NULL, NULL);
 #if CONFIG_NEW_REF_SIGNALING
-        sse_y = x->pred_sse[xd->mi[0]->ref_frame_nrs[0]];
+        sse_y = x->pred_sse[COMPACT_INDEX0_NRS(xd->mi[0]->ref_frame_nrs[0])];
 #else
         sse_y = x->pred_sse[xd->mi[0]->ref_frame[0]];
 #endif  // CONFIG_NEW_REF_SIGNALING
@@ -7393,7 +7386,8 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
           assert(IMPLIES(comp_pred,
                          cm->current_frame.reference_mode != SINGLE_REFERENCE));
 #if CONFIG_NEW_REF_SIGNALING
-          search_state.best_pred_sse = x->pred_sse[ref_frame_nrs];
+          search_state.best_pred_sse =
+              x->pred_sse[COMPACT_INDEX0_NRS(ref_frame_nrs)];
 #else
       search_state.best_pred_sse = x->pred_sse[ref_frame];
 #endif  // CONFIG_NEW_REF_SIGNALING
