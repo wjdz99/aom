@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84121a82_ef39c5e7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-25T17:32:34Z",
+      "side": 1,
+      "message": "does that mean there\u0027s another test configuration covering this or that we aren\u0027t concerned with this configuration?",
+      "revId": "e2fd71f598f91617dbc02ade841d3443d957eb12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93cd0d32_a889d4de",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-25T17:32:34Z",
+      "side": 1,
+      "message": "I think you can add 2808, 2809, 2810 to this list.\nAdding FIXED\u003d or Fixed: with the entries might close the bug automatically. I don\u0027t know if this functionality is hooked up for our project.",
+      "revId": "e2fd71f598f91617dbc02ade841d3443d957eb12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c2d0747_6929304f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-10-25T17:32:34Z",
+      "side": 1,
+      "message": "One of these tests just got reenabled. I know it has been a maintenance burden for something that isn\u0027t used. Deb, do you have an opinion?",
+      "revId": "e2fd71f598f91617dbc02ade841d3443d957eb12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
