@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "5bf43f86_7bbe6b91",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-26T15:11:07Z",
+      "side": 1,
+      "message": "This CL tries to reinstate the conditions based on ‘enable_angle_delta’ parameter which was introduced in the following CL: \nhttps://aomedia-review.googlesource.com/c/aom/+/77061\n\nWhen enable_angle_delta \u003d 0, the evaluation of delta angles for directional intra modes are prevented at the mode evaluation loop level. Hence, there is no need to keep additional checks based on ‘enable_angle_delta’ parameter as it is already ensured that the evaluation of delta angles are skipped by the time control comes to other places where av1_use_angle_delta() is used (for e.g. in intra_mode_info_cost_y() etc.)\n\nIn case of estimate_intra_mode(), which is present in nonrd_pickmode.c, only four intra modes are evaluated, namely DC_PRED, V_PRED, H_PRED and SMOOTH_PRED. Also, mi-\u003eangle_delta is not being set to a non-zero value anywhere during the mode evaluation. Hence, adding an additional check based on enable_angle_delta will not have any effect as non-zero angle deltas are not being evaluated currently. However, we see that similar checks seem to be absent for other tools (enable_smooth_intra, enable_directional_intra etc.) in estimate_intra_mode() and av1_nonrd_pick_intra_mode().",
+      "parentUuid": "4acd081c_c4129d57",
+      "revId": "202bf6e8605e7065e62a5223b1d16f8374e10aba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "7c65a1ab_0093ad78",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -66,6 +84,23 @@
       "writtenOn": "2021-10-25T22:46:14Z",
       "side": 1,
       "message": "Cheng, Fyodor: Please review. Thanks.\n\nJayasanker: I have a question for you in the commit message.",
+      "revId": "202bf6e8605e7065e62a5223b1d16f8374e10aba",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf700381_8d65e197",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-26T15:11:07Z",
+      "side": 1,
+      "message": "Please review.",
       "revId": "202bf6e8605e7065e62a5223b1d16f8374e10aba",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
