@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3da999e_1af031cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-10-26T15:34:07Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nAs per our study, the buffers mi_alloc, mi_grid_base and tx_type_map were allocated using aom_calloc() in av1_alloc_context_buffers(). The same buffers were being initialized with zero for each aom_codec_control() call which seems to be redundant. This CL removes these redundant initializations by removing the call to av1_init_mi_buffers() from av1_update_frame_size(). \n\nThe call stack of av1_init_mi_buffers() is given below:\n aom_codec_control() -\u003e update_extra_cfg() -\u003e av1_change_config() -\u003e av1_update_frame_size() -\u003e av1_init_mi_buffers()\n\nIn the parent version, the total number of memset() calls through aom_codec_control() (e.g., cpu-used, tile_rows2, tile_cols2, cq_level, etc.) is around 9-10 (varies depending on control time settings). These memset() calls are completely avoided in the current CL .\n \nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe validated the current patch for still-image encode and following are the encode time reduction results when AVIF encode was tested for a typical image dataset using borg setup.\n \nThe following shows that encode time reduction for different resolutions with speed \u003d9,\n                Encode Time\nResolution      Reduction(%)\n  768x512         2.650  \n  2048x1320      14.658 \n\u003e\u003d2376x1752       7.320 \n\nFrom the above, it is observed that the gains are more at higher resolutions which seems to be due to cache misses seen with larger buffer sizes. However the gains in case of resolutions \u003e\u003d2376x1752 are less when compared to that of 2048x1320, as the buffer size is small for few test-inputs in this case due to larger mi block size for higher resolutions (8x8), whereas default mi block size is 4x4.\n\nWe have also validated the speed numbers across different machine configurations/OS/gcc versions and observed that the results are as quoted (on average).\n\nPlease note that the speed/encode time reduction numbers mentioned are generated using patch-set 1. This CL has been rebased to the latest master and submitted as patch-set 2, to avoid the gerrit build failure seen in patch-set 1. We have also performed some sanity verification on the latest patch-set 2.\n\nPlease let us know your opinion on this patch and merge the same in case of no issues.\n\nThanks \u0026 Regards,\nAniket.\n",
+      "revId": "a03e578b6346fb690124d352e1f0ebc317956486",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
