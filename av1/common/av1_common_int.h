@@ -599,7 +599,7 @@ struct CommonModeInfoParams {
    * \param           height      frame height
    */
   void (*set_mb_mi)(struct CommonModeInfoParams *mi_params, int width,
-                    int height);
+                    int height, int mode);
   /**@}*/
 };
 
