@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2eff0449_7b392992",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-10-26T18:17:05Z",
+      "side": 1,
+      "message": "Thanks Wan-Teh for the review! I\u0027ve modified the parts you mentioned and the patch is up for review. ",
+      "revId": "36a2a43ed9885b8eb56c97dddcf1e7ed1f025946",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
