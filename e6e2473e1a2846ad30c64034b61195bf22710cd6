@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41e2e4b7_0e3dd3b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-10-27T16:09:42Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThe buffers \u0027tile_tok\u0027 and \u0027tplist\u0027 are used to store the information related to palette mode and are required only when screen content  tools are enabled. In the parent version, the memory allocation for these buffers happens during the init stage (in alloc_compressor_data()) by when the allow_screen_content_tools decision is not finalized. This CL delays the memory allocation for these buffers by moving them to the encode stage where it is allocated conditionally based on the allow_screen_content_tools flag.\n\nIn av1_determine_sc_tools_with_encoding(), a fast encoding is done with the screen content coding tools enabled. This could result in token related buffers being allocated even when the final decision after av1_determine_sc_tools_with_encoding() is not to enable screen content coding tools. To handle such situations, an extra call to free_token_info() is added towards the end of av1_determine_sc_tools_with_encoding() to free token related buffers if allow_screen_content_tools is false.\n\nThe speed-up mentioned in the commit message for AVIF image encode is with speed\u003d9, threads\u003d4 and it could be due to the calls to aom_calloc() from alloc_token_info() being avoided when screen content coding tools are not enabled.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe validated the heap memory reduction for speed\u003d6 as well. \nFor AVIF image encode with speed\u003d6 and threads\u003d4,\n\n                HEAP Memory\nResolution      reduction(%)\t  \n360p-720p          4.80     \n\nThis patch is also applicable for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes when screen content coding tools are not enabled.\n\nFor libaom \u0027RT\u0027 usage with cpu-used \u003d 5,\n\n                       HEAP Memory reduction(%)\n                        Single      Multi\nResolution    Tile      thread      thread\n640x360       2x1        3.16        2.78 (2 threads)\n832x480       2x1        3.35        3.11 (2 threads)\n1280x720      2x2        3.11        2.51 (4 threads)\n1920x1080     4x2        3.09        2.79 (8 threads)\n\nFor libaom \u0027GOOD\u0027 usage with cpu-used \u003d 6,\n\n                       HEAP Memory reduction(%)\n                        Single      Multi\nResolution    Tile      thread      thread\n640x360       2x1        1.04        1.01 (2 threads)\n832x480       2x1        1.03        1.04 (2 threads)\n1280x720      2x2        0.95        0.91 (4 threads)\n1920x1080     4x2        0.98        0.96 (8 threads)\n\nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "e6e2473e1a2846ad30c64034b61195bf22710cd6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
