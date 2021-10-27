@@ -436,11 +436,12 @@ static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
   TX_SIZE tx_size;
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
   if (txfm_params->tx_mode_search_type == TX_MODE_SELECT) {
-    if (sse > (var << 1))
+    if (sse > (var << 1)) {
       tx_size =
           AOMMIN(max_txsize_lookup[bsize],
                  tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
-    else
+      if (tx_size > TX_16X16 && !(sse > (var << 2))) tx_size = TX_16X16;
+    } else
       tx_size = TX_8X8;
 
     if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
@@ -454,10 +455,11 @@ static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
   }
 
-  if (txfm_params->tx_mode_search_type != ONLY_4X4 && bsize > BLOCK_32X32)
+  if (txfm_params->tx_mode_search_type != ONLY_4X4 && bsize > BLOCK_32X32 &&
+      tx_size < TX_16X16)
     tx_size = TX_16X16;
 
-  return AOMMIN(tx_size, TX_16X16);
+  return AOMMIN(tx_size, TX_32X32);
 }
 
 static const uint8_t b_width_log2_lookup[BLOCK_SIZES] = { 0, 0, 1, 1, 1, 2,
@@ -804,11 +806,14 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
           case TX_64X64:
             assert(0);  // Not implemented
             break;
-          case TX_32X32:
-            assert(0);  // Not used
-            break;
-
 #if CONFIG_AV1_HIGHBITDEPTH
+          case TX_32X32:
+            aom_hadamard_lp_32x32(src_diff, diff_stride, low_coeff);
+            av1_quantize_lp(low_coeff, 32 * 32, p->round_fp_QTX,
+                            p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
+                            p->dequant_QTX, eob, scan_order->scan,
+                            scan_order->iscan);
+            break;
           case TX_16X16:
             if (use_hbd) {
               aom_hadamard_16x16(src_diff, diff_stride, coeff);
@@ -856,6 +861,14 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
             }
             break;
 #else
+          case TX_32X32:
+            aom_hadamard_lp_32x32(src_diff, diff_stride, low_coeff);
+            av1_quantize_lp(low_coeff, 32 * 32, p->round_fp_QTX,
+                            p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
+                            p->dequant_QTX, eob, scan_order->scan,
+                            scan_order->iscan);
+            break;
+
           case TX_16X16:
             aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
             av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX,
