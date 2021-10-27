@@ -1311,6 +1311,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED;
   sf->mv_sf.search_method = boosted ? DIAMOND : FAST_DIAMOND;
 
+  sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
   sf->part_sf.default_max_partition_size = BLOCK_128X128;
   sf->part_sf.default_min_partition_size = BLOCK_8X8;
   sf->part_sf.ml_prune_partition = 1;
