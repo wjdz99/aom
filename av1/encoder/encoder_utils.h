@@ -86,18 +86,15 @@ static AOM_INLINE void enc_free_mi(CommonModeInfoParams *mi_params) {
 }
 
 static AOM_INLINE void enc_set_mb_mi(CommonModeInfoParams *mi_params, int width,
-                                     int height, int mode) {
+                                     int height) {
   const int is_4k_or_larger = AOMMIN(width, height) >= 2160;
-  const int is_realtime_mode = (mode == REALTIME);
-  mi_params->mi_alloc_bsize =
-      (is_4k_or_larger || is_realtime_mode) ? BLOCK_8X8 : BLOCK_4X4;
+  mi_params->mi_alloc_bsize = is_4k_or_larger ? BLOCK_8X8 : BLOCK_4X4;
 
   set_mb_mi(mi_params, width, height);
 }
 
 static AOM_INLINE void stat_stage_set_mb_mi(CommonModeInfoParams *mi_params,
-                                            int width, int height, int mode) {
-  (void)mode;
+                                            int width, int height) {
   mi_params->mi_alloc_bsize = BLOCK_16X16;
 
   set_mb_mi(mi_params, width, height);
