@@ -2248,6 +2248,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       ((cpi->oxcf.speed >= 9 && cpi->rc.avg_frame_low_motion > 70) ||
        cpi->sf.rt_sf.nonrd_agressive_skip);
   int skip_pred_mv = 0;
+  int skip_rdcost = 0;
   const int num_inter_modes =
       use_zeromv ? NUM_INTER_MODES_REDUCED : NUM_INTER_MODES_RT;
   const REF_MODE *const ref_mode_set =
@@ -2653,6 +2654,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (use_model_yrd_large) {
         model_skip_for_sb_y_large(cpi, bsize, mi_row, mi_col, x, xd, &this_rdc,
                                   &this_early_term, use_modeled_non_rd_cost);
+        if (this_early_term && idx == 0 && cpi->sf.rt_sf.nonrd_agressive_skip &&
+            cpi->sf.rt_sf.skip_intra_pred_if_tx_skip)
+          skip_rdcost = 1;
       } else {
         model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc,
                           use_modeled_non_rd_cost);
@@ -2674,7 +2678,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       this_rdc.rate = skip_txfm_cost;
       this_rdc.dist = this_rdc.sse << 4;
     } else {
-      if (use_modeled_non_rd_cost) {
+      if (use_modeled_non_rd_cost || skip_rdcost) {
         if (this_rdc.skip_txfm) {
           this_rdc.rate = skip_txfm_cost;
         } else {
@@ -2699,7 +2703,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           this_rdc.rate += no_skip_txfm_cost;
         }
       }
-      if ((x->color_sensitivity[0] || x->color_sensitivity[1])) {
+      if ((x->color_sensitivity[0] || x->color_sensitivity[1]) && !skip_rdcost) {
         RD_STATS rdc_uv;
         const BLOCK_SIZE uv_bsize = get_plane_block_size(
             bsize, xd->plane[1].subsampling_x, xd->plane[1].subsampling_y);
