@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b0f9a4b_72233f38",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-10-28T09:39:40Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch enables the use of superblock size 64x64 for resolutions less than or equal to 1080p for speed \u003e\u003d 4 based on oxcf-\u003emax_threads and tile configurations.\n\nPlease find below, the vbr borg results with --threads\u003d16 (Ref: sb_size\u003d128x128, Test: sb_size:64x64):\n\n         |                | Tile config |       BD-Rate Impact(%)     |\ncpu-used |    Resolution  |(rows x cols)| avg.psnr  ovr.psnr   ssim   |\n-------- | ---------------| ------------| --------  --------  --------|\n   4     | hdres2 - 720p  |      1x1    |  0.9943    0.9864   0.5143  |\n   4     | hdres2 - 1080p |      1x1    |  0.8638    0.8395   0.7090  |\n-----------------------------------------------------------------------\n   5     | hdres2 - 720p  |      1x1    |  0.6731    0.6401   0.1349  |\n   5     | hdres2 - 720p  |      2x2    |  0.7435    0.7182   0.1541  |\n   5     | hdres2 - 1080p |      1x1    |  0.4252    0.3657  -0.0506  |\n   5     | hdres2 - 1080p |      2x4    |  0.3630    0.3434  -0.0138  |\n-----------------------------------------------------------------------\n   6     | hdres2 - 720p  |      1x1    |  0.5763    0.5623   0.1397  |\n   6     | hdres2 - 720p  |      2x2    |  0.6730    0.6760   0.3572  |\n   6     | hdres2 - 1080p |      1x1    |  0.4064    0.3485   0.0866  |\n   6     | hdres2 - 1080p |      2x4    |  0.3216    0.2671  -0.0474  |\n   \nIn the BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\n\nPlease find the CQP encode time reductions for different thread configurations below (Ref: sb_size\u003d128x128, Test: sb_size:64x64):\n\n         |                | Tile config | Average encode time reduction(%)|\ncpu-used |    Resolution  |(rows x cols)|   th4    th6      th8     th12  |\n-------- | ---------------| ------------|  ---     ---      ---     ---   | \n   4     |       720p     |      1x1    |  18.61   19.51   19.2    19.72  |\n   4     |      1080p     |      1x1    |  12.19   21.52   24.13   22.75  |\n---------------------------------------------------------------------------\n   5     |       720p     |      1x1    |  22.61   23.19   18.42   16.74  |\n   5     |       720p     |      2x2    |   6.00   13.00   18.46   24.76  |\n   5     |      1080p     |      1x1    |  11.3    23.32   25.82   21.75  |\n   5     |      1080p     |      2x4    |   3.13     -      7.26   13.16  |\n---------------------------------------------------------------------------\n   6     |       720p     |      1x1    |  22.57   21.96   14.51   12.74  |\n   6     |       720p     |      2x2    |   3.73    9.95   16.67   24.23  |\n   6     |      1080p     |      1x1    |  10.28   22.06   22.84   16.3   |\n   6     |      1080p     |      2x4    |   1.58     -      4.75   10.51  |\n   \nNote: Profile data was obtained on 6 720p clips and 3 1080p clips for qp points 20 and 55 with --limit\u003d60 and --lag-in-frames\u003d19.\n\nWith this change, a test in \u0027AVxFirstPassEncoderThreadTest\u0027 which compares first pass encoding stats of threads\u003d2 and threads\u003d4 for bitmatch (for 720p, speed 4) becomes invalid and is hence removed (for all test presets).\n\nPlease review this patch.\n\nRegards,\nRemya\n",
+      "revId": "b678ae43a6d4937d54b804c86b17f4d922e8e3b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
