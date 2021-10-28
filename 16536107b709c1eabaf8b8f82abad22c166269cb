@@ -16,6 +16,24 @@
       "message": "This bug is related to IST. Not sure if the research-in-loop-filters branch has the new tools including IST",
       "revId": "16536107b709c1eabaf8b8f82abad22c166269cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e41f0807_f3d8a36d",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2355,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2021-10-28T22:42:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "87af7885_e8e3797f",
+      "revId": "16536107b709c1eabaf8b8f82abad22c166269cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
