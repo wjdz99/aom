@@ -1113,6 +1113,21 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
       d = xd->plane[0].pre[0].buf;
       dp = xd->plane[0].pre[0].stride;
     }
+
+    // If the y_sad is very small, take max partition size and exit.
+    // Don't check on boosted segment for now.
+    if (!cyclic_refresh_segment_id_boosted(segment_id) && y_sad < 10000 &&
+        cpi->oxcf.speed >= 10 && cm->width * cm->height >= 640 * 360) {
+      const int bw = mi_size_wide[bsize];
+      const int bh = mi_size_high[bsize];
+      if (mi_col + bw <= tile->mi_col_end &&
+          mi_row + bh <= tile->mi_row_end) {
+        set_block_size(cpi, x, xd, mi_row, mi_col, bsize);
+        chroma_check(cpi, x, bsize, y_sad, is_key_frame);
+        x->part_search_info.variance_low[0] = 1;
+        return 0;
+      }
+    }
   } else {
     d = AV1_VAR_OFFS;
     dp = 0;
