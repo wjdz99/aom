@@ -4561,72 +4561,18 @@ static AOM_INLINE void default_skip_mask(mode_skip_mask_t *mask,
   }
 }
 
-#if CONFIG_NEW_REF_SIGNALING
 static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
                                            const AV1_COMP *cpi, MACROBLOCK *x,
                                            BLOCK_SIZE bsize) {
   const AV1_COMMON *const cm = &cpi->common;
   const SPEED_FEATURES *const sf = &cpi->sf;
   REF_SET ref_set = REF_SET_FULL;
-
-  if (sf->rt_sf.use_real_time_ref_set)
-    ref_set = REF_SET_REALTIME;
-  else if (cpi->oxcf.ref_frm_cfg.enable_reduced_reference_set)
-    ref_set = REF_SET_REDUCED;
-
-  default_skip_mask(mask, ref_set);
-
-  int min_pred_mv_sad = INT_MAX;
-  MV_REFERENCE_FRAME ref_frame;
-  if (ref_set == REF_SET_REALTIME) {
-    // For real-time encoding, we only look at a subset of ref frames. So the
-    // threshold for pruning should be computed from this subset as well.
-    const int num_rt_refs =
-        sizeof(real_time_ref_combos) / sizeof(*real_time_ref_combos);
-    for (int r_idx = 0; r_idx < num_rt_refs; r_idx++) {
-      const MV_REFERENCE_FRAME ref = real_time_ref_combos[r_idx][0];
-      if (ref != INTRA_FRAME_NRS) {
-        min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref]);
-      }
-    }
-  } else {
-    for (ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_total_refs;
-         ++ref_frame) {
-      min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref_frame]);
-    }
-  }
-  for (ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_total_refs;
-       ++ref_frame) {
-    if (!(cpi->common.ref_frame_flags & (1 << ref_frame))) {
-      // Skip checking missing reference in both single and compound reference
-      // modes.
-      disable_reference(ref_frame, mask->ref_combo);
-    } else {
-      if ((x->pred_mv_sad[ref_frame] >> 2) > min_pred_mv_sad) {
-        mask->pred_modes[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
-      }
-    }
-  }
-
-  if (bsize > sf->part_sf.max_intra_bsize) {
-    disable_reference(INTRA_FRAME_NRS, mask->ref_combo);
-  }
-
-  // Note INTRA_FRAME reference corresponds to INTER_REFS_PER_FRAME index
-  mask->pred_modes[INTER_REFS_PER_FRAME] |=
-      ~(sf->intra_sf.intra_y_mode_mask[max_txsize_lookup[bsize]]);
-}
-#else
-static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
-                                           const AV1_COMP *cpi, MACROBLOCK *x,
-                                           BLOCK_SIZE bsize) {
-  const AV1_COMMON *const cm = &cpi->common;
+#if !CONFIG_NEW_REF_SIGNALING
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const struct segmentation *const seg = &cm->seg;
   unsigned char segment_id = mbmi->segment_id;
-  const SPEED_FEATURES *const sf = &cpi->sf;
-  REF_SET ref_set = REF_SET_FULL;
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   if (sf->rt_sf.use_real_time_ref_set)
     ref_set = REF_SET_REALTIME;
@@ -4644,32 +4590,50 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
         sizeof(real_time_ref_combos) / sizeof(*real_time_ref_combos);
     for (int r_idx = 0; r_idx < num_rt_refs; r_idx++) {
       const MV_REFERENCE_FRAME ref = real_time_ref_combos[r_idx][0];
+#if CONFIG_NEW_REF_SIGNALING
+      if (ref != INTRA_FRAME_NRS) {
+#else
       if (ref != INTRA_FRAME) {
+#endif  // CONFIG_NEW_REF_SIGNALING
         min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref]);
       }
     }
   } else {
+#if CONFIG_NEW_REF_SIGNALING
+    for (ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_total_refs;
+         ++ref_frame) {
+#else
     for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame)
+#endif  // CONFIG_NEW_REF_SIGNALING
       min_pred_mv_sad = AOMMIN(min_pred_mv_sad, x->pred_mv_sad[ref_frame]);
+    }
   }
-
-  for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
-    if (!(cpi->common.ref_frame_flags & av1_ref_frame_flag_list[ref_frame])) {
+#if CONFIG_NEW_REF_SIGNALING
+  for (ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_total_refs;
+       ++ref_frame) {
+    if (!(cpi->common.ref_frame_flags & (1 << ref_frame))) {
+#else
+for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+  if (!(cpi->common.ref_frame_flags & av1_ref_frame_flag_list[ref_frame])) {
+#endif  // CONFIG_NEW_REF_SIGNALING
       // Skip checking missing reference in both single and compound reference
       // modes.
       disable_reference(ref_frame, mask->ref_combo);
     } else {
-      // Skip fixed mv modes for poor references
       if ((x->pred_mv_sad[ref_frame] >> 2) > min_pred_mv_sad) {
         mask->pred_modes[ref_frame] |= INTER_NEAREST_NEAR_ZERO;
       }
     }
+#if !CONFIG_NEW_REF_SIGNALING
     if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME) &&
         get_segdata(seg, segment_id, SEG_LVL_REF_FRAME) != (int)ref_frame) {
       // Reference not used for the segment.
       disable_reference(ref_frame, mask->ref_combo);
     }
+#endif  // !CONFIG_NEW_REF_SIGNALING
   }
+
+#if !CONFIG_NEW_REF_SIGNALING
   // Note: We use the following drop-out only if the SEG_LVL_REF_FRAME feature
   // is disabled for this segment. This is to prevent the possibility that we
   // end up unable to pick any mode.
@@ -4723,15 +4687,24 @@ static AOM_INLINE void init_mode_skip_mask(mode_skip_mask_t *mask,
       }
     }
   }
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
   if (bsize > sf->part_sf.max_intra_bsize) {
-    disable_reference(INTRA_FRAME, mask->ref_combo);
+#if CONFIG_NEW_REF_SIGNALING
+    disable_reference(INTRA_FRAME_NRS, mask->ref_combo);
+#else
+  disable_reference(INTRA_FRAME, mask->ref_combo);
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 
-  mask->pred_modes[INTRA_FRAME] |=
+#if CONFIG_NEW_REF_SIGNALING
+  mask->pred_modes[INTRA_FRAME_NRS] |=
       ~(sf->intra_sf.intra_y_mode_mask[max_txsize_lookup[bsize]]);
-}
+#else
+mask->pred_modes[INTRA_FRAME] |=
+    ~(sf->intra_sf.intra_y_mode_mask[max_txsize_lookup[bsize]]);
 #endif  // CONFIG_NEW_REF_SIGNALING
+}
 
 static AOM_INLINE void init_neighbor_pred_buf(
     const OBMCBuffer *const obmc_buffer, HandleInterModeArgs *const args,
