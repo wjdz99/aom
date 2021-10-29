@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c18c779_bf551040",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-10-29T14:18:56Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe current logic is relatively simpler for speed \u003e\u003d 5, with the choice of SB size made based on the no. of threads (\u003e\u003d 4) and resolution (\u003c\u003d 1080p). For speed 4, additionally, the threshold on threads changes based on 720p or 1080p, as well as enabling SB 64x64 for only single tile encodes. If necessary, we can change the threshold on no. of threads based on resolution to simplify the logic (at some speed loss for 720p with 4 or 5 threads). Please let us know your opinion.\n\nPlease review.\n\nRegards,\nRemya",
+      "parentUuid": "eaadb24e_c3edef89",
+      "revId": "b678ae43a6d4937d54b804c86b17f4d922e8e3b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4272fd59_59051505",
@@ -48,6 +66,30 @@
       "writtenOn": "2021-10-28T16:46:39Z",
       "side": 1,
       "message": "Using multi-tiles is the general practice in HD encoding. From the result table, multi-tile case speedup was quite worse than that of single tile while using SB 64x64.",
+      "range": {
+        "startLine": 805,
+        "startChar": 10,
+        "endLine": 805,
+        "endChar": 26
+      },
+      "revId": "b678ae43a6d4937d54b804c86b17f4d922e8e3b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90fc74b3_a52fe6d0",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-10-29T14:18:56Z",
+      "side": 1,
+      "message": "Though the speed-up with multi-tiles is lower than that of single-tile gains, especially  at lower threads, the results are within trade-off for presets 5 and 6. We can also choose to disable SB 64x64 for multi-tile encode altogether (which will simplify the logic). Please let us know your opinion.",
+      "parentUuid": "4272fd59_59051505",
       "range": {
         "startLine": 805,
         "startChar": 10,
