@@ -156,6 +156,10 @@ typedef struct TEMPORAL_FILTER_INFO {
    */
   int tf_buf_gf_index[TF_INFO_BUF_COUNT];
   /*!
+   * the display_index offset between next show frame and the frames in the GOP
+   */
+  int tf_buf_display_index_offset[TF_INFO_BUF_COUNT];
+  /*!
    * whether the buf is valid or not.
    */
   int tf_buf_valid[TF_INFO_BUF_COUNT];
@@ -171,6 +175,11 @@ void av1_tf_info_alloc(TEMPORAL_FILTER_INFO *tf_info, struct AV1_COMP *cpi);
  * \param[in,out]   tf_info           Temporal filter info for a gop
  */
 void av1_tf_info_free(TEMPORAL_FILTER_INFO *tf_info);
+
+/*!\brief Reset validity of tf_buf in TEMPORAL_FILTER_INFO
+ * \param[in,out]   tf_info           Temporal filter info for a gop
+ */
+void av1_tf_info_reset(TEMPORAL_FILTER_INFO *tf_info);
 
 /*!\brief Apply temporal filter for key frame and ARF in a gop
  * \param[in,out]   tf_info           Temporal filter info for a gop
