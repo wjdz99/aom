@@ -464,14 +464,8 @@ static AOM_INLINE void process_compound_ref_mv_candidate(
       } else if (can_rf > INTRA_FRAME && ref_diff_count[cmp_idx] < 2) {
 #endif  // CONFIG_NEW_REF_SIGNALING
         int_mv this_mv = candidate->mv[rf_idx];
-#if CONFIG_NEW_REF_SIGNALING
-        if (cm->ref_frame_sign_bias_nrs[can_rf] !=
-            cm->ref_frame_sign_bias_nrs[rf[cmp_idx]])
-#else
         if (cm->ref_frame_sign_bias[can_rf] !=
-            cm->ref_frame_sign_bias[rf[cmp_idx]])
-#endif  // CONFIG_NEW_REF_SIGNALING
-        {
+            cm->ref_frame_sign_bias[rf[cmp_idx]]) {
           this_mv.as_mv.row = -this_mv.as_mv.row;
           this_mv.as_mv.col = -this_mv.as_mv.col;
         }
@@ -496,19 +490,11 @@ static AOM_INLINE void process_single_ref_mv_candidate(
 #endif  // CONFIG_NEW_REF_SIGNALING
     {
       int_mv this_mv = candidate->mv[rf_idx];
-#if CONFIG_NEW_REF_SIGNALING
-      if (cm->ref_frame_sign_bias_nrs[candidate->ref_frame[rf_idx]] !=
-          cm->ref_frame_sign_bias_nrs[ref_frame]) {
-        this_mv.as_mv.row = -this_mv.as_mv.row;
-        this_mv.as_mv.col = -this_mv.as_mv.col;
-      }
-#else
       if (cm->ref_frame_sign_bias[candidate->ref_frame[rf_idx]] !=
           cm->ref_frame_sign_bias[ref_frame]) {
         this_mv.as_mv.row = -this_mv.as_mv.row;
         this_mv.as_mv.col = -this_mv.as_mv.col;
       }
-#endif  // CONFIG_NEW_REF_SIGNALING
       int stack_idx;
       for (stack_idx = 0; stack_idx < *refmv_count; ++stack_idx) {
         const int_mv stack_mv = ref_mv_stack[stack_idx].this_mv;
@@ -575,11 +561,7 @@ static AOM_INLINE bool check_rmb_cand(CANDIDATE_MV cand_mv,
 
 static AOM_INLINE void setup_ref_mv_list(
     const AV1_COMMON *cm, const MACROBLOCKD *xd,
-#if CONFIG_NEW_REF_SIGNALING
     MV_REFERENCE_FRAME ref_frame,
-#else
-    MV_REFERENCE_FRAME ref_frame,
-#endif  // CONFIG_NEW_REF_SIGNALING
     uint8_t *const refmv_count,
     CANDIDATE_MV ref_mv_stack[MAX_REF_MV_STACK_SIZE],
     uint16_t ref_mv_weight[MAX_REF_MV_STACK_SIZE],
@@ -595,11 +577,7 @@ static AOM_INLINE void setup_ref_mv_list(
   int processed_cols = 0;
 
   MV_REFERENCE_FRAME rf[2];
-#if CONFIG_NEW_REF_SIGNALING
   av1_set_ref_frame(rf, ref_frame);
-#else
-  av1_set_ref_frame(rf, ref_frame);
-#endif  // CONFIG_NEW_REF_SIGNALING
 
   mode_context[ref_frame] = 0;
   *refmv_count = 0;
@@ -1125,15 +1103,14 @@ void av1_setup_frame_buf_refs(AV1_COMMON *cm) {
 }
 
 void av1_setup_frame_sign_bias(AV1_COMMON *cm) {
+  memset(&cm->ref_frame_sign_bias, 0, sizeof(cm->ref_frame_sign_bias));
 #if CONFIG_NEW_REF_SIGNALING
-  memset(&cm->ref_frame_sign_bias_nrs, 0, sizeof(cm->ref_frame_sign_bias_nrs));
   for (int ref_frame = 0; ref_frame < cm->new_ref_frame_data.n_future_refs;
        ++ref_frame) {
     const int index = cm->new_ref_frame_data.future_refs[ref_frame];
-    cm->ref_frame_sign_bias_nrs[index] = 1;
+    cm->ref_frame_sign_bias[index] = 1;
   }
 #else
-  memset(&cm->ref_frame_sign_bias, 0, sizeof(cm->ref_frame_sign_bias));
   MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
     const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);

@@ -536,11 +536,7 @@ void av1_scale_references(AV1_COMP *cpi, const InterpFilter filter,
         if ((ref->y_crop_width > cm->width ||
              ref->y_crop_height > cm->height) &&
             ref->border < AOM_BORDER_IN_PIXELS) {
-#if CONFIG_NEW_REF_SIGNALING
           RefCntBuffer *ref_fb = get_ref_frame_buf(cm, ref_frame);
-#else
-          RefCntBuffer *ref_fb = get_ref_frame_buf(cm, ref_frame);
-#endif  // CONFIG_NEW_REF_SIGNALING
           if (aom_yv12_realloc_with_new_border(
                   &ref_fb->buf, AOM_BORDER_IN_PIXELS,
                   cm->features.byte_alignment, num_planes) != 0) {

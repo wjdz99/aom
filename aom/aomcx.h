@@ -49,6 +49,7 @@ extern aom_codec_iface_t *aom_codec_av1_cx(void);
  * Algorithm Flags
  */
 
+// TODO(kslu): remove the following flags in NRS
 /*!\brief Don't reference the last frame
  *
  * When this flag is set, the encoder will not use the last frame as a
@@ -120,6 +121,7 @@ extern aom_codec_iface_t *aom_codec_av1_cx(void);
  * the contents of the current frame.
  */
 #define AOM_EFLAG_NO_UPD_ARF (1 << 25)
+
 /*!\brief Disable entropy update
  *
  * When this flag is set, the encoder will not update its internal entropy

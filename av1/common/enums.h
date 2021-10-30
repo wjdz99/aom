@@ -393,6 +393,7 @@ enum {
 #define EXT_TX_SETS_INTER 4  // Sets of transform selections for INTER
 #define EXT_TX_SETS_INTRA 3  // Sets of transform selections for INTRA
 
+// TODO(kslu) remove this in CONFIG_NEW_REF_SIGNALING
 enum {
   AOM_LAST_FLAG = 1 << 0,
   AOM_LAST2_FLAG = 1 << 1,
@@ -764,6 +765,8 @@ enum {
 // Used for indexing into arrays that contain reference data for
 // inter and intra.
 #define INTRA_FRAME_INDEX_NRS INTER_REFS_PER_FRAME
+// TODO(kslu) once AOM_*_FLAG are removed, uncomment the definition below
+// #define AOM_REFFRAME_ALL ((1 << INTER_REFS_PER_FRAME) - 1)
 #endif  // CONFIG_NEW_REF_SIGNALING
 
 #define REF_FRAMES_LOG2 3
@@ -776,6 +779,7 @@ enum {
 #define FWD_RF_OFFSET(ref) (ref - LAST_FRAME)
 #define BWD_RF_OFFSET(ref) (ref - BWDREF_FRAME)
 
+#if !CONFIG_NEW_REF_SIGNALING
 enum {
   LAST_LAST2_FRAMES,      // { LAST_FRAME, LAST2_FRAME }
   LAST_LAST3_FRAMES,      // { LAST_FRAME, LAST3_FRAME }
@@ -791,6 +795,7 @@ enum {
   //       that are explicitly signaled.
   UNIDIR_COMP_REFS = BWDREF_ALTREF_FRAMES + 1,
 } UENUM1BYTE(UNIDIR_COMP_REF);
+#endif  // !CONFIG_NEW_REF_SIGNALING
 
 #define TOTAL_COMP_REFS (FWD_REFS * BWD_REFS + TOTAL_UNIDIR_COMP_REFS)
 
