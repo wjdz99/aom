@@ -2963,29 +2963,24 @@ static INLINE const YV12_BUFFER_CONFIG *get_ref_frame_yv12_buf(
   return buf != NULL ? &buf->buf : NULL;
 }
 
+static INLINE int enc_is_ref_frame_buf(const AV1_COMMON *const cm,
+                                       const RefCntBuffer *const frame_buf) {
+  MV_REFERENCE_FRAME ref_frame;
 #if CONFIG_NEW_REF_SIGNALING
-static INLINE int enc_is_ref_frame_buf(const AV1_COMMON *const cm,
-                                       const RefCntBuffer *const frame_buf) {
-  MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = 0; ref_frame < INTER_REFS_PER_FRAME; ++ref_frame) {
-    const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
-    if (buf == NULL) continue;
-    if (frame_buf == buf) break;
-  }
-  return (ref_frame < INTER_REFS_PER_FRAME);
-}
 #else
-static INLINE int enc_is_ref_frame_buf(const AV1_COMMON *const cm,
-                                       const RefCntBuffer *const frame_buf) {
-  MV_REFERENCE_FRAME ref_frame;
   for (ref_frame = LAST_FRAME; ref_frame <= ALTREF_FRAME; ++ref_frame) {
+#endif  // CONFIG_NEW_REF_SIGNALING
     const RefCntBuffer *const buf = get_ref_frame_buf(cm, ref_frame);
     if (buf == NULL) continue;
     if (frame_buf == buf) break;
   }
+#if CONFIG_NEW_REF_SIGNALING
+  return (ref_frame < INTER_REFS_PER_FRAME);
+#else
   return (ref_frame <= ALTREF_FRAME);
-}
 #endif  // CONFIG_NEW_REF_SIGNALING
+}
 
 static INLINE void alloc_frame_mvs(AV1_COMMON *const cm, RefCntBuffer *buf) {
   assert(buf != NULL);
@@ -3166,6 +3161,7 @@ static INLINE BLOCK_SIZE find_partition_size(BLOCK_SIZE bsize, int rows_left,
   return (BLOCK_SIZE)int_size;
 }
 
+#if !CONFIG_NEW_REF_SIGNALING
 static const uint8_t av1_ref_frame_flag_list[REF_FRAMES] = { 0,
                                                              AOM_LAST_FLAG,
                                                              AOM_LAST2_FLAG,
@@ -3175,7 +3171,6 @@ static const uint8_t av1_ref_frame_flag_list[REF_FRAMES] = { 0,
                                                              AOM_ALT2_FLAG,
                                                              AOM_ALT_FLAG };
 
-#if !CONFIG_NEW_REF_SIGNALING
 // When more than 'max_allowed_refs' are available, we reduce the number of
 // reference frames one at a time based on this order.
 static const MV_REFERENCE_FRAME disable_order[] = {

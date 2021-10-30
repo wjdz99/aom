@@ -462,7 +462,6 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi, MACROBLOCK *x, int mi_row,
 #else
         xd->mi[0]->ref_frame[0] = best_rf_idx + LAST_FRAME;
 #endif  // CONFIG_NEW_REF_SIGNALING
-        // TODO(sarahparker) Convert this ref frame index for NEW_REF_SIGNALING
         xd->mi[0]->mv[0].as_int = best_mv.as_int;
       }
     }

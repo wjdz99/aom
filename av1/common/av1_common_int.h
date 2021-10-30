@@ -1191,7 +1191,7 @@ typedef struct AV1Common {
    * ref_frame_sign_bias[k] is 1 if relative distance between reference 'k' and
    * current frame is positive; and 0 otherwise.
    */
-  int ref_frame_sign_bias_nrs[INTER_REFS_PER_FRAME];
+  int ref_frame_sign_bias[INTER_REFS_PER_FRAME];
   /*!
    * ref_frame_side[k] is 1 if relative distance between reference 'k' and
    * current frame is positive, -1 if relative distance is 0; and 0 otherwise.
