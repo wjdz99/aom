@@ -1384,22 +1384,10 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
 #if CONFIG_NEW_REF_SIGNALING
       const MV_REFERENCE_FRAME ref_frame0 = COMPACT_INDEX0_NRS(ref_frames[0]);
       if (search_state->modelled_rd[compare_mode][0][ref_frame0] != INT64_MAX) {
-        const int16_t mode_ctx =
-            av1_mode_context_analyzer(mbmi_ext->mode_context, ref_frames);
-        const int compare_cost =
-            cost_mv_ref(&x->mode_costs, compare_mode, mode_ctx);
-        const int this_cost = cost_mv_ref(&x->mode_costs, this_mode, mode_ctx);
-
-        // Only skip if the mode cost is larger than compare mode cost
-        if (this_cost > compare_cost) {
-          search_state->modelled_rd[this_mode][0][ref_frame0] =
-              search_state->modelled_rd[compare_mode][0][ref_frame0];
-          return 1;
-        }
-      }
 #else
       if (search_state->modelled_rd[compare_mode][0][ref_frames[0]] !=
           INT64_MAX) {
+#endif  // CONFIG_NEW_REF_SIGNALING
         const int16_t mode_ctx =
             av1_mode_context_analyzer(mbmi_ext->mode_context, ref_frames);
         const int compare_cost =
@@ -1408,12 +1396,16 @@ static int skip_repeated_mv(const AV1_COMMON *const cm,
 
         // Only skip if the mode cost is larger than compare mode cost
         if (this_cost > compare_cost) {
+#if CONFIG_NEW_REF_SIGNALING
+          search_state->modelled_rd[this_mode][0][ref_frame0] =
+              search_state->modelled_rd[compare_mode][0][ref_frame0];
+#else
           search_state->modelled_rd[this_mode][0][ref_frames[0]] =
               search_state->modelled_rd[compare_mode][0][ref_frames[0]];
+#endif  // CONFIG_NEW_REF_SIGNALING
           return 1;
         }
       }
-#endif  // CONFIG_NEW_REF_SIGNALING
     }
   }
   return 0;
@@ -2324,11 +2316,7 @@ static INLINE int check_repeat_ref_mv(const MB_MODE_INFO_EXT *mbmi_ext,
 static INLINE int get_this_mv(int_mv *this_mv, PREDICTION_MODE this_mode,
                               int ref_idx, int ref_mv_idx,
                               int skip_repeated_ref_mv,
-#if CONFIG_NEW_REF_SIGNALING
                               const MV_REFERENCE_FRAME *ref_frame,
-#else
-                              const MV_REFERENCE_FRAME *ref_frame,
-#endif  // CONFIG_NEW_REF_SIGNALING
                               const MB_MODE_INFO_EXT *mbmi_ext) {
   (void)skip_repeated_ref_mv;
   const PREDICTION_MODE single_mode = get_single_mode(this_mode, ref_idx);
@@ -2490,11 +2478,7 @@ static INLINE int is_single_newmv_valid(const HandleInterModeArgs *const args,
 // in the frame and max_drl_bits + 1.
 // For GLOBALMV, this is 1: the frame global motion vector always exists.
 static int get_drl_refmv_count(int max_drl_bits, const MACROBLOCK *const x,
-#if CONFIG_NEW_REF_SIGNALING
                                const MV_REFERENCE_FRAME *ref_frame,
-#else
-                               const MV_REFERENCE_FRAME *ref_frame,
-#endif  // CONFIG_NEW_REF_SIGNALING
                                PREDICTION_MODE mode) {
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   int has_drl = have_drl_index(mode);
@@ -2512,11 +2496,7 @@ static int get_drl_refmv_count(int max_drl_bits, const MACROBLOCK *const x,
 }
 #else
 static int get_drl_refmv_count(const MACROBLOCK *const x,
-#if CONFIG_NEW_REF_SIGNALING
                                const MV_REFERENCE_FRAME *ref_frame,
-#else
-                               const MV_REFERENCE_FRAME *ref_frame,
-#endif  // CONFIG_NEW_REF_SIGNALING
                                PREDICTION_MODE mode) {
   MB_MODE_INFO_EXT *const mbmi_ext = x->mbmi_ext;
   const int8_t ref_frame_type = av1_ref_frame_type(ref_frame);
@@ -2761,22 +2741,18 @@ static int ref_mv_idx_to_search(AV1_COMP *const cpi, MACROBLOCK *x,
     return good_indices;
   if (!have_nearmv_in_inter_mode(this_mode)) return good_indices;
   if (num_pels_log2_lookup[bsize] <= 6) return good_indices;
-    // Do not prune when there is internal resizing. TODO(elliottk) fix this
-    // so b/2384 can be resolved.
-#if CONFIG_NEW_REF_SIGNALING
+  // Do not prune when there is internal resizing. TODO(elliottk) fix this
+  // so b/2384 can be resolved.
   if (av1_is_scaled(get_ref_scale_factors(cm, mbmi->ref_frame[0])) ||
+#if CONFIG_NEW_REF_SIGNALING
       (mbmi->ref_frame[1] != INTRA_FRAME_NRS &&
        mbmi->ref_frame[1] != INVALID_IDX &&
-       av1_is_scaled(get_ref_scale_factors(cm, mbmi->ref_frame[1])))) {
-    return good_indices;
-  }
 #else
-  if (av1_is_scaled(get_ref_scale_factors(cm, mbmi->ref_frame[0])) ||
       (mbmi->ref_frame[1] > 0 &&
+#endif  // CONFIG_NEW_REF_SIGNALING
        av1_is_scaled(get_ref_scale_factors(cm, mbmi->ref_frame[1])))) {
     return good_indices;
   }
-#endif  // CONFIG_NEW_REF_SIGNALING
 
   // Calculate the RD cost for the motion vectors using simple translation.
 #if CONFIG_NEW_INTER_MODES
@@ -3003,12 +2979,7 @@ static AOM_INLINE void get_block_level_tpl_stats(
 
 static AOM_INLINE int prune_modes_based_on_tpl_stats(
     const FeatureFlags *const features,
-    PruneInfoFromTpl *inter_cost_info_from_tpl,
-#if CONFIG_NEW_REF_SIGNALING
-    const MV_REFERENCE_FRAME *refs,
-#else
-    const MV_REFERENCE_FRAME *refs,
-#endif  // CONFIG_NEW_REF_SIGNALING
+    PruneInfoFromTpl *inter_cost_info_from_tpl, const MV_REFERENCE_FRAME *refs,
     int ref_mv_idx, const PREDICTION_MODE this_mode, int prune_mode_level) {
   (void)features;
   const int have_newmv = have_newmv_in_inter_mode(this_mode);
@@ -3093,12 +3064,7 @@ static int skip_repeated_newmv(
     motion_mode_candidate *motion_mode_cand, int64_t *ref_best_rd,
     RD_STATS *best_rd_stats, RD_STATS *best_rd_stats_y,
     RD_STATS *best_rd_stats_uv, inter_mode_info *mode_info,
-    HandleInterModeArgs *args, int drl_cost,
-#if CONFIG_NEW_REF_SIGNALING
-    const MV_REFERENCE_FRAME *refs,
-#else
-    const MV_REFERENCE_FRAME *refs,
-#endif  // CONFIG_NEW_REF_SIGNALING
+    HandleInterModeArgs *args, int drl_cost, const MV_REFERENCE_FRAME *refs,
     int_mv *cur_mv, int64_t *best_rd, const BUFFER_SET orig_dst,
     int ref_mv_idx) {
   // This feature only works for NEWMV when a previous mv has been searched
@@ -4786,21 +4752,16 @@ static AOM_INLINE int is_ref_frame_used_by_compound_ref(
     if (!(skip_ref_frame_mask & (1 << r))) {
       MV_REFERENCE_FRAME rf[2];
       av1_set_ref_frame(rf, r);
-      if (rf[0] == ref_frame || rf[1] == ref_frame) {
-        return 1;
-      }
-    }
-  }
 #else
   for (int r = ALTREF_FRAME + 1; r < MODE_CTX_REF_FRAMES; ++r) {
     if (!(skip_ref_frame_mask & (1 << r))) {
       const MV_REFERENCE_FRAME *rf = ref_frame_map[r - REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
       if (rf[0] == ref_frame || rf[1] == ref_frame) {
         return 1;
       }
     }
   }
-#endif  // CONFIG_NEW_REF_SIGNALING
   return 0;
 }
 
@@ -4856,9 +4817,7 @@ static AOM_INLINE void set_params_rd_pick_inter_mode(
     x->mbmi_ext->mode_context[ref_frame] = 0;
     mbmi_ext->ref_mv_count[ref_frame] = UINT8_MAX;
   }
-#endif  // CONFIG_NEW_REF_SIGNALING
 
-#if CONFIG_NEW_REF_SIGNALING
   for (MV_REFERENCE_FRAME ref_frame = 0; ref_frame < INTER_REFS_PER_FRAME;
        ++ref_frame) {
     if ((cpi->common.ref_frame_flags & (1 << ref_frame))) {
@@ -5056,11 +5015,7 @@ static AOM_INLINE void init_inter_mode_search_state(
   av1_zero(search_state->single_newmv_valid);
   for (int i = 0; i < MB_MODE_COUNT; ++i) {
     for (int j = 0; j < MAX_REF_MV_SEARCH; ++j) {
-#if CONFIG_NEW_REF_SIGNALING
-      for (int ref_frame = 0; ref_frame <= INTER_REFS_PER_FRAME; ++ref_frame) {
-#else
       for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
-#endif  // CONFIG_NEW_REF_SIGNALING
         search_state->modelled_rd[i][j][ref_frame] = INT64_MAX;
         search_state->simple_rd[i][j][ref_frame] = INT64_MAX;
       }
@@ -5069,11 +5024,7 @@ static AOM_INLINE void init_inter_mode_search_state(
 
   for (int dir = 0; dir < 2; ++dir) {
     for (int mode = 0; mode < SINGLE_INTER_MODE_NUM; ++mode) {
-#if CONFIG_NEW_REF_SIGNALING
-      for (int ref_frame = 0; ref_frame <= INTER_REFS_PER_FRAME; ++ref_frame) {
-#else
       for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
-#endif  // CONFIG_NEW_REF_SIGNALING
         SingleInterModeState *state;
 
         state = &search_state->single_state[dir][mode][ref_frame];
@@ -5096,21 +5047,16 @@ static AOM_INLINE void init_inter_mode_search_state(
   }
   for (int dir = 0; dir < 2; ++dir) {
     for (int mode = 0; mode < SINGLE_INTER_MODE_NUM; ++mode) {
+      for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
 #if CONFIG_NEW_REF_SIGNALING
-      for (int ref_frame = 0; ref_frame <= INTER_REFS_PER_FRAME; ++ref_frame) {
         search_state->single_rd_order[dir][mode][ref_frame] = INVALID_IDX;
 #else
-      for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
         search_state->single_rd_order[dir][mode][ref_frame] = NONE_FRAME;
 #endif  // CONFIG_NEW_REF_SIGNALING
       }
     }
   }
-#if CONFIG_NEW_REF_SIGNALING
-  for (int ref_frame = 0; ref_frame <= INTER_REFS_PER_FRAME; ++ref_frame) {
-#else
   for (int ref_frame = 0; ref_frame < REF_FRAMES; ++ref_frame) {
-#endif  // CONFIG_NEW_REF_SIGNALING
     search_state->best_single_rd[ref_frame] = INT64_MAX;
     search_state->best_single_mode[ref_frame] = MB_MODE_COUNT;
   }
@@ -5138,49 +5084,24 @@ static bool mask_says_skip(const mode_skip_mask_t *mode_skip_mask,
 #endif  // CONFIG_NEW_REF_SIGNALING
 }
 
-#if CONFIG_NEW_REF_SIGNALING
 static int inter_mode_compatible_skip(const AV1_COMP *cpi, const MACROBLOCK *x,
                                       BLOCK_SIZE bsize,
                                       PREDICTION_MODE curr_mode,
                                       const MV_REFERENCE_FRAME *ref_frames) {
+#if CONFIG_NEW_REF_SIGNALING
   const int comp_pred =
       ref_frames[1] != INTRA_FRAME_NRS && ref_frames[1] != INVALID_IDX;
-  if (comp_pred) {
-    if (!is_comp_ref_allowed(bsize)) return 1;
-    if (!(cpi->common.ref_frame_flags & (1 << ref_frames[1]))) {
-      return 1;
-    }
-
-    const AV1_COMMON *const cm = &cpi->common;
-    if (frame_is_intra_only(cm)) return 1;
-
-    const CurrentFrame *const current_frame = &cm->current_frame;
-    if (current_frame->reference_mode == SINGLE_REFERENCE) return 1;
-
-    (void)x;
-  }
-
-  if (ref_frames[0] != INTRA_FRAME_NRS && ref_frames[0] != INVALID_IDX &&
-      ref_frames[1] == INTRA_FRAME_NRS) {
-    // Mode must be compatible
-    if (!is_interintra_allowed_bsize(bsize)) return 1;
-    if (!is_interintra_allowed_mode(curr_mode)) return 1;
-  }
-
-  return 0;
-}
 #else
-static int inter_mode_compatible_skip(const AV1_COMP *cpi, const MACROBLOCK *x,
-                                      BLOCK_SIZE bsize,
-                                      PREDICTION_MODE curr_mode,
-                                      const MV_REFERENCE_FRAME *ref_frames) {
   const int comp_pred = ref_frames[1] > INTRA_FRAME;
+#endif  // CONFIG_NEW_REF_SIGNALING
   if (comp_pred) {
     if (!is_comp_ref_allowed(bsize)) return 1;
-    if (!(cpi->common.ref_frame_flags &
-          av1_ref_frame_flag_list[ref_frames[1]])) {
+#if CONFIG_NEW_REF_SIGNALING
+    if (!(cpi->common.ref_frame_flags & (1 << ref_frames[1])))
+#else
+    if (!(cpi->common.ref_frame_flags & av1_ref_frame_flag_list[ref_frames[1]]))
+#endif  // CONFIG_NEW_REF_SIGNALING
       return 1;
-    }
 
     const AV1_COMMON *const cm = &cpi->common;
     if (frame_is_intra_only(cm)) return 1;
@@ -5188,14 +5109,23 @@ static int inter_mode_compatible_skip(const AV1_COMP *cpi, const MACROBLOCK *x,
     const CurrentFrame *const current_frame = &cm->current_frame;
     if (current_frame->reference_mode == SINGLE_REFERENCE) return 1;
 
+#if CONFIG_NEW_REF_SIGNALING
+    (void)x;
+#else
     const struct segmentation *const seg = &cm->seg;
     const unsigned char segment_id = x->e_mbd.mi[0]->segment_id;
     // Do not allow compound prediction if the segment level reference frame
     // feature is in use as in this case there can only be one reference.
     if (segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) return 1;
+#endif  // CONFIG_NEW_REF_SIGNALING
   }
 
+#if CONFIG_NEW_REF_SIGNALING
+  if (ref_frames[0] != INTRA_FRAME_NRS && ref_frames[0] != INVALID_IDX &&
+      ref_frames[1] == INTRA_FRAME_NRS) {
+#else
   if (ref_frames[0] > INTRA_FRAME && ref_frames[1] == INTRA_FRAME) {
+#endif  // CONFIG_NEW_REF_SIGNALING
     // Mode must be compatible
     if (!is_interintra_allowed_bsize(bsize)) return 1;
     if (!is_interintra_allowed_mode(curr_mode)) return 1;
@@ -5203,7 +5133,6 @@ static int inter_mode_compatible_skip(const AV1_COMP *cpi, const MACROBLOCK *x,
 
   return 0;
 }
-#endif  // CONFIG_NEW_REF_SIGNALING
 
 static int fetch_picked_ref_frames_mask(const MACROBLOCK *const x,
                                         BLOCK_SIZE bsize, int mib_size) {
@@ -5234,12 +5163,7 @@ static INLINE int is_mode_intra(PREDICTION_MODE mode) {
 // completely, 2 if we skip compound only, but still try single motion modes
 static INLINE int skip_inter_mode_with_cached_mode(
     const MACROBLOCK *x, PREDICTION_MODE mode,
-#if CONFIG_NEW_REF_SIGNALING
-    const MV_REFERENCE_FRAME *ref_frame
-#else
-    const MV_REFERENCE_FRAME *ref_frame
-#endif  // CONFIG_NEW_REF_SIGNALING
-) {
+    const MV_REFERENCE_FRAME *ref_frame) {
   const MB_MODE_INFO *cached_mi = x->inter_mode_cache;
 
   // If there is no cache, then no pruning is possible.
@@ -5367,17 +5291,6 @@ static int inter_mode_search_order_independent_skip(
         if (skip_ref_frame_mask & (1 << r)) continue;
         MV_REFERENCE_FRAME rf[2];
         av1_set_ref_frame(rf, r);
-        if (rf[0] == ref_type || rf[1] == ref_type) {
-          // Found a not skipped compound ref mode which contains current
-          // single ref. So this single ref can't be skipped completly
-          // Just skip it's motion mode search, still try it's simple
-          // transition mode.
-          skip_motion_mode = 1;
-          skip_ref = 0;
-          break;
-        }
-      }
-    }
 #else
     if (ref_type <= ALTREF_FRAME && skip_ref) {
       // Since the compound ref modes depends on the motion estimation result of
@@ -5387,6 +5300,7 @@ static int inter_mode_search_order_independent_skip(
       for (int r = ALTREF_FRAME + 1; r < MODE_CTX_REF_FRAMES; ++r) {
         if (skip_ref_frame_mask & (1 << r)) continue;
         const MV_REFERENCE_FRAME *rf = ref_frame_map[r - REF_FRAMES];
+#endif  // CONFIG_NEW_REF_SIGNALING
         if (rf[0] == ref_type || rf[1] == ref_type) {
           // Found a not skipped compound ref mode which contains current
           // single ref. So this single ref can't be skipped completly
@@ -5398,7 +5312,6 @@ static int inter_mode_search_order_independent_skip(
         }
       }
     }
-#endif  // CONFIG_NEW_REF_SIGNALING
 #if CONFIG_EXT_RECUR_PARTITIONS
     // If we are reusing the prediction from cache, and the current frame is
     // required by the cache, then we cannot prune it.
@@ -5660,20 +5573,9 @@ static int compound_skip_get_candidates(
 
 static int compound_skip_by_single_states(
     const AV1_COMP *cpi, const InterModeSearchState *search_state,
-    const PREDICTION_MODE this_mode,
-#if CONFIG_NEW_REF_SIGNALING
-    const MV_REFERENCE_FRAME ref_frame,
-    const MV_REFERENCE_FRAME second_ref_frame,
-#else
-    const MV_REFERENCE_FRAME ref_frame,
-    const MV_REFERENCE_FRAME second_ref_frame,
-#endif  // CONFIG_NEW_REF_SIGNALING
-    const MACROBLOCK *x) {
-#if CONFIG_NEW_REF_SIGNALING
+    const PREDICTION_MODE this_mode, const MV_REFERENCE_FRAME ref_frame,
+    const MV_REFERENCE_FRAME second_ref_frame, const MACROBLOCK *x) {
   const MV_REFERENCE_FRAME refs[2] = { ref_frame, second_ref_frame };
-#else
-  const MV_REFERENCE_FRAME refs[2] = { ref_frame, second_ref_frame };
-#endif  // CONFIG_NEW_REF_SIGNALING
   const int mode[2] = { compound_ref0_mode(this_mode),
                         compound_ref1_mode(this_mode) };
   const int mode_offset[2] = { INTER_OFFSET(mode[0]), INTER_OFFSET(mode[1]) };
@@ -5815,12 +5717,7 @@ static INLINE void update_best_single_mode(InterModeSearchState *search_state,
 
 // Prune compound mode using best single mode for the same reference.
 static INLINE int skip_compound_using_best_single_mode_ref(
-    const PREDICTION_MODE this_mode,
-#if CONFIG_NEW_REF_SIGNALING
-    const MV_REFERENCE_FRAME *ref_frames,
-#else
-    const MV_REFERENCE_FRAME *ref_frames,
-#endif  // CONFIG_NEW_REF_SIGNALING
+    const PREDICTION_MODE this_mode, const MV_REFERENCE_FRAME *ref_frames,
     const PREDICTION_MODE *best_single_mode,
     int prune_comp_using_best_single_mode_ref) {
   // Exclude non-extended compound modes from pruning
@@ -5900,29 +5797,18 @@ static INLINE void update_search_state(
 }
 
 static AOM_INLINE void find_top_ref(int64_t ref_frame_rd[REF_FRAMES]) {
-#if CONFIG_NEW_REF_SIGNALING
   // Find the best RD for a reference frame (among single reference modes)
   // and store +10% of it in the INTRA_FRAME_INDEX_NRS-th element in
   // ref_frame_rd.
+  int64_t ref_copy[REF_FRAMES - 1];
+#if CONFIG_NEW_REF_SIGNALING
   assert(ref_frame_rd[INTRA_FRAME_INDEX_NRS] == INT64_MAX);
-  int64_t ref_copy[REF_FRAMES - 1];
   memcpy(ref_copy, ref_frame_rd, sizeof(ref_frame_rd[0]) * (REF_FRAMES - 1));
-  qsort(ref_copy, REF_FRAMES - 1, sizeof(int64_t), compare_int64);
-
-  int64_t cutoff = ref_copy[0];
-  // The cut-off is within 10% of the best.
-  if (cutoff != INT64_MAX) {
-    assert(cutoff < INT64_MAX / 200);
-    cutoff = (110 * cutoff) / 100;
-  }
-  ref_frame_rd[INTRA_FRAME_INDEX_NRS] = cutoff;
 #else
-  // Find the best RD for a reference frame (among single reference modes)
-  // and store +10% of it in the 0-th element in ref_frame_rd.
   assert(ref_frame_rd[0] == INT64_MAX);
-  int64_t ref_copy[REF_FRAMES - 1];
   memcpy(ref_copy, ref_frame_rd + 1,
          sizeof(ref_frame_rd[0]) * (REF_FRAMES - 1));
+#endif  // CONFIG_NEW_REF_SIGNALING
   qsort(ref_copy, REF_FRAMES - 1, sizeof(int64_t), compare_int64);
 
   int64_t cutoff = ref_copy[0];
@@ -5931,28 +5817,27 @@ static AOM_INLINE void find_top_ref(int64_t ref_frame_rd[REF_FRAMES]) {
     assert(cutoff < INT64_MAX / 200);
     cutoff = (110 * cutoff) / 100;
   }
+#if CONFIG_NEW_REF_SIGNALING
+  ref_frame_rd[INTRA_FRAME_INDEX_NRS] = cutoff;
+#else
   ref_frame_rd[0] = cutoff;
 #endif  // CONFIG_NEW_REF_SIGNALING
 }
 
 // Check if either frame is within the cutoff.
-#if CONFIG_NEW_REF_SIGNALING
 static INLINE bool in_single_ref_cutoff(int64_t ref_frame_rd[REF_FRAMES],
                                         MV_REFERENCE_FRAME frame1,
                                         MV_REFERENCE_FRAME frame2) {
+#if CONFIG_NEW_REF_SIGNALING
   assert(frame2 != INVALID_IDX && frame2 != INTRA_FRAME_NRS);
   return ref_frame_rd[frame1] <= ref_frame_rd[INTRA_FRAME_INDEX_NRS] ||
          ref_frame_rd[frame2] <= ref_frame_rd[INTRA_FRAME_INDEX_NRS];
-}
 #else
-static INLINE bool in_single_ref_cutoff(int64_t ref_frame_rd[REF_FRAMES],
-                                        MV_REFERENCE_FRAME frame1,
-                                        MV_REFERENCE_FRAME frame2) {
   assert(frame2 > 0);
   return ref_frame_rd[frame1] <= ref_frame_rd[0] ||
          ref_frame_rd[frame2] <= ref_frame_rd[0];
-}
 #endif  // CONFIG_NEW_REF_SIGNALING
+}
 
 static AOM_INLINE void evaluate_motion_mode_for_winner_candidates(
     const AV1_COMP *const cpi, MACROBLOCK *const x, RD_STATS *const rd_cost,
@@ -6070,7 +5955,6 @@ static int skip_inter_mode(AV1_COMP *cpi, MACROBLOCK *x, const BLOCK_SIZE bsize,
   MB_MODE_INFO *const mbmi = xd->mi[0];
 #if CONFIG_NEW_REF_SIGNALING
   const MV_REFERENCE_FRAME ref_frame = ref_frames[0];
-  (void)ref_frame;
   const MV_REFERENCE_FRAME second_ref_frame = ref_frames[1];
   const int comp_pred =
       second_ref_frame != INTRA_FRAME_NRS && second_ref_frame != INVALID_IDX;
@@ -6522,9 +6406,6 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
       valid_refs[frame] = x->tpl_keep_ref_frame[frame] ||
                           !prune_ref_by_selective_ref_frame_nrs(cpi, x, refs);
     }
-    av1_zero(inter_cost_info_from_tpl);
-    get_block_level_tpl_stats(cpi, bsize, mi_row, mi_col, valid_refs,
-                              &inter_cost_info_from_tpl);
 #else
     for (MV_REFERENCE_FRAME frame = LAST_FRAME; frame < REF_FRAMES; frame++) {
       const MV_REFERENCE_FRAME refs[2] = { frame, NONE_FRAME };
@@ -6533,10 +6414,10 @@ void av1_rd_pick_inter_mode_sb(struct AV1_COMP *cpi,
           !prune_ref_by_selective_ref_frame(
               cpi, x, refs, cm->cur_frame->ref_display_order_hint);
     }
+#endif  // CONFIG_NEW_REF_SIGNALING
     av1_zero(inter_cost_info_from_tpl);
     get_block_level_tpl_stats(cpi, bsize, mi_row, mi_col, valid_refs,
                               &inter_cost_info_from_tpl);
-#endif  // CONFIG_NEW_REF_SIGNALING
   }
 #endif
   const int do_pruning =

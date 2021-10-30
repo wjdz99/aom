@@ -151,7 +151,7 @@ void av1_configure_buffer_updates(
   if (force_refresh_all)
     set_refresh_frame_flags(refresh_frame_flags, true, true, true);
 }
-#endif  // !CONFIG_NEW_REF_SIGNALING
+#endif  // CONFIG_NEW_REF_SIGNALING
 
 static void set_additional_frame_flags(const AV1_COMMON *const cm,
                                        unsigned int *const frame_flags) {

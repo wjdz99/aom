@@ -540,11 +540,7 @@ static AOM_INLINE void set_low_temp_var_flag_128x128(
 static AOM_INLINE void set_low_temp_var_flag(
     AV1_COMP *cpi, PartitionSearchInfo *part_info, MACROBLOCKD *xd,
     VP128x128 *vt, int64_t thresholds[],
-#if CONFIG_NEW_REF_SIGNALING
     MV_REFERENCE_FRAME ref_frame_partition,
-#else
-    MV_REFERENCE_FRAME ref_frame_partition,
-#endif  // CONFIG_NEW_REF_SIGNALING
     int mi_col, int mi_row) {
   AV1_COMMON *const cm = &cpi->common;
   const int mv_thr = cm->width > 640 ? 8 : 4;
