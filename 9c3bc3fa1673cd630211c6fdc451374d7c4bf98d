@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17be309f_adf45d80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-01T17:50:35Z",
+      "side": 1,
+      "message": "Similar to the build on master the remaining failures are due to jobs that try to build the previous version of the code.",
+      "revId": "9c3bc3fa1673cd630211c6fdc451374d7c4bf98d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
