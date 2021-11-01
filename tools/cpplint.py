@@ -247,6 +247,7 @@ _ERROR_CATEGORIES = [
     'runtime/printf',
     'runtime/printf_format',
     'runtime/references',
+    'runtime/sizeof',
     'runtime/string',
     'runtime/threadsafe_fn',
     'runtime/vlog',
@@ -5289,9 +5290,16 @@ def CheckCStyleCast(filename, clean_lines, linenum, cast_type, pattern, error):
   if not match:
     return False
 
+  # e.g., sizeof(int)
+  sizeof_match = Match(r'.*sizeof\s*$', line[0:match.start(1) - 1])
+  if sizeof_match:
+    error(filename, linenum, 'runtime/sizeof', 1,
+          'Using sizeof(type).  Use sizeof(varname) instead if possible')
+    return True
+
   # Exclude lines with keywords that tend to look like casts
   context = line[0:match.start(1) - 1]
-  if Match(r'.*\b(?:sizeof|alignof|alignas|[_A-Z][_A-Z0-9]*)\s*$', context):
+  if Match(r'.*\b(?:alignof|alignas|[_A-Z][_A-Z0-9]*)\s*$', context):
     return False
 
   # Try expanding current context to see if we one level of
