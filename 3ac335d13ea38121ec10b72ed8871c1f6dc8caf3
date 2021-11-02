@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f70942f_1ecdfc18",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-11-02T13:53:20Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have submitted a CL to introduce a speed feature prune_inter_modes_wrt_gf_arf_based_on_sad for RT, speed 5, 6. The speed feature prunes the inter modes w.r.t golden and alt-ref frames using sad. The pruning logic used in this SF is similar to inter_sf.alt_ref_search_fp where the pruning logic is limited to all modes w.r.t alt-ref frame. We have created as a new speed feature as NEWMV mode is not considered for pruning and sad_thresh is tuned specific to RT preset.\n\nThe speed feature is enabled for low-resolution contents for speed 5 and enabled for all resolutions for speed 6.\n\nPlease check the BORG test results.\n               Instruction Count        BD-Rate Loss(%)\ncpu  Test set    Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5        rtc       0.000         0.0000     0.0000    0.0000\n 5   rtc_derf       1.482        -0.1678    -0.1577   -0.2338\n 5    Average       0.723        -0.0699    -0.0657   -0.0974\n\n 6        rtc       0.708         0.0606     0.0632    0.0371\n 6   rtc_derf       1.428         0.0502    -0.0093   -0.1004\n 6    Average       1.059         0.0563     0.0330   -0.0202\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc\n\nWe ensured that the change is bit-exact for all presets except RT speed 5,6. Please review the patch.\nThank you.",
+      "revId": "3ac335d13ea38121ec10b72ed8871c1f6dc8caf3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
