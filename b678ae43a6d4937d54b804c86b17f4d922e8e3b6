@@ -73,6 +73,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d9c5b0b9_8f30857c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-11-02T14:30:34Z",
+      "side": 1,
+      "message": "As suggested, we have enabled the use of superblock size 64x64, only based on resolution ( \u003c\u003d 1080p) and speed ( \u003e\u003d 5 ) during multi-thread encode. With this setting, the speed-quality data is within trade-off  for both single-tile and multi-tile encodes. We have also verified that for single-tile encode, the encode time reduction obtained with FPMT and SB 64x64 is similar to that with SB 128x128. \n\nFor multi-tile encode with FPMT and SB 64x64, we shall tune num_fp_contexts computation for obtaining optimal results as you suggested.",
+      "parentUuid": "25817d5d_7b96137f",
+      "revId": "b678ae43a6d4937d54b804c86b17f4d922e8e3b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4272fd59_59051505",
         "filename": "av1/encoder/encoder_utils.c",
         "patchSetId": 2
@@ -132,6 +150,30 @@
       "side": 1,
       "message": "As mentioned above, for hd+ res, single-tile + fpmt probably isn\u0027t what we want to care about. It is ok to test with it during performance analysis. But I couldn\u0027t think of any real usage of it.",
       "parentUuid": "90fc74b3_a52fe6d0",
+      "range": {
+        "startLine": 805,
+        "startChar": 10,
+        "endLine": 805,
+        "endChar": 26
+      },
+      "revId": "b678ae43a6d4937d54b804c86b17f4d922e8e3b6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29a788c6_7366b31c",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-11-02T14:30:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "87cd4a20_f75948b3",
       "range": {
         "startLine": 805,
         "startChar": 10,

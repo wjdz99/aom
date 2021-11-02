@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ee7b590_5c835575",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-11-02T14:30:34Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch enables the use of superblock size 64x64 for resolutions \u003c\u003d 1080p for speed presets \u003e\u003d 5 when row-mt\u003d1 and oxcf-\u003emax_threads \u003e\u003d 2.\n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "79562281b7f0786d39a1f5c7a15d620e578e60a9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
