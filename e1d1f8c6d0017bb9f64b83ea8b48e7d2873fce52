@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98aefaab_b2a9244d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 22433
+      },
+      "writtenOn": "2021-11-02T13:36:14Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing,\n\nAs per our study, we observed that there is a redundant alloc_compressor_data() call at init time. The below shows the code flow which is resulting in redundant call at init time.\n\n init_config()\n {\n \talloc_compressor_data();\n \t…..\n \tav1_change_config( ,  ,  true);\n \t…..\n \trealloc_segmentation_maps();\n }\n\n av1_change_config( ,  ,  bool is_sb_size_changed);\n {\n \tif(initial_dimensions-\u003ewidth || is_sb_size_changed)\n \t{\n \t\t…..\n \t\talloc_compressor_data();\n \t\trealloc_segmentation_maps();\n        }\n }\n\nThe first call for alloc_compressor_data() happens in init_config(), and the relevant buffers  are allocated here with appropriate frame dimensions and seq_params-\u003esb_size (which is set during av1_change_config_sequqence() call). \nThe second alloc_compressor_data() call happens from init_config() -\u003e av1_change_config() and the parameter ‘is_sb_size_changed’ is passed as ‘true’ resulting in another extra  alloc_compressor_data() call. As seq_params-\u003esb_size will not be changed during init time, this extra call seems to be redundant and this CL avoids the same by passing ‘is_sb_size_changed’ as ‘false’ to av1_change_config() at init time.\n\nAs ‘is_sb_size_changed’ flag is passed as \u0027false\u0027 in this CL, ‘realloc_segmentation_maps()’ is not called from init_config() -\u003e av1_change_config(). This seems to be fine as the buffers allocated inside  ‘realloc_segmentation_maps()’ are not used in init_config() and the same function is called after init_config() in av1_create_compressor().\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nWe validated the encode time reduction for speed \u003e\u003d 6 (on 360p-720p resolutions). \nFor AVIF image encode with threads\u003d4,\n\n           Encode time \ncpu-used   reduction(%)\n   6          0.851\n   7          1.155\n   8          3.011\n   9          3.857\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nAniket.\n",
+      "revId": "e1d1f8c6d0017bb9f64b83ea8b48e7d2873fce52",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
