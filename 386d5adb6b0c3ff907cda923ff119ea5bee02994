@@ -33,6 +33,23 @@
       "message": "This definitely seems like a great change.\n\nThis is a much more reasonable preset than picking the absolute fastest one.\nIt is important for public perception for an encoder to be high quality, but not too slow.",
       "revId": "386d5adb6b0c3ff907cda923ff119ea5bee02994",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "adb023a9_9046a276",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-11-03T21:15:40Z",
+      "side": 1,
+      "message": "Hi Peter,\n\nThank you very much for writing this CL. This CL and https://aomedia-review.googlesource.com/c/aom/+/147921 are similar, so I will comment on both of them here.\n\nIn general I like the idea of setting default values to recommended values, as opposed to extreme values (minimum or maximum) or neutral values (zero or center), because it helps new users use the recommended values and shorten the aomenc command lines.\n\nOne complication for this kind of CL is that these default values are part of libaom\u0027s public interface, so changing them breaks compatibility with older versions of libaom and requires bumping the major version of the next libaom release. That is, the next libaom release will be libaom 4.0.0 instead of 3.3.0. I will discuss this with the technical leads of libaom.",
+      "revId": "386d5adb6b0c3ff907cda923ff119ea5bee02994",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
