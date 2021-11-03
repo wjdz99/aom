@@ -37,6 +37,10 @@ extern const int default_switchable_interp_probs[FRAME_UPDATE_TYPES]
                                                 [SWITCHABLE_FILTER_CONTEXTS]
                                                 [SWITCHABLE_FILTERS];
 
+
+extern const int default_mode_probs[REF_FRAMES];
+
+
 // Mark all inactive blocks as active. Other segmentation features may be set
 // so memset cannot be used, instead only inactive blocks should be reset.
 static AOM_INLINE void suppress_active_map(AV1_COMP *cpi) {
@@ -876,6 +880,7 @@ static AOM_INLINE void copy_frame_prob_info(AV1_COMP *cpi) {
              default_switchable_interp_probs);
   }
 
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
 #if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
   if (cpi->ppi->fpmt_unit_test_cfg == PARALLEL_SIMULATION_ENCODE) {
     FrameProbInfo *const temp_frame_probs = &cpi->ppi->temp_frame_probs;
@@ -913,6 +918,16 @@ static AOM_INLINE void copy_frame_prob_info(AV1_COMP *cpi) {
     }
   }
 #endif
+=======
+
+
+  if (1 /*cpi->sf.*/) {
+    av1_copy(frame_probs->mode_probs, default_mode_probs);
+  }
+
+
+
+>>>>>>> CHANGE (5461a2 wip: gld refreshing)
 }
 
 static AOM_INLINE void restore_cdef_coding_context(CdefInfo *const dst,

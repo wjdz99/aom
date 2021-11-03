@@ -305,6 +305,11 @@ const int default_switchable_interp_probs[FRAME_UPDATE_TYPES]
                                              { 512, 512, 512 } }
                                          };
 
+// total prob is 1024
+const int default_mode_probs[REF_FRAMES] = {
+20, 748, 0, 0, 51, 0, 0, 205
+};
+
 static void configure_static_seg_features(AV1_COMP *cpi) {
   AV1_COMMON *const cm = &cpi->common;
   const RATE_CONTROL *const rc = &cpi->rc;

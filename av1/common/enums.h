@@ -365,7 +365,8 @@ enum {
   INTER_MODE_START = NEARESTMV,
   INTER_MODE_END = MB_MODE_COUNT,
   INTRA_MODES = PAETH_PRED + 1,  // PAETH_PRED has to be the last intra mode.
-  INTRA_INVALID = MB_MODE_COUNT  // For uv_mode in inter blocks
+  INTRA_INVALID = MB_MODE_COUNT,  // For uv_mode in inter blocks
+  INTRA_SINGLE_INTER_MODE_COUNT = NEAREST_NEARESTMV
 } UENUM1BYTE(PREDICTION_MODE);
 
 // TODO(ltrudeau) Do we really want to pack this?

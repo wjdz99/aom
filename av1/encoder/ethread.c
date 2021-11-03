@@ -49,7 +49,15 @@ static AOM_INLINE void accumulate_rd_opt(ThreadData *td, ThreadData *td_t) {
     td->rd_counts.warped_used[i] += td_t->rd_counts.warped_used[i];
   }
 
+<<<<<<< HEAD   (de3a75 Set mv_step_param based on previous frame in speed >= 2)
   td->rd_counts.newmv_or_intra_blocks += td_t->rd_counts.newmv_or_intra_blocks;
+=======
+  for (int i = 0; i < REF_FRAMES; i++) {
+    for (int j = 0; j < INTRA_SINGLE_INTER_MODE_COUNT; j++) {
+      td->rd_counts.mode_used[i][j] += td_t->rd_counts.mode_used[i][j];
+    }
+  }
+>>>>>>> CHANGE (5461a2 wip: gld refreshing)
 }
 
 static AOM_INLINE void update_delta_lf_for_row_mt(AV1_COMP *cpi) {
