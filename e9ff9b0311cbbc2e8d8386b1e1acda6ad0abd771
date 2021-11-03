@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c30eb5c_4e1e2670",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-11-03T19:15:51Z",
+      "side": 1,
+      "message": "Previously, I assumed if gf_frame_index \u003d\u003d 0, the update_type will either be ARF_UPDATE or GF_UPDATE.\nLooks like it\u0027s possible to have LF_UPDATE here.\nIf any of you know why, please let me know.",
+      "range": {
+        "startLine": 1025,
+        "startChar": 0,
+        "endLine": 1028,
+        "endChar": 3
+      },
+      "revId": "e9ff9b0311cbbc2e8d8386b1e1acda6ad0abd771",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
