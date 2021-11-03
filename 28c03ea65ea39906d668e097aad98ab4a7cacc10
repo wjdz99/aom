@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ea2c404_b78e76e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-11-03T21:04:23Z",
+      "side": 1,
+      "message": "Thanks for writing the CL. I suggest two small changes.",
+      "revId": "28c03ea65ea39906d668e097aad98ab4a7cacc10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bf8f098_df5030e3",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-11-03T21:04:23Z",
+      "side": 1,
+      "message": "Nit: I suggest moving the declaration of data2 right before the first use at line 641,",
+      "revId": "28c03ea65ea39906d668e097aad98ab4a7cacc10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "724be955_67591785",
+        "filename": "av1/av1_dx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-11-03T21:04:23Z",
+      "side": 1,
+      "message": "Nit: merge this with the if (ctx-\u003eis_annexb) body at line 601.",
+      "range": {
+        "startLine": 586,
+        "startChar": 0,
+        "endLine": 598,
+        "endChar": 3
+      },
+      "revId": "28c03ea65ea39906d668e097aad98ab4a7cacc10",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
