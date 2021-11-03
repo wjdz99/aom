@@ -1300,6 +1300,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   av1_zero(rdc->tx_type_used);
   av1_zero(rdc->obmc_used);
   av1_zero(rdc->warped_used);
+  av1_zero(rdc->mode_used);
 
   // Reset the flag.
   cpi->intrabc_used = 0;
