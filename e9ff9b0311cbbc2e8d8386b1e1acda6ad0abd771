@@ -22,6 +22,30 @@
       },
       "revId": "e9ff9b0311cbbc2e8d8386b1e1acda6ad0abd771",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39d57869_06e7159d",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1028,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-03T23:39:24Z",
+      "side": 1,
+      "message": "\u003e Previously, I assumed if gf_frame_index \u003d\u003d 0, the update_type will either be ARF_UPDATE or GF_UPDATE.\n\u003e Looks like it\u0027s possible to have LF_UPDATE here.\n\nit might be good to add this note to the commit message body once the discussion is resolved. unless there is a different underlying issue.\n\n\u003e If any of you know why, please let me know.",
+      "parentUuid": "6c30eb5c_4e1e2670",
+      "range": {
+        "startLine": 1025,
+        "startChar": 0,
+        "endLine": 1028,
+        "endChar": 3
+      },
+      "revId": "e9ff9b0311cbbc2e8d8386b1e1acda6ad0abd771",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
