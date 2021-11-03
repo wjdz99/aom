@@ -37,6 +37,10 @@ extern const int default_switchable_interp_probs[FRAME_UPDATE_TYPES]
                                                 [SWITCHABLE_FILTER_CONTEXTS]
                                                 [SWITCHABLE_FILTERS];
 
+
+extern const int default_mode_probs[REF_FRAMES];
+
+
 // Mark all inactive blocks as active. Other segmentation features may be set
 // so memset cannot be used, instead only inactive blocks should be reset.
 static AOM_INLINE void suppress_active_map(AV1_COMP *cpi) {
@@ -872,6 +876,15 @@ static AOM_INLINE void copy_frame_prob_info(AV1_COMP *cpi) {
     av1_copy(frame_probs->switchable_interp_probs,
              default_switchable_interp_probs);
   }
+
+
+
+  if (1 /*cpi->sf.*/) {
+    av1_copy(frame_probs->mode_probs, default_mode_probs);
+  }
+
+
+
 }
 
 static AOM_INLINE void restore_cdef_coding_context(CdefInfo *const dst,
