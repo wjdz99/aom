@@ -69,6 +69,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7aca522_b8330d27",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-11-03T19:33:43Z",
+      "side": 1,
+      "message": "I didn\u0027t see this comment earlier. If you are also not sure, then I think we can skip this check, which will also avoid the need to document local modifications.",
+      "parentUuid": "6f019831_746f1774",
+      "revId": "34747ffa1d43e9f8a3af0ea2a32e5c4cf694638f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1e03bcca_217e832b",
