@@ -1022,6 +1022,9 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   if (frame_params->frame_type == KEY_FRAME) {
     // Don't do tpl for fwd key frames or fwd key frame overlays
     allow_tpl = allow_tpl && !cpi->sf.tpl_sf.disable_filtered_key_tpl;
+  } else {
+    allow_tpl =
+        allow_tpl && (update_type == ARF_UPDATE || update_type == GF_UPDATE);
   }
 
   if (allow_tpl) {
