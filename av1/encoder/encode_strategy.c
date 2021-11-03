@@ -1022,14 +1022,14 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
   if (frame_params->frame_type == KEY_FRAME) {
     // Don't do tpl for fwd key frames or fwd key frame overlays
     allow_tpl = allow_tpl && !cpi->sf.tpl_sf.disable_filtered_key_tpl;
+  } else {
+    allow_tpl =
+        allow_tpl && (update_type == ARF_UPDATE || update_type == GF_UPDATE);
   }
 
-  if (allow_tpl) {
-    // Need to set the size for TPL for ARF
-    // TODO(bohanli): Why is this? what part of it is necessary?
-    av1_set_frame_size(cpi, cm->superres_upscaled_width,
-                       cm->superres_upscaled_height);
-  }
+  // TODO(bohanli): Why is this? what part of it is necessary?
+  av1_set_frame_size(cpi, cm->superres_upscaled_width,
+                     cm->superres_upscaled_height);
 
 #if CONFIG_RD_COMMAND
   if (frame_params->frame_type == KEY_FRAME) {
