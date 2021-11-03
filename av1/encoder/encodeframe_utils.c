@@ -199,6 +199,15 @@ static INLINE void copy_mbmi_ext_frame_to_mbmi_ext(
          sizeof(mbmi_ext->global_mvs));
 }
 
+static INLINE
+void update_mode_count_rt(const AV1_COMMON *const cm, RD_COUNTS *const rdc, const MB_MODE_INFO *mbmi, int area) {
+  const int seg_ref_active =
+            segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_REF_FRAME);
+  if (!seg_ref_active) {
+    rdc->mode_used[mbmi->ref_frame[0]][mbmi->mode] += area;
+  }
+}
+
 void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
                       const PICK_MODE_CONTEXT *const ctx, int mi_row,
                       int mi_col, BLOCK_SIZE bsize, RUN_TYPE dry_run) {
@@ -343,6 +352,10 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
     rdc->comp_pred_diff[SINGLE_REFERENCE] += ctx->single_pred_diff;
     rdc->comp_pred_diff[COMPOUND_REFERENCE] += ctx->comp_pred_diff;
     rdc->comp_pred_diff[REFERENCE_MODE_SELECT] += ctx->hybrid_pred_diff;
+
+    if (/* sf */cpi->oxcf.mode == REALTIME && cm->current_frame.reference_mode == SINGLE_REFERENCE) {
+      update_mode_count_rt(cm, rdc, mi_addr, bw * bh);
+    }
   }
 
   const int x_mis = AOMMIN(bw, mi_params->mi_cols - mi_col);
