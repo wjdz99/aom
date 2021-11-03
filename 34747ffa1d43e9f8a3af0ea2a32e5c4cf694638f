@@ -102,6 +102,24 @@
       "message": "In general it is better to use sizeof(varname) instead of sizeof(type). But in malloc and calloc calls, I think sizeof(type) looks nicer, because we often cast the returned pointer (the cast is not required in C). Compare:\n\n    T *p \u003d (T *)malloc(sizeof(T));\n\nwith:\n\n    T *p \u003d (T *)malloc(sizeof(*p));\n\nAnd a common mistake is to pass sizeof(p):\n\n    T *p \u003d (T *)malloc(sizeof(p));\n\nI wonder if this is one of the reasons why the runtime/sizeof check was removed.\n\nI leave the decision to you.",
       "revId": "34747ffa1d43e9f8a3af0ea2a32e5c4cf694638f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3e115ca_65c4532c",
+        "filename": "tools/cpplint.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 5297,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-03T23:18:39Z",
+      "side": 1,
+      "message": "\u003e In general it is better to use sizeof(varname) instead of sizeof(type).\n\nThe discussion in cl/40205177 was around false positives. I don\u0027t think our code base is consistent and question whether this lint check was resulting in many changes since it\u0027s fyi, so we can skip this for now and leave it to reviewers.\n\n\u003e But in malloc and calloc calls, I think sizeof(type) looks nicer, because we often cast the returned pointer (the cast is not required in C). Compare:\n\u003e \n\u003e     T *p \u003d (T *)malloc(sizeof(T));\n\u003e \n\u003e with:\n\u003e \n\u003e     T *p \u003d (T *)malloc(sizeof(*p));\n\u003e \n\u003e And a common mistake is to pass sizeof(p):\n\u003e \n\u003e     T *p \u003d (T *)malloc(sizeof(p));\n\u003e \n\u003e I wonder if this is one of the reasons why the runtime/sizeof check was removed.\n\u003e \n\u003e I leave the decision to you.\n\nIt\u0027s still in the style guide, so we do have something to point to:\nhttps://google.github.io/styleguide/cppguide.html#sizeof\n\nIt doesn\u0027t look like there\u0027s anything in clang-tidy or static analysis for sizeof aside from:\nhttps://clang.llvm.org/docs/analyzer/checkers.html#unix-mallocsizeof\nhttps://clang.llvm.org/extra/clang-tidy/checks/bugprone-sizeof-container.html\nhttps://clang.llvm.org/extra/clang-tidy/checks/bugprone-sizeof-expression.html\n\nmaybe the malloc sizeof check covers the example you gave.",
+      "parentUuid": "1e03bcca_217e832b",
+      "revId": "34747ffa1d43e9f8a3af0ea2a32e5c4cf694638f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
