@@ -2345,6 +2345,44 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
   SVC *const svc = &cpi->svc;
   const int resize_pending = is_frame_resize_pending(cpi);
   if (!resize_pending && !rc->high_source_sad) {
+    RD_COUNTS *const rdc = &cpi->td.rd_counts;
+    int intra_sum = 0;
+    int mode_sum[REF_FRAMES] = {0};
+
+
+    for (int j = 0; j < INTRA_MODE_END; j++) {
+      intra_sum += rdc->mode_used[INTRA_FRAME][j];
+    }
+    mode_sum[INTRA_FRAME] += intra_sum;
+
+    for (int i = LAST_FRAME; i < REF_FRAMES; i++) {
+      if (!(i == LAST_FRAME || i == GOLDEN_FRAME || i == ALTREF_FRAME)) continue;
+
+      for (int j = INTER_MODE_START; j < INTRA_SINGLE_INTER_MODE_COUNT; j++) {
+        mode_sum[i] += rdc->mode_used[i][j];
+      }
+    }
+
+    FrameProbInfo *const frame_probs = &cpi->ppi->frame_probs;
+
+    if (1 /*cpi->sf*/) {
+      int sum = 0;
+      for (int i = INTRA_FRAME; i < REF_FRAMES; i++) {
+        sum += mode_sum[i];
+      }
+
+      for (int i = INTRA_FRAME; i < REF_FRAMES; i++) {
+        const int new_prob =
+            sum ? 1024 * mode_sum[i] / sum : 0;
+
+          frame_probs->mode_probs[i] =
+              (frame_probs->mode_probs[i] + new_prob) >> 1;
+      }
+    }
+
+//    for (int i = INTRA_FRAME; i < REF_FRAMES; i++)
+//      printf("\n %d;  %d;  %d; \n", i, mode_sum[i], frame_probs->mode_probs[i]);
+
     // Check if we should disable GF refresh (if period is up),
     // or force a GF refresh update (if we are at least halfway through
     // period) based on QP. Look into add info on segment deltaq.
@@ -2361,7 +2399,8 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
       gf_update_changed = 1;
     } else if (allow_gf_update &&
                ((cm->quant_params.base_qindex < thresh * avg_qp / 100) ||
-                (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 20))) {
+                (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 20) ||
+                (frame_probs->mode_probs[GOLDEN_FRAME] < 30) )) {
       // Force refresh since QP is well below average QP or this is a high
       // motion frame.
       svc->refresh[svc->gld_idx_1layer] = 1;
