@@ -1060,6 +1060,13 @@ typedef struct {
    */
   int switchable_interp_probs[FRAME_UPDATE_TYPES][SWITCHABLE_FILTER_CONTEXTS]
                              [SWITCHABLE_FILTERS];
+
+  /*!
+   * mode_probs[i] is the probability of modes used for
+   * ith reference frame, averaged over past frames.
+   * mode_probs[i] is used to make reference frame refreshing decision in real time encoding.
+   */
+  int mode_probs[REF_FRAMES];
 } FrameProbInfo;
 
 /*!\cond */
@@ -1358,6 +1365,7 @@ typedef struct RD_COUNTS {
   int tx_type_used[TX_SIZES_ALL][TX_TYPES];
   int obmc_used[BLOCK_SIZES_ALL][2];
   int warped_used[2];
+  int mode_used[REF_FRAMES][INTRA_SINGLE_INTER_MODE_COUNT];
 } RD_COUNTS;
 
 typedef struct ThreadData {
