@@ -545,6 +545,64 @@ if(CONFIG_AV1_ENCODER)
     endif()
   endif()
 
+  if(CONFIG_TFLITE)
+    include(FetchContent)
+
+    set(TFLITE_TAG "v2.6.1")
+
+    message(STATUS "Fetching TFLite ${TFLITE_TAG}...")
+
+    # static linking makes life with TFLite much easier
+    set(TFLITE_C_BUILD_SHARED_LIBS OFF)
+
+    # We don't care about comparing against these delegates (yet), and disabling
+    # it reduces compile time meaningfully
+    set(TFLITE_ENABLE_RUY OFF)
+    set(TFLITE_ENABLE_XNNPACK OFF)
+
+    fetchcontent_declare(tflite
+                         GIT_REPOSITORY https://github.com/tensorflow/tensorflow
+                         GIT_TAG ${TFLITE_TAG}
+                         GIT_SHALLOW TRUE)
+
+    fetchcontent_getproperties(tflite)
+    if(NOT tflite_POPULATED)
+      fetchcontent_populate(tflite)
+      # Some of the subprojects (e.g. Eigen) are very noisy and emit status
+      # messages all the time. Temporary ignore status messages while adding
+      # this to silence it. Ugly but effective.
+      set(OLD_CMAKE_MESSAGE_LOG_LEVEL ${CMAKE_MESSAGE_LOG_LEVEL})
+      set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
+      add_subdirectory(${tflite_SOURCE_DIR}/tensorflow/lite/c
+                       ${tflite_BINARY_DIR})
+      set(CMAKE_MESSAGE_LOG_LEVEL ${OLD_CMAKE_MESSAGE_LOG_LEVEL})
+    endif()
+
+    # tensorflowlite_c is implicitly declared by this FetchContent
+
+    # Disable some noisy warnings in abseil
+    foreach(LIB IN ITEMS absl_base absl_graphcycles_internal
+            absl_malloc_internal absl_synchronization absl_time absl_time_zone)
+      target_compile_options(
+        ${LIB}
+        PRIVATE
+          $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-tautological-type-limit-compare>
+          $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-unused-template>
+          $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-shadow>
+          $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-shadow-uncaptured-local>
+          $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-anon-enum-enum-conversion>)
+    endforeach()
+
+    # Disable some noisy warnings in tflite
+    target_compile_options(
+      tensorflow-lite
+      PRIVATE
+        $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-gnu-inline-cpp-without-extern>
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-ignored-attributes>)
+    include_directories(${tflite_SOURCE_DIR})
+    target_link_libraries(aom PRIVATE tensorflow-lite)
+  endif()
+
   if(CONFIG_TUNE_VMAF)
     find_package(PkgConfig)
     if(PKG_CONFIG_FOUND)
