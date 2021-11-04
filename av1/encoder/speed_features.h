@@ -1333,6 +1333,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // If enabled this selectively trurns off loop filtering based on frame
   // complexity
   int use_selective_loopfiltering;
+
+  // Force half_pel at block level.
+  int force_half_pel_block;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
