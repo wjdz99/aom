@@ -1328,6 +1328,13 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Prune inter mode search in rd path based on current block's temporal
   // variance wrt LAST reference.
   int prune_inter_modes_using_temp_var;
+
+  // If enabled this selectively trurns off loop filtering based on frame
+  // complexity
+  int use_selective_loopfiltering;
+
+  // Force half_pel at block level.
+  int force_half_pel_block;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
