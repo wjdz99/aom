@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffaea2c5_cb735164",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1288,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-04T22:35:40Z",
+      "side": 0,
+      "message": "Is this check not needed anymore? Could you explain a bit on this?",
+      "range": {
+        "startLine": 1288,
+        "startChar": 30,
+        "endLine": 1288,
+        "endChar": 56
+      },
+      "revId": "2b17f85f1949e22ee47da5a45d9a1afe274c8666",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
