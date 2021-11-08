@@ -293,7 +293,7 @@ void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
   // Set minimum gf_interval for GF update to a multiple of the refresh period,
   // with some max limit. Depending on past encoding stats, GF flag may be
   // reset and update may not occur until next baseline_gf_interval.
-  const int gf_length_mult[2] = { 8, 4 };
+  const int gf_length_mult[2] = { 64, 4 };
   if (cr->percent_refresh > 0)
     p_rc->baseline_gf_interval =
         AOMMIN(gf_length_mult[cpi->sf.rt_sf.gf_length_lvl] *
