@@ -39,7 +39,7 @@ extern "C" {
 #define STATIC_KF_GROUP_FLOAT_THRESH 0.99
 
 // The maximum duration of a GF group that is static (e.g. a slide show).
-#define MAX_STATIC_GF_GROUP_LENGTH 250
+#define MAX_STATIC_GF_GROUP_LENGTH 350
 
 #define MIN_GF_INTERVAL 4
 #define MAX_GF_INTERVAL 32
