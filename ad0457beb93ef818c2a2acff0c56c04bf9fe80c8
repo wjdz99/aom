@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e050dc5_f27bde9d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 28763
+      },
+      "writtenOn": "2021-11-09T05:19:57Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, PTAL, this fix the building error when enable_libaom on chromeos\n\nthe error attached:\n../../third_party/libaom/source/libaom/aom_dsp/grain_table.c:108:5: error: ignoring return value of function declared with \u0027warn_unused_result\u0027 attribute [-Werror,-Wunused-result]\n    fscanf(file, \"\\n\\tcY\");\n    ^~~~~~ ~~~~~~~~~~~~~~\n../../third_party/libaom/source/libaom/aom_dsp/grain_table.c:117:5: error: ignoring return value of function declared with \u0027warn_unused_result\u0027 attribute [-Werror,-Wunused-result]\n    fscanf(file, \"\\n\\tcCb\");\n    ^~~~~~ ~~~~~~~~~~~~~~~\n../../third_party/libaom/source/libaom/aom_dsp/grain_table.c:125:5: error: ignoring return value of function declared with \u0027warn_unused_result\u0027 attribute [-Werror,-Wunused-result]\n    fscanf(file, \"\\n\\tcCr\");\n    ^~~~~~ ~~~~~~~~~~~~~~~\n../../third_party/libaom/source/libaom/aom_dsp/grain_table.c:133:5: error: ignoring return value of function declared with \u0027warn_unused_result\u0027 attribute [-Werror,-Wunused-result]\n    fscanf(file, \"\\n\");\n    ^~~~~~ ~~~~~~~~~~\n4 errors generated.",
+      "revId": "ad0457beb93ef818c2a2acff0c56c04bf9fe80c8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
