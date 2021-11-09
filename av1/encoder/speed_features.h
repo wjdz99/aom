@@ -311,9 +311,12 @@ enum {
  * more flexibility in update frequency. This enum is separate from \ref
  * COST_UPDATE_TYPE because although \ref COST_UPDATE_TYPE is not exposed, its
  * values are public so it cannot be modified without breaking public API.
+ * \warning  Any modifications done to this enum needs to be in sync
+ * with COST_UPDATE_TYPE enum.
  */
 typedef enum {
   INTERNAL_COST_UPD_OFF,       /*!< Turn off cost updates. */
+  INTERNAL_COST_UPD_TILE,      /*!< Update every tile. */
   INTERNAL_COST_UPD_SBROW_SET, /*!< Update every row_set of height 256 pixs. */
   INTERNAL_COST_UPD_SBROW,     /*!< Update every sb rows inside a tile. */
   INTERNAL_COST_UPD_SB,        /*!< Update every sb. */
