@@ -52,6 +52,24 @@
       "parentUuid": "2a4ed2b2_79c5f96a",
       "revId": "e63c17b2cbd3b78023dbe9fa97fed9078a90715b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6d5eaa7_70efe952",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-11-09T17:46:51Z",
+      "side": 1,
+      "message": "Speed 2: 2% faster, 0.04% quality loss.\nSpeed 3 and above: no change, since speed feature \"disable_onesided_comp\" is true. The cl is already covered by that feature.",
+      "parentUuid": "c1a17282_04558e3b",
+      "revId": "e63c17b2cbd3b78023dbe9fa97fed9078a90715b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
