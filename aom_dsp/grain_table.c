@@ -105,7 +105,8 @@ static void grain_table_entry_read(FILE *file,
       }
     }
 
-    fscanf(file, "\n\tcY");
+    if (fscanf(file, "\n\tcY"))
+      return;
     const int n = 2 * pars->ar_coeff_lag * (pars->ar_coeff_lag + 1);
     for (int i = 0; i < n; ++i) {
       if (1 != fscanf(file, "%d", &pars->ar_coeffs_y[i])) {
@@ -114,7 +115,8 @@ static void grain_table_entry_read(FILE *file,
         return;
       }
     }
-    fscanf(file, "\n\tcCb");
+    if (fscanf(file, "\n\tcCb"))
+      return;
     for (int i = 0; i <= n; ++i) {
       if (1 != fscanf(file, "%d", &pars->ar_coeffs_cb[i])) {
         aom_internal_error(error_info, AOM_CODEC_ERROR,
@@ -122,7 +124,8 @@ static void grain_table_entry_read(FILE *file,
         return;
       }
     }
-    fscanf(file, "\n\tcCr");
+    if (fscanf(file, "\n\tcCr"))
+      return;
     for (int i = 0; i <= n; ++i) {
       if (1 != fscanf(file, "%d", &pars->ar_coeffs_cr[i])) {
         aom_internal_error(error_info, AOM_CODEC_ERROR,
@@ -130,7 +133,8 @@ static void grain_table_entry_read(FILE *file,
         return;
       }
     }
-    fscanf(file, "\n");
+    if (fscanf(file, "\n"))
+      return;
   }
 }
 
