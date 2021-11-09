@@ -246,6 +246,7 @@ static int get_frame_info(THIRD_PASS_DEC_CTX *ctx) {
           }
           const int this_offset = offset + h * mi_cols + w;
           this_mi[this_offset].bsize = cur_mi_info.bsize;
+          this_mi[this_offset].partition = cur_mi_info.partition;
           this_mi[this_offset].mi_row_start = mi_row;
           this_mi[this_offset].mi_col_start = mi_col;
           this_mi[this_offset].mv[0] = cur_mi_info.mv[0];
@@ -502,9 +503,9 @@ THIRD_PASS_MI_INFO *av1_get_third_pass_mi(THIRD_PASS_DEC_CTX *ctx, int fidx,
 
   const int mi_rows_tp = ctx->frame_info[fidx].mi_rows;
   const int mi_cols_tp = ctx->frame_info[fidx].mi_cols;
-
-  const int mi_row_tp = clamp((int)floor(mi_row / ratio_h), 0, mi_rows_tp);
-  const int mi_col_tp = clamp((int)floor(mi_col / ratio_w), 0, mi_cols_tp);
+  
+  const int mi_row_tp = clamp((int)ceil(mi_row / ratio_h), 0, mi_rows_tp - 1);
+  const int mi_col_tp = clamp((int)ceil(mi_col / ratio_w), 0, mi_cols_tp - 1);
 
   const int mi_stride_tp = ctx->frame_info[fidx].mi_stride;
   THIRD_PASS_MI_INFO *this_mi =
@@ -566,8 +567,8 @@ BLOCK_SIZE av1_get_third_pass_adjusted_blk_size(THIRD_PASS_MI_INFO *this_mi,
   }
   assert(part_type != PARTITION_INVALID);
 
-  const int w = (int)(w_tp * ratio_w);
-  const int h = (int)(h_tp * ratio_h);
+  const int w = (int)(round(w_tp * ratio_w));
+  const int h = (int)(round(h_tp * ratio_h));
   for (int i = 0; i < SQR_BLOCK_SIZES; i++) {
     const BLOCK_SIZE this_bsize = subsize_lookup[part_type][i];
     if (this_bsize == BLOCK_INVALID) continue;
@@ -587,4 +588,17 @@ BLOCK_SIZE av1_get_third_pass_adjusted_blk_size(THIRD_PASS_MI_INFO *this_mi,
   }
 
   return bsize;
+}
+
+PARTITION_TYPE av1_third_passget_sb_part_type(THIRD_PASS_DEC_CTX *ctx,
+                                              THIRD_PASS_MI_INFO *this_mi) {
+  int mi_stride = ctx->frame_info[0].mi_stride;
+
+  int mi_row = this_mi->mi_row_start;
+  int mi_col = this_mi->mi_col_start;
+
+  THIRD_PASS_MI_INFO *corner_mi =
+      &ctx->frame_info[0].mi_info[mi_row * mi_stride + mi_col];
+
+  return corner_mi->partition;
 }
