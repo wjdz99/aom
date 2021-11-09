@@ -224,10 +224,11 @@ typedef enum {
  * \brief This enum controls how often the entropy costs should be updated.
  */
 typedef enum {
-  COST_UPD_SB,    /*!< Update every sb. */
-  COST_UPD_SBROW, /*!< Update every sb rows inside a tile. */
-  COST_UPD_TILE,  /*!< Update every tile. */
-  COST_UPD_OFF,   /*!< Turn off cost updates. */
+  COST_UPD_SB,           /*!< Update every sb. */
+  COST_UPD_SBROW,        /*!< Update every sb rows inside a tile. */
+  COST_UPD_TILE,         /*!< Update every tile. */
+  COST_UPD_OFF,          /*!< Turn off cost updates. */
+  NUM_COST_UPDATE_TYPES, /*!< Number of cost update types. */
 } COST_UPDATE_TYPE;
 
 /*!\enum LOOPFILTER_CONTROL
