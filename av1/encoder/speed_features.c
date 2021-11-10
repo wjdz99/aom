@@ -516,6 +516,9 @@ static void set_allintra_speed_features_framesize_independent(
   }
 
   if (speed >= 9) {
+    sf->inter_sf.coeff_cost_upd_level = INTERNAL_COST_UPD_OFF;
+    sf->inter_sf.mode_cost_upd_level = INTERNAL_COST_UPD_OFF;
+
     sf->rt_sf.nonrd_check_partition_merge_mode = 0;
     sf->rt_sf.hybrid_intra_pickmode = 0;
   }
