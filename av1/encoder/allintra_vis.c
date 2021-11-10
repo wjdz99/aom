@@ -587,7 +587,8 @@ void av1_init_mb_ur_var_buffer(AV1_COMP *cpi) {
 
 #if CONFIG_TFLITE
 static void model_predict(BLOCK_SIZE block_size, int num_cols, int num_rows,
-                          uint8_t *y_buffer, int y_stride, float *predicts) {
+                          uint8_t *y_buffer, int y_stride, float *predicts0,
+                          float *predicts1) {
   // Create the model and interpreter options.
   TfLiteModel *model =
       TfLiteModelCreate(av1_deltaq4_model_file, av1_deltaq4_model_fsize);
@@ -631,10 +632,11 @@ static void model_predict(BLOCK_SIZE block_size, int num_cols, int num_rows,
           TfLiteInterpreterGetOutputTensor(interpreter, 0);
 
       size_t output_size = TfLiteTensorByteSize(output_tensor);
-      float output_data;
+      float output_data[2];
 
-      TfLiteTensorCopyToBuffer(output_tensor, &output_data, output_size);
-      predicts[row * num_cols + col] = output_data;
+      TfLiteTensorCopyToBuffer(output_tensor, output_data, output_size);
+      predicts0[row * num_cols + col] = output_data[0];
+      predicts1[row * num_cols + col] = output_data[1];
     }
   }
 
@@ -661,47 +663,60 @@ void av1_set_mb_ur_variance(AV1_COMP *cpi) {
   // TODO(sdeng): add highbitdepth support.
   (void)use_hbd;
 
-  float *mb_delta_q, delta_q_avg = 0.0f;
-  CHECK_MEM_ERROR(cm, mb_delta_q,
+  float *mb_delta_q0, *mb_delta_q1, delta_q_avg0 = 0.0f, delta_q_avg1 = 0.0f;
+  CHECK_MEM_ERROR(cm, mb_delta_q0,
+                  aom_calloc(num_rows * num_cols, sizeof(float)));
+  CHECK_MEM_ERROR(cm, mb_delta_q1,
                   aom_calloc(num_rows * num_cols, sizeof(float)));
 
-  // TODO(sdeng): train the model at a different quality level.
-  model_predict(block_size, num_cols, num_rows, y_buffer, y_stride, mb_delta_q);
+  model_predict(block_size, num_cols, num_rows, y_buffer, y_stride, mb_delta_q0,
+                mb_delta_q1);
 
   // Loop through each SB block.
   for (int row = 0; row < num_rows; ++row) {
     for (int col = 0; col < num_cols; ++col) {
       const int index = row * num_cols + col;
-      delta_q_avg += mb_delta_q[index];
+      delta_q_avg0 += mb_delta_q0[index];
+      delta_q_avg1 += mb_delta_q1[index];
     }
   }
 
-  delta_q_avg /= (float)(num_rows * num_cols);
-
-  // Approximates the model change between current version (Spet 2021) and the
-  // baseline (July 2021).
-  const float model_change = 3.0f * 4.0f / (float)MAXQ;
-  delta_q_avg += model_change;
+  delta_q_avg0 /= (float)(num_rows * num_cols);
+  delta_q_avg1 /= (float)(num_rows * num_cols);
 
   float scaling_factor;
+  int model_id = 0;
   const float cq_level = (float)cpi->oxcf.rc_cfg.cq_level / (float)MAXQ;
-  if (cq_level < delta_q_avg) {
-    scaling_factor = cq_level / delta_q_avg;
+  if (cq_level < delta_q_avg0) {
+    scaling_factor = cq_level / delta_q_avg0;
+  } else if (cq_level < delta_q_avg1) {
+    model_id = 2;
+    scaling_factor = (cq_level - delta_q_avg0) / (delta_q_avg1 - delta_q_avg0);
   } else {
-    scaling_factor = 1.0f - (cq_level - delta_q_avg) / (1.0f - delta_q_avg);
+    model_id = 1;
+    scaling_factor = 1.0f - (cq_level - delta_q_avg1) / (1.0f - delta_q_avg1);
   }
-  delta_q_avg -= model_change;
 
   for (int row = 0; row < num_rows; ++row) {
     for (int col = 0; col < num_cols; ++col) {
       const int index = row * num_cols + col;
-      cpi->mb_delta_q[index] =
-          RINT((float)cpi->oxcf.q_cfg.deltaq_strength / 100.0 * (float)MAXQ *
-               scaling_factor * (mb_delta_q[index] - delta_q_avg));
+      if (model_id == 2) {
+        cpi->mb_delta_q[index] = RINT(
+            (float)cpi->oxcf.q_cfg.deltaq_strength / 100.0f * (float)MAXQ *
+            (scaling_factor * (mb_delta_q1[index] - delta_q_avg1) +
+             (1.0 - scaling_factor) * (mb_delta_q0[index] - delta_q_avg0)));
+      } else {
+        cpi->mb_delta_q[index] =
+            RINT((float)cpi->oxcf.q_cfg.deltaq_strength / 100.0f * (float)MAXQ *
+                 scaling_factor *
+                 (model_id == 0 ? mb_delta_q0[index] - delta_q_avg0
+                                : mb_delta_q1[index] - delta_q_avg1));
+      }
     }
   }
 
-  aom_free(mb_delta_q);
+  aom_free(mb_delta_q0);
+  aom_free(mb_delta_q1);
 }
 #else
 void av1_set_mb_ur_variance(AV1_COMP *cpi) {
