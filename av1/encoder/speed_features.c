@@ -788,7 +788,7 @@ static void set_good_speed_features_framesize_independent(
   const int is_boosted_arf2_bwd_type =
       boosted || gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE;
   const int is_lf_frame =
-      gf_group->frame_type[cpi->gf_frame_index] == LF_UPDATE;
+      gf_group->update_type[cpi->gf_frame_index] == LF_UPDATE;
   const int allow_screen_content_tools =
       cm->features.allow_screen_content_tools;
   const int use_hbd = cpi->oxcf.use_highbitdepth;
