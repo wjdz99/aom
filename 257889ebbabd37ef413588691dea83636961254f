@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07e411a9_9208ae4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-11-11T15:06:11Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing,\n\nThe sf mv_cost_upd_level was set as INTERNAL_COST_UPD_SBROW to avoid mv cost update for a set of rows when row multi-threading was enabled and mv_cost_upd_level was INTERNAL_COST_UPD_SBROW_SET. This piece of code was introduced in the following CL:\nhttps://aomedia-review.googlesource.com/c/aom/+/123181\n\nWhen the above CL was introduced, the possible values for the sf mv_cost_upd_freq were as follows:  \n  0: update happens at each sb level.\n  1: update happens once for each sb row.\n  2: update happens once for a set of rows.\n\nLater, the datatype of the sf was changed to the enum INTERNAL_COST_UPDATE_TYPE which had the following possible values:\n  INTERNAL_COST_UPD_OFF,       /*!\u003c Turn off cost updates. */\n  INTERNAL_COST_UPD_SBROW_SET, /*!\u003c Update every row_set of height 256 pixs. */\n  INTERNAL_COST_UPD_SBROW,     /*!\u003c Update every sb rows inside a tile. */\n  INTERNAL_COST_UPD_SB,        /*!\u003c Update every sb. */\n\nThis enum was introduced in the following CL: \nhttps://aomedia-review.googlesource.com/c/aom/+/133581 \n\nThe latter CL also took care of the special handling which was introduced in the former CL but an undesired consequence of the same was that the special handling was getting invoked even when mv_cost_upd_level is set to INTERNAL_COST_UPD_OFF. This CL fixes this behaviour and adds appropriate comments for the special handling of the sf mv_cost_upd_level when row_mt is enabled.\n\nCurrently there are no settings in the encoder which sets the sf mv_cost_upd_level  to INTERNAL_COST_UPD_OFF. The changes in this CL will ensure that the sf will be taken care of appropriately and should facilitate MT optimizations in the future. We have manually verified (by setting mv_cost_upd_level sf to INTERNAL_COST_UPD_OFF for verification purpose) that the expected behaviour is seen and ensured that there is no run-to-run mismatch in such a scenario with this CL.\n\nPlease review.\n\nRegards,\nJayasanker.\n",
+      "revId": "257889ebbabd37ef413588691dea83636961254f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
