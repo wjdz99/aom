@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a696eed_d15ced5f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-11-11T18:13:25Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing,\n\nIn this CL, we have changed the cost update frequencies of coeff and mode symbols to COST_UPD_OFF and COST_UPD_SBROW depending on the resolution. For resolutions \u003e\u003d 4k, frequency of cost update is set as COST_UPD_SBROW as the tile size tends to be bigger. For resolutions \u003c 4k the cost update is set as COST_UPD_OFF. Currently, this change is applicable for speed \u003e\u003d 9.\n\nWe validated the current patch for allintra video and still-image encode. Following are encode time reduction results when AVIF encode was tested for a typical image dataset. Bit match is verified for presets 0 to 8.\n\nFor AVIF still image encode with tune\u003dpsnr,\n                  Encode Time      BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr     ssim\n         9          3.900         -0.0433   0.1134\n\t\t \nFor AVIF still image encode with tune\u003dssim,\n                  Encode Time      BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr      ssim\n         9          4.060          0.4107    0.2378\n\t\t \nFollowing are encode time reduction results when tested libaom with all intra frame encoding for a borg setup. Bit match is verified for preset 0 to 8.\n               Instruction Count       BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  ovr.psnr   ssim\n         9         5.141         -0.3028   -0.2904     0.0235\n\t\t \nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nAs per our study, cost update frequencies should be set to off/tile for current SB to start processing even before top-right SB finishes processing (when row-mt is enabled). Once this patch is merged, we are planning to submit another patch on delaying the top-right sync to speed-up MT encoding. \n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "f7140c5142f036189488da629199ac5ab93fede7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
