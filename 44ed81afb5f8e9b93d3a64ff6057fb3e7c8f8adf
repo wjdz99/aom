@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \nThis patch extends the speed feature alt_ref_search_fp to speed 2 and 3. The SF currently prunes the inter modes w.r.t. BWDREF, ALTREF2 and ALTREF reference slots, when they are past frames. We have made the SF more conservative for speed 2 and 3 by excluding BWDREF from pruning. We found that pruning inter modes w.r.t. ALTREF2/ ALTREF references causes quality loss (particularly in global motion contents) if they are far from LAST_FRAME. Hence we have excluded such cases from pruning.\n \nPlease note that the clip factory_1080p30 has a worst case bd-rate drop of 1.5%. We found that, this is due to the change in the GOP length, which is decided based on TPL stats. We have also verified that when the gop_length_decision_method is forced to be same as that of the parent commit, the quality impact is  -0.147%. In this way we ensured the quality drop issue is not caused by the extension of the SF directly. \n \nPlease find below detailed Borg test results.\n                 Instruction Count     BD-Rate Loss(%)\ncpu Resolution    Reduction(%)      avg.psnr   ovr.psnr    ssim   \n 2     LOWRES2     0.872            -0.1778    -0.1810     -0.1587       \n 2     MIDRES2     1.071            -0.2442    -0.2480     -0.3165        \n 2     HDRES2      0.737            -0.2033    -0.2146     -0.1304         \n 2     Average     0.893            -0.2168    -0.2230     -0.2102 \n \n 3     LOWRES2     1.357            -0.1567    -0.1672     -0.2128   \n 3     MIDRES2     1.110            -0.2294    -0.2327     -0.3164   \n 3     HDRES2      1.401            -0.0778    -0.0748     -0.0594   \n 3     Average     1.289            -0.1578    -0.1605     -0.1981   \n \nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \n \nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n \nWe have verified that the patch in bit exact for other speed levels. \nPlease review the patch. \n  \nThanks,\nAkshata\n\n\n",
       "revId": "44ed81afb5f8e9b93d3a64ff6057fb3e7c8f8adf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07b268bc_02dc53cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-11T20:23:42Z",
+      "side": 1,
+      "message": "The gain is good. Regarding the worst case, what you said sounds reasonable. Thanks for re-tuning this sf for lower speeds.",
+      "parentUuid": "03bdeb6d_ffa6251d",
+      "revId": "44ed81afb5f8e9b93d3a64ff6057fb3e7c8f8adf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
