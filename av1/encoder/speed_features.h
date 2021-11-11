@@ -520,6 +520,10 @@ typedef struct PARTITION_SPEED_FEATURES {
   // Currently 0 is the lowest, and 2 the highest.
   int simple_motion_search_prune_agg;
 
+  // Rectangular partition pruning based on simple_motion_search
+  // and qindex. Aggressiveness 0 is the lowest, and 2 the highest.
+  int simple_motion_search_prune_rect_based_on_qidx;
+
   // Perform simple_motion_search on each possible subblock and use it to prune
   // PARTITION_HORZ and PARTITION_VERT.
   int simple_motion_search_prune_rect;

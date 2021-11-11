@@ -627,11 +627,17 @@ void av1_simple_motion_search_prune_rect(AV1_COMP *const cpi, MACROBLOCK *x,
   const float *ml_mean = av1_simple_motion_search_prune_rect_mean[bsize_idx],
               *ml_std = av1_simple_motion_search_prune_rect_std[bsize_idx];
 
-  const int agg = cpi->sf.part_sf.simple_motion_search_prune_agg;
+  int agg = cpi->sf.part_sf.simple_motion_search_prune_agg;
 
   if (agg < 0) {
     return;
   }
+
+  // Increases the aggressiveness to prune rectangular partition for
+  // lower quantizers in non-boosted frames.
+  if ((cpi->sf.part_sf.simple_motion_search_prune_rect_based_on_qidx > 0) &&
+      (x->qindex <= 90))
+    agg = cpi->sf.part_sf.simple_motion_search_prune_rect_based_on_qidx;
 
   const float prune_thresh =
       av1_simple_motion_search_prune_rect_thresh[agg][res_idx][bsize_idx];

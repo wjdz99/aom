@@ -60,6 +60,7 @@ void av1_reset_part_sf(PARTITION_SPEED_FEATURES *part_sf) {
         -1;  // -1 means not enabled.
   }
   part_sf->simple_motion_search_prune_agg = 0;
+  part_sf->simple_motion_search_prune_rect_based_on_qidx = 0;
   part_sf->simple_motion_search_split = 0;
   part_sf->simple_motion_search_prune_rect = 0;
   part_sf->simple_motion_search_early_term_none = 0;
