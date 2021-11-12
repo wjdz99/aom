@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9948f39_799ff6d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15030
+      },
+      "writtenOn": "2021-11-12T15:28:01Z",
+      "side": 1,
+      "message": "Yunqing,\nThis patch extends the SF use_coarse_filter_level_search to speed 4.\nPlease find below detailed borg result. \n\n                  Instruction Count        BD-Rate Loss(%)\ncpu Resolution      Reduction(%)           avg.psnr   ovr.psnr    ssim   \n 4     LOWRES2         0.571               -0.0067    -0.0087\t -0.0061\n 4     MIDRES2         0.73                 0.0505     0.0291\t  0.0523\n 4     HDRES2          0.659               -0.0444    -0.0593\t -0.0667       \n 4     Average         0.654                0.0006    -0.0122\t -0.0046\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n\nPlease note that the MIDRES2 contents are slightly out of tradeoff. \nWe have verified that the patch is bit exact for other speed presets. \nPlease review the patch.",
+      "revId": "2b70acd14e36e4f92d6ac3e3bdaec0b5789c7aa4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
