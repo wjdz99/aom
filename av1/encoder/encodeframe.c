@@ -280,6 +280,8 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
       }
     }
   }
+
+  x->sb_rdmult = av1_compute_rd_mult(cpi, current_qindex);
 }
 
 static void init_ref_frame_space(AV1_COMP *cpi, ThreadData *td, int mi_row,
@@ -397,6 +399,7 @@ static AOM_INLINE void adjust_rdmult_tpl_model(AV1_COMP *cpi, MACROBLOCK *x,
     const int dr =
         av1_get_rdmult_delta(cpi, sb_size, mi_row, mi_col, orig_rdmult);
     x->rdmult = dr;
+    x->sb_rdmult = dr;
   }
 }
 #endif  // !CONFIG_REALTIME_ONLY
@@ -565,7 +568,7 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
     av1_init_simple_motion_search_mvs_for_sb(cpi, tile_info, x, sms_root,
                                              mi_row, mi_col);
   }
-
+  x->sb_rdmult = av1_compute_rd_mult(cpi, cm->quant_params.base_qindex);
 #if !CONFIG_REALTIME_ONLY
   if (!(has_no_stats_stage(cpi) && cpi->oxcf.mode == REALTIME &&
         cpi->oxcf.gf_cfg.lag_in_frames == 0)) {
@@ -590,7 +593,6 @@ static INLINE void init_encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   (void)mi_col;
   (void)gather_tpl_data;
 #endif
-
   reset_mb_rd_record(x->txfm_search_info.mb_rd_record);
   av1_zero(x->picked_ref_frames_mask);
   av1_invalid_rd_stats(rd_cost);
