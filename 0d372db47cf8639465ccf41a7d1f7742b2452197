@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25c37c89_cf432fac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-11-12T10:37:20Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch fixes an uninitialized buffer access during wedge prediction in av1_compound_type_rd() when need_mask_search \u003d 1 and disable_interinter_wedge_newmv_search \u003d 1 for newmv modes.\n\nIn the parent version, the uni predictor computations for wedge prediction were not happening for newmv modes when need_mask_search \u003d 1 and disable_interinter_wedge_newmv_search \u003d 1, causing av1_build_wedge_inter_predictor_from_buf() to access uninitialized memory during wedge mask search. This patch corrects the condition used to compute the uni predictors to account for disable_interinter_wedge_newmv_search as well. Since disable_interinter_wedge_newmv_search \u003d 1 for speed \u003e\u003d 2 and wedge is disabled for lowres and midres in speed 3 as well as for all resolutions in speed \u003e\u003d 4, this fix is applicable for speed 2 and speed 3 hdres.\n\nThis also fixes a couple of run to run mismatches seen in speed 3 hdres with multi-thread encode.\n\nPlease note that the fix has caused worst case drops of 1.094% and 0.913% in ovr psnr for netflix_aerial and crew_720p30 clips in speed 2 (other clips have a quality impact within 0.5%).\n\nPlease find the borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOWRES2   |       0.012       | -0.0065   -0.0060    0.0099  |\n   2     |  MIDRES2   |       0.015       |  0.0293    0.0354    0.0232  |\n   2     |   HDRES2*  |       0.015       |  0.0169    0.0111    0.0199  |\n   2     |  Average   |       0.014       |  0.0136    0.0137    0.0178  |\n         |            |                   |                              |\n   3     |  LOWRES2   |       0.000       |  0.0000    0.0000    0.0000  |\n   3     |  MIDRES2   |       0.000       |  0.0000    0.0000    0.0000  |\n   3     |   HDRES2   |      -0.111       | -0.0037   -0.0092    0.0386  |\n   3     |  Average   |      -0.036       | -0.0013   -0.0032    0.0135  |\n\n  *60 frame runs\n  \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "0d372db47cf8639465ccf41a7d1f7742b2452197",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
