@@ -2022,8 +2022,13 @@ const SadSkipMxNParam skip_sse2_tests[] = {
 #endif
 #endif  // CONFIG_AV1_HIGHBITDEPTH
 };
+// Temporarily disable tests until BUG=aomedia:3176 is addressed.
+#if defined(_WIN64)
+(void) skip_sse2_tests;
+#else
 INSTANTIATE_TEST_SUITE_P(SSE2, SADSkipTest,
                          ::testing::ValuesIn(skip_sse2_tests));
+#endif
 
 const SadMxNAvgParam avg_sse2_tests[] = {
   make_tuple(128, 128, &aom_sad128x128_avg_sse2, -1),
@@ -2319,8 +2324,13 @@ const SadMxNx4AvgParam x4d_avg_sse2_tests[] = {
   make_tuple(4, 16, &aom_sad4x16x4d_avg_sse2, -1),
 #endif
 };
+// Temporarily disable tests until BUG=aomedia:3176 is addressed.
+#if defined(_WIN64)
+(void) x4d_avg_sse2_tests;
+#else
 INSTANTIATE_TEST_SUITE_P(SSE2, SADx4AvgTest,
                          ::testing::ValuesIn(x4d_avg_sse2_tests));
+#endif
 #endif  // HAVE_SSE2
 
 #if HAVE_SSSE3
