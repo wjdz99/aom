@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80dcbf56_2c19b350",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-15T23:32:07Z",
+      "side": 1,
+      "message": "Makes sense. Actually many of the variables refer to the size/width in the second pass bitstream, so I also changed many of them to \"second_pass\"",
+      "parentUuid": "42aca369_b626a578",
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9f665ff8_efa3a00a",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-11-15T19:07:44Z",
       "side": 1,
       "message": "I think this param means \"frame height third pass\".\nAnd fheight refers to the frame height of the second pass. right?\n\nTo improve the readability, I recommend not using too many abbreviations.\nfh_tp could be fheight_tp.\nSimilarly for fw_tp, etc.",
+      "range": {
+        "startLine": 489,
+        "startChar": 12,
+        "endLine": 489,
+        "endChar": 17
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b64a22aa_250e7e61",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-15T23:32:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f665ff8_efa3a00a",
       "range": {
         "startLine": 489,
         "startChar": 12,
@@ -66,6 +108,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "512400e8_edc80ca4",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-15T23:32:07Z",
+      "side": 1,
+      "message": "Here at line 571 we are iterating on i to increase the block size, until we find the block that is greater or equal to what we have from the second pass block size. This_w and this_h refer to the current block size we are checking, and w and h are the scaled up block dimensions from second pass.",
+      "parentUuid": "b62d3024_a718d96d",
+      "range": {
+        "startLine": 578,
+        "startChar": 0,
+        "endLine": 578,
+        "endChar": 37
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e8c8f178_d527ae5d",
         "filename": "av1/encoder/thirdpass.h",
         "patchSetId": 5
@@ -77,6 +143,30 @@
       "writtenOn": "2021-11-15T19:07:44Z",
       "side": 1,
       "message": "redundant",
+      "range": {
+        "startLine": 130,
+        "startChar": 62,
+        "endLine": 130,
+        "endChar": 67
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d347914_316a1d88",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-15T23:32:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e8c8f178_d527ae5d",
       "range": {
         "startLine": 130,
         "startChar": 62,
@@ -100,6 +190,30 @@
       "writtenOn": "2021-11-15T19:07:44Z",
       "side": 1,
       "message": "What does the function mean? As we\u0027ve already get bsize_tp \u003d this_mi-\u003ebsize.",
+      "range": {
+        "startLine": 137,
+        "startChar": 11,
+        "endLine": 137,
+        "endChar": 47
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d5d7bfc_2b873530",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-15T23:32:07Z",
+      "side": 1,
+      "message": "the size stored in this_mi-\u003ebsize is the original block size in second pass. This function returns the adjusted block size for the third pass. For example, a block is 8x8 in second pass, and in third pass it is adjusted to 16x16 since we downscaled the second pass by 2.",
+      "parentUuid": "12df34e2_1d552205",
       "range": {
         "startLine": 137,
         "startChar": 11,
