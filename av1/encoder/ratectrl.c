@@ -2292,9 +2292,6 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
   return av1_rc_clamp_iframe_target_size(cpi, target);
 }
 
-#define DEFAULT_KF_BOOST_RT 2300
-#define DEFAULT_GF_BOOST_RT 2000
-
 static void set_baseline_gf_interval(AV1_COMP *cpi, FRAME_TYPE frame_type) {
   RATE_CONTROL *const rc = &cpi->rc;
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
@@ -2575,18 +2572,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
   cpi->svc.high_source_sad_superframe = rc->high_source_sad;
 }
 
-/*!\brief Set the GF baseline interval for 1 pass real-time mode.
- *
- *
- * \ingroup rate_control
- * \param[in]       cpi          Top level encoder structure
- * \param[in]       frame_type   frame type
- *
- * \return Return GF update flag, and update the \c cpi->rc with
- * the next GF interval settings.
- */
-static int set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
-                                             FRAME_TYPE frame_type) {
+int av1_set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
+                                          FRAME_TYPE frame_type) {
   RATE_CONTROL *const rc = &cpi->rc;
   int gf_update = 0;
   const int resize_pending = is_frame_resize_pending(cpi);
@@ -2850,7 +2837,7 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
                     resize_pending_params->height, cm->width, cm->height);
   }
   // Set the GF interval and update flag.
-  set_gf_interval_update_onepass_rt(cpi, frame_params->frame_type);
+  av1_set_gf_interval_update_onepass_rt(cpi, frame_params->frame_type);
   // Set target size.
   if (cpi->oxcf.rc_cfg.mode == AOM_CBR) {
     if (frame_params->frame_type == KEY_FRAME) {

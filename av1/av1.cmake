@@ -267,6 +267,9 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/av1/encoder/dwt.c"
             "${AOM_ROOT}/av1/encoder/dwt.h")
 
+list(APPEND AOM_AV1_RC_SOURCES "${AOM_ROOT}/av1/ratectrl_rtc.h"
+            "${AOM_ROOT}/av1/ratectrl_rtc.cc")
+
 if(CONFIG_TUNE_VMAF)
   list(APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/tune_vmaf.c"
               "${AOM_ROOT}/av1/encoder/tune_vmaf.h")
@@ -584,6 +587,16 @@ function(setup_av1_targets)
     target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_av1_encoder>)
     if(BUILD_SHARED_LIBS)
       target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_av1_encoder>)
+    endif()
+  endif()
+
+  if(CONFIG_AV1_ENCODER)
+    add_library(aom_av1_rc OBJECT ${AOM_AV1_RC_SOURCES})
+    set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_av1_rc)
+    target_sources(aom PRIVATE $<TARGET_OBJECTS:aom_av1_rc>)
+    add_dependencies(aom_av1_rc aom_av1_encoder)
+    if(BUILD_SHARED_LIBS)
+      target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_av1_rc>)
     endif()
   endif()
 
