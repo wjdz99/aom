@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42aca369_b626a578",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-11-15T19:07:44Z",
+      "side": 1,
+      "message": "Nit:\nI think let \"tp\" stand for \"third_pass\" is not very straightforward at the first glance. How about \"3rdpass\"?\nWhat do you think?",
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f665ff8_efa3a00a",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-11-15T19:07:44Z",
+      "side": 1,
+      "message": "I think this param means \"frame height third pass\".\nAnd fheight refers to the frame height of the second pass. right?\n\nTo improve the readability, I recommend not using too many abbreviations.\nfh_tp could be fheight_tp.\nSimilarly for fw_tp, etc.",
+      "range": {
+        "startLine": 489,
+        "startChar": 12,
+        "endLine": 489,
+        "endChar": 17
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b62d3024_a718d96d",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-11-15T19:07:44Z",
+      "side": 1,
+      "message": "Is this condition always true?\ni.e, the second pass dimension is smaller or equal to the third pass.",
+      "range": {
+        "startLine": 578,
+        "startChar": 0,
+        "endLine": 578,
+        "endChar": 37
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8c8f178_d527ae5d",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-11-15T19:07:44Z",
+      "side": 1,
+      "message": "redundant",
+      "range": {
+        "startLine": 130,
+        "startChar": 62,
+        "endLine": 130,
+        "endChar": 67
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12df34e2_1d552205",
+        "filename": "av1/encoder/thirdpass.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 6585
+      },
+      "writtenOn": "2021-11-15T19:07:44Z",
+      "side": 1,
+      "message": "What does the function mean? As we\u0027ve already get bsize_tp \u003d this_mi-\u003ebsize.",
+      "range": {
+        "startLine": 137,
+        "startChar": 11,
+        "endLine": 137,
+        "endChar": 47
+      },
+      "revId": "844bb35308b66465a21dba3f1882dd87d9b15fb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
