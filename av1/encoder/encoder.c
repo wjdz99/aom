@@ -2039,7 +2039,8 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   return 0;
 }
 
-void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
+void av1_set_frame_size(AV1_COMP *cpi, int width, int height,
+                        int set_mv_params) {
   AV1_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = cm->seq_params;
   const int num_planes = av1_num_planes(cm);
@@ -2062,7 +2063,7 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
     }
 #endif
   }
-  set_mv_search_params(cpi);
+  if (set_mv_params) set_mv_search_params(cpi);
 
   if (is_stat_consumption_stage(cpi)) {
     av1_set_target_rate(cpi, cm->width, cm->height);

@@ -1032,7 +1032,7 @@ static int denoise_and_encode(AV1_COMP *const cpi, uint8_t *const dest,
 
   // TODO(bohanli): Why is this? what part of it is necessary?
   av1_set_frame_size(cpi, cm->superres_upscaled_width,
-                     cm->superres_upscaled_height);
+                     cm->superres_upscaled_height, !cm->show_frame);
 
 #if CONFIG_RD_COMMAND
   if (frame_params->frame_type == KEY_FRAME) {
