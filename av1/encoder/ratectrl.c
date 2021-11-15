@@ -769,6 +769,9 @@ static int find_closest_qindex_by_rate(int desired_bits_per_mb,
     const int mid = (low + high) >> 1;
     const int mid_bits_per_mb =
         get_bits_per_mb(cpi, use_cyclic_refresh, correction_factor, mid);
+    if (cpi->common.current_frame.frame_number == 40) {
+      printf("mid %d bits %d\n", mid, mid_bits_per_mb);
+    }
     if (mid_bits_per_mb > desired_bits_per_mb) {
       low = mid + 1;
     } else {
@@ -810,12 +813,14 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
   const int MBs = av1_get_MBs(width, height);
   const double correction_factor =
       get_rate_correction_factor(cpi, width, height);
+  printf("%f\n", correction_factor);
   const int target_bits_per_mb =
       (int)(((uint64_t)target_bits_per_frame << BPER_MB_NORMBITS) / MBs);
 
   int q =
       find_closest_qindex_by_rate(target_bits_per_mb, cpi, correction_factor,
                                   active_best_quality, active_worst_quality);
+  // printf("q before adjustment %d\n", q);
   if (cpi->oxcf.rc_cfg.mode == AOM_CBR && has_no_stats_stage(cpi))
     return adjust_q_cbr(cpi, q, active_worst_quality);
 
@@ -1094,6 +1099,8 @@ static int rc_pick_q_and_bounds_no_stats_cbr(const AV1_COMP *cpi, int width,
   if (current_frame->frame_type == KEY_FRAME && p_rc->this_key_frame_forced) {
     q = p_rc->last_boosted_qindex;
   } else {
+    printf("frame %d target %d\n", cm->current_frame.frame_number,
+           rc->this_frame_target);
     q = av1_rc_regulate_q(cpi, rc->this_frame_target, active_best_quality,
                           active_worst_quality, width, height);
     if (q > *top_index) {
@@ -1989,6 +1996,7 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   const int qindex = cm->quant_params.base_qindex;
 
+  printf("bytes used %ld\n", bytes_used);
   // Update rate control heuristics
   rc->projected_frame_size = (int)(bytes_used << 3);
 
@@ -1999,6 +2007,9 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 #endif
                                         cm->width, cm->height);
 
+  printf("%d %d %d %d\n", rc->is_src_frame_alt_ref,
+         refresh_frame->golden_frame, is_intrnl_arf,
+           refresh_frame->alt_ref_frame);
   // Keep a record of last Q and ambient average Q.
   if (current_frame->frame_type == KEY_FRAME) {
     p_rc->last_q[KEY_FRAME] = qindex;
@@ -2449,9 +2460,6 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
   return av1_rc_clamp_iframe_target_size(cpi, target);
 }
 
-#define DEFAULT_KF_BOOST_RT 2300
-#define DEFAULT_GF_BOOST_RT 2000
-
 static void set_baseline_gf_interval(AV1_COMP *cpi, FRAME_TYPE frame_type) {
   RATE_CONTROL *const rc = &cpi->rc;
   PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
@@ -2732,18 +2740,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
   cpi->svc.high_source_sad_superframe = rc->high_source_sad;
 }
 
-/*!\brief Set the GF baseline interval for 1 pass real-time mode.
- *
- *
- * \ingroup rate_control
- * \param[in]       cpi          Top level encoder structure
- * \param[in]       frame_type   frame type
- *
- * \return Return GF update flag, and update the \c cpi->rc with
- * the next GF interval settings.
- */
-static int set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
-                                             FRAME_TYPE frame_type) {
+int av1_set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
+                                          FRAME_TYPE frame_type) {
   RATE_CONTROL *const rc = &cpi->rc;
   int gf_update = 0;
   const int resize_pending = is_frame_resize_pending(cpi);
@@ -3007,7 +3005,7 @@ void av1_get_one_pass_rt_params(AV1_COMP *cpi,
                     resize_pending_params->height, cm->width, cm->height);
   }
   // Set the GF interval and update flag.
-  set_gf_interval_update_onepass_rt(cpi, frame_params->frame_type);
+  // av1_set_gf_interval_update_onepass_rt(cpi, frame_params->frame_type);
   // Set target size.
   if (cpi->oxcf.rc_cfg.mode == AOM_CBR) {
     if (frame_params->frame_type == KEY_FRAME) {
