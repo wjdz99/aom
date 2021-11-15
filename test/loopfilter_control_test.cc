@@ -124,6 +124,10 @@ class LFControlEndToEndTest
       encoder->Control(AV1E_SET_DV_COST_UPD_FREQ, 2);
       encoder->Control(AV1E_SET_LOOPFILTER_CONTROL, lf_control_);
     }
+    int *lf_level = nullptr;
+    aom_codec_err_t res = AOM_CODEC_OK;
+    encoder->Control(AOME_GET_LOOPFILTER_LEVEL, lf_level, res);
+    EXPECT_EQ(AOM_CODEC_INVALID_PARAM, res);
   }
 
   double GetAveragePsnr() const {
