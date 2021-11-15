@@ -276,8 +276,12 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
     if (is_inter_block(mi) && mi->ref_frame[0] == LAST_FRAME &&
         abs(mv.row) < 8 && abs(mv.col) < 8) {
       const int ymis = AOMMIN(cm->mi_params.mi_rows - mi_row, bh);
+      const int zone_idx = get_motion_zone_index(cm, mi_col, mi_row);
       // Accumulate low_content_frame.
-      for (int mi_y = 0; mi_y < ymis; mi_y += 2) x->cnt_zeromv += bw << 1;
+      for (int mi_y = 0; mi_y < ymis; mi_y += 2) {
+        x->cnt_zeromv += bw << 1;
+        x->cnt_zeromv_zones[zone_idx] += bw << 1;
+      }
     }
   }
 

@@ -244,6 +244,7 @@ void av1_init_cyclic_refresh_counters(MACROBLOCK *const x) {
   x->actual_num_seg1_blocks = 0;
   x->actual_num_seg2_blocks = 0;
   x->cnt_zeromv = 0;
+  av1_zero(x->cnt_zeromv_zones);
 }
 
 // Accumulate cyclic refresh counters.
@@ -252,6 +253,8 @@ void av1_accumulate_cyclic_refresh_counters(
   cyclic_refresh->actual_num_seg1_blocks += x->actual_num_seg1_blocks;
   cyclic_refresh->actual_num_seg2_blocks += x->actual_num_seg2_blocks;
   cyclic_refresh->cnt_zeromv += x->cnt_zeromv;
+  for (int idx = 0; idx < NUM_MOTION_ZONES; idx++)
+    cyclic_refresh->cnt_zeromv_zones[idx] += x->cnt_zeromv_zones[idx];
 }
 
 void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
@@ -260,7 +263,7 @@ void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
   CYCLIC_REFRESH *const cr = cpi->cyclic_refresh;
   RATE_CONTROL *const rc = &cpi->rc;
   SVC *const svc = &cpi->svc;
-  const int avg_cnt_zeromv =
+  int avg_cnt_zeromv =
       100 * cr->cnt_zeromv / (mi_params->mi_rows * mi_params->mi_cols);
 
   if (!cpi->ppi->use_svc ||
@@ -271,6 +274,20 @@ void av1_cyclic_refresh_postencode(AV1_COMP *const cpi) {
         (rc->avg_frame_low_motion == 0)
             ? avg_cnt_zeromv
             : (3 * rc->avg_frame_low_motion + avg_cnt_zeromv) / 4;
+
+    for (int idx = 0; idx < NUM_MOTION_ZONES; idx++) {
+      avg_cnt_zeromv = 100 * cr->cnt_zeromv_zones[idx] /
+                       ((mi_params->mi_rows / NUM_MOTION_ZONE_ROWS) *
+                        (mi_params->mi_cols / NUM_MOTION_ZONE_COLS));
+      // To track abrupt content changes effectively more weightage is given to
+      // previous frame.
+      rc->avg_frame_low_motion_zones[idx] =
+          (rc->avg_frame_low_motion_zones[idx] == 0)
+              ? avg_cnt_zeromv
+              : (rc->avg_frame_low_motion_zones[idx] + (3 * avg_cnt_zeromv)) /
+                    4;
+    }
+
     // For SVC: set avg_frame_low_motion (only computed on top spatial layer)
     // to all lower spatial layers.
     if (cpi->ppi->use_svc &&

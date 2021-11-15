@@ -76,6 +76,10 @@ struct CYCLIC_REFRESH {
    */
   int cnt_zeromv;
   /*!
+   * Count of zero motion vectors for each zone in a frame.
+   */
+  int cnt_zeromv_zones[NUM_MOTION_ZONES];
+  /*!
    * Cyclic refresh map.
    */
   int8_t *map;

@@ -939,6 +939,10 @@ typedef struct macroblock {
   /*!\brief Number of zero motion vectors
    */
   int cnt_zeromv;
+
+  /*!\brief Number of zero motion vectors for each zone in a frame.
+   */
+  int cnt_zeromv_zones[NUM_MOTION_ZONES];
   /**@}*/
 
   /*****************************************************************************
