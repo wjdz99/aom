@@ -2461,7 +2461,7 @@ static int prune_ref_mv_idx_search(int ref_mv_idx, int best_ref_mv_idx,
  */
 static AOM_INLINE int prune_zero_mv_with_sse(
     const aom_variance_fn_ptr_t *fn_ptr, const MACROBLOCK *x, BLOCK_SIZE bsize,
-    const HandleInterModeArgs *args) {
+    const HandleInterModeArgs *args, int prune_zero_mv_with_sse) {
   const MACROBLOCKD *xd = &x->e_mbd;
   const MB_MODE_INFO *mbmi = xd->mi[0];
 
@@ -2502,7 +2502,9 @@ static AOM_INLINE int prune_zero_mv_with_sse(
     const unsigned int best_sse = args->best_single_sse_in_refs[refs[idx]];
     best_sse_sum += best_sse;
   }
-  if (this_sse_sum > best_sse_sum) {
+
+  const double mul = prune_zero_mv_with_sse > 1 ? 1.00 : 1.25;
+  if ((double)this_sse_sum > (mul * (double)best_sse_sum)) {
     return 1;
   }
 
@@ -2920,7 +2922,8 @@ static int64_t handle_inter_mode(
     if (cpi->sf.gm_sf.prune_zero_mv_with_sse &&
         cpi->sf.gm_sf.gm_search_type == GM_DISABLE_SEARCH &&
         (this_mode == GLOBALMV || this_mode == GLOBAL_GLOBALMV)) {
-      if (prune_zero_mv_with_sse(cpi->ppi->fn_ptr, x, bsize, args)) {
+      if (prune_zero_mv_with_sse(cpi->ppi->fn_ptr, x, bsize, args,
+                                 cpi->sf.gm_sf.prune_zero_mv_with_sse)) {
         continue;
       }
     }
