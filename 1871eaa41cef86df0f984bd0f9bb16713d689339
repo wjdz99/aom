@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch prunes rectangular partitions at lower quantizers for non-boosted frames in speed-3. Aggressiveness value to prune the rectangular partition is controlled based on block level quantizer for non-boosted frames. We have extended an existing SF - simple_motion_search_prune_agg and introduced SIMPLE_MOTION_SEARCH_PRUNE_LEVEL to set the SF value appropriately across the speed. The new qindex based logic is defined as QIDX_BASED_AGG_LVL1 and existing pruning logic is retained as SIMPLE_AGG_LVLs(0 to 3). Introduced get_simple_motion_search_prune_agg() to map prune level to aggressiveness value. Please note that the average speed gain is slightly out of trade-off.\n\nPlease find the detailed borg result below, \n\n               Instruction Count        BD-Rate Loss(%)\ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 3     LOWRES2      4.214         0.1677     0.1664    0.1131\n 3     MIDRES2      0.895         0.0579     0.0516    0.0289\n 3      HDRES2      0.690         0.0144     0.0134    0.0238\n 3     Average      1.933         0.0733     0.0702    0.0514\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nWe have locally verified that the changes are bit-exact for all other speed levels.\nPlease review the patch.\n\nThanks",
       "revId": "1871eaa41cef86df0f984bd0f9bb16713d689339",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e69571e9_9e15923e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-15T20:21:59Z",
+      "side": 1,
+      "message": "This is ok. Thanks.",
+      "parentUuid": "8a448a0b_81cba7f2",
+      "revId": "1871eaa41cef86df0f984bd0f9bb16713d689339",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
