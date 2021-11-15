@@ -188,6 +188,19 @@ static INLINE int av1_get_sb_mi_size(const AV1_COMMON *const cm) {
   return sb_mi_size;
 }
 
+// This function converts mi coordinates to motion zone index.
+static AOM_INLINE int get_motion_zone_index(const AV1_COMMON *const cm,
+                                            int mi_col, int mi_row) {
+  const int num_col_per_zone =
+      DIVIDE_AND_ROUND(cm->mi_params.mi_cols, NUM_MOTION_ZONE_COLS);
+  const int num_row_per_zone =
+      DIVIDE_AND_ROUND(cm->mi_params.mi_rows, NUM_MOTION_ZONE_ROWS);
+  const int zone_idx = (mi_row / num_row_per_zone) * NUM_MOTION_ZONE_COLS +
+                       (mi_col / num_col_per_zone);
+  assert(zone_idx < NUM_MOTION_ZONES);
+  return zone_idx;
+}
+
 // This function will copy usable ref_mv_stack[ref_frame][4] and
 // weight[ref_frame][4] information from ref_mv_stack[ref_frame][8] and
 // weight[ref_frame][8].

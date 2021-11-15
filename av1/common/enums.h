@@ -515,6 +515,10 @@ enum {
 #define UNI_COMP_REF_CONTEXTS 3
 
 #define TXFM_PARTITION_CONTEXTS ((TX_SIZES - TX_8X8) * 6 - 3)
+#define NUM_MOTION_ZONE_COLS 2
+#define NUM_MOTION_ZONE_ROWS 2
+#define NUM_MOTION_ZONES (NUM_MOTION_ZONE_ROWS * NUM_MOTION_ZONE_COLS)
+
 typedef uint8_t TXFM_CONTEXT;
 
 // An enum for single reference types (and some derived values).
