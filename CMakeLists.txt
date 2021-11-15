@@ -296,8 +296,24 @@ if(NOT MSVC AND NOT APPLE)
   endif()
 endif()
 
+list(APPEND AOM_AV1_RC_SOURCES "${AOM_ROOT}/av1/ratectrl_rtc.h"
+            "${AOM_ROOT}/av1/ratectrl_rtc.cc")
+
+if(CONFIG_AV1_ENCODER)
+  add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})
+  add_dependencies(aom_av1_rc aom_av1_encoder)
+  if(BUILD_SHARED_LIBS)
+    target_sources(aom_static PRIVATE $<TARGET_OBJECTS:aom_av1_rc>)
+  endif()
+  target_link_libraries(aom_av1_rc ${AOM_LIB_LINK_TYPE} m)
+  if(BUILD_SHARED_LIBS)
+    target_link_libraries(aom_static ${AOM_LIB_LINK_TYPE} m)
+  endif()
+endif()
+
 # List of object and static library targets.
-set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)
+set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom
+                    aom_av1_rc)
 if(BUILD_SHARED_LIBS)
   set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_static)
 endif()
