@@ -54,6 +54,9 @@ extern "C" {
 #define MAX_ARF_LAYERS 6
 // #define STRICT_RC
 
+#define DEFAULT_KF_BOOST_RT 2300
+#define DEFAULT_GF_BOOST_RT 2000
+
 typedef struct {
   int resize_width;
   int resize_height;
@@ -568,6 +571,19 @@ void av1_rc_set_frame_target(struct AV1_COMP *cpi, int target, int width,
                              int height);
 
 void av1_adjust_gf_refresh_qp_one_pass_rt(struct AV1_COMP *cpi);
+
+/*!\brief Set the GF baseline interval for 1 pass real-time mode.
+ *
+ *
+ * \ingroup rate_control
+ * \param[in]       cpi          Top level encoder structure
+ * \param[in]       frame_type   frame type
+ *
+ * \return Return GF update flag, and update the \c cpi->rc with
+ * the next GF interval settings.
+ */
+int av1_set_gf_interval_update_onepass_rt(struct AV1_COMP *cpi,
+                                          FRAME_TYPE frame_type);
 
 void av1_set_reference_structure_one_pass_rt(struct AV1_COMP *cpi,
                                              int gf_update);
