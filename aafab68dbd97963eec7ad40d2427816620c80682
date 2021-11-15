@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b2f4e8a_e14788d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-11-15T16:12:27Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch disables the speed feature disable_interinter_wedge_newmv_search for hdres in speed 2.\n\nPlease find the borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOWRES2   |       0.000       |  0.0000    0.0000    0.0000  |\n   2     |  MIDRES2   |       0.000       |  0.0000    0.0000    0.0000  |\n   2     |   HDRES2*  |      -0.553       | -0.0394   -0.0431   -0.0473  |\n   2     |  Average   |      -0.184       | -0.0138   -0.0151   -0.0165  |\n\n  *60 frame runs\n  \nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "aafab68dbd97963eec7ad40d2427816620c80682",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
