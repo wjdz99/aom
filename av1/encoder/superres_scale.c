@@ -383,7 +383,7 @@ static void setup_frame_size_from_params(AV1_COMP *cpi,
   cm->superres_scale_denominator = rsz->superres_denom;
   av1_calculate_scaled_superres_size(&encode_width, &encode_height,
                                      rsz->superres_denom);
-  av1_set_frame_size(cpi, encode_width, encode_height);
+  av1_set_frame_size(cpi, encode_width, encode_height, 1);
 }
 
 void av1_setup_frame_size(AV1_COMP *cpi) {

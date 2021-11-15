@@ -3486,7 +3486,8 @@ int av1_set_reference_enc(AV1_COMP *cpi, int idx, YV12_BUFFER_CONFIG *sd);
 
 int av1_set_size_literal(AV1_COMP *cpi, int width, int height);
 
-void av1_set_frame_size(AV1_COMP *cpi, int width, int height);
+void av1_set_frame_size(AV1_COMP *cpi, int width, int height,
+                        int set_mv_params);
 
 int av1_set_active_map(AV1_COMP *cpi, unsigned char *map, int rows, int cols);
 

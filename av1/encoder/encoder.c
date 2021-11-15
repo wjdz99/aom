@@ -1762,15 +1762,27 @@ static void set_mv_search_params(AV1_COMP *cpi) {
       // after a key/intra-only frame.
       mv_search_params->max_mv_magnitude = max_mv_def;
     } else {
-      // Use cpi->max_mv_magnitude == -1 to exclude first pass case.
-      if (cm->show_frame && mv_search_params->max_mv_magnitude != -1) {
+      // Use adaptive mv steps based on previous frame stats for show frames and
+      // internal arfs.
+      FRAME_UPDATE_TYPE cur_update_type =
+          cpi->ppi->gf_group.update_type[cpi->gf_frame_index];
+      int use_auto_mv_step =
+          (cm->show_frame || cur_update_type == INTNL_ARF_UPDATE) &&
+          mv_search_params->max_mv_magnitude != -1 &&
+          cpi->sf.mv_sf.auto_mv_step_size >= 2;
+      if (use_auto_mv_step) {
         // Allow mv_steps to correspond to twice the max mv magnitude found
         // in the previous frame, capped by the default max_mv_magnitude based
         // on resolution.
         mv_search_params->mv_step_param = av1_init_search_range(
             AOMMIN(max_mv_def, 2 * mv_search_params->max_mv_magnitude));
       }
+#if CONFIG_FRAME_PARALLEL_ENCODE
+      // Reset max_mv_magnitude based on update flag.
+      if (cpi->do_frame_data_update) mv_search_params->max_mv_magnitude = -1;
+#else
       mv_search_params->max_mv_magnitude = -1;
+#endif
     }
   }
 }
@@ -2032,7 +2044,8 @@ int av1_set_size_literal(AV1_COMP *cpi, int width, int height) {
   return 0;
 }
 
-void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
+void av1_set_frame_size(AV1_COMP *cpi, int width, int height,
+                        int set_mv_params) {
   AV1_COMMON *const cm = &cpi->common;
   const SequenceHeader *const seq_params = cm->seq_params;
   const int num_planes = av1_num_planes(cm);
@@ -2055,7 +2068,7 @@ void av1_set_frame_size(AV1_COMP *cpi, int width, int height) {
     }
 #endif
   }
-  set_mv_search_params(cpi);
+  if (set_mv_params) set_mv_search_params(cpi);
 
   if (is_stat_consumption_stage(cpi)) {
     av1_set_target_rate(cpi, cm->width, cm->height);
@@ -2497,6 +2510,8 @@ static int encode_with_recode_loop(AV1_COMP *cpi, size_t *size, uint8_t *dest) {
   assert(IMPLIES(oxcf->rc_cfg.min_cr > 0, allow_recode));
 
   set_size_independent_vars(cpi);
+  // Setup variables that depend on the dimensions of the frame.
+  av1_set_speed_features_framesize_dependent(cpi, cpi->speed);
   if (is_stat_consumption_stage_twopass(cpi) &&
       cpi->sf.interp_sf.adaptive_interp_filter_search)
     cpi->interp_search_flags.interp_filter_search_mask =
@@ -4662,7 +4677,8 @@ int av1_init_parallel_frame_context(const AV1_COMP_DATA *const first_cpi_data,
       cur_cpi->rc.min_frame_bandwidth = first_cpi->rc.min_frame_bandwidth;
       cur_cpi->rc.intervals_till_gf_calculate_due =
           first_cpi->rc.intervals_till_gf_calculate_due;
-      cur_cpi->mv_search_params.max_mv_magnitude = -1;
+      cur_cpi->mv_search_params.max_mv_magnitude =
+          first_cpi->mv_search_params.max_mv_magnitude;
       if (gf_group->update_type[cur_cpi->gf_frame_index] == INTNL_ARF_UPDATE) {
         cur_cpi->common.lf.mode_ref_delta_enabled = 1;
       }
