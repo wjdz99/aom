@@ -1205,6 +1205,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   (void)is_720p_or_larger;  // Not used so far
 
   if (!is_360p_or_larger) {
+    sf->rt_sf.prune_intra_mode_based_on_mv_range = 1;
     if (speed >= 5) sf->rt_sf.prune_inter_modes_wrt_gf_arf_based_on_sad = 1;
     if (speed >= 6) sf->rt_sf.force_tx_search_off = 1;
     if (speed >= 7) sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
@@ -1226,6 +1227,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
 #endif
     }
   } else {
+    sf->rt_sf.prune_intra_mode_based_on_mv_range = 2;
     sf->intra_sf.skip_filter_intra_in_inter_frames = 1;
     if (speed == 5) {
       sf->tx_sf.tx_type_search.fast_inter_tx_type_prob_thresh =
@@ -1333,7 +1335,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->part_sf.less_rectangular_check_level = 2;
   sf->part_sf.early_term_after_none_split = 1;
   sf->part_sf.partition_search_breakout_dist_thr = (1 << 25);
-  sf->part_sf.max_intra_bsize = BLOCK_32X32;
+  sf->part_sf.max_intra_bsize = BLOCK_16X16;
   sf->part_sf.partition_search_breakout_rate_thr = 500;
   sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
   sf->part_sf.adjust_var_based_rd_partitioning = 2;
@@ -1447,6 +1449,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   if (speed >= 7) {
     sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
+    sf->part_sf.max_intra_bsize = BLOCK_32X32;
 
     sf->gm_sf.gm_search_type = GM_DISABLE_SEARCH;
 
@@ -1472,6 +1475,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     // This is for rd path only.
     sf->rt_sf.prune_inter_modes_using_temp_var = 0;
     sf->rt_sf.prune_inter_modes_wrt_gf_arf_based_on_sad = 0;
+    sf->rt_sf.prune_intra_mode_based_on_mv_range = 0;
     sf->rt_sf.reuse_inter_pred_nonrd = 0;
     sf->rt_sf.short_circuit_low_temp_var = 0;
     sf->rt_sf.skip_interp_filter_search = 0;
@@ -1850,6 +1854,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->prune_inter_modes_wrt_gf_arf_based_on_sad = 0;
   rt_sf->prune_inter_modes_using_temp_var = 0;
   rt_sf->force_half_pel_block = 0;
+  rt_sf->prune_intra_mode_based_on_mv_range = 0;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
