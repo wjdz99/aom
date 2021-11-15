@@ -221,6 +221,7 @@ typedef struct {
   /*!\cond */
   // Track amount of low motion in scene
   int avg_frame_low_motion;
+  int avg_frame_low_motion_zones[NUM_MOTION_ZONES];
 
   // For dynamic resize, 1 pass cbr.
   RESIZE_STATE resize_state;

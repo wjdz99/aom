@@ -1333,7 +1333,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->part_sf.less_rectangular_check_level = 2;
   sf->part_sf.early_term_after_none_split = 1;
   sf->part_sf.partition_search_breakout_dist_thr = (1 << 25);
-  sf->part_sf.max_intra_bsize = BLOCK_32X32;
+  sf->part_sf.max_intra_bsize = BLOCK_16X16;
   sf->part_sf.partition_search_breakout_rate_thr = 500;
   sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
   sf->part_sf.adjust_var_based_rd_partitioning = 2;
@@ -1388,6 +1388,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->winner_mode_sf.tx_size_search_level = 1;
   sf->winner_mode_sf.winner_mode_ifs = 1;
 
+  sf->rt_sf.prune_intra_mode_based_on_zeromv = 1;
   sf->rt_sf.check_intra_pred_nonrd = 1;
   sf->rt_sf.estimate_motion_for_var_based_partition = 1;
   sf->rt_sf.hybrid_intra_pickmode = 1;
@@ -1447,6 +1448,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
   if (speed >= 7) {
     sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
+    sf->part_sf.max_intra_bsize = BLOCK_32X32;
 
     sf->gm_sf.gm_search_type = GM_DISABLE_SEARCH;
 
@@ -1472,6 +1474,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     // This is for rd path only.
     sf->rt_sf.prune_inter_modes_using_temp_var = 0;
     sf->rt_sf.prune_inter_modes_wrt_gf_arf_based_on_sad = 0;
+    sf->rt_sf.prune_intra_mode_based_on_zeromv = 0;
     sf->rt_sf.reuse_inter_pred_nonrd = 0;
     sf->rt_sf.short_circuit_low_temp_var = 0;
     sf->rt_sf.skip_interp_filter_search = 0;
@@ -1850,6 +1853,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->prune_inter_modes_wrt_gf_arf_based_on_sad = 0;
   rt_sf->prune_inter_modes_using_temp_var = 0;
   rt_sf->force_half_pel_block = 0;
+  rt_sf->prune_intra_mode_based_on_zeromv = 0;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
