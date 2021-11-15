@@ -103,6 +103,10 @@ struct CYCLIC_REFRESH {
    */
   int rate_boost_fac;
 
+  /*!
+   * Content dependency on/off.
+   */
+  int content_mode;
   /*!\cond */
   int qindex_delta[3];
   double weight_segment;

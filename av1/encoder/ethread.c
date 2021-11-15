@@ -1221,7 +1221,8 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
                       cpi->sf.rd_sf.use_mb_rd_hash);
 
     // Reset cyclic refresh counters.
-    av1_init_cyclic_refresh_counters(&thread_data->td->mb);
+    if (cpi->cyclic_refresh->content_mode)
+      av1_init_cyclic_refresh_counters(&thread_data->td->mb);
 
     if (thread_data->td->counts != &cpi->counts) {
       memcpy(thread_data->td->counts, &cpi->counts, sizeof(cpi->counts));

@@ -29,6 +29,7 @@ CYCLIC_REFRESH *av1_cyclic_refresh_alloc(int mi_rows, int mi_cols) {
     av1_cyclic_refresh_free(cr);
     return NULL;
   }
+  cr->content_mode = 0;
   return cr;
 }
 
@@ -94,6 +95,8 @@ int av1_cyclic_refresh_estimate_bits_at_q(const AV1_COMP *cpi,
   // previous/just encoded frame. Note number of blocks here is in 4x4 units.
   const double weight_segment1 = (double)cr->actual_num_seg1_blocks / num4x4bl;
   const double weight_segment2 = (double)cr->actual_num_seg2_blocks / num4x4bl;
+  printf("seg1 %d seg2 %d\n", cr->actual_num_seg1_blocks,
+         cr->actual_num_seg2_blocks);
   // Take segment weighted average for estimated bits.
   const int estimated_bits =
       (int)((1.0 - weight_segment1 - weight_segment2) *
@@ -124,18 +127,24 @@ int av1_cyclic_refresh_rc_bits_per_mb(const AV1_COMP *cpi, int i,
                 cr->actual_num_seg2_blocks) >>
                1) /
       num4x4bl;
+  if (cm->current_frame.frame_number == 40) {
+    printf("target %d seg1 %d seg2 %d weight %f\n", cr->target_num_seg_blocks,
+           cr->actual_num_seg1_blocks, cr->actual_num_seg2_blocks,
+           weight_segment);
+  }
   // Compute delta-q corresponding to qindex i.
   int deltaq = compute_deltaq(cpi, i, cr->rate_ratio_qdelta);
   // Take segment weighted average for bits per mb.
-  bits_per_mb =
-      (int)((1.0 - weight_segment) *
-                av1_rc_bits_per_mb(cm->current_frame.frame_type, i,
-                                   correction_factor, cm->seq_params->bit_depth,
-                                   cpi->is_screen_content_type) +
-            weight_segment * av1_rc_bits_per_mb(cm->current_frame.frame_type,
-                                                i + deltaq, correction_factor,
-                                                cm->seq_params->bit_depth,
-                                                cpi->is_screen_content_type));
+  const int b1 = av1_rc_bits_per_mb(
+      cm->current_frame.frame_type, i, correction_factor,
+      cm->seq_params->bit_depth, cpi->is_screen_content_type);
+  const int b2 = av1_rc_bits_per_mb(
+      cm->current_frame.frame_type, i + deltaq, correction_factor,
+      cm->seq_params->bit_depth, cpi->is_screen_content_type);
+  if (cm->current_frame.frame_number == 40) {
+    printf("b1 %d b2 %d deltaq %f\n", b1, b2, cr->rate_ratio_qdelta);
+  }
+  bits_per_mb = (int)((1.0 - weight_segment) * b1 + weight_segment * b2);
   return bits_per_mb;
 }
 
@@ -301,7 +310,8 @@ void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
                MAX_GF_INTERVAL_RT);
   else
     p_rc->baseline_gf_interval = FIXED_GF_INTERVAL_RT;
-  if (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40)
+  if (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40 &&
+      cr->content_mode)
     p_rc->baseline_gf_interval = 16;
 }
 
@@ -347,6 +357,8 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     // Loop through all MI blocks in superblock and update map.
     xmis = AOMMIN(mi_params->mi_cols - mi_col, cm->seq_params->mib_size);
     ymis = AOMMIN(mi_params->mi_rows - mi_row, cm->seq_params->mib_size);
+    // printf("mi_cols %d mi_col %d mib_size %d\n", mi_params->mi_cols, mi_col,
+    //        cm->seq_params->mib_size);
     // cr_map only needed at 8x8 blocks.
     for (y = 0; y < ymis; y += 2) {
       for (x = 0; x < xmis; x += 2) {
@@ -374,6 +386,8 @@ static void cyclic_refresh_update_map(AV1_COMP *const cpi) {
     if (i == sbs_in_frame) {
       i = 0;
     }
+    // printf("target seg %d block counts %d\n", cr->target_num_seg_blocks,
+    //        block_count);
   } while (cr->target_num_seg_blocks < block_count && i != cr->sb_index);
   cr->sb_index = i;
 }
@@ -408,8 +422,8 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
        cpi->svc.layer_context[cpi->svc.temporal_layer_id].is_key_frame) ||
       (rc->frames_since_key > 20 &&
        p_rc->avg_frame_qindex[INTER_FRAME] > qp_max_thresh) ||
-      (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 45 &&
-       rc->frames_since_key > 40)) {
+      (cr->content_mode && rc->avg_frame_low_motion &&
+       rc->avg_frame_low_motion < 45 && rc->frames_since_key > 40)) {
     cr->apply_cyclic_refresh = 0;
     return;
   }
@@ -422,6 +436,10 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   // Use larger delta-qp (increase rate_ratio_qdelta) for first few (~4)
   // periods of the refresh cycle, after a key frame.
   // Account for larger interval on base layer for temporal layers.
+  if (cm->current_frame.frame_number == 40) {
+    printf("perc %d frames since key %d\n", cr->percent_refresh,
+           rc->frames_since_key);
+  }
   if (cr->percent_refresh > 0 &&
       rc->frames_since_key <
           (4 * cpi->svc.number_temporal_layers) * (100 / cr->percent_refresh)) {
@@ -429,6 +447,8 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   } else {
     cr->rate_ratio_qdelta = 2.0;
   }
+
+  // cr->rate_ratio_qdelta = 2.0;
   // Adjust some parameters for low resolutions.
   if (cm->width * cm->height <= 352 * 288) {
     if (rc->avg_frame_bandwidth < 3000) {
@@ -465,6 +485,14 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   if (weight_segment_target < 7 * weight_segment / 8)
     weight_segment = weight_segment_target;
   cr->weight_segment = weight_segment;
+  if (cr->content_mode == 0) {
+    cr->actual_num_seg1_blocks = cr->percent_refresh * cm->mi_params.mi_rows *
+                                 cm->mi_params.mi_cols / 100;
+    cr->actual_num_seg2_blocks = 0;
+    printf("set seg blocks seg1 %d seg2 %d\n", cr->actual_num_seg1_blocks,
+           cr->actual_num_seg2_blocks);
+    cr->weight_segment = (double)(cr->actual_num_seg1_blocks) / num4x4bl;
+  }
 }
 
 // Setup cyclic background refresh: set delta q and segmentation map.
