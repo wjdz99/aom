@@ -902,6 +902,38 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif
   }
 
+  // ======================================================
+  // av1_update_state(cpi, &cpi->td, ctx, mi_row, mi_col, bsize, 1);
+
+  const MB_MODE_INFO *const mi = &ctx->mic;
+  MB_MODE_INFO *const mi_addr = xd->mi[0];
+  *mi_addr = *mi;
+  MB_MODE_INFO_EXT *mbmi_ext = &x->mbmi_ext;
+  MB_MODE_INFO_EXT_FRAME *mbmi_ext_best = &ctx->mbmi_ext_best;
+
+  int ref_frame_type = av1_ref_frame_type(ctx->mic.ref_frame);
+
+  memcpy(mbmi_ext->ref_mv_stack[ref_frame_type], mbmi_ext_best->ref_mv_stack,
+         sizeof(mbmi_ext->ref_mv_stack[USABLE_REF_MV_STACK_SIZE]));
+  memcpy(mbmi_ext->weight[ref_frame_type], mbmi_ext_best->weight,
+         sizeof(mbmi_ext->weight[USABLE_REF_MV_STACK_SIZE]));
+  mbmi_ext->mode_context[ref_frame_type] = mbmi_ext_best->mode_context;
+  mbmi_ext->ref_mv_count[ref_frame_type] = mbmi_ext_best->ref_mv_count;
+  memcpy(mbmi_ext->global_mvs, mbmi_ext_best->global_mvs,
+         sizeof(mbmi_ext->global_mvs));
+
+  memcpy(txfm_info->blk_skip, ctx->blk_skip,
+         sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
+
+  txfm_info->skip_txfm = ctx->rd_stats.skip_txfm;
+
+  xd->tx_type_map = ctx->tx_type_map;
+  xd->tx_type_map_stride = mi_size_wide[bsize];
+
+  encode_superblock(cpi, tile_data, &cpi->td, NULL, DRY_RUN_NORMAL, bsize,
+                    NULL);
+  // ========================================================
+
   // Examine the resulting rate and for AQ mode 2 make a segment choice.
   if (rd_cost->rate != INT_MAX && aq_mode == COMPLEXITY_AQ &&
       bsize >= BLOCK_16X16) {
