@@ -376,20 +376,14 @@ static void update_zeromv_cnt(const AV1_COMP *const cpi,
   }
 }
 
-static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
-                              ThreadData *td, TokenExtra **t, RUN_TYPE dry_run,
-                              BLOCK_SIZE bsize, int *rate) {
+static void encode_block_pixel(const AV1_COMP *const cpi, ThreadData *td,
+                               RUN_TYPE dry_run, BLOCK_SIZE bsize) {
   const AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCK *const x = &td->mb;
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO **mi_4x4 = xd->mi;
   MB_MODE_INFO *mbmi = mi_4x4[0];
-  const int seg_skip =
-      segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
-  const int mis = cm->mi_params.mi_stride;
-  const int mi_width = mi_size_wide[bsize];
-  const int mi_height = mi_size_high[bsize];
   const int is_inter = is_inter_block(mbmi);
 
   // Initialize tx_mode and tx_size_search_method
@@ -416,23 +410,6 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       mbmi->skip_txfm = 0;
 
     xd->cfl.store_y = 0;
-    if (av1_allow_palette(cm->features.allow_screen_content_tools, bsize)) {
-      for (int plane = 0; plane < AOMMIN(2, num_planes); ++plane) {
-        if (mbmi->palette_mode_info.palette_size[plane] > 0) {
-          if (!dry_run) {
-            av1_tokenize_color_map(x, plane, t, bsize, mbmi->tx_size,
-                                   PALETTE_MAP, tile_data->allow_update_cdf,
-                                   td->counts);
-          } else if (dry_run == DRY_RUN_COSTCOEFFS) {
-            *rate +=
-                av1_cost_color_map(x, plane, bsize, mbmi->tx_size, PALETTE_MAP);
-          }
-        }
-      }
-    }
-
-    av1_update_intra_mb_txb_context(cpi, td, dry_run, bsize,
-                                    tile_data->allow_update_cdf);
   } else {
     int ref;
     const int is_compound = has_second_ref(mbmi);
@@ -457,33 +434,61 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
             ? 1
             : 0;
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
-                                  start_plane, av1_num_planes(cm) - 1);
+                                  start_plane, num_planes - 1);
     if (mbmi->motion_mode == OBMC_CAUSAL) {
       assert(cpi->oxcf.motion_mode_cfg.enable_obmc);
       av1_build_obmc_inter_predictors_sb(cm, xd);
     }
+    av1_encode_sb(cpi, x, bsize, dry_run);
+  }
 
-#if CONFIG_MISMATCH_DEBUG
-    if (dry_run == OUTPUT_ENABLED) {
-      for (int plane = 0; plane < num_planes; ++plane) {
-        const struct macroblockd_plane *pd = &xd->plane[plane];
-        int pixel_c, pixel_r;
-        mi_to_pixel_loc(&pixel_c, &pixel_r, mi_col, mi_row, 0, 0,
-                        pd->subsampling_x, pd->subsampling_y);
-        if (!is_chroma_reference(mi_row, mi_col, bsize, pd->subsampling_x,
-                                 pd->subsampling_y))
-          continue;
-        mismatch_record_block_pre(pd->dst.buf, pd->dst.stride,
-                                  cm->current_frame.order_hint, plane, pixel_c,
-                                  pixel_r, pd->width, pd->height,
-                                  xd->cur_buf->flags & YV12_FLAG_HIGHBITDEPTH);
+  if (is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd)) {
+    cfl_store_block(xd, mbmi->bsize, mbmi->tx_size);
+  }
+}
+
+static void encode_block_ctx(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+                             ThreadData *td, TokenExtra **t, RUN_TYPE dry_run,
+                             BLOCK_SIZE bsize, int *rate) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const int num_planes = av1_num_planes(cm);
+  MACROBLOCK *const x = &td->mb;
+  MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO **mi_4x4 = xd->mi;
+  MB_MODE_INFO *mbmi = mi_4x4[0];
+  const int seg_skip =
+      segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP);
+  const int mis = cm->mi_params.mi_stride;
+  const int mi_width = mi_size_wide[bsize];
+  const int mi_height = mi_size_high[bsize];
+  const int is_inter = is_inter_block(mbmi);
+
+  // Initialize tx_mode and tx_size_search_method
+  TxfmSearchParams *txfm_params = &x->txfm_search_params;
+  set_tx_size_search_method(
+      cm, &cpi->winner_mode_params, txfm_params,
+      cpi->sf.winner_mode_sf.enable_winner_mode_for_tx_size_srch, 1);
+
+  const int mi_row = xd->mi_row;
+  const int mi_col = xd->mi_col;
+  if (!is_inter) {
+    if (av1_allow_palette(cm->features.allow_screen_content_tools, bsize)) {
+      for (int plane = 0; plane < AOMMIN(2, num_planes); ++plane) {
+        if (mbmi->palette_mode_info.palette_size[plane] > 0) {
+          if (!dry_run) {
+            av1_tokenize_color_map(x, plane, t, bsize, mbmi->tx_size,
+                                   PALETTE_MAP, tile_data->allow_update_cdf,
+                                   td->counts);
+          } else if (dry_run == DRY_RUN_COSTCOEFFS) {
+            rate +=
+                av1_cost_color_map(x, plane, bsize, mbmi->tx_size, PALETTE_MAP);
+          }
+        }
       }
     }
-#else
-    (void)num_planes;
-#endif
-
-    av1_encode_sb(cpi, x, bsize, dry_run);
+    av1_update_intra_mb_txb_context(cpi, td, dry_run, bsize,
+                                    tile_data->allow_update_cdf);
+  } else {
     av1_tokenize_sb_vartx(cpi, td, dry_run, bsize, rate,
                           tile_data->allow_update_cdf);
   }
@@ -561,9 +566,6 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                   (mbmi->skip_txfm || seg_skip) && is_inter_block(mbmi), xd);
   }
 
-  if (is_inter_block(mbmi) && !xd->is_chroma_ref && is_cfl_allowed(xd)) {
-    cfl_store_block(xd, mbmi->bsize, mbmi->tx_size);
-  }
   if (!dry_run) {
     if (cpi->oxcf.pass == AOM_RC_ONE_PASS && cpi->svc.temporal_layer_id == 0 &&
         cpi->sf.rt_sf.use_temporal_noise_estimate &&
@@ -573,6 +575,13 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
           cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1)))
       update_zeromv_cnt(cpi, mbmi, mi_row, mi_col, bsize);
   }
+}
+
+static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
+                              ThreadData *td, TokenExtra **t, RUN_TYPE dry_run,
+                              BLOCK_SIZE bsize, int *rate) {  
+  encode_block_pixel(cpi, td, dry_run, bsize);
+  encode_block_ctx(cpi, tile_data, td, t, dry_run, bsize, rate);
 }
 
 static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
