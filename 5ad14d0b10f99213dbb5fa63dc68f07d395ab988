@@ -128,6 +128,24 @@
       "parentUuid": "9550a36f_0d78bea6",
       "revId": "5ad14d0b10f99213dbb5fa63dc68f07d395ab988",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3203d63_78871245",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1490,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-16T02:12:04Z",
+      "side": 1,
+      "message": "\u003e \u003e what could happen if we have a show existing frame? the filter level (and also quantizer) would be the one for last frame (instead of the existing frame being shown)?\n\u003e \n\u003e \n\u003e that\u0027s what I was thinking it would be. probably not the worst case, but not great if the application plans to take action based on these.\n\nI guess it depends how LAST_QUANTIZER is interpreted. If a previous frame (which is not the last frame) is shown, the quantizer for that frame isn\u0027t the last one.\n\nIn that case I think I should change the control name to LAST_LOOPFILTER_LEVEL.",
+      "parentUuid": "a4392ffa_7c5ed299",
+      "revId": "5ad14d0b10f99213dbb5fa63dc68f07d395ab988",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
