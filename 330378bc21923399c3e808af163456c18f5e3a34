@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ebbd5f0_8c9e7816",
+        "filename": "test/loopfilter_control_test.cc",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-16T21:33:14Z",
+      "side": 1,
+      "message": "rather than extend the encoder driver interface maybe just setup a separate test and call the control function directly.",
+      "revId": "330378bc21923399c3e808af163456c18f5e3a34",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
