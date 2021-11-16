@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc903ffa_fa51d913",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-16T02:04:18Z",
+      "side": 1,
+      "message": "\u003e A bad parameter here means invalid pointer for either \"ctx\" or \"args\"?\n\nI was thinking a NULL pointer just to add coverage. A bad ctx would be expected to crash, not much we can do about that.",
+      "parentUuid": "cac1997d_7b2f1bed",
+      "revId": "5ad14d0b10f99213dbb5fa63dc68f07d395ab988",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "3eec9111_9e6df038",
@@ -90,6 +108,24 @@
       "side": 1,
       "message": "what could happen if we have a show existing frame? the filter level (and also quantizer) would be the one for last frame (instead of the existing frame being shown)?",
       "parentUuid": "275f1288_0b560629",
+      "revId": "5ad14d0b10f99213dbb5fa63dc68f07d395ab988",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4392ffa_7c5ed299",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1490,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-16T02:04:18Z",
+      "side": 1,
+      "message": "\u003e what could happen if we have a show existing frame? the filter level (and also quantizer) would be the one for last frame (instead of the existing frame being shown)?\n\n\nthat\u0027s what I was thinking it would be. probably not the worst case, but not great if the application plans to take action based on these.",
+      "parentUuid": "9550a36f_0d78bea6",
       "revId": "5ad14d0b10f99213dbb5fa63dc68f07d395ab988",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
