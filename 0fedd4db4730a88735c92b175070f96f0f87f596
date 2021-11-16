@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bea35cb_77823184",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-11-16T08:19:10Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch renames the frame type check variable in set_good_speed_features_framesize_independent() appropriately to reflect its actual usage. The condition is also changed to use the correct enum value (INTER_FRAME).\n\nThis is a bit-exact change with no speed impact (verified locally on a few clips).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "0fedd4db4730a88735c92b175070f96f0f87f596",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
