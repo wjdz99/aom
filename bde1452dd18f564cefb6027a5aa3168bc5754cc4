@@ -138,6 +138,24 @@
       "parentUuid": "38a0ae6b_d005b1b3",
       "revId": "bde1452dd18f564cefb6027a5aa3168bc5754cc4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "002f7d9b_bb2b48cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-16T21:45:23Z",
+      "side": 1,
+      "message": "I suspect the MV search function needs to be modified to use this SIMD?",
+      "parentUuid": "753f924f_c156268e",
+      "revId": "bde1452dd18f564cefb6027a5aa3168bc5754cc4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
