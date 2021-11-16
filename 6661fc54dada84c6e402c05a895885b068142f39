@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a12c18fb_5516ef01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-11-16T15:58:34Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing,\n\nIn the parent version, the processing of current SB by a thread can start only after top-right SB is encoded in allintra encode (when row-mt is enabled). This CL overcomes this limitation by delaying the top-right sync until top right data is needed (as entropy cost update frequency is set to COST_UPD_OFF for speed\u003d9). This reduces the top-right wait time when --row-mt\u003d1.\n\nIn the parent version, the function is_rtc_mode() is used to check whether cost update frequencies of symbols are set to tile/off in case of realtime mode. We have added checks based on sfs and allintra mode and renamed the function as do_not_wait_for_top_right_sb().\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of \u0027AVIF\u0027 encode is bit-exact w.r.t. parent version for a typical image dataset. Please review the patch.\n\nCurrently, the functionality of av1_initialize_rd_consts() and av1_set_cost_upd_freq() depends on control time parameters (oxcf-\u003ecost_upd_freq) and sf settings (of type INTERNAL_COST_UPDATE_TYPE) are not respected. We feel that it would be cleaner to use the same cost parameter settings throughout the encoder (sf/oxcf). Hence we are planning for unification where sf values will be used throughout the encoder and these values also account for oxcf parameter settings (the sf values will be set based on the worst case setting of sf and oxcf). This unification might result in bit-mismatch w.r.t. reference version for some of the configurations, as reference version doesn\u0027t consider sf in few parts of the code. Please let us know your opinion on pursuing the above.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nThanks \u0026 Regards,\nVenkata.\n",
+      "revId": "6661fc54dada84c6e402c05a895885b068142f39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
