@@ -296,11 +296,11 @@ void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
   const int gf_length_mult[2] = { 8, 4 };
   if (cr->percent_refresh > 0)
     p_rc->baseline_gf_interval =
-        AOMMIN(gf_length_mult[cpi->sf.rt_sf.gf_length_lvl] *
+        AOMMIN(3 *
                    (100 / cr->percent_refresh),
                MAX_GF_INTERVAL_RT);
   else
-    p_rc->baseline_gf_interval = FIXED_GF_INTERVAL_RT;
+    p_rc->baseline_gf_interval = 30;  //FIXED_GF_INTERVAL_RT;
   if (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40)
     p_rc->baseline_gf_interval = 16;
 }
