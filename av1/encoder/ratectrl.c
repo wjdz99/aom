@@ -2354,7 +2354,7 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
         rc->frames_till_gf_update_due <= (p_rc->baseline_gf_interval - 10);
     int gf_update_changed = 0;
     int thresh = 87;
-    if (rc->frames_till_gf_update_due == 1 &&
+    if (0 && rc->frames_till_gf_update_due == 1 &&
         cm->quant_params.base_qindex > avg_qp) {
       // Disable GF refresh since QP is above the runninhg average QP.
       svc->refresh[svc->gld_idx_1layer] = 0;
