@@ -16,6 +16,24 @@
       "message": "I would probably put a guard here to make sure that at least one of the frames is used. would assert be enough? something like\n\nassert (use_alt_ref_frame || use_golden_ref_frame || use_last_ref_frame);",
       "revId": "197edfda34d03048027d1ede3051219145dba4e7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "780f1b69_6954dd07",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1846,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-11-18T21:04:15Z",
+      "side": 1,
+      "message": "Done.\n\nThis should only happen for svc, where user is responsible for setting references, but i guess its fine to make sure one is set.",
+      "parentUuid": "27e994f0_ad8b9926",
+      "revId": "197edfda34d03048027d1ede3051219145dba4e7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
