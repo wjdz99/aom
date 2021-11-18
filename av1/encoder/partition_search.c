@@ -9,8 +9,10 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <stdio.h>
 #include "av1/common/av1_common_int.h"
 #include "av1/common/blockd.h"
+#include "av1/common/common_data.h"
 #include "av1/common/enums.h"
 #include "av1/common/reconintra.h"
 
@@ -579,7 +581,7 @@ static void encode_block_ctx(const AV1_COMP *const cpi, TileDataEnc *tile_data,
 
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
                               ThreadData *td, TokenExtra **t, RUN_TYPE dry_run,
-                              BLOCK_SIZE bsize, int *rate) {  
+                              BLOCK_SIZE bsize, int *rate) {
   encode_block_pixel(cpi, td, dry_run, bsize);
   encode_block_ctx(cpi, tile_data, td, t, dry_run, bsize, rate);
 }
@@ -826,8 +828,8 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   MB_MODE_INFO *mbmi;
-  struct macroblock_plane *const p = x->plane;
-  struct macroblockd_plane *const pd = xd->plane;
+  struct macroblock_plane *p = x->plane;
+  struct macroblockd_plane *pd = xd->plane;
   const AQ_MODE aq_mode = cpi->oxcf.q_cfg.aq_mode;
   TxfmSearchInfo *txfm_info = &x->txfm_search_info;
 
@@ -922,6 +924,71 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
     end_timing(cpi, av1_rd_pick_inter_mode_sb_time);
 #endif
   }
+
+  // ======================================================
+  if (rd_cost->rate != INT_MAX) {
+    av1_update_state(cpi, &cpi->td, ctx, mi_row, mi_col, bsize, 1);
+    encode_block_pixel(cpi, &cpi->td, DRY_RUN_NORMAL, bsize);
+
+    const BLOCK_SIZE tpl_bsize =
+        convert_length_to_bsize(cpi->ppi->tpl_data.tpl_bsize_1d);
+    (void)tpl_bsize;
+
+    const int row_step = AOMMIN(mi_size_high[bsize], mi_size_high[tpl_bsize]);
+    const int col_step = AOMMIN(mi_size_wide[bsize], mi_size_wide[tpl_bsize]);
+    const int mi_wide = mi_size_wide[bsize];
+    const int mi_high = mi_size_high[bsize];
+
+    int64_t total_sse = 0;
+
+    for (int row = mi_row; row < mi_row + mi_high; row += row_step) {
+      for (int col = mi_col; col < mi_col + mi_wide; col += col_step) {
+        if (row >= cm->mi_params.mi_rows || col >= cm->mi_params.mi_cols)
+          continue;
+
+        for (int plane = 0; plane < num_planes; ++plane) {
+          pd = &xd->plane[plane];
+          p = &x->plane[plane];
+
+          if (plane > 0 && !xd->is_chroma_ref) continue;
+
+          const int bw =
+              AOMMAX((col_step << MI_SIZE_LOG2) >> pd->subsampling_x, 4);
+          const int bh =
+              AOMMAX((row_step << MI_SIZE_LOG2) >> pd->subsampling_y, 4);
+          const int src_stride = x->plane[plane].src.stride;
+          const int dst_stride = xd->plane[plane].dst.stride;
+          const int src_idx = ((row >> pd->subsampling_y) * src_stride +
+                               (col >> pd->subsampling_x))
+                              << MI_SIZE_LOG2;
+          const int dst_idx = ((row >> pd->subsampling_y) * dst_stride +
+                               (col >> pd->subsampling_x))
+                              << MI_SIZE_LOG2;
+          const uint8_t *src = x->plane[plane].src.buf0 + src_idx;
+          const uint8_t *dst = xd->plane[plane].dst.buf0 + dst_idx;
+          int64_t this_sse;
+          // TODO(jingning): Use a generalized mse calculation function for
+          // improved speed.
+#if CONFIG_AV1_HIGHBITDEPTH
+          if (is_cur_buf_hbd(xd)) {
+            uint64_t sse64 = aom_highbd_sse_odd_size(src, src_stride, dst,
+                                                     dst_stride, bw, bh);
+            this_sse = ROUND_POWER_OF_TWO(sse64, (xd->bd - 8) * 2);
+          }
+#else
+          (void)x;
+#endif
+          this_sse = aom_sse_odd_size(src, src_stride, dst, dst_stride, bw, bh);
+
+          total_sse += 16 * this_sse;
+        }
+      }
+    }
+
+    rd_cost->dist = total_sse;
+  }
+
+  // ======================================================
 
   // Examine the resulting rate and for AQ mode 2 make a segment choice.
   if (rd_cost->rate != INT_MAX && aq_mode == COMPLEXITY_AQ &&
