@@ -1440,6 +1440,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
           : FLAG_SKIP_INTRA_DIRMISMATCH | FLAG_SKIP_INTRA_BESTINTER |
                 FLAG_SKIP_COMP_BESTINTRA | FLAG_SKIP_INTRA_LOWVAR |
                 FLAG_EARLY_TERMINATE;
+  sf->rt_sf.var_part_split_threshold_shift = AOMMAX(speed, 7);
 
   // For SVC: use better mv search on base temporal layers, and only
   // on base spatial layer if highest resolution is above 640x360.
@@ -1873,6 +1874,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->prune_inter_modes_using_temp_var = 0;
   rt_sf->force_half_pel_block = 0;
   rt_sf->prune_intra_mode_based_on_mv_range = 0;
+  rt_sf->var_part_split_threshold_shift = 7;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
