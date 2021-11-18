@@ -2448,7 +2448,8 @@ static int encode_without_recode(AV1_COMP *cpi) {
   av1_encode_frame(cpi);
 
   // Update some stats from cyclic refresh.
-  if (q_cfg->aq_mode == CYCLIC_REFRESH_AQ && !frame_is_intra_only(cm))
+  if (q_cfg->aq_mode == CYCLIC_REFRESH_AQ &&
+      cpi->cyclic_refresh->content_mode && !frame_is_intra_only(cm))
     av1_cyclic_refresh_postencode(cpi);
 
   // Adjust the refresh of the golden (longer-term) reference based on QP

@@ -102,6 +102,10 @@ struct CYCLIC_REFRESH {
    * Boost factor for rate target ratio, for segment CR_SEGMENT_ID_BOOST2.
    */
   int rate_boost_fac;
+  /*!
+   * Content dependency on/off.
+   */
+  int content_mode;
 
   /*!\cond */
   int qindex_delta[3];
