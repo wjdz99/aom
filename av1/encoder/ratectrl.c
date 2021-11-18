@@ -383,6 +383,7 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc) {
   rc->resize_avg_qp = 0;
   rc->resize_buffer_underflow = 0;
   rc->resize_count = 0;
+  rc->rtc_external_ratectrl = 0;
 #if CONFIG_FRAME_PARALLEL_ENCODE
   rc->frame_level_fast_extra_bits = 0;
 #endif
@@ -462,7 +463,8 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality) {
     }
     // Adjust Q base on source content change from scene detection.
     if (cpi->sf.rt_sf.check_scene_detection && rc->prev_avg_source_sad > 0 &&
-        rc->frames_since_key > 10 && !cpi->ppi->use_svc) {
+        rc->frames_since_key > 10 && !cpi->ppi->use_svc &&
+        !rc->rtc_external_ratectrl) {
       const int bit_depth = cm->seq_params->bit_depth;
       double delta =
           (double)rc->avg_source_sad / (double)rc->prev_avg_source_sad - 1.0;

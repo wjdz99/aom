@@ -1087,12 +1087,13 @@ static AOM_INLINE void encode_tiles(AV1_COMP *cpi) {
       cpi->td.mb.e_mbd.tile_ctx = &this_tile->tctx;
       cpi->td.mb.tile_pb_ctx = &this_tile->tctx;
       // Reset cyclic refresh counters.
-      av1_init_cyclic_refresh_counters(&cpi->td.mb);
+      if (!cpi->rc.rtc_external_ratectrl)
+        av1_init_cyclic_refresh_counters(&cpi->td.mb);
 
       av1_encode_tile(cpi, &cpi->td, tile_row, tile_col);
       // Accumulate cyclic refresh params.
       if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
-          !frame_is_intra_only(&cpi->common))
+          !cpi->rc.rtc_external_ratectrl && !frame_is_intra_only(&cpi->common))
         av1_accumulate_cyclic_refresh_counters(cpi->cyclic_refresh,
                                                &cpi->td.mb);
       cpi->intrabc_used |= cpi->td.intrabc_used;
@@ -1448,7 +1449,7 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     // base_qindex
     cm->delta_q_info.delta_q_present_flag &= quant_params->base_qindex > 0;
     cm->delta_q_info.delta_lf_present_flag &= quant_params->base_qindex > 0;
-  } else {
+  } else if (!cpi->rc.rtc_external_ratectrl) {
     cpi->cyclic_refresh->actual_num_seg1_blocks = 0;
     cpi->cyclic_refresh->actual_num_seg2_blocks = 0;
     cpi->cyclic_refresh->cnt_zeromv = 0;
