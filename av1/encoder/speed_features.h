@@ -1374,6 +1374,11 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Force half_pel at block level.
   int force_half_pel_block;
+
+  // The number of times to left shift the splitting thresholds in variance
+  // based partitioning. The minimum values should be 7 to avoid left shifting
+  // by a negative number.
+  int var_part_split_threshold_shift;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */

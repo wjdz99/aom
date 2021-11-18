@@ -348,10 +348,12 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
       (int64_t)(threshold_multiplier *
                 cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[q][1]);
   const int current_qindex = cm->quant_params.base_qindex;
+  const int threshold_left_shift = cpi->sf.rt_sf.var_part_split_threshold_shift;
+  assert(threshold_left_shift >= 7);
 
   if (is_key_frame) {
     if (cpi->sf.rt_sf.force_large_partition_blocks_intra) {
-      threshold_base <<= cpi->oxcf.speed - 7;
+      threshold_base <<= threshold_left_shift - 7;
     }
     thresholds[0] = threshold_base;
     thresholds[1] = threshold_base;
@@ -403,7 +405,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
 #endif
     thresholds[0] = threshold_base >> 1;
     thresholds[1] = threshold_base;
-    thresholds[3] = threshold_base << cpi->oxcf.speed;
+    thresholds[3] = threshold_base << threshold_left_shift;
     if (cm->width >= 1280 && cm->height >= 720)
       thresholds[3] = thresholds[3] << 1;
     if (cm->width * cm->height <= 352 * 288) {
