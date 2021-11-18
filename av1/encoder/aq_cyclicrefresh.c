@@ -92,8 +92,14 @@ int av1_cyclic_refresh_estimate_bits_at_q(const AV1_COMP *cpi,
   const int num4x4bl = mbs << 4;
   // Weight for non-base segments: use actual number of blocks refreshed in
   // previous/just encoded frame. Note number of blocks here is in 4x4 units.
-  const double weight_segment1 = (double)cr->actual_num_seg1_blocks / num4x4bl;
-  const double weight_segment2 = (double)cr->actual_num_seg2_blocks / num4x4bl;
+  double weight_segment1 = (double)cr->actual_num_seg1_blocks / num4x4bl;
+  double weight_segment2 = (double)cr->actual_num_seg2_blocks / num4x4bl;
+  if (cpi->rc.rtc_external_ratectrl) {
+    weight_segment1 = (double)(cr->percent_refresh * cm->mi_params.mi_rows *
+                               cm->mi_params.mi_cols / 100) /
+                      num4x4bl;
+    weight_segment2 = 0;
+  }
   // Take segment weighted average for estimated bits.
   const int estimated_bits =
       (int)((1.0 - weight_segment1 - weight_segment2) *
@@ -124,6 +130,13 @@ int av1_cyclic_refresh_rc_bits_per_mb(const AV1_COMP *cpi, int i,
                 cr->actual_num_seg2_blocks) >>
                1) /
       num4x4bl;
+  if (cpi->rc.rtc_external_ratectrl) {
+    weight_segment = (double)((cr->target_num_seg_blocks +
+                               cr->percent_refresh * cm->mi_params.mi_rows *
+                                   cm->mi_params.mi_cols / 100) >>
+                              1) /
+                     num4x4bl;
+  }
   // Compute delta-q corresponding to qindex i.
   int deltaq = compute_deltaq(cpi, i, cr->rate_ratio_qdelta);
   // Take segment weighted average for bits per mb.
@@ -301,7 +314,8 @@ void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
                MAX_GF_INTERVAL_RT);
   else
     p_rc->baseline_gf_interval = FIXED_GF_INTERVAL_RT;
-  if (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40)
+  if (!rc->rtc_external_ratectrl && rc->avg_frame_low_motion &&
+      rc->avg_frame_low_motion < 40)
     p_rc->baseline_gf_interval = 16;
 }
 
@@ -408,8 +422,8 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
        cpi->svc.layer_context[cpi->svc.temporal_layer_id].is_key_frame) ||
       (rc->frames_since_key > 20 &&
        p_rc->avg_frame_qindex[INTER_FRAME] > qp_max_thresh) ||
-      (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 45 &&
-       rc->frames_since_key > 40)) {
+      (!rc->rtc_external_ratectrl && rc->avg_frame_low_motion &&
+       rc->avg_frame_low_motion < 45 && rc->frames_since_key > 40)) {
     cr->apply_cyclic_refresh = 0;
     return;
   }
@@ -465,6 +479,12 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   if (weight_segment_target < 7 * weight_segment / 8)
     weight_segment = weight_segment_target;
   cr->weight_segment = weight_segment;
+  if (rc->rtc_external_ratectrl) {
+    cr->actual_num_seg1_blocks = cr->percent_refresh * cm->mi_params.mi_rows *
+                                 cm->mi_params.mi_cols / 100;
+    cr->actual_num_seg2_blocks = 0;
+    cr->weight_segment = (double)(cr->actual_num_seg1_blocks) / num4x4bl;
+  }
 }
 
 // Setup cyclic background refresh: set delta q and segmentation map.
