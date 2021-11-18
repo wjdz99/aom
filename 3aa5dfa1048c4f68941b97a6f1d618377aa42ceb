@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cf3cccb_a974d19b",
+        "filename": "test/loopfilter_control_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-18T03:45:43Z",
+      "side": 1,
+      "message": "you can skip the fixture and just make this TEST_F() a TEST() like we do in encode_api_test.cc for example",
+      "revId": "3aa5dfa1048c4f68941b97a6f1d618377aa42ceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83040956_27a1fd94",
+        "filename": "test/loopfilter_control_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-11-18T03:45:43Z",
+      "side": 1,
+      "message": "you can use the more natural ordering of params now: EXPECT_EQ(..., AOM_CODEC_...)",
+      "revId": "3aa5dfa1048c4f68941b97a6f1d618377aa42ceb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
