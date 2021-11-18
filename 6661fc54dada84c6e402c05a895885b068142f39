@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4da2a02f_b46d100d",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-11-18T23:23:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64cc94ba_88c9d96f",
+      "range": {
+        "startLine": 743,
+        "startChar": 11,
+        "endLine": 743,
+        "endChar": 66
+      },
+      "revId": "6661fc54dada84c6e402c05a895885b068142f39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "00e4e51e_9212b04e",
@@ -81,6 +105,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce235b96_875fb6f5",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-11-18T23:23:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00e4e51e_9212b04e",
+      "range": {
+        "startLine": 754,
+        "startChar": 22,
+        "endLine": 754,
+        "endChar": 50
+      },
+      "revId": "6661fc54dada84c6e402c05a895885b068142f39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f3d9a54_e9e12931",
@@ -94,6 +142,30 @@
       "writtenOn": "2021-11-18T16:51:12Z",
       "side": 1,
       "message": "See comment above.",
+      "range": {
+        "startLine": 764,
+        "startChar": 13,
+        "endLine": 764,
+        "endChar": 73
+      },
+      "revId": "6661fc54dada84c6e402c05a895885b068142f39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbf63efd_e0759fb7",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-11-18T23:23:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f3d9a54_e9e12931",
       "range": {
         "startLine": 764,
         "startChar": 13,
