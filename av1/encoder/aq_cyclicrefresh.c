@@ -29,6 +29,7 @@ CYCLIC_REFRESH *av1_cyclic_refresh_alloc(int mi_rows, int mi_cols) {
     av1_cyclic_refresh_free(cr);
     return NULL;
   }
+
   return cr;
 }
 
@@ -301,7 +302,8 @@ void av1_cyclic_refresh_set_golden_update(AV1_COMP *const cpi) {
                MAX_GF_INTERVAL_RT);
   else
     p_rc->baseline_gf_interval = FIXED_GF_INTERVAL_RT;
-  if (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 40)
+  if (!rc->rtc_external_ratectrl && rc->avg_frame_low_motion &&
+      rc->avg_frame_low_motion < 40)
     p_rc->baseline_gf_interval = 16;
 }
 
@@ -408,8 +410,8 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
        cpi->svc.layer_context[cpi->svc.temporal_layer_id].is_key_frame) ||
       (rc->frames_since_key > 20 &&
        p_rc->avg_frame_qindex[INTER_FRAME] > qp_max_thresh) ||
-      (rc->avg_frame_low_motion && rc->avg_frame_low_motion < 45 &&
-       rc->frames_since_key > 40)) {
+      (!rc->rtc_external_ratectrl && rc->avg_frame_low_motion &&
+       rc->avg_frame_low_motion < 45 && rc->frames_since_key > 40)) {
     cr->apply_cyclic_refresh = 0;
     return;
   }
@@ -465,6 +467,12 @@ void av1_cyclic_refresh_update_parameters(AV1_COMP *const cpi) {
   if (weight_segment_target < 7 * weight_segment / 8)
     weight_segment = weight_segment_target;
   cr->weight_segment = weight_segment;
+  if (rc->rtc_external_ratectrl) {
+    cr->actual_num_seg1_blocks = cr->percent_refresh * cm->mi_params.mi_rows *
+                                 cm->mi_params.mi_cols / 100;
+    cr->actual_num_seg2_blocks = 0;
+    cr->weight_segment = (double)(cr->actual_num_seg1_blocks) / num4x4bl;
+  }
 }
 
 // Setup cyclic background refresh: set delta q and segmentation map.

@@ -815,7 +815,8 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
   int q =
       find_closest_qindex_by_rate(target_bits_per_mb, cpi, correction_factor,
                                   active_best_quality, active_worst_quality);
-  if (cpi->oxcf.rc_cfg.mode == AOM_CBR && has_no_stats_stage(cpi))
+  if (cpi->oxcf.rc_cfg.mode == AOM_CBR && !cpi->rc.rtc_external_ratectrl &&
+      has_no_stats_stage(cpi))
     return adjust_q_cbr(cpi, q, active_worst_quality);
 
   return q;
