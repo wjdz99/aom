@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis patch extends the speed feature prune_zero_mv_with_sse to speed 3. The speed feature currently prunes GLOBALMV and GLOBAL_GLOBALMV , when the motion vector is a ZEROMV and the  ZEROMV  SSE is greater than best NEWMV SSE in speed 4 . We have made this SF more conservative in speed 3. \n\nPlease find below detailed borg result :\n               Instruction Count    BD-Rate Loss(%)\ncpu Resolution  Reduction(%)      avg.psnr ovr.psnr  ssim   \n 3   LOWRES2    1.396             0.0147   0.0188    0.0291   \n 3   MIDRES2    1.113             -0.0021  0.0108    -0.0672 \n 3   HDRES2     0.770             -0.0516  -0.0488   0.0296 \n 3   Average    1.093             -0.0162  -0.0093   -0.0038 \n\nIn the commit message : \n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n\nWe have verified that the patch in bit exact for other speed levels. \nPlease review the patch. \n\nThanks,\nAkshata\n",
       "revId": "1988533b0941bb83c895db0f4f8937bf37f0202f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d0c1d41_7aee1434",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-11-18T13:01:32Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nPlease review the patch.\nRegards,\nAkshata",
+      "revId": "1988533b0941bb83c895db0f4f8937bf37f0202f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
