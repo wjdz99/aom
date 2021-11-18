@@ -735,6 +735,7 @@ int av1_get_rdmult_delta(AV1_COMP *cpi, BLOCK_SIZE bsize, int mi_row,
   if (mc_dep_cost > 0 && intra_cost > 0) {
     const double r0 = cpi->rd.r0;
     const double rk = (double)intra_cost / mc_dep_cost;
+    cpi->rd.rb = rk;
     beta = (r0 / rk);
   }
 
@@ -944,6 +945,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   if (mc_dep_cost > 0 && intra_cost > 0) {
     const double r0 = cpi->rd.r0;
     const double rk = exp((intra_cost - mc_dep_cost) / cbcmp_count);
+    cpi->rd.rb = rk;
     beta = (r0 / rk);
     assert(beta > 0.0);
   }
