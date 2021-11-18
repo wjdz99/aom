@@ -383,6 +383,7 @@ void av1_rc_init(const AV1EncoderConfig *oxcf, RATE_CONTROL *rc) {
   rc->resize_avg_qp = 0;
   rc->resize_buffer_underflow = 0;
   rc->resize_count = 0;
+  rc->rtc_external_ratectrl = 0;
 #if CONFIG_FRAME_PARALLEL_ENCODE
   rc->frame_level_fast_extra_bits = 0;
 #endif
@@ -815,7 +816,8 @@ int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
   int q =
       find_closest_qindex_by_rate(target_bits_per_mb, cpi, correction_factor,
                                   active_best_quality, active_worst_quality);
-  if (cpi->oxcf.rc_cfg.mode == AOM_CBR && has_no_stats_stage(cpi))
+  if (cpi->oxcf.rc_cfg.mode == AOM_CBR && !cpi->rc.rtc_external_ratectrl &&
+      has_no_stats_stage(cpi))
     return adjust_q_cbr(cpi, q, active_worst_quality);
 
   return q;
