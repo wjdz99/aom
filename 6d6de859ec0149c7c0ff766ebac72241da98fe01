@@ -56,6 +56,30 @@
       },
       "revId": "6d6de859ec0149c7c0ff766ebac72241da98fe01",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b99947f_36a1933a",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-11-19T09:29:58Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nYes this change was intentional to supress the below build time warning:\n\"format not a string literal and no format arguments [-Wformat-security]\"\n\nRegards,\nRemya",
+      "parentUuid": "dd5e961c_6fa07c2c",
+      "range": {
+        "startLine": 1016,
+        "startChar": 55,
+        "endLine": 1016,
+        "endChar": 61
+      },
+      "revId": "6d6de859ec0149c7c0ff766ebac72241da98fe01",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
