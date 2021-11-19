@@ -207,6 +207,13 @@ if(NOT BUILD_SHARED_LIBS)
                 "${AOM_ROOT}/test/simd_neon_test.cc")
   endif()
 
+  if(CONFIG_FRAME_PARALLEL_ENCODE
+     AND CONFIG_FRAME_PARALLEL_ENCODE_2
+     AND CONFIG_FPMT_TEST AND (NOT CONFIG_REALTIME_ONLY))
+    list(APPEND AOM_UNIT_TEST_COMMON_SOURCES
+                "${AOM_ROOT}/test/frame_parallel_enc_test.cc")
+  endif()
+
   list(APPEND AOM_UNIT_TEST_COMMON_INTRIN_SSE2
               "${AOM_ROOT}/test/simd_cmp_sse2.cc")
   if(HAVE_SSE2)
