@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bec96981_bf2f03f6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-11-19T21:20:35Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch disables FPMT when unsupported configurations are set through control\ncalls and re-computes the maximum number of parallel contexts if supported configuration changes. The re-compute of the maximum number of parallel frame contexts happens at the beginning of each sub-gop.\n\nThis is a bit-exact change for borg recipe (with FPMT enabled) with no speed impact.\n\nPlease review.\n",
+      "revId": "e2df9263cc15605e27f78f8b9859c03174ce3292",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
