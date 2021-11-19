@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f129be0_02931967",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-11-19T06:02:52Z",
+      "side": 1,
+      "message": "update message with loss from turning off this parameter:\nfor rtc and rtc_derf, with aq_mode\u003d0 and 3:\nadd average and max loss...",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1abaa4df_da728b23",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1090,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-11-19T06:02:52Z",
+      "side": 1,
+      "message": "do we need the flag here? init and updating counters can still be done, just not actually used in the external RC\n\nsame below..",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abb55a66_6af8c825",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-11-19T06:02:52Z",
+      "side": 1,
+      "message": "same here: can remove the flag?",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a237c6f_cf72f7da",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2403,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-11-19T06:02:52Z",
+      "side": 1,
+      "message": "this should be disabled, can disable check_scene_detection in the speed features for this?",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e621c44_5d1899ce",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-11-19T06:02:52Z",
+      "side": 1,
+      "message": "do we need the flag here?",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d46d7fe1_0188bbf0",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-11-19T06:02:52Z",
+      "side": 1,
+      "message": "i think its better to just set check_scene_detection to 0 when rtc_external_ratectrl is 0, since we should also disable the max-q on overshoot logic",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
