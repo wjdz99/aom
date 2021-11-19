@@ -896,6 +896,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   TplParams *const tpl_data = &cpi->ppi->tpl_data;
   const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
   int64_t intra_cost = 0;
+  int64_t dist_dep_cost = 0;
   int64_t mc_dep_cost = 0;
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
@@ -930,6 +931,8 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
                  this_stats->mc_dep_dist);
       intra_cost += this_stats->recrf_dist << RDDIV_BITS;
       mc_dep_cost += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      dist_dep_cost +=
+          (this_stats->recrf_dist + this_stats->mc_dep_dist) << RDDIV_BITS;
       mi_count++;
     }
   }
@@ -940,7 +943,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   if (mc_dep_cost > 0 && intra_cost > 0) {
     const double r0 = cpi->rd.r0;
     const double rk = (double)intra_cost / mc_dep_cost;
-    cpi->rd.rb = rk;
+    cpi->rd.rb = (double)intra_cost / dist_dep_cost;
     beta = (r0 / rk);
     assert(beta > 0.0);
   }

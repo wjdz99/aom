@@ -878,7 +878,7 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, aq_mode, mbmi);
   // Set error per bit for current rdmult
   av1_set_error_per_bit(&x->errorperbit, x->rdmult);
-  av1_rd_cost_update(x->rdmult, &best_rd);
+  av1_rd_cost_update(x->sb_rdmult, &best_rd);
 
   // If set best_rd.rdcost to INT64_MAX, the encoder will not use any previous
   // rdcost information for the following mode search.
@@ -914,9 +914,16 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
   }
 
   // ======================================================
-  if (rd_cost->rate != INT_MAX) {
+  if (rd_cost->rate != INT_MAX &&
+      is_frame_tpl_eligible(&cpi->ppi->gf_group, cpi->gf_frame_index)) {
     av1_update_state(cpi, &cpi->td, ctx, mi_row, mi_col, bsize, 1);
     encode_block_pixel(cpi, &cpi->td, DRY_RUN_NORMAL, bsize);
+
+    TplParams *const tpl_data = &cpi->ppi->tpl_data;
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[cpi->gf_frame_index];
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+    int tpl_stride = tpl_frame->stride;
+    const uint8_t block_mis_log2 = tpl_data->tpl_stats_block_mis_log2;
 
     const BLOCK_SIZE tpl_bsize =
         convert_length_to_bsize(cpi->ppi->tpl_data.tpl_bsize_1d);
@@ -968,12 +975,27 @@ static void pick_sb_modes(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif
           this_sse = aom_sse_odd_size(src, src_stride, dst, dst_stride, bw, bh);
 
-          total_sse += 16 * this_sse;
+          TplDepStats *this_stats =
+              &tpl_stats[av1_tpl_ptr_pos(row, col, tpl_stride, block_mis_log2)];
+
+          // int64_t mc_dep_delta =
+          //     RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+          //            this_stats->mc_dep_dist);
+          int64_t intra_cost = this_stats->recrf_dist << RDDIV_BITS;
+          int64_t mc_dep_cost =
+              (this_stats->recrf_dist + this_stats->mc_dep_dist) << RDDIV_BITS;
+
+          double rk = (double)intra_cost / mc_dep_cost;
+          double block_dist_scale = cpi->rd.rb / rk;
+
+          total_sse += (int64_t)(16 * this_sse * block_dist_scale);
         }
       }
     }
 
-    rd_cost->dist = total_sse;
+    rd_cost->dist = total_sse * 2;
+    rd_cost->rate *= 2;
+    rd_cost->rdcost = RDCOST(x->sb_rdmult, rd_cost->rate, rd_cost->dist);
   }
 
   // ======================================================
@@ -2602,10 +2624,10 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
   const int orig_mult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, subsize, NO_AQ, NULL);
 
-  av1_rd_cost_update(x->rdmult, &best_rdcost);
+  av1_rd_cost_update(x->sb_rdmult, &best_rdcost);
 
   RD_STATS rdcost_remaining;
-  av1_rd_stats_subtraction(x->rdmult, &best_rdcost, sum_rdc, &rdcost_remaining);
+  av1_rd_stats_subtraction(x->sb_rdmult, &best_rdcost, sum_rdc, &rdcost_remaining);
   RD_STATS this_rdc;
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &this_rdc, partition,
                 subsize, this_ctx, rdcost_remaining);
@@ -2615,7 +2637,7 @@ static int rd_try_subblock(AV1_COMP *const cpi, ThreadData *td,
   } else {
     sum_rdc->rate += this_rdc.rate;
     sum_rdc->dist += this_rdc.dist;
-    av1_rd_cost_update(x->rdmult, sum_rdc);
+    av1_rd_cost_update(x->sb_rdmult, sum_rdc);
   }
 
   if (sum_rdc->rdcost >= best_rdcost.rdcost) {
@@ -2650,7 +2672,7 @@ static bool rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
   RD_STATS sum_rdc;
   av1_init_rd_stats(&sum_rdc);
   sum_rdc.rate = x->mode_costs.partition_cost[pl][partition];
-  sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+  sum_rdc.rdcost = RDCOST(x->sb_rdmult, sum_rdc.rate, 0);
   // Loop over sub-partitions in AB partition type.
   for (int i = 0; i < SUB_PARTITIONS_AB; i++) {
     if (mode_cache && mode_cache[i]) {
@@ -2668,10 +2690,10 @@ static bool rd_test_partition3(AV1_COMP *const cpi, ThreadData *td,
     }
   }
 
-  av1_rd_cost_update(x->rdmult, &sum_rdc);
+  av1_rd_cost_update(x->sb_rdmult, &sum_rdc);
   *this_rdcost = sum_rdc.rdcost;
   if (sum_rdc.rdcost >= best_rdc->rdcost) return false;
-  sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+  sum_rdc.rdcost = RDCOST(x->sb_rdmult, sum_rdc.rate, sum_rdc.dist);
   *this_rdcost = sum_rdc.rdcost;
   if (sum_rdc.rdcost >= best_rdc->rdcost) return false;
 
@@ -2938,13 +2960,13 @@ static void rd_pick_rect_partition(AV1_COMP *const cpi, TileDataEnc *tile_data,
   // Obtain the remainder from the best rd cost
   // for further processing of partition.
   RD_STATS best_remain_rdcost;
-  av1_rd_stats_subtraction(x->rdmult, best_rdc, &part_search_state->sum_rdc,
+  av1_rd_stats_subtraction(x->sb_rdmult, best_rdc, &part_search_state->sum_rdc,
                            &best_remain_rdcost);
 
   // Obtain the best mode for the partition sub-block.
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &part_search_state->this_rdc,
                 partition_type, bsize, cur_partition_ctx, best_remain_rdcost);
-  av1_rd_cost_update(x->rdmult, &part_search_state->this_rdc);
+  av1_rd_cost_update(x->sb_rdmult, &part_search_state->this_rdc);
 
   // Update the partition rd cost with the current sub-block rd.
   if (part_search_state->this_rdc.rate == INT_MAX) {
@@ -2952,7 +2974,7 @@ static void rd_pick_rect_partition(AV1_COMP *const cpi, TileDataEnc *tile_data,
   } else {
     part_search_state->sum_rdc.rate += part_search_state->this_rdc.rate;
     part_search_state->sum_rdc.dist += part_search_state->this_rdc.dist;
-    av1_rd_cost_update(x->rdmult, &part_search_state->sum_rdc);
+    av1_rd_cost_update(x->sb_rdmult, &part_search_state->sum_rdc);
   }
   const RECT_PART_TYPE rect_part =
       partition_type == PARTITION_HORZ ? HORZ : VERT;
@@ -3040,7 +3062,7 @@ static void rectangular_partition_search(
       }
     }
     sum_rdc->rate = part_search_state->partition_cost[partition_type];
-    sum_rdc->rdcost = RDCOST(x->rdmult, sum_rdc->rate, 0);
+    sum_rdc->rdcost = RDCOST(x->sb_rdmult, sum_rdc->rate, 0);
 #if CONFIG_COLLECT_PARTITION_STATS
     PartitionTimingStats *part_timing_stats =
         &part_search_state->part_timing_stats;
@@ -3081,7 +3103,7 @@ static void rectangular_partition_search(
     }
     // Update HORZ / VERT best partition.
     if (sum_rdc->rdcost < best_rdc->rdcost) {
-      sum_rdc->rdcost = RDCOST(x->rdmult, sum_rdc->rate, sum_rdc->dist);
+      sum_rdc->rdcost = RDCOST(x->sb_rdmult, sum_rdc->rate, sum_rdc->dist);
       if (sum_rdc->rdcost < best_rdc->rdcost) {
         *best_rdc = *sum_rdc;
         part_search_state->found_best_partition = true;
@@ -3360,7 +3382,7 @@ static void set_4_part_ctx_and_rdcost(
   part_search_state->sum_rdc.rate =
       part_search_state->partition_cost[partition_type];
   part_search_state->sum_rdc.rdcost =
-      RDCOST(x->rdmult, part_search_state->sum_rdc.rate, 0);
+      RDCOST(x->sb_rdmult, part_search_state->sum_rdc.rate, 0);
   for (PART4_TYPES i = 0; i < SUB_PARTITIONS_PART4; ++i)
     cur_part_ctx[i] = av1_alloc_pmc(cpi, subsize, &td->shared_coeff_buf);
 }
@@ -3409,7 +3431,7 @@ static void rd_pick_4partition(
   }
 
   // Calculate the total cost and update the best partition.
-  av1_rd_cost_update(x->rdmult, &part_search_state->sum_rdc);
+  av1_rd_cost_update(x->sb_rdmult, &part_search_state->sum_rdc);
   if (part_search_state->sum_rdc.rdcost < best_rdc->rdcost) {
     *best_rdc = part_search_state->sum_rdc;
     part_search_state->found_best_partition = true;
@@ -3543,8 +3565,8 @@ static void set_none_partition_params(const AV1_COMP *const cpi, ThreadData *td,
     // Initialize the RD stats structure.
     av1_init_rd_stats(&partition_rdcost);
     partition_rdcost.rate = *pt_cost;
-    av1_rd_cost_update(x->rdmult, &partition_rdcost);
-    av1_rd_stats_subtraction(x->rdmult, best_rdc, &partition_rdcost,
+    av1_rd_cost_update(x->sb_rdmult, &partition_rdcost);
+    av1_rd_stats_subtraction(x->sb_rdmult, best_rdc, &partition_rdcost,
                              best_remain_rdcost);
   }
 }
@@ -3690,7 +3712,7 @@ static void none_partition_search(
   pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, this_rdc, PARTITION_NONE,
                 bsize, pc_tree->none, best_remain_rdcost);
 
-  av1_rd_cost_update(x->rdmult, this_rdc);
+  av1_rd_cost_update(x->sb_rdmult, this_rdc);
 
 #if CONFIG_COLLECT_PARTITION_STATS
   // Timer end for partition None.
@@ -3724,7 +3746,7 @@ static void none_partition_search(
     // Calculate the total cost and update the best partition.
     if (blk_params.bsize_at_least_8x8) {
       this_rdc->rate += pt_cost;
-      this_rdc->rdcost = RDCOST(x->rdmult, this_rdc->rate, this_rdc->dist);
+      this_rdc->rdcost = RDCOST(x->sb_rdmult, this_rdc->rate, this_rdc->dist);
     }
     *part_none_rd = this_rdc->rdcost;
     if (this_rdc->rdcost < best_rdc->rdcost) {
@@ -3775,7 +3797,7 @@ static void split_partition_search(
   // Initialization of this partition RD stats.
   av1_init_rd_stats(&sum_rdc);
   sum_rdc.rate = part_search_state->partition_cost[PARTITION_SPLIT];
-  sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, 0);
+  sum_rdc.rdcost = RDCOST(x->sb_rdmult, sum_rdc.rate, 0);
 
   int idx;
 #if CONFIG_COLLECT_PARTITION_STATS
@@ -3798,7 +3820,7 @@ static void split_partition_search(
     pc_tree->split[idx]->index = idx;
     int64_t *p_split_rd = &part_search_state->split_rd[idx];
     RD_STATS best_remain_rdcost;
-    av1_rd_stats_subtraction(x->rdmult, best_rdc, &sum_rdc,
+    av1_rd_stats_subtraction(x->sb_rdmult, best_rdc, &sum_rdc,
                              &best_remain_rdcost);
 
     int curr_quad_tree_idx = 0;
@@ -3824,7 +3846,7 @@ static void split_partition_search(
 
     sum_rdc.rate += part_search_state->this_rdc.rate;
     sum_rdc.dist += part_search_state->this_rdc.dist;
-    av1_rd_cost_update(x->rdmult, &sum_rdc);
+    av1_rd_cost_update(x->sb_rdmult, &sum_rdc);
 
     // Set split ctx as ready for use.
     if (idx <= 1 && (bsize <= BLOCK_8X8 ||
@@ -3849,7 +3871,7 @@ static void split_partition_search(
   // Calculate the total cost and update the best partition.
   *part_split_rd = sum_rdc.rdcost;
   if (reached_last_index && sum_rdc.rdcost < best_rdc->rdcost) {
-    sum_rdc.rdcost = RDCOST(x->rdmult, sum_rdc.rate, sum_rdc.dist);
+    sum_rdc.rdcost = RDCOST(x->sb_rdmult, sum_rdc.rate, sum_rdc.dist);
     if (sum_rdc.rdcost < best_rdc->rdcost) {
       *best_rdc = sum_rdc;
       part_search_state->found_best_partition = true;
@@ -4853,7 +4875,7 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
   }
 
   // Update rd cost of the bound using the current multiplier.
-  av1_rd_cost_update(x->rdmult, &best_rdc);
+  av1_rd_cost_update(x->sb_rdmult, &best_rdc);
 
   if (bsize == BLOCK_16X16 && cpi->vaq_refresh)
     x->mb_energy = av1_log_block_var(cpi, x, bsize);
