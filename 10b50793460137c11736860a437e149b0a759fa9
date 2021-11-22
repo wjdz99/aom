@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e12d7b10_43b2eb8a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-22T22:34:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f129be0_02931967",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1abaa4df_da728b23",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-11-19T06:02:52Z",
       "side": 1,
       "message": "do we need the flag here? init and updating counters can still be done, just not actually used in the external RC\n\nsame below..",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a47d8b6_39c751a0",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1090,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-22T22:34:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1abaa4df_da728b23",
       "revId": "10b50793460137c11736860a437e149b0a759fa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba7c36cd_6ad50a5b",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-22T22:34:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abb55a66_6af8c825",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0a237c6f_cf72f7da",
@@ -65,6 +119,24 @@
       "writtenOn": "2021-11-19T06:02:52Z",
       "side": 1,
       "message": "this should be disabled, can disable check_scene_detection in the speed features for this?",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8a8a7af_4194e464",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2403,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-22T22:34:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0a237c6f_cf72f7da",
       "revId": "10b50793460137c11736860a437e149b0a759fa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +158,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b450d42_27bae914",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-22T22:34:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7e621c44_5d1899ce",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d46d7fe1_0188bbf0",
@@ -99,6 +189,24 @@
       "writtenOn": "2021-11-19T06:02:52Z",
       "side": 1,
       "message": "i think its better to just set check_scene_detection to 0 when rtc_external_ratectrl is 0, since we should also disable the max-q on overshoot logic",
+      "revId": "10b50793460137c11736860a437e149b0a759fa9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8bc57c97_87421ff8",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-22T22:34:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d46d7fe1_0188bbf0",
       "revId": "10b50793460137c11736860a437e149b0a759fa9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
