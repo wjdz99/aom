@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67714c84_f0af5e9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-11-22T19:37:27Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch adds the unit test \u0027AVxFrameParallelEncodeTest\u0027 to validate FPMT. This unit test is enabled only when CONFIG_FRAME_PARALLEL_ENCODE and CONFIG_FPMT_TEST are set to 1. The test compares the result of parallel encode of frames using multiple cpis with that of simulation of parallel encode of frames using single cpi for bitmatch.\n\nCurrently in the unit test, cfg_.g_threads \u003d 2 enables PARALLEL_SIMULATION_ENCODE (simulation with single cpi) and cfg_.g_threads \u003d 8 enables PARALLEL_ENCODE (with multiple cpis) for num_fp_contexts\u003d4. \u0027AVxFrameParallelEncodeHDResTest\u0027 tests for an hdres content \u0027niklas_1280_720_30.y4m\u0027 for speed presets 2, 4 and 6 for tile configurations (TileRows x TileColumns) 1x1, 1x2, 2x1 and 2x2. \u0027AVxFrameParallelEncodeLowResTest\u0027 tests for a lowres content \u0027hantro_collage_w352h288.yuv\u0027 for speed presets 1 and 2 for single tile configuration.\n\nThis unit test was locally tested and bit match in simulation vs actual parallel encode was verified.\n\nPlease review.\n\nRegards,\nRemya\n",
+      "revId": "43099fc464710f68bd79a2debf513f78ed4ad88e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
