@@ -125,15 +125,19 @@ class CFLTestWithData : public CFLTest {
 template <typename I>
 class CFLTestWithAlignedData : public CFLTest {
  public:
-  CFLTestWithAlignedData() {
+  virtual void SetUp() {
     chroma_pels_ref =
         reinterpret_cast<I *>(aom_memalign(32, sizeof(I) * CFL_BUF_SQUARE));
+    ASSERT_NE(chroma_pels_ref, nullptr);
     chroma_pels =
         reinterpret_cast<I *>(aom_memalign(32, sizeof(I) * CFL_BUF_SQUARE));
+    ASSERT_NE(chroma_pels, nullptr);
     sub_luma_pels_ref = reinterpret_cast<int16_t *>(
         aom_memalign(32, sizeof(int16_t) * CFL_BUF_SQUARE));
+    ASSERT_NE(sub_luma_pels_ref, nullptr);
     sub_luma_pels = reinterpret_cast<int16_t *>(
         aom_memalign(32, sizeof(int16_t) * CFL_BUF_SQUARE));
+    ASSERT_NE(sub_luma_pels, nullptr);
     memset(chroma_pels_ref, 0, sizeof(I) * CFL_BUF_SQUARE);
     memset(chroma_pels, 0, sizeof(I) * CFL_BUF_SQUARE);
     memset(sub_luma_pels_ref, 0, sizeof(int16_t) * CFL_BUF_SQUARE);

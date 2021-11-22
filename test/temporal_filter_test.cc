@@ -180,6 +180,7 @@ void TemporalFilterTest::RunTest(int isRandom, int run_times,
     const int mb_col = 0;
     YV12_BUFFER_CONFIG *ref_frame =
         (YV12_BUFFER_CONFIG *)malloc(sizeof(YV12_BUFFER_CONFIG));
+    ASSERT_NE(ref_frame, nullptr);
     ref_frame->y_crop_height = 360;
     ref_frame->y_crop_width = 540;
     ref_frame->heights[PLANE_TYPE_Y] = height;
@@ -192,6 +193,7 @@ void TemporalFilterTest::RunTest(int isRandom, int run_times,
     memcpy(src, src1_, 1024 * 3 * sizeof(uint8_t));
 
     MACROBLOCKD *mbd = (MACROBLOCKD *)malloc(sizeof(MACROBLOCKD));
+    ASSERT_NE(mbd, nullptr);
     mbd->bd = 8;
     for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
       int plane_height = plane ? height >> subsampling_y : height;
@@ -435,6 +437,7 @@ void HBDTemporalFilterTest::RunTest(int isRandom, int run_times, int BD,
     const int mb_col = 0;
     YV12_BUFFER_CONFIG *ref_frame =
         (YV12_BUFFER_CONFIG *)malloc(sizeof(YV12_BUFFER_CONFIG));
+    ASSERT_NE(ref_frame, nullptr);
     ref_frame->y_crop_height = 360;
     ref_frame->y_crop_width = 540;
     ref_frame->heights[PLANE_TYPE_Y] = height;
@@ -447,6 +450,7 @@ void HBDTemporalFilterTest::RunTest(int isRandom, int run_times, int BD,
     memcpy(src, src1_, 1024 * 3 * sizeof(uint16_t));
 
     MACROBLOCKD *mbd = (MACROBLOCKD *)malloc(sizeof(MACROBLOCKD));
+    ASSERT_NE(mbd, nullptr);
     mbd->bd = BD;
     for (int plane = AOM_PLANE_Y; plane < num_planes; plane++) {
       int plane_height = plane ? height >> subsampling_y : height;

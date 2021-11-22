@@ -125,16 +125,19 @@ void AV1WarpFilterTest::RunSpeedTest(warp_affine_func test_impl) {
   const int bd = 8;
 
   uint8_t *input_ = new uint8_t[h * stride];
+  ASSERT_NE(input_, nullptr);
   uint8_t *input = input_ + border;
 
   // The warp functions always write rows with widths that are multiples of 8.
   // So to avoid a buffer overflow, we may need to pad rows to a multiple of 8.
   int output_n = ((out_w + 7) & ~7) * out_h;
   uint8_t *output = new uint8_t[output_n];
+  ASSERT_NE(output, nullptr);
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
   ConvolveParams conv_params = get_conv_params(0, 0, bd);
   CONV_BUF_TYPE *dsta = new CONV_BUF_TYPE[output_n];
+  ASSERT_NE(dsta, nullptr);
   generate_warped_model(&rnd_, mat, &alpha, &beta, &gamma, &delta,
                         is_alpha_zero, is_beta_zero, is_gamma_zero,
                         is_delta_zero);
@@ -188,14 +191,19 @@ void AV1WarpFilterTest::RunCheckOutput(warp_affine_func test_impl) {
   // So to avoid a buffer overflow, we may need to pad rows to a multiple of 8.
   int output_n = ((out_w + 7) & ~7) * out_h;
   uint8_t *input_ = new uint8_t[h * stride];
+  ASSERT_NE(input_, nullptr);
   uint8_t *input = input_ + border;
   uint8_t *output = new uint8_t[output_n];
+  ASSERT_NE(output, nullptr);
   uint8_t *output2 = new uint8_t[output_n];
+  ASSERT_NE(output2, nullptr);
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
   ConvolveParams conv_params = get_conv_params(0, 0, bd);
   CONV_BUF_TYPE *dsta = new CONV_BUF_TYPE[output_n];
+  ASSERT_NE(dsta, nullptr);
   CONV_BUF_TYPE *dstb = new CONV_BUF_TYPE[output_n];
+  ASSERT_NE(dstb, nullptr);
   for (int i = 0; i < output_n; ++i) output[i] = output2[i] = rnd_.Rand8();
 
   for (i = 0; i < num_iters; ++i) {
@@ -321,12 +329,15 @@ void AV1HighbdWarpFilterTest::RunSpeedTest(highbd_warp_affine_func test_impl) {
   // So to avoid a buffer overflow, we may need to pad rows to a multiple of 8.
   int output_n = ((out_w + 7) & ~7) * out_h;
   uint16_t *input_ = new uint16_t[h * stride];
+  ASSERT_NE(input_, nullptr);
   uint16_t *input = input_ + border;
   uint16_t *output = new uint16_t[output_n];
+  ASSERT_NE(output, nullptr);
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
   ConvolveParams conv_params = get_conv_params(0, 0, bd);
   CONV_BUF_TYPE *dsta = new CONV_BUF_TYPE[output_n];
+  ASSERT_NE(dsta, nullptr);
 
   generate_warped_model(&rnd_, mat, &alpha, &beta, &gamma, &delta,
                         is_alpha_zero, is_beta_zero, is_gamma_zero,
@@ -385,14 +396,19 @@ void AV1HighbdWarpFilterTest::RunCheckOutput(
   // So to avoid a buffer overflow, we may need to pad rows to a multiple of 8.
   int output_n = ((out_w + 7) & ~7) * out_h;
   uint16_t *input_ = new uint16_t[h * stride];
+  ASSERT_NE(input_, nullptr);
   uint16_t *input = input_ + border;
   uint16_t *output = new uint16_t[output_n];
+  ASSERT_NE(output, nullptr);
   uint16_t *output2 = new uint16_t[output_n];
+  ASSERT_NE(output2, nullptr);
   int32_t mat[8];
   int16_t alpha, beta, gamma, delta;
   ConvolveParams conv_params = get_conv_params(0, 0, bd);
   CONV_BUF_TYPE *dsta = new CONV_BUF_TYPE[output_n];
+  ASSERT_NE(dsta, nullptr);
   CONV_BUF_TYPE *dstb = new CONV_BUF_TYPE[output_n];
+  ASSERT_NE(dstb, nullptr);
   for (int i = 0; i < output_n; ++i) output[i] = output2[i] = rnd_.Rand16();
 
   for (i = 0; i < num_iters; ++i) {
