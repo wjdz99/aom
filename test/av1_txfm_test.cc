@@ -240,6 +240,9 @@ void reference_hybrid_2d(double *in, double *out, TX_TYPE tx_type,
   double *const temp_in = new double[AOMMAX(tx_width, tx_height)];
   double *const temp_out = new double[AOMMAX(tx_width, tx_height)];
   double *const out_interm = new double[tx_width * tx_height];
+  ASSERT_NE(temp_in, nullptr);
+  ASSERT_NE(temp_out, nullptr);
+  ASSERT_NE(out_interm, nullptr);
   const int stride = tx_width;
 
   // Transform columns.
