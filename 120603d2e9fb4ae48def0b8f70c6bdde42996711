@@ -16,6 +16,52 @@
       "message": "Hi Chi Yo, Yunqing, \n\nAs per our understanding, the sf top_intra_model_count_allowed indicates the number of top model rds to be stored during intra mode decision and these stored model rds are used to prune the luma intra modes. Currently, the sf top_intra_model_count_allowed is set to 3 in allintra encode for speed presets \u003e\u003d 1. To prune luma modes more aggressively, we tried setting the sf to values 2 or 1 and observed the following results.\n\nFor AVIF still image encode with tune\u003dpsnr, (with top_intra_model_count_allowed \u003d 2)\n                Instruction Count  BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr     ssim    \n         6           2.861        -0.0093  -0.0352\n         7           2.165         0.0798   0.0625\n         8           1.254         0.0143   0.0205 \n\t\t \nFor AVIF still image encode with tune\u003dpsnr, (with top_intra_model_count_allowed \u003d 1)\n                Instruction Count  BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr     ssim    \n         6           6.778         0.1693   0.0704\n         7           4.944         0.7336   0.6108\n         8           2.880         0.2964   0.2991\n\t\t \nEven though the above results are well within the trade-off we have experimented further to improve the trade-off by making top_intra_model_count_allowed \u003d 2 experiment as the base. Based on the initial experiments and analysis of RD-plots, it is observed that the quality-drop/hit is more at low bitrates. Hence, we have introduced a sf adapt_top_model_rd_count_using_neighbors which derives the model rd index for comparison using both neighbor block modes and quantizers information. The model rd of the derived index is used while comparing the current model rd with stored model rd\u0027s to prune luma modes aggressively.\n\nWhen sf is enabled, the adaptive model_rd index is derived as follows:\n-\u003e For qidx 0 to 127: Reduce the index of a candidate used for comparison only if the current mode does not match either of the neighboring modes. \n-\u003e For qidx 128 to 255: Reduce the index of a candidate used for comparison only if the current mode does not match both the neighboring modes.\n\t\nWith the above approach (as in the current CL) we are able to improve the tradeoff of the above mentioned top_intra_model_count_allowed \u003d 1 experiment without losing much speed.\n\nWe validated the current patch for allintra video and still-image encode. Following are encode time reduction results when AVIF encode was tested for a typical image dataset. Bit match is verified for presets 0 to 5.\n\nFor AVIF still image encode with tune\u003dpsnr,\n                Instruction Count  BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr     ssim    \n         6           5.579         0.0195  -0.0337\n         7           4.214         0.2632   0.2315\n         8           2.451         0.1185   0.1272\n\nFrom the above data, we see that delta trade-off with  top_intra_model_count_allowed\u003d1 over the current patch is worse, especially for speed\u003d7. For speed\u003d7, setting  top_intra_model_count_allowed to 1 over the current CL gives ~0.7% speed-up and a BD-Rate loss of 0.47%. Hence we preferred the current approach over setting  top_intra_model_count_allowed to 1.\n\nFor AVIF still image encode with tune\u003dssim,\n                Instruction Count  BD-Rate Loss(%)      \n      cpu-used    Reduction(%)     psnr     ssim      \n         6           5.542         0.0572   0.0297\n         7           4.278         0.1621   0.1583\n         8           2.504         0.1642   0.1919\n\nFollowing are the encode time reduction results when we tested libaom allintra frame encoding (50 frames) for a borg setup. Bit match is verified for presets 0 to 5.\n\n               Instruction Count       BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  ovr.psnr   ssim       \n        6            7.094        0.1010    0.0999     0.0602\n        7            5.236        0.3125    0.3105     0.3596  \n        8            4.198        0.2301    0.2295     0.2651\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations. Please review the patch.\n\nThis CL required changes to two speed features i.e \n1. Modifies the existing sf top_intra_model_count_allowed from 3 to 2.\n2. Introduces a new sf adapt_top_model_rd_count_using_neighbors, which changes the model rd index used for comparison from 2 to 1 adaptively.\nThe gains mentioned in the commit message are cumulative of above 2 changes.\nPlease let us know if we need to split the current CL as 2 separate patches.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nThanks \u0026 Regards,\nMudassir.\n",
       "revId": "120603d2e9fb4ae48def0b8f70c6bdde42996711",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f2e1625_70935b16",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-11-22T21:53:54Z",
+      "side": 1,
+      "message": "This condition seems to suggest that we will always increase the pruning aggressiveness on the top and left boundaries, which I don\u0027t know if it\u0027s intended.\n\nHave you checked the encoder\u0027s behavior if we replace the check with (left_mode !\u003d INTRA_INVALID \u0026\u0026 left_mode !\u003d mode) || (...)?",
+      "range": {
+        "startLine": 360,
+        "startChar": 8,
+        "endLine": 360,
+        "endChar": 47
+      },
+      "revId": "120603d2e9fb4ae48def0b8f70c6bdde42996711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5f33fcc_e804fb1b",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-11-22T21:53:54Z",
+      "side": 1,
+      "message": "The name of this variable is not consistent with its usage, which still treats it as the number of elements.\nI would replace model_rd_index_for_pruning - 1 with model_rd_index_for_pruning, and adjust the values in set_model_rd_index_for_pruning accordingly.",
+      "range": {
+        "startLine": 383,
+        "startChar": 25,
+        "endLine": 383,
+        "endChar": 55
+      },
+      "revId": "120603d2e9fb4ae48def0b8f70c6bdde42996711",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
