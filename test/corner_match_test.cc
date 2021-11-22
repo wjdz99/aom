@@ -63,6 +63,8 @@ void AV1CornerMatchTest::RunCheckOutput(int run_times) {
 
   uint8_t *input1 = new uint8_t[w * h];
   uint8_t *input2 = new uint8_t[w * h];
+  ASSERT_NE(input1, nullptr);
+  ASSERT_NE(input2, nullptr);
 
   // Test the two extreme cases:
   // i) Random data, should have correlation close to 0

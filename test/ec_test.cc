@@ -45,10 +45,15 @@ TEST(EC_TEST, random_ec_test) {
     int j;
     sz = rand() / ((RAND_MAX >> (rand() % 9U)) + 1U);
     fz = (unsigned *)malloc(sz * sizeof(*fz));
+    ASSERT_NE(fz, nullptr);
     fts = (unsigned *)malloc(sz * sizeof(*fts));
+    ASSERT_NE(fts, nullptr);
     data = (unsigned *)malloc(sz * sizeof(*data));
+    ASSERT_NE(data, nullptr);
     tell = (unsigned *)malloc((sz + 1) * sizeof(*tell));
+    ASSERT_NE(tell, nullptr);
     enc_method = (unsigned *)malloc(sz * sizeof(*enc_method));
+    ASSERT_NE(enc_method, nullptr);
     od_ec_enc_reset(&enc);
     tell[0] = od_ec_enc_tell_frac(&enc);
     for (j = 0; j < sz; j++) {

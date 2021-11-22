@@ -69,6 +69,10 @@ TEST(av1_fwd_txfm1d, accuracy) {
     int32_t *output = new int32_t[txfm_size];
     double *ref_input = new double[txfm_size];
     double *ref_output = new double[txfm_size];
+    ASSERT_NE(input, nullptr);
+    ASSERT_NE(output, nullptr);
+    ASSERT_NE(ref_input, nullptr);
+    ASSERT_NE(ref_output, nullptr);
 
     for (int ti = 0; ti < txfm_type_num; ++ti) {
       TYPE_TXFM txfm_type = txfm_type_ls[ti];
