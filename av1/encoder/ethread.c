@@ -914,10 +914,23 @@ int av1_compute_num_fp_contexts(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf) {
   }
   int max_num_enc_workers =
       av1_compute_num_enc_workers(ppi->parallel_cpi[0], MAX_THREADS);
-
-  // A parallel frame encode must have at least 1/4th the theoretical limit of
-  // max enc workers. TODO(Remya) : Tune this value for multi-tile case.
-  int workers_per_frame = AOMMAX(1, (max_num_enc_workers + 2) / 4);
+  // Scaling factors and rounding factors used to tune worker_per_frame
+  // computation.
+  int rounding_factor[2] = { 2, 4 };
+  int scaling_factor[2] = { 4, 8 };
+  int is_480p_or_lesser =
+      AOMMIN(oxcf->frm_dim_cfg.width, oxcf->frm_dim_cfg.height) <= 480;
+  int is_sb_64 = 0;
+  if (ppi->cpi != NULL)
+    is_sb_64 = ppi->cpi->common.seq_params->sb_size == BLOCK_64X64;
+  // Tune the worker per frame calculation based on resolution and sb_size to
+  // optimize performance. A parallel frame encode must have at least 1/4th the
+  // theoretical limit of max enc workers in default case and 1/8th for 480p <=
+  // resln <= 1080p where SB_SIZE is 64X64.
+  int index = (!is_480p_or_lesser && is_sb_64) ? 1 : 0;
+  int workers_per_frame =
+      AOMMAX(1, (max_num_enc_workers + rounding_factor[index]) /
+                    scaling_factor[index]);
   int max_threads = oxcf->max_threads;
   int num_fp_contexts = max_threads / workers_per_frame;
 
