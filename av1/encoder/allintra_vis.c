@@ -587,8 +587,8 @@ void av1_init_mb_ur_var_buffer(AV1_COMP *cpi) {
 
 #if CONFIG_TFLITE
 static void model_predict(BLOCK_SIZE block_size, int num_cols, int num_rows,
-                          uint8_t *y_buffer, int y_stride, float *predicts0,
-                          float *predicts1) {
+                          int bit_depth, uint8_t *y_buffer, int y_stride,
+                          float *predicts0, float *predicts1) {
   // Create the model and interpreter options.
   TfLiteModel *model =
       TfLiteModelCreate(av1_deltaq4_model_file, av1_deltaq4_model_fsize);
@@ -615,9 +615,12 @@ static void model_predict(BLOCK_SIZE block_size, int num_cols, int num_rows,
 
       uint8_t *buf = y_buffer + row_offset * y_stride + col_offset;
       int r = row_offset, pos = 0;
+      const float base = (float)((1 << bit_depth) - 1);
       while (r < row_offset + (num_mi_h << 2)) {
         for (int c = 0; c < (num_mi_w << 2); ++c) {
-          input_data[pos++] = (float)*(buf + c) / 255.0f;
+          input_data[pos++] = bit_depth > 8
+                                  ? (float)*CONVERT_TO_SHORTPTR(buf + c) / base
+                                  : (float)*(buf + c) / base;
         }
         buf += y_stride;
         ++r;
@@ -653,6 +656,7 @@ void av1_set_mb_ur_variance(AV1_COMP *cpi) {
   uint8_t *y_buffer = cpi->source->y_buffer;
   const int y_stride = cpi->source->y_stride;
   const int block_size = cpi->common.seq_params->sb_size;
+  const uint32_t bit_depth = cpi->td.mb.e_mbd.bd;
 
   const int num_mi_w = mi_size_wide[block_size];
   const int num_mi_h = mi_size_high[block_size];
@@ -670,8 +674,8 @@ void av1_set_mb_ur_variance(AV1_COMP *cpi) {
   CHECK_MEM_ERROR(cm, mb_delta_q1,
                   aom_calloc(num_rows * num_cols, sizeof(float)));
 
-  model_predict(block_size, num_cols, num_rows, y_buffer, y_stride, mb_delta_q0,
-                mb_delta_q1);
+  model_predict(block_size, num_cols, num_rows, bit_depth, y_buffer, y_stride,
+                mb_delta_q0, mb_delta_q1);
 
   // Loop through each SB block.
   for (int row = 0; row < num_rows; ++row) {
