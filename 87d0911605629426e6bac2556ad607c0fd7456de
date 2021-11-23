@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "043f0797_c2272c70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-11-23T15:08:37Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing, \n\nAs per Chi Yo\u0027s suggestions, the pruning logic has been updated in the latest patchset to use the neighbor information appropriately on frame/tile boundaries. We validated the current patch for allintra video and still-image encode. Following are the encode time reduction results when AVIF encode was tested for a typical image dataset. Bit-match is verified for presets 0 to 5.\n\nFor AVIF still image encode with tune\u003dpsnr,                   \n                Instruction Count   BD-Rate Loss(%)    \n      cpu-used    Reduction(%)      psnr     ssim             \n         6           5.481          0.0222  -0.0281\n         7           4.170          0.2591   0.2361\n         8           2.437          0.1108   0.1157\n\nFor AVIF still image encode with tune\u003dssim,                  \n                Instruction Count   BD-Rate Loss(%)   \n      cpu-used    Reduction(%)      psnr     ssim            \n         6           5.455          0.0539   0.0407\n         7           4.234          0.1668   0.1679\n         8           2.489          0.1585   0.1928\n\nFollowing are encode time reduction results when we tested libaom with all intra frame encoding (50 frames) for a borg setup. Bit match is verified for presets 0 to 5.\n\n               Instruction Count       BD-Rate Loss(%)            \n     cpu-used    Reduction(%)     avg.psnr  ovr.psnr   ssim               \n        6           6.957         0.1040    0.1025     0.0616\n        7           5.155\t  0.3151    0.3140     0.3663\n        8           4.163         0.2269    0.2267     0.2611\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nMudassir.\n",
+      "revId": "87d0911605629426e6bac2556ad607c0fd7456de",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
