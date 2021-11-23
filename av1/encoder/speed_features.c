@@ -1533,6 +1533,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->interp_sf.cb_pred_filter_search = 1;
   }
   if (speed >= 9) {
+    sf->rt_sf.force_large_partition_blocks_intra = 1;
     sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
     sf->rt_sf.estimate_motion_for_var_based_partition = 0;
     sf->rt_sf.force_large_partition_blocks = 1;
