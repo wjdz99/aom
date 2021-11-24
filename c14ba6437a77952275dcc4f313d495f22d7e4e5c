@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43db4ffa_4a10bdbd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-11-24T17:04:32Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis patch extends speed feature top_intra_model_count_allowed to lowres in speed 3. The speed feature is now enabled for all resolution in speed 3. \n \nPlease find below detailed borg result :\n                Instruction Count      BD-Rate Loss(%)\ncpu Resolution   Reduction(%)      avg.psnr   ovr.psnr    ssim   \n3     LOWRES2     1.788            0.0351     0.0264    0.0276   \n3     MIDRES2     0.030            0.0017     0.0016    0.0034   \n3     HDRES2      -0.000           0.0000     0.0000    0.0000   \n3     Average     0.606            0.0150     0.0121    0.0048    \n \nIn the commit message : \n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \n \nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n \nPlease note that along with the LOWRES2 set, clip shields_640x360 in MIDRES2 set also shows a speed up of 1.47%, as it minimum width is less than 480.\n \nWe have verified that the patch in bit exact for other speed levels. \nPlease review the patch. \n \nThanks,\nAkshata\n",
+      "revId": "c14ba6437a77952275dcc4f313d495f22d7e4e5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
