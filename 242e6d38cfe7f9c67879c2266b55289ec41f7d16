@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "5173fcc3_9a2418fc",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-24T18:50:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1072d99_5d704acf",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 7
+      },
+      "revId": "242e6d38cfe7f9c67879c2266b55289ec41f7d16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "a3773461_c23361db",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 6
@@ -43,6 +67,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "0b387981_b4eb071c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-24T18:50:58Z",
+      "side": 1,
+      "message": "I meant that this patch results in a 0.7% speed change as well as a 0.3% gain in overall performance. I tried to control the speed to be approximately the same with baseline and tested the performance.",
+      "parentUuid": "a3773461_c23361db",
+      "revId": "242e6d38cfe7f9c67879c2266b55289ec41f7d16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "38462c5b_49e38d33",
         "filename": "av1/encoder/partition_strategy.c",
         "patchSetId": 6
@@ -54,6 +96,30 @@
       "writtenOn": "2021-11-24T05:35:54Z",
       "side": 1,
       "message": "I think you mean \"direction\"?",
+      "range": {
+        "startLine": 1582,
+        "startChar": 48,
+        "endLine": 1582,
+        "endChar": 57
+      },
+      "revId": "242e6d38cfe7f9c67879c2266b55289ec41f7d16",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8a190d4_44d44bc4",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1582,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2021-11-24T18:50:58Z",
+      "side": 1,
+      "message": "Yes, thanks for pointing this out!",
+      "parentUuid": "38462c5b_49e38d33",
       "range": {
         "startLine": 1582,
         "startChar": 48,
