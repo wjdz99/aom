@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4755ec5a_8597a731",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 17
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-24T17:20:01Z",
+      "side": 1,
+      "message": "I was actually trying to generate a library that applications can link to.. haven\u0027t figured that out yet",
+      "parentUuid": "ee1eab31_3552ddd5",
+      "revId": "4cacbfe1e7553c1a5bc9e03ccb0e94e97b645b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "428bc66f_cd133c31",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 17
@@ -31,6 +49,24 @@
       "writtenOn": "2021-11-24T00:26:05Z",
       "side": 1,
       "message": "// AOM_AV1_RATECTRL_RTC_H_",
+      "revId": "4cacbfe1e7553c1a5bc9e03ccb0e94e97b645b9c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26fccd22_3b711354",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-11-24T17:20:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "428bc66f_cd133c31",
       "revId": "4cacbfe1e7553c1a5bc9e03ccb0e94e97b645b9c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
