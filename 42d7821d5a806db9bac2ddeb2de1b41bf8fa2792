@@ -16,6 +16,75 @@
       "message": "Hi Yunqing,\n\nThis patch enables the use of max_mv_magnitude from previous frame to set mv_step_param, for show frames and internal ARFs, for lowres and midres in speed \u003e\u003d 2. \n\nTo ensure that mv_step_param is not overridden by two calls to av1_set_frame_size() (from denoise_and_encode() and encode_with_recode_loop()), set_mv_search_params() is called only once for show frames and internal arf frames. The initialization of the elements frame_type and show_frame in AV1_COMMON is also done before calling av1_set_frame_size() from denoise_and_encode() since these are used inside set_mv_search_params().\n\nPlease note that to ensure bit-exactness for hdres in speed \u003e\u003d 2, the speed feature auto_mv_step_size is kept as 1 for hdres. A new level of 2 is introduced for use in lowres and midres.\n\nPlease find the borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOWRES2   |       0.802       | -0.0048    -0.0065   0.0221  |\n   2     |  MIDRES2   |       0.734       | -0.0155    -0.0078   0.0167  |\n   2     |   HDRES2   |       0.000       |  0.0000     0.0000   0.0000  |\n   2     |  Average   |       0.512       | -0.0076    -0.0052   0.0092  |\n         |            |                   |                              |\n   3     |  LOWRES2   |       0.898       |  0.0297     0.0331   0.0251  |\n   3     |  MIDRES2   |       1.151       |  0.0678     0.0655   0.1011  |\n   3     |   HDRES2   |       0.000       |  0.0000     0.0000   0.0000  |\n   3     |  Average   |       0.683       |  0.0329     0.0337   0.0360  |\n         |            |                   |                              |\n   4     |  LOWRES2   |       1.355       |  0.0188     0.0172   0.0376  |\n   4     |  MIDRES2   |       1.507       |  0.0371     0.0655   0.0274  |\n   4     |   HDRES2   |       0.000       |  0.0000     0.0000   0.0000  |\n   4     |  Average   |       0.954       |  0.0188     0.0281   0.0181  |\n         |            |                   |                              |\n   5     |  LOWRES2   |       1.354       | -0.0639    -0.0615  -0.0866  |\n   5     |  MIDRES2   |       1.753       |  0.1204     0.0803   0.1081  |\n   5     |   HDRES2   |       0.000       |  0.0000     0.0000   0.0000  |\n   5     |  Average   |       1.036       |  0.0248     0.0114   0.0096  |\n         |            |                   |                              |\n   6     |  LOWRES2   |       1.518       | -0.0265    -0.0272  -0.0389  |\n   6     |  MIDRES2   |       1.879       |  0.1259     0.0595   0.0585  |\n   6     |   HDRES2   |       0.000       |  0.0000     0.0000   0.0000  |\n   6     |  Average   |       1.132       |  0.0415     0.0179   0.0210  |\n   \nMidres2 is out of tradeoff in speed 3. Also, worst case drop of 1.42% was seen for blue_sky_480p25 in speed 3 and 1.125% for city_4cif_30fps in speed 4 for ovr psnr.\n\nFor other speed levels, this is a bit-exact change with no speed impact (verified locally on a few clips).\n\nFPMT path is handled appropriately for the use of max_mv_magnitude across frames, and bitmatch between simulation and parallel encode was verified for speed 4, 5, 6.\n\nPlease review the patch.\n\nThanks,\nNithya",
       "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "524b2987_e53941a9",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1769,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-24T20:27:38Z",
+      "side": 1,
+      "message": "set_mv_params is figured out before entering this call. Can use_auto_mv_step and set_mv_params be somehow consolidated together?",
+      "range": {
+        "startLine": 1769,
+        "startChar": 10,
+        "endLine": 1769,
+        "endChar": 26
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03251ca6_1da14506",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2514,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-24T20:27:38Z",
+      "side": 1,
+      "message": "Looks like this is called in av1_set_size_dependent_vars() below. Would it be possible not to add this extra call here?",
+      "range": {
+        "startLine": 2514,
+        "startChar": 2,
+        "endLine": 2514,
+        "endChar": 44
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "638f2079_cf5fd8c4",
+        "filename": "av1/encoder/superres_scale.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-24T20:27:38Z",
+      "side": 1,
+      "message": "Why is it always 1 here?",
+      "range": {
+        "startLine": 386,
+        "startChar": 55,
+        "endLine": 386,
+        "endChar": 56
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
