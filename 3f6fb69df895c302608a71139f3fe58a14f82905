@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be4e3b97_12730c4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25661
+      },
+      "writtenOn": "2021-11-24T12:26:55Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis CL cleans up the unused aggressive levels in \u0027adjust_var_based_rd_partitioning\u0027\nspeed feature and maps the remaining levels chronologically.\n\nPlease review the patch. \n\nThank you.",
+      "revId": "3f6fb69df895c302608a71139f3fe58a14f82905",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
