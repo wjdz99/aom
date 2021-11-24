@@ -93,8 +93,8 @@ static double intra_rd_variance_factor(const AV1_COMP *cpi, MACROBLOCK *x,
                                        BLOCK_SIZE bs) {
   MACROBLOCKD *xd = &x->e_mbd;
   double variance_rd_factor = 1.0;
-  double src_var = 0.0;
-  double rec_var = 0.0;
+  double mapped_src_var = 1.0;
+  double mapped_rec_var = 1.0;
   double var_diff = 0.0;
   double threshold = 1.0 - (0.25 * cpi->oxcf.speed);
   unsigned int sse;
@@ -111,48 +111,48 @@ static double intra_rd_variance_factor(const AV1_COMP *cpi, MACROBLOCK *x,
   for (i = 0; i < bh; i += 4) {
     for (j = 0; j < bw; j += 4) {
       if (is_cur_buf_hbd(xd)) {
-        src_var +=
-            log(1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
-                          x->plane[0].src.buf + i * x->plane[0].src.stride + j,
-                          x->plane[0].src.stride,
-                          CONVERT_TO_BYTEPTR(highbd_all_zeros), 0, &sse) /
-                          16.0);
-        rec_var += log(
-            1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
-                      xd->plane[0].dst.buf + i * xd->plane[0].dst.stride + j,
-                      xd->plane[0].dst.stride,
-                      CONVERT_TO_BYTEPTR(highbd_all_zeros), 0, &sse) /
-                      16.0);
+        mapped_src_var *=
+            (1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
+                       x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+                       x->plane[0].src.stride,
+                       CONVERT_TO_BYTEPTR(highbd_all_zeros), 0, &sse) /
+                       16.0);
+        mapped_rec_var *=
+            (1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
+                       xd->plane[0].dst.buf + i * xd->plane[0].dst.stride + j,
+                       xd->plane[0].dst.stride,
+                       CONVERT_TO_BYTEPTR(highbd_all_zeros), 0, &sse) /
+                       16.0);
       } else {
-        src_var +=
-            log(1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
-                          x->plane[0].src.buf + i * x->plane[0].src.stride + j,
-                          x->plane[0].src.stride, all_zeros, 0, &sse) /
-                          16.0);
-        rec_var += log(
-            1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
-                      xd->plane[0].dst.buf + i * xd->plane[0].dst.stride + j,
-                      xd->plane[0].dst.stride, all_zeros, 0, &sse) /
-                      16.0);
+        mapped_src_var *=
+            (1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
+                       x->plane[0].src.buf + i * x->plane[0].src.stride + j,
+                       x->plane[0].src.stride, all_zeros, 0, &sse) /
+                       16.0);
+        mapped_rec_var *=
+            (1.0 + cpi->ppi->fn_ptr[BLOCK_4X4].vf(
+                       xd->plane[0].dst.buf + i * xd->plane[0].dst.stride + j,
+                       xd->plane[0].dst.stride, all_zeros, 0, &sse) /
+                       16.0);
       }
     }
   }
-  src_var /= (double)blocks;
-  rec_var /= (double)blocks;
+  mapped_src_var = log(mapped_src_var) / (double)blocks;
+  mapped_rec_var = log(mapped_rec_var) / (double)blocks;
 
   // Dont allow 0 to prevent / 0 below.
-  src_var += 0.000001;
-  rec_var += 0.000001;
+  mapped_src_var += 0.000001;
+  mapped_rec_var += 0.000001;
 
-  if (src_var >= rec_var) {
-    var_diff = (src_var - rec_var);
-    if ((var_diff > 0.5) && (rec_var < threshold)) {
-      variance_rd_factor = 1.0 + ((var_diff * 2) / src_var);
+  if (mapped_src_var >= mapped_rec_var) {
+    var_diff = (mapped_src_var - mapped_rec_var);
+    if ((var_diff > 0.5) && (mapped_rec_var < threshold)) {
+      variance_rd_factor = 1.0 + ((var_diff * 2) / mapped_src_var);
     }
   } else {
-    var_diff = (rec_var - src_var);
-    if ((var_diff > 0.5) && (src_var < threshold)) {
-      variance_rd_factor = 1.0 + (var_diff / (2 * src_var));
+    var_diff = (mapped_rec_var - mapped_src_var);
+    if ((var_diff > 0.5) && (mapped_src_var < threshold)) {
+      variance_rd_factor = 1.0 + (var_diff / (2 * mapped_src_var));
     }
   }
 
