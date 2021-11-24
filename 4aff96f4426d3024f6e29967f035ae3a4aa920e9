@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f3c8f2c_1580920c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2021-11-24T11:33:53Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe did a study to understand the performance of prune_mode_search_simple_translation speed feature and observed that the SF is making negligible impact on encoder speed. From the code study, we inferred that model rd based pruning logic with this SF is similar to the model rd based pruning with SF inter_mode_rd_model_estimation \u003d 2. In the absence of interp search, compound modes and motion modes, the model rd computation done by prune_mode_search_simple_translation SF is not effective for speed 5, 6 of --rt preset. Hence, we submitted a CL to disable the same in RT, speed 5, 6. This SF would be useful if either of interp search, compound mode or motion mode are enabled in RT preset.\n\nPlease check the BORG test results.\n               Instruction Count        BD-Rate Loss(%)\ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 5         rtc     -0.271        -0.0431    -0.0423   -0.0896\n 5    rtc_derf     -0.451         0.0612     0.0295    0.0901\n 5     Average     -0.359         0.0004    -0.0124   -0.0147\n\n 6         rtc     -0.253        -0.0791    -0.0836   -0.0763\n 6    rtc_derf     -0.074        -0.1127    -0.1090   -0.1741\n 6     Average     -0.165        -0.0931    -0.0942   -0.1171\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nPlease let us know your thoughts on the CL.\n",
+      "revId": "4aff96f4426d3024f6e29967f035ae3a4aa920e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
