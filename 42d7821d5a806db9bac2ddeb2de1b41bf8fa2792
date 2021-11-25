@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4b820457_a5b7489f",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1769,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-11-25T09:49:27Z",
+      "side": 1,
+      "message": "set_mv_params is used to control the first call to set_mv_search_params() from denoise_and_encode() so as to avoid the over-riding of mv_step_param in the second call. In denoise_and_encode(), set_mv_params is set as 1 only for key frames, golden frames or ARF frames, since these frames do not make use of max_mv_magnitude to set mv_step_param. For other frames, set_mv_search_params() is not called when av1_set_frame_size() is called from denoise_and_encode(). \nThe function av1_set_frame_size() is called for the second time from setup_frame_size_from_params() with set_mv_params hardcoded as 1. At this time, set_mv_search_params() uses \u0027use_auto_mv_step\u0027 (if the speed feature auto_mv_step_size is set) based on the frame update type and max_mv_magnitude to initialize mv_step_param. \u0027use_auto_mv_step\u0027 is thus separate from \u0027set_mv_params.\u0027",
+      "parentUuid": "524b2987_e53941a9",
+      "range": {
+        "startLine": 1769,
+        "startChar": 10,
+        "endLine": 1769,
+        "endChar": 26
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "03251ca6_1da14506",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 2
@@ -66,6 +90,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0a085d70_d2843edd",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2514,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-11-25T09:49:27Z",
+      "side": 1,
+      "message": "av1_setup_frame_size() calls av1_set_frame_size() which in turn calls set_mv_search_params(). In set_mv_search_params(), the speed feature auto_mv_step_size is used to set mv_step_param. Since auto_mv_step_size is now a framesize dependent speed feature, av1_set_speed_features_framesize_dependent() is called to properly set its value before the call to av1_setup_frame_size(). Hope this is fine.",
+      "parentUuid": "03251ca6_1da14506",
+      "range": {
+        "startLine": 2514,
+        "startChar": 2,
+        "endLine": 2514,
+        "endChar": 44
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "638f2079_cf5fd8c4",
         "filename": "av1/encoder/superres_scale.c",
         "patchSetId": 2
@@ -77,6 +125,54 @@
       "writtenOn": "2021-11-24T20:27:38Z",
       "side": 1,
       "message": "Why is it always 1 here?",
+      "range": {
+        "startLine": 386,
+        "startChar": 55,
+        "endLine": 386,
+        "endChar": 56
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea7619b3_c9b92d03",
+        "filename": "av1/encoder/superres_scale.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-11-25T09:49:27Z",
+      "side": 1,
+      "message": "Since this is the second call to av1_set_frame_size(), set_mv_search_params() is to be called for all frames. Hence this is passed as 1 always.",
+      "parentUuid": "638f2079_cf5fd8c4",
+      "range": {
+        "startLine": 386,
+        "startChar": 55,
+        "endLine": 386,
+        "endChar": 56
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b2a2e44_c35da9a8",
+        "filename": "av1/encoder/superres_scale.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-11-25T09:49:27Z",
+      "side": 1,
+      "message": "Since this is the second call to av1_set_frame_size(), set_mv_search_params() is to be called for all frames. Hence this is passed as 1 always.",
+      "parentUuid": "638f2079_cf5fd8c4",
       "range": {
         "startLine": 386,
         "startChar": 55,
