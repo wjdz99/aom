@@ -22,6 +22,30 @@
       },
       "revId": "147ac788b5846ed89318d8cf1de7fa7062efec59",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ebcef9a3_b2b6953b",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-11-29T20:04:08Z",
+      "side": 1,
+      "message": "This condition needs to be an \u0026\u0026 and not ||.\nSupposed the min bsize is BLOCK_16X16, and the current bsize is BLOCK_32X16. If we were to use an ||, the condition would get triggered. So we would not be able to reach BLOCK_16X16.",
+      "parentUuid": "f82d07ff_8004923c",
+      "range": {
+        "startLine": 1440,
+        "startChar": 32,
+        "endLine": 1440,
+        "endChar": 80
+      },
+      "revId": "147ac788b5846ed89318d8cf1de7fa7062efec59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
