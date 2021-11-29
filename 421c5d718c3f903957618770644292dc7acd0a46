@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c49c966_9cb52983",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2021-11-29T13:48:49Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nAs per your suggestion, we have explored the segmentation option and found that only zeromv is considered in assigning segmentation index, whereas our intra mode pruning logic uses mv range \u003c 8. Hence, with the segmentation option the optimization scope seems to be less.\nHowever, we have modified the pruning logic based on mv range of best mode so far and block source variance. Along with the speed feature ‘prune_intra_mode_based_on_mv_range’, introduced a threshold for motion vector range based on the resolution. We could achieve a similar speed up similar to our earlier logic. Please review the patch and let us know your thoughts.\n\nPlease check the resolution-wise speed and quality results as mentioned below.\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   5         rtc          1.438         -0.0153   -0.0310    0.0103\n   5       rtc_derf       1.148          0.0475    0.0431    0.1098\n   5       Average        1.297          0.0108   -0.0001    0.0518\n   6         rtc          0.912         -0.0085   -0.0260    0.0018\n   6       rtc_derf       0.784         -0.0233    0.0007   -0.0294\n   6       Average        0.842         -0.0147   -0.0148   -0.0112\n    \nIn the commit message: \n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\n\nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc …\n\nThank you.",
+      "revId": "421c5d718c3f903957618770644292dc7acd0a46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
