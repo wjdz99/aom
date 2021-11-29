@@ -16,6 +16,29 @@
       "message": "Hi Yunqing,\n\nThis patch marks \u0027AVxFrameParallelEncodeHDResTest\u0027 as a Large test since it takes considerable time to complete these runs. Also modified the tile configuration used in this test to suit the use case of the 720p test clip.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "53639c51c85c42c312717c1fc144a92e195c1f8a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "67e21efe_ab5fc775",
+        "filename": "test/frame_parallel_enc_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-29T19:52:08Z",
+      "side": 1,
+      "message": "Why was this changed? Should we want to test cases with more tiles? Same question for lowres test below?",
+      "range": {
+        "startLine": 169,
+        "startChar": 76,
+        "endLine": 169,
+        "endChar": 77
+      },
+      "revId": "53639c51c85c42c312717c1fc144a92e195c1f8a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
