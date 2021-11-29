@@ -70,6 +70,30 @@
       },
       "revId": "147ac788b5846ed89318d8cf1de7fa7062efec59",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dde7e9e2_ed19b17f",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2021-11-29T20:50:11Z",
+      "side": 1,
+      "message": "\u003e My concern is that all the 1:4/4:1 blocks have indices greater than the square ones, so we may need to play with the widths and heights instead of the bsizes.\n\nThe is_bsize_geq function actually tests each dimension individually.\nHere\u0027s the function definition:\nstatic AOM_INLINE bool is_bsize_geq(BLOCK_SIZE bsize1, BLOCK_SIZE bsize2) {                                                                                                                                                               \n   if (bsize1 \u003d\u003d BLOCK_INVALID || bsize2 \u003d\u003d BLOCK_INVALID) {                                                                                                                                                                               \n     return false;                                                                                                                                                                                                                         \n   }                                                                                                                                                                                                                                       \n   return block_size_wide[bsize1] \u003e\u003d block_size_wide[bsize2] \u0026\u0026                                                                                                                                                                            \n          block_size_high[bsize1] \u003e\u003d block_size_high[bsize2];                                                                                                                                                                              \n}    \n\n\u003e But since those blocks are not splittable, maybe this function won\u0027t be reached at all\n\nI think the 1:4 blocks can get to av1_prune_partitions_by_max_min_bsize, so there might still be some issues with the is_gt_max_sq_part condition.\nFor example, if max_bsize is BLOCK_32X32, and the current bsize is BLOCK_16X64, then we\u0027ll be forced to split, even though splitting is not allowed for 1:4 blocks.",
+      "parentUuid": "bbc46d89_02d49120",
+      "range": {
+        "startLine": 1440,
+        "startChar": 32,
+        "endLine": 1440,
+        "endChar": 80
+      },
+      "revId": "147ac788b5846ed89318d8cf1de7fa7062efec59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
