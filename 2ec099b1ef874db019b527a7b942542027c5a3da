@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nWe benchmarked the tx_domain_dist_thres_level speed feature and observed that\nspeed quality trade-off for speed 5 is poor with existing threshold level 2 while\nspeed 6 is in tradeoff. In order to improve the trade-off for speed 5, we submitted\nthe patch to add a new threshold level as level 2 and have mapped existing\nlevel 2 to level 3.\n\nPlease find the detailed borg result below.\n\nWhen tx_domain_dist_thres_level \u003d 1 :\n CPU   Test Set   Instruction Count    BD-Rate Loss %\n                    Reduction %   avg.psnr ovr.psnr   ssim\n  5       rtc         -3.645      -0.389   -0.3528   0.2751\n  5     rtc_derf      -3.157      -0.2320  -0.1441   0.0381\n  5     Average       -3.407      -0.3240  -0.2658   0.1763\n\nWe can see that the results are not in trade-off.\n\nHence, we tuned the threshold levels for speed 6 and added as level 2.\nWhen tx_domain_dist_thres_level \u003d 2 (newly added level) :\n CPU   Test Set   Instruction Count    BD-Rate Loss %\n                    Reduction %   avg.psnr ovr.psnr   ssim\n  5        rtc        -0.172      -0.2198  -0.1963   0.4699\n  5   rtc_derf        -0.943      -0.1220  -0.0985   0.0489\n  5    Average        -0.548      -0.1791  -0.1555   0.2944\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement. \nThe instruction count reduction specified has been measured using command: \n$ perf stat -e instructions:u ./aomenc … \n\nPlease review the patch. \n\nThank you.",
       "revId": "2ec099b1ef874db019b527a7b942542027c5a3da",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef10862e_5bf7c8e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-29T19:29:19Z",
+      "side": 1,
+      "message": "Looks good. Thanks for the tuning.",
+      "parentUuid": "08482058_7b050d27",
+      "revId": "2ec099b1ef874db019b527a7b942542027c5a3da",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
