@@ -21,7 +21,8 @@
 
 namespace {
 
-#if (CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST && !CONFIG_REALTIME_ONLY)
+#if (CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FRAME_PARALLEL_ENCODE_2 && \
+     CONFIG_FPMT_TEST && !CONFIG_REALTIME_ONLY)
 class AVxFrameParallelEncodeTest
     : public ::libaom_test::CodecTestWith3Params<int, int, int>,
       public ::libaom_test::EncoderTest {
@@ -147,11 +148,22 @@ class AVxFrameParallelEncodeTest
   std::vector<std::string> md5_dec_;
 };
 
-class AVxFrameParallelEncodeHDResTest : public AVxFrameParallelEncodeTest {};
+class AVxFrameParallelEncodeHDResTestLarge : public AVxFrameParallelEncodeTest {
+};
 
-TEST_P(AVxFrameParallelEncodeHDResTest, FrameParallelEncodeTest) {
+TEST_P(AVxFrameParallelEncodeHDResTestLarge, FrameParallelEncodeTest) {
   ::libaom_test::Y4mVideoSource video("niklas_1280_720_30.y4m", 0, 60);
   cfg_.rc_target_bitrate = 500;
+  DoTest(&video);
+}
+
+class AVxFrameParallelEncodeLowResTestLarge
+    : public AVxFrameParallelEncodeTest {};
+
+TEST_P(AVxFrameParallelEncodeLowResTestLarge, FrameParallelEncodeTest) {
+  ::libaom_test::YUVVideoSource video("hantro_collage_w352h288.yuv",
+                                      AOM_IMG_FMT_I420, 352, 288, 30, 1, 0, 60);
+  cfg_.rc_target_bitrate = 200;
   DoTest(&video);
 }
 
@@ -164,14 +176,18 @@ TEST_P(AVxFrameParallelEncodeLowResTest, FrameParallelEncodeTest) {
   DoTest(&video);
 }
 
-AV1_INSTANTIATE_TEST_SUITE(AVxFrameParallelEncodeHDResTest,
-                           ::testing::Values(2, 4, 6), ::testing::Values(0, 2),
-                           ::testing::Values(0, 1));
+AV1_INSTANTIATE_TEST_SUITE(AVxFrameParallelEncodeHDResTestLarge,
+                           ::testing::Values(1, 2, 3, 4, 5, 6),
+                           ::testing::Values(0, 1, 2), ::testing::Values(0, 1));
+
+AV1_INSTANTIATE_TEST_SUITE(AVxFrameParallelEncodeLowResTestLarge,
+                           ::testing::Values(1, 2, 3),
+                           ::testing::Values(0, 1, 2), ::testing::Values(0, 1));
 
 AV1_INSTANTIATE_TEST_SUITE(AVxFrameParallelEncodeLowResTest,
-                           ::testing::Values(1, 2), ::testing::Values(0),
+                           ::testing::Values(4, 5, 6), ::testing::Values(0),
                            ::testing::Values(0));
-#endif  // CONFIG_FRAME_PARALLEL_ENCODE  && CONFIG_FPMT_TEST &&
-        // !CONFIG_REALTIME_ONLY
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE  && CONFIG_FRAME_PARALLEL_ENCODE_2 &&
+        // CONFIG_FPMT_TEST && !CONFIG_REALTIME_ONLY
 
 }  // namespace
