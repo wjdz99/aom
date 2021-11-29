@@ -51,6 +51,24 @@
       "parentUuid": "d81b7c2b_2112f36e",
       "revId": "e77186ee772861ee4782628772aad5b04cb20fd5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3c93b16_6107dc55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-29T20:40:47Z",
+      "side": 1,
+      "message": "Thanks Chethan for the rebase (I know it is very late for you. Feel free to handle it the next day.)\n\nThanks Fyodor, patchset 5 is fine since Chethan submitted it. The problem was with patchset 4. I will ping you next time when this happens, so people from Indian office don\u0027t have to do it.",
+      "parentUuid": "e8e46ae2_04fc2282",
+      "revId": "e77186ee772861ee4782628772aad5b04cb20fd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
