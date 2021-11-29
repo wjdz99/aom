@@ -4369,7 +4369,7 @@ int av1_get_compressed_data(AV1_COMP *cpi, AV1_COMP_DATA *const cpi_data) {
   // Note: Use "cpi->frame_component_time[0] > 100 us" to avoid showing of
   // show_existing_frame and lag-in-frames.
   if ((cpi->oxcf.pass == 2 || cpi->oxcf.pass == 0) &&
-      cpi->frame_component_time[0] > 100) {
+      cpi->frame_component_time[0] > 100 && (cm->current_frame.frame_number == 1 || cm->current_frame.frame_number == 100)) {
     int i;
     uint64_t frame_total = 0, total = 0;
 

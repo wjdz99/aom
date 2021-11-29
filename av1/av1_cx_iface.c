@@ -275,17 +275,17 @@ static const struct av1_extracfg default_extra_cfg = {
   0,                            // enable_global_motion usage
   0,                            // enable_warped_motion at sequence level
   0,                            // allow_warped_motion at frame level
-  1,                            // enable filter intra at sequence level
-  1,                            // enable smooth intra modes usage for sequence
+  0,                            // enable filter intra at sequence level
+  0,                            // enable smooth intra modes usage for sequence
   1,                            // enable Paeth intra mode usage for sequence
-  1,                            // enable CFL uv intra mode usage for sequence
+  0,                            // enable CFL uv intra mode usage for sequence
   1,                       // enable directional intra mode usage for sequence
   1,                       // enable D45 to D203 intra mode usage for sequence
   1,                       // superres
   1,                       // enable overlay
   1,                       // enable palette
   !CONFIG_SHARP_SETTINGS,  // enable intrabc
-  1,                       // enable angle delta
+  0,                       // enable angle delta
 #if CONFIG_DENOISE
   0,   // noise_level
   32,  // noise_block_size
@@ -296,7 +296,7 @@ static const struct av1_extracfg default_extra_cfg = {
   0,  // reduced_tx_type_set
   0,  // use_intra_dct_only
   0,  // use_inter_dct_only
-  0,  // use_intra_default_tx_only
+  1,  // use_intra_default_tx_only
   1,  // enable_tx_size_search
   0,  // quant_b_adapt
   0,  // vbr_corpus_complexity_lap
