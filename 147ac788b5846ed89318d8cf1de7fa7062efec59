@@ -46,6 +46,30 @@
       },
       "revId": "147ac788b5846ed89318d8cf1de7fa7062efec59",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbc46d89_02d49120",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-11-29T20:41:39Z",
+      "side": 1,
+      "message": "Got it thank you. My concern is that all the 1:4/4:1 blocks have indices greater than the square ones, so we may need to play with the widths and heights instead of the bsizes. But since those blocks are not splittable, maybe this function won\u0027t be reached at all so it doesn\u0027t matter, would you please confirm?",
+      "parentUuid": "ebcef9a3_b2b6953b",
+      "range": {
+        "startLine": 1440,
+        "startChar": 32,
+        "endLine": 1440,
+        "endChar": 80
+      },
+      "revId": "147ac788b5846ed89318d8cf1de7fa7062efec59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
