@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f82d07ff_8004923c",
+        "filename": "av1/encoder/partition_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 5188
+      },
+      "writtenOn": "2021-11-29T19:44:23Z",
+      "side": 1,
+      "message": "Do we need to do the same thing as what is done for max size?\nLike: (bsize_1d \u003e\u003d block_height) || (bsize_1d \u003e\u003d block_width)",
+      "range": {
+        "startLine": 1440,
+        "startChar": 32,
+        "endLine": 1440,
+        "endChar": 80
+      },
+      "revId": "147ac788b5846ed89318d8cf1de7fa7062efec59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
