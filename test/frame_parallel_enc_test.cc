@@ -147,9 +147,10 @@ class AVxFrameParallelEncodeTest
   std::vector<std::string> md5_dec_;
 };
 
-class AVxFrameParallelEncodeHDResTest : public AVxFrameParallelEncodeTest {};
+class AVxFrameParallelEncodeHDResTestLarge : public AVxFrameParallelEncodeTest {
+};
 
-TEST_P(AVxFrameParallelEncodeHDResTest, FrameParallelEncodeTest) {
+TEST_P(AVxFrameParallelEncodeHDResTestLarge, FrameParallelEncodeTest) {
   ::libaom_test::Y4mVideoSource video("niklas_1280_720_30.y4m", 0, 60);
   cfg_.rc_target_bitrate = 500;
   DoTest(&video);
@@ -164,8 +165,8 @@ TEST_P(AVxFrameParallelEncodeLowResTest, FrameParallelEncodeTest) {
   DoTest(&video);
 }
 
-AV1_INSTANTIATE_TEST_SUITE(AVxFrameParallelEncodeHDResTest,
-                           ::testing::Values(2, 4, 6), ::testing::Values(0, 2),
+AV1_INSTANTIATE_TEST_SUITE(AVxFrameParallelEncodeHDResTestLarge,
+                           ::testing::Values(2, 4, 6), ::testing::Values(0, 1),
                            ::testing::Values(0, 1));
 
 AV1_INSTANTIATE_TEST_SUITE(AVxFrameParallelEncodeLowResTest,
