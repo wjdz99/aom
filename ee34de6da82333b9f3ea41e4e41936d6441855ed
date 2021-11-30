@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8a4418b_8831fe51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-11-30T16:34:14Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing,\n\nDuring our analysis of winner mode processing for allintra encoding, it was observed that the  winner mode processing is not advantageous for blocks with low source variance. In case of low source variance, the residual error is expected to be low and evaluating other tx_sizes (beyond tx size search mode TX_MODE_LARGEST) and tx_types (beyond default tx_type) might not be of much advantage. Similarly, at lower quantizers, advantage due to other tx types seems to be lower. Hence winner mode processing can be disabled in case of lower variances and lower quantizers.\n\nThis CL introduces a speed feature prune_winner_mode_processing_using_src_var which disables winner mode processing based on source variance and qindex. The source variance is compared against a qindex-dependent threshold and winner mode processing is disabled if the source variance is lower than the threshold. The aggressiveness of this pruning logic reduces as qindex increases. The sf is enabled for allintra cpu-used\u003e\u003d6.\n\nWe validated the current patch for allintra video and still-image encode. Following are the encode-time reduction results when AVIF encode was tested for a typical image dataset.\n\nFor AVIF still image encode with tune\u003dpsnr,\n             Encode-time      BD-Rate Loss(%)      \n cpu-used    Reduction(%)      psnr     ssim    \n    6           3.804         0.2174     0.3855\n    7           5.239         0.0420     0.4382\n    8           1.327         0.0077     0.0108\n    9           0.000         0.0000     0.0000\n\nFor AVIF still image encode with tune\u003dssim,\n             Encode-time      BD-Rate Loss(%)      \n cpu-used    Reduction(%)      psnr     ssim    \n    6           3.909         0.1047     0.3665\n    7           5.312        -0.0666     0.4008\n    8           1.019         0.0003    -0.0689\n    9           0.000         0.0000     0.0000\n\nFollowing are the instruction count reduction results when tested libaom allintra frame encoding (50 frames) for a borg setup. \n\n           Instruction Count       BD-Rate Loss(%)      \n cpu-used     Reduction(%)   avg.psnr   ovr.psnr   ssim       \n    6            3.291        0.1694     0.1682    0.3006\n    7            4.089        0.1014     0.0955    0.3624\n    8            1.999        0.0048     0.0033    0.0331\n    9            0.000        0.0000     0.0000    0.0000\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the above results, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker",
+      "revId": "ee34de6da82333b9f3ea41e4e41936d6441855ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
