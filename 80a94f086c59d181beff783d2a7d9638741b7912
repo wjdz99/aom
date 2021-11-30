@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79bbdbb1_e5e5c20e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-11-30T10:57:28Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing, \n\nIn the function intra_rd_variance_factor(), the condition to calculate variance_rd_factor depends on comparison of pre-calculated threshold (which is derived based on speed level) with mapped source/reconstructed variances. This comparison always evaluates to false for non-positive threshold values(for speed\u003e\u003d4) as mapped variances are assured to be positive. This CL adds an early return in intra_rd_variance_factor(), when threshold is non-positive. \n\nThis change is bit-exact and is applicable for speed \u003e\u003d 4 (as threshold is \u003c\u003d 0 for these speed presets). We validated this patch for allintra video and still-image encode. Following are instruction count/encode time reduction results when AVIF encode was tested for a typical image dataset.\n\n\nFor AVIF still-image encode with tune\u003dpsnr,\n\n              Instruction Count\n               / Encode Time   \t  BD-Rate Loss(%)      \n       speed     Reduction(%)  \t  psnr     ssim    \n         4          1.997      \t  0.0000   0.0000\n         5          2.336      \t  0.0000   0.0000\n         6          1.327      \t  0.0000   0.0000\n         7          1.288      \t  0.0000   0.0000\n         8          0.713         0.0000   0.0000\n\nIn the above speed data, instruction count reduction is quoted for speed \u003c 6 and encode-time reduction is quoted for speed \u003e\u003d 6.\n\nFollowing are the instruction count reduction results when tested libaom allintra frame encoding (50 frames) for a borg setup.\n\n              Instruction Count      BD-Rate Loss(%)      \n       speed   Reduction(%)    avg.psnr  ovr.psnr   ssim       \n         4        1.821        0.0000    0.0000     0.0000\n         6        1.496\t       0.0000    0.0000     0.0000\n\t\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the above results, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nMudassir.\n",
+      "revId": "80a94f086c59d181beff783d2a7d9638741b7912",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
