@@ -52,6 +52,24 @@
       "parentUuid": "f6970c56_25cb0fc7",
       "revId": "421c5d718c3f903957618770644292dc7acd0a46",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "519ad76d_7d54eaa4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-30T04:21:17Z",
+      "side": 1,
+      "message": "Thanks for testing that. So, the above is the result while pruning all intra modes for bsize \u003e BLOCK_16x16?\n\nBy the way, I saw we have:\n  if (bsize \u003e sf-\u003epart_sf.max_intra_bsize) {\n    disable_reference(INTRA_FRAME, mask-\u003eref_combo);\n  }\nThis is in the inter mode eval loop. This probably is not used?",
+      "parentUuid": "a6aaaeb7_1d66fac0",
+      "revId": "421c5d718c3f903957618770644292dc7acd0a46",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
