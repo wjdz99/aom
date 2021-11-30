@@ -87,6 +87,24 @@
       "parentUuid": "8fd29f1c_213b07b5",
       "revId": "e77186ee772861ee4782628772aad5b04cb20fd5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e0bf6f73_1c5d445f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-11-30T06:16:37Z",
+      "side": 1,
+      "message": "I see. Enabling use_fullpel_costlist seems useful at speed 6. Thanks for testing it!",
+      "parentUuid": "c33c21e4_8da8ed98",
+      "revId": "e77186ee772861ee4782628772aad5b04cb20fd5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
