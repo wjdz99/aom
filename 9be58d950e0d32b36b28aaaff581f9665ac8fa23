@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d928f205_9ba53180",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-11-30T10:55:53Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Yunqing, \n\nThe function intra_rd_variance_factor() is used to calculate a multiplication factor to be applied on the RD value to improve perceived sharpness. This module calculates the sum of log(1+var4x4/16) across all 4x4 blocks. This CL uses logarithm product rule to reduce the log() computations in this module. \n\nWe validated this patch for allintra video and still-image encode. Following are instruction count/encode time reduction results when AVIF encode was tested for a typical image dataset.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n\n            Instruction Count\n              / Encode Time      BD-Rate Loss(%)      \n       speed    Reduction(%)     psnr      ssim    \n         0         2.076        -0.2833   -0.3711\n         1         2.481        -0.1683   -0.2831\n         2         2.329        -0.0881   -0.2117\n         3         2.372        -0.0839   -0.2781\n         4         2.310         0.0000    0.0000\n         5         2.732         0.0000    0.0000\n         6         2.586         0.0000    0.0000\n         7         3.178         0.0000    0.0000\n         8         1.240         0.0000    0.0000\n         9         0.000         0.0000    0.0000\n\nFor AVIF still-image encode with tune\u003dssim,       \n              Instruction Count\n                / Encode Time    BD-Rate Loss(%)      \n       speed    Reduction(%)     psnr      ssim  \n         0         2.271        -0.3666   -0.4165\n         1         2.621        -0.2236   -0.3091\n         2         2.462        -0.0965   -0.2214\n         3         2.547        -0.0892   -0.2821\n         4         2.410         0.0000    0.0000\n         5         2.824         0.0000    0.0000\n         6         2.614         0.0000    0.0000\n         7         3.095         0.0000    0.0000\n         8         1.283         0.0000    0.0000\n         9         0.000         0.0000    0.0000\n\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed \u003e\u003d6. This change is bit-exact for speed\u003e\u003d4, as the condition to calculate the variance_rd_factor evaluates to false because of non-positive threshold values.\n\nFollowing are the instruction count reduction results when tested libaom allintra frame encoding (50 frames) for a borg setup. \n\n              Instruction Count      BD-Rate Loss(%)      \n       speed    Reduction(%)     avg.psnr  ovr.psnr   ssim       \n         1         1.758        -0.0865\t  -0.0859    -0.0815\n         3         1.751        -0.0215   -0.0220    -0.0420\n         4         1.968         0.0000    0.0000     0.0000\n         6         1.557         0.0000\t   0.0000     0.0000\n\nFor high bit-depth encoding, (--bit-depth\u003d10)\n              Instruction Count      BD-Rate Loss(%)      \n       speed    Reduction(%)     avg.psnr  ovr.psnr   ssim       \n         3         1.350         0.0029    0.0030     0.0132\n      \t\t\nIn the above results, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nWe also compared a few images visually w.r.t. parent version at cq_levels 18, 33 and observed no/negligible perceptual quality difference with this change.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nMudassir.\n",
+      "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
