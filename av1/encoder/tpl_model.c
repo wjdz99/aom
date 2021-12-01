@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <float.h>
+#include <stdio.h>
 
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
@@ -788,7 +789,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
+      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
+                         : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
@@ -800,6 +802,12 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
 
   tpl_stats->recrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
   tpl_stats->recrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
+
+  tpl_stats->nz_coeff_count = 1;
+  for (int i = 0; i < 256; ++i) {
+    if (qcoeff[i]) ++tpl_stats->nz_coeff_count;
+  }
+
   if (!is_inter_mode(best_mode)) {
     tpl_stats->srcrf_dist = recon_error << (TPL_DEP_COST_SCALE_LOG2);
     tpl_stats->srcrf_rate = rate_cost << TPL_DEP_COST_SCALE_LOG2;
@@ -1975,22 +1983,27 @@ double av1_tpl_get_frame_importance(const TplParams *tpl_data,
   const TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
 
   const int tpl_stride = tpl_frame->stride;
-  int64_t intra_cost_base = 0;
-  int64_t mc_dep_cost_base = 0;
+  double intra_cost_base = 0;
+  double mc_dep_cost_base = 0;
+  double cbcmp_base = 0;
   const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
 
   for (int row = 0; row < tpl_frame->mi_rows; row += step) {
     for (int col = 0; col < tpl_frame->mi_cols; col += step) {
       const TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
           row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+      double cbcmp = this_stats->nz_coeff_count;
       const int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
-      intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
-      mc_dep_cost_base += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
+      mc_dep_cost_base +=
+          log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
+      cbcmp_base += cbcmp;
     }
   }
-  return mc_dep_cost_base * 1.0 / intra_cost_base;
+  return exp((mc_dep_cost_base - intra_cost_base) / cbcmp_base);
+  // return mc_dep_cost_base * 1.0 / intra_cost_base;
 }
 
 double av1_tpl_get_qstep_ratio(const TplParams *tpl_data, int gf_frame_index) {
