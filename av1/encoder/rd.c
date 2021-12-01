@@ -697,9 +697,6 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   RD_OPT *const rd = &cpi->rd;
   int use_nonrd_pick_mode = cpi->sf.rt_sf.use_nonrd_pick_mode;
 
-  if (use_nonrd_pick_mode)
-    fill_costs = frame_is_intra_only(cm) || cpi->rc.frames_since_key < 2;
-
   rd->RDMULT = av1_compute_rd_mult(
       cpi, cm->quant_params.base_qindex + cm->quant_params.y_dc_delta_q);
 #if CONFIG_RD_COMMAND
