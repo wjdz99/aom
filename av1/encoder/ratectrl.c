@@ -457,8 +457,15 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality) {
     // Make sure q is between oscillating Qs to prevent resonance.
     if (rc->rc_1_frame * rc->rc_2_frame == -1 &&
         rc->q_1_frame != rc->q_2_frame) {
-      q = clamp(q, AOMMIN(rc->q_1_frame, rc->q_2_frame),
-                AOMMAX(rc->q_1_frame, rc->q_2_frame));
+      int qclamp = clamp(q, AOMMIN(rc->q_1_frame, rc->q_2_frame),
+                         AOMMAX(rc->q_1_frame, rc->q_2_frame));
+      // If the previous frame had overshoot and the current q needs to increase
+      // above the clamped value, reduce the clamp for faster reaction to
+      // overshoot.
+      if (cpi->rc.rc_1_frame == -1 && q > qclamp)
+        q = (q + qclamp) >> 1;
+      else
+        q = qclamp;
     }
     // Adjust Q base on source content change from scene detection.
     if (cpi->sf.rt_sf.check_scene_detection && rc->prev_avg_source_sad > 0 &&
@@ -481,6 +488,10 @@ static int adjust_q_cbr(const AV1_COMP *cpi, int q, int active_worst_quality) {
                  p_rc->buffer_level < AOMMIN(p_rc->maximum_buffer_size,
                                              p_rc->optimal_buffer_level << 1)) {
         q = (3 * q + rc->q_1_frame) >> 2;
+      } else if (delta > 0.4) {
+        double q_adj_factor = 1.0 + 0.5 * tanh(1.5 * delta);
+        double q_val = av1_convert_qindex_to_q(q, bit_depth);
+        q += av1_compute_qdelta(rc, q_val, q_val * q_adj_factor, bit_depth);
       }
     }
     // Limit the decrease in Q from previous frame.
