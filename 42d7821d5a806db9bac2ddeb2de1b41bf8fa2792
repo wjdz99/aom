@@ -162,6 +162,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "84418211_f1d62431",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2514,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-12-01T16:26:00Z",
+      "side": 1,
+      "message": "In the patchset 3, the function that sets the MV search params is moved out of av1_set_frame_size() and called at the appropriate places. Hope this change makes the logic clearer.",
+      "parentUuid": "5d3385cd_f72a92e8",
+      "range": {
+        "startLine": 2514,
+        "startChar": 2,
+        "endLine": 2514,
+        "endChar": 44
+      },
+      "revId": "42d7821d5a806db9bac2ddeb2de1b41bf8fa2792",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bb293194_28c2af26",
         "filename": "av1/encoder/encoder.c",
         "patchSetId": 2
