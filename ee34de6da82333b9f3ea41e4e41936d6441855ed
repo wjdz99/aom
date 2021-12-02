@@ -35,6 +35,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a21ae25_9b7f03b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-12-02T11:18:37Z",
+      "side": 1,
+      "message": "Please review.",
+      "revId": "ee34de6da82333b9f3ea41e4e41936d6441855ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4422d2fd_999cb422",
@@ -58,6 +75,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "baa98f8c_1037d1fb",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-12-02T11:18:37Z",
+      "side": 1,
+      "message": "As per the speed feature settings, the sf prune_winner_mode_processing_using_src_var is currently enabled only for allintra encoding mode from cpu-used\u003e\u003d6 (multi_winner_mode_type is set to MULTI_WINNER_MODE_OFF in this case). The pruning logic used for this sf should be applicable for multi_winner_mode_type !\u003d MULTI_WINNER_MODE_OFF also, but it may require some tuning. As for inter frames, this sf does not create any conflict as it is not enabled for ‘good’ or ‘rt’ usages where inter frames can occur. Hence, there will not be any conflict between the changes in this CL with multi-winner mode or inter frames.\n\nPlease let us know if we need to add assertions explicitly.",
+      "parentUuid": "4422d2fd_999cb422",
+      "range": {
+        "startLine": 399,
+        "startChar": 6,
+        "endLine": 399,
+        "endChar": 67
+      },
+      "revId": "ee34de6da82333b9f3ea41e4e41936d6441855ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6d03d23_b66b3179",
@@ -71,6 +112,30 @@
       "writtenOn": "2021-12-01T17:11:33Z",
       "side": 1,
       "message": "Is there any reason why source variance is used instead of the variance of residue?",
+      "range": {
+        "startLine": 401,
+        "startChar": 8,
+        "endLine": 401,
+        "endChar": 43
+      },
+      "revId": "ee34de6da82333b9f3ea41e4e41936d6441855ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "054f71c4_5ad02f83",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2021-12-02T11:18:37Z",
+      "side": 1,
+      "message": "We have used source variance as it is already computed and readily available at the time of deciding whether to perform winner mode processing or not. If we have to implement a similar logic with residual variance, it needs to be computed during the MODE_EVAL stage or before the WINNER_MODE_EVAL stage. As these approaches would bring additional computational overheads, we preferred the current approach to start with. We shall explore usage of residual variance to prune/control the winner mode processing.",
+      "parentUuid": "c6d03d23_b66b3179",
       "range": {
         "startLine": 401,
         "startChar": 8,
