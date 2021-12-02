@@ -80,6 +80,30 @@
       },
       "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97f040d3_9516a203",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-12-02T17:10:32Z",
+      "side": 1,
+      "message": "Hi Jingning, Chi-Yo\n\nDuring our analysis, we missed checking the overflow possibility assuming that dynamic precision of double variables would avoid the overflow (at the loss of precision). However we realized that double variables can overflow (inf) and thanks for pointing out the same. The overflow (src_var/rec_var becoming inf) was observed in the current CL when tested for 1080p content. Hence we shall abandon the current patch.\n\nHowever, it is possible to optimize the module through either of the following approaches:\n1. Pull out the calculation of src_var/mapped_src_var present inside the intra_rd_variance_factor() out of mode loop search as it is common across all modes. This should be a bit-exact change.\n2. Calculate the product of (1+var4x4/16) for all blocks in a row and accumulate log() of this product across rows. This change can give better speed-up, but may not be bit-exact. Hence this can cause slight differences in visual quality.\n3. Combination of (1) and (2)\n\nPlease suggest the preferred approach out of the above for optimization. However we shall rebase the dependent patch (https://aomedia-review.googlesource.com/c/aom/+/149542) as it can be pursued independent of the current patch and submit the same for review after testing.",
+      "parentUuid": "f1360123_7b8f448d",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 25
+      },
+      "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
