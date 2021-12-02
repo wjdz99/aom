@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "746939ec_acfdaea3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T04:00:08Z",
+      "side": 1,
+      "message": "I think this one can be abandoned after:\n0f72ea603 write_features_to_file: check fopen() result\n",
+      "revId": "096c4f9668d2e1819f45a077bd820de9db2fd072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
