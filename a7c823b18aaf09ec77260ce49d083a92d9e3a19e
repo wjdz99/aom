@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57d6cd85_03e885d9",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38bb6b23_3f3bdaec",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b76c55cf_cff3b9c1",
@@ -31,6 +49,30 @@
       "writtenOn": "2021-12-02T03:26:32Z",
       "side": 1,
       "message": "include \u003cnew\u003e for std::nothrow:\nhttps://en.cppreference.com/w/cpp/memory/new/nothrow",
+      "range": {
+        "startLine": 24,
+        "startChar": 48,
+        "endLine": 24,
+        "endChar": 62
+      },
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "356c4927_f3ebecec",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b76c55cf_cff3b9c1",
       "range": {
         "startLine": 24,
         "startChar": 48,
@@ -58,6 +100,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "48669895_db849dfa",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ba34dd9_2dffadd3",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f417622_b337810a",
@@ -71,6 +131,24 @@
       "writtenOn": "2021-12-02T03:26:32Z",
       "side": 1,
       "message": "add a blank line after this to match the one at the end. I think leaving a blank line after the innermost namespace helps readability a little.",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f612313b_bebf7a64",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6f417622_b337810a",
       "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -98,6 +176,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab702f52_ef5ccb82",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ba1c045_2a82aa51",
+      "range": {
+        "startLine": 107,
+        "startChar": 28,
+        "endLine": 107,
+        "endChar": 32
+      },
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca510abb_5de62e15",
@@ -111,6 +213,24 @@
       "writtenOn": "2021-12-02T03:26:32Z",
       "side": 1,
       "message": "can this fail?",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5509cef0_a7ed5d04",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "This function only sets settings from the structure AV1RateControlRtcConfig to settings inside the encoder. I checked the functions being called by this function and all of those are void type as well.",
+      "parentUuid": "ca510abb_5de62e15",
       "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -132,6 +252,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "81c44f23_04f6e0db",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "83e3df39_e528b1f6",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "702a4e18_eeae3642",
@@ -145,6 +283,24 @@
       "writtenOn": "2021-12-02T03:26:32Z",
       "side": 1,
       "message": "add a comment to document the parameter for this test",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26786427_6dc1f001",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "702a4e18_eeae3642",
       "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -166,6 +322,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "954dbbf1_2d3e0792",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df4c9ad5_f89c127f",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd37accc_0fb82cb4",
@@ -179,6 +353,24 @@
       "writtenOn": "2021-12-02T03:26:32Z",
       "side": 1,
       "message": "add a blank line after this",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12bbe2fd_e15b77fd",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T03:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd37accc_0fb82cb4",
       "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
