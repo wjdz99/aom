@@ -235,6 +235,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d7b5b9c_eabf86ff",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T20:13:08Z",
+      "side": 1,
+      "message": "\u003e This function only sets settings from the structure AV1RateControlRtcConfig to settings inside the encoder. I checked the functions being called by this function and all of those are void type as well.\n\nSo then really any misconfiguration would show up later in an encode failure.",
+      "parentUuid": "5509cef0_a7ed5d04",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "83e3df39_e528b1f6",
