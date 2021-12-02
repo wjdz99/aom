@@ -139,7 +139,7 @@ static const int trans_model_params[TRANS_TYPES] = { 0, 2, 4, 6 };
 //  z .  y'  =   m4 m5 m1 *  y
 //       1]      m6 m7 1)    1]
 typedef struct {
-  int32_t wmmat[8];
+  int32_t wmmat[6];
   int16_t alpha, beta, gamma, delta;
   TransformationType wmtype;
   int8_t invalid;
