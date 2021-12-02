@@ -1,0 +1,203 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "38bb6b23_3f3bdaec",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "add a blank line after this one.",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b76c55cf_cff3b9c1",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "include \u003cnew\u003e for std::nothrow:\nhttps://en.cppreference.com/w/cpp/memory/new/nothrow",
+      "range": {
+        "startLine": 24,
+        "startChar": 48,
+        "endLine": 24,
+        "endChar": 62
+      },
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ba34dd9_2dffadd3",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "dead code?",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f417622_b337810a",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "add a blank line after this to match the one at the end. I think leaving a blank line after the innermost namespace helps readability a little.",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ba1c045_2a82aa51",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "you can use nullptr in this context",
+      "range": {
+        "startLine": 107,
+        "startChar": 28,
+        "endLine": 107,
+        "endChar": 32
+      },
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca510abb_5de62e15",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 23
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "can this fail?",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83e3df39_e528b1f6",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "add a blank line after this",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "702a4e18_eeae3642",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "add a comment to document the parameter for this test",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df4c9ad5_f89c127f",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "did you want to test this too or should it be removed.",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd37accc_0fb82cb4",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 23
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "add a blank line after this",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "016ed51d_d996fda3",
+        "filename": "test/test.cmake",
+        "patchSetId": 23
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-02T03:26:32Z",
+      "side": 1,
+      "message": "it\u0027s a shame some of these utilities aren\u0027t split out to a separate lib currently",
+      "revId": "a7c823b18aaf09ec77260ce49d083a92d9e3a19e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
