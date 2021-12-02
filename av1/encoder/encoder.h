@@ -3897,6 +3897,11 @@ static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
   // then suppress any reference types which we have found to be duplicates.
   int flags = ext_ref_frame_flags;
 
+  // If LAST is not set as a reference (which can happen for SVC
+  // where user sets the referene struture), don't suppress duplicate
+  // reference types.
+  if (!(ext_ref_frame_flags & AOM_LAST_FLAG)) return flags;
+
   for (int i = 1; i < INTER_REFS_PER_FRAME; ++i) {
     const YV12_BUFFER_CONFIG *const this_ref = ref_frames[i];
     // If this_ref has appeared before, mark the corresponding ref frame as
