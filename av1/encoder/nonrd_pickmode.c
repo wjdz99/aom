@@ -1802,10 +1802,11 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
 
   use_ref_frame[LAST_FRAME] = 1;
 
-  if (cpi->rc.frames_since_golden == 0 && gf_temporal_ref) {
+  if (!cpi->ppi->use_svc && cpi->rc.frames_since_golden == 0 &&
+      gf_temporal_ref) {
     use_golden_ref_frame = 0;
   }
-  if (cpi->sf.rt_sf.short_circuit_low_temp_var &&
+  if (!cpi->ppi->use_svc && cpi->sf.rt_sf.short_circuit_low_temp_var &&
       x->nonrd_prune_ref_frame_search) {
     if (is_small_sb)
       *force_skip_low_temp_var = av1_get_force_skip_low_temp_var_small_sb(
@@ -1820,8 +1821,8 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
     }
   }
 
-  if (x->nonrd_prune_ref_frame_search > 2 ||
-      (x->nonrd_prune_ref_frame_search > 1 && bsize > BLOCK_64X64)) {
+  if (!cpi->ppi->use_svc && (x->nonrd_prune_ref_frame_search > 2 ||
+      (x->nonrd_prune_ref_frame_search > 1 && bsize > BLOCK_64X64))) {
     use_golden_ref_frame = 0;
     use_alt_ref_frame = 0;
   }
