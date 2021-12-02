@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "98c744a0_defecfe4",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done\n\nYeah there was lint warning for this.",
+      "parentUuid": "38b97753_68516db2",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b82859ba_81f27a0d",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-12-02T20:13:08Z",
       "side": 1,
       "message": "these allocations should be checked",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24e282bc_bf85bdcc",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b82859ba_81f27a0d",
       "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d470e011_e41756d2",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d09a9286_99ebd5ce",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6829661d_4b0312b8",
@@ -65,6 +119,42 @@
       "writtenOn": "2021-12-02T20:13:08Z",
       "side": 1,
       "message": "this doesn\u0027t look to be implemented",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a62fedd9_99834030",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6829661d_4b0312b8",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cad0be73_4a3bc0cb",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6829661d_4b0312b8",
       "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +176,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9ba73fd_3c302f5a",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75e203c4_65275501",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "93b64087_ef815576",
@@ -99,6 +207,24 @@
       "writtenOn": "2021-12-02T20:13:08Z",
       "side": 1,
       "message": "this doesn\u0027t look to be implemented",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78fdbcc4_972ce1bd",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 24
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done\n\nThese are based on the base qp index for the frame so as long as the qp is the same (verified in the test) they should be correct.",
+      "parentUuid": "93b64087_ef815576",
       "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -120,6 +246,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a714da0a_d4eaa5ca",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd43051d_0783ea52",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "71ed6719_d29ab314",
@@ -133,6 +277,24 @@
       "writtenOn": "2021-12-02T20:13:08Z",
       "side": 1,
       "message": "this should be the first include:\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes",
+      "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc32098f_cadd4fee",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 24
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-02T21:43:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71ed6719_d29ab314",
       "revId": "1bc2a94c6be4120714a1283d8c158d596cd4dfd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
