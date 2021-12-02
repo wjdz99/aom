@@ -2229,6 +2229,23 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
 #endif
 }
 
+static int is_mergable_mode(PC_TREE *pc_tree) {
+  PREDICTION_MODE mode = pc_tree->split[0]->none->mic.mode;
+  MV_REFERENCE_FRAME rf = pc_tree->split[0]->none->mic.ref_frame[0];
+  for (int i = 1; i < 4; i++) {
+    if (pc_tree->split[i]->none->mic.mode != mode)
+      return 0;
+    if (pc_tree->split[i]->none->mic.ref_frame[0] != rf)
+      return 0;
+  }
+  if (!(/*mode == NEARESTMV || mode == NEARMV || */ mode == GLOBALMV))
+    return 0;
+  for (int i = 0; i < 4; i++) {
+    if (!pc_tree->split[i]->none->rd_stats.skip_txfm)
+      return 0;
+  }
+  return 1;
+}
 /*!\brief AV1 block partition application (minimal RD search).
 *
 * \ingroup partition_search
@@ -2482,6 +2499,88 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                            pc_tree->split[i]->none, NULL);
           }
         }
+      } else if (cpi->oxcf.speed < 10 && 
+                av1_is_leaf_split_partition(cm, mi_row, mi_col, bsize) &&
+                !frame_is_intra_only(cm)) {
+          RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
+          av1_save_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
+
+          for (int i = 0; i < SUB_PARTITIONS_SPLIT; i++) {
+            RD_STATS block_rdc;
+            av1_invalid_rd_stats(&block_rdc);
+            int x_idx = (i & 1) * hbs;
+            int y_idx = (i >> 1) * hbs;
+            if ((mi_row + y_idx >= mi_params->mi_rows) ||
+                (mi_col + x_idx >= mi_params->mi_cols))
+              continue;
+            xd->above_txfm_context =
+                cm->above_contexts.txfm[tile_info->tile_row] + mi_col + x_idx;
+            xd->left_txfm_context = xd->left_txfm_context_buffer +
+                                    ((mi_row + y_idx) & MAX_MIB_MASK);
+            if (pc_tree->split[i]->none == NULL)
+              pc_tree->split[i]->none =
+                  av1_alloc_pmc(cpi, subsize, &td->shared_coeff_buf);
+            pc_tree->split[i]->partitioning = PARTITION_NONE;
+            pick_sb_modes_nonrd(cpi, tile_data, x, mi_row + y_idx,
+                                mi_col + x_idx, &block_rdc, subsize,
+                                pc_tree->split[i]->none);
+            encode_b_nonrd(cpi, tile_data, td, tp, mi_row + y_idx,
+                           mi_col + x_idx, 1, subsize, PARTITION_NONE,
+                           pc_tree->split[i]->none, NULL);
+          }
+          av1_restore_context(x, &x_ctx, mi_row, mi_col, bsize, 3);
+          if (is_mergable_mode(pc_tree)) {
+            MV_REFERENCE_FRAME ref_frame = pc_tree->split[0]->none->mic.ref_frame[0];
+            mib[0]->bsize = bsize;
+            mib[0]->skip_txfm = 1;
+            mib[0]->mode = pc_tree->split[0]->none->mic.mode;
+            mib[0]->ref_frame[0] = ref_frame;
+            mib[0]->motion_mode = SIMPLE_TRANSLATION;
+            mib[0]->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_REGULAR);
+            pc_tree->partitioning = PARTITION_NONE;
+            pc_tree->none = av1_alloc_pmc(cpi, bsize, &td->shared_coeff_buf);
+            //store_coding_context(x, pc_tree->none);
+            
+
+            xd->above_txfm_context =
+              cm->above_contexts.txfm[tile_info->tile_row] + mi_col;
+            xd->left_txfm_context =
+              xd->left_txfm_context_buffer + (mi_row & MAX_MIB_MASK);
+            av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, bsize);
+            av1_count_overlappable_neighbors(cm, xd);
+            mib[0]->num_proj_ref = 1;
+
+            pc_tree->none->mic = *mib[0];
+            pc_tree->none->skippable = 1;
+            pc_tree->none->rd_stats.skip_txfm = 1;
+            MB_MODE_INFO_EXT *mbmi_ext = &x->mbmi_ext;
+            av1_find_mv_refs(cm, xd, mib[0], ref_frame, mbmi_ext->ref_mv_count,
+                     xd->ref_mv_stack, xd->weight, NULL, mbmi_ext->global_mvs,
+                     mbmi_ext->mode_context);
+            
+            av1_copy_usable_ref_mv_stack_and_weight(xd, mbmi_ext, ref_frame);
+            av1_copy_mbmi_ext_to_mbmi_ext_frame(&pc_tree->none->mbmi_ext_best, mbmi_ext, ref_frame);                    
+            encode_b_nonrd(cpi, tile_data, td, tp, mi_row, mi_col, 0, bsize,
+                         partition, pc_tree->none, NULL);
+
+          } else {
+            mib[0]->bsize = subsize;
+            pc_tree->partitioning = PARTITION_SPLIT;
+            for (int i = 0; i < SUB_PARTITIONS_SPLIT; i++) {
+              int x_idx = (i & 1) * hbs;
+              int y_idx = (i >> 1) * hbs;
+              if ((mi_row + y_idx >= mi_params->mi_rows) ||
+                  (mi_col + x_idx >= mi_params->mi_cols))
+                continue;
+
+              if (pc_tree->split[i]->none == NULL)
+                pc_tree->split[i]->none =
+                    av1_alloc_pmc(cpi, subsize, &td->shared_coeff_buf);
+              encode_b_nonrd(cpi, tile_data, td, tp, mi_row + y_idx,
+                             mi_col + x_idx, 0, subsize, PARTITION_NONE,
+                             pc_tree->split[i]->none, NULL);
+            }
+          }
       } else {
         for (int i = 0; i < SUB_PARTITIONS_SPLIT; i++) {
           int x_idx = (i & 1) * hbs;

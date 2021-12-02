@@ -1544,6 +1544,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.reuse_inter_pred_nonrd = 1;
 #endif
 #endif
+    sf->rt_sf.reuse_inter_pred_nonrd = 0;
     sf->rt_sf.use_nonrd_altref_frame = 0;
     sf->rt_sf.nonrd_prune_ref_frame_search = 2;
     sf->rt_sf.nonrd_check_partition_merge_mode = 0;
