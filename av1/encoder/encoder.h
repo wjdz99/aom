@@ -3890,12 +3890,15 @@ static const MV_REFERENCE_FRAME
 static INLINE int get_ref_frame_flags(const SPEED_FEATURES *const sf,
                                       const int use_one_pass_rt_params,
                                       const YV12_BUFFER_CONFIG **ref_frames,
-                                      const int ext_ref_frame_flags) {
+                                      const int ext_ref_frame_flags,
+                                      const int use_svc) {
   // cpi->ext_flags.ref_frame_flags allows certain reference types to be
   // disabled by the external interface.  These are set by
   // av1_apply_encoding_flags(). Start with what the external interface allows,
   // then suppress any reference types which we have found to be duplicates.
   int flags = ext_ref_frame_flags;
+
+  if (use_svc) return flags;
 
   for (int i = 1; i < INTER_REFS_PER_FRAME; ++i) {
     const YV12_BUFFER_CONFIG *const this_ref = ref_frames[i];
