@@ -80,16 +80,6 @@ struct CYCLIC_REFRESH {
    */
   int8_t *map;
   /*!
-   * Threshold applied to the projected rate of the coding block,
-   * when deciding whether block should be refreshed.
-   */
-  int64_t thresh_rate_sb;
-  /*!
-   * Threshold applied to the projected distortion of the coding block,
-   * when deciding whether block should be refreshed.
-   */
-  int64_t thresh_dist_sb;
-  /*!
    * Threshold applied to the motion vector (in units of 1/8 pel) of the
    * coding block, when deciding whether block should be refreshed.
    */
