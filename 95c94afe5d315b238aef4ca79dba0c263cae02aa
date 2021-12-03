@@ -51,6 +51,23 @@
       "message": "This morning I found that we weren\u0027t allowed to submit CLs to master branch anymore due to recent Gerrit change. Please push this CL to main. Maybe Vikas can forward the email with detailed commands?\n",
       "revId": "95c94afe5d315b238aef4ca79dba0c263cae02aa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a0d6c48_eca3531e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-12-03T07:21:34Z",
+      "side": 1,
+      "message": "Yunqing,\n\nThis patch is resubmitted to main branch - https://aomedia-review.googlesource.com/c/aom/+/149801. Hence abandoning this patch.\n\nThanks",
+      "revId": "95c94afe5d315b238aef4ca79dba0c263cae02aa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
