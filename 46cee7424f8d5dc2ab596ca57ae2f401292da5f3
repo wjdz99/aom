@@ -1,0 +1,198 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a566b79b_5476e5ed",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 26
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "it would be nice to be able to disable this from the build (maybe as the default)",
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bae65a9_8b02597f",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "this allocation should be checked",
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8296b939_4a82a6e9",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "this looks like it\u0027s impossible",
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff723ac1_b638c89c",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "references can be used here too, but that\u0027s up to you",
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e3ceb8a_b41766ce",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "this assumes the elements are one byte and would probably issue a clang-tidy warning. use a range-based for loop instead",
+      "range": {
+        "startLine": 68,
+        "startChar": 28,
+        "endLine": 68,
+        "endChar": 63
+      },
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d47e0b1a_e3854d52",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "these and the other bitrate calculations could overflow given the types. some basic validation might be a good idea",
+      "range": {
+        "startLine": 126,
+        "startChar": 47,
+        "endLine": 126,
+        "endChar": 67
+      },
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bd52463_91310d44",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "maybe just AV1FrameParamsRTC (or Layer?) since there\u0027s nothing here dealing with Qp",
+      "range": {
+        "startLine": 83,
+        "startChar": 21,
+        "endLine": 83,
+        "endChar": 23
+      },
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6797b1f1_e928cd5a",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "\u003d default should work here",
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66d3b744_1dc35ef2",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "these both can be constexpr",
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de7d4e38_e7884fa0",
+        "filename": "test/ratectrl_rtc_test.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-03T22:05:45Z",
+      "side": 1,
+      "message": "you can use override here if you\u0027d like",
+      "range": {
+        "startLine": 40,
+        "startChar": 2,
+        "endLine": 40,
+        "endChar": 9
+      },
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
