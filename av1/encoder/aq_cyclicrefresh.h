@@ -80,16 +80,6 @@ struct CYCLIC_REFRESH {
    */
   int8_t *map;
   /*!
-   * Threshold applied to the projected rate of the coding block,
-   * when deciding whether block should be refreshed.
-   */
-  int64_t thresh_rate_sb;
-  /*!
-   * Threshold applied to the projected distortion of the coding block,
-   * when deciding whether block should be refreshed.
-   */
-  int64_t thresh_dist_sb;
-  /*!
    * Threshold applied to the motion vector (in units of 1/8 pel) of the
    * coding block, when deciding whether block should be refreshed.
    */
@@ -197,8 +187,6 @@ void av1_cyclic_reset_segment_skip(const struct AV1_COMP *cpi,
  * \param[in]   mi_row    Row coordinate of the block in a step size of MI_SIZE
  * \param[in]   mi_col    Col coordinate of the block in a step size of MI_SIZE
  * \param[in]   bsize     Block size
- * \param[in]   rate      Projected block rate from pickmode
- * \param[in]   dist      Projected block dist from pickmode
  * \param[in]   skip      Skip flag set from picmode
  * \param[in]   dry_run   A code indicating whether it is part of the final
  *                         pass for reconstructing the superblock
@@ -208,8 +196,7 @@ void av1_cyclic_reset_segment_skip(const struct AV1_COMP *cpi,
  */
 void av1_cyclic_refresh_update_segment(const struct AV1_COMP *cpi,
                                        MACROBLOCK *const x, int mi_row,
-                                       int mi_col, BLOCK_SIZE bsize,
-                                       int64_t rate, int64_t dist, int skip,
+                                       int mi_col, BLOCK_SIZE bsize, int skip,
                                        RUN_TYPE dry_run);
 
 /*!\brief Initialize counters used for cyclic refresh.
