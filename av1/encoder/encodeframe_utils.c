@@ -263,7 +263,6 @@ void av1_update_state(const AV1_COMP *const cpi, ThreadData *td,
     if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
         !cpi->rc.rtc_external_ratectrl) {
       av1_cyclic_refresh_update_segment(cpi, x, mi_row, mi_col, bsize,
-                                        ctx->rd_stats.rate, ctx->rd_stats.dist,
                                         txfm_info->skip_txfm, dry_run);
     }
     if (mi_addr->uv_mode == UV_CFL_PRED && !is_cfl_allowed(xd))
