@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8100c6df_3c96a958",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 3911,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-04T17:05:39Z",
+      "side": 1,
+      "message": "is this change related \u0026 necessary to this specific problem?",
+      "range": {
+        "startLine": 3911,
+        "startChar": 10,
+        "endLine": 3911,
+        "endChar": 58
+      },
+      "revId": "22ba051bc39d2263bfbe61325fd6435812f56ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57cf3523_07c9e87e",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1809,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-04T17:05:39Z",
+      "side": 1,
+      "message": "remove this empty line",
+      "revId": "22ba051bc39d2263bfbe61325fd6435812f56ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
