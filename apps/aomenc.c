@@ -178,6 +178,7 @@ static const int av1_arg_ctrl_map[] = { AOME_SET_CPUUSED,
                                         AV1E_SET_ENABLE_INTRABC,
                                         AV1E_SET_ENABLE_ANGLE_DELTA,
                                         AV1E_SET_DISABLE_TRELLIS_QUANT,
+                                        AV1E_SET_DISABLE_SCENECUT_DETECTION,
                                         AV1E_SET_ENABLE_QM,
                                         AV1E_SET_QM_MIN,
                                         AV1E_SET_QM_MAX,
@@ -380,6 +381,7 @@ const arg_def_t *av1_ctrl_args[] = {
   &g_av1_codec_arg_defs.enable_intrabc,
   &g_av1_codec_arg_defs.enable_angle_delta,
   &g_av1_codec_arg_defs.disable_trellis_quant,
+  &g_av1_codec_arg_defs.disable_scenecut_detection,
   &g_av1_codec_arg_defs.enable_qm,
   &g_av1_codec_arg_defs.qm_min,
   &g_av1_codec_arg_defs.qm_max,
@@ -581,6 +583,7 @@ static void init_config(cfg_options_t *config) {
   config->max_partition_size = 128;
   config->min_partition_size = 4;
   config->disable_trellis_quant = 3;
+  config->disable_scenecut_detection = 0;
 }
 
 /* Parses global config arguments into the AvxEncoderConfig. Note that
@@ -1392,6 +1395,7 @@ static void show_stream_config(struct stream_state *stream,
     SHOW_PARAMS(disable_inter_intra_wedge);
     SHOW_PARAMS(disable_paeth_intra);
     SHOW_PARAMS(disable_trellis_quant);
+    SHOW_PARAMS(disable_scenecut_detection);
     SHOW_PARAMS(disable_ref_frame_mv);
     SHOW_PARAMS(reduced_reference_set);
     SHOW_PARAMS(reduced_tx_type_set);

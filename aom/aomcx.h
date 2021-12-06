@@ -1414,6 +1414,14 @@ enum aome_enc_control_id {
   // Any new encoder control IDs should be added above.
   // Maximum allowed encoder control ID is 229.
   // No encoder control ID should be added below.
+
+  /*!\brief Codec control function to disable scene cut detection,
+   * unsigned int parameter
+   *
+   * - 0 = enable scenecut detection
+   * - 1 = disable scenecut detection
+   */
+  AV1E_SET_DISABLE_SCENECUT_DETECTION = 153,
 };
 
 /*!\brief aom 1-D scaling mode
@@ -1985,6 +1993,8 @@ AOM_CTRL_USE_TYPE(AV1E_SET_AUTO_INTRA_TOOLS_OFF, unsigned int)
 AOM_CTRL_USE_TYPE(AV1E_SET_RTC_EXTERNAL_RC, int)
 #define AOM_CTRL_AV1E_SET_RTC_EXTERNAL_RC
 
+AOM_CTRL_USE_TYPE(AV1E_SET_DISABLE_SCENECUT_DETECTION, unsigned int)
+#define AOM_CTRL_AV1E_SET_DISABLE_SCENECUT_DETECTION
 /*!\endcond */
 /*! @} - end defgroup aom_encoder */
 #ifdef __cplusplus

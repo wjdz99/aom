@@ -669,6 +669,10 @@ void av1_change_config_seq(struct AV1_PRIMARY *ppi,
 #endif
 
   set_primary_rc_buffer_sizes(oxcf, ppi);
+
+  ppi->p_rc.enable_scenecut_detection =
+    oxcf->algo_cfg.disable_scenecut_detection ?
+    DISABLE_SCENECUT : ppi->p_rc.enable_scenecut_detection;
 }
 
 void av1_change_config(struct AV1_COMP *cpi, const AV1EncoderConfig *oxcf,
@@ -913,6 +917,9 @@ AV1_PRIMARY *av1_create_primary_compressor(
       // Disable scenecut when lag_in_frames < 19.
       ppi->p_rc.enable_scenecut_detection = DISABLE_SCENECUT;
     }
+  }
+  if (oxcf->algo_cfg.disable_scenecut_detection) {
+    ppi->p_rc.enable_scenecut_detection = DISABLE_SCENECUT;
   }
 
 #define BFP(BT, SDF, SDAF, VF, SVF, SVAF, SDX4DF, JSDAF, JSVAF) \
