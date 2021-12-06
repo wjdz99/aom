@@ -219,6 +219,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "16119351_5232e3d4",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 26
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-06T19:23:57Z",
+      "side": 1,
+      "message": "sorry I didn\u0027t check these, it was just the second case I saw. What about line 106?\noxcf-\u003erc_cfg.target_bandwidth \u003d 1000 * rc_cfg.target_bandwidth;",
+      "parentUuid": "57ad762c_9f073020",
+      "range": {
+        "startLine": 126,
+        "startChar": 47,
+        "endLine": 126,
+        "endChar": 67
+      },
+      "revId": "46cee7424f8d5dc2ab596ca57ae2f401292da5f3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9bd52463_91310d44",
         "filename": "av1/ratectrl_rtc.h",
         "patchSetId": 26
