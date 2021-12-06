@@ -824,6 +824,13 @@ typedef struct {
   int disable_trellis_quant;
 
   /*!
+   * Indicates the scene cut detection.
+   * 0: enabled
+   * 1: disabled
+   */
+  int disable_scenecut_detection;
+
+  /*!
    * The maximum number of frames used to create an arf.
    */
   int arnr_max_frames;
