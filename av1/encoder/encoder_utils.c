@@ -501,7 +501,7 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         intra_cost_base += 
           log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
         mc_dep_cost_base +=
-            log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
+            log(2 * (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
         cbcmp_base += cbcmp;
       }
     }

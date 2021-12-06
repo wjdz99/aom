@@ -1998,7 +1998,7 @@ double av1_tpl_get_frame_importance(const TplParams *tpl_data,
                  this_stats->mc_dep_dist);
       intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
       mc_dep_cost_base +=
-          log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
+          log(2 * (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
       cbcmp_base += cbcmp;
     }
   }
