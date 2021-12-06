@@ -163,6 +163,7 @@ typedef struct av1_codec_arg_definitions {
   arg_def_t enable_intrabc;
   arg_def_t enable_angle_delta;
   arg_def_t disable_trellis_quant;
+  arg_def_t disable_scenecut_detection;
   arg_def_t enable_qm;
   arg_def_t qm_min;
   arg_def_t qm_max;
