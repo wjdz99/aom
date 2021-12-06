@@ -111,6 +111,8 @@ void av1_update_layer_context_change_config(AV1_COMP *const cpi,
           (int64_t)(p_rc->starting_buffer_level * bitrate_alloc);
       lp_rc->optimal_buffer_level =
           (int64_t)(p_rc->optimal_buffer_level * bitrate_alloc);
+      // printf("lp_rc optimal_buffer_level %ld alloc %f\n",
+      // p_rc->optimal_buffer_level, bitrate_alloc);
       lp_rc->maximum_buffer_size =
           (int64_t)(p_rc->maximum_buffer_size * bitrate_alloc);
       lp_rc->bits_off_target =
@@ -118,7 +120,8 @@ void av1_update_layer_context_change_config(AV1_COMP *const cpi,
       lp_rc->buffer_level =
           AOMMIN(lp_rc->buffer_level, lp_rc->maximum_buffer_size);
       lc->framerate = cpi->framerate / lc->framerate_factor;
-      lrc->avg_frame_bandwidth = (int)(lc->target_bandwidth / lc->framerate);
+      lrc->avg_frame_bandwidth =
+          (int)round(lc->target_bandwidth / lc->framerate);
       lrc->max_frame_bandwidth = rc->max_frame_bandwidth;
       lrc->worst_quality = av1_quantizer_to_qindex(lc->max_q);
       lrc->best_quality = av1_quantizer_to_qindex(lc->min_q);
@@ -145,7 +148,7 @@ void av1_update_temporal_layer_framerate(AV1_COMP *const cpi) {
   RATE_CONTROL *const lrc = &lc->rc;
   const int tl = svc->temporal_layer_id;
   lc->framerate = cpi->framerate / lc->framerate_factor;
-  lrc->avg_frame_bandwidth = (int)(lc->target_bandwidth / lc->framerate);
+  lrc->avg_frame_bandwidth = (int)round(lc->target_bandwidth / lc->framerate);
   lrc->max_frame_bandwidth = cpi->rc.max_frame_bandwidth;
   // Update the average layer frame size (non-cumulative per-frame-bw).
   if (tl == 0) {
@@ -158,8 +161,8 @@ void av1_update_temporal_layer_framerate(AV1_COMP *const cpi) {
         cpi->framerate / lcprev->framerate_factor;
     const int64_t prev_layer_target_bandwidth = lcprev->layer_target_bitrate;
     lc->avg_frame_size =
-        (int)((lc->target_bandwidth - prev_layer_target_bandwidth) /
-              (lc->framerate - prev_layer_framerate));
+        (int)round((lc->target_bandwidth - prev_layer_target_bandwidth) /
+                   (lc->framerate - prev_layer_framerate));
   }
 }
 
