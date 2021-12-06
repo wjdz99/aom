@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "81d70577_5a0309a0",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 3911,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-12-06T19:26:37Z",
+      "side": 1,
+      "message": "Yes this change is the one that fixes the issue of the assert being triggered. The issue is that golden is set as the only reference (in svc control), but it still gets removed relative to last, even though last is not set as reference. This can be triggered in the svc (3SL,3TL) unittest on the first frame (SL1), after the first key frame.",
+      "parentUuid": "8100c6df_3c96a958",
+      "range": {
+        "startLine": 3911,
+        "startChar": 10,
+        "endLine": 3911,
+        "endChar": 58
+      },
+      "revId": "22ba051bc39d2263bfbe61325fd6435812f56ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "57cf3523_07c9e87e",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 1
@@ -37,6 +61,24 @@
       "writtenOn": "2021-12-04T17:05:39Z",
       "side": 1,
       "message": "remove this empty line",
+      "revId": "22ba051bc39d2263bfbe61325fd6435812f56ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cbfa594_8ae6b08d",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1809,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2021-12-06T19:26:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57cf3523_07c9e87e",
       "revId": "22ba051bc39d2263bfbe61325fd6435812f56ed0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
