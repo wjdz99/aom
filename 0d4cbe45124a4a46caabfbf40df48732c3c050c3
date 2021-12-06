@@ -33,6 +33,24 @@
       "message": "what is the purpose of this change? also for this statement \"Currently this requires enable-tpl-model as a prerequisite.\", does it applies to all deltaq mode? for HDR based deltaq adjustment, enable-tpl-model is not needed.",
       "revId": "0d4cbe45124a4a46caabfbf40df48732c3c050c3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de258153_91ea684a",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 522,
+      "author": {
+        "id": 21182
+      },
+      "writtenOn": "2021-12-06T19:02:17Z",
+      "side": 1,
+      "message": "The purpose of this change is to add the description of the deltaq-mode\u003d5 for HDR BT2020 streams in aomenc-av1, since it was present in the code documentation, but not in the user-facing encoder.\n\nAs for the temporal dependency model as a prerequisite, it applies to dq\u003d1 and dq\u003d2, not dq3-dq4-dq5, since dq3-dq4 are psycho-visual deltaq modes which only apply to intra use cases. dq\u003d5 does not have any temporal component, so tpl-model isn\u0027t required.\n\nThe statement \"Currently this requires enable-tpl-model as a prerequisite.\" was there all along and never modified, which is why it is still there. \n\nI guess I could add that only dq\u003d1 and dq\u003d2(currently WIP) utilize the tpl-model.",
+      "parentUuid": "b4a4ffd4_c51093ef",
+      "revId": "0d4cbe45124a4a46caabfbf40df48732c3c050c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
