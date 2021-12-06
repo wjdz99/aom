@@ -437,6 +437,9 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
       "Disable trellis optimization of quantized coefficients (0: false "
       "1: true  2: true for rd search 3: true for estimate yrd serch "
       "(default))"),
+  .disable_scenecut_detection =
+      ARG_DEF(NULL, "disable-scenecut-detection", 1,
+              "Disable scenecut detection (0: false (default), 1: true)"),
   .enable_qm =
       ARG_DEF(NULL, "enable-qm", 1,
               "Enable quantisation matrices (0: false (default), 1: true)"),

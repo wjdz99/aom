@@ -354,6 +354,10 @@ typedef struct cfg_options {
    *
    */
   unsigned int reduced_tx_type_set;
+  /*!\brief disable scenecut_detection
+   *
+   */
+  unsigned int disable_scenecut_detection;
 } cfg_options_t;
 
 /*!\brief Encoded Frame Flags
