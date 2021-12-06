@@ -52,6 +52,24 @@
       "parentUuid": "67df1383_e333d343",
       "revId": "e3ffac7aef84af8c7d98096b99959e41f2852e1c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a18a5bbe_8a85038b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-06T19:19:12Z",
+      "side": 1,
+      "message": "\u003e Why do you care about library size? It would not have any file size impact for the default build. The binary size only increases when -DCONFIG_TFLITE is enabled.\n\nMostly because if it is to ever be used outside of an experiment then the size impact would be good to know. An extra dependency on tflite might be difficult to ship by default, however.",
+      "parentUuid": "f48782ea_a3269f91",
+      "revId": "e3ffac7aef84af8c7d98096b99959e41f2852e1c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
