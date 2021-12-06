@@ -88,7 +88,7 @@ int aom_arm_cpu_caps(void) {
 }
 
 #elif defined(__ANDROID__) /* end _MSC_VER */
-#include <cpu-features.h>
+#include "cpu-features.h"
 
 int aom_arm_cpu_caps(void) {
   int flags;
