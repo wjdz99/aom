@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd5420a4_a95ad207",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-12-06T08:06:26Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Paul and Yunqing,\n\nThis CL adds an early return in intra_rd_variance_factor() when the variance threshold is non-positive for speed\u003e\u003d4.  In the intra_rd_variance_factor() function, variance_rd_factor evaluates to 1 for speed \u003e\u003d 4 as final values of src_var/rec_var are positive. Hence the relevant calculations are skipped for speed \u003e\u003d 4 in this CL.\n\nWe had submitted patch set 1(of current CL) as a dependent patch for the CL https://aomedia-review.googlesource.com/c/aom/+/149541. As the parent CL had overflow issues, we rebased the current CL and submitted it as patch set 2 by removing the dependency with the previously mentioned CL.\n\nThis change is bit-exact and is applicable for speed \u003e\u003d 4 (as threshold is \u003c\u003d 0 for these speed presets). We validated this patch for allintra video and still-image encode. Following are instruction count/encode time reduction results when AVIF encode was tested for a typical image dataset. Bit-match is verified for speed presets 0 to 3.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n              Instruction Count\n               / Encode Time   \t  BD-Rate Loss(%)      \n       speed     Reduction(%)  \t  psnr     ssim    \n         4          4.241      \t  0.0000   0.0000\n         5          4.983      \t  0.0000   0.0000\n         6          4.292      \t  0.0000   0.0000\n         7          3.860      \t  0.0000   0.0000\n         8          2.022         0.0000   0.0000\n         9          0.000         0.0000   0.0000\n\nIn the above speed data, instruction count reduction is quoted for speed \u003c 6 and encode-time reduction is quoted for speed \u003e\u003d 6.  Following are the instruction count reduction results when tested for libaom allintra encode (50 frames) using a borg setup. Bit-match is verified for speed presets 0 to 3.\n\n             Instruction Count      BD-Rate Loss(%)      \n       speed   Reduction(%)    avg.psnr  ovr.psnr   ssim       \n         4        3.738        0.0000    0.0000     0.0000\n         5        4.416        0.0000    0.0000     0.0000\n         6        3.025\t       0.0000    0.0000     0.0000\n         7        2.420        0.0000    0.0000     0.0000\n         8        1.221        0.0000    0.0000     0.0000\n         9        0.000        0.0000    0.0000     0.0000\n\n\t\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the above results, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nMudassir.\n",
+      "revId": "2791256b47535f2b83bd59904eb860be1e28aa0c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
