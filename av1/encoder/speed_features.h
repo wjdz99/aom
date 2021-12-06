@@ -1193,6 +1193,10 @@ typedef struct WINNER_MODE_SPEED_FEATURES {
   // performs it during winner mode processing by \ref
   // tx_search_best_inter_candidates.
   int winner_mode_ifs;
+
+  // If on, disables transform refinement for winner mode if the normal mode
+  // evaluation resulted in transform skip.
+  int disable_winner_mode_eval_for_txskip;
 } WINNER_MODE_SPEED_FEATURES;
 
 typedef struct LOOP_FILTER_SPEED_FEATURES {
