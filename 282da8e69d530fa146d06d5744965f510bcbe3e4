@@ -51,6 +51,23 @@
       "parentUuid": "6145506a_63102780",
       "revId": "282da8e69d530fa146d06d5744965f510bcbe3e4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "229f119f_e7ee0bf3",
+        "filename": "build/cmake/aom_config_defaults.cmake",
+        "patchSetId": 5
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-06T19:50:45Z",
+      "side": 1,
+      "message": "If you include the words \"AV1...experiment(al)\" in the description this will get built automatically by:\nhttps://build.aomedia.org/jenkins/job/libaom__compile_experiments",
+      "revId": "282da8e69d530fa146d06d5744965f510bcbe3e4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
