@@ -715,7 +715,6 @@ static aom_codec_err_t decoder_decode(aom_codec_alg_priv_t *ctx,
 
     res = decode_one(ctx, &data_start, (size_t)frame_size, user_priv);
     if (res != AOM_CODEC_OK) return res;
-
     // Allow extra zero bytes after the frame end
     while (data_start < data_end) {
       const uint8_t marker = data_start[0];

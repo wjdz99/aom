@@ -215,7 +215,7 @@ void EncoderTest::RunLoop(VideoSource *video) {
 #endif
 
     number_spatial_layers_ = GetNumSpatialLayers();
-
+    std::cout << number_spatial_layers_ << std::endl;
     bool again;
     for (again = true; again; video->Next()) {
       again = (video->img() != NULL);

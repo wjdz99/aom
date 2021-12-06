@@ -237,6 +237,8 @@ static void update_layer_buffer_level(SVC *svc, int encoded_frame_size) {
     // Clip buffer level to maximum buffer size for the layer.
     lp_rc->bits_off_target =
         AOMMIN(lp_rc->bits_off_target, lp_rc->maximum_buffer_size);
+    // printf("bits off target %ld %f %d\n", lc->target_bandwidth,
+    // lc->framerate, encoded_frame_size);
     lp_rc->buffer_level = lp_rc->bits_off_target;
   }
 }
@@ -807,6 +809,11 @@ static int find_closest_qindex_by_rate(int desired_bits_per_mb,
 int av1_rc_regulate_q(const AV1_COMP *cpi, int target_bits_per_frame,
                       int active_best_quality, int active_worst_quality,
                       int width, int height) {
+  printf(
+      "spatial %d temporal %d target %d worst %d best %d width %d height %d\n",
+      cpi->svc.spatial_layer_id, cpi->svc.temporal_layer_id,
+      target_bits_per_frame, active_worst_quality, active_best_quality, width,
+      height);
   const int MBs = av1_get_MBs(width, height);
   const double correction_factor =
       get_rate_correction_factor(cpi, width, height);
@@ -924,6 +931,7 @@ static int calc_active_worst_quality_no_stats_cbr(const AV1_COMP *cpi) {
   int adjustment = 0;
   int active_worst_quality;
   int ambient_qp;
+  printf("rc worst quality %d\n", rc->worst_quality);
   if (cm->current_frame.frame_type == KEY_FRAME) return rc->worst_quality;
   // For ambient_qp we use minimum of avg_frame_qindex[KEY_FRAME/INTER_FRAME]
   // for the first few frames following key frame. These are both initialized
@@ -2229,7 +2237,7 @@ void av1_rc_update_framerate(AV1_COMP *cpi, int width, int height) {
   const int MBs = av1_get_MBs(width, height);
 
   rc->avg_frame_bandwidth =
-      (int)(oxcf->rc_cfg.target_bandwidth / cpi->framerate);
+      (int)round(oxcf->rc_cfg.target_bandwidth / cpi->framerate);
   rc->min_frame_bandwidth =
       (int)(rc->avg_frame_bandwidth * oxcf->rc_cfg.vbrmin_section / 100);
 
@@ -2395,6 +2403,8 @@ int av1_calc_pframe_target_size_one_pass_cbr(
   } else {
     target = rc->avg_frame_bandwidth;
   }
+  // printf("target size %d avg frame bandwidth %d\n", target,
+  // rc->avg_frame_bandwidth);
   if (cpi->ppi->use_svc) {
     // Note that for layers, avg_frame_bandwidth is the cumulative
     // per-frame-bandwidth. For the target size of this frame, use the
@@ -2405,7 +2415,10 @@ int av1_calc_pframe_target_size_one_pass_cbr(
     const LAYER_CONTEXT *lc = &cpi->svc.layer_context[layer];
     target = lc->avg_frame_size;
     min_frame_target = AOMMAX(lc->avg_frame_size >> 4, FRAME_OVERHEAD_BITS);
+    // printf("target 2 size %d avg frame bandwidth %d\n", target,
+    // lc->avg_frame_size);
   }
+
   if (diff > 0) {
     // Lower the target bandwidth for this frame.
     const int pct_low =
@@ -2430,6 +2443,7 @@ int av1_calc_iframe_target_size_one_pass_cbr(const AV1_COMP *cpi) {
   const PRIMARY_RATE_CONTROL *p_rc = &cpi->ppi->p_rc;
   int target;
   if (cpi->common.current_frame.frame_number == 0) {
+    // printf("starting level %ld\n", p_rc->starting_buffer_level);
     target = ((p_rc->starting_buffer_level / 2) > INT_MAX)
                  ? INT_MAX
                  : (int)(p_rc->starting_buffer_level / 2);
