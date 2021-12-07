@@ -2749,7 +2749,7 @@ static int set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
   const int resize_pending = is_frame_resize_pending(cpi);
   // GF update based on frames_till_gf_update_due, also
   // force upddate on resize pending frame or for scene change.
-  if ((resize_pending || rc->high_source_sad ||
+  if ((resize_pending || // rc->high_source_sad ||
        rc->frames_till_gf_update_due == 0) &&
       cpi->svc.temporal_layer_id == 0 && cpi->svc.spatial_layer_id == 0) {
     set_baseline_gf_interval(cpi, frame_type);
