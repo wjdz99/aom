@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69c77e1e_dd4e1bcb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2021-12-07T02:08:03Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch introduces a speed feature disable_winner_mode_eval_for_txskip in speed \u003e\u003d 3 to bypass winner mode transform refinement if the normal mode chooses a transform skip. \n\nSince in speed \u003e\u003d 4, the normal mode transform search was done aggressively, in order to make the normal mode evaluation more accurate so that its decision of transform skip can be reliably used to bypass winner mode refinement, the speed feature tx_domain_dist_thres_level is set to 1 (similar to that in speed 3). In addition, in speed \u003e\u003d 4, since the normal mode uses aggressive coeff_opt_thresholds, the bypassing of winner mode refinement is disabled at low quantizers (qindex \u003c\u003d 70).\n\nIn speed 3, since the normal mode transform search is already conservative, the bypassing of winner mode refinement based on transform skip is enabled for all cases in non-boosted frames.\n\nPlease find the borg results below.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   3     |  LOWRES2   |       1.531       |  0.0224    0.0374    0.0049  |\n   3     |  MIDRES2   |       1.035       |  0.0028    0.0018   -0.0431  |\n   3     |   HDRES2   |       0.888       |  0.0288    0.0334   -0.0755  |\n   3     |  Average   |       1.151       |  0.0195    0.0246   -0.0371  |\n         |            |                   |                              |\n   4     |  LOWRES2   |       1.290       | -0.2018   -0.1320   -0.2915  |\n   4     |  MIDRES2   |       1.087       | -0.1308   -0.0988   -0.2583  |\n   4     |   HDRES2   |       1.395       | -0.0813   -0.0476   -0.3234  |\n   4     |  Average   |       1.257       | -0.1407   -0.0953   -0.2945  |\n         |            |                   |                              |\n   5     |  LOWRES2   |       2.233       |  0.2142    0.3687   -0.3402  |\n   5     |  MIDRES2   |       1.625       | -0.0593    0.0561   -0.3745  |\n   5     |   HDRES2   |       1.634       |  0.0743    0.1508   -0.2616  |\n   5     |  Average   |       1.831       |  0.0608    0.1759   -0.3232  |\n         |            |                   |                              |\n   6     |  LOWRES2   |       1.867       |  0.3101    0.4871   -0.4476  |\n   6     |  MIDRES2   |       1.686       |  0.2027    0.3683   -0.4332  |\n   6     |   HDRES2   |       1.893       |  0.1888    0.2251   -0.2977  |\n   6     |  Average   |       1.815       |  0.2255    0.3508   -0.3921  |\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease note that the results correspond to patchset 1. Patchset2 has been rebased to avoid merge conflict.\n   \nIn speed \u003e\u003d 4, we observed some max quality drops and max quality gains as follows (ovr psnr).\nSpeed 4: max drops: 1.81% (sunflower_720p25), 1.44% (shields_720p50), max gains: -2.4% (station2_1080p25) plus 4 other clips with gains above -1%\nSpeed 5: max drops: 1.86% (parkjoy_1080p50), plus 7 other clips with drop above 1%, max gains: -2.4% (netflix_aerial) plus 6 other clips with gains above -1%\nSpeed 6: max drops: 1.6% (ToddlerFountain_426x240_60fps_8bit) plus several other clips with drops above 1% (only one hdres clip had drop above 1%), max gains: -1.88% (netflix_aerial) plus 3 other clips with gains above -1%\n\nFor other speed levels, this is a bit-exact change with no speed impact (verified on a few clips).\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "847a29b181ed2e5a948bfd8b5afe45583cdd74d7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
