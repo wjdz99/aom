@@ -2719,7 +2719,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
     // between current and previous frame value(s). Use minimum threshold
     // for cases where there is small change from content that is completely
     // static.
-    if (!light_change &&
+    if (0 && !light_change &&
         avg_sad >
             AOMMAX(min_thresh, (unsigned int)(rc->avg_source_sad * thresh)) &&
         rc->frames_since_key > 1 + cpi->svc.number_spatial_layers &&
