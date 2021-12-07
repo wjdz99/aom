@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf2d3d94_8176665f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-07T19:21:59Z",
+      "side": 1,
+      "message": "Thanks for the modification.",
+      "revId": "3af6c224ddf9f39e81c3d4c67782be39ae1974f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ac28cad_84420e50",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-07T19:21:59Z",
+      "side": 1,
+      "message": "Please choose \"off\" as the default.",
+      "range": {
+        "startLine": 301,
+        "startChar": 46,
+        "endLine": 301,
+        "endChar": 52
+      },
+      "revId": "3af6c224ddf9f39e81c3d4c67782be39ae1974f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "557bc899_4500d8c1",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-07T19:21:59Z",
+      "side": 1,
+      "message": "Let\u0027s set it to 0 at the beginning.",
+      "range": {
+        "startLine": 355,
+        "startChar": 2,
+        "endLine": 355,
+        "endChar": 3
+      },
+      "revId": "3af6c224ddf9f39e81c3d4c67782be39ae1974f5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
