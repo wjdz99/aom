@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d419a7a_a48ad650",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1146,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-07T01:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "adf94f3b_070efca8",
+      "revId": "5f7c5fa4a865675ed2376c6f45c3d75d568944a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d203c4d8_d4dd95be",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-12-07T01:13:33Z",
       "side": 1,
       "message": "might be the same issue here",
+      "revId": "5f7c5fa4a865675ed2376c6f45c3d75d568944a4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c080732_8993a101",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2021-12-07T01:49:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d203c4d8_d4dd95be",
       "revId": "5f7c5fa4a865675ed2376c6f45c3d75d568944a4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
