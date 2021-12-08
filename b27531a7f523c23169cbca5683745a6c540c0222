@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72c2f33e_2dc37a42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2021-12-08T17:42:35Z",
+      "side": 1,
+      "message": "looks good to me. but need to make sure no build failure.",
+      "revId": "b27531a7f523c23169cbca5683745a6c540c0222",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
