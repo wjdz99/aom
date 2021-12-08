@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch extends SF - winner_mode_tx_type_pruning and enable_winner_mode_for_tx_size_srch from speed-3 to speed-2 for non-boosted frames. These SFs are enabled only for resolutions \u003c 480p. Please find the detailed borg results below,\n\n               Instruction Count        BD-Rate Loss(%)\ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 2     LOWRES2      4.340        -0.0896    -0.1026   -0.2241\n 2     MIDRES2     -0.007         0.0007     0.0005    0.0020\n 2     HDRES2       0.000         0.0000     0.0000    0.0000\n 2     Average      1.444        -0.0296    -0.0340   -0.0741\n\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc … \n\nPlease note that stats changed observed for a content (shields_640x360_60) in midres since clip height \u003c 480. For the content we ensured that result is within trade-off. We also verified bitmatch for other speed levels.\n\nPlease review the patch.\nThanks",
       "revId": "63baf0e9f3bd35ad7091ec1e92a5e640af90423e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "382041fe_e362995d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-08T16:06:58Z",
+      "side": 1,
+      "message": "Nice speedup and tradeoff for lowres. Thanks.",
+      "parentUuid": "d3070cef_fab63ef1",
+      "revId": "63baf0e9f3bd35ad7091ec1e92a5e640af90423e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
