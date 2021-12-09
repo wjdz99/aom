@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2661c4b0_6533feda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-12-09T16:05:38Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch modifies test.cmake to correctly add the file \u0027frame_parallel_enc_test.cc\u0027 and thereby fix a build time warning (BUG\u003daomedia:3202) seen when fpmt configuration macros (CONFIG_FRAME_PARALLEL_ENCODE and CONFIG_FPMT_TEST) are disabled. \n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "b00908231009ac84ccb7dbe3a2d2a8d5bd43c1c5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
