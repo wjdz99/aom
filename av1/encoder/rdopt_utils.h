@@ -462,25 +462,8 @@ static INLINE void set_tx_type_prune(const SPEED_FEATURES *sf,
 static INLINE void set_tx_domain_dist_params(
     const WinnerModeParams *winner_mode_params, TxfmSearchParams *txfm_params,
     int enable_winner_mode_for_tx_domain_dist, int is_winner_mode) {
-  if (!enable_winner_mode_for_tx_domain_dist) {
-    txfm_params->use_transform_domain_distortion =
-        winner_mode_params->use_transform_domain_distortion[DEFAULT_EVAL];
-    txfm_params->tx_domain_dist_threshold =
-        winner_mode_params->tx_domain_dist_threshold[DEFAULT_EVAL];
-    return;
-  }
-
-  if (is_winner_mode) {
-    txfm_params->use_transform_domain_distortion =
-        winner_mode_params->use_transform_domain_distortion[WINNER_MODE_EVAL];
-    txfm_params->tx_domain_dist_threshold =
-        winner_mode_params->tx_domain_dist_threshold[WINNER_MODE_EVAL];
-  } else {
-    txfm_params->use_transform_domain_distortion =
-        winner_mode_params->use_transform_domain_distortion[MODE_EVAL];
-    txfm_params->tx_domain_dist_threshold =
-        winner_mode_params->tx_domain_dist_threshold[MODE_EVAL];
-  }
+  txfm_params->use_transform_domain_distortion = 1;
+  txfm_params->tx_domain_dist_threshold = 0;
 }
 
 // This function sets mode parameters for different mode evaluation stages
