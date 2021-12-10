@@ -43,8 +43,7 @@ enum {
 enum {
   NO_TRELLIS_OPT,          // No trellis optimization
   FULL_TRELLIS_OPT,        // Trellis optimization in all stages
-  FINAL_PASS_TRELLIS_OPT,  // Trellis optimization in only the final encode pass
-  NO_ESTIMATE_YRD_TRELLIS_OPT  // Disable trellis in estimate_yrd_for_sb
+  FINAL_PASS_TRELLIS_OPT   // Trellis optimization in only the final encode pass
 } UENUM1BYTE(TRELLIS_OPT_TYPE);
 
 struct optimize_ctx {

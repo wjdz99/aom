@@ -692,7 +692,6 @@ enum aome_enc_control_id {
    * - 0 = apply trellis quantization (default)
    * - 1 = do not apply trellis quantization
    * - 2 = disable trellis quantization in rd search
-   * - 3 = disable trellis quantization in estimate yrd
    */
   AV1E_SET_DISABLE_TRELLIS_QUANT = 62,
 
