@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ba49e06_11f4503b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-12-10T18:28:30Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch adds a configuration parameter AV1E_SET_FP_MT_UNIT_TEST which can be set via control calls from the fpmt unit test to select actual parallel encode (PARALLEL_ENCODE) or simulation of parallel encode (PARALLEL_SIMULATION_ENCODE) for the bit match test.\n\nThis patch also modifies the speed presets and tile configurations used in \u0027AVxFrameParallelEncodeHDResTest\u0027 and\n\u0027AVxFrameParallelEncodeLowResTest\u0027 and marks them as Large tests since considerable time is taken to complete these runs. A new test \u0027AVxFrameParallelEncodeLowResTest\u0027 with higher speed presets and single tile configuration is also added. Currently speed 1 is excluded from the tests as we have seen a mismatch. We shall fix the same and then update the tests to include speed 1.\n\nWe have tested this unit test with address, thread, undefined and integer sanitizers.\n\nPlease review.\n\nRegards,\nRemya",
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
