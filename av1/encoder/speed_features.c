@@ -1794,22 +1794,16 @@ static AOM_INLINE void init_tx_sf(TX_SPEED_FEATURES *tx_sf) {
 static AOM_INLINE void init_rd_sf(RD_CALC_SPEED_FEATURES *rd_sf,
                                   const AV1EncoderConfig *oxcf) {
   const int disable_trellis_quant = oxcf->algo_cfg.disable_trellis_quant;
-  if (disable_trellis_quant == 3) {
-    rd_sf->optimize_coefficients = !is_lossless_requested(&oxcf->rc_cfg)
-                                       ? NO_ESTIMATE_YRD_TRELLIS_OPT
-                                       : NO_TRELLIS_OPT;
+  if (is_lossless_requested(&oxcf->rc_cfg)) {
+    rd_sf->optimize_coefficients = NO_TRELLIS_OPT;
+  } else if (disable_trellis_quant == 3) {
+    rd_sf->optimize_coefficients = NO_ESTIMATE_YRD_TRELLIS_OPT;
   } else if (disable_trellis_quant == 2) {
-    rd_sf->optimize_coefficients = !is_lossless_requested(&oxcf->rc_cfg)
-                                       ? FINAL_PASS_TRELLIS_OPT
-                                       : NO_TRELLIS_OPT;
-  } else if (disable_trellis_quant == 0) {
-    if (is_lossless_requested(&oxcf->rc_cfg)) {
-      rd_sf->optimize_coefficients = NO_TRELLIS_OPT;
-    } else {
-      rd_sf->optimize_coefficients = FULL_TRELLIS_OPT;
-    }
+    rd_sf->optimize_coefficients = FINAL_PASS_TRELLIS_OPT;
   } else if (disable_trellis_quant == 1) {
     rd_sf->optimize_coefficients = NO_TRELLIS_OPT;
+  } else if (disable_trellis_quant == 0) {
+    rd_sf->optimize_coefficients = FULL_TRELLIS_OPT;
   } else {
     assert(0 && "Invalid disable_trellis_quant value");
   }

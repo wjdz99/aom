@@ -439,9 +439,9 @@ const av1_codec_arg_definitions_t g_av1_codec_arg_defs = {
               "Enable intra angle delta (0: false, 1: true (default))"),
   .disable_trellis_quant = ARG_DEF(
       NULL, "disable-trellis-quant", 1,
-      "Disable trellis optimization of quantized coefficients (0: false "
-      "1: true  2: true for rd search 3: true for estimate yrd serch "
-      "(default))"),
+      "Disable trellis optimization of quantized coefficients (0: trellis "
+      "enabled, 1: trellis disabled, 2: trellis disabled for rd search, 3: "
+      "trellis disabled for estimate yrd serch (default))"),
   .enable_qm =
       ARG_DEF(NULL, "enable-qm", 1,
               "Enable quantisation matrices (0: false (default), 1: true)"),

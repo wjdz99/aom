@@ -816,10 +816,10 @@ typedef struct {
 
   /*!
    * Indicates the trellis optimization mode of quantized coefficients.
-   * 0: disabled
-   * 1: enabled
-   * 2: enabled for rd search
-   * 3: true for estimate yrd search
+   * 0: apply trellis quantization
+   * 1: do not apply trellis quantization
+   * 2: disable trellis quantization in rd search
+   * 3: disable trellis quantization in estimate yrd
    */
   int disable_trellis_quant;
 
