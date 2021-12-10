@@ -586,7 +586,7 @@ static void init_config(cfg_options_t *config) {
   config->super_block_size = 0;  // Dynamic
   config->max_partition_size = 128;
   config->min_partition_size = 4;
-  config->disable_trellis_quant = 3;
+  config->disable_trellis_quant = 0;
 }
 
 /* Parses global config arguments into the AvxEncoderConfig. Note that
