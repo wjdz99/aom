@@ -16,6 +16,69 @@
       "message": "Hi Yunqing,\n\nThis patch adds a configuration parameter AV1E_SET_FP_MT_UNIT_TEST which can be set via control calls from the fpmt unit test to select actual parallel encode (PARALLEL_ENCODE) or simulation of parallel encode (PARALLEL_SIMULATION_ENCODE) for the bit match test.\n\nThis patch also modifies the speed presets and tile configurations used in \u0027AVxFrameParallelEncodeHDResTest\u0027 and\n\u0027AVxFrameParallelEncodeLowResTest\u0027 and marks them as Large tests since considerable time is taken to complete these runs. A new test \u0027AVxFrameParallelEncodeLowResTest\u0027 with higher speed presets and single tile configuration is also added. Currently speed 1 is excluded from the tests as we have seen a mismatch. We shall fix the same and then update the tests to include speed 1.\n\nWe have tested this unit test with address, thread, undefined and integer sanitizers.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d146f24b_49fbae99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-10T19:45:39Z",
+      "side": 1,
+      "message": "Thanks for making the unit test better. Looks good overall.",
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0056b3c_e33159e3",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-10T19:45:39Z",
+      "side": 1,
+      "message": "Should be 0 by default. Only turn it on in unit test file.",
+      "range": {
+        "startLine": 417,
+        "startChar": 2,
+        "endLine": 417,
+        "endChar": 3
+      },
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74038ee8_b011101c",
+        "filename": "test/frame_parallel_enc_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-10T19:45:39Z",
+      "side": 1,
+      "message": "With this change, we still need -DCONFIG_FPMT_TEST\u003d1 in the config, right?",
+      "range": {
+        "startLine": 62,
+        "startChar": 4,
+        "endLine": 62,
+        "endChar": 79
+      },
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
