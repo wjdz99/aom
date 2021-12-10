@@ -2656,6 +2656,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
   last_src_height = unscaled_last_src->y_height;
   if (src_width != last_src_width || src_height != last_src_height) return;
   rc->high_source_sad = 0;
+  rc->med_source_sad = 0;
   rc->prev_avg_source_sad = rc->avg_source_sad;
   if (src_width == last_src_width && src_height == last_src_height) {
     const int num_mi_cols = cm->mi_params.mi_cols;
@@ -2680,7 +2681,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
     int num_low_var_high_sumdiff = 0;
     int light_change = 0;
     // Flag to check light change or not.
-    const int check_light_change = 0;
+    const int check_light_change = 1;
     for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
       for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
         // Checker-board pattern, ignore boundary.
@@ -2723,10 +2724,32 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
         avg_sad >
             AOMMAX(min_thresh, (unsigned int)(rc->avg_source_sad * thresh)) &&
         rc->frames_since_key > 1 + cpi->svc.number_spatial_layers &&
-        num_zero_temp_sad < 3 * (num_samples >> 2))
+        num_zero_temp_sad < 3 * (num_samples >> 2)) {
       rc->high_source_sad = 1;
-    else
+      rc->med_source_sad = 1;
+    } else if (!light_change &&
+        avg_sad >
+            AOMMAX((min_thresh >> 1), (unsigned int)(rc->avg_source_sad * (thresh >> 1))) &&
+        rc->frames_since_key > 1 + cpi->svc.number_spatial_layers &&
+        num_zero_temp_sad < 3 * (num_samples >> 2)) {
+      rc->med_source_sad = 1;
+    } else {
       rc->high_source_sad = 0;
+      rc->med_source_sad= 0;
+    }
+
+    if (rc->med_source_sad) {
+      rc->can_have_gf = 1;
+      rc->frame_distance = 0;
+    } else {
+      rc->frame_distance++;
+    }
+
+    if (rc->frame_distance > 5) {
+      rc->can_have_gf = 0;
+      rc->frame_distance = 0;
+    }
+
     rc->avg_source_sad = (3 * rc->avg_source_sad + avg_sad) >> 2;
   }
   cpi->svc.high_source_sad_superframe = rc->high_source_sad;
@@ -2749,7 +2772,7 @@ static int set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
   const int resize_pending = is_frame_resize_pending(cpi);
   // GF update based on frames_till_gf_update_due, also
   // force upddate on resize pending frame or for scene change.
-  if ((resize_pending || rc->high_source_sad ||
+  if ((resize_pending || rc->high_source_sad || (rc->can_have_gf && rc->frame_distance > 0 && rc->frames_till_gf_update_due < 20) ||
        rc->frames_till_gf_update_due == 0) &&
       cpi->svc.temporal_layer_id == 0 && cpi->svc.spatial_layer_id == 0) {
     set_baseline_gf_interval(cpi, frame_type);

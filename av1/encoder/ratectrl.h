@@ -177,6 +177,9 @@ typedef struct {
   int sframe_due;
 
   int high_source_sad;
+  int med_source_sad;
+  int can_have_gf;
+  int frame_distance;
   uint64_t avg_source_sad;
   uint64_t prev_avg_source_sad;
 
