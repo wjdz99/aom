@@ -2680,7 +2680,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
     int num_low_var_high_sumdiff = 0;
     int light_change = 0;
     // Flag to check light change or not.
-    const int check_light_change = 0;
+    const int check_light_change = 1;
     for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
       for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
         // Checker-board pattern, ignore boundary.
