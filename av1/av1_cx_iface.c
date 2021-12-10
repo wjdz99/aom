@@ -233,7 +233,7 @@ static const struct av1_extracfg default_extra_cfg = {
   0,                                          // enable_restoration
   0,                                          // force_video_mode
   0,                                          // enable_obmc
-  3,                                          // disable_trellis_quant
+  0,                                          // disable_trellis_quant
   0,                                          // enable_qm
   DEFAULT_QM_Y,                               // qm_y
   DEFAULT_QM_U,                               // qm_u
@@ -376,7 +376,7 @@ static const struct av1_extracfg default_extra_cfg = {
   1,                                          // enable_restoration
   0,                                          // force_video_mode
   1,                                          // enable_obmc
-  3,                                          // disable_trellis_quant
+  0,                                          // disable_trellis_quant
   0,                                          // enable_qm
   DEFAULT_QM_Y,                               // qm_y
   DEFAULT_QM_U,                               // qm_u
