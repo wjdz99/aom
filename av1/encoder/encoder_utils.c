@@ -505,7 +505,8 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       tpl_frame->is_valid = 0;
     } else {
       cpi->rd.r0 = (double)intra_cost_base / mc_dep_cost_base;
-      if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) {
+      if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) &&
+          gf_group->update_type[cpi->gf_frame_index] != INTNL_ARF_UPDATE) {
         if (cpi->ppi->lap_enabled) {
           double min_boost_factor = sqrt(cpi->ppi->p_rc.baseline_gf_interval);
           const int gfu_boost = get_gfu_boost_from_r0_lap(
@@ -553,6 +554,7 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
   if (cpi->oxcf.rc_cfg.mode == AOM_Q &&
       cpi->ppi->tpl_data.tpl_frame[cpi->gf_frame_index].is_valid &&
       is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) &&
+      gf_group->update_type[cpi->gf_frame_index] != INTNL_ARF_UPDATE &&
       !is_lossless_requested(&cpi->oxcf.rc_cfg)) {
     const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
     const int tpl_q = av1_tpl_get_q_index(

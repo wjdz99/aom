@@ -3932,7 +3932,7 @@ static INLINE int is_frame_tpl_eligible(const GF_GROUP *const gf_group,
                                         uint8_t index) {
   const FRAME_UPDATE_TYPE update_type = gf_group->update_type[index];
   return update_type == ARF_UPDATE || update_type == GF_UPDATE ||
-         update_type == KF_UPDATE;
+         update_type == KF_UPDATE || update_type == INTNL_ARF_UPDATE;
 }
 
 static INLINE int is_frame_eligible_for_ref_pruning(const GF_GROUP *gf_group,
