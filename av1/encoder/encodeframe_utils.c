@@ -953,6 +953,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   double intra_cost = 0;
   double mc_dep_reg = 0;
   double mc_dep_cost = 0;
+  double nz_count = 0;
   double cbcmp_count = 0;
   const int mi_wide = mi_size_wide[bsize];
   const int mi_high = mi_size_high[bsize];
@@ -992,6 +993,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
       mc_dep_reg +=
           log(2 * (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) *
           cbcmp;
+      nz_count += this_stats->nz_coeff_count;
       mi_count++;
       cbcmp_count += cbcmp;
     }
@@ -1003,8 +1005,10 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   if (mc_dep_cost > 0 && intra_cost > 0) {
     const double r0 = cpi->rd.r0;
     const double rk = exp((intra_cost - mc_dep_cost) / cbcmp_count);
+    nz_count /= mi_count;
+    nz_count = AOMMAX(1.0, nz_count);
     cpi->rd.rb = exp((intra_cost - mc_dep_reg) / cbcmp_count);
-    beta = (r0 / rk);
+    beta = pow((r0 / rk), cpi->rd.nz_count / nz_count);
     assert(beta > 0.0);
   }
   offset = av1_get_deltaq_offset(cm->seq_params->bit_depth, base_qindex, beta);
