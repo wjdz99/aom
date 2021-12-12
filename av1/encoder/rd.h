@@ -82,6 +82,8 @@ typedef struct RD_OPT {
   double r0;
 
   double rb;
+
+  double nz_count;
 } RD_OPT;
 
 static INLINE void av1_init_rd_stats(RD_STATS *rd_stats) {
