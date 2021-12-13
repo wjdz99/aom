@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "26e83bbe_782b3f29",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 988,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-12-13T15:14:34Z",
+      "side": 1,
+      "message": "Yes, the stats are calculated once every 4 rows. The down sampling is done only in the first stage. This ensures that the information of the other 3 rows will be used in the refinement stage. The refinement stage seems to mitigate any quality lost due to down sampling in the first stage.",
+      "parentUuid": "aaefea7d_5e88cc52",
+      "range": {
+        "startLine": 988,
+        "startChar": 1,
+        "endLine": 988,
+        "endChar": 57
+      },
+      "revId": "44b156bf5d2ddf509466ea9b840fdc440f255527",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c4c5ba7e_ca0a796d",
@@ -71,6 +95,30 @@
       "writtenOn": "2021-12-10T20:14:14Z",
       "side": 1,
       "message": "So this is not supported in HBD. Maybe the support can be added later? Can you add a TODO comment here for now?",
+      "range": {
+        "startLine": 1546,
+        "startChar": 4,
+        "endLine": 1546,
+        "endChar": 28
+      },
+      "revId": "44b156bf5d2ddf509466ea9b840fdc440f255527",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6175443_10c83ae9",
+        "filename": "av1/encoder/pickrst.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1546,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2021-12-13T15:14:34Z",
+      "side": 1,
+      "message": "Yes, we will submit another patch to add a TODO in HBD. As the unit test in wiener_test.cc is currently disabled , we will add a TODO to include this test case in the unit test as well.",
+      "parentUuid": "c4c5ba7e_ca0a796d",
       "range": {
         "startLine": 1546,
         "startChar": 4,
