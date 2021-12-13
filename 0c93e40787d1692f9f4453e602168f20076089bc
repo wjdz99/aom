@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "116e3d8d_6d9130bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-12-13T11:42:35Z",
+      "side": 1,
+      "message": "Hi Chi Yo, Paul and Yunqing,\n\nThe function log_sub_block_var() is used to calculate the mapped source variance( log(1+var)) for all 4x4 sub-blocks in the current block and returns the minimum and maximum value of mapped source variance. This CL reduces the log() computations by applying log() on minimum and maximum variances found across all 4x4 sub-blocks instead of applying log() on variance of each 4x4 sub-block (as log(1+x) monotonically increases as x increases). Hence this change is bit-exact and applicable for speed \u003c\u003d6.\n\nIn this CL, min_var_4x4 is initialized to (double)INT_MAX for the computation of minimum value as variance will be lower than above (for 12 bit as well). We hope it is fine.\n\nWe validated this patch for allintra video and still-image encode. Following are instruction count/encode time reduction results when AVIF encode was tested for a typical image dataset.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n              Instruction Count\n               / Encode Time          \n       speed    Reduction(%)        \n         0         0.040          \n         1         0.074          \n         2         0.090          \n         3         0.150         \n         4         0.250          \n         5         0.300          \n         6         1.749           \n\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003d6.\n\nFollowing are the instruction count reduction results when tested libaom allintra frame encoding (50 frames) for a borg setup. \n\n              Instruction Count        \n       speed    Reduction(%)          \n         1         0.056          \n         3         0.115          \n         4         0.182 \n         6         0.755\n\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nMudassir.\n",
+      "revId": "0c93e40787d1692f9f4453e602168f20076089bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
