@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6676969f_747883e6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-13T12:00:16Z",
+      "side": 1,
+      "message": "Hi Chi Yo and Yunqing,\n\nAs per our study, the entropy costs were updated inconsistently using either control time settings of type COST_UPDATE_TYPE or sfs of type INTERNAL_COST_UPDATE_TYPE (in the parent version). For example, to update entropy costs, control time params were considered in  av1_initialize_rd_consts() whereas both (control time params and some of the sf frequencies) were considered in av1_set_cost_upd_freq(). Hence the behavior of the encoder is not consistent with similar control time/sf settings. This CL populates sfs based on control time settings and expected sf settings by considering the worst case frequencies and the populated/updated settings are used for cost updates in the encoder.\n\nThis CL causes mismatches w.r.t parent version for specific combinations of control time and sf settings and the bit-match was seen for all other combinations (when tested for ‘good’ speed\u003d6 with modifications to sfs accordingly for verification purpose). We validated the CL for each of mode, cost, mv, dv cost related settings separately. The following describes the cases where mismatch is seen.\n\nCase    cost_upd_freq            sf cost_upd_level                   Mismatch seen due to logic in\n 1    COST_UPD_SB       INTERNAL_COST_UPD_TILE  av1_set_cost_upd_freq()\n 2    COST_UPD_SBROW    INTERNAL_COST_UPD_TILE  av1_set_cost_upd_freq()\n 3    COST_UPD_SB       INTERNAL_COST_UPD_OFF   av1_initialize_rd_consts()\n 4    COST_UPD_SBROW    INTERNAL_COST_UPD_OFF   av1_initialize_rd_consts()\n 5    COST_UPD_TILE     INTERNAL_COST_UPD_OFF   av1_initialize_rd_consts()\n\nCase (1): In the parent version the entropy cost updates at SB level as the function av1_set_cost_upd_freq() considers only control time settings and some of the sf cost_upd_level frequency (ignores tile level sf update). Whereas in the current CL, the update frequency is chosen as the worst of control time and sf settings i.e. TILE level update will be considered for this case. Hence, the mismatch is seen as expected in this case.\n\nCase (5): The function av1_initialize_rd_consts() considers only control time settings to decide frame level entropy cost updates. For this case, when fill_costs \u003d 0, in the parent version the update happens for each frame. Whereas in the current approach, update frequency is chosen as OFF (worst out of control time and sf settings) and frame level update will not happen in this case.\n\nPlease note that “ INTERNAL_COST_UPD_TILE” has been added as sf cost_upd_level for easy mapping of control time settings with sf settings during unification. And the cases (1) and (2) are corresponding to this.\n\nAfter this patch, any new setting related to cost update should be added to both enums (COST_UPDATE_TYPE and INTERNAL_COST_UPDATE_TYPE).\n\nPlease review the patch and let us know your opinion on the same.\n\nThanks \u0026 Regards,\nVenkata\n",
+      "revId": "6ef104722db141da4fd6cb67f93732a76e939f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
