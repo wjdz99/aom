@@ -60,6 +60,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "622248dd_3353e608",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-12-13T15:28:13Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe configuration parameter ‘fpmt-unit-test’ takes two values – 0 to enable simulation path and 1 to enable actual parallel encode. Setting it to 1 therefore indicates that actual parallel encode is set by default and not the simulation path. This is used only from the fpmt unit test. Whereas, the configuration parameter ‘fp-mt’ is by default turned OFF.",
+      "parentUuid": "c0056b3c_e33159e3",
+      "range": {
+        "startLine": 417,
+        "startChar": 2,
+        "endLine": 417,
+        "endChar": 3
+      },
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "74038ee8_b011101c",
         "filename": "test/frame_parallel_enc_test.cc",
         "patchSetId": 3
@@ -71,6 +95,30 @@
       "writtenOn": "2021-12-10T19:45:39Z",
       "side": 1,
       "message": "With this change, we still need -DCONFIG_FPMT_TEST\u003d1 in the config, right?",
+      "range": {
+        "startLine": 62,
+        "startChar": 4,
+        "endLine": 62,
+        "endChar": 79
+      },
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7150d8aa_19735d91",
+        "filename": "test/frame_parallel_enc_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9616
+      },
+      "writtenOn": "2021-12-13T15:28:13Z",
+      "side": 1,
+      "message": "Yes, the configuration parameter ‘AV1E_SET_FP_MT_UNIT_TEST’ is used only to switch between the simulation and actual parallel encode path for testing bit match. Since both the code for simulation and actual parallel encode that is used by the unit test are present under CONFIG_FPMT_TEST, this configuration macro is still required.",
+      "parentUuid": "74038ee8_b011101c",
       "range": {
         "startLine": 62,
         "startChar": 4,
