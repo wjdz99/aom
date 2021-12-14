@@ -130,6 +130,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ca9fd94_98f4ef35",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-14T19:40:24Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "29bc3308_fcdcc821",
+      "range": {
+        "startLine": 417,
+        "startChar": 2,
+        "endLine": 417,
+        "endChar": 3
+      },
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "74038ee8_b011101c",
@@ -238,6 +262,30 @@
       "side": 1,
       "message": "Have modified the nightly test to include multi-tile configuration. Added 1x2 tile configuration so that the test clip gets tested for row-mt as well, along with tile-mt and fp-mt as you have suggested.",
       "parentUuid": "919a923c_e7f062ad",
+      "range": {
+        "startLine": 190,
+        "startChar": 27,
+        "endLine": 191,
+        "endChar": 49
+      },
+      "revId": "b5b59744f33856ec8af8edafd90a9f18776f65af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1779c412_4fec5c96",
+        "filename": "test/frame_parallel_enc_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-14T19:40:24Z",
+      "side": 1,
+      "message": "Looks good. Thanks for making the change.",
+      "parentUuid": "e5031e92_336d622c",
       "range": {
         "startLine": 190,
         "startChar": 27,
