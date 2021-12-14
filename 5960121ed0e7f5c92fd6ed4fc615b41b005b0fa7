@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06abee0f_9f5195f3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-14T16:34:41Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this CL, we have introduced a level 2 cdef search method for speed 3 based on resolution. The tradeoff for resolution \u003e\u003d 720p (HDRES2) was not within the limits even though the overall trade-off was fine. Hence, enabled this setting in speed 3 for resolution \u003c 720p.\n\nPlease find below detailed borg result:\n                Instruction Count       BD-Rate Loss(%)\ncpu Resolution   Reduction(%)      avg.psnr   ovr.psnr  ssim   \n3     LOWRES2      0.888           0.0207     0.0261    0.0156   \n3     MIDRES2      1.209          -0.0052    -0.0187    0.0176   \n3     HDRES2       0.000           0.0000     0.0000    0.0000   \n3     Average      0.699           0.0052     0.0025    0.0111\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch. \n\nThanks \u0026 Regards, \nVenkata",
+      "revId": "5960121ed0e7f5c92fd6ed4fc615b41b005b0fa7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
