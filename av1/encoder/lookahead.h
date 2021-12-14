@@ -39,7 +39,7 @@ struct lookahead_entry {
 };
 
 // The max of past frames we want to keep in the queue.
-#define MAX_PRE_FRAMES 1
+#define MAX_PRE_FRAMES 33
 
 enum { ENCODE_STAGE, LAP_STAGE, MAX_STAGES } UENUM1BYTE(COMPRESSOR_STAGE);
 
