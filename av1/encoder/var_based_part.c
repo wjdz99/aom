@@ -816,7 +816,8 @@ static void fill_variance_tree_leaves(
     AV1_COMP *cpi, MACROBLOCK *x, VP128x128 *vt, VP16x16 *vt2,
     unsigned char *force_split, int avg_16x16[][4], int maxvar_16x16[][4],
     int minvar_16x16[][4], int *variance4x4downsample, int64_t *thresholds,
-    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride) {
+    uint8_t *src, int src_stride, const uint8_t *dst, int dst_stride, int mi_row,
+    int mi_col) {
   AV1_COMMON *cm = &cpi->common;
   MACROBLOCKD *xd = &x->e_mbd;
   const int is_key_frame = frame_is_intra_only(cm);
@@ -831,8 +832,18 @@ static void fill_variance_tree_leaves(
     pixels_wide = 64;
     pixels_high = 64;
   }
+
+//  if (xd->mb_to_right_edge < 0){
+//    printf("\n 0(%d,%d):   %d,%d;  %d;   %d;  \n", mi_row, mi_col, pixels_wide, pixels_high, segment_id,  (xd->mb_to_right_edge >> 3)  );
+//  }
+
   if (xd->mb_to_right_edge < 0) pixels_wide += (xd->mb_to_right_edge >> 3);
   if (xd->mb_to_bottom_edge < 0) pixels_high += (xd->mb_to_bottom_edge >> 3);
+
+//  if (xd->mb_to_right_edge < 0){
+//    printf("\n 1(%d,%d):   %d,%d;  %d;    %d;  \n", mi_row, mi_col, pixels_wide, pixels_high, segment_id,  (xd->mb_to_right_edge >> 3)  );
+//  }
+
   for (int m = 0; m < num_64x64_blocks; m++) {
     const int x64_idx = ((m & 1) << 6);
     const int y64_idx = ((m >> 1) << 6);
@@ -1029,6 +1040,43 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   int dp;
   NOISE_LEVEL noise_level = kLow;
 
+
+  RATE_CONTROL *const rc = &cpi->rc;
+  const int num_mi_cols = cm->mi_params.mi_cols;
+  const int num_mi_rows = cm->mi_params.mi_rows;
+  const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                ? (cm->seq_params->mib_size >> 1)
+                                : cm->seq_params->mib_size;
+  const int sb_cols = (num_mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+  const int sb_rows = (num_mi_rows + sb_size_by_mb - 1) / sb_size_by_mb;
+  const int sb_col = mi_col / sb_size_by_mb;
+  const int sb_row = mi_row / sb_size_by_mb;
+
+  if (rc->valid_sb_sad) {
+    unsigned int sad = rc->sb_sad[sb_cols * sb_row + sb_col];
+
+    const int is_small_sb = (cm->seq_params->sb_size == BLOCK_64X64);
+    int pixels_wide = 128, pixels_high = 128;
+
+    if (is_small_sb) {
+      pixels_wide = 64;
+      pixels_high = 64;
+    }
+
+    if (xd->mb_to_right_edge < 0) pixels_wide += (xd->mb_to_right_edge >> 3);
+    if (xd->mb_to_bottom_edge < 0) pixels_high += (xd->mb_to_bottom_edge >> 3);
+
+    const unsigned int thr = cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[cm->quant_params.base_qindex][1] * 2;
+
+    //printf("\n  uuuuse:  %d,%d;   sad: %d;   thr: %d;  ", sb_col, sb_row, sad, thr);
+
+    if (sad < thr && pixels_wide == 64 && pixels_high == 64) {
+      set_block_size(cpi, x, xd, mi_row, mi_col, BLOCK_64X64);
+      return 0;
+    }
+  }
+
+
   int is_key_frame =
       (frame_is_intra_only(cm) ||
        (cpi->ppi->use_svc &&
@@ -1123,7 +1171,8 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
   // for splits.
   fill_variance_tree_leaves(cpi, x, vt, vt2, force_split, avg_16x16,
                             maxvar_16x16, minvar_16x16, variance4x4downsample,
-                            thresholds, s, sp, d, dp);
+                            thresholds, s, sp, d, dp, mi_row,
+                            mi_col);
 
   avg_64x64 = 0;
   for (m = 0; m < num_64x64_blocks; ++m) {
