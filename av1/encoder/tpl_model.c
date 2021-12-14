@@ -1266,7 +1266,13 @@ static AOM_INLINE void init_gop_frames_for_tpl(
       tpl_data->tpl_frame[-i - 1].rec_picture = NULL;
       tpl_data->tpl_frame[-i - 1].frame_display_index = 0;
     } else {
-      tpl_data->tpl_frame[-i - 1].gf_picture = &cm->ref_frame_map[i]->buf;
+      int ref_display_index = cm->ref_frame_map[i]->display_order_hint;
+      int cur_display_index = cm->cur_frame->display_order_hint;
+      int lookahead_index = ref_display_index - cur_display_index;
+
+      const struct lookahead_entry *buf = av1_lookahead_peek(
+          cpi->ppi->lookahead, lookahead_index, cpi->compressor_stage);
+      tpl_data->tpl_frame[-i - 1].gf_picture = &buf->img;
       tpl_data->tpl_frame[-i - 1].rec_picture = &cm->ref_frame_map[i]->buf;
       tpl_data->tpl_frame[-i - 1].frame_display_index =
           cm->ref_frame_map[i]->display_order_hint;
