@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bc1c223_651c0eeb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2021-12-14T12:57:41Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nThis patch extends the speed feature enable_fast_wedge_mask_search from speed-3 to speed-2. This SF is enabled for resolutions less than 720p. Please find the detailed borg results below,\n\n                Instruction Count        BD-Rate Loss(%)\ncpu  Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 2     LOWRES2      1.324         0.0144     0.0137   -0.0193\n 2     MIDRES2      1.037         0.0255     0.0163   -0.0078\n 2      HDRES2      0.000         0.0000     0.0000    0.0000\n 2     Average      0.787         0.0133     0.0100   -0.0090\n\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nWe also verified bitmatch for other speed levels. Please review the patch.\nThanks",
+      "revId": "61c032cba0ca3e0f9e93befe9cf2241b5a2b82ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
