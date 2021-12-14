@@ -30,7 +30,6 @@
 
 // 8-bit-depth tests
 namespace wiener_lowbd {
-// TODO(any) : Add support for use_downsampled_wiener_stats SF in the unit test
 static void compute_stats_win_opt_c(int wiener_win, const uint8_t *dgd,
                                     const uint8_t *src, int h_start, int h_end,
                                     int v_start, int v_end, int dgd_stride,
@@ -42,7 +41,8 @@ static void compute_stats_win_opt_c(int wiener_win, const uint8_t *dgd,
   const int wiener_win2 = wiener_win * wiener_win;
   const int wiener_halfwin = (wiener_win >> 1);
   uint8_t avg = find_average(dgd, h_start, h_end, v_start, v_end, dgd_stride);
-  (void)use_downsampled_wiener_stats;
+  int downsample_factor =
+      use_downsampled_wiener_stats ? WIENER_STATS_DOWNSAMPLE_FACTOR : 1;
 
   std::vector<std::vector<int64_t> > M_int(wiener_win,
                                            std::vector<int64_t>(wiener_win, 0));
@@ -50,24 +50,33 @@ static void compute_stats_win_opt_c(int wiener_win, const uint8_t *dgd,
       wiener_win * wiener_win, std::vector<int64_t>(wiener_win * 8, 0));
   std::vector<std::vector<int32_t> > sumY(wiener_win,
                                           std::vector<int32_t>(wiener_win, 0));
+  int32_t sumY_row[WIENER_WIN][WIENER_WIN] = { { 0 } };
+  int32_t M_int32_row[WIENER_WIN][WIENER_WIN] = { { 0 } };
+  DECLARE_ALIGNED(32, int32_t,
+                  H_int32_row[WIENER_WIN2][WIENER_WIN * 8]) = { { 0 } };
   int32_t sumX = 0;
+  int32_t sumX_row = 0;
   const uint8_t *dgd_win = dgd - wiener_halfwin * dgd_stride - wiener_halfwin;
 
-  for (i = v_start; i < v_end; i++) {
+  for (i = v_start; i < v_end; i = i + downsample_factor) {
+    sumX_row = 0;
+    memset(M_int32_row, 0, sizeof(int32_t) * WIENER_WIN2);
+    memset(H_int32_row, 0, sizeof(int32_t) * WIENER_WIN2 * (WIENER_WIN * 8));
+    memset(sumY_row, 0, sizeof(int32_t) * WIENER_WIN * WIENER_WIN);
     for (j = h_start; j < h_end; j += 2) {
       const uint8_t X1 = src[i * src_stride + j];
       const uint8_t X2 = src[i * src_stride + j + 1];
-      sumX += X1 + X2;
+      sumX_row += X1 + X2;
 
       const uint8_t *dgd_ij = dgd_win + i * dgd_stride + j;
       for (k = 0; k < wiener_win; k++) {
         for (l = 0; l < wiener_win; l++) {
           const uint8_t *dgd_ijkl = dgd_ij + k * dgd_stride + l;
-          int64_t *H_int_temp = &H_int[(l * wiener_win + k)][0];
+          int32_t *H_int_temp = &H_int32_row[(l * wiener_win + k)][0];
           const uint8_t D1 = dgd_ijkl[0];
           const uint8_t D2 = dgd_ijkl[1];
-          sumY[k][l] += D1 + D2;
-          M_int[l][k] += D1 * X1 + D2 * X2;
+          sumY_row[k][l] += D1 + D2;
+          M_int32_row[l][k] += D1 * X1 + D2 * X2;
           for (m = 0; m < wiener_win; m++) {
             for (n = 0; n < wiener_win; n++) {
               H_int_temp[m * 8 + n] += D1 * dgd_ij[n + dgd_stride * m] +
@@ -75,6 +84,20 @@ static void compute_stats_win_opt_c(int wiener_win, const uint8_t *dgd,
             }
           }
         }
+      }
+    }
+    sumX += sumX_row * downsample_factor;
+    // Scale M matrix based on the downsampling factor
+    for (k = 0; k < wiener_win; ++k) {
+      for (l = 0; l < wiener_win; ++l) {
+        sumY[k][l] += (sumY_row[k][l] * downsample_factor);
+        M_int[k][l] += ((int64_t)M_int32_row[k][l] * downsample_factor);
+      }
+    }
+    // Scale H matrix based on the downsampling factor
+    for (k = 0; k < (wiener_win * wiener_win); ++k) {
+      for (l = 0; l < (wiener_win * 8); ++l) {
+        H_int[k][l] += ((int64_t)H_int32_row[k][l] * downsample_factor);
       }
     }
   }
@@ -164,6 +187,8 @@ void WienerTest::RunWienerTest(const int32_t wiener_win, int32_t run_times) {
   const int dgd_stride = h_end;
   const int src_stride = MAX_DATA_BLOCK;
   const int iters = run_times == 1 ? kIterations : 2;
+  int downsample_stats_count = 2;
+
   for (int iter = 0; iter < iters && !HasFatalFailure(); ++iter) {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_buf[i] = rng_.Rand8();
@@ -171,45 +196,46 @@ void WienerTest::RunWienerTest(const int32_t wiener_win, int32_t run_times) {
     }
     uint8_t *dgd = dgd_buf + wiener_halfwin * MAX_DATA_BLOCK + wiener_halfwin;
     uint8_t *src = src_buf;
-
-    aom_usec_timer timer;
-    aom_usec_timer_start(&timer);
-    for (int i = 0; i < run_times; ++i) {
-      av1_compute_stats_c(wiener_win, dgd, src, h_start, h_end, v_start, v_end,
-                          dgd_stride, src_stride, M_ref, H_ref, 0);
-    }
-    aom_usec_timer_mark(&timer);
-    const double time1 = static_cast<double>(aom_usec_timer_elapsed(&timer));
-    aom_usec_timer_start(&timer);
-    for (int i = 0; i < run_times; ++i) {
-      target_func_(wiener_win, dgd, src, h_start, h_end, v_start, v_end,
-                   dgd_stride, src_stride, M_test, H_test, 0);
-    }
-    aom_usec_timer_mark(&timer);
-    const double time2 = static_cast<double>(aom_usec_timer_elapsed(&timer));
-    if (run_times > 10) {
-      printf("win %d %3dx%-3d:%7.2f/%7.2fns", wiener_win, h_end, v_end, time1,
-             time2);
-      printf("(%3.2f)\n", time1 / time2);
-    }
-    int failed = 0;
-    for (int i = 0; i < wiener_win2; ++i) {
-      if (M_ref[i] != M_test[i]) {
-        failed = 1;
-        printf("win %d M iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
-               wiener_win, iter, i, M_ref[i], M_test[i]);
-        break;
+    for (int j = 0; j < downsample_stats_count; j++) {
+      aom_usec_timer timer;
+      aom_usec_timer_start(&timer);
+      for (int i = 0; i < run_times; ++i) {
+        av1_compute_stats_c(wiener_win, dgd, src, h_start, h_end, v_start,
+                            v_end, dgd_stride, src_stride, M_ref, H_ref, j);
       }
-    }
-    for (int i = 0; i < wiener_win2 * wiener_win2; ++i) {
-      if (H_ref[i] != H_test[i]) {
-        failed = 1;
-        printf("win %d H iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
-               wiener_win, iter, i, H_ref[i], H_test[i]);
-        break;
+      aom_usec_timer_mark(&timer);
+      const double time1 = static_cast<double>(aom_usec_timer_elapsed(&timer));
+      aom_usec_timer_start(&timer);
+      for (int i = 0; i < run_times; ++i) {
+        target_func_(wiener_win, dgd, src, h_start, h_end, v_start, v_end,
+                     dgd_stride, src_stride, M_test, H_test, j);
       }
+      aom_usec_timer_mark(&timer);
+      const double time2 = static_cast<double>(aom_usec_timer_elapsed(&timer));
+      if (run_times > 10) {
+        printf("win %d %3dx%-3d:%7.2f/%7.2fns", wiener_win, h_end, v_end, time1,
+               time2);
+        printf("(%3.2f)\n", time1 / time2);
+      }
+      int failed = 0;
+      for (int i = 0; i < wiener_win2; ++i) {
+        if (M_ref[i] != M_test[i]) {
+          failed = 1;
+          printf("win %d M iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
+                 wiener_win, iter, i, M_ref[i], M_test[i]);
+          break;
+        }
+      }
+      for (int i = 0; i < wiener_win2 * wiener_win2; ++i) {
+        if (H_ref[i] != H_test[i]) {
+          failed = 1;
+          printf("win %d H iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
+                 wiener_win, iter, i, H_ref[i], H_test[i]);
+          break;
+        }
+      }
+      ASSERT_EQ(failed, 0);
     }
-    ASSERT_EQ(failed, 0);
   }
 }
 
@@ -227,6 +253,8 @@ void WienerTest::RunWienerTest_ExtremeValues(const int32_t wiener_win) {
   const int dgd_stride = h_end;
   const int src_stride = MAX_DATA_BLOCK;
   const int iters = 1;
+  int downsample_stats_count = 2;
+
   for (int iter = 0; iter < iters && !HasFatalFailure(); ++iter) {
     for (int i = 0; i < MAX_DATA_BLOCK * MAX_DATA_BLOCK; ++i) {
       dgd_buf[i] = 255;
@@ -234,31 +262,32 @@ void WienerTest::RunWienerTest_ExtremeValues(const int32_t wiener_win) {
     }
     uint8_t *dgd = dgd_buf + wiener_halfwin * MAX_DATA_BLOCK + wiener_halfwin;
     uint8_t *src = src_buf;
+    for (int j = 0; j < downsample_stats_count; j++) {
+      av1_compute_stats_c(wiener_win, dgd, src, h_start, h_end, v_start, v_end,
+                          dgd_stride, src_stride, M_ref, H_ref, j);
 
-    av1_compute_stats_c(wiener_win, dgd, src, h_start, h_end, v_start, v_end,
-                        dgd_stride, src_stride, M_ref, H_ref, 0);
+      target_func_(wiener_win, dgd, src, h_start, h_end, v_start, v_end,
+                   dgd_stride, src_stride, M_test, H_test, j);
 
-    target_func_(wiener_win, dgd, src, h_start, h_end, v_start, v_end,
-                 dgd_stride, src_stride, M_test, H_test, 0);
-
-    int failed = 0;
-    for (int i = 0; i < wiener_win2; ++i) {
-      if (M_ref[i] != M_test[i]) {
-        failed = 1;
-        printf("win %d M iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
-               wiener_win, iter, i, M_ref[i], M_test[i]);
-        break;
+      int failed = 0;
+      for (int i = 0; i < wiener_win2; ++i) {
+        if (M_ref[i] != M_test[i]) {
+          failed = 1;
+          printf("win %d M iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
+                 wiener_win, iter, i, M_ref[i], M_test[i]);
+          break;
+        }
       }
-    }
-    for (int i = 0; i < wiener_win2 * wiener_win2; ++i) {
-      if (H_ref[i] != H_test[i]) {
-        failed = 1;
-        printf("win %d H iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
-               wiener_win, iter, i, H_ref[i], H_test[i]);
-        break;
+      for (int i = 0; i < wiener_win2 * wiener_win2; ++i) {
+        if (H_ref[i] != H_test[i]) {
+          failed = 1;
+          printf("win %d H iter %d [%4d] ref %6" PRId64 " test %6" PRId64 " \n",
+                 wiener_win, iter, i, H_ref[i], H_test[i]);
+          break;
+        }
       }
+      ASSERT_EQ(failed, 0);
     }
-    ASSERT_EQ(failed, 0);
   }
 }
 
