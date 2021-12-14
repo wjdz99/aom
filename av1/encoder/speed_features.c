@@ -1426,7 +1426,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->rt_sf.use_simple_rd_model = 1;
   sf->rt_sf.prune_inter_modes_with_golden_ref = boosted ? 0 : 1;
   // TODO(any): This sf could be removed.
-  sf->rt_sf.short_circuit_low_temp_var = 1;
+  sf->rt_sf.short_circuit_low_temp_var = 0;  //1;
   sf->rt_sf.check_scene_detection = 1;
   if (cpi->rc.rtc_external_ratectrl) sf->rt_sf.check_scene_detection = 0;
   if (cm->current_frame.frame_type != KEY_FRAME &&

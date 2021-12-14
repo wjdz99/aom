@@ -1735,6 +1735,10 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   BLOCK_SIZE bs_type = mib[0]->bsize;
   x->try_merge_partition = 0;
 
+//  if (cm->current_frame.frame_number >= 2)
+//  printf("\n partition: %d;  PARTITION_NONE=%d; \n",  partition, PARTITION_NONE);
+
+
   if (pc_tree->none == NULL) {
     pc_tree->none = av1_alloc_pmc(cpi, bsize, &td->shared_coeff_buf);
   }

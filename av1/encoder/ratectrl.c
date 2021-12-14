@@ -2657,6 +2657,10 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
   if (src_width != last_src_width || src_height != last_src_height) return;
   rc->high_source_sad = 0;
   rc->prev_avg_source_sad = rc->avg_source_sad;
+
+  memset(rc->sb_sad, 0, sizeof(rc->sb_sad[0]) * 60);
+  rc->valid_sb_sad = 0;
+
   if (src_width == last_src_width && src_height == last_src_height) {
     const int num_mi_cols = cm->mi_params.mi_cols;
     const int num_mi_rows = cm->mi_params.mi_rows;
@@ -2676,11 +2680,16 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
                                   : cm->seq_params->mib_size;
     const int sb_cols = (num_mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
     const int sb_rows = (num_mi_rows + sb_size_by_mb - 1) / sb_size_by_mb;
+
+    //printf("\n sb_cols, sb_rows: (%d, %d)    %d; %d;  \n", sb_cols, sb_rows,  num_mi_cols, num_mi_rows);
+
     uint64_t sum_sq_thresh = 10000;  // sum = sqrt(thresh / 64*64)) ~1.5
     int num_low_var_high_sumdiff = 0;
     int light_change = 0;
     // Flag to check light change or not.
-    const int check_light_change = 0;
+    const int check_light_change = 0;  //1;
+
+    //printf ("\n Source SAD:\n");
     for (int sbi_row = 0; sbi_row < sb_rows; ++sbi_row) {
       for (int sbi_col = 0; sbi_col < sb_cols; ++sbi_col) {
         // Checker-board pattern, ignore boundary.
@@ -2691,6 +2700,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
               (sbi_row % 2 != 0 && sbi_col % 2 != 0)))) {
           tmp_sad = cpi->ppi->fn_ptr[bsize].sdf(src_y, src_ystride, last_src_y,
                                                 last_src_ystride);
+          rc->sb_sad[sb_cols * sbi_row + sbi_col] = (unsigned int)tmp_sad;
+
           if (check_light_change) {
             unsigned int sse, variance;
             variance = cpi->ppi->fn_ptr[bsize].vf(
@@ -2700,6 +2711,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
             if (variance < (sse >> 1) && (sse - variance) > sum_sq_thresh) {
               num_low_var_high_sumdiff++;
             }
+            //printf(" (%ld; %d, %d) ", tmp_sad, sse, variance);
           }
           avg_sad += tmp_sad;
           num_samples++;
@@ -2708,9 +2720,13 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
         src_y += 64;
         last_src_y += 64;
       }
+      //printf("\n");
       src_y += (src_ystride << 6) - (sb_cols << 6);
       last_src_y += (last_src_ystride << 6) - (sb_cols << 6);
     }
+
+    if (full_sampling) rc->valid_sb_sad = 1;
+
     if (check_light_change && num_samples > 0 &&
         num_low_var_high_sumdiff > (num_samples >> 1))
       light_change = 1;
@@ -2719,7 +2735,7 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
     // between current and previous frame value(s). Use minimum threshold
     // for cases where there is small change from content that is completely
     // static.
-    if (!light_change &&
+    if (//!light_change &&
         avg_sad >
             AOMMAX(min_thresh, (unsigned int)(rc->avg_source_sad * thresh)) &&
         rc->frames_since_key > 1 + cpi->svc.number_spatial_layers &&
