@@ -52,4 +52,5 @@ add_proto qw/void aom_extend_frame_inner_borders/, "struct yv12_buffer_config *y
 specialize qw/aom_extend_frame_inner_borders dspr2/;
 
 add_proto qw/void aom_extend_frame_borders_y/, "struct yv12_buffer_config *ybf";
+add_proto qw/void aom_extend_frame_borders_uv/, "struct yv12_buffer_config *ybf";
 1;
