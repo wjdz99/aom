@@ -445,7 +445,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
     } else {
       thresholds[2] = (5 * threshold_base) >> 1;
     }
-    if (cpi->sf.rt_sf.force_large_partition_blocks) {
+    if (1 || cpi->sf.rt_sf.force_large_partition_blocks) {
       double weight;
       const int win = 20;
       if (current_qindex < QINDEX_LARGE_BLOCK_THR - win)
@@ -462,8 +462,8 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
       }
       if (cm->width * cm->height <= 352 * 288) {
         thresholds[1] <<= 2;
-        thresholds[2] <<= 5;
-        thresholds[3] = INT32_MAX;
+//        thresholds[2] <<= 5;
+//        thresholds[3] = INT32_MAX;
         // Condition the increase of partition thresholds on the segment
         // and the content. Avoid the increase for superblocks which have
         // high source sad, unless the whole frame has very high motion
