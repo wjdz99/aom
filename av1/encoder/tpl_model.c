@@ -559,7 +559,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
       continue;
     }
 
-    const YV12_BUFFER_CONFIG *ref_frame_ptr = tpl_data->src_ref_frame[rf_idx];
+    const YV12_BUFFER_CONFIG *ref_frame_ptr = tpl_data->ref_frame[rf_idx];
     int ref_mb_offset =
         mi_row * MI_SIZE * ref_frame_ptr->y_stride + mi_col * MI_SIZE;
     uint8_t *ref_mb = ref_frame_ptr->y_buffer + ref_mb_offset;
@@ -699,8 +699,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
     }
 
     const YV12_BUFFER_CONFIG *ref_frame_ptr[2] = {
-      tpl_data->src_ref_frame[rf_idx0],
-      tpl_data->src_ref_frame[rf_idx1],
+      tpl_data->ref_frame[rf_idx0],
+      tpl_data->ref_frame[rf_idx1],
     };
 
     xd->mi[0]->ref_frame[0] = LAST_FRAME;
@@ -760,10 +760,10 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
     xd->mi[0]->mv[1].as_int = best_mv[1].as_int;
     const YV12_BUFFER_CONFIG *ref_frame_ptr[2] = {
       best_cmp_rf_idx >= 0
-          ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : tpl_data->src_ref_frame[best_rf_idx],
+          ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
+          : tpl_data->ref_frame[best_rf_idx],
       best_cmp_rf_idx >= 0
-          ? tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
+          ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
           : NULL,
     };
     int rate_cost = 1;
@@ -820,7 +820,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   if (best_mode == NEW_NEWMV) {
     ref_frame_ptr[0] = tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]];
     ref_frame_ptr[1] =
-        tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][1]];
+        tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]];
     get_rate_distortion(&rate_cost, &recon_error, &pred_error, src_diff, coeff,
                         qcoeff, dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
                         rec_stride_pool, tx_size, best_mode, mi_row, mi_col,
@@ -840,7 +840,7 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
 
     rate_cost = 0;
     ref_frame_ptr[0] =
-        tpl_data->src_ref_frame[comp_ref_frames[best_cmp_rf_idx][0]];
+        tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]];
     ref_frame_ptr[1] = tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]];
     get_rate_distortion(&rate_cost, &recon_error, &pred_error, src_diff, coeff,
                         qcoeff, dqcoeff, cm, x, ref_frame_ptr, rec_buffer_pool,
