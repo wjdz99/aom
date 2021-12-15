@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3a6af7c1_f6a89389",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-12-15T18:41:10Z",
+      "side": 1,
+      "message": "It is 0.01(sp9) and 0.06(sp7) BDRate impact with about 1% speed up on rtc_derf with max BDRate negative impact of 1.2% and 1.1% max positive impact.\n\nI would prefer to fix variable naming and extra condition in a separate CL to not break CL chain :-)",
+      "parentUuid": "39206a84_d3a10aa6",
+      "revId": "de780dae5d20268a8320bb54a9e24fd4a4b18f85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ff892aee_2bbbf0aa",
@@ -31,6 +49,24 @@
       "writtenOn": "2021-12-15T05:28:57Z",
       "side": 1,
       "message": "is it better to replace num_4x4_w/4 with num_8x8?",
+      "revId": "de780dae5d20268a8320bb54a9e24fd4a4b18f85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5604cf2_9793cfae",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 901,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-12-15T18:41:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ff892aee_2bbbf0aa",
       "revId": "de780dae5d20268a8320bb54a9e24fd4a4b18f85",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -52,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b025492c_2b7769a6",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-12-15T18:41:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "abb7ab43_ecf90b44",
+      "revId": "de780dae5d20268a8320bb54a9e24fd4a4b18f85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28b61e54_a4e598d4",
@@ -69,6 +123,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47e9d2d7_aed08bbb",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2463,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-12-15T18:41:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "28b61e54_a4e598d4",
+      "revId": "de780dae5d20268a8320bb54a9e24fd4a4b18f85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "caf491b2_4a5d0743",
@@ -82,6 +154,24 @@
       "writtenOn": "2021-12-15T05:28:57Z",
       "side": 1,
       "message": "should this also be \u0026\u0026 !use_modeled_rd_cost?",
+      "revId": "de780dae5d20268a8320bb54a9e24fd4a4b18f85",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae3a629c_aa7949c2",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 2810,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2021-12-15T18:41:10Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "caf491b2_4a5d0743",
       "revId": "de780dae5d20268a8320bb54a9e24fd4a4b18f85",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
