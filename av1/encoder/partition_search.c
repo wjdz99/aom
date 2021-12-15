@@ -1730,8 +1730,6 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
   RD_STATS last_part_rdc, none_rdc, chosen_rdc, invalid_rdc;
-  BLOCK_SIZE sub_subsize = BLOCK_4X4;
-  int splits_below = 0;
   BLOCK_SIZE bs_type = mib[0]->bsize;
   x->try_merge_partition = 0;
 
@@ -1766,24 +1764,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   const int orig_rdmult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
 
-  if (is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize)) {
-    // Check if any of the sub blocks are further split.
-    if (partition == PARTITION_SPLIT && subsize > BLOCK_8X8) {
-      sub_subsize = get_partition_subsize(subsize, PARTITION_SPLIT);
-      splits_below = 1;
-      for (int i = 0; i < SUB_PARTITIONS_SPLIT; i++) {
-        int jj = i >> 1, ii = i & 0x01;
-        MB_MODE_INFO *this_mi = mib[jj * hbs * mi_params->mi_stride + ii * hbs];
-        if (this_mi && this_mi->bsize >= sub_subsize) {
-          splits_below = 0;
-        }
-      }
-    }
-
-    // If partition is not none try none unless each of the 4 splits are split
-    // even further..
-    if (partition != PARTITION_NONE && !splits_below &&
-        mi_row + hbs < mi_params->mi_rows &&
+  if (partition != PARTITION_NONE && is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize)) {
+    if (mi_row + hbs < mi_params->mi_rows &&
         mi_col + hbs < mi_params->mi_cols) {
       pc_tree->partitioning = PARTITION_NONE;
       x->try_merge_partition = 1;
