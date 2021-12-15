@@ -1667,9 +1667,10 @@ static AOM_INLINE int is_adjust_var_based_part_enabled(
     return 0;
 
   if (bsize <= BLOCK_32X32) return 1;
-  if (part_sf->adjust_var_based_rd_partitioning == 2) {
+  if (part_sf->adjust_var_based_rd_partitioning) {  // == 2) {
     const int is_larger_qindex = cm->quant_params.base_qindex > 190;
-    const int is_360p_or_larger = AOMMIN(cm->width, cm->height) >= 360;
+    const int is_360p_or_larger = 1;  //AOMMIN(cm->width, cm->height) >= 360;
+
     return is_360p_or_larger && is_larger_qindex && bsize == BLOCK_64X64;
   }
   return 0;
@@ -1766,6 +1767,11 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   const int orig_rdmult = x->rdmult;
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
 
+
+//  if (cm->current_frame.frame_number == 2 && bsize == BLOCK_64X64 && !mi_row && !mi_col)
+//  printf("\n  !!! %d;    %d;   %d;    %d;   %d;   %d; \n ", is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize),
+//         cpi->sf.part_sf.adjust_var_based_rd_partitioning, cm->quant_params.base_qindex, partition == PARTITION_SPLIT, bs_type, do_recon);
+
   if (is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize)) {
     // Check if any of the sub blocks are further split.
     if (partition == PARTITION_SPLIT && subsize > BLOCK_8X8) {
@@ -1798,6 +1804,11 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       av1_restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
       mib[0]->bsize = bs_type;
       pc_tree->partitioning = partition;
+
+//      if (cm->current_frame.frame_number == 2 && bsize == BLOCK_64X64 && !mi_row && !mi_col)
+//      printf("\n none_rdc.skip_txfm = %d; \n", none_rdc.skip_txfm);
+
+
     }
   }
 
@@ -1873,6 +1884,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         if (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 1 ||
             (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 2 &&
              is_inter_block(mbmi) && mbmi->mode != NEWMV)) {
+//          if (cm->current_frame.frame_number == 2 && bsize == BLOCK_64X64 && !mi_row && !mi_col)
+//          printf("\n  break!!!! \n");
           av1_invalid_rd_stats(&last_part_rdc);
           break;
         }
