@@ -344,9 +344,8 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
   AV1_COMMON *const cm = &cpi->common;
   const int is_key_frame = frame_is_intra_only(cm);
   const int threshold_multiplier = is_key_frame ? 120 : 1;
-  int64_t threshold_base =
-      (int64_t)(threshold_multiplier *
-                cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[q][1]);
+  const int ac_q = av1_ac_quant_QTX(q, 0, cm->seq_params->bit_depth);
+  int64_t threshold_base = (int64_t)(threshold_multiplier * ac_q);
   const int current_qindex = cm->quant_params.base_qindex;
   const int threshold_left_shift = cpi->sf.rt_sf.var_part_split_threshold_shift;
 
