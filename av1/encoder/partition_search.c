@@ -1670,6 +1670,7 @@ static AOM_INLINE int is_adjust_var_based_part_enabled(
   if (part_sf->adjust_var_based_rd_partitioning == 2) {
     const int is_larger_qindex = cm->quant_params.base_qindex > 190;
     const int is_360p_or_larger = AOMMIN(cm->width, cm->height) >= 360;
+
     return is_360p_or_larger && is_larger_qindex && bsize == BLOCK_64X64;
   }
   return 0;
@@ -1731,7 +1732,6 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
   RD_STATS last_part_rdc, none_rdc, chosen_rdc, invalid_rdc;
   BLOCK_SIZE sub_subsize = BLOCK_4X4;
-  int splits_below = 0;
   BLOCK_SIZE bs_type = mib[0]->bsize;
   x->try_merge_partition = 0;
 
@@ -1767,17 +1767,19 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   setup_block_rdmult(cpi, x, mi_row, mi_col, bsize, NO_AQ, NULL);
 
   if (is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize)) {
+    int splits_below = 1;
     // Check if any of the sub blocks are further split.
     if (partition == PARTITION_SPLIT && subsize > BLOCK_8X8) {
       sub_subsize = get_partition_subsize(subsize, PARTITION_SPLIT);
-      splits_below = 1;
+      int cnt = 0;
       for (int i = 0; i < SUB_PARTITIONS_SPLIT; i++) {
         int jj = i >> 1, ii = i & 0x01;
         MB_MODE_INFO *this_mi = mib[jj * hbs * mi_params->mi_stride + ii * hbs];
-        if (this_mi && this_mi->bsize >= sub_subsize) {
-          splits_below = 0;
+        if (this_mi && this_mi->bsize > sub_subsize) {
+          cnt++;
         }
       }
+      if (cnt == 4) splits_below = 0;
     }
 
     // If partition is not none try none unless each of the 4 splits are split
@@ -1872,7 +1874,7 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         // characteristics.
         if (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 1 ||
             (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 2 &&
-             is_inter_block(mbmi) && mbmi->mode != NEWMV)) {
+             is_inter_block(mbmi) /*&& mbmi->mode != NEWMV*/)) {
           av1_invalid_rd_stats(&last_part_rdc);
           break;
         }
