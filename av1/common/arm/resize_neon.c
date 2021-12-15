@@ -700,9 +700,11 @@ void av1_resize_and_extend_frame_neon(const YV12_BUFFER_CONFIG *src,
                                       const int phase, const int num_planes) {
   // We use AOMMIN(num_planes, MAX_MB_PLANE) instead of num_planes to quiet
   // the static analysis warnings.
-  int scaled = 0;
+  int scaled_y = 0;
+  int scaled_uv = 0;
   for (int i = 0; i < AOMMIN(num_planes, MAX_MB_PLANE); ++i) {
     const int is_uv = i > 0;
+    int *const scaled = is_uv ? &scaled_uv : &scaled_y;
     const int src_w = src->crop_widths[is_uv];
     const int src_h = src->crop_heights[is_uv];
     const int dst_w = dst->crop_widths[is_uv];
@@ -711,7 +713,7 @@ void av1_resize_and_extend_frame_neon(const YV12_BUFFER_CONFIG *src,
     const int dst_y_h = (dst->crop_heights[0] + 1) & ~1;
 
     if (2 * dst_w == src_w && 2 * dst_h == src_h) {
-      scaled = 1;
+      *scaled = 1;
       if (phase == 0) {
         scale_plane_2_to_1_phase_0(src->buffers[i], src->strides[is_uv],
                                    dst->buffers[i], dst->strides[is_uv], dst_w,
@@ -737,11 +739,11 @@ void av1_resize_and_extend_frame_neon(const YV12_BUFFER_CONFIG *src,
                                      temp_buffer);
           free(temp_buffer);
         } else {
-          scaled = 0;
+          *scaled = 0;
         }
       }
     } else if (4 * dst_w == src_w && 4 * dst_h == src_h) {
-      scaled = 1;
+      *scaled = 1;
       if (phase == 0) {
         scale_plane_4_to_1_phase_0(src->buffers[i], src->strides[is_uv],
                                    dst->buffers[i], dst->strides[is_uv], dst_w,
@@ -767,7 +769,7 @@ void av1_resize_and_extend_frame_neon(const YV12_BUFFER_CONFIG *src,
                                      temp_buffer);
           free(temp_buffer);
         } else {
-          scaled = 0;
+          *scaled = 0;
         }
       }
     } else if (4 * dst_w == 3 * src_w && 4 * dst_h == 3 * src_h) {
@@ -777,7 +779,7 @@ void av1_resize_and_extend_frame_neon(const YV12_BUFFER_CONFIG *src,
       uint8_t *const temp_buffer =
           (uint8_t *)malloc(buffer_stride * buffer_height);
       if (temp_buffer) {
-        scaled = 1;
+        *scaled = 1;
         if (filter == BILINEAR) {
           scale_plane_4_to_3_bilinear(src->buffers[i], src->strides[is_uv],
                                       dst->buffers[i], dst->strides[is_uv],
@@ -793,13 +795,22 @@ void av1_resize_and_extend_frame_neon(const YV12_BUFFER_CONFIG *src,
         }
         free(temp_buffer);
       } else {
-        scaled = 0;
+        *scaled = 0;
       }
     }
   }
-  if (!scaled) {
-    av1_resize_and_extend_frame_c(src, dst, filter, phase, num_planes);
+  if (scaled_y) {
+    aom_extend_frame_borders_y(dst);
   } else {
-    aom_extend_frame_borders(dst, num_planes);
+    av1_resize_and_extend_plane_c(src, dst, filter, phase, 0);
+  }
+
+  if (num_planes != 1) {
+    if (scaled_uv) {
+      aom_extend_frame_borders_uv(dst);
+    } else {
+      av1_resize_and_extend_plane_c(src, dst, filter, phase, 1);
+      av1_resize_and_extend_plane_c(src, dst, filter, phase, 2);
+    }
   }
 }
