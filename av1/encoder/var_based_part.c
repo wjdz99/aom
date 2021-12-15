@@ -338,7 +338,8 @@ static int64_t scale_part_thresh_content(int64_t threshold_base, int speed,
   return threshold;
 }
 
-static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
+static AOM_INLINE
+void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
                                           int q, int content_lowsumdiff,
                                           int source_sad, int segment_id) {
   AV1_COMMON *const cm = &cpi->common;
@@ -1069,6 +1070,9 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
                        x->content_state_sb.low_sumdiff,
                        x->content_state_sb.source_sad, 0);
   }
+
+//  if (mi_row==0 && mi_col == 0)
+//  printf("\n thresholds[1] = %ld; segment_id = %d; qindex = %d;  \n ", thresholds[1], segment_id, cpi->enc_quant_dequant_params.dequants.y_dequant_QTX[cm->quant_params.base_qindex][1]);
 
   // For non keyframes, disable 4x4 average for low resolution when speed = 8
   threshold_4x4avg = INT64_MAX;
