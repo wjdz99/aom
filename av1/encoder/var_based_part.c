@@ -445,7 +445,7 @@ static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
     } else {
       thresholds[2] = (5 * threshold_base) >> 1;
     }
-    if (cpi->sf.rt_sf.force_large_partition_blocks) {
+    if (1 || cpi->sf.rt_sf.force_large_partition_blocks) {
       double weight;
       const int win = 20;
       if (current_qindex < QINDEX_LARGE_BLOCK_THR - win)
