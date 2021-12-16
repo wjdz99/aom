@@ -1728,6 +1728,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       (bsize >= BLOCK_8X8) ? get_partition(cm, mi_row, mi_col, bsize)
                            : PARTITION_NONE;
   const BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
+  // In rt mode, currently the min partition size is BLOCK_8X8.
+  const BLOCK_SIZE min_par = cpi->sf.part_sf.default_min_partition_size;
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
   RD_STATS last_part_rdc, none_rdc, chosen_rdc, invalid_rdc;
   BLOCK_SIZE bs_type = mib[0]->bsize;
@@ -1741,6 +1743,7 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) return;
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
+  assert(bsize >= min_par);
 
   av1_invalid_rd_stats(&last_part_rdc);
   av1_invalid_rd_stats(&none_rdc);
@@ -1768,6 +1771,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize) &&
       (mi_row + hbs < mi_params->mi_rows &&
        mi_col + hbs < mi_params->mi_cols)) {
+    assert(bsize > min_par);
+
     pc_tree->partitioning = PARTITION_NONE;
     x->try_merge_partition = 1;
     pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc, PARTITION_NONE,
