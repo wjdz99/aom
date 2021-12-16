@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nAs per the current codebase, the setting of sf \u0027cdef_pick_method\u0027 is set through the functions set_good_speed_features_framesize_independent() and set_good_speed_feature_framesize_dependent(). This CL moves the setting of cdef_pick_method sf to set_good_speed_feature_framesize_dependent() function and removes the unnecessary settings present in set_good_speed_features_framesize_independent().\n\nBit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 encoding mode for a few contents with different encoding configurations.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
       "revId": "7ea10add1422bd3a8413ddd19058b4227668f222",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a41f6763_539309dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-16T16:41:58Z",
+      "side": 1,
+      "message": "Thanks.",
+      "parentUuid": "f2a74187_95f47c50",
+      "revId": "7ea10add1422bd3a8413ddd19058b4227668f222",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
