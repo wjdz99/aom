@@ -1741,6 +1741,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) return;
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
+  // In rt mode, currently the min partition size is BLOCK_8X8.
+  assert(bsize >= cpi->sf.part_sf.default_min_partition_size);
 
   av1_invalid_rd_stats(&last_part_rdc);
   av1_invalid_rd_stats(&none_rdc);
@@ -1768,6 +1770,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize) &&
       (mi_row + hbs < mi_params->mi_rows &&
        mi_col + hbs < mi_params->mi_cols)) {
+    assert(bsize > cpi->sf.part_sf.default_min_partition_size);
+
     pc_tree->partitioning = PARTITION_NONE;
     x->try_merge_partition = 1;
     pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc, PARTITION_NONE,
@@ -1853,8 +1857,7 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
         // Try to skip split partition evaluation based on none partition
         // characteristics.
         if (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 1 ||
-            (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 2 &&
-             is_inter_block(mbmi) && mbmi->mode != NEWMV)) {
+            cpi->sf.part_sf.adjust_var_based_rd_partitioning == 2) {
           av1_invalid_rd_stats(&last_part_rdc);
           break;
         }
