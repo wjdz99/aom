@@ -1668,9 +1668,11 @@ static AOM_INLINE int is_adjust_var_based_part_enabled(
 
   if (bsize <= BLOCK_32X32) return 1;
   if (part_sf->adjust_var_based_rd_partitioning == 2) {
-    const int is_larger_qindex = cm->quant_params.base_qindex > 190;
     const int is_360p_or_larger = AOMMIN(cm->width, cm->height) >= 360;
-    return is_360p_or_larger && is_larger_qindex && bsize == BLOCK_64X64;
+    const int qindex = cm->quant_params.base_qindex;
+    const int is_larger_qindex =
+        is_360p_or_larger ? qindex > 190 : qindex > 250;
+    return is_larger_qindex && bsize == BLOCK_64X64;
   }
   return 0;
 }
@@ -1731,6 +1733,7 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   RD_SEARCH_MACROBLOCK_CONTEXT x_ctx;
   RD_STATS last_part_rdc, none_rdc, chosen_rdc, invalid_rdc;
   BLOCK_SIZE bs_type = mib[0]->bsize;
+  int use_partition_none = 0;
   x->try_merge_partition = 0;
 
   if (pc_tree->none == NULL) {
@@ -1741,6 +1744,8 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
   if (mi_row >= mi_params->mi_rows || mi_col >= mi_params->mi_cols) return;
 
   assert(mi_size_wide[bsize] == mi_size_high[bsize]);
+  // In rt mode, currently the min partition size is BLOCK_8X8.
+  assert(bsize >= cpi->sf.part_sf.default_min_partition_size);
 
   av1_invalid_rd_stats(&last_part_rdc);
   av1_invalid_rd_stats(&none_rdc);
@@ -1768,6 +1773,7 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       is_adjust_var_based_part_enabled(cm, &cpi->sf.part_sf, bsize) &&
       (mi_row + hbs < mi_params->mi_rows &&
        mi_col + hbs < mi_params->mi_cols)) {
+    assert(bsize > cpi->sf.part_sf.default_min_partition_size);
     pc_tree->partitioning = PARTITION_NONE;
     x->try_merge_partition = 1;
     pick_sb_modes(cpi, tile_data, x, mi_row, mi_col, &none_rdc, PARTITION_NONE,
@@ -1776,6 +1782,12 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     if (none_rdc.rate < INT_MAX) {
       none_rdc.rate += mode_costs->partition_cost[pl][PARTITION_NONE];
       none_rdc.rdcost = RDCOST(x->rdmult, none_rdc.rate, none_rdc.dist);
+    }
+
+    // Try to skip split partition evaluation based on none partition
+    // characteristics.
+    if (none_rdc.rate < INT_MAX && none_rdc.skip_txfm == 1) {
+      use_partition_none = 1;
     }
 
     av1_restore_context(x, &x_ctx, mi_row, mi_col, bsize, num_planes);
@@ -1793,6 +1805,11 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
                     PARTITION_NONE, bsize, ctx_none, invalid_rdc);
       break;
     case PARTITION_HORZ:
+      if (use_partition_none) {
+        av1_invalid_rd_stats(&last_part_rdc);
+        break;
+      }
+
       for (int i = 0; i < SUB_PARTITIONS_RECT; ++i) {
         pc_tree->horizontal[i] =
             av1_alloc_pmc(cpi, subsize, &td->shared_coeff_buf);
@@ -1821,6 +1838,11 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       }
       break;
     case PARTITION_VERT:
+      if (use_partition_none) {
+        av1_invalid_rd_stats(&last_part_rdc);
+        break;
+      }
+
       for (int i = 0; i < SUB_PARTITIONS_RECT; ++i) {
         pc_tree->vertical[i] =
             av1_alloc_pmc(cpi, subsize, &td->shared_coeff_buf);
@@ -1848,16 +1870,9 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       }
       break;
     case PARTITION_SPLIT:
-      if (none_rdc.rate < INT_MAX && none_rdc.skip_txfm == 1) {
-        const MB_MODE_INFO *mbmi = xd->mi[0];
-        // Try to skip split partition evaluation based on none partition
-        // characteristics.
-        if (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 1 ||
-            (cpi->sf.part_sf.adjust_var_based_rd_partitioning == 2 &&
-             is_inter_block(mbmi) && mbmi->mode != NEWMV)) {
-          av1_invalid_rd_stats(&last_part_rdc);
-          break;
-        }
+      if (use_partition_none) {
+        av1_invalid_rd_stats(&last_part_rdc);
+        break;
       }
 
       last_part_rdc.rate = 0;
