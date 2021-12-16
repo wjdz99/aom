@@ -2012,6 +2012,8 @@ double av1_tpl_get_qstep_ratio(const TplParams *tpl_data, int gf_frame_index) {
   }
   const double frame_importance =
       av1_tpl_get_frame_importance(tpl_data, gf_frame_index);
+
+  fprintf(stderr, "frame importance = %lf\n", frame_importance);
   return sqrt(1 / frame_importance);
 }
 

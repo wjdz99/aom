@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <stdio.h>
 #include "aom/aomcx.h"
 
 #include "av1/encoder/bitstream.h"
@@ -493,13 +494,12 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       for (int col = 0; col < mi_cols_sr; col += col_step_sr) {
         TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
             row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
-        
+
         double cbcmp = this_stats->recrf_dist;
         int64_t mc_dep_delta =
             RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                    this_stats->mc_dep_dist);
-        intra_cost_base += 
-          log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
+        intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
         mc_dep_cost_base +=
             log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
         cbcmp_base += cbcmp;
@@ -544,7 +544,8 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
 #if !CONFIG_REALTIME_ONLY
   GF_GROUP *gf_group = &cpi->ppi->gf_group;
   if (cpi->oxcf.algo_cfg.enable_tpl_model &&
-      is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) {
+      (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) ||
+       gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE)) {
     process_tpl_stats_frame(cpi);
     av1_tpl_rdmult_setup(cpi);
   }
@@ -557,17 +558,22 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
 #if !CONFIG_REALTIME_ONLY
   if (cpi->oxcf.rc_cfg.mode == AOM_Q &&
       cpi->ppi->tpl_data.tpl_frame[cpi->gf_frame_index].is_valid &&
-      is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) &&
+      (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) ||
+       gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE) &&
+      // is_frame_tpl_eligible(gf_group, cpi->gf_frame_index) &&
       !is_lossless_requested(&cpi->oxcf.rc_cfg)) {
     const RateControlCfg *const rc_cfg = &cpi->oxcf.rc_cfg;
     const int tpl_q = av1_tpl_get_q_index(
         &cpi->ppi->tpl_data, cpi->gf_frame_index, cpi->rc.active_worst_quality,
         cm->seq_params->bit_depth);
-    *q = clamp(tpl_q, rc_cfg->best_allowed_q, rc_cfg->worst_allowed_q);
-    *top_index = *bottom_index = *q;
+    if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE || 1) {
+      *q = clamp(tpl_q, rc_cfg->best_allowed_q, rc_cfg->worst_allowed_q);
+      *top_index = *bottom_index = *q;
+    }
     if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE)
       cpi->ppi->p_rc.arf_q = *q;
   }
+  fprintf(stderr, "tpl qp = %d\n", *q);
 
   if (cpi->oxcf.q_cfg.use_fixed_qp_offsets && cpi->oxcf.rc_cfg.mode == AOM_Q) {
     if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) {
