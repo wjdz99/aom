@@ -1364,7 +1364,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->part_sf.max_intra_bsize = BLOCK_16X16;
   sf->part_sf.partition_search_breakout_rate_thr = 500;
   sf->part_sf.partition_search_type = VAR_BASED_PARTITION;
-  sf->part_sf.adjust_var_based_rd_partitioning = 2;
+  sf->part_sf.adjust_var_based_rd_partitioning =
+      frame_is_intra_only(cm) ? 0 : 2;
 
   sf->mv_sf.full_pixel_search_level = 1;
   sf->mv_sf.exhaustive_searches_thresh = INT_MAX;
