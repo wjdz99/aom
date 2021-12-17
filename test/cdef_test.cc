@@ -28,8 +28,9 @@ using libaom_test::ACMRandom;
 
 namespace {
 
-typedef std::tuple<cdef_filter_block_func, cdef_filter_block_func, BLOCK_SIZE,
-                   int, int>
+typedef std::tuple<cdef_filter_block_func, cdef_filter_block_func,
+                   cdef_filter_block_highbd_func, cdef_filter_block_highbd_func,
+                   BLOCK_SIZE, int, int>
     cdef_dir_param_t;
 
 class CDEFBlockTest : public ::testing::TestWithParam<cdef_dir_param_t> {
@@ -38,9 +39,11 @@ class CDEFBlockTest : public ::testing::TestWithParam<cdef_dir_param_t> {
   virtual void SetUp() {
     cdef = GET_PARAM(0);
     ref_cdef = GET_PARAM(1);
-    bsize = GET_PARAM(2);
-    boundary = GET_PARAM(3);
-    depth = GET_PARAM(4);
+    cdef_highbd = GET_PARAM(2);
+    ref_cdef_highbd = GET_PARAM(3);
+    bsize = GET_PARAM(4);
+    boundary = GET_PARAM(5);
+    depth = GET_PARAM(6);
   }
 
   virtual void TearDown() {}
@@ -51,6 +54,8 @@ class CDEFBlockTest : public ::testing::TestWithParam<cdef_dir_param_t> {
   int depth;
   cdef_filter_block_func cdef;
   cdef_filter_block_func ref_cdef;
+  cdef_filter_block_highbd_func cdef_highbd;
+  cdef_filter_block_highbd_func ref_cdef_highbd;
 };
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFBlockTest);
 
@@ -58,7 +63,10 @@ typedef CDEFBlockTest CDEFSpeedTest;
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(CDEFSpeedTest);
 
 void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
-               cdef_filter_block_func ref_cdef, int boundary, int depth) {
+               cdef_filter_block_func ref_cdef,
+               cdef_filter_block_highbd_func cdef_highbd,
+               cdef_filter_block_highbd_func ref_cdef_highbd, int boundary,
+               int depth) {
   const int size = 8;
   const int ysize = size + 2 * CDEF_VBORDER;
   ACMRandom rnd(ACMRandom::DeterministicSeed());
@@ -115,27 +123,52 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
                 for (secstrength = 0; secstrength <= 4 << (depth - 8) && !error;
                      secstrength += 1 << (depth - 8)) {
                   if (secstrength == 3 << (depth - 8)) continue;
-                  ref_cdef(depth == 8 ? (uint8_t *)ref_d : 0, ref_d, size,
-                           s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
-                           pristrength, secstrength, dir, pridamping,
-                           secdamping, bsize, depth - 8);
-                  // If cdef and ref_cdef are the same, we're just testing
-                  // speed
-                  if (cdef != ref_cdef)
-                    API_REGISTER_STATE_CHECK(
-                        cdef(depth == 8 ? (uint8_t *)d : 0, d, size,
+                  if (depth == 8) {
+                    ref_cdef((uint8_t *)ref_d, size,
                              s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
                              pristrength, secstrength, dir, pridamping,
-                             secdamping, bsize, depth - 8));
-                  if (ref_cdef != cdef) {
-                    for (pos = 0; pos < max_pos && !error; pos++) {
-                      error = ref_d[pos] != d[pos];
-                      errdepth = depth;
-                      errpristrength = pristrength;
-                      errsecstrength = secstrength;
-                      errboundary = boundary;
-                      errpridamping = pridamping;
-                      errsecdamping = secdamping;
+                             secdamping, bsize, depth - 8);
+                    // If cdef and ref_cdef are the same, we're just testing
+                    // speed
+                    if (cdef != ref_cdef)
+                      API_REGISTER_STATE_CHECK(
+                          cdef((uint8_t *)d, size,
+                               s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
+                               pristrength, secstrength, dir, pridamping,
+                               secdamping, bsize, depth - 8));
+                    if (ref_cdef != cdef) {
+                      for (pos = 0; pos < max_pos && !error; pos++) {
+                        error = ref_d[pos] != d[pos];
+                        errdepth = depth;
+                        errpristrength = pristrength;
+                        errsecstrength = secstrength;
+                        errboundary = boundary;
+                        errpridamping = pridamping;
+                        errsecdamping = secdamping;
+                      }
+                    }
+                  } else {
+                    ref_cdef_highbd(
+                        ref_d, size,
+                        s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
+                        pristrength, secstrength, dir, pridamping, secdamping,
+                        bsize, depth - 8);
+                    if (cdef_highbd != ref_cdef_highbd)
+                      API_REGISTER_STATE_CHECK(cdef_highbd(
+                          d, size,
+                          s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
+                          pristrength, secstrength, dir, pridamping, secdamping,
+                          bsize, depth - 8));
+                    if (ref_cdef_highbd != cdef_highbd) {
+                      for (pos = 0; pos < max_pos && !error; pos++) {
+                        error = ref_d[pos] != d[pos];
+                        errdepth = depth;
+                        errpristrength = pristrength;
+                        errsecstrength = secstrength;
+                        errboundary = boundary;
+                        errpridamping = pridamping;
+                        errsecdamping = secdamping;
+                      }
                     }
                   }
                 }
@@ -164,17 +197,22 @@ void test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
 }
 
 void test_cdef_speed(int bsize, int iterations, cdef_filter_block_func cdef,
-                     cdef_filter_block_func ref_cdef, int boundary, int depth) {
+                     cdef_filter_block_func ref_cdef,
+                     cdef_filter_block_highbd_func cdef_highbd,
+                     cdef_filter_block_highbd_func ref_cdef_highbd,
+                     int boundary, int depth) {
   aom_usec_timer ref_timer;
   aom_usec_timer timer;
 
   aom_usec_timer_start(&ref_timer);
-  test_cdef(bsize, iterations, ref_cdef, ref_cdef, boundary, depth);
+  test_cdef(bsize, iterations, ref_cdef, ref_cdef, ref_cdef_highbd,
+            ref_cdef_highbd, boundary, depth);
   aom_usec_timer_mark(&ref_timer);
   int ref_elapsed_time = (int)aom_usec_timer_elapsed(&ref_timer);
 
   aom_usec_timer_start(&timer);
-  test_cdef(bsize, iterations, cdef, cdef, boundary, depth);
+  test_cdef(bsize, iterations, cdef, cdef, cdef_highbd, cdef_highbd, boundary,
+            depth);
   aom_usec_timer_mark(&timer);
   int elapsed_time = (int)aom_usec_timer_elapsed(&timer);
 
@@ -274,11 +312,13 @@ void test_finddir_speed(int (*finddir)(const uint16_t *img, int stride,
 }
 
 TEST_P(CDEFBlockTest, TestSIMDNoMismatch) {
-  test_cdef(bsize, 1, cdef, ref_cdef, boundary, depth);
+  test_cdef(bsize, 1, cdef, ref_cdef, cdef_highbd, ref_cdef_highbd, boundary,
+            depth);
 }
 
 TEST_P(CDEFSpeedTest, DISABLED_TestSpeed) {
-  test_cdef_speed(bsize, 4, cdef, ref_cdef, boundary, depth);
+  test_cdef_speed(bsize, 4, cdef, ref_cdef, cdef_highbd, ref_cdef_highbd,
+                  boundary, depth);
 }
 
 TEST_P(CDEFFindDirTest, TestSIMDNoMismatch) {
@@ -300,6 +340,8 @@ INSTANTIATE_TEST_SUITE_P(
     SSE2, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse2),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_sse2),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -312,6 +354,8 @@ INSTANTIATE_TEST_SUITE_P(
     SSSE3, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_ssse3),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_ssse3),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -325,6 +369,8 @@ INSTANTIATE_TEST_SUITE_P(
     SSE4_1, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse4_1),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_sse4_1),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -338,6 +384,8 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_avx2),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_avx2),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -351,6 +399,8 @@ INSTANTIATE_TEST_SUITE_P(
     NEON, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_neon),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_neon),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -365,6 +415,8 @@ INSTANTIATE_TEST_SUITE_P(
     SSE2, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse2),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_sse2),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -378,6 +430,8 @@ INSTANTIATE_TEST_SUITE_P(
     SSSE3, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_ssse3),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_ssse3),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -391,6 +445,8 @@ INSTANTIATE_TEST_SUITE_P(
     SSE4_1, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse4_1),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_sse4_1),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -404,6 +460,8 @@ INSTANTIATE_TEST_SUITE_P(
     AVX2, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_avx2),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_avx2),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
@@ -417,6 +475,8 @@ INSTANTIATE_TEST_SUITE_P(
     NEON, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_neon),
                        ::testing::Values(&cdef_filter_block_c),
+                       ::testing::Values(&cdef_filter_block_highbd_neon),
+                       ::testing::Values(&cdef_filter_block_highbd_c),
                        ::testing::Values(BLOCK_4X4, BLOCK_4X8, BLOCK_8X4,
                                          BLOCK_8X8),
                        ::testing::Range(0, 16), ::testing::Range(8, 13, 2)));
