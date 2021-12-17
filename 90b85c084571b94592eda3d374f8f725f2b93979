@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11ba71b8_ea9f7d64",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 24958
+      },
+      "writtenOn": "2021-12-17T17:56:11Z",
+      "side": 1,
+      "message": "Message for reviewer:\n-----------------------\nHi Yunqing,\n\nThis patch delays the onstart of frame parallel encoding during multi-tile encode. FPMT is enabled only for higher threads when parallel encoding of MAX_PARALLEL_FRAMES is possible and significant gains are achieved. This limit was derived from the empirical results achieved with FPMT.\n\n\nPlease review.\n-----------------------",
+      "revId": "90b85c084571b94592eda3d374f8f725f2b93979",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
