@@ -129,10 +129,12 @@ const int cdef_pri_taps[2][2] = { { 4, 2 }, { 3, 3 } };
 const int cdef_sec_taps[2] = { 2, 1 };
 
 /* Smooth in the direction detected. */
-void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
-                         const uint16_t *in, int pri_strength, int sec_strength,
-                         int dir, int pri_damping, int sec_damping, int bsize,
-                         int coeff_shift) {
+static void cdef_filter_block_internal(uint8_t *dst8, uint16_t *dst16,
+                                       int dstride, const uint16_t *in,
+                                       int pri_strength, int sec_strength,
+                                       int dir, int pri_damping,
+                                       int sec_damping, int bsize,
+                                       int coeff_shift) {
   int i, j, k;
   const int s = CDEF_BSTRIDE;
   const int *pri_taps = cdef_pri_taps[(pri_strength >> coeff_shift) & 1];
@@ -177,6 +179,24 @@ void cdef_filter_block_c(uint8_t *dst8, uint16_t *dst16, int dstride,
         dst16[i * dstride + j] = (uint16_t)y;
     }
   }
+}
+
+void cdef_filter_block_c(uint8_t *dst8, int dstride, const uint16_t *in,
+                         int pri_strength, int sec_strength, int dir,
+                         int pri_damping, int sec_damping, int bsize,
+                         int coeff_shift) {
+  cdef_filter_block_internal(dst8, NULL, dstride, in, pri_strength,
+                             sec_strength, dir, pri_damping, sec_damping, bsize,
+                             coeff_shift);
+}
+
+void cdef_filter_block_highbd_c(uint16_t *dst16, int dstride,
+                                const uint16_t *in, int pri_strength,
+                                int sec_strength, int dir, int pri_damping,
+                                int sec_damping, int bsize, int coeff_shift) {
+  cdef_filter_block_internal(NULL, dst16, dstride, in, pri_strength,
+                             sec_strength, dir, pri_damping, sec_damping, bsize,
+                             coeff_shift);
 }
 
 /* Compute the primary filter strength for an 8x8 block based on the
@@ -253,13 +273,12 @@ void av1_cdef_filter_fb(uint8_t *dst8, uint16_t *dst16, int dstride,
     bx = dlist[bi].bx;
     if (dst8) {
       cdef_filter_block(
-          &dst8[(by << bh_log2) * dstride + (bx << bw_log2)], NULL, dstride,
+          &dst8[(by << bh_log2) * dstride + (bx << bw_log2)], dstride,
           &in[(by * CDEF_BSTRIDE << bh_log2) + (bx << bw_log2)],
           (pli ? t : adjust_strength(t, var[by][bx])), s, t ? dir[by][bx] : 0,
           damping, damping, bsize, coeff_shift);
     } else {
-      cdef_filter_block(
-          NULL,
+      cdef_filter_block_highbd(
           &dst16[dirinit ? bi << (bw_log2 + bh_log2)
                          : (by << bh_log2) * dstride + (bx << bw_log2)],
           dirinit ? 1 << bw_log2 : dstride,
