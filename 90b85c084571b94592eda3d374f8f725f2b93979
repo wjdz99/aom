@@ -16,6 +16,29 @@
       "message": "Message for reviewer:\n-----------------------\nHi Yunqing,\n\nThis patch delays the onstart of frame parallel encoding during multi-tile encode. FPMT is enabled only for higher threads when parallel encoding of MAX_PARALLEL_FRAMES is possible and significant gains are achieved. This limit was derived from the empirical results achieved with FPMT.\n\n\nPlease review.\n-----------------------",
       "revId": "90b85c084571b94592eda3d374f8f725f2b93979",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7e5bf8b_3eaa940e",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2021-12-20T17:18:12Z",
+      "side": 1,
+      "message": "So, fpmt is turned off unless we have enough threads to run 4 frames in parallel? I guess this is fine. We can go through the results in the meeting.",
+      "range": {
+        "startLine": 955,
+        "startChar": 4,
+        "endLine": 955,
+        "endChar": 67
+      },
+      "revId": "90b85c084571b94592eda3d374f8f725f2b93979",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
