@@ -339,6 +339,7 @@ const arg_def_t *av1_ctrl_args[] = {
   &g_av1_codec_arg_defs.arnr_maxframes,
   &g_av1_codec_arg_defs.arnr_strength,
   &g_av1_codec_arg_defs.tune_metric,
+  &g_av1_codec_arg_defs.distortion_metric,
   &g_av1_codec_arg_defs.cq_level,
   &g_av1_codec_arg_defs.max_intra_rate_pct,
   &g_av1_codec_arg_defs.max_inter_rate_pct,
