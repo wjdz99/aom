@@ -1992,13 +1992,15 @@ double av1_tpl_get_frame_importance(const TplParams *tpl_data,
     for (int col = 0; col < tpl_frame->mi_cols; col += step) {
       const TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
           row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
-      double cbcmp = this_stats->recrf_dist;
-      const int64_t mc_dep_delta =
+      double cbcmp = this_stats->srcrf_dist;
+      int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
-      intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
+      mc_dep_delta = (int64_t)((mc_dep_delta * this_stats->srcrf_dist) /
+                               this_stats->recrf_dist);
+      intra_cost_base += log(this_stats->srcrf_dist << RDDIV_BITS) * cbcmp;
       mc_dep_cost_base +=
-          log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
+          log((this_stats->srcrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
       cbcmp_base += cbcmp;
     }
   }
