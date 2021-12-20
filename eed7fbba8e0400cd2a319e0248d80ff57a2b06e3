@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7439a293_26180243",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-20T23:05:08Z",
+      "side": 1,
+      "message": "Note that plane_to is the maximum value of |plane|.",
+      "revId": "eed7fbba8e0400cd2a319e0248d80ff57a2b06e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ff85157_41a94630",
+        "filename": "av1/encoder/reconinter_enc.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-20T23:05:08Z",
+      "side": 1,
+      "message": "The largest index used in ext_dst[plane] and ext_dst_stride[plane] is plane_to. So these two arrays must have at least plane_to + 1 entries.",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 310,
+        "endChar": 70
+      },
+      "revId": "eed7fbba8e0400cd2a319e0248d80ff57a2b06e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f59e5614_a0af190b",
+        "filename": "av1/encoder/reconinter_enc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-20T23:05:08Z",
+      "side": 1,
+      "message": "These arrays are expected to have at least |plane_to + 1| entries. Please see my comments in av1/encoder/reconinter_enc.c.",
+      "revId": "eed7fbba8e0400cd2a319e0248d80ff57a2b06e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
