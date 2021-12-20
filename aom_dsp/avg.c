@@ -480,7 +480,7 @@ int aom_satd_lp_c(const int16_t *coeff, int length) {
 
 // Integer projection onto row vectors.
 // height: value range {16, 32, 64, 128}.
-void aom_int_pro_row_c(int16_t hbuf[16], const uint8_t *ref,
+void aom_int_pro_row_c(int16_t hbuf[/*16*/], const uint8_t *ref,
                        const int ref_stride, const int height) {
   int idx;
   const int norm_factor = height >> 1;
