@@ -34,6 +34,24 @@
       "parentUuid": "f34111c0_08131a30",
       "revId": "1f3e6d8bc192f46a348767e52a2318581f1365d9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac880a55_8ac88d20",
+        "filename": "av1/encoder/reconinter_enc.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-20T22:52:26Z",
+      "side": 1,
+      "message": "\u003e I suggest we just remove \"3\" from the declarations of these arguments.\n\nThat\u0027s fine. I\u0027d say the commented out /*plane_to*/ was more indicative of the minimum size.",
+      "parentUuid": "95b83d60_0477578d",
+      "revId": "1f3e6d8bc192f46a348767e52a2318581f1365d9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
