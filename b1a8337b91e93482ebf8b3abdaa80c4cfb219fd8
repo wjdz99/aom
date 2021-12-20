@@ -16,6 +16,24 @@
       "message": "Hi Chi Yo, Wan-Teh and Yunqing,\n\nWe have modified the patch as per your suggestions. And also during patchset 2, we missed out on using the unified entropy cost update frequency (which was populated in populate_unified_cost_update_freq()) in delay_wait_for_top_right_sb(). The current patchset takes care of the same by modifying the functionality in delay_wait_for_top_right_sb(), based on unified cost update frequency rather than using both control time params and sf\u0027s settings.\n\nThe current patchset was verified to be bit-exact w.r.t. patchset 2 and also verified that the patch does not have any speed impact in multi-thread path.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.\n",
       "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0baeb18e_caa7045b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-20T23:53:53Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nChi Yo is out of the office this week. I will try to review patchset 3 this week.",
+      "parentUuid": "77d570c4_985a3e59",
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
