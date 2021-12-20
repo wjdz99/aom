@@ -54,6 +54,7 @@ struct av1_extracfg {
   aom_tune_metric tuning;
   const char *vmaf_model_path;
   const char *partition_info_path;
+  aom_dist_metric dist_metric;
   unsigned int cq_level;  // constrained quality level
   unsigned int rc_max_intra_bitrate_pct;
   unsigned int rc_max_inter_bitrate_pct;
@@ -226,6 +227,7 @@ static const struct av1_extracfg default_extra_cfg = {
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.json",  // VMAF model path
   ".",                                        // partition info path
+  AOM_DIST_METRIC_PSNR,                       // dist_metric
   10,                                         // cq_level
   0,                                          // rc_max_intra_bitrate_pct
   0,                                          // rc_max_inter_bitrate_pct
@@ -369,6 +371,7 @@ static const struct av1_extracfg default_extra_cfg = {
   AOM_TUNE_PSNR,  // tuning
   "/usr/local/share/model/vmaf_v0.6.1.json",  // VMAF model path
   ".",                                        // partition info path
+  AOM_DIST_METRIC_PSNR,                       // dist_metric
   10,                                         // cq_level
   0,                                          // rc_max_intra_bitrate_pct
   0,                                          // rc_max_inter_bitrate_pct
@@ -802,6 +805,9 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 
   RANGE_CHECK(extra_cfg, tuning, AOM_TUNE_PSNR, AOM_TUNE_BUTTERAUGLI);
 
+  RANGE_CHECK(extra_cfg, dist_metric, AOM_DIST_METRIC_PSNR,
+              AOM_DIST_METRIC_QM_PSNR);
+
   RANGE_CHECK(extra_cfg, timing_info_type, AOM_TIMING_UNSPECIFIED,
               AOM_TIMING_DEC_MODEL);
 
@@ -918,11 +924,10 @@ static void update_default_encoder_config(const cfg_options_t *cfg,
                                           struct av1_extracfg *extra_cfg) {
   extra_cfg->enable_cdef = (cfg->disable_cdef == 0) ? 1 : 0;
   extra_cfg->enable_restoration = (cfg->disable_lr == 0);
-  extra_cfg->superblock_size = (cfg->super_block_size == 64)
-                                   ? AOM_SUPERBLOCK_SIZE_64X64
-                                   : (cfg->super_block_size == 128)
-                                         ? AOM_SUPERBLOCK_SIZE_128X128
-                                         : AOM_SUPERBLOCK_SIZE_DYNAMIC;
+  extra_cfg->superblock_size =
+      (cfg->super_block_size == 64)    ? AOM_SUPERBLOCK_SIZE_64X64
+      : (cfg->super_block_size == 128) ? AOM_SUPERBLOCK_SIZE_128X128
+                                       : AOM_SUPERBLOCK_SIZE_DYNAMIC;
   extra_cfg->enable_warped_motion = (cfg->disable_warp_motion == 0);
   extra_cfg->enable_dist_wtd_comp = (cfg->disable_dist_wtd_comp == 0);
   extra_cfg->enable_diff_wtd_comp = (cfg->disable_diff_wtd_comp == 0);
@@ -1268,6 +1273,7 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
     tune_cfg->film_grain_test_vector = extra_cfg->film_grain_test_vector;
     tune_cfg->film_grain_table_filename = extra_cfg->film_grain_table_filename;
   }
+  tune_cfg->dist_metric = extra_cfg->dist_metric;
 #if CONFIG_DENOISE
   oxcf->noise_level = extra_cfg->noise_level;
   oxcf->noise_block_size = extra_cfg->noise_block_size;
@@ -1433,8 +1439,8 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   oxcf->border_in_pixels =
       (resize_cfg->resize_mode || superres_cfg->superres_mode)
           ? AOM_BORDER_IN_PIXELS
-          : (oxcf->kf_cfg.key_freq_max == 0) ? AOM_ENC_ALLINTRA_BORDER
-                                             : AOM_ENC_NO_SCALE_BORDER;
+      : (oxcf->kf_cfg.key_freq_max == 0) ? AOM_ENC_ALLINTRA_BORDER
+                                         : AOM_ENC_NO_SCALE_BORDER;
   memcpy(oxcf->target_seq_level_idx, extra_cfg->target_seq_level_idx,
          sizeof(oxcf->target_seq_level_idx));
   oxcf->tier_mask = extra_cfg->tier_mask;
@@ -3631,6 +3637,9 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
                             argv, err_string)) {
     err = allocate_and_set_string(value, default_extra_cfg.partition_info_path,
                                   &extra_cfg.partition_info_path, err_string);
+  } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.dist_metric, argv,
+                              err_string)) {
+    extra_cfg.dist_metric = arg_parse_enum_helper(&arg, err_string);
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.cq_level, argv,
                               err_string)) {
     extra_cfg.cq_level = arg_parse_uint_helper(&arg, err_string);
