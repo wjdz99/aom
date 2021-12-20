@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "550cd05f_044e5315",
+        "filename": "AUTHORS",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-20T18:20:46Z",
+      "side": 1,
+      "message": "this is updated from the git history at release time (tools/gen_authors.sh); to make it permanent a .mailmap update will be needed:\nhttps://aomedia-review.googlesource.com/c/aom/+/150961",
+      "revId": "d6f4e0e824bf548048fe54c53a8aea76b4907ac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
