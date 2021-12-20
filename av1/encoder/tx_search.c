@@ -1047,8 +1047,10 @@ static INLINE void sort_rd(int64_t rds[], int txk[], int len) {
 }
 
 static INLINE void dist_block_tx_domain(MACROBLOCK *x, int plane, int block,
-                                        TX_SIZE tx_size, int64_t *out_dist,
-                                        int64_t *out_sse) {
+                                        TX_SIZE tx_size,
+                                        const QUANT_PARAM *quant_param,
+                                        const SCAN_ORDER *scan_order,
+                                        int64_t *out_dist, int64_t *out_sse) {
   const struct macroblock_plane *const p = &x->plane[plane];
   // Transform domain distortion computation is more efficient as it does
   // not involve an inverse transform, but it is less accurate.
@@ -1067,7 +1069,26 @@ static INLINE void dist_block_tx_domain(MACROBLOCK *x, int plane, int block,
                                        xd->bd);
   else
 #endif
-    *out_dist = av1_block_error(coeff, dqcoeff, buffer_length, &this_sse);
+  {
+    if (quant_param->qmatrix == NULL ||
+        !x->txfm_search_params.use_qm_dist_metric) {
+      *out_dist = av1_block_error(coeff, dqcoeff, buffer_length, &this_sse);
+    } else {
+      *out_dist = 0;
+      this_sse = 0;
+      for (intptr_t i = 0; i < buffer_length; i++) {
+        int64_t q = quant_param->qmatrix[scan_order->scan[i]];
+        int64_t dd = coeff[i] - dqcoeff[i];
+        dd *= q;
+        dd /= (1 << AOM_QM_BITS);
+        int64_t cc = coeff[i];
+        cc *= q;
+        cc /= (1 << AOM_QM_BITS);
+        *out_dist += dd * dd;
+        this_sse += cc * cc;
+      }
+    }
+  }
 
   *out_dist = RIGHT_SIGNED_SHIFT(*out_dist, shift);
   *out_sse = RIGHT_SIGNED_SHIFT(this_sse, shift);
@@ -1123,13 +1144,17 @@ uint16_t prune_txk_type_separ(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     tx_type = idx_map[idx];
     txfm_param.tx_type = tx_type;
 
+    const SCAN_ORDER *const scan_order =
+        get_scan(txfm_param.tx_size, txfm_param.tx_type);
+
     av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
                       &quant_param);
 
     av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize, &txfm_param,
                     &quant_param);
 
-    dist_block_tx_domain(x, plane, block, tx_size, &dist, &sse);
+    dist_block_tx_domain(x, plane, block, tx_size, &quant_param, scan_order,
+                         &dist, &sse);
 
     rate_cost = av1_cost_coeffs_txb_laplacian(x, plane, block, tx_size, tx_type,
                                               txb_ctx, reduced_tx_set_used, 0);
@@ -1162,7 +1187,10 @@ uint16_t prune_txk_type_separ(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     av1_xform_quant(x, plane, block, blk_row, blk_col, plane_bsize, &txfm_param,
                     &quant_param);
 
-    dist_block_tx_domain(x, plane, block, tx_size, &dist, &sse);
+    const SCAN_ORDER *const scan_order =
+        get_scan(txfm_param.tx_size, txfm_param.tx_type);
+    dist_block_tx_domain(x, plane, block, tx_size, &quant_param, scan_order,
+                         &dist, &sse);
 
     rate_cost = av1_cost_coeffs_txb_laplacian(x, plane, block, tx_size, tx_type,
                                               txb_ctx, reduced_tx_set_used, 0);
@@ -1254,7 +1282,10 @@ uint16_t prune_txk_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     rate_cost = av1_cost_coeffs_txb_laplacian(x, plane, block, tx_size, tx_type,
                                               txb_ctx, reduced_tx_set_used, 0);
     // tx domain dist
-    dist_block_tx_domain(x, plane, block, tx_size, &dist, &sse);
+    const SCAN_ORDER *const scan_order =
+        get_scan(txfm_param.tx_size, txfm_param.tx_type);
+    dist_block_tx_domain(x, plane, block, tx_size, &quant_param, scan_order,
+                         &dist, &sse);
 
     txk_map[num_cand] = tx_type;
     rds[num_cand] = RDCOST(x->rdmult, rate_cost, dist);
@@ -2061,6 +2092,7 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       (txsize_sqr_up_map[tx_size] != TX_64X64) &&
       // Use pixel domain distortion for DC only blocks
       !dc_only_blk;
+
   // Flag to indicate if an extra calculation of distortion in the pixel domain
   // should be performed at the end, after the best transform type has been
   // decided.
@@ -2089,10 +2121,8 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
     if (tx_type == TX_TYPE_INVALID || !check_bit_mask(allowed_tx_mask, tx_type))
       continue;
     txfm_param.tx_type = tx_type;
-    if (av1_use_qmatrix(&cm->quant_params, xd, mbmi->segment_id)) {
-      av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
-                        &quant_param);
-    }
+    av1_setup_qmatrix(&cm->quant_params, xd, plane, tx_size, tx_type,
+                      &quant_param);
     if (plane == 0) xd->tx_type_map[tx_type_map_idx] = tx_type;
     RD_STATS this_rd_stats;
     av1_invalid_rd_stats(&this_rd_stats);
@@ -2130,8 +2160,10 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
       this_rd_stats.dist = dist_block_px_domain(
           cpi, x, plane, plane_bsize, block, blk_row, blk_col, tx_size);
     } else if (use_transform_domain_distortion) {
-      dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
-                           &this_rd_stats.sse);
+      const SCAN_ORDER *const scan_order =
+          get_scan(txfm_param.tx_size, txfm_param.tx_type);
+      dist_block_tx_domain(x, plane, block, tx_size, &quant_param, scan_order,
+                           &this_rd_stats.dist, &this_rd_stats.sse);
     } else {
       int64_t sse_diff = INT64_MAX;
       // high_energy threshold assumes that every pixel within a txfm block
@@ -2147,8 +2179,10 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
         // to decide if we should do pixel domain distortion. If the energy
         // is mostly in first quadrant, then it is unlikely that we have
         // overflow issue in inverse transform.
-        dist_block_tx_domain(x, plane, block, tx_size, &this_rd_stats.dist,
-                             &this_rd_stats.sse);
+        const SCAN_ORDER *const scan_order =
+            get_scan(txfm_param.tx_size, txfm_param.tx_type);
+        dist_block_tx_domain(x, plane, block, tx_size, &quant_param, scan_order,
+                             &this_rd_stats.dist, &this_rd_stats.sse);
         sse_diff = block_sse - this_rd_stats.sse;
       }
       if (tx_size != TX_64X64 || !is_high_energy ||
@@ -2917,8 +2951,10 @@ int64_t av1_estimate_txfm_yrd(const AV1_COMP *const cpi, MACROBLOCK *x,
       this_rd_stats.rate =
           cost_coeffs(x, 0, i, tx_size, txfm_param.tx_type, &txb_ctx, 0);
 
-      dist_block_tx_domain(x, 0, i, tx_size, &this_rd_stats.dist,
-                           &this_rd_stats.sse);
+      const SCAN_ORDER *const scan_order =
+          get_scan(txfm_param.tx_size, txfm_param.tx_type);
+      dist_block_tx_domain(x, 0, i, tx_size, &quant_param, scan_order,
+                           &this_rd_stats.dist, &this_rd_stats.sse);
 
       const int64_t no_skip_txfm_rd =
           RDCOST(x->rdmult, this_rd_stats.rate, this_rd_stats.dist);
