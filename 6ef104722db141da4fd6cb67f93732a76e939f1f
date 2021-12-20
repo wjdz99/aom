@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "51862b8b_cbc1507b",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-20T11:46:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b39d42c_7715f472",
+      "revId": "6ef104722db141da4fd6cb67f93732a76e939f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5a4c83ca_fae2598d",
@@ -77,6 +95,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c0fa421e_ccbb8a63",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-20T11:46:20Z",
+      "side": 1,
+      "message": "Moved it to the function \"populate_unified_cost_update_freq\" and renamed the array name to \"map_cost_upd_to_internal_cost_upd\".",
+      "parentUuid": "5a4c83ca_fae2598d",
+      "range": {
+        "startLine": 651,
+        "startChar": 0,
+        "endLine": 656,
+        "endChar": 0
+      },
+      "revId": "6ef104722db141da4fd6cb67f93732a76e939f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "efca6699_2596df3a",
         "filename": "av1/encoder/speed_features.h",
         "patchSetId": 2
@@ -88,6 +130,30 @@
       "writtenOn": "2021-12-16T18:56:02Z",
       "side": 1,
       "message": "See the comment for COST_UPDATE_TYPE.",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 314,
+        "endChar": 3
+      },
+      "revId": "6ef104722db141da4fd6cb67f93732a76e939f1f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d10f190_2b402972",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-20T11:46:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efca6699_2596df3a",
       "range": {
         "startLine": 307,
         "startChar": 0,
