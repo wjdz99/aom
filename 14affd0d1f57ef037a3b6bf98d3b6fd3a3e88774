@@ -1,6 +1,7 @@
 {
   "comments": [
     {
+      "unresolved": false,
       "key": {
         "uuid": "c2b0ffa7_677dff24",
         "filename": "/PATCHSET_LEVEL",
@@ -14,10 +15,10 @@
       "side": 1,
       "message": "Hi Yunqing,\n\nIn this patch, we did changes to initialize search site config for all motion search methods.\nWith this change we removed the function bigdia_search_level1 () and used pattern_search() ( which is a common function used for search methods HEX, BIGDIA, SQUARE, FAST_HEX and FAST_DIAMOND ) for FAST_BIGDIA search method. And also this change enables the usage of 4-point sad in pattern_search() function.\n\nWhile doing these changes, we observed that the previous implementation does the initialization for either of DIAMOND or NSTEP. So, when changing the search method between these two methods search site config needs to be taken care which is not happening in the present code base. For example, the search method used in tf_motion_search() is always NSTEP while search site config may or may not be of NSTEP ( Till speed 2 as mv_sf.search_method is NSTEP, search site config will be of NSTEP. But for speed presets 3 to 6 as mv_sf.search_method is DIAMOND, search site config will be initialized for DIAMOND). Now as search site is initialized for all motion search methods we can try to use the corresponding search site (Note that it will not be a bit exact change). \n\nAs the DIAMOND and NSTEP uses the same function diamond_search_sad() changing the search method in tf_motion_search() should be a bit match. But because of the speed feature \"use_bsize_dependent_search_method\", it won\u0027t be a bit match for speed presets \u003e\u003d 3 (as the search method decision will change to BIGDIA when mv_sf.search_method is DIAMOND). To ensure the bit match with reference version, we kept some condition in tf_motion_search() to use search_method as either of NSTEP or mv_sf.search_method.\n\nThis is a bit exact change with no speed impact (verified locally).\nAWCY link for speed preset 2:\nhttps://beta.arewecompressedyet.com/?job\u003dref_cpu2_master%402020-07-24T12%3A32%3A26.718Z\u0026job\u003dmod_cpu2_p2_master%402020-07-24T13%3A25%3A35.208Z\n\nAWCY link for speed preset 5:\nhttps://beta.arewecompressedyet.com/?job\u003dref_cpu5_master%402020-07-24T12%3A33%3A00.383Z\u0026job\u003dmod_cpu5_master%402020-07-24T12%3A34%3A05.189Z\n\nAWCY link for speed preset 6:\nhttps://beta.arewecompressedyet.com/?job\u003dref_cpu6_master%402020-07-24T12%3A33%3A14.837Z\u0026job\u003dmod_cpu6_master%402020-07-24T12%3A34%3A16.301Z\n\nAWCY link for speed preset 5 (RT path):\nhttps://beta.arewecompressedyet.com/?job\u003dref_cpu5_rt_master%402020-07-24T13%3A25%3A48.638Z\u0026job\u003dmod_rt_cpu5_master%402020-07-24T13%3A26%3A31.768Z\n\nAt present mainly there are 2 functions which gets used for motion search. DIAMOND and NSTEP uses diamond_search_sad() and rest of the search methods uses pattern_search(). As per our observation, algorithm wise these 2 functions are different because of which we can’t integrate these 2 into a single function. The following are the differences observed between these 2 functions.\n\n1) diamond_search_sad() is a leaf level function which gets called for both actual processing and also for refinement stage. Inside diamond_search_sad(), based on search points location either 4-point sad or individual sad calculation will happen to find the best. Where as in pattern_search(), there is a loop for do_init_search. When do_init_search is enabled, first few search steps will be done to find the best candidate over which the further processing will happen.\n\n2) After the evaluation of each search step, if the best is found then refinement stage happens for 3 checkpoints based on best candidate. Where as in diamond_search_sad(), refinement stage is after the evaluation of all search steps.\n\n3) When the cost_list is enabled, based on search method separate piece of code gets executed to fill cost_list buffer.\n\nWe kept separate functions for NSTEP, DIAMOND and the other search methods due to the above differences.\n\nPlease merge the patch in case of no issues.\n\nThanks \u0026 Regards,\nVenkat.",
       "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
-      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
-      "unresolved": false
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "ea709aae_9dcc4602",
         "filename": "/PATCHSET_LEVEL",
@@ -31,10 +32,10 @@
       "side": 1,
       "message": "Chi Yo, could you also take a look?",
       "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
-      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
-      "unresolved": false
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "a6030bf5_5c50a389",
         "filename": "/PATCHSET_LEVEL",
@@ -48,10 +49,10 @@
       "side": 1,
       "message": "Looks good to me if we want to avoid having a STATS_CHANGED. I\u0027ll play around with the speed features and see if we can clean up the code a bit more.",
       "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
-      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
-      "unresolved": false
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
       "key": {
         "uuid": "9a23b556_7c03a032",
         "filename": "/PATCHSET_LEVEL",
@@ -65,8 +66,24 @@
       "side": 1,
       "message": "Thanks for getting this done!",
       "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
-      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0",
-      "unresolved": false
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6152d902_be31e432",
+        "filename": "av1/encoder/mcomp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-20T20:51:44Z",
+      "side": 1,
+      "message": "this has a mismatch with:\n  MotionVectorSearchParams::search_site_cfg[SS_CFG_TOTAL][NUM_DISTINCT_SEARCH_METHODS];\n  https://aomedia-review.googlesource.com/c/aom/+/115610/3/av1/encoder/encoder.h#1692\n  \nis calling this function with both NUM_SEARCH_METHODS and NUM_DISTINCT_SEARCH_METHODS sized arrays valid? If so what protects against an overread?",
+      "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
