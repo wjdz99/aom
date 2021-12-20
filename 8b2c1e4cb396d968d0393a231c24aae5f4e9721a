@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c187258_b695bc08",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-20T23:33:02Z",
+      "side": 1,
+      "message": "It seems that with GCC 11.2.0, not commenting out the array size is the best. So we should consider the int16_t hbuf[16] form. I leave this decision to you.\n\nHere is an experiment.\n\n$ which cc\n/usr/bin/cc\n$ cc --version\ncc (Debian 11.2.0-10) 11.2.0\nCopyright (C) 2021 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n$ cat size.c\nstatic int EvenIndexSumA(int a[4]) {\n  return a[0] + a[2];\n}\n\nstatic int EvenIndexSumB(int a[/*4*/]) {\n  return a[0] + a[2];\n}\n\nstatic int EvenIndexSumC(int a[]) {\n  return a[0] + a[2];\n}\n\nint main() {\n  int a[4] \u003d { 0, 1, 2, 3 };\n  int b[3] \u003d { 0, 1, 2 };\n  int value;\n\n  value \u003d EvenIndexSumA(a);\n  value +\u003d EvenIndexSumB(a);\n  value +\u003d EvenIndexSumC(a);\n\n  value +\u003d EvenIndexSumA(b);\n  value +\u003d EvenIndexSumB(b);\n  value +\u003d EvenIndexSumC(b);\n\n  return value \u003d\u003d 0;\n}\n$ cc -std\u003dc99 -Wall -Wextra size.c\nsize.c: In function ‘main’:\nsize.c:22:12: warning: ‘EvenIndexSumA’ accessing 16 bytes in a region of size 12 [-Wstringop-overflow\u003d]\n   22 |   value +\u003d EvenIndexSumA(b);\n      |            ^~~~~~~~~~~~~~~~\nsize.c:22:12: note: referencing argument 1 of type ‘int *’\nsize.c:1:12: note: in a call to function ‘EvenIndexSumA’\n    1 | static int EvenIndexSumA(int a[4]) {\n      |            ^~~~~~~~~~~~~",
+      "revId": "8b2c1e4cb396d968d0393a231c24aae5f4e9721a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f27464c3_3a25afa6",
+        "filename": "aom_dsp/avg.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-20T23:33:02Z",
+      "side": 1,
+      "message": "However, GCC 11.2.0 does not warn if the function itself overreads the array. Here is an experiment.\n\n$ cat offbyone.c \nint EvenIndexSumA(int a[4]) {\n  return a[0] + a[2];\n}\n\nint EvenIndexSumAOffByOne(int a[4]) {\n  return a[0] + a[2] + a[4];\n}\n$ cc -std\u003dc99 -Wall -Wextra -c offbyone.c\n$ echo $?\n0",
+      "revId": "8b2c1e4cb396d968d0393a231c24aae5f4e9721a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
