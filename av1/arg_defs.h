@@ -231,6 +231,7 @@ typedef struct av1_codec_arg_definitions {
   arg_def_t second_pass_log;
   arg_def_t auto_intra_tools_off;
 #endif  // CONFIG_AV1_ENCODER
+  arg_def_t distortion_metric;
 } av1_codec_arg_definitions_t;
 
 extern const av1_codec_arg_definitions_t g_av1_codec_arg_defs;
