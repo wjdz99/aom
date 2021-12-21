@@ -102,6 +102,24 @@
       "parentUuid": "6152d902_be31e432",
       "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3c3fe3ae_535ad704",
+        "filename": "av1/encoder/mcomp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T20:18:06Z",
+      "side": 1,
+      "message": "Thanks for the reply and the fix.",
+      "parentUuid": "ee7ceba4_0146556c",
+      "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
