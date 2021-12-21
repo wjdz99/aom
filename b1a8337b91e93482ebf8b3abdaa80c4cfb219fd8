@@ -119,6 +119,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ecf7ab95_fb4c9594",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T02:30:18Z",
+      "side": 1,
+      "message": "\u003e Related to my comment on the abbreviation \"sfs\", I also don\u0027t understand the term \"control time\" as used in \"control time params\" and \"control time settings\".\n\nVenkata: I think \"control time\" refers to \"codec control\", as in aom_codec_control(). So \"control time settings\" refers to the settings set by aom_codec_control() or aom_codec_set_option(). Correct?",
+      "parentUuid": "8e7890da_ab8f3d82",
+      "range": {
+        "startLine": 649,
+        "startChar": 13,
+        "endLine": 649,
+        "endChar": 16
+      },
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7e67528f_e47116fe",
         "filename": "av1/encoder/rd.c",
         "patchSetId": 3
