@@ -155,8 +155,8 @@ static int set_vt_partitioning(AV1_COMP *cpi, MACROBLOCK *const x,
   if (bsize == bsize_min) {
     // Variance already computed to set the force_split.
     if (frame_is_intra_only(cm)) get_variance(&vt.part_variances->none);
-    if (mi_col + block_width <= tile->mi_col_end &&
-        mi_row + block_height <= tile->mi_row_end &&
+    if (mi_col + block_width / 2 < tile->mi_col_end &&
+        mi_row + block_height / 2 < tile->mi_row_end &&
         vt.part_variances->none.variance < threshold) {
       set_block_size(cpi, x, xd, mi_row, mi_col, bsize);
       return 1;
@@ -172,8 +172,8 @@ static int set_vt_partitioning(AV1_COMP *cpi, MACROBLOCK *const x,
       return 0;
     }
     // If variance is low, take the bsize (no split).
-    if (mi_col + block_width <= tile->mi_col_end &&
-        mi_row + block_height <= tile->mi_row_end &&
+    if (mi_col + block_width / 2 < tile->mi_col_end &&
+        mi_row + block_height / 2 < tile->mi_row_end &&
         vt.part_variances->none.variance < threshold) {
       set_block_size(cpi, x, xd, mi_row, mi_col, bsize);
       return 1;
