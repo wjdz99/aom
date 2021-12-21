@@ -84,6 +84,24 @@
       "message": "this has a mismatch with:\n  MotionVectorSearchParams::search_site_cfg[SS_CFG_TOTAL][NUM_DISTINCT_SEARCH_METHODS];\n  https://aomedia-review.googlesource.com/c/aom/+/115610/3/av1/encoder/encoder.h#1692\n  \nis calling this function with both NUM_SEARCH_METHODS and NUM_DISTINCT_SEARCH_METHODS sized arrays valid? If so what protects against an overread?",
       "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee7ceba4_0146556c",
+        "filename": "av1/encoder/mcomp.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-21T12:07:40Z",
+      "side": 1,
+      "message": "Hi James,\n\nThe array ‘search_sites\u0027 (of type search_site_config, consists the starting step size, number of steps and search points, etc. for corresponding search method) is allocated for \u0027NUM_DISTINCT_SEARCH_METHODS\u0027 and the same is used throughout the encoder. So it is incorrect to reference the \u0027search_sites\u0027 argument passed from outside to the size of \u0027NUM_SEARCH_METHODS\u0027 instead of \u0027NUM_DISTINCT_SEARCH_METHODS\u0027 in functions av1_make_default_fullpel_ms_params() and av1_set_mv_search_method(). However, the read overflow is not happening due to the mapping of search_method to one of distinct search_method in \u0027av1_set_mv_search_method()\u0027 using the following array.\n\n  // Array to inform which all search methods are having\n  // same candidates and different in number of search steps.\n  static const SEARCH_METHODS search_method_lookup[NUM_SEARCH_METHODS] \u003d {\n    DIAMOND,                        // DIAMOND\n    NSTEP,                          // NSTEP\n    NSTEP_8PT,                      // NSTEP_8PT\n    CLAMPED_DIAMOND,                // CLAMPED_DIAMOND\n    HEX,                            // HEX\n    BIGDIA,                         // BIGDIA\n    SQUARE,                         // SQUARE\n    HEX,                            // FAST_HEX\n    BIGDIA,                         // FAST_DIAMOND\n    BIGDIA                          // FAST_BIGDIA\n  };\n  \nBecause of the above mapping, it is ensured that the reading of ‘search_sites\u0027 array does not overflow beyond \u0027NUM_DISTINCT_SEARCH_METHODS\u0027 for any given search_method value. \n\nWe have submitted the below patch for review by correcting the size of ‘search_sites’ while referencing in the function declaration/definition to avoid any misunderstanding.\nhttps://aomedia-review.googlesource.com/c/aom/+/150922\n\nThanks \u0026 Regards,\nVenkata",
+      "parentUuid": "6152d902_be31e432",
+      "revId": "14affd0d1f57ef037a3b6bf98d3b6fd3a3e88774",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
