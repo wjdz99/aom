@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c243ae29_0ce2bd15",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-21T12:41:01Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nWe have modified the patch as per your suggestions. Please review the same.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "dca560c42dfe304df0657dc14fdf8a945a2adf7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
