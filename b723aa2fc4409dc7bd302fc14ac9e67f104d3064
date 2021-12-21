@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c68dd403_09fda6cd",
+        "filename": "av1/encoder/reconinter_enc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-21T20:15:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44a58b81_440cb4c9",
+      "revId": "b723aa2fc4409dc7bd302fc14ac9e67f104d3064",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e5ef45b_be94449c",
@@ -48,6 +66,24 @@
       "writtenOn": "2021-12-21T19:04:56Z",
       "side": 1,
       "message": "Nit: Please repeat the comment for this function, otherwise it is not clear that the comment at line 64 also applies to this function.",
+      "revId": "b723aa2fc4409dc7bd302fc14ac9e67f104d3064",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a4f827e_f2eb1f3d",
+        "filename": "av1/encoder/reconinter_enc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2021-12-21T20:15:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e5ef45b_be94449c",
       "revId": "b723aa2fc4409dc7bd302fc14ac9e67f104d3064",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
