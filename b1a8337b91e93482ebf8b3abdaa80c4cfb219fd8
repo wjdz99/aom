@@ -34,6 +34,137 @@
       "parentUuid": "77d570c4_985a3e59",
       "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f79ad72_817fd5d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T01:22:47Z",
+      "side": 1,
+      "message": "Hi Venkata,\n\nI only reviewed the diffs between patchset 2 and patchset 3. I assume Chi Yo has reviewed patchset 2.\n\nI suggest some changes.",
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a8fdd25_6a37a89d",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T01:22:47Z",
+      "side": 1,
+      "message": "Optional: It would be good to explain why INTERNAL_COST_UPD_SBROW_SET exists but COST_UPD_SBROW_SET doesn\u0027t, because that seems to contradict this \\warning comment.",
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33c56d57_20244c31",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T01:22:47Z",
+      "side": 1,
+      "message": "Nit: sfs \u003d\u003e speed features\n\nPlease make this change to all occurrences of \"sfs\".\n\n\"sfs\" is not a common abbreviation, and is never used in the libaom code base before this CL.\n\nNote: \"sf\" is probably okay because it is already used in names such as \"inter_sf\" and \"intra_sf\".",
+      "range": {
+        "startLine": 649,
+        "startChar": 13,
+        "endLine": 649,
+        "endChar": 16
+      },
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e67528f_e47116fe",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T01:22:47Z",
+      "side": 1,
+      "message": "Nit: add \"update\" before \"frequencies\".",
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "542aa349_ca4e019f",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 662,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T01:22:47Z",
+      "side": 1,
+      "message": "Nit/optional: The naming convention for constants in the Style Guide is kFooBar. Under that naming convention, this constant array should be named kMapCostUpdToInternalCostUpd. However, I don\u0027t know if libaom follows the naming convention for constants of the Style Guide.",
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b8279dd_cde5aa58",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T01:22:47Z",
+      "side": 1,
+      "message": "IMPORTANT: Because of the use of AOMMIN() in populate_unified_cost_update_freq() to compute the worst case update frequencies, the values of this enum type must be listed in the order of increasing frequencies. This should be documented.",
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0d6e706_cb81b4dc",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-21T01:22:47Z",
+      "side": 1,
+      "message": "Nit: Should this \\warning comment be stated in the other way around?\n\n * \\warning  In case of any updates/modifications to the enum\n * INTERNAL_COST_UPDATE_TYPE, update the enum COST_UPDATE_TYPE as well.",
+      "range": {
+        "startLine": 315,
+        "startChar": 0,
+        "endLine": 316,
+        "endChar": 53
+      },
+      "revId": "b1a8337b91e93482ebf8b3abdaa80c4cfb219fd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
