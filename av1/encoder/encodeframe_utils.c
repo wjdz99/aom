@@ -1023,8 +1023,8 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   if (mi_row == 0 && mi_col == 0) {
     fprintf(stderr, "frame index = %d\n", cpi->gf_frame_index);
   }
-  fprintf(stderr, "mi_row = %d, mi_col = %d, offset = %d\n", mi_row, mi_col,
-          offset);
+  // fprintf(stderr, "mi_row = %d, mi_col = %d, offset = %d\n", mi_row, mi_col,
+  //         offset);
 
   return qindex;
 }
