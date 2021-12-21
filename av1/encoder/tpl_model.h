@@ -219,6 +219,10 @@ typedef struct TplParams {
    */
   int border_in_pixels;
 
+  /*!
+   * GOP level normalization factor.
+   */
+   double norm;
 } TplParams;
 
 #if CONFIG_BITRATE_ACCURACY

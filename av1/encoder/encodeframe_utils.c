@@ -125,7 +125,7 @@ int av1_get_cb_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
                  this_stats->mc_dep_dist);
       intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
       mc_dep_cost_base +=
-          log(3 * (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) *
+          log(3 * (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta * tpl_data->norm) *
           cbcmp;
       cbcmp_base += cbcmp;
     }
@@ -992,9 +992,9 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
                  this_stats->mc_dep_dist);
       intra_cost += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
       mc_dep_cost +=
-          log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
+          log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta * tpl_data->norm) * cbcmp;
       mc_dep_reg +=
-          log(3 * (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) *
+          log(3 * (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta * tpl_data->norm) *
           cbcmp;
       mi_count++;
       cbcmp_count += cbcmp;
@@ -1023,8 +1023,8 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
   if (mi_row == 0 && mi_col == 0) {
     fprintf(stderr, "frame index = %d\n", cpi->gf_frame_index);
   }
-  fprintf(stderr, "mi_row = %d, mi_col = %d, offset = %d\n", mi_row, mi_col,
-          offset);
+  // fprintf(stderr, "mi_row = %d, mi_col = %d, offset = %d\n", mi_row, mi_col,
+  //         offset);
 
   return qindex;
 }
