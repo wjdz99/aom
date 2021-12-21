@@ -1644,6 +1644,42 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
                         cm->mi_params.mi_cols);
   }
 
+  double intra_cost_base = 0;
+  double mc_dep_cost_base = 0;
+  double cbcmp_base = 0;
+  const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+
+  for (int frame_idx = tpl_gf_group_frames - 1;
+       frame_idx >= cpi->gf_frame_index; --frame_idx) {
+    if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[frame_idx] == OVERLAY_UPDATE)
+      continue;
+
+    if (approx_gop_eval && (gf_group->layer_depth[frame_idx] > num_arf_layers ||
+                            frame_idx >= gop_length))
+      continue;
+
+    TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+    TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+    int tpl_stride = tpl_frame->stride;
+    for (int row = 0; row < cm->mi_params.mi_rows; row += step) {
+      for (int col = 0; col < cm->mi_params.mi_cols; col += step) {
+        TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+
+        double cbcmp = this_stats->recrf_dist;
+        int64_t mc_dep_delta =
+            RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+                   this_stats->mc_dep_dist);
+        intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
+        mc_dep_cost_base +=
+            log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
+        cbcmp_base += cbcmp;
+      }
+    }
+  }
+  tpl_data->norm = exp((intra_cost_base - mc_dep_cost_base) / cbcmp_base);
+
   av1_configure_buffer_updates(cpi, &this_frame_params.refresh_frame,
                                gf_group->update_type[cpi->gf_frame_index],
                                gf_group->update_type[cpi->gf_frame_index], 0);
@@ -2002,7 +2038,7 @@ double av1_tpl_get_frame_importance(const TplParams *tpl_data,
       cbcmp_base += cbcmp;
     }
   }
-  return exp((mc_dep_cost_base - intra_cost_base) / cbcmp_base);
+  return exp((mc_dep_cost_base - intra_cost_base) / cbcmp_base) * tpl_data->norm;
   // return mc_dep_cost_base * 1.0 / intra_cost_base;
 }
 
