@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e10fd51d_e1f2ee70",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-22T17:11:32Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nRegarding the \"worst case\" term used in the comment, we have modified it using the terms least/most frequent cost updates for better understanding (instead of using smaller/bigger).\n\nAnd also, while deriving the unified update frequency we considered the aggressive update (i.e. least frequent) frequency out of the both codec control and speed features settings. Please check the following cases.\n\nCase 1. If user sets (i.e. codec control settings) update frequency as \u0027COST_UPD_SB\u0027 level then the same will be bypassed by using the speed feature settings (which are set as per the requirement of speed preset in the encoder) and the same will be used in the encoder for cost updates. i.e. In this case, if any pruning/least frequent update logic is present based on speed features that will be considered for updates in the encoder.\n\nCase 2. If user sets (i.e. codec control settings) update frequency as \u0027COST_UPD_OFF\u0027 level then the cost updates will not happen irrespective of speed feature settings.\n\nThe approach considered for this is a typical one in the encoder for most of the codec control params. For example, if loop restoration (enable_restoration) is enabled through codec control params then any pruning logic present through speed features will be used while processing, else if loop restoration is disabled then the processing is disabled irrespective of speed feature values. In this case, as \u0027loop_restoration\u0027 is a boolean the approach is simpler, whereas for entropy cost update different possible levels are present (through codec control and speed features) hence we used unified approach to derive the aggressive (least frequent) cost update frequency.\n\nAs it is a common practice in the encoder, we feel like adding the comment is not required. Please let us know incase if we need to add the same.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "8f055831_44c8f12f",
+      "revId": "dca560c42dfe304df0657dc14fdf8a945a2adf7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab212992_fa37f42a",
@@ -65,6 +83,30 @@
       "writtenOn": "2021-12-21T22:57:32Z",
       "side": 1,
       "message": "Nit: I suggest we change \"worst case\" to \"unified\" here, to match the name of the populate_unified_cost_update_freq() function. This way we only need to explain what the unified update frequency is (whether it\u0027s the smaller or the bigger or the worst case frequency) in the comments before the populate_unified_cost_update_freq() function.",
+      "range": {
+        "startLine": 315,
+        "startChar": 15,
+        "endLine": 315,
+        "endChar": 25
+      },
+      "revId": "dca560c42dfe304df0657dc14fdf8a945a2adf7e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "78e9c38d_a210920b",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2021-12-22T17:11:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab212992_fa37f42a",
       "range": {
         "startLine": 315,
         "startChar": 15,
