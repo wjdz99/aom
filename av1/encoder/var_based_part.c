@@ -338,9 +338,86 @@ static int64_t scale_part_thresh_content(int64_t threshold_base, int speed,
   return threshold;
 }
 
+static AOM_INLINE void set_vbp_thresholds_0(AV1_COMP *cpi, int64_t thresholds[], int q) {
+  AV1_COMMON *const cm = &cpi->common;
+  const int is_key_frame = frame_is_intra_only(cm);
+  const int ac_q = av1_ac_quant_QTX(q, 0, cm->seq_params->bit_depth);
+  int64_t threshold_base = (int64_t)((ac_q * ac_q) >> (6 + 1));
+
+//  const int current_qindex = cm->quant_params.base_qindex;
+//  const int threshold_left_shift = cpi->sf.rt_sf.var_part_split_threshold_shift;
+
+  if (is_key_frame) {
+    thresholds[0] = threshold_base;
+    thresholds[1] = threshold_base;
+    if (cm->width * cm->height < 1280 * 720) {
+      thresholds[2] = threshold_base / 3;
+      thresholds[3] = threshold_base >> 1;
+    } else {
+      int shift_val = 2;
+      thresholds[2] = threshold_base >> shift_val;
+      thresholds[3] = threshold_base >> shift_val;
+    }
+    thresholds[4] = threshold_base << 2;
+    return;
+  }
+
+  thresholds[0] = threshold_base; // >> 1;
+  thresholds[1] = threshold_base;
+  thresholds[2] = threshold_base;
+  thresholds[3] = threshold_base; // << threshold_left_shift;
+
+  //printf("\n thresholds[0] =  %ld; thresholds[1] = %ld;  %ld;  %ld;  \n", thresholds[0], thresholds[1], thresholds[2], thresholds[3]);
+
+
+
+//  if (cm->width >= 1280 && cm->height >= 720)
+//    thresholds[3] = thresholds[3] << 1;
+//  if (cm->width * cm->height <= 352 * 288) {
+//    if (current_qindex >= QINDEX_HIGH_THR) {
+//      threshold_base = (5 * threshold_base) >> 1;
+//      thresholds[1] = threshold_base >> 3;
+//      thresholds[2] = threshold_base << 2;
+//      thresholds[3] = threshold_base << 5;
+//    } else if (current_qindex < QINDEX_LOW_THR) {
+//      thresholds[1] = threshold_base >> 3;
+//      thresholds[2] = threshold_base >> 1;
+//      thresholds[3] = threshold_base << 3;
+//    } else {
+//      int64_t qi_diff_low = current_qindex - QINDEX_LOW_THR;
+//      int64_t qi_diff_high = QINDEX_HIGH_THR - current_qindex;
+//      int64_t threshold_diff = QINDEX_HIGH_THR - QINDEX_LOW_THR;
+//      int64_t threshold_base_high = (5 * threshold_base) >> 1;
+//
+//      threshold_diff = threshold_diff > 0 ? threshold_diff : 1;
+//      threshold_base =
+//          (qi_diff_low * threshold_base_high + qi_diff_high * threshold_base) /
+//          threshold_diff;
+//      thresholds[1] = threshold_base >> 3;
+//      thresholds[2] = ((qi_diff_low * threshold_base) +
+//                       qi_diff_high * (threshold_base >> 1)) /
+//                      threshold_diff;
+//      thresholds[3] = ((qi_diff_low * (threshold_base << 5)) +
+//                       qi_diff_high * (threshold_base << 3)) /
+//                      threshold_diff;
+//    }
+//  } else if (cm->width < 1280 && cm->height < 720) {
+//    thresholds[2] = (5 * threshold_base) >> 2;
+//  } else if (cm->width < 1920 && cm->height < 1080) {
+//    thresholds[2] = threshold_base << 1;
+//  } else {
+//    thresholds[2] = (5 * threshold_base) >> 1;
+//  }
+}
+
 static AOM_INLINE void set_vbp_thresholds(AV1_COMP *cpi, int64_t thresholds[],
                                           int q, int content_lowsumdiff,
-                                          int source_sad, int segment_id) {
+                                          int source_sad, int segment_id, int which) {
+  if (!which) {
+    set_vbp_thresholds_0(cpi, thresholds, q);
+    return;
+  }
+
   AV1_COMMON *const cm = &cpi->common;
   const int is_key_frame = frame_is_intra_only(cm);
   const int threshold_multiplier = is_key_frame ? 120 : 1;
@@ -781,7 +858,7 @@ void av1_set_variance_partition_thresholds(AV1_COMP *cpi, int q,
     return;
   } else {
     set_vbp_thresholds(cpi, cpi->vbp_info.thresholds, q, content_lowsumdiff, 0,
-                       0);
+                       0, 0);
     // The threshold below is not changed locally.
     cpi->vbp_info.threshold_minmax = 15 + (q >> 3);
   }
@@ -878,6 +955,9 @@ static void fill_variance_tree_leaves(
               maxvar_16x16[m][i])
             maxvar_16x16[m][i] =
                 vt->split[m].split[i].split[j].part_variances.none.variance;
+
+          //printf(" (%d, %ld) ", vt->split[m].split[i].split[j].part_variances.none.variance, thresholds[3]);
+
           if (vt->split[m].split[i].split[j].part_variances.none.variance >
               thresholds[3]) {
             // 16X16 variance is above threshold for split, so force split to
@@ -1068,11 +1148,11 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     const int q =
         av1_get_qindex(&cm->seg, segment_id, cm->quant_params.base_qindex);
     set_vbp_thresholds(cpi, thresholds, q, x->content_state_sb.low_sumdiff,
-                       x->content_state_sb.source_sad, 1);
+                       x->content_state_sb.source_sad, 1, 0);
   } else {
     set_vbp_thresholds(cpi, thresholds, cm->quant_params.base_qindex,
                        x->content_state_sb.low_sumdiff,
-                       x->content_state_sb.source_sad, 0);
+                       x->content_state_sb.source_sad, 0, 0);
   }
 
   // For non keyframes, disable 4x4 average for low resolution when speed = 8
