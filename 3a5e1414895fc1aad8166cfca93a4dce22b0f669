@@ -69,6 +69,29 @@
       "parentUuid": "a98248a0_ce7a518c",
       "revId": "3a5e1414895fc1aad8166cfca93a4dce22b0f669",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "571182e6_b87b3fb8",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-22T23:36:50Z",
+      "side": 1,
+      "message": "Note that frame_is_intra_only(cm) is common in these two expressions. We can simplify these expressions so that frame_is_intra_only(cm) is evaluated only once. We can do this later, after fixing the compilation error.",
+      "range": {
+        "startLine": 687,
+        "startChar": 0,
+        "endLine": 690,
+        "endChar": 65
+      },
+      "revId": "3a5e1414895fc1aad8166cfca93a4dce22b0f669",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
