@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "476d1bd4_5daf0f0a",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 1072,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-22T16:41:40Z",
+      "side": 1,
+      "message": "Jingning: This pair of {} creates a block for the \"else\" at line 1070. The \"else\" is not obvious because it is inside a #if block.\n\nIt is true that we don\u0027t need to create a block for the \"else\" because this block encloses only a single statement (an if-else statement). But I think it is safer and easier to see the code structure if we create a block.",
+      "parentUuid": "3b1521ed_02c4bcc3",
+      "range": {
+        "startLine": 1072,
+        "startChar": 2,
+        "endLine": 1072,
+        "endChar": 3
+      },
+      "revId": "b0ac093c1ad5ab046d0c98007e9e6f78644559f6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b418c7c_ab4be0c5",
