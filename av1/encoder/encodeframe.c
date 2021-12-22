@@ -736,12 +736,15 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
 
 // Check if the cost update of symbols mode, coeff and dv are tile or off.
 static AOM_INLINE int is_mode_coeff_dv_upd_freq_tile_or_off(
-    const AV1_COMP *const cpi) {
+    const AV1_COMP *const cpi, const CostUpdateFreq *const cost_upd_freq) {
   const INTER_MODE_SPEED_FEATURES *const inter_sf = &cpi->sf.inter_sf;
 
-  return (inter_sf->coeff_cost_upd_level <= INTERNAL_COST_UPD_TILE &&
-          inter_sf->mode_cost_upd_level <= INTERNAL_COST_UPD_TILE &&
-          cpi->sf.intra_sf.dv_cost_upd_level <= INTERNAL_COST_UPD_TILE);
+  return ((cost_upd_freq->coeff >= COST_UPD_TILE ||
+           inter_sf->coeff_cost_upd_level == INTERNAL_COST_UPD_OFF) &&
+          (cost_upd_freq->mode >= COST_UPD_TILE ||
+           inter_sf->mode_cost_upd_level == INTERNAL_COST_UPD_OFF) &&
+          (cost_upd_freq->dv >= COST_UPD_TILE ||
+           cpi->sf.intra_sf.dv_cost_upd_level == INTERNAL_COST_UPD_OFF));
 }
 
 // When row-mt is enabled and cost update frequencies are set to off/tile,
@@ -752,11 +755,13 @@ static AOM_INLINE int delay_wait_for_top_right_sb(const AV1_COMP *const cpi) {
   const MODE mode = cpi->oxcf.mode;
   if (mode == GOOD) return 0;
 
+  const CostUpdateFreq *const cost_upd_freq = &cpi->oxcf.cost_upd_freq;
   if (mode == ALLINTRA)
-    return is_mode_coeff_dv_upd_freq_tile_or_off(cpi);
+    return is_mode_coeff_dv_upd_freq_tile_or_off(cpi, cost_upd_freq);
   else if (mode == REALTIME)
-    return (is_mode_coeff_dv_upd_freq_tile_or_off(cpi) &&
-            cpi->sf.inter_sf.mv_cost_upd_level <= INTERNAL_COST_UPD_TILE);
+    return (is_mode_coeff_dv_upd_freq_tile_or_off(cpi, cost_upd_freq) &&
+            (cost_upd_freq->mv >= COST_UPD_TILE ||
+             cpi->sf.inter_sf.mv_cost_upd_level == INTERNAL_COST_UPD_OFF));
   else
     return 0;
 }
