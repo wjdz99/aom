@@ -2502,6 +2502,7 @@ static void set_baseline_gf_interval(AV1_COMP *cpi, FRAME_TYPE frame_type) {
   gf_group->update_type[0] = (frame_type == KEY_FRAME) ? KF_UPDATE : GF_UPDATE;
   gf_group->refbuf_state[cpi->gf_frame_index] =
       (frame_type == KEY_FRAME) ? REFBUF_RESET : REFBUF_UPDATE;
+  rc->low_source_sad_count = 0;
 }
 
 void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
@@ -2735,6 +2736,20 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
       rc->high_source_sad = 1;
     else
       rc->high_source_sad = 0;
+
+    if (rc->frames_since_key > 1 + cpi->svc.number_spatial_layers) {
+      if (avg_sad <
+          ((3 * rc->avg_source_sad) >>
+           2) && rc->avg_frame_low_motion && rc->avg_frame_low_motion > 40)
+        rc->low_source_sad_count++;
+      else
+        rc->low_source_sad_count = 0;
+    }
+
+    // printf("\n %ld;  %ld;  %d;  %d;  %d; \n", avg_sad, rc->avg_source_sad,
+    // rc->low_source_sad_count, rc->frames_till_gf_update_due,
+    // rc->avg_frame_low_motion);
+
     rc->avg_source_sad = (3 * rc->avg_source_sad + avg_sad) >> 2;
   }
   cpi->svc.high_source_sad_superframe = rc->high_source_sad;
@@ -2753,11 +2768,14 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
 static int set_gf_interval_update_onepass_rt(AV1_COMP *cpi,
                                              FRAME_TYPE frame_type) {
   RATE_CONTROL *const rc = &cpi->rc;
+  PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
   int gf_update = 0;
   const int resize_pending = is_frame_resize_pending(cpi);
   // GF update based on frames_till_gf_update_due, also
   // force upddate on resize pending frame or for scene change.
   if ((resize_pending || rc->high_source_sad ||
+       (rc->low_source_sad_count > 3 &&
+        rc->frames_till_gf_update_due < p_rc->baseline_gf_interval - 10) ||
        rc->frames_till_gf_update_due == 0) &&
       cpi->svc.temporal_layer_id == 0 && cpi->svc.spatial_layer_id == 0) {
     set_baseline_gf_interval(cpi, frame_type);
