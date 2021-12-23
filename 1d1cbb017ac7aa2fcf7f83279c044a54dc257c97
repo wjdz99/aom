@@ -16,6 +16,109 @@
       "message": "Could you have a review? Thanks!\n\nIt seems the CI won\u0027t run for first-time committer? I\u0027ve signed the individual CLA.",
       "revId": "1d1cbb017ac7aa2fcf7f83279c044a54dc257c97",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c14ea95c_23b6b5fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-23T20:36:25Z",
+      "side": 1,
+      "message": "Hi Yuan,\n\nThank you very much for the CL. I only took an incomplete quick look yesterday. Let me send you a few preliminary comments first.",
+      "revId": "1d1cbb017ac7aa2fcf7f83279c044a54dc257c97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae108d57_202fe04b",
+        "filename": "av1/common/av1_rtcd_defs.pl",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-23T20:36:25Z",
+      "side": 1,
+      "message": "Nit: plane_index \u003d\u003e plane\n\n|plane| is a common name for this variable/parameter.",
+      "range": {
+        "startLine": 271,
+        "startChar": 159,
+        "endLine": 271,
+        "endChar": 170
+      },
+      "revId": "1d1cbb017ac7aa2fcf7f83279c044a54dc257c97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6bc17b72_dabe798c",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-23T20:36:25Z",
+      "side": 1,
+      "message": "This AOMMIN is a no-op because the caller ensures plane_index \u003c MAX_MB_PLANE. Replace this with an assertion:\n  assert(plane_index \u003c MAX_MB_PLANE);",
+      "revId": "1d1cbb017ac7aa2fcf7f83279c044a54dc257c97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52ad6735_d1ffb5e8",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-23T20:36:25Z",
+      "side": 1,
+      "message": "Nit: In C, the value of a conditional expression is 0 or 1, so we can just say:\n\n  const int dim_index \u003d plane_index_ \u003e 0;",
+      "range": {
+        "startLine": 1203,
+        "startChar": 24,
+        "endLine": 1203,
+        "endChar": 48
+      },
+      "revId": "1d1cbb017ac7aa2fcf7f83279c044a54dc257c97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76806eae_de183d30",
+        "filename": "av1/common/resize.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1203,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-23T20:36:25Z",
+      "side": 1,
+      "message": "This variable is often called plane_type. There is an enum type named PLANE_TYPE:\n\nenum { PLANE_TYPE_Y, PLANE_TYPE_UV, PLANE_TYPES } UENUM1BYTE(PLANE_TYPE);",
+      "range": {
+        "startLine": 1203,
+        "startChar": 12,
+        "endLine": 1203,
+        "endChar": 21
+      },
+      "revId": "1d1cbb017ac7aa2fcf7f83279c044a54dc257c97",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
