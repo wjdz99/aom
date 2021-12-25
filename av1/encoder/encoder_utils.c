@@ -498,6 +498,9 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         int64_t mc_dep_delta =
             RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                    this_stats->mc_dep_dist);
+        mc_dep_delta =
+            (int64_t)(mc_dep_delta * ((double)this_stats->srcrf_dist /
+                                      this_stats->recrf_dist));
         intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
         mc_dep_cost_base +=
             log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
@@ -543,7 +546,7 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
 #if !CONFIG_REALTIME_ONLY
   GF_GROUP *gf_group = &cpi->ppi->gf_group;
   if (cpi->oxcf.algo_cfg.enable_tpl_model &&
-      is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) {
+      av1_tpl_stats_ready(&cpi->ppi->tpl_data, cpi->gf_frame_index)) {
     process_tpl_stats_frame(cpi);
     av1_tpl_rdmult_setup(cpi);
   }
