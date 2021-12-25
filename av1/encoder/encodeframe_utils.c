@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <stdio.h>
 #include "av1/common/common_data.h"
 #include "av1/common/reconintra.h"
 
@@ -92,8 +93,8 @@ int av1_get_cb_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
   const int tpl_idx = cpi->gf_frame_index;
   int deltaq_rdmult = set_deltaq_rdmult(cpi, x);
   if (!av1_tpl_stats_ready(&cpi->ppi->tpl_data, tpl_idx)) return deltaq_rdmult;
-  if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
-    return deltaq_rdmult;
+  // if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
+  //   return deltaq_rdmult;
   if (cm->superres_scale_denominator != SCALE_NUMERATOR) return deltaq_rdmult;
   if (cpi->oxcf.q_cfg.aq_mode != NO_AQ) return deltaq_rdmult;
   if (x->rb == 0) return deltaq_rdmult;
@@ -968,7 +969,7 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, ThreadData *td,
   int tpl_stride = tpl_frame->stride;
   if (!tpl_frame->is_valid) return base_qindex;
 
-  if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) return base_qindex;
+  // if (!is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) return base_qindex;
 
   int mi_count = 0;
   const int mi_col_sr =
@@ -1018,6 +1019,9 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, ThreadData *td,
   int qindex = cm->quant_params.base_qindex + offset;
   qindex = AOMMIN(qindex, MAXQ);
   qindex = AOMMAX(qindex, MINQ);
+
+  // fprintf(stderr, "mi_row = %d, mi_col = %d, qoffset = %d\n",
+  //         mi_row, mi_col, offset);
 
   return qindex;
 }
