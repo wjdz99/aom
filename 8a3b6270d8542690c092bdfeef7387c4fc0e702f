@@ -70,6 +70,24 @@
       "parentUuid": "d9103597_7e72ab17",
       "revId": "8a3b6270d8542690c092bdfeef7387c4fc0e702f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "674a27fd_3eef802b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21182
+      },
+      "writtenOn": "2021-12-25T03:22:20Z",
+      "side": 1,
+      "message": "Thank you again for the wonderful answer.\n\nHowever, I have a general request regarding coding/psycho-visual performance analysis: I would prefer an approach similar to how the AWCY platform does it where it shows you a lot of metrics so that more balanced choices can be made. I mean, there are already multiple aomenc runs on AWCY from here, so it should not be problematic.\n\nYou need multiple metrics to get a real picture of how changes affects the output, not just a single one where in the long term, we tend to optimize for it.\n\nSorry if a merge request thread is the ground for talking, but I haven\u0027t really found a good way to actually discuss this with AOM devs directly, be it on an IRC channel where there isn\u0027t much discussion, or the AOMEDIA mailing list which is apparently difficult to get in even though we are talking about the development of an open standard?\n\nStrange really, but that is all I have to say for now.",
+      "parentUuid": "685256ff_95e183e0",
+      "revId": "8a3b6270d8542690c092bdfeef7387c4fc0e702f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
