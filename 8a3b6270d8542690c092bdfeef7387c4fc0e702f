@@ -52,6 +52,24 @@
       "parentUuid": "6c29c267_ba3e686b",
       "revId": "8a3b6270d8542690c092bdfeef7387c4fc0e702f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "685256ff_95e183e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2021-12-25T00:49:36Z",
+      "side": 1,
+      "message": "Yeah, I agree with you.\nVisual quality is important. However, visual quality is hard to measure if there is no objective metric. For measurable metrics like ssim, here is my opinion.\n\nHere, what we are doing is given a measurable metric, design algorithms to optimize it.\nFor now, the entire AV1 encoder is measuring sum of square error (PSNR) for each encoding modes and pick the best one.\nUnder this framework, out goal should be picking the algorithms that minimize the chosen metric (PSNR). There might be some side effects for other metrics like ssim etc, but it doesn\u0027t mean the algorithm is bad.\n\nWe can also make the encoder to track ssim and use the same algorithm to optimize it. Theoretically, it should work as well, but it\u0027s hard to achieve that given the status of current codebase.\n\nI didn\u0027t mean we don\u0027t care about ssim. We will come back to it. But, it\u0027s hard to make everything work at once.",
+      "parentUuid": "d9103597_7e72ab17",
+      "revId": "8a3b6270d8542690c092bdfeef7387c4fc0e702f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
