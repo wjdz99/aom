@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <float.h>
+#include <stdio.h>
 
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
@@ -803,7 +804,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
+      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
+                         : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
@@ -1905,13 +1907,18 @@ double av1_tpl_get_frame_importance(const TplParams *tpl_data,
     for (int col = 0; col < tpl_frame->mi_cols; col += step) {
       const TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
           row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
-      double cbcmp = this_stats->recrf_dist;
-      const int64_t mc_dep_delta =
+      double cbcmp = (this_stats->recrf_dist + this_stats->srcrf_dist) / 2;
+      int64_t mc_dep_delta =
           RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
                  this_stats->mc_dep_dist);
-      intra_cost_base += log(this_stats->recrf_dist << RDDIV_BITS) * cbcmp;
-      mc_dep_cost_base +=
-          log((this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta) * cbcmp;
+      mc_dep_delta = (int64_t)(mc_dep_delta * ((double)this_stats->srcrf_dist /
+                                               this_stats->recrf_dist));
+      intra_cost_base += log((this_stats->recrf_dist + this_stats->srcrf_dist)
+                             << (RDDIV_BITS - 1)) *
+                         cbcmp;
+      mc_dep_cost_base += log(((this_stats->recrf_dist + this_stats->srcrf_dist)
+                              << (RDDIV_BITS - 1)) + mc_dep_delta) *
+                          cbcmp;
       cbcmp_base += cbcmp;
     }
   }
@@ -1924,6 +1931,8 @@ double av1_tpl_get_qstep_ratio(const TplParams *tpl_data, int gf_frame_index) {
   }
   const double frame_importance =
       av1_tpl_get_frame_importance(tpl_data, gf_frame_index);
+
+  fprintf(stderr, "frm importance = %f\n", frame_importance);
   return sqrt(1 / frame_importance);
 }
 
