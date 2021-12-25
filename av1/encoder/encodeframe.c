@@ -1445,12 +1445,12 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     // is used for ineligible frames. That effectively will turn off row_mt
     // usage. Note objective delta_q and tpl eligible frames are only altref
     // frames currently.
-    const GF_GROUP *gf_group = &cpi->ppi->gf_group;
-    if (cm->delta_q_info.delta_q_present_flag) {
-      if (deltaq_mode == DELTA_Q_OBJECTIVE &&
-          !is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
-        cm->delta_q_info.delta_q_present_flag = 0;
-    }
+    // const GF_GROUP *gf_group = &cpi->ppi->gf_group;
+    // if (cm->delta_q_info.delta_q_present_flag) {
+    //   if (deltaq_mode == DELTA_Q_OBJECTIVE &&
+    //       !is_frame_tpl_eligible(gf_group, cpi->gf_frame_index))
+    //     cm->delta_q_info.delta_q_present_flag = 0;
+    // }
 
     // Reset delta_q_used flag
     cpi->deltaq_used = 0;
