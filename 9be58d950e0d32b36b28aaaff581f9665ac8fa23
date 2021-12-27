@@ -128,6 +128,30 @@
       },
       "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c20df91_708a3b77",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-12-27T10:59:40Z",
+      "side": 1,
+      "message": "Hi Jingning, Chi-Yo, Paul,\n\nWhile working on approach(1), we realized that the source variance calculations are happening redundantly in function log_sub_block_var() for each partition in a superblock. As both ‘log_sub_block_var()\u0027 and \u0027intra_rd_variance_factor()\u0027 use source variance information, we thought of calculating src var on the fly and store/retrieve accordingly. For implementing the same to reduce redundant calculations effectively, the following information needs to be cached.\n\n-\u003e In ‘log_sub_block_var()\u0027, only source variance is calculated for each 4x4 sub-block, hence caching the same should be sufficient.\n-\u003e In \u0027intra_rd_variance_factor()\u0027, for each 4x4 sub-block log(1+var) is calculated, hence caching the same might save the log and variance operations which need to be calculated for each mode.\n\nEven though this approach needs to maintain/store both var and log(1+var) for each 4x4 sub-block, we feel it is an effective method to reduce most of the redundant calculations. However this approach needs a significant amount of code changes. The relevant logic will not be localized to above modules and logic needs to be handled in different stages of encoder  (due to allocations, initializations etc). This approach also requires 16KB additional memory (\u003c0.2% increase in heap memory, in multi-thread mode with 4 threads) to store var and log(1+var) for each 4x4 sub-block in a superblock.\n\nPlease let us know your thoughts on pursuing the above approach.",
+      "parentUuid": "31a0f6cd_e795e853",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 25
+      },
+      "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
