@@ -244,6 +244,11 @@ static AOM_INLINE void dealloc_compressor_data(AV1_COMP *cpi) {
     cpi->td.pixel_gradient_info = NULL;
   }
 
+  if (cpi->td.mb.src_var_info_of_4x4_sub_blks) {
+    aom_free(cpi->td.mb.src_var_info_of_4x4_sub_blks);
+    cpi->td.mb.src_var_info_of_4x4_sub_blks = NULL;
+  }
+
   if (cpi->td.vt64x64) {
     aom_free(cpi->td.vt64x64);
     cpi->td.vt64x64 = NULL;
@@ -321,6 +326,20 @@ static AOM_INLINE void allocate_gradient_info_for_hog(
   }
 
   cpi->td.mb.pixel_gradient_info = *pixel_gradient_info;
+}
+
+static AOM_INLINE void allocate_src_var_of_4x4_sub_blk_buf(
+    const AV1_COMP *const cpi, struct aom_internal_error_info *error,
+    Blk4x4VarInfo **source_variance_info) {
+  if (!is_src_var_for_4x4_sub_blks_caching_enabled(cpi)) return;
+
+  const BLOCK_SIZE sb_size = cpi->common.seq_params->sb_size;
+  const int mi_count_in_sb = mi_size_wide[sb_size] * mi_size_high[sb_size];
+  if (!*source_variance_info) {
+    AOM_CHECK_MEM_ERROR(
+        error, *source_variance_info,
+        aom_malloc(sizeof(**source_variance_info) * mi_count_in_sb));
+  }
 }
 
 static AOM_INLINE void variance_partition_alloc(AV1_COMP *cpi) {
