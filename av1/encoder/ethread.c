@@ -767,6 +767,10 @@ void av1_init_tile_thread_data(AV1_PRIMARY *ppi, int is_first_pass) {
                          plane_types * MAX_SB_SQUARE));
         }
 
+        allocate_src_var_of_4x4_sub_blk_buf(
+            ppi->cpi, &ppi->error,
+            &thread_data->td->src_var_info_of_4x4_sub_blks);
+
         if (ppi->cpi->sf.part_sf.partition_search_type == VAR_BASED_PARTITION) {
           const int num_64x64_blocks =
               (ppi->seq_params.sb_size == BLOCK_64X64) ? 1 : 4;
@@ -1308,6 +1312,9 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
       }
       thread_data->td->mb.pixel_gradient_info =
           thread_data->td->pixel_gradient_info;
+
+      thread_data->td->mb.src_var_info_of_4x4_sub_blks =
+          thread_data->td->src_var_info_of_4x4_sub_blks;
 
       thread_data->td->mb.e_mbd.tmp_conv_dst = thread_data->td->mb.tmp_conv_dst;
       for (int j = 0; j < 2; ++j) {
