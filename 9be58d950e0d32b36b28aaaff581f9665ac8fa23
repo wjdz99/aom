@@ -152,6 +152,30 @@
       },
       "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d2a5d4f_2b983e51",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2021-12-29T21:16:31Z",
+      "side": 1,
+      "message": "It sounds reasonable to have the variance terms pre-calculated at superblock level. The storage cost is ok. Not sure why it requires significant amount of code change on my first read, maybe I missed something(?)",
+      "parentUuid": "2c20df91_708a3b77",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 25
+      },
+      "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
