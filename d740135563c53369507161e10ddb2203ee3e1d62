@@ -33,6 +33,41 @@
       "message": "sorry your not the owners your information rapist",
       "revId": "d740135563c53369507161e10ddb2203ee3e1d62",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c82aafcb_47cba34d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-29T19:18:46Z",
+      "side": 1,
+      "message": "Fyodor: PTAL. Thanks!\n\nAniket: I have a question below.",
+      "revId": "d740135563c53369507161e10ddb2203ee3e1d62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "559496a8_19b4f183",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2021-12-29T19:18:46Z",
+      "side": 1,
+      "message": "Hi Aniket,\n\nWhen I read the following sentence in the commit message:\n\u003e The screen content coding tools (i.e. palette and intraBC) are not\n\u003e evaluated in non-RD encoding mode, i.e., when use_nonrd_pick_mode \u003d 1\n\u003e and hybrid_intra_pickmode \u003d 0.\n\nI expected this CL to be bit-exact.\n\nBut you wrote:\n\u003e For [allintra encode] speed 9, this change is bit-exact for non-screen contents\n\u003e whereas for screen-contents (detected in the parent version) the bit-mismatch\n\u003e is seen as some of the flags are dependent on allow_screen_content_tools\n\u003e (Eg : allow_intrabc) and allow_screen_content_tools\u003d0 after this CL.\n\nAre you saying that the values of allow_screen_content_tools and allow_intrabc still affect the encoded output even when the screen content coding tools (i.e. palette and intraBC) are not evaluated?",
+      "parentUuid": "70a5834e_1f2944f5",
+      "revId": "d740135563c53369507161e10ddb2203ee3e1d62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
