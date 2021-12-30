@@ -176,6 +176,30 @@
       },
       "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39a38bc3_faad9b46",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2021-12-30T10:02:01Z",
+      "side": 1,
+      "message": "Hi Jingning,\n\nWe are planning to avoid redundant calculation of variance by populating the same on-the-fly (i.e. at block level rather than at SB level). If the calculations are done once at SB level, the data may not be consumed at times Eg : For speed \u003e\u003d 8, log_sub_blk_var() and intra_rd_variance_factor() may not be called depending on the partition search and intra rd path it chooses respectively. Hence the calculations at SB level may lead to increase in encode time. To keep the code independent of the above, we preferred an on-the-fly approach.\n\nAlong with variance, we also plan to calculate log(1+variance) on-the-fly. Hence the code changes would be scattered across log_sub_blk_var(), intra_rd_variance_factor() modules and beyond. Hope this clarifies.\n\nThanks \u0026 Regards,\nMudassir",
+      "parentUuid": "0d2a5d4f_2b983e51",
+      "range": {
+        "startLine": 114,
+        "startChar": 23,
+        "endLine": 114,
+        "endChar": 25
+      },
+      "revId": "9be58d950e0d32b36b28aaaff581f9665ac8fa23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
