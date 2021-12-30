@@ -445,10 +445,15 @@ static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,
       av1_setup_pre_planes(xd, ref, cfg, mi_row, mi_col,
                            xd->block_ref_scale_factors[ref], num_planes);
     }
-    const int start_plane = (cpi->sf.rt_sf.reuse_inter_pred_nonrd &&
-                             cm->seq_params->bit_depth == AOM_BITS_8)
-                                ? 1
-                                : 0;
+    // To handle 'reuse_inter_pred_nonrd' SF more appropriately, It is disabled
+    // for SFs related to partition structure improvement.
+    const int start_plane =
+        (cpi->sf.rt_sf.reuse_inter_pred_nonrd &&
+         (!cpi->sf.rt_sf.nonrd_check_partition_merge_mode) &&
+         (!cpi->sf.rt_sf.nonrd_check_partition_split) &&
+         cm->seq_params->bit_depth == AOM_BITS_8)
+            ? 1
+            : 0;
     av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize,
                                   start_plane, av1_num_planes(cm) - 1);
     if (mbmi->motion_mode == OBMC_CAUSAL) {
