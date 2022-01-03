@@ -1010,12 +1010,13 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, ThreadData *td,
 
   int offset = 0;
   double beta = 1.0;
-  double rk;
+  double rk, sk;
   if (mc_dep_cost > 0 && intra_cost > 0) {
     const double r0 = cpi->rd.r0;
     rk = exp((intra_cost - mc_dep_cost) / cbcmp_base);
+    sk = srcrf_rate / mi_count;
     td->mb.rb = exp((intra_cost - mc_dep_reg) / cbcmp_base);
-    beta = (r0 / rk);
+    beta = (r0 / rk) * sqrt(cpi->rd.s0 / sk);
     assert(beta > 0.0);
   }
   offset = av1_get_deltaq_offset(cm->seq_params->bit_depth, base_qindex, beta);

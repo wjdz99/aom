@@ -483,6 +483,8 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
     double intra_cost_base = 0;
     double mc_dep_cost_base = 0;
     double cbcmp_base = 1;
+    double rate_base = 0;
+    int blk_count = 0;
     const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
     const int row_step = step;
     const int col_step_sr =
@@ -500,7 +502,9 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
         double dist_scaled = (double)(this_stats->recrf_dist << RDDIV_BITS);
         intra_cost_base += log(dist_scaled) * cbcmp;
         mc_dep_cost_base += log(dist_scaled + mc_dep_delta) * cbcmp;
+        rate_base += this_stats->srcrf_rate;
         cbcmp_base += cbcmp;
+        ++blk_count;
       }
     }
 
@@ -508,6 +512,7 @@ static void process_tpl_stats_frame(AV1_COMP *cpi) {
       tpl_frame->is_valid = 0;
     } else {
       cpi->rd.r0 = exp((intra_cost_base - mc_dep_cost_base) / cbcmp_base);
+      cpi->rd.s0 = rate_base / blk_count;
       if (is_frame_tpl_eligible(gf_group, cpi->gf_frame_index)) {
         if (cpi->ppi->lap_enabled) {
           double min_boost_factor = sqrt(cpi->ppi->p_rc.baseline_gf_interval);
