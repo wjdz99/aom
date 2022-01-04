@@ -1115,6 +1115,9 @@ static int rc_pick_q_and_bounds_no_stats_cbr(const AV1_COMP *cpi, int width,
         q = *top_index;
     }
   }
+  if (current_frame->frame_type != KEY_FRAME && current_frame->frame_number <= 5) {
+    q = AOMMIN(p_rc->last_kf_qindex, AOMMAX(5, q - 40));
+  }
 
   assert(*top_index <= rc->worst_quality && *top_index >= rc->best_quality);
   assert(*bottom_index <= rc->worst_quality &&
