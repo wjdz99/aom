@@ -799,7 +799,19 @@ void av1_tf_do_filtering_row(AV1_COMP *cpi, ThreadData *td, int mb_row) {
   uint8_t *pred = tf_data->pred;
 
   // Factor to control the filering strength.
-  const int filter_strength = cpi->oxcf.algo_cfg.arnr_strength;
+  int filter_strength = cpi->oxcf.algo_cfg.arnr_strength;
+
+  //Disable ARNR filtering for animation psycho-visual mode
+  //Note: This changes the rate control depending on the scene complexity
+  //and source luminance/variance. Not much of an issue for animated content
+  //but not for real content
+  if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_ANIMATION)
+    filter_strength = 0;
+
+  //We keep it at 1 for now until new deltaq-modes
+  //or RC gets modified for higher fidelity/visual energy preservation
+  if(cpi->oxcf.tune_cfg.content == AOM_CONTENT_PSY)
+    filter_strength = 0;
 
   // Do filtering.
   FRAME_DIFF *diff = &td->tf_data.diff;
