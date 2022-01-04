@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nThis CL extends the speed feature reuse_inter_pred_nonrd from speed-8 to speed-7. Predicted buffer can be reused if nonrd_check_partition_merge_mode or nonrd_check_partition_split speed feature are disabled. This CL appropriately modifies the condition to populate predicted samples at encode_superblock().\n\nPlease check the resolution-wise speed and quality results as mentioned below.\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   7         rtc          1.393          0.0000    0.0000    0.0000\n   7       rtc_derf       1.649          0.0000    0.0000    0.0000\n   7       Average        1.524          0.0000    0.0000    0.0000\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
       "revId": "68ad1a86d103a9480a527d79f9276a993c5a13fb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad94372b_7f4852d7",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-04T19:24:00Z",
+      "side": 1,
+      "message": "Sorry for the question - I\u0027d like to understand a bit better where the speed up comes from:\nFor speed 7 nonrd_check_partition_merge_mode is always 1, so we don\u0027t save on re-using inter prediction and have to call av1_enc_build_inter_prediction for all planes (staring with Y). Could you please elaborate where we are getting 1.7% speed up for speed 7?",
+      "revId": "68ad1a86d103a9480a527d79f9276a993c5a13fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
