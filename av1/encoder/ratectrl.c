@@ -1121,6 +1121,14 @@ static int rc_pick_q_and_bounds_no_stats_cbr(const AV1_COMP *cpi, int width,
         q = *top_index;
     }
   }
+  // Special case: we force the first few frames to use low q such that
+  // the these frames are encoded at a high quality, which provides good
+  // references for following frames.
+  if (current_frame->frame_type != KEY_FRAME &&
+      current_frame->frame_number <= 5) {
+    q = AOMMIN(p_rc->last_kf_qindex, AOMMAX(5, q - 40));
+    q = AOMMAX(q, rc->best_quality);
+  }
 
   assert(*top_index <= rc->worst_quality && *top_index >= rc->best_quality);
   assert(*bottom_index <= rc->worst_quality &&
@@ -2008,6 +2016,16 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
 
   // Update rate control heuristics
   rc->projected_frame_size = (int)(bytes_used << 3);
+  /*
+  {
+    FILE *pfile = fopen("rt_first5.csv", "a");
+    fprintf(pfile, "%d,%d,%d,%d,%d,%d\n", cm->current_frame.frame_type,
+            cm->current_frame.frame_number % 4,
+            cm->quant_params.base_qindex, rc->avg_frame_bandwidth,
+            rc->this_frame_target, rc->projected_frame_size);
+    fclose(pfile);
+  }
+  */
 
   // Post encode loop adjustment of Q prediction.
   av1_rc_update_rate_correction_factors(cpi, 0, cm->width, cm->height);
