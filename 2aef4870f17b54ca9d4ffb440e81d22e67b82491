@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77e59230_0c54a7a1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-04T10:05:28Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nThis CL enables compound reference in speed 7 and 8 for low-res and in speed 10 for mid-res. For this change we observed good quality improvement with respect to those resolutions. Please note compound reference was already enabled in speed 7, 8, 9 for mid-res and hd-res and enabled in speed 10 for hd-res.\n\nPlease check the resolution-wise speed and quality results as mentioned below.\n                    Instruction Count        BD-Rate Loss(%)\ncpu-used Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n   7        rtc          0.000        0.0000     0.0000     0.0000\n   7      rtc_derf      -3.184       -1.1929    -0.9622    -0.7354\n   7      Average       -1.553       -0.4970    -0.4009    -0.3064\n   8        rtc          0.000        0.0000     0.0000     0.0000\n   8      rtc_derf      -1.141       -0.3877    -0.3457    -0.3149\n   8      Average       -0.557       -0.1615    -0.1440    -0.1312\n  10        rtc         -0.614       -0.4251    -0.3576    -0.3855\n  10      rtc_derf       0.000        0.0000     0.0000     0.0000\n  10      Average       -0.314       -0.2480    -0.2086    -0.2249\n\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
+      "revId": "2aef4870f17b54ca9d4ffb440e81d22e67b82491",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
