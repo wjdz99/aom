@@ -1542,12 +1542,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     }
     // Set mask for intra modes.
     for (int i = 0; i < BLOCK_SIZES; ++i)
-      if (i >= BLOCK_32X32)
-        sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC;
-      else
-        // Use DC, H, V intra mode for block sizes < 32X32.
-        sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC_H_V;
-
+      sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC;
     sf->winner_mode_sf.dc_blk_pred_level = 0;
   }
 
@@ -1578,8 +1573,6 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.estimate_motion_for_var_based_partition = 0;
     sf->rt_sf.force_large_partition_blocks = 1;
     sf->rt_sf.var_part_split_threshold_shift = 9;
-    for (int i = 0; i < BLOCK_SIZES; ++i)
-      sf->rt_sf.intra_y_mode_bsize_mask_nrd[i] = INTRA_DC;
   }
   if (speed >= 10) {
     sf->rt_sf.source_metrics_sb_nonrd = 0;
