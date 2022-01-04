@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96919511_2da6c1b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 21727
+      },
+      "writtenOn": "2022-01-04T05:35:19Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nThis CL extends the speed feature reuse_inter_pred_nonrd from speed-8 to speed-7. Predicted buffer can be reused if nonrd_check_partition_merge_mode or nonrd_check_partition_split speed feature are disabled. This CL appropriately modifies the condition to populate predicted samples at encode_superblock().\n\nPlease check the resolution-wise speed and quality results as mentioned below.\n                     Instruction Count     BD-Rate Loss(%)\ncpu-used  Resolution   Reduction(%)     avg.psnr  ovr.psnr   ssim   \n   7         rtc          1.393          0.0000    0.0000    0.0000\n   7       rtc_derf       1.649          0.0000    0.0000    0.0000\n   7       Average        1.524          0.0000    0.0000    0.0000\nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
+      "revId": "68ad1a86d103a9480a527d79f9276a993c5a13fb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
