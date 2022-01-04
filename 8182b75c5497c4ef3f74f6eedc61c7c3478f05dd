@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3069b10d_8d61d0e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15031
+      },
+      "writtenOn": "2022-01-04T11:51:48Z",
+      "side": 1,
+      "message": "Hi Yunqing, \nWe have submitted a CL to add SSE4.1 intrinsic optimizations of z1 (0 \u003c angle \u003c 90) and z2 (90 \u003c angle \u003c 180) directional intra-prediction for low-bd. We separated out few common utility functions relevant to these functions from avx2 file and moved to intrapred_utils.h. This patch also adds unit test for z1 and z2 intrinsic functions.\n\nPlease check the block level scaling number :\nScaling number for angle 87 (z1): \n Block size       Scaling w.r.t C \n     4X4              0.33x \n     8X8              0.71x \n     16X16            1.96x \n     32X32            3.94x \n     64X64            1.05x \n\nScaling number for angle 177 (z2) : \n Block size        Scaling w.r.t C \n    4X4                0.37x \n    8X8                0.74x \n    16X16              2.21x \n    32X32              3.10x \n    64X64              3.20x\n\nPlease review the patch. \nThank you. \n\nRegards, \nAkshata\n",
+      "revId": "8182b75c5497c4ef3f74f6eedc61c7c3478f05dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
