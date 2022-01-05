@@ -1160,6 +1160,8 @@ typedef struct macroblock {
    */
   TxfmSearchInfo txfm_search_info;
 
+  FULLPEL_MV start_mv_stack[2 /*(MAX_REF_MV_SEARCH - 1)*/ * 2];
+
   /*! \brief Whether there is a strong color activity.
    *
    * Used in REALTIME coding mode to enhance the visual quality at the boundary
@@ -1191,6 +1193,9 @@ typedef struct macroblock {
    * partition is evaluated in the scheme.
    */
   int try_merge_partition;
+
+  //! Count of mvs in start mv stack.
+  int start_mv_cnt;
 } MACROBLOCK;
 #undef SINGLE_REF_MODES
 
