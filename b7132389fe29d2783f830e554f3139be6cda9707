@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd9e9219_3f5ddb51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T17:47:25Z",
+      "side": 1,
+      "message": "Chi Yo: Thanks for the code review. I can\u0027t submit this CL. I guess it is because I pushed this code review to refs/for/master.\n\nI will abandon this CL and replace it with https://aomedia-review.googlesource.com/c/aom/+/151721.",
+      "revId": "b7132389fe29d2783f830e554f3139be6cda9707",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
