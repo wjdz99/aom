@@ -1,0 +1,266 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48af7b18_de8a5d0f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "I suggest filing a libaom issue at https://bugs.chromium.org/p/aomedia/issues/entry, with Type-Enhancement, for this feature. Then add the following line to the commit message:\n\nBUG\u003daomedia:dddd\n\nThis will make it easier to look up the commits related to this feature.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8952c21_ae6edcd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Luca: I suggest some changes. I am also wondering how we can test this.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c587f796_b1075c9b",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1539,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Nit: rd \u003d\u003e RD ?",
+      "range": {
+        "startLine": 1539,
+        "startChar": 11,
+        "endLine": 1539,
+        "endChar": 13
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fed15ad_89da90ab",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Please document these two enum values.",
+      "range": {
+        "startLine": 1543,
+        "startChar": 0,
+        "endLine": 1544,
+        "endChar": 26
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5eef3009_4744a3df",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "IMPORTANT: This entry should be added to the av1_key_val_args[] array at line 451 below. The current array is av1_ctrl_args[], which is for flags that have a codec control id.\n\nNote: The av1_ctrl_args[] and av1_arg_ctrl_map[] array must be kept in sync. This is why when this entry was added in the middle of the av1_ctrl_args[] array, some tests failed.\n\nSince this entry is added to the wrong array, I believe aomenc will silently ignore --distortion-metric\u003dqm-psnr. Is this what you observed?",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03b0fe63_6c1fc8e2",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Nit/optional: Since the corresponding enum is named \"aom_dist_metric\" and \"AOM_DIST_METRIC_FOO\":\n\n  typedef enum {\n    AOM_DIST_METRIC_PSNR,\n    AOM_DIST_METRIC_QM_PSNR,\n  } aom_dist_metric;\n\nI suggest this flag be named \"dist-metric\" for consistency. Alternatively we can rename the corresponding enum.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17bdcef7_263d1cf7",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Did you mean \"inter-block\" or \"intra-block\"?\n\nMight be clearer to say \"RD optimization inside a block\"?\n\nUPDATE: You use \"in-block\" in the comment in av1/encoder/encoder.h.",
+      "range": {
+        "startLine": 295,
+        "startChar": 49,
+        "endLine": 295,
+        "endChar": 54
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "966d8939_8ccc20e0",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Optional: Would be good to explain why these two fields are set to these values, if the reasons are not obvious.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff5423ec_7974fc63",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Add a TODO comment for high bit depths?",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1444a46_57fd3c0c",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Nit: I suggest converting the code in this \u0027else\u0027 block into a new function, similar to av1_block_error_c() in av1/encoder/rdopt.c.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbd42f7a_f4198d9d",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Nit: intptr_t \u003d\u003e int\n\n\u0027i\u0027 is compared with buffer_length, which is of the int type.",
+      "range": {
+        "startLine": 1079,
+        "startChar": 11,
+        "endLine": 1079,
+        "endChar": 19
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0962155c_dbef8b28",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Should we add 1 \u003c\u003c (AOM_QM_BITS - 1) before dividing to get the rounding behavior?",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3ab2b2d_d17283c1",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Nit: if dd and cc cannot be negative, then we can replace these divisions with a right shift.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc016c16_0bfda011",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-05T00:40:54Z",
+      "side": 1,
+      "message": "Nit: Did you intend to add this blank line?",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
