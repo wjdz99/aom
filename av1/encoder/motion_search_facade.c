@@ -179,6 +179,41 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     get_mv_candidate_from_tpl(cpi, x, bsize, ref, cand, &cnt, &total_weight);
   }
 
+  const int cand_cnt = AOMMIN(2, cnt);
+  // TODO(any): Test the speed feature for OBMC_CAUSAL mode.
+  if (cpi->sf.mv_sf.skip_fullpel_search_using_startmv &&
+      mbmi->motion_mode == SIMPLE_TRANSLATION) {
+    const int stack_size = x->start_mv_cnt;
+    for (int cand_idx = 0; cand_idx < cand_cnt; cand_idx++) {
+      int skip_cand_mv = 0;
+
+      // Store start mv candidate of full-pel search in the mv stack (except
+      // last ref_mv_idx).
+      if (mbmi->ref_mv_idx != MAX_REF_MV_SEARCH - 1) {
+        x->start_mv_stack[x->start_mv_cnt] = cand[cand_idx].fmv;
+        x->start_mv_cnt++;
+        assert(x->start_mv_cnt <= (MAX_REF_MV_SEARCH - 1) * 2);
+      }
+
+      // Check difference between mvs in the stack and candidate mv.
+      for (int stack_idx = 0; stack_idx < stack_size; stack_idx++) {
+        const int row =
+            abs(x->start_mv_stack[stack_idx].row - cand[cand_idx].fmv.row);
+        const int col =
+            abs(x->start_mv_stack[stack_idx].col - cand[cand_idx].fmv.col);
+
+        if (row <= 1 && col <= 1) {
+          skip_cand_mv = 1;
+          break;
+        }
+      }
+      if (!skip_cand_mv) continue;
+      // Mark the candidate mv as invalid so that motion search gets skipped.
+      cand[cand_idx].fmv.row = INVALID_MV_ROW_COL;
+      cand[cand_idx].fmv.col = INVALID_MV_ROW_COL;
+    }
+  }
+
   // Further reduce the search range.
   if (search_range < INT_MAX) {
     const search_site_config *search_site_cfg =
@@ -211,9 +246,12 @@ void av1_single_motion_search(const AV1_COMP *const cpi, MACROBLOCK *x,
     case SIMPLE_TRANSLATION: {
       // Perform a search with the top 2 candidates
       int sum_weight = 0;
-      for (int m = 0; m < AOMMIN(2, cnt); m++) {
+      for (int m = 0; m < cand_cnt; m++) {
         FULLPEL_MV smv = cand[m].fmv;
         FULLPEL_MV this_best_mv, this_second_best_mv;
+
+        if (smv.row == INVALID_MV_ROW_COL && smv.col == INVALID_MV_ROW_COL)
+          continue;
 
         int thissme = av1_full_pixel_search(
             smv, &full_ms_params, step_param, cond_cost_list(cpi, cost_list),

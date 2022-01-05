@@ -2821,6 +2821,7 @@ static int64_t handle_inter_mode(
     save_mv[i][0].as_int = INVALID_MV;
     save_mv[i][1].as_int = INVALID_MV;
   }
+  x->start_mv_cnt = 0;
 
   // Main loop of this function. This will  iterate over all of the ref mvs
   // in the dynamic reference list and do the following:
