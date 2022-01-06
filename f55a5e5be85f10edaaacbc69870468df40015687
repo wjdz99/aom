@@ -22,6 +22,30 @@
       },
       "revId": "f55a5e5be85f10edaaacbc69870468df40015687",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "37b1aa59_17c6ffa6",
+        "filename": "av1/ratectrl_rtc.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-06T02:08:38Z",
+      "side": 1,
+      "message": "Jerome: These numbers come from the AV1 specification, so they are fixed.\n\nJianlin: These macros are C-preprocessor macros, so putting them inside a C++ namespace has no effects. If these numbers are defined as C-preprocessor macros, it would be clearer to move the definitions outside any C++ namespace.\n\nAlso, in C++ code I think we can define these as constants.  The FRAME_TYPE typedef should be moved into the aom namespace.",
+      "parentUuid": "230ebb09_1867399f",
+      "range": {
+        "startLine": 21,
+        "startChar": 8,
+        "endLine": 21,
+        "endChar": 25
+      },
+      "revId": "f55a5e5be85f10edaaacbc69870468df40015687",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
