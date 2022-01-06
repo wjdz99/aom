@@ -409,7 +409,7 @@ class ResizeRealtimeTest
     } else if (set_scale_mode2_) {
       struct aom_scaling_mode mode;
       if (video->frame() <= 20)
-        mode = { AOME_ONEFOUR, AOME_ONEFOUR };
+        mode = { AOME_ONEEIGHT, AOME_ONEEIGHT };
       else if (video->frame() <= 40)
         mode = { AOME_ONETWO, AOME_ONETWO };
       else if (video->frame() > 40)
@@ -567,8 +567,8 @@ TEST_P(ResizeRealtimeTest, TestInternalResizeSetScaleMode2) {
   for (std::vector<FrameInfo>::const_iterator info = frame_info_list_.begin();
        info != frame_info_list_.end(); ++info) {
     const auto frame = static_cast<unsigned>(info->pts);
-    unsigned int expected_w = 1280 >> 2;
-    unsigned int expected_h = 720 >> 2;
+    unsigned int expected_w = 1280 >> 3;
+    unsigned int expected_h = 720 >> 3;
     if (frame > 40) {
       expected_w = (3 * 1280) >> 2;
       expected_h = (3 * 720) >> 2;

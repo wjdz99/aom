@@ -733,15 +733,22 @@ void av1_scale_references(AV1_COMP *cpi, const InterpFilter filter,
             aom_internal_error(cm->error, AOM_CODEC_MEM_ERROR,
                                "Failed to allocate frame buffer");
           }
+
+          // Optimized scaler can only handle scale ratio >= 1/4
+          const bool can_use_optimized_scaler =
+              new_fb->buf.y_crop_width * 4 >= cm->width &&
+              new_fb->buf.y_crop_height * 4 >= cm->height;
+
 #if CONFIG_AV1_HIGHBITDEPTH
-          if (use_optimized_scaler && cm->seq_params->bit_depth == AOM_BITS_8)
+          if (use_optimized_scaler && can_use_optimized_scaler &&
+              cm->seq_params->bit_depth == AOM_BITS_8)
             av1_resize_and_extend_frame(ref, &new_fb->buf, filter, phase,
                                         num_planes);
           else
             av1_resize_and_extend_frame_nonnormative(
                 ref, &new_fb->buf, (int)cm->seq_params->bit_depth, num_planes);
 #else
-          if (use_optimized_scaler)
+          if (use_optimized_scaler && can_use_optimized_scaler)
             av1_resize_and_extend_frame(ref, &new_fb->buf, filter, phase,
                                         num_planes);
           else
