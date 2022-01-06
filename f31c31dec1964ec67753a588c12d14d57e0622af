@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "25b488f0_8d352068",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48af7b18_de8a5d0f",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "a8952c21_ae6edcd6",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 11
@@ -31,6 +49,24 @@
       "writtenOn": "2022-01-05T00:40:54Z",
       "side": 1,
       "message": "Luca: I suggest some changes. I am also wondering how we can test this.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb5afca1_61a65d60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "For testing, at the moment the best thing I can think of is to test that it doesn\u0027t horribly break when the qm-psnr distortion metric is used. I\u0027m not entirely sure how to add tests in the AOM codebase though...",
+      "parentUuid": "a8952c21_ae6edcd6",
       "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -48,6 +84,30 @@
       "writtenOn": "2022-01-05T00:40:54Z",
       "side": 1,
       "message": "Nit: rd \u003d\u003e RD ?",
+      "range": {
+        "startLine": 1539,
+        "startChar": 11,
+        "endLine": 1539,
+        "endChar": 13
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4041baea_232696ab",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1539,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c587f796_b1075c9b",
       "range": {
         "startLine": 1539,
         "startChar": 11,
@@ -81,6 +141,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6595f3a_c720895c",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fed15ad_89da90ab",
+      "range": {
+        "startLine": 1543,
+        "startChar": 0,
+        "endLine": 1544,
+        "endChar": 26
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5eef3009_4744a3df",
@@ -98,6 +182,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "16021d26_d72ed6a1",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "It did work before, FWIW... Anyway, moved it, as that place is more appropriate.",
+      "parentUuid": "5eef3009_4744a3df",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "03b0fe63_6c1fc8e2",
@@ -111,6 +213,24 @@
       "writtenOn": "2022-01-05T00:40:54Z",
       "side": 1,
       "message": "Nit/optional: Since the corresponding enum is named \"aom_dist_metric\" and \"AOM_DIST_METRIC_FOO\":\n\n  typedef enum {\n    AOM_DIST_METRIC_PSNR,\n    AOM_DIST_METRIC_QM_PSNR,\n  } aom_dist_metric;\n\nI suggest this flag be named \"dist-metric\" for consistency. Alternatively we can rename the corresponding enum.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffe0d21b_9733fd38",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03b0fe63_6c1fc8e2",
       "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -138,6 +258,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c865e390_68ed13cd",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17bdcef7_263d1cf7",
+      "range": {
+        "startLine": 295,
+        "startChar": 49,
+        "endLine": 295,
+        "endChar": 54
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "966d8939_8ccc20e0",
@@ -151,6 +295,24 @@
       "writtenOn": "2022-01-05T00:40:54Z",
       "side": 1,
       "message": "Optional: Would be good to explain why these two fields are set to these values, if the reasons are not obvious.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "453b8784_c375221c",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "966d8939_8ccc20e0",
       "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -172,6 +334,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7abf865d_891d3945",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1068,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff5423ec_7974fc63",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1444a46_57fd3c0c",
@@ -189,6 +369,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "20460619_894a2e82",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1077,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done, but in the same file - I\u0027m not 100% sure how to add a function to rdopt.c (it looks like rdopt.h is autogenerated, and/or it uses some dynamic dispatch mechanism for SIMD)",
+      "parentUuid": "d1444a46_57fd3c0c",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bbd42f7a_f4198d9d",
@@ -202,6 +400,30 @@
       "writtenOn": "2022-01-05T00:40:54Z",
       "side": 1,
       "message": "Nit: intptr_t \u003d\u003e int\n\n\u0027i\u0027 is compared with buffer_length, which is of the int type.",
+      "range": {
+        "startLine": 1079,
+        "startChar": 11,
+        "endLine": 1079,
+        "endChar": 19
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9769b34_95f1fecb",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "After creating the function, this is back to intptr_t",
+      "parentUuid": "bbd42f7a_f4198d9d",
       "range": {
         "startLine": 1079,
         "startChar": 11,
@@ -231,6 +453,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a3880561_6f615e99",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "I changed the formula here to first square dd, then shift right with rounding. I believe this should be fine because coeff and dqcoeff cannot be more than 24 or so bits, and AOM_QM_BITS is 5, but please correct me if I\u0027m wrong.",
+      "parentUuid": "0962155c_dbef8b28",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c3ab2b2d_d17283c1",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 11
@@ -242,6 +482,24 @@
       "writtenOn": "2022-01-05T00:40:54Z",
       "side": 1,
       "message": "Nit: if dd and cc cannot be negative, then we can replace these divisions with a right shift.",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d42102cd_1f3bf5de",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c3ab2b2d_d17283c1",
       "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -269,6 +527,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ba45746_fe607e3d",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1148,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "764dd328_e3f18fef",
+      "range": {
+        "startLine": 1147,
+        "startChar": 0,
+        "endLine": 1148,
+        "endChar": 57
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc016c16_0bfda011",
@@ -286,6 +568,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab6b748b_93c27124",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2095,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "No :)",
+      "parentUuid": "fc016c16_0bfda011",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5a4dc0b0_8c4af368",
@@ -299,6 +599,30 @@
       "writtenOn": "2022-01-05T19:29:55Z",
       "side": 1,
       "message": "Q: Is trellis optimization turned on for avif? If so, do we need to weight the distortion by q matrix during it as well?",
+      "range": {
+        "startLine": 2145,
+        "startChar": 6,
+        "endLine": 2145,
+        "endChar": 20
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a980fec_5fb726b5",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-06T11:26:28Z",
+      "side": 1,
+      "message": "I don\u0027t know if it is turned on, but if so, we probably should, yes.",
+      "parentUuid": "5a4dc0b0_8c4af368",
       "range": {
         "startLine": 2145,
         "startChar": 6,
