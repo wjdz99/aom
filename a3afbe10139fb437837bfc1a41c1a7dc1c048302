@@ -57,6 +57,30 @@
       },
       "revId": "a3afbe10139fb437837bfc1a41c1a7dc1c048302",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fcf4502_79c53c1e",
+        "filename": "av1/encoder/temporal_filter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1322,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-01-06T22:17:01Z",
+      "side": 1,
+      "message": "After reading carefully, I realized that I was mistaken.\nYou are not trying to turn off key frame filtering but to make the key frame filtering work when it\u0027s update type is ARF_UPDATE.\nIn this case, this fix should work.\nThanks for fixing the issue.",
+      "parentUuid": "6a4542c8_155f85b0",
+      "range": {
+        "startLine": 1322,
+        "startChar": 6,
+        "endLine": 1322,
+        "endChar": 66
+      },
+      "revId": "a3afbe10139fb437837bfc1a41c1a7dc1c048302",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
