@@ -1277,7 +1277,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     }
   }
   if (!is_720p_or_larger) {
-    if (speed >= 9) {
+    if (speed >= 10) {
       sf->rt_sf.force_large_partition_blocks_intra = 1;
     }
   }
