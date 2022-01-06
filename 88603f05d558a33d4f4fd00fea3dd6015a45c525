@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \nWe have submitted a CL to add SSE4.1 intrinsic optimization of z3 directional intra-prediction (180 \u003c angle \u003c 270) for low-bd. We separated out few common utility functions from avx2 file and moved to header file. This patch also includes relevant unit test changes for added intrinsic function. \nPlease check the block level scaling number for angle 267, \n Block size   Scaling w.r.t C\n    4X4           0.36x\n    8X8           0.83x\n    16X16         2.34x\n    32X32         4.20x\n    64X64         3.68x\n\nPlease review the patch. \nThank you. \n\nRegards,\nAkshata\n",
       "revId": "88603f05d558a33d4f4fd00fea3dd6015a45c525",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9434b1ca_f659b110",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-01-06T20:53:49Z",
+      "side": 1,
+      "message": "Thanks for getting this done. Do you need to add \"aom_dsp/x86/intrapred_utils.h\" (a new file) in a make file as well?",
+      "parentUuid": "552d1aa8_d5cbcaf4",
+      "revId": "88603f05d558a33d4f4fd00fea3dd6015a45c525",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
