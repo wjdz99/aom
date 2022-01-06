@@ -926,10 +926,10 @@ int av1_get_q_for_deltaq_objective(AV1_COMP *const cpi, BLOCK_SIZE bsize,
       TplDepStats *this_stats =
           &tpl_stats[av1_tpl_ptr_pos(row, col, tpl_stride, block_mis_log2)];
       int64_t mc_dep_delta =
-          RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+          RDCOST(tpl_frame->base_rdmult, 0,
                  this_stats->mc_dep_dist);
-      intra_cost += this_stats->recrf_dist << RDDIV_BITS;
-      mc_dep_cost += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      intra_cost += this_stats->intra_cost << RDDIV_BITS;
+      mc_dep_cost += (this_stats->intra_cost << RDDIV_BITS) + mc_dep_delta;
       mi_count++;
     }
   }

@@ -976,11 +976,11 @@ static AOM_INLINE void tpl_model_update_b(TplParams *const tpl_data, int mi_row,
   int64_t srcrf_rate = is_compound ? tpl_stats_ptr->cmp_recrf_rate[!ref]
                                    : tpl_stats_ptr->srcrf_rate;
 
-  int64_t cur_dep_dist = tpl_stats_ptr->recrf_dist - srcrf_dist;
+  int64_t cur_dep_dist = tpl_stats_ptr->intra_cost - tpl_stats_ptr->inter_cost;
   int64_t mc_dep_dist =
       (int64_t)(tpl_stats_ptr->mc_dep_dist *
-                ((double)(tpl_stats_ptr->recrf_dist - srcrf_dist) /
-                 tpl_stats_ptr->recrf_dist));
+                ((double)(tpl_stats_ptr->intra_cost - tpl_stats_ptr->inter_cost) /
+                 tpl_stats_ptr->intra_cost));
   int64_t delta_rate = tpl_stats_ptr->recrf_rate - srcrf_rate;
   int64_t mc_dep_rate =
       av1_delta_rate_cost(tpl_stats_ptr->mc_dep_rate, tpl_stats_ptr->recrf_dist,
@@ -1706,11 +1706,11 @@ void av1_tpl_rdmult_setup(AV1_COMP *cpi) {
           const TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
               mi_row, mi_col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
           int64_t mc_dep_delta =
-              RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+              RDCOST(tpl_frame->base_rdmult, 0,
                      this_stats->mc_dep_dist);
-          intra_cost += (double)(this_stats->recrf_dist << RDDIV_BITS);
+          intra_cost += (double)(this_stats->intra_cost << RDDIV_BITS);
           mc_dep_cost +=
-              (double)(this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+              (double)(this_stats->intra_cost << RDDIV_BITS) + mc_dep_delta;
         }
       }
       const double rk = intra_cost / mc_dep_cost;
@@ -1985,10 +1985,10 @@ double av1_tpl_get_frame_importance(const TplParams *tpl_data,
       const TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
           row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
       const int64_t mc_dep_delta =
-          RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+          RDCOST(tpl_frame->base_rdmult, 0,
                  this_stats->mc_dep_dist);
-      intra_cost_base += (this_stats->recrf_dist << RDDIV_BITS);
-      mc_dep_cost_base += (this_stats->recrf_dist << RDDIV_BITS) + mc_dep_delta;
+      intra_cost_base += (this_stats->intra_cost << RDDIV_BITS);
+      mc_dep_cost_base += (this_stats->intra_cost << RDDIV_BITS) + mc_dep_delta;
     }
   }
   return mc_dep_cost_base * 1.0 / intra_cost_base;
