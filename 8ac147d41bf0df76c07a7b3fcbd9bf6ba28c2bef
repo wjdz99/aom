@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nWhile benchmarking force_large_partition_blocks_intra speed feature we observed that it is not meeting trade-off criteria for low-res and mid-res of speed 9. Hence this CL disables the sf for low-res and mid-res of speed 9. Please note that by default this sf is disabled for hd-res of speed 9.\nPlease check the resolution-wise speed and quality results as mentioned below. \n\n                    Instruction Count        BD-Rate Loss(%)      \ncpu-used Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim \n   9        rtc         -0.160        -0.0949    -0.2678   -0.2712\n   9      rtc_derf      -0.357        -0.2139    -0.3602   -0.5249\n   9      Average       -0.256        -0.1444    -0.3063   -0.3769\n\nIn the commit message :   \n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
       "revId": "8ac147d41bf0df76c07a7b3fcbd9bf6ba28c2bef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c13a37f1_d97c3724",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-01-07T17:35:55Z",
+      "side": 1,
+      "message": "FYI: For speed 9  \u0026 10, our current goal is to make the encoder much faster. The achievable speed/quality tradeoff is very low (3:1 or even lower). We may want to keep this in mind while tuning sf performance at speed 9 \u0026 10, and focus on encoder speedups instead of getting back coding gains at this time.\n\nOverall, this CL\u0027s tradeoff isn\u0027t bad.\n\nMarco/Fyodor, any opinions?",
+      "parentUuid": "ba247ed6_ca411f93",
+      "revId": "8ac147d41bf0df76c07a7b3fcbd9bf6ba28c2bef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
