@@ -606,7 +606,7 @@ static aom_codec_err_t allocate_and_set_string(const char *src,
 
 static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
                                        const aom_codec_enc_cfg_t *cfg,
-                                       const struct av1_extracfg *extra_cfg) {
+                                       struct av1_extracfg *extra_cfg) {
   RANGE_CHECK(cfg, g_w, 1, 65535);  // 16 bits available
   RANGE_CHECK(cfg, g_h, 1, 65535);  // 16 bits available
   RANGE_CHECK(cfg, g_timebase.den, 1, 1000000000);
@@ -680,6 +680,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK_HI(extra_cfg, enable_auto_bwd_ref, 2);
   RANGE_CHECK(extra_cfg, cpu_used, 0,
               (cfg->g_usage == AOM_USAGE_REALTIME) ? 10 : 9);
+  
   RANGE_CHECK_HI(extra_cfg, noise_sensitivity, 6);
   RANGE_CHECK(extra_cfg, superblock_size, AOM_SUPERBLOCK_SIZE_64X64,
               AOM_SUPERBLOCK_SIZE_DYNAMIC);
@@ -737,6 +738,10 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
 
   if (extra_cfg->passes != -1 && (int)cfg->g_pass > extra_cfg->passes) {
     ERROR("Current pass is larger than total number of passes.");
+  }
+
+  if (extra_cfg->passes ==3 && cfg->g_pass == AOM_RC_SECOND_PASS) {
+    extra_cfg->cpu_used = 2;
   }
 
   if (cfg->g_profile <= (unsigned int)PROFILE_1 &&

@@ -566,6 +566,7 @@ struct stream_state {
   unsigned int orig_height;
   int orig_write_webm;
   int orig_write_ivf;
+  unsigned int orig_rc_target_bitrate;
   char tmp_out_fn[1000];
 };
 
@@ -2035,6 +2036,7 @@ int main(int argc, const char **argv_) {
     stream->orig_height = stream->config.cfg.g_h;
     stream->orig_write_ivf = stream->config.write_ivf;
     stream->orig_write_webm = stream->config.write_webm;
+    stream->orig_rc_target_bitrate = stream->config.cfg.rc_target_bitrate;
   }
 
   if (!input.filename) {
@@ -2066,10 +2068,12 @@ int main(int argc, const char **argv_) {
         // Libaom currently only supports the ivf format for the third pass.
         stream->config.write_ivf = 1;
         stream->config.write_webm = 0;
+        stream->config.cfg.rc_target_bitrate /= 2;
       } else {
         stream->config.out_fn = stream->orig_out_fn;
         stream->config.write_ivf = stream->orig_write_ivf;
         stream->config.write_webm = stream->orig_write_webm;
+        stream->config.cfg.rc_target_bitrate = stream->orig_rc_target_bitrate;
       }
       stream->config.cfg.g_w = stream->orig_width;
       stream->config.cfg.g_h = stream->orig_height;
