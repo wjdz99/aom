@@ -489,6 +489,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fb539507_5bf0548b",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1083,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-08T00:02:21Z",
+      "side": 1,
+      "message": "I asked Angie about this. (Angie is an expert on the ranges of transform outputs and intermediate values in AV1.) She sent me the following:\n\n  The ranges of coeff and dqcoeff are\n    bd8 : 18 bits (including sign)\n    bd10: 20 bits (including sign)\n    bd12: 22 bits (including sign)\n  (They both should share the same range.)\n\nFor future reference, could you add this info to the av1_block_error_qm() function as a comment? Thanks.",
+      "parentUuid": "a3880561_6f615e99",
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c3ab2b2d_d17283c1",
         "filename": "av1/encoder/tx_search.c",
         "patchSetId": 11
