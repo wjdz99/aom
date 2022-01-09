@@ -11,7 +11,9 @@
 
 #include <stdint.h>
 #include <float.h>
+#include <stdio.h>
 
+#include "av1/common/quant_common.h"
 #include "config/aom_config.h"
 #include "config/aom_dsp_rtcd.h"
 #include "config/aom_scale_rtcd.h"
@@ -803,7 +805,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
+      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
+                         : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
@@ -1655,6 +1658,43 @@ int av1_tpl_setup_stats(AV1_COMP *cpi, int gop_eval,
                         cm->mi_params.mi_cols);
   }
 
+  double intra_cost_base = 0;
+  double mc_dep_cost_base = 0;
+  double cbcmp_base = 1;
+  for (int frame_idx = tpl_gf_group_frames - 1;
+       frame_idx >= cpi->gf_frame_index; --frame_idx) {
+    if (gf_group->update_type[frame_idx] == INTNL_OVERLAY_UPDATE ||
+        gf_group->update_type[frame_idx] == OVERLAY_UPDATE)
+      continue;
+
+    if (approx_gop_eval && (gf_group->layer_depth[frame_idx] > num_arf_layers ||
+                            frame_idx >= gop_length))
+      continue;
+
+    const TplDepFrame *tpl_frame = &tpl_data->tpl_frame[frame_idx];
+    const TplDepStats *tpl_stats = tpl_frame->tpl_stats_ptr;
+
+    const int tpl_stride = tpl_frame->stride;
+    const int step = 1 << tpl_data->tpl_stats_block_mis_log2;
+
+    for (int row = 0; row < tpl_frame->mi_rows; row += step) {
+      for (int col = 0; col < tpl_frame->mi_cols; col += step) {
+        const TplDepStats *this_stats = &tpl_stats[av1_tpl_ptr_pos(
+            row, col, tpl_stride, tpl_data->tpl_stats_block_mis_log2)];
+        double cbcmp = (double)this_stats->srcrf_dist;
+        const int64_t mc_dep_delta =
+            RDCOST(tpl_frame->base_rdmult, this_stats->mc_dep_rate,
+                   this_stats->mc_dep_dist);
+        double dist_scaled = (double)(this_stats->recrf_dist << RDDIV_BITS);
+        intra_cost_base += log(dist_scaled) * cbcmp;
+        mc_dep_cost_base += log(dist_scaled + mc_dep_delta) * cbcmp;
+        cbcmp_base += cbcmp;
+      }
+    }
+  }
+  tpl_data->gop_importance_norm =
+      exp((mc_dep_cost_base - intra_cost_base) / cbcmp_base);
+
   av1_configure_buffer_updates(cpi, &this_frame_params.refresh_frame,
                                gf_group->update_type[cpi->gf_frame_index],
                                gf_group->update_type[cpi->gf_frame_index], 0);
@@ -1915,7 +1955,15 @@ double av1_tpl_get_frame_importance(const TplParams *tpl_data,
       cbcmp_base += cbcmp;
     }
   }
-  return exp((mc_dep_cost_base - intra_cost_base) / cbcmp_base);
+  double frm_dist_factor =
+      exp((mc_dep_cost_base - intra_cost_base) / cbcmp_base);
+  double norm_dist_factor =
+      exp((mc_dep_cost_base - intra_cost_base) / cbcmp_base) /
+      tpl_data->gop_importance_norm;
+
+  fprintf(stderr, "frame = %.2f, norm = %.2f\n", frm_dist_factor,
+          norm_dist_factor);
+  return norm_dist_factor;
 }
 
 double av1_tpl_get_qstep_ratio(const TplParams *tpl_data, int gf_frame_index) {
@@ -1932,9 +1980,16 @@ int av1_get_q_index_from_qstep_ratio(int leaf_qindex, double qstep_ratio,
   const double leaf_qstep = av1_dc_quant_QTX(leaf_qindex, 0, bit_depth);
   const double target_qstep = leaf_qstep * qstep_ratio;
   int qindex = leaf_qindex;
-  for (qindex = leaf_qindex; qindex > 0; --qindex) {
-    const double qstep = av1_dc_quant_QTX(qindex, 0, bit_depth);
-    if (qstep + 0.1 <= target_qstep) break;
+  if (leaf_qstep > target_qstep) {
+    for (qindex = leaf_qindex; qindex > 0; --qindex) {
+      const double qstep = av1_dc_quant_QTX(qindex, 0, bit_depth);
+      if (qstep + 0.1 <= target_qstep) break;
+    }
+  } else {
+    for (qindex = leaf_qindex; qindex < MAXQ; ++qindex) {
+      const double qstep = av1_dc_quant_QTX(qindex, 0, bit_depth);
+      if (qstep + 0.1 >= target_qstep) break;
+    }
   }
   return qindex;
 }

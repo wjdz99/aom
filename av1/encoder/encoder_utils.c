@@ -9,6 +9,7 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <stdio.h>
 #include "aom/aomcx.h"
 
 #include "av1/encoder/bitstream.h"
@@ -560,6 +561,7 @@ void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,
     const int tpl_q = av1_tpl_get_q_index(
         &cpi->ppi->tpl_data, cpi->gf_frame_index, cpi->rc.active_worst_quality,
         cm->seq_params->bit_depth);
+    fprintf(stderr, "q = %d\n", tpl_q);
     *q = clamp(tpl_q, rc_cfg->best_allowed_q, rc_cfg->worst_allowed_q);
     *top_index = *bottom_index = *q;
     if (gf_group->update_type[cpi->gf_frame_index] == ARF_UPDATE)

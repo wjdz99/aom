@@ -196,6 +196,11 @@ typedef struct TplParams {
   int frame_idx;
 
   /*!
+   * GF group distortion normalization.
+   */
+  double gop_importance_norm;
+
+  /*!
    * Array of pointers to the frame buffers holding the source frame.
    * src_ref_frame[i] stores the pointer to the source frame of the ith
    * reference frame type.
