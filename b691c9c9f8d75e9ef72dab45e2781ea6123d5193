@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "830a1a3d_a61d8125",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-10T09:30:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c88b1316_10585b3a",
+      "range": {
+        "startLine": 1052,
+        "startChar": 0,
+        "endLine": 1053,
+        "endChar": 70
+      },
+      "revId": "b691c9c9f8d75e9ef72dab45e2781ea6123d5193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f04bee34_e154d60b",
@@ -54,6 +78,24 @@
       "writtenOn": "2022-01-06T23:36:46Z",
       "side": 1,
       "message": "Nit: Even though we can\u0027t define this function next to av1_block_error_c() and av1_highbd_block_error_c() in rdopt.c, I suggest making this function look similar to those two functions, such as using the same local variable names.",
+      "revId": "b691c9c9f8d75e9ef72dab45e2781ea6123d5193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "196eb523_20e2e5db",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1067,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-10T09:30:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f04bee34_e154d60b",
       "revId": "b691c9c9f8d75e9ef72dab45e2781ea6123d5193",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -81,6 +123,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "373e8226_11478586",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1072,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-10T09:30:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea46e46c_ef170c44",
+      "range": {
+        "startLine": 1071,
+        "startChar": 0,
+        "endLine": 1072,
+        "endChar": 69
+      },
+      "revId": "b691c9c9f8d75e9ef72dab45e2781ea6123d5193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "795c8a9a_eaed93ec",
@@ -94,6 +160,24 @@
       "writtenOn": "2022-01-06T23:36:46Z",
       "side": 1,
       "message": "Nit: Omit this blank line (so that this looks like other similar code).",
+      "revId": "b691c9c9f8d75e9ef72dab45e2781ea6123d5193",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9fbdf83_3ab5f994",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-10T09:30:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "795c8a9a_eaed93ec",
       "revId": "b691c9c9f8d75e9ef72dab45e2781ea6123d5193",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
