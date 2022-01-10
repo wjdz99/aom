@@ -69,6 +69,9 @@
 #define ALIGN_POWER_OF_TWO(value, n) \
   (((value) + ((1 << (n)) - 1)) & ~((1 << (n)) - 1))
 
+/* Shift right with ceil() for use when n >= 0 and value >= 0.*/
+#define CEIL_POWER_OF_TWO(value, n) (((value) + (1 << (n)) - 1) >> (n))
+
 #define DIVIDE_AND_ROUND(x, y) (((x) + ((y) >> 1)) / (y))
 
 #define CONVERT_TO_SHORTPTR(x) ((uint16_t *)(((uintptr_t)(x)) << 1))
