@@ -366,14 +366,18 @@ static void get_rate_distortion(
         ((mi_row * MI_SIZE * dst_buffer_stride) >> pd->subsampling_y) +
         ((mi_col * MI_SIZE) >> pd->subsampling_x);
     uint8_t *dst_buffer = rec_buffer_pool[plane] + dst_mb_offset;
+    int src_stride = src_stride_pool[plane];
+    int src_mb_offset = ((mi_row * MI_SIZE * src_stride) >> pd->subsampling_y) +
+                        ((mi_col * MI_SIZE) >> pd->subsampling_x);
+
     for (int ref = 0; ref < 1 + is_compound; ++ref) {
       if (!is_inter_mode(best_mode)) {
         av1_predict_intra_block(
             xd, seq_params->sb_size, seq_params->enable_intra_edge_filter,
             block_size_wide[bsize_plane], block_size_high[bsize_plane],
             max_txsize_rect_lookup[bsize_plane], best_mode, 0, 0,
-            FILTER_INTRA_MODES, dst_buffer, dst_buffer_stride, dst_buffer,
-            dst_buffer_stride, 0, 0, plane);
+            FILTER_INTRA_MODES, src_buffer_pool[plane] + src_mb_offset,
+            src_stride, dst_buffer, dst_buffer_stride, 0, 0, plane);
       } else {
         int_mv best_mv = xd->mi[0]->mv[ref];
         uint8_t *ref_buffer_pool[MAX_MB_PLANE] = {
@@ -403,11 +407,6 @@ static void get_rate_distortion(
                                           &best_mv.as_mv, &inter_pred_params);
       }
     }
-
-    int src_stride = src_stride_pool[plane];
-    int src_mb_offset = ((mi_row * MI_SIZE * src_stride) >> pd->subsampling_y) +
-                        ((mi_col * MI_SIZE) >> pd->subsampling_x);
-
     int this_rate = 1;
     int64_t this_recon_error = 1;
     int64_t sse;
