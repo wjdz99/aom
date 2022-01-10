@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11c9ae97_d142e111",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-10T19:10:51Z",
+      "side": 1,
+      "message": "Luca: This looks good, but let\u0027s figure out how to add a test.",
+      "revId": "0b7da7b4ca57f49d9a9cfd0ed320114f7b859279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8b50dd7_5e605997",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-10T19:10:51Z",
+      "side": 1,
+      "message": "Do you think libaom should fail with an error if --dist_metric\u003dqm-psnr is specified but --enable-qm\u003d1 is not?\n\nIf so, we can check that here with something like the following:\n\n+  if (extra_cfg-\u003edist_metric \u003d\u003d AOM_DIST_METRIC_QM_PSNR \u0026\u0026\n+      !extra_cfg-\u003eenable_qm) {\n+    ERROR(\"--dist-metric\u003dqm-psnr requires --enable-qm\u003d1.\");\n+  }",
+      "revId": "0b7da7b4ca57f49d9a9cfd0ed320114f7b859279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
