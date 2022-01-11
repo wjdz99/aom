@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8eabe52d_766509d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-11T15:33:30Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have submitted patch set 2 by mapping the new conservative logic introduced in patch set 1 as sf level 1 and existing aggressive logic as level 2. As per your suggestion we have reverted the change for speed 10. Currently sf is set to level 1 for speed 7 and 8, disabled for speed 9 and level 2 for speed 10. Also we have rebased the patch set 2 and generated the results for speed 7 and 8. Please note that enabling the sf for speed 9 level 2 gives performance improvement within trade-off result, let us know your opinion on enabling the same.\n\nPlease check the resolution-wise speed and quality results as mentioned below.\n\n                    Instruction Count        BD-Rate Loss(%)       \ncpu-used Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n   7        rtc         -0.154        -0.1137    -0.1387   -0.1526 \n   7      rtc_derf      -0.219        -0.0896    -0.0558   -0.0521 \n   7      Average       -0.186        -0.1037    -0.1042   -0.1108 \n   8        rtc          0.709         0.0458     0.0457    0.0862 \n   8      rtc_derf       2.564        -0.0515    -0.0340    0.0386 \n   8      Average        1.614         0.0052     0.0125    0.0663  \n \nIn the commit message :\n[-] sign indicates encode time increase \n[+] sign indicates encode time reduction \nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you.",
+      "revId": "18229c2a8ef228b41a1c261c6426c3936e45907f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
