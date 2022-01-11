@@ -2429,6 +2429,7 @@ static int encode_without_recode(AV1_COMP *cpi) {
       (cpi->rc.high_source_sad ||
        (cpi->ppi->use_svc && cpi->svc.high_source_sad_superframe))) {
     if (av1_encodedframe_overshoot_cbr(cpi, &q)) {
+      printf("scene ch reset %d \n", q);
       av1_set_quantizer(cm, q_cfg->qm_minlevel, q_cfg->qm_maxlevel, q,
                         q_cfg->enable_chroma_deltaq, q_cfg->enable_hdr_deltaq);
       av1_set_speed_features_qindex_dependent(cpi, cpi->oxcf.speed);
