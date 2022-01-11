@@ -33,6 +33,24 @@
       "message": "Do you think libaom should fail with an error if --dist_metric\u003dqm-psnr is specified but --enable-qm\u003d1 is not?\n\nIf so, we can check that here with something like the following:\n\n+  if (extra_cfg-\u003edist_metric \u003d\u003d AOM_DIST_METRIC_QM_PSNR \u0026\u0026\n+      !extra_cfg-\u003eenable_qm) {\n+    ERROR(\"--dist-metric\u003dqm-psnr requires --enable-qm\u003d1.\");\n+  }",
       "revId": "0b7da7b4ca57f49d9a9cfd0ed320114f7b859279",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73d8ec96_11bab86c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-01-11T13:21:30Z",
+      "side": 1,
+      "message": "That\u0027s a good question. qm-psnr makes sense without qm, in the sense that it \"falls back\" to doing exactly what psnr does, so I don\u0027t think an error is warranted.",
+      "parentUuid": "f8b50dd7_5e605997",
+      "revId": "0b7da7b4ca57f49d9a9cfd0ed320114f7b859279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
