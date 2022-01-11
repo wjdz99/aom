@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f4e7b2e_cb714c7c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-01-11T17:30:45Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have submitted a CL to introduce skip_fullpel_search_using_startmv speed feature to skip NEWMV mode based on start mv of full-pel search. The speed feature is implemented based on the following assumption. In a block, if the start mv of two NEWMV modes are similar for the given reference frame one of the mode can be skipped as the mv can converge to a same point after motion search.\nFor this implementation, the start mv of different ref_mv_idx is stacked and compared w.r.t current start mv of full-pel search. If the mv difference is less than a threshold then the current mode is skipped before full-pel search.\nThe speed feature is enabled for non-boosted frames in speed 6.\nPlease check the Borg test results.\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 6     LOWRES2      1.185         0.1043     0.1065    0.1212\n 6     MIDRES2      0.973         0.1004     0.0970    0.1151\n 6      HDRES2      0.808         0.0741     0.0683    0.0689\n 6     Average      0.988         0.0929     0.0906    0.1017\n\nIn the commit message:\n[-] sign indicates encode time increase\n[+] sign indicates encode time reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nPlease review the patch.\n",
+      "revId": "0f39fcc8a34ddc4cde653e21f50f130320ea80c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
