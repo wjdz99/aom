@@ -34,6 +34,24 @@
       "parentUuid": "aedb2b4b_edfe580f",
       "revId": "2754df6a85bb3849d3d333031376523b7fdb7f88",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27b39538_975aa9af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-12T22:02:17Z",
+      "side": 1,
+      "message": "\u003e I played with the options for a bit.\n\u003e To fix cases like this, we need to change IncludeBlocks from Preserve to Regroup, otherwise clang-format won\u0027t change the ordering after a blank line.\n\u003e However, this is still not sufficient due to includes that are under macro, e.g.\n\u003e \n\u003e  #if CONFIG_MISMATCH_DEBUG                                                                                                                                                                                                                                                                                                      \n\u003e  #include \"aom_util/debug_util.h\"                                                                                                                                                                                                                                                                                               \n\u003e  #endif  // CONFIG_MISMATCH_DEBUG  \n\u003e   \n\u003e Clang-format does not seem to sort across such statements.\n\nThanks for trying it out. I thought things like that might be a problem. One option would be to internalize the #if to the header, but in that case there\u0027s always a chance for iwyu like cleanup to remove it. If we can get things close minus the #if cases then at least enabling the option would help in most cases. If that happens then all the #if\u0027s could be moved below the main includes for grouping purposes.",
+      "parentUuid": "74c22f76_e04f652b",
+      "revId": "2754df6a85bb3849d3d333031376523b7fdb7f88",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
