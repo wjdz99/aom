@@ -382,6 +382,7 @@ int av1_compute_rd_mult_based_on_qindex(aom_bit_depth_t bit_depth,
   if (update_type == KF_UPDATE) {
     double def_rd_q_mult = def_kf_rd_multiplier(qindex);
     rdmult = (int)((double)rdmult * def_rd_q_mult);
+    // rdmult = (rdmult * 3) / 4;
   } else if ((update_type == GF_UPDATE) || (update_type == ARF_UPDATE)) {
     double def_rd_q_mult = def_arf_rd_multiplier(qindex);
     rdmult = (int)((double)rdmult * def_rd_q_mult);

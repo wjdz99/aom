@@ -4068,8 +4068,8 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
             "%10d %10d %10d %10" PRId64 " %10" PRId64
             " %10d %10d %10d %10.4lf %10.4lf %10.4lf %10.4lf\n",
             cm->current_frame.frame_number, rc->base_frame_target,
-            rc->projected_frame_size, rc->total_actual_bits,
-            rc->vbr_bits_off_target, p_rc->rate_error_estimate,
+            rc->projected_frame_size, p_rc->total_actual_bits,
+            p_rc->vbr_bits_off_target, p_rc->rate_error_estimate,
             twopass->rolling_arf_group_target_bits,
             twopass->rolling_arf_group_actual_bits,
             (double)twopass->rolling_arf_group_actual_bits /

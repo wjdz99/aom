@@ -4614,8 +4614,8 @@ bool av1_rd_partition_search(AV1_COMP *const cpi, ThreadData *td,
 DECLARE_ALIGNED(16, static const uint8_t, all_zeros[MAX_SB_SIZE]) = { 0 };
 DECLARE_ALIGNED(16, static const uint16_t,
                 highbd_all_zeros[MAX_SB_SIZE]) = { 0 };
-static void log_sub_block_var(const AV1_COMP *cpi, MACROBLOCK *x, BLOCK_SIZE bs,
-                              double *var_min, double *var_max) {
+void av1_log_sub_block_var(AV1_COMP *const cpi, MACROBLOCK *x, BLOCK_SIZE bs,
+                           double *var_min, double *var_max) {
   // This functions returns a the minimum and maximum log variances for 4x4
   // sub blocks in the current block.
 
@@ -4842,7 +4842,20 @@ BEGIN_PARTITION_SEARCH:
   // region.
   if ((cpi->oxcf.mode == ALLINTRA) && (bsize >= BLOCK_16X16)) {
     double var_min, var_max;
-    log_sub_block_var(cpi, x, bsize, &var_min, &var_max);
+    av1_log_sub_block_var(cpi, x, bsize, &var_min, &var_max);
+
+    if (bsize >= cm->seq_params->sb_size) {
+      x->intra_sb_rdmult_modifier = 128;
+      if (var_min < 0.272) {
+        x->intra_sb_rdmult_modifier -= 16;
+        if ((var_max - var_min) > 3.0) {
+          x->intra_sb_rdmult_modifier -= 16;
+        }
+      } else if (var_min > 3.0) {
+        x->intra_sb_rdmult_modifier += 16;
+      }
+    }
+    x->rdmult = (x->rdmult * x->intra_sb_rdmult_modifier) >> 7;
 
     if ((var_min < 0.272) && ((var_max - var_min) > 3.0)) {
       part_search_state.partition_none_allowed = 0;

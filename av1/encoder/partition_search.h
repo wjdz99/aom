@@ -55,6 +55,9 @@ bool av1_rd_pick_partition(AV1_COMP *const cpi, ThreadData *td,
                            SB_MULTI_PASS_MODE multi_pass_mode,
                            RD_RECT_PART_WIN_INFO *rect_part_win_info);
 
+void av1_log_sub_block_var(AV1_COMP *const cpi, MACROBLOCK *x, BLOCK_SIZE bs,
+                           double *var_min, double *var_max);
+
 static AOM_INLINE void set_cb_offsets(uint16_t *cb_offset,
                                       const uint16_t cb_offset_y,
                                       const uint16_t cb_offset_uv) {

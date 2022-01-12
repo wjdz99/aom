@@ -881,6 +881,7 @@ typedef struct macroblock {
    * block.
    */
   int rdmult;
+  int intra_sb_rdmult_modifier;
 
   //! Energy in the current source coding block. Used to calculate \ref rdmult
   int mb_energy;

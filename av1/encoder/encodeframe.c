@@ -626,6 +626,17 @@ static AOM_INLINE void encode_rd_sb(AV1_COMP *cpi, ThreadData *td,
   init_encode_rd_sb(cpi, td, tile_data, sms_root, &dummy_rdc, mi_row, mi_col,
                     1);
 
+  x->intra_sb_rdmult_modifier = 128;
+  /*// Intra / key frame rd adjustment for this SB
+  if (cpi->oxcf.mode == ALLINTRA) {
+    double var_min, var_max;
+    av1_log_sub_block_var(cpi, x, sb_size, &var_min, &var_max);
+    x->intra_sb_rdmult_modifier = 128;
+  } else {
+    // Neutral modifier
+    x->intra_sb_rdmult_modifier = 128;
+  }*/
+
   // Encode the superblock
   if (sf->part_sf.partition_search_type == VAR_BASED_PARTITION) {
 #if CONFIG_COLLECT_COMPONENT_TIMING
