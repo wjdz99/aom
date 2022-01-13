@@ -1216,6 +1216,19 @@ void av1_first_pass(AV1_COMP *cpi, const int64_t ts_duration) {
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
   const int qindex = find_fp_qindex(seq_params->bit_depth);
+
+  if (cpi->oxcf.q_cfg.use_fixed_qp_offsets) {
+    const int unit_rows = get_unit_rows(BLOCK_16X16, mi_params->mb_rows);
+    const int unit_cols = get_unit_cols(BLOCK_16X16, mi_params->mb_cols);
+    setup_firstpass_data(cm, &cpi->firstpass_data, unit_rows, unit_cols);
+    FRAME_STATS *mb_stats = cpi->firstpass_data.mb_stats;
+    FRAME_STATS stats = accumulate_frame_stats(mb_stats, unit_rows, unit_cols);
+    free_firstpass_data(&cpi->firstpass_data);
+    update_firstpass_stats(cpi, &stats, 1.0, current_frame->frame_number,
+                           ts_duration, BLOCK_16X16);
+    return;
+  }
+
   // Detect if the key frame is screen content type.
   if (frame_is_intra_only(cm)) {
     FeatureFlags *const features = &cm->features;
