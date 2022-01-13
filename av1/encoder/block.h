@@ -942,6 +942,10 @@ typedef struct macroblock {
   /*!\brief Number of zero motion vectors
    */
   int cnt_zeromv;
+
+  /*!\brief Flag to force zeromv-skip block
+   */
+  int force_skip_zeromv;
   /**@}*/
 
   /*****************************************************************************
