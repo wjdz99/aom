@@ -71,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "db5c1a3b_2bb1e53e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-13T17:56:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ce10cb90_072d4def",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4f2ee33_c1e97532",
@@ -106,6 +124,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4462d7d4_30ae8268",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1814,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-13T17:56:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0a8f4291_962a0fee",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a22637b9_76beed15",
@@ -137,6 +173,24 @@
       "side": 1,
       "message": "Well... right now it uses rd_pick_palette, so I thought I would hold off renaming it. I am looking into making the pick palette functionality more lightweight and may be rename the function in the future",
       "parentUuid": "a22637b9_76beed15",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "664726b1_46323b8e",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-13T17:56:49Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5f4a8a7c_98e6b2b1",
       "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
