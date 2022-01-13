@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0b06033_06d3de86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-01-13T14:53:16Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have addressed your review comments. Please check the results of updated patch.\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 6     LOWRES2      1.157         0.0954     0.0945    0.1329\n 6     MIDRES2      0.924         0.1293     0.1323    0.1379\n 6      HDRES2      0.818         0.0883     0.0878    0.1044\n 6     Average      0.966         0.1043     0.1049    0.1251\n\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nPlease review.",
+      "revId": "2cf3bfa7bfe4937aac94b81fe5a06c174aa7eb22",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

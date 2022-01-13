@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "37a47f89_cdd06350",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-01-13T14:53:16Z",
+      "side": 1,
+      "message": "We modified the logic as per your suggestion. There is no significant impact in results after this change.",
+      "parentUuid": "12deb224_625dbbc5",
+      "range": {
+        "startLine": 192,
+        "startChar": 5,
+        "endLine": 196,
+        "endChar": 7
+      },
+      "revId": "24302d868f2c94ebe7dcb218e1497a78880d67f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e392a829_3831e1e6",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-01-12T17:01:20Z",
       "side": 1,
       "message": "Better to use INVALID_MV already defined in mv.h? Then check as_int instead of both row \u0026 col.",
+      "range": {
+        "startLine": 212,
+        "startChar": 6,
+        "endLine": 213,
+        "endChar": 50
+      },
+      "revId": "24302d868f2c94ebe7dcb218e1497a78880d67f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be4c4bca_8c4d5e50",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-01-13T14:53:16Z",
+      "side": 1,
+      "message": "We modified the code as per your suggestion. In order to make this change the data type of candidate mv is changed from FULLPEL_MV to int_mv.",
+      "parentUuid": "e392a829_3831e1e6",
       "range": {
         "startLine": 212,
         "startChar": 6,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "49fec9c7_c14f747b",
+        "filename": "av1/encoder/motion_search_facade.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-01-13T14:53:16Z",
+      "side": 1,
+      "message": "In order to make the code consistent with other return conditions in this function we have added this.\nThe return conditions is needed to avoid an integer overflow issue. The overflow issue is caused by the mv difference computation in av1_mv_bit_cost() called at the end of this function. When the best_mv is INVALID_MV, the mv difference will cause the overflow issue.",
+      "parentUuid": "9142e4aa_ca533b45",
+      "range": {
+        "startLine": 276,
+        "startChar": 6,
+        "endLine": 276,
+        "endChar": 35
+      },
+      "revId": "24302d868f2c94ebe7dcb218e1497a78880d67f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "517b1c0f_2e8b7071",
@@ -100,6 +172,30 @@
       "writtenOn": "2022-01-12T17:01:20Z",
       "side": 1,
       "message": "Why this is needed here? Should this be init to 0 once for 1 partition block, which is already done below?",
+      "range": {
+        "startLine": 2824,
+        "startChar": 2,
+        "endLine": 2824,
+        "endChar": 25
+      },
+      "revId": "24302d868f2c94ebe7dcb218e1497a78880d67f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d4b5c24_4fabbba8",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2824,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-01-13T14:53:16Z",
+      "side": 1,
+      "message": "The counter has to be reset for every mode as start_mv_stack[] is used within the ref_mv_idx loop of a NEWMV mode.",
+      "parentUuid": "517b1c0f_2e8b7071",
       "range": {
         "startLine": 2824,
         "startChar": 2,
