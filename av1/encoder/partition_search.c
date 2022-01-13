@@ -2204,6 +2204,7 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
     if (segfeature_active(&cm->seg, mbmi->segment_id, SEG_LVL_SKIP)) {
       RD_STATS invalid_rd;
       av1_invalid_rd_stats(&invalid_rd);
+
       // TODO(kyslov): add av1_nonrd_pick_inter_mode_sb_seg_skip
       av1_rd_pick_inter_mode_sb_seg_skip(cpi, tile_data, x, mi_row, mi_col,
                                          rd_cost, bsize, ctx,
