@@ -757,6 +757,30 @@
       },
       "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8809584d_68c528df",
+        "filename": "av1/encoder/tx_search.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2145,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-13T19:25:22Z",
+      "side": 1,
+      "message": "Trellis optimization is used in AVIF still image encoding unless it is disabled by a speed preset or explicitly turned off. We can verify this by adding a debugger breakpoint or a printf statement right here to verify this av1_optimize_b() call is reached during avifenc. Trellis is handled by av1_optimize_b(), so we just need to check av1_optimize_b() is called.\n\nIf we demonstrate that this CL can make promising improvements without modifying trellis optimization, then we can check in this CL as an initial step and update trellis optimization later.",
+      "parentUuid": "8a980fec_5fb726b5",
+      "range": {
+        "startLine": 2145,
+        "startChar": 6,
+        "endLine": 2145,
+        "endChar": 20
+      },
+      "revId": "f31c31dec1964ec67753a588c12d14d57e0622af",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
