@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "424aa538_7196f9a2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-01-13T16:25:58Z",
+      "side": 1,
+      "message": "It\u0027s on only on detected scene/slide changes, right? (high_source_sad \u003d 1), good to add this in message",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e84c7b4e_ec3bf775",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-01-13T16:25:58Z",
+      "side": 1,
+      "message": "quality gains looks good,\n\n~3-10% slowdown is the average over whole clip? But on the slide changes where it\u0027s used I see about ~2x increase in encode_time.",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4f2ee33_c1e97532",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1814,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-01-13T16:25:58Z",
+      "side": 1,
+      "message": "should this be removed since screen tool is now evaluated in nonrd?",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a22637b9_76beed15",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-01-13T16:25:58Z",
+      "side": 1,
+      "message": "should this be renamed with _nonrd, since its called from the nonrd (even though it uses rd_pick_palette_intra_sby)?",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
