@@ -1136,6 +1136,37 @@ int av1_choose_var_based_partitioning(AV1_COMP *cpi, const TileInfo *const tile,
     d = AV1_VAR_OFFS;
     dp = 0;
   }
+
+  x->force_skip_zeromv = 0;
+  const int qp_thresh = 90;
+  unsigned int thresh_exit_part =
+      (cm->seq_params->sb_size == BLOCK_64X64) ? 5000 : 12000;
+  // Lower threshold for small Q.
+  if (cm->quant_params.base_qindex < qp_thresh / 2)
+    thresh_exit_part = 0;
+  else if (cm->quant_params.base_qindex < qp_thresh)
+    thresh_exit_part =
+        (unsigned int)(thresh_exit_part *
+                       (1.0 - 2.0 * (qp_thresh - cm->quant_params.base_qindex) /
+                                  qp_thresh));
+  // If the y_sad is very small, take sb_size partition and exit.
+  // Only for base segment and for speed >= 9.
+  if (!is_key_frame && segment_id == CR_SEGMENT_ID_BASE &&
+      cpi->oxcf.speed >= 9 && x->content_state_sb.source_sad == kLowSad &&
+      ref_frame_partition == LAST_FRAME && xd->mi[0]->mv[0].as_int == 0 &&
+      y_sad < thresh_exit_part) {
+    const int block_width = mi_size_wide[cm->seq_params->sb_size];
+    const int block_height = mi_size_high[cm->seq_params->sb_size];
+    if (mi_col + block_width <= tile->mi_col_end &&
+        mi_row + block_height <= tile->mi_row_end) {
+      set_block_size(cpi, x, xd, mi_row, mi_col, bsize);
+      x->force_skip_zeromv = 1;
+      if (vt2) aom_free(vt2);
+      if (vt) aom_free(vt);
+      return 0;
+    }
+  }
+
   if (cpi->noise_estimate.enabled)
     noise_level = av1_noise_estimate_extract_level(&cpi->noise_estimate);
 
