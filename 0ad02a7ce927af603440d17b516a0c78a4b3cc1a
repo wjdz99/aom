@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3205dd5b_37c757c0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-13T17:55:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "424aa538_7196f9a2",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e84c7b4e_ec3bf775",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-01-13T16:25:58Z",
       "side": 1,
       "message": "quality gains looks good,\n\n~3-10% slowdown is the average over whole clip? But on the slide changes where it\u0027s used I see about ~2x increase in encode_time.",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ce10cb90_072d4def",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-13T17:55:52Z",
+      "side": 1,
+      "message": "Yes, the palette search itself is still heavy. when the scene change occurs the impact on that frame could be high.",
+      "parentUuid": "e84c7b4e_ec3bf775",
       "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0a8f4291_962a0fee",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 1814,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-13T17:55:52Z",
+      "side": 1,
+      "message": "That should be there - if tune_cfg.content is not CONTENT_SCREEN we want to turn off screen content tools. I will change the wording in the comments",
+      "parentUuid": "d4f2ee33_c1e97532",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a22637b9_76beed15",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 4
@@ -65,6 +119,24 @@
       "writtenOn": "2022-01-13T16:25:58Z",
       "side": 1,
       "message": "should this be renamed with _nonrd, since its called from the nonrd (even though it uses rd_pick_palette_intra_sby)?",
+      "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f4a8a7c_98e6b2b1",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 10704
+      },
+      "writtenOn": "2022-01-13T17:55:52Z",
+      "side": 1,
+      "message": "Well... right now it uses rd_pick_palette, so I thought I would hold off renaming it. I am looking into making the pick palette functionality more lightweight and may be rename the function in the future",
+      "parentUuid": "a22637b9_76beed15",
       "revId": "0ad02a7ce927af603440d17b516a0c78a4b3cc1a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
