@@ -568,6 +568,12 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
   unsigned int var8x8[256] = { 0 };
   TX_SIZE tx_size;
   int k;
+
+  if (x->force_skip_zeromv) {
+    *early_term = 1;
+     return;
+  }
+
   // Calculate variance for whole partition, and also save 8x8 blocks' variance
   // to be used in following transform skipping test.
   block_variance(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
@@ -681,6 +687,7 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
       }
     }
   }
+
   if (calculate_rd) {
     if (!*early_term) {
       const int bwide = block_size_wide[bsize];
@@ -1832,7 +1839,7 @@ static AOM_INLINE void get_ref_frame_use_mask(AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   if (use_last_ref_frame &&
-      (x->nonrd_prune_ref_frame_search > 2 ||
+      (x->nonrd_prune_ref_frame_search > 2 || x->force_skip_zeromv ||
        (x->nonrd_prune_ref_frame_search > 1 && bsize > BLOCK_64X64))) {
     use_golden_ref_frame = 0;
     use_alt_ref_frame = 0;
@@ -2285,10 +2292,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int use_ref_frame_mask[REF_FRAMES] = { 0 };
   unsigned int sse_zeromv_norm = UINT_MAX;
   // Use mode set that includes zeromv (via globalmv) for speed >= 9 for
-  // content with low motion.
+  // content with low motion, and always for force_skip_zeromv
   int use_zeromv =
       ((cpi->oxcf.speed >= 9 && cpi->rc.avg_frame_low_motion > 70) ||
-       cpi->sf.rt_sf.nonrd_agressive_skip);
+       cpi->sf.rt_sf.nonrd_agressive_skip || x->force_skip_zeromv);
   int skip_pred_mv = 0;
   const int num_inter_modes =
       use_zeromv ? NUM_INTER_MODES_REDUCED : NUM_INTER_MODES_RT;
@@ -2526,6 +2533,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->ref_frame[1] = ref_frame2;
 
     if (!use_ref_frame_mask[ref_frame]) continue;
+
+    if (x->force_skip_zeromv &&
+        (this_mode != GLOBALMV || ref_frame != LAST_FRAME))
+      continue;
 
     force_mv_inter_layer = 0;
     if (cpi->ppi->use_svc && svc->spatial_layer_id > 0 &&
@@ -2862,10 +2873,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->angle_delta[PLANE_TYPE_UV] = 0;
   mi->filter_intra_mode_info.use_filter_intra = 0;
 
-  estimate_intra_mode(cpi, x, bsize, use_modeled_non_rd_cost, best_early_term,
-                      ref_costs_single[INTRA_FRAME], reuse_inter_pred,
-                      &orig_dst, tmp, &this_mode_pred, &best_rdc,
-                      &best_pickmode);
+  if (!x->force_skip_zeromv)
+    estimate_intra_mode(cpi, x, bsize, use_modeled_non_rd_cost,
+                        best_early_term,ref_costs_single[INTRA_FRAME],
+                        reuse_inter_pred, &orig_dst, tmp, &this_mode_pred,
+                        &best_rdc, &best_pickmode);
 
   pd->dst = orig_dst;
   mi->mode = best_pickmode.best_mode;
