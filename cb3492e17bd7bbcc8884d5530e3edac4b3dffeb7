@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e64fff5_a947fab8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2022-01-14T05:40:43Z",
+      "side": 1,
+      "message": "is the change done on the top of the 3gpp-10-15 branch?",
+      "revId": "cb3492e17bd7bbcc8884d5530e3edac4b3dffeb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1bf1b5e2_9946885b",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2022-01-14T05:40:43Z",
+      "side": 1,
+      "message": "can we move this piece of code outside this function and use a if else branch at higher level? \n\nfor example,\nif (passes \u003d\u003d 1 \u0026\u0026 cpi-\u003eoxcf.q_cfg.use_fixed_qp_offsets) {\n    init_first_pass_data();\n} else {\n    av1_first_pass();\n}",
+      "range": {
+        "startLine": 1220,
+        "startChar": 2,
+        "endLine": 1220,
+        "endChar": 4
+      },
+      "revId": "cb3492e17bd7bbcc8884d5530e3edac4b3dffeb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f46c66fa_c002723c",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1225,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2022-01-14T05:40:43Z",
+      "side": 1,
+      "message": "what would be accumulated here? the all mb_stats initialized to zero?",
+      "range": {
+        "startLine": 1225,
+        "startChar": 4,
+        "endLine": 1225,
+        "endChar": 6
+      },
+      "revId": "cb3492e17bd7bbcc8884d5530e3edac4b3dffeb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1431d8a6_75e6c30d",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1227,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2022-01-14T05:40:43Z",
+      "side": 1,
+      "message": "is it safe to initialize all mb_stat to zero and use that to update the global stats? I hope it will not impact the coding performance.",
+      "range": {
+        "startLine": 1227,
+        "startChar": 4,
+        "endLine": 1227,
+        "endChar": 5
+      },
+      "revId": "cb3492e17bd7bbcc8884d5530e3edac4b3dffeb7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
