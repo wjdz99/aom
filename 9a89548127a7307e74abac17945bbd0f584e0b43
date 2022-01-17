@@ -16,6 +16,24 @@
       "message": "Hi Wan-Teh, Jingning, Paul\n\nAs per our understanding, the metrics variance and log(1+variance) corresponds to source buffer were getting calculated redundantly at 4x4 sub-block level for each partition in a super block, in log_sub_block_var() and intra_rd_variance_factor() modules. This CL avoids these redundant calculations by introducing an on-the-fly approach, which caches/stores both these metrics for each 4x4 sub-block and reuses the same in across calls of the above-mentioned modules. Out of variance and log(1+variance) metrics, it is observed that the log(1+variance) is not needed in log_sub_block_var(). Hence, log(1+variance) metric is cached/reused only when it is needed to avoid over-head of log() operation.\n\nWe introduced a structure \"Blk4x4VarInfo \u0027\u0027 for better readability, to hold variance and log(1+variance) rather than keeping these as individual variables. The memory for the structure is allocated based on the need to avoid heap memory overheads. And also, at the start of each SB encoding the metrics var and log(1+variance) are initialized to -1 and this value will be used as a flag to decide whether to cache/reuse the values. For AVIF still-image encode, It is verified that the heap memory increase because of this change is negligible (in both ST and MT, maximum increase is seen in speed 6 which is less than 0.3% for multi-thread path).\n\nWe validated the current patch for allintra video and still-image encode. Following are instruction count/encode time reduction results when AVIF encode was tested for a typical image dataset. Bit match is verified for presets 0 to 9.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n      Instruction Count\n       / Encode Time  \nspeed    Reduction(%) \n  0        1.208\n  1        1.693\n  2        1.589\n  3        1.704\n  4        0.068\n  5        0.083\n  6        0.890        \n\nIn the above data, instruction count reduction is quoted for speed \u003c6 and encode-time reduction is quoted for speed\u003d6.\n\nFollowing are the instruction count reduction results when tested libaom allintra frame encoding (50 frames) for a borg setup. Bit match is verified for preset 0 to 9.\n\n       Instruction Count\nspeed    Reduction(%)   \n  1        1.384        \n  3        1.445      \n  6        0.207\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nIt is to be noted that, this CL will not give any gains for speed presets \u003e\u003d 7, as the functions where redundant calculations were happening are not called for these presets due to the following conditions.\n1) log_sub_block_var(): For speed \u003e\u003d 7, the sf partition_search_type is set as a VAR_BASED_PARTITION . Hence, this function is not called for speed \u003e\u003d 7.\n2) intra_rd_variance_factor(): The variance calculations present inside this function are not needed for speed presets \u003e\u003d4, due to the threshold (which is dependent on speed presets) based early exit.\n\nPlease review the patch and let us know your opinion on the same.\n\nThanks \u0026 Regards,\nMudassir.\n",
       "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c700e9a6_3260c494",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-17T05:28:25Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Jingning, Paul,\n\nPlease review this patch and let us know you opinion.\n\nRegards,\nMudassir",
+      "parentUuid": "1931dc81_c20bec1d",
+      "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
