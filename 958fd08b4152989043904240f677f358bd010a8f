@@ -16,6 +16,24 @@
       "message": "Given the changes to the header file to avoid internal headers, maybe it should be updated and given its own enum or add a comment about the meaning for the values.",
       "revId": "958fd08b4152989043904240f677f358bd010a8f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37d79574_bf0c9ccc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-01-18T21:26:14Z",
+      "side": 1,
+      "message": "Giving its own enum would be a good alternative. Is that preferred?\n\nBTW we don\u0027t have jenkins coverage on this configuration -DCONFIG_AV1_RC_RTC\u003d1. No one is using this at the moment but I think it\u0027s being experimented by Intel.",
+      "parentUuid": "236963b4_2e2aae60",
+      "revId": "958fd08b4152989043904240f677f358bd010a8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
