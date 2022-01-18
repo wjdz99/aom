@@ -26,6 +26,16 @@ static constexpr size_t kAV1MaxSpatialLayers = 4;
 
 typedef uint8_t FRAME_TYPE;
 
+/*!\brief force enum to be unsigned 1 byte*/
+#define UENUM1BYTE(enumvar) \
+  ;                         \
+  typedef uint8_t enumvar
+
+enum {
+  KEY_FRAME = 0,
+  INTER_FRAME = 1,
+} UENUM1BYTE(FRAME_TYPE);
+
 struct AV1RateControlRtcConfig {
  public:
   AV1RateControlRtcConfig();
