@@ -13,6 +13,7 @@
 
 #include <memory>
 
+#include "av1/common/blockd.h"
 #include "test/codec_factory.h"
 #include "test/encode_test_driver.h"
 #include "test/util.h"
