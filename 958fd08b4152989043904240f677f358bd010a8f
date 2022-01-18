@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "236963b4_2e2aae60",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-18T21:18:08Z",
+      "side": 1,
+      "message": "Given the changes to the header file to avoid internal headers, maybe it should be updated and given its own enum or add a comment about the meaning for the values.",
+      "revId": "958fd08b4152989043904240f677f358bd010a8f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
