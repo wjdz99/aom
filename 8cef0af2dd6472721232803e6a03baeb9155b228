@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74314a5d_79e1af3c",
+        "filename": "av1/common/cdef_block_simd.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-19T19:32:05Z",
+      "side": 1,
+      "message": "you can scope this to the loop in libaom, it uses c99. I see there\u0027s other ones like this though so it could be done in a follow up to get them all.",
+      "revId": "8cef0af2dd6472721232803e6a03baeb9155b228",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
