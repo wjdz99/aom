@@ -1264,3 +1264,17 @@ aom_codec_err_t av1_get_seq_level_idx(const SequenceHeader *seq_params,
 
   return AOM_CODEC_OK;
 }
+
+aom_codec_err_t av1_get_target_seq_level_idx(const SequenceHeader *seq_params,
+                                             const AV1LevelParams *level_params,
+                                             int *target_seq_level_idx) {
+  const int is_still_picture = seq_params->still_picture;
+  const BITSTREAM_PROFILE profile = seq_params->profile;
+  for (int op = 0; op < seq_params->operating_points_cnt_minus_1 + 1; ++op) {
+    target_seq_level_idx[op] = (int)SEQ_LEVEL_MAX;
+    if (!((level_params->keep_level_stats >> op) & 1)) continue;
+    target_seq_level_idx[op] = level_params->target_seq_level_idx[op];
+  }
+
+  return AOM_CODEC_OK;
+}
