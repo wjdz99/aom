@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9dd7c3fc_52d1671e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2022-01-19T16:12:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch introduces a new speed feature called num_frames_used_in_tf. This SF is used to limit the number of frames to be used in temporal filter module based on noise level and altref frame\u0027s qp. This change is done for speed 6 for resolutions less than 480p.\n\nPlease find the detailed borg result below,\n\n               Instruction Count        BD-Rate Loss(%)\ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim\n 6     LOWRES2      2.340         0.2057     0.3076    0.2960\n 6     MIDRES2      0.087         0.0093     0.0116    0.0096\n 6      HDRES2      0.000         0.0000     0.0000    0.0000\n 6     Average      0.808         0.0717     0.1064    0.1019\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nPlease note that the stats changed observed for a content (shields_640x360_60) in midres since clip height \u003c 480. For the content we ensured that result is within trade-off. We also verified bitmatch for other speed levels. \n\nPlease review the patch.\nThanks",
+      "revId": "910887f3092500eb30e294b4ddc1da4814b69379",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
