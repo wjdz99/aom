@@ -2566,6 +2566,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             x->content_state_sb.source_sad == kZeroSad)
           continue;
       }
+
+      if (cpi->rc.high_source_sad && this_mode == NEWMV) continue;
     }
 
     if (skip_mode_by_bsize_and_ref_frame(
