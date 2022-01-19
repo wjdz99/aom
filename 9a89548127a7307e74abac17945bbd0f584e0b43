@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2097358e_56fa8ab5",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-19T19:02:44Z",
+      "side": 1,
+      "message": "\u003e 1. Nit: Blk \u003d\u003e Block\nDone. We have replaced \"Blk\" with \"Block\". We have also made this change in the local variables and function names to be consistent.\n\n\u003e 2. Nit/optional: It seems that \"Info\" can be omitted in the struct\u0027s name.\nAs Block4x4VarInfo structure contains the variance and the log(1+variance) value for each 4x4 sub-block, we have kept the suffix \"Info\". Please let us know your opinion on this.",
+      "parentUuid": "05906d3b_8d6370c1",
+      "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85ef348c_9ba84a69",
@@ -83,6 +101,30 @@
       "writtenOn": "2022-01-19T01:30:50Z",
       "side": 1,
       "message": "Nit: blks \u003d\u003e blocks",
+      "range": {
+        "startLine": 1209,
+        "startChar": 41,
+        "endLine": 1209,
+        "endChar": 45
+      },
+      "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37ab21ba_5ac44ffe",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-19T19:02:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85ef348c_9ba84a69",
       "range": {
         "startLine": 1209,
         "startChar": 41,
@@ -116,6 +158,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e5cbcaf_f5326a0f",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1446,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-19T19:02:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5309e320_4fa392da",
+      "range": {
+        "startLine": 1446,
+        "startChar": 32,
+        "endLine": 1446,
+        "endChar": 39
+      },
+      "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c033eb08_b73295d0",
@@ -133,6 +199,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcbb6f96_460a0726",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-19T19:02:44Z",
+      "side": 1,
+      "message": "Ack. This check ensures that the memory for *source_variance_info will be allocated only if it has not been allocated already.\n\nAlternatively, we can add an early exit at the beginning of this function if *source_variance_info is not NULL. Please let us know if we should do this in a later patch.",
+      "parentUuid": "c033eb08_b73295d0",
+      "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31df31dd_d937d17a",
@@ -146,6 +230,24 @@
       "writtenOn": "2022-01-19T01:30:50Z",
       "side": 1,
       "message": "Should we copy the equivalent of line 328 to this function?",
+      "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79fa9b7b_3abf5e13",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-19T19:02:44Z",
+      "side": 1,
+      "message": "Done. We have also done the required code changes to make the allocation / deallocation of src_var_info_of_4x4_sub_blks similar to that of  pixel_gradient_info.",
+      "parentUuid": "31df31dd_d937d17a",
       "revId": "9a89548127a7307e74abac17945bbd0f584e0b43",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
