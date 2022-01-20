@@ -193,6 +193,8 @@ static AOM_INLINE int get_regulated_q_overshoot(AV1_COMP *const cpi,
   av1_rc_update_rate_correction_factors(cpi,
 #if CONFIG_FRAME_PARALLEL_ENCODE
                                         is_encode_stage,
+#else
+                                        0,
 #endif
                                         cm->width, cm->height);
 
@@ -205,6 +207,8 @@ static AOM_INLINE int get_regulated_q_overshoot(AV1_COMP *const cpi,
     av1_rc_update_rate_correction_factors(cpi,
 #if CONFIG_FRAME_PARALLEL_ENCODE
                                           is_encode_stage,
+#else
+                                          0,
 #endif
                                           cm->width, cm->height);
     q_regulated =
@@ -227,6 +231,8 @@ static AOM_INLINE int get_regulated_q_undershoot(AV1_COMP *const cpi,
   av1_rc_update_rate_correction_factors(cpi,
 #if CONFIG_FRAME_PARALLEL_ENCODE
                                         is_encode_stage,
+#else
+                                        0,
 #endif
                                         cm->width, cm->height);
   int q_regulated = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
@@ -237,6 +243,8 @@ static AOM_INLINE int get_regulated_q_undershoot(AV1_COMP *const cpi,
     av1_rc_update_rate_correction_factors(cpi,
 #if CONFIG_FRAME_PARALLEL_ENCODE
                                           is_encode_stage,
+#else
+                                          0,
 #endif
                                           cm->width, cm->height);
     q_regulated = av1_rc_regulate_q(cpi, rc->this_frame_target, bottom_index,
@@ -416,9 +424,7 @@ static AOM_INLINE void recode_loop_update_q(
       if (*undershoot_seen || loop_count > 2 ||
           (loop_count == 2 && !frame_is_intra_only(cm))) {
         av1_rc_update_rate_correction_factors(cpi,
-#if CONFIG_FRAME_PARALLEL_ENCODE
                                               1,
-#endif
                                               cm->width, cm->height);
 
         *q = (*q_high + *q_low + 1) / 2;
@@ -450,9 +456,7 @@ static AOM_INLINE void recode_loop_update_q(
       if (*overshoot_seen || loop_count > 2 ||
           (loop_count == 2 && !frame_is_intra_only(cm))) {
         av1_rc_update_rate_correction_factors(cpi,
-#if CONFIG_FRAME_PARALLEL_ENCODE
                                               1,
-#endif
                                               cm->width, cm->height);
         *q = (*q_high + *q_low) / 2;
       } else if (loop_count == 2 && frame_is_intra_only(cm)) {
