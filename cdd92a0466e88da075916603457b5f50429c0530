@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3efc812_c4cac082",
+        "filename": "av1/ratectrl_rtc.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-20T03:15:44Z",
+      "side": 1,
+      "message": "I think you can just say Set/enable external rate control. The again part is confusing since it isn\u0027t set in this function.",
+      "range": {
+        "startLine": 139,
+        "startChar": 12,
+        "endLine": 139,
+        "endChar": 17
+      },
+      "revId": "cdd92a0466e88da075916603457b5f50429c0530",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
