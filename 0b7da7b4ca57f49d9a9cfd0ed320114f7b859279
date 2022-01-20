@@ -51,6 +51,24 @@
       "parentUuid": "f8b50dd7_5e605997",
       "revId": "0b7da7b4ca57f49d9a9cfd0ed320114f7b859279",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "245466d2_4554ed4c",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 18
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-20T17:34:25Z",
+      "side": 1,
+      "message": "I think that\u0027s a reasonable way to handle this condition.\n\nPlease update the comment for AOM_DIST_METRIC_QM_PSNR to say that it falls back to doing exactly what AOM_DIST_METRIC_PSNR does if --enable-qm\u003d1 is not specified.",
+      "parentUuid": "73d8ec96_11bab86c",
+      "revId": "0b7da7b4ca57f49d9a9cfd0ed320114f7b859279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
