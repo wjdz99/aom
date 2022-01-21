@@ -187,6 +187,7 @@ struct av1_extracfg {
   // "--enable_cfl_intra",
   // "--enable_diagonal_intra".
   int auto_intra_tools_off;
+  int inhibit_target_level_error;
 };
 
 #if CONFIG_REALTIME_ONLY
@@ -343,6 +344,7 @@ static const struct av1_extracfg default_extra_cfg = {
   NULL,            // two_pass_output
   NULL,            // second_pass_log
   0,               // auto_intra_tools_off
+  1,               // inhibit_target_level_error
 };
 #else
 static const struct av1_extracfg default_extra_cfg = {
@@ -489,6 +491,7 @@ static const struct av1_extracfg default_extra_cfg = {
   NULL,            // two_pass_output
   NULL,            // second_pass_log
   0,               // auto_intra_tools_off
+  1,               // inhibit_target_level_error
 };
 #endif
 
@@ -831,6 +834,7 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   RANGE_CHECK(extra_cfg, deltaq_strength, 0, 1000);
   RANGE_CHECK_HI(extra_cfg, loopfilter_control, 3);
   RANGE_CHECK_HI(extra_cfg, enable_cdef, 2);
+  RANGE_CHECK(extra_cfg, inhibit_target_level_error, 0, 1);
 
   return AOM_CODEC_OK;
 }
@@ -1402,6 +1406,8 @@ static aom_codec_err_t set_encoder_config(AV1EncoderConfig *oxcf,
   oxcf->tier_mask = extra_cfg->tier_mask;
 
   oxcf->partition_info_path = extra_cfg->partition_info_path;
+
+  oxcf->inhibit_target_level_error = extra_cfg->inhibit_target_level_error;
 
   return AOM_CODEC_OK;
 }
@@ -3910,6 +3916,11 @@ static aom_codec_err_t encoder_set_option(aom_codec_alg_priv_t *ctx,
   } else if (arg_match_helper(&arg, &g_av1_codec_arg_defs.loopfilter_control,
                               argv, err_string)) {
     extra_cfg.loopfilter_control = arg_parse_int_helper(&arg, err_string);
+  } else if (arg_match_helper(&arg,
+                              &g_av1_codec_arg_defs.inhibit_target_level_error,
+                              argv, err_string)) {
+    extra_cfg.inhibit_target_level_error =
+        arg_parse_int_helper(&arg, err_string);
   } else {
     match = 0;
     snprintf(err_string, ARG_ERR_MSG_MAX_LEN, "Cannot find aom option %s",
