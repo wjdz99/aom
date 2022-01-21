@@ -97,10 +97,13 @@ static AOM_INLINE aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   yv12->y_height = img->h;
 
   yv12->uv_width = (yv12->y_width + img->x_chroma_shift) >> img->x_chroma_shift;
+  if (img->fmt == AOM_IMG_FMT_NV12) yv12->uv_width = (yv12->y_width + 1) >> 1;
   yv12->uv_height =
       (yv12->y_height + img->y_chroma_shift) >> img->y_chroma_shift;
   yv12->uv_crop_width =
       (yv12->y_crop_width + img->x_chroma_shift) >> img->x_chroma_shift;
+  if (img->fmt == AOM_IMG_FMT_NV12)
+    yv12->uv_crop_width = (yv12->y_crop_width + 1) >> 1;
   yv12->uv_crop_height =
       (yv12->y_crop_height + img->y_chroma_shift) >> img->y_chroma_shift;
 
@@ -141,6 +144,7 @@ static AOM_INLINE aom_codec_err_t image2yuvconfig(const aom_image_t *img,
   yv12->border = (border < 0) ? 0 : border;
   yv12->subsampling_x = img->x_chroma_shift;
   yv12->subsampling_y = img->y_chroma_shift;
+  if (img->fmt == AOM_IMG_FMT_NV12) yv12->subsampling_x = 1;
   yv12->metadata = img->metadata;
   return AOM_CODEC_OK;
 }

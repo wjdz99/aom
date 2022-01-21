@@ -21,6 +21,13 @@
 // Macros
 #define GET_PARAM(k) std::get<k>(GetParam())
 
+inline int is_extension_y4m(const char *filename) {
+  const char *dot = strrchr(filename, '.');
+  if (!dot || dot == filename) return 0;
+
+  return !strcmp(dot, ".y4m");
+}
+
 inline double compute_psnr(const aom_image_t *img1, const aom_image_t *img2) {
   assert((img1->fmt == img2->fmt) && (img1->d_w == img2->d_w) &&
          (img1->d_h == img2->d_h));
