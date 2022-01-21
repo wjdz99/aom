@@ -30,7 +30,7 @@ extern "C" {
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures
  */
-#define AOM_IMAGE_ABI_VERSION (9) /**<\hideinitializer*/
+#define AOM_IMAGE_ABI_VERSION (10) /**<\hideinitializer*/
 
 #define AOM_IMG_FMT_PLANAR 0x100  /**< Image is a planar format. */
 #define AOM_IMG_FMT_UV_FLIP 0x200 /**< V plane precedes U in memory. */
@@ -48,6 +48,8 @@ typedef enum aom_img_fmt {
   AOM_IMG_FMT_AOMI420 = AOM_IMG_FMT_PLANAR | 4,
   AOM_IMG_FMT_I422 = AOM_IMG_FMT_PLANAR | 5,
   AOM_IMG_FMT_I444 = AOM_IMG_FMT_PLANAR | 6,
+  AOM_IMG_FMT_NV12 =
+      AOM_IMG_FMT_PLANAR | 7, /**< 4:2:0 with U and V interlaced */
   AOM_IMG_FMT_I42016 = AOM_IMG_FMT_I420 | AOM_IMG_FMT_HIGHBITDEPTH,
   AOM_IMG_FMT_YV1216 = AOM_IMG_FMT_YV12 | AOM_IMG_FMT_HIGHBITDEPTH,
   AOM_IMG_FMT_I42216 = AOM_IMG_FMT_I422 | AOM_IMG_FMT_HIGHBITDEPTH,

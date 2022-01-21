@@ -63,6 +63,7 @@ static aom_image_t *img_alloc_helper(
   switch (fmt) {
     case AOM_IMG_FMT_I420:
     case AOM_IMG_FMT_YV12:
+    case AOM_IMG_FMT_NV12:
     case AOM_IMG_FMT_AOMI420:
     case AOM_IMG_FMT_AOMYV12: bps = 12; break;
     case AOM_IMG_FMT_I422: bps = 16; break;
@@ -77,6 +78,8 @@ static aom_image_t *img_alloc_helper(
   bit_depth = (fmt & AOM_IMG_FMT_HIGHBITDEPTH) ? 16 : 8;
 
   /* Get chroma shift values for this format */
+  // For AOM_IMG_FMT_NV12, xcs needs to be 0 such that UV data is all read at
+  // one time.
   switch (fmt) {
     case AOM_IMG_FMT_I420:
     case AOM_IMG_FMT_YV12:
@@ -92,6 +95,7 @@ static aom_image_t *img_alloc_helper(
   switch (fmt) {
     case AOM_IMG_FMT_I420:
     case AOM_IMG_FMT_YV12:
+    case AOM_IMG_FMT_NV12:
     case AOM_IMG_FMT_AOMI420:
     case AOM_IMG_FMT_AOMYV12:
     case AOM_IMG_FMT_YV1216:
@@ -225,7 +229,11 @@ int aom_img_set_rect(aom_image_t *img, unsigned int x, unsigned int y,
       unsigned int uv_border_h = border >> img->y_chroma_shift;
       unsigned int uv_x = x >> img->x_chroma_shift;
       unsigned int uv_y = y >> img->y_chroma_shift;
-      if (!(img->fmt & AOM_IMG_FMT_UV_FLIP)) {
+      if (img->fmt == AOM_IMG_FMT_NV12) {
+        img->planes[AOM_PLANE_U] =
+            data + uv_x + uv_y * img->stride[AOM_PLANE_U];
+        img->planes[AOM_PLANE_V] = img->planes[AOM_PLANE_U] + 1;
+      } else if (!(img->fmt & AOM_IMG_FMT_UV_FLIP)) {
         img->planes[AOM_PLANE_U] =
             data + uv_x * bytes_per_sample + uv_y * img->stride[AOM_PLANE_U];
         data += ((img->h >> img->y_chroma_shift) + 2 * uv_border_h) *

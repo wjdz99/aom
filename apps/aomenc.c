@@ -268,6 +268,7 @@ const arg_def_t *main_args[] = { &g_av1_codec_arg_defs.help,
                                  NULL };
 
 const arg_def_t *global_args[] = {
+  &g_av1_codec_arg_defs.use_nv12,
   &g_av1_codec_arg_defs.use_yv12,
   &g_av1_codec_arg_defs.use_i420,
   &g_av1_codec_arg_defs.use_i422,
@@ -649,6 +650,8 @@ static void parse_global_config(struct AvxEncoderConfig *global, char ***argv) {
       global->usage = AOM_USAGE_REALTIME;  // Real-time usage
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.ai_dl, argi)) {
       global->usage = AOM_USAGE_ALL_INTRA;  // All intra usage
+    } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_nv12, argi)) {
+      global->color_type = NV12;
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_yv12, argi)) {
       global->color_type = YV12;
     } else if (arg_match(&arg, &g_av1_codec_arg_defs.use_i420, argi)) {
@@ -1297,6 +1300,7 @@ static const char *image_format_to_string(aom_img_fmt_t f) {
     case AOM_IMG_FMT_I422: return "I422";
     case AOM_IMG_FMT_I444: return "I444";
     case AOM_IMG_FMT_YV12: return "YV12";
+    case AOM_IMG_FMT_NV12: return "NV12";
     case AOM_IMG_FMT_YV1216: return "YV1216";
     case AOM_IMG_FMT_I42016: return "I42016";
     case AOM_IMG_FMT_I42216: return "I42216";
@@ -1651,7 +1655,8 @@ static void encode_frame(struct stream_state *stream,
     }
   }
   if (img && (img->d_w != cfg->g_w || img->d_h != cfg->g_h)) {
-    if (img->fmt != AOM_IMG_FMT_I420 && img->fmt != AOM_IMG_FMT_YV12) {
+    if (img->fmt != AOM_IMG_FMT_I420 && img->fmt != AOM_IMG_FMT_YV12 &&
+        img->fmt != AOM_IMG_FMT_NV12) {
       fprintf(stderr, "%s can only scale 4:2:0 8bpp inputs\n", exec_name);
       exit(EXIT_FAILURE);
     }
@@ -1996,6 +2001,7 @@ int main(int argc, const char **argv_) {
     case I422: input.fmt = AOM_IMG_FMT_I422; break;
     case I444: input.fmt = AOM_IMG_FMT_I444; break;
     case YV12: input.fmt = AOM_IMG_FMT_YV12; break;
+    case NV12: input.fmt = AOM_IMG_FMT_NV12; break;
   }
 
   {
@@ -2177,7 +2183,8 @@ int main(int argc, const char **argv_) {
     }
 
     FOREACH_STREAM(stream, streams) {
-      if (input.fmt != AOM_IMG_FMT_I420 && input.fmt != AOM_IMG_FMT_I42016) {
+      if (input.fmt != AOM_IMG_FMT_I420 && input.fmt != AOM_IMG_FMT_I42016 &&
+          input.fmt != AOM_IMG_FMT_NV12) {
         /* Automatically upgrade if input is non-4:2:0 but a 4:2:0 profile
            was selected. */
         switch (stream->config.cfg.g_profile) {
