@@ -48,6 +48,13 @@
 
 static const char *exec_name;
 
+// Used in lightfield example.
+enum {
+  YUV1D,  // 1D tile output for conformance test.
+  YUV,    // Tile output in YUV format.
+  NV12,
+} UENUM1BYTE(OUTPUT_FORMAT);
+
 void usage_exit(void) {
   fprintf(stderr,
           "Usage: %s <infile> <outfile> <num_references> <tile_list> <output "
