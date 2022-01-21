@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae5d13b7_b6e71bf7",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2022-01-21T18:18:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a48e8353_6354a064",
+      "range": {
+        "startLine": 742,
+        "startChar": 0,
+        "endLine": 746,
+        "endChar": 6
+      },
+      "revId": "214e4565e610bf7adea9f1c39248addaa0c4b48e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d36386a_a3f7faa4",
@@ -71,6 +95,30 @@
       "writtenOn": "2022-01-20T17:26:42Z",
       "side": 1,
       "message": "Can we replace these lines with \"is_encode_stage\"? Anyway is_encode_stage is not used when CONFIG_FRAME_PARALLEL_ENCODE \u003d 0. Same for the 3 places below.",
+      "range": {
+        "startLine": 194,
+        "startChar": 0,
+        "endLine": 198,
+        "endChar": 6
+      },
+      "revId": "214e4565e610bf7adea9f1c39248addaa0c4b48e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "195c6b08_442fa801",
+        "filename": "av1/encoder/rc_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2022-01-21T18:18:53Z",
+      "side": 1,
+      "message": "Replaced by modifying the interfaces of the respective caller functions also.",
+      "parentUuid": "7d36386a_a3f7faa4",
       "range": {
         "startLine": 194,
         "startChar": 0,
