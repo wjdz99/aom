@@ -2563,6 +2563,29 @@ int main(int argc, const char **argv_) {
       }
     }
 
+#ifdef AOM_CTRL_AV1E_GET_TARGET_SEQ_LEVEL_IDX
+    if (pass == global.passes - 1) {
+      FOREACH_STREAM(stream, streams) {
+        int levels[32] = { 0 };
+        int target_levels[32] = { 0 };
+        aom_codec_control(&stream->encoder, AV1E_GET_SEQ_LEVEL_IDX, levels);
+        aom_codec_control(&stream->encoder, AV1E_GET_TARGET_SEQ_LEVEL_IDX,
+                          target_levels);
+
+        for (int i = 0; i < 32; i++) {
+          if (target_levels[i] < levels[i]) {
+            aom_tools_warn(
+                "Failed to encode to target level %d_%d for operating point "
+                "%d. "
+                "The output level is %d_%d",
+                2 + (target_levels[i] >> 2), target_levels[i] & 3, i,
+                2 + (levels[i] >> 2), levels[i] & 3);
+          }
+        }
+      }
+    }
+#endif
+
     FOREACH_STREAM(stream, streams) { aom_codec_destroy(&stream->encoder); }
 
     if (global.test_decode != TEST_DECODE_OFF) {
