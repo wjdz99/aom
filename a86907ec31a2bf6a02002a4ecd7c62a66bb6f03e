@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85cac92f_623aa6b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-22T00:43:13Z",
+      "side": 1,
+      "message": "Hi zemidget,\n\nThank you for the thoughtful suggestion. I am very sorry for the late review. I was out of the office.\n\nI thought this CL was a good idea, so I brought up this issue at our team meeting on Thursday. After a lively discussion, we decided to uphold the \"WontFix\" resolution of bug aomedia:3126, for a smaller default value of kf_max_dist may potentially increase the file size for some use cases. Applications that have specific requirements for the key frame interval must set kf_max_dist explicitly.",
+      "revId": "a86907ec31a2bf6a02002a4ecd7c62a66bb6f03e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
