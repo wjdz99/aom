@@ -103,6 +103,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7b77abd_1ece84c2",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2843,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-01-24T23:11:52Z",
+      "side": 1,
+      "message": "You\u0027re right. The motivation though for this change is to avoid the extra copy that the application has to do when input is NV12 if libaom doesn\u0027t accept that (before this change).\n\nThe background for this dates back to vp9 where this change mostly copies:\nhttps://chromium-review.googlesource.com/c/webm/libvpx/+/2218862",
+      "parentUuid": "4cb8b19c_836c41fb",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "932d5cea_318a244a",
