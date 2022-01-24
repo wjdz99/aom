@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "b95fd27b_39960963",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-01-24T22:07:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9c223b4_ec066bb0",
+      "revId": "d4c80d7e8ee9685ebf3a9c4fe04f2f083091ba27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "e095ac22_f1e4abd2",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2022-01-24T21:52:44Z",
       "side": 1,
       "message": "Should this be something like --strict_level_conformance?",
+      "revId": "d4c80d7e8ee9685ebf3a9c4fe04f2f083091ba27",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d866278_115eb06e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7525
+      },
+      "writtenOn": "2022-01-24T22:07:33Z",
+      "side": 1,
+      "message": "Yeah it does make more sense. Done.",
+      "parentUuid": "e095ac22_f1e4abd2",
       "revId": "d4c80d7e8ee9685ebf3a9c4fe04f2f083091ba27",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
