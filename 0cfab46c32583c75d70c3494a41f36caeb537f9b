@@ -53,6 +53,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "da848443_8d0cdc82",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:07:01Z",
+      "side": 1,
+      "message": "James: If we don\u0027t bump AOM_IMAGE_ABI_VERSION, we can\u0027t test at compile time whether the version of libaom we are compiling against has AOM_IMG_FMT_NV12.",
+      "parentUuid": "36fa77b4_4dfa4d6f",
+      "revId": "0cfab46c32583c75d70c3494a41f36caeb537f9b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc0b0d4e_7dc15ed5",
