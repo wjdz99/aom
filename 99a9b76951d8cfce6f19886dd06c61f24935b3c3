@@ -1,0 +1,146 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a453ff1_7d7b66df",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "Please file a bug report with the \"Type-Enhancement\" label. You can use the \"Feature Request\" template:\nhttps://bugs.chromium.org/p/aomedia/issues/entry?template\u003dFeature+Request",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a5f8a04_3afcdb06",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "Jerome:\n\nI only look at some of the files in this CL, but I think I understand your approach. I have some preliminary comments.",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d833874_5a95c3af",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "We need to document how the following members of aom_image_t should be set up for AOM_IMG_FMT_NV12:\n\n  unsigned char *planes[3]; /**\u003c pointer to the top left pixel for each plane */\n  int stride[3];            /**\u003c stride between rows for each plane */\n\n\nFor example, one may think there are only two planes in NV12:\nhttps://wiki.videolan.org/YUV#Semi-planar",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f47b8ccc_66404487",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "Optional: We should add a unit test to test/aom_image_test.cc.",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89dccabb_0579fddf",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "I suggest multiplying uv_x by bytes_per_sample for clarify, or assert(bytes_per_sample \u003d\u003d 1).",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cb8b19c_836c41fb",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2843,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "This is where we convert the external aom_image_t type to the internal YV12_BUFFER_CONFIG type.\n\nConceptually it seems cleaner to convert an aom_image_t of the NV12 format to a regular 4:2:0 YV12_BUFFER_CONFIG in this image2yuvconfig() call, because we can be assured that for YV12_BUFFER_CONFIG, chroma_step is always 1 like before. But this requires copying the chroma planes.\n\nAn advantage of your current approach is that it does not need to copy NV12\u0027s chroma planes here. But a drawback is that it is less obvious where we convert the NV12 YV12_BUFFER_CONFIG to a regular 4:2:0 YV12_BUFFER_CONFIG.",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "932d5cea_318a244a",
+        "filename": "av1/encoder/extend.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "Since copy_and_extend_plane() is an internal function, we can assume chroma_step is a valid value (it\u0027s easy to verify chroma_step is either 1 or 2), so it is not necessary to check if chroma_step \u003c 1.",
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39af23b3_9c1bc927",
+        "filename": "av1/encoder/extend.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-24T23:01:45Z",
+      "side": 1,
+      "message": "Move these two lines into the if (!src-\u003emonochrome) block at line 152. I am worried that src-\u003ev_buffer and src-\u003eu_buffer may be null pointers if src-\u003emonochrome is true.",
+      "range": {
+        "startLine": 131,
+        "startChar": 0,
+        "endLine": 132,
+        "endChar": 69
+      },
+      "revId": "99a9b76951d8cfce6f19886dd06c61f24935b3c3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
