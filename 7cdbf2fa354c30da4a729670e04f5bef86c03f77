@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e66f3e1f_0591d0ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-25T19:54:02Z",
+      "side": 1,
+      "message": "Jingning: I suggest a better fix.",
+      "revId": "7cdbf2fa354c30da4a729670e04f5bef86c03f77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b065b3c_c5d6ed86",
+        "filename": "third_party/libwebm/mkvmuxer/mkvmuxer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 2625,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-25T19:54:02Z",
+      "side": 1,
+      "message": "Nit: we should cast to uint64 instead of uint64_t, because the first parameter of EbmlMasterElementSize() is of the uint64 type. (See my next comment.)",
+      "range": {
+        "startLine": 2625,
+        "startChar": 40,
+        "endLine": 2625,
+        "endChar": 48
+      },
+      "revId": "7cdbf2fa354c30da4a729670e04f5bef86c03f77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7851418f_d741364a",
+        "filename": "third_party/libwebm/mkvmuxer/mkvmuxer.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 2626,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-25T19:54:02Z",
+      "side": 1,
+      "message": "I suggest changing uint64_t(0xFFFFFFFFFFFFFFFFU) to 0xFFFFFFFFFFFFFFFFULL.\n\nHere is my reasoning:\n\nEbmlMasterElementSize() is declared to take two uint64 parameters:\n\n    uint64 EbmlMasterElementSize(uint64 type, uint64 value);\n    \nand uint64 is a typedef for \u0027unsigned long long\u0027:\n\n    typedef unsigned long long uint64;\n    \nSo our goal here is to create a constant of the \u0027unsigned long long\u0027 type. We can simply append the \u0027ULL\u0027 suffix to the constant 0xFFFFFFFFFFFFFFFF.\n\nNote: If I count the number of \u0027F\u0027s correctly, 0xFFFFFFFFFFFFFFFF is the maximum value of unsigned long long, so we can also just use the ULLONG_MAX macro.",
+      "revId": "7cdbf2fa354c30da4a729670e04f5bef86c03f77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
