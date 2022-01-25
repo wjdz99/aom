@@ -16,6 +16,63 @@
       "message": "Hi Wan-Teh, Jingning, Paul\n\nWe have submitted the latest patch-set by addressing the comments given by Wan-Teh. Please review the patch.\n\nRegards,\nMudassir\n",
       "revId": "40ff0606770ff4455872d80ca044a0db466b7826",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0aba4bbf_0775d3d9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-25T03:27:03Z",
+      "side": 1,
+      "message": "Hi Mudassir,\n\nI am sorry for the late review. I will take a closer look tomorrow.",
+      "revId": "40ff0606770ff4455872d80ca044a0db466b7826",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d9ca5ba_c2f0d163",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-25T03:27:03Z",
+      "side": 1,
+      "message": "Move lines 334-337 into the if statement below.",
+      "range": {
+        "startLine": 334,
+        "startChar": 0,
+        "endLine": 337,
+        "endChar": 75
+      },
+      "revId": "40ff0606770ff4455872d80ca044a0db466b7826",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b9c4b62_7498ce71",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-25T03:27:03Z",
+      "side": 1,
+      "message": "I am wondering why the older versions of this CL also worked without this line.\n\nNit: It is a little inconsistent that this functions references cpi-\u003etd.mb.src_var_info_of_4x4_sub_blocks directly but references cpi-\u003etd.src_var_info_of_4x4_sub_blocks through a function parameter (source_variance_info).",
+      "revId": "40ff0606770ff4455872d80ca044a0db466b7826",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
