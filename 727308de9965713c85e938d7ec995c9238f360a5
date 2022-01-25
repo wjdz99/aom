@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0a07db4_bebeb5d3",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2566,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-25T20:22:18Z",
+      "side": 1,
+      "message": "this should be true when building from source. Any code outside the library could use this check.",
+      "revId": "727308de9965713c85e938d7ec995c9238f360a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a78ca9d7_8e4cf1a8",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 2580,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-25T20:22:18Z",
+      "side": 1,
+      "message": "maybe %d.%d to match the spec text?",
+      "range": {
+        "startLine": 2580,
+        "startChar": 39,
+        "endLine": 2580,
+        "endChar": 40
+      },
+      "revId": "727308de9965713c85e938d7ec995c9238f360a5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
