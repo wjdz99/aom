@@ -46,6 +46,30 @@
       },
       "revId": "2fa4740beb2234619da294a9ab75510168698ec9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87b2fceb_f79ab769",
+        "filename": "build/cmake/toolchains/armv7-linux-gcc.cmake",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-26T18:18:43Z",
+      "side": 1,
+      "message": "\u003e Not sure that I understand what you mean. Could you give an example?\n\nSorry that was my mistake. I missed you were breaking a quoted string. This could work:\nset(CMAKE_C_COMPILER_ARG1\n    \"-march\u003darmv7-a -mfpu\u003dvfpv3 ${AOM_EXTRA_TOOLCHAIN_FLAGS}\")\n    \nbut either is fine.",
+      "parentUuid": "197b5010_247953f8",
+      "range": {
+        "startLine": 33,
+        "startChar": 56,
+        "endLine": 33,
+        "endChar": 57
+      },
+      "revId": "2fa4740beb2234619da294a9ab75510168698ec9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
