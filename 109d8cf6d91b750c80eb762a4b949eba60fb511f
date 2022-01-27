@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "30c03e5c_e786e3e6",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-27T23:27:13Z",
+      "side": 1,
+      "message": "So the comments that were wrong I changed in another CL: https://aomedia-review.googlesource.com/c/aom/+/152921\n\nI wasn\u0027t planning to cherry-pick that CL into electric-sky as they were only comment changes, but if you think we should I\u0027m fine with doing that.",
+      "parentUuid": "2dd2304e_c85717df",
+      "range": {
+        "startLine": 429,
+        "startChar": 63,
+        "endLine": 429,
+        "endChar": 76
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9e437f29_f2f94631",
         "filename": "aom/aomdx.h",
         "patchSetId": 3
@@ -101,6 +125,30 @@
       "writtenOn": "2022-01-27T22:56:32Z",
       "side": 1,
       "message": "Done",
+      "parentUuid": "9e437f29_f2f94631",
+      "range": {
+        "startLine": 433,
+        "startChar": 71,
+        "endLine": 434,
+        "endChar": 14
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df7796fd_1ce6012a",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-27T23:27:13Z",
+      "side": 1,
+      "message": "https://aomedia-review.googlesource.com/c/aom/+/152921",
       "parentUuid": "9e437f29_f2f94631",
       "range": {
         "startLine": 433,
@@ -159,6 +207,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d46dd38_7e278f2a",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-27T23:27:13Z",
+      "side": 1,
+      "message": "https://aomedia-review.googlesource.com/c/aom/+/152921",
+      "parentUuid": "760f7dbb_72c85b5f",
+      "range": {
+        "startLine": 438,
+        "startChar": 69,
+        "endLine": 439,
+        "endChar": 18
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b831794_911fbfb0",
@@ -206,6 +278,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d14834b4_6ff54b01",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-27T23:27:13Z",
+      "side": 1,
+      "message": "Addressed in CL:https://aomedia-review.googlesource.com/c/aom/+/152963",
+      "parentUuid": "3b831794_911fbfb0",
+      "range": {
+        "startLine": 570,
+        "startChar": 44,
+        "endLine": 570,
+        "endChar": 58
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c904ccb7_afc59974",
@@ -242,6 +338,30 @@
       "writtenOn": "2022-01-27T22:56:32Z",
       "side": 1,
       "message": "Done",
+      "parentUuid": "c904ccb7_afc59974",
+      "range": {
+        "startLine": 573,
+        "startChar": 39,
+        "endLine": 573,
+        "endChar": 53
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "675255f5_f94e12be",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-27T23:27:13Z",
+      "side": 1,
+      "message": "Addressed in CL:https://aomedia-review.googlesource.com/c/aom/+/152963",
       "parentUuid": "c904ccb7_afc59974",
       "range": {
         "startLine": 573,
