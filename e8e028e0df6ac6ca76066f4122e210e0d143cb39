@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1328610f_31b3c20b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "Hi Jerome,\n\nHere are some more review comments. First, a high-level comment on your current approach.\n\nI think aom_image_t is not designed to support a format like NV12 well, because NV12 is neither planer nor interleaved; it is half and half. Also, NV12 conceptually has only two planes, but a lot of code in libaom assumes the number of planes is either 1 or 3. So any attempt to make aom_image_t to support NV12 is going to look forced and require some special handling.\n\nSo although I criticized your current approach, I can\u0027t suggest an alternative that is both elegant and high-performing (i.e., avoid the extra copy).\n\nIn this round of review, I suggest a small change to your current approach -- set img-\u003ex_chroma_shift to 1 (instead of 0) for NV12. The details are in the review comments.\n\nNote: I think it would be better to use only two planes for NV12, i.e., set img-\u003eplanes[2] to NULL and img-\u003estride[2] to 0. The reason I like this better is that this will cause a segmentation fault if we forget to split the interleaved UV plane before passing an NV12 image to libaom internals.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b3a4a5a_3d3985d9",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "I think it will be cleaner conceptually if xcs is 1 for AOM_IMG_FMT_NV12. This requires handling the strides for AOM_IMG_FMT_NV12 as a special case. Please see my comment at line 160.\n\nAlso, if xcs is 1, then we don\u0027t need to change the image2yuvconfig() function in av1/av1_iface_common.h.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db6ddd99_185ff659",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "If we set xcs to 1 for AOM_IMG_FMT_NV12, then we need to add a special case for AOM_IMG_FMT_NV12 after this line:\n\n  if (fmt \u003d\u003d AOM_IMG_FMT_NV12) {\n    // Each row is a row of U and a row of V interleaved, so the stride is twice as long.\n    img-\u003estride[AOM_PLANE_U] *\u003d 2;\n    img-\u003estride[AOM_PLANE_V] *\u003d 2;\n  }",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5fa1aa1d_8070b253",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "IMPORTANT: Are you sure the I420Scale() call at line 1667 works for img-\u003efmt \u003d\u003d AOM_IMG_FMT_NV12? I think it will malfunction.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "979bdba5_870ccd82",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "If we set xcs to 1 in img_alloc_helper() in aom/src/aom_image.c, then none of these changes are necessary.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6657410b_d3ea8a38",
+        "filename": "av1/encoder/extend.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "I suggest we handle nv12 here as follows:\n\n  if (src-\u003ev_buffer - src-\u003eu_buffer \u003d\u003d 1) {\n    // Add a new split_and_extend_uv_plane() function that\n    // split the interleaved UV plane into U and V planes, and\n    // then extend the U and V planes.\n    split_and_extend_uv_plane(...);\n  } else {\n    // The current code\n    copy_and_extend_plane(src-\u003eu_buffer, ...);\n    copy_and_extend_plane(src-\u003ev_buffer, ...);\n  }\n\nIf we can use libyuv here, libyuv has a SplitUVPlane() function.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0cd19ed_c6535c2c",
+        "filename": "common/tools_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "If we set xcs to 1 img_alloc_helper() in aom/src/aom_image.c, then we can change this line to:\n\n   if (yuv_frame-\u003efmt \u003d\u003d AOM_IMG_FMT_NV12 \u0026\u0026 plane \u003d\u003d 1) w *\u003d 2;\n\nso that \u0027w\u0027 has the desired value at line 114.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c600f14a_fa1d379b",
+        "filename": "test/util.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T00:03:15Z",
+      "side": 1,
+      "message": "I suggest moving this change and the changes to test/arf_freq_test.cc and test/end_to_end_psnr_test.cc to a separate CL. That CL can be reviewed and checked in first.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
