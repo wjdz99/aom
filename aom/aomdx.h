@@ -209,14 +209,16 @@ enum aom_dec_control_id {
   AOMD_GET_LAST_REF_USED,
 
   /*!\brief Codec control function to get the dimensions that the current
-   * frame is decoded at, int* parameter. This may be different to the
-   * intended display size for the frame as specified in the wrapper or frame
-   * header (see AV1D_GET_DISPLAY_SIZE).
+   * frame is decoded at, int* parameter
+   *
+   * This may be different to the intended display size for the frame as
+   * specified in the wrapper or frame header (see AV1D_GET_DISPLAY_SIZE).
    */
   AV1D_GET_FRAME_SIZE,
 
   /*!\brief Codec control function to get the current frame's intended display
-   * dimensions (as specified in the wrapper or frame header), int* parameter.
+   * dimensions (as specified in the wrapper or frame header), int* parameter
+   *
    * This may be different to the decoded dimensions of this frame (see
    * AV1D_GET_FRAME_SIZE).
    */
@@ -232,8 +234,9 @@ enum aom_dec_control_id {
    */
   AV1D_GET_IMG_FORMAT,
 
-  /*!\brief Codec control function to get the size of the tile, unsigned int
-    parameter */
+  /*!\brief Codec control function to get the size of the tile, unsigned int*
+   * parameter
+   */
   AV1D_GET_TILE_SIZE,
 
   /*!\brief Codec control function to get the tile count in a tile list, int*
@@ -355,7 +358,7 @@ enum aom_dec_control_id {
   AV1D_SET_OPERATING_POINT,
 
   /*!\brief Codec control function to indicate whether to output one frame per
-   * temporal unit (the default), or one frame per spatial layer. int parameter
+   * temporal unit (the default), or one frame per spatial layer, int parameter
    *
    * In a scalable stream, each temporal unit corresponds to a single "frame"
    * of video, and within a temporal unit there may be multiple spatial layers
@@ -382,35 +385,47 @@ enum aom_dec_control_id {
    */
   AV1D_SET_SKIP_FILM_GRAIN,
 
-  /*!\brief Codec control function to check the presence of forward key frames
+  /*!\brief Codec control function to check the presence of forward key frames,
+   * int* parameter
    */
   AOMD_GET_FWD_KF_PRESENT,
 
   /*!\brief Codec control function to get the frame flags of the previous frame
-   * decoded. This will return a flag of type aom_codec_frame_flags_t.
+   * decoded, int* parameter
+   *
+   * This will return a flag of type aom_codec_frame_flags_t.
    */
   AOMD_GET_FRAME_FLAGS,
 
-  /*!\brief Codec control function to check the presence of altref frames */
+  /*!\brief Codec control function to check the presence of altref frames, int*
+   * parameter
+   */
   AOMD_GET_ALTREF_PRESENT,
 
   /*!\brief Codec control function to get tile information of the previous frame
-   * decoded. This will return a struct of type aom_tile_info.
+   * decoded, aom_tile_info* parameter
+   *
+   * This will return a struct of type aom_tile_info.
    */
   AOMD_GET_TILE_INFO,
 
-  /*!\brief Codec control function to get screen content tools information.
+  /*!\brief Codec control function to get screen content tools information,
+   * aom_screen_content_tools_info* parameter
+   *
    * It returns a struct of type aom_screen_content_tools_info, which contains
    * the header flags allow_screen_content_tools, allow_intrabc, and
    * force_integer_mv.
    */
   AOMD_GET_SCREEN_CONTENT_TOOLS_INFO,
 
-  /*!\brief Codec control function to get the still picture coding information
+  /*!\brief Codec control function to get the still picture coding information,
+   * aom_still_picture_info* parameter
    */
   AOMD_GET_STILL_PICTURE,
 
-  /*!\brief Codec control function to get superblock size.
+  /*!\brief Codec control function to get superblock size,
+   * aom_superblock_size_t* parameter
+   *
    * It returns an integer, indicating the superblock size
    * read from the sequence header(0 for BLOCK_64X64 and
    * 1 for BLOCK_128X128)
@@ -418,25 +433,26 @@ enum aom_dec_control_id {
   AOMD_GET_SB_SIZE,
 
   /*!\brief Codec control function to check if the previous frame
-   * decoded has show existing frame flag set.
+   * decoded has show existing frame flag set, int* parameter
    */
   AOMD_GET_SHOW_EXISTING_FRAME_FLAG,
 
-  /*!\brief Codec control function to get the S_FRAME coding information
+  /*!\brief Codec control function to get the S_FRAME coding information,
+   * aom_s_frame_info* parameter
    */
   AOMD_GET_S_FRAME_INFO,
 
-  /*!\brief Codec control function to get the show frame flag, int parameter
+  /*!\brief Codec control function to get the show frame flag, int* parameter
    */
   AOMD_GET_SHOW_FRAME_FLAG,
 
-  /*!\brief Codec control function to get the base q index of a frame, int
+  /*!\brief Codec control function to get the base q index of a frame, int*
    * parameter
    */
   AOMD_GET_BASE_Q_IDX,
 
   /*!\brief Codec control function to get the order hint of a frame, unsigned
-   * int parameter
+   * int* parameter
    */
   AOMD_GET_ORDER_HINT,
 
