@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1d118cd_4b2f85a7",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T22:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2dd2304e_c85717df",
+      "range": {
+        "startLine": 429,
+        "startChar": 63,
+        "endLine": 429,
+        "endChar": 76
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e437f29_f2f94631",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-01-27T19:51:00Z",
       "side": 1,
       "message": "The comment should say \"int* parameter\".",
+      "range": {
+        "startLine": 433,
+        "startChar": 71,
+        "endLine": 434,
+        "endChar": 14
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "54708722_32484513",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T22:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e437f29_f2f94631",
       "range": {
         "startLine": 433,
         "startChar": 71,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "440b25bf_45605061",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T22:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "760f7dbb_72c85b5f",
+      "range": {
+        "startLine": 438,
+        "startChar": 69,
+        "endLine": 439,
+        "endChar": 18
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b831794_911fbfb0",
@@ -110,6 +182,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e11e6109_82f208d8",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T22:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b831794_911fbfb0",
+      "range": {
+        "startLine": 570,
+        "startChar": 44,
+        "endLine": 570,
+        "endChar": 58
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c904ccb7_afc59974",
@@ -123,6 +219,30 @@
       "writtenOn": "2022-01-27T19:51:00Z",
       "side": 1,
       "message": "We should remove \"unsigned\".\n\nIn ctrl_get_base_q_idx(), this argument is read as int *, not unsigned int *.",
+      "range": {
+        "startLine": 573,
+        "startChar": 39,
+        "endLine": 573,
+        "endChar": 53
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ce247f5_10b215a6",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T22:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c904ccb7_afc59974",
       "range": {
         "startLine": 573,
         "startChar": 39,
@@ -182,6 +302,24 @@
       "side": 1,
       "message": "Thanks for the info. I didn\u0027t look at earlier comments.\n\nI will write a CL to make the changes I suggested.",
       "parentUuid": "31383486_4d1761b1",
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b8090c9b_2b6700cb",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T22:56:32Z",
+      "side": 1,
+      "message": "Done. See https://aomedia-review.googlesource.com/c/aom/+/152962\n\nI implemented the simple solution of removing the AOM_CTRL_USE_TYPE(AV1D_GET_MI_INFO, void *) line.",
+      "parentUuid": "bc022a37_5a806a9f",
       "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
