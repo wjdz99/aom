@@ -46,6 +46,30 @@
       },
       "revId": "16edc9bbd93870539e0e92be8e641aa32935c1d5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4edb81c7_33fd1195",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-27T03:30:26Z",
+      "side": 1,
+      "message": "\u003e \u003e I feel like copying and defining the MB_MODE_INFO struct with all it\u0027s dependencies at the top of this file is not something we want to do. Any other suggestions?\n\u003e \n\u003e There doesn\u0027t look to be a good reason for this to be exposed publicly, the only use is by the encoder.\n\u003e One possible quick fix would be to revert fd570640772f522834a2faafa2028ef258f03bc1 in the release branch since three-pass is still under development, but you\u0027ll need to remove its use too. Probably better to fix this one forward.\n\nLooking a bit more closely it looks like the three pass code is using the public interface for the decoder so that might not be the easiest fix. For now we can make this void*.",
+      "parentUuid": "9ae3eb5f_2dd17c17",
+      "range": {
+        "startLine": 579,
+        "startChar": 36,
+        "endLine": 579,
+        "endChar": 48
+      },
+      "revId": "16edc9bbd93870539e0e92be8e641aa32935c1d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
