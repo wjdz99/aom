@@ -148,6 +148,24 @@
       "message": "IMPORTANT: ctrl_get_mi_info() read three values from the va_list args:\n  int mi_row \u003d va_arg(args, int);\n  int mi_col \u003d va_arg(args, int);\n  MB_MODE_INFO *mi \u003d va_arg(args, MB_MODE_INFO *);\n\nSo I think we can\u0027t use \"void *\" here. The AOM_CTRL_USE_TYPE macro is defined as follows:\n\n  #define AOM_CTRL_USE_TYPE(id, typ)                           \\\n    static aom_codec_err_t aom_codec_control_typechecked_##id( \\\n        aom_codec_ctx_t *, int, typ) AOM_UNUSED;               \\\n    static aom_codec_err_t aom_codec_control_typechecked_##id( \\\n        aom_codec_ctx_t *ctx, int ctrl, typ data) {            \\\n      return aom_codec_control(ctx, ctrl, data);               \\\n    } /**\u003c\\hideinitializer*/                                   \\\n    typedef typ aom_codec_control_type_##id;\n\nand the AOM_CODEC_CONTROL_TYPECHECKED macro is defined as follows:\n\n  #define AOM_CODEC_CONTROL_TYPECHECKED(ctx, id, data) \\\n    aom_codec_control_typechecked_##id(ctx, id, data) /**\u003c\\hideinitializer*/\n\nBoth macros assume every codec control Id takes only one argument. Since AV1D_GET_MI_INFO takes three arguments, it breaks that assumption.\n\nThere are two solutions.\n\n1. Remove this \"AOM_CTRL_USE_TYPE(AV1D_GET_MI_INFO, void *)\" line, but keep the next line. This means we cannot call the AOM_CODEC_CONTROL_TYPECHECKED macro with AV1D_GET_MI_INFO.\n\n2. Change AV1D_GET_MI_INFO to take only one argument. For example, we can collect the current three arguments in a struct.",
       "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31383486_4d1761b1",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-27T19:54:34Z",
+      "side": 1,
+      "message": "\u003e IMPORTANT: ctrl_get_mi_info() read three values from the va_list args:\n\u003e   int mi_row \u003d va_arg(args, int);\n\u003e   int mi_col \u003d va_arg(args, int);\n\u003e   MB_MODE_INFO *mi \u003d va_arg(args, MB_MODE_INFO *);\n\u003e \n\u003e So I think we can\u0027t use \"void *\" here. The AOM_CTRL_USE_TYPE macro is defined as follows:\n\u003e \n\u003e   #define AOM_CTRL_USE_TYPE(id, typ)                           \\\n\u003e     static aom_codec_err_t aom_codec_control_typechecked_##id( \\\n\u003e         aom_codec_ctx_t *, int, typ) AOM_UNUSED;               \\\n\u003e     static aom_codec_err_t aom_codec_control_typechecked_##id( \\\n\u003e         aom_codec_ctx_t *ctx, int ctrl, typ data) {            \\\n\u003e       return aom_codec_control(ctx, ctrl, data);               \\\n\u003e     } /**\u003c\\hideinitializer*/                                   \\\n\u003e     typedef typ aom_codec_control_type_##id;\n\u003e \n\u003e and the AOM_CODEC_CONTROL_TYPECHECKED macro is defined as follows:\n\u003e \n\u003e   #define AOM_CODEC_CONTROL_TYPECHECKED(ctx, id, data) \\\n\u003e     aom_codec_control_typechecked_##id(ctx, id, data) /**\u003c\\hideinitializer*/\n\u003e \n\u003e Both macros assume every codec control Id takes only one argument. Since AV1D_GET_MI_INFO takes three arguments, it breaks that assumption.\n\u003e \n\u003e There are two solutions.\n\u003e \n\u003e 1. Remove this \"AOM_CTRL_USE_TYPE(AV1D_GET_MI_INFO, void *)\" line, but keep the next line. This means we cannot call the AOM_CODEC_CONTROL_TYPECHECKED macro with AV1D_GET_MI_INFO.\n\u003e\n\nI missed that when suggesting the workaround, thanks for looking.\n \n\u003e 2. Change AV1D_GET_MI_INFO to take only one argument. For example, we can collect the current three arguments in a struct.\n\nThis is really an internal function, ideally it would be removed and the encoder would call the decoder directly.",
+      "parentUuid": "32b49306_16c83978",
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
