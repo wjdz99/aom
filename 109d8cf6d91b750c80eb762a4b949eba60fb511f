@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9dcf1bfa_3437c655",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T19:51:00Z",
+      "side": 1,
+      "message": "Frank: This CL needs some work. I also noted some errors in the pre-existing comments for the control IDs mentioned in this CL.\n\nBohan: A serious problem is that AV1D_GET_MI_INFO takes three arguments, which breaks the current assumption. Please take a look at the two solutions I proposed in the comment marked with \"IMPORTANT\".",
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2dd2304e_c85717df",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T19:51:00Z",
+      "side": 1,
+      "message": "The comment should say \"int* parameter\".",
+      "range": {
+        "startLine": 429,
+        "startChar": 63,
+        "endLine": 429,
+        "endChar": 76
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e437f29_f2f94631",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T19:51:00Z",
+      "side": 1,
+      "message": "The comment should say \"int* parameter\".",
+      "range": {
+        "startLine": 433,
+        "startChar": 71,
+        "endLine": 434,
+        "endChar": 14
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "760f7dbb_72c85b5f",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T19:51:00Z",
+      "side": 1,
+      "message": "The comment should say \"unsigned int* parameter\".",
+      "range": {
+        "startLine": 438,
+        "startChar": 69,
+        "endLine": 439,
+        "endChar": 18
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b831794_911fbfb0",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T19:51:00Z",
+      "side": 1,
+      "message": "We should remove \"unsigned\".\n\nIn ctrl_get_show_frame_flag(), this argument is read as int *, not unsigned int *.",
+      "range": {
+        "startLine": 570,
+        "startChar": 44,
+        "endLine": 570,
+        "endChar": 58
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c904ccb7_afc59974",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T19:51:00Z",
+      "side": 1,
+      "message": "We should remove \"unsigned\".\n\nIn ctrl_get_base_q_idx(), this argument is read as int *, not unsigned int *.",
+      "range": {
+        "startLine": 573,
+        "startChar": 39,
+        "endLine": 573,
+        "endChar": 53
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "32b49306_16c83978",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-27T19:51:00Z",
+      "side": 1,
+      "message": "IMPORTANT: ctrl_get_mi_info() read three values from the va_list args:\n  int mi_row \u003d va_arg(args, int);\n  int mi_col \u003d va_arg(args, int);\n  MB_MODE_INFO *mi \u003d va_arg(args, MB_MODE_INFO *);\n\nSo I think we can\u0027t use \"void *\" here. The AOM_CTRL_USE_TYPE macro is defined as follows:\n\n  #define AOM_CTRL_USE_TYPE(id, typ)                           \\\n    static aom_codec_err_t aom_codec_control_typechecked_##id( \\\n        aom_codec_ctx_t *, int, typ) AOM_UNUSED;               \\\n    static aom_codec_err_t aom_codec_control_typechecked_##id( \\\n        aom_codec_ctx_t *ctx, int ctrl, typ data) {            \\\n      return aom_codec_control(ctx, ctrl, data);               \\\n    } /**\u003c\\hideinitializer*/                                   \\\n    typedef typ aom_codec_control_type_##id;\n\nand the AOM_CODEC_CONTROL_TYPECHECKED macro is defined as follows:\n\n  #define AOM_CODEC_CONTROL_TYPECHECKED(ctx, id, data) \\\n    aom_codec_control_typechecked_##id(ctx, id, data) /**\u003c\\hideinitializer*/\n\nBoth macros assume every codec control Id takes only one argument. Since AV1D_GET_MI_INFO takes three arguments, it breaks that assumption.\n\nThere are two solutions.\n\n1. Remove this \"AOM_CTRL_USE_TYPE(AV1D_GET_MI_INFO, void *)\" line, but keep the next line. This means we cannot call the AOM_CODEC_CONTROL_TYPECHECKED macro with AV1D_GET_MI_INFO.\n\n2. Change AV1D_GET_MI_INFO to take only one argument. For example, we can collect the current three arguments in a struct.",
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
