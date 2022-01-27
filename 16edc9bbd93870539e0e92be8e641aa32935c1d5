@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96c46044_f210bd2a",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 579,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-27T02:05:17Z",
+      "side": 1,
+      "message": "I feel like copying and defining the MB_MODE_INFO struct with all it\u0027s dependencies at the top of this file is not something we want to do. Any other suggestions?",
+      "range": {
+        "startLine": 579,
+        "startChar": 36,
+        "endLine": 579,
+        "endChar": 48
+      },
+      "revId": "16edc9bbd93870539e0e92be8e641aa32935c1d5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
