@@ -1259,6 +1259,8 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
       sf->rt_sf.gf_length_lvl = 1;
       sf->rt_sf.skip_cdef_sb = 1;
     }
+
+    if (speed >= 10) sf->rt_sf.use_comp_ref_nonrd = 0;
   }
   if (!is_480p_or_larger) {
     if (speed == 7) {
