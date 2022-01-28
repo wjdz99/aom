@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "00aa7a75_8241774f",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-28T17:25:42Z",
+      "side": 1,
+      "message": "Filed https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3227",
+      "parentUuid": "316115dc_e9b1e916",
+      "revId": "83cc6d06b7ca2f3e4b100fe9d11891751dc22b20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "64bb6f7b_9965d896",
@@ -65,6 +83,30 @@
       "writtenOn": "2022-01-28T16:26:09Z",
       "side": 1,
       "message": "Nit: should we change \"integer\" to \"enum\"?  aom_superblock_size_t is an enum type.",
+      "range": {
+        "startLine": 430,
+        "startChar": 19,
+        "endLine": 430,
+        "endChar": 26
+      },
+      "revId": "83cc6d06b7ca2f3e4b100fe9d11891751dc22b20",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "217563b6_0741ab39",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-28T17:25:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64bb6f7b_9965d896",
       "range": {
         "startLine": 430,
         "startChar": 19,
