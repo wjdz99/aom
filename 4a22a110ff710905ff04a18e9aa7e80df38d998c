@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a719f6fc_1153e6ed",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T23:39:43Z",
+      "side": 1,
+      "message": "Thanks. This is the CL that changed real time speed 4 to behave the same as real time speed 5:\nhttps://aomedia-review.googlesource.com/c/aom/+/148085\n\nThat CL missed two conditional expressions. I wrote a CL to finish the job:\nhttps://aomedia-review.googlesource.com/c/aom/+/153061",
+      "parentUuid": "605d6348_b26e2d59",
+      "revId": "4a22a110ff710905ff04a18e9aa7e80df38d998c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "000654bc_bd79e8c6",
