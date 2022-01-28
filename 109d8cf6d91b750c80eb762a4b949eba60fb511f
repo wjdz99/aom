@@ -113,6 +113,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "77d8d7f2_29b55145",
+        "filename": "aom/aomdx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-01-28T19:12:52Z",
+      "side": 1,
+      "message": "\u003e I agree we don\u0027t need to cherry-pick these comment changes.\n\nIt depends on how you look at it. If we break compatibility this becomes a long term representation of the lib in various distributions, so public facing things are good candidates.",
+      "parentUuid": "012f5a1b_17c62ff2",
+      "range": {
+        "startLine": 429,
+        "startChar": 63,
+        "endLine": 429,
+        "endChar": 76
+      },
+      "revId": "109d8cf6d91b750c80eb762a4b949eba60fb511f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9e437f29_f2f94631",
