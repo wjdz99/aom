@@ -83,6 +83,9 @@ int64_t test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
       errpridamping = 0, errsecdamping = 0;
   unsigned int pos = 0;
 
+  const int block_width = ((bsize == BLOCK_8X8) | (bsize == BLOCK_8X4)) ? 8 : 4;
+  const int block_height =
+      ((bsize == BLOCK_8X8) | (bsize == BLOCK_4X8)) ? 8 : 4;
   const unsigned int max_pos = size * size >> static_cast<int>(depth == 8);
   for (pridamping = 3 + depth - 8; pridamping < 7 - 3 * !!boundary + depth - 8;
        pridamping++) {
@@ -124,11 +127,15 @@ int64_t test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
                 for (secstrength = 0; secstrength <= 4 << (depth - 8) && !error;
                      secstrength += 1 << (depth - 8)) {
                   if (secstrength == 3 << (depth - 8)) continue;
+
+                  // const int strength_index = (secstrength == 0) |
+                  // ((pristrength == 0) << 1);
+
                   aom_usec_timer_start(&ref_timer);
                   ref_cdef(ref_d, size,
                            s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
                            pristrength, secstrength, dir, pridamping,
-                           secdamping, bsize, depth - 8);
+                           secdamping, depth - 8, block_width, block_height);
                   aom_usec_timer_mark(&ref_timer);
                   ref_elapsed_time += aom_usec_timer_elapsed(&ref_timer);
                   // If cdef and ref_cdef are the same, we're just testing
@@ -137,7 +144,7 @@ int64_t test_cdef(int bsize, int iterations, cdef_filter_block_func cdef,
                     API_REGISTER_STATE_CHECK(cdef(
                         d, size, s + CDEF_HBORDER + CDEF_VBORDER * CDEF_BSTRIDE,
                         pristrength, secstrength, dir, pridamping, secdamping,
-                        bsize, depth - 8));
+                        depth - 8, block_width, block_height));
                   if (ref_cdef != cdef) {
                     for (pos = 0; pos < max_pos && !error; pos++) {
                       error = ref_d[pos] != d[pos];
@@ -312,7 +319,8 @@ using std::make_tuple;
 // structs as arguments, which makes the v256 type of the intrinsics
 // hard to support, so optimizations for this target are disabled.
 #if defined(_WIN64) || !defined(_MSC_VER) || defined(__clang__)
-#if HAVE_SSE2
+
+#if xHAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse2),
@@ -331,7 +339,7 @@ INSTANTIATE_TEST_SUITE_P(SSE2, CDEFFindDirTest,
                          ::testing::Values(make_tuple(&cdef_find_dir_sse2,
                                                       &cdef_find_dir_c)));
 #endif
-#if HAVE_SSSE3
+#if xHAVE_SSSE3
 INSTANTIATE_TEST_SUITE_P(
     SSSE3, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_ssse3),
@@ -351,7 +359,7 @@ INSTANTIATE_TEST_SUITE_P(SSSE3, CDEFFindDirTest,
                                                       &cdef_find_dir_c)));
 #endif
 
-#if HAVE_SSE4_1
+#if xHAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse4_1),
@@ -371,7 +379,7 @@ INSTANTIATE_TEST_SUITE_P(SSE4_1, CDEFFindDirTest,
                                                       &cdef_find_dir_c)));
 #endif
 
-#if HAVE_AVX2
+#if xHAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
     AVX2, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_avx2),
@@ -391,7 +399,7 @@ INSTANTIATE_TEST_SUITE_P(AVX2, CDEFFindDirTest,
                                                       &cdef_find_dir_c)));
 #endif
 
-#if HAVE_NEON
+#if xHAVE_NEON
 INSTANTIATE_TEST_SUITE_P(
     NEON, CDEFBlockTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_neon),
@@ -412,7 +420,7 @@ INSTANTIATE_TEST_SUITE_P(NEON, CDEFFindDirTest,
 #endif
 
 // Test speed for all supported architectures
-#if HAVE_SSE2
+#if xHAVE_SSE2
 INSTANTIATE_TEST_SUITE_P(
     SSE2, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse2),
@@ -432,7 +440,7 @@ INSTANTIATE_TEST_SUITE_P(SSE2, CDEFFindDirSpeedTest,
                                                       &cdef_find_dir_c)));
 #endif
 
-#if HAVE_SSSE3
+#if xHAVE_SSSE3
 INSTANTIATE_TEST_SUITE_P(
     SSSE3, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_ssse3),
@@ -452,7 +460,7 @@ INSTANTIATE_TEST_SUITE_P(SSSE3, CDEFFindDirSpeedTest,
                                                       &cdef_find_dir_c)));
 #endif
 
-#if HAVE_SSE4_1
+#if xHAVE_SSE4_1
 INSTANTIATE_TEST_SUITE_P(
     SSE4_1, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_sse4_1),
@@ -472,7 +480,7 @@ INSTANTIATE_TEST_SUITE_P(SSE4_1, CDEFFindDirSpeedTest,
                                                       &cdef_find_dir_c)));
 #endif
 
-#if HAVE_AVX2
+#if xHAVE_AVX2
 INSTANTIATE_TEST_SUITE_P(
     AVX2, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_avx2),
@@ -492,7 +500,7 @@ INSTANTIATE_TEST_SUITE_P(AVX2, CDEFFindDirSpeedTest,
                                                       &cdef_find_dir_c)));
 #endif
 
-#if HAVE_NEON
+#if xHAVE_NEON
 INSTANTIATE_TEST_SUITE_P(
     NEON, CDEFSpeedTest,
     ::testing::Combine(::testing::Values(&cdef_filter_block_neon),
