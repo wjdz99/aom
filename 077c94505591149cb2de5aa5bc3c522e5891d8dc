@@ -16,6 +16,350 @@
       "message": "Hi Wan-Teh, Jingning, Paul\n\nWe have submitted the latest patch-set by addressing the comments given by Wan-Teh. We have rebased the patch to avoid the Jenkins build failure with FPMT builds. We have also verified that the speedup is similar to the previous results after the rebase. Please review the patch.\n\nRegards,\nMudassir\n",
       "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7112a7c_7886e8cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Paul: PTAL. \"git blame\" shows that you originally wrote most of the code that this CL touches.\n\nMudassir: I suggest some changes.",
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d97442cc_b8869aac",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: It seems that the code actually calculates log(1+var/16.0). I don\u0027t know if the comments should be more accurate.",
+      "range": {
+        "startLine": 769,
+        "startChar": 38,
+        "endLine": 769,
+        "endChar": 48
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "19a3cb5b_338b891c",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1127,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: I suggest we add the new src_var_info_of_4x4_sub_blocks field here, right after the pixel_gradient_info field.",
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "edaf2a35_9a69ab09",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: an SB \u003d\u003e a superblock",
+      "range": {
+        "startLine": 1201,
+        "startChar": 73,
+        "endLine": 1201,
+        "endChar": 78
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4815502_41524f00",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: sub-blk \u003d\u003e sub-block",
+      "range": {
+        "startLine": 1201,
+        "startChar": 48,
+        "endLine": 1201,
+        "endChar": 55
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc65d1ce_fe9bf7c8",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Please move this line into the if statement in a separate patch that cleans up this function and allocate_src_var_of_4x4_sub_block_buf().",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 44
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85eb8dc9_d6f993b8",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "What does \"mapped\" mean here? The term \"mapped variance\" is not used in the original code.",
+      "range": {
+        "startLine": 101,
+        "startChar": 12,
+        "endLine": 101,
+        "endChar": 18
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e7173e6f_84a567d4",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: Delete this comment, because the comment above (lines 126-130) already describes the code here.",
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf5e7223_d3dc61b7",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: Not sure if you meant to say:\n    If it is available, then retrieve from buffer.\n\nOr does \"then\" mean \"at that time\" in this sentence?",
+      "range": {
+        "startLine": 142,
+        "startChar": 11,
+        "endLine": 142,
+        "endChar": 15
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "748abc77_c8fac22b",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: Reverse these two lines.",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 30
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f82d4cd2_8ffd6601",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: parenthesize the macro parameter \u0027X\u0027:\n\n#define INTRA_RD_VAR_THRESH(X) (1.0 - (0.25 * (X)))",
+      "range": {
+        "startLine": 38,
+        "startChar": 46,
+        "endLine": 38,
+        "endChar": 47
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9cada45_fc9e831f",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "I have three review comments below on this comment block. However, I think it is not necessary to add comments that merely repeat the code. So one way to address my review comments is to delete this entire comment block or replace it with a short comment that says what this function returns, e.g.,\n\n// Returns whether caching of source variance for 4x4 sub-blocks is allowed.",
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8906eccd_50abca7e",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: Delete \"is\".",
+      "range": {
+        "startLine": 461,
+        "startChar": 67,
+        "endLine": 461,
+        "endChar": 69
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "985bbc67_a802e883",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: This comment does not match the code exactly. For example, this comment fails to describe the condition on use_nonrd_pick_mode and hybrid_intra_pickmode at line 481.\n\nAlso, can sf partition_search_type be set to FIXED_PARTITION? (FIXED_PARTITION is not mentioned in these comments.)",
+      "range": {
+        "startLine": 463,
+        "startChar": 0,
+        "endLine": 464,
+        "endChar": 54
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b48de43c_493e8b05",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Nit: This comment should also say \"sf partition_search_type is VAR_BASED_PARTITION\", right?",
+      "range": {
+        "startLine": 471,
+        "startChar": 0,
+        "endLine": 472,
+        "endChar": 8
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aaa0ed4f_f3cb4c38",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-28T01:59:37Z",
+      "side": 1,
+      "message": "Use \u003d\u003d instead of \u003c\u003d.\n\nSince SEARCH_PARTITION is the first value of the PARTITION_SEARCH_TYPE enum, no value is \u003c SEARCH_PARTITION,",
+      "range": {
+        "startLine": 478,
+        "startChar": 40,
+        "endLine": 478,
+        "endChar": 42
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
