@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e552eb4e_fc499663",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "In the code, var/16.0 is treated as normalized variance, where 16.0 is normalization factor for the 4x4 sub-block. Hence we kept log(1 + variance) in the comments to avoid confusion.",
+      "parentUuid": "d97442cc_b8869aac",
+      "range": {
+        "startLine": 769,
+        "startChar": 38,
+        "endLine": 769,
+        "endChar": 48
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19a3cb5b_338b891c",
@@ -71,6 +95,24 @@
       "writtenOn": "2022-01-28T01:59:37Z",
       "side": 1,
       "message": "Nit: I suggest we add the new src_var_info_of_4x4_sub_blocks field here, right after the pixel_gradient_info field.",
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6bd4a403_8583d018",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1127,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "As src_var_info_of_4x4_sub_blocks is related to visual quality adjustment, we felt that it would be appropriate to keep the same in the “Misc” group rather than in “Prediction Mode Search” group.",
+      "parentUuid": "19a3cb5b_338b891c",
       "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -121,6 +163,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6dabed51_f76b817b",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done. We modified the comment such that the “brief” fits in  a single line.",
+      "parentUuid": "edaf2a35_9a69ab09",
+      "range": {
+        "startLine": 1201,
+        "startChar": 73,
+        "endLine": 1201,
+        "endChar": 78
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e3649a1_2aaf9ee2",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 1201,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4815502_41524f00",
+      "range": {
+        "startLine": 1201,
+        "startChar": 48,
+        "endLine": 1201,
+        "endChar": 55
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bc65d1ce_fe9bf7c8",
@@ -134,6 +224,30 @@
       "writtenOn": "2022-01-28T01:59:37Z",
       "side": 1,
       "message": "Please move this line into the if statement in a separate patch that cleans up this function and allocate_src_var_of_4x4_sub_block_buf().",
+      "range": {
+        "startLine": 319,
+        "startChar": 0,
+        "endLine": 319,
+        "endChar": 44
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bd97e28_63c45205",
+        "filename": "av1/encoder/encoder_alloc.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "bc65d1ce_fe9bf7c8",
       "range": {
         "startLine": 319,
         "startChar": 0,
@@ -169,6 +283,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "262f9061_89090db3",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "The term \"mapped variance\" corresponds to the average of log(1+variance) across 4x4 sub-blocks in the current coding block. We have modified the comment in order to clarify this.\n\nAn alternate approach would be to rename the variable names and function names as mentioned below:\ncompute_mapped_var() ⇒ compute_avg_log_variance()\nmapped_source_var ⇒ avg_log_src_variance\nmapped_recon_var ⇒ avg_log_recon_variance\n\nPlease let us know if we should pursue this.",
+      "parentUuid": "85eb8dc9_d6f993b8",
+      "range": {
+        "startLine": 101,
+        "startChar": 12,
+        "endLine": 101,
+        "endChar": 18
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e7173e6f_84a567d4",
         "filename": "av1/encoder/intra_mode_search.c",
         "patchSetId": 6
@@ -180,6 +318,24 @@
       "writtenOn": "2022-01-28T01:59:37Z",
       "side": 1,
       "message": "Nit: Delete this comment, because the comment above (lines 126-130) already describes the code here.",
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56c7ba3c_c58c98fd",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7173e6f_84a567d4",
       "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -197,6 +353,30 @@
       "writtenOn": "2022-01-28T01:59:37Z",
       "side": 1,
       "message": "Nit: Not sure if you meant to say:\n    If it is available, then retrieve from buffer.\n\nOr does \"then\" mean \"at that time\" in this sentence?",
+      "range": {
+        "startLine": 142,
+        "startChar": 11,
+        "endLine": 142,
+        "endChar": 15
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d5ffbb0_843a7bdb",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done. We have modified the comment.",
+      "parentUuid": "cf5e7223_d3dc61b7",
       "range": {
         "startLine": 142,
         "startChar": 11,
@@ -230,6 +410,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f7866f6_944ed47d",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "748abc77_c8fac22b",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 30
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f82d4cd2_8ffd6601",
@@ -243,6 +447,30 @@
       "writtenOn": "2022-01-28T01:59:37Z",
       "side": 1,
       "message": "Nit: parenthesize the macro parameter \u0027X\u0027:\n\n#define INTRA_RD_VAR_THRESH(X) (1.0 - (0.25 * (X)))",
+      "range": {
+        "startLine": 38,
+        "startChar": 46,
+        "endLine": 38,
+        "endChar": 47
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb90245f_6fd2ac7f",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f82d4cd2_8ffd6601",
       "range": {
         "startLine": 38,
         "startChar": 46,
@@ -270,6 +498,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ae7018a_6b7342ad",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done. We have replaced the comment block with a simpler comment.",
+      "parentUuid": "b9cada45_fc9e831f",
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8906eccd_50abca7e",
@@ -283,6 +529,30 @@
       "writtenOn": "2022-01-28T01:59:37Z",
       "side": 1,
       "message": "Nit: Delete \"is\".",
+      "range": {
+        "startLine": 461,
+        "startChar": 67,
+        "endLine": 461,
+        "endChar": 69
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f26112a4_513c8f99",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8906eccd_50abca7e",
       "range": {
         "startLine": 461,
         "startChar": 67,
@@ -316,6 +586,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a30c8bdb_ee43608e",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "985bbc67_a802e883",
+      "range": {
+        "startLine": 463,
+        "startChar": 0,
+        "endLine": 464,
+        "endChar": 54
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b48de43c_493e8b05",
@@ -339,6 +633,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f88dceb_bd70c412",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "b48de43c_493e8b05",
+      "range": {
+        "startLine": 471,
+        "startChar": 0,
+        "endLine": 472,
+        "endChar": 8
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aaa0ed4f_f3cb4c38",
@@ -352,6 +670,30 @@
       "writtenOn": "2022-01-28T01:59:37Z",
       "side": 1,
       "message": "Use \u003d\u003d instead of \u003c\u003d.\n\nSince SEARCH_PARTITION is the first value of the PARTITION_SEARCH_TYPE enum, no value is \u003c SEARCH_PARTITION,",
+      "range": {
+        "startLine": 478,
+        "startChar": 40,
+        "endLine": 478,
+        "endChar": 42
+      },
+      "revId": "077c94505591149cb2de5aa5bc3c522e5891d8dc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "45a3ed29_a7392659",
+        "filename": "av1/encoder/intra_mode_search_utils.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-01-28T12:20:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aaa0ed4f_f3cb4c38",
       "range": {
         "startLine": 478,
         "startChar": 40,
