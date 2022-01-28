@@ -54,6 +54,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "07ca2d09_c72cd204",
+        "filename": "CHANGELOG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-01-28T23:59:30Z",
+      "side": 1,
+      "message": "Yeah I saw. I can pull that one in as well",
+      "parentUuid": "a719f6fc_1153e6ed",
+      "revId": "4a22a110ff710905ff04a18e9aa7e80df38d998c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "000654bc_bd79e8c6",
