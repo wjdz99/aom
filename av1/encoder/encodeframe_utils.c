@@ -1317,6 +1317,35 @@ void av1_source_content_sb(AV1_COMP *cpi, MACROBLOCK *x, int offset) {
     if ((tmp_sse - tmp_variance) < (sum_sq_thresh >> 1))
       x->content_state_sb.low_sumdiff = 1;
   }
+
+  if  (cpi->last_source->y_width != cpi->source->y_width || cpi->last_source->y_height != cpi->source->y_height)
+    return;
+
+  AV1_COMMON *const cm = &cpi->common;
+  const uint8_t n_shift = num_pels_log2_lookup[bsize];
+  // Calculate mean^2
+  const unsigned int nmean2 = tmp_sse - tmp_variance;
+  const int ac_q_step = av1_ac_quant_QTX(cm->quant_params.base_qindex, 0, cm->seq_params->bit_depth);
+  const unsigned int threshold = 2 * ac_q_step * ac_q_step;
+
+  //printf("\n %d:     %d;  %d;      %d; %d;      %d; %d; \n", n_shift, tmp_sse, tmp_variance, ac_q_step, (ac_q_step*ac_q_step)<<1,  nmean2, 10);
+  //int offset = cpi->source->y_stride * (mi_row << 2) + (mi_col << 2);
+
+  if (tmp_variance <= threshold && nmean2 <= 15) {
+    // Noise temporal filtering
+    // need to store source for psnr calculation
+    const uint8_t h = block_size_high[bsize];
+    const uint8_t w = block_size_wide[bsize];
+
+    for (int i = 0; i < h; ++i) {
+      for (int j = 0; j < w; ++j) {
+        src_y[j] = (last_src_y[j] + src_y[j]) >> 1;
+      }
+      src_y += src_ystride;
+      last_src_y += last_src_ystride;
+    }
+  }
+
 }
 
 // Memset the mbmis at the current superblock to 0
