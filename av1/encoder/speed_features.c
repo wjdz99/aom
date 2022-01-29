@@ -1477,6 +1477,8 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.fullpel_search_step_param = 6;
   }
 
+  sf->rt_sf.use_rtc_tf = 1;  ////////////
+
   if (speed >= 6) {
     sf->mv_sf.use_fullpel_costlist = 1;
 
@@ -1598,6 +1600,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.var_part_split_threshold_shift = 10;
     sf->mv_sf.subpel_search_method = SUBPEL_TREE_PRUNED_MORE;
     sf->rt_sf.force_half_pel_block = 1;
+    sf->rt_sf.use_rtc_tf = 1;
   }
 
   if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN && speed >= 6 &&
@@ -1916,6 +1919,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->prune_intra_mode_based_on_mv_range = 0;
   rt_sf->var_part_split_threshold_shift = 7;
   rt_sf->gf_refresh_based_on_qp = 0;
+  rt_sf->use_rtc_tf = 0;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
