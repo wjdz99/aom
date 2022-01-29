@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "30002419_4a805e66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-29T03:02:21Z",
+      "side": 1,
+      "message": "Although I very much like this CL, the changes in this CL will require libaom clients to modify their source code if they use these macros. So these should wait until libaom v4.0.0.\n\n",
+      "revId": "f4b6352f68a9c6107bffcbb163a51bfc8b72a0dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c21b7a88_18439c90",
@@ -37,6 +54,30 @@
       "writtenOn": "2022-01-29T02:54:06Z",
       "side": 1,
       "message": "\u003e Can I change the enum to AOME_SET_MAX_INTER_BITRATE_PCT? Or should I just not change this ctrl at all?\n\nfor compatibility I\u0027d keep the #define for the misspelled ones with a TODO for the 4.0.0 bug. You can update the type here since the old version was non-existent. In the enum you could add the renamed version and keep the old one set at the same value.",
+      "parentUuid": "c21b7a88_18439c90",
+      "range": {
+        "startLine": 1666,
+        "startChar": 18,
+        "endLine": 1666,
+        "endChar": 48
+      },
+      "revId": "f4b6352f68a9c6107bffcbb163a51bfc8b72a0dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "295de6d7_59ba7bbe",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1666,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-29T03:02:21Z",
+      "side": 1,
+      "message": "Note: This particular change requires changing AOME_ to AV1E_ in the following code in av1/av1_cx_iface.c at the same time:\n\n  static aom_codec_err_t ctrl_set_rc_max_inter_bitrate_pct(\n      aom_codec_alg_priv_t *ctx, va_list args) {\n    struct av1_extracfg extra_cfg \u003d ctx-\u003eextra_cfg;\n    extra_cfg.rc_max_inter_bitrate_pct \u003d\n        CAST(AOME_SET_MAX_INTER_BITRATE_PCT, args);\n    return update_extra_cfg(ctx, \u0026extra_cfg);\n  }",
       "parentUuid": "c21b7a88_18439c90",
       "range": {
         "startLine": 1666,
