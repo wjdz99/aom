@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc366ce8_78a974ec",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-29T22:02:19Z",
+      "side": 1,
+      "message": "I believe that the if statement at lines 1171-1173 can be moved right before this line. I didn\u0027t do that in this CL, because I want to focus this CL on fixing the compiler warning.",
+      "revId": "37e746bf339740347d337f6e9991c59a11f00ca2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
