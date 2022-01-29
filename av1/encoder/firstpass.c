@@ -1137,7 +1137,7 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
       fp_block_size_height >> (this_frame->y_height > this_frame->uv_height);
 
   MV best_ref_mv = kZeroMv;
-  MV last_mv;
+  MV last_mv = *first_top_mv;
 
   // Reset above block coeffs.
   xd->up_available = (unit_row_in_tile != 0);
@@ -1169,9 +1169,6 @@ void av1_first_pass_row(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
     (*(enc_row_mt->sync_read_ptr))(row_mt_sync, unit_row_in_tile,
                                    unit_col_in_tile);
 
-    if (unit_col_in_tile == 0) {
-      last_mv = *first_top_mv;
-    }
     int this_intra_error = firstpass_intra_prediction(
         cpi, td, this_frame, tile, unit_row, unit_col, recon_yoffset,
         recon_uvoffset, fp_block_size, qindex, mb_stats);
