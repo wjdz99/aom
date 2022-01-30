@@ -48,6 +48,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d49f533_10ff7d39",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-30T17:01:37Z",
+      "side": 1,
+      "message": "Out of curiosity, I just built libaom at a803dcb2ca8c8c7ea2a02f3ef9154782dd2d070f, the revision before James\u0027s fix in https://aomedia-review.googlesource.com/c/aom/+/152842. I used the following two commands:\n  \n  $ cmake ../aom -G Ninja\n  $ ninja\n\nI did not get any compiler warnings. This matched my expectations, because uint64_t{...} is a correct way to convert ... to uint64_t in C++11.\n\nMy Xcode version is 13.2.1. \"c++ --version\" reports \"Apple clang version 13.0.0 (clang-1300.0.29.30)\". \"cmake ../aom\" reports:\n\n-- The C compiler identification is AppleClang 13.0.0.13000029\n-- The CXX compiler identification is AppleClang 13.0.0.13000029",
+      "parentUuid": "351c45b7_d7ee228c",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 7
+      },
+      "revId": "7cdbf2fa354c30da4a729670e04f5bef86c03f77",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "e66f3e1f_0591d0ac",
