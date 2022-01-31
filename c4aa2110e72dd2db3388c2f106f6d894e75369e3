@@ -39,6 +39,30 @@
       },
       "revId": "c4aa2110e72dd2db3388c2f106f6d894e75369e3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e22dec4b_959c5ebb",
+        "filename": "av1/encoder/firstpass.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-31T23:28:05Z",
+      "side": 1,
+      "message": "Ranjit: Thanks for the suggestion. This code snippet is just a special case of calculating (int)ceil((double)m / n) when n is a power of 2. In the general case, we calculate (int)ceil((double)m / n) as follows:\n\n    (m + n - 1) / n\n    \nThis formula is used a lot in libaom, as this \u0027find\u0027 command shows:\n\n    find . -name \"*\" -a -type f | xargs grep \"\\- 1) / \"\n\nWhen n is a power of 2, we can replace division with right shift:\n\n    (m + n - 1) \u003e\u003e n_log2\n\nSo it doesn\u0027t seem necessary to add a macro for this special case.",
+      "parentUuid": "ff38c0ae_8faf920c",
+      "range": {
+        "startLine": 1031,
+        "startChar": 12,
+        "endLine": 1031,
+        "endChar": 22
+      },
+      "revId": "c4aa2110e72dd2db3388c2f106f6d894e75369e3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
