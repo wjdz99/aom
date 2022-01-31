@@ -70,6 +70,30 @@
       },
       "revId": "5a719fe315b0ecad7a3ce3e01625605d39a22bb5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6a2b365_53007200",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1671,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-01-31T23:52:16Z",
+      "side": 1,
+      "message": "I suggest move the deprecated AOME_ macro after the new AOM_ macro and put the TODO comment right before the AOME_ macro. For example,\n\n  AOM_CTRL_USE_TYPE(AOME_SET_NUMBER_SPATIAL_LAYERS, int)\n  #define AOM_CTRL_AOME_SET_NUMBER_SPATIAL_LAYERS\n  // TODO(aomedia:3231): Deprecated. Remove it.\n  #define AOME_CTRL_AOME_SET_NUMBER_SPATIAL_LAYERS",
+      "parentUuid": "d681b789_68adad44",
+      "range": {
+        "startLine": 1671,
+        "startChar": 8,
+        "endLine": 1671,
+        "endChar": 47
+      },
+      "revId": "5a719fe315b0ecad7a3ce3e01625605d39a22bb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
