@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "13427696_672acd99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6245
+      },
+      "writtenOn": "2022-02-01T14:54:09Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\nThe change looks correct to us. \nThe following initialization can not be placed before for loop (avoiding unit_col_in_tile \u003d\u003d 0 check) due to its dependency on population of *first_top_mv (or enc_row_mt-\u003esync_write_ptr()) from previous row.\nlast_mv \u003d *first_top_mv;\nRegards,\nRanjit",
+      "revId": "37e746bf339740347d337f6e9991c59a11f00ca2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fc366ce8_78a974ec",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 5
