@@ -170,10 +170,10 @@ typedef struct TplParams {
   TplDepStats *tpl_stats_pool[MAX_LAG_BUFFERS];
 
   /*!
-   * Buffer to store tpl transform stats per frame.
-   * txfm_stats_list[i] stores the TplTxfmStats of the ith frame in a gf group.
+   * Pointer to the buffer which stores tpl transform stats per frame.
+   * txfm_stats_list stores the TplTxfmStats of the first frame in a gf group.
    */
-  TplTxfmStats txfm_stats_list[MAX_LENGTH_TPL_FRAME_STATS];
+  TplTxfmStats *txfm_stats_list;
 
   /*!
    * Buffer to store tpl reconstructed frame.
