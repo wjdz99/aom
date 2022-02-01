@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "f1a7fc0b_b6044587",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-01T21:04:52Z",
+      "side": 1,
+      "message": "Ranjit: Thank you for your reply. Although I didn\u0027t fully understand it, I also suspected that it is important to put the \"last_mv \u003d *first_top_mv;\" line after the enc_row_mt-\u003esync_read_ptr() call.",
+      "parentUuid": "13427696_672acd99",
+      "revId": "37e746bf339740347d337f6e9991c59a11f00ca2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "fc366ce8_78a974ec",
         "filename": "av1/encoder/firstpass.c",
         "patchSetId": 5
