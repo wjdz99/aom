@@ -16,6 +16,24 @@
       "message": "Frank: I make this kind of change on the release branch first, and then merge everything to the main branch after the release. Could you please check our release instructions?\n\nI think it probably doesn\u0027t really matter for CHANGELOG. But I think AUTHORS should be updated on the release branch.",
       "revId": "bafc925f1db50f8d7c5f84403cab1ee5f9363b30",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7dd57de3_453c43a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-02-01T16:54:35Z",
+      "side": 1,
+      "message": "I did update AUTHORS here: https://aomedia-review.googlesource.com/c/aom/+/153045.\n\nI didn\u0027t do it as a cherry-pick because the main branch and the release branch diverged.",
+      "parentUuid": "977524fc_3de33901",
+      "revId": "bafc925f1db50f8d7c5f84403cab1ee5f9363b30",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
