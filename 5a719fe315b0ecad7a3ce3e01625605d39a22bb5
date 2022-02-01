@@ -94,6 +94,30 @@
       },
       "revId": "5a719fe315b0ecad7a3ce3e01625605d39a22bb5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63f523c9_cb0e8366",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 1671,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-02-01T23:29:56Z",
+      "side": 1,
+      "message": "Done. Thanks this is better to let people know these are deprecated.",
+      "parentUuid": "a6a2b365_53007200",
+      "range": {
+        "startLine": 1671,
+        "startChar": 8,
+        "endLine": 1671,
+        "endChar": 47
+      },
+      "revId": "5a719fe315b0ecad7a3ce3e01625605d39a22bb5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }

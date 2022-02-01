@@ -70,6 +70,30 @@
       },
       "revId": "6d13b1bf4428e7311a1ffa5bb3132e7c00ec4b87",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57c0efbb_982b3403",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1697,
+      "author": {
+        "id": 7060
+      },
+      "writtenOn": "2022-02-01T23:29:56Z",
+      "side": 0,
+      "message": "So I did this \"find . -name \"*\" -a -type f | xargs grep DIST_8X8\", sort of. I looked for \"ENABLE_DIST_8X8\", which had nothing besides this define. If I look for \"DIST_8X8\" I see a compile time option, which I think is different than this control. Anyway I added this back so I don\u0027t break the api and added a TODO for 4.0.0.",
+      "parentUuid": "479e11e4_6eb9ca30",
+      "range": {
+        "startLine": 1697,
+        "startChar": 8,
+        "endLine": 1697,
+        "endChar": 41
+      },
+      "revId": "6d13b1bf4428e7311a1ffa5bb3132e7c00ec4b87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
