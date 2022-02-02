@@ -87,6 +87,24 @@
       "parentUuid": "85d87100_225688d3",
       "revId": "5350a5e3176cb08731f8a3763bed740745b2b6ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "03ca9851_19ab7a21",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 3705,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-02-02T22:32:29Z",
+      "side": 1,
+      "message": "mi refers to mode_info, which is in 4x4 resolution (8x8 in vp9)\n\nmb in vp9 refers to macroblock and is 16x16. its meaning has been inherited by av1 and is changed to 8x8 accordingly. So there is a x2 factor between mi_ and mb_u",
+      "parentUuid": "946ff062_ddb6c225",
+      "revId": "5350a5e3176cb08731f8a3763bed740745b2b6ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
