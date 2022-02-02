@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62625534_5b6106f3",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-02T16:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b3a4a5a_3d3985d9",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db6ddd99_185ff659",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-01-27T00:03:15Z",
       "side": 1,
       "message": "If we set xcs to 1 for AOM_IMG_FMT_NV12, then we need to add a special case for AOM_IMG_FMT_NV12 after this line:\n\n  if (fmt \u003d\u003d AOM_IMG_FMT_NV12) {\n    // Each row is a row of U and a row of V interleaved, so the stride is twice as long.\n    img-\u003estride[AOM_PLANE_U] *\u003d 2;\n    img-\u003estride[AOM_PLANE_V] *\u003d 2;\n  }",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0229b992_6248e760",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-02T16:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db6ddd99_185ff659",
       "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d749eb5b_ccada05f",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-02T16:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5fa1aa1d_8070b253",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "979bdba5_870ccd82",
@@ -82,6 +136,24 @@
       "writtenOn": "2022-01-27T00:03:15Z",
       "side": 1,
       "message": "If we set xcs to 1 in img_alloc_helper() in aom/src/aom_image.c, then none of these changes are necessary.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2263fac_f041ae34",
+        "filename": "av1/av1_iface_common.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-02T16:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "979bdba5_870ccd82",
       "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -103,6 +175,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "55464a53_d0c68342",
+        "filename": "av1/encoder/extend.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-02T16:41:55Z",
+      "side": 1,
+      "message": "It\u0027ll be largely similar to the existing copy_and_extnd_plane so I don\u0027t see the point to have a new function and introduce more code duplication.",
+      "parentUuid": "6657410b_d3ea8a38",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0cd19ed_c6535c2c",
@@ -120,6 +210,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "843b7a30_f88491e2",
+        "filename": "common/tools_common.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-02T16:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b0cd19ed_c6535c2c",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c600f14a_fa1d379b",
@@ -133,6 +241,24 @@
       "writtenOn": "2022-01-27T00:03:15Z",
       "side": 1,
       "message": "I suggest moving this change and the changes to test/arf_freq_test.cc and test/end_to_end_psnr_test.cc to a separate CL. That CL can be reviewed and checked in first.",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "096ce02d_bd019878",
+        "filename": "test/util.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-02T16:41:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c600f14a_fa1d379b",
       "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
