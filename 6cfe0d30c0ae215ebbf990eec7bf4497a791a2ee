@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20d68a52_ce47920b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-02T19:20:41Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "6cfe0d30c0ae215ebbf990eec7bf4497a791a2ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b675fd05_ee9a8c22",
+        "filename": "test/util.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-02T19:20:41Z",
+      "side": 1,
+      "message": "Nit: Add #include \u003cstring.h\u003e.",
+      "revId": "6cfe0d30c0ae215ebbf990eec7bf4497a791a2ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
