@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "527c60d1_308a5e75",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-02T20:45:34Z",
+      "side": 1,
+      "message": "Jingning, I have a question for you.",
+      "revId": "5350a5e3176cb08731f8a3763bed740745b2b6ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6dc4a80d_d0dbe25e",
@@ -50,6 +67,24 @@
       "side": 1,
       "message": "Looks like a re-implementation of ROUND_POWER_OF_TWO",
       "parentUuid": "6dc4a80d_d0dbe25e",
+      "revId": "5350a5e3176cb08731f8a3763bed740745b2b6ce",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "946ff062_ddb6c225",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 3705,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-02T20:45:34Z",
+      "side": 1,
+      "message": "It is strange to round the division by 4 here. I wonder if we intend to take the ceiling of the division by 4, which would require adding 3, not 2.\n\nJingning, you added this code originally in\nhttps://aomedia-review.googlesource.com/c/aom/+/8376\n\nDo you know whether rounding or ceiling was intended?",
+      "parentUuid": "85d87100_225688d3",
       "revId": "5350a5e3176cb08731f8a3763bed740745b2b6ce",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
