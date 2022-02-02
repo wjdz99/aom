@@ -16,6 +16,24 @@
       "message": "So this test is to test if encoder parameters work? The change looks good for that situation.",
       "revId": "88c6ea154825d753e19fc0a059e3aee024a46d45",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eecba5e1_fd185327",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-02-02T00:26:24Z",
+      "side": 1,
+      "message": "\u003e So this test is to test if encoder parameters work? The change looks good for that situation.\n\nRight. It was inherited from VP9 to make sure the settings persist.",
+      "parentUuid": "10cceb2b_2463616e",
+      "revId": "88c6ea154825d753e19fc0a059e3aee024a46d45",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
