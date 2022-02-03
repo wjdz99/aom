@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nIn this CL we have separated out a new function from av1_update_and_record_txb_context() function based on the probability model (cdf) update. The new function is used when allow_update_cdf \u003d 0. By creating the new function we could avoid overheads due to some function calls. In this function the following function calls are not needed when CONFIG_ENTROPY_STATS is disabled.\n* av1_txb_init_levels()\n* update_tx_type_count()\n* av1_update_eob_context()\n* av1_get_nz_map_contexts()\nThis patch appropriately modifies the function calls under CONFIG_ENTROPY_STATS macro. As the probability model (cdf) is not updated in RT encoding we observed speed-up for the above changes.\n\nPlease check the instruction count reduction for the Borg test.\n     Instruction Count\ncpu    Reduction(%)\n 5       0.165\n 6       0.202\n 7       0.521\n 8       0.699\n 9       1.116\n10       1.227\n\nThe patch is tested for Good and RT presets and ensured bit-exact output. Please review.\nThank you.",
       "revId": "d58c90d7115a52b7d410083a0771ab3988f81f95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75fc48bf_cd75ce02",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-03T16:29:18Z",
+      "side": 1,
+      "message": "Simplified the function for allow_update_cdf \u003d 0 case. looks good.",
+      "revId": "d58c90d7115a52b7d410083a0771ab3988f81f95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
