@@ -33,6 +33,23 @@
       "message": "Simplified the function for allow_update_cdf \u003d 0 case. looks good.",
       "revId": "d58c90d7115a52b7d410083a0771ab3988f81f95",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f53b02f3_2cd769af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-03T16:53:19Z",
+      "side": 1,
+      "message": "Thanks for the patch. Are the changed stats (reduced instruction count) for the case where --cdf-update-mode\u003d2 in the rtc command line (default is 1 and we never use 0/off)?",
+      "revId": "d58c90d7115a52b7d410083a0771ab3988f81f95",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
