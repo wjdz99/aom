@@ -94,6 +94,30 @@
       },
       "revId": "6d13b1bf4428e7311a1ffa5bb3132e7c00ec4b87",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d32a8c8_2e8e32b7",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1697,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-04T22:42:25Z",
+      "side": 0,
+      "message": "The following CL shows that CONFIG_DIST_8X8 and AV1E_SET_ENABLE_DIST_8X8 are related:\n\nhttps://aomedia-review.googlesource.com/c/aom/+/18260\n\nIn particular, that CL added the following code to av1/av1_cx_iface.c\n\n  #if CONFIG_DIST_8X8\n    { AV1E_SET_ENABLE_DIST_8X8, ctrl_set_enable_dist_8x8 },\n  #endif\n\nApparently CONFIG_DIST_8X8 and AV1E_SET_ENABLE_DIST_8X8 were not removed cleanly, so we are left with these vestiges in the cmake files and in aomcx.h. The vestiges of CONFIG_DIST_8X8 and AV1E_SET_ENABLE_DIST_8X8 can be removed safely before libaom v4.0.0. I can write a CL to remove the vestiges.",
+      "parentUuid": "57c0efbb_982b3403",
+      "range": {
+        "startLine": 1697,
+        "startChar": 8,
+        "endLine": 1697,
+        "endChar": 41
+      },
+      "revId": "6d13b1bf4428e7311a1ffa5bb3132e7c00ec4b87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
