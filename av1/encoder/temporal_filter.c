@@ -927,13 +927,6 @@ static void tf_do_filtering(AV1_COMP *cpi) {
   tf_restore_state(mbd, input_mb_mode_info, input_buffer, num_planes);
 }
 
-int av1_calc_arf_boost(const TWO_PASS *twopass,
-                       const TWO_PASS_FRAME *twopass_frame,
-                       const PRIMARY_RATE_CONTROL *p_rc, FRAME_INFO *frame_info,
-                       int offset, int f_frames, int b_frames,
-                       int *num_fpstats_used, int *num_fpstats_required,
-                       int project_gfu_boost);
-
 /*!\brief Setups the frame buffer for temporal filtering. This fuction
  * determines how many frames will be used for temporal filtering and then
  * groups them into a buffer. This function will also estimate the noise level
