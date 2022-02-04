@@ -118,6 +118,30 @@
       },
       "revId": "6d13b1bf4428e7311a1ffa5bb3132e7c00ec4b87",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58482849_86b659e4",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 1697,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-04T23:58:19Z",
+      "side": 0,
+      "message": "I did some source code archaeology.\n\nCONFIG_DIST_8X8 was removed from C source files in https://aomedia-review.googlesource.com/c/aom/+/104468. I just wrote https://aomedia-review.googlesource.com/c/aom/+/153267 to remove its vestiges in cmake files.\n\nAV1E_SET_ENABLE_DIST_8X8 was removed in https://aomedia-review.googlesource.com/c/aom/+/110521.",
+      "parentUuid": "4d32a8c8_2e8e32b7",
+      "range": {
+        "startLine": 1697,
+        "startChar": 8,
+        "endLine": 1697,
+        "endChar": 41
+      },
+      "revId": "6d13b1bf4428e7311a1ffa5bb3132e7c00ec4b87",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
