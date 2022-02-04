@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Jingning, Paul\n\nWe have submitted the latest patch-set by addressing the comments given by Wan-Teh. Please review the patch.\n\nRegards,\nMudassir",
       "revId": "68a004c882e7188b8680a6ac603050ce103eb7fa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "475d7103_e8fe78ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-04T02:43:28Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "68a004c882e7188b8680a6ac603050ce103eb7fa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
