@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b012182_f8208428",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29657
+      },
+      "writtenOn": "2022-02-05T05:10:58Z",
+      "side": 1,
+      "message": "irc://irc.us.gamesurge.net/cncnet-mo",
+      "revId": "1a66f3b69469a966a4c50c1d2534ea04a3bf15a1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
