@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7323633_3f874484",
+        "filename": "aom_dsp/arm/avg_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-02-05T00:47:42Z",
+      "side": 1,
+      "message": "+\u003d vs p * N using clang `Android (7714059, based on r416183c1) clang version 12.0.8 (https://android.googlesource.com/toolchain/llvm-project c935d99d7cf2016289302412d708641d52d2f7ee)` from the r23b NDK:\n\n# arm64:\n## `+\u003d`\n\n```\n0000000000000000 \u003caom_highbd_avg_4x4_neon\u003e:\n   0:\td37ff808 \tlsl\tx8, x0, #1\n   4:\t937f7c29 \tsbfiz\tx9, x1, #1, #32\n   8:\tfd400100 \tldr\td0, [x8]\n   c:\t8b090108 \tadd\tx8, x8, x9\n  10:\tfd400101 \tldr\td1, [x8]\n  14:\t8b090108 \tadd\tx8, x8, x9\n  18:\tfd400102 \tldr\td2, [x8]\n  1c:\tfc696903 \tldr\td3, [x8, x9]\n  20:\t0e608420 \tadd\tv0.4h, v1.4h, v0.4h\n  24:\t0e628400 \tadd\tv0.4h, v0.4h, v2.4h\n  28:\t0e638400 \tadd\tv0.4h, v0.4h, v3.4h\n  2c:\t0e71b800 \taddv\th0, v0.4h\n  30:\t1e260008 \tfmov\tw8, s0\n  34:\t11002108 \tadd\tw8, w8, #0x8\n  38:\t53047d00 \tlsr\tw0, w8, #4\n  3c:\td65f03c0 \tret\n```\n\n## `p * N`\n\n```\n0000000000000000 \u003caom_highbd_avg_4x4_neon\u003e:\n   0:\td37ff808 \tlsl\tx8, x0, #1\n   4:\t937f7c29 \tsbfiz\tx9, x1, #1, #32\n   8:\tfc696900 \tldr\td0, [x8, x9]\n   c:\t937e7c29 \tsbfiz\tx9, x1, #2, #32\n  10:\tfc696901 \tldr\td1, [x8, x9]\n  14:\t528000c9 \tmov\tw9, #0x6                   \t// #6\n  18:\tfd400102 \tldr\td2, [x8]\n  1c:\t9b297c29 \tsmull\tx9, w1, w9\n  20:\tfc696903 \tldr\td3, [x8, x9]\n  24:\t0e628400 \tadd\tv0.4h, v0.4h, v2.4h\n  28:\t0e618400 \tadd\tv0.4h, v0.4h, v1.4h\n  2c:\t0e638400 \tadd\tv0.4h, v0.4h, v3.4h\n  30:\t0e71b800 \taddv\th0, v0.4h\n  34:\t1e260008 \tfmov\tw8, s0\n  38:\t11002108 \tadd\tw8, w8, #0x8\n  3c:\t53047d00 \tlsr\tw0, w8, #4\n  40:\td65f03c0 \tret\n```\n\n# armv7:\n## `+\u003d`\n\n```\n00000000 \u003caom_highbd_avg_4x4_neon\u003e:\n   0:\t0049      \tlsls\tr1, r1, #1\n   2:\t0040      \tlsls\tr0, r0, #1\n   4:\tf960 0741 \tvld1.16\t{d16}, [r0], r1\n   8:\tf960 1741 \tvld1.16\t{d17}, [r0], r1\n   c:\tef51 08a0 \tvadd.i16\td16, d17, d16\n  10:\tf960 1741 \tvld1.16\t{d17}, [r0], r1\n  14:\tef50 08a1 \tvadd.i16\td16, d16, d17\n  18:\tf960 174f \tvld1.16\t{d17}, [r0]\n  1c:\tef50 08a1 \tvadd.i16\td16, d16, d17\n  20:\tef50 0bb0 \tvpadd.i16\td16, d16, d16\n  24:\tef50 0bb0 \tvpadd.i16\td16, d16, d16\n  28:\tffdc 0230 \tvrshr.u16\td16, d16, #4\n  2c:\tee90 0bb0 \tvmov.u16\tr0, d16[0]\n  30:\t4770      \tbx\tlr\n```\n\n## `p * N`\n\n```\n00000000 \u003caom_highbd_avg_4x4_neon\u003e:\n   0:\t0040      \tlsls\tr0, r0, #1\n   2:\teb00 0241 \tadd.w\tr2, r0, r1, lsl #1\n   6:\tf962 074f \tvld1.16\t{d16}, [r2]\n   a:\teb01 0241 \tadd.w\tr2, r1, r1, lsl #1\n   e:\teb00 0181 \tadd.w\tr1, r0, r1, lsl #2\n  12:\t0052      \tlsls\tr2, r2, #1\n  14:\tf960 1742 \tvld1.16\t{d17}, [r0], r2\n  18:\tef50 08a1 \tvadd.i16\td16, d16, d17\n  1c:\tf961 174f \tvld1.16\t{d17}, [r1]\n  20:\tef50 08a1 \tvadd.i16\td16, d16, d17\n  24:\tf960 174f \tvld1.16\t{d17}, [r0]\n  28:\tef50 08a1 \tvadd.i16\td16, d16, d17\n  2c:\tef50 0bb0 \tvpadd.i16\td16, d16, d16\n  30:\tef50 0bb0 \tvpadd.i16\td16, d16, d16\n  34:\tffdc 0230 \tvrshr.u16\td16, d16, #4\n  38:\tee90 0bb0 \tvmov.u16\tr0, d16[0]\n  3c:\t4770      \tbx\tlr\n```\n\ngcc-11 handled both variants the same, but a little worse off on armv7 than clang with +\u003d",
+      "revId": "5e762aa81f520309c81aec46fc115644385528c6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
