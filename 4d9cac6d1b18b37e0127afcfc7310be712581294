@@ -16,6 +16,285 @@
       "message": "Hi Jerome,\n\nI haven\u0027t reviewed the new patchset. Let me answer a question first.",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd7ddbba_0d13e4cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Jerome: Setting Code-Review +1 for now because I think libaom should follow the common convention of representing NV12 as two planes.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "10134404_e07e7e67",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "After studying how NV12 is represented in ffmpeg and in Chrome\u0027s media::VideoFrame class, I think libaom should follow the more common convention and represent NV12 as two planes. This means planes[2] should be set to NULL and stride[2] should be set to 0.\n\nI will create a CL (based on this CL) to show how to do this.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2bb2feb_6204858c",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Delete this comment.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 14
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0888e762_02dbf504",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Nit: Add \"of the chroma plane\" or \"of the UV plane\" after \"Each row\".",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1465a1b9_821ba13f",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "If we add AOM_IMG_FMT_NV12 at line 2187, it seems that we should also add AOM_IMG_FMT_NV12 here.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c0c67e9_a2db9f3b",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2225,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "It seems that we should also add AOM_IMG_FMT_NV12 here.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58531418_319a1d83",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Add NV12 to this error message.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09148283_a9ad5b30",
+        "filename": "common/tools_common.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Nit: at one time \u003d\u003e \"at once\" or \"at the same time\"",
+      "range": {
+        "startLine": 91,
+        "startChar": 54,
+        "endLine": 91,
+        "endChar": 65
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f285151_4adc52a0",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "The original code has a comment:\n\n  NV12,   // Tile output in NV12 format.\n\nDid you intend to delete the comment?",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6da7a1b7_5af1b662",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Nit: Move the enum definition before line 49.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08b8bb82_f85bdda4",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "The original code has a comment:\n\n  NV12,   // Tile output in NV12 format.\n\nDid you intend to delete the comment?",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b86fea03_a8e968bc",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Nit: Move the enum definition before line 40.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d8f5441a_b742de5c",
+        "filename": "test/aom_image_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Nit: Set \u003d\u003e Alloc\n\nbecause this test calls the aom_img_alloc() function.",
+      "range": {
+        "startLine": 48,
+        "startChar": 25,
+        "endLine": 48,
+        "endChar": 28
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bbad590_f7d663a3",
+        "filename": "test/aom_image_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "Nit: It would be a stronger test to compare with constants:\n\n  EXPECT_EQ(img.stride[AOM_PLANE_Y], kWidth);\n  EXPECT_EQ(img.stride[AOM_PLANE_U], kWidth);\n  EXPECT_EQ(img.stride[AOM_PLANE_V], kWidth);",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 62
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd702bb6_c5a4ca87",
+        "filename": "test/rt_end_to_end_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T18:22:57Z",
+      "side": 1,
+      "message": "The width\u003d352, height\u003d288, rate_numerator\u003d30, rate_denominator\u003d1 values are specific to the test file hantro_collage_w352h288_nv12.yuv. So I suggest we rewrite this if-else statement as follows:\n\n  if (!strcmp(test_video_param_.filename, \"\"hantro_collage_w352h288_nv12.yuv\")\n    video.reset(new libaom_test::YUVVideoSource(...));\n  else\n    video.reset(new libaom_test::Y4mVideoSource(...));",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
