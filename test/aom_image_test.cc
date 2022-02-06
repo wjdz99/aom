@@ -44,3 +44,17 @@ TEST(AomImageTest, AomImgSetRectOverflow) {
   // This would result in overflow because -1 is cast to UINT_MAX.
   EXPECT_NE(aom_img_set_rect(&img, -1, -1, kWidth, kHeight, 0), 0);
 }
+
+TEST(AomImageTest, AomImgSetNv12) {
+  const int kWidth = 128;
+  const int kHeight = 128;
+
+  aom_image_t img;
+  aom_img_fmt_t format = AOM_IMG_FMT_NV12;
+  unsigned int align = 32;
+  EXPECT_NE(aom_img_alloc(&img, format, kWidth, kHeight, align), nullptr);
+  EXPECT_EQ(img.stride[AOM_PLANE_U], img.stride[AOM_PLANE_Y]);
+  EXPECT_EQ(img.stride[AOM_PLANE_V], img.stride[AOM_PLANE_Y]);
+  EXPECT_EQ(img.planes[AOM_PLANE_V], img.planes[AOM_PLANE_U] + 1);
+  aom_img_free(&img);
+}
