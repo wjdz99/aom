@@ -72,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "107751c6_07c99d12",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T21:07:01Z",
+      "side": 1,
+      "message": "Hi Jerome,\n\nPlease see https://aomedia-review.googlesource.com/c/aom/+/153281/1..2 for the changes to represent NV12 as two planes.\n\n(The aom_image_t struct is part of libaom\u0027s public API. We should scrutinize nontrivial changes to the public API.)",
+      "parentUuid": "cadc668c_da5a8638",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d2bb2feb_6204858c",
         "filename": "aom/src/aom_image.c",
         "patchSetId": 10
@@ -106,6 +124,23 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "Nit: Add \"of the chroma plane\" or \"of the UV plane\" after \"Each row\".",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7e43897_4309b0cc",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T21:07:01Z",
+      "side": 1,
+      "message": "I think we need to multiply bytes_per_sample by 2 here.\n\nNote: At line 172, we call aom_img_set_rect() with x \u003d 0. When x \u003d 0 (which implies uv_x \u003d 0), uv_x * bytes_per_sample is 0, so this issue is not detected by the test.",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -311,6 +346,23 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "The width\u003d352, height\u003d288, rate_numerator\u003d30, rate_denominator\u003d1 values are specific to the test file hantro_collage_w352h288_nv12.yuv. So I suggest we rewrite this if-else statement as follows:\n\n  if (!strcmp(test_video_param_.filename, \"\"hantro_collage_w352h288_nv12.yuv\")\n    video.reset(new libaom_test::YUVVideoSource(...));\n  else\n    video.reset(new libaom_test::Y4mVideoSource(...));",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1261c1f_1554f0e0",
+        "filename": "test/test_data_util.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-06T21:07:01Z",
+      "side": 1,
+      "message": "Please upload hantro_collage_w352h288_nv12.yuv before submitting this CL.",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
