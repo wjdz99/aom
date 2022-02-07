@@ -211,6 +211,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c73f8c34_8c4376fc",
+        "filename": "av1/encoder/extend.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:21:49Z",
+      "side": 1,
+      "message": "Marked this suggested change as withdrawn. Since this pattern is already used in libvpx, I assume there is no performance issue.",
+      "parentUuid": "e32ad0b2_c4d4ba7c",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0cd19ed_c6535c2c",

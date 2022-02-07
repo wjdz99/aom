@@ -37,6 +37,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "3f2e605d_515b5e71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:21:49Z",
+      "side": 1,
+      "message": "Hi Jerome,\n\nDon\u0027t abandon this CL. The CL I created (https://aomedia-review.googlesource.com/c/aom/+/153281) is only used for code review. It is not intended to be submitted. Sorry about the confusion. I have just added \"DO NOT SUBMIT\" to that CL and marked it as Abandoned to avoid confusion.\n\nTo reduce the number of review comments you need to address, I have gone through my suggested changes and marked the less important ones as optional.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "10134404_e07e7e67",
         "filename": "aom/aom_image.h",
         "patchSetId": 10
@@ -124,6 +141,24 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "Nit: Add \"of the chroma plane\" or \"of the UV plane\" after \"Each row\".",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17a5bed7_5d1550a1",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:21:49Z",
+      "side": 1,
+      "message": "Marked this suggested change as optional.",
+      "parentUuid": "0888e762_02dbf504",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -219,6 +254,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "28cd9705_ddc51436",
+        "filename": "common/tools_common.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:21:49Z",
+      "side": 1,
+      "message": "Marked this suggested change as optional.",
+      "parentUuid": "09148283_a9ad5b30",
+      "range": {
+        "startLine": 91,
+        "startChar": 54,
+        "endLine": 91,
+        "endChar": 65
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5f285151_4adc52a0",
@@ -253,6 +312,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b46c845_5364a95c",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:21:49Z",
+      "side": 1,
+      "message": "Marked this suggested change as optional.",
+      "parentUuid": "6da7a1b7_5af1b662",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "08b8bb82_f85bdda4",
@@ -283,6 +360,24 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "Nit: Move the enum definition before line 40.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd87d723_87f69041",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:21:49Z",
+      "side": 1,
+      "message": "Marked this suggested change as optiional.",
+      "parentUuid": "b86fea03_a8e968bc",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -333,6 +428,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e07ddc26_76de7bfb",
+        "filename": "test/aom_image_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:21:49Z",
+      "side": 1,
+      "message": "Marked this suggested change as optional.",
+      "parentUuid": "9bbad590_f7d663a3",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 62
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cd702bb6_c5a4ca87",
@@ -366,6 +485,5 @@
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
-  ],
-  "submitRequirementResults": []
+  ]
 }
