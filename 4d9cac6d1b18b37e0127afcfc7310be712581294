@@ -469,6 +469,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea522d8c_99d6f2ff",
+        "filename": "test/rt_end_to_end_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-07T19:27:17Z",
+      "side": 1,
+      "message": "Marked this suggested change as optional, because this pattern is used in libvpx/test/vp9_end_to_end_test.cc.",
+      "parentUuid": "cd702bb6_c5a4ca87",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1261c1f_1554f0e0",
