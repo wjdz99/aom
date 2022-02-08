@@ -530,7 +530,7 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   start_timing(cpi, nonrd_use_partition_time);
 #endif
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                          pc_root);
+                          pc_root, 1);
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, nonrd_use_partition_time);
 #endif
