@@ -122,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4177882b_a51b78e4",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "107751c6_07c99d12",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d2bb2feb_6204858c",
@@ -135,6 +153,30 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "Delete this comment.",
+      "range": {
+        "startLine": 81,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 14
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "574ba607_cd60b387",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2bb2feb_6204858c",
       "range": {
         "startLine": 81,
         "startChar": 0,
@@ -197,6 +239,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d717b697_c291d506",
+        "filename": "aom/src/aom_image.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7e43897_4309b0cc",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1465a1b9_821ba13f",
@@ -210,6 +270,24 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "If we add AOM_IMG_FMT_NV12 at line 2187, it seems that we should also add AOM_IMG_FMT_NV12 here.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1d74b59_0fab930a",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2213,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "not sure why they\u0027re here but this whole \"switch\" code block is under condition\n\ninput.fmt !\u003d AOM_IMG_FMT_I420 \u0026\u0026 input.fmt !\u003d AOM_IMG_FMT_I42016 \u0026\u0026\n          input.fmt !\u003d AOM_IMG_FMT_NV12\n          \ninput.fmt can\u0027t be either AOM_IMG_FMT_I420 or AOM_IMG_FMT_I42016",
+      "parentUuid": "1465a1b9_821ba13f",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -231,6 +309,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf6ac2ff_3b6df48d",
+        "filename": "apps/aomenc.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 2225,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Same as reason above.",
+      "parentUuid": "2c0c67e9_a2db9f3b",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58531418_319a1d83",
@@ -244,6 +340,24 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "Add NV12 to this error message.",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "536f4c8d_59ff3ead",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58531418_319a1d83",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -312,6 +426,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3df57ea_fd3b85f4",
+        "filename": "examples/lightfield_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f285151_4adc52a0",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6da7a1b7_5af1b662",
@@ -364,6 +496,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "33d2f5a5_14bde4bf",
+        "filename": "examples/lightfield_tile_list_decoder.c",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08b8bb82_f85bdda4",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b86fea03_a8e968bc",
@@ -412,6 +562,30 @@
       "writtenOn": "2022-02-06T18:22:57Z",
       "side": 1,
       "message": "Nit: Set \u003d\u003e Alloc\n\nbecause this test calls the aom_img_alloc() function.",
+      "range": {
+        "startLine": 48,
+        "startChar": 25,
+        "endLine": 48,
+        "endChar": 28
+      },
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9aaf3d76_3de23da7",
+        "filename": "test/aom_image_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T22:47:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8f5441a_b742de5c",
       "range": {
         "startLine": 48,
         "startChar": 25,
