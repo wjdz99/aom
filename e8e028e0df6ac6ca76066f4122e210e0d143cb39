@@ -229,6 +229,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b078221_54d9dfcc",
+        "filename": "av1/encoder/extend.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-02-08T23:33:58Z",
+      "side": 1,
+      "message": "We can add SIMD optimizations down the road and use libyuv as reference. But somehow I have the impression (I may be wrong) when adding nv12 to libvpx, that someone told me SIMD implementation for splitting uv planes won\u0027t be much better, so I left where it is now in libvpx.",
+      "parentUuid": "c73f8c34_8c4376fc",
+      "revId": "e8e028e0df6ac6ca76066f4122e210e0d143cb39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0cd19ed_c6535c2c",
