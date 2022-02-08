@@ -17,6 +17,17 @@
 #include "av1/encoder/encodeframe.h"
 #include "av1/encoder/tokenize.h"
 
+/*!\cond */
+typedef struct SUBPAR_MODE_INFO {
+  BLOCK_SIZE bsize;
+  PARTITION_TYPE partition;
+  PREDICTION_MODE mode;
+  int_mv mv[2];
+  MV_REFERENCE_FRAME ref_frame[2];
+  int8_t skip_txfm;
+} SUBPAR_MODE_INFO;
+/*!\endcond */
+
 void av1_set_offsets_without_segment_id(const AV1_COMP *const cpi,
                                         const TileInfo *const tile,
                                         MACROBLOCK *const x, int mi_row,
@@ -31,7 +42,7 @@ void av1_rd_use_partition(AV1_COMP *cpi, ThreadData *td, TileDataEnc *tile_data,
 void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, MB_MODE_INFO **mib,
                              TokenExtra **tp, int mi_row, int mi_col,
-                             BLOCK_SIZE bsize, PC_TREE *pc_tree);
+                             BLOCK_SIZE bsize, PC_TREE *pc_tree, int do_refine);
 #if CONFIG_RT_ML_PARTITIONING
 void av1_nonrd_pick_partition(AV1_COMP *cpi, ThreadData *td,
                               TileDataEnc *tile_data, TokenExtra **tp,

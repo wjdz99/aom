@@ -2272,6 +2272,7 @@ MI_SIZE
 * \param[in]    bsize     Current block size
 * \param[in]    pc_tree   Pointer to the PC_TREE node holding the picked
 partitions and mode info for the current block
+* \param[in]    do_refine Whether or not to do direct partition merging
 *
 * \return Nothing is returned. The pc_tree struct is modified to store the
 * picked partition and modes.
@@ -2279,7 +2280,8 @@ partitions and mode info for the current block
 void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                              TileDataEnc *tile_data, MB_MODE_INFO **mib,
                              TokenExtra **tp, int mi_row, int mi_col,
-                             BLOCK_SIZE bsize, PC_TREE *pc_tree) {
+                             BLOCK_SIZE bsize, PC_TREE *pc_tree,
+                             int do_refine) {
   AV1_COMMON *const cm = &cpi->common;
   const CommonModeInfoParams *const mi_params = &cm->mi_params;
   TileInfo *const tile_info = &tile_data->tile_info;
@@ -2511,7 +2513,7 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
           av1_nonrd_use_partition(
               cpi, td, tile_data,
               mib + jj * hbs * mi_params->mi_stride + ii * hbs, tp,
-              mi_row + y_idx, mi_col + x_idx, subsize, pc_tree->split[i]);
+              mi_row + y_idx, mi_col + x_idx, subsize, pc_tree->split[i], 0);
         }
       }
       break;
@@ -2523,6 +2525,98 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
     case PARTITION_VERT_4:
       assert(0 && "Cannot handle extended partition types");
     default: assert(0); break;
+  }
+
+  if (!do_refine || frame_is_intra_only(cm)) return;
+
+  // Conduct direct partition merging refinement.
+  // TODO(yunqing): This can be added for speed 5 & 6 as well.
+  // MACROBLOCKD *const xd = &x->e_mbd;
+  MB_MODE_INFO **mi = cm->mi_params.mi_grid_base +
+                      get_mi_grid_idx(&cm->mi_params, mi_row, mi_col);
+  const BLOCK_SIZE sb_size = cm->seq_params->sb_size;
+  const int mi_str = cm->mi_params.mi_stride;
+  const BLOCK_SIZE blks[4] = { BLOCK_16X16, BLOCK_32X32, BLOCK_64X64,
+                               BLOCK_128X128 };
+  const int sb_mis = mi_size_wide[sb_size];  // 16 or 32
+  SUBPAR_MODE_INFO b[4] = { { 0 } };
+
+  // In RT encoder, only use and check square & rectangular partitions. Here, we
+  // check 16x16, 32x32, 64x64, 128x128 block level for possible partition
+  // direct merging.
+  for (int step = 4, k = 0; step <= 32; step = (step << 1), k++) {
+    if (step > sb_mis) break;
+
+    const int rows = AOMMIN(sb_mis, cm->mi_params.mi_rows - mi_row);
+    const int cols = AOMMIN(sb_mis, cm->mi_params.mi_cols - mi_col);
+    // TODO: better handling of the partial edge blocks.
+    for (int i = 0; i < rows; i += step) {
+      for (int j = 0; j < cols; j += step) {
+        MB_MODE_INFO **this_mi = mi + i * mi_str + j;
+
+        if (AOMMIN(mi_size_wide[this_mi[0]->bsize],
+                   mi_size_high[this_mi[0]->bsize]) >= step)
+          continue;
+
+        // Make sure the whole block is within the image edge.
+        // Outcome: skip the partial edge blocks.
+        if (cm->mi_params.mi_rows - mi_row - i < step ||
+            cm->mi_params.mi_cols - mi_col - j < step)
+          continue;
+
+        const int hstep = step >> 1;
+        // Relative position vs previous one.
+        const POSITION pos[4] = {
+          { 0, 0 }, { 0, hstep }, { hstep, -hstep }, { 0, hstep }
+        };
+
+        for (int idx = 0; idx < 4; ++idx) {
+          this_mi += pos[idx].row * mi_str + pos[idx].col;
+          b[idx].mode = this_mi[0]->mode;
+          b[idx].mv[0] = this_mi[0]->mv[0];
+          b[idx].mv[1] = this_mi[0]->mv[1];
+          b[idx].ref_frame[0] = this_mi[0]->ref_frame[0];
+          b[idx].ref_frame[1] = this_mi[0]->ref_frame[1];
+          b[idx].skip_txfm = this_mi[0]->skip_txfm;
+        }
+
+        if (!b[0].skip_txfm || !b[1].skip_txfm || !b[2].skip_txfm ||
+            !b[3].skip_txfm)
+          continue;
+        if (b[0].ref_frame[0] != b[1].ref_frame[0] ||
+            b[0].ref_frame[0] != b[2].ref_frame[0] ||
+            b[0].ref_frame[0] != b[3].ref_frame[0])
+          continue;
+        if (b[0].ref_frame[0] > INTRA_FRAME) continue;
+        if (b[0].ref_frame[1] != b[1].ref_frame[1] ||
+            b[0].ref_frame[1] != b[2].ref_frame[1] ||
+            b[0].ref_frame[1] != b[3].ref_frame[1])
+          continue;
+        if (b[0].mode != b[1].mode || b[0].mode != b[2].mode ||
+            b[0].mode != b[3].mode)
+          continue;
+
+        const int is_comp = b[0].ref_frame[1] > NONE_FRAME;
+        if (b[0].mv[0].as_int == b[1].mv[0].as_int &&
+            b[0].mv[0].as_int == b[2].mv[0].as_int &&
+            b[0].mv[0].as_int == b[3].mv[0].as_int &&
+            (!is_comp || (b[0].mv[1].as_int == b[1].mv[1].as_int &&
+                          b[0].mv[1].as_int == b[2].mv[1].as_int &&
+                          b[0].mv[1].as_int == b[3].mv[1].as_int))) {
+          // Merge 4 partition blocks
+          this_mi = mi + i * mi_str + j;
+          this_mi[0]->bsize = blks[k];
+          this_mi[0]->partition = PARTITION_NONE;
+
+          // Update mi
+          for (int y = 0; y < step; y++) {
+            for (int x_idx = 0; x_idx < step; x_idx++) {
+              this_mi[x_idx + y * mi_str] = this_mi[0];
+            }
+          }
+        }
+      }
+    }
   }
 }
 
