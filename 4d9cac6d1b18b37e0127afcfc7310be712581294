@@ -519,6 +519,24 @@
       "message": "Please upload hantro_collage_w352h288_nv12.yuv before submitting this CL.",
       "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "342019a7_e1132e97",
+        "filename": "test/test_data_util.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-08T20:32:23Z",
+      "side": 1,
+      "message": "Done. I found that hantro_collage_w352h288_nv12.yuv was uploaded on Jan 21, but the file might not have the right permissions. After I ran the command\n\n  gsutil acl ch -g all:R gs://aom-test-data/hantro_collage_w352h288_nv12.yuv\n\nI can download the file using the \"make testdata\" command.",
+      "parentUuid": "d1261c1f_1554f0e0",
+      "revId": "4d9cac6d1b18b37e0127afcfc7310be712581294",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
