@@ -455,6 +455,15 @@ static void get_estimated_pred(AV1_COMP *cpi, const TileInfo *const tile,
 #define AVG_CDF_WEIGHT_LEFT 3
 #define AVG_CDF_WEIGHT_TOP_RIGHT 1
 
+typedef struct SUBPAR_MODE_INFO {
+  BLOCK_SIZE bsize;
+  PARTITION_TYPE partition;
+  PREDICTION_MODE mode;
+  int_mv mv[2];
+  MV_REFERENCE_FRAME ref_frame[2];
+  int8_t skip_txfm;
+} SUBPAR_MODE_INFO;
+
 /*!\brief Encode a superblock (minimal RD search involved)
  *
  * \ingroup partition_search
@@ -534,6 +543,112 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, nonrd_use_partition_time);
 #endif
+
+  // TODO(yunqing): This can be added for speed 5 & 6 as well.
+  // In RT encoder, only use and check square & rectangular partitions.
+  if (cm->current_frame.frame_type != KEY_FRAME) {
+    // check 16x16, 32x32, 64x64, 128x128 block level for possible partition
+    // merging.
+    MACROBLOCKD *const xd = &x->e_mbd;
+    const int mi_str = cm->mi_params.mi_stride;
+    const int mis[4] = { 4, 8, 16, 32 };
+    const BLOCK_SIZE blks[4] = { BLOCK_16X16, BLOCK_32X32, BLOCK_64X64,
+                                 BLOCK_128X128 };
+    const int sb_mis = mi_size_wide[sb_size];  // 16 or 32
+    SUBPAR_MODE_INFO b[4] = { { 0 } };
+
+    for (int k = 0; k < 4; ++k) {
+      const int step = mis[k];
+      if (step > sb_mis) break;
+
+      // TODO: better handling of the partial edge blocks.
+      for (int i = 0; i < AOMMIN(sb_mis, cm->mi_params.mi_rows - mi_row);
+           i += step) {
+        for (int j = 0; j < AOMMIN(sb_mis, cm->mi_params.mi_cols - mi_col);
+             j += step) {
+          MB_MODE_INFO **this_mi = mi + i * mi_str + j;
+
+          if (AOMMIN(mi_size_wide[this_mi[0]->bsize],
+                     mi_size_high[this_mi[0]->bsize]) >= step)
+            continue;
+          if (cm->mi_params.mi_rows - mi_row - i < step ||
+              cm->mi_params.mi_cols - mi_col - j < step)
+            continue;
+
+          const int hstep = step >> 1;
+
+          b[0].mode = this_mi[0]->mode;
+          b[0].mv[0] = this_mi[0]->mv[0];
+          b[0].mv[1] = this_mi[0]->mv[1];
+          b[0].ref_frame[0] = this_mi[0]->ref_frame[0];
+          b[0].ref_frame[1] = this_mi[0]->ref_frame[1];
+          b[0].skip_txfm = this_mi[0]->skip_txfm;
+
+          this_mi += hstep;
+          b[1].mode = this_mi[0]->mode;
+          b[1].mv[0] = this_mi[0]->mv[0];
+          b[1].mv[1] = this_mi[0]->mv[1];
+          b[1].ref_frame[0] = this_mi[0]->ref_frame[0];
+          b[1].ref_frame[1] = this_mi[0]->ref_frame[1];
+          b[1].skip_txfm = this_mi[0]->skip_txfm;
+
+          this_mi += hstep * mi_str - hstep;
+          b[2].mode = this_mi[0]->mode;
+          b[2].mv[0] = this_mi[0]->mv[0];
+          b[2].mv[1] = this_mi[0]->mv[1];
+          b[2].ref_frame[0] = this_mi[0]->ref_frame[0];
+          b[2].ref_frame[1] = this_mi[0]->ref_frame[1];
+          b[2].skip_txfm = this_mi[0]->skip_txfm;
+
+          this_mi += hstep;
+          b[3].mode = this_mi[0]->mode;
+          b[3].mv[0] = this_mi[0]->mv[0];
+          b[3].mv[1] = this_mi[0]->mv[1];
+          b[3].ref_frame[0] = this_mi[0]->ref_frame[0];
+          b[3].ref_frame[1] = this_mi[0]->ref_frame[1];
+          b[3].skip_txfm = this_mi[0]->skip_txfm;
+
+          if (!b[0].skip_txfm || !b[1].skip_txfm || !b[2].skip_txfm ||
+              !b[3].skip_txfm)
+            continue;
+          if (b[0].ref_frame[0] != b[1].ref_frame[0] ||
+              b[0].ref_frame[0] != b[2].ref_frame[0] ||
+              b[0].ref_frame[0] != b[3].ref_frame[0])
+            continue;
+          if (b[0].ref_frame[1] != b[1].ref_frame[1] ||
+              b[0].ref_frame[1] != b[2].ref_frame[1] ||
+              b[0].ref_frame[1] != b[3].ref_frame[1])
+            continue;
+          if (b[0].mode != b[1].mode || b[0].mode != b[2].mode ||
+              b[0].mode != b[3].mode)
+            continue;
+
+          if (b[0].mv[0].as_int == b[1].mv[0].as_int &&
+              b[0].mv[0].as_int == b[2].mv[0].as_int &&
+              b[0].mv[0].as_int == b[3].mv[0].as_int &&
+              b[0].mv[1].as_int == b[1].mv[1].as_int &&
+              b[0].mv[1].as_int == b[2].mv[1].as_int &&
+              b[0].mv[1].as_int == b[3].mv[1].as_int) {
+            // merge 4 partition blocks
+            this_mi = mi + i * mi_str + j;
+            this_mi[0]->bsize = blks[k];
+            this_mi[0]->partition = PARTITION_NONE;
+
+            // Update mi_grid
+            for (int y = 0; y < step; y++) {
+              for (int x_idx = 0; x_idx < step; x_idx++) {
+                if ((xd->mb_to_right_edge >> (3 + MI_SIZE_LOG2)) + step >
+                        x_idx &&
+                    (xd->mb_to_bottom_edge >> (3 + MI_SIZE_LOG2)) + step > y) {
+                  this_mi[x_idx + y * mi_str] = this_mi[0];
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   if (sf->rt_sf.skip_cdef_sb) {
     // If 128x128 block is used, we need to set the flag for all 4 64x64 sub
