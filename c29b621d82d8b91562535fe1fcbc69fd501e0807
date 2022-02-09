@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh,\n\nWe have submitted this CL as a follow up patch as per the review comments given in CL https://aomedia-review.googlesource.com/c/aom/+/151561. This CL renames the function and identifiers related to variance computation in compute_avg_log_variance() as follows. \ncompute_mapped_var() ⇒ compute_avg_log_variance\nmapped_source_var ⇒ avg_log_src_variance\nmapped_recon_var ⇒ avg_log_recon_variance\nAlso we have cleaned up the functions allocate_src_var_of_4x4_sub_block_buf() and  allocate_gradient_info_for_hog()  by passing only cpi and deriving the respective buffer pointers inside these functions for the memory allocations.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nPlease review the patch.\n\nRegards,\nMudassir\n",
       "revId": "c29b621d82d8b91562535fe1fcbc69fd501e0807",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8a2ed40_cbcaaac5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-09T22:43:04Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "c29b621d82d8b91562535fe1fcbc69fd501e0807",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
