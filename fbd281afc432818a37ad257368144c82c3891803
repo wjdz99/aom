@@ -16,6 +16,24 @@
       "message": "Nice speedup without any quality loss. So, this change only affects RTC encoding?",
       "revId": "fbd281afc432818a37ad257368144c82c3891803",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30b9e7cd_6a50ecd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-02-10T17:29:17Z",
+      "side": 1,
+      "message": "Currently it only touches realtime mode. The changes should theoretically be applicable in general, but I want to avoid touching the decoder for easier debugging.",
+      "parentUuid": "f3d91c28_337a3517",
+      "revId": "fbd281afc432818a37ad257368144c82c3891803",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
