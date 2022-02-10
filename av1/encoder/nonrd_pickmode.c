@@ -2266,6 +2266,22 @@ static void set_compound_mode(MACROBLOCK *x, int comp_index, int ref_frame,
   }
 }
 
+static double get_prune_blockrd_threshold(BLOCK_SIZE bsize) {
+  double threshold = 0.0;
+  /*(size_group_lookup[bsize] < 2)
+               ? (size_group_lookup[bsize] < 1 ? 0.2 : 0.4)
+               : (size_group_lookup[bsize] < 3 ? 0.7 : 0.9);*/
+  if (size_group_lookup[bsize] == 0)
+    threshold = 0.2;
+  else if (size_group_lookup[bsize] == 1)
+    threshold = 0.4;
+  else if (size_group_lookup[bsize] == 2)
+    threshold = 0.7;
+  else if (size_group_lookup[bsize] == 4)
+    threshold = 0.9;
+  return threshold;
+}
+
 void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                   MACROBLOCK *x, RD_STATS *rd_cost,
                                   BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx) {
@@ -2333,6 +2349,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int num_comp_modes_ref = 0;
   int tot_num_comp_modes = 9;
   int ref_mv_idx = 0;
+  int64_t best_sse = INT64_MAX;
 #if CONFIG_AV1_TEMPORAL_DENOISING
   const int denoise_recheck_zeromv = 1;
   AV1_PICKMODE_CTX_DEN ctx_den;
@@ -2737,6 +2754,12 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                           b_height_log2_lookup[bsize]));
     }
 
+    const double scale_factor = get_prune_blockrd_threshold(bsize);
+    if (scale_factor * this_rdc.sse > best_sse) {
+      if (reuse_inter_pred) free_pred_buffer(this_mode_pred);
+      continue;
+    }
+
     const int skip_ctx = av1_get_skip_txfm_context(xd);
     const int skip_txfm_cost = mode_costs->skip_txfm_cost[skip_ctx][1];
     const int no_skip_txfm_cost = mode_costs->skip_txfm_cost[skip_ctx][0];
@@ -2829,6 +2852,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
     if (this_rdc.rdcost < best_rdc.rdcost) {
       best_rdc = this_rdc;
+      best_sse = sse_y;
       best_early_term = this_early_term;
       best_pickmode.best_mode = this_mode;
       best_pickmode.best_motion_mode = mi->motion_mode;
