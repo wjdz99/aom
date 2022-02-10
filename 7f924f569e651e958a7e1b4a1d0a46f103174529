@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "297927e5_7c937b7c",
+        "filename": "aom_dsp/arm/variance_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 568,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-02-10T03:30:01Z",
+      "side": 1,
+      "message": "\u003e Optional: It will be easier to parse if we add an underscore: VARIANCE_NXM\n\nGood point, I was using a quick regex to uppercase the matches and didn\u0027t really look at the results.",
+      "parentUuid": "434e48aa_f2732590",
+      "revId": "7f924f569e651e958a7e1b4a1d0a46f103174529",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "785a3fd2_a6393ed4",
@@ -69,6 +87,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "674ee42a_feba26e5",
+        "filename": "aom_dsp/sad.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-02-10T03:30:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "785a3fd2_a6393ed4",
+      "revId": "7f924f569e651e958a7e1b4a1d0a46f103174529",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19ae3fe7_c1f813fe",
@@ -82,6 +118,24 @@
       "writtenOn": "2022-02-09T22:55:07Z",
       "side": 1,
       "message": "Optional: SAD_MXNX4D? That is still a little hard to parse. It would be nice if we could use lowercase \u0027x\u0027.",
+      "revId": "7f924f569e651e958a7e1b4a1d0a46f103174529",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8bfdc3d_c6d962a9",
+        "filename": "aom_dsp/sad.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-02-10T03:30:01Z",
+      "side": 1,
+      "message": "\u003e Optional: SAD_MXNX4D? That is still a little hard to parse. It would be nice if we could use lowercase \u0027x\u0027.\n\nUnfortunately the lowercase \u0027x\u0027 is still a problem for even clang-format-13 (we still use clang-format-7 here). If we really wanted that we\u0027d need to annotate everything with /* clang-format off */. I\u0027ve added the underscores though.",
+      "parentUuid": "19ae3fe7_c1f813fe",
       "revId": "7f924f569e651e958a7e1b4a1d0a46f103174529",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
