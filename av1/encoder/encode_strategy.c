@@ -113,7 +113,7 @@ void av1_configure_buffer_updates(AV1_COMP *const cpi,
                             ext_refresh_frame_flags->bwd_ref_frame,
                             ext_refresh_frame_flags->alt_ref_frame);
     GF_GROUP *gf_group = &cpi->ppi->gf_group;
-    if (ext_refresh_frame_flags->golden_frame)
+    if (ext_refresh_frame_flags->golden_frame && type != KF_UPDATE)
       gf_group->update_type[cpi->gf_frame_index] = GF_UPDATE;
     if (ext_refresh_frame_flags->alt_ref_frame)
       gf_group->update_type[cpi->gf_frame_index] = ARF_UPDATE;
