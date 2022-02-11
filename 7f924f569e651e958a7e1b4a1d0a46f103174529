@@ -177,6 +177,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "642ff9cb_ddfebf74",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1127,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-02-11T20:17:26Z",
+      "side": 1,
+      "message": "\u003e This is my personal preference:\n\u003e \n\u003e If the code behaves like a single statement or a function call, then it\u0027s better to wrap it inside a do-while so we can add a semicolon. On the other hand, if the code does not behave like a single statement or function call, e.g., if it contains \u0027return\u0027 or \u0027goto\u0027 for error handling, then I think it\u0027s better to *not* have a semicolon so that it is clear the macro is a code-generation device.\n\nThat\u0027s reasonable. I can follow up with some do/while and other naming normalization.",
+      "parentUuid": "2f09cac9_c078d607",
+      "revId": "7f924f569e651e958a7e1b4a1d0a46f103174529",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "77ced626_a2a49fa5",
         "filename": "av1/encoder/encoder_utils.h",
         "patchSetId": 1
