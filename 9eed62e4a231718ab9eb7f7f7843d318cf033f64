@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b625a7d_1b5b7e30",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-02-11T13:04:09Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have observed that in rt preset \u003e\u003d5, \u0027gf_group-\u003eupdate_type\u0027 is set as GF_UPDATE for key frame in the function \u0027av1_configure_buffer_updates()\u0027. This is because \u0027ext_refresh_frame_flags-\u003egolden_frame\u0027 is set to 1 in \u0027av1_set_reference_structure_one_pass_rt()\u0027. This results in using the rd multiplier corresponding to golden frame for key frame in the function \u0027av1_compute_rd_mult_based_on_qindex()\u0027. We have fixed the issue and following are the BD-Rate results.\n\n\n               Instruction Count        BD-Rate Loss(%)       \ncpu   Test set    Reduction(%)    avg.psnr   ovr.psnr    ssim         \n 5         rtc     -0.034        -0.0493    -0.0404   -0.0222     \n 5    rtc_derf      0.047         0.0307     0.0372    0.0114     \n 5     Average      0.006        -0.0160    -0.0081   -0.0082  \n \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t     \n 6         rtc      0.005        -0.0809    -0.0567   -0.0847     \n 6    rtc_derf     -0.041        -0.2833    -0.2500   -0.2619     \n 6     Average     -0.018        -0.1652    -0.1372   -0.1585        \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t      \n 7         rtc     -0.030         0.0516     0.0377    0.0721     \n 7    rtc_derf      0.035        -0.1156    -0.1250   -0.1005     \n 7     Average      0.002        -0.0181    -0.0301    0.0002     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t       \n 8         rtc      0.020        -0.0567    -0.0492   -0.0360     \n 8    rtc_derf     -0.010         0.0193     0.0201    0.0608     \n 8     Average      0.005        -0.0251    -0.0204    0.0043     \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    \n 9         rtc      0.005        -0.0653    -0.0631   -0.0408     \n 9    rtc_derf      0.004        -0.0674    -0.0822   -0.0593     \n 9     Average      0.005        -0.0662    -0.0711   -0.0485     \n \t\t\t\t\t\t\t\t\t\t\t\t\t\t\t       \n 10         rtc     -0.006        -0.0400    -0.0303   -0.0216     \n 10    rtc_derf      0.007         0.0242     0.0241    0.0171     \n 10     Average      0.000        -0.0133    -0.0076   -0.0055     \n \n In the BD rate Loss column: \n [+] sign is for BD-Rate loss\n [-] sign is for BD-Rate improvement \n The instruction count reduction specified has been measured using command:\n\n $ perf stat -e instructions:u ./aomenc …\n\nPlease review. \n\nThanks",
+      "revId": "9eed62e4a231718ab9eb7f7f7843d318cf033f64",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
