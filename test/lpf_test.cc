@@ -643,6 +643,20 @@ const loop_param_t kLoop8Test6[] = {
 
 INSTANTIATE_TEST_SUITE_P(NEON, Loop8Test6Param_lbd,
                          ::testing::ValuesIn(kLoop8Test6));
+
+#if CONFIG_AV1_HIGHBITDEPTH
+const hbdloop_param_t kHbdLoop8Test6[] = {
+  make_tuple(&aom_highbd_lpf_horizontal_4_neon, &aom_highbd_lpf_horizontal_4_c,
+             8),
+  make_tuple(&aom_highbd_lpf_horizontal_4_neon, &aom_highbd_lpf_horizontal_4_c,
+             10),
+  make_tuple(&aom_highbd_lpf_horizontal_4_neon, &aom_highbd_lpf_horizontal_4_c,
+             12),
+};
+
+INSTANTIATE_TEST_SUITE_P(NEON, Loop8Test6Param_hbd,
+                         ::testing::ValuesIn(kHbdLoop8Test6));
+#endif  // CONFIG_AV1_HIGHBITDEPTH
 #endif  // HAVE_NEON
 
 #if HAVE_AVX2 && CONFIG_AV1_HIGHBITDEPTH
