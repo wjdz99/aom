@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da5c715b_a85d200c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-02-14T18:34:23Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWhen the speed feature \u0027gf_refresh_based_on_qp\u0027 is enabled, i.e., rt preset \u003e\u003d6, refresh of golden frame is forced (when the QP is well below average QP / high motion frame). However, in such cases refresh flag for golden frame is not set. This results in incorrect update of \u0027frames_since_golden\u0027, \u0027avg_frame_qindex[INTER_FRAME]\u0027 etc. We have fixed the issue and following are the BD-Rate results.\n\n               Instruction Count        BD-Rate Loss(%)       \ncpu  Test set   Reduction(%)    avg.psnr   ovr.psnr    ssim        \n 6         rtc     -0.152        -0.0272    -0.0104   -0.0213    \n 6    rtc_derf     -0.154        -0.0709    -0.0608   -0.0887    \n 6     Average     -0.153        -0.0454    -0.0314   -0.0494    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t  \n 7         rtc     -0.003         0.1778     0.1882    0.2772    \n 7    rtc_derf     -0.044         0.0056    -0.0043   -0.0223    \n 7     Average     -0.023         0.1060     0.1080    0.1524    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t  \n 8         rtc     -0.027        -0.0203    -0.0125   -0.0144    \n 8    rtc_derf     -0.012        -0.0158    -0.0129    0.0034    \n 8     Average     -0.019        -0.0184    -0.0127   -0.0070    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t  \n 9         rtc     -0.012         0.1072     0.1100    0.1009    \n 9    rtc_derf     -0.064        -0.0477    -0.0657   -0.0817    \n 9     Average     -0.038         0.0426     0.0368    0.0248    \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t  \n 10         rtc     -0.009        -0.0883    -0.0790   -0.0790    \n 10    rtc_derf     -0.002         0.0855     0.0747    0.0924    \n 10     Average     -0.006        -0.0159    -0.0149   -0.0076    \n \n  In the BD rate Loss column: \n[+] sign is for BD-Rate loss\n[-] sign is for BD-Rate improvement \n The instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n \nPlease note that BD-Rate drop of 0.1% is seen in cpu-used 7. This is caused by one content (thaloundeskmtgvga.y4m) which shows ~5% BD-Rate loss. We have verified that the BD-Rate loss is because of different positioning of golden frames in the reference and modified version.  The average BD-Rate loss by excluding that content is -0.01%.\n \nPlease review. \n\nThanks",
+      "revId": "4ccadf1ea8e0800dc1f3785e5c1cc243eaa4f269",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
