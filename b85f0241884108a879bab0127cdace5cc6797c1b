@@ -16,6 +16,57 @@
       "message": "Hi Yunqing,\n\nThis patch introduces a speed feature early_term_inter_search_based_on_sse to terminate inter mode search early in av1_nonrd_pick_inter_mode_sb() based on best_mode sse calculated. Aggressiveness of early termination logic is adjusted according to the block size and speed.\n\nPlease find the detailed borg results below,\n\n                Instruction Count        BD-Rate Loss(%)       Max bd-rate drop(%)\ncpu     Test-set    Reduction(%)  avg.psnr   ovr.psnr    ssim\n  7         rtc       4.897        0.1175     0.0750    0.1044       0.9096\n  7    rtc_derf       4.301        0.1030     0.0833    0.1115       0.9738\n  7     Average       4.606        0.1115     0.0785    0.1074       0.9738\n\n  8         rtc       3.141       -0.0635    -0.1573   -0.0598       0.6815\n  8    rtc_derf       1.324       -0.0164    -0.0232    0.0449       1.3909\n  8     Average       2.254       -0.0439    -0.1014   -0.0162       1.3909\n\n  9         rtc       2.472        0.1213     0.0516    0.1037       0.9568 \n  9    rtc_derf       1.808        0.1314     0.1291    0.1525       0.5783\n  9     Average       2.148        0.1255     0.0839    0.1240       0.9568 \n\n 10         rtc       2.154        0.2390     0.2396    0.2558       0.9338\n 10    rtc_derf       0.816        0.0526     0.1011    0.0762       0.6250\n 10     Average       1.502        0.1613     0.1819    0.1810       0.9338\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you",
       "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acc768ba_457e0dd6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-14T17:12:06Z",
+      "side": 1,
+      "message": "the speed feature look good, have a few comments,\n\nAlso i got 2.0 as max bdrate loss for speed 10 rtc set (instead of 0.9). Can you check, maybe need to rebase?",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2239f52_12565242",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-14T17:12:06Z",
+      "side": 1,
+      "message": "0.95 seems too high/aggressive?",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3cebed7_ebc85e1c",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2764,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-14T17:12:06Z",
+      "side": 1,
+      "message": "should we exclude this for mode where this_early_term gets set to 1?",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
