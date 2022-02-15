@@ -63,6 +63,30 @@
       },
       "revId": "9eed62e4a231718ab9eb7f7f7843d318cf033f64",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2cf4dd2c_717af13d",
+        "filename": "av1/encoder/encode_strategy.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-15T02:42:43Z",
+      "side": 1,
+      "message": "Yes, that is true for reference frame assigning. But we may not need to set gf_group-\u003eupdate_type here?",
+      "parentUuid": "f0ae2c46_b80df417",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 121,
+        "endChar": 68
+      },
+      "revId": "9eed62e4a231718ab9eb7f7f7843d318cf033f64",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
