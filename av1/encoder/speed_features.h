@@ -1502,6 +1502,14 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Reduce the mv resolution for zero mv if the variance is low.
   bool reduce_zeromv_mvres;
+
+  // Avoid the partitioning of a 16x16 block in variance based partitioning by
+  // making use of minimum and maximum sub-block variances.
+  // For allintra encode, this sf reduces instruction count by 5.39% for speed 9
+  // on a typical video dataset with coding performance gain of 1.44%.
+  // For AVIF image encode, this sf reduces encode time by 8.44% for speed 9 on
+  // a typical image dataset with coding performance gain of 0.78%.
+  int vbp_prune_16x16_split_using_min_max_sub_blk_var;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
