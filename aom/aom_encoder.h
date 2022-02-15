@@ -40,9 +40,19 @@ extern "C" {
  * must be bumped.  Examples include, but are not limited to, changing
  * types, removing or reassigning enums, adding/removing/rearranging
  * fields to structures
+ *
+ * Note: In the definition of AOM_ENCODER_ABI_VERSION, 3 is the value of
+ * AOM_EXT_PART_ABI_VERSION in libaom v3.2.0. The old value of
+ * AOM_EXT_PART_ABI_VERSION is used so as to not break the ABI version check in
+ * aom_codec_enc_init_ver() when an application compiled against libaom v3.2.0
+ * passes the old value of AOM_ENCODER_ABI_VERSION to aom_codec_enc_init_ver().
+ * The external partition API is still experimental. When it is declared stable,
+ * we will replace 3 with AOM_EXT_PART_ABI_VERSION in the definition of
+ * AOM_ENCODER_ABI_VERSION.
  */
 #define AOM_ENCODER_ABI_VERSION \
-  (10 + AOM_CODEC_ABI_VERSION + AOM_EXT_PART_ABI_VERSION) /**<\hideinitializer*/
+  (10 + AOM_CODEC_ABI_VERSION + \
+   /*AOM_EXT_PART_ABI_VERSION=*/3) /**<\hideinitializer*/
 
 /*! \brief Encoder capabilities bitfield
  *
