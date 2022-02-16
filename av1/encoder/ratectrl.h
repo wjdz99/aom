@@ -467,6 +467,9 @@ void av1_rc_postencode_update_drop_frame(struct AV1_COMP *cpi);
  *
  * \ingroup rate_control
  * \param[in]   cpi                   Top level encoder instance structure
+#if CONFIG_FRAME_PARALLEL_ENCODE
+*  \param[in]   is_encode_stage       Is the instance in the encoding stage
+#endif  // CONFIG_FRAME_PARALLEL_ENCODE
  * \param[in]   width                 Frame width
  * \param[in]   height                Frame height
  *
