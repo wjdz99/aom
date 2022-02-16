@@ -72,6 +72,24 @@ static const aom_cdf_prob
                     31355, 31802, 32593) } }
     };
 
+static const aom_cdf_prob 
+  default_kf_y_mode_cdf_above_ctx_matrix[KF_MODE_CONTEXTS][CDF_SIZE(INTRA_MODES)] = {
+    {AOM_CDF13(12773, 14907, 18639, 19723, 20440, 21074, 22047, 23915, 25193, 29201, 30245, 31675)},
+    {AOM_CDF13(7906, 17077, 19302, 20067, 20657, 21810, 22312, 23638, 25622, 29132, 30585, 31585)},
+    {AOM_CDF13(9679, 11031, 19473, 20394, 20854, 21250, 22260, 24591, 25588, 29359, 30266, 31957)},
+    {AOM_CDF13(9162, 11455, 13205, 17022, 17539, 18161, 18691, 20782, 25480, 29728, 30934, 32356)},
+    {AOM_CDF13(9790, 11260, 14331, 15506, 17717, 19715, 21928, 25432, 26372, 30122, 31100, 32418)}
+  };
+
+static const aom_cdf_prob
+  default_kf_y_mode_cdf_left_ctx_matrix[KF_MODE_CONTEXTS][CDF_SIZE(INTRA_MODES)] = {
+    {AOM_CDF13(12680, 15654, 18607, 19775, 20535, 21335, 22205, 23838, 25315, 29325, 30389,31773)},
+    {AOM_CDF13(9090, 16616, 18437, 19483, 20116, 21276, 21821, 23044, 25173, 29088, 30592, 31745)},
+    {AOM_CDF13(8097, 9737, 20223, 21133, 21572, 21962, 23010, 24972, 26051, 29347, 30082, 31684)},
+    {AOM_CDF13(10379, 12538, 13893, 17165, 17588, 18135, 18613, 20992, 24926, 29518, 30952, 32386)},
+    {AOM_CDF13(9064, 11184, 13791, 15157, 17395, 19304, 21589, 25510, 26789, 30263, 31115, 32402)}
+  };
+
 static const aom_cdf_prob default_angle_delta_cdf[DIRECTIONAL_MODES][CDF_SIZE(
     2 * MAX_ANGLE_DELTA + 1)] = {
   { AOM_CDF7(2180, 5032, 7567, 22776, 26989, 30217) },
@@ -1089,6 +1107,8 @@ void av1_init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->palette_y_color_index_cdf, default_palette_y_color_index_cdf);
   av1_copy(fc->palette_uv_color_index_cdf, default_palette_uv_color_index_cdf);
   av1_copy(fc->kf_y_cdf, default_kf_y_mode_cdf);
+  av1_copy(fc->kf_y_mode_cdf_above_ctx_matrix, default_kf_y_mode_cdf_above_ctx_matrix);
+  av1_copy(fc->kf_y_mode_cdf_left_ctx_matrix, default_kf_y_mode_cdf_left_ctx_matrix);
   av1_copy(fc->angle_delta_cdf, default_angle_delta_cdf);
   av1_copy(fc->comp_inter_cdf, default_comp_inter_cdf);
   av1_copy(fc->comp_ref_type_cdf, default_comp_ref_type_cdf);
