@@ -1972,6 +1972,11 @@ void av1_nonrd_pick_intra_mode(AV1_COMP *cpi, MACROBLOCK *x, RD_STATS *rd_cost,
   // mode tests.
   for (int i = 0; i < 4; ++i) {
     PREDICTION_MODE this_mode = intra_mode_list[i];
+    // Prune H_PRED when V_PRED is the best mode so far.
+    if (cpi->sf.rt_sf.prune_h_pred_using_best_mode_so_far &&
+        this_mode == H_PRED && best_mode == V_PRED)
+      continue;
+
     this_rdc.dist = this_rdc.rate = 0;
     args.mode = this_mode;
     args.skippable = 1;
