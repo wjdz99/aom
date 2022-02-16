@@ -70,6 +70,7 @@ static INLINE unsigned int sad(const uint8_t *a, int a_stride, const uint8_t *b,
 
 #if CONFIG_REALTIME_ONLY
 // Calculate sad against 4 reference locations and store each in sad_array
+<<<<<<< HEAD   (a08d3f Delete av1_inv_cos_bit_col/av1_inv_cos_bit_row.)
 #define SAD_MXNX4D(m, n)                                                      \
   void aom_sad##m##x##n##x4d_c(const uint8_t *src, int src_stride,            \
                                const uint8_t *const ref_array[4],             \
@@ -78,6 +79,25 @@ static INLINE unsigned int sad(const uint8_t *a, int a_stride, const uint8_t *b,
     for (i = 0; i < 4; ++i) {                                                 \
       sad_array[i] =                                                          \
           aom_sad##m##x##n##_c(src, src_stride, ref_array[i], ref_stride);    \
+=======
+#define sadMxNx4D(m, n)                                                       \
+  void aom_sad##m##x##n##x4d_c(const uint8_t *src, int src_stride,            \
+                               const uint8_t *const ref_array[4],             \
+                               int ref_stride, uint32_t sad_array[4]) {       \
+    int i;                                                                    \
+    for (i = 0; i < 4; ++i) {                                                 \
+      sad_array[i] =                                                          \
+          aom_sad##m##x##n##_c(src, src_stride, ref_array[i], ref_stride);    \
+    }                                                                         \
+  }                                                                           \
+  void aom_sad##m##x##n##x4d_avg_c(                                           \
+      const uint8_t *src, int src_stride, const uint8_t *const ref_array[4],  \
+      int ref_stride, const uint8_t *second_pred, uint32_t sad_array[4]) {    \
+    int i;                                                                    \
+    for (i = 0; i < 4; ++i) {                                                 \
+      sad_array[i] = aom_sad##m##x##n##_avg_c(src, src_stride, ref_array[i],  \
+                                              ref_stride, second_pred);       \
+>>>>>>> BRANCH (87460c Replace AOM_EXT_PART_ABI_VERSION with old value)
     }                                                                         \
   }                                                                           \
   void aom_sad_skip_##m##x##n##x4d_c(const uint8_t *src, int src_stride,      \
