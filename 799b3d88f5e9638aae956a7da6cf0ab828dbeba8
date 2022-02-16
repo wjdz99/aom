@@ -16,6 +16,24 @@
       "message": "Hi Yunqing and Marco,\n\nThank you for the testing.\n\nWe verified the results for patchset-3 on the latest version. We are able to reproduce similar results for speed 8 to 10 as reported earlier. Noticed slightly higher max drop for speed-7, hence currently enabling the new SF for speed-8 to 10 only. We will analyze the worst case quality drop issue seen in speed-7 and enable it in the subsequent patch\n\nPlease find the detailed borg results for patchset-5,\n\n                Instruction Count        BD-Rate Loss(%)        Max bd-rate drop(%)\n cpu     Test-set    Reduction(%)  avg.psnr   ovr.psnr   ssim\n  8         rtc      3.195         0.0302    -0.0690    0.0272     0.5390\n  8    rtc_derf      1.301        -0.0953    -0.1163   -0.0775     0.9948\n  8     Average      2.271        -0.0221    -0.0887   -0.0164     0.9948\n  \n  9         rtc      2.496         0.0918     0.0133    0.0867     0.9282\n  9    rtc_derf      1.819         0.1832     0.1984    0.2348     0.8112\n  9     Average      2.166         0.1299     0.0904    0.1484     0.9282\n  \n 10         rtc      2.178         0.3556     0.3230    0.3506     0.9610\n 10    rtc_derf      0.819         0.0857     0.1137    0.0902     0.9129\n 10     Average      1.515         0.2432     0.2358    0.2421     0.9610\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you",
       "revId": "799b3d88f5e9638aae956a7da6cf0ab828dbeba8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3c30271_6d72a8ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-16T22:33:52Z",
+      "side": 1,
+      "message": "Looks good to me. Very good speed/quality tradeoff. Let\u0027s wait for Marco\u0027s visual test.",
+      "parentUuid": "4270f85e_82fd3a42",
+      "revId": "799b3d88f5e9638aae956a7da6cf0ab828dbeba8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
