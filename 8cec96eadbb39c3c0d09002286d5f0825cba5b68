@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e38cb45b_a85d59cb",
+        "filename": "av1/encoder/encodeframe_utils.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-16T23:41:00Z",
+      "side": 1,
+      "message": "Sorry for the late reply. My concern is that the decision to do temporal average here is based on the whole superblock\u0027s temporal variance (64x64 or 128x128), and so if the whole superblock has low tmp_variance, but there is some small portion that is moving, then there could be visual artifacts.\n\nI think the test clip checked has very low content/high quality, so may not be best one.",
+      "revId": "8cec96eadbb39c3c0d09002286d5f0825cba5b68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc5b2ed5_f200cca3",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-16T23:41:00Z",
+      "side": 1,
+      "message": "disable for screen-content? you can follow up in another CL,",
+      "revId": "8cec96eadbb39c3c0d09002286d5f0825cba5b68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
