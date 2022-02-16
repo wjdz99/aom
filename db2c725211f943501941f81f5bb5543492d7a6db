@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea76e2b1_d2d535a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-16T17:43:29Z",
+      "side": 1,
+      "message": "The merge CL should include this change:\nhttps://aomedia-review.googlesource.com/c/aom/+/153661",
+      "revId": "db2c725211f943501941f81f5bb5543492d7a6db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c305c091_c1d484d6",
+        "filename": "aom/aomcx.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-16T17:43:29Z",
+      "side": 1,
+      "message": "Please undo this change. The merge CL should not modify this file.\n\nAfter the electric-sky branch was created, I added the sentence \"Also, AOM_USAGE_REALTIME treats 0..4 the same as 5.\" to the main branch. The merge CL should not delete that sentence.",
+      "revId": "db2c725211f943501941f81f5bb5543492d7a6db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b2755b13_9f8b5afb",
+        "filename": "aom_dsp/sad.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-16T17:43:29Z",
+      "side": 1,
+      "message": "Delete this. There must have been a merge conflict in this file. The merge CL should not modify this file.\n\nThis merge conflict comes from a commit that fixes gcc-11 warnings. That commit generated a conflict when cherry-picked to the electric-sky branch. That is why the merge back to the main branch also generated a conflict.",
+      "range": {
+        "startLine": 83,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 4
+      },
+      "revId": "db2c725211f943501941f81f5bb5543492d7a6db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eee522c8_f8ea94b1",
+        "filename": "av1/arg_defs.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-16T17:43:29Z",
+      "side": 1,
+      "message": "Please undo this change.\n\nAfter the electric-sky branch was created, I made a change to this line on the main branch. The merge CL should not modify this line.",
+      "revId": "db2c725211f943501941f81f5bb5543492d7a6db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f139d37_32ae612e",
+        "filename": "build/cmake/toolchains/armv7-linux-gcc.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-02-16T17:43:29Z",
+      "side": 1,
+      "message": "Please undo this change.\n\nThe code on the main branch is newer. The merge CL should not modify it.",
+      "revId": "db2c725211f943501941f81f5bb5543492d7a6db",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
