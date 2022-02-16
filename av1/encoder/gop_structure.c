@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "av1/common/blockd.h"
+#include "av1/encoder/ratectrl.h"
 #include "config/aom_config.h"
 #include "config/aom_scale_rtcd.h"
 
@@ -596,6 +597,7 @@ static int construct_multi_layer_gf_structure(
   if (baseline_gf_interval == MAX_STATIC_GF_GROUP_LENGTH) {
     kf_decomp = 0;
   }
+  gf_group->min_layer_depth = MAX_ARF_LAYERS;
   if (first_frame_update_type == KF_UPDATE) {
     gf_group->update_type[frame_index] = kf_decomp ? ARF_UPDATE : KF_UPDATE;
     gf_group->arf_src_offset[frame_index] = 0;
@@ -604,6 +606,7 @@ static int construct_multi_layer_gf_structure(
     gf_group->frame_type[frame_index] = KEY_FRAME;
     gf_group->refbuf_state[frame_index] = REFBUF_RESET;
     gf_group->max_layer_depth = 0;
+    gf_group->min_layer_depth = 0;
 #if CONFIG_FRAME_PARALLEL_ENCODE
 #if CONFIG_FRAME_PARALLEL_ENCODE_2
     gf_group->display_idx[frame_index] = cur_disp_index;
@@ -620,6 +623,7 @@ static int construct_multi_layer_gf_structure(
       gf_group->frame_type[frame_index] = INTER_FRAME;
       gf_group->refbuf_state[frame_index] = REFBUF_UPDATE;
       gf_group->max_layer_depth = 0;
+      gf_group->min_layer_depth = 0;
 #if CONFIG_FRAME_PARALLEL_ENCODE
 #if CONFIG_FRAME_PARALLEL_ENCODE_2
       gf_group->display_idx[frame_index] = cur_disp_index;
@@ -639,6 +643,7 @@ static int construct_multi_layer_gf_structure(
     gf_group->frame_type[frame_index] = INTER_FRAME;
     gf_group->refbuf_state[frame_index] = REFBUF_UPDATE;
     gf_group->max_layer_depth = 0;
+    gf_group->min_layer_depth = 0;
 #if CONFIG_FRAME_PARALLEL_ENCODE
 #if CONFIG_FRAME_PARALLEL_ENCODE_2
     gf_group->display_idx[frame_index] = cur_disp_index;
@@ -662,6 +667,7 @@ static int construct_multi_layer_gf_structure(
     gf_group->frame_type[frame_index] = is_fwd_kf ? KEY_FRAME : INTER_FRAME;
     gf_group->refbuf_state[frame_index] = REFBUF_UPDATE;
     gf_group->max_layer_depth = 1;
+    gf_group->min_layer_depth = AOMMIN(gf_group->min_layer_depth, 1);
     gf_group->arf_index = frame_index;
 #if CONFIG_FRAME_PARALLEL_ENCODE
 #if CONFIG_FRAME_PARALLEL_ENCODE_2
@@ -801,6 +807,7 @@ static int construct_multi_layer_gf_structure(
       gf_group->frame_type[frame_index] = INTER_FRAME;
       gf_group->refbuf_state[frame_index] = REFBUF_UPDATE;
       gf_group->max_layer_depth = AOMMAX(gf_group->max_layer_depth, 2);
+      gf_group->min_layer_depth = AOMMIN(gf_group->min_layer_depth, 2);
 #if CONFIG_FRAME_PARALLEL_ENCODE
       set_src_offset(gf_group, &first_frame_index, cur_frame_index,
                      frame_index);
@@ -853,6 +860,7 @@ static int construct_multi_layer_gf_structure(
     gf_group->frame_type[gf_idx] = INTER_FRAME;
     gf_group->refbuf_state[gf_idx] = REFBUF_UPDATE;
     gf_group->max_layer_depth = AOMMAX(gf_group->max_layer_depth, 2);
+    gf_group->min_layer_depth = AOMMIN(gf_group->min_layer_depth, 2);
   }
 
   return frame_index;
