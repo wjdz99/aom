@@ -219,13 +219,18 @@ class DatarateTestSVC
         }
       }
     } else if (intra_only_ == 1 && frame_to_start_decoding_ > 0) {
-      // Only decode base SL0 starting at frame_to_start_decoding_,
-      // and this is for 3SL encoding.
+      // Only start decoding at frames_to_start_decoding_,
+      // if layer_to_decode_ = 0.
       if (current_video_frame_ >= frame_to_start_decoding_ &&
-          (layer_frame_cnt_ - 1) % 3 == 0)
+          layer_to_decode_ == 0) {
+        // Only decode base layer for 3SL, for layer_to_decode_ = 0.
+        if ((layer_frame_cnt_ - 1) % 3 == 0)
+          return 1;
+        else
+          return 0;
+      } else {
         return 1;
-      else
-        return 0;
+      }
     }
     return 1;
   }
@@ -635,7 +640,7 @@ class DatarateTestSVC
     }
   }
 
-  virtual void BasicRateTargetingSVC3TL3SLIntraStartDecodeMidSeq() {
+  virtual void BasicRateTargetingSVC3TL3SLIntraStartDecodeBaseMidSeq() {
     cfg_.rc_buf_initial_sz = 500;
     cfg_.rc_buf_optimal_sz = 500;
     cfg_.rc_buf_sz = 1000;
@@ -683,6 +688,54 @@ class DatarateTestSVC
     // Only base spatial layer is decoded and there are no non-referenece
     // frames on S0, so #mismatch must be 0.
     EXPECT_EQ((int)GetMismatchFrames(), 0);
+  }
+
+  virtual void BasicRateTargetingSVC3TL3SLIntraMidSeqDecodeAll() {
+    cfg_.rc_buf_initial_sz = 500;
+    cfg_.rc_buf_optimal_sz = 500;
+    cfg_.rc_buf_sz = 1000;
+    cfg_.rc_dropframe_thresh = 0;
+    cfg_.rc_min_quantizer = 0;
+    cfg_.rc_max_quantizer = 56;
+    cfg_.rc_end_usage = AOM_CBR;
+    cfg_.g_lag_in_frames = 0;
+    cfg_.g_error_resilient = 0;
+    ::libaom_test::I420VideoSource video("hantro_collage_w352h288.yuv", 352,
+                                         288, 30, 1, 0, 300);
+    const int bitrate_array[2] = { 500, 1000 };
+    cfg_.rc_target_bitrate = bitrate_array[GET_PARAM(4)];
+    ResetModel();
+    intra_only_ = 1;
+    frame_sync_ = 20;
+    frame_to_start_decoding_ = frame_sync_;
+    layer_to_decode_ = 3;
+    number_temporal_layers_ = 3;
+    number_spatial_layers_ = 3;
+    // SL0
+    const int bitrate_sl0 = 1 * cfg_.rc_target_bitrate / 8;
+    target_layer_bitrate_[0] = 50 * bitrate_sl0 / 100;
+    target_layer_bitrate_[1] = 70 * bitrate_sl0 / 100;
+    target_layer_bitrate_[2] = bitrate_sl0;
+    // SL1
+    const int bitrate_sl1 = 3 * cfg_.rc_target_bitrate / 8;
+    target_layer_bitrate_[3] = 50 * bitrate_sl1 / 100;
+    target_layer_bitrate_[4] = 70 * bitrate_sl1 / 100;
+    target_layer_bitrate_[5] = bitrate_sl1;
+    // SL2
+    const int bitrate_sl2 = 4 * cfg_.rc_target_bitrate / 8;
+    target_layer_bitrate_[6] = 50 * bitrate_sl2 / 100;
+    target_layer_bitrate_[7] = 70 * bitrate_sl2 / 100;
+    target_layer_bitrate_[8] = bitrate_sl2;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    for (int i = 0; i < number_temporal_layers_ * number_spatial_layers_; i++) {
+      ASSERT_GE(effective_datarate_tl[i], target_layer_bitrate_[i] * 0.60)
+          << " The datarate for the file is lower than target by too much!";
+      ASSERT_LE(effective_datarate_tl[i], target_layer_bitrate_[i] * 1.35)
+          << " The datarate for the file is greater than target by too much!";
+    }
+    // All 3 spatial layers are decoded, starting at frame 0, so there are
+    // and there 300/2 = 150 non-reference frames, so mismatch is 150.
+    EXPECT_EQ((int)GetMismatchFrames(), 150);
   }
 
   virtual void BasicRateTargetingSVC1TL2SLIntraOnlyTest() {
@@ -1493,8 +1546,17 @@ TEST_P(DatarateTestSVC, BasicRateTargetingSVC1TL2SL) {
 // Check basic rate targeting for CBR, for 3spatial layers, 3 temporal,
 // with Intra-only frame inserted in the stream. Verify that we can start
 // decoding the SL0 stream at the intra_only frame in mid-sequence.
-TEST_P(DatarateTestSVC, BasicRateTargetingSVC3TL3SLIntraStartDecodeMidSeq) {
-  BasicRateTargetingSVC3TL3SLIntraStartDecodeMidSeq();
+TEST_P(DatarateTestSVC,
+       BasicRateTargetingSVC3TL3SLIntraStartDecodeBaseMidSeq) {
+  BasicRateTargetingSVC3TL3SLIntraStartDecodeBaseMidSeq();
+}
+
+// Check basic rate targeting for CBR, for 3spatial layers, 3 temporal,
+// with Intra-only frame inserted in the stream. Verify that we can
+// decode all frames and layers with no mismatch.
+TEST_P(DatarateTestSVC,
+       BasicRateTargetingSVC3TL3SLIntraMidSeqDecodeAll) {
+  BasicRateTargetingSVC3TL3SLIntraMidSeqDecodeAll();
 }
 
 // Check basic rate targeting for CBR, for 2 spatial layers, 1 temporal,
