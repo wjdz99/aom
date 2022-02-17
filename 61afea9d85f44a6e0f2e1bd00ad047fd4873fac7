@@ -16,6 +16,23 @@
       "message": "Hi James, Yunqing,\n\nDuring our study of row-mt decoding, we observed that currently when a thread encounters an internal error during decoding it ends the processing of the current thread and also sets flags accordingly to avoid fetching the next job. But it was not addressed how the other threads which are in conditional wait can come out of it. The hang issue arose when an SB row (erroneous row) processed by a thread encountered an internal error and another thread waited on processing of this erroneous row (due to top-right sync). The current CL addresses the issue by ensuring that other threads which wait upon the completion of SB\u0027s present in erroneous row are not waited indefinitely.\n\nEven though the hang issue is resolved/addressed in this patch, it can happen that the thread which comes out of conditional wait will go ahead and process the SB with erroneous decoding information of top superblocks. This process was not needed to happen and the whole decoding can exit whenever an internal error hits. This also can be avoided by using the flag ‘row_mt_exit’ (it\u0027s a common variable across threads which was set when an error occurs), but accessing of this flag needs to be under mutex lock, which is an overhead for error-free streams. Please let us know if we should address this through patch submission.\n\nWe observed a build failure in patch-set1, as structure cm was derived inside the signal_decoding_done_for_erroneous_row() which calls upon hitting longjmp() when internal error occurs. The compiler assumes that the state of structure cm might be clobbered by longjmp() as it was first derived in row_mt_worker_hook() before doing setjmp(). The same problem should have been seen with structure pbi, but it was not. To silence this warning, we have moved the structure cm derivation to after setjmp() in row_mt_worker_hook().\n\nPlease let us know your opinion on the fix and merge the same in case of no issues.\n\nThanks \u0026 Regards,\nVenkata.\n",
       "revId": "61afea9d85f44a6e0f2e1bd00ad047fd4873fac7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "affcbd51_6a34846c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-17T16:17:54Z",
+      "side": 1,
+      "message": "Looks good. Thanks for fixing it!",
+      "revId": "61afea9d85f44a6e0f2e1bd00ad047fd4873fac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
