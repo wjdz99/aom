@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "06602ad5_bbb8fa6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-02-17T14:13:35Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nIn this patch we have simplified the conditional code in nested \u0027for\u0027 loops in encode_superblock() and av1_update_state() functions. This code change is applicable for all the presets of encoder.\n\nPlease check the instruction count reduction for non-rd presets.\n     Instruction Count\ncpu    Reduction(%)\n 7       0.214\n 8       0.242\n 9       0.458\n10       0.502\n\nInstruction count reduction is negligible for other presets. We tested the patch for Good and RT presets and ensured bit-exact output.\n\nPlease review.\nThank you.",
+      "revId": "e548ea4d857b6fc0fc7e8c3ae681d96ffcd69dd8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
