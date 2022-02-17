@@ -124,6 +124,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1340ed33_1fc986fe",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-17T20:27:31Z",
+      "side": 1,
+      "message": "Can we cap these thresholds to 0.9 to be safe. They can always be made more aggressive in future changes.\n\nI tested on a few clips, look ok overall, but did notice slight worse with new change.",
+      "parentUuid": "ca351f8f_ce31f8ec",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3cebed7_ebc85e1c",
@@ -155,6 +173,24 @@
       "side": 1,
       "message": "Thanks for your suggestion.\n\nthis_early_term flag is set to skip transform for the corresponding inter mode, whereas the new SF introduced is intended to skip the current mode based on the best sse calculated so far. We also experimented considering this flag in the current early termination logic. The current approach is providing the best tradeoff and minimum worst case drop across.",
       "parentUuid": "f3cebed7_ebc85e1c",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "920bff33_f413a637",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2764,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-17T20:27:31Z",
+      "side": 1,
+      "message": "Does adding !this_early_term in the condition make bdrate worse? If not, prefer to add this condition here.",
+      "parentUuid": "3c53cce1_7145d3ff",
       "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
