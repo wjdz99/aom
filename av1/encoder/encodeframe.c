@@ -462,7 +462,8 @@ static void get_estimated_pred(AV1_COMP *cpi, const TileInfo *const tile,
  * rd-based searches are allowed to adjust the initial pattern. It is only used
  * by realtime encoding.
  */
-static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
+static AOM_INLINE
+void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
                                        TileDataEnc *tile_data, TokenExtra **tp,
                                        const int mi_row, const int mi_col,
                                        const int seg_skip) {
@@ -508,6 +509,11 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
          sf->part_sf.partition_search_type == VAR_BASED_PARTITION);
   set_cb_offsets(td->mb.cb_offset, 0, 0);
 
+
+  // First pass
+  SB_FIRST_PASS_STATS sb_fp_stats;
+  av1_backup_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+
   // Adjust and encode the superblock
   PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
 
@@ -534,6 +540,14 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   end_timing(cpi, nonrd_use_partition_time);
 #endif
 
+  // Second pass
+  set_cb_offsets(td->mb.cb_offset, 0, 0);
+//////  av1_reset_mbmi(&cm->mi_params, sb_size, mi_row, mi_col);  ????
+  av1_restore_sb_state(&sb_fp_stats, cpi, td, tile_data, mi_row, mi_col);
+  PC_TREE *const pc_root1 = av1_alloc_pc_tree_node(sb_size);
+  av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+                          pc_root1);
+
   if (sf->rt_sf.skip_cdef_sb) {
     // If 128x128 block is used, we need to set the flag for all 4 64x64 sub
     // "blocks".
@@ -548,6 +562,7 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
     }
   }
   av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
+  av1_free_pc_tree_recursive(pc_root1, av1_num_planes(cm), 0, 0);
 }
 
 // This function initializes the stats for encode_rd_sb.
