@@ -160,6 +160,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17267c30_88541357",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-18T18:36:45Z",
+      "side": 1,
+      "message": "Ok, so speed 9 is more conservative now (smaller thresholds). Agreed.",
+      "parentUuid": "b5c46630_7b1f9773",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3cebed7_ebc85e1c",
@@ -227,6 +245,24 @@
       "side": 1,
       "message": "yes, Adding this_early_term condition increases the worst case drop. Hence we prefer to not add it. Please provide your suggestions.",
       "parentUuid": "920bff33_f413a637",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b10aaf93_e9323971",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2764,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-18T18:36:45Z",
+      "side": 1,
+      "message": "Okay.\n\nMaybe in another CL you can look into this:\nthere are extra calculations being done in model_skip_for_sb_y_large() to check for setting the this_early_term, this is after \"this_rdc-\u003esse\" is set there. So i wonder if these calculations can be skipped if we know that early_term_inter_search_with_sse() will trigger and skip the mode anyway. Not sure about it, but take a look if you like for a future change.",
+      "parentUuid": "c0f5ffb8_77933adf",
       "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
