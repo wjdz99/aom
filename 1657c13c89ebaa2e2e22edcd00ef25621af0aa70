@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0902e4ba_3941ca8d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2022-02-18T16:21:56Z",
+      "side": 1,
+      "message": "Hi Yunqing and Marco,\n\nAfter the latest merge of v3.3.0 release branch we noticed increase in worst quality drop across speed levels and reduction in speed-10 scope. Hence we decided to disable the same in this patch. we planned to analyze the quality drop issue and submit a patch separately later.\n\nPlease find the detailed borg result below on patchset-6,\n\n                Instruction Count        BD-Rate Loss(%)      Max bd-rate drop(%)\ncpu    Test-set   Reduction(%)   avg.psnr   ovr.psnr    ssim\n 8         rtc      2.840         0.0216    -0.0287    0.0031      0.9858\n 8    rtc_derf      1.316         0.1061     0.1010    0.1413      1.1728\n 8     Average      2.097         0.0568     0.0253    0.0607      1.1728\n \n 9         rtc      1.331         0.0556     0.0290    0.0442      0.9839\n 9    rtc_derf      1.104        -0.0598    -0.0482   -0.0312      0.8777\n 9     Average      1.220         0.0075    -0.0031    0.0128      0.9839\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nPlease review the patch.\nThank you",
+      "revId": "1657c13c89ebaa2e2e22edcd00ef25621af0aa70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

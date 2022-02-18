@@ -142,6 +142,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5c46630_7b1f9773",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2022-02-18T16:21:56Z",
+      "side": 1,
+      "message": "Thanks for you suggestion. \nModified the threshold accordingly. Further tuned the speed-9 thresholds to get minimum worst quality drop in latest version.",
+      "parentUuid": "1340ed33_1fc986fe",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f3cebed7_ebc85e1c",
@@ -191,6 +209,24 @@
       "side": 1,
       "message": "Does adding !this_early_term in the condition make bdrate worse? If not, prefer to add this condition here.",
       "parentUuid": "3c53cce1_7145d3ff",
+      "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0f5ffb8_77933adf",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2764,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2022-02-18T16:21:56Z",
+      "side": 1,
+      "message": "yes, Adding this_early_term condition increases the worst case drop. Hence we prefer to not add it. Please provide your suggestions.",
+      "parentUuid": "920bff33_f413a637",
       "revId": "b85f0241884108a879bab0127cdace5cc6797c1b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
