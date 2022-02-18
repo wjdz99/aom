@@ -69,6 +69,24 @@
       "parentUuid": "da40e7c1_b1040e22",
       "revId": "61afea9d85f44a6e0f2e1bd00ad047fd4873fac7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a3a12ed_2a1e9341",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-18T16:37:31Z",
+      "side": 1,
+      "message": "So, in this CL, thread 1 only knows something is wrong and stops decoding at around 9th SB. With proposed approach, it could stop sooner at around 3rd SB. Right?\nSince this CL can fix the issue already, I will merge this one. Please submit the alternate approach in a separate CL. Thanks!",
+      "parentUuid": "b24df574_28135b99",
+      "revId": "61afea9d85f44a6e0f2e1bd00ad047fd4873fac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
