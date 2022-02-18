@@ -113,7 +113,7 @@ void av1_filter_block_plane_horz(const struct AV1Common *const cm,
 
 void av1_filter_block_plane_vert_rt(
     const struct AV1Common *const cm, const MACROBLOCKD *const xd,
-    const int plane, const MACROBLOCKD_PLANE *const plane_ptr,
+    const MACROBLOCKD_PLANE *const plane_ptr,
     const uint32_t mi_row, const uint32_t mi_col,
     AV1_DEBLOCKING_PARAMETERS *params_buf, TX_SIZE *tx_buf);
 
@@ -125,7 +125,7 @@ void av1_filter_block_plane_vert_rt_chroma(
 
 void av1_filter_block_plane_horz_rt(
     const struct AV1Common *const cm, const MACROBLOCKD *const xd,
-    const int plane, const MACROBLOCKD_PLANE *const plane_ptr,
+    const MACROBLOCKD_PLANE *const plane_ptr,
     const uint32_t mi_row, const uint32_t mi_col,
     AV1_DEBLOCKING_PARAMETERS *params_buf, TX_SIZE *tx_buf);
 
