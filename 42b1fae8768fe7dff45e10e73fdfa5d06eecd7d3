@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c036be7_12723fc4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-02-18T14:40:28Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nAfter we separated the function av1_update_and_record_txb_context() based on allow_update_cdf, coefficient scanning loop in the function was actually doing\n- abs_sum_level computation\n- stats collection for CONFIG_ENTROPY_STATS\nIn the function the computation of abs_sum_level is not required if multithreading is disabled for bitstream packing.\n\nAs per our analysis, the coefficient scanning loop is adding up overhead in non-rd presets. Hence, in this patch we disabled the loop conditionally for the above scenarios. This code change is applicable for all the presets of the encoder.\n\nPlease check the instruction count reduction for non-rd presets.\n     Instruction Count\ncpu    Reduction(%)\n 7       0.189\n 8       0.236\n 9       0.434\n10       0.474\n\nInstruction count reduction for other presets is negligible. We also ensured bit exact output for Good and RT presets.\n\nPlease review.\nThank you.\n",
+      "revId": "42b1fae8768fe7dff45e10e73fdfa5d06eecd7d3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
