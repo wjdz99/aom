@@ -87,7 +87,24 @@
       "parentUuid": "b24df574_28135b99",
       "revId": "61afea9d85f44a6e0f2e1bd00ad047fd4873fac7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66d65b4b_4c3d8f43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-02-21T11:48:36Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn the above example, thread0 processes till 9th SB and during 10th SB it exits from decoding of row0 due to internal error.  At this point of time thread1 has already picked a valid job (which is SB row) and it finishes once all SB’s present in row1 are decoded. However, from 9th SB in row1 onwards the data it fetches from top right might be wrong (as 10th SB of row0 is not processed by thread0 due to an internal error), but decoding goes ahead with this error info.\n\nWe have submitted a below patch with an alternative approach, where 4th SB in row1 onwards the decoding will be avoided using the ‘row_mt_exit’ flag set by thread0.\nhttps://aomedia-review.googlesource.com/c/aom/+/153942\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "4a3a12ed_2a1e9341",
+      "revId": "61afea9d85f44a6e0f2e1bd00ad047fd4873fac7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
-  ],
-  "submitRequirementResults": []
+  ]
 }
