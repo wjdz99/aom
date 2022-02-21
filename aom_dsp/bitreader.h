@@ -221,6 +221,12 @@ static INLINE int aom_read_symbol_(aom_reader *r, aom_cdf_prob *cdf,
                                    int nsymbs ACCT_STR_PARAM) {
   int ret;
   ret = aom_read_cdf(r, cdf, nsymbs, ACCT_STR_NAME);
+  /*printf("cdf");
+  printf("\n");
+  for(int i = 0; i < 14; i++){
+    printf("%d ", cdf[i]);
+  }
+  printf("\n");*/
   if (r->allow_update_cdf) update_cdf(cdf, ret, nsymbs);
   return ret;
 }

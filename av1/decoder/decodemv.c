@@ -33,6 +33,7 @@
 #define DEC_MISMATCH_DEBUG 0
 
 static PREDICTION_MODE read_intra_mode(aom_reader *r, aom_cdf_prob *cdf) {
+  //printf("in read_intra_mode\n");
   return (PREDICTION_MODE)aom_read_symbol(r, cdf, INTRA_MODES, ACCT_STR);
 }
 
@@ -809,6 +810,7 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   }
 
   mbmi->mode = read_intra_mode(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi));
+  //printf("mbmi->mode %d\n", mbmi->mode);
 
   const int use_angle_delta = av1_use_angle_delta(bsize);
   mbmi->angle_delta[PLANE_TYPE_Y] =

@@ -36,6 +36,10 @@ uint32_t aom_reader_tell_frac(const aom_reader *r) {
 
 int aom_reader_has_overflowed(const aom_reader *r) {
   const uint32_t tell_bits = aom_reader_tell(r);
+  //printf("tell_bits%d ", tell_bits);
   const uint32_t tell_bytes = (tell_bits + 7) >> 3;
+  //printf("tell_bytes%d ", tell_bytes);
+  //printf("(r->buffer_end - r->buffer)%d ", r->buffer_end - r->buffer);
+  //printf("\n");
   return ((ptrdiff_t)tell_bytes > r->buffer_end - r->buffer);
 }

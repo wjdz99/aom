@@ -101,6 +101,13 @@ static INLINE void aom_write_symbol(aom_writer *w, int symb, aom_cdf_prob *cdf,
   if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);
 }
 
+static INLINE void aom_write_cdf_intramode(aom_writer *w, int symb, aom_cdf_prob *cdf, int nsymbs){
+  aom_write_cdf(w, symb, cdf, nsymbs);
+}
+
+static INLINE void update_cdf_intramode(aom_writer *w, int symb, aom_cdf_prob *cdf, int nsymbs){
+  if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);
+}
 #ifdef __cplusplus
 }  // extern "C"
 #endif

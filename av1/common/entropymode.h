@@ -146,6 +146,10 @@ typedef struct frame_contexts {
   aom_cdf_prob kf_y_cdf[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
                        [CDF_SIZE(INTRA_MODES)];
 
+  aom_cdf_prob kf_y_mode_cdf_above_ctx_matrix[KF_MODE_CONTEXTS][14];
+  aom_cdf_prob kf_y_mode_cdf_left_ctx_matrix[KF_MODE_CONTEXTS][14];
+  aom_cdf_prob probability_average_array[14];
+
   aom_cdf_prob angle_delta_cdf[DIRECTIONAL_MODES]
                               [CDF_SIZE(2 * MAX_ANGLE_DELTA + 1)];
 

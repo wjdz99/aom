@@ -2668,6 +2668,7 @@ static AOM_INLINE void set_decode_func_pointers(ThreadData *td,
 
 static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
                                    int tile_row, int tile_col) {
+  printf("we are in decode tiles!!");
   TileInfo tile_info;
 
   AV1_COMMON *const cm = &pbi->common;
@@ -2694,8 +2695,9 @@ static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
       // Bit-stream parsing and decoding of the superblock
       decode_partition(pbi, td, mi_row, mi_col, td->bit_reader,
                        cm->seq_params->sb_size, 0x3);
-
+      //printf("we are here!!");
       if (aom_reader_has_overflowed(td->bit_reader)) {
+        printf("we have overflowed sorry!");
         aom_merge_corrupted_flag(&dcb->corrupted, 1);
         return;
       }
@@ -2833,8 +2835,10 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       td->dcb.xd.tile_ctx = &tile_data->tctx;
 
       // decode tile
+      //printf("smaller tile");
       decode_tile(pbi, td, row, col);
       aom_merge_corrupted_flag(&pbi->dcb.corrupted, td->dcb.corrupted);
+      printf("line 2823");
       if (pbi->dcb.corrupted)
         aom_internal_error(&pbi->error, AOM_CODEC_CORRUPT_FRAME,
                            "Failed to decode tile data");
@@ -2947,6 +2951,7 @@ static int tile_worker_hook(void *arg1, void *arg2) {
       // decode tile
       int tile_row = tile_data->tile_info.tile_row;
       int tile_col = tile_data->tile_info.tile_col;
+      printf("in tile_worker hook");
       decode_tile(pbi, td, tile_row, tile_col);
     } else {
       break;
@@ -3598,10 +3603,11 @@ static const uint8_t *decode_tiles_mt(AV1Decoder *pbi, const uint8_t *data,
   reset_dec_workers(pbi, tile_worker_hook, num_workers);
   launch_dec_workers(pbi, data_end, num_workers);
   sync_dec_workers(pbi, num_workers);
-
+  printf("error in line 3583");
   if (pbi->dcb.corrupted)
     aom_internal_error(&pbi->error, AOM_CODEC_CORRUPT_FRAME,
                        "Failed to decode tile data");
+  
 
   if (tiles->large_scale) {
     if (n_tiles == 1) {
@@ -3807,11 +3813,11 @@ static const uint8_t *decode_tiles_row_mt(AV1Decoder *pbi, const uint8_t *data,
   reset_dec_workers(pbi, row_mt_worker_hook, num_workers);
   launch_dec_workers(pbi, data_end, num_workers);
   sync_dec_workers(pbi, num_workers);
-
+  printf("error in line 3789");
   if (pbi->dcb.corrupted)
     aom_internal_error(&pbi->error, AOM_CODEC_CORRUPT_FRAME,
                        "Failed to decode tile data");
-
+  
   if (tiles->large_scale) {
     if (n_tiles == 1) {
       // Find the end of the single tile buffer

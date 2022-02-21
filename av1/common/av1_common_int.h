@@ -1413,6 +1413,7 @@ static INLINE void set_mi_row_col(MACROBLOCKD *xd, const TileInfo *const tile,
     if (!(mi_row & (xd->width - 1))) xd->is_first_horizontal_rect = 1;
 }
 
+
 static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
                                            const MB_MODE_INFO *above_mi,
                                            const MB_MODE_INFO *left_mi) {
@@ -1420,8 +1421,31 @@ static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
   const PREDICTION_MODE left = av1_left_block_mode(left_mi);
   const int above_ctx = intra_mode_context[above];
   const int left_ctx = intra_mode_context[left];
-  return tile_ctx->kf_y_cdf[above_ctx][left_ctx];
+  //printf("INTRA_MODES %d", INTRA_MODES);
+  for(int i = 0; i < INTRA_MODES - 1; i++){
+    tile_ctx -> probability_average_array[i] = (tile_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][i] + tile_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx][i]) / 2;
+  }
+  /*for(int i = 0; i < 14; i++){
+    printf("i%d,%d ", i, tile_ctx -> probability_average_array[i]);
+  }
+  printf("\n");*/
+  return tile_ctx -> probability_average_array;
 }
+
+/*static INLINE aom_cdf_prob *get_y_mode_cdf(FRAME_CONTEXT *tile_ctx,
+                                           const MB_MODE_INFO *above_mi,
+                                           const MB_MODE_INFO *left_mi) {
+  const PREDICTION_MODE above = av1_above_block_mode(above_mi);
+  const PREDICTION_MODE left = av1_left_block_mode(left_mi);
+  const int above_ctx = intra_mode_context[above];
+  const int left_ctx = intra_mode_context[left];*/
+  /*for(int i = 0; i < 14; i++){
+    printf("i%d,%d ", i, tile_ctx -> kf_y_cdf[above_ctx][left_ctx][i]);
+  }
+  printf("\n");*/
+  /*return tile_ctx -> kf_y_cdf[above_ctx][left_ctx];
+}*/
+
 
 static INLINE void update_partition_context(MACROBLOCKD *xd, int mi_row,
                                             int mi_col, BLOCK_SIZE subsize,

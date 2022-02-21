@@ -233,6 +233,11 @@ int od_ec_dec_tell(const od_ec_dec *dec) {
      (dec->bptr - dec->buf) tells us how many bytes have been read into this
      window. The difference (dec->cnt - dec->tell_offs) tells us how many of
      the bits in that window remain unconsumed.*/
+  /*printf("dec -> buf %ld \n", dec -> buf);
+  printf("dec -> bptr %ld", dec -> bptr);
+  printf("(dec->bptr - dec->buf) * 8 %ld \n",(dec->bptr - dec->buf) * 8);
+  printf("dec->cnt %ld \n", dec -> cnt);
+  printf("dec->tell_offs %d \n", dec->tell_offs);*/
   return (int)((dec->bptr - dec->buf) * 8 - dec->cnt + dec->tell_offs);
 }
 
