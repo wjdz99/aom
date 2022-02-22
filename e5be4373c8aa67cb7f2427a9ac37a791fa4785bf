@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8419680b_9252f7d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-02-22T14:28:10Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this patch we have extended the speed feature \u0027limit_txfm_eval_per_mode\u0027 to speed 5. The results are as follows.\n\n               Instruction Count        BD-Rate Loss(%)        Max BD-Rate loss(%)\ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim                  \n 5         rtc      1.001         0.0759     0.0775    0.0791     0.4913         \n 5    rtc_derf      1.159         0.0543     0.0485    0.0405     0.5336         \n 5     Average      1.078         0.0669     0.0654    0.0630             \n\n In the BD rate Loss column: \n [+] sign is for BD-Rate loss\n [-] sign is for BD-Rate improvement \n The instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nThanks.",
+      "revId": "e5be4373c8aa67cb7f2427a9ac37a791fa4785bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
