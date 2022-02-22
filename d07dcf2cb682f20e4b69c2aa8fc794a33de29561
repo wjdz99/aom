@@ -16,6 +16,24 @@
       "message": "kick_off.sh should give an estimate of instruction counts as well if you are using the up-to-date version.",
       "revId": "d07dcf2cb682f20e4b69c2aa8fc794a33de29561",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce7677ef_8d48ac1e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-02-22T05:22:43Z",
+      "side": 1,
+      "message": "I tried to use kick_off_st.sh, but it failed to compile. Maybe I used a wrong script?",
+      "parentUuid": "13fcead2_29498348",
+      "revId": "d07dcf2cb682f20e4b69c2aa8fc794a33de29561",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
