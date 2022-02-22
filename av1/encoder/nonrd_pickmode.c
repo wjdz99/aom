@@ -935,10 +935,14 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
           tran_low_t *const qcoeff = p->qcoeff + block_offset;
           tran_low_t *const dqcoeff = p->dqcoeff + block_offset;
 
-          if (*eob == 1)
-            this_rdc->rate += (int)abs(qcoeff[0]);
-          else if (*eob > 1)
-            this_rdc->rate += aom_satd(qcoeff, step << 4);
+          // TODO(jingning): This shall either be truncated by large, or
+          // use simd.
+          if (*eob == 1) {
+            this_rdc->rate += get_msb(abs(qcoeff[0]) + 1);
+          } else if (*eob != 0) {
+            for (int idx = 0; idx < step << 4; ++idx)
+              this_rdc->rate += get_msb(abs(qcoeff[idx]) + 1);
+          }
 
           this_rdc->dist +=
               av1_block_error(coeff, dqcoeff, step << 4, &dummy) >> 2;
@@ -946,11 +950,12 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
           int16_t *const low_coeff = (int16_t *)p->coeff + block_offset;
           int16_t *const low_qcoeff = (int16_t *)p->qcoeff + block_offset;
           int16_t *const low_dqcoeff = (int16_t *)p->dqcoeff + block_offset;
-
-          if (*eob == 1)
-            this_rdc->rate += (int)abs(low_qcoeff[0]);
-          else if (*eob > 1)
-            this_rdc->rate += aom_satd_lp(low_qcoeff, step << 4);
+          if (*eob == 1) {
+            this_rdc->rate += get_msb(abs(low_qcoeff[0]) + 1);
+          } else if (*eob != 0) {
+            for (int idx = 0; idx < step << 4; ++idx)
+              this_rdc->rate += get_msb(abs(low_qcoeff[idx]) + 1);
+          }
 
           this_rdc->dist +=
               av1_block_error_lp(low_coeff, low_dqcoeff, step << 4) >> 2;
@@ -959,11 +964,12 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
         int16_t *const low_coeff = (int16_t *)p->coeff + block_offset;
         int16_t *const low_qcoeff = (int16_t *)p->qcoeff + block_offset;
         int16_t *const low_dqcoeff = (int16_t *)p->dqcoeff + block_offset;
-
-        if (*eob == 1)
-          this_rdc->rate += (int)abs(low_qcoeff[0]);
-        else if (*eob > 1)
-          this_rdc->rate += aom_satd_lp(low_qcoeff, step << 4);
+        if (*eob == 1) {
+          this_rdc->rate += get_msb(abs(low_qcoeff[0]) + 1);
+        } else if (*eob != 0) {
+          for (int idx = 0; idx < step << 4; ++idx)
+            this_rdc->rate += get_msb(abs(low_qcoeff[idx]) + 1);
+        }
 
         this_rdc->dist +=
             av1_block_error_lp(low_coeff, low_dqcoeff, step << 4) >> 2;
