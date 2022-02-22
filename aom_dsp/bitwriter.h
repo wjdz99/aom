@@ -105,7 +105,7 @@ static INLINE void aom_write_cdf_intramode(aom_writer *w, int symb, aom_cdf_prob
   aom_write_cdf(w, symb, cdf, nsymbs);
 }
 
-static INLINE void update_cdf_intramode(aom_writer *w, int symb, aom_cdf_prob *cdf, int nsymbs){
+static INLINE void writer_update_cdf_intramode(aom_writer *w, int symb, aom_cdf_prob *cdf, int nsymbs){
   if (w->allow_update_cdf) update_cdf(cdf, symb, nsymbs);
 }
 #ifdef __cplusplus

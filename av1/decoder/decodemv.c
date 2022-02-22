@@ -773,6 +773,12 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   MB_MODE_INFO *const mbmi = xd->mi[0];
   const MB_MODE_INFO *above_mi = xd->above_mbmi;
   const MB_MODE_INFO *left_mi = xd->left_mbmi;
+
+  const PREDICTION_MODE above = av1_above_block_mode(above_mi);
+  const PREDICTION_MODE left = av1_left_block_mode(left_mi);
+  const int above_ctx = intra_mode_context[above];
+  const int left_ctx = intra_mode_context[left];
+
   const BLOCK_SIZE bsize = mbmi->bsize;
   struct segmentation *const seg = &cm->seg;
 
@@ -809,7 +815,9 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
     if (is_intrabc_block(mbmi)) return;
   }
 
-  mbmi->mode = read_intra_mode(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi));
+  mbmi->mode = aom_read_symbol_new(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi), ec_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx], 
+                                   ec_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], INTRA_MODES);
+
   //printf("mbmi->mode %d\n", mbmi->mode);
 
   const int use_angle_delta = av1_use_angle_delta(bsize);
