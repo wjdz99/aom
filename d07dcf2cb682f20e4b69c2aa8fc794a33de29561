@@ -104,6 +104,23 @@
       "parentUuid": "3eb45f7c_9c6fc977",
       "revId": "d07dcf2cb682f20e4b69c2aa8fc794a33de29561",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c053cca_fa92038b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5610
+      },
+      "writtenOn": "2022-02-22T15:21:26Z",
+      "side": 1,
+      "message": "A surprisingly good improvement for a very small change, at least for HD.\n\nI guess our intuition here is that generally the EOB cost will be higher when the offset is larger as this equates to more complex content and the EOB being less well predicted. One might expect the EOB position to be non zero more often for lower resolution content but another complicating factor in regard to the impact of this change at lower resolutions vs hd and screen, could be the average size of the transform blocks used. Have you experimented at all Jingning with variations around this, particularly with a view to improving costing for the smaller resolutions?",
+      "revId": "d07dcf2cb682f20e4b69c2aa8fc794a33de29561",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
