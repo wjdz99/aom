@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nCurrently in row-mt decoding, when a thread encounters an internal error thread exits without processing the remaining row. However, other threads continued to process the respective rows. In such cases, the decoding done by other threads might not be necessary as the whole decoder exits from decoding with an error code.\n\nIn this CL, we have used a flag ‘row_mt_exit’ (which gets set when error occurs) to avoid the mentioned unnecessary decode. The reading of ‘row_mt_exit’ is kept under mutex lock as it is a common variable across threads.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.\n",
       "revId": "3da1db59bf60ef506bf7499b5f0455207f53cf81",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80d22f67_e91d516c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-22T18:23:53Z",
+      "side": 1,
+      "message": "Thanks for getting a better fix.",
+      "revId": "3da1db59bf60ef506bf7499b5f0455207f53cf81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
