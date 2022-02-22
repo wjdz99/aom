@@ -16,6 +16,24 @@
       "message": "3% slowdown seems too high for these bdrate gains at rtc_derf and rtc set.\n\nLets get more accurate speed numbers, i will run an fps over the test set later.",
       "revId": "5f6ce731ee545e34488c4bd6d19516b6f00c87cc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fc28614_641b4fc8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-02-22T17:22:32Z",
+      "side": 1,
+      "message": "also add the max/worst-case loss (for rtc_derf and rtc sets)",
+      "parentUuid": "d3be95c9_4fc97ba2",
+      "revId": "5f6ce731ee545e34488c4bd6d19516b6f00c87cc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
