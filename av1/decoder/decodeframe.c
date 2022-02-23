@@ -2668,7 +2668,7 @@ static AOM_INLINE void set_decode_func_pointers(ThreadData *td,
 
 static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
                                    int tile_row, int tile_col) {
-  printf("we are in decode tiles!!");
+  //printf("we are in decode tiles!!");
   TileInfo tile_info;
 
   AV1_COMMON *const cm = &pbi->common;
@@ -2838,7 +2838,7 @@ static const uint8_t *decode_tiles(AV1Decoder *pbi, const uint8_t *data,
       //printf("smaller tile");
       decode_tile(pbi, td, row, col);
       aom_merge_corrupted_flag(&pbi->dcb.corrupted, td->dcb.corrupted);
-      printf("line 2823");
+      //printf("line 2823");
       if (pbi->dcb.corrupted)
         aom_internal_error(&pbi->error, AOM_CODEC_CORRUPT_FRAME,
                            "Failed to decode tile data");
