@@ -1249,6 +1249,8 @@ void av1_avg_cdf_symbols(FRAME_CONTEXT *ctx_left, FRAME_CONTEXT *ctx_tr,
   AVERAGE_CDF(ctx_left->switchable_interp_cdf, ctx_tr->switchable_interp_cdf,
               SWITCHABLE_FILTERS);
   AVERAGE_CDF(ctx_left->kf_y_cdf, ctx_tr->kf_y_cdf, INTRA_MODES);
+  AVERAGE_CDF(ctx_left->kf_y_mode_cdf_left_ctx_matrix, ctx_tr->kf_y_mode_cdf_left_ctx_matrix, INTRA_MODES);
+  AVERAGE_CDF(ctx_left->kf_y_mode_cdf_above_ctx_matrix, ctx_tr->kf_y_mode_cdf_above_ctx_matrix, INTRA_MODES);
   AVERAGE_CDF(ctx_left->angle_delta_cdf, ctx_tr->angle_delta_cdf,
               2 * MAX_ANGLE_DELTA + 1);
   AVG_CDF_STRIDE(ctx_left->tx_size_cdf[0], ctx_tr->tx_size_cdf[0], MAX_TX_DEPTH,
