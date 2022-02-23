@@ -34,6 +34,24 @@
       "parentUuid": "d158d304_d4036a6d",
       "revId": "d5df34ae7ad310bedd5bf604aa0b0af74ca5107f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "509bec21_f2c508ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-23T17:54:54Z",
+      "side": 1,
+      "message": "Hi Jingning, this CL is to improve the performance of 1-pass encoding with --lag-in-frames\u003d19 in FPMT case. Our focus is the 2 pass case. For 1 pass with delay, we just maintain its performance.\n\nDo you know if --lag-in-frames\u003d48 works for 1 pass encoding or if 1-pass encoding with --lag-in-frames\u003d48 matters? I agree that we should test --lag-in-frames\u003d48 for 2 pass case.",
+      "parentUuid": "0996516e_e184b299",
+      "revId": "d5df34ae7ad310bedd5bf604aa0b0af74ca5107f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
