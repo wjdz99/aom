@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch modifies the function get_refresh_idx() so that none of the past 3 closest reference frames is refreshed by the current frame. This change specifically helps in low-delay configuration. This is taken from the CL https://aomedia-review.googlesource.com/c/aom/+/134441.\n\nPlease find below the test results on single pass encode configuration with --lag-in-frames\u003d19 across 30 clips (10 clips each of 4k, 1080p and 720p).\n\nREF: CONFIG_FRAME_PARALLEL_ENCODE 0 and CONFIG_FRAME_PARALLEL_ENCODE_2 0\n\nTEST_1: CONFIG_FRAME_PARALLEL_ENCODE 1 and CONFIG_FRAME_PARALLEL_ENCODE_2 1 on parent commit of patchset 2\n\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n0     Average     20.008        -0.0175     0.0191   -0.4673\n1     Average     18.718         0.1404     0.2049   -0.2911\n2     Average     10.499         0.4721     0.5215    0.0881\n3     Average      2.941         0.2319     0.2554   -0.0385\n4     Average      1.812         0.0335     0.0449   -0.1801\n5     Average      0.897         0.6195     0.6950    0.7482\n6     Average     -1.034         0.6144     0.7097    0.7860 \n\nTEST_2: CONFIG_FRAME_PARALLEL_ENCODE 1 and CONFIG_FRAME_PARALLEL_ENCODE_2 1 on patchset 2\n\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n0     Average      9.644        -1.1188    -1.1192   -1.4475\n1     Average      6.091        -1.1700    -1.1720   -1.5114\n2     Average      5.762        -0.8320    -0.8276   -1.1121\n3     Average      1.319        -0.6039    -0.6216   -0.8199\n4     Average      0.508        -0.6215    -0.6408   -0.7612\n5     Average     -0.078        -0.1510    -0.1220    0.0210\n6     Average     -0.778         0.2301     0.3047    0.4231\n\nIn the commit message, BD rate Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\n\nThis change was seen to have negligible impact on speed and quality when tested for 2-pass encode.\n\nWe have also validated this patch with address, thread, undefined and integer sanitizers.\n\nPlease review.\n\nRegards,\nRemya\n",
       "revId": "d5df34ae7ad310bedd5bf604aa0b0af74ca5107f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0996516e_e184b299",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-02-23T15:05:55Z",
+      "side": 1,
+      "message": "Please note that the baseline test conditions shall use --lage-in-frames\u003d48. We have deprecated 19 case.",
+      "parentUuid": "d158d304_d4036a6d",
+      "revId": "d5df34ae7ad310bedd5bf604aa0b0af74ca5107f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
