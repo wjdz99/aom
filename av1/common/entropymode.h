@@ -143,8 +143,8 @@ typedef struct frame_contexts {
      However, we keep it with the other CDFs in this struct since it needs to
      be copied to each tile to support parallelism just like the others.
   */
-  aom_cdf_prob kf_y_cdf[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
-                       [CDF_SIZE(INTRA_MODES)];
+  /*aom_cdf_prob kf_y_cdf[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS]
+                       [CDF_SIZE(INTRA_MODES)];*/
 
   aom_cdf_prob kf_y_mode_cdf_above_ctx_matrix[KF_MODE_CONTEXTS][14];
   aom_cdf_prob kf_y_mode_cdf_left_ctx_matrix[KF_MODE_CONTEXTS][14];

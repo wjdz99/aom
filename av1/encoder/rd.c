@@ -105,12 +105,37 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
   }
 
   for (i = 0; i < KF_MODE_CONTEXTS; ++i){
-    av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i], fc -> kf_y_mode_cdf_above_ctx_matrix[i], NULL);
-    av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i], fc -> kf_y_mode_cdf_left_ctx_matrix[i], NULL);
-    /*for (j = 0; j < KF_MODE_CONTEXTS; ++j){
-      av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j],
-                               fc->kf_y_cdf[i][j], NULL);
-    }*/
+    //av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i], fc -> kf_y_mode_cdf_above_ctx_matrix[i], NULL);
+    //av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i], fc -> kf_y_mode_cdf_left_ctx_matrix[i], NULL);
+    for (j = 0; j < KF_MODE_CONTEXTS; ++j){
+      /*printf("i%d j%d\n", i, j);
+      for(int k = 0; k < 13; ++k){
+        printf("%d ", mode_costs->y_mode_costs[i][j][k]);
+      }
+      printf("\n");*/
+
+      /*printf("i%d j%d\n", i, j);
+      for(int k = 0; k < 13; ++k){
+        printf("%d ", fc->kf_y_cdf[i][j][k]);
+      }
+      printf("\n");*/
+
+      //printf("seperator");
+      //av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], fc->kf_y_cdf[i][j], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], fc -> kf_y_mode_cdf_above_ctx_matrix[i], NULL);
+      av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], fc -> kf_y_mode_cdf_left_ctx_matrix[i], NULL);
+      /*printf("i%d j%d\n", i, j);
+      for(int k = 0; k < 13; ++k){
+        printf("%d ", fc->kf_y_cdf[i][j][k]);
+      }
+      printf("\n");*/
+
+      /*printf("i%d j%d\n", i, j);
+      for(int k = 0; k < 13; ++k){
+        printf("%d ", mode_costs->y_mode_costs[i][j][k]);
+      }
+      printf("\n");*/
+    }
   }
 
   for (i = 0; i < BLOCK_SIZE_GROUPS; ++i)
