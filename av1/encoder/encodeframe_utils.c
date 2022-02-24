@@ -1569,7 +1569,7 @@ void av1_set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
       if (skip_cost_update(cm->seq_params, tile_info, mi_row, mi_col,
                            cpi->sf.inter_sf.mode_cost_upd_level))
         break;
-      av1_fill_mode_rates(cm, &x->mode_costs, xd->tile_ctx);
+      av1_fill_mode_rates(cm, &x->mode_costs, xd->tile_ctx, xd);
       break;
     default: assert(0);
   }

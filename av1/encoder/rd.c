@@ -85,7 +85,7 @@ static const int av1_ext_tx_set_idx_to_type[2][AOMMAX(EXT_TX_SETS_INTRA,
 };
 
 void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
-                         FRAME_CONTEXT *fc) {
+                         FRAME_CONTEXT *fc, MACROBLOCKD *current_block) {
   int i, j;
 
   for (i = 0; i < PARTITION_CONTEXTS; ++i)
@@ -105,36 +105,9 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
   }
 
   for (i = 0; i < KF_MODE_CONTEXTS; ++i){
-    //av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i], fc -> kf_y_mode_cdf_above_ctx_matrix[i], NULL);
-    //av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i], fc -> kf_y_mode_cdf_left_ctx_matrix[i], NULL);
     for (j = 0; j < KF_MODE_CONTEXTS; ++j){
-      /*printf("i%d j%d\n", i, j);
-      for(int k = 0; k < 13; ++k){
-        printf("%d ", mode_costs->y_mode_costs[i][j][k]);
-      }
-      printf("\n");*/
-
-      /*printf("i%d j%d\n", i, j);
-      for(int k = 0; k < 13; ++k){
-        printf("%d ", fc->kf_y_cdf[i][j][k]);
-      }
-      printf("\n");*/
-
-      //printf("seperator");
-      //av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], fc->kf_y_cdf[i][j], NULL);
-      av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], fc -> kf_y_mode_cdf_above_ctx_matrix[i], NULL);
-      av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], fc -> kf_y_mode_cdf_left_ctx_matrix[i], NULL);
-      /*printf("i%d j%d\n", i, j);
-      for(int k = 0; k < 13; ++k){
-        printf("%d ", fc->kf_y_cdf[i][j][k]);
-      }
-      printf("\n");*/
-
-      /*printf("i%d j%d\n", i, j);
-      for(int k = 0; k < 13; ++k){
-        printf("%d ", mode_costs->y_mode_costs[i][j][k]);
-      }
-      printf("\n");*/
+      aom_cdf_prob *cdf = get_y_mode_cdf(fc,current_block -> above_mbmi, current_block -> left_mbmi);
+      av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], cdf, NULL);
     }
   }
 
@@ -762,7 +735,7 @@ void av1_initialize_rd_consts(AV1_COMP *cpi) {
   // Frame level mode cost update
   if (is_frame_level_cost_upd_freq_set(cm, inter_sf->mode_cost_upd_level,
                                        use_nonrd_pick_mode, frames_since_key))
-    av1_fill_mode_rates(cm, &x->mode_costs, cm->fc);
+    av1_fill_mode_rates(cm, &x->mode_costs, cm->fc, &x->e_mbd);
 
   // Frame level dv cost update
   if (!use_nonrd_pick_mode && av1_allow_intrabc(cm) &&
