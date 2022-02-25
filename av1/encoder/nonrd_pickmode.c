@@ -14,7 +14,10 @@
 #include <limits.h>
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
+#include "aom_dsp/txfm_common.h"
+#include "av1/common/blockd.h"
 #include "config/aom_dsp_rtcd.h"
 #include "config/av1_rtcd.h"
 
@@ -762,9 +765,9 @@ static void model_rd_for_sb_y(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
  * \c this_rdc. \c skippable flag is set if there is no non-zero quantized
  * coefficients for Hadamard transform
  */
-static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
-                      RD_STATS *this_rdc, int *skippable, BLOCK_SIZE bsize,
-                      TX_SIZE tx_size) {
+void block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x, int mi_row, int mi_col,
+               RD_STATS *this_rdc, int *skippable, BLOCK_SIZE bsize,
+               TX_SIZE tx_size, TX_TYPE tx_type) {
   MACROBLOCKD *xd = &x->e_mbd;
   const struct macroblockd_plane *pd = &xd->plane[0];
   struct macroblock_plane *const p = &x->plane[0];
@@ -841,7 +844,14 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
                               dqcoeff, p->dequant_QTX, eob, scan_order->scan,
                               scan_order->iscan);
             } else {
-              aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
+              if (tx_type == IDTX) {
+                for (int idy = 0; idy < 16; ++idy)
+                  for (int idx = 0; idx < 16; ++idx)
+                    low_coeff[idy * 16 + idx] =
+                        src_diff[idy * diff_stride + idx] * 8;
+              } else {
+                aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
+              }
               av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX,
                               p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
                               p->dequant_QTX, eob, scan_order->scan,
@@ -856,7 +866,14 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
                               dqcoeff, p->dequant_QTX, eob, scan_order->scan,
                               scan_order->iscan);
             } else {
-              aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
+              if (tx_type == IDTX) {
+                for (int idy = 0; idy < 8; ++idy)
+                  for (int idx = 0; idx < 8; ++idx)
+                    low_coeff[idy * 8 + idx] =
+                        src_diff[idy * diff_stride + idx] * 8;
+              } else {
+                aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
+              }
               av1_quantize_lp(low_coeff, 8 * 8, p->round_fp_QTX,
                               p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
                               p->dequant_QTX, eob, scan_order->scan,
@@ -872,7 +889,14 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
                               dqcoeff, p->dequant_QTX, eob, scan_order->scan,
                               scan_order->iscan);
             } else {
-              aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
+              if (tx_type == IDTX) {
+                for (int idy = 0; idy < 4; ++idy)
+                  for (int idx = 0; idx < 4; ++idx)
+                    low_coeff[idy * 4 + idx] =
+                        src_diff[idy * diff_stride + idx] * 8;
+              } else {
+                aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
+              }
               av1_quantize_lp(low_coeff, 4 * 4, p->round_fp_QTX,
                               p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
                               p->dequant_QTX, eob, scan_order->scan,
@@ -881,21 +905,43 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
             break;
 #else
           case TX_16X16:
-            aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
+            if (tx_type == IDTX) {
+              for (int idy = 0; idy < 16; ++idy)
+                for (int idx = 0; idx < 16; ++idx)
+                  low_coeff[idy * 16 + idx] =
+                      src_diff[idy * diff_stride + idx] * 8;
+            } else {
+              aom_hadamard_lp_16x16(src_diff, diff_stride, low_coeff);
+            }
             av1_quantize_lp(low_coeff, 16 * 16, p->round_fp_QTX,
                             p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
                             p->dequant_QTX, eob, scan_order->scan,
                             scan_order->iscan);
             break;
           case TX_8X8:
-            aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
+            if (tx_type == IDTX) {
+              for (int idy = 0; idy < 8; ++idy)
+                for (int idx = 0; idx < 8; ++idx)
+                  low_coeff[idy * 8 + idx] =
+                      src_diff[idy * diff_stride + idx] * 8;
+            } else {
+              aom_hadamard_lp_8x8(src_diff, diff_stride, low_coeff);
+            }
             av1_quantize_lp(low_coeff, 8 * 8, p->round_fp_QTX, p->quant_fp_QTX,
                             low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
                             scan_order->scan, scan_order->iscan);
             break;
           default:
             assert(tx_size == TX_4X4);
-            aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
+            if (tx_type == IDTX) {
+              for (int idy = 0; idy < 4; ++idy)
+                for (int idx = 0; idx < 4; ++idx)
+                  low_coeff[idy * 4 + idx] =
+                      src_diff[idy * diff_stride + idx] * 8;
+            } else {
+              aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
+            }
+
             av1_quantize_lp(low_coeff, 4 * 4, p->round_fp_QTX, p->quant_fp_QTX,
                             low_qcoeff, low_dqcoeff, p->dequant_QTX, eob,
                             scan_order->scan, scan_order->iscan);
@@ -1238,7 +1284,7 @@ static void estimate_block_intra(int plane, int block, int row, int col,
 
   if (plane == 0) {
     block_yrd(cpi, x, 0, 0, &this_rdc, &args->skippable, bsize_tx,
-              AOMMIN(tx_size, TX_16X16));
+              AOMMIN(tx_size, TX_16X16), DCT_DCT);
   } else {
     int64_t sse = 0;
     model_rd_for_sb_uv(cpi, plane_bsize, x, xd, &this_rdc, &sse, plane, plane);
@@ -2034,7 +2080,7 @@ static void estimate_intra_mode(
       model_rd_for_sb_y(cpi, bsize, x, xd, &this_rdc, 1);
     else
       block_yrd(cpi, x, mi_row, mi_col, &this_rdc, &args.skippable, bsize,
-                mi->tx_size);
+                mi->tx_size, DCT_DCT);
     // TODO(kyslov@) Need to account for skippable
     if (x->color_sensitivity[0]) {
       av1_foreach_transformed_block_in_plane(xd, uv_bsize, 1,
@@ -2754,7 +2800,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         }
       } else {
         block_yrd(cpi, x, mi_row, mi_col, &this_rdc, &is_skippable, bsize,
-                  mi->tx_size);
+                  mi->tx_size, DCT_DCT);
         if (this_rdc.skip_txfm ||
             RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist) >=
                 RDCOST(x->rdmult, 0, this_rdc.sse)) {
@@ -2951,6 +2997,31 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       aom_convolve_copy(best_pred->data, best_pred->stride, pd->dst.buf,
                         pd->dst.stride, bw, bh);
     }
+  }
+
+  if (is_inter_mode(best_pickmode.best_mode)) {
+    RD_STATS idtx_rdc;
+    av1_init_rd_stats(&this_rdc);
+    av1_init_rd_stats(&idtx_rdc);
+    int is_skippable;
+
+    this_mode_pred = &tmp[get_pred_buffer(tmp, 3)];
+    pd->dst.buf = this_mode_pred->data;
+    pd->dst.stride = bw;
+
+    av1_enc_build_inter_predictor(cm, xd, mi_row, mi_col, NULL, bsize, 0, 0);
+    block_yrd(cpi, x, mi_row, mi_col, &this_rdc, &is_skippable, bsize,
+              mi->tx_size, DCT_DCT);
+    block_yrd(cpi, x, mi_row, mi_col, &idtx_rdc, &is_skippable, bsize,
+              mi->tx_size, IDTX);
+    if (RDCOST(x->rdmult, idtx_rdc.rate, idtx_rdc.dist) <
+        RDCOST(x->rdmult, this_rdc.rate, this_rdc.dist)) {
+      xd->tx_type_map[0] = IDTX;
+      av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
+      memset(ctx->tx_type_map, IDTX, ctx->num_4x4_blk);
+      memset(xd->tx_type_map, IDTX, ctx->num_4x4_blk);
+    }
+    pd->dst = orig_dst;
   }
 
 #if CONFIG_AV1_TEMPORAL_DENOISING
