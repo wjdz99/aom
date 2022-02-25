@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87541651_b8c62ce7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-02-25T19:25:19Z",
+      "side": 1,
+      "message": "Does this CL improve over https://aomedia-review.googlesource.com/c/aom/+/153461 ?\n\nI remember Aasaipriya disabled the speed feature at speed 10 since they thought the max loss (~1%?) was too much. Here the max loss is 1.7%.\n\nI suggest we set clear rules for max loss so we all can follow. We can set a general rule for all clips or set a specific rule for each clip based on the coding gain over VP9. Does this make sense?",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 16
+      },
+      "revId": "b250c5cf387851670a2a990377880b728028e2b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
