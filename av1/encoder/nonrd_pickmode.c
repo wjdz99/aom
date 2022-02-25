@@ -888,13 +888,13 @@ static void block_yrd(AV1_COMP *cpi, MACROBLOCK *x, int mi_row, int mi_col,
           default:
             assert(tx_size == TX_4X4);
             if (use_hbd) {
-              aom_fdct4x4(src_diff, coeff, diff_stride);
+              aom_hadamard_4x4(src_diff, diff_stride, coeff);
               av1_quantize_fp(coeff, 4 * 4, p->zbin_QTX, p->round_fp_QTX,
                               p->quant_fp_QTX, p->quant_shift_QTX, qcoeff,
                               dqcoeff, p->dequant_QTX, eob, scan_order->scan,
                               scan_order->iscan);
             } else {
-              aom_fdct4x4_lp(src_diff, low_coeff, diff_stride);
+              aom_hadamard_lp_4x4(src_diff, diff_stride, low_coeff);
               av1_quantize_lp(low_coeff, 4 * 4, p->round_fp_QTX,
                               p->quant_fp_QTX, low_qcoeff, low_dqcoeff,
                               p->dequant_QTX, eob, scan_order->scan,
