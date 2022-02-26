@@ -1119,7 +1119,9 @@ typedef struct FRAME_COUNTS {
 // Note: This structure should only contain 'unsigned int' fields, or
 // aggregates built solely from 'unsigned int' fields/elements
 #if CONFIG_ENTROPY_STATS
-  unsigned int kf_y_mode[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS][INTRA_MODES];
+  //unsigned int kf_y_mode[KF_MODE_CONTEXTS][KF_MODE_CONTEXTS][INTRA_MODES];
+  unsigned int kf_y_mode_cdf_above_ctx_matrix[KF_MODE_CONTEXTS][INTRA_MODES];
+  unsigned int kf_y_mode_cdf_left_ctx_matrix[KF_MODE_CONTEXTS][INTRA_MODES];
   unsigned int angle_delta[DIRECTIONAL_MODES][2 * MAX_ANGLE_DELTA + 1];
   unsigned int y_mode[BLOCK_SIZE_GROUPS][INTRA_MODES];
   unsigned int uv_mode[CFL_ALLOWED_TYPES][INTRA_MODES][UV_INTRA_MODES];

@@ -502,9 +502,16 @@ void av1_sum_intra_stats(const AV1_COMMON *const cm, FRAME_COUNTS *counts,
     const PREDICTION_MODE left = av1_left_block_mode(left_mi);
     const int above_ctx = intra_mode_context[above];
     const int left_ctx = intra_mode_context[left];
-    ++counts->kf_y_mode[above_ctx][left_ctx][y_mode];
+    //++counts->kf_y_mode[above_ctx][left_ctx][y_mode];
+    ++counts->kf_y_mode_cdf_above_ctx_matrix[above_ctx][y_mode];
+    ++counts->kf_y_mode_cdf_left_ctx_matrix[left_ctx][y_mode];
 #endif  // CONFIG_ENTROPY_STATS
-    update_cdf(get_y_mode_cdf(fc, above_mi, left_mi), y_mode, INTRA_MODES);
+    const PREDICTION_MODE above = av1_above_block_mode(above_mi);
+    const PREDICTION_MODE left = av1_left_block_mode(left_mi);
+    const int above_ctx = intra_mode_context[above];
+    const int left_ctx = intra_mode_context[left];
+    update_cdf(fc -> kf_y_mode_cdf_above_ctx_matrix[above_ctx], y_mode, INTRA_MODES);
+    update_cdf(fc -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], y_mode, INTRA_MODES);
   } else {
 #if CONFIG_ENTROPY_STATS
     ++counts->y_mode[size_group_lookup[bsize]][y_mode];
@@ -1569,7 +1576,7 @@ void av1_set_cost_upd_freq(AV1_COMP *cpi, ThreadData *td,
       if (skip_cost_update(cm->seq_params, tile_info, mi_row, mi_col,
                            cpi->sf.inter_sf.mode_cost_upd_level))
         break;
-      av1_fill_mode_rates(cm, &x->mode_costs, xd->tile_ctx, xd);
+      av1_fill_mode_rates(cm, &x->mode_costs, xd->tile_ctx);
       break;
     default: assert(0);
   }
