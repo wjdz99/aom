@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cde1385_600a3f54",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 921,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-02-28T19:34:29Z",
+      "side": 1,
+      "message": "Is there a reason why we can\u0027t call aom_pixel_scale here?",
+      "range": {
+        "startLine": 918,
+        "startChar": 16,
+        "endLine": 921,
+        "endChar": 52
+      },
+      "revId": "a89d4cda1bf9ec140be9a26e9a2a2523c5ef1501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe242562_ea0b7e89",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 13
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-02-28T19:34:29Z",
+      "side": 1,
+      "message": "nit: I think the convention in the codebase is to have aom_dsp/* and av1/* be in different blocks. Could you insert a new line under this include?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 32
+      },
+      "revId": "a89d4cda1bf9ec140be9a26e9a2a2523c5ef1501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18358d24_046b4ac5",
+        "filename": "av1/encoder/rdopt.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-02-28T19:34:29Z",
+      "side": 1,
+      "message": "Prefix this with av1 to avoid conflict.",
+      "range": {
+        "startLine": 169,
+        "startChar": 5,
+        "endLine": 169,
+        "endChar": 14
+      },
+      "revId": "a89d4cda1bf9ec140be9a26e9a2a2523c5ef1501",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
