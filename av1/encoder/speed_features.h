@@ -1443,6 +1443,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Temporal filtering
   int use_rtc_tf;
 
+  // Skip loopfilter, for static content after slide change
+  // or key frame, once quality has ramped up.
+  int skip_lf_screen;
   // Early terminate inter mode search based on sse in non-rd path.
   INTER_SEARCH_EARLY_TERM_IDX sse_early_term_inter_search;
 } REAL_TIME_SPEED_FEATURES;
