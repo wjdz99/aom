@@ -107,7 +107,7 @@ void av1_fill_mode_rates(AV1_COMMON *const cm, ModeCosts *mode_costs,
   for (i = 0; i < KF_MODE_CONTEXTS; ++i){
     for (j = 0; j < KF_MODE_CONTEXTS; ++j){
       aom_cdf_prob cdf[CDF_SIZE(INTRA_MODES)];
-      for(int k = 0; k < 14; k++){
+      for(int k = 0; k < CDF_SIZE(INTRA_MODES); k++){
         cdf[k] = ((fc -> kf_y_mode_cdf_above_ctx_matrix)[i][k] + (fc -> kf_y_mode_cdf_left_ctx_matrix)[j][k]) >> 1;
       }
       av1_cost_tokens_from_cdf(mode_costs->y_mode_costs[i][j], cdf, NULL);

@@ -1106,7 +1106,6 @@ void av1_init_mode_probs(FRAME_CONTEXT *fc) {
   av1_copy(fc->palette_uv_size_cdf, default_palette_uv_size_cdf);
   av1_copy(fc->palette_y_color_index_cdf, default_palette_y_color_index_cdf);
   av1_copy(fc->palette_uv_color_index_cdf, default_palette_uv_color_index_cdf);
-  //av1_copy(fc->kf_y_cdf, default_kf_y_mode_cdf);
   av1_copy(fc->kf_y_mode_cdf_above_ctx_matrix, default_kf_y_mode_cdf_above_ctx_matrix);
   av1_copy(fc->kf_y_mode_cdf_left_ctx_matrix, default_kf_y_mode_cdf_left_ctx_matrix);
   av1_copy(fc->angle_delta_cdf, default_angle_delta_cdf);

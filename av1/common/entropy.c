@@ -157,7 +157,6 @@ void av1_reset_cdf_symbol_counters(FRAME_CONTEXT *fc) {
     }
   }
   RESET_CDF_COUNTER(fc->switchable_interp_cdf, SWITCHABLE_FILTERS);
-  //RESET_CDF_COUNTER(fc->kf_y_cdf, INTRA_MODES);
   RESET_CDF_COUNTER(fc->kf_y_mode_cdf_above_ctx_matrix, INTRA_MODES);
   RESET_CDF_COUNTER(fc->kf_y_mode_cdf_left_ctx_matrix, INTRA_MODES);
   RESET_CDF_COUNTER(fc->angle_delta_cdf, 2 * MAX_ANGLE_DELTA + 1);

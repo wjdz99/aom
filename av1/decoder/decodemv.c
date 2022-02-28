@@ -818,8 +818,6 @@ static void read_intra_frame_mode_info(AV1_COMMON *const cm,
   mbmi->mode = aom_read_symbol_new(r, get_y_mode_cdf(ec_ctx, above_mi, left_mi), ec_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx], 
                                    ec_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], INTRA_MODES);
 
-  //printf("mbmi->mode %d\n", mbmi->mode);
-
   const int use_angle_delta = av1_use_angle_delta(bsize);
   mbmi->angle_delta[PLANE_TYPE_Y] =
       (use_angle_delta && av1_is_directional_mode(mbmi->mode))

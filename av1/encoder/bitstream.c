@@ -81,84 +81,10 @@ static AOM_INLINE void write_intra_y_mode_kf(FRAME_CONTEXT *frame_ctx,
   const int above_ctx = intra_mode_context[above];
   const int left_ctx = intra_mode_context[left];
 
-  //printf("mode %d, INTRA_MODES, %d\n", mode, INTRA_MODES);
-  //printf("frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx]", frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx]);
-  //printf("frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx]", frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx]);
-  //printf("frame_ctx -> probability_average_array", frame_ctx -> probability_average_array);
-  /*printf("\n");
-  printf("before get_y_mode_cdf ");*/
-  /*printf("\n");
-  printf("before");
-  for(int i = 0; i < 14; i++){
-   printf("i%d,%d ", i, get_y_mode_cdf(frame_ctx, above_mi, left_mi)[i]); 
-  }*/
-  //printf("above_ctx %d\n", above_ctx);
   aom_write_cdf_intramode(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),INTRA_MODES);
-  /*for(int i = 0; i < 14; i++){
-    printf(" i, %d,%d ", i, frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][i]);
-  }*/
-  
   writer_update_cdf_intramode(w, mode, frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx], INTRA_MODES);
   writer_update_cdf_intramode(w, mode, frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], INTRA_MODES);
 }
-  /*printf("\n");
-  for(int i = 0; i < 14; i++){
-    printf("i,%d,%d ",i, frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][i]);
-  }
-  printf("\n");*/
-
-  //update_cdf_intramode(w, mode, frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], INTRA_MODES);
-  /*printf("\n");
-  printf("after");
-  for(int i = 0; i < 14; i++){
-   printf("i%d,%d ", i, get_y_mode_cdf(frame_ctx, above_mi, left_mi)[i]); 
-  }*/
-
-  /*aom_write_symbol(w, mode, get_y_mode_cdf(frame_ctx, above_mi, left_mi),
-                   INTRA_MODES);*/
-  /*printf("\n");
-  printf("after get_y_mode_cdf");*/
-  
-
-
-  //update_cdf(frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx], mode, INTRA_MODES);
-  //update_cdf(frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], mode, INTRA_MODES);
-  
-
-  /*for(int i = 0; i < 14; i++){
-   printf("i%d,%d ", i, frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][i]); 
-  }*/
-
-  /*update_cdf(frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx], mode, INTRA_MODES);
-  frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][12] = 0;
-  frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][13] = 32;*/
-  /*printf("before");
-  printf("\n");
-
-  for(int i = 0; i < 14; i++){
-   printf("i%d,%d ", i, frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][i]); 
-  }
-  printf("after");
-  printf("\n");*/
-
-  //update_cdf(frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], mode, INTRA_MODES);
-
-  /*for(int i = 0; i < 14; i++){
-   printf("i, %d, above_ctx, %d\n", i, frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][i]); 
-  }*/
-  /*frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][12] = 0;
-  frame_ctx -> kf_y_mode_cdf_above_ctx_matrix[above_ctx][13] = 32;*/
-
-  /*for(int i = 0; i < 14; i++){
-   printf("i, %d, left_ctx, %d\n", i, frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx][i]); 
-  }*/
-  /*update_cdf(frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx], mode, INTRA_MODES);
-  frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx][12] = 0;
-  frame_ctx -> kf_y_mode_cdf_left_ctx_matrix[left_ctx][13] = 32;*/
-
-  /*for(int i = 0; i < 15; i++){
-   printf("i, %d, " ",%d\n", i, frame_ctx -> kf_y_cdf[above_ctx][left_ctx][i]); 
-  }*/
 
 
 static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
