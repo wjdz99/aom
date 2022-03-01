@@ -22,6 +22,30 @@
       },
       "revId": "b45de40e2df24113ef41494f0d819bfdec702d86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a9d05f4_38c45210",
+        "filename": "av1/encoder/txb_rdopt_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 26338
+      },
+      "writtenOn": "2022-03-01T22:59:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b801edb_78176a02",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 72
+      },
+      "revId": "b45de40e2df24113ef41494f0d819bfdec702d86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
