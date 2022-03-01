@@ -1,0 +1,274 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02bfa48d_132bf90b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "Thanks, Jerome, this is a great start! I was planning on hashing some of this out in the design doc, but really it makes more sense to address the code-level details in a code review.\n\nI\u0027m looking forward to getting the details of this interface sorted out ASAP so that we can all start implementing the code on either side of the API.",
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b58a1ad_c761dfdd",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "If there\u0027s no objection to taking parts of absl as a dependency, it would be cleaner to pass list arguments of this sort as absl::Span\u003cconst T\u003e rather than using ad hoc structs like this.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a236c89c_e8eb2cb9",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "Many of these fields are not available from Argos hardware. Either they should be removed from here, or we need to either\n(a) make it explicit which fields are required and have a way of signaling which fields are available, or\n(b) document that some fields are always ignored",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e914f42_b7a56bcc",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "This isn\u0027t used yet. We\u0027ll need a function in the API which returns one of these, given the FirstPassInfo. In fact, SetFirstPassInfo could just do that, in which case it could be renamed ProcessFirstPassInfo or something like that.",
+      "range": {
+        "startLine": 40,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0472470a_1c27c6f5",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "Rather than having separate vectors for q_index and rdmult, it would be cleaner to define a struct of per frame info, and have GetGopEncodeInfo return a vector of those, e.g.:\n\nstruct FrameEncodeParameters {\n  int q_index;\n  int rdmult;\n};\n\n  virtual std::vector\u003cFrameEncodeParameters\u003e GetGopEncodeInfo() \u003d 0;",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "346cdc90_39714243",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "This could just be std::vector\u003cstd::vector\u003cGopEncodeParameters\u003e\u003e. That said, we\u0027re planning on doing a lagged two-pass encode, in which SetTplInfo/DetermineGopInfo/GetGopEncodeInfo are called once per GOP rather than once for the whole chunk. In which case this struct really isn\u0027t needed at all, and GetGopEncodeInfo should just return std::vector\u003cGopEncodeParameters\u003e.",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 2
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d1c6705_82a4990c",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "Everything in this header should be included in the namespace, with the exception of definitions which are intentionally shared with existing libaom C code.",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 15
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e9b0e80_9d6d1559",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "I see that this is the namespace used by ratectrl_rtc. We need to make a conscious decision of whether to do this or use a separate namespace for this library. I think sharing the namespace is fine as long as we can insure that there are no conflicts between the two libraries. It\u0027s conceivable the same binary might want to include both libraries, so if any code is to be shared between them, it should be in common files.",
+      "range": {
+        "startLine": 61,
+        "startChar": 10,
+        "endLine": 61,
+        "endChar": 13
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1da1183f_1bd7846b",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "Perhaps this should be called AV1RateControlQModeInterface, to make it clear that it\u0027s an interface class. The implementation (which would be private to the library) could then be called AV1RateControlQMode.",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 25
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b359f6e4_1e60fd61",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "We need to think about whether we need a mechanism for error handling in this API. If errors are possible, it may be worth having functions return absl::Status or absl::StatusOr\u003cT\u003e so that we have a consistent way to handle errors from the library.\n\nThat may not be an issue for this function specifically; just throwing it out there to see what people think about the issue in general.",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b37c3473_02cb0c09",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "I\u0027m not really sure I see the point of having three separate functions here. Why not just one function that takes the GopInfo and TplInfo and returns the GopEncodeInfo?",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e29824f1_7dc3802d",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T13:07:04Z",
+      "side": 1,
+      "message": "The class defined here should be a pure interface, i.e., and abstract base class with no implementation. These data members belong in the implementation class, not the interface.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 33
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
