@@ -89,6 +89,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4b6d4fc_14c3671f",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "any new dependencies would need to be added to aom/third_party and we normally refrain from adding more dependencies at the moment as it\u0027s been integrated into many systems.",
+      "parentUuid": "937f2915_0a1f14b6",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d7a760d7_1f65bcc6",
@@ -126,6 +150,30 @@
       "side": 1,
       "message": "SGTM",
       "parentUuid": "d7a760d7_1f65bcc6",
+      "range": {
+        "startLine": 23,
+        "startChar": 7,
+        "endLine": 23,
+        "endChar": 18
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee059b98_9fac8e91",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08485bd9_cd9cb634",
       "range": {
         "startLine": 23,
         "startChar": 7,
@@ -207,6 +255,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d444d00_bc143e2a",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7532cdea_59d4d7eb",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e914f42_b7a56bcc",
@@ -244,6 +316,30 @@
       "side": 1,
       "message": "Sorry, the first sentence of my comment above is wrong. This is used as an argument to SetTplInfo. \n\nBut my understanding is that it\u0027s the library\u0027s responsibility to determine the GOP structure based on the one pass stats, not the caller\u0027s responsibility.",
       "parentUuid": "3e914f42_b7a56bcc",
+      "range": {
+        "startLine": 40,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7886622_68f0dbcb",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "That sounds about right...",
+      "parentUuid": "3150c460_abe0685c",
       "range": {
         "startLine": 40,
         "startChar": 7,
@@ -301,6 +397,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0855300c_f88b684c",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d667b199_645442bc",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 30
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0472470a_1c27c6f5",
@@ -314,6 +434,30 @@
       "writtenOn": "2022-03-01T13:07:04Z",
       "side": 1,
       "message": "Rather than having separate vectors for q_index and rdmult, it would be cleaner to define a struct of per frame info, and have GetGopEncodeInfo return a vector of those, e.g.:\n\nstruct FrameEncodeParameters {\n  int q_index;\n  int rdmult;\n};\n\n  virtual std::vector\u003cFrameEncodeParameters\u003e GetGopEncodeInfo() \u003d 0;",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3437c85_d5f8c204",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0472470a_1c27c6f5",
       "range": {
         "startLine": 50,
         "startChar": 0,
@@ -393,6 +537,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23656cd9_6713841a",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d1c6705_82a4990c",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 15
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9354eabe_e8771e92",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "I don\u0027t expect there to be any conflicts between two libraries, as none of this structures are used on rtc side. it was named \"aom\" mostly because the code still sits in libaom repo. But I\u0027m open to other names.",
+      "parentUuid": "5e9b0e80_9d6d1559",
+      "range": {
+        "startLine": 61,
+        "startChar": 10,
+        "endLine": 61,
+        "endChar": 13
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1da1183f_1bd7846b",
@@ -406,6 +598,30 @@
       "writtenOn": "2022-03-01T13:07:04Z",
       "side": 1,
       "message": "Perhaps this should be called AV1RateControlQModeInterface, to make it clear that it\u0027s an interface class. The implementation (which would be private to the library) could then be called AV1RateControlQMode.",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 25
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a645bca_c46a4c43",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "My idea was to remove the pure virtual functions and just implement them with this class in ratectrl_qmode.cc in the future, as this is a relatively simple rate control algorithm and we probably don\u0027t need to extend this interface.",
+      "parentUuid": "1da1183f_1bd7846b",
       "range": {
         "startLine": 62,
         "startChar": 6,
@@ -441,6 +657,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f59cd492_3d662534",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "libaom has its own error handling:\nhttps://osscs.corp.google.com/libaom/aom/+/master:aom/aom_codec.h;l\u003d155?q\u003daom_codec.h\u0026ss\u003dlibaom\n\nWe can use this, then this library will be dependent on libaom.",
+      "parentUuid": "b359f6e4_1e60fd61",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b37c3473_02cb0c09",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 2
@@ -464,6 +704,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2c35ccfc_f711a9cb",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "Yeah that could work. and we can use private functions to set different structures. I\u0027ll go ahead and implement that way if that sounds good to you.",
+      "parentUuid": "b37c3473_02cb0c09",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e29824f1_7dc3802d",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 2
@@ -475,6 +739,30 @@
       "writtenOn": "2022-03-01T13:07:04Z",
       "side": 1,
       "message": "The class defined here should be a pure interface, i.e., and abstract base class with no implementation. These data members belong in the implementation class, not the interface.",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 33
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11942830_325a80f1",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-01T23:37:48Z",
+      "side": 1,
+      "message": "See my previous comment.",
+      "parentUuid": "e29824f1_7dc3802d",
       "range": {
         "startLine": 74,
         "startChar": 0,
