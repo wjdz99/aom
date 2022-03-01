@@ -34,6 +34,24 @@
       "parentUuid": "f66f40f1_801ff299",
       "revId": "11a2a90511d42c48a9a632e66716f08ccf899d06",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4e3d198_00a0d9ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2022-03-01T05:22:19Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nPlease find details below,     \n     \n cpu   Resolution  Max bd-rate drop(%)    Clip-name\n  7         rtc        1.2381           kirlandvga.y4m\n  7    rtc_derf        0.6327           apprtc_pixel3_320_240.y4m\n  7     Average        1.2381           kirlandvga.y4m\n\nExcept \"kirlandvga.y4m\" all other clips are under 0.64% quality drop. Also we see quality gain for most of the clips in the test-set (nearly 50% of the total number of clips in the test-set).\n\nThanks",
+      "parentUuid": "114599a3_60b9b35b",
+      "revId": "11a2a90511d42c48a9a632e66716f08ccf899d06",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
