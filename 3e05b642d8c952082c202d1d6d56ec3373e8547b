@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "937f2915_0a1f14b6",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T20:14:04Z",
+      "side": 1,
+      "message": "Sure, that\u0027s fine. absl::Span is more versatile, since it allows other container types to be passed, potentially allowing heap allocations to be avoided. But certainly we can use std::vector for now. If there\u0027s a need to optimize later we can change to absl::Span then.",
+      "parentUuid": "e9a1d9fa_f16ac358",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d7a760d7_1f65bcc6",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 2
@@ -78,6 +102,30 @@
       "writtenOn": "2022-03-01T20:03:33Z",
       "side": 1,
       "message": "TplBlockStats\n\nThis is the stats for a TPL block\n\nAdd block_size, row, col to accommodate hardware\u0027s flexibility?",
+      "range": {
+        "startLine": 23,
+        "startChar": 7,
+        "endLine": 23,
+        "endChar": 18
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "08485bd9_cd9cb634",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T20:14:04Z",
+      "side": 1,
+      "message": "SGTM",
+      "parentUuid": "d7a760d7_1f65bcc6",
       "range": {
         "startLine": 23,
         "startChar": 7,
@@ -125,6 +173,30 @@
       "side": 1,
       "message": "Let\u0027s just keep the intra_cost and inter_cost that Argos has?\nThis library is not going to be used in software av1 anytime soon.",
       "parentUuid": "a236c89c_e8eb2cb9",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7532cdea_59d4d7eb",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-01T20:14:04Z",
+      "side": 1,
+      "message": "Also mv and ref_frame_index.\n\nArgos is limited to 2 MV\u0027s here, so mv could just have 2 elements instead of INTER_REFS_PER_FRAME.",
+      "parentUuid": "5f9c9eb5_525d39d1",
       "range": {
         "startLine": 26,
         "startChar": 0,
