@@ -43,6 +43,53 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e9a1d9fa_f16ac358",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-01T20:03:33Z",
+      "side": 1,
+      "message": "Let\u0027s just use vector?",
+      "parentUuid": "3b58a1ad_c761dfdd",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7a760d7_1f65bcc6",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-01T20:03:33Z",
+      "side": 1,
+      "message": "TplBlockStats\n\nThis is the stats for a TPL block\n\nAdd block_size, row, col to accommodate hardware\u0027s flexibility?",
+      "range": {
+        "startLine": 23,
+        "startChar": 7,
+        "endLine": 23,
+        "endChar": 18
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a236c89c_e8eb2cb9",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 2
@@ -54,6 +101,30 @@
       "writtenOn": "2022-03-01T13:07:04Z",
       "side": 1,
       "message": "Many of these fields are not available from Argos hardware. Either they should be removed from here, or we need to either\n(a) make it explicit which fields are required and have a way of signaling which fields are available, or\n(b) document that some fields are always ignored",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f9c9eb5_525d39d1",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-01T20:03:33Z",
+      "side": 1,
+      "message": "Let\u0027s just keep the intra_cost and inter_cost that Argos has?\nThis library is not going to be used in software av1 anytime soon.",
+      "parentUuid": "a236c89c_e8eb2cb9",
       "range": {
         "startLine": 26,
         "startChar": 0,
@@ -124,6 +195,30 @@
       "writtenOn": "2022-03-01T14:26:40Z",
       "side": 1,
       "message": "This doesn\u0027t make it clear which pixels each TplDepStats corresponds to. If the assumption is that each one corresponds to a 16x16 block in row-major order, this should be stated explicitly.\n\nBut note that the motion tree stats from Argos hardware are not necessarily for 16x16 blocks. The encoding pass used to generate the stats may partition into coding units anywhere from 8x8 to 64x64, and generates stats per block.\n\nIf the library is capable of handling stats at resolutions other than 16x16, we\u0027ll need to encode the size (and possibly position) of each block here. If not, we\u0027ll need to ensure that the hardware generates stats for 16x16 blocks.",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 30
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d667b199_645442bc",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-01T20:03:33Z",
+      "side": 1,
+      "message": "We will add block_size and row/col to TplDepStats(or TplBlockStats) accommodate argos\u0027s flexibility.\n\nLet\u0027s just vector here?",
+      "parentUuid": "1b322f10_014edfc8",
       "range": {
         "startLine": 46,
         "startChar": 0,
