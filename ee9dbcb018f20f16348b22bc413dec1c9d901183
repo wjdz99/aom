@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, James,\n\nWhen an internal error occurs in the row-mt path, there is a need to signal the current SB row processing finished to ensure that other threads which wait on this specific SB row will exit decoding. While doing the same in signal_decoding_done_for_erroneous_row(), xd-\u003emi_row is used to derive specific SB rows as thread_data doesn’t have this information. Currently xd-\u003emi_row is populated w.r.t. current tile inside ‘set_mi_row_col()’, when a valid block is through for parsing/decoding.\n\nHowever, there are some places in row-mt decoding where an internal error occurs and by that time xd-\u003emi_row is not set as per current tile. Not setting xd-\u003emi_row to a proper value as per current tile can lead to wrong values for SB row calculation in signal_decoding_done_for_erroneous_row().  Above is the reason for different issues seen in ozz-fuzz. This CL sets xd-\u003emi_row appropriately at these places.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.\n",
       "revId": "ee9dbcb018f20f16348b22bc413dec1c9d901183",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a62353e_dcc8a843",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-01T17:01:05Z",
+      "side": 1,
+      "message": "Thanks for the debugging and fixing! It looks good to set xd-\u003emi_row properly to resolve the issue.",
+      "parentUuid": "ff982196_ebc75094",
+      "revId": "ee9dbcb018f20f16348b22bc413dec1c9d901183",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
