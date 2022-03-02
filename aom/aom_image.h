@@ -48,6 +48,9 @@ typedef enum aom_img_fmt {
   AOM_IMG_FMT_AOMI420 = AOM_IMG_FMT_PLANAR | 4,
   AOM_IMG_FMT_I422 = AOM_IMG_FMT_PLANAR | 5,
   AOM_IMG_FMT_I444 = AOM_IMG_FMT_PLANAR | 6,
+/*!\hideinitializer Also define AOM_IMG_FMT_NV12 as a macro to allow detection
+ * of its presence at compile time. */
+#define AOM_IMG_FMT_NV12 AOM_IMG_FMT_NV12
   AOM_IMG_FMT_NV12 =
       AOM_IMG_FMT_PLANAR | 7, /**< 4:2:0 with U and V interleaved */
   AOM_IMG_FMT_I42016 = AOM_IMG_FMT_I420 | AOM_IMG_FMT_HIGHBITDEPTH,
