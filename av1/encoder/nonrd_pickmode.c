@@ -449,7 +449,9 @@ static INLINE void find_predictors(
                   bsize);
     }
   }
-  av1_count_overlappable_neighbors(cm, xd);
+  const MotionModeCfg *motion_mode_cfg = &cpi->oxcf.motion_mode_cfg;
+  if (motion_mode_cfg->allow_warped_motion || motion_mode_cfg->enable_obmc)
+    av1_count_overlappable_neighbors(cm, xd);
   mbmi->num_proj_ref = 1;
 }
 
@@ -483,29 +485,22 @@ static TX_SIZE calculate_tx_size(const AV1_COMP *const cpi, BLOCK_SIZE bsize,
                                  MACROBLOCK *const x, unsigned int var,
                                  unsigned int sse) {
   MACROBLOCKD *const xd = &x->e_mbd;
-  TX_SIZE tx_size;
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
-  if (txfm_params->tx_mode_search_type == TX_MODE_SELECT) {
-    if (sse > (var << 1))
-      tx_size =
-          AOMMIN(max_txsize_lookup[bsize],
-                 tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
-    else
-      tx_size = TX_8X8;
-
-    if (cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
-        cyclic_refresh_segment_id_boosted(xd->mi[0]->segment_id))
-      tx_size = TX_8X8;
-    else if (tx_size > TX_16X16)
-      tx_size = TX_16X16;
-  } else {
-    tx_size =
-        AOMMIN(max_txsize_lookup[bsize],
-               tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
-  }
 
   if (txfm_params->tx_mode_search_type != ONLY_4X4 && bsize > BLOCK_32X32)
-    tx_size = TX_16X16;
+    return TX_16X16;
+
+  TX_SIZE tx_size =
+      AOMMIN(max_txsize_lookup[bsize],
+             tx_mode_to_biggest_tx_size[txfm_params->tx_mode_search_type]);
+
+  if (txfm_params->tx_mode_search_type == TX_MODE_SELECT) {
+    if ((cpi->oxcf.q_cfg.aq_mode == CYCLIC_REFRESH_AQ &&
+         cyclic_refresh_segment_id_boosted(xd->mi[0]->segment_id)) ||
+        (!(sse > (var << 1)))) {
+      tx_size = TX_8X8;
+    }
+  }
 
   return AOMMIN(tx_size, TX_16X16);
 }
@@ -520,11 +515,14 @@ static const uint8_t b_height_log2_lookup[BLOCK_SIZES] = { 0, 1, 0, 1, 2, 1,
 static void block_variance(const uint8_t *src, int src_stride,
                            const uint8_t *ref, int ref_stride, int w, int h,
                            unsigned int *sse, int *sum, int block_size,
-                           uint32_t *sse8x8, int *sum8x8, uint32_t *var8x8) {
+                           uint32_t *sse8x8, int *sum8x8, uint32_t *var8x8,
+                           uint32_t *max_sse8x8, uint32_t *max_var8x8) {
   int i, j, k = 0;
 
   *sse = 0;
   *sum = 0;
+  *max_sse8x8 = 0;
+  *max_var8x8 = 0;
 
   for (i = 0; i < h; i += block_size) {
     for (j = 0; j < w; j += block_size) {
@@ -534,6 +532,8 @@ static void block_variance(const uint8_t *src, int src_stride,
       *sse += sse8x8[k];
       *sum += sum8x8[k];
       var8x8[k] = sse8x8[k] - (uint32_t)(((int64_t)sum8x8[k] * sum8x8[k]) >> 6);
+      *max_sse8x8 = AOMMAX(*max_sse8x8, sse8x8[k]);
+      *max_var8x8 = AOMMAX(*max_var8x8, var8x8[k]);
       k++;
     }
   }
@@ -542,11 +542,14 @@ static void block_variance(const uint8_t *src, int src_stride,
 static void calculate_variance(int bw, int bh, TX_SIZE tx_size,
                                unsigned int *sse_i, int *sum_i,
                                unsigned int *var_o, unsigned int *sse_o,
-                               int *sum_o) {
+                               int *sum_o, unsigned int *max_sse16x16,
+                               unsigned int *max_var16x16) {
   const BLOCK_SIZE unit_size = txsize_to_bsize[tx_size];
   const int nw = 1 << (bw - b_width_log2_lookup[unit_size]);
   const int nh = 1 << (bh - b_height_log2_lookup[unit_size]);
   int i, j, k = 0;
+  *max_sse16x16 = 0;
+  *max_var16x16 = 0;
 
   for (i = 0; i < nh; i += 2) {
     for (j = 0; j < nw; j += 2) {
@@ -557,6 +560,8 @@ static void calculate_variance(int bw, int bh, TX_SIZE tx_size,
       var_o[k] = sse_o[k] - (uint32_t)(((int64_t)sum_o[k] * sum_o[k]) >>
                                        (b_width_log2_lookup[unit_size] +
                                         b_height_log2_lookup[unit_size] + 6));
+      *max_sse16x16 = AOMMAX(*max_sse16x16, sse_o[k]);
+      *max_var16x16 = AOMMAX(*max_var16x16, var_o[k]);
       k++;
     }
   }
@@ -599,12 +604,13 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
   unsigned int sse8x8[256] = { 0 };
   int sum8x8[256] = { 0 };
   unsigned int var8x8[256] = { 0 };
+  unsigned int max_sse[2], max_var[2];
   TX_SIZE tx_size;
-  int k;
   // Calculate variance for whole partition, and also save 8x8 blocks' variance
   // to be used in following transform skipping test.
   block_variance(p->src.buf, p->src.stride, pd->dst.buf, pd->dst.stride,
-                 4 << bw, 4 << bh, &sse, &sum, 8, sse8x8, sum8x8, var8x8);
+                 4 << bw, 4 << bh, &sse, &sum, 8, sse8x8, sum8x8, var8x8,
+                 &max_sse[0], &max_var[0]);
   var = sse - (unsigned int)(((int64_t)sum * sum) >> (bw + bh + 4));
 
   rd_stats->sse = sse;
@@ -641,48 +647,23 @@ static void model_skip_for_sb_y_large(AV1_COMP *cpi, BLOCK_SIZE bsize,
     unsigned int sse16x16[64] = { 0 };
     int sum16x16[64] = { 0 };
     unsigned int var16x16[64] = { 0 };
-    const int num16x16 = num8x8 >> 2;
 
-    unsigned int sse32x32[16] = { 0 };
-    int sum32x32[16] = { 0 };
-    unsigned int var32x32[16] = { 0 };
-    const int num32x32 = num8x8 >> 4;
-
-    int ac_test = 1;
-    int dc_test = 1;
-    const int num = (tx_size == TX_8X8)
-                        ? num8x8
-                        : ((tx_size == TX_16X16) ? num16x16 : num32x32);
-    const unsigned int *sse_tx =
-        (tx_size == TX_8X8) ? sse8x8
-                            : ((tx_size == TX_16X16) ? sse16x16 : sse32x32);
-    const unsigned int *var_tx =
-        (tx_size == TX_8X8) ? var8x8
-                            : ((tx_size == TX_16X16) ? var16x16 : var32x32);
+    int check_skip = 1;
+    assert(tx_size == TX_8X8 || tx_size == TX_16X16);
+    const unsigned int *max_sse_tx = &max_sse[tx_size - 1];
+    const unsigned int *max_var_tx = &max_var[tx_size - 1];
 
     // Calculate variance if tx_size > TX_8X8
     if (tx_size >= TX_16X16)
       calculate_variance(bw, bh, TX_8X8, sse8x8, sum8x8, var16x16, sse16x16,
-                         sum16x16);
-    if (tx_size == TX_32X32)
-      calculate_variance(bw, bh, TX_16X16, sse16x16, sum16x16, var32x32,
-                         sse32x32, sum32x32);
+                         sum16x16, &max_sse[1], &max_var[1]);
 
-    for (k = 0; k < num; k++)
-      // Check if all ac coefficients can be quantized to zero.
-      if (!(var_tx[k] < ac_thr || var == 0)) {
-        ac_test = 0;
-        break;
-      }
+    if ((*max_var_tx >= ac_thr && var != 0) ||
+        (*max_sse_tx - *max_var_tx >= dc_thr && var != sse)) {
+      check_skip = 0;
+    }
 
-    for (k = 0; k < num; k++)
-      // Check if dc coefficient can be quantized to zero.
-      if (!(sse_tx[k] - var_tx[k] < dc_thr || sse == var)) {
-        dc_test = 0;
-        break;
-      }
-
-    if (ac_test && dc_test) {
+    if (check_skip) {
       int skip_uv[2] = { 0 };
       unsigned int var_uv[2];
       unsigned int sse_uv[2];
@@ -2342,6 +2323,17 @@ static void set_compound_mode(MACROBLOCK *x, int comp_index, int ref_frame,
   }
 }
 
+static INLINE int is_top_left_filter_smooth(const MACROBLOCKD *xd) {
+  if (xd->left_mbmi && xd->above_mbmi) {
+    if ((xd->left_mbmi->interp_filters.as_filters.x_filter == EIGHTTAP_SMOOTH &&
+         xd->above_mbmi->interp_filters.as_filters.x_filter ==
+             EIGHTTAP_SMOOTH)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
                                   MACROBLOCK *x, RD_STATS *rd_cost,
                                   BLOCK_SIZE bsize, PICK_MODE_CONTEXT *ctx) {
@@ -2516,6 +2508,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 
   const int enable_filter_search =
       is_filter_search_enabled(cpi, mi_row, mi_col, bsize, segment_id);
+  const int neighbor_filter_smooth = is_top_left_filter_smooth(xd);
 
   // TODO(marpan): Look into reducing these conditions. For now constrain
   // it to avoid significant bdrate loss.
@@ -2551,9 +2544,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     PREDICTION_MODE this_mode;
     MB_MODE_INFO_EXT *const mbmi_ext = &x->mbmi_ext;
     RD_STATS nonskip_rdc;
-    av1_invalid_rd_stats(&nonskip_rdc);
-    memset(txfm_info->blk_skip, 0,
-           sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
 
     if (idx >= num_inter_modes) {
       int comp_index = idx - num_inter_modes;
@@ -2654,32 +2644,32 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
         continue;
     }
 
-    if (skip_mode_by_bsize_and_ref_frame(
-            this_mode, ref_frame, bsize, x->nonrd_prune_ref_frame_search,
-            sse_zeromv_norm, cpi->sf.rt_sf.nonrd_agressive_skip))
-      continue;
-
-    if (skip_mode_by_low_temp(this_mode, ref_frame, bsize, x->content_state_sb,
-                              frame_mv[this_mode][ref_frame],
-                              force_skip_low_temp_var))
-      continue;
-
-    // Disable this drop out case if the ref frame segment level feature is
-    // enabled for this segment. This is to prevent the possibility that we
-    // end up unable to pick any mode.
-    if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) {
-      // Check for skipping GOLDEN and ALTREF based pred_mv_sad.
-      if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search > 0 &&
-          x->pred_mv_sad[ref_frame] != INT_MAX && ref_frame != LAST_FRAME) {
-        if ((int64_t)(x->pred_mv_sad[ref_frame]) > thresh_sad_pred) continue;
-      }
-    }
-    // Check for skipping NEARMV based on pred_mv_sad.
-    if (this_mode == NEARMV && x->pred_mv1_sad[ref_frame] != INT_MAX &&
-        x->pred_mv1_sad[ref_frame] > (x->pred_mv0_sad[ref_frame] << 1))
-      continue;
-
     if (!comp_pred) {
+      if (skip_mode_by_bsize_and_ref_frame(
+              this_mode, ref_frame, bsize, x->nonrd_prune_ref_frame_search,
+              sse_zeromv_norm, cpi->sf.rt_sf.nonrd_agressive_skip))
+        continue;
+
+      if (skip_mode_by_low_temp(
+              this_mode, ref_frame, bsize, x->content_state_sb,
+              frame_mv[this_mode][ref_frame], force_skip_low_temp_var))
+        continue;
+
+      // Disable this drop out case if the ref frame segment level feature is
+      // enabled for this segment. This is to prevent the possibility that we
+      // end up unable to pick any mode.
+      if (!segfeature_active(seg, segment_id, SEG_LVL_REF_FRAME)) {
+        // Check for skipping GOLDEN and ALTREF based pred_mv_sad.
+        if (cpi->sf.rt_sf.nonrd_prune_ref_frame_search > 0 &&
+            x->pred_mv_sad[ref_frame] != INT_MAX && ref_frame != LAST_FRAME) {
+          if ((int64_t)(x->pred_mv_sad[ref_frame]) > thresh_sad_pred) continue;
+        }
+      }
+      // Check for skipping NEARMV based on pred_mv_sad.
+      if (this_mode == NEARMV && x->pred_mv1_sad[ref_frame] != INT_MAX &&
+          x->pred_mv1_sad[ref_frame] > (x->pred_mv0_sad[ref_frame] << 1))
+        continue;
+
       if (skip_mode_by_threshold(
               this_mode, ref_frame, frame_mv[this_mode][ref_frame],
               cpi->rc.frames_since_golden, rd_threshes, rd_thresh_freq_fact,
@@ -2687,6 +2677,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
               (cpi->sf.rt_sf.nonrd_agressive_skip ? 1 : 0)))
         continue;
     }
+
+    av1_invalid_rd_stats(&nonskip_rdc);
+    memset(txfm_info->blk_skip, 0,
+           sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
 
     // Select prediction reference frames.
     for (int i = 0; i < MAX_MB_PLANE; i++) {
@@ -2698,24 +2692,26 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->ref_frame[1] = ref_frame2;
     set_ref_ptrs(cm, xd, ref_frame, ref_frame2);
 
-    if (this_mode == NEWMV && !force_mv_inter_layer) {
-      if (search_new_mv(cpi, x, frame_mv, ref_frame, gf_temporal_ref, bsize,
-                        mi_row, mi_col, &rate_mv, &best_rdc))
-        continue;
-    }
-
-    for (PREDICTION_MODE inter_mv_mode = NEARESTMV; inter_mv_mode <= NEWMV;
-         inter_mv_mode++) {
-      if (inter_mv_mode == this_mode) continue;
-      if (mode_checked[inter_mv_mode][ref_frame] &&
-          frame_mv[this_mode][ref_frame].as_int ==
-              frame_mv[inter_mv_mode][ref_frame].as_int) {
-        skip_this_mv = 1;
-        break;
+    if (!comp_pred) {
+      if (this_mode == NEWMV && !force_mv_inter_layer) {
+        if (search_new_mv(cpi, x, frame_mv, ref_frame, gf_temporal_ref, bsize,
+                          mi_row, mi_col, &rate_mv, &best_rdc))
+          continue;
       }
-    }
 
-    if (skip_this_mv && !comp_pred) continue;
+      for (PREDICTION_MODE inter_mv_mode = NEARESTMV; inter_mv_mode <= NEWMV;
+           inter_mv_mode++) {
+        if (inter_mv_mode == this_mode) continue;
+        if (mode_checked[inter_mv_mode][ref_frame] &&
+            frame_mv[this_mode][ref_frame].as_int ==
+                frame_mv[inter_mv_mode][ref_frame].as_int) {
+          skip_this_mv = 1;
+          break;
+        }
+      }
+
+      if (skip_this_mv) continue;
+    }
 
     mi->mode = this_mode;
     mi->mv[0].as_int = frame_mv[this_mode][ref_frame].as_int;
@@ -2783,15 +2779,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       // If it is sub-pel motion and best filter was not selected in
       // search_filter_ref() for all blocks, then check top and left values and
       // force smooth if both were selected to be smooth.
-      if (cpi->sf.interp_sf.cb_pred_filter_search &&
+      if (cpi->sf.interp_sf.cb_pred_filter_search && neighbor_filter_smooth &&
           (mi->mv[0].as_mv.row & 0x07 || mi->mv[0].as_mv.col & 0x07)) {
-        if (xd->left_mbmi && xd->above_mbmi) {
-          if ((xd->left_mbmi->interp_filters.as_filters.x_filter ==
-                   EIGHTTAP_SMOOTH &&
-               xd->above_mbmi->interp_filters.as_filters.x_filter ==
-                   EIGHTTAP_SMOOTH))
-            mi->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_SMOOTH);
-        }
+        mi->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_SMOOTH);
       }
       if (!comp_pred)
         av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
