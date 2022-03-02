@@ -849,6 +849,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9ad648ee_e93da6c7",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-02T18:25:22Z",
+      "side": 1,
+      "message": "I don\u0027t believe that linking with libaom would be a problem, because it\u0027s already linked into Ffmpeg. It doesn\u0027t matter how many paths through the dependency graph there are to libaom, there will only be one copy. \n\nBut I will check with DSPA to make sure they don\u0027t have an issue with taking libaom as a dependency.",
+      "parentUuid": "52594b92_c7e1001f",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b37c3473_02cb0c09",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 2

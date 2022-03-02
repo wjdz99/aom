@@ -205,6 +205,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0fde39b7_38fb2cfd",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-02T18:25:22Z",
+      "side": 1,
+      "message": "Sure, that\u0027s fine. In the design doc I wrote:\n  \"In this document, GOP (Group of Pictures) is synonymous with GF Group.\"\nand it makes sense to pick one term and use it consistently.",
+      "parentUuid": "4a699bb2_f75a3c81",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 48
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "32b17d52_a239abfe",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 3
