@@ -47,7 +47,6 @@ typedef struct {
   int level;       /*!< CDEF filtering level */
   int sec_strength;  /*!< CDEF secondary strength */
   int cdef_count;    /*!< Number of CDEF sub-blocks in superblock */
-  int is_zero_level; /*!< CDEF filtering level ON/OFF */
   int dir[CDEF_NBLOCKS]
          [CDEF_NBLOCKS]; /*!< CDEF filter direction for all 8x8 sub-blocks*/
   int var[CDEF_NBLOCKS][CDEF_NBLOCKS]; /*!< variance for all 8x8 sub-blocks */
