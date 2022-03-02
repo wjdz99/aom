@@ -470,6 +470,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9aaca4d4_e0417f96",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-02T18:20:29Z",
+      "side": 1,
+      "message": "Agree.",
+      "parentUuid": "0472470a_1c27c6f5",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "346cdc90_39714243",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 2
@@ -788,6 +812,30 @@
       "writtenOn": "2022-03-02T18:12:04Z",
       "side": 1,
       "message": "Still not sure how we proceed about the dependency. It\u0027ll be easier for us to use whatever available in libaom, but you need to link libaom as well (not sure if do at the moment). Are you ok with linking libaom?",
+      "parentUuid": "607d142c_198fea25",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51fdf1d0_e5f67b86",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-02T18:20:29Z",
+      "side": 1,
+      "message": "Yep, I have the same question here.\nAs we discussed before, will the dependency on libaom cause duplicated symbol on Google3?\nJerome, have you met this issue before?\nLike we create a rc library and libaom. There is some share naming.\nOne project links the rc library and libaom. This will cause duplicated symbol error.",
       "parentUuid": "607d142c_198fea25",
       "range": {
         "startLine": 69,
