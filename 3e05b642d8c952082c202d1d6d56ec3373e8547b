@@ -585,6 +585,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5821b783_eedabeb2",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-02T14:53:51Z",
+      "side": 1,
+      "message": "aom is fine.",
+      "parentUuid": "9354eabe_e8771e92",
+      "range": {
+        "startLine": 61,
+        "startChar": 10,
+        "endLine": 61,
+        "endChar": 13
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1da1183f_1bd7846b",
@@ -622,6 +646,30 @@
       "side": 1,
       "message": "My idea was to remove the pure virtual functions and just implement them with this class in ratectrl_qmode.cc in the future, as this is a relatively simple rate control algorithm and we probably don\u0027t need to extend this interface.",
       "parentUuid": "1da1183f_1bd7846b",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 25
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "53d31957_3b2fff83",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-02T14:53:51Z",
+      "side": 1,
+      "message": "The reason I suggested making it an interface is to allow a test double (i.e., a fake or a mock) to be defined. That would allow me to start developing and testing the calling code without requiring a finished implementation. I wouldn\u0027t necessarily expect you to implement a test double; I can do that myself once we have an interface.",
+      "parentUuid": "7a645bca_c46a4c43",
       "range": {
         "startLine": 62,
         "startChar": 6,
@@ -681,6 +729,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "607d142c_198fea25",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-02T14:53:51Z",
+      "side": 1,
+      "message": "Okay. Let\u0027s wait and see if there\u0027s a need to return any errors, and decide how to handle it then.\n\nAnd don\u0027t you already have a dependency on libaom, since you\u0027re including firstpass.h? Or are you planning on removing that?",
+      "parentUuid": "f59cd492_3d662534",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b37c3473_02cb0c09",
         "filename": "av1/ratectrl_qmode.h",
         "patchSetId": 2
@@ -716,6 +788,30 @@
       "side": 1,
       "message": "Yeah that could work. and we can use private functions to set different structures. I\u0027ll go ahead and implement that way if that sounds good to you.",
       "parentUuid": "b37c3473_02cb0c09",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c8cf7e8_7fa68b64",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-02T14:53:51Z",
+      "side": 1,
+      "message": "SGTM",
+      "parentUuid": "2c35ccfc_f711a9cb",
       "range": {
         "startLine": 70,
         "startChar": 0,
