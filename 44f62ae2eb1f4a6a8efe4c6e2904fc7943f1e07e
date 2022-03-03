@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cf94725_568cd130",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "529a0328_872e1a4f",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 22,
+        "endChar": 18
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2302ac58_e07c6f58",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-03-02T18:20:29Z",
       "side": 1,
       "message": "TplBlockStats\nThis is the stats for each Tpl block",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 18
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "522f21f2_d8d51737",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2302ac58_e07c6f58",
       "range": {
         "startLine": 25,
         "startChar": 7,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3c9e3b1_871aac6b",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f473459e_8162747b",
+      "range": {
+        "startLine": 35,
+        "startChar": 7,
+        "endLine": 35,
+        "endChar": 14
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "37b5c814_fec11f39",
@@ -100,6 +172,30 @@
       "writtenOn": "2022-03-02T18:20:29Z",
       "side": 1,
       "message": "We don\u0027t need gop_count here.",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 16
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f66c9fb_c5349ecf",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37b5c814_fec11f39",
       "range": {
         "startLine": 37,
         "startChar": 2,
@@ -133,6 +229,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "10b348c7_4d8d424b",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done\n\nI assume TplFrameStats is just a list of TplBlockStats and TplGopStats is just a list of TplFrameStats.\n\nSince we don\u0027t need the \"count\" in those structures so there\u0027s no need to make them a structure. Instead I use typedef to keep things simple.",
+      "parentUuid": "81864572_7e6d1d93",
+      "range": {
+        "startLine": 40,
+        "startChar": 7,
+        "endLine": 40,
+        "endChar": 14
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f45cd980_a9730542",
@@ -146,6 +266,30 @@
       "writtenOn": "2022-03-02T18:20:29Z",
       "side": 1,
       "message": "We don\u0027t need tpl_stats_count.\nvector already contains the size info.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 22
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6884223c_227d7251",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f45cd980_a9730542",
       "range": {
         "startLine": 42,
         "startChar": 0,
@@ -227,6 +371,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62534261_b5aa56d9",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0fde39b7_38fb2cfd",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 48
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "32b17d52_a239abfe",
@@ -250,6 +418,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "beaea867_a7770e02",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32b17d52_a239abfe",
+      "range": {
+        "startLine": 58,
+        "startChar": 2,
+        "endLine": 58,
+        "endChar": 55
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e365a1f4_a124730b",
@@ -263,6 +455,30 @@
       "writtenOn": "2022-03-02T18:20:29Z",
       "side": 1,
       "message": "Pass in TplGopStats and GF_GROUP here as input.",
+      "range": {
+        "startLine": 60,
+        "startChar": 61,
+        "endLine": 60,
+        "endChar": 63
+      },
+      "revId": "44f62ae2eb1f4a6a8efe4c6e2904fc7943f1e07e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89f54a4a_7a5b8e57",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e365a1f4_a124730b",
       "range": {
         "startLine": 60,
         "startChar": 61,

@@ -492,6 +492,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0d833d3_6dbc8b7a",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9aaca4d4_e0417f96",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "346cdc90_39714243",
@@ -505,6 +529,30 @@
       "writtenOn": "2022-03-01T13:07:04Z",
       "side": 1,
       "message": "This could just be std::vector\u003cstd::vector\u003cGopEncodeParameters\u003e\u003e. That said, we\u0027re planning on doing a lagged two-pass encode, in which SetTplInfo/DetermineGopInfo/GetGopEncodeInfo are called once per GOP rather than once for the whole chunk. In which case this struct really isn\u0027t needed at all, and GetGopEncodeInfo should just return std::vector\u003cGopEncodeParameters\u003e.",
+      "range": {
+        "startLine": 56,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 2
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c245918_68db5a23",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "346cdc90_39714243",
       "range": {
         "startLine": 56,
         "startChar": 0,
@@ -728,6 +776,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "73f8d424_017fd3eb",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87d70b87_a1a268e5",
+      "range": {
+        "startLine": 62,
+        "startChar": 6,
+        "endLine": 62,
+        "endChar": 25
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b359f6e4_1e60fd61",
@@ -895,6 +967,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0514571_04e98e23",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "61e09353_46fd0b4f",
+      "range": {
+        "startLine": 69,
+        "startChar": 10,
+        "endLine": 69,
+        "endChar": 14
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b37c3473_02cb0c09",
@@ -990,6 +1086,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7b02dc9_cc9c3fe6",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c6d4270_2a368c16",
+      "range": {
+        "startLine": 70,
+        "startChar": 0,
+        "endLine": 73,
+        "endChar": 0
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e29824f1_7dc3802d",
@@ -1027,6 +1147,30 @@
       "side": 1,
       "message": "See my previous comment.",
       "parentUuid": "e29824f1_7dc3802d",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 33
+      },
+      "revId": "3e05b642d8c952082c202d1d6d56ec3373e8547b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02295764_492d8cd4",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T01:52:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11942830_325a80f1",
       "range": {
         "startLine": 74,
         "startChar": 0,
