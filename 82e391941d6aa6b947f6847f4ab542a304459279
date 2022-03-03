@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\nWe have identified few refactoring possibilities in cdef control code. This patch refactors cdef_fb_col() and av1_cdef_compute_sb_list() functions for speed improvement as below.\n- Skips cdef filtering for chroma plane based on block skip and filter level. Earlier the cdef filtering for chroma plane is called (with no filtering done) even when filter level \u003d 0.\n- Avoids redundant call to av1_cdef_compute_sb_list() function for chroma planes as block skip is same for luma and chroma planes.\n- Optimizes block skip computation loop with the assumption that txfm size below 8x8 is not supported in RTC configuration.\n\nPlease check the instruction count reduction for non-rd presets.\n     Instruction Count\ncpu    Reduction(%)\n 5       0.121\n 6       0.143\n 7       0.268\n 8       0.365\n 9       0.553\n10       0.591\n\nThe instruction count reduction specified has been measured using command:\n $ perf stat -e instructions:u ./aomenc …\n\nInstruction count reduction for other presets is negligible. For this patch we also tested the encoder and the decoder to ensure bit-exact output.\nPlease review the patch.\nThank you.",
       "revId": "82e391941d6aa6b947f6847f4ab542a304459279",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c85fa84_bca31af4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-03T20:09:29Z",
+      "side": 1,
+      "message": "Looks good. Thanks.",
+      "revId": "82e391941d6aa6b947f6847f4ab542a304459279",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
