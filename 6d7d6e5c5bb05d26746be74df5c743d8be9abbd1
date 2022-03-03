@@ -305,6 +305,30 @@
       },
       "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "266d58d3_2e30091f",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-03T19:03:40Z",
+      "side": 1,
+      "message": "My idea was that it doesn\u0027t need to be an input for GetGopEncodeInfo. If it\u0027s needed in that function, we can set related first pass info in DetermineGopInfo to a local data member and use it in GetGopEncodeInfo.",
+      "parentUuid": "4f81db0b_77001b4a",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 47
+      },
+      "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
