@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16c1279a_9bba6799",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-03T13:29:19Z",
+      "side": 1,
+      "message": "Are row and col in pixels? This deserves a comment to clarify.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 10
+      },
+      "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd9397ec_30f40c19",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-03T13:29:19Z",
+      "side": 1,
+      "message": "This still isn\u0027t being used. There needs to be a function which takes FirstpassInfo (for the whole chunk) and returns a GopChunkList.",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 7
+      },
+      "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b7f38d3_c368aeee",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-03T13:29:19Z",
+      "side": 1,
+      "message": "According to go/cstyle#Aliases, \"In new code, using is preferable to typedef, because it provides a more consistent syntax with the rest of C++ and works with templates.\"\n\nBut given that this code will live in libaom, I leave it up to you. Is there a libaom style guide for C++?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 7
+      },
+      "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d87454f7_71f3fe5d",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-03T13:29:19Z",
+      "side": 1,
+      "message": "This should have a more generic name now that it\u0027s setting other parameters as well.",
+      "range": {
+        "startLine": 53,
+        "startChar": 15,
+        "endLine": 53,
+        "endChar": 23
+      },
+      "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca2ee70d_1efe637e",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-03T13:29:19Z",
+      "side": 1,
+      "message": "From go/cstyle#Function_Comments:\n\"Declaration comments describe use of the function (when it is non-obvious); comments at the definition of a function describe operation.\"\n\nNo need to explain how it\u0027s implemented here; just document how it\u0027s used.",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 45
+      },
+      "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34479594_748966e0",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-03T13:29:19Z",
+      "side": 1,
+      "message": "Is this needed here? The FirstpassInfo should already have been used to determine the GOP structure. Is it also used for determining Q index, or does that just depend on the TPL stats?\n\nAlso, if it is needed, which frames is it for? The whole chunk? Just the frames in this GOP?",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 47
+      },
+      "revId": "6d7d6e5c5bb05d26746be74df5c743d8be9abbd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
