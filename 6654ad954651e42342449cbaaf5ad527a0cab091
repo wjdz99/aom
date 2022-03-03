@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e58363e_b4d2d6a2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-03T15:40:03Z",
+      "side": 1,
+      "message": "Please link to the issue for this feature:\nBUG\u003daomedia:3209",
+      "revId": "6654ad954651e42342449cbaaf5ad527a0cab091",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da87542d_7985be2d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-03T15:40:03Z",
+      "side": 1,
+      "message": "Luca: I suggest a change and have a question.",
+      "revId": "6654ad954651e42342449cbaaf5ad527a0cab091",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b57359fc_d286ae0b",
+        "filename": "av1/encoder/txb_rdopt.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-03T15:40:03Z",
+      "side": 1,
+      "message": "Optional: It seems to look nicer to list qmatrix before iqmatrix. It would be good to see if there are other functions that take both matrices as parameters and see in which order they list the matrices.",
+      "revId": "6654ad954651e42342449cbaaf5ad527a0cab091",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "203b9154_f3863c55",
+        "filename": "av1/encoder/txb_rdopt_utils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-03T15:40:03Z",
+      "side": 1,
+      "message": "IMPORTANT: I am wondering if this multiplication may overflow a 32-bit integer because you store the product in an int64_t variable. If that\u0027s the case, you need to cast one of the operands to int64_t. The two operands are both int (or int32_t):\n\n  typedef int32_t tran_low_t;\n\nOn the other hand, maybe the intention is to make the multiplication below (diff * diff) a 64-bit multiplication. If that\u0027s the case, no change is needed.",
+      "revId": "6654ad954651e42342449cbaaf5ad527a0cab091",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
