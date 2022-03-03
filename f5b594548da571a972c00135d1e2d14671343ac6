@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "85f76195_5d905295",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-03-03T14:29:35Z",
+      "side": 1,
+      "message": "Hi Yuqning,\n\nThe variance based partition decision uses block variance computed at 8x8 and 16x16 level for the given 16x16 block. As per the current design, 8x8 variance for a 16x16 block is computed through four separate calls of aom_avg_8x8_sse2() in fill_variance_8x8avg(). In this patch we have introduced an AVX2 intrinsic function to process four 8x8 sub-blocks of a 16x16 block simultaneously. The patch also has relevant unit test changes.\n\nPlease check the encoder speed up results measured using timer and instruction count based as below. Please note timer based results are based on a limited set of test contents and instruction count is measured using Borg test.\n\nBased on Timer:\n       Encode Time\ncpu    Reduction(%)\n 7       0.081\n 8       0.635\n 9       0.752\n10       0.794\n\nBased on Instruction Count:\n     Instruction Count\ncpu    Reduction(%)\n 7       0.569\n 8       0.798\n 9       1.180\n10       1.292\n\nIn the commit/review message:\n[-] sign indicates encode time/instruction count increase\n[+] sign indicates encode time/instruction count reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nThe Speed up observed in other speed levels are negligible.\n\nThis CL also refactors variance calculation of rectangular partitions by calculating the same only when required. And also simplified breakout conditions for force_split in set_vt_partitioning() function. These 2 refactoring changes accounts for ~0.18% instruction count improvement.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata",
+      "revId": "f5b594548da571a972c00135d1e2d14671343ac6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
