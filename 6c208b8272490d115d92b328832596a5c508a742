@@ -34,6 +34,23 @@
       "parentUuid": "1cef91c2_790e18f8",
       "revId": "6c208b8272490d115d92b328832596a5c508a742",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4d2af292_c8ba0c45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-04T20:32:09Z",
+      "side": 1,
+      "message": "Thanks for tuning the threshold more to reduce the worst quality loss.",
+      "revId": "6c208b8272490d115d92b328832596a5c508a742",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
