@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "756e9f66_b839e3ab",
+        "filename": "aom_dsp/noise_model.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1588,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-04T00:20:36Z",
+      "side": 1,
+      "message": "it looks like the assumption is aom_denoise_and_model_free() will be called by the caller (in this case during the destruction of the encoder).",
+      "revId": "475893bd9187b0de1df4d4e6bb86fbdad4a51409",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
