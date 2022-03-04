@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nWe have tried a few experiments to extend the sse_early_term_inter_search speed feature to speed 10. As we had seen earlier, we are unable to contain the worst case drop by fine tuning the block level thresholds. Hence, we tried a couple of experiments using mode level thresholds. Tuning the thresholds with the combination of NEWMV and NEARESTMV contain the worst case quality drop seen earlier and along with expected tradeoff.\n\nPlease find the detailed borg result below,\n\n                Instruction Count     BD-Rate Loss(%)    \ncpu    Test-set    Reduction(%)  avg.psnr   ovr.psnr    ssim \n10         rtc      1.480         0.1835     0.1820    0.1868    \n10    rtc_derf      0.256        -0.0552    -0.0263   -0.0500    \n10     Average      0.883         0.0840     0.0952    0.0881\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nDetails of the worst case drop contents are below,\n\n cpu   Resolution  Max bd-rate drop(%)    Clip-name\n  10         rtc        0.9970          desktop360p.y4m\n  10    rtc_derf        0.7344          jimred_320_240.y4m\n  10     Average        0.9970          desktop360p.y4m\n\nPlease review the speed feature logic added in this patch.\nThank you",
       "revId": "6c208b8272490d115d92b328832596a5c508a742",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "512ded74_ca81cda2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-04T17:39:09Z",
+      "side": 1,
+      "message": "This looks fine to me.\nMarco, could you take a look since you tested at speed 10 before?",
+      "parentUuid": "1cef91c2_790e18f8",
+      "revId": "6c208b8272490d115d92b328832596a5c508a742",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
