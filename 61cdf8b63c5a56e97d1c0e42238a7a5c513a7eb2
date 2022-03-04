@@ -20,6 +20,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "4d74ff33_2990c478",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-04T00:59:00Z",
+      "side": 1,
+      "message": "Thanks for the review!",
+      "revId": "61cdf8b63c5a56e97d1c0e42238a7a5c513a7eb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "a526f3c0_0427fb30",
         "filename": "aom/aom_image.h",
         "patchSetId": 2
@@ -31,6 +48,30 @@
       "writtenOn": "2022-03-04T00:47:24Z",
       "side": 1,
       "message": "this could simply be #define AOM_HAVE_IMG_FMT_NV12 given older versions would need to use defined(), but this is more autoconf like, 1 when present and undefined otherwise.",
+      "range": {
+        "startLine": 53,
+        "startChar": 29,
+        "endLine": 53,
+        "endChar": 31
+      },
+      "revId": "61cdf8b63c5a56e97d1c0e42238a7a5c513a7eb2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91958e04_3cde936a",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-04T00:59:00Z",
+      "side": 1,
+      "message": "Yes, I defined this as 1 to model after autoconf. Also the command-line flag -DFOO defines the macro FOO as 1.\n\nPlease let me know what you prefer. I can define this macro as an empty value.",
+      "parentUuid": "a526f3c0_0427fb30",
       "range": {
         "startLine": 53,
         "startChar": 29,
