@@ -1447,8 +1447,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Temporal filtering
   int use_rtc_tf;
 
-  // Use identity transform in nonrd_pickmode.
-  int use_idtx_nonrd;
+  // Prune the use of the identity transform in nonrd_pickmode,
+  // used for screen content mode.
+  int prune_idtx_nonrd;
 
   // Skip loopfilter, for static content after slide change
   // or key frame, once quality has ramped up.
