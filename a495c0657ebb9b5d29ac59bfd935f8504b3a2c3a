@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6faf5c8_39b958da",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-03-07T11:00:59Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have noticed a nightly build failure in valgrind unit-tests due to recent changes in avg_test.cc file.\nhttps://build.aomedia.org/jenkins/job/libaom__unit_tests-valgrind/1942/\n\nSeveral builds were failing due to the recent changes incorporated by us in this file for intrinsic optimization of average_8x8 function. We have identified that the build failure was due to uninitialized variables present in the unit-test. In this patch the variables are initialized properly to avoid these errors.\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.\n",
+      "revId": "a495c0657ebb9b5d29ac59bfd935f8504b3a2c3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
