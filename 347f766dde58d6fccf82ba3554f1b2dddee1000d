@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d667ebe_0e8f53aa",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-07T22:59:41Z",
+      "side": 1,
+      "message": "It occurred to me there\u0027s not really any need for a default ctor. And actually, given that these objects are almost certainly going to be heap-allocated, maybe I was a bit hasty in suggesting making it non-copyable.\n\nAccording to go/c-interfaces#do-i-need-to-disable-copy-and-move-operators-in-the-interface-class,\n\n\"If you want to be paranoid, then you can delete operator\u003d() and provide a default constructor. However, the style guide specifically exempts \"interface-only base class[es]\" from these declarations and deletions.\"\n\nSo perhaps we should keep it simple, and just remove all the ctors and the assignment operator. Sorry for the churn.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 53
+      },
+      "revId": "347f766dde58d6fccf82ba3554f1b2dddee1000d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
