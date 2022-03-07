@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8e078d28_368155f4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-07T16:56:52Z",
+      "side": 1,
+      "message": "spatially",
+      "range": {
+        "startLine": 12,
+        "startChar": 28,
+        "endLine": 12,
+        "endChar": 38
+      },
+      "revId": "9b3fafaf239ab00ec995e237adeaa27589a10d50",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13affbb0_1e323ee1",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 1452,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-07T16:56:52Z",
+      "side": 1,
+      "message": "It\u0027s better to update the comment to reflect exactly how it\u0027s used, i.e. blocks smaller than 32x32 etc..",
+      "range": {
+        "startLine": 1452,
+        "startChar": 6,
+        "endLine": 1452,
+        "endChar": 22
+      },
+      "revId": "9b3fafaf239ab00ec995e237adeaa27589a10d50",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
