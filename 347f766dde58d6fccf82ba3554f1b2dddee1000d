@@ -22,6 +22,30 @@
       },
       "revId": "347f766dde58d6fccf82ba3554f1b2dddee1000d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4df196f9_612b63ae",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-07T23:41:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d667ebe_0e8f53aa",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 53
+      },
+      "revId": "347f766dde58d6fccf82ba3554f1b2dddee1000d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
