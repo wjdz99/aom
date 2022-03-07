@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9c56b28_5651ec4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-07T17:40:48Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "51a0ffe7c785993ac9e6a78790ab9a1910957662",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a19b3826_1bda4084",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-07T17:40:48Z",
+      "side": 1,
+      "message": "I am less sure if the destructor should be marked as pure (\u003d 0). Please look in the Chromium source tree or Google\u0027s internal repository for examples and see what the convention is.",
+      "revId": "51a0ffe7c785993ac9e6a78790ab9a1910957662",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
