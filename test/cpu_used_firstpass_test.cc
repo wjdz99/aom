@@ -17,10 +17,10 @@
 namespace {
 
 const double kPsnrDiffThreshold = 0.1;
-const int kFirstPassCpuUsed[] = { 2, 4, 6 };
 
-class CpuUsedFirstpassTest : public ::libaom_test::CodecTestWithParam<int>,
-                             public ::libaom_test::EncoderTest {
+class CpuUsedFirstpassTest
+    : public ::libaom_test::CodecTestWith2Params<int, int>,
+      public ::libaom_test::EncoderTest {
  protected:
   CpuUsedFirstpassTest()
       : EncoderTest(GET_PARAM(0)), second_pass_cpu_used_(GET_PARAM(1)) {}
@@ -73,7 +73,6 @@ class CpuUsedFirstpassTest : public ::libaom_test::CodecTestWithParam<int>,
     libaom_test::I420VideoSource video("niklas_640_480_30.yuv", 640, 480,
                                        cfg_.g_timebase.den, cfg_.g_timebase.num,
                                        0, 30);
-    const int size = sizeof(kFirstPassCpuUsed) / sizeof(kFirstPassCpuUsed[0]);
     double ref_psnr;
     double psnr_diff;
 
@@ -81,15 +80,13 @@ class CpuUsedFirstpassTest : public ::libaom_test::CodecTestWithParam<int>,
     ASSERT_NO_FATAL_FAILURE(RunLoop(&video));  // same preset case ref_psnr
     ref_psnr = GetAveragePsnr();
 
-    for (int i = 0; i < size; i++) {
-      first_pass_cpu_used_ = kFirstPassCpuUsed[i];
-      if (first_pass_cpu_used_ == second_pass_cpu_used_) continue;
-      ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
-      psnr_diff = abs(ref_psnr - GetAveragePsnr());
-      EXPECT_LT(psnr_diff, GetPsnrDiffThreshold())
-          << "first pass cpu used = " << first_pass_cpu_used_
-          << ", second pass cpu used = " << second_pass_cpu_used_;
-    }
+    first_pass_cpu_used_ = GET_PARAM(2);
+    if (first_pass_cpu_used_ == second_pass_cpu_used_) return;
+    ASSERT_NO_FATAL_FAILURE(RunLoop(&video));
+    psnr_diff = abs(ref_psnr - GetAveragePsnr());
+    EXPECT_LT(psnr_diff, GetPsnrDiffThreshold())
+        << "first pass cpu used = " << first_pass_cpu_used_
+        << ", second pass cpu used = " << second_pass_cpu_used_;
   }
 
   int cpu_used_;
@@ -105,9 +102,9 @@ class CpuUsedFirstpassTestLarge : public CpuUsedFirstpassTest {};
 
 TEST_P(CpuUsedFirstpassTestLarge, FirstPassTest) { DoTest(); }
 
-AV1_INSTANTIATE_TEST_SUITE(CpuUsedFirstpassTestLarge,
-                           ::testing::Values(2));  // cpu_used
+AV1_INSTANTIATE_TEST_SUITE(CpuUsedFirstpassTestLarge, ::testing::Values(2),
+                           ::testing::Values(2, 4, 6));  // cpu_used
 
-AV1_INSTANTIATE_TEST_SUITE(CpuUsedFirstpassTest,
-                           ::testing::Values(4, 6));  // cpu_used
+AV1_INSTANTIATE_TEST_SUITE(CpuUsedFirstpassTest, ::testing::Values(4, 6),
+                           ::testing::Values(2, 4, 6));  // cpu_used
 }  // namespace
