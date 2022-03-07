@@ -49,7 +49,9 @@ using TplGopStats = std::vector<TplFrameStats>;
 class AV1RateControlQModeInterface {
  public:
   AV1RateControlQModeInterface() = default;
-  ~AV1RateControlQModeInterface() {}
+  AV1RateControlQModeInterface &operator=(
+      const AV1RateControlQModeInterface &) = delete;
+  virtual ~AV1RateControlQModeInterface() = default;
 
   virtual void SetRcParam(const RateControlParam &rc_param) = 0;
   virtual GopChunkList DetermineGopInfo(
