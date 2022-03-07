@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "90793ef4_539d317c",
+        "filename": "test/cpu_used_firstpass_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-07T20:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd5f8d18_86066eb1",
+      "revId": "21381d0d1178c1f79d6b5d922879a9b1c547a49c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6874b09e_07579249",
@@ -31,6 +49,30 @@
       "writtenOn": "2022-03-07T18:12:41Z",
       "side": 1,
       "message": "should these be reordered to make it a bit more natural first / second pass ordering?",
+      "range": {
+        "startLine": 26,
+        "startChar": 57,
+        "endLine": 26,
+        "endChar": 69
+      },
+      "revId": "21381d0d1178c1f79d6b5d922879a9b1c547a49c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "14b5c7e0_125ea164",
+        "filename": "test/cpu_used_firstpass_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-07T20:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6874b09e_07579249",
       "range": {
         "startLine": 26,
         "startChar": 57,
