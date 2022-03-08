@@ -67,7 +67,10 @@ function(setup_aom_ports_targets)
   # libaom_srcs.*; if it becomes necessary for a particular generator another
   # method should be used.
   if(aom_ports_has_symbols)
-    target_sources(aom_ports PRIVATE ${AOM_PORTS_INCLUDES})
+    target_sources(aom_ports_static PRIVATE ${AOM_PORTS_INCLUDES})
+    if(BUILD_SHARED_LIBS)
+      target_sources(aom_ports_shared PRIVATE ${AOM_PORTS_INCLUDES})
+    endif()
     set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} PARENT_SCOPE)
   else()
     target_sources(aom PRIVATE ${AOM_PORTS_INCLUDES})
