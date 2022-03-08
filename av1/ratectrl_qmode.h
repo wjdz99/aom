@@ -35,7 +35,28 @@ struct TplBlockStats {
   int ref_frame_index[2];
 };
 
-using GopChunkList = std::vector<GF_GROUP>;
+enum EncodeRefMode { Regular, Overlay, ShowExisting };
+
+struct GopFrame {
+  // basic info
+  int order_idx;
+  int coding_idx;
+  int is_key_frame;
+  int is_arf_frame;
+  int is_show_frame;
+
+  // reference frame info
+  EncodeRefMode encode_ref_mode;
+  int colocated_ref_frame_idx;
+  int update_ref_frame_idx;
+};
+
+struct GopStruct {
+  int show_frame_count;
+  std::vector<GopFrame> gop_frame_list;
+};
+
+using GopStructList = std::vector<GopStruct>;
 
 struct FrameEncodeParameters {
   int q_index;
@@ -48,12 +69,12 @@ using TplGopStats = std::vector<TplFrameStats>;
 
 class AV1RateControlQModeInterface {
  public:
-  AV1RateControlQModeInterface();
-  virtual ~AV1RateControlQModeInterface();
+  AV1RateControlQModeInterface() = default;
+  ~AV1RateControlQModeInterface() {}
 
   virtual void SetRcParam(const RateControlParam &rc_param) = 0;
-  virtual GopChunkList DetermineGopInfo(
-      const FirstpassInfo &firstpass_stats_list) = 0;
+  virtual GopStructList DetermineGopInfo(
+      const FirstpassInfo &firstpass_info) = 0;
   // Accept firstpass and tpl info from the encoder and return q index and
   // rdmult. This needs to be called with consecutive GOPs as returned by
   // DetermineGopInfo.
