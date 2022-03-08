@@ -16,6 +16,24 @@
       "message": "Still have diagnostic spam here. It needs to go, but it may help illustrate what\u0027s going on for anyone looking at this at the present stage.",
       "revId": "55bab8e8f3f493836b1a5ebbcc8b7211e2d7c8d1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c89f1ead_5fd0f505",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2022-03-08T20:15:04Z",
+      "side": 1,
+      "message": "In addition to passing on Jenkins I\u0027ve confirmed that this patch applies cleanly on v3.3.0 and builds without errors within MSVC (16 2019) in shared and static configs. Since it appears that we\u0027re good now I\u0027ve dropped the diag spam.",
+      "parentUuid": "156e5762_85afae37",
+      "revId": "55bab8e8f3f493836b1a5ebbcc8b7211e2d7c8d1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
