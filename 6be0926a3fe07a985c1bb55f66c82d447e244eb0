@@ -104,6 +104,24 @@
       "parentUuid": "1baae81a_8361f4e3",
       "revId": "6be0926a3fe07a985c1bb55f66c82d447e244eb0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e582c8e5_db6f0eb2",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-08T21:06:25Z",
+      "side": 1,
+      "message": "\u003e \u003e Should this also be changed to aom_dsp_encoder?\n\u003e \n\u003e It\u0027s an object library which some generators have had other issues with. It\u0027s probably safest to keep the link libraries associated with the top-level library in this change.\n\nIt looks like this may work, but I\u0027d like to bring it in separately to test things like the Xcode generator beforehand.\n\nhttps://cmake.org/cmake/help/v3.19/command/target_link_libraries.html#linking-object-libraries",
+      "parentUuid": "ef65c2ff_522d12cc",
+      "revId": "6be0926a3fe07a985c1bb55f66c82d447e244eb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
