@@ -2763,6 +2763,15 @@ const VarianceParams kArrayVariance_avx2[] = {
 INSTANTIATE_TEST_SUITE_P(AVX2, AvxVarianceTest,
                          ::testing::ValuesIn(kArrayVariance_avx2));
 
+const GetVarParams kArrayGetVar8x8Level_avx2[] = {
+  GetVarParams(7, 7, &aom_get8x8var_quad_avx2, 0),
+  GetVarParams(6, 6, &aom_get8x8var_quad_avx2, 0),
+  GetVarParams(5, 5, &aom_get8x8var_quad_avx2, 0),
+  GetVarParams(5, 4, &aom_get8x8var_quad_avx2, 0)
+};
+INSTANTIATE_TEST_SUITE_P(AVX2, GetVar8x8QuadTest,
+                         ::testing::ValuesIn(kArrayGetVar8x8Level_avx2));
+
 const SubpelVarianceParams kArraySubpelVariance_avx2[] = {
   SubpelVarianceParams(7, 7, &aom_sub_pixel_variance128x128_avx2, 0),
   SubpelVarianceParams(7, 6, &aom_sub_pixel_variance128x64_avx2, 0),
