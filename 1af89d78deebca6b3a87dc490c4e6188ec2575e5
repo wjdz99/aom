@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e21331a5_239852d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-08T13:18:03Z",
+      "side": 1,
+      "message": "James: Thank you for fixing this.",
+      "revId": "1af89d78deebca6b3a87dc490c4e6188ec2575e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6193d200_455c5d10",
+        "filename": "av1/encoder/tune_butteraugli.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-08T13:18:03Z",
+      "side": 1,
+      "message": "These two calls (with slightly different arguments) appear in three other places (in encoder.c and encoder_utils.c). Perhaps we should create a small function for these two calls.",
+      "revId": "1af89d78deebca6b3a87dc490c4e6188ec2575e5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
