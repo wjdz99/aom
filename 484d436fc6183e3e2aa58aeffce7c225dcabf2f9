@@ -22,6 +22,30 @@
       },
       "revId": "484d436fc6183e3e2aa58aeffce7c225dcabf2f9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f8fe757_fe59219f",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-08T22:06:19Z",
+      "side": 1,
+      "message": "This actually could be over 100, max_rate could be over the maximum of int.\n\nif that\u0027s the case, target here has to be int64_t. But rc-\u003emax_frame_bandwidth is an int, so it is capped at int.",
+      "parentUuid": "7ae4599a_69f44a62",
+      "range": {
+        "startLine": 218,
+        "startChar": 39,
+        "endLine": 218,
+        "endChar": 60
+      },
+      "revId": "484d436fc6183e3e2aa58aeffce7c225dcabf2f9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
