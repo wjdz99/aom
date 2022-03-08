@@ -17,6 +17,7 @@
 
 #include "aom_dsp/txfm_common.h"
 #include "av1/common/blockd.h"
+#include "av1/encoder/rd.h"
 #include "config/aom_dsp_rtcd.h"
 #include "config/av1_rtcd.h"
 
@@ -2381,7 +2382,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   int_mv frame_mv_best[MB_MODE_COUNT][REF_FRAMES];
   uint8_t mode_checked[MB_MODE_COUNT][REF_FRAMES];
   struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE];
-  RD_STATS this_rdc, best_rdc;
+  RD_STATS this_rdc, best_rdc, dct_rdc, best_dct_rdc;
   const unsigned char segment_id = mi->segment_id;
   const int *const rd_threshes = cpi->rd.threshes[segment_id][bsize];
   const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
@@ -2462,6 +2463,8 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   // initialize mode decisions
   av1_invalid_rd_stats(&best_rdc);
   av1_invalid_rd_stats(&this_rdc);
+  av1_invalid_rd_stats(&dct_rdc);
+  av1_invalid_rd_stats(&best_dct_rdc);
   av1_invalid_rd_stats(rd_cost);
   for (int i = 0; i < REF_FRAMES; ++i) {
     x->warp_sample_info[i].num = -1;
@@ -2853,6 +2856,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       this_rdc.skip_txfm = 1;
       this_rdc.rate = skip_txfm_cost;
       this_rdc.dist = this_rdc.sse << 4;
+      dct_rdc = this_rdc;
     } else {
       if (use_modeled_non_rd_cost) {
         if (this_rdc.skip_txfm) {
@@ -2879,6 +2883,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           this_rdc.rate += no_skip_txfm_cost;
         }
       }
+      dct_rdc = this_rdc;
       if ((x->color_sensitivity[0] || x->color_sensitivity[1])) {
         RD_STATS rdc_uv;
         const BLOCK_SIZE uv_bsize = get_plane_block_size(
@@ -2937,6 +2942,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
 #endif
     if (this_rdc.rdcost < best_rdc.rdcost) {
       best_rdc = this_rdc;
+      best_dct_rdc = this_rdc;
       best_early_term = this_early_term;
       best_pickmode.best_sse = sse_y;
       best_pickmode.best_mode = this_mode;
@@ -3019,9 +3025,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     av1_block_yrd(cpi, x, mi_row, mi_col, &idtx_rdc, &is_skippable, bsize,
                   mi->tx_size, IDTX);
     int64_t idx_rdcost = RDCOST(x->rdmult, idtx_rdc.rate, idtx_rdc.dist);
-    if (idx_rdcost < best_rdc.rdcost) {
+    if (idx_rdcost < best_dct_rdc.rdcost) {
       best_pickmode.tx_type = IDTX;
-      best_rdc.rdcost = idx_rdcost;
+      best_rdc.rate -= best_dct_rdc.rate - idtx_rdc.rate;
+      best_rdc.dist -= best_dct_rdc.dist - idtx_rdc.dist;
+      best_rdc.rdcost -= best_dct_rdc.rdcost - idx_rdcost;
       best_pickmode.best_mode_skip_txfm = idtx_rdc.skip_txfm;
       if (!idtx_rdc.skip_txfm) {
         memcpy(best_pickmode.blk_skip, txfm_info->blk_skip,
