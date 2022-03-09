@@ -323,6 +323,7 @@ list(APPEND AOM_AV1_RC_QMODE_SOURCES
             "${AOM_ROOT}/av1/ratectrl_qmode.h"
             "${AOM_ROOT}/av1/ratectrl_qmode.cc")
 add_library(av1_rc_qmode ${AOM_AV1_RC_QMODE_SOURCES})
+add_dependencies(av1_rc_qmode aom_av1_encoder)
 target_link_libraries(av1_rc_qmode ${AOM_LIB_LINK_TYPE} m)
 set_target_properties(av1_rc_qmode PROPERTIES LINKER_LANGUAGE CXX)
 

@@ -9,12 +9,16 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include <vector>
+
+#include "av1/encoder/pass2_strategy.h"
 #include "av1/ratectrl_qmode.h"
 
 #include <algorithm>
 #include <vector>
 
 namespace aom {
+
 static GopFrame gop_frame_basic(int coding_idx, int order_idx, int is_key_frame,
                                 int is_arf_frame, int is_golden_frame,
                                 int is_show_frame) {
@@ -113,6 +117,14 @@ void AV1RateControlQMode::SetRcParam(const RateControlParam &rc_param) {
 
 GopStructList AV1RateControlQMode::DetermineGopInfo(
     const FirstpassInfo &firstpass_info) {
+  std::vector<REGIONS> regions_list;
+  for (auto &stat : firstpass_info) {
+    REGIONS region;
+    int total_regions = 0;
+    av1_identify_regions(&stat, 16, 0, &region, &total_regions);
+    regions_list.push_back(region);
+  }
+
   // A temporary simple implementation
   const int max_gop_show_frame_count = 16;
   int remaining_show_frame_count = static_cast<int>(firstpass_info.size());
@@ -140,4 +152,5 @@ std::vector<FrameEncodeParameters> AV1RateControlQMode::GetGopEncodeInfo(
   (void)tpl_stats_list;
   return frame_encoder_param;
 }
+
 }  // namespace aom
