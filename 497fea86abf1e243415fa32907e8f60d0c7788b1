@@ -51,6 +51,91 @@
       "parentUuid": "d3b24b59_fe73ecbf",
       "revId": "497fea86abf1e243415fa32907e8f60d0c7788b1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "507f22f4_1e33db55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-09T01:58:52Z",
+      "side": 1,
+      "message": "Tom: Thank you for the fix. I suggest some changes.",
+      "revId": "497fea86abf1e243415fa32907e8f60d0c7788b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d372299_39614a8f",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-09T01:58:52Z",
+      "side": 1,
+      "message": "Nit: If we move this line before line 148, we can use the asm_lib_name variable in line 149:\n\n    set(asm_lib_obj_dir\n        \"${AOM_CONFIG_DIR}/asm_objects/${asm_lib_name}\")",
+      "revId": "497fea86abf1e243415fa32907e8f60d0c7788b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfbfcfb8_f63afdfc",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-09T01:58:52Z",
+      "side": 1,
+      "message": "Optional: I found that this library is created but never used. We can delete it safely.\n\nAlso, this library seems to be created incorrectly. Here is the command:\n\n/usr/bin/ar qc libaom_dsp_encoder_sse2_static.a CMakeFiles/aom_dsp_encoder_sse2_static.dir/gen_src/aom_dsp_encoder_sse2_static_dummy.c.o\n\nNote that it contains only the dummy object file and not any of the asm object files.\n\nWe can delete this library in a separate CL.",
+      "revId": "497fea86abf1e243415fa32907e8f60d0c7788b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77d61bdc_58ace4e7",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-09T01:58:52Z",
+      "side": 1,
+      "message": "Instead of\n\n    \"${asm_object}\" MATCHES \"static\"\n    \nit is more direct to test\n\n    \"${asm_config}\" STREQUAL \"static\"\n\nThe current test will malfunction if the asm source file name happens to contain \"static\".",
+      "revId": "497fea86abf1e243415fa32907e8f60d0c7788b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6310f9d3_3b112dcf",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-09T01:58:52Z",
+      "side": 1,
+      "message": "Can this be moved outside the for loop?",
+      "revId": "497fea86abf1e243415fa32907e8f60d0c7788b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
