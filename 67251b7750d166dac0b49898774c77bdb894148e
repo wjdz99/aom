@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6cf6c33b_1b7e8775",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-09T22:36:51Z",
+      "side": 1,
+      "message": "First step to decide gop size - identify regions.\n\nWill be rebased on Angie\u0027s CL (and some clean up) once that gets in:\nhttps://aomedia-review.googlesource.com/c/aom/+/154781",
+      "revId": "67251b7750d166dac0b49898774c77bdb894148e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
