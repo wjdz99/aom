@@ -1215,13 +1215,17 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
                                     TX_SIZE *tx_buf) {
   uint8_t *const dst_ptr = plane_ptr->dst.buf;
   const int dst_stride = plane_ptr->dst.stride;
-  const int plane_mi_rows = ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, 0);
+  const int plane_mi_rows =
+      cm->cur_frame->height >>
+      MI_SIZE_LOG2;  // ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, 0);
   const int plane_mi_cols = ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, 0);
   const int y_range = AOMMIN((int)(plane_mi_rows - mi_row), MAX_MIB_SIZE);
   const int x_range = AOMMIN((int)(plane_mi_cols - mi_col), MAX_MIB_SIZE);
-  assert(!(y_range % 2));
+  // assert(!(y_range % 2));
   const ptrdiff_t mode_step = 1;
-  for (int y = 0; y < y_range; y += 2) {
+  int y;
+  int y_range_2 = (y_range % 2) ? y_range - 1 : y_range;
+  for (y = 0; y < y_range_2; y += 2) {
     const uint32_t curr_y = mi_row + y;
     const uint32_t x_start = mi_col;
     const uint32_t x_end = mi_col + x_range;
@@ -1240,6 +1244,35 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
       }
 
       filter_vert(p, dst_stride, params, cm->seq_params, true);
+
+      // advance the destination pointer
+      const uint32_t advance_units = tx_size_wide_unit[*tx_size];
+      x += advance_units;
+      p += advance_units * MI_SIZE;
+      params += advance_units;
+      tx_size += advance_units;
+    }
+  }
+
+  if (y_range % 2) {
+    const uint32_t curr_y = mi_row + y;
+    const uint32_t x_start = mi_col;
+    const uint32_t x_end = mi_col + x_range;
+    set_lpf_parameters_for_line_luma(params_buf, tx_buf, cm, xd, VERT_EDGE,
+                                     x_start, curr_y, plane_ptr, x_end,
+                                     mode_step);
+
+    AV1_DEBLOCKING_PARAMETERS *params = params_buf;
+    TX_SIZE *tx_size = tx_buf;
+
+    uint8_t *p = dst_ptr + y * MI_SIZE * dst_stride;
+    for (int x = 0; x < x_range;) {
+      if (*tx_size == TX_INVALID) {
+        params->filter_length = 0;
+        *tx_size = TX_4X4;
+      }
+
+      filter_vert(p, dst_stride, params, cm->seq_params, false);
 
       // advance the destination pointer
       const uint32_t advance_units = tx_size_wide_unit[*tx_size];
@@ -1629,12 +1662,16 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
   uint8_t *const dst_ptr = plane_ptr->dst.buf;
   const int dst_stride = plane_ptr->dst.stride;
   const int plane_mi_rows = ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, 0);
-  const int plane_mi_cols = ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, 0);
+  const int plane_mi_cols =
+      cm->cur_frame->width >>
+      MI_SIZE_LOG2;  // ROUND_POWER_OF_TWO(cm->mi_params.mi_cols, 0);
   const int y_range = AOMMIN((int)(plane_mi_rows - mi_row), MAX_MIB_SIZE);
   const int x_range = AOMMIN((int)(plane_mi_cols - mi_col), MAX_MIB_SIZE);
+  int x;
+  int x_range_2 = (x_range % 2) ? x_range - 1 : x_range;
 
   const ptrdiff_t mode_step = cm->mi_params.mi_stride;
-  for (int x = 0; x < x_range; x += 2) {
+  for (x = 0; x < x_range_2; x += 2) {
     const uint32_t curr_x = mi_col + x;
     const uint32_t y_start = mi_row;
     const uint32_t y_end = mi_row + y_range;
@@ -1653,6 +1690,35 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
       }
 
       filter_horz(p, dst_stride, params, cm->seq_params, true);
+
+      // advance the destination pointer
+      const uint32_t advance_units = tx_size_high_unit[*tx_size];
+      y += advance_units;
+      p += advance_units * dst_stride * MI_SIZE;
+      params += advance_units;
+      tx_size += advance_units;
+    }
+  }
+
+  if (x_range % 2) {
+    const uint32_t curr_x = mi_col + x;
+    const uint32_t y_start = mi_row;
+    const uint32_t y_end = mi_row + y_range;
+    set_lpf_parameters_for_line_luma(params_buf, tx_buf, cm, xd, HORZ_EDGE,
+                                     curr_x, y_start, plane_ptr, y_end,
+                                     mode_step);
+
+    AV1_DEBLOCKING_PARAMETERS *params = params_buf;
+    TX_SIZE *tx_size = tx_buf;
+
+    uint8_t *p = dst_ptr + x * MI_SIZE;
+    for (int y = 0; y < y_range;) {
+      if (*tx_size == TX_INVALID) {
+        params->filter_length = 0;
+        *tx_size = TX_4X4;
+      }
+
+      filter_horz(p, dst_stride, params, cm->seq_params, false);
 
       // advance the destination pointer
       const uint32_t advance_units = tx_size_high_unit[*tx_size];
