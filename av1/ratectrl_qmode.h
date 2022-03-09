@@ -12,54 +12,41 @@
 #ifndef AOM_AV1_RATECTRL_QMODE_H_
 #define AOM_AV1_RATECTRL_QMODE_H_
 
-#include <vector>
-#include "av1/encoder/firstpass.h"
+#include "av1/ratectrl_qmode_interface.h"
 
 namespace aom {
 
-struct RateControlParam {
-  int max_gop_length;
-  int min_gop_length;
-  int max_ref_frames;
-  int base_q_index;
-};
+#define MAX_FIRSTPASS_ANALYSIS_FRAMES 150
+typedef enum region_types {
+  STABLE_REGION = 0,
+  HIGH_VAR_REGION = 1,
+  SCENECUT_REGION = 2,
+  BLENDING_REGION = 3,
+} REGION_TYPES;
 
-struct TplBlockStats {
-  BLOCK_SIZE block_size;
-  // row and col of mode info unit which is in unit of 4 pixels.
-  int mi_row;
-  int mi_col;
-  int64_t intra_cost;
-  int64_t inter_cost;
-  int_mv mv[2];
-  int ref_frame_index[2];
-};
+typedef struct regions {
+  int start;
+  int last;
+  double avg_noise_var;
+  double avg_cor_coeff;
+  double avg_sr_fr_ratio;
+  double avg_intra_err;
+  double avg_coded_err;
+  REGION_TYPES type;
+} REGIONS;
 
-using GopChunkList = std::vector<GF_GROUP>;
-
-struct FrameEncodeParameters {
-  int q_index;
-  int rdmult;
-};
-
-using FirstpassInfo = std::vector<FIRSTPASS_STATS>;
-using TplFrameStats = std::vector<TplBlockStats>;
-using TplGopStats = std::vector<TplFrameStats>;
-
-class AV1RateControlQModeInterface {
+class AV1RateControlQMode : public AV1RateControlQModeInterface {
  public:
-  AV1RateControlQModeInterface();
-  virtual ~AV1RateControlQModeInterface();
-
-  virtual void SetRcParam(const RateControlParam &rc_param) = 0;
-  virtual GopChunkList DetermineGopInfo(
-      const FirstpassInfo &firstpass_stats_list) = 0;
-  // Accept firstpass and tpl info from the encoder and return q index and
-  // rdmult. This needs to be called with consecutive GOPs as returned by
-  // DetermineGopInfo.
+  AV1RateControlQMode() = default;
+  ~AV1RateControlQMode() = default;
+  void SetRcParam(const RateControlParam &rc_param) override;
+  GopChunkList DetermineGopInfo(const FirstpassInfo &firstpass_info) override;
   virtual std::vector<FrameEncodeParameters> GetGopEncodeInfo(
-      const TplGopStats &tpl_stats_list) = 0;
-};  // class AV1RateCtrlQMode
+      const TplGopStats &tpl_stats_list) override;
+
+ private:
+  RateControlParam rc_param_;
+};
 }  // namespace aom
 
-#endif  // AOM_AV1_RATECTRL_QMODE_H_
+#endif
