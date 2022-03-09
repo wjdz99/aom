@@ -315,16 +315,19 @@ if(CONFIG_AV1_RC_RTC)
   endif()
 endif()
 
-list(APPEND AOM_AV1_RC_QMODE_SOURCES
-            "${AOM_ROOT}/av1/ratectrl_qmode_interface.h"
-            "${AOM_ROOT}/av1/ratectrl_qmode_interface.cc"
-            "${AOM_ROOT}/av1/reference_manager.h"
-            "${AOM_ROOT}/av1/reference_manager.cc"
-            "${AOM_ROOT}/av1/ratectrl_qmode.h"
-            "${AOM_ROOT}/av1/ratectrl_qmode.cc")
-add_library(av1_rc_qmode ${AOM_AV1_RC_QMODE_SOURCES})
-target_link_libraries(av1_rc_qmode ${AOM_LIB_LINK_TYPE} m)
-set_target_properties(av1_rc_qmode PROPERTIES LINKER_LANGUAGE CXX)
+if(CONFIG_AV1_ENCODER AND NOT CONFIG_REALTIME_ONLY)
+  list(APPEND AOM_AV1_RC_QMODE_SOURCES
+              "${AOM_ROOT}/av1/ratectrl_qmode_interface.h"
+              "${AOM_ROOT}/av1/ratectrl_qmode_interface.cc"
+              "${AOM_ROOT}/av1/reference_manager.h"
+              "${AOM_ROOT}/av1/reference_manager.cc"
+              "${AOM_ROOT}/av1/ratectrl_qmode.h"
+              "${AOM_ROOT}/av1/ratectrl_qmode.cc")
+  add_library(av1_rc_qmode ${AOM_AV1_RC_QMODE_SOURCES})
+  add_dependencies(av1_rc_qmode aom_av1_encoder)
+  target_link_libraries(av1_rc_qmode ${AOM_LIB_LINK_TYPE} m)
+  set_target_properties(av1_rc_qmode PROPERTIES LINKER_LANGUAGE CXX)
+endif()
 
 # List of object and static library targets.
 set(AOM_LIB_TARGETS ${AOM_LIB_TARGETS} aom_rtcd aom_mem aom_scale aom)

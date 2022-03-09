@@ -135,6 +135,10 @@ int av1_calc_arf_boost(const TWO_PASS *twopass,
                        int *num_fpstats_used, int *num_fpstats_required,
                        int project_gfu_boost);
 
+void av1_identify_regions(const FIRSTPASS_STATS *const stats_start,
+                          int total_frames, int offset, REGIONS *regions,
+                          int *total_regions);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif
