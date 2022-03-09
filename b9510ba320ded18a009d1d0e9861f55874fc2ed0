@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41c0d68a_ff2bc39c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-03-09T13:58:13Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis CL adds AVX2 intrinsic optimization to process four 8x8\u0027s (i.e. for one 8x32 block) which computes parameters required (such as sse, sum, etc.) to calculate variance at 8x8 level. Relevant unit-tests changes were also added in this patch.\n\nPlease check the encoder speed up results measured using timer and instruction count based as below. Please note timer based results are based on a limited set of test contents and instruction count is measured using Borg test. This optimization is applicable for speed presets \u003e\u003d 7. We also ensured bit-exact output for speed levels 5 to 10.\n\nBased on Timer:\n       Encode Time\ncpu    Reduction(%)\n 7       1.200\n 8       1.080\n 9       1.290\n10       0.870\n\nBased on Instruction Count:\n     Instruction Count\ncpu    Reduction(%)\n 7       2.071\n 8       1.250\n 9       1.809\n10       1.526\n\nIn the commit/review message:\n[-] sign indicates encode time/instruction count increase\n[+] sign indicates encode time/instruction count reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "b9510ba320ded18a009d1d0e9861f55874fc2ed0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
