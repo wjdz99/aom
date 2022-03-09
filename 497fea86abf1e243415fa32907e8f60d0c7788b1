@@ -176,6 +176,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d30ae66e_c083abc1",
+        "filename": "build/cmake/aom_optimization.cmake",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-09T18:13:36Z",
+      "side": 1,
+      "message": "Tom: Thanks a lot for the reply. After this CL, it would be good to either add a comment (to protect asm_lib_name from being removed as a \"cleanup\") or see if we can remove asm_lib_name without breaking the generators for MSVC or Xcode.",
+      "parentUuid": "ccb9df50_b78ea3f1",
+      "revId": "497fea86abf1e243415fa32907e8f60d0c7788b1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "77d61bdc_58ace4e7",

@@ -16,6 +16,23 @@
       "message": "Mostly addressed comments, and left a long note about what is really going on in add_asm_library().\n\nI agree that some or all of the assembly targets could potentially be removed, but I prefer to remain cautious. I agree that such changes belong in a follow up so they can be investigated individually for correctness.  ",
       "revId": "56f28368ebfe98962d2f3307eb9aa3704518d619",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e036c74_d90a6d59",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-09T18:13:36Z",
+      "side": 1,
+      "message": "LGTM. Thanks again for the fix.",
+      "revId": "56f28368ebfe98962d2f3307eb9aa3704518d619",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
