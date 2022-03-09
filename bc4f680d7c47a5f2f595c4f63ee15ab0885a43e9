@@ -51,6 +51,24 @@
       "parentUuid": "a9586ca7_8ef98097",
       "revId": "bc4f680d7c47a5f2f595c4f63ee15ab0885a43e9",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d8b80e5_09b77f93",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1246,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-03-09T18:31:49Z",
+      "side": 1,
+      "message": "I prefer patch 2. I\u0027m not too concerned with the metrics/stat-changes derived the borg runs for this change, since RTC doesn\u0027t use periodic key frames (period is disabled or very large). I prefer to keep the rd-pickmode on for small blocks, as the reference (vp9) is doing that, and we know visually it helps. I\u0027m fine with conditioning the logic on spatial variance, as in patch 2.",
+      "parentUuid": "c01a2d40_14b0ae86",
+      "revId": "bc4f680d7c47a5f2f595c4f63ee15ab0885a43e9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
