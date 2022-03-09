@@ -16,6 +16,328 @@
       "message": "Angie, you can submit this for now and we can clean it up later.",
       "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df6ec6e6_b3f3a373",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "Should be backward_queue (as you mentioned in our meeting).",
+      "range": {
+        "startLine": 65,
+        "startChar": 25,
+        "endLine": 65,
+        "endChar": 35
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cb79546d_d7e8d570",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "Please add a brief comment explaining the args, especially that [order_start, order_end] is an inclusive range.",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 53
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "412abfbe_de30533a",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "extra semicolon not needed.",
+      "range": {
+        "startLine": 175,
+        "startChar": 1,
+        "endLine": 175,
+        "endChar": 2
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ebb1eb4_2dc4266d",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "This function could return a GopStruct instead of taking one by reference. That would be clearer; here it\u0027s not clear if there are any preconditions on the *gop_struct.",
+      "range": {
+        "startLine": 177,
+        "startChar": 19,
+        "endLine": 177,
+        "endChar": 40
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3c4d4de_c6c386b1",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "Why is this limited to 16? Should this be a parameter in RateControlParam?",
+      "range": {
+        "startLine": 217,
+        "startChar": 41,
+        "endLine": 217,
+        "endChar": 42
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c93365b5_d18a3758",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "remaining_show_frame_count would be clearer.",
+      "range": {
+        "startLine": 218,
+        "startChar": 6,
+        "endLine": 218,
+        "endChar": 29
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bffdab0_2935b08b",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "It would be trivial to turn this into a class, which would make the implementation of all the ref_manager_xxx functions easier to read (because you could replace \n\"ref_manager-\u003ewhatever\" with just \"whatever\" everywhere).\n\nBut if you want to leave it like this for now, that\u0027s fine. It would be easy enough to do as a refactor later.",
+      "range": {
+        "startLine": 21,
+        "startChar": 7,
+        "endLine": 21,
+        "endChar": 22
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d7ddb74_a6c2ac16",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "Is there any reason for the free list to be a queue? Couldn\u0027t it just be a stack? Presumably the order in which free slots get used shouldn\u0027t matter.",
+      "range": {
+        "startLine": 24,
+        "startChar": 18,
+        "endLine": 24,
+        "endChar": 35
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28f69bc0_02262a65",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "std::deque is generally considered to be a pretty lousy container implementation, and is often not the best choice. (chandlerc@ explains why at https://youtu.be/fHNmRkzxHWs?t\u003d2635)\n\nIn this case, given that the maximum number of elements is very small and the elements themselves are small and cheap to copy, you\u0027d probably be better off just using a std::vector and doing q.erase(q.begin()) instead of q.pop_front().",
+      "range": {
+        "startLine": 27,
+        "startChar": 7,
+        "endLine": 27,
+        "endChar": 12
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62ab1d2e_883fcb25",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "There\u0027s no need for these; we can just let the compiler generate them implicitly.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bac32be0_2ce0231e",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "Please add brief comments here, i.e. \"index in presentation order\", \"index in coding order\".",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3140cf7f_a6e2e65a",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "It would be clearer if these were bools rather than ints.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "abea4376_aeec9c9b",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "Please comment that these are -1 if encode_ref_mode \u003d\u003d EncodeRefModeRegular.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ab290d9b_2d471455",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-09T21:15:29Z",
+      "side": 1,
+      "message": "This could be split into a separate TEST.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
