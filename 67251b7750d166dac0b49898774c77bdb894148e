@@ -52,6 +52,24 @@
       "parentUuid": "29692c6b_a4e775fa",
       "revId": "67251b7750d166dac0b49898774c77bdb894148e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56f200c7_c45b8451",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-10T15:35:05Z",
+      "side": 1,
+      "message": "There shouldn\u0027t be a problem with having libaom as a dependency. If it will work to just call into libaom, maybe we should do that.",
+      "parentUuid": "3867b922_514e4fef",
+      "revId": "67251b7750d166dac0b49898774c77bdb894148e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
