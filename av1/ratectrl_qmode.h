@@ -17,17 +17,9 @@
 #include <vector>
 #include "av1/encoder/firstpass.h"
 #include "av1/ratectrl_qmode_interface.h"
+#include "av1/reference_manager.h"
 
 namespace aom {
-struct RefFrameManager {
-  int max_ref_frames;
-  std::vector<GopFrame> ref_frame_table;
-  std::deque<int> free_ref_idx_list;
-  int forward_max_size;
-  std::vector<int> forward_stack;
-  std::deque<int> backward_queue;
-  std::deque<int> last_queue;
-};
 
 void ref_frame_manager_init(RefFrameManager *ref_frame_manager,
                             int max_ref_frames);
