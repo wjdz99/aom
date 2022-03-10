@@ -16,6 +16,24 @@
       "message": "The performance sounds good. Could you explain what is in this change? Thanks.",
       "revId": "c015d7940142dfac29f917b50b2b49653d6ccb12",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b511651_b703d71f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5022
+      },
+      "writtenOn": "2022-03-10T01:25:27Z",
+      "side": 1,
+      "message": "The previous segmentation decisions were inherited from vp9. av1 differs in that we always have spatial segment id prediction, in addition to the temporal prediction, which is optional on a frame level basis.\n\nThis change allows the encoder to estimate the costs associated with using and not using the temporal prediction to code the segmentation id. This process is done for each coding block in its final coding stage. This adaptive decision gives the compression gains.\n\nThe speed up was mostly due to the fact that we removed the function that searched through all the blocks in the frame to determine whether to use the temporal prediction, after the frame is coded.",
+      "parentUuid": "8de0f81d_c492ddcf",
+      "revId": "c015d7940142dfac29f917b50b2b49653d6ccb12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
