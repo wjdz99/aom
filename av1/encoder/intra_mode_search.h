@@ -204,6 +204,12 @@ void av1_search_palette_mode_luma(const AV1_COMP *cpi, MACROBLOCK *x,
                                   PICK_MODE_CONTEXT *ctx,
                                   RD_STATS *this_rd_cost, int64_t best_rd);
 
+void av1_search_palette_mode_chroma(const AV1_COMP *cpi, MACROBLOCK *x,
+                                    BLOCK_SIZE bsize,
+                                    unsigned int ref_frame_cost,
+                                    PICK_MODE_CONTEXT *ctx,
+                                    RD_STATS *this_rd_cost, int64_t best_rd);
+
 /*!\brief Perform intra-mode search on luma channels for intra frames.
  *
  * \ingroup intra_mode_search
