@@ -16,6 +16,24 @@
       "message": "First step to decide gop size - identify regions.\n\nWill be rebased on Angie\u0027s CL (and some clean up) once that gets in:\nhttps://aomedia-review.googlesource.com/c/aom/+/154781",
       "revId": "67251b7750d166dac0b49898774c77bdb894148e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "29692c6b_a4e775fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-10T11:39:41Z",
+      "side": 1,
+      "message": "Is all the new code here copied directly from elsewhere in libaom? If not, what parts have changed? It doesn\u0027t really make sense for me to review 900 lines of code as new code if it\u0027s just being moved from somewhere else.",
+      "parentUuid": "6cf6c33b_1b7e8775",
+      "revId": "67251b7750d166dac0b49898774c77bdb894148e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
