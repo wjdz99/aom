@@ -16,6 +16,52 @@
       "message": "Hi Yunqing,\n\nDual loop filter optimization was enabled for clips with multiple of 8 width and height in non-rd rt mode. In this patch, we have enabled the dual loop filter optimization for all resolutions. The results are as follows:\n\n     Instruction Count\ncpu    Reduction(%)\n 7       0.762\n 8       1.262\n 9       1.557\n 10      1.675\n\nSpecifically, the results for rtc-dert test set (which includes clips of resolution 320x180, 180x320) are as follows \n\n     Instruction Count\ncpu    Reduction(%)\n 7       1.576\n 8       2.607\n 9       3.218\n 10      3.465\n\n The instruction count reduction specified has been measured using command\n $ perf stat -e instructions:u ./aomenc …\n\n\nPlease review. \n\nThank you.",
       "revId": "8e16b79b66a918789c3694df448d43becf5ca3bc",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "862593a9_46082aad",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1234,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-03-10T19:00:40Z",
+      "side": 1,
+      "message": "We don\u0027t need a ternary operator here.\nDoing\n const bool use_dual \u003d (curr_y + 1) * MI_SIZE \u003c dst_height;\n  \nsuffices.\n\nAlso a question: do we need to do the comparison in units of luma samples? Can we operate in units of mi\u0027s as in\n const bool use_dual \u003d (curr_y + 1) \u003c y_range;",
+      "range": {
+        "startLine": 1234,
+        "startChar": 4,
+        "endLine": 1234,
+        "endChar": 73
+      },
+      "revId": "8e16b79b66a918789c3694df448d43becf5ca3bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f2abdc8a_c2e5a21e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 1649,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-03-10T19:00:40Z",
+      "side": 1,
+      "message": "See comment above.",
+      "range": {
+        "startLine": 1649,
+        "startChar": 4,
+        "endLine": 1649,
+        "endChar": 72
+      },
+      "revId": "8e16b79b66a918789c3694df448d43becf5ca3bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
