@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2022, Alliance for Open Media. All rights reserved
  *
@@ -10,9 +9,10 @@
  * PATENTS file, you can obtain it at www.aomedia.org/license/patent.
  */
 
+#include "av1/ratectrl_qmode.h"
+
 #include <algorithm>
 #include <vector>
-#include "av1/ratectrl_qmode.h"
 
 namespace aom {
 void ref_frame_manager_reset(RefFrameManager *ref_frame_manager) {
