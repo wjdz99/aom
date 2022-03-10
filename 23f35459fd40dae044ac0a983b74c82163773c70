@@ -39,6 +39,30 @@
       },
       "revId": "23f35459fd40dae044ac0a983b74c82163773c70",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ef1fbc3_b1581802",
+        "filename": "aom_dsp/variance.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-03-10T11:23:19Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe think that “8x8 quad” name would be appropriate for this function since the function computes the sum and sse of each 8x8 block in a row of 8x32. However, for better readability we have modified the function name as aom_get_sse_sum_8x8_quad() instead of aom_get8x8var_quad() as this function actually computes the sse and sum and not the variance (the variance computation lies outside the function).\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "06d8edc9_34015a75",
+      "range": {
+        "startLine": 212,
+        "startChar": 5,
+        "endLine": 212,
+        "endChar": 23
+      },
+      "revId": "23f35459fd40dae044ac0a983b74c82163773c70",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
