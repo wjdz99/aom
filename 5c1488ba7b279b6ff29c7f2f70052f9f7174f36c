@@ -65,6 +65,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b5d25aa_b51f1ac7",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df6ec6e6_b3f3a373",
+      "range": {
+        "startLine": 65,
+        "startChar": 25,
+        "endLine": 65,
+        "endChar": 35
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cb79546d_d7e8d570",
@@ -78,6 +102,30 @@
       "writtenOn": "2022-03-09T21:15:29Z",
       "side": 1,
       "message": "Please add a brief comment explaining the args, especially that [order_start, order_end] is an inclusive range.",
+      "range": {
+        "startLine": 143,
+        "startChar": 0,
+        "endLine": 143,
+        "endChar": 53
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf865569_86add571",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done\nI changed the order_end to be exclusive.",
+      "parentUuid": "cb79546d_d7e8d570",
       "range": {
         "startLine": 143,
         "startChar": 0,
@@ -135,6 +183,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6785070a_3b087a52",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "412abfbe_de30533a",
+      "range": {
+        "startLine": 175,
+        "startChar": 1,
+        "endLine": 175,
+        "endChar": 2
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7ebb1eb4_2dc4266d",
@@ -148,6 +220,30 @@
       "writtenOn": "2022-03-09T21:15:29Z",
       "side": 1,
       "message": "This function could return a GopStruct instead of taking one by reference. That would be clearer; here it\u0027s not clear if there are any preconditions on the *gop_struct.",
+      "range": {
+        "startLine": 177,
+        "startChar": 19,
+        "endLine": 177,
+        "endChar": 40
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03eb6a77_d8bc9055",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ebb1eb4_2dc4266d",
       "range": {
         "startLine": 177,
         "startChar": 19,
@@ -181,6 +277,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "21e66975_7340c1fc",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "This is temporary toy implementation.\nWe can change this part later.",
+      "parentUuid": "d3c4d4de_c6c386b1",
+      "range": {
+        "startLine": 217,
+        "startChar": 41,
+        "endLine": 217,
+        "endChar": 42
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c93365b5_d18a3758",
@@ -194,6 +314,30 @@
       "writtenOn": "2022-03-09T21:15:29Z",
       "side": 1,
       "message": "remaining_show_frame_count would be clearer.",
+      "range": {
+        "startLine": 218,
+        "startChar": 6,
+        "endLine": 218,
+        "endChar": 29
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9e919f5_4d6d5906",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c93365b5_d18a3758",
       "range": {
         "startLine": 218,
         "startChar": 6,
@@ -227,6 +371,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "47a3d43c_6019e34a",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Yeah, I will consider change it to a class later.",
+      "parentUuid": "7bffdab0_2935b08b",
+      "range": {
+        "startLine": 21,
+        "startChar": 7,
+        "endLine": 21,
+        "endChar": 22
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d7ddb74_a6c2ac16",
@@ -240,6 +408,30 @@
       "writtenOn": "2022-03-09T21:15:29Z",
       "side": 1,
       "message": "Is there any reason for the free list to be a queue? Couldn\u0027t it just be a stack? Presumably the order in which free slots get used shouldn\u0027t matter.",
+      "range": {
+        "startLine": 24,
+        "startChar": 18,
+        "endLine": 24,
+        "endChar": 35
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "80dbb1ea_b8d77211",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "I found that assigning the free ref index from 0 is easier for debugging.\nBut yes, we can use a stack/vector as well",
+      "parentUuid": "6d7ddb74_a6c2ac16",
       "range": {
         "startLine": 24,
         "startChar": 18,
@@ -273,6 +465,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d052fcb_04c3ae5c",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Okay, I will refactor this part later.",
+      "parentUuid": "28f69bc0_02262a65",
+      "range": {
+        "startLine": 27,
+        "startChar": 7,
+        "endLine": 27,
+        "endChar": 12
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "62ab1d2e_883fcb25",
@@ -286,6 +502,30 @@
       "writtenOn": "2022-03-09T21:15:29Z",
       "side": 1,
       "message": "There\u0027s no need for these; we can just let the compiler generate them implicitly.",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d2806f0_c1c7410b",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62ab1d2e_883fcb25",
       "range": {
         "startLine": 38,
         "startChar": 0,
@@ -319,6 +559,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e1f8104_52b66bcb",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bac32be0_2ce0231e",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3140cf7f_a6e2e65a",
@@ -332,6 +596,30 @@
       "writtenOn": "2022-03-09T21:15:29Z",
       "side": 1,
       "message": "It would be clearer if these were bools rather than ints.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4de49e0_cb6e90f5",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3140cf7f_a6e2e65a",
       "range": {
         "startLine": 48,
         "startChar": 0,
@@ -365,6 +653,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0d257a2_6d767ac0",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abea4376_aeec9c9b",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ab290d9b_2d471455",
@@ -378,6 +690,30 @@
       "writtenOn": "2022-03-09T21:15:29Z",
       "side": 1,
       "message": "This could be split into a separate TEST.",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 55,
+        "endChar": 0
+      },
+      "revId": "5c1488ba7b279b6ff29c7f2f70052f9f7174f36c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4a8e71e_62cd83f2",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-10T01:43:40Z",
+      "side": 1,
+      "message": "Yeah, I will refactor this part to a different test later",
+      "parentUuid": "ab290d9b_2d471455",
       "range": {
         "startLine": 35,
         "startChar": 0,
