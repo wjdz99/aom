@@ -3077,6 +3077,26 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       if (xd->tx_type_map[0] != DCT_DCT)
         av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
     }
+
+    av1_search_palette_mode_chroma(cpi, x, bsize, intra_ref_frame_cost, ctx,
+                                   &this_rdc, best_rdc.rdcost);
+    // printf("rdcost %ld\n", this_rdc.rdcost);
+    if (this_rdc.rdcost < best_rdc.rdcost) {
+      // printf("Update rd\n");
+      best_pickmode.pmi = mi->palette_mode_info;
+      best_pickmode.best_mode = DC_PRED;
+      mi->mv[0].as_int = 0;
+      best_rdc.rate = this_rdc.rate;
+      best_rdc.dist = this_rdc.dist;
+      best_rdc.rdcost = this_rdc.rdcost;
+      best_pickmode.best_mode_skip_txfm = this_rdc.skip_txfm;
+      if (!this_rdc.skip_txfm) {
+        memcpy(best_pickmode.blk_skip, txfm_info->blk_skip,
+               sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
+      }
+      // if (xd->tx_type_map[0] != DCT_DCT)
+      //   av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
+    }
   }
 
   pd->dst = orig_dst;
