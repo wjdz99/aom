@@ -39,6 +39,30 @@
       },
       "revId": "af704c54a1090d982b5eac1113b7f16b2f8fe4c1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b4682a4_3be62b61",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-10T00:11:34Z",
+      "side": 1,
+      "message": "In fact, you could define it as \n  enum class EncodeRefMode {\n    kRegular,\n    kOverlay,\n    kShowExisting,\n  };\n  \nand then it would be required to prefix them with EncodeRefMode:: (because the names are only defined within that scope).\n\nI started the names with k because that\u0027s required by the google3 style, go/cstyle#Enumerator_Names.\nI leave it up to you to decide whether that\u0027s appropriate here.",
+      "parentUuid": "fd0014c8_c3399c26",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 11
+      },
+      "revId": "af704c54a1090d982b5eac1113b7f16b2f8fe4c1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
