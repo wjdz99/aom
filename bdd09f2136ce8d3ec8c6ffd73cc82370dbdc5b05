@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "02365b6e_f83fd0b1",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-10T15:48:52Z",
+      "side": 1,
+      "message": "Nit: Delete this blank line.",
+      "revId": "bdd09f2136ce8d3ec8c6ffd73cc82370dbdc5b05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3e869e3_65c76f1c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-10T15:48:52Z",
+      "side": 1,
+      "message": "Nit: Google\u0027s C++ Style Guide recommends an order for header file #include statements:\n\nhttps://google.github.io/styleguide/cppguide.html#Names_and_Order_of_Includes\n\nSo these should be listed in this order (with a blank line between groups):\n\n#include \"av1/ratectrl_qmode.h\"\n\n#include \u003calgorithm\u003e\n#include \u003cvector\u003e\n\n\"av1/ratectrl_qmode.h\" is listed first because it is the header file corresponding to this .cc file (av1/ratectrl_qmode.cc).",
+      "revId": "bdd09f2136ce8d3ec8c6ffd73cc82370dbdc5b05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d6a5dcfc_b3b35e62",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-10T15:48:52Z",
+      "side": 1,
+      "message": "1. The last four parameters (is_key_frame, ..., is_show_frame) should be declared as bool, because the corresponding struct members are declared as bool:\n\n```\nstruct GopFrame {\n  ...\n  bool is_key_frame;     // If this is key frame, reset reference buffers are\n                         // required\n  bool is_arf_frame;     // Is this a forward frame, a frame with order_idx\n                         // higher than the current display order\n  bool is_show_frame;    // Is this frame a show frame after coding\n  bool is_golden_frame;  // Is this a high quality frame\n  ...\n};\n```\n\n2. This function is essentially a GopFrame constructor. Similarly, the ref_frame_manager_init() function is essentially a member function of RefFrameManager.\n\nI am not sure if you plan to write C-style code internally and just expose a C++ interface.",
+      "revId": "bdd09f2136ce8d3ec8c6ffd73cc82370dbdc5b05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
