@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5171c41_6b282230",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-11T02:11:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2730242a_6b05690a",
+      "revId": "e7e1b506d60293c81a41f43492f58ec3849ebbd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fcbd8758_ba4e9381",
@@ -52,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a21dc205_f1ebce38",
+        "filename": "av1/reference_manager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-11T02:11:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fcbd8758_ba4e9381",
+      "revId": "e7e1b506d60293c81a41f43492f58ec3849ebbd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ecc91ca1_a4dc0033",
@@ -65,6 +101,30 @@
       "writtenOn": "2022-03-11T01:33:51Z",
       "side": 1,
       "message": "I think all of these can be const auto\u0026",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 22
+      },
+      "revId": "e7e1b506d60293c81a41f43492f58ec3849ebbd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d65411a_ccb8f7e6",
+        "filename": "av1/reference_manager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-11T02:11:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecc91ca1_a4dc0033",
       "range": {
         "startLine": 40,
         "startChar": 0,
@@ -111,6 +171,24 @@
       "writtenOn": "2022-03-11T01:33:51Z",
       "side": 1,
       "message": "add a blank line after this to balance the one after the opening of the namespace",
+      "revId": "e7e1b506d60293c81a41f43492f58ec3849ebbd4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc7dd712_16028044",
+        "filename": "av1/reference_manager.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-11T02:11:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f61b971_7ef45423",
       "revId": "e7e1b506d60293c81a41f43492f58ec3849ebbd4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
