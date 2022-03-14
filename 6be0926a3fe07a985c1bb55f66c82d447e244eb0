@@ -122,6 +122,24 @@
       "parentUuid": "ef65c2ff_522d12cc",
       "revId": "6be0926a3fe07a985c1bb55f66c82d447e244eb0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60f03801_8ae4296b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-14T20:57:21Z",
+      "side": 1,
+      "message": "\u003e \u003e \u003e Should this also be changed to aom_dsp_encoder?\n\u003e \u003e \n\u003e \u003e It\u0027s an object library which some generators have had other issues with. It\u0027s probably safest to keep the link libraries associated with the top-level library in this change.\n\u003e \n\u003e It looks like this may work, but I\u0027d like to bring it in separately to test things like the Xcode generator beforehand.\n\u003e \n\u003e https://cmake.org/cmake/help/v3.19/command/target_link_libraries.html#linking-object-libraries\n\nLooking a little more closely, without some additional changes this won\u0027t work. aom would need to depend on the object library, but currently only extracts the outputs.\n\nhttps://aomedia.googlesource.com/aom/+/refs/tags/v3.3.0/aom_dsp/aom_dsp.cmake#360",
+      "parentUuid": "e582c8e5_db6f0eb2",
+      "revId": "6be0926a3fe07a985c1bb55f66c82d447e244eb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": []
