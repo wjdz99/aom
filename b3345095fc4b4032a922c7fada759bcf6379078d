@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfa75851_f9bbf2fb",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1753,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-14T18:02:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ac4ab65_b6d6e0d3",
+      "range": {
+        "startLine": 1749,
+        "startChar": 0,
+        "endLine": 1753,
+        "endChar": 0
+      },
+      "revId": "b3345095fc4b4032a922c7fada759bcf6379078d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6d5ab80f_3273f228",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-03-11T22:17:20Z",
       "side": 1,
       "message": "Why is this 16?",
+      "range": {
+        "startLine": 124,
+        "startChar": 32,
+        "endLine": 124,
+        "endChar": 34
+      },
+      "revId": "b3345095fc4b4032a922c7fada759bcf6379078d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f28c994f_af97230e",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-14T18:02:34Z",
+      "side": 1,
+      "message": "this argument is defined as the following in the av1 code:\n\nhttps://aomedia.googlesource.com/aom/+/958f30e397eaa8009201a4c39147e82e665f8a0c/av1/encoder/pass2_strategy.c#3726\n\n```\n      // how many frames we can analyze from this frame\n      int rest_frames \u003d\n          AOMMIN(rc-\u003eframes_to_key, MAX_FIRSTPASS_ANALYSIS_FRAMES);\n      rest_frames \u003d\n          AOMMIN(rest_frames, (int)(twopass-\u003estats_buf_ctx-\u003estats_in_end -\n                                    cpi-\u003etwopass_frame.stats_in +\n                                    (rc-\u003eframes_since_key \u003d\u003d 0)));\n```\n\nit\u0027s capped at 150 too. but I don\u0027t see frames_to_key (# of frames to next key frame) available in the library at the moment.",
+      "parentUuid": "6d5ab80f_3273f228",
       "range": {
         "startLine": 124,
         "startChar": 32,
