@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77141c3a_3d16e45b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-15T18:41:58Z",
+      "side": 1,
+      "message": "Tom: PTAL. Thanks for the review.",
+      "revId": "6e3cd8651507c65a3ba959d1dc7feb9192b14eb4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
