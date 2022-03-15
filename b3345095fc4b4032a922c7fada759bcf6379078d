@@ -117,6 +117,30 @@
       },
       "revId": "b3345095fc4b4032a922c7fada759bcf6379078d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "909946fd_7506dbe0",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 5
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-15T16:58:31Z",
+      "side": 1,
+      "message": "Looks like the rest_frames is number of frames from the current frame to the next key frame.\nWe haven\u0027t implemented the part of detect key frame yet.\nSo assume we only have one key frame at the beginning, we should set \nrest_frames \u003d firstpass_info.size() - cur_stats_idx\n\nYep, add a TODO comment will be helpful.",
+      "parentUuid": "a83a3d6a_a2797eb7",
+      "range": {
+        "startLine": 124,
+        "startChar": 32,
+        "endLine": 124,
+        "endChar": 34
+      },
+      "revId": "b3345095fc4b4032a922c7fada759bcf6379078d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
