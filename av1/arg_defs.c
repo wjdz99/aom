@@ -47,6 +47,7 @@ static const struct arg_enum_list tuning_enum[] = {
   { "vmaf", AOM_TUNE_VMAF_MAX_GAIN },
   { "vmaf_neg", AOM_TUNE_VMAF_NEG_MAX_GAIN },
   { "butteraugli", AOM_TUNE_BUTTERAUGLI },
+  { "visual_masking", AOM_TUNE_VISUAL_MASKING },
   { NULL, 0 }
 };
 

@@ -3158,6 +3158,13 @@ typedef struct AV1_COMP {
    */
   double *ssim_rdmult_scaling_factors;
 
+  /*!
+   * visual_masking_rdmult_scaling_factors[i] stores the RD multiplier scaling
+   * factor of the ith 4x4 block in raster scan order. This scaling factor is
+   * used for RD multiplier modulation when Visual Masking tuning is enabled.
+   */
+  float *visual_masking_rdmult_scaling_factors;
+
 #if CONFIG_TUNE_VMAF
   /*!
    * Parameters for VMAF tuning.

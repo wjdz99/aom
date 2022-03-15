@@ -265,7 +265,9 @@ list(APPEND AOM_AV1_ENCODER_SOURCES
             "${AOM_ROOT}/third_party/vector/vector.c"
             "${AOM_ROOT}/third_party/vector/vector.h"
             "${AOM_ROOT}/av1/encoder/dwt.c"
-            "${AOM_ROOT}/av1/encoder/dwt.h")
+            "${AOM_ROOT}/av1/encoder/dwt.h"
+            "${AOM_ROOT}/av1/encoder/tune_visual_masking.c"
+            "${AOM_ROOT}/av1/encoder/tune_visual_masking.h")
 
 if(CONFIG_TUNE_VMAF)
   list(APPEND AOM_AV1_ENCODER_SOURCES "${AOM_ROOT}/av1/encoder/tune_vmaf.c"
