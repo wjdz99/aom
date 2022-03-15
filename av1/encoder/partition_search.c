@@ -31,6 +31,7 @@
 #include "av1/encoder/tokenize.h"
 #include "av1/encoder/var_based_part.h"
 #include "av1/encoder/av1_ml_partition_models.h"
+#include "av1/encoder/tune_visual_masking.h"
 
 #if CONFIG_TUNE_VMAF
 #include "av1/encoder/tune_vmaf.h"
@@ -626,6 +627,10 @@ static void setup_block_rdmult(const AV1_COMP *const cpi, MACROBLOCK *const x,
     av1_set_butteraugli_rdmult(cpi, x, bsize, mi_row, mi_col, &x->rdmult);
   }
 #endif
+  if (cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VISUAL_MASKING) {
+    av1_set_visual_masking_rdmult(cpi, &x->errorperbit, bsize, mi_row, mi_col,
+                                  &x->rdmult);
+  }
   if (cpi->oxcf.mode == ALLINTRA) {
     x->rdmult = (int)(((int64_t)x->rdmult * x->intra_sb_rdmult_modifier) >> 7);
   }

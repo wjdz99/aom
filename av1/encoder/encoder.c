@@ -80,6 +80,7 @@
 #include "av1/encoder/superres_scale.h"
 #include "av1/encoder/thirdpass.h"
 #include "av1/encoder/tpl_model.h"
+#include "av1/encoder/tune_visual_masking.h"
 #include "av1/encoder/reconinter_enc.h"
 #include "av1/encoder/var_based_part.h"
 
@@ -1388,6 +1389,17 @@ AV1_COMP *av1_create_compressor(AV1_PRIMARY *ppi, AV1EncoderConfig *oxcf,
     CHECK_MEM_ERROR(cm, cpi->tpl_rdmult_scaling_factors,
                     aom_calloc(num_rows * num_cols,
                                sizeof(*cpi->tpl_rdmult_scaling_factors)));
+  }
+
+  {
+    const int bsize = BLOCK_4X4;
+    const int w = mi_size_wide[bsize];
+    const int h = mi_size_high[bsize];
+    const int num_cols = (mi_params->mi_cols + w - 1) / w;
+    const int num_rows = (mi_params->mi_rows + h - 1) / h;
+    CHECK_MEM_ERROR(cm, cpi->visual_masking_rdmult_scaling_factors,
+                    aom_calloc(num_rows * num_cols,
+                               sizeof(*cpi->ssim_rdmult_scaling_factors)));
   }
 
 #if CONFIG_TUNE_VMAF
@@ -3494,6 +3506,10 @@ static int encode_frame_to_data_rate(AV1_COMP *cpi, size_t *size,
 
   if (oxcf->tune_cfg.tuning == AOM_TUNE_SSIM) {
     av1_set_mb_ssim_rdmult_scaling(cpi);
+  }
+
+  if (oxcf->tune_cfg.tuning == AOM_TUNE_VISUAL_MASKING) {
+    av1_set_mb_visual_masking_rdmult_scaling(cpi);
   }
 
 #if CONFIG_TUNE_VMAF
