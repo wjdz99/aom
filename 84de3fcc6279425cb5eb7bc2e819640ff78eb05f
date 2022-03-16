@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52471060_5ec36f39",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-16T17:51:12Z",
+      "side": 1,
+      "message": "There\u0027s no reason for this to return a value, since it always returns true, and callers aren\u0027t checking the return value.",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 4
+      },
+      "revId": "84de3fcc6279425cb5eb7bc2e819640ff78eb05f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
