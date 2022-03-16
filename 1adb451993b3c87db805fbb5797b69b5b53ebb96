@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d912730d_5229145b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2022-03-16T17:06:08Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch improves speed feature nonrd_check_partition_merge_mode for speed-7 based on block size and base qindex. This change is applicable for rtc test set only. Please find the detailed borg result below,\n\n                Instruction Count        BD-Rate Loss(%)        \ncpu    Test-set    Reduction(%)     avg.psnr   ovr.psnr    ssim\n 7       rtc         5.996           0.4578     0.5174    0.4405\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nDetails of the worst case drop contents are below,\n\n cpu   Test-set  Max bd-rate drop(%)      Clip-name\n  7      rtc          2.3289           marcooffice720p.y4m\n\nWe ensured bit exact output for other speed levels of RT. Please review the speed feature logic added in this patch.\nThank you",
+      "revId": "1adb451993b3c87db805fbb5797b69b5b53ebb96",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
