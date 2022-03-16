@@ -3,6 +3,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c1ee3ac1_bd47ae3d",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-16T17:29:50Z",
+      "side": 1,
+      "message": "We should only pass in the first stats of firstpass_info, which is the stats where key frame located.",
+      "range": {
+        "startLine": 126,
+        "startChar": 25,
+        "endLine": 126,
+        "endChar": 30
+      },
+      "revId": "ec7f94bb53f1e994a5212449feabcb0fd09b7302",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e521db1c_5560b843",
         "filename": "av1/ratectrl_qmode.cc",
         "patchSetId": 9
@@ -19,6 +42,53 @@
         "startChar": 35,
         "endLine": 127,
         "endChar": 66
+      },
+      "revId": "ec7f94bb53f1e994a5212449feabcb0fd09b7302",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bab0f03f_1ef9c25c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-16T17:29:50Z",
+      "side": 1,
+      "message": "I think we only call this function at key frame location.\nThis function is called under the condition like\nif (rc-\u003eframes_since_key \u003d\u003d 0 || rc-\u003eframes_since_key \u003d\u003d 1 ||...)\n\nAnd right now, we can assume only the first frame is key frame.",
+      "parentUuid": "e521db1c_5560b843",
+      "range": {
+        "startLine": 127,
+        "startChar": 35,
+        "endLine": 127,
+        "endChar": 66
+      },
+      "revId": "ec7f94bb53f1e994a5212449feabcb0fd09b7302",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ca790d5_a887581c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-16T17:29:50Z",
+      "side": 1,
+      "message": "This on should be an array pointer of REGIONS\nAs you can see, the code is doing something like\nregions[cur_region].type \u003d SCENECUT_REGION;\n\nI am guessing the array size should be MAX_FIRSTPASS_ANALYSIS_FRAMES",
+      "range": {
+        "startLine": 129,
+        "startChar": 28,
+        "endLine": 129,
+        "endChar": 35
       },
       "revId": "ec7f94bb53f1e994a5212449feabcb0fd09b7302",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
