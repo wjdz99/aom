@@ -1695,6 +1695,7 @@ static void encode_frame(struct stream_state *stream,
                    (uint32_t)(next_frame_start - frame_start), 0);
   aom_usec_timer_mark(&timer);
   stream->cx_time += aom_usec_timer_elapsed(&timer);
+  printf("encode time %f \n", 1.0*aom_usec_timer_elapsed(&timer));
   ctx_exit_on_error(&stream->encoder, "Stream %d: Failed to encode frame",
                     stream->index);
 }
