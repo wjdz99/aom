@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a38af699_f92f6524",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2022-03-16T18:37:22Z",
+      "side": 1,
+      "message": "TBH this is already enough of an improvement to land. Some descriptive text in the commit message detailing a bit more about the change might help, but otherwise I think this is fine. ",
+      "revId": "bd928a2a23ba580d64e408be13a5301db5d74020",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fdad3031_9c27d8e6",
@@ -35,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "18310500_0f439d79",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2022-03-16T18:37:22Z",
+      "side": 1,
+      "message": "I think alpha sorting into two sections would be good. Core library first:\n\nif(CONFIG_AV1_HIGHBITDEPTH)\nendif()\n\nif(CONFIG_AV1_TEMPORAL_DENOISING)\nendif()\n\nThen the experiments. And then, as you\u0027ve already done below, any blocks that remove sources from lists.",
+      "parentUuid": "fdad3031_9c27d8e6",
+      "revId": "bd928a2a23ba580d64e408be13a5301db5d74020",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "d207df90_19fddf1d",
@@ -48,6 +83,24 @@
       "writtenOn": "2022-03-15T23:01:36Z",
       "side": 1,
       "message": "Note that I put the if(CONFIG_REALTIME_ONLY) block last, because it calls list(REMOVE_ITEM).",
+      "revId": "bd928a2a23ba580d64e408be13a5301db5d74020",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eda04888_5fb97de4",
+        "filename": "av1/av1.cmake",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2022-03-16T18:37:22Z",
+      "side": 1,
+      "message": "This is probably best: I think we want any list commands doing removals after the sections with additions. It will hopefully help to avoid a situation where an experiment restores an already removed source file.",
+      "parentUuid": "d207df90_19fddf1d",
       "revId": "bd928a2a23ba580d64e408be13a5301db5d74020",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
