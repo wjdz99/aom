@@ -651,7 +651,7 @@ void av1_set_mb_vmaf_rdmult_scaling(AV1_COMP *cpi) {
                          cm->features.byte_alignment);
   aom_yv12_copy_frame(&resized_source, &recon, 1);
 
-  VmafContext *vmaf_context;
+  struct VmafContext *vmaf_context;
   const bool cal_vmaf_neg =
       cpi->oxcf.tune_cfg.tuning == AOM_TUNE_VMAF_NEG_MAX_GAIN;
   aom_init_vmaf_context(&vmaf_context, cpi->vmaf_info.vmaf_model, cal_vmaf_neg);

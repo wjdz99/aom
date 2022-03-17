@@ -37,7 +37,7 @@ typedef struct {
   int original_qindex;
 
   // VMAF model used in VMAF caculations.
-  VmafModel *vmaf_model;
+  struct VmafModel *vmaf_model;
 } TuneVMAFInfo;
 
 struct AV1_COMP;
