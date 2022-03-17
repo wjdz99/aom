@@ -34,6 +34,24 @@
       "parentUuid": "b1be881b_d1379079",
       "revId": "d74287c2eb51f82e36d268a8f0bfc1fea6430786",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a37db8c_29c9a875",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-17T14:48:09Z",
+      "side": 1,
+      "message": "it seems like it\u0027s starting from the next element so maybe it can use iterator?",
+      "parentUuid": "9a1ea7f1_c584950e",
+      "revId": "d74287c2eb51f82e36d268a8f0bfc1fea6430786",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
