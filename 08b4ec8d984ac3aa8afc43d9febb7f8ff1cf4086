@@ -34,6 +34,24 @@
       "parentUuid": "dce4d644_40c775a7",
       "revId": "08b4ec8d984ac3aa8afc43d9febb7f8ff1cf4086",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "21ed9599_43590607",
+        "filename": "aom_dsp/vmaf.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-17T22:38:16Z",
+      "side": 1,
+      "message": "\u003e I agree it is better to include libvmaf.h. I found that aom_dsp/vmaf.c includes \u003clibvmaf/libvmaf.h\u003e.\n\nYes, I think it was trying to hide the dependency. Let\u0027s just do the correct thing here.",
+      "parentUuid": "c451a548_d6a9eed1",
+      "revId": "08b4ec8d984ac3aa8afc43d9febb7f8ff1cf4086",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
