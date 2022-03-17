@@ -641,7 +641,8 @@ static AOM_FORCE_INLINE void set_one_param_for_line_luma(
     const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
     const EDGE_DIR edge_dir, uint32_t mi_col, uint32_t mi_row,
     const struct macroblockd_plane *const plane_ptr, int coord,
-    bool is_first_block, TX_SIZE prev_tx_size, const ptrdiff_t mode_step) {
+    bool is_first_block, TX_SIZE prev_tx_size, const ptrdiff_t mode_step,
+    int *min_block_size) {
   (void)plane_ptr;
   assert(mi_col << MI_SIZE_LOG2 < (uint32_t)plane_ptr->dst.width &&
          mi_row << MI_SIZE_LOG2 < (uint32_t)plane_ptr->dst.height);
@@ -680,6 +681,7 @@ static AOM_FORCE_INLINE void set_one_param_for_line_luma(
     uint8_t level =
         av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_Y, mbmi);
     if (!level) {
+      *min_block_size = 0;
       level = av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_Y,
                                    mi_prev);
     }
@@ -697,6 +699,15 @@ static AOM_FORCE_INLINE void set_one_param_for_line_luma(
       params->lfthr = limits;
     }
   }
+  if (is_first_block && coord) {
+    const MB_MODE_INFO *const mi_prev = *(mi - mode_step);
+    *min_block_size = is_vert ? block_size_high[mi_prev->bsize]
+                              : block_size_wide[mi_prev->bsize];
+  }
+  int block_size =
+      is_vert ? block_size_high[mbmi->bsize] : block_size_wide[mbmi->bsize];
+  *min_block_size = AOMMIN(*min_block_size, block_size);
+
   *tx_size = ts;
 }
 
@@ -707,7 +718,7 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_luma(
     const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
     const EDGE_DIR edge_dir, uint32_t mi_col, uint32_t mi_row,
     const struct macroblockd_plane *const plane_ptr, const uint32_t mi_range,
-    const ptrdiff_t mode_step) {
+    const ptrdiff_t mode_step, int *min_block_size) {
   const int is_vert = edge_dir == VERT_EDGE;
 
   AV1_DEBLOCKING_PARAMETERS *params = params_buf;
@@ -718,7 +729,7 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_luma(
   // Unroll the first iteration of the loop
   set_one_param_for_line_luma(params, tx_size, cm, xd, edge_dir, mi_col, mi_row,
                               plane_ptr, *counter_ptr, true, prev_tx_size,
-                              mode_step);
+                              mode_step, min_block_size);
 
   // Advance
   int advance_units =
@@ -731,7 +742,7 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_luma(
   while (*counter_ptr < mi_range) {
     set_one_param_for_line_luma(params, tx_size, cm, xd, edge_dir, mi_col,
                                 mi_row, plane_ptr, *counter_ptr, false,
-                                prev_tx_size, mode_step);
+                                prev_tx_size, mode_step, min_block_size);
 
     // Advance
     advance_units =
@@ -908,7 +919,7 @@ static AOM_INLINE int get_min_tx_width(const TX_SIZE *tx_buf,
 static AOM_INLINE void filter_vert(uint8_t *dst, int dst_stride,
                                    const AV1_DEBLOCKING_PARAMETERS *params,
                                    const SequenceHeader *seq_params,
-                                   bool use_dual) {
+                                   bool use_dual, bool use_quad) {
   const loop_filter_thresh *limits = params->lfthr;
 #if CONFIG_AV1_HIGHBITDEPTH
   const int use_highbitdepth = seq_params->use_highbitdepth;
@@ -975,8 +986,30 @@ static AOM_INLINE void filter_vert(uint8_t *dst, int dst_stride,
     return;
   }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
-
-  if (use_dual) {
+  if (use_quad) {
+    switch (params->filter_length) {
+        // apply 8-tap filtering
+      case 8:
+        aom_lpf_vertical_8_dual(dst, dst_stride, limits->mblim, limits->lim,
+                                limits->hev_thr, limits->mblim, limits->lim,
+                                limits->hev_thr);
+        aom_lpf_vertical_8_dual(dst + 8 * dst_stride, dst_stride, limits->mblim,
+                                limits->lim, limits->hev_thr, limits->mblim,
+                                limits->lim, limits->hev_thr);
+        break;
+      // apply 14-tap filtering
+      case 14:
+        aom_lpf_vertical_14_dual(dst, dst_stride, limits->mblim, limits->lim,
+                                 limits->hev_thr, limits->mblim, limits->lim,
+                                 limits->hev_thr);
+        aom_lpf_vertical_14_dual(dst + 8 * dst_stride, dst_stride,
+                                 limits->mblim, limits->lim, limits->hev_thr,
+                                 limits->mblim, limits->lim, limits->hev_thr);
+        break;
+        // no filtering
+      default: break;
+    }
+  } else if (use_dual) {
     switch (params->filter_length) {
       // apply 4-tap filtering
       case 4:
@@ -1196,7 +1229,7 @@ void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
         tx_size = TX_4X4;
       }
 
-      filter_vert(p, dst_stride, &params, cm->seq_params, false);
+      filter_vert(p, dst_stride, &params, cm->seq_params, false, false);
 
       // advance the destination pointer
       advance_units = tx_size_wide_unit[tx_size];
@@ -1228,22 +1261,30 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
     const uint32_t curr_y = mi_row + y;
     const uint32_t x_start = mi_col;
     const uint32_t x_end = mi_col + x_range;
+    int min_block_height = block_size_high[BLOCK_128X128];
     set_lpf_parameters_for_line_luma(params_buf, tx_buf, cm, xd, VERT_EDGE,
                                      x_start, curr_y, plane_ptr, x_end,
-                                     mode_step);
+                                     mode_step, &min_block_height);
 
     AV1_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_buf;
     const bool use_dual = (y + 1) < y_range;
 
     uint8_t *p = dst_ptr + y * MI_SIZE * dst_stride;
+
+    bool use_quad = 0;
+    if ((y & 3) == 0 && (y + 3) < y_range && min_block_height > 8) {
+      y += 2;
+      use_quad = 1;
+    }
+
     for (int x = 0; x < x_range;) {
       if (*tx_size == TX_INVALID) {
         params->filter_length = 0;
         *tx_size = TX_4X4;
       }
 
-      filter_vert(p, dst_stride, params, cm->seq_params, use_dual);
+      filter_vert(p, dst_stride, params, cm->seq_params, use_dual, use_quad);
 
       // advance the destination pointer
       const uint32_t advance_units = tx_size_wide_unit[*tx_size];
@@ -1326,7 +1367,7 @@ void av1_filter_block_plane_vert_rt_chroma(
 static AOM_INLINE void filter_horz(uint8_t *dst, int dst_stride,
                                    const AV1_DEBLOCKING_PARAMETERS *params,
                                    const SequenceHeader *seq_params,
-                                   bool use_dual) {
+                                   bool use_dual, bool use_quad) {
   const loop_filter_thresh *limits = params->lfthr;
 #if CONFIG_AV1_HIGHBITDEPTH
   const int use_highbitdepth = seq_params->use_highbitdepth;
@@ -1393,8 +1434,30 @@ static AOM_INLINE void filter_horz(uint8_t *dst, int dst_stride,
     return;
   }
 #endif  // CONFIG_AV1_HIGHBITDEPTH
-
-  if (use_dual) {
+  if (use_quad) {
+    switch (params->filter_length) {
+        // apply 8-tap filtering
+      case 8:
+        aom_lpf_horizontal_8_dual(dst, dst_stride, limits->mblim, limits->lim,
+                                  limits->hev_thr, limits->mblim, limits->lim,
+                                  limits->hev_thr);
+        aom_lpf_horizontal_8_dual(dst + 8, dst_stride, limits->mblim,
+                                  limits->lim, limits->hev_thr, limits->mblim,
+                                  limits->lim, limits->hev_thr);
+        break;
+      // apply 14-tap filtering
+      case 14:
+        aom_lpf_horizontal_14_dual(dst, dst_stride, limits->mblim, limits->lim,
+                                   limits->hev_thr, limits->mblim, limits->lim,
+                                   limits->hev_thr);
+        aom_lpf_horizontal_14_dual(dst + 8, dst_stride, limits->mblim,
+                                   limits->lim, limits->hev_thr, limits->mblim,
+                                   limits->lim, limits->hev_thr);
+        break;
+      // no filtering
+      default: break;
+    }
+  } else if (use_dual) {
     switch (params->filter_length) {
       // apply 4-tap filtering
       case 4:
@@ -1613,7 +1676,7 @@ void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
         tx_size = TX_4X4;
       }
 
-      filter_horz(p, dst_stride, &params, cm->seq_params, false);
+      filter_horz(p, dst_stride, &params, cm->seq_params, false, false);
 
       // advance the destination pointer
       advance_units = tx_size_high_unit[tx_size];
@@ -1646,22 +1709,30 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
     const uint32_t curr_x = mi_col + x;
     const uint32_t y_start = mi_row;
     const uint32_t y_end = mi_row + y_range;
+    int min_block_width = block_size_high[BLOCK_128X128];
     set_lpf_parameters_for_line_luma(params_buf, tx_buf, cm, xd, HORZ_EDGE,
                                      curr_x, y_start, plane_ptr, y_end,
-                                     mode_step);
+                                     mode_step, &min_block_width);
 
     AV1_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_buf;
     const bool use_dual = (x + 1) < x_range;
 
     uint8_t *p = dst_ptr + x * MI_SIZE;
+
+    bool use_quad = 0;
+    if ((x & 3) == 0 && (x + 3) < x_range && min_block_width > 8) {
+      x += 2;
+      use_quad = 1;
+    }
+
     for (int y = 0; y < y_range;) {
       if (*tx_size == TX_INVALID) {
         params->filter_length = 0;
         *tx_size = TX_4X4;
       }
 
-      filter_horz(p, dst_stride, params, cm->seq_params, use_dual);
+      filter_horz(p, dst_stride, params, cm->seq_params, use_dual, use_quad);
 
       // advance the destination pointer
       const uint32_t advance_units = tx_size_high_unit[*tx_size];
