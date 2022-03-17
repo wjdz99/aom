@@ -33,6 +33,24 @@
       "message": "Optional: This blank line can be omitted, because \u003clibvmaf/libvmaf.h\u003e can be considered a C system header (it is in angle brackets \u003c\u003e).",
       "revId": "c58b61c5d3d4445ba53b2f42a80d0e2ba7575402",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bef823f4_1d9853cb",
+        "filename": "aom_dsp/vmaf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-17T22:56:41Z",
+      "side": 1,
+      "message": "\u003e Optional: This blank line can be omitted, because \u003clibvmaf/libvmaf.h\u003e can be considered a C system header (it is in angle brackets \u003c\u003e).\n\nMaybe. I think of it as an \u0027other project\u0027 as it\u0027s not part of the C-system library, but the style guide does clarify this to some extent:\n\nC system headers (more precisely: headers in angle brackets with the .h extension), e.g., \u003cunistd.h\u003e, \u003cstdlib.h\u003e.\n\nDone as I don\u0027t have a strong preference here.",
+      "parentUuid": "a7252ae5_844d2876",
+      "revId": "c58b61c5d3d4445ba53b2f42a80d0e2ba7575402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
