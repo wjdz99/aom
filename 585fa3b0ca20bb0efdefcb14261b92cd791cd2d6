@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f34c0897_696b6354",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-17T17:40:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce8b9612_27534baa",
+      "range": {
+        "startLine": 32,
+        "startChar": 7,
+        "endLine": 32,
+        "endChar": 10
+      },
+      "revId": "585fa3b0ca20bb0efdefcb14261b92cd791cd2d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "523c59a1_c5ad57c5",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-03-17T14:58:55Z",
       "side": 1,
       "message": "size_t",
+      "range": {
+        "startLine": 36,
+        "startChar": 11,
+        "endLine": 36,
+        "endChar": 14
+      },
+      "revId": "585fa3b0ca20bb0efdefcb14261b92cd791cd2d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b15df5c4_f9d50d52",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-17T17:40:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "523c59a1_c5ad57c5",
       "range": {
         "startLine": 36,
         "startChar": 11,
@@ -83,6 +131,48 @@
       "writtenOn": "2022-03-17T14:58:55Z",
       "side": 1,
       "message": "has_key_frame can be bool",
+      "revId": "585fa3b0ca20bb0efdefcb14261b92cd791cd2d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90c41bb3_4b13be4a",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-17T17:40:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa30d248_a145c08e",
+      "revId": "585fa3b0ca20bb0efdefcb14261b92cd791cd2d6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bc5e39a_3212d3a6",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-17T17:40:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77c4adf9_bd82e402",
+      "range": {
+        "startLine": 53,
+        "startChar": 6,
+        "endLine": 55,
+        "endChar": 19
+      },
       "revId": "585fa3b0ca20bb0efdefcb14261b92cd791cd2d6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
