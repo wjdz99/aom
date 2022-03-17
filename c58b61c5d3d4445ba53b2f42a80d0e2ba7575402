@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2166cadd_c0d6aee1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-17T22:49:34Z",
+      "side": 1,
+      "message": "LGTM. Thanks.",
+      "revId": "c58b61c5d3d4445ba53b2f42a80d0e2ba7575402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7252ae5_844d2876",
+        "filename": "aom_dsp/vmaf.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-17T22:49:34Z",
+      "side": 1,
+      "message": "Optional: This blank line can be omitted, because \u003clibvmaf/libvmaf.h\u003e can be considered a C system header (it is in angle brackets \u003c\u003e).",
+      "revId": "c58b61c5d3d4445ba53b2f42a80d0e2ba7575402",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
