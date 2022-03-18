@@ -2564,11 +2564,12 @@ void av1_adjust_gf_refresh_qp_one_pass_rt(AV1_COMP *cpi) {
 void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   AV1_COMMON *const cm = &cpi->common;
   ExternalFlags *const ext_flags = &cpi->ext_flags;
+  RATE_CONTROL *const rc = &cpi->rc;
   ExtRefreshFrameFlagsInfo *const ext_refresh_frame_flags =
       &ext_flags->refresh_frame;
   SVC *const svc = &cpi->svc;
   const int gld_fixed_slot = 1;
-  const unsigned int lag_alt = 4;
+  unsigned int lag_alt = 4;
   int last_idx = 0;
   int last_idx_refresh = 0;
   int gld_idx = 0;
@@ -2580,6 +2581,19 @@ void av1_set_reference_structure_one_pass_rt(AV1_COMP *cpi, int gf_update) {
   ext_refresh_frame_flags->last_frame = 1;
   ext_refresh_frame_flags->golden_frame = 0;
   ext_refresh_frame_flags->alt_ref_frame = 0;
+  // Decide altref lag adaptively for rt
+  if (cpi->sf.rt_sf.sad_based_adaptive_comp_pred) {
+    lag_alt = 6;
+    uint64_t th_frame_sad[2][3] = { { 27000, 25000, 23000 },
+                                    { 33000, 30000, 27000 } };
+    int tab_idx = (cpi->sf.rt_sf.sad_based_adaptive_comp_pred >= 2);
+    if (rc->avg_source_sad > th_frame_sad[tab_idx][2])
+      lag_alt = 3;
+    else if (rc->avg_source_sad > th_frame_sad[tab_idx][1])
+      lag_alt = 4;
+    else if (rc->avg_source_sad > th_frame_sad[tab_idx][0])
+      lag_alt = 5;
+  }
   for (int i = 0; i < INTER_REFS_PER_FRAME; ++i) svc->ref_idx[i] = 7;
   for (int i = 0; i < REF_FRAMES; ++i) svc->refresh[i] = 0;
   // Set the reference frame flags.
@@ -2667,6 +2681,21 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
   rc->high_source_sad = 0;
   rc->high_num_blocks_with_motion = 0;
   rc->prev_avg_source_sad = rc->avg_source_sad;
+  if (cpi->sf.rt_sf.sad_based_adaptive_comp_pred >= 2) {
+    if (!cpi->src_sad_blk_64x64) {
+      const int sb_size_by_mb = (cm->seq_params->sb_size == BLOCK_128X128)
+                                    ? (cm->seq_params->mib_size >> 1)
+                                    : cm->seq_params->mib_size;
+      const int sb_cols =
+          (cm->mi_params.mi_cols + sb_size_by_mb - 1) / sb_size_by_mb;
+      const int sb_rows =
+          (cm->mi_params.mi_rows + sb_size_by_mb - 1) / sb_size_by_mb;
+      cpi->src_sad_blk_64x64 = (uint64_t *)aom_malloc(
+          (sb_cols * sb_rows) * sizeof(*cpi->src_sad_blk_64x64));
+      memset(cpi->src_sad_blk_64x64, 0,
+             (sb_cols * sb_rows) * sizeof(*cpi->src_sad_blk_64x64));
+    }
+  }
   if (src_width == last_src_width && src_height == last_src_height) {
     const int num_mi_cols = cm->mi_params.mi_cols;
     const int num_mi_rows = cm->mi_params.mi_rows;
@@ -2674,7 +2703,9 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
     uint32_t min_thresh = 10000;
     if (cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN) min_thresh = 100000;
     const BLOCK_SIZE bsize = BLOCK_64X64;
-    int full_sampling = (cm->width * cm->height < 640 * 360) ? 1 : 0;
+    int full_sampling = cpi->sf.rt_sf.sad_based_adaptive_comp_pred
+                            ? 1
+                            : (cm->width * cm->height < 640 * 360);
     // Loop over sub-sample of frame, compute average sad over 64x64 blocks.
     uint64_t avg_sad = 0;
     uint64_t tmp_sad = 0;
@@ -2701,6 +2732,8 @@ static void rc_scene_detection_onepass_rt(AV1_COMP *cpi) {
               (sbi_row % 2 != 0 && sbi_col % 2 != 0)))) {
           tmp_sad = cpi->ppi->fn_ptr[bsize].sdf(src_y, src_ystride, last_src_y,
                                                 last_src_ystride);
+          if (cpi->sf.rt_sf.sad_based_adaptive_comp_pred >= 2)
+            cpi->src_sad_blk_64x64[sbi_col + sbi_row * sb_cols] = tmp_sad;
           if (check_light_change) {
             unsigned int sse, variance;
             variance = cpi->ppi->fn_ptr[bsize].vf(
