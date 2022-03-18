@@ -101,7 +101,7 @@ static AOM_INLINE void write_inter_mode(aom_writer *w, PREDICTION_MODE mode,
 
 static AOM_INLINE void write_drl_idx(
     FRAME_CONTEXT *ec_ctx, const MB_MODE_INFO *mbmi,
-    const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame, aom_writer *w) {
+    const MB_MODE_INFO_EXT_FRAME *mbmi_ext_frame, aom_writer *w, MACROBLOCKD *const xd) {
   assert(mbmi->ref_mv_idx < 3);
 
   const int new_mv = mbmi->mode == NEWMV || mbmi->mode == NEW_NEWMV;
@@ -123,9 +123,19 @@ static AOM_INLINE void write_drl_idx(
     int idx;
     // TODO(jingning): Temporary solution to compensate the NEARESTMV offset.
     for (idx = 1; idx < 3; ++idx) {
+      if (xd->mi_row == 56 && xd->mi_col == 16)
+      printf("\n effffffffffffffff   %d; %d;   %d;  %d;   %d;\n",  xd->mi_row, xd->mi_col, have_nearmv_in_inter_mode(mbmi->mode), idx,
+             mbmi_ext_frame->ref_mv_count);
+
       if (mbmi_ext_frame->ref_mv_count > idx + 1) {
         uint8_t drl_ctx = av1_drl_ctx(mbmi_ext_frame->weight, idx);
-        aom_write_symbol(w, mbmi->ref_mv_idx != (idx - 1),
+
+
+        if (xd->mi_row == 56 && xd->mi_col == 16)
+          printf("\ndrl: (%d,%d;  bs:%d;   ctx: %d;   cdf:%d;  mode:%d;   %d;   %d;)\n", xd->mi_row, xd->mi_col, mbmi->bsize,
+                 drl_ctx, ec_ctx->drl_cdf[drl_ctx][0],mbmi->mode, mbmi->ref_mv_idx, idx);
+
+        aom_write_symbol(w, mbmi->ref_mv_idx != (idx - 1),                   ////////////
                          ec_ctx->drl_cdf[drl_ctx], 2);
         if (mbmi->ref_mv_idx == (idx - 1)) return;
       }
@@ -1140,7 +1150,7 @@ static AOM_INLINE void pack_inter_mode_mvs(AV1_COMP *cpi, ThreadData *const td,
         write_inter_mode(w, mode, ec_ctx, mode_ctx);
 
       if (mode == NEWMV || mode == NEW_NEWMV || have_nearmv_in_inter_mode(mode))
-        write_drl_idx(ec_ctx, mbmi, mbmi_ext_frame, w);
+        write_drl_idx(ec_ctx, mbmi, mbmi_ext_frame, w, xd);
       else
         assert(mbmi->ref_mv_idx == 0);
     }
@@ -1583,14 +1593,32 @@ static AOM_INLINE void write_partition(const AV1_COMMON *const cm,
   }
 
   if (has_rows && has_cols) {
-    aom_write_symbol(w, p, ec_ctx->partition_cdf[ctx],
+    //printf("\n p = %d; *ec_ctx->partition_cdf[ctx]: %d;    w->allow_update_cdf: %d; \n", p, *ec_ctx->partition_cdf[ctx], w->allow_update_cdf);
+
+    aom_cdf_prob *partition_cdf = ec_ctx->partition_cdf[ctx];
+    int save = partition_cdf[0];
+
+    aom_write_symbol(w, p, partition_cdf,
                      partition_cdf_length(bsize));
+
+    if (/*cm->current_frame.frame_number == 427 &&*/ mi_row == 48 && mi_col == 32) {
+      printf("\n e - new111111     p: %d;       %d;%d;   ", /*cm->current_frame.frame_number,*/
+           p, PARTITION_SPLIT, PARTITION_HORZ );
+      printf("\n0(%d,%d;  %d; %d;   old:%d; new:%d, %d; %d;)\n", mi_row, mi_col, bsize, p, save, partition_cdf[0], ctx , partition_cdf_length(bsize));
+      fflush(stdout);
+    }
+
+
+
   } else if (!has_rows && has_cols) {
     assert(p == PARTITION_SPLIT || p == PARTITION_HORZ);
     assert(bsize > BLOCK_8X8);
     aom_cdf_prob cdf[2];
     partition_gather_vert_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
     aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
+
+    //printf("\n1(%d,%d;  %d; %d;   cdf:%d, %d)", mi_row, mi_col, bsize, p, cdf[0], ctx );
+
   } else {
     assert(has_rows && !has_cols);
     assert(p == PARTITION_SPLIT || p == PARTITION_VERT);
@@ -1598,6 +1626,9 @@ static AOM_INLINE void write_partition(const AV1_COMMON *const cm,
     aom_cdf_prob cdf[2];
     partition_gather_horz_alike(cdf, ec_ctx->partition_cdf[ctx], bsize);
     aom_write_cdf(w, p == PARTITION_SPLIT, cdf, 2);
+
+    //printf("\n2(%d,%d;  %d; %d;   cdf:%d, %d)", mi_row, mi_col, bsize, p, cdf[0], ctx );
+
   }
 }
 

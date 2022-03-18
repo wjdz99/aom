@@ -2424,6 +2424,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     if (use_ref_frame_mask[ref_frame_iter]) {
       find_predictors(cpi, x, ref_frame_iter, frame_mv, tile_data, yv12_mb,
                       bsize, force_skip_low_temp_var, skip_pred_mv);
+
+      if (xd->mi_row == 56 && xd->mi_col == 16)
+      printf("\n effffffffffffffff000   %d; %d;      %d;   %d;  \n",  xd->mi_row, xd->mi_col,
+             ref_frame_iter, x->mbmi_ext.ref_mv_count[ref_frame_iter]); //mbmi_ext_frame->ref_mv_count);
+
     }
   }
 

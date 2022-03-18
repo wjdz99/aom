@@ -177,6 +177,8 @@ static PREDICTION_MODE read_inter_mode(FRAME_CONTEXT *ec_ctx, aom_reader *r,
                                        int16_t ctx) {
   int16_t mode_ctx = ctx & NEWMV_CTX_MASK;
   int is_newmv, is_zeromv, is_refmv;
+
+
   is_newmv = aom_read_symbol(r, ec_ctx->newmv_cdf[mode_ctx], 2, ACCT_STR) == 0;
   if (is_newmv) return NEWMV;
 
@@ -208,15 +210,40 @@ static void read_drl_idx(FRAME_CONTEXT *ec_ctx, DecoderCodingBlock *dcb,
       }
     }
   }
+
+
+
   if (have_nearmv_in_inter_mode(mbmi->mode)) {
     // Offset the NEARESTMV mode.
     // TODO(jingning): Unify the two syntax decoding loops after the NEARESTMV
     // mode is factored in.
     for (int idx = 1; idx < 3; ++idx) {
+      if (xd->mi_row == 56 && xd->mi_col == 16)
+      printf("\n ffffffffffffffff   %d; %d;   %d;  %d;   %d;\n",  xd->mi_row, xd->mi_col, have_nearmv_in_inter_mode(mbmi->mode), idx,
+             dcb->ref_mv_count[ref_frame_type]);
       if (dcb->ref_mv_count[ref_frame_type] > idx + 1) {
         uint8_t drl_ctx = av1_drl_ctx(xd->weight[ref_frame_type], idx);
-        int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);
+
+
+
+        if (xd->mi_row == 56 && xd->mi_col == 16) {
+          printf("\ndrl: (%d,%d;  bs:%d;   ctx: %d;   cdf:%d;  mode:%d;  ", xd->mi_row, xd->mi_col, mbmi->bsize,
+                 drl_ctx, ec_ctx->drl_cdf[drl_ctx][0], mbmi->mode);
+          fflush(stdout);
+        }
+
+
+
+
+        int drl_idx = aom_read_symbol(r, ec_ctx->drl_cdf[drl_ctx], 2, ACCT_STR);       ///////////
         mbmi->ref_mv_idx = idx + drl_idx - 1;
+
+        if (xd->mi_row == 56 && xd->mi_col == 16) {
+          printf(" %d;   %d; \n", mbmi->ref_mv_idx, idx);
+          fflush(stdout);
+        }
+
+
         if (!drl_idx) return;
       }
     }
