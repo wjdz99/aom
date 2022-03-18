@@ -451,6 +451,16 @@ static INLINE void find_predictors(
         cm->features.allow_high_precision_mv, mbmi_ext, ref_frame,
         &frame_mv[NEARESTMV][ref_frame], &frame_mv[NEARMV][ref_frame], 0);
     frame_mv[GLOBALMV][ref_frame] = mbmi_ext->global_mvs[ref_frame];
+
+
+    if (/*cm->current_frame.frame_number > 140 &&*/ xd->mi_row == 40 && xd->mi_col == 8) {
+
+      printf("\n mv0:   %d, %d, %d;     bs: %d;  skip:%d;   mv:%d;%d;; \n ", cm->current_frame.frame_number, xd->mi_row, xd->mi_col,
+             bsize, mbmi->skip_txfm, frame_mv[NEARESTMV][1].as_mv.row, frame_mv[NEARESTMV][1].as_mv.col );
+
+    }
+
+
     // Early exit for non-LAST frame if force_skip_low_temp_var is set.
     if (!av1_is_scaled(sf) && bsize >= BLOCK_8X8 && !skip_pred_mv &&
         !(force_skip_low_temp_var && ref_frame != LAST_FRAME)) {
@@ -2770,6 +2780,21 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->mv[1].as_int = 0;
     if (comp_pred) mi->mv[1].as_int = frame_mv[this_mode][ref_frame2].as_int;
 
+
+
+//    if (/*cm->current_frame.frame_number > 140 &&*/ xd->mi_row == 40 && xd->mi_col == 8 && this_mode == NEARESTMV) {
+//
+//      printf("\n mv00:   %d, %d, %d;     bs: %d;   mv:%d;%d;   ref:%d;  mv:%d;%d; \n ", cm->current_frame.frame_number, xd->mi_row, xd->mi_col,
+//             bsize, mi->mv[0].as_mv.row, mi->mv[0].as_mv.col ,   ref_frame,
+//             frame_mv[this_mode][ref_frame].as_mv.row, frame_mv[this_mode][ref_frame].as_mv.col);
+//
+//    }
+
+
+
+
+
+
     if (reuse_inter_pred) {
       if (!this_mode_pred) {
         this_mode_pred = &tmp[3];
@@ -2841,6 +2866,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             mi->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_SMOOTH);
         }
       }
+
       if (!comp_pred)
         av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
       else

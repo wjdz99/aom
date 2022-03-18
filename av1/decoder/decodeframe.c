@@ -1005,6 +1005,29 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
   }
 
   av1_visit_palette(pbi, xd, r, set_color_index_map_offset);
+
+
+
+  if (/*cm->current_frame.frame_number > 140 &&*/ xd->mi_row == 40 && xd->mi_col == 8) {
+    struct macroblockd_plane *const pd = &xd->plane[0];
+     struct buf_2d *const dst_buf = &pd->dst;
+     uint8_t *const dst = dst_buf->buf;
+
+     int val = dst[0];
+
+     //if(bsize == 12 && xd->mi_row == 0 && xd->mi_col == 0)
+     val = dst[0 * dst_buf->stride + 0];
+
+    printf("\n dec   %d, %d, %d;     bs: %d; mode: %d;  skip:%d; mv:%d;%d;  val: %d;    %p; \n ", cm->current_frame.frame_number, xd->mi_row, xd->mi_col,
+           bsize, mbmi->mode, mbmi->skip_txfm, mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col, val, &dst[0 * dst_buf->stride + 0] );
+    fflush(stdout);
+
+  }
+
+
+
+
+
 }
 
 static AOM_INLINE void set_inter_tx_size(MB_MODE_INFO *mbmi, int stride_log2,

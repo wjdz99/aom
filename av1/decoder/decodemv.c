@@ -1325,6 +1325,14 @@ static void read_inter_block_mode_info(AV1Decoder *const pbi,
                           &nearmv[0], features->cur_frame_force_integer_mv);
   }
 
+  if (/*cm->current_frame.frame_number > 140 &&*/ xd->mi_row == 40 && xd->mi_col == 8) {
+
+    printf("\n mv:   %d, %d, %d;     bs: %d;  skip:%d;   mv:%d;%d;; \n ", cm->current_frame.frame_number, xd->mi_row, xd->mi_col,
+           bsize, mbmi->skip_txfm, nearestmv[0].as_mv.row, nearestmv[0].as_mv.col );
+
+  }
+
+
   if (is_compound && mbmi->mode != GLOBAL_GLOBALMV) {
     const int ref_mv_idx = mbmi->ref_mv_idx + 1;
     nearestmv[0] = xd->ref_mv_stack[ref_frame][0].this_mv;
