@@ -16,6 +16,24 @@
       "message": "it\u0027s weird it still thinks \"av1/ratectrl_qmode.h\" belongs to \"other headers\"\n\nbut it was fine in this CL\nhttps://aomedia-review.googlesource.com/c/aom/+/155001/8/av1/ratectrl_qmode.cc",
       "revId": "c1b68dac5ed59ad4c32771d6ae67de2c17b7a111",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad7d84c8_864ad2b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-18T17:05:24Z",
+      "side": 1,
+      "message": "\u003e it\u0027s weird it still thinks \"av1/ratectrl_qmode.h\" belongs to \"other headers\"\n\u003e \n\u003e but it was fine in this CL\n\u003e https://aomedia-review.googlesource.com/c/aom/+/155001/8/av1/ratectrl_qmode.cc\n\nPart of that might be that the check runs tools/lint-hunks.py so it may not get a full view of the headers each time. Since the files aren\u0027t lint clean this is probably the safest thing to do. At this point we should probably have clang-tidy running to cover the entire file.",
+      "parentUuid": "4b0e2736_5e52fd68",
+      "revId": "c1b68dac5ed59ad4c32771d6ae67de2c17b7a111",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
