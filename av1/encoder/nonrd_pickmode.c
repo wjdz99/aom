@@ -2769,7 +2769,6 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     mi->mv[0].as_int = frame_mv[this_mode][ref_frame].as_int;
     mi->mv[1].as_int = 0;
     if (comp_pred) mi->mv[1].as_int = frame_mv[this_mode][ref_frame2].as_int;
-
     if (reuse_inter_pred) {
       if (!this_mode_pred) {
         this_mode_pred = &tmp[3];
@@ -2841,6 +2840,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
             mi->interp_filters = av1_broadcast_interp_filter(EIGHTTAP_SMOOTH);
         }
       }
+
       if (!comp_pred)
         av1_enc_build_inter_predictor_y(xd, mi_row, mi_col);
       else
