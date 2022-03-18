@@ -1002,6 +1002,26 @@ static AOM_INLINE void decode_token_recon_block(AV1Decoder *const pbi,
       }
     }
     td->cfl_store_inter_block_visit(cm, xd);
+
+
+
+    if (/*cm->current_frame.frame_number > 140 &&*/ xd->mi_row == 48 && xd->mi_col == 16) {
+
+//      struct macroblockd_plane *const pd = &xd->plane[0];
+//       struct buf_2d *const dst_buf = &pd->dst;
+//       uint8_t *const dst = dst_buf->buf;
+//
+//       int val = dst[0];
+//
+//       //if(bsize == 12 && xd->mi_row == 0 && xd->mi_col == 0)
+//       val = dst[11 * dst_buf->stride + 0];
+      printf("\n d111111   %d, %d, %d;  bs: %d;  skip:%d;  mv0:%d;%d;  \n ", cm->current_frame.frame_number, xd->mi_row, xd->mi_col,
+             bsize, mbmi->skip_txfm, mbmi->mv[0].as_mv.row, mbmi->mv[0].as_mv.col); //,  val );
+
+    }
+
+
+
   }
 
   av1_visit_palette(pbi, xd, r, set_color_index_map_offset);
@@ -1226,26 +1246,56 @@ static PARTITION_TYPE read_partition(MACROBLOCKD *xd, int mi_row, int mi_col,
   const int ctx = partition_plane_context(xd, mi_row, mi_col, bsize);
   FRAME_CONTEXT *ec_ctx = xd->tile_ctx;
 
+  if (/*cm->current_frame.frame_number == 427 &&*/ mi_row == 48 && mi_col == 32) {
+        printf("\n has_rows:%d,  has_cols:%d,  \n",  has_rows,  has_cols   );
+        fflush(stdout);
+      }
+
+
   if (!has_rows && !has_cols) return PARTITION_SPLIT;
 
   assert(ctx >= 0);
   aom_cdf_prob *partition_cdf = ec_ctx->partition_cdf[ctx];
   if (has_rows && has_cols) {
-    return (PARTITION_TYPE)aom_read_symbol(
+
+    int save = partition_cdf[0];
+
+    PARTITION_TYPE p = (PARTITION_TYPE)aom_read_symbol(
         r, partition_cdf, partition_cdf_length(bsize), ACCT_STR);
+
+    //printf("\n0(%d,%d;  %d; %d;   old:%d; new:%d, %d; %d;)", mi_row, mi_col, bsize, p, save, partition_cdf[0], ctx , partition_cdf_length(bsize));
+
+    if (/*cm->current_frame.frame_number == 427 &&*/ mi_row == 48 && mi_col == 32) {
+      printf("\n d - new111111     p: %d;       %d;%d;   ", /*cm->current_frame.frame_number,*/
+           p, PARTITION_SPLIT, PARTITION_HORZ );
+      printf("\n0(%d,%d;  %d; %d;   old:%d; new:%d, %d; %d;)\n", mi_row, mi_col, bsize, p, save, partition_cdf[0], ctx , partition_cdf_length(bsize));
+      fflush(stdout);
+    }
+
+
+    return p;
   } else if (!has_rows && has_cols) {
     assert(bsize > BLOCK_8X8);
     aom_cdf_prob cdf[2];
     partition_gather_vert_alike(cdf, partition_cdf, bsize);
     assert(cdf[1] == AOM_ICDF(CDF_PROB_TOP));
-    return aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_HORZ;
+    PARTITION_TYPE p = aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_HORZ;
+
+    //printf("\n1(%d,%d;  %d; %d;   cdf:%d, %d)", mi_row, mi_col, bsize, p, cdf[0], ctx );
+
+
+    return p;
   } else {
     assert(has_rows && !has_cols);
     assert(bsize > BLOCK_8X8);
     aom_cdf_prob cdf[2];
     partition_gather_horz_alike(cdf, partition_cdf, bsize);
     assert(cdf[1] == AOM_ICDF(CDF_PROB_TOP));
-    return aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_VERT;
+    PARTITION_TYPE p = aom_read_cdf(r, cdf, 2, ACCT_STR) ? PARTITION_SPLIT : PARTITION_VERT;
+
+    //printf("\n2(%d,%d;  %d; %d;   cdf:%d, %d)", mi_row, mi_col, bsize, p, cdf[0], ctx );
+
+    return p;
   }
 }
 
@@ -2689,6 +2739,7 @@ static AOM_INLINE void decode_tile(AV1Decoder *pbi, ThreadData *const td,
 
   int corrupted =
       (check_trailing_bits_after_symbol_coder(td->bit_reader)) ? 1 : 0;
+
   aom_merge_corrupted_flag(&dcb->corrupted, corrupted);
 }
 
@@ -4640,7 +4691,11 @@ static int read_uncompressed_header(AV1Decoder *pbi,
 
     current_frame->order_hint = aom_rb_read_literal(
         rb, seq_params->order_hint_info.order_hint_bits_minus_1 + 1);
-    current_frame->frame_number = current_frame->order_hint;
+
+    if (seq_params->order_hint_info.enable_order_hint)
+      current_frame->frame_number = current_frame->order_hint;
+
+    //printf("\n dddddddddddd: %d;   %d;   \n", seq_params->order_hint_info.enable_order_hint, current_frame->order_hint);
 
     if (!features->error_resilient_mode && !frame_is_intra_only(cm)) {
       features->primary_ref_frame = aom_rb_read_literal(rb, PRIMARY_REF_BITS);
@@ -5107,8 +5162,12 @@ uint32_t av1_decode_frame_headers_and_setup(AV1Decoder *pbi,
   MACROBLOCKD *const xd = &pbi->dcb.xd;
 
 #if CONFIG_BITSTREAM_DEBUG
-  aom_bitstream_queue_set_frame_read(cm->current_frame.order_hint * 2 +
-                                     cm->show_frame);
+  if (cm->seq_params->order_hint_info.enable_order_hint)
+    aom_bitstream_queue_set_frame_read(cm->current_frame.order_hint * 2 +
+                                       cm->show_frame);
+  else
+    // This is currently for real-time use case. And cm->show_frame should be 1.
+    aom_bitstream_queue_set_frame_read(cm->current_frame.frame_number);
 #endif
 #if CONFIG_MISMATCH_DEBUG
   mismatch_move_frame_idx_r();
@@ -5213,6 +5272,9 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
     *p_data_end = decode_tiles_mt(pbi, data, data_end, start_tile, end_tile);
   else
     *p_data_end = decode_tiles(pbi, data, data_end, start_tile, end_tile);
+
+
+  //av1_print_modes_and_motion_vectors(cm, "dec.txt");
 
   // If the bit stream is monochrome, set the U and V buffers to a constant.
   if (num_planes < 3) {
@@ -5331,4 +5393,10 @@ void av1_decode_tg_tiles_and_wrapup(AV1Decoder *pbi, const uint8_t *data,
   if (!tiles->large_scale) {
     cm->cur_frame->frame_context = *cm->fc;
   }
+
+  if (cm->show_frame && !cm->seq_params->order_hint_info.enable_order_hint) {
+    ++cm->current_frame.frame_number;
+  }
+
+  printf("\n  dec: cm->show_frame=%d; cm->current_frame.frame_number = %d;   \n  ", cm->show_frame, cm->current_frame.frame_number);
 }

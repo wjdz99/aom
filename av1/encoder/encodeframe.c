@@ -510,7 +510,7 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   set_cb_offsets(td->mb.cb_offset, 0, 0);
 
   // Adjust and encode the superblock
-  PC_TREE *const pc_root = av1_alloc_pc_tree_node(sb_size);
+  PC_TREE *pc_root = av1_alloc_pc_tree_node(sb_size);
 
   // Initialize the flag to skip cdef to 1.
   if (sf->rt_sf.skip_cdef_sb) {
@@ -530,7 +530,16 @@ static AOM_INLINE void encode_nonrd_sb(AV1_COMP *cpi, ThreadData *td,
   start_timing(cpi, nonrd_use_partition_time);
 #endif
   av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
-                          pc_root);
+                          pc_root, 1);
+
+//  av1_free_pc_tree_recursive(pc_root, av1_num_planes(cm), 0, 0);
+  // Adjust and encode the superblock
+//  pc_root = av1_alloc_pc_tree_node(sb_size);
+//  av1_set_offsets(cpi, tile_info, x, mi_row, mi_col, sb_size);
+//  set_cb_offsets(td->mb.cb_offset, 0, 0);
+//  av1_nonrd_use_partition(cpi, td, tile_data, mi, tp, mi_row, mi_col, sb_size,
+//                          pc_root, 0);
+
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, nonrd_use_partition_time);
 #endif
@@ -814,6 +823,8 @@ static AOM_INLINE void encode_sb_row(AV1_COMP *cpi, ThreadData *td,
   }
 
   reset_thresh_freq_fact(x);
+
+
 
   // Code each SB in the row
   for (int mi_col = tile_info->mi_col_start, sb_col_in_tile = 0;
@@ -1842,6 +1853,9 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
   if (hash_table_created) {
     av1_hash_table_destroy(&intrabc_hash_info->intrabc_hash_table);
   }
+
+  //av1_print_modes_and_motion_vectors(cm, "enc.txt");
+
 }
 
 /*!\brief Setup reference frame buffers and encode a frame

@@ -2243,10 +2243,10 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
                  cm->features.coded_lossless && cm->features.all_lossless));
 
   const int use_loopfilter =
-      !cm->features.coded_lossless && !cm->tiles.large_scale;
+      !cm->features.coded_lossless && !cm->tiles.large_scale && 0;
   const int use_cdef = cm->seq_params->enable_cdef &&
-                       !cm->features.coded_lossless && !cm->tiles.large_scale;
-  const int use_restoration = is_restoration_used(cm);
+                       !cm->features.coded_lossless && !cm->tiles.large_scale && 0;
+  const int use_restoration = is_restoration_used(cm) && 0;
   const int cur_width = cm->cur_frame->width;
   const int cur_height = cm->cur_frame->height;
   const int cur_width_mib = cm->mi_params.mi_cols * MI_SIZE;
