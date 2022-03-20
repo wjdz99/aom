@@ -365,6 +365,7 @@ if(CONFIG_AV1_ENCODER AND ENABLE_TESTS)
 endif()
 
 if(ENABLE_TESTS)
+  set(Python_ADDITIONAL_VERSIONS 3)
   find_package(PythonInterp)
   if(NOT PYTHONINTERP_FOUND)
     message(
