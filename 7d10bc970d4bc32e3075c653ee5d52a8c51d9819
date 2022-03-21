@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "721da74e_25572690",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30017
+      },
+      "writtenOn": "2022-03-21T13:34:21Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nAs per current design, the function hadamard_8x8x2_avx2() does two 8x8 transforms together and it was used only by hadamard_16x16_avx2() function. This CL facilitates the code changes to use the existing dual transform implantation for two TX_8x8 blocks. For this, the patch refactors the function calls of TX_8x8 in the av1_block_yrd() function. This patch also adds relevant unit-test changes.\n\nPlease check the encoder speed measured using timer and instruction count based profiling as below. Please note that the timer based results are based on a limited set of test contents and instruction count is measured using Borg test. This optimization is applicable for RT, speed \u003e\u003d 7. We also ensured bit-exact output for the same.\n\nBased on Timer:\n      Encode Time\ncpu   Reduction(%)\n 7       1.289\n 8       1.297\n 9       1.186\n10       1.042\n\n\nBased on Instruction Count:\n      Instruction\ncpu   Reduction(%)\n 7       1.308\n 8       0.797\n 9       1.219\n10       1.189\n\nIn the commit/review message:\n[-] sign indicates encode time/instruction count increase\n[+] sign indicates encode time/instruction count reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nPlease note that code changes of NEON intrinsic will be taken care in a separate patch in future. \n\nPlease review the patch.\n\nThanks \u0026 Regards, \nArun\n",
+      "revId": "7d10bc970d4bc32e3075c653ee5d52a8c51d9819",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
