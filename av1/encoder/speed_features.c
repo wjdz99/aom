@@ -1283,6 +1283,13 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     if (speed >= 9) {
       sf->rt_sf.force_large_partition_blocks_intra = 1;
     }
+  } else {
+    if (speed >= 9) {
+      sf->rt_sf.sad_based_adaptive_comp_pred = 1;
+    }
+    if (speed >= 10) {
+      sf->rt_sf.sad_based_adaptive_comp_pred = 2;
+    }
   }
   if (cpi->ppi->use_svc) {
     sf->rt_sf.use_comp_ref_nonrd = 0;
@@ -1934,6 +1941,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->part_early_exit_zeromv = 0;
   rt_sf->sse_early_term_inter_search = EARLY_TERM_DISABLED;
   rt_sf->skip_lf_screen = 0;
+  rt_sf->sad_based_adaptive_comp_pred = 0;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
