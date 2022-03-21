@@ -2019,6 +2019,7 @@ static void estimate_intra_mode(
   const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
+  const int num_4x4_blocks = mi_size_wide[bsize] * mi_size_high[bsize];
   const int num_8x8_blocks = mi_size_wide[bsize] * mi_size_high[bsize] / 4;
   struct macroblockd_plane *const pd = &xd->plane[0];
 
@@ -2185,8 +2186,12 @@ static void estimate_intra_mode(
       best_pickmode->best_second_ref_frame = NONE;
       best_pickmode->best_mode_skip_txfm = this_rdc.skip_txfm;
       if (!this_rdc.skip_txfm) {
-        memcpy(best_pickmode->blk_skip, x->txfm_search_info.blk_skip,
-               sizeof(x->txfm_search_info.blk_skip[0]) * num_8x8_blocks);
+        if (mi->tx_size >= TX_8X8)
+          memcpy(best_pickmode->blk_skip, x->txfm_search_info.blk_skip,
+                 sizeof(x->txfm_search_info.blk_skip[0]) * num_8x8_blocks);
+        else
+          memcpy(best_pickmode->blk_skip, x->txfm_search_info.blk_skip,
+                 sizeof(x->txfm_search_info.blk_skip[0]) * num_4x4_blocks);
       }
       mi->uv_mode = this_mode;
       mi->mv[0].as_int = INVALID_MV;
@@ -3098,11 +3103,11 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->ref_frame[1] = best_pickmode.best_second_ref_frame;
   txfm_info->skip_txfm = best_pickmode.best_mode_skip_txfm;
   if (!txfm_info->skip_txfm) {
-    if (best_pickmode.best_mode >= INTRA_MODE_END)
+    if (mi->tx_size >= TX_8X8)
       memcpy(ctx->blk_skip, best_pickmode.blk_skip,
              sizeof(best_pickmode.blk_skip[0]) * num_8x8_blocks);
     else
-      memset(ctx->blk_skip, 0,
+      memcpy(ctx->blk_skip, best_pickmode.blk_skip,
              sizeof(best_pickmode.blk_skip[0]) * ctx->num_4x4_blk);
   }
   if (has_second_ref(mi)) {
