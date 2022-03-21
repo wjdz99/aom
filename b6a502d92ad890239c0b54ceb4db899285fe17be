@@ -16,6 +16,24 @@
       "message": "Thanks for the patch, tested locally and seems to be working, also we do see some Doxygen warnings due to 1.9.X, do we want to address the warnings along with this? ",
       "revId": "b6a502d92ad890239c0b54ceb4db899285fe17be",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e92290a_2ec55042",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2022-03-21T17:46:54Z",
+      "side": 1,
+      "message": "I\u0027d like to keep scope of this patch restricted to the cherr-pick.\ndoxygen 1.9.x warnings will be specific to libaom and can be addressed later when jenkins starts using 1.9.X perhaps.",
+      "parentUuid": "91d3b897_5c3dad1c",
+      "revId": "b6a502d92ad890239c0b54ceb4db899285fe17be",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
