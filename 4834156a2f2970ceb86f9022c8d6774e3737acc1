@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis patch makes stackless reference handling logic used in FPMT path as the default reference handling logic. The unused stack based code has been cleaned up.\n\nPlease find below the test results on vbr Borg (on patchset 5):\n\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 2     Average      0.788         0.0161     0.0188    0.0256\n 3     Average      0.266        -0.0278    -0.0267   -0.0232\n 4     Average      0.254        -0.0022    -0.0050    0.0289\n 5     Average      0.309         0.0254     0.0292    0.0611\n 6     Average      0.136        -0.1492    -0.1572   -0.2127\nIn the commit message, BD rate Loss column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc …\nThis CL (patchset 5) was tested for bitmatch w.r.t. the parent commit with FPMT macros ON.\nWe have also validated this patch with address, thread, undefined and integer sanitizers.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "4834156a2f2970ceb86f9022c8d6774e3737acc1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "157bb38c_35c0e3dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-21T15:56:58Z",
+      "side": 1,
+      "message": "Thanks for making this change. Can we also test for RTC use case? There may not be much common code related this, but it is good to double check it. I remember you had results for speed 0 and 1 too, right?",
+      "parentUuid": "0559bba3_a2b82167",
+      "revId": "4834156a2f2970ceb86f9022c8d6774e3737acc1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
