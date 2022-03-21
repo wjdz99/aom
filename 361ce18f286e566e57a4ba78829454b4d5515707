@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e394ba66_b498a70e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-21T16:18:23Z",
+      "side": 1,
+      "message": "Tom: Thank you very much for the comments. Since I am not familiar with these two libraries, I decided to file a bug report and ask Jerome to work with you on a fix:\nhttps://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3251\n\nOn the other hand, if none of you have a Mac, then I can work with you and Jerome on a fix, although we need Jerome\u0027s input on some of your suggestions.",
+      "parentUuid": "d91ffce1_197315a6",
+      "revId": "361ce18f286e566e57a4ba78829454b4d5515707",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a50f069f_d6ce5ebc",
@@ -31,6 +49,30 @@
       "writtenOn": "2022-03-21T08:10:12Z",
       "side": 1,
       "message": "This should be:\n\nadd_library(aom_av1_rc OBJECT ${AOM_AV1_RC_SOURCES})",
+      "range": {
+        "startLine": 312,
+        "startChar": 4,
+        "endLine": 312,
+        "endChar": 49
+      },
+      "revId": "361ce18f286e566e57a4ba78829454b4d5515707",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1da2a56_2e254366",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-21T16:18:23Z",
+      "side": 1,
+      "message": "I believe aom_av1_rc and av1_rc_qmode are intended to be provided as libraries to clients outside libaom, so it does not seem correct to create these two libraries as cmake OBJECT libraries. We will need Jerome and Angie\u0027s input here.",
+      "parentUuid": "a50f069f_d6ce5ebc",
       "range": {
         "startLine": 312,
         "startChar": 4,
