@@ -60,7 +60,7 @@ typedef struct {
   MOTION_MODE best_motion_mode;
   WarpedMotionParams wm_params;
   int num_proj_ref;
-  uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE / 4];
+  uint8_t blk_skip[MAX_MIB_SIZE * MAX_MIB_SIZE];
   PALETTE_MODE_INFO pmi;
   int64_t best_sse;
 } BEST_PICKMODE;
@@ -1040,8 +1040,12 @@ void av1_block_yrd(const AV1_COMP *const cpi, MACROBLOCK *x, int mi_row,
         }
         assert(*eob <= 1024);
         *skippable &= (*eob == 0);
-        x->txfm_search_info.blk_skip[(r * num_8x8_w + c) / 2] =
-            (*eob == 0) ? 1 : 0;
+        if (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
+          x->txfm_search_info.blk_skip[r * num_4x4_w + c] = (*eob == 0) ? 1 : 0;
+        } else {
+          x->txfm_search_info.blk_skip[(r * num_8x8_w + c) / 2] =
+              (*eob == 0) ? 1 : 0;
+        }
         eob_cost += get_msb(*eob + 1);
       }
       block += step;
@@ -2051,7 +2055,10 @@ static void estimate_intra_mode(
   const int *const rd_thresh_freq_fact = x->thresh_freq_fact[bsize];
   const int mi_row = xd->mi_row;
   const int mi_col = xd->mi_col;
-  const int num_8x8_blocks = mi_size_wide[bsize] * mi_size_high[bsize] / 4;
+  const int num_blocks_blskip =
+      (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN)
+          ? mi_size_wide[bsize] * mi_size_high[bsize]
+          : (mi_size_wide[bsize] * mi_size_high[bsize]) >> 2;
   struct macroblockd_plane *const pd = &xd->plane[0];
 
   const CommonQuantParams *quant_params = &cm->quant_params;
@@ -2216,10 +2223,9 @@ static void estimate_intra_mode(
       best_pickmode->best_ref_frame = INTRA_FRAME;
       best_pickmode->best_second_ref_frame = NONE;
       best_pickmode->best_mode_skip_txfm = this_rdc.skip_txfm;
-      if (!this_rdc.skip_txfm) {
+      if (!this_rdc.skip_txfm)
         memcpy(best_pickmode->blk_skip, x->txfm_search_info.blk_skip,
-               sizeof(x->txfm_search_info.blk_skip[0]) * num_8x8_blocks);
-      }
+               sizeof(x->txfm_search_info.blk_skip[0]) * num_blocks_blskip);
       mi->uv_mode = this_mode;
       mi->mv[0].as_int = INVALID_MV;
       mi->mv[1].as_int = INVALID_MV;
@@ -2464,7 +2470,10 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   const int bh = block_size_high[bsize];
   const int bw = block_size_wide[bsize];
   const int pixels_in_block = bh * bw;
-  const int num_8x8_blocks = ctx->num_4x4_blk / 4;
+  const int num_blocks_blskip =
+      (cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN)
+          ? ctx->num_4x4_blk
+          : ctx->num_4x4_blk >> 2;
   struct buf_2d orig_dst = pd->dst;
   const CommonQuantParams *quant_params = &cm->quant_params;
   const TxfmSearchParams *txfm_params = &x->txfm_search_params;
@@ -2627,7 +2636,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
     RD_STATS nonskip_rdc;
     av1_invalid_rd_stats(&nonskip_rdc);
     memset(txfm_info->blk_skip, 0,
-           sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
+           sizeof(txfm_info->blk_skip[0]) * num_blocks_blskip);
 
     if (idx >= num_inter_modes) {
       int comp_index = idx - num_inter_modes;
@@ -3010,7 +3019,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
           (nonskip_rdc.rate == INT_MAX && this_rdc.skip_txfm);
       if (!best_pickmode.best_mode_skip_txfm && !use_modeled_non_rd_cost) {
         memcpy(best_pickmode.blk_skip, txfm_info->blk_skip,
-               sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
+               sizeof(txfm_info->blk_skip[0]) * num_blocks_blskip);
       }
 
       // This is needed for the compound modes.
@@ -3084,7 +3093,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       best_pickmode.best_mode_skip_txfm = idtx_rdc.skip_txfm;
       if (!idtx_rdc.skip_txfm) {
         memcpy(best_pickmode.blk_skip, txfm_info->blk_skip,
-               sizeof(txfm_info->blk_skip[0]) * num_8x8_blocks);
+               sizeof(txfm_info->blk_skip[0]) * num_blocks_blskip);
       }
       xd->tx_type_map[0] = best_pickmode.tx_type;
       memset(ctx->tx_type_map, best_pickmode.tx_type, ctx->num_4x4_blk);
@@ -3116,7 +3125,7 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
       best_pickmode.best_mode_skip_txfm = this_rdc.skip_txfm;
       if (!this_rdc.skip_txfm) {
         memcpy(best_pickmode.blk_skip, txfm_info->blk_skip,
-               sizeof(txfm_info->blk_skip[0]) * ctx->num_4x4_blk);
+               sizeof(txfm_info->blk_skip[0]) * num_blocks_blskip);
       }
       if (xd->tx_type_map[0] != DCT_DCT)
         av1_copy_array(ctx->tx_type_map, xd->tx_type_map, ctx->num_4x4_blk);
@@ -3129,14 +3138,9 @@ void av1_nonrd_pick_inter_mode_sb(AV1_COMP *cpi, TileDataEnc *tile_data,
   mi->ref_frame[0] = best_pickmode.best_ref_frame;
   mi->ref_frame[1] = best_pickmode.best_second_ref_frame;
   txfm_info->skip_txfm = best_pickmode.best_mode_skip_txfm;
-  if (!txfm_info->skip_txfm) {
-    if (best_pickmode.best_mode >= INTRA_MODE_END)
-      memcpy(ctx->blk_skip, best_pickmode.blk_skip,
-             sizeof(best_pickmode.blk_skip[0]) * num_8x8_blocks);
-    else
-      memset(ctx->blk_skip, 0,
-             sizeof(best_pickmode.blk_skip[0]) * ctx->num_4x4_blk);
-  }
+  if (!txfm_info->skip_txfm)
+    memcpy(ctx->blk_skip, best_pickmode.blk_skip,
+           sizeof(best_pickmode.blk_skip[0]) * num_blocks_blskip);
   if (has_second_ref(mi)) {
     mi->comp_group_idx = 0;
     mi->compound_idx = 1;
