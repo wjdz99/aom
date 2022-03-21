@@ -81,6 +81,30 @@
       },
       "revId": "a3eaaa3500116217b36ec8a70027ca4dc3e28a65",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7ebacfd_5270ae6d",
+        "filename": "av1/common/cdef_block_avx2.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-21T17:10:00Z",
+      "side": 1,
+      "message": "I found 1 example to handle the passing-in parameters:https://aomedia.googlesource.com/aom/+/dab3e99b2776fe41656565cc80d488b63911d9e1\nHope this helps. Also, you could look for x86 calling convention information for different platforms. That could also help.",
+      "parentUuid": "715fb35a_dffe242e",
+      "range": {
+        "startLine": 27,
+        "startChar": 44,
+        "endLine": 28,
+        "endChar": 74
+      },
+      "revId": "a3eaaa3500116217b36ec8a70027ca4dc3e28a65",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
