@@ -402,7 +402,8 @@ static void encode_block(int plane, int block, int blk_row, int blk_col,
   l = &args->tl[blk_row];
 
   TX_TYPE tx_type = DCT_DCT;
-  const int blk_skip_idx = cpi->sf.rt_sf.use_nonrd_pick_mode
+  const int blk_skip_idx = (cpi->sf.rt_sf.use_nonrd_pick_mode &&
+                            cpi->oxcf.tune_cfg.content != AOM_CONTENT_SCREEN)
                                ? blk_row * bw / 4 + blk_col / 2
                                : blk_row * bw + blk_col;
   if (!is_blk_skip(x->txfm_search_info.blk_skip, plane, blk_skip_idx) &&
