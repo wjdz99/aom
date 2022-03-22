@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8559f73e_553be58b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-03-22T06:36:13Z",
+      "side": 1,
+      "message": "Hi Yunqing, \n\nPlease review this patch. We have sent more details by email. \n\nImproved speed 9, 10 HDRES, using frame \u0026 blk-level SAD to:\n(i) Determine the placement of altref frame: The logic here\nis to shorten altref_lag if frame avg SAD is higher\n(ii) Prune compound mode evals for low block-SAD: Since\naltref is used in comp pred, we use SAD to prune comp evals\n\n                Instruction Count      BD-Rate Loss(%)        \ncpu    Test-set    Reduction(%)   avg.psnr   ovr.psnr    ssim\n 9       HDRES      2.487         0.4031     0.5495    0.4353\n 10      HDRES      1.969         0.3411     0.3547    0.3254\n \nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nThanks!",
+      "revId": "3ad52fc930afbeba3d023ff2d3cb7964fb2e6b92",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
