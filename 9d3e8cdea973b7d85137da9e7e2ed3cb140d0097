@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0370259d_a52578be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-03-22T14:54:55Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch fixes the compiler errors in visual studio 32-bit build as pointed out by Wan-Teh in https://aomedia-review.googlesource.com/c/aom/+/155365. The issues were seen due to the mixed combination of registers used with structure based vector data types. Hence, to resolve these errors this patch avoids using the registers with vector data type.\n\nApart from this error, we also noticed another error in VS 2015 - 32-bit build. This was introduced in one of a patch submitted by us (https://aomedia-review.googlesource.com/c/aom/+/154863). We will submit a fix very soon.\n\nPlease review.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "9d3e8cdea973b7d85137da9e7e2ed3cb140d0097",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
