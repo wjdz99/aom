@@ -20,6 +20,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "276795ec_7bab8f86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T19:06:07Z",
+      "side": 1,
+      "message": "Thank you both for the review!",
+      "revId": "bc052a669d86060d0c0febbe40e006fdc65aefd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "593e666f_76dfa74a",
         "filename": "av1/encoder/thirdpass.c",
         "patchSetId": 2
@@ -43,6 +60,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "04b80c78_186067b9",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T19:06:07Z",
+      "side": 1,
+      "message": "Using \u003c matches what the man page says about the return value of fwrite():\n\nhttps://en.cppreference.com/w/c/io/fwrite\n\n    The number of objects written successfully,\n    which may be less than count if an error occurs.\n\nSee also https://pubs.opengroup.org/onlinepubs/9699919799/functions/fwrite.html.",
+      "parentUuid": "593e666f_76dfa74a",
+      "range": {
+        "startLine": 714,
+        "startChar": 12,
+        "endLine": 714,
+        "endChar": 13
+      },
+      "revId": "bc052a669d86060d0c0febbe40e006fdc65aefd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "f01bf893_902066fd",
         "filename": "av1/encoder/thirdpass.c",
         "patchSetId": 2
@@ -54,6 +95,24 @@
       "writtenOn": "2022-03-22T18:12:15Z",
       "side": 1,
       "message": "I missed this in my patch",
+      "revId": "bc052a669d86060d0c0febbe40e006fdc65aefd2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "118228a1_9c98eb76",
+        "filename": "av1/encoder/thirdpass.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T19:06:07Z",
+      "side": 1,
+      "message": "I searched for all fwrite() and fread() calls in this file to understand how they are used. (I wanted to find out if it is an error for a fread() call to reach the end of file.) That\u0027s why I noticed this one.",
+      "parentUuid": "f01bf893_902066fd",
       "revId": "bc052a669d86060d0c0febbe40e006fdc65aefd2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
