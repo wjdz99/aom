@@ -52,6 +52,24 @@
       "parentUuid": "157bb38c_35c0e3dd",
       "revId": "4834156a2f2970ceb86f9022c8d6774e3737acc1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c61cef0e_c1e4aad8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-22T17:44:18Z",
+      "side": 1,
+      "message": "The result looks good. Thanks for the testing.\nWill submit this CL, and more testing could be done if needed.",
+      "parentUuid": "c83d910e_4f40c75d",
+      "revId": "4834156a2f2970ceb86f9022c8d6774e3737acc1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
