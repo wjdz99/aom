@@ -34,6 +34,24 @@
       "parentUuid": "1d29034e_6967afc6",
       "revId": "c355346f06e1799bf00be4e6b3b47fd9e0b81227",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f3347c1_55144004",
+        "filename": "av1/common/cdef_block_avx2.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-03-22T14:55:27Z",
+      "side": 1,
+      "message": "Hi Wan-Teh,\n\nThanks for pointing out the error. We have resolved the visual studio WIN32 build issues related to CDEF filtering in AVX2 intrinsic and submitted the below patch for review.\nhttps://aomedia-review.googlesource.com/c/aom/+/155370\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "ebc641ec_a8e4f6da",
+      "revId": "c355346f06e1799bf00be4e6b3b47fd9e0b81227",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
