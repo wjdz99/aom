@@ -16,6 +16,103 @@
       "message": "Hi Wan-Teh, Frank,\n\nThe buffer txfm_stats_list stores the frame level Tpl transform stats and this memory is allocated for MAX_LENGTH_TPL_FRAME_STATS frames. As Tpl is enabled only when lag_in_frames is greater than 1, we tried avoiding the memory allocation for the same when lag_in_frames \u003c\u003d 1. \n\nAn alternate approach would be to avoid the memory allocation of tpl_data buffer, but we preferred the current approach because of the following reasons: \n1. Some members of tpl_data were being accessed even when tpl was not enabled. \n2. txfm_stats_list buffer accounts for ~95% of the size of tpl_data.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit of patch-set2) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nThe heap memory and encode reduction numbers mentioned in commit message are generated for patch-set 2, but we have rebased to the latest commit in patch-set 3 to avoid the Jenkins build failure (due to “partition_search.c: unused function warning”). We have done minimal sanity verifications for patch-set 3.\n\nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./aomenc …\n\nPlease review.\n\nRegards,\nMudassir.\n",
       "revId": "3aae43d6921c2eb088a0033c8e21959c3941fb67",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "242bd38a_cb1dd4ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T23:09:55Z",
+      "side": 1,
+      "message": "LGTM. I suggest some comment edits.",
+      "revId": "3aae43d6921c2eb088a0033c8e21959c3941fb67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e579f63_b5953d05",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T23:09:55Z",
+      "side": 1,
+      "message": "Nit/optional: I think it is not necessary to enumerate the fields in tpl_data that we don\u0027t allocate. I wonder if we can refer to them collectively as \"dynamically allocated buffers in tpl_data\" or even just \"buffers in tpl_data\".",
+      "range": {
+        "startLine": 172,
+        "startChar": 61,
+        "endLine": 173,
+        "endChar": 35
+      },
+      "revId": "3aae43d6921c2eb088a0033c8e21959c3941fb67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fff54e3b_79c5d4b4",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T23:09:55Z",
+      "side": 1,
+      "message": "Nit: The original code does not seem to zero the txfm_stats_list[] array. So we should be able to just use aom_malloc() here, right?\n\nOr is the whole \u0027ppi\u0027 struct zeroed?",
+      "range": {
+        "startLine": 177,
+        "startChar": 22,
+        "endLine": 177,
+        "endChar": 32
+      },
+      "revId": "3aae43d6921c2eb088a0033c8e21959c3941fb67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "664cc498_c77e837f",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T23:09:55Z",
+      "side": 1,
+      "message": "The original comment is still correct, because we can use a pointer with the array element notation.",
+      "revId": "3aae43d6921c2eb088a0033c8e21959c3941fb67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8434b801_712f6cec",
+        "filename": "av1/encoder/tpl_model.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-22T23:09:55Z",
+      "side": 1,
+      "message": "It is important to document that this (dynamically allocated) array has MAX_LENGTH_TPL_FRAME_STATS elements.",
+      "revId": "3aae43d6921c2eb088a0033c8e21959c3941fb67",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
