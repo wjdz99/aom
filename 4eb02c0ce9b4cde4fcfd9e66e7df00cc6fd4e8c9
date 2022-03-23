@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea55e906_9edabf82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-23T19:54:56Z",
+      "side": 1,
+      "message": "LGTM. I suggest two small changes.",
+      "revId": "4eb02c0ce9b4cde4fcfd9e66e7df00cc6fd4e8c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fef6cd1_ab8e2fcc",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-23T19:54:56Z",
+      "side": 1,
+      "message": "I suggest we combine the outer two `if` conditionals:\n\n```\nif(CONFIG_AV1_ENCODER AND CONFIG_AV1_RC_RTC AND NOT BUILD_SHARED_LIBS)\n  list(APPEND AOM_AV1_RC_SOURCES \"${AOM_ROOT}/av1/ratectrl_rtc.h\"\n              \"${AOM_ROOT}/av1/ratectrl_rtc.cc\")\n  add_library(aom_av1_rc ${AOM_AV1_RC_SOURCES})\n  ...\nendif()\n```",
+      "range": {
+        "startLine": 307,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 7
+      },
+      "revId": "4eb02c0ce9b4cde4fcfd9e66e7df00cc6fd4e8c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6095a970_228b23bf",
+        "filename": "test/test.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 585,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-23T19:54:56Z",
+      "side": 1,
+      "message": "Nit: For this one, it makes sense to explicitly link with \u0027aom\u0027, because some of the files in ${AOM_RC_INTERFACE_SOURCES} use libaom directly. For example, test/encode_test_driver.cc calls aom_codec_enc_init(), aom_codec_enc_config_set(), and aom_codec_encode().",
+      "revId": "4eb02c0ce9b4cde4fcfd9e66e7df00cc6fd4e8c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c70647e5_fe60074e",
+        "filename": "test/test.cmake",
+        "patchSetId": 2
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-23T19:54:56Z",
+      "side": 1,
+      "message": "For this one, we do not need to link with \u0027aom\u0027, because test/ratectrl_qmode_test.cc does not call any libaom functions.",
+      "revId": "4eb02c0ce9b4cde4fcfd9e66e7df00cc6fd4e8c9",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
