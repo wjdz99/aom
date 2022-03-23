@@ -63,7 +63,7 @@ class RefFrameManager {
  private:
   int max_ref_frames_;
   int forward_max_size_;
-  std::vector<GopFrame> ref_frame_table_;
+  RefFrameTable ref_frame_table_;
   std::deque<int> free_ref_idx_list_;
   std::vector<int> forward_stack_;
   std::deque<int> backward_queue_;
