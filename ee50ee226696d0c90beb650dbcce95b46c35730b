@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ef4ceed_39976154",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2022-03-23T16:11:08Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch restructures loops in av1_block_yrd() to reduce loop overheads. Most of the optimizations are specific to CONFIG_AV1_HIGHBITDEPTH\u003d0.\nThe changes include separating out identity transform based code from the core loop and computing the rd cost in the same loop which does tranform-quant, along with general simplifications of control code inside loops.\n\nPlease find the detailed speed results below.\n\n                Instruction Count\n cpu    Test-set    Reduction(%)  \n  7         rtc      0.557        \n  7    rtc_derf      0.485        \n  7     Average      0.522  \n \n  8         rtc      0.432        \n  8    rtc_derf      0.271        \n  8     Average      0.353  \n \n  9         rtc      0.589        \n  9    rtc_derf      0.499        \n  9     Average      0.545  \n \n 10         rtc      0.590        \n 10    rtc_derf      0.493        \n 10     Average      0.543  \n\nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nThe change has been verified to be bit-exact with speed gains as below for CONFIG_AV1_HIGHBITDEPTH\u003d1.\n\n    Instruction Count\ncpu    Reduction(%)\n 7       0.368\n 8       0.186\n 9       0.422\n 10      0.419\n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "ee50ee226696d0c90beb650dbcce95b46c35730b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
