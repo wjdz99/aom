@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh,\n\nWe have pushed patch-set 3 after taking care of your comments. However, we had to rebase the patch in order to resolve the Jenkins build failure as the issue got resolved in the later versions of main branch.\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "3f9ee309323e2044c693e67d47fa46957b3c4914",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc64ebaf_decb09a4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-23T14:10:47Z",
+      "side": 1,
+      "message": "LGTM. Thanks.",
+      "revId": "3f9ee309323e2044c693e67d47fa46957b3c4914",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
