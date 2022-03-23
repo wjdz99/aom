@@ -25,13 +25,13 @@ struct RateControlParam {
 };
 
 struct TplBlockStats {
-  BLOCK_SIZE block_size;
-  // row and col of mode info unit which is in unit of 4 pixels.
-  int mi_row;
-  int mi_col;
+  int width;
+  int height;
+  int row;
+  int col;
   int64_t intra_cost;
   int64_t inter_cost;
-  int_mv mv[2];
+  MV mv[2];  // Assuming 1/8 sub pixel precision
   int ref_frame_index[2];
 };
 
@@ -74,8 +74,25 @@ struct FrameEncodeParameters {
 };
 
 using FirstpassInfo = std::vector<FIRSTPASS_STATS>;
-using TplFrameStats = std::vector<TplBlockStats>;
-using TplGopStats = std::vector<TplFrameStats>;
+using RefFrameTable = std::vector<GopFrame>;
+
+struct TplFrameStats {
+  int min_block_size;
+  int frame_width;
+  int frame_height;
+  std::vector<TplBlockStats> block_stats_list;
+};
+struct TplGopStats {
+  std::vector<TplFrameStats> frame_stats_list;
+};
+
+struct TplFrameDepStats {
+  int unit_size;  // equivalent to min_block_size
+  std::vector<std::vector<double>> unit_stats;
+};
+struct TplGopDepStats {
+  std::vector<TplFrameDepStats> frame_dep_stats_list;
+};
 
 class AV1RateControlQModeInterface {
  public:
@@ -89,7 +106,7 @@ class AV1RateControlQModeInterface {
   // rdmult. This needs to be called with consecutive GOPs as returned by
   // DetermineGopInfo.
   virtual std::vector<FrameEncodeParameters> GetGopEncodeInfo(
-      const TplGopStats &tpl_stats_list) = 0;
+      const GopStruct &gop_struct, const TplGopStats &tpl_stats_list) = 0;
 };  // class AV1RateCtrlQMode
 }  // namespace aom
 

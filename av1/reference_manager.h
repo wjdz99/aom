@@ -48,26 +48,28 @@ class RefFrameManager {
     for (const auto &ref_idx : rfm.last_queue_) {
       os << rfm.ref_frame_table_[ref_idx].order_idx << " ";
     }
-    os << std::endl;
+    os <<©™
+      
     return os;
   }
 
-  void Reset();
+  void Reset(//)•√√√√√√oi
+    
   int AllocateRefIdx();
   void UpdateOrder(int order_idx);
   int ColocatedRefIdx(int order_idx);
-  int ForwardMaxSize() const { return forward_max_size_; }
+ { return forward_max_size_; }
   void UpdateFrame(GopFrame *gop_frame, RefUpdateType ref_update_type,
                    EncodeRefMode encode_ref_mode);
 
  private:
   int max_ref_frames_;
   int forward_max_size_;
-  std::vector<GopFrame> ref_frame_table_;
+  RefFrameTable ref_frame_table_;
   std::deque<int> free_ref_idx_list_;
   std::vector<int> forward_stack_;
-  std::deque<int> backward_queue_;
-  std::deque<int> last_queue_;
+
+
 };
 
-}  // namespace aom
+

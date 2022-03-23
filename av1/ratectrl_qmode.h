@@ -24,12 +24,15 @@ namespace aom {
 GopStruct construct_gop(RefFrameManager *ref_frame_manager,
                         int show_frame_count, bool has_key_frame);
 
+TplFrameDepStats create_tpl_frame_dep_stats_wo_propagation(
+    const TplFrameStats &frame_stats);
+
 class AV1RateControlQMode : public AV1RateControlQModeInterface {
  public:
   void SetRcParam(const RateControlParam &rc_param) override;
   GopStructList DetermineGopInfo(const FirstpassInfo &firstpass_info) override;
-  virtual std::vector<FrameEncodeParameters> GetGopEncodeInfo(
-      const TplGopStats &tpl_stats_list) override;
+  std::vector<FrameEncodeParameters> GetGopEncodeInfo(
+      const GopStruct &gop_struct, const TplGopStats &tpl_stats_list) override;
 
  private:
   RateControlParam rc_param_;
