@@ -67,6 +67,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "61a5ce7a_8d591462",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-03-23T17:00:50Z",
+      "side": 1,
+      "message": "This sounds like a good optimization.\nCould you also add a comment and an assert to detail the assumptions for this optimization? Something like IMPLIES(!pu_edge, pv_ts \u003d\u003d ts) should catch it.",
+      "parentUuid": "0927f2a3_a3a714e3",
+      "range": {
+        "startLine": 713,
+        "startChar": 32,
+        "endLine": 713,
+        "endChar": 44
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "04d7ef1b_6353ce56",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 11
@@ -206,6 +230,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "36a9bf97_4fdb482e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1407,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-03-23T17:00:50Z",
+      "side": 1,
+      "message": "My bad for misreading this as x % 3.",
+      "parentUuid": "bdc1640d_59927f1e",
+      "range": {
+        "startLine": 1407,
+        "startChar": 13,
+        "endLine": 1407,
+        "endChar": 14
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "761f5048_227be525",
@@ -253,6 +301,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "475aed07_763aa672",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1466,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-03-23T17:00:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7957e1ce_50853d4c",
+      "range": {
+        "startLine": 1466,
+        "startChar": 13,
+        "endLine": 1466,
+        "endChar": 14
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db9f125e_5ba3befa",
@@ -284,6 +356,24 @@
       "side": 1,
       "message": "Same as above.",
       "parentUuid": "db9f125e_5ba3befa",
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a5600de_a5e38cb2",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2017,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-03-23T17:00:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e1726414_b38d9c4d",
       "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -325,6 +415,30 @@
       "side": 1,
       "message": "Same as above.",
       "parentUuid": "5a86d2e4_42fccb99",
+      "range": {
+        "startLine": 2075,
+        "startChar": 13,
+        "endLine": 2075,
+        "endChar": 14
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b212fdf6_6b83297c",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2075,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-03-23T17:00:50Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "1ba1f3f6_29ab0eac",
       "range": {
         "startLine": 2075,
         "startChar": 13,
