@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0927f2a3_a3a714e3",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-03-23T14:37:24Z",
+      "side": 1,
+      "message": "As per our understanding, the rationale behind checking for bsize is as follows:\n1. Loop filter level (calculated in the function av1_get_filter_level()) is same for all the transform blocks of a given prediction block. \n2. Recursive transform block partition is disabled for nonrd rtc (i.e., all the transform blocks within a given prediction block are of the same size). Thus, the filter length (which is determined based on the minimum transform block size from both sides of the edge) does not change for different transform blocks of a given prediction block if the minimum block dimension along row/col of a superblock is greater than or equal to 16. \n\nIn case of chroma, as transform size is always equal to the block size, transform size is used in the logic to enable quad loop filtering.\n\nDual loop filter assumes that the min partition size is 8x8. The quad loop filter assumes that all the transform blocks within a given prediction block are of the same size.\n\nIn case of non-rd rtc, transform size may not be equal to the block size. Using transform size instead of block size reduces the speed-up achieved.",
+      "parentUuid": "9f905e81_f5e637ee",
+      "range": {
+        "startLine": 713,
+        "startChar": 32,
+        "endLine": 713,
+        "endChar": 44
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "04d7ef1b_6353ce56",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 11
@@ -54,6 +78,30 @@
       "writtenOn": "2022-03-22T16:03:03Z",
       "side": 1,
       "message": "We could move this into the if statement above and just do if (is_first_block), but the compiler should compile this away for us.",
+      "range": {
+        "startLine": 845,
+        "startChar": 0,
+        "endLine": 847,
+        "endChar": 3
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2df7771_3b9a1190",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-03-23T14:37:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04d7ef1b_6353ce56",
       "range": {
         "startLine": 845,
         "startChar": 0,
@@ -89,6 +137,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "040d7858_6504f14b",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-03-23T14:37:24Z",
+      "side": 1,
+      "message": "No. We feel the scope could be less. We will be looking at improving the simd performance in case of \u0027USE_QUAD\u0027 with avx2 instruction set.",
+      "parentUuid": "6fc5cdf8_02e176e1",
+      "range": {
+        "startLine": 905,
+        "startChar": 8,
+        "endLine": 905,
+        "endChar": 36
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "15daa69a_120dad11",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 11
@@ -100,6 +172,30 @@
       "writtenOn": "2022-03-22T16:03:03Z",
       "side": 1,
       "message": "I believe we should check for alignment up to 4 units of mi, not 3.\nAlso, let\u0027s combine this with line 1403 like you did for the chroma version.",
+      "range": {
+        "startLine": 1407,
+        "startChar": 13,
+        "endLine": 1407,
+        "endChar": 14
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdc1640d_59927f1e",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1407,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-03-23T14:37:24Z",
+      "side": 1,
+      "message": "(x \u0026 3) \u003d\u003d 0 is true for x \u003d 0, 4, 8, 12 etc. Thus, we feel we are checking for alignment up to 4 units of mi. \n\nWe have combined this with line 1403 in the latest patchset.",
+      "parentUuid": "15daa69a_120dad11",
       "range": {
         "startLine": 1407,
         "startChar": 13,
@@ -135,6 +231,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7957e1ce_50853d4c",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 1466,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-03-23T14:37:24Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "761f5048_227be525",
+      "range": {
+        "startLine": 1466,
+        "startChar": 13,
+        "endLine": 1466,
+        "endChar": 14
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "db9f125e_5ba3befa",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 11
@@ -152,6 +272,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e1726414_b38d9c4d",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2017,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-03-23T14:37:24Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "db9f125e_5ba3befa",
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5a86d2e4_42fccb99",
         "filename": "av1/common/av1_loopfilter.c",
         "patchSetId": 11
@@ -163,6 +301,30 @@
       "writtenOn": "2022-03-22T16:03:03Z",
       "side": 1,
       "message": "4?",
+      "range": {
+        "startLine": 2075,
+        "startChar": 13,
+        "endLine": 2075,
+        "endChar": 14
+      },
+      "revId": "1c2377157f24d46b9cf7948fc7edbc91666d8ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ba1f3f6_29ab0eac",
+        "filename": "av1/common/av1_loopfilter.c",
+        "patchSetId": 11
+      },
+      "lineNbr": 2075,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-03-23T14:37:24Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "5a86d2e4_42fccb99",
       "range": {
         "startLine": 2075,
         "startChar": 13,
