@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4420452b_c8dbb461",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-24T00:59:41Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "0346986d1c29263862c1e8206ed067907422f072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "970061c6_8ae2effe",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-24T00:59:41Z",
+      "side": 1,
+      "message": "Optional: It\u0027d be good to reorder the tests in this conditional to match line 335 exactly:\n\n```\nif(CONFIG_AV1_ENCODER AND CONFIG_AV1_RC_RTC AND NOT BUILD_SHARED_LIBS)\n```\n\nAlternatively you can reorder the tests in line 335 to match this line.\n\nI can take care of this if you don\u0027t have time to make this change.",
+      "revId": "0346986d1c29263862c1e8206ed067907422f072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b62c363_9efdd51b",
+        "filename": "CMakeLists.txt",
+        "patchSetId": 4
+      },
+      "lineNbr": 335,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-24T00:59:41Z",
+      "side": 1,
+      "message": "Note the order of the tests in this conditional.",
+      "revId": "0346986d1c29263862c1e8206ed067907422f072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
