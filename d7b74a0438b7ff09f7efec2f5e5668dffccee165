@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b83af659_6decddad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2022-03-24T02:14:03Z",
+      "side": 1,
+      "message": "Yunqing,\nThe patch has been rebased. Please review.\n\nThanks.",
+      "revId": "d7b74a0438b7ff09f7efec2f5e5668dffccee165",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
