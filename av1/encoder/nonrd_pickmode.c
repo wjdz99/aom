@@ -186,19 +186,36 @@ static INLINE void init_best_pickmode(BEST_PICKMODE *bp) {
   memset(&bp->pmi, 0, sizeof(bp->pmi));
 }
 
-static INLINE int subpel_select(AV1_COMP *cpi, BLOCK_SIZE bsize, int_mv *mv) {
-  int mv_thresh = 4;
-  const int is_low_resoln =
-      (cpi->common.width * cpi->common.height <= 320 * 240);
-  mv_thresh = (bsize > BLOCK_32X32) ? 2 : (bsize > BLOCK_16X16) ? 4 : 6;
-  if (cpi->rc.avg_frame_low_motion > 0 && cpi->rc.avg_frame_low_motion < 40)
-    mv_thresh = 12;
-  mv_thresh = (is_low_resoln) ? mv_thresh >> 1 : mv_thresh;
-  if (abs(mv->as_fullmv.row) >= mv_thresh ||
-      abs(mv->as_fullmv.col) >= mv_thresh)
-    return HALF_PEL;
-  else
-    return cpi->sf.mv_sf.subpel_force_stop;
+static INLINE int subpel_select(const AV1_COMP *cpi, BLOCK_SIZE bsize,
+                                const int_mv *mv) {
+  SUBPEL_FORCE_STOP subpel_prec = cpi->sf.mv_sf.subpel_force_stop;
+  const int32_t max_mv_mag =
+      AOMMAX(AOMABS(mv->as_fullmv.row), AOMABS(mv->as_fullmv.col));
+
+  if (cpi->sf.rt_sf.use_adaptive_mv_search_precision == 1 &&
+      subpel_prec < HALF_PEL) {
+    int mv_thresh = 4;
+    const int is_low_resoln =
+        (cpi->common.width * cpi->common.height <= 320 * 240);
+    mv_thresh = (bsize > BLOCK_32X32) ? 2 : (bsize > BLOCK_16X16) ? 4 : 6;
+    if (cpi->rc.avg_frame_low_motion > 0 && cpi->rc.avg_frame_low_motion < 40)
+      mv_thresh = 12;
+    mv_thresh = (is_low_resoln) ? mv_thresh >> 1 : mv_thresh;
+    if (max_mv_mag >= mv_thresh) subpel_prec = HALF_PEL;
+  }
+
+  if (cpi->sf.rt_sf.use_adaptive_mv_search_precision == 2 &&
+      subpel_prec < FULL_PEL) {
+    const MV_CLASS_TYPE mv_class_th = MV_CLASS_3;
+    const MV_CLASS_TYPE mv_class =
+        max_mv_mag ? av1_get_mv_class(GET_MV_SUBPEL(max_mv_mag) - 1, NULL)
+                   : MV_CLASS_0;
+    if (mv_class > mv_class_th) {
+      subpel_prec = FULL_PEL;
+    }
+  }
+
+  return subpel_prec;
 }
 
 /*!\brief Runs Motion Estimation for a specific block and specific ref frame.
@@ -288,10 +305,11 @@ static int combined_motion_search(AV1_COMP *cpi, MACROBLOCK *x,
     SUBPEL_MOTION_SEARCH_PARAMS ms_params;
     av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize, &ref_mv,
                                       cost_list);
-    if (cpi->sf.rt_sf.force_half_pel_block &&
-        cpi->sf.mv_sf.subpel_force_stop < HALF_PEL)
+    if (cpi->sf.rt_sf.use_adaptive_mv_search_precision) {
       ms_params.forced_stop = subpel_select(cpi, bsize, tmp_mv);
+    }
     MV subpel_start_mv = get_mv_from_fullmv(&tmp_mv->as_fullmv);
+
     cpi->mv_search_params.find_fractional_mv_step(
         xd, cm, &ms_params, subpel_start_mv, &tmp_mv->as_mv, &dis,
         &x->pred_sse[ref], NULL);
@@ -370,9 +388,9 @@ static int search_new_mv(AV1_COMP *cpi, MACROBLOCK *x,
 
     SUBPEL_MOTION_SEARCH_PARAMS ms_params;
     av1_make_default_subpel_ms_params(&ms_params, cpi, x, bsize, &ref_mv, NULL);
-    if (cpi->sf.rt_sf.force_half_pel_block &&
-        cpi->sf.mv_sf.subpel_force_stop < HALF_PEL)
+    if (cpi->sf.rt_sf.use_adaptive_mv_search_precision) {
       ms_params.forced_stop = subpel_select(cpi, bsize, &best_mv);
+    }
     MV start_mv = get_mv_from_fullmv(&best_mv.as_fullmv);
     cpi->mv_search_params.find_fractional_mv_step(
         xd, cm, &ms_params, start_mv, &best_mv.as_mv, &dis,

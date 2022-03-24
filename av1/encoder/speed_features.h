@@ -1434,8 +1434,10 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // variance wrt LAST reference.
   int prune_inter_modes_using_temp_var;
 
-  // Force half_pel at block level.
-  int force_half_pel_block;
+  // Use the magnitude of fullpel motion vector to determine the resolution of
+  // subpel search. If 0, this is disabled. If 1, this attempts to end search at
+  // halfpel, if 2, this attempts to end search at fullpel.
+  int use_adaptive_mv_search_precision;
 
   // Prune intra mode evaluation in inter frames based on mv range.
   BLOCK_SIZE prune_intra_mode_based_on_mv_range;
