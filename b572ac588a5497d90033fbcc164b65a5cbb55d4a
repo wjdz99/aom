@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5729fe20_a770048b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-03-25T13:26:26Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nThe function initialize_enc() initializes the global lookup tables which are required during encoding. These tables are required to be initialized only once as some of these tables are common across different encoder/decoder instances. It was observed that the function av1_init_wedge_masks() might get called repetitively with multiple encoder/decoder instances. Hence, aom_once() is added around this function to prevent this behaviour.\n\nWe are planning to introduce a new variant of initialize_enc() which will be specific to allintra encoding mode with rc_end_usage\u003dAOM_Q , where the initialization of some global lookup tables could be avoided. To facilitate this change aom_once() is required around av1_init_me_luts(). We also added aom_once() around av1_rc_init_minq_luts() function to avoid any potential issues in the future. \n\nWe validated our changes with --test-decode\u003dfatal option, where we saw that in the parent commit av1_init_wedge_masks() is called redundantly in the decoder instance. This behavior is avoided with this CL.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. \n\nPlease review.\n\nRegards,\nMudassir.\n",
+      "revId": "b572ac588a5497d90033fbcc164b65a5cbb55d4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
