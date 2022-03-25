@@ -16,6 +16,24 @@
       "message": "The runtime seems rather extreme, but I think this is ok given we document 2017 is the minimum supported version.",
       "revId": "bd2c991d623538b0a7e4f3ebf0c4ae94ba9a75b8",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4aa95e23_6d58713f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-25T20:37:30Z",
+      "side": 1,
+      "message": "The tests in cdef_test.cc take a long time to finish. The x64 (64-bit) MSVC build also took over 8 hours on my Dell laptop.",
+      "parentUuid": "f703ac15_8ef8e2bc",
+      "revId": "bd2c991d623538b0a7e4f3ebf0c4ae94ba9a75b8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
