@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c72690e2_730a0400",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-25T20:54:38Z",
+      "side": 1,
+      "message": "When using Visual Studio 2017 x64_x86 Cross Tools, I get the following compiler warning:\n\n[413/587] Building CXX object CMakeFiles\\av1_rc_qmode.dir\\av1\\ratectrl_qmode.cc.obj\nC:\\src\\aom.1\\aom\\av1\\ratectrl_qmode.cc(124): warning C4018: \u0027\u003c\u003d\u0027: signed/unsigned mismatch\n\nWe can fix this by casting std::numeric_limits\u003cint\u003e::max() to size_t. Maybe static_cast\u003csize_t\u003e(INT_MAX) or size_t{INT_MAX} will be more concise. (Need to include \u003cclimits\u003e.)\n\nDo you know why our Visual Studio nightly build is not reporting this?",
+      "revId": "7d329bc74bc116f6492eb9ca8bc5d9cf6ce71822",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
