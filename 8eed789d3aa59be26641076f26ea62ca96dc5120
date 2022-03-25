@@ -1,0 +1,418 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b7800c1_a9fdc27f",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "I don\u0027t understand this comment. GET_MV_SUBPEL is defined like this:\n#define GET_MV_SUBPEL(x) ((x)*8)\n\nAs far as I can tell, this function just returns subpel_value shifted right by subpel_bits, rounding to nearest.",
+      "range": {
+        "startLine": 235,
+        "startChar": 28,
+        "endLine": 235,
+        "endChar": 41
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc2c0951_ffde0a39",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "nit: imitate",
+      "range": {
+        "startLine": 235,
+        "startChar": 3,
+        "endLine": 235,
+        "endChar": 11
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d57d743_e5a3abf9",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "Why not just \u003e\u003e subpel_bits?",
+      "range": {
+        "startLine": 240,
+        "startChar": 61,
+        "endLine": 240,
+        "endChar": 75
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e516e668_de1fea4c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "This comment doesn\u0027t explain anything. go/cstyle#Implementation_Comment_Donts",
+      "range": {
+        "startLine": 308,
+        "startChar": 5,
+        "endLine": 308,
+        "endChar": 34
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61bf10ea_d8dc8625",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "Instead of making a copy here, you could just take the argument by value rather than by const reference, i.e., the signature would be:\nget_ref_frame_table_list(const GopStruct\u0026, RefFrameTable)",
+      "range": {
+        "startLine": 311,
+        "startChar": 2,
+        "endLine": 311,
+        "endChar": 58
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed905773_9b841517",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "go/cstyle#Function_Comments\n\nAlmost every function declaration should have comments immediately preceding it that describe what the function does and how to use it.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 74
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f8377e4a_f3ff29f4",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "This should be marked override.",
+      "range": {
+        "startLine": 57,
+        "startChar": 52,
+        "endLine": 57,
+        "endChar": 53
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f0b1019c_d0521e51",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "I\u0027d prefer having this documented here, rather than through a reference to a private function in the implementation.\n\nIIUC, row and col are fixed point values, and subpel_bits is the number of fractional bits. Is that correct? If so, perhaps just document the structure that way.",
+      "range": {
+        "startLine": 25,
+        "startChar": 23,
+        "endLine": 25,
+        "endChar": 44
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d63486e_0e6e26b1",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "Please document what units these are in.",
+      "range": {
+        "startLine": 36,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 9
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c52fcc2b_aa409fc7",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "These could both be defined as std::array rather than as C arrays, which would be safer, and also have advantages like allowing the arrays to be copied with operator\u003d.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a0a6e94_1932e2ac",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "IIUC, this is a fixed length array (one entry for each of 8 reference frame slots), so it would be clearer to make it std::array\u003cGopFrame, 8\u003e instead of a vector.",
+      "range": {
+        "startLine": 85,
+        "startChar": 22,
+        "endLine": 85,
+        "endChar": 43
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e381ebdf_17c20cb6",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "These aren\u0027t referenced by AV1RateControlQModeInterface. Will they be part of the API eventually? If not, they should be moved to another file.",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22ce882a_deef0bd6",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "Should this function also return a RefFrameTable? Presumably the caller will need a snapshot to pass in for the following GOP.\n\nEither the function could return a struct containing the FrameEncodeParameters and the new snapshot, or I suppose it could take the snapshot as a non-const arg and modify it.",
+      "range": {
+        "startLine": 118,
+        "startChar": 45,
+        "endLine": 118,
+        "endChar": 61
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ad4b3f9_14539a3e",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "(optional) You could initialize it like this:\n  TplBlockStats tpl_block_stats \u003d {};\nand then all fields would be default initialized, i.e., integer values would be 0.\n\nThen you wouldn\u0027t need to explicitly initialize mv.",
+      "range": {
+        "startLine": 76,
+        "startChar": 16,
+        "endLine": 76,
+        "endChar": 31
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ee94126_6c1a41bf",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "No need to explicitly list the zeros, {} would have the same effect.\nOr, as I wrote above, default-initialize the whole struct and you don\u0027t need to initialize mv at all.",
+      "range": {
+        "startLine": 84,
+        "startChar": 28,
+        "endLine": 84,
+        "endChar": 35
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "520a35c0_417b6e17",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "Alternatively:\n  tpl_block_stats \u003d {-1, \u003d1};",
+      "range": {
+        "startLine": 86,
+        "startChar": 2,
+        "endLine": 87,
+        "endChar": 42
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6b05c34_f74b00ff",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "If ref_frame_index and TplBlockStats::ref_frame_index were both defined as std::array instead of C arrays, this could just be:\n  block_stats.ref_frame_index \u003d ref_frame_index.\n\nOr for that matter, instead of using a loop you could do\n  std::fill(tpl_frame_stats-\u003eblock_stats_list.begin(),\n            tpl_frame_stats-\u003eblock_stats_list.end(),\n            ref_frame_index);\n\nThe same goes for the motion vectors in augment_tpl_frame_stats_with_motion_vector below.",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c646820_76ad8d2b",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-25T15:52:00Z",
+      "side": 1,
+      "message": "Or just:\n  return {row, col, 0};",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 149,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
