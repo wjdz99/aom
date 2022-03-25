@@ -17,6 +17,14 @@
 
 namespace aom {
 
+constexpr int kBlockRefCount = 2;
+
+struct MotionVector {
+  int row;
+  int col;
+  int subpel_bits;  // see get_fullpel_value
+};
+
 struct RateControlParam {
   int max_gop_length;
   int min_gop_length;
@@ -31,8 +39,8 @@ struct TplBlockStats {
   int col;
   int64_t intra_cost;
   int64_t inter_cost;
-  MV mv[2];  // Assuming 1/8 sub pixel precision
-  int ref_frame_index[2];
+  MotionVector mv[kBlockRefCount];
+  int ref_frame_index[kBlockRefCount];
 };
 
 enum class EncodeRefMode {
@@ -82,6 +90,7 @@ struct TplFrameStats {
   int frame_height;
   std::vector<TplBlockStats> block_stats_list;
 };
+
 struct TplGopStats {
   std::vector<TplFrameStats> frame_stats_list;
 };
@@ -90,6 +99,7 @@ struct TplFrameDepStats {
   int unit_size;  // equivalent to min_block_size
   std::vector<std::vector<double>> unit_stats;
 };
+
 struct TplGopDepStats {
   std::vector<TplFrameDepStats> frame_dep_stats_list;
 };
@@ -106,7 +116,8 @@ class AV1RateControlQModeInterface {
   // rdmult. This needs to be called with consecutive GOPs as returned by
   // DetermineGopInfo.
   virtual std::vector<FrameEncodeParameters> GetGopEncodeInfo(
-      const GopStruct &gop_struct, const TplGopStats &tpl_stats_list) = 0;
+      const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
+      const RefFrameTable &ref_frame_table_snapshot) = 0;
 };  // class AV1RateCtrlQMode
 }  // namespace aom
 

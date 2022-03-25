@@ -16,12 +16,13 @@
 #include <vector>
 
 #include "av1/encoder/pass2_strategy.h"
+#include "av1/encoder/tpl_model.h"
 
 namespace aom {
 
-static GopFrame gop_frame_basic(int coding_idx, int order_idx,
-                                bool is_key_frame, bool is_arf_frame,
-                                bool is_golden_frame, bool is_show_frame) {
+GopFrame gop_frame_basic(int coding_idx, int order_idx, bool is_key_frame,
+                         bool is_arf_frame, bool is_golden_frame,
+                         bool is_show_frame) {
   GopFrame gop_frame;
   gop_frame.coding_idx = coding_idx;
   gop_frame.order_idx = order_idx;
@@ -148,11 +149,9 @@ GopStructList AV1RateControlQMode::DetermineGopInfo(
   return gop_list;
 }
 
-TplFrameDepStats create_tpl_frame_dep_stats_wo_propagation(
-    const TplFrameStats &frame_stats) {
-  const int frame_height = frame_stats.frame_height;
-  const int frame_width = frame_stats.frame_width;
-  const int min_block_size = frame_stats.min_block_size;
+TplFrameDepStats create_tpl_frame_dep_stats_empty(int frame_height,
+                                                  int frame_width,
+                                                  int min_block_size) {
   const int unit_rows =
       frame_height / min_block_size + !!(frame_height % min_block_size);
   const int unit_cols =
@@ -161,6 +160,14 @@ TplFrameDepStats create_tpl_frame_dep_stats_wo_propagation(
   frame_dep_stats.unit_size = min_block_size;
   frame_dep_stats.unit_stats = std::vector<std::vector<double>>(
       unit_rows, std::vector<double>(unit_cols, 0));
+  return frame_dep_stats;
+}
+
+TplFrameDepStats create_tpl_frame_dep_stats_wo_propagation(
+    const TplFrameStats &frame_stats) {
+  const int min_block_size = frame_stats.min_block_size;
+  TplFrameDepStats frame_dep_stats = create_tpl_frame_dep_stats_empty(
+      frame_stats.frame_height, frame_stats.frame_width, min_block_size);
   for (const TplBlockStats &block_stats : frame_stats.block_stats_list) {
     int block_unit_rows = block_stats.height / min_block_size;
     int block_unit_cols = block_stats.width / min_block_size;
@@ -183,7 +190,7 @@ int get_ref_coding_idx_list(const TplBlockStats &block_stats,
                             const RefFrameTable &ref_frame_table,
                             int *ref_coding_idx_list) {
   int ref_frame_count = 0;
-  for (int i = 0; i < 2; ++i) {
+  for (int i = 0; i < kBlockRefCount; ++i) {
     ref_coding_idx_list[i] = -1;
     int ref_frame_index = block_stats.ref_frame_index[i];
     if (ref_frame_index != -1) {
@@ -199,30 +206,69 @@ int get_block_overlap_area(int r0, int c0, int r1, int c1, int size) {
   int r_high = std::min(r0 + size, r1 + size);
   int c_low = std::max(c0, c1);
   int c_high = std::min(c0 + size, c1 + size);
-  return (r_high - r_low) * (c_high - c_low);
+  if (r_high >= r_low && c_high >= c_low) {
+    return (r_high - r_low) * (c_high - c_low);
+  }
+  return 0;
 }
 
-void tpl_frame_stats_propagate(const TplFrameStats &frame_stats,
-                               const RefFrameTable &ref_frame_table,
-                               TplGopDepStats *tpl_gop_dep_stats) {
+double tpl_frame_stats_accumulate(const TplFrameStats &frame_stats) {
+  double ref_sum_cost_diff = 0;
+  for (auto &block_stats : frame_stats.block_stats_list) {
+    ref_sum_cost_diff += block_stats.inter_cost - block_stats.intra_cost;
+  }
+  return ref_sum_cost_diff;
+}
+
+double tpl_frame_dep_stats_accumulate(const TplFrameDepStats &frame_dep_stats) {
+  double sum = 0;
+  const int unit_rows = frame_dep_stats.unit_stats.size();
+  const int unit_cols = frame_dep_stats.unit_stats[0].size();
+  for (int unit_row = 0; unit_row < unit_rows; ++unit_row) {
+    for (int unit_col = 0; unit_col < unit_cols; ++unit_col) {
+      sum += frame_dep_stats.unit_stats[unit_row][unit_col];
+    }
+  }
+  return sum;
+}
+
+// immitate the behavior of GET_MV_SUBPEL
+// TODO(angiebird): Add unit test to this function
+int get_fullpel_value(int subpel_value, int subpel_bits) {
+  const int subpel_scale = (1 << subpel_bits);
+  const int sign = subpel_value >= 0 ? 1 : -1;
+  int fullpel_value = (abs(subpel_value) + subpel_scale / 2) / subpel_scale;
+  fullpel_value *= sign;
+  return fullpel_value;
+}
+
+void tpl_frame_dep_stats_propagate(const TplFrameStats &frame_stats,
+                                   const RefFrameTable &ref_frame_table,
+                                   TplGopDepStats *tpl_gop_dep_stats) {
   int min_block_size = frame_stats.min_block_size;
+  const int frame_unit_rows =
+      frame_stats.frame_height / frame_stats.min_block_size;
+  const int frame_unit_cols =
+      frame_stats.frame_width / frame_stats.min_block_size;
   for (const TplBlockStats &block_stats : frame_stats.block_stats_list) {
-    int ref_coding_idx_list[2] = { -1, -1 };
+    int ref_coding_idx_list[kBlockRefCount] = { -1, -1 };
     int ref_frame_count = get_ref_coding_idx_list(block_stats, ref_frame_table,
                                                   ref_coding_idx_list);
     if (ref_frame_count > 0) {
       double propagation_ratio = 1.0 / ref_frame_count;
-      for (int i = 0; i < 2; ++i) {
+      for (int i = 0; i < kBlockRefCount; ++i) {
         if (ref_coding_idx_list[i] != -1) {
           auto &ref_frame_dep_stats =
               tpl_gop_dep_stats->frame_dep_stats_list[ref_coding_idx_list[i]];
-          int mv_row = block_stats.mv[i].row >> 3;
-          int mv_col = block_stats.mv[i].col >> 3;
+          const auto &mv = block_stats.mv[i];
+          const int mv_row = get_fullpel_value(mv.row, mv.subpel_bits);
+          const int mv_col = get_fullpel_value(mv.col, mv.subpel_bits);
           int block_unit_rows = block_stats.height / min_block_size;
           int block_unit_cols = block_stats.width / min_block_size;
           int unit_count = block_unit_rows * block_unit_cols;
-          double cost_diff =
-              (block_stats.intra_cost - block_stats.inter_cost) / unit_count;
+          const double cost_diff =
+              (block_stats.inter_cost - block_stats.intra_cost) * 1.0 /
+              unit_count;
           for (int r = 0; r < block_unit_rows; r++) {
             for (int c = 0; c < block_unit_cols; c++) {
               int ref_block_row = block_stats.row + r * min_block_size + mv_row;
@@ -233,13 +279,16 @@ void tpl_frame_stats_propagate(const TplFrameStats &frame_stats,
                 for (int k = 0; k < 2; ++k) {
                   int unit_row = ref_unit_row_low + j;
                   int unit_col = ref_unit_col_low + k;
-                  int overlap_area = get_block_overlap_area(
-                      unit_row * min_block_size, unit_col * min_block_size,
-                      ref_block_row, ref_block_col, min_block_size);
-                  double overlap_ratio =
-                      overlap_area * 1.0 / (min_block_size * min_block_size);
-                  ref_frame_dep_stats.unit_stats[unit_row][unit_col] +=
-                      cost_diff * overlap_ratio * propagation_ratio;
+                  if (unit_row >= 0 && unit_row < frame_unit_rows &&
+                      unit_col >= 0 && unit_col < frame_unit_cols) {
+                    const int overlap_area = get_block_overlap_area(
+                        unit_row * min_block_size, unit_col * min_block_size,
+                        ref_block_row, ref_block_col, min_block_size);
+                    const double overlap_ratio =
+                        overlap_area * 1.0 / (min_block_size * min_block_size);
+                    ref_frame_dep_stats.unit_stats[unit_row][unit_col] +=
+                        cost_diff * overlap_ratio * propagation_ratio;
+                  }
                 }
               }
             }
@@ -250,23 +299,30 @@ void tpl_frame_stats_propagate(const TplFrameStats &frame_stats,
   }
 }
 
-void TplPropagation(const GopStruct &gop_struct,
-                    const RefFrameTable &ref_frame_table,
-                    const TplGopStats &tpl_gop_stats) {
-  size_t frame_count = gop_struct.gop_frame_list.size();
-  assert(tpl_gop_stats.frame_stats_list.size() == frame_count);
-
+// TODO(angiebird): Add unit test for this function
+std::vector<RefFrameTable> get_ref_frame_table_list(
+    const GopStruct &gop_struct,
+    const RefFrameTable &ref_frame_table_snapshot) {
   // Generate ref_frame_table_list
+  const size_t frame_count = gop_struct.gop_frame_list.size();
   std::vector<RefFrameTable> ref_frame_table_list;
+  RefFrameTable ref_frame_table = ref_frame_table_snapshot;
   ref_frame_table_list.push_back(ref_frame_table);
   for (size_t coding_idx = 0; coding_idx < frame_count; coding_idx++) {
-    auto next_ref_frame_table = ref_frame_table;
     const auto &gop_frame = gop_struct.gop_frame_list[coding_idx];
     if (gop_frame.update_ref_idx != -1) {
-      next_ref_frame_table[gop_frame.update_ref_idx] = gop_frame;
+      ref_frame_table[gop_frame.update_ref_idx] = gop_frame;
     }
-    ref_frame_table_list.push_back(next_ref_frame_table);
+    ref_frame_table_list.push_back(ref_frame_table);
   }
+  return ref_frame_table_list;
+}
+
+TplGopDepStats compute_tpl_gop_dep_stats(
+    const TplGopStats &tpl_gop_stats,
+    const std::vector<RefFrameTable> &ref_frame_table_list) {
+  const size_t frame_count = ref_frame_table_list.size();
+  assert(tpl_gop_stats.frame_stats_list.size() == frame_count);
 
   // Create the struct to store TPL dependency stats
   TplGopDepStats tpl_gop_dep_stats;
@@ -279,17 +335,46 @@ void TplPropagation(const GopStruct &gop_struct,
 
   // Back propagation
   for (int coding_idx = frame_count - 1; coding_idx >= 0; coding_idx--) {
-    tpl_frame_stats_propagate(tpl_gop_stats.frame_stats_list[coding_idx],
-                              ref_frame_table, &tpl_gop_dep_stats);
+    auto &ref_frame_table = ref_frame_table_list[coding_idx];
+    // TODO(angiebird): Handle/test the case where reference frame
+    // is in the previous GOP
+    tpl_frame_dep_stats_propagate(tpl_gop_stats.frame_stats_list[coding_idx],
+                                  ref_frame_table, &tpl_gop_dep_stats);
   }
+  return tpl_gop_dep_stats;
 }
 
 std::vector<FrameEncodeParameters> AV1RateControlQMode::GetGopEncodeInfo(
-    const GopStruct &gop_struct, const TplGopStats &tpl_stats_list) {
-  std::vector<FrameEncodeParameters> frame_encoder_param;
-  (void)tpl_stats_list;
-  (void)gop_struct;
-  return frame_encoder_param;
+    const GopStruct &gop_struct, const TplGopStats &tpl_gop_stats,
+    const RefFrameTable &ref_frame_table_snapshot) {
+  const std::vector<RefFrameTable> ref_frame_table_list =
+      get_ref_frame_table_list(gop_struct, ref_frame_table_snapshot);
+
+  std::vector<FrameEncodeParameters> param_list;
+  TplGopDepStats gop_dep_stats =
+      compute_tpl_gop_dep_stats(tpl_gop_stats, ref_frame_table_list);
+  for (size_t i = 0; i < tpl_gop_stats.frame_stats_list.size(); i++) {
+    const TplFrameStats &frame_stats = tpl_gop_stats.frame_stats_list[i];
+    const TplFrameDepStats &frame_dep_stats =
+        gop_dep_stats.frame_dep_stats_list[i];
+    const double cost_without_propagation =
+        tpl_frame_stats_accumulate(frame_stats);
+    const double cost_with_propagation =
+        tpl_frame_dep_stats_accumulate(frame_dep_stats);
+    // TODO(angiebird): This part is still a draft. Check whether this makes
+    // sense mathmatically.
+    const double frame_importance =
+        cost_with_propagation / cost_without_propagation;
+    // Imitate the behavior of av1_tpl_get_qstep_ratio()
+    const double qstep_ratio = sqrt(1 / frame_importance);
+    FrameEncodeParameters param;
+    param.q_index = av1_get_q_index_from_qstep_ratio(rc_param_.base_q_index,
+                                                     qstep_ratio, AOM_BITS_8);
+    // TODO(angiebird): Determine rdmult based on q_index
+    param.rdmult = 1;
+    param_list.push_back(param);
+  }
+  return param_list;
 }
 
 }  // namespace aom
