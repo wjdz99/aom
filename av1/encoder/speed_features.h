@@ -1469,6 +1469,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // SAD based adaptive altref selection
   int sad_based_adp_altref_lag;
+
+  // SAD based compound mode pruning
+  int sad_based_comp_prune;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
