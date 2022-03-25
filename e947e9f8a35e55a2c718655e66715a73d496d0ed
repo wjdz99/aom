@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "68fc4094_83d3907c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 29295
+      },
+      "writtenOn": "2022-03-25T08:52:56Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThanks for your comment! I corrected the logic \u0026 tuned the thresholds. We actually get better quality gains for speed 10 than earlier. \n\n               Instruction Count     BD-Rate Loss(%)\ncpu  Test-set    Reduction(%)   avg.psnr  ovr.psnr   ssim\n9         rtc      0.094        -0.2947    -0.4017   -0.2238\n10        rtc      0.070        -0.4849    -0.5640   -0.3830\n\nNote that speed 9 thresholds \u0026 gains are unchanged. For this, only a single threshold works best for lag \u003d 3 or 6.",
+      "revId": "e947e9f8a35e55a2c718655e66715a73d496d0ed",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
