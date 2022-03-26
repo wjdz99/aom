@@ -299,16 +299,35 @@ TEST_P(Loop8Test6Param_lbd, ValueCheck) { VALCHECK(uint8_t, 8); }
     for (int j = 0; j < kNumCoeffs; ++j) {                                    \
       s[j] = rnd.Rand16() & mask_;                                            \
     }                                                                         \
+    aom_usec_timer ref_timer, test_timer;                                     \
+    aom_usec_timer_start(&ref_timer);                                         \
+    for (int i = 0; i < count_test_block; ++i) {                              \
+      call_filter(s + 8 + p * 8, p, blimit, limit, thresh, bd,                \
+                  ref_loopfilter_op_);                                        \
+    }                                                                         \
+    aom_usec_timer_mark(&ref_timer);                                          \
+    const int elapsed_time_c =                                                \
+        static_cast<int>(aom_usec_timer_elapsed(&ref_timer));                 \
+                                                                              \
+    aom_usec_timer_start(&test_timer);                                        \
     for (int i = 0; i < count_test_block; ++i) {                              \
       call_filter(s + 8 + p * 8, p, blimit, limit, thresh, bd,                \
                   loopfilter_op_);                                            \
     }                                                                         \
+    aom_usec_timer_mark(&test_timer);                                         \
+    const int elapsed_time_simd =                                             \
+        static_cast<int>(aom_usec_timer_elapsed(&test_timer));                \
+    printf(                                                                   \
+        "c_time=%d \t simd_time=%d \t "                                       \
+        "gain=%d\n",                                                          \
+        elapsed_time_c, elapsed_time_simd,                                    \
+        (elapsed_time_c / elapsed_time_simd));                                \
   } while (false)
 
 #if CONFIG_AV1_HIGHBITDEPTH
 TEST_P(Loop8Test6Param_hbd, DISABLED_Speed) { SPEEDCHECK(uint16_t, 16); }
 #endif
-TEST_P(Loop8Test6Param_lbd, DISABLED_Speed) { SPEEDCHECK(uint8_t, 8); }
+TEST_P(Loop8Test6Param_lbd, Speed) { SPEEDCHECK(uint8_t, 8); }
 
 #define OPCHECKd(a, b)                                                         \
   do {                                                                         \
@@ -550,6 +569,15 @@ const loop_param_t kLoop8Test6[] = {
   make_tuple(&aom_lpf_vertical_4_sse2, &aom_lpf_vertical_4_c, 8),
   make_tuple(&aom_lpf_vertical_8_sse2, &aom_lpf_vertical_8_c, 8),
   make_tuple(&aom_lpf_vertical_14_sse2, &aom_lpf_vertical_14_c, 8),
+  make_tuple(&aom_lpf_horizontal_4_quad_sse2, &aom_lpf_horizontal_4_quad_c, 8),
+  make_tuple(&aom_lpf_vertical_4_quad_sse2, &aom_lpf_vertical_4_quad_c, 8),
+  make_tuple(&aom_lpf_horizontal_6_quad_sse2, &aom_lpf_horizontal_6_quad_c, 8),
+  make_tuple(&aom_lpf_vertical_6_quad_sse2, &aom_lpf_vertical_6_quad_c, 8),
+  make_tuple(&aom_lpf_horizontal_8_quad_sse2, &aom_lpf_horizontal_8_quad_c, 8),
+  make_tuple(&aom_lpf_vertical_8_quad_sse2, &aom_lpf_vertical_8_quad_c, 8),
+  make_tuple(&aom_lpf_horizontal_14_quad_sse2, &aom_lpf_horizontal_14_quad_c,
+             8),
+  make_tuple(&aom_lpf_vertical_14_quad_sse2, &aom_lpf_vertical_14_quad_c, 8)
 };
 
 INSTANTIATE_TEST_SUITE_P(SSE2, Loop8Test6Param_lbd,
