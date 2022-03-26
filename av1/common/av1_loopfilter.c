@@ -1018,38 +1018,22 @@ static AOM_INLINE void filter_vert(uint8_t *dst, int dst_stride,
     switch (params->filter_length) {
       // apply 4-tap filtering
       case 4:
-        aom_lpf_vertical_4_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_vertical_4_quad(dst, dst_stride, limits->mblim, limits->lim,
                                 limits->hev_thr);
-        aom_lpf_vertical_4_dual(dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                limits->mblim, limits->lim, limits->hev_thr,
-                                limits->mblim, limits->lim, limits->hev_thr);
         break;
       case 6:  // apply 6-tap filter for chroma plane only
-        aom_lpf_vertical_6_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_vertical_6_quad(dst, dst_stride, limits->mblim, limits->lim,
                                 limits->hev_thr);
-        aom_lpf_vertical_6_dual(dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                limits->mblim, limits->lim, limits->hev_thr,
-                                limits->mblim, limits->lim, limits->hev_thr);
         break;
       // apply 8-tap filtering
       case 8:
-        aom_lpf_vertical_8_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_vertical_8_quad(dst, dst_stride, limits->mblim, limits->lim,
                                 limits->hev_thr);
-        aom_lpf_vertical_8_dual(dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                limits->mblim, limits->lim, limits->hev_thr,
-                                limits->mblim, limits->lim, limits->hev_thr);
         break;
       // apply 14-tap filtering
       case 14:
-        aom_lpf_vertical_14_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                 limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_vertical_14_quad(dst, dst_stride, limits->mblim, limits->lim,
                                  limits->hev_thr);
-        aom_lpf_vertical_14_dual(dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                 limits->mblim, limits->lim, limits->hev_thr,
-                                 limits->mblim, limits->lim, limits->hev_thr);
         break;
       // no filtering
       default: break;
@@ -1230,39 +1214,15 @@ static AOM_INLINE void filter_vert_chroma(
     switch (params->filter_length) {
       // apply 4-tap filtering
       case 4:
-        aom_lpf_vertical_4_dual(u_dst, dst_stride, u_limits->mblim,
-                                u_limits->lim, u_limits->hev_thr,
-                                u_limits->mblim, u_limits->lim,
-                                u_limits->hev_thr);
-        aom_lpf_vertical_4_dual(u_dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                u_limits->mblim, u_limits->lim,
-                                u_limits->hev_thr, u_limits->mblim,
+        aom_lpf_vertical_4_quad(u_dst, dst_stride, u_limits->mblim,
                                 u_limits->lim, u_limits->hev_thr);
-        aom_lpf_vertical_4_dual(v_dst, dst_stride, v_limits->mblim,
-                                v_limits->lim, v_limits->hev_thr,
-                                v_limits->mblim, v_limits->lim,
-                                v_limits->hev_thr);
-        aom_lpf_vertical_4_dual(v_dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                v_limits->mblim, v_limits->lim,
-                                v_limits->hev_thr, v_limits->mblim,
+        aom_lpf_vertical_4_quad(v_dst, dst_stride, v_limits->mblim,
                                 v_limits->lim, v_limits->hev_thr);
         break;
       case 6:  // apply 6-tap filter for chroma plane only
-        aom_lpf_vertical_6_dual(u_dst, dst_stride, u_limits->mblim,
-                                u_limits->lim, u_limits->hev_thr,
-                                u_limits->mblim, u_limits->lim,
-                                u_limits->hev_thr);
-        aom_lpf_vertical_6_dual(u_dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                u_limits->mblim, u_limits->lim,
-                                u_limits->hev_thr, u_limits->mblim,
+        aom_lpf_vertical_6_quad(u_dst, dst_stride, u_limits->mblim,
                                 u_limits->lim, u_limits->hev_thr);
-        aom_lpf_vertical_6_dual(v_dst, dst_stride, v_limits->mblim,
-                                v_limits->lim, v_limits->hev_thr,
-                                v_limits->mblim, v_limits->lim,
-                                v_limits->hev_thr);
-        aom_lpf_vertical_6_dual(v_dst + 2 * MI_SIZE * dst_stride, dst_stride,
-                                v_limits->mblim, v_limits->lim,
-                                v_limits->hev_thr, v_limits->mblim,
+        aom_lpf_vertical_6_quad(v_dst, dst_stride, v_limits->mblim,
                                 v_limits->lim, v_limits->hev_thr);
         break;
       case 8:
@@ -1634,38 +1594,22 @@ static AOM_INLINE void filter_horz(uint8_t *dst, int dst_stride,
     switch (params->filter_length) {
       // apply 4-tap filtering
       case 4:
-        aom_lpf_horizontal_4_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                  limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_horizontal_4_quad(dst, dst_stride, limits->mblim, limits->lim,
                                   limits->hev_thr);
-        aom_lpf_horizontal_4_dual(dst + 2 * MI_SIZE, dst_stride, limits->mblim,
-                                  limits->lim, limits->hev_thr, limits->mblim,
-                                  limits->lim, limits->hev_thr);
         break;
       case 6:  // apply 6-tap filter for chroma plane only
-        aom_lpf_horizontal_6_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                  limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_horizontal_6_quad(dst, dst_stride, limits->mblim, limits->lim,
                                   limits->hev_thr);
-        aom_lpf_horizontal_6_dual(dst + 2 * MI_SIZE, dst_stride, limits->mblim,
-                                  limits->lim, limits->hev_thr, limits->mblim,
-                                  limits->lim, limits->hev_thr);
         break;
       // apply 8-tap filtering
       case 8:
-        aom_lpf_horizontal_8_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                  limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_horizontal_8_quad(dst, dst_stride, limits->mblim, limits->lim,
                                   limits->hev_thr);
-        aom_lpf_horizontal_8_dual(dst + 2 * MI_SIZE, dst_stride, limits->mblim,
-                                  limits->lim, limits->hev_thr, limits->mblim,
-                                  limits->lim, limits->hev_thr);
         break;
       // apply 14-tap filtering
       case 14:
-        aom_lpf_horizontal_14_dual(dst, dst_stride, limits->mblim, limits->lim,
-                                   limits->hev_thr, limits->mblim, limits->lim,
+        aom_lpf_horizontal_14_quad(dst, dst_stride, limits->mblim, limits->lim,
                                    limits->hev_thr);
-        aom_lpf_horizontal_14_dual(dst + 2 * MI_SIZE, dst_stride, limits->mblim,
-                                   limits->lim, limits->hev_thr, limits->mblim,
-                                   limits->lim, limits->hev_thr);
         break;
       // no filtering
       default: break;
@@ -1846,39 +1790,15 @@ static AOM_INLINE void filter_horz_chroma(
     switch (params->filter_length) {
       // apply 4-tap filtering
       case 4:
-        aom_lpf_horizontal_4_dual(u_dst, dst_stride, u_limits->mblim,
-                                  u_limits->lim, u_limits->hev_thr,
-                                  u_limits->mblim, u_limits->lim,
-                                  u_limits->hev_thr);
-        aom_lpf_horizontal_4_dual(u_dst + 2 * MI_SIZE, dst_stride,
-                                  u_limits->mblim, u_limits->lim,
-                                  u_limits->hev_thr, u_limits->mblim,
+        aom_lpf_horizontal_4_quad(u_dst, dst_stride, u_limits->mblim,
                                   u_limits->lim, u_limits->hev_thr);
-        aom_lpf_horizontal_4_dual(v_dst, dst_stride, v_limits->mblim,
-                                  v_limits->lim, v_limits->hev_thr,
-                                  v_limits->mblim, v_limits->lim,
-                                  v_limits->hev_thr);
-        aom_lpf_horizontal_4_dual(v_dst + 2 * MI_SIZE, dst_stride,
-                                  v_limits->mblim, v_limits->lim,
-                                  v_limits->hev_thr, v_limits->mblim,
+        aom_lpf_horizontal_4_quad(v_dst, dst_stride, v_limits->mblim,
                                   v_limits->lim, v_limits->hev_thr);
         break;
       case 6:  // apply 6-tap filter for chroma plane only
-        aom_lpf_horizontal_6_dual(u_dst, dst_stride, u_limits->mblim,
-                                  u_limits->lim, u_limits->hev_thr,
-                                  u_limits->mblim, u_limits->lim,
-                                  u_limits->hev_thr);
-        aom_lpf_horizontal_6_dual(u_dst + 2 * MI_SIZE, dst_stride,
-                                  u_limits->mblim, u_limits->lim,
-                                  u_limits->hev_thr, u_limits->mblim,
+        aom_lpf_horizontal_6_quad(u_dst, dst_stride, u_limits->mblim,
                                   u_limits->lim, u_limits->hev_thr);
-        aom_lpf_horizontal_6_dual(v_dst, dst_stride, v_limits->mblim,
-                                  v_limits->lim, v_limits->hev_thr,
-                                  v_limits->mblim, v_limits->lim,
-                                  v_limits->hev_thr);
-        aom_lpf_horizontal_6_dual(v_dst + 2 * MI_SIZE, dst_stride,
-                                  v_limits->mblim, v_limits->lim,
-                                  v_limits->hev_thr, v_limits->mblim,
+        aom_lpf_horizontal_6_quad(v_dst, dst_stride, v_limits->mblim,
                                   v_limits->lim, v_limits->hev_thr);
         break;
       case 8:
