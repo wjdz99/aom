@@ -14,6 +14,7 @@
 
 #include "aom_ports/aom_timer.h"
 
+#include "av1/common/entropymode.h"
 #include "av1/common/reconinter.h"
 
 #include "av1/encoder/encoder.h"
@@ -91,6 +92,7 @@ typedef struct {
   TXFM_CONTEXT *p_tl;
   TXFM_CONTEXT ta[MAX_MIB_SIZE];
   TXFM_CONTEXT tl[MAX_MIB_SIZE];
+  FRAME_CONTEXT fc_ctx;
 } RD_SEARCH_MACROBLOCK_CONTEXT;
 
 // This struct is used to store the statistics used by sb-level multi-pass

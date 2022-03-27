@@ -642,6 +642,7 @@ void av1_restore_context(MACROBLOCK *x, const RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
          sizeof(*xd->above_txfm_context) * mi_width);
   memcpy(xd->left_txfm_context, ctx->tl,
          sizeof(*xd->left_txfm_context) * mi_height);
+  memcpy(xd->tile_ctx, &ctx->fc_ctx, sizeof(FRAME_CONTEXT));
 }
 
 void av1_save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
@@ -674,6 +675,8 @@ void av1_save_context(const MACROBLOCK *x, RD_SEARCH_MACROBLOCK_CONTEXT *ctx,
          sizeof(*xd->left_txfm_context) * mi_height);
   ctx->p_ta = xd->above_txfm_context;
   ctx->p_tl = xd->left_txfm_context;
+
+  memcpy(&ctx->fc_ctx, xd->tile_ctx, sizeof(FRAME_CONTEXT));
 }
 
 static void set_partial_sb_partition(const AV1_COMMON *const cm,

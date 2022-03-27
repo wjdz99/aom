@@ -579,6 +579,8 @@ static void encode_block_ctx(const AV1_COMP *const cpi, TileDataEnc *tile_data,
           cpi->svc.spatial_layer_id == cpi->svc.number_spatial_layers - 1)))
       update_zeromv_cnt(cpi, mbmi, mi_row, mi_col, bsize);
   }
+
+  av1_fill_coeff_costs(&x->coeff_costs, xd->tile_ctx, av1_num_planes(cm));
 }
 
 static void encode_superblock(const AV1_COMP *const cpi, TileDataEnc *tile_data,

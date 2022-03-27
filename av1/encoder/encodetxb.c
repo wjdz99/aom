@@ -562,7 +562,7 @@ void av1_update_and_record_txb_context(int plane, int block, int blk_row,
   const SCAN_ORDER *const scan_order = get_scan(tx_size, tx_type);
   tran_low_t *tcoeff;
   assert(args->dry_run != DRY_RUN_COSTCOEFFS);
-  if (args->dry_run == OUTPUT_ENABLED) {
+  if (args->dry_run == OUTPUT_ENABLED || 1) {
     MB_MODE_INFO *mbmi = xd->mi[0];
     TXB_CTX txb_ctx;
     get_txb_ctx(plane_bsize, tx_size, plane,
