@@ -2084,7 +2084,9 @@ static void encode_b_nonrd(const AV1_COMP *const cpi, TileDataEnc *tile_data,
             (subsampling_x + subsampling_y)));
   }
 
-  encode_superblock(cpi, tile_data, td, tp, dry_run, bsize, rate);
+  encode_block_pixel(cpi, td, dry_run, bsize);
+  if (!dry_run) encode_block_ctx(cpi, tile_data, td, tp, dry_run, bsize, rate);
+
   if (!dry_run) {
     update_cb_offsets(x, bsize, subsampling_x, subsampling_y);
     if (has_second_ref(mbmi)) {
