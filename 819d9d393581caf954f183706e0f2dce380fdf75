@@ -86,6 +86,24 @@
       "message": "Hi Yunqing,\n\nI have two more comments after analyzing this code.\n\n1. Only one element in the frame_mv array needs to be initialized, and it only needs to be initialized under one condition. The following patch also fixes the valgrind uninitialised value issue:\n\n```\ndiff --git a/av1/encoder/partition_search.c b/av1/encoder/partition_search.c\nindex 5118c3d6d..55a3e4758 100644\n--- a/av1/encoder/partition_search.c\n+++ b/av1/encoder/partition_search.c\n@@ -2641,6 +2641,9 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,\n                                              mi_row, mi_col, this_mi[0]-\u003ebsize);\n \n           int_mv frame_mv[MB_MODE_COUNT][REF_FRAMES];\n+          if (this_mi[0]-\u003eref_frame[0] !\u003d LAST_FRAME) {\n+            frame_mv[NEARESTMV][LAST_FRAME].as_int \u003d 0;\n+          }\n           struct buf_2d yv12_mb[REF_FRAMES][MAX_MB_PLANE];\n           int force_skip_low_temp_var \u003d 0;\n           int skip_pred_mv \u003d 0;\n```\n\nNote: In this patch I used the symbolic name LAST_FRAME instead of 1.\n\n2. Depending on the check done in this if statement here (lines 2658-2659), it may be better to initialize the frame_mv array to INVALID_MV instead of 0.\n\nI am wondering if the index 1 used in this if statement should be this_mi[0]-\u003eref_frame[0], the third argument passed to the find_predictors() call at line 2653.",
       "revId": "819d9d393581caf954f183706e0f2dce380fdf75",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcb97882_e756753c",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2660,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-28T16:03:27Z",
+      "side": 1,
+      "message": "I have a cl related to frame_mv index fix. Do you want to write a cl for other things mentioned here since you already did the work?",
+      "parentUuid": "00e7038d_6dcfcfb7",
+      "revId": "819d9d393581caf954f183706e0f2dce380fdf75",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
