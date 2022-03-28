@@ -70,6 +70,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ea4e252_a844ad24",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2643,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-28T18:42:01Z",
+      "side": 1,
+      "message": "This part is still under development. With compound mode supported later, more elements in frame_mv are needed. Would prefer to initialize all array at this time.",
+      "parentUuid": "be4b1b7c_1ede22bb",
+      "revId": "afb0360f95f650b1e9cdc576e67c27d5c68c4639",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "da5e019f_16df809c",
@@ -83,6 +101,24 @@
       "writtenOn": "2022-03-28T17:08:41Z",
       "side": 1,
       "message": "Nit: I suggest declaring a local variable `ref_frame` here and use it below.\n```\n          MV_REFERENCE_FRAME ref_frame \u003d this_mi[0]-\u003eref_frame[0];\n```",
+      "revId": "afb0360f95f650b1e9cdc576e67c27d5c68c4639",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e5b9b50_836f466e",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2652,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-28T18:42:01Z",
+      "side": 1,
+      "message": "This part will be changed. Prefer to handle this with other changes",
+      "parentUuid": "da5e019f_16df809c",
       "revId": "afb0360f95f650b1e9cdc576e67c27d5c68c4639",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
