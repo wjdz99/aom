@@ -2655,8 +2655,10 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
                           skip_pred_mv);
 
           int continue_merging = 1;
-          if (frame_mv[NEARESTMV][1].as_mv.row != b0[0]->mv[0].as_mv.row ||
-              frame_mv[NEARESTMV][1].as_mv.col != b0[0]->mv[0].as_mv.col)
+          if (frame_mv[NEARESTMV][this_mi[0]->ref_frame[0]].as_mv.row !=
+                  b0[0]->mv[0].as_mv.row ||
+              frame_mv[NEARESTMV][this_mi[0]->ref_frame[0]].as_mv.col !=
+                  b0[0]->mv[0].as_mv.col)
             continue_merging = 0;
 
           if (!continue_merging) {
