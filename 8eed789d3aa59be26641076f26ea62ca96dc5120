@@ -47,6 +47,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "64b80ad0_82da68b8",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Sorry, it should be GET_MV_RAWPEL.",
+      "parentUuid": "4b7800c1_a9fdc27f",
+      "range": {
+        "startLine": 235,
+        "startChar": 28,
+        "endLine": 235,
+        "endChar": 41
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60d438e7_7c56ef60",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc2c0951_ffde0a39",
+      "range": {
+        "startLine": 235,
+        "startChar": 3,
+        "endLine": 235,
+        "endChar": 11
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d57d743_e5a3abf9",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "Why not just \u003e\u003e subpel_bits?",
+      "range": {
+        "startLine": 240,
+        "startChar": 61,
+        "endLine": 240,
+        "endChar": 75
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccf65672_f78cbc01",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d57d743_e5a3abf9",
       "range": {
         "startLine": 240,
         "startChar": 61,
@@ -93,6 +165,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b4e2f0c_ec1b341a",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e516e668_de1fea4c",
+      "range": {
+        "startLine": 308,
+        "startChar": 5,
+        "endLine": 308,
+        "endChar": 34
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "61bf10ea_d8dc8625",
@@ -106,6 +202,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "Instead of making a copy here, you could just take the argument by value rather than by const reference, i.e., the signature would be:\nget_ref_frame_table_list(const GopStruct\u0026, RefFrameTable)",
+      "range": {
+        "startLine": 311,
+        "startChar": 2,
+        "endLine": 311,
+        "endChar": 58
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b96d253c_069da15e",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "61bf10ea_d8dc8625",
       "range": {
         "startLine": 311,
         "startChar": 2,
@@ -139,6 +259,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0af9b1d9_10ae1845",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Okay, I will add comments later.",
+      "parentUuid": "ed905773_9b841517",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 74
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f8377e4a_f3ff29f4",
@@ -152,6 +296,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "This should be marked override.",
+      "range": {
+        "startLine": 57,
+        "startChar": 52,
+        "endLine": 57,
+        "endChar": 53
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a40c2e9_cb30c84f",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8377e4a_f3ff29f4",
       "range": {
         "startLine": 57,
         "startChar": 52,
@@ -185,6 +353,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "880925fc_42ababfa",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Yes.\nAdded more description.",
+      "parentUuid": "f0b1019c_d0521e51",
+      "range": {
+        "startLine": 25,
+        "startChar": 23,
+        "endLine": 25,
+        "endChar": 44
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d63486e_0e6e26b1",
@@ -198,6 +390,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "Please document what units these are in.",
+      "range": {
+        "startLine": 36,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 9
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11b2eb88_f3f73277",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d63486e_0e6e26b1",
       "range": {
         "startLine": 36,
         "startChar": 2,
@@ -231,6 +447,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbf37698_157ab9e5",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c52fcc2b_aa409fc7",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a0a6e94_1932e2ac",
@@ -244,6 +484,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "IIUC, this is a fixed length array (one entry for each of 8 reference frame slots), so it would be clearer to make it std::array\u003cGopFrame, 8\u003e instead of a vector.",
+      "range": {
+        "startLine": 85,
+        "startChar": 22,
+        "endLine": 85,
+        "endChar": 43
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdbb1ff9_055db922",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a0a6e94_1932e2ac",
       "range": {
         "startLine": 85,
         "startChar": 22,
@@ -277,6 +541,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd870d6e_d104ec2f",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e381ebdf_17c20cb6",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 106,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22ce882a_deef0bd6",
@@ -290,6 +578,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "Should this function also return a RefFrameTable? Presumably the caller will need a snapshot to pass in for the following GOP.\n\nEither the function could return a struct containing the FrameEncodeParameters and the new snapshot, or I suppose it could take the snapshot as a non-const arg and modify it.",
+      "range": {
+        "startLine": 118,
+        "startChar": 45,
+        "endLine": 118,
+        "endChar": 61
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e81800a1_33967123",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22ce882a_deef0bd6",
       "range": {
         "startLine": 118,
         "startChar": 45,
@@ -323,6 +635,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac8f4630_2854b1ea",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ad4b3f9_14539a3e",
+      "range": {
+        "startLine": 76,
+        "startChar": 16,
+        "endLine": 76,
+        "endChar": 31
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6ee94126_6c1a41bf",
@@ -336,6 +672,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "No need to explicitly list the zeros, {} would have the same effect.\nOr, as I wrote above, default-initialize the whole struct and you don\u0027t need to initialize mv at all.",
+      "range": {
+        "startLine": 84,
+        "startChar": 28,
+        "endLine": 84,
+        "endChar": 35
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddfd546e_4107cf6c",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ee94126_6c1a41bf",
       "range": {
         "startLine": 84,
         "startChar": 28,
@@ -369,6 +729,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "af6746c4_c8417160",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "520a35c0_417b6e17",
+      "range": {
+        "startLine": 86,
+        "startChar": 2,
+        "endLine": 87,
+        "endChar": 42
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b6b05c34_f74b00ff",
@@ -392,6 +776,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "73a89e50_f18b00ce",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b6b05c34_f74b00ff",
+      "range": {
+        "startLine": 122,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1c646820_76ad8d2b",
@@ -405,6 +813,30 @@
       "writtenOn": "2022-03-25T15:52:00Z",
       "side": 1,
       "message": "Or just:\n  return {row, col, 0};",
+      "range": {
+        "startLine": 144,
+        "startChar": 0,
+        "endLine": 149,
+        "endChar": 0
+      },
+      "revId": "8eed789d3aa59be26641076f26ea62ca96dc5120",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee0a9050_7bd4b577",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-28T19:25:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c646820_76ad8d2b",
       "range": {
         "startLine": 144,
         "startChar": 0,
