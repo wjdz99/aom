@@ -95,6 +95,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c64c1cbd_09fb66dd",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-03-29T12:46:10Z",
+      "side": 1,
+      "message": "wtc@ changed it from std::numeric_limits\u003cint\u003e::max() to INT_MAX due to a compile warning: https://aomedia-review.googlesource.com/c/aom/+/155625\n\nBut my point is that the assertion isn\u0027t really necessary at all. I would have made that comment in wtc\u0027s CL had I noticed it before it was submitted.\n\nIt\u0027s not a big deal, but IMHO it\u0027s unnecessary clutter.",
+      "parentUuid": "992e7044_5db3e84d",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 43
+      },
+      "revId": "9231a7affe7fb429c966dff684ff6f08c812c5a8",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31b251c7_47088d2b",
