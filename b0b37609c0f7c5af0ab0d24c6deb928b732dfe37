@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e25312e_e7b3ca98",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-29T16:52:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "129a9b3e_4f8d1b17",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 240,
+        "endChar": 3
+      },
+      "revId": "b0b37609c0f7c5af0ab0d24c6deb928b732dfe37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59f46b32_0239bf49",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ad44b8d_c8f5209e",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-29T16:52:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59f46b32_0239bf49",
+      "range": {
+        "startLine": 94,
+        "startChar": 36,
+        "endLine": 94,
+        "endChar": 51
+      },
+      "revId": "b0b37609c0f7c5af0ab0d24c6deb928b732dfe37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aaed64ed_e3bb223f",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-03-29T12:46:10Z",
       "side": 1,
       "message": "Why did you change from size_t to int here (and elsewhere)?\n\nI understand that on Windows comparing signed and unsigned causes a warning, but using size_t for the loop indices ought to fix that.\n\nAdmittedly there can be some dangers to using unsigned types, but I don\u0027t think they\u0027re likely to come up here, and I find the static_cast to be much more of an eyesore than the size_t.",
+      "range": {
+        "startLine": 33,
+        "startChar": 2,
+        "endLine": 33,
+        "endChar": 33
+      },
+      "revId": "b0b37609c0f7c5af0ab0d24c6deb928b732dfe37",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3f281f2_6b1a6ccd",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-03-29T16:52:27Z",
+      "side": 1,
+      "message": "I kept getting comparing size_t with int warning from the compiler check.\n\nYep, whenever you have something like x \u003d gop_size -1, it will cause a new warning.\nI found it\u0027s easier to just convert everything into int rather than figure out using size_t/int from time to time.",
+      "parentUuid": "aaed64ed_e3bb223f",
       "range": {
         "startLine": 33,
         "startChar": 2,
