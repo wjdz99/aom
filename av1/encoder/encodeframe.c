@@ -188,6 +188,158 @@ void av1_setup_src_planes(MACROBLOCK *x, const YV12_BUFFER_CONFIG *src,
   }
 }
 
+// These 3 functions are optimized.
+float y_to_psychovisual(const float x) {
+  return (x * (x * (x * (0.96640251626401064 * x + 2.4026008754821166) +
+                    1.8717777338025183) +
+               4.4644857367450843) +
+          0.12286449999972636) /
+         fmax(0.01, fabs(x * (x * (x * (0.81179282585119739 * x +
+                                        0.92661007451689825) +
+                                   0.71071227061651121) +
+                              6.853609798573518) +
+                         0.51101646570654424));
+}
+
+static float laplacian_to_masking(float x) {
+  return (x * (x * (x * (1.0238925111018875 * x + 0.95916911593797916) +
+                    0.95410927316161842) +
+               3.4885209605099661) +
+          0.3229740234957012) /
+         fmax(0.01,
+              fabs(x * (x * (x * (1.0772758127800182 * x + 1.2592134754722366) +
+                             1.9909029373516882) -
+                        0.80705793687348915) +
+                   0.37848219305775938));
+}
+
+float compute_q_multiplier(const float x) {
+  return (x * (x * (x * (1.6515140930083909 * x + 1.3771909675178053) +
+                    1.1926911821715993) +
+               0.89754285933793509) -
+          1.2956684588301721) /
+         fmax(
+             0.01,
+             fabs(x * (x * (x * (1.2597958782560272 * x + 0.76201362942919348) +
+                            0.58613743398462637) +
+                       0.64483966903685197) +
+                  1.655210847081805));
+}
+
+#define BS 8
+
+float compute_masking(const float pixels[BS + 2][BS + 2]) {
+  float masking = 0.0f;
+  for (int iy = 0; iy < BS; iy++) {
+    for (int ix = 0; ix < BS; ix++) {
+      const float base = 0.25f * (pixels[iy][ix + 1] + pixels[iy + 2][ix + 1] +
+                                  pixels[iy + 1][ix] + pixels[iy + 1][ix + 2]);
+      float diff = pixels[iy + 1][ix + 1] - base;
+      diff = laplacian_to_masking(fabsf(diff));
+      masking += diff;
+    }
+  }
+  return compute_q_multiplier(masking / (BS * BS));
+}
+
+// Curve fitted from 12-bit dc quantizer tables.
+static float q_to_divisor(float x) {
+  return (x * (x * (x * (1.4921799882979261 * x - 36.833759791673501) +
+                    982.48502560759232) -
+               2566.1283628090891) +
+          964.59060686341786) /
+         (x * (x * (x * (0.1875595240857548 - 0.00057581669841955628 * x) -
+                    6.3315829598864548) +
+               140.0859619706529) -
+          298.5474186592092);
+}
+
+static float divisor_to_q(float x) {
+  return (x * (x * (x * (0.0047515586869664199 * x - 1.1277564273483547) +
+                    614.30240108467137) -
+               6543.9456972312901) -
+          27138.697256145584) /
+         (x * (x * (x * (1.6680008063558386e-5 * x + 0.037396778926789963) +
+                    0.40564634607378425) +
+               4189.1454541084022) -
+          59952.009386898804);
+}
+
+int av1_get_sbq_jxl_style(AV1_COMP *cpi, BLOCK_SIZE block_size, int mi_row,
+                          int mi_col, int current_qindex) {
+  // Higher value = fewer bits.
+  const CommonModeInfoParams *const mi_params = &cpi->common.mi_params;
+  ThreadData *td = &cpi->td;
+  MACROBLOCK *x = &td->mb;
+  MACROBLOCKD *xd = &x->e_mbd;
+  uint8_t *y_buffer = cpi->source->y_buffer;
+  const int y_stride = cpi->source->y_stride;
+
+  const int num_mi_w = mi_size_wide[block_size];
+  const int num_mi_h = mi_size_high[block_size];
+  double log_sum = 0.0;
+
+  const int use_hbd = cpi->source->flags & YV12_FLAG_HIGHBITDEPTH;
+
+  float block[10][10];  // 8x8 with 1 border pixels.
+
+  float scale = use_hbd ? 1.0 / ((1 << xd->bd) - 1) : 1.0 / 255;
+
+  float sum_log_divisor = 0;
+  for (int col = mi_col; col + 2 <= mi_col + num_mi_w; col += 2) {
+    for (int row = mi_row; row + 2 <= mi_row + num_mi_h; row += 2) {
+      for (int iy = -1; iy < BS + 1; iy++) {
+        int rowin = (row << 2) + iy;
+        rowin = rowin < 0 ? 0 : rowin;
+        rowin =
+            rowin >= cpi->source->y_height ? cpi->source->y_height - 1 : rowin;
+        for (int ix = -1; ix < BS + 1; ix++) {
+          int colin = (col << 2) + ix;
+          colin = colin < 0 ? 0 : colin;
+          colin =
+              colin >= cpi->source->y_width ? cpi->source->y_width - 1 : colin;
+          const uint8_t *ptr = y_buffer + rowin * y_stride + colin;
+          if (use_hbd) {
+            block[1 + iy][1 + ix] = *CONVERT_TO_SHORTPTR(ptr) * scale;
+          } else {
+            block[1 + iy][1 + ix] = *ptr * scale;
+          }
+        }
+      }
+      /*
+      if (col * 4 < cpi->source->y_width && row * 4 < cpi->source->y_height) {
+        char buf[10000] = {};
+        size_t pos = 0;
+        for (int iy = -1; iy < BS + 1; iy++) {
+          for (int ix = -1; ix < BS + 1; ix++) {
+            int x;
+            snprintf(buf + pos, sizeof(buf) - pos - 1, "%f %n",
+                     block[1 + iy][1 + ix], &x);
+            pos += x;
+          }
+        }
+        fprintf(stderr, "%d %d %d %s\n", col / 2, row / 2, current_qindex, buf);
+      }
+      */
+      for (int iy = -1; iy < BS + 1; iy++) {
+        for (int ix = -1; ix < BS + 1; ix++) {
+          block[1 + iy][1 + ix] = y_to_psychovisual(block[1 + iy][1 + ix]);
+        }
+      }
+      float q_multiplier = compute_masking(block);
+      float divisor = q_to_divisor(current_qindex) * q_multiplier;
+      sum_log_divisor += log(divisor);
+    }
+  }
+  float divisor = exp(sum_log_divisor / (num_mi_h * num_mi_w) * 4);
+  // fprintf(stderr, "%d %d %f\n", col / 2, row / 2, divisor);
+  // Range of DC quantization divisor
+  if (divisor > 21387) divisor = 21387;
+  if (divisor < 4) divisor = 4;
+  float q = divisor_to_q(divisor);
+  return q + 0.5;
+}
+
 #if !CONFIG_REALTIME_ONLY
 /*!\brief Assigns different quantization parameters to each super
  * block based on its TPL weight.
@@ -244,6 +396,9 @@ static AOM_INLINE void setup_delta_q(AV1_COMP *const cpi, ThreadData *td,
     current_qindex = av1_get_sbq_user_rating_based(cpi, mi_row, mi_col);
   } else if (cpi->oxcf.q_cfg.enable_hdr_deltaq) {
     current_qindex = av1_get_q_for_hdr(cpi, x, sb_size, mi_row, mi_col);
+  } else if (cpi->oxcf.q_cfg.deltaq_mode == DELTA_Q_JXL) {
+    current_qindex =
+        av1_get_sbq_jxl_style(cpi, sb_size, mi_row, mi_col, current_qindex);
   }
 
   MACROBLOCKD *const xd = &x->e_mbd;
@@ -1482,6 +1637,8 @@ static AOM_INLINE void encode_frame_internal(AV1_COMP *cpi) {
     else if (deltaq_mode == DELTA_Q_USER_RATING_BASED)
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
     else if (deltaq_mode == DELTA_Q_HDR)
+      cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
+    else if (deltaq_mode == DELTA_Q_JXL)
       cm->delta_q_info.delta_q_res = DEFAULT_DELTA_Q_RES_PERCEPTUAL;
     // Set delta_q_present_flag before it is used for the first time
     cm->delta_q_info.delta_lf_res = DEFAULT_DELTA_LF_RES;
