@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b9c0d55_4acbde09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 15298
+      },
+      "writtenOn": "2022-03-29T15:03:28Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWe have rebased the patch on latest main branch. Please find the detailed borg results below,\n\n                Instruction Count        BD-Rate Loss(%)        \n cpu    Test-set    Reduction(%)     avg.psnr   ovr.psnr    ssim\n  7     rtc_derf      0.721          -0.0096     0.0057    0.0182\n  8     rtc_derf      3.013          -0.3639    -0.3213   -0.3553\n  9     rtc_derf      1.065           0.1923     0.2108    0.2074\n 10     rtc_derf      0.469          -0.0313    -0.0413   -0.0107\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nDetails of the worst case drop contents are below,\n\n cpu   Test-set  Max bd-rate drop(%)      Clip-name\n  7    rtc_derf       0.7769            paris_352_288.y4m\n  8    rtc_derf       0.7269            jimred_320_240.y4m\n  9    rtc_derf       1.0489            capture_pixel_outdoor_320_240.y4m\n  9    rtc_derf       1.0044            tac_narrows_320_240.y4m\n 10    rtc_derf       0.6851            desktop2_320_180.y4m\n\nIn speed-9 except for the mentioned contents, all the remaining contents are within 0.81% drop in bdrate avgpsnr. Please review the speed feature logic added in this patch.\n\nThank you",
+      "revId": "8c2736c9c2f2226a9c331bf5a823dd5fd856ff81",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
