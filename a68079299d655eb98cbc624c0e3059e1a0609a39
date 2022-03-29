@@ -70,6 +70,24 @@
       "parentUuid": "9563643f_86ef9640",
       "revId": "a68079299d655eb98cbc624c0e3059e1a0609a39",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82cb3c92_f8f7cf48",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1311,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-03-29T19:49:50Z",
+      "side": 0,
+      "message": "Thanks for the info. Checked the logic here. Actually, with this cl, sf-\u003ert_sf.partition_direct_merging setting follows the speed setting. Thus, for \u003e\u003d 360p, partition_direct_merging is disabled. Namely, removing \"sf-\u003ert_sf.partition_direct_merging \u003d 0;\" under svc is safe.",
+      "parentUuid": "cfd06f22_8e756204",
+      "revId": "a68079299d655eb98cbc624c0e3059e1a0609a39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
