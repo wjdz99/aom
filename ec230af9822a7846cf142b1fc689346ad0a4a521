@@ -16,6 +16,74 @@
       "message": "Hi Marco, could you please review this CL?",
       "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d4af15a_a7bda8b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-03-29T00:39:34Z",
+      "side": 1,
+      "message": "the worst case results in your last email were ",
+      "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb970004_a264ab56",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2423,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-03-29T00:39:34Z",
+      "side": 1,
+      "message": "for 32x32 blocks: the sad for the whole 64x64 block is used for the decision?\n\nmaybe better to enter decision only for bsize \u003e\u003d BLOCK_64X64",
+      "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e46866d_afb65d56",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2635,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-03-29T00:39:34Z",
+      "side": 1,
+      "message": "why frames_since_key \u003e 6?",
+      "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "54678112_3f80905d",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2689,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-03-29T00:39:34Z",
+      "side": 1,
+      "message": "Instead of allocating array for blk_64x64 blocks in frame-level scene detection and passing to the pickmode, can we use the source_sad metrics computed directly per superblock in av1_source_content_sb(). Those metrics are sse instead of sad, so you would have to adjust thresholds. For 128x128 sb (720p) we can compute the metrics for 4 subblocks there.",
+      "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
