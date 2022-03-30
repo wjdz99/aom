@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f92abbe5_fa599e4b",
+        "filename": "aom_dsp/arm/subtract_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-03-30T22:39:23Z",
+      "side": 1,
+      "message": "Not sure what happened here. Will fix.",
+      "parentUuid": "861d5665_7a7c859e",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7c03e0d6_c1bf890d",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-03-30T22:16:17Z",
       "side": 1,
       "message": "add // CONFIG_AV1_HIGHBITDEPTH",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "553881d7_8086ade5",
+        "filename": "aom_dsp/arm/subtract_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-03-30T22:39:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7c03e0d6_c1bf890d",
       "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b180a7f_46debc3a",
+        "filename": "aom_dsp/subtract.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-03-30T22:39:23Z",
+      "side": 1,
+      "message": "Yep. Was double checking the objdump.",
+      "parentUuid": "10f488b1_4e401c11",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4833723c_625795ef",
@@ -86,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3f3b12b_4fcbd74d",
+        "filename": "test/subtract_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-03-30T22:39:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4833723c_625795ef",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b4142dba_21b28622",
@@ -99,6 +171,30 @@
       "writtenOn": "2022-03-30T22:16:17Z",
       "side": 1,
       "message": "use PRId64",
+      "range": {
+        "startLine": 240,
+        "startChar": 17,
+        "endLine": 240,
+        "endChar": 20
+      },
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "734d6af1_6090e4f8",
+        "filename": "test/subtract_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-03-30T22:39:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4142dba_21b28622",
       "range": {
         "startLine": 240,
         "startChar": 17,
