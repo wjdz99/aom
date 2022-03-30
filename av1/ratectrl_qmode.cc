@@ -115,6 +115,279 @@ void AV1RateControlQMode::SetRcParam(const RateControlParam &rc_param) {
   rc_param_ = rc_param;
 }
 
+// initialize GF_GROUP_STATS
+static void init_gf_stats(GF_GROUP_STATS *gf_stats) {
+  gf_stats->gf_group_err = 0.0;
+  gf_stats->gf_group_raw_error = 0.0;
+  gf_stats->gf_group_skip_pct = 0.0;
+  gf_stats->gf_group_inactive_zone_rows = 0.0;
+
+  gf_stats->mv_ratio_accumulator = 0.0;
+  gf_stats->decay_accumulator = 1.0;
+  gf_stats->zero_motion_accumulator = 1.0;
+  gf_stats->loop_decay_rate = 1.0;
+  gf_stats->last_loop_decay_rate = 1.0;
+  gf_stats->this_frame_mv_in_out = 0.0;
+  gf_stats->mv_in_out_accumulator = 0.0;
+  gf_stats->abs_mv_in_out_accumulator = 0.0;
+
+  gf_stats->avg_sr_coded_error = 0.0;
+  gf_stats->avg_pcnt_second_ref = 0.0;
+  gf_stats->avg_new_mv_count = 0.0;
+  gf_stats->avg_wavelet_energy = 0.0;
+  gf_stats->avg_raw_err_stdev = 0.0;
+  gf_stats->non_zero_stdev_count = 0;
+}
+
+static int input_stats(FIRSTPASS_STATS *stats_in_end, FIRSTPASS_STATS *stats_in,
+                       FIRSTPASS_STATS *fps) {
+  if (stats_in >= stats_in_end) return EOF;
+
+  *fps = *stats_in;
+  ++stats_in;
+  return 1;
+}
+
+static int find_regions_index(const REGIONS *regions, int num_regions,
+                              int frame_idx) {
+  for (int k = 0; k < num_regions; k++) {
+    if (regions[k].start <= frame_idx && regions[k].last >= frame_idx) {
+      return k;
+    }
+  }
+  return -1;
+}
+
+#define MIN_SHRINK_LEN 6
+
+/*!\brief Determine the length of future GF groups.
+ *
+ * \ingroup gf_group_algo
+ * This function decides the gf group length of future frames in batch
+ *
+ * \param[in]    cpi              Top-level encoder structure
+ * \param[in]    max_gop_length   Maximum length of the GF group
+ * \param[in]    max_intervals    Maximum number of intervals to decide
+ *
+ * \return Nothing is returned. Instead, cpi->ppi->rc.gf_intervals is
+ * changed to store the decided GF group lengths.
+ */
+static std::vector<int> av1_calculate_gf_length(
+    RateControlParam &rc_param, FIRSTPASS_STATS *stats_in,
+    FIRSTPASS_STATS *stats_in_start, FIRSTPASS_STATS *stats_in_end,
+    std::vector<REGIONS> &regions_list, int total_regions, int max_intervals,
+    int min_gf_interval, int max_gf_interval, int frames_since_key,
+    int frames_to_key) {
+  // RATE_CONTROL *const rc = &cpi->rc;
+  // PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
+  // TWO_PASS *const twopass = &cpi->ppi->twopass;
+  FIRSTPASS_STATS next_frame;
+  std::vector<int> gf_intervals(MAX_NUM_GF_INTERVALS);
+  FIRSTPASS_STATS *const start_pos = stats_in;
+  FIRSTPASS_STATS *const stats = start_pos;
+  int i;
+  av1_zero(next_frame);
+
+  // TODO(urvang): Try logic to vary min and max interval based on q.
+  const int active_min_gf_interval = min_gf_interval;
+  const int active_max_gf_interval =
+      std::min(max_gf_interval, rc_param.min_gop_length);
+  const int min_shrink_int = std::max(MIN_SHRINK_LEN, active_min_gf_interval);
+
+  i = frames_since_key == 0;
+  int count_cuts = 1;
+  // If cpi->gf_state.arf_gf_boost_lst is 0, we are starting with a KF or GF.
+  int cur_start = 0, cur_last;
+  int cut_pos[MAX_NUM_GF_INTERVALS + 1] = { -1 };
+  int cut_here;
+  GF_GROUP_STATS gf_stats;
+  init_gf_stats(&gf_stats);
+  while (count_cuts < max_intervals + 1) {
+    FIRSTPASS_STATS *stats_in_loop = stats_in;
+    // reaches next key frame, break here
+    if (i >= frames_to_key) {
+      cut_here = 2;
+    } else if (i - cur_start >= max_gf_interval) {
+      // reached maximum len, but nothing special yet (almost static)
+      // let's look at the next interval
+      cut_here = 1;
+    } else if (EOF == input_stats(stats_in_end, stats_in_loop, &next_frame)) {
+      // reaches last frame, break
+      cut_here = 2;
+    }
+
+    if (cut_here) {
+      cur_last = i - 1;  // the current last frame in the gf group
+      int ori_last = cur_last;
+      // The region frame idx does not start from the same frame as cur_start
+      // and cur_last. Need to offset them.
+      int offset = frames_since_key;
+      REGIONS *regions = regions_list.data();
+      int num_regions = total_regions;
+
+      int scenecut_idx = -1;
+      // only try shrinking if interval smaller than active_max_gf_interval
+      if (cur_last - cur_start <= active_max_gf_interval &&
+          cur_last > cur_start) {
+        // find the region indices of where the first and last frame belong.
+        int k_start =
+            find_regions_index(regions, num_regions, cur_start + offset);
+        int k_last =
+            find_regions_index(regions, num_regions, cur_last + offset);
+        if (cur_start + offset == 0) k_start = 0;
+
+        // See if we have a scenecut in between
+        for (int r = k_start + 1; r <= k_last; r++) {
+          if (regions[r].type == SCENECUT_REGION &&
+              regions[r].last - offset - cur_start > active_min_gf_interval) {
+            scenecut_idx = r;
+            break;
+          }
+        }
+
+        // if the found scenecut is very close to the end, ignore it.
+        if (regions[num_regions - 1].last - regions[scenecut_idx].last < 4) {
+          scenecut_idx = -1;
+        }
+
+        if (scenecut_idx != -1) {
+          // If we have a scenecut, then stop at it.
+          // TODO(bohanli): add logic here to stop before the scenecut and for
+          // the next gop start from the scenecut with GF
+          int is_minor_sc =
+              (regions[scenecut_idx].avg_cor_coeff *
+                   (1 - stats[regions[scenecut_idx].start - offset].noise_var /
+                            regions[scenecut_idx].avg_intra_err) >
+               0.6);
+          cur_last = regions[scenecut_idx].last - offset - !is_minor_sc;
+        } else {
+          int is_last_analysed = (k_last == num_regions - 1) &&
+                                 (cur_last + offset == regions[k_last].last);
+          int not_enough_regions =
+              k_last - k_start <=
+              1 + (regions[k_start].type == SCENECUT_REGION);
+          // if we are very close to the end, then do not shrink since it may
+          // introduce intervals that are too short
+          if (!(is_last_analysed && not_enough_regions)) {
+            const double arf_length_factor = 0.1;
+            double best_score = 0;
+            int best_j = -1;
+            const int first_frame = regions[0].start - offset;
+            const int last_frame = regions[num_regions - 1].last - offset;
+            // score of how much the arf helps the whole GOP
+            double base_score = 0.0;
+            // Accumulate base_score in
+            for (int j = cur_start + 1; j < cur_start + min_shrink_int; j++) {
+              if (stats + j >= stats_in_end) break;
+              base_score = (base_score + 1.0) * stats[j].cor_coeff;
+            }
+            int met_blending = 0;   // Whether we have met blending areas before
+            int last_blending = 0;  // Whether the previous frame if blending
+            for (int j = cur_start + min_shrink_int; j <= cur_last; j++) {
+              if (stats + j >= stats_in_end) break;
+              base_score = (base_score + 1.0) * stats[j].cor_coeff;
+              int this_reg =
+                  find_regions_index(regions, num_regions, j + offset);
+              if (this_reg < 0) continue;
+              // A GOP should include at most 1 blending region.
+              if (regions[this_reg].type == BLENDING_REGION) {
+                last_blending = 1;
+                if (met_blending) {
+                  break;
+                } else {
+                  base_score = 0;
+                  continue;
+                }
+              } else {
+                if (last_blending) met_blending = 1;
+                last_blending = 0;
+              }
+
+              // Add the factor of how good the neighborhood is for this
+              // candidate arf.
+              double this_score = arf_length_factor * base_score;
+              double temp_accu_coeff = 1.0;
+              // following frames
+              int count_f = 0;
+              for (int n = j + 1; n <= j + 3 && n <= last_frame; n++) {
+                if (stats + n >= stats_in_end) break;
+                temp_accu_coeff *= stats[n].cor_coeff;
+                this_score +=
+                    temp_accu_coeff *
+                    (1 - stats[n].noise_var /
+                             AOMMAX(regions[this_reg].avg_intra_err, 0.001));
+                count_f++;
+              }
+              // preceding frames
+              temp_accu_coeff = 1.0;
+              for (int n = j; n > j - 3 * 2 + count_f && n > first_frame; n--) {
+                if (stats + n < stats_in_start) break;
+                temp_accu_coeff *= stats[n].cor_coeff;
+                this_score +=
+                    temp_accu_coeff *
+                    (1 - stats[n].noise_var /
+                             AOMMAX(regions[this_reg].avg_intra_err, 0.001));
+              }
+
+              if (this_score > best_score) {
+                best_score = this_score;
+                best_j = j;
+              }
+            }
+
+            // For blending areas, move one more frame in case we missed the
+            // first blending frame.
+            int best_reg =
+                find_regions_index(regions, num_regions, best_j + offset);
+            if (best_reg < num_regions - 1 && best_reg > 0) {
+              if (regions[best_reg - 1].type == BLENDING_REGION &&
+                  regions[best_reg + 1].type == BLENDING_REGION) {
+                if (best_j + offset == regions[best_reg].start &&
+                    best_j + offset < regions[best_reg].last) {
+                  best_j += 1;
+                } else if (best_j + offset == regions[best_reg].last &&
+                           best_j + offset > regions[best_reg].start) {
+                  best_j -= 1;
+                }
+              }
+            }
+
+            if (cur_last - best_j < 2) best_j = cur_last;
+            if (best_j > 0 && best_score > 0.1) cur_last = best_j;
+            // if cannot find anything, just cut at the original place.
+          }
+        }
+      }
+      cut_pos[count_cuts] = cur_last;
+      count_cuts++;
+
+      // reset pointers to the shrinked location
+      stats_in_loop = start_pos + cur_last;
+      cur_start = cur_last;
+      int cur_region_idx =
+          find_regions_index(regions, num_regions, cur_start + 1 + offset);
+      if (cur_region_idx >= 0)
+        if (regions[cur_region_idx].type == SCENECUT_REGION) cur_start++;
+
+      i = cur_last;
+
+      if (cut_here > 1 && cur_last == ori_last) break;
+
+      // reset accumulators
+      init_gf_stats(&gf_stats);
+    }
+    ++i;
+  }
+
+  // save intervals
+  // rc->intervals_till_gf_calculate_due = count_cuts - 1;
+  for (int n = 1; n < count_cuts; n++) {
+    gf_intervals[n - 1] = cut_pos[n] - cut_pos[n - 1];
+  }
+
+  return gf_intervals;
+}
+
 GopStructList AV1RateControlQMode::DetermineGopInfo(
     const FirstpassInfo &firstpass_info) {
   std::vector<REGIONS> regions_list(MAX_FIRSTPASS_ANALYSIS_FRAMES);
