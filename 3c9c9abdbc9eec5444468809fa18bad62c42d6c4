@@ -16,6 +16,97 @@
       "message": "[----------] 16 tests from NEON/AV1HBDSubtractBlockTest\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/0\n[4x4]: ref_time\u003d2955 \t simd_time\u003d1205 \t gain\u003d2.452282 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/0 (5 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/1\n[4x8]: ref_time\u003d5163 \t simd_time\u003d1686 \t gain\u003d3.062278 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/1 (7 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/2\n[8x4]: ref_time\u003d2643 \t simd_time\u003d1126 \t gain\u003d2.347247 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/2 (4 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/3\n[8x8]: ref_time\u003d4635 \t simd_time\u003d1760 \t gain\u003d2.633523 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/3 (6 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/4\n[8x16]: ref_time\u003d8601 \t simd_time\u003d2598 \t gain\u003d3.310624 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/4 (12 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/5\n[16x8]: ref_time\u003d7420 \t simd_time\u003d2327 \t gain\u003d3.188655 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/5 (10 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/6\n[16x16]: ref_time\u003d14197 \t simd_time\u003d4033 \t gain\u003d3.520208 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/6 (18 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/7\n[16x32]: ref_time\u003d28504 \t simd_time\u003d7408 \t gain\u003d3.847732 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/7 (36 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/8\n[32x16]: ref_time\u003d19359 \t simd_time\u003d9688 \t gain\u003d1.998245 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/8 (29 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/9\n[32x32]: ref_time\u003d37646 \t simd_time\u003d19789 \t gain\u003d1.902370 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/9 (58 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/10\n[32x64]: ref_time\u003d73812 \t simd_time\u003d38026 \t gain\u003d1.941093 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/10 (112 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/11\n[64x32]: ref_time\u003d55716 \t simd_time\u003d32348 \t gain\u003d1.722394 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/11 (88 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/12\n[64x64]: ref_time\u003d109970 \t simd_time\u003d62824 \t gain\u003d1.750446 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/12 (174 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/13\n[64x128]: ref_time\u003d218475 \t simd_time\u003d123996 \t gain\u003d1.761952 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/13 (342 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/14\n[128x64]: ref_time\u003d182239 \t simd_time\u003d113674 \t gain\u003d1.603172 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/14 (296 ms)\n[ RUN      ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/15\n[128x128]: ref_time\u003d377576 \t simd_time\u003d269259 \t gain\u003d1.402278 \n[       OK ] NEON/AV1HBDSubtractBlockTest.DISABLED_Speed/15 (647 ms)\n[----------] 16 tests from NEON/AV1HBDSubtractBlockTest (1844 ms total)",
       "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "861d5665_7a7c859e",
+        "filename": "aom_dsp/arm/subtract_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-30T22:16:17Z",
+      "side": 1,
+      "message": "do we need a loop here with the other cols checks?",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c03e0d6_c1bf890d",
+        "filename": "aom_dsp/arm/subtract_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-30T22:16:17Z",
+      "side": 1,
+      "message": "add // CONFIG_AV1_HIGHBITDEPTH",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10f488b1_4e401c11",
+        "filename": "aom_dsp/subtract.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-30T22:16:17Z",
+      "side": 1,
+      "message": "left over test code?",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4833723c_625795ef",
+        "filename": "test/subtract_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-30T22:16:17Z",
+      "side": 1,
+      "message": "these can go closer to their first use",
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4142dba_21b28622",
+        "filename": "test/subtract_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-03-30T22:16:17Z",
+      "side": 1,
+      "message": "use PRId64",
+      "range": {
+        "startLine": 240,
+        "startChar": 17,
+        "endLine": 240,
+        "endChar": 20
+      },
+      "revId": "3c9c9abdbc9eec5444468809fa18bad62c42d6c4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
