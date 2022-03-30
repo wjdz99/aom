@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68050946_a380632f",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-30T17:48:41Z",
+      "side": 1,
+      "message": "when this function is called, how should these pointers be set?",
+      "range": {
+        "startLine": 176,
+        "startChar": 38,
+        "endLine": 177,
+        "endChar": 66
+      },
+      "revId": "57e2e2eab72af45416d82c780113ee4f8804ce1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f569e12_bd8fc747",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-30T17:48:41Z",
+      "side": 1,
+      "message": "I believe these are not available in the rate control library at the moment?",
+      "range": {
+        "startLine": 179,
+        "startChar": 27,
+        "endLine": 180,
+        "endChar": 43
+      },
+      "revId": "57e2e2eab72af45416d82c780113ee4f8804ce1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86df2211_5f15b807",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-30T17:48:41Z",
+      "side": 1,
+      "message": "is this useful to us?",
+      "range": {
+        "startLine": 383,
+        "startChar": 9,
+        "endLine": 383,
+        "endChar": 40
+      },
+      "revId": "57e2e2eab72af45416d82c780113ee4f8804ce1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "398eddff_bccfce96",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-03-30T17:48:41Z",
+      "side": 1,
+      "message": "There are two more lines in the original function:\n\n```\n  p_rc-\u003ecur_gf_index \u003d 0;\n  cpi-\u003etwopass_frame.stats_in \u003d start_pos;\n```\n\nAre they needed here too?",
+      "revId": "57e2e2eab72af45416d82c780113ee4f8804ce1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
