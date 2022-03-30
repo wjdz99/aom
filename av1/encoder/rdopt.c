@@ -5833,9 +5833,10 @@ void av1_rd_pick_inter_mode(struct AV1_COMP *cpi, struct TileDataEnc *tile_data,
                                  &intra_cost);
 #endif  // !CONFIG_REALTIME_ONLY
 
-  // Initialize best mode stats for winner mode processing
-  zero_winner_mode_stats(bsize, MAX_WINNER_MODE_COUNT_INTER,
-                         x->winner_mode_stats);
+  // Initialize best mode stats for winner mode processing.
+  const int max_winner_mode_count =
+      winner_mode_count_allowed[cpi->sf.winner_mode_sf.multi_winner_mode_type];
+  zero_winner_mode_stats(bsize, max_winner_mode_count, x->winner_mode_stats);
   x->winner_mode_count = 0;
   store_winner_mode_stats(&cpi->common, x, mbmi, NULL, NULL, NULL, THR_INVALID,
                           NULL, bsize, best_rd_so_far,
