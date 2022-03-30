@@ -18,8 +18,8 @@
 namespace aom {
 
 struct RateControlParam {
-  int max_gop_length;
-  int min_gop_length;
+  int max_gop_show_frame_count;
+  int min_gop_show_frame_count;
   int max_ref_frames;
   int base_q_index;
 };
