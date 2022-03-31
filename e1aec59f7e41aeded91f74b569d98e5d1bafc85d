@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "92547801_51232f61",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-03-31T08:35:07Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nThe MB_MODE_INFO_EXT_FRAME buffer is used to store the mode information during the encode stage. This information is consumed later during the bitstream preparation stage. This buffer is allocated during the init stage by assuming a minimum partition size of BLOCK_4X4 for GOOD, ALLINTRA usages and BLOCK_8X8 for REALTIME usage. This CL moves the allocation of this buffer to the encode stage so that the allocation can be done on the basis of the sf default_min_partition_size.\n\nThe encode time reduction is seen as the size multiplier (number of MIs in the frame) is reduced for the aom_calloc() call for mbmi_ext_info-\u003eframe_base.\nhttps://aomedia.googlesource.com/aom/+/a68079299d655eb98cbc624c0e3059e1a0609a39/av1/encoder/encoder_alloc.h#49\n\nWe have also cleaned up the function interfaces to the function pointer *set_mb_mi(). The ‘usage’ parameter is removed as the min_parition_size is passed based on the sf default_min_partition_size in calls to enc_set_mb_mi(). We have also updated the file av1/ratectrl_rtc.cc in order to take care of this prototype change. Since the unit-test RcInterfaceTest passes BLOCK_8X8 as the min_partition_size (assuming REALTIME usage), the change is already taken care with regard to this.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "e1aec59f7e41aeded91f74b569d98e5d1bafc85d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
