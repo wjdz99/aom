@@ -16,6 +16,74 @@
       "message": "Hi Wan-Teh, Frank,\n\nThe function initialize_enc() initializes the global lookup tables which are required during encoding. These tables are required to be initialized only once as some of these tables are common across different encoder/decoder instances. It was observed that the function av1_init_wedge_masks() might get called repetitively with multiple encoder/decoder instances. Hence, aom_once() is added around this function to prevent this behaviour.\n\nWe are planning to introduce a new variant of initialize_enc() which will be specific to allintra encoding mode with rc_end_usage\u003dAOM_Q , where the initialization of some global lookup tables could be avoided. To facilitate this change aom_once() is required around av1_init_me_luts(). We also added aom_once() around av1_rc_init_minq_luts() function to avoid any potential issues in the future. \n\nWe validated our changes with --test-decode\u003dfatal option, where we saw that in the parent commit av1_init_wedge_masks() is called redundantly in the decoder instance. This behavior is avoided with this CL.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. \n\nPlease review.\n\nRegards,\nMudassir.\n",
       "revId": "b572ac588a5497d90033fbcc164b65a5cbb55d4a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f1f13b3_988c3222",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T23:10:22Z",
+      "side": 1,
+      "message": "Hi Mudassir,\n\nSorry about the late review. I suggest some changes.\n\nNote: I am surprised that av1_initialize_enc() is doubly protected with aom_once(), i.e., it uses aom_once() with initialize_enc(), which uses aom_once() with almost all the functions it calls.",
+      "revId": "b572ac588a5497d90033fbcc164b65a5cbb55d4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fbf29d04_c7afde2c",
+        "filename": "av1/common/reconinter.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 631,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T23:10:22Z",
+      "side": 1,
+      "message": "Nit: It\u0027s not clear what \"inter\" means here. Maybe \"init_all_wedge_masks\"?",
+      "revId": "b572ac588a5497d90033fbcc164b65a5cbb55d4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25377a43_60f8b9b4",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T23:10:22Z",
+      "side": 1,
+      "message": "We should only protect av1_rc_init_minq_luts() with aom_once() if we know initialize_dec() will also call av1_rc_init_minq_luts().",
+      "revId": "b572ac588a5497d90033fbcc164b65a5cbb55d4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f477226_6ef44152",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T23:10:22Z",
+      "side": 1,
+      "message": "We should only protect av1_init_me_luts() with aom_once() if we know initialize_dec() will also call av1_init_me_luts().",
+      "revId": "b572ac588a5497d90033fbcc164b65a5cbb55d4a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
