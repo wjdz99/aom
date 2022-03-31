@@ -1291,9 +1291,11 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   } else {
     if (speed >= 9) {
       sf->rt_sf.sad_based_adp_altref_lag = 1;
+      sf->rt_sf.sad_based_comp_prune = 1;
     }
     if (speed >= 10) {
       sf->rt_sf.sad_based_adp_altref_lag = 3;
+      sf->rt_sf.sad_based_comp_prune = 2;
     }
   }
   if (cpi->ppi->use_svc) {
@@ -1319,6 +1321,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
     sf->rt_sf.skip_cdef_sb = 1;
     sf->rt_sf.use_rtc_tf = 0;
     sf->rt_sf.use_comp_ref_nonrd = 0;
+    sf->rt_sf.sad_based_comp_prune = 0;
     sf->rt_sf.source_metrics_sb_nonrd = 1;
     if (cpi->rc.high_source_sad == 1) {
       sf->rt_sf.force_large_partition_blocks = 0;
@@ -1949,6 +1952,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->skip_lf_screen = 0;
   rt_sf->sad_based_adp_altref_lag = 0;
   rt_sf->partition_direct_merging = 0;
+  rt_sf->sad_based_comp_prune = 0;
 }
 
 void av1_set_speed_features_framesize_dependent(AV1_COMP *cpi, int speed) {
