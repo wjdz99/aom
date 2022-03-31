@@ -16,6 +16,40 @@
       "message": "Hi Yunqing, Marco,\n\nThis patch modifies the transform sizes to be chosen based on quantizer based thresholds, via newly introduced speed feature tx_size_level_based_on_qstep, in speeds 8 to 10.\n\nIn the parent version, larger transform size was chosen for those residual blocks whose dc component was dominant using a fixed threshold. In this CL, larger transform size is chosen if (i) dc component is dominant based on a quantizer dependent threshold, or (ii) if the ac component is smaller than a quantizer dependent threshold. \n\nAdditionally, if tx_size_level_based_on_qstep is set to 2, those blocks whose sse is small and source variance is small (again based qstep dependent thresholds), are marked as transform skip. Plus the adjustment to transform size based on aq mode is limited to high residual variance blocks.\n\nThe changes gave overall quality gain with marginal change (improvement) in speed.\n\nPlease find the detailed speed-quality results below.\n    \n                Instruction Count     BD-Rate Loss(%)    \ncpu    Test-set    Reduction(%)  avg.psnr   ovr.psnr    ssim \n-------------------------------------------------------------\n 8         rtc      0.191        -0.3047    -0.2984   -0.2728\n 8    rtc_derf      0.099        -0.1791    -0.1903   -0.1928\n 8     Average      0.146        -0.2524    -0.2533   -0.2394\n-------------------------------------------------------------\n 9         rtc      0.186        -0.2165    -0.2056   -0.2613 \n 9    rtc_derf      0.034        -0.3297    -0.2712   -0.3954 \n 9     Average      0.112        -0.2636    -0.2329   -0.3172\n-------------------------------------------------------------  \n10         rtc     -0.067         0.0000     0.0000    0.0000    \n10    rtc_derf      0.054        -0.3581    -0.3119   -0.3790    \n10     Average     -0.008        -0.1492    -0.1300   -0.1579\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nIn speeds 8 and 9, out of the total 48 clips, 34 and 35 clips respectively show BD rate gain. In speed 10, 16 out of the 20 rtc-derf clips show BD rate gain.\n\nPlease find the details of best case quality gains below.\n\n cpu      Test-set  Max bd-rate gain(%)    Clip-name\n ---    ----------  -------------------   -----------\n   8         rtc        1.2810          desktop360p\n   8    rtc-derf        1.5564          apprtc_pixel3_320_240\n   9         rtc        1.2138          mmmovingvga\n   9    rtc-derf        2.2768          apprtc_pixel3_320_240\n  10    rtc-derf        1.2763          desktop1_320_180   \n  \nPlease find the clips with worst case quality drops below.\n\n cpu      Test-set  Max bd-rate drop(%)    Clip-name\n ---    ----------  -------------------   -----------\n   8         rtc        0.8886          thaloundeskmtgvga\n   8    rtc-derf        0.9859          desktop1_320_180\n   9         rtc        0.7983          testnoise720p\n   9    rtc-derf        0.6392          tac_narrows_320_240\n  10    rtc-derf        0.3177          desktopqvga2_320_240\n  \nPlease note that all the worst case clips have psnr \u003e 35 dB.\n\nFor speed 10 rtc, overall 0.1973% quality gain was seen and 22 out of 28 clips had BD rate gain. However, the speed feature is currently disabled for speed 10 rtc, due to worst case drop for thaloundeskmtgvga of 3%, which alone was an outlier (the next highest drops were 0.6686% and 0.1409% respectively). \n\nAlso, a threshold for bitrate comparison in datarate_test.cc was slightly adjusted for successful jenkins build.\n\nThe patch has been verified to be bit-exact with negligible speed impact on speed 7.\nPlease review the patch.\n\nThanks,\nNithya",
       "revId": "35188ea3f7984f2f6666895c921e95fb5884aa7b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95594e6f_c96cdb18",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-03-31T18:34:08Z",
+      "side": 1,
+      "message": "Can we also add constraint to only set force_skip \u003d 1 if x-\u003ecolor_sensitivity[0/1] \u003d 0; this is avoid possible artifact when color is strong.",
+      "revId": "35188ea3f7984f2f6666895c921e95fb5884aa7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94e18a2c_2eb8ca86",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-03-31T18:34:08Z",
+      "side": 1,
+      "message": "prefer to leave 8x8 tx_size on segment, we found generally that this make the refresh/cleanup kick in more.",
+      "revId": "35188ea3f7984f2f6666895c921e95fb5884aa7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
