@@ -34,6 +34,24 @@
       "parentUuid": "ce8572c8_92a60e65",
       "revId": "9d5d4081c88a4c4e6232ff6381700473261ec7cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4cb447f_6838aa0b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-03-31T12:33:32Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nAs we mentioned in the review message, observed ~0.54% decode time reduction for \u0027Chimera-AV1-8bit-1920x1080-6736kbps.ivf\u0027 stream.\n\nThanks \u0026 Regards,\nVenkata.",
+      "parentUuid": "2f88a896_17795965",
+      "revId": "9d5d4081c88a4c4e6232ff6381700473261ec7cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
