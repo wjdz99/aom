@@ -16,6 +16,74 @@
       "message": "Hi Wan-Teh, Frank,\n\nThe structure \u0027dv_costs\u0027 is used to hold the cost of signalling the dv in the bitstream in case of intraBC mode. This patch allocates \u0027dv_costs\u0027 only when intraBC mode needs to be evaluated. This patch essentially delays the allocation of ‘dv_costs’ until the sfs are finalized and a decision has been made on whether to evaluate intraBC or not. When the sf use_nonrd_pick_mode \u003d 1, control exits early from rd_pick_intrabc_mode_sb(). Hence, ‘dv_costs’ is not used in such cases and therefore the allocation is avoided.\n\nWe have also cleaned up the piece of code corresponding to the allocation of dv_costs in the case of first-pass (for worker threads in multithreaded use-case) where the intraBC tool is not evaluated. This, along with the conditional allocation (where the allocation is avoided for first-pass in the main thread) gives a marginal heap memory reduction in the first-pass stage.\n\nFor libaom \u0027GOOD\u0027 usage with cpu-used \u003d 6 –passes\u003d2 –pass\u003d1,\n\n                   HEAP Memory reduction(%)\n                      Single      Multi\nResolution    Tile    thread      thread\n1920x1080     4x2      0.14        0.90  (8 threads)\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nHEAP memory reduction was measured using the command below. \n$valgrind --tool\u003dmassif ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker.\n",
       "revId": "05f3e79e9595e8b4952fe5786c6d0d85fb774d62",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f178060_e8b15acb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T22:47:36Z",
+      "side": 1,
+      "message": "Chi Yo: Please review. Thanks.\n\nJayasanker: I have a few questions, but this looks good.",
+      "revId": "05f3e79e9595e8b4952fe5786c6d0d85fb774d62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09df1ecd_31aed631",
+        "filename": "av1/encoder/encoder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 3736,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T22:47:36Z",
+      "side": 1,
+      "message": "Nit: \"av1_alloc_dv_costs\" sounds like a function that allocates `dv_costs`. Please change the function name to \"av1_should_alloc_dv_costs\" or something like \"av1_need_dv_costs\".",
+      "revId": "05f3e79e9595e8b4952fe5786c6d0d85fb774d62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10f9a8ab_68ff9b9b",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T22:47:36Z",
+      "side": 1,
+      "message": "Nit: Omit this comment, because the code is clear.",
+      "revId": "05f3e79e9595e8b4952fe5786c6d0d85fb774d62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95f5b031_5e2a9263",
+        "filename": "av1/encoder/rd.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-03-31T22:47:36Z",
+      "side": 1,
+      "message": "Nit: Is this null pointer check necessary? Is there a convenient place where we can allocate this? (A simple yes/no answer is sufficient.)",
+      "revId": "05f3e79e9595e8b4952fe5786c6d0d85fb774d62",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
