@@ -140,6 +140,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bec94bbc_7260b87c",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2635,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-04-01T06:35:01Z",
+      "side": 1,
+      "message": "OK, seem reasonable to have some n \u003e 0 for some initial frames after key, so I\u0027m fine with keeping that condition in.",
+      "parentUuid": "aa47cb93_d99df552",
+      "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "54678112_3f80905d",
@@ -171,6 +189,24 @@
       "side": 1,
       "message": "Thanks for this suggestion. We worked on this in the following directions: \n\n1. Adding 4 blocks of 64x64 to make 128x128 works out fine for SSE, but not for variance. To get this right, we changed the intrinsics by returning \"sum\" for each block. With this change, sse \u0026 variance are bit-exact.\n \n2. However, tuning SSE-based thresholds did not produce good trade-offs. We are consistently seeing worst case drops \u003e 2% for same speed-up levels. For example,\ncpu   Res    Speed-up (%)  BD Rate Loss (%)  Worst-case (%)     Clip\n9    HDRES       1.845         0.9461            2.392        testnoise720p\n10   HDRES      1.359         1.0737            2.400\t      mj1vc720p   \nWe observe that SAD is a better error indicator in this case, where error numbers are very small e.g. \u003c 1 per-pixel. \n\n3. We ran memory-test to check the memory impact due to this patch is negligible (~ 0.001% on avg) for both speed 9 and 10.\n\n4. We were able to tune thresholds based on QP to further reduce (i) avg BD Rate Loss (e.g. for speed 10, from 0.6 to 0.3) and (ii) worst-case drops, without much speed-up impact. This means for lower QP, compound mode pruning is done more conservatively.",
       "parentUuid": "54678112_3f80905d",
+      "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d43ff1a8_70ea7d4b",
+        "filename": "av1/encoder/ratectrl.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2689,
+      "author": {
+        "id": 5190
+      },
+      "writtenOn": "2022-04-01T06:35:01Z",
+      "side": 1,
+      "message": "Ok, ACK.",
+      "parentUuid": "f295f311_446e29b1",
       "revId": "ec230af9822a7846cf142b1fc689346ad0a4a521",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
