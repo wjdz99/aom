@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "315be817_2fcaa4f2",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-01T16:15:43Z",
+      "side": 1,
+      "message": "Looks like only the mv magnitude is considered here. Would other things considered in previous change (use_adaptive_mv_search_precision \u003d\u003d 1 case) be helpful? Pushing subpel from 1/4 to full_pel sounds aggressive. Can you get the result for the worst performed clips?",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 213,
+        "endChar": 30
+      },
+      "revId": "4ed1de8a5d82a63a12d04952c8d96bc0c6243b38",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
