@@ -16,6 +16,29 @@
       "message": "Hi Wan-Teh, Frank, Chi-Yo,\n\nWe have addressed Wan-Teh\u0027s comments in the latest patch-set.\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "ab9aa52c2cb293a965ded2c6c0aee0527f8050f1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aef38693_33d33f4c",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-04-01T17:19:39Z",
+      "side": 1,
+      "message": "The assert here seems a bit redundant. If it\u0027s NULL, then we would have already call free on it.\nMaybe move the assert to before aom_free?",
+      "range": {
+        "startLine": 1659,
+        "startChar": 8,
+        "endLine": 1659,
+        "endChar": 34
+      },
+      "revId": "ab9aa52c2cb293a965ded2c6c0aee0527f8050f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
