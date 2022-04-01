@@ -1060,6 +1060,28 @@ static int calc_active_best_quality_no_stats_cbr(const AV1_COMP *cpi,
   return active_best_quality;
 }
 
+static int get_q_passive_strategy(const AV1_COMP *const cpi,
+                                  const int q_candidate, const int threshold) {
+  const AV1_COMMON *const cm = &cpi->common;
+  const PRIMARY_RATE_CONTROL *const p_rc = &cpi->ppi->p_rc;
+  const CurrentFrame *const current_frame = &cm->current_frame;
+  int sum = 0;
+  int count = 0;
+  int i = 1;
+  while (i < MAX_Q_HISTORY) {
+    int frame_id = current_frame->frame_number - i;
+    if (frame_id <= 0) break;
+    sum += p_rc->q_history[frame_id % MAX_Q_HISTORY];
+    ++count;
+    ++i;
+  }
+  if (count > 0) {
+    const int avg_q = sum / count;
+    if (abs(avg_q - q_candidate) <= threshold) return avg_q;
+  }
+  return q_candidate;
+}
+
 /*!\brief Picks q and q bounds given CBR rate control parameters in \c cpi->rc.
  *
  * Handles the special case when using:
@@ -1116,6 +1138,10 @@ static int rc_pick_q_and_bounds_no_stats_cbr(const AV1_COMP *cpi, int width,
   } else {
     q = av1_rc_regulate_q(cpi, rc->this_frame_target, active_best_quality,
                           active_worst_quality, width, height);
+    if (current_frame->frame_type != KEY_FRAME &&
+        cpi->oxcf.tune_cfg.content == AOM_CONTENT_SCREEN) {
+      q = get_q_passive_strategy(cpi, q, 50);
+    }
     if (q > *top_index) {
       // Special case when we are targeting the max allowed rate
       if (rc->this_frame_target >= rc->max_frame_bandwidth)
@@ -2016,6 +2042,9 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
       gf_group->update_type[cpi->gf_frame_index] == INTNL_ARF_UPDATE;
 
   const int qindex = cm->quant_params.base_qindex;
+
+  const int frame_number = current_frame->frame_number % MAX_Q_HISTORY;
+  p_rc->q_history[frame_number] = qindex;
 
   // Update rate control heuristics
   rc->projected_frame_size = (int)(bytes_used << 3);

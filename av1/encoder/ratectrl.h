@@ -57,6 +57,8 @@ extern "C" {
 #define DEFAULT_KF_BOOST_RT 2300
 #define DEFAULT_GF_BOOST_RT 2000
 
+#define MAX_Q_HISTORY 1000
+
 typedef struct {
   int resize_width;
   int resize_height;
@@ -521,6 +523,11 @@ typedef struct {
    * size.
    */
   int rolling_actual_bits;
+
+  /*!
+   * The history of qindex for each frame.
+   */
+  int q_history[MAX_Q_HISTORY];
 } PRIMARY_RATE_CONTROL;
 
 struct AV1_COMP;
