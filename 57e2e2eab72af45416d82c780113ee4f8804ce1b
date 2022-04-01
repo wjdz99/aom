@@ -331,6 +331,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e414952_af46e5f6",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-01T18:20:48Z",
+      "side": 1,
+      "message": "I think for AOM, the max_gop_show_frame_count is 48, not sure about the min.\nor now, they are two parameters in rc_param, we can figure out what these two parameters should be later.",
+      "parentUuid": "4c05f396_f9afc5d6",
+      "range": {
+        "startLine": 179,
+        "startChar": 27,
+        "endLine": 180,
+        "endChar": 43
+      },
+      "revId": "57e2e2eab72af45416d82c780113ee4f8804ce1b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6d2a483_e615a010",
