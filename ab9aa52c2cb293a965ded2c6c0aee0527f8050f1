@@ -39,6 +39,30 @@
       },
       "revId": "ab9aa52c2cb293a965ded2c6c0aee0527f8050f1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed9fa72a_8b36077f",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1659,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-04-01T19:51:58Z",
+      "side": 1,
+      "message": "This assert was kept under \"if (cpi-\u003esf.inter_sf.mv_cost_upd_level !\u003d INTERNAL_COST_UPD_OFF)\", which was incorrect. We have corrected the same by moving the assert out of this if() condition.",
+      "parentUuid": "aef38693_33d33f4c",
+      "range": {
+        "startLine": 1659,
+        "startChar": 8,
+        "endLine": 1659,
+        "endChar": 34
+      },
+      "revId": "ab9aa52c2cb293a965ded2c6c0aee0527f8050f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
