@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "44e21080_b13412b1",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-01T14:58:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c0ce81c3_263148e9",
+      "revId": "d8acf85d67118d9ecebce2b1e485301ce2e0c897",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f585e158_18c315b0",
@@ -65,6 +83,24 @@
       "writtenOn": "2022-04-01T01:59:37Z",
       "side": 1,
       "message": "Nit: Move this comment before the variable declaration:\n\n```\n  // Initialize best mode stats for winner mode processing\n  const int max_winner_mode_count \u003d\n      winner_mode_count_allowed[cpi-\u003esf.winner_mode_sf.multi_winner_mode_type];\n```",
+      "revId": "d8acf85d67118d9ecebce2b1e485301ce2e0c897",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0566c76c_83c8e7c7",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 5838,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-01T14:58:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f585e158_18c315b0",
       "revId": "d8acf85d67118d9ecebce2b1e485301ce2e0c897",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -86,6 +122,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7b109ce_f84a115a",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-01T14:58:32Z",
+      "side": 1,
+      "message": "We have introduced this lookup table since we felt that the enums do not represent any information regarding the winner mode counts. We also felt that this approach provides the flexibility to change the number of winner modes based on multi_winner_mode_type sf in the future.",
+      "parentUuid": "3206f283_85549844",
+      "revId": "d8acf85d67118d9ecebce2b1e485301ce2e0c897",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "54009f55_a2b9e3cd",
@@ -99,6 +153,24 @@
       "writtenOn": "2022-04-01T01:59:37Z",
       "side": 1,
       "message": "If this enum value means the number of other enum values, it is conventionally named \u003cenum-name\u003e_COUNT and the initializer is omitted, as follows:\n\n  MULTI_WINNER_MODE_COUNT,",
+      "revId": "d8acf85d67118d9ecebce2b1e485301ce2e0c897",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a08c72bd_3dbf0d18",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-01T14:58:32Z",
+      "side": 1,
+      "message": "Ack. We preferred the enum name MULTI_WINNER_MODE_LEVELS as we felt that MULTI_WINNER_MODE_COUNT might cause confusion with the winner_mode_count variable.",
+      "parentUuid": "54009f55_a2b9e3cd",
       "revId": "d8acf85d67118d9ecebce2b1e485301ce2e0c897",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
