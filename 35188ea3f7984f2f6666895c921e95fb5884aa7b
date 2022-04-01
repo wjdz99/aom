@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f97f147a_52504e50",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2022-04-01T15:13:25Z",
+      "side": 1,
+      "message": "Done. This has resulted in slight improvement to overall quality in speed 8 and a small reduction in quality in speed 9 compared to the previous results.\n\nPlease find the new speed-quality results below (changes only for rtc and average):\n\n                Instruction Count     BD-Rate Loss(%)    \ncpu    Test-set    Reduction(%)  avg.psnr   ovr.psnr    ssim\n------------------------------------------------------------- \n 8         rtc      0.166        -0.3642    -0.3558   -0.3156\n 8    rtc_derf      0.099        -0.1791    -0.1903   -0.1928\n 8     Average      0.133        -0.2871    -0.2868   -0.2644\n------------------------------------------------------------- \n 9         rtc      0.158        -0.1977    -0.1844   -0.2419 \n 9    rtc_derf      0.034        -0.3297    -0.2712   -0.3954 \n 9     Average      0.098        -0.2527    -0.2205   -0.3058 \n \n Best case clips:\n  cpu      Test-set  Max bd-rate gain(%)    Clip-name\n   8         rtc        1.2956          testnoise720p\n   9         rtc        1.0004          thaloundeskmtgvga \n   \n Worst case clips:\n  cpu      Test-set  Max bd-rate drop(%)    Clip-name\n   8         rtc        0.8886          thaloundeskmtgvga\n   9         rtc        0.9245          testnoise720p",
+      "parentUuid": "95594e6f_c96cdb18",
+      "revId": "35188ea3f7984f2f6666895c921e95fb5884aa7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "94e18a2c_2eb8ca86",
         "filename": "av1/encoder/nonrd_pickmode.c",
         "patchSetId": 2
@@ -48,6 +66,24 @@
       "writtenOn": "2022-03-31T18:34:08Z",
       "side": 1,
       "message": "prefer to leave 8x8 tx_size on segment, we found generally that this make the refresh/cleanup kick in more.",
+      "revId": "35188ea3f7984f2f6666895c921e95fb5884aa7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8362c31_45efe3ba",
+        "filename": "av1/encoder/nonrd_pickmode.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2022-04-01T15:13:25Z",
+      "side": 1,
+      "message": "Leaving 8x8 tx_size for all blocks in rtc resulted in quality loss up to 1.5% on several clips, with overall quality reduction compared to current approach. For the blocks where the ac component is very small, choosing 16x16 transform size (as in the current patchset) provided the best quality. Hope this is fine.\nFor lowres contents, all blocks irrespective of residual variance use 8x8 transform size based on segment.",
+      "parentUuid": "94e18a2c_2eb8ca86",
       "revId": "35188ea3f7984f2f6666895c921e95fb5884aa7b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
