@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a065505_c7e659ca",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-02T13:14:54Z",
+      "side": 1,
+      "message": "Sigh, I guess there\u0027s no getting away from these casts.",
+      "range": {
+        "startLine": 144,
+        "startChar": 22,
+        "endLine": 144,
+        "endChar": 38
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "12dc5770_6fb20491",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-02T13:14:54Z",
+      "side": 1,
+      "message": "Vector of GF group lengths.",
+      "range": {
+        "startLine": 166,
+        "startChar": 11,
+        "endLine": 167,
+        "endChar": 17
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b994db9e_68f24391",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-02T13:14:54Z",
+      "side": 1,
+      "message": "I think this would be clearer as (frames_since_key \u003d\u003d 0) ? 1 : 0, to make it obvious that this is really an integer, and not just a badly-typed boolean.",
+      "range": {
+        "startLine": 179,
+        "startChar": 10,
+        "endLine": 179,
+        "endChar": 31
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4a8b1f26_452d8b86",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-02T13:14:54Z",
+      "side": 1,
+      "message": "It\u0027s not typical to use \u003e\u003d with iterators; usually they\u0027re just compared for equality. Is it really possible for it to be greater here? If so, it might be better to use an index.\nAlso considering that you never actually dereference this iterator, it seems a bit odd for it to be an iterator.",
+      "range": {
+        "startLine": 198,
+        "startChar": 34,
+        "endLine": 198,
+        "endChar": 36
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
