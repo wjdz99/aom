@@ -41,6 +41,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "286f6cf5_42a47128",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ee27d87_061e2b4b",
+      "range": {
+        "startLine": 144,
+        "startChar": 59,
+        "endLine": 144,
+        "endChar": 65
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69efc112_71e2e9ab",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ee27d87_061e2b4b",
+      "range": {
+        "startLine": 144,
+        "startChar": 59,
+        "endLine": 144,
+        "endChar": 65
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc7da1d8_c80f007a",
@@ -54,6 +102,54 @@
       "writtenOn": "2022-04-01T21:46:59Z",
       "side": 1,
       "message": "Ugh, is this cast really necessary to avoid warnings on Windows?\n\nIf so, I\u0027d go back to the original code from pass2_strategy, which is easier to read.",
+      "range": {
+        "startLine": 146,
+        "startChar": 13,
+        "endLine": 146,
+        "endChar": 30
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5770baed_863cd3f0",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc7da1d8_c80f007a",
+      "range": {
+        "startLine": 146,
+        "startChar": 13,
+        "endLine": 146,
+        "endChar": 30
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a87aa48_494f0993",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc7da1d8_c80f007a",
       "range": {
         "startLine": 146,
         "startChar": 13,
@@ -87,6 +183,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bef9296_7852b373",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eca4c981_ff6a3ca0",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 49
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "afce31e6_e8d5ae9c",
@@ -100,6 +220,54 @@
       "writtenOn": "2022-04-01T21:46:59Z",
       "side": 1,
       "message": "This declaration can be moved down to where you populate it.",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 54
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "743fede8_66765eae",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afce31e6_e8d5ae9c",
+      "range": {
+        "startLine": 171,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 54
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ddfb6d2_88212075",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "afce31e6_e8d5ae9c",
       "range": {
         "startLine": 171,
         "startChar": 0,
@@ -133,6 +301,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3e72cc6_f0db88f9",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c01f7dbc_8fc094eb",
+      "range": {
+        "startLine": 176,
+        "startChar": 48,
+        "endLine": 176,
+        "endChar": 62
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c5f011f9_1014a66e",
@@ -146,6 +338,54 @@
       "writtenOn": "2022-04-01T21:46:59Z",
       "side": 1,
       "message": "Instead of constructing with MAX_NUM_GF_INTERVALS elements and then assigning into it, why not just use push_back to populate cut_pos?",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 185,
+        "endChar": 57
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ab7d4ef_3629ed58",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5f011f9_1014a66e",
+      "range": {
+        "startLine": 185,
+        "startChar": 0,
+        "endLine": 185,
+        "endChar": 57
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9843148d_bbc2e4a6",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5f011f9_1014a66e",
       "range": {
         "startLine": 185,
         "startChar": 0,
@@ -179,6 +419,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f65566b3_e06b654c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "39199318_aabd7af6",
+      "range": {
+        "startLine": 189,
+        "startChar": 9,
+        "endLine": 189,
+        "endChar": 39
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1786d60_aed2be78",
@@ -192,6 +456,30 @@
       "writtenOn": "2022-04-01T21:46:59Z",
       "side": 1,
       "message": "I don\u0027t believe this has any effect. Either you continue at line 207, and it goes out of scope, or it gets overwritten at line 357. In fact, I really don\u0027t understand what this variable is for at all. What does this correspond to in the original code in pass2_strategy?",
+      "range": {
+        "startLine": 202,
+        "startChar": 0,
+        "endLine": 202,
+        "endChar": 27
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02bda7c3_c523f089",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "The original function uses cpi-\u003etwopass_frame-\u003estats_in in the while loop in input_stats and detect_flash. It was incremented in input_stats if it doesn\u0027t reach EOF and then it\u0027s used in detect_flash.\n\nAnd then it gets overwritten later in the while loop when cut is found.\n\nSince we only need to tell if it\u0027s reaches the last frame in the previous branch, we don\u0027t need this increment.\n\nAnd it needs to be declared out of the loop.",
+      "parentUuid": "d1786d60_aed2be78",
       "range": {
         "startLine": 202,
         "startChar": 0,
@@ -225,6 +513,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "54f89d3e_90441db1",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c512837b_bcc74d62",
+      "range": {
+        "startLine": 214,
+        "startChar": 4,
+        "endLine": 214,
+        "endChar": 49
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6831dc59_6a3d0347",
@@ -238,6 +550,30 @@
       "writtenOn": "2022-04-01T18:20:48Z",
       "side": 1,
       "message": "[optional] I will recommend to regions_list.size() into \"int\" so that we don\u0027t have to deal will comparing size_t/int warning all the time.\n\nWe should do this whenever using a size() function.",
+      "range": {
+        "startLine": 215,
+        "startChar": 4,
+        "endLine": 215,
+        "endChar": 45
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9f432d7_820962e3",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6831dc59_6a3d0347",
       "range": {
         "startLine": 215,
         "startChar": 4,
@@ -271,6 +607,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "afda8016_d97e1e35",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d46ee41c_03d4fe23",
+      "range": {
+        "startLine": 228,
+        "startChar": 12,
+        "endLine": 228,
+        "endChar": 19
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fbf7e760_c1edf1d9",
@@ -284,6 +644,30 @@
       "writtenOn": "2022-04-01T21:46:59Z",
       "side": 1,
       "message": "This has no effect. stats_in_loop_iter isn\u0027t used again before going out of scope.",
+      "range": {
+        "startLine": 359,
+        "startChar": 0,
+        "endLine": 359,
+        "endChar": 46
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8718df45_cb8971a6",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 359,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "This should be defined out of loop.",
+      "parentUuid": "fbf7e760_c1edf1d9",
       "range": {
         "startLine": 359,
         "startChar": 0,
@@ -317,6 +701,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "624dbc8c_986728dc",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "frames_to_key and frames_since_key needs key frame detection.",
+      "parentUuid": "5687e428_ce5bb990",
+      "range": {
+        "startLine": 394,
+        "startChar": 45,
+        "endLine": 395,
+        "endChar": 24
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "565beabb_01bb139f",
@@ -330,6 +738,30 @@
       "writtenOn": "2022-04-01T21:46:59Z",
       "side": 1,
       "message": "Would it be possible to add tests for this function? Does libaom have any unit tests for this?",
+      "range": {
+        "startLine": 396,
+        "startChar": 34,
+        "endLine": 396,
+        "endChar": 57
+      },
+      "revId": "b30fe669c6fb77482659fcc7c0c164bb3e8cdc73",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f70f40ab_46b9987c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-02T04:31:50Z",
+      "side": 1,
+      "message": "There\u0027s no unit test for this function in libaom.\n\nWe could probably take some firstpass_info from a real encoding and pass it to calculate_gf_length in libaom and partition_gop_intervals in this function and compare the output.",
+      "parentUuid": "565beabb_01bb139f",
       "range": {
         "startLine": 396,
         "startChar": 34,
