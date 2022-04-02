@@ -16,6 +16,165 @@
       "message": "Hi Wan-Teh,\n\nWe have pushed the latest patch-set after taking care of your comments. \n\nPlease review.\n\nRegards,\nMudassir\n",
       "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b44ee267_16bf4d4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "LGTM. I suggest a few simple changes. The ones marked with \"optional\" are a matter of personal preference and left to your decision.",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b396de7b_ff08c4b3",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit/optional: Change \u0027sf\u0027 to a local variable:\n\n  const SPEED_FEATURES *sf \u003d \u0026cpi-\u003esf;",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0439902b_526b6d10",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 436,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit: Add \"The\" before winner_mode_stats",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a69c8a37_22e0be04",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit: avoid the abbreviation \"sf\" in comments. But please see the next comment first.",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3013165_8972d480",
+        "filename": "av1/encoder/encodeframe_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit: This comment merely describes the code. This kind of comment is not too useful and should be avoided. Here we can just say something like:\n\n  // The winner_mode_stats buffer is not required in these cases.\n\nNote: On the other hand, a comment that explains why winner_mode_stats is not required in these cases would be useful.",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5bb5b3ff_2ee87186",
+        "filename": "av1/encoder/rdopt.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 5838,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit: There is a local variable \u0027sf\u0027 that we can use here and at line 5843 below.",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85679ac2_a0863202",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit: In comments, it\u0027s better to not abbreviate \"speed feature\".",
+      "range": {
+        "startLine": 233,
+        "startChar": 62,
+        "endLine": 233,
+        "endChar": 64
+      },
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eeffbb2d_7e81f03b",
+        "filename": "av1/encoder/rdopt_utils.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit/optional: I suggest converting this to a function that uses a switch statement. The compiler is likely to generate this table automatically.",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60c30a2a_fe07f144",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-02T00:08:11Z",
+      "side": 1,
+      "message": "Nit/optional: The new name \"MULTI_WINNER_MODE_LEVELS\" is good. What about my suggestion of omitting the value and letting the compiler assign a value automatically? Do you prefer specifying the value explicitly?",
+      "revId": "4466f3b2e559bbc0fb799827e02148f29c894f89",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
