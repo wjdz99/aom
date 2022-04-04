@@ -47,6 +47,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e32c9f7_a40b0a28",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "12dc5770_6fb20491",
+      "range": {
+        "startLine": 166,
+        "startChar": 11,
+        "endLine": 167,
+        "endChar": 17
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b994db9e_68f24391",
@@ -60,6 +84,30 @@
       "writtenOn": "2022-04-02T13:14:54Z",
       "side": 1,
       "message": "I think this would be clearer as (frames_since_key \u003d\u003d 0) ? 1 : 0, to make it obvious that this is really an integer, and not just a badly-typed boolean.",
+      "range": {
+        "startLine": 179,
+        "startChar": 10,
+        "endLine": 179,
+        "endChar": 31
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a297970b_9c40a6b2",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b994db9e_68f24391",
       "range": {
         "startLine": 179,
         "startChar": 10,
@@ -93,6 +141,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "56c7931d_e24f442a",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a8b1f26_452d8b86",
+      "range": {
+        "startLine": 198,
+        "startChar": 34,
+        "endLine": 198,
+        "endChar": 36
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b90b6239_d0f15683",
@@ -106,6 +178,30 @@
       "writtenOn": "2022-04-04T05:16:07Z",
       "side": 1,
       "message": "Maybe we can just use frames_since_key?",
+      "range": {
+        "startLine": 211,
+        "startChar": 4,
+        "endLine": 211,
+        "endChar": 34
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91fdc237_9d3bc640",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b90b6239_d0f15683",
       "range": {
         "startLine": 211,
         "startChar": 4,
@@ -139,6 +235,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52ef1df2_4caeaf8b",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96acb743_f97259d4",
+      "range": {
+        "startLine": 268,
+        "startChar": 16,
+        "endLine": 268,
+        "endChar": 17
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ec6222f5_b6d46d76",
@@ -152,6 +272,30 @@
       "writtenOn": "2022-04-04T05:16:07Z",
       "side": 1,
       "message": "order_index + j \u003e\u003d num_stats;",
+      "range": {
+        "startLine": 275,
+        "startChar": 16,
+        "endLine": 275,
+        "endChar": 30
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "34e8a734_56784c4c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec6222f5_b6d46d76",
       "range": {
         "startLine": 275,
         "startChar": 16,
@@ -185,6 +329,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ea7ee149_b9651dfd",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36e1c0ce_c6bfa321",
+      "range": {
+        "startLine": 279,
+        "startChar": 0,
+        "endLine": 279,
+        "endChar": 66
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "56d0d8e3_e25abc93",
@@ -198,6 +366,30 @@
       "writtenOn": "2022-04-04T05:16:07Z",
       "side": 1,
       "message": "order_index + n \u003e\u003d num_stats",
+      "range": {
+        "startLine": 302,
+        "startChar": 18,
+        "endLine": 302,
+        "endChar": 32
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62d31da4_ec8810b4",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56d0d8e3_e25abc93",
       "range": {
         "startLine": 302,
         "startChar": 18,
@@ -231,6 +423,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "65ace7c3_76cbd134",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba976f13_2d897d3b",
+      "range": {
+        "startLine": 313,
+        "startChar": 18,
+        "endLine": 313,
+        "endChar": 31
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9c0576b8_cd82f4c7",
@@ -244,6 +460,30 @@
       "writtenOn": "2022-04-04T05:16:07Z",
       "side": 1,
       "message": "i \u003d cur_last;\ni++;\n\nis equivalent to i \u003d cur_last + 1",
+      "range": {
+        "startLine": 360,
+        "startChar": 4,
+        "endLine": 367,
+        "endChar": 3
+      },
+      "revId": "2a354a1cb47b2ba686fa2fae8ee823edab8a4346",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c943ce45_85f483df",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-04T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c0576b8_cd82f4c7",
       "range": {
         "startLine": 360,
         "startChar": 4,
