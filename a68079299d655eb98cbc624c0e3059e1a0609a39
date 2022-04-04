@@ -16,6 +16,24 @@
       "message": "I verified that set_rt_speed_features_framesize_independent() sets sf-\u003epart_sf.default_min_partition_size to BLOCK_8X8.\n\nFor allintra and good modes, set_allintra_speed_feature_framesize_dependent() and set_good_speed_feature_framesize_dependent() set sf-\u003epart_sf.default_min_partition_size to BLOCK_8X8 if is_4k_or_larger is true.\n\nSo this CL preserves the current behavior.",
       "revId": "a68079299d655eb98cbc624c0e3059e1a0609a39",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9beb7a34_d9062ff7",
+        "filename": "av1/encoder/encoder_utils.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-04-04T12:43:44Z",
+      "side": 0,
+      "message": "Ack.",
+      "parentUuid": "914f31af_c462d8f9",
+      "revId": "a68079299d655eb98cbc624c0e3059e1a0609a39",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
