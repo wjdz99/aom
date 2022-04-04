@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fbbec05_eb8c6b70",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-04T20:57:34Z",
+      "side": 1,
+      "message": "I see now why the original code in pass2_strategy was initializing this to {-1}.\nEach element is the *last frame* of the previous GOP. If there are n GOPs, you need n + 1 cuts to find the durations. So cut_pos starts out with -1, which is the last frame of the previous GOP.\n\nSo to be consistent with the original code, this should be initialized as \n  std::vector\u003cint\u003e cut_pos(1, -1).\n\nAnother option would be for cut_pos to have the first frame of each GOP, and then you could use std::adjacent_difference. In that case, cut_pos would be initialized as:\n  std::vector\u003cint\u003e cut_pos(1, 0);\n  \nand then at the bottom of the loop you\u0027d do\n  cut_pos.push_back(cur_last + 1)",
+      "range": {
+        "startLine": 179,
+        "startChar": 19,
+        "endLine": 179,
+        "endChar": 26
+      },
+      "revId": "c077041e1ce83253e1ce90d8d0c862b40ee2e321",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a09d9d5_3c2c1d86",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-04T20:57:34Z",
+      "side": 1,
+      "message": "count_cuts isn\u0027t really needed; it\u0027s just cut_pos.size() + 1",
+      "range": {
+        "startLine": 351,
+        "startChar": 4,
+        "endLine": 351,
+        "endChar": 14
+      },
+      "revId": "c077041e1ce83253e1ce90d8d0c862b40ee2e321",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94df88d8_ad68c3e5",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-04T20:57:34Z",
+      "side": 1,
+      "message": "MAX_NUM_GF_INTERVALS isn\u0027t needed. Create an empty vector, and push_back the durations.",
+      "range": {
+        "startLine": 366,
+        "startChar": 32,
+        "endLine": 366,
+        "endChar": 52
+      },
+      "revId": "c077041e1ce83253e1ce90d8d0c862b40ee2e321",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f558d5a5_755e15a7",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 12
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-04T20:57:34Z",
+      "side": 1,
+      "message": "(optional) If you change cut_pos to have the first frame of each GOP instead of the last frame of the previous GOP (by initializing cut_pos with 0 instead of -1, and pushing back cur_last + 1), then this loop could be replaced with \n\n  std::adjacent_difference(cut_pos.begin(), cut_pos.end(), \n                           std::back_inserter(gf_intervals));",
+      "range": {
+        "startLine": 368,
+        "startChar": 0,
+        "endLine": 371,
+        "endChar": 0
+      },
+      "revId": "c077041e1ce83253e1ce90d8d0c862b40ee2e321",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
