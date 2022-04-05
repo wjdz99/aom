@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "163a5f3c_69bf62fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13265
+      },
+      "writtenOn": "2022-04-05T13:47:58Z",
+      "side": 1,
+      "message": "Hi Yunqing, Marco,\n\nPlease find the results on the rebased patchset.\n   \n                Instruction Count     BD-Rate Loss(%)    \ncpu    Test-set    Reduction(%)  avg.psnr   ovr.psnr    ssim \n-------------------------------------------------------------\n 8         rtc      0.170        -0.3642    -0.3558   -0.3156\n 8    rtc_derf      0.045        -0.2167    -0.2231   -0.2285\n 8     Average      0.109        -0.3028    -0.3005   -0.2793\n------------------------------------------------------------- \n 9         rtc      0.178        -0.2337    -0.2293   -0.2613 \n 9    rtc_derf      0.038        -0.3297    -0.2712   -0.3954 \n 9     Average      0.109        -0.2737    -0.2467   -0.3172 \n------------------------------------------------------------- \n10         rtc     -0.068         0.0000     0.0000    0.0000    \n10    rtc_derf      0.070        -0.3581    -0.3119   -0.3790    \n10     Average     -0.001        -0.1492    -0.1300   -0.1579\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nIn speeds 8 and 9, out of the total 48 clips, 36 and 33 clips respectively show BD rate gain. In speed 10, 16 out of the 20 rtc-derf clips show BD rate gain.\n\nPlease find the details of best case quality gains below.\n\n cpu      Test-set  Max bd-rate gain(%)    Clip-name\n   8         rtc        1.2956          testnoise720p\n   8    rtc_derf        1.2835          apprtc_pixel3_320_240\n   9         rtc        1.0004          thaloundeskmtgvga \n   9    rtc_derf        2.2768          apprtc_pixel3_320_240  \n  10    rtc_derf        1.2763          desktop1_320_180\n  \nPlease find the clips with worst case quality drops below.\n\n cpu      Test-set  Max bd-rate drop(%)    Clip-name\n   8         rtc        0.8886          thaloundeskmtgvga\n   8    rtc_derf        1.4691          desktop1_320_180\n   9         rtc        0.4920          jimredvga_25fps\n   9    rtc_derf        0.6392          tac_narrows_320_240 \n  10    rtc_derf        0.3177          desktopqvga2_320_240\n  \nPlease note that all the worst case clips have psnr \u003e 35 dB. In speed 8 rtc_derf, after rebasing, desktop1_320_180 is showing a drop of 1.4691%. The next highest drop is 0.4728% for tac_narrows_320_240. Please let us know if the outlier of desktop1_320_180 in speed 8 rtc_derf is acceptable. \n\nPlease review the patch.\n\nThanks,\nNithya",
+      "revId": "bc71fbfdedc326780872ec1bb665be181aa2dd72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
