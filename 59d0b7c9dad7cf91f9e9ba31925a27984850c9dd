@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f4424cb_67fd5c20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-05T20:00:20Z",
+      "side": 1,
+      "message": "Hi Zak,\n\nMy apologies for the very late review.\n\nPlease make sure you sign the contributor license agreement: https://aomedia.org/license/#contributor-license-agreements\n\nWe will need to rebase this CL to the current libaom source tree. If the 10-bit code is not working, we can still consider checking in your code as work in progress provided that the 8-bit code is intact and we disable external access to the 10-bit code (e.g., by leaving the img-\u003ebit_depth \u003e 8 check in av1/av1_cx_iface.c).\n\nAlso, it seems that we can move the JXL thread parallel runner changes to a separate CL, because those changes seem independent.",
+      "revId": "59d0b7c9dad7cf91f9e9ba31925a27984850c9dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
