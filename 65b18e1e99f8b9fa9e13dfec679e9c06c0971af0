@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1effbc15_fbc5f49d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-05T21:08:46Z",
+      "side": 1,
+      "message": "Hi Ranjit and Yunqing,\n\nThe code modified in this CL was originally written by Ittiam engineers. I am not sure if these variables were intended to be used. Please take a look. Thanks.",
+      "revId": "65b18e1e99f8b9fa9e13dfec679e9c06c0971af0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
