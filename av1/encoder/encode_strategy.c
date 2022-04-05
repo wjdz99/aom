@@ -1268,10 +1268,13 @@ int av1_encode_strategy(AV1_COMP *const cpi, size_t *const size,
   cpi->twopass_frame.this_frame = NULL;
   const int use_one_pass_rt_params = is_one_pass_rt_params(cpi);
   if (!use_one_pass_rt_params && !is_stat_generation_stage(cpi)) {
+    if (cpi->gf_frame_index == 0 && oxcf->gf_cfg.lag_in_frames > 1 &&
+        oxcf->algo_cfg.enable_tpl_model) {
+      av1_setup_tpl_buffers(cpi->ppi, &cpi->common, oxcf->gf_cfg.lag_in_frames);
+    }
 #if CONFIG_COLLECT_COMPONENT_TIMING
     start_timing(cpi, av1_get_second_pass_params_time);
 #endif
-
 #if CONFIG_FRAME_PARALLEL_ENCODE
     // Initialise frame_level_rate_correction_factors with value previous
     // to the parallel frames.
