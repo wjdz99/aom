@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nIn this patch, the variables added in AV1_PRIMARY under CONFIG_FRAME_PARALLEL_ENCODE to store previous frame loopfilter levels and its associated code has been made default.\n\nThis change is bit-exact and has been locally verified with bitstream match tests in both the default and FPMT path. We have also validated this patch with address, thread, undefined and integer sanitizers.\n\nPlease review.\n\nRegards,\nRemya",
       "revId": "aafc55041094b4f1b405aecccd3e2b43706be863",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ff63fc68_04a01d82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-05T21:56:27Z",
+      "side": 1,
+      "message": "Looks good. Thanks for making small and clear changes!",
+      "revId": "aafc55041094b4f1b405aecccd3e2b43706be863",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
