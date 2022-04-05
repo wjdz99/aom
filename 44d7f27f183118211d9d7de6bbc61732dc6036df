@@ -16,6 +16,69 @@
       "message": "Hi Yunqing,\n\nWe noticed that TPL module is not making use of chroma plane when use_y_only_rate_distortion speed feature is enabled. The speed feature is currently enabled in speed 5, 6 of good preset. Hence, we submitted this patch to avoid the TPL frame memory allocation conditionally based on the speed feature setting.\n\nIn order to avoid the memory allocation for chroma plane, the functions in aom_scale/generic/yv12config.c are modified to handle this scenario appropriately. Also, av1_setup_tpl_buffers() function call is delayed until the speed feature update.\n\nThis CL is verified to be bit-exact with no impact on encode-time.\n\nMemory is measured using the command\nvalgrind --tool\u003dmassif ./aomenc ...\n\nPlease check the memory reduction results for this patch.\nFor Good preset, speed \u003d 5\n\n             Avg Memory reduction\nResolution     Single thread   \n640x360          6.20%\n854x480          6.72%\n832x480          6.71%\n1280x720         7.49%\n1920x1080        7.98%\nAverage          7.02%\n\nThe memory saving is similar for speed 6 as well.\nPlease review the patch.\n\nThank you.",
       "revId": "44d7f27f183118211d9d7de6bbc61732dc6036df",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "992b7cb7_e6242ce1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-05T21:53:03Z",
+      "side": 1,
+      "message": "Very good memory reduction. Could you get memory reduction for HBD encoding as well? Thanks!",
+      "revId": "44d7f27f183118211d9d7de6bbc61732dc6036df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60aa70d2_1659a42b",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-05T21:53:03Z",
+      "side": 1,
+      "message": "Can you explain why this is changed? If this is not necessary, suggest to keep it unchanged.",
+      "range": {
+        "startLine": 182,
+        "startChar": 8,
+        "endLine": 182,
+        "endChar": 10
+      },
+      "revId": "44d7f27f183118211d9d7de6bbc61732dc6036df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbddcb1e_9e39fea9",
+        "filename": "av1/encoder/tpl_model.c",
+        "patchSetId": 8
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-05T21:53:03Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 193,
+        "startChar": 25,
+        "endLine": 193,
+        "endChar": 27
+      },
+      "revId": "44d7f27f183118211d9d7de6bbc61732dc6036df",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
