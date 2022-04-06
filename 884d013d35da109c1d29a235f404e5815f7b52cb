@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "02c6cbd0_0dd23b27",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-06T12:07:57Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nAs discussed in the review comments of the CL (https://aomedia-review.googlesource.com/c/aom/+/155581), the aom_once() protection for av1_initialize_enc() and initialize_dec() functions are removed as the individual look-up table initializations are protected by aom_once separately.\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations.\n\nPlease review.\n\nRegards,\nMudassir.\n",
+      "revId": "884d013d35da109c1d29a235f404e5815f7b52cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
