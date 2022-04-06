@@ -22,6 +22,30 @@
       },
       "revId": "b4ed9a92b72f5b70bf5745e5b152d08cc3740adb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb00fae6_0ce7a3eb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-06T11:14:56Z",
+      "side": 1,
+      "message": "It was from the tag itself, but I realize now I should have used commit 23b2a3b1, so I\u0027ve updated to that commit.\n\nI wasn\u0027t familiar with that notation, but I think I\u0027ve figured out where the 224 comes from:\n$ git rev-list --count release-1.10.0..23b2a3b1\n224",
+      "parentUuid": "5e92c9c7_49a4f64a",
+      "range": {
+        "startLine": 10,
+        "startChar": 25,
+        "endLine": 10,
+        "endChar": 39
+      },
+      "revId": "b4ed9a92b72f5b70bf5745e5b152d08cc3740adb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
