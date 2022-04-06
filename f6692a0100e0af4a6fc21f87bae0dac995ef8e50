@@ -16,6 +16,23 @@
       "message": "The unit test failure is uncorrelated to the change itself, but due to the old codebase can\u0027t keep up with new test changes.",
       "revId": "f6692a0100e0af4a6fc21f87bae0dac995ef8e50",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e07b9bf_2ad726d6",
+        "filename": "av1/encoder/encoder_utils.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 5325
+      },
+      "writtenOn": "2022-04-06T18:54:59Z",
+      "side": 1,
+      "message": "in the single pass mode, how do we get the active_worst_quality value? also is the data range safe? i.e, do we need to clamp the qstep_ratio or clamp the result of the pow function?",
+      "revId": "f6692a0100e0af4a6fc21f87bae0dac995ef8e50",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
