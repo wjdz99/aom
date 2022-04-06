@@ -610,8 +610,8 @@ static uint32_t aom_highbd_var_filter_block2d_bil_avx2(
     rshift = get_msb(output_height) + get_msb(output_width);
   }
 
-  *sse = (uint32_t)ROUND_POWER_OF_TWO(sse_long, 4);
-  int sum = (int)ROUND_POWER_OF_TWO(sum_long, 2);
+  *sse = (uint32_t)sse_long;
+  int sum = (int)sum_long;
 
   int32_t var = *sse - (uint32_t)(((int64_t)sum * sum) >> rshift);
 
@@ -699,8 +699,8 @@ static void highbd_10_variance_avx2(const uint16_t *src, int src_stride,
       sum_long += sum0;
     }
   }
-  *sum = ROUND_POWER_OF_TWO(sum_long, 2);
-  *sse = (uint32_t)ROUND_POWER_OF_TWO(sse_long, 4);
+  *sum = sum_long;
+  *sse = (uint32_t)sse_long;
 }
 
 #define VAR_FN(w, h, block_size, shift)                                    \

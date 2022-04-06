@@ -664,8 +664,9 @@ int64_t av1_highbd_block_error_c(const tran_low_t *coeff,
                                  const tran_low_t *dqcoeff, intptr_t block_size,
                                  int64_t *ssz, int bd) {
   int i;
+  (void)bd;
   int64_t error = 0, sqcoeff = 0;
-  int shift = 2 * (bd - 8);
+  int shift = 0;
   int rounding = shift > 0 ? 1 << (shift - 1) : 0;
 
   for (i = 0; i < block_size; i++) {
@@ -1648,7 +1649,6 @@ static int64_t skip_mode_rd(RD_STATS *rd_stats, const AV1_COMP *const cpi,
 
     av1_subtract_plane(x, plane_bsize, plane);
     int64_t sse = aom_sum_squares_2d_i16(p->src_diff, bw, bw, bh) << 4;
-    sse >>= ((cpi->frame_info.bit_depth - 8) * 2);
     total_sse += sse;
   }
   const int skip_mode_ctx = av1_get_skip_mode_context(xd);

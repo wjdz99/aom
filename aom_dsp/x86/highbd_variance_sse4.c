@@ -86,8 +86,7 @@ uint32_t aom_highbd_10_variance4x4_sse4_1(const uint8_t *a, int a_stride,
   uint64_t local_sse;
 
   variance4x4_64_sse4_1(a, a_stride, b, b_stride, &local_sse, &sum);
-  *sse = (uint32_t)ROUND_POWER_OF_TWO(local_sse, 4);
-  sum = ROUND_POWER_OF_TWO(sum, 2);
+  *sse = (uint32_t)local_sse;
 
   diff = (int64_t)*sse - ((sum * sum) >> 4);
   return (diff >= 0) ? (uint32_t)diff : 0;
@@ -100,8 +99,7 @@ uint32_t aom_highbd_12_variance4x4_sse4_1(const uint8_t *a, int a_stride,
   uint64_t local_sse;
 
   variance4x4_64_sse4_1(a, a_stride, b, b_stride, &local_sse, &sum);
-  *sse = (uint32_t)ROUND_POWER_OF_TWO(local_sse, 8);
-  sum = ROUND_POWER_OF_TWO(sum, 4);
+  *sse = (uint32_t)local_sse;
 
   diff = (int64_t)*sse - ((sum * sum) >> 4);
   return diff >= 0 ? (uint32_t)diff : 0;

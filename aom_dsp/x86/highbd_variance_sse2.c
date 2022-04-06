@@ -72,8 +72,8 @@ static void highbd_10_variance_sse2(const uint16_t *src, int src_stride,
       sum_long += sum0;
     }
   }
-  *sum = ROUND_POWER_OF_TWO(sum_long, 2);
-  *sse = (uint32_t)ROUND_POWER_OF_TWO(sse_long, 4);
+  *sum = sum_long;
+  *sse = (uint32_t)sse_long;
 }
 
 static void highbd_12_variance_sse2(const uint16_t *src, int src_stride,
@@ -94,8 +94,8 @@ static void highbd_12_variance_sse2(const uint16_t *src, int src_stride,
       sum_long += sum0;
     }
   }
-  *sum = ROUND_POWER_OF_TWO(sum_long, 4);
-  *sse = (uint32_t)ROUND_POWER_OF_TWO(sse_long, 8);
+  *sum = sum_long;
+  *sse = (uint32_t)sse_long;
 }
 
 #define HIGH_GET_VAR(S)                                                       \
@@ -115,8 +115,6 @@ static void highbd_12_variance_sse2(const uint16_t *src, int src_stride,
     uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);                                \
     aom_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
                                        sum);                                  \
-    *sum = ROUND_POWER_OF_TWO(*sum, 2);                                       \
-    *sse = ROUND_POWER_OF_TWO(*sse, 4);                                       \
   }                                                                           \
                                                                               \
   void aom_highbd_12_get##S##x##S##var_sse2(                                  \
@@ -126,8 +124,6 @@ static void highbd_12_variance_sse2(const uint16_t *src, int src_stride,
     uint16_t *ref = CONVERT_TO_SHORTPTR(ref8);                                \
     aom_highbd_calc##S##x##S##var_sse2(src, src_stride, ref, ref_stride, sse, \
                                        sum);                                  \
-    *sum = ROUND_POWER_OF_TWO(*sum, 4);                                       \
-    *sse = ROUND_POWER_OF_TWO(*sse, 8);                                       \
   }
 
 HIGH_GET_VAR(16);
@@ -360,8 +356,7 @@ DECLS(sse2);
         }                                                                      \
       }                                                                        \
     }                                                                          \
-    se = ROUND_POWER_OF_TWO(se, 2);                                            \
-    sse = (uint32_t)ROUND_POWER_OF_TWO(long_sse, 4);                           \
+    sse = (uint32_t)long_sse;                                                  \
     *sse_ptr = sse;                                                            \
     var = (int64_t)(sse) - ((cast se * se) >> (wlog2 + hlog2));                \
     return (var >= 0) ? (uint32_t)var : 0;                                     \
@@ -412,8 +407,7 @@ DECLS(sse2);
         }                                                                      \
       }                                                                        \
     }                                                                          \
-    se = ROUND_POWER_OF_TWO(se, 4);                                            \
-    sse = (uint32_t)ROUND_POWER_OF_TWO(long_sse, 8);                           \
+    sse = (uint32_t)long_sse;                                                  \
     *sse_ptr = sse;                                                            \
     var = (int64_t)(sse) - ((cast se * se) >> (wlog2 + hlog2));                \
     return (var >= 0) ? (uint32_t)var : 0;                                     \
@@ -528,8 +522,6 @@ DECLS(sse2);
         sse += sse2;                                                           \
       }                                                                        \
     }                                                                          \
-    se = ROUND_POWER_OF_TWO(se, 2);                                            \
-    sse = ROUND_POWER_OF_TWO(sse, 4);                                          \
     *sse_ptr = sse;                                                            \
     var = (int64_t)(sse) - ((cast se * se) >> (wlog2 + hlog2));                \
     return (var >= 0) ? (uint32_t)var : 0;                                     \
@@ -579,8 +571,7 @@ DECLS(sse2);
         }                                                                      \
       }                                                                        \
     }                                                                          \
-    se = ROUND_POWER_OF_TWO(se, 4);                                            \
-    sse = (uint32_t)ROUND_POWER_OF_TWO(long_sse, 8);                           \
+    sse = (uint32_t)long_sse;                                                  \
     *sse_ptr = sse;                                                            \
     var = (int64_t)(sse) - ((cast se * se) >> (wlog2 + hlog2));                \
     return (var >= 0) ? (uint32_t)var : 0;                                     \

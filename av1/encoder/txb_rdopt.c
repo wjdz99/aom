@@ -332,8 +332,7 @@ int av1_optimize_txb(const struct AV1_COMP *cpi, MACROBLOCK *x, int plane,
   const int rshift = 2;
 
   const int64_t rdmult =
-      (((int64_t)x->rdmult *
-        (plane_rd_mult[is_inter][plane_type] << (2 * (xd->bd - 8)))) +
+      (((int64_t)x->rdmult * plane_rd_mult[is_inter][plane_type]) +
        2) >>
       rshift;
 

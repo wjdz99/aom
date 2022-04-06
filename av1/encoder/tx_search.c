@@ -259,7 +259,6 @@ static AOM_INLINE void set_skip_txfm(MACROBLOCK *x, RD_STATS *rd_stats,
   for (int i = 0; i < n4; ++i)
     set_blk_skip(x->txfm_search_info.blk_skip, 0, i, 1);
   rd_stats->skip_txfm = 1;
-  if (is_cur_buf_hbd(xd)) dist = ROUND_POWER_OF_TWO(dist, (xd->bd - 8) * 2);
   rd_stats->dist = rd_stats->sse = (dist << 4);
   // Though decision is to make the block as skip based on luma stats,
   // it is possible that block becomes non skip after chroma rd. In addition
@@ -937,7 +936,7 @@ static unsigned pixel_dist_visible_only(
   if (is_cur_buf_hbd(xd)) {
     uint64_t sse64 = aom_highbd_sse_odd_size(src, src_stride, dst, dst_stride,
                                              visible_cols, visible_rows);
-    return (unsigned int)ROUND_POWER_OF_TWO(sse64, (xd->bd - 8) * 2);
+    return (unsigned int)sse64;
   }
 #else
   (void)x;
@@ -1923,9 +1922,6 @@ static INLINE void predict_dc_only_block(
 
     x->plane[plane].eobs[block] = 0;
 
-    if (is_cur_buf_hbd(xd))
-      *block_sse = ROUND_POWER_OF_TWO((*block_sse), (xd->bd - 8) * 2);
-
     best_rd_stats->dist = (*block_sse) << 4;
     best_rd_stats->sse = best_rd_stats->dist;
 
@@ -2027,10 +2023,6 @@ static void search_tx_type(const AV1_COMP *cpi, MACROBLOCK *x, int plane,
                           &txk_allowed, txk_map);
   const uint16_t allowed_tx_mask = tx_mask;
 
-  if (is_cur_buf_hbd(xd)) {
-    block_sse = ROUND_POWER_OF_TWO(block_sse, (xd->bd - 8) * 2);
-    block_mse_q8 = ROUND_POWER_OF_TWO(block_mse_q8, (xd->bd - 8) * 2);
-  }
   block_sse *= 16;
   // Use mse / qstep^2 based threshold logic to take decision of R-D
   // optimization of coeffs. For smaller residuals, coeff optimization

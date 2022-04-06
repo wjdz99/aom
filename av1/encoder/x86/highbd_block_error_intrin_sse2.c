@@ -22,8 +22,9 @@ int64_t av1_highbd_block_error_sse2(const tran_low_t *coeff,
   uint32_t temp[4];
   __m128i max, min, cmp0, cmp1, cmp2, cmp3;
   int64_t error = 0, sqcoeff = 0;
-  const int shift = 2 * (bps - 8);
+  const int shift = 0;
   const int rounding = shift > 0 ? 1 << (shift - 1) : 0;
+  (void)bps;
 
   for (i = 0; i < block_size; i += 8) {
     // Load the data into xmm registers

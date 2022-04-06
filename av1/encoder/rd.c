@@ -390,14 +390,6 @@ int av1_compute_rd_mult_based_on_qindex(aom_bit_depth_t bit_depth,
     rdmult = (int)((double)rdmult * def_rd_q_mult);
   }
 
-  switch (bit_depth) {
-    case AOM_BITS_8: break;
-    case AOM_BITS_10: rdmult = ROUND_POWER_OF_TWO(rdmult, 4); break;
-    case AOM_BITS_12: rdmult = ROUND_POWER_OF_TWO(rdmult, 8); break;
-    default:
-      assert(0 && "bit_depth should be AOM_BITS_8, AOM_BITS_10 or AOM_BITS_12");
-      return -1;
-  }
   return rdmult > 0 ? rdmult : 1;
 }
 

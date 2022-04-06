@@ -295,8 +295,8 @@ static INLINE void highbd_10_obmc_variance(const uint8_t *pre8, int pre_stride,
       h -= 64;
     } while (h > 0);
   }
-  *sum = (int)ROUND_POWER_OF_TWO(sum64, 2);
-  *sse = (unsigned int)ROUND_POWER_OF_TWO(sse64, 4);
+  *sum = (int)sum64;
+  *sse = (unsigned int)sse64;
 }
 
 static INLINE void highbd_12_obmc_variance(const uint8_t *pre8, int pre_stride,
@@ -323,8 +323,8 @@ static INLINE void highbd_12_obmc_variance(const uint8_t *pre8, int pre_stride,
       h -= h_per_ovf;
     } while (h > 0);
   }
-  *sum = (int)ROUND_POWER_OF_TWO(sum64, 4);
-  *sse = (unsigned int)ROUND_POWER_OF_TWO(sse64, 8);
+  *sum = (int)sum64;
+  *sse = (unsigned int)sse64;
 }
 
 #define HBD_OBMCVARWXH(W, H)                                               \
