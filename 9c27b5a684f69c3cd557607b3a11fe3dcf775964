@@ -16,6 +16,24 @@
       "message": "confused about this line: should it be mode !\u003d GLOBALMV?",
       "revId": "9c27b5a684f69c3cd557607b3a11fe3dcf775964",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecb017b3_a3c7e955",
+        "filename": "av1/encoder/partition_search.c",
+        "patchSetId": 6
+      },
+      "lineNbr": 2601,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-07T23:01:30Z",
+      "side": 1,
+      "message": "Thanks for pointing this out. Fixed.",
+      "parentUuid": "b67b341a_45fc53b4",
+      "revId": "9c27b5a684f69c3cd557607b3a11fe3dcf775964",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
