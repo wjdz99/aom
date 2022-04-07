@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "18d23f0d_5753a9ab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-07T13:54:51Z",
+      "side": 1,
+      "message": "Mark: Yes, this CL assumes that the file format has the same byte order as the CPU that the code is running on. That\u0027s a valid assumption. I annotated the relevant code in common/rawenc.c to help answer this question.",
+      "parentUuid": "6fe837e4_ba3cb1c6",
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "edf60264_6894093b",
@@ -77,6 +95,29 @@
         "startChar": 14,
         "endLine": 46,
         "endChar": 17
+      },
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db9136c6_38567398",
+        "filename": "common/rawenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-07T13:54:51Z",
+      "side": 1,
+      "message": "The code here (lines 82-87) is the primary code path. Note that we write the bytes in the img-\u003eplanes[plane] buffer directly to the file. For high bit depth, the samples in img-\u003eplanes[plane] buffer are 16-bit words in the CPU\u0027s byte order (called the \"host byte order\" in networking jargon).\n\nThe write_greyscale() call at lines 78-81 needs to emulate the img-\u003eplanes[plane] buffer when the buffer doesn\u0027t exist. Therefore, for high bit depth, write_greyscale() needs to generate 16-bit words in the CPU\u0027s byte order.",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 5
       },
       "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
