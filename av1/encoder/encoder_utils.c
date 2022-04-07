@@ -825,6 +825,12 @@ BLOCK_SIZE av1_select_sb_size(const AV1EncoderConfig *const oxcf, int width,
     if (!is_480p_or_lesser && is_1080p_or_lesser && oxcf->mode == GOOD &&
         oxcf->row_mt == 1 && oxcf->max_threads > 1 && oxcf->speed >= 5)
       return BLOCK_64X64;
+
+    // As SB size of 128x128 may not be advantageous for allintra encode, SB
+    // size of 64x64 is forced for faster speed levels.
+    const int is_4k_or_larger = AOMMIN(width, height) >= 2160;
+    if (oxcf->mode == ALLINTRA && oxcf->speed >= 9 && !is_4k_or_larger)
+      return BLOCK_64X64;
   }
   return BLOCK_128X128;
 }
