@@ -70,6 +70,41 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "226677a1_779f585b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-07T18:41:04Z",
+      "side": 1,
+      "message": "I agree that this code could be improved but it may not be worth spending much time on this code. So when I wrote this CL I focused on changing the little-endian byte order to the host byte order.",
+      "parentUuid": "fd660216_df489e1f",
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52a43ee7_0a67efec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-07T18:41:04Z",
+      "side": 1,
+      "message": "Mark: Thanks for the review!",
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "335f90ca_7a834a4e",
@@ -83,6 +118,30 @@
       "writtenOn": "2022-04-07T14:06:13Z",
       "side": 1,
       "message": "nit: You could move the definition of samples_per_batch up before this, and then use it in both loops.",
+      "range": {
+        "startLine": 45,
+        "startChar": 24,
+        "endLine": 45,
+        "endChar": 38
+      },
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7501ed6_70cd26b4",
+        "filename": "common/rawenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-07T18:41:04Z",
+      "side": 1,
+      "message": "This one is probably a matter of preference. By comparing with the array declarations at lines 40-41, we can easily see both loops use the correct array sizes.",
+      "parentUuid": "335f90ca_7a834a4e",
       "range": {
         "startLine": 45,
         "startChar": 24,
@@ -153,6 +212,30 @@
       "writtenOn": "2022-04-07T14:06:13Z",
       "side": 1,
       "message": "optional: This could just be \u0026batched, not that it really matters much one way or the other.",
+      "range": {
+        "startLine": 57,
+        "startChar": 29,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc628ea1_9859a950",
+        "filename": "common/rawenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-07T18:41:04Z",
+      "side": 1,
+      "message": "The type of the second parameter of writer_func is const uint8_t *, so we can\u0027t use \u0026batched without changing the prototype of writer_func.",
+      "parentUuid": "7f09acdd_ef9e919b",
       "range": {
         "startLine": 57,
         "startChar": 29,
