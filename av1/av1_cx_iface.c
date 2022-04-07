@@ -307,7 +307,7 @@ static const struct av1_extracfg default_extra_cfg = {
   1,                       // superres
   1,                       // enable overlay
   1,                       // enable palette
-  !CONFIG_SHARP_SETTINGS,  // enable intrabc
+  1,                       // enable intrabc
   1,                       // enable angle delta
 #if CONFIG_DENOISE
   0,   // noise_level
