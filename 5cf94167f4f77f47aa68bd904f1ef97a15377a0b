@@ -52,6 +52,24 @@
       "parentUuid": "ed81150e_f72e5a36",
       "revId": "5cf94167f4f77f47aa68bd904f1ef97a15377a0b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d91769c_70960aa1",
+        "filename": "test/test.cmake",
+        "patchSetId": 10
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-07T19:52:16Z",
+      "side": 1,
+      "message": "Here are the options I can think of:\n1. Remove mock_ratectrl_qmode from AV1_RC_QMODE_SOURCES\n2. Have test_av1_rc_qmode include mock_ratectrl_qmode.h even though it doesn\u0027t use it, just to prove that it compiles. \n3. Add a test to test_av1_rc_qmode that actually uses the mock, to prove that gmock is actually working upstream.\n\nI\u0027d say #3 seems like overkill, but I\u0027m happy to do any of the above if there\u0027s a consensus on what should be done.",
+      "parentUuid": "de3d92e2_d3795262",
+      "revId": "5cf94167f4f77f47aa68bd904f1ef97a15377a0b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
