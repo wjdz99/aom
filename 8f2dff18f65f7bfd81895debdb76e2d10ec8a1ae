@@ -53,6 +53,46 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd660216_df489e1f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-07T14:06:13Z",
+      "side": 1,
+      "message": "Frankly, I don\u0027t really know it there\u0027s any point to this batching up 4 samples. That\u0027s how it was done in https://aomedia.git.corp.google.com/aom/+/330444dd, so I left it that way, but this may well be an unnecessary optimization. Or if you\u0027re really going to batch, them why not do more?\n\nBut it also may not be worth worrying that much about, one way or the other. This isn\u0027t really code that gets exercised much. (Obviously, since it\u0027s been broken since 2018!)",
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "335f90ca_7a834a4e",
+        "filename": "common/rawenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-07T14:06:13Z",
+      "side": 1,
+      "message": "nit: You could move the definition of samples_per_batch up before this, and then use it in both loops.",
+      "range": {
+        "startLine": 45,
+        "startChar": 24,
+        "endLine": 45,
+        "endChar": 38
+      },
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "edf60264_6894093b",
@@ -100,6 +140,29 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f09acdd_ef9e919b",
+        "filename": "common/rawenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-07T14:06:13Z",
+      "side": 1,
+      "message": "optional: This could just be \u0026batched, not that it really matters much one way or the other.",
+      "range": {
+        "startLine": 57,
+        "startChar": 29,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "db9136c6_38567398",
@@ -113,6 +176,30 @@
       "writtenOn": "2022-04-07T13:54:51Z",
       "side": 1,
       "message": "The code here (lines 82-87) is the primary code path. Note that we write the bytes in the img-\u003eplanes[plane] buffer directly to the file. For high bit depth, the samples in img-\u003eplanes[plane] buffer are 16-bit words in the CPU\u0027s byte order (called the \"host byte order\" in networking jargon).\n\nThe write_greyscale() call at lines 78-81 needs to emulate the img-\u003eplanes[plane] buffer when the buffer doesn\u0027t exist. Therefore, for high bit depth, write_greyscale() needs to generate 16-bit words in the CPU\u0027s byte order.",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b7113e4_8b09cde3",
+        "filename": "common/rawenc.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-07T14:06:13Z",
+      "side": 1,
+      "message": "Okay, yeah, I see that now. That makes sense.\n\nMy CL was an attempt to do something slightly more generic (e.g. support 12 bit as well as 10 bit) than the gChips patch I based it on at http://google3/third_party/webm_hw_bigwave/hardware/configurations/libaom07a46fd12.patch?l\u003d89-99\u0026rcl\u003d437371175, but it hadn\u0027t occurred to me that the file format was native endian.\n\nThanks for fixing this.",
+      "parentUuid": "db9136c6_38567398",
       "range": {
         "startLine": 82,
         "startChar": 0,
