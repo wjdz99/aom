@@ -18,6 +18,23 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fe837e4_ba3cb1c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-07T13:42:29Z",
+      "side": 1,
+      "message": "IIUC, this CL assumes that the file format has the same byte order as the CPU that the code is running on. Is that a valid assumption?",
+      "revId": "8f2dff18f65f7bfd81895debdb76e2d10ec8a1ae",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "edf60264_6894093b",
