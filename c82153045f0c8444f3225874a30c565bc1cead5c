@@ -51,6 +51,24 @@
       "parentUuid": "603f3865_3aac56d9",
       "revId": "c82153045f0c8444f3225874a30c565bc1cead5c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5a3979c_46f6aef9",
+        "filename": "av1/encoder/bitstream.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 4161,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-08T18:25:19Z",
+      "side": 1,
+      "message": "\u003e Thank you for the comment. Although I don\u0027t really understand your comment, it made me take a closer look at the code. I found that write_frame_header_obu() leaves saved_wb unmodified if !seq_params-\u003ereduced_still_picture_hdr) \u0026\u0026 encode_show_existing_frame(cm). So we still need the saved_wb.bit_buffer !\u003d NULL check at line 4149. I will just revert this CL.\n\nSorry for the vague comment, this is what I had meant. I think the code could be restructured to merge these checks, but as they are it\u0027s ok.",
+      "parentUuid": "a1f5feeb_1a15fc5d",
+      "revId": "c82153045f0c8444f3225874a30c565bc1cead5c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
