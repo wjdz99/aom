@@ -16,6 +16,23 @@
       "message": "LGTM. Thanks.",
       "revId": "f56390ad54a30b10f3ee4589401ee54815bd721c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "31bcfd09_c5013b44",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1225,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-08T18:48:19Z",
+      "side": 1,
+      "message": "James, Jayasanker, Ranjit: I noticed that the conditional expression here differs from the conditional expression at line 1300 of the original code. It seems that we can fix the crash by adding \u0026\u0026 av1_need_dv_costs(cpi) here.",
+      "revId": "f56390ad54a30b10f3ee4589401ee54815bd721c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
