@@ -1219,13 +1219,10 @@ static AOM_INLINE void accumulate_counters_enc_workers(AV1_COMP *cpi,
       av1_accumulate_cyclic_refresh_counters(cpi->cyclic_refresh,
                                              &thread_data->td->mb);
     if (thread_data->td != &cpi->td) {
-      if (cpi->sf.inter_sf.mv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
-        aom_free(thread_data->td->mb.mv_costs);
-      }
-      if (cpi->sf.intra_sf.dv_cost_upd_level != INTERNAL_COST_UPD_OFF &&
-          av1_need_dv_costs(cpi)) {
-        aom_free(thread_data->td->mb.dv_costs);
-      }
+      aom_free(thread_data->td->mb.mv_costs);
+      thread_data->td->mb.mv_costs = NULL;
+      aom_free(thread_data->td->mb.dv_costs);
+      thread_data->td->mb.dv_costs = NULL;
     }
     av1_dealloc_mb_data(&cpi->common, &thread_data->td->mb);
 
@@ -1297,6 +1294,8 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
                         (MvCosts *)aom_malloc(sizeof(MvCosts)));
         memcpy(thread_data->td->mb.mv_costs, cpi->td.mb.mv_costs,
                sizeof(MvCosts));
+      } else {
+        thread_data->td->mb.mv_costs = NULL;
       }
       if ((cpi->sf.intra_sf.dv_cost_upd_level != INTERNAL_COST_UPD_OFF) &&
           av1_need_dv_costs(cpi)) {
@@ -1304,6 +1303,8 @@ static AOM_INLINE void prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
                         (IntraBCMVCosts *)aom_malloc(sizeof(IntraBCMVCosts)));
         memcpy(thread_data->td->mb.dv_costs, cpi->td.mb.dv_costs,
                sizeof(IntraBCMVCosts));
+      } else {
+        thread_data->td->mb.dv_costs = NULL;
       }
     }
     av1_alloc_mb_data(cpi, &thread_data->td->mb);
@@ -1374,6 +1375,8 @@ static AOM_INLINE void fp_prepare_enc_workers(AV1_COMP *cpi, AVxWorkerHook hook,
                         (MvCosts *)aom_malloc(sizeof(MvCosts)));
         memcpy(thread_data->td->mb.mv_costs, cpi->td.mb.mv_costs,
                sizeof(MvCosts));
+      } else {
+        thread_data->td->mb.mv_costs = NULL;
       }
     }
 
@@ -1651,9 +1654,8 @@ void av1_fp_encode_tiles_row_mt(AV1_COMP *cpi) {
   for (int i = num_workers - 1; i >= 0; i--) {
     EncWorkerData *const thread_data = &cpi->mt_info.tile_thr_data[i];
     if (thread_data->td != &cpi->td) {
-      if (cpi->sf.inter_sf.mv_cost_upd_level != INTERNAL_COST_UPD_OFF) {
-        aom_free(thread_data->td->mb.mv_costs);
-      }
+      aom_free(thread_data->td->mb.mv_costs);
+      thread_data->td->mb.mv_costs = NULL;
       assert(!thread_data->td->mb.dv_costs);
     }
     av1_dealloc_mb_data(cm, &thread_data->td->mb);
