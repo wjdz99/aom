@@ -14,9 +14,15 @@
 #include <vector>
 
 #include "av1/ratectrl_qmode.h"
+#include "test/mock_ratectrl_qmode.h"
 #include "third_party/googletest/src/googletest/include/gtest/gtest.h"
 
 namespace aom {
+
+using ::testing::ElementsAre;
+using ::testing::Field;
+using ::testing::Return;
+using ::testing::SizeIs;
 
 void test_gop_display_order(const GopStruct &gop_struct) {
   // Test whether show frames' order indices are sequential
@@ -335,6 +341,18 @@ TEST(RateControlQModeTest, ComputeTplGopDepStats) {
     EXPECT_NEAR(sum, ref_sum, 0.0000001);
     break;
   }
+}
+
+// Simple test to verify that MockRateControlQMode builds, since it's the first
+// use of gmock here.
+TEST(RateControlQModeTest, TestMock) {
+  testing::NiceMock<MockRateControlQMode> mock_rc;
+  // EXPECT_CALL won't build in a no-thread config, so use ON_CALL instead.
+  ON_CALL(mock_rc, DetermineGopInfo(SizeIs(10)))
+      .WillByDefault(Return(GopStructList{ { 6, {} }, { 4, {} } }));
+  EXPECT_THAT(mock_rc.DetermineGopInfo(FirstpassInfo(10)),
+              ElementsAre(Field(&GopStruct::show_frame_count, 6),
+                          Field(&GopStruct::show_frame_count, 4)));
 }
 
 }  // namespace aom
