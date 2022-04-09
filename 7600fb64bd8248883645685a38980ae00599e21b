@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2677d66_96fdd0d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-09T01:40:40Z",
+      "side": 1,
+      "message": "This CL must be reverted in conjunction with \"Allocate TPL buffers only when required\".",
+      "revId": "7600fb64bd8248883645685a38980ae00599e21b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
