@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15655b8e_515c8586",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-09T17:18:40Z",
+      "side": 1,
+      "message": "Nit: this could be simplified by doing:\n\nif (is_key_frame) {\n} else if (is_art_frame) {\n} else {\n}",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 61
+      },
+      "revId": "0cb409693014d5792d30eb50bd445b09a967013e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
