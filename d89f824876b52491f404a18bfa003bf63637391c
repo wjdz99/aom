@@ -33,6 +33,24 @@
       "message": "Looks like there\u0027s a build problem on generic-gnu,no-thread, so you can hold off on reviewing until I get that sorted out.",
       "revId": "d89f824876b52491f404a18bfa003bf63637391c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ae4d4d6_40fafeed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-09T01:03:27Z",
+      "side": 1,
+      "message": "Okay, it turns out GTEST_HAS_PTHREAD\u003d0 needs to be public, because it gets checked by checked by interface headers, not just by the implementation. It works now without threads.",
+      "parentUuid": "355bb903_68f48e6a",
+      "revId": "d89f824876b52491f404a18bfa003bf63637391c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
