@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fab31ed_6ef0817b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30017
+      },
+      "writtenOn": "2022-04-11T17:32:42Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this CL, we have created a wrapper function \u0027aom_hadamard_8x8_dual_neon()\u0027 to facilitate hadamard transform of two 8x8 blocks for NEON. This patch also enables unit test support for the same.\n\nWe ensured bit match output for both 32 bit and 64 bit ARM build.\n\nPlease review the patch.\n\nThanks \u0026 Regards, \nArun\n",
+      "revId": "411af44fb06b297bad105d5c69d44f4ae7df16ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
