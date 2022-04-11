@@ -272,6 +272,9 @@ static const struct av1_extracfg default_extra_cfg = {
   0,                            // film_grain_test_vector
   NULL,                         // film_grain_table_filename
   0,                            // motion_vector_unit_test
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
+  0,                            // fpmt_unit_test
+#endif
   1,                            // CDF update mode
   1,                            // enable rectangular partitions
   1,                            // enable ab shape partitions
