@@ -16,6 +16,131 @@
       "message": "Tom: Please review the changes to test/test.cmake. Thank you!",
       "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cfa097c4_c021e12f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T22:09:26Z",
+      "side": 1,
+      "message": "Mark: Thanks for the fix. I suggest some changes.",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5f72055_60d8df2b",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T22:09:26Z",
+      "side": 1,
+      "message": "Nit: change \"here\" to \"in libaom\" to be more precise? Or we could omit \"since it\u0027s the first use of gmock here\".",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26dcfe4b_cd54080f",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T22:09:26Z",
+      "side": 1,
+      "message": "We should be able to merge these two target_include_directories() calls:\n\n  target_include_directories(\n    aom_gtest\n    PUBLIC \"${AOM_ROOT}/third_party/googletest/src/googletest/include\"\n    PRIVATE \"${AOM_ROOT}/third_party/googletest/src/googletest\")",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "28e639b7_fd5fd042",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T22:09:26Z",
+      "side": 1,
+      "message": "Update this comment to be specific to the GTEST_HAS_PTHREAD macro because this comment does not apply to the GTEST_OS_WINDOWS macro. (Please see my comment at line 386.)",
+      "range": {
+        "startLine": 383,
+        "startChar": 4,
+        "endLine": 383,
+        "endChar": 36
+      },
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af0aa26f_afbc5265",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T22:09:26Z",
+      "side": 1,
+      "message": "Undo this change. GTEST_OS_WINDOWS is defined by \"gtest/internal/gtest-port-arch.h\". Here is the relevant comment from gtest/internal/gtest-port.h:\n\n```\n// Platform-indicating macros\n// --------------------------\n//\n// Macros indicating the platform on which Google Test is being used\n// (a macro is defined to 1 if compiled on the given platform;\n// otherwise UNDEFINED -- it\u0027s never defined to 0.).  Google Test\n// defines these macros automatically.  Code outside Google Test MUST\n// NOT define them.\n//\n//   ...\n//   GTEST_OS_WINDOWS  - Windows (Desktop, MinGW, or Mobile)\n//   ...\n```\n\nNote: We should delete lines 385-386. Probably should do that in a separate CL.",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "084c8db1_8321b1cf",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T22:09:26Z",
+      "side": 1,
+      "message": "We should be able to merge these two target_include_directories() calls:\n\n  target_include_directories(\n    aom_gmock\n    PUBLIC \"${AOM_ROOT}/third_party/googletest/src/googlemock/include\"\n    PRIVATE \"${AOM_ROOT}/third_party/googletest/src/googlemock\")",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d38e2f78_50246949",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T22:09:26Z",
+      "side": 1,
+      "message": "Are these three target_link_libraries() calls (at lines 418, 424, 431) necessary? We can build libaom without them right now.",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
