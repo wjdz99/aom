@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3cfb9a7d_1a427430",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T19:53:00Z",
+      "side": 1,
+      "message": "Jayasanker: I annotated av1/encoder/ethread.c to make concrete the comments I suggested at the end of https://crbug.com/aomedia/3268#c5.",
+      "revId": "bd9055e8d3f6dc85b13eb33f0eab7d2d6675c55d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "93f110bf_18868436",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1221,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T19:53:00Z",
+      "side": 1,
+      "message": "We can add a comment here that says something like \"Keep these conditionals in sync with the corresponding conditionals in prepare_enc_workers().\"",
+      "revId": "bd9055e8d3f6dc85b13eb33f0eab7d2d6675c55d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b596def3_ac65cf23",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1293,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T19:53:00Z",
+      "side": 1,
+      "message": "We can add a comment here that says something like \"Keep these conditionals in sync with the corresponding conditionals in accumulate_counters_enc_workers().\"",
+      "revId": "bd9055e8d3f6dc85b13eb33f0eab7d2d6675c55d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7cb5047b_61e7aac9",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1372,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T19:53:00Z",
+      "side": 1,
+      "message": "We can add a comment here that says something like \"Keep this conditional in sync with the corresponding conditional in av1_fp_encode_tiles_row_mt().\"",
+      "revId": "bd9055e8d3f6dc85b13eb33f0eab7d2d6675c55d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3ab1605_44e3a193",
+        "filename": "av1/encoder/ethread.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1656,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-11T19:53:00Z",
+      "side": 1,
+      "message": "We can add a comment here that says something like \"Keep this conditional in sync with the corresponding conditional in fp_prepare_enc_workers().\"",
+      "revId": "bd9055e8d3f6dc85b13eb33f0eab7d2d6675c55d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
