@@ -888,6 +888,9 @@ typedef struct aom_codec_enc_cfg {
    */
   unsigned int use_fixed_qp_offsets;
 
+  /*!\brief Deprecated and ignored. DO NOT USE. */
+  int fixed_qp_offsets[5];
+
   /*!\brief Options defined per config file
    *
    */
