@@ -263,10 +263,9 @@ static INLINE void sync_write(AV1LfSync *const lf_sync, int r, int c,
 }
 
 static AOM_FORCE_INLINE bool skip_loop_filter_plane(const int planes_to_lf[3],
-                                                    int plane,
-                                                    bool is_realtime) {
+                                                    int plane, int do_lpf_opt) {
   // In realtime mode, we have the option to filter both chroma planes together
-  if (is_realtime) {
+  if (do_lpf_opt == 2) {
     if (plane == AOM_PLANE_Y) {
       return !planes_to_lf[plane];
     }
@@ -286,7 +285,7 @@ static AOM_FORCE_INLINE bool skip_loop_filter_plane(const int planes_to_lf[3],
 }
 
 static void enqueue_lf_jobs(AV1LfSync *lf_sync, int start, int stop,
-                            const int planes_to_lf[3], int is_realtime) {
+                            const int planes_to_lf[3], int do_lpf_opt) {
   int mi_row, plane, dir;
   AV1LfMTInfo *lf_job_queue = lf_sync->job_queue;
   lf_sync->jobs_enqueued = 0;
@@ -298,14 +297,14 @@ static void enqueue_lf_jobs(AV1LfSync *lf_sync, int start, int stop,
   for (dir = 0; dir < 2; ++dir) {
     for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
       for (plane = 0; plane < 3; ++plane) {
-        if (skip_loop_filter_plane(planes_to_lf, plane, is_realtime)) {
+        if (skip_loop_filter_plane(planes_to_lf, plane, do_lpf_opt)) {
           continue;
         }
         if (!planes_to_lf[plane]) continue;
         lf_job_queue->mi_row = mi_row;
         lf_job_queue->plane = plane;
         lf_job_queue->dir = dir;
-        lf_job_queue->is_realtime = is_realtime;
+        lf_job_queue->do_lpf_opt = do_lpf_opt;
         lf_job_queue++;
         lf_sync->jobs_enqueued++;
       }
@@ -336,7 +335,7 @@ static AV1LfMTInfo *get_lf_job_info(AV1LfSync *lf_sync) {
 static INLINE void thread_loop_filter_rows(
     const YV12_BUFFER_CONFIG *const frame_buffer, AV1_COMMON *const cm,
     struct macroblockd_plane *planes, MACROBLOCKD *xd, int mi_row, int plane,
-    int dir, int is_realtime, AV1LfSync *const lf_sync,
+    int dir, int do_lpf_opt, AV1LfSync *const lf_sync,
     AV1_DEBLOCKING_PARAMETERS *params_buf, TX_SIZE *tx_buf) {
   const int sb_cols =
       ALIGN_POWER_OF_TWO(cm->mi_params.mi_cols, MAX_MIB_SIZE_LOG2) >>
@@ -344,7 +343,7 @@ static INLINE void thread_loop_filter_rows(
   const int r = mi_row >> MAX_MIB_SIZE_LOG2;
   int mi_col, c;
 
-  const bool joint_filter_chroma = is_realtime && plane > AOM_PLANE_Y;
+  const bool joint_filter_chroma = (do_lpf_opt == 2) && plane > AOM_PLANE_Y;
   const int num_planes = joint_filter_chroma ? 2 : 1;
   assert(IMPLIES(joint_filter_chroma, plane == AOM_PLANE_U));
 
@@ -354,13 +353,14 @@ static INLINE void thread_loop_filter_rows(
 
       av1_setup_dst_planes(planes, cm->seq_params->sb_size, frame_buffer,
                            mi_row, mi_col, plane, plane + num_planes);
-      if (is_realtime) {
+      if (do_lpf_opt) {
         if (plane == AOM_PLANE_Y) {
           av1_filter_block_plane_vert_rt(cm, xd, &planes[plane], mi_row, mi_col,
                                          params_buf, tx_buf);
         } else {
           av1_filter_block_plane_vert_rt_chroma(cm, xd, &planes[plane], mi_row,
-                                                mi_col, params_buf, tx_buf);
+                                                mi_col, params_buf, tx_buf,
+                                                plane, joint_filter_chroma);
         }
       } else {
         av1_filter_block_plane_vert(cm, xd, plane, &planes[plane], mi_row,
@@ -385,13 +385,14 @@ static INLINE void thread_loop_filter_rows(
 
       av1_setup_dst_planes(planes, cm->seq_params->sb_size, frame_buffer,
                            mi_row, mi_col, plane, plane + num_planes);
-      if (is_realtime) {
+      if (do_lpf_opt) {
         if (plane == AOM_PLANE_Y) {
           av1_filter_block_plane_horz_rt(cm, xd, &planes[plane], mi_row, mi_col,
                                          params_buf, tx_buf);
         } else {
           av1_filter_block_plane_horz_rt_chroma(cm, xd, &planes[plane], mi_row,
-                                                mi_col, params_buf, tx_buf);
+                                                mi_col, params_buf, tx_buf,
+                                                plane, joint_filter_chroma);
         }
       } else {
         av1_filter_block_plane_horz(cm, xd, plane, &planes[plane], mi_row,
@@ -407,10 +408,10 @@ static int loop_filter_row_worker(void *arg1, void *arg2) {
   LFWorkerData *const lf_data = (LFWorkerData *)arg2;
   AV1LfMTInfo *cur_job_info;
   while ((cur_job_info = get_lf_job_info(lf_sync)) != NULL) {
-    const int is_realtime = cur_job_info->is_realtime;
+    const int do_lpf_opt = cur_job_info->do_lpf_opt;
     thread_loop_filter_rows(lf_data->frame_buffer, lf_data->cm, lf_data->planes,
                             lf_data->xd, cur_job_info->mi_row,
-                            cur_job_info->plane, cur_job_info->dir, is_realtime,
+                            cur_job_info->plane, cur_job_info->dir, do_lpf_opt,
                             lf_sync, lf_data->params_buf, lf_data->tx_buf);
   }
   return 1;
@@ -420,7 +421,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                                 MACROBLOCKD *xd, int start, int stop,
                                 const int planes_to_lf[3], AVxWorker *workers,
                                 int num_workers, AV1LfSync *lf_sync,
-                                int is_realtime) {
+                                int do_lpf_opt) {
   const AVxWorkerInterface *const winterface = aom_get_worker_interface();
   // Number of superblock rows and cols
   const int sb_rows =
@@ -440,7 +441,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
            sizeof(*(lf_sync->cur_sb_col[i])) * sb_rows);
   }
 
-  enqueue_lf_jobs(lf_sync, start, stop, planes_to_lf, is_realtime);
+  enqueue_lf_jobs(lf_sync, start, stop, planes_to_lf, do_lpf_opt);
 
   // Set up loopfilter thread data.
   for (i = num_workers - 1; i >= 0; --i) {
@@ -470,7 +471,7 @@ static void loop_filter_rows_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
 
 static void loop_filter_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                              MACROBLOCKD *xd, int start, int stop,
-                             const int planes_to_lf[3], int is_realtime) {
+                             const int planes_to_lf[3], int do_lpf_opt) {
   // Filter top rows of all planes first, in case the output can be partially
   // reconstructed row by row.
   int mi_row, plane, dir;
@@ -479,13 +480,13 @@ static void loop_filter_rows(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   TX_SIZE tx_buf[MAX_MIB_SIZE];
   for (mi_row = start; mi_row < stop; mi_row += MAX_MIB_SIZE) {
     for (plane = 0; plane < 3; ++plane) {
-      if (skip_loop_filter_plane(planes_to_lf, plane, is_realtime)) {
+      if (skip_loop_filter_plane(planes_to_lf, plane, do_lpf_opt)) {
         continue;
       }
 
       for (dir = 0; dir < 2; ++dir) {
         thread_loop_filter_rows(frame, cm, xd->plane, xd, mi_row, plane, dir,
-                                is_realtime, /*lf_sync=*/NULL, params_buf,
+                                do_lpf_opt, /*lf_sync=*/NULL, params_buf,
                                 tx_buf);
       }
     }
@@ -496,7 +497,7 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
                               MACROBLOCKD *xd, int plane_start, int plane_end,
                               int partial_frame, AVxWorker *workers,
                               int num_workers, AV1LfSync *lf_sync,
-                              int is_realtime) {
+                              int do_lpf_opt) {
   int start_mi_row, end_mi_row, mi_rows_to_filter;
   int planes_to_lf[3];
 
@@ -523,11 +524,11 @@ void av1_loop_filter_frame_mt(YV12_BUFFER_CONFIG *frame, AV1_COMMON *cm,
   if (num_workers > 1) {
     // Enqueue and execute loopfiltering jobs.
     loop_filter_rows_mt(frame, cm, xd, start_mi_row, end_mi_row, planes_to_lf,
-                        workers, num_workers, lf_sync, is_realtime);
+                        workers, num_workers, lf_sync, do_lpf_opt);
   } else {
     // Directly filter in the main thread.
     loop_filter_rows(frame, cm, xd, start_mi_row, end_mi_row, planes_to_lf,
-                     is_realtime);
+                     do_lpf_opt);
   }
 }
 

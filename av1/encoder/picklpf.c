@@ -69,9 +69,14 @@ static int64_t try_filter_frame(const YV12_BUFFER_CONFIG *sd,
     case 2: cm->lf.filter_level_v = filter_level[0]; break;
   }
 
+  int do_lpf_opt = 0;
+  if (cpi->sf.tx_sf.inter_tx_size_search_init_depth_rect >= 1 &&
+      cpi->sf.tx_sf.inter_tx_size_search_init_depth_sqr >= 1) {
+    do_lpf_opt = 1;
+  }
   av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, &cpi->td.mb.e_mbd, plane,
                            plane + 1, partial_frame, mt_info->workers,
-                           num_workers, &mt_info->lf_row_sync, 0);
+                           num_workers, &mt_info->lf_row_sync, do_lpf_opt);
 
   filt_err = aom_get_sse_plane(sd, &cm->cur_frame->buf, plane,
                                cm->seq_params->use_highbitdepth);

@@ -769,7 +769,8 @@ static AOM_FORCE_INLINE void set_one_param_for_line_chroma(
     const EDGE_DIR edge_dir, uint32_t mi_col, uint32_t mi_row, int coord,
     bool is_first_block, TX_SIZE prev_tx_size,
     const struct macroblockd_plane *const plane_ptr, const ptrdiff_t mode_step,
-    const int scale_horz, const int scale_vert, int *min_dim) {
+    const int scale_horz, const int scale_vert, int *min_dim, int plane,
+    int joint_filter_chroma) {
   const int is_vert = edge_dir == VERT_EDGE;
   (void)plane_ptr;
   assert((mi_col << MI_SIZE_LOG2) <
@@ -790,7 +791,7 @@ static AOM_FORCE_INLINE void set_one_param_for_line_chroma(
   const MB_MODE_INFO *mbmi = mi[0];
   assert(mbmi);
 
-  const TX_SIZE ts = get_transform_size(xd, mi[0], mi_row, mi_col, AOM_PLANE_U,
+  const TX_SIZE ts = get_transform_size(xd, mi[0], mi_row, mi_col, plane,
                                         scale_horz, scale_vert);
   *tx_size = ts;
 
@@ -812,27 +813,28 @@ static AOM_FORCE_INLINE void set_one_param_for_line_chroma(
     const int pv_row = is_vert ? (mi_row) : (mi_row - (1 << scale_vert));
     const int pv_col = is_vert ? (mi_col - (1 << scale_horz)) : (mi_col);
     const TX_SIZE pv_ts =
-        is_first_block ? get_transform_size(xd, mi_prev, pv_row, pv_col,
-                                            AOM_PLANE_U, scale_horz, scale_vert)
+        is_first_block ? get_transform_size(xd, mi_prev, pv_row, pv_col, plane,
+                                            scale_horz, scale_vert)
                        : prev_tx_size;
     if (is_first_block) {
       *min_dim = is_vert ? tx_size_high[pv_ts] : tx_size_wide[pv_ts];
     }
 
-    uint8_t u_level =
-        av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_U, mbmi);
-    if (!u_level) {
-      u_level = av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_U,
-                                     mi_prev);
+    uint8_t level =
+        av1_get_filter_level(cm, &cm->lf_info, edge_dir, plane, mbmi);
+    if (!level) {
+      level = av1_get_filter_level(cm, &cm->lf_info, edge_dir, plane, mi_prev);
     }
 #ifndef NDEBUG
-    uint8_t v_level =
-        av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_V, mbmi);
-    if (!v_level) {
-      v_level = av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_V,
-                                     mi_prev);
+    if (joint_filter_chroma) {
+      uint8_t v_level =
+          av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_V, mbmi);
+      if (!v_level) {
+        v_level = av1_get_filter_level(cm, &cm->lf_info, edge_dir, AOM_PLANE_V,
+                                       mi_prev);
+      }
+      assert(level == v_level);
     }
-    assert(u_level == v_level);
 #endif  // NDEBUG
     const int32_t pu_edge = mi_prev != mbmi;
 
@@ -840,12 +842,12 @@ static AOM_FORCE_INLINE void set_one_param_for_line_chroma(
       curr_skipped = mbmi->skip_txfm && is_inter_block(mbmi);
     }
     // For realtime mode, u and v have the same level
-    if ((!curr_skipped || pu_edge) && u_level) {
+    if ((!curr_skipped || pu_edge) && level) {
       params->filter_length = is_vert ? vert_filter_length_chroma[ts][pv_ts]
                                       : horz_filter_length_chroma[ts][pv_ts];
 
       const loop_filter_thresh *const limits = cm->lf_info.lfthr;
-      params->lfthr = limits + u_level;
+      params->lfthr = limits + level;
     }
   }
   const int tx_dim = is_vert ? tx_size_high[ts] : tx_size_wide[ts];
@@ -858,7 +860,7 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_chroma(
     const EDGE_DIR edge_dir, uint32_t mi_col, uint32_t mi_row,
     const struct macroblockd_plane *const plane_ptr, const uint32_t mi_range,
     const ptrdiff_t mode_step, const int scale_horz, const int scale_vert,
-    int *min_dim) {
+    int *min_dim, int plane, int joint_filter_chroma) {
   const int is_vert = edge_dir == VERT_EDGE;
 
   AV1_DEBLOCKING_PARAMETERS *params = params_buf;
@@ -868,9 +870,10 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_chroma(
   TX_SIZE prev_tx_size = TX_INVALID;
 
   // Unroll the first iteration of the loop
-  set_one_param_for_line_chroma(
-      params, tx_size, cm, xd, edge_dir, mi_col, mi_row, *counter_ptr, true,
-      prev_tx_size, plane_ptr, mode_step, scale_horz, scale_vert, min_dim);
+  set_one_param_for_line_chroma(params, tx_size, cm, xd, edge_dir, mi_col,
+                                mi_row, *counter_ptr, true, prev_tx_size,
+                                plane_ptr, mode_step, scale_horz, scale_vert,
+                                min_dim, plane, joint_filter_chroma);
 
   // Advance
   int advance_units =
@@ -881,9 +884,10 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_chroma(
   tx_size += advance_units;
 
   while (*counter_ptr < mi_range) {
-    set_one_param_for_line_chroma(
-        params, tx_size, cm, xd, edge_dir, mi_col, mi_row, *counter_ptr, false,
-        prev_tx_size, plane_ptr, mode_step, scale_horz, scale_vert, min_dim);
+    set_one_param_for_line_chroma(params, tx_size, cm, xd, edge_dir, mi_col,
+                                  mi_row, *counter_ptr, false, prev_tx_size,
+                                  plane_ptr, mode_step, scale_horz, scale_vert,
+                                  min_dim, plane, joint_filter_chroma);
 
     // Advance
     advance_units =
@@ -895,10 +899,14 @@ static AOM_FORCE_INLINE void set_lpf_parameters_for_line_chroma(
   }
 }
 
-static AOM_INLINE void filter_vert(uint8_t *dst, int dst_stride,
+static AOM_INLINE void filter_vert(const MACROBLOCKD_PLANE *const plane_ptr,
+                                   int y, int x,
                                    const AV1_DEBLOCKING_PARAMETERS *params,
                                    const SequenceHeader *seq_params,
                                    USE_FILTER_TYPE use_filter_type) {
+  uint8_t *const dst_ptr = plane_ptr->dst.buf;
+  const int dst_stride = plane_ptr->dst.stride;
+  uint8_t *dst = dst_ptr + y * MI_SIZE * dst_stride + x * MI_SIZE;
   const loop_filter_thresh *limits = params->lfthr;
 #if CONFIG_AV1_HIGHBITDEPTH
   const int use_highbitdepth = seq_params->use_highbitdepth;
@@ -1102,9 +1110,14 @@ static AOM_INLINE void filter_vert(uint8_t *dst, int dst_stride,
 }
 
 static AOM_INLINE void filter_vert_chroma(
-    uint8_t *u_dst, uint8_t *v_dst, int dst_stride,
+    const MACROBLOCKD_PLANE *const plane_ptr, int y, int x,
     const AV1_DEBLOCKING_PARAMETERS *params, const SequenceHeader *seq_params,
     USE_FILTER_TYPE use_filter_type) {
+  uint8_t *const u_dst_ptr = plane_ptr[0].dst.buf;
+  uint8_t *const v_dst_ptr = plane_ptr[1].dst.buf;
+  const int dst_stride = plane_ptr->dst.stride;
+  uint8_t *u_dst = u_dst_ptr + y * MI_SIZE * dst_stride + x * MI_SIZE;
+  uint8_t *v_dst = v_dst_ptr + y * MI_SIZE * dst_stride + x * MI_SIZE;
   const loop_filter_thresh *u_limits = params->lfthr;
   const loop_filter_thresh *v_limits = params->lfthr;
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -1299,8 +1312,6 @@ void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
                                  const uint32_t mi_row, const uint32_t mi_col) {
   const uint32_t scale_horz = plane_ptr->subsampling_x;
   const uint32_t scale_vert = plane_ptr->subsampling_y;
-  uint8_t *const dst_ptr = plane_ptr->dst.buf;
-  const int dst_stride = plane_ptr->dst.stride;
   const int plane_mi_rows =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, scale_vert);
   const int plane_mi_cols =
@@ -1311,7 +1322,6 @@ void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
                              (MAX_MIB_SIZE >> scale_horz));
 
   for (int y = 0; y < y_range; y++) {
-    uint8_t *p = dst_ptr + y * MI_SIZE * dst_stride;
     for (int x = 0; x < x_range;) {
       // inner loop always filter vertical edges in a MI block. If MI size
       // is 8x8, it will filter the vertical edge aligned with a 8x8 block.
@@ -1332,12 +1342,11 @@ void av1_filter_block_plane_vert(const AV1_COMMON *const cm,
         tx_size = TX_4X4;
       }
 
-      filter_vert(p, dst_stride, &params, cm->seq_params, USE_SINGLE);
+      filter_vert(plane_ptr, y, x, &params, cm->seq_params, USE_SINGLE);
 
       // advance the destination pointer
       advance_units = tx_size_wide_unit[tx_size];
       x += advance_units;
-      p += advance_units * MI_SIZE;
     }
   }
 }
@@ -1349,8 +1358,6 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
                                     const uint32_t mi_col,
                                     AV1_DEBLOCKING_PARAMETERS *params_buf,
                                     TX_SIZE *tx_buf) {
-  uint8_t *const dst_ptr = plane_ptr->dst.buf;
-  const int dst_stride = plane_ptr->dst.stride;
   // Ensure that mi_cols/mi_rows are calculated based on frame dimension aligned
   // to MI_SIZE.
   const int plane_mi_cols =
@@ -1360,7 +1367,7 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
   const int y_range = AOMMIN((int)(plane_mi_rows - mi_row), MAX_MIB_SIZE);
   const int x_range = AOMMIN((int)(plane_mi_cols - mi_col), MAX_MIB_SIZE);
   const ptrdiff_t mode_step = 1;
-  for (int y = 0; y < y_range; y += 2) {
+  for (int y = 0; y < y_range; y++) {
     const uint32_t curr_y = mi_row + y;
     const uint32_t x_start = mi_col;
     const uint32_t x_end = mi_col + x_range;
@@ -1372,8 +1379,7 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
     AV1_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_buf;
     USE_FILTER_TYPE use_filter_type = USE_SINGLE;
-
-    uint8_t *p = dst_ptr + y * MI_SIZE * dst_stride;
+    int y_inc = 0;
 
     if ((y & 3) == 0 && (y + 3) < y_range && min_block_height >= 16) {
       // If we are on a row which is a multiple of 4, and the minimum height is
@@ -1381,9 +1387,10 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
       // prediction block. This is because dim 16 can only happen every unit of
       // 4 mi's.
       use_filter_type = USE_QUAD;
-      y += 2;
-    } else if ((y + 1) < y_range) {
+      y_inc = 3;
+    } else if ((y + 1) < y_range && min_block_height >= 8) {
       use_filter_type = USE_DUAL;
+      y_inc = 1;
     }
 
     for (int x = 0; x < x_range;) {
@@ -1392,15 +1399,15 @@ void av1_filter_block_plane_vert_rt(const AV1_COMMON *const cm,
         *tx_size = TX_4X4;
       }
 
-      filter_vert(p, dst_stride, params, cm->seq_params, use_filter_type);
+      filter_vert(plane_ptr, y, x, params, cm->seq_params, use_filter_type);
 
       // advance the destination pointer
       const uint32_t advance_units = tx_size_wide_unit[*tx_size];
       x += advance_units;
-      p += advance_units * MI_SIZE;
       params += advance_units;
       tx_size += advance_units;
     }
+    y += y_inc;
   }
 }
 
@@ -1408,12 +1415,9 @@ void av1_filter_block_plane_vert_rt_chroma(
     const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
     const MACROBLOCKD_PLANE *const plane_ptr, const uint32_t mi_row,
     const uint32_t mi_col, AV1_DEBLOCKING_PARAMETERS *params_buf,
-    TX_SIZE *tx_buf) {
+    TX_SIZE *tx_buf, int plane, bool joint_filter_chroma) {
   const uint32_t scale_horz = plane_ptr->subsampling_x;
   const uint32_t scale_vert = plane_ptr->subsampling_y;
-  uint8_t *const u_dst_ptr = plane_ptr[0].dst.buf;
-  uint8_t *const v_dst_ptr = plane_ptr[1].dst.buf;
-  const int dst_stride = plane_ptr->dst.stride;
   const int plane_mi_rows =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, scale_vert);
   const int plane_mi_cols =
@@ -1429,30 +1433,29 @@ void av1_filter_block_plane_vert_rt_chroma(
     const uint32_t x_start = mi_col + (0 << scale_horz);
     const uint32_t x_end = mi_col + (x_range << scale_horz);
     int min_height = tx_size_high[TX_64X64];
-    set_lpf_parameters_for_line_chroma(
-        params_buf, tx_buf, cm, xd, VERT_EDGE, x_start, curr_y, plane_ptr,
-        x_end, mode_step, scale_horz, scale_vert, &min_height);
+    set_lpf_parameters_for_line_chroma(params_buf, tx_buf, cm, xd, VERT_EDGE,
+                                       x_start, curr_y, plane_ptr, x_end,
+                                       mode_step, scale_horz, scale_vert,
+                                       &min_height, plane, joint_filter_chroma);
 
     AV1_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_buf;
-
-    uint8_t *u_dst = u_dst_ptr + y * MI_SIZE * dst_stride;
-    uint8_t *v_dst = v_dst_ptr + y * MI_SIZE * dst_stride;
-
     int use_filter_type = USE_SINGLE;
+    int y_inc = 0;
+
     if ((y & 3) == 0 && (y + 3) < y_range && min_height >= 16) {
       // If we are on a row which is a multiple of 4, and the minimum height is
       // 16 pixels, then the current and below 3 rows must contain the same tx
       // block. This is because dim 16 can only happen every unit of 4 mi's.
       use_filter_type = USE_QUAD;
-      y += 3;
+      y_inc = 3;
     } else if (y % 2 == 0 && (y + 1) < y_range && min_height >= 8) {
       // If we are on an even row, and the minimum height is 8 pixels, then the
       // current and below rows must contain the same tx block. This is because
       // dim 4 can only happen every unit of 2**0, and 8 every unit of 2**1,
       // etc.
       use_filter_type = USE_DUAL;
-      y++;
+      y_inc = 1;
     }
 
     for (int x = 0; x < x_range;) {
@@ -1465,24 +1468,31 @@ void av1_filter_block_plane_vert_rt_chroma(
         *tx_size = TX_4X4;
       }
 
-      filter_vert_chroma(u_dst, v_dst, dst_stride, params, cm->seq_params,
-                         use_filter_type);
+      if (joint_filter_chroma) {
+        filter_vert_chroma(plane_ptr, y, x, params, cm->seq_params,
+                           use_filter_type);
+      } else {
+        filter_vert(plane_ptr, y, x, params, cm->seq_params, use_filter_type);
+      }
 
       // advance the destination pointer
       const uint32_t advance_units = tx_size_wide_unit[*tx_size];
       x += advance_units;
-      u_dst += advance_units * MI_SIZE;
-      v_dst += advance_units * MI_SIZE;
       params += advance_units;
       tx_size += advance_units;
     }
+    y += y_inc;
   }
 }
 
-static AOM_INLINE void filter_horz(uint8_t *dst, int dst_stride,
+static AOM_INLINE void filter_horz(const MACROBLOCKD_PLANE *const plane_ptr,
+                                   int y, int x,
                                    const AV1_DEBLOCKING_PARAMETERS *params,
                                    const SequenceHeader *seq_params,
                                    USE_FILTER_TYPE use_filter_type) {
+  uint8_t *const dst_ptr = plane_ptr->dst.buf;
+  const int dst_stride = plane_ptr->dst.stride;
+  uint8_t *dst = dst_ptr + y * MI_SIZE * dst_stride + x * MI_SIZE;
   const loop_filter_thresh *limits = params->lfthr;
 #if CONFIG_AV1_HIGHBITDEPTH
   const int use_highbitdepth = seq_params->use_highbitdepth;
@@ -1686,9 +1696,15 @@ static AOM_INLINE void filter_horz(uint8_t *dst, int dst_stride,
 }
 
 static AOM_INLINE void filter_horz_chroma(
-    uint8_t *u_dst, uint8_t *v_dst, int dst_stride,
+    const MACROBLOCKD_PLANE *const plane_ptr, int y, int x,
     const AV1_DEBLOCKING_PARAMETERS *params, const SequenceHeader *seq_params,
     USE_FILTER_TYPE use_filter_type) {
+  uint8_t *const u_dst_ptr = plane_ptr[0].dst.buf;
+  uint8_t *const v_dst_ptr = plane_ptr[1].dst.buf;
+  const int dst_stride = plane_ptr->dst.stride;
+  uint8_t *u_dst = u_dst_ptr + y * dst_stride * MI_SIZE + x * MI_SIZE;
+  uint8_t *v_dst = v_dst_ptr + y * dst_stride * MI_SIZE + x * MI_SIZE;
+
   const loop_filter_thresh *u_limits = params->lfthr;
   const loop_filter_thresh *v_limits = params->lfthr;
 #if CONFIG_AV1_HIGHBITDEPTH
@@ -1883,8 +1899,6 @@ void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
                                  const uint32_t mi_row, const uint32_t mi_col) {
   const uint32_t scale_horz = plane_ptr->subsampling_x;
   const uint32_t scale_vert = plane_ptr->subsampling_y;
-  uint8_t *const dst_ptr = plane_ptr->dst.buf;
-  const int dst_stride = plane_ptr->dst.stride;
   const int plane_mi_rows =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, scale_vert);
   const int plane_mi_cols =
@@ -1894,7 +1908,6 @@ void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
   const int x_range = AOMMIN((int)(plane_mi_cols - (mi_col >> scale_horz)),
                              (MAX_MIB_SIZE >> scale_horz));
   for (int x = 0; x < x_range; x++) {
-    uint8_t *p = dst_ptr + x * MI_SIZE;
     for (int y = 0; y < y_range;) {
       // inner loop always filter vertical edges in a MI block. If MI size
       // is 8x8, it will first filter the vertical edge aligned with a 8x8
@@ -1915,12 +1928,11 @@ void av1_filter_block_plane_horz(const AV1_COMMON *const cm,
         tx_size = TX_4X4;
       }
 
-      filter_horz(p, dst_stride, &params, cm->seq_params, USE_SINGLE);
+      filter_horz(plane_ptr, y, x, &params, cm->seq_params, USE_SINGLE);
 
       // advance the destination pointer
       advance_units = tx_size_high_unit[tx_size];
       y += advance_units;
-      p += advance_units * dst_stride * MI_SIZE;
     }
   }
 }
@@ -1932,8 +1944,6 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
                                     const uint32_t mi_col,
                                     AV1_DEBLOCKING_PARAMETERS *params_buf,
                                     TX_SIZE *tx_buf) {
-  uint8_t *const dst_ptr = plane_ptr->dst.buf;
-  const int dst_stride = plane_ptr->dst.stride;
   // Ensure that mi_cols/mi_rows are calculated based on frame dimension aligned
   // to MI_SIZE.
   const int plane_mi_cols =
@@ -1944,7 +1954,7 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
   const int x_range = AOMMIN((int)(plane_mi_cols - mi_col), MAX_MIB_SIZE);
 
   const ptrdiff_t mode_step = cm->mi_params.mi_stride;
-  for (int x = 0; x < x_range; x += 2) {
+  for (int x = 0; x < x_range; x++) {
     const uint32_t curr_x = mi_col + x;
     const uint32_t y_start = mi_row;
     const uint32_t y_end = mi_row + y_range;
@@ -1956,8 +1966,7 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
     AV1_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_buf;
     USE_FILTER_TYPE filter_type = USE_SINGLE;
-
-    uint8_t *p = dst_ptr + x * MI_SIZE;
+    int x_inc = 0;
 
     if ((x & 3) == 0 && (x + 3) < x_range && min_block_width >= 16) {
       // If we are on a col which is a multiple of 4, and the minimum width is
@@ -1965,9 +1974,10 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
       // prediction block. This is because dim 16 can only happen every unit of
       // 4 mi's.
       filter_type = USE_QUAD;
-      x += 2;
-    } else if ((x + 1) < x_range) {
+      x_inc = 3;
+    } else if ((x + 1) < x_range && min_block_width >= 8) {
       filter_type = USE_DUAL;
+      x_inc = 1;
     }
 
     for (int y = 0; y < y_range;) {
@@ -1976,15 +1986,15 @@ void av1_filter_block_plane_horz_rt(const AV1_COMMON *const cm,
         *tx_size = TX_4X4;
       }
 
-      filter_horz(p, dst_stride, params, cm->seq_params, filter_type);
+      filter_horz(plane_ptr, y, x, params, cm->seq_params, filter_type);
 
       // advance the destination pointer
       const uint32_t advance_units = tx_size_high_unit[*tx_size];
       y += advance_units;
-      p += advance_units * dst_stride * MI_SIZE;
       params += advance_units;
       tx_size += advance_units;
     }
+    x += x_inc;
   }
 }
 
@@ -1992,12 +2002,9 @@ void av1_filter_block_plane_horz_rt_chroma(
     const AV1_COMMON *const cm, const MACROBLOCKD *const xd,
     const MACROBLOCKD_PLANE *const plane_ptr, const uint32_t mi_row,
     const uint32_t mi_col, AV1_DEBLOCKING_PARAMETERS *params_buf,
-    TX_SIZE *tx_buf) {
+    TX_SIZE *tx_buf, int plane, bool joint_filter_chroma) {
   const uint32_t scale_horz = plane_ptr->subsampling_x;
   const uint32_t scale_vert = plane_ptr->subsampling_y;
-  uint8_t *const u_dst_ptr = plane_ptr[0].dst.buf;
-  uint8_t *const v_dst_ptr = plane_ptr[1].dst.buf;
-  const int dst_stride = plane_ptr->dst.stride;
   const int plane_mi_rows =
       ROUND_POWER_OF_TWO(cm->mi_params.mi_rows, scale_vert);
   const int plane_mi_cols =
@@ -2012,30 +2019,29 @@ void av1_filter_block_plane_horz_rt_chroma(
     const uint32_t curr_x = mi_col + (x << scale_horz);
     const uint32_t y_end = mi_row + (y_range << scale_vert);
     int min_width = tx_size_wide[TX_64X64];
-    set_lpf_parameters_for_line_chroma(
-        params_buf, tx_buf, cm, xd, HORZ_EDGE, curr_x, y_start, plane_ptr,
-        y_end, mode_step, scale_horz, scale_vert, &min_width);
+    set_lpf_parameters_for_line_chroma(params_buf, tx_buf, cm, xd, HORZ_EDGE,
+                                       curr_x, y_start, plane_ptr, y_end,
+                                       mode_step, scale_horz, scale_vert,
+                                       &min_width, plane, joint_filter_chroma);
 
     AV1_DEBLOCKING_PARAMETERS *params = params_buf;
     TX_SIZE *tx_size = tx_buf;
-
-    uint8_t *u_dst = u_dst_ptr + x * MI_SIZE;
-    uint8_t *v_dst = v_dst_ptr + x * MI_SIZE;
-
     USE_FILTER_TYPE use_filter_type = USE_SINGLE;
+    int x_inc = 0;
+
     if ((x & 3) == 0 && (x + 3) < x_range && min_width >= 16) {
       // If we are on a col which is a multiple of 4, and the minimum width is
       // 16 pixels, then the current and right 3 cols must contain the same tx
       // block. This is because dim 16 can only happen every unit of 4 mi's.
       use_filter_type = USE_QUAD;
-      x += 3;
+      x_inc = 3;
     } else if (x % 2 == 0 && (x + 1) < x_range && min_width >= 8) {
       // If we are on an even col, and the minimum width is 8 pixels, then the
       // current and left cols must contain the same tx block. This is because
       // dim 4 can only happen every unit of 2**0, and 8 every unit of 2**1,
       // etc.
       use_filter_type = USE_DUAL;
-      x++;
+      x_inc = 1;
     }
 
     for (int y = 0; y < y_range;) {
@@ -2048,16 +2054,19 @@ void av1_filter_block_plane_horz_rt_chroma(
         *tx_size = TX_4X4;
       }
 
-      filter_horz_chroma(u_dst, v_dst, dst_stride, params, cm->seq_params,
-                         use_filter_type);
+      if (joint_filter_chroma) {
+        filter_horz_chroma(plane_ptr, y, x, params, cm->seq_params,
+                           use_filter_type);
+      } else {
+        filter_horz(plane_ptr, y, x, params, cm->seq_params, use_filter_type);
+      }
 
       // advance the destination pointer
       const int advance_units = tx_size_high_unit[*tx_size];
       y += advance_units;
-      u_dst += advance_units * dst_stride * MI_SIZE;
-      v_dst += advance_units * dst_stride * MI_SIZE;
       params += advance_units;
       tx_size += advance_units;
     }
+    x += x_inc;
   }
 }
