@@ -2541,7 +2541,9 @@ static aom_codec_err_t encoder_init(aom_codec_ctx_t *ctx) {
     if (priv->cfg.g_usage == ALLINTRA) {
       priv->extra_cfg.enable_cdef = 0;
     }
-    av1_initialize_enc();
+    bool is_allintra_and_q_mode =
+        priv->cfg.g_usage == ALLINTRA && priv->cfg.rc_end_usage == AOM_Q;
+    av1_initialize_enc(is_allintra_and_q_mode);
 
     res = validate_config(priv, &priv->cfg, &priv->extra_cfg);
 
