@@ -2244,7 +2244,16 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
   const int use_cdef = cm->seq_params->enable_cdef &&
                        !cm->features.coded_lossless && !cm->tiles.large_scale;
   const int use_restoration = is_restoration_used(cm);
-  const int is_realtime = cpi->sf.rt_sf.use_nonrd_pick_mode;
+  SPEED_FEATURES *sf = &cpi->sf;
+  int do_lpf_opt = 0;
+  if (sf->lpf_sf.lpf_pick == LPF_PICK_FROM_Q &&
+      sf->tx_sf.inter_tx_size_search_init_depth_rect >= 1 &&
+      sf->tx_sf.inter_tx_size_search_init_depth_sqr >= 1) {
+    do_lpf_opt = 2;
+  } else if (sf->tx_sf.inter_tx_size_search_init_depth_rect >= 1 &&
+             sf->tx_sf.inter_tx_size_search_init_depth_sqr >= 1) {
+    do_lpf_opt = 1;
+  }
 
   struct loopfilter *lf = &cm->lf;
 
@@ -2262,7 +2271,7 @@ static void loopfilter_frame(AV1_COMP *cpi, AV1_COMMON *cm) {
       !cpi->svc.non_reference_frame) {
     av1_loop_filter_frame_mt(&cm->cur_frame->buf, cm, xd, 0, num_planes, 0,
                              mt_info->workers, num_workers,
-                             &mt_info->lf_row_sync, is_realtime);
+                             &mt_info->lf_row_sync, do_lpf_opt);
   }
 #if CONFIG_COLLECT_COMPONENT_TIMING
   end_timing(cpi, loop_filter_time);
