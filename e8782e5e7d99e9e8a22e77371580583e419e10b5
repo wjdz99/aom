@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c340ece6_84d5beeb",
+        "filename": "common/tools_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-12T02:39:48Z",
+      "side": 1,
+      "message": "\u003e Optional: Would you like to change this function to return bool in this CL?\n\nNo. I don\u0027t like mixing changes like that. I\u0027ll send a follow up.",
+      "parentUuid": "705553e0_db077702",
+      "revId": "e8782e5e7d99e9e8a22e77371580583e419e10b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28e9cb5b_c0631cf2",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-04-12T00:44:31Z",
       "side": 1,
       "message": "My previous comment was probably not clear. I think it is important to set *img_shifted_ptr to NULL before returning false here, because the old value of *img_shifted_ptr may have been freed at line 496.\n\nIt is *img_ptr that I think may be left unmodified.",
+      "revId": "e8782e5e7d99e9e8a22e77371580583e419e10b5",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1668d445_f2508aa0",
+        "filename": "common/tools_common.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-12T02:39:48Z",
+      "side": 1,
+      "message": "I probably scanned it a bit too quickly and definitely didn\u0027t consider the implications. I haven\u0027t closely at the call sites to know why we need to set both on success.",
+      "parentUuid": "28e9cb5b_c0631cf2",
       "revId": "e8782e5e7d99e9e8a22e77371580583e419e10b5",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
