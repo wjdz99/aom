@@ -205,6 +205,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "42a91840_c5dae5d8",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2022-04-12T17:09:35Z",
+      "side": 1,
+      "message": "\u003e\u003e Tom added this originally, so perhaps he\u0027ll have more insight. \n\nIIRC use of GTEST_OS_WINDOWS was related to some painful integration issues encountered when attempting to use the Googletest CMake build directly via add_subdirectory(). I would lean toward listening to the developer docs in Googletest instead of my fuzzy recollection of the problem at the time, which has likely long been sorted out. \n\nDropping it seems fine, but we\u0027ll know within a couple of days if some combination of build toolchain and windows version becomes unhappy.",
+      "parentUuid": "1e6bfd7d_fb447f05",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "084c8db1_8321b1cf",
@@ -271,6 +289,24 @@
       "side": 1,
       "message": "That\u0027s because at head it\u0027s doing include_directories. I changed it to target_include_directories, so that only aom_gtest and targets which transitively link to it will have the gtest headers in their include path. I figure this is cleaner than just willy nilly making the headers available to all targets.",
       "parentUuid": "d38e2f78_50246949",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4628606b_9ecc0a83",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5215
+      },
+      "writtenOn": "2022-04-12T17:09:35Z",
+      "side": 1,
+      "message": "Agreed: the aom CMake build is ancient, and at the time I wrote this stuff I was unaware of target_include_directories(). Using the target_* functions in favor of global state modifying functions like add_definitions() and include_directories() is definitely a better way of doing things.",
+      "parentUuid": "365194d5_aaba8198",
       "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
