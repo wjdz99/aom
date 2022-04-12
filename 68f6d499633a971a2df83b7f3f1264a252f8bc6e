@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5fda43ed_6a39f3c9",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 7
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-12T00:00:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c5f72055_60d8df2b",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "26dcfe4b_cd54080f",
@@ -65,6 +83,24 @@
       "writtenOn": "2022-04-11T22:09:26Z",
       "side": 1,
       "message": "We should be able to merge these two target_include_directories() calls:\n\n  target_include_directories(\n    aom_gtest\n    PUBLIC \"${AOM_ROOT}/third_party/googletest/src/googletest/include\"\n    PRIVATE \"${AOM_ROOT}/third_party/googletest/src/googletest\")",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2f9192a3_e2005030",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-12T00:00:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26dcfe4b_cd54080f",
       "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -92,6 +128,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "de3879bb_1ee96066",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-12T00:00:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28e639b7_fd5fd042",
+      "range": {
+        "startLine": 383,
+        "startChar": 4,
+        "endLine": 383,
+        "endChar": 36
+      },
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "af0aa26f_afbc5265",
@@ -105,6 +165,24 @@
       "writtenOn": "2022-04-11T22:09:26Z",
       "side": 1,
       "message": "Undo this change. GTEST_OS_WINDOWS is defined by \"gtest/internal/gtest-port-arch.h\". Here is the relevant comment from gtest/internal/gtest-port.h:\n\n```\n// Platform-indicating macros\n// --------------------------\n//\n// Macros indicating the platform on which Google Test is being used\n// (a macro is defined to 1 if compiled on the given platform;\n// otherwise UNDEFINED -- it\u0027s never defined to 0.).  Google Test\n// defines these macros automatically.  Code outside Google Test MUST\n// NOT define them.\n//\n//   ...\n//   GTEST_OS_WINDOWS  - Windows (Desktop, MinGW, or Mobile)\n//   ...\n```\n\nNote: We should delete lines 385-386. Probably should do that in a separate CL.",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ea8dfbe_7ca82f5a",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-12T00:00:31Z",
+      "side": 1,
+      "message": "Oh, good point. \nI changed it to define GTEST_HAS_PTHREAD\u003d0 on Windows, which should be innocuous.\nI\u0027m not sure it\u0027s even necessary to check for MSVC or WIN32 here, but  it shouldn\u0027t hurt to leave it. We\u0027ll see what Jenkins says...\n\nTom added this originally, so perhaps he\u0027ll have more insight. There were a few comments about this in http://go/aomcl/78142/7/test/test.cmake.",
+      "parentUuid": "af0aa26f_afbc5265",
       "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -126,6 +204,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4bc8be72_0c336361",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-12T00:00:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "084c8db1_8321b1cf",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d38e2f78_50246949",
@@ -139,6 +235,24 @@
       "writtenOn": "2022-04-11T22:09:26Z",
       "side": 1,
       "message": "Are these three target_link_libraries() calls (at lines 418, 424, 431) necessary? We can build libaom without them right now.",
+      "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "365194d5_aaba8198",
+        "filename": "test/test.cmake",
+        "patchSetId": 7
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-12T00:00:31Z",
+      "side": 1,
+      "message": "That\u0027s because at head it\u0027s doing include_directories. I changed it to target_include_directories, so that only aom_gtest and targets which transitively link to it will have the gtest headers in their include path. I figure this is cleaner than just willy nilly making the headers available to all targets.",
+      "parentUuid": "d38e2f78_50246949",
       "revId": "68f6d499633a971a2df83b7f3f1264a252f8bc6e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
