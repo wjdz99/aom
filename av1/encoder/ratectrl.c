@@ -2062,6 +2062,8 @@ void av1_rc_postencode_update(AV1_COMP *cpi, uint64_t bytes_used) {
   update_buffer_level(cpi, rc->projected_frame_size);
   rc->prev_avg_frame_bandwidth = rc->avg_frame_bandwidth;
 
+  printf("%d ", rc->avg_frame_bandwidth);
+
   // Rolling monitors of whether we are over or underspending used to help
   // regulate min and Max Q in two pass.
   if (av1_frame_scaled(cm))

@@ -448,6 +448,8 @@ if(CONFIG_AV1_DECODER AND ENABLE_EXAMPLES)
     endif()
   endif()
 
+  append_compiler_flag("-O2")
+
   # Maintain a list of decoder example targets.
   list(APPEND AOM_DECODER_EXAMPLE_TARGETS aomdec decode_to_md5 decode_with_drops
               scalable_decoder simple_decoder)
