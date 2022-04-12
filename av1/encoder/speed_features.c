@@ -1224,7 +1224,20 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   if (!is_360p_or_larger) {
     sf->rt_sf.prune_intra_mode_based_on_mv_range = 1;
     sf->rt_sf.prune_inter_modes_wrt_gf_arf_based_on_sad = 1;
-    if (speed >= 7) sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
+    if (speed >= 5) {
+      if (cpi->svc.number_spatial_layers <= 1 &&
+          cm->current_frame.frame_type != KEY_FRAME)
+        sf->rt_sf.var_part_based_on_sse = 1;
+    }
+    if (speed >= 6) {
+      if (cpi->svc.number_spatial_layers <= 1 &&
+          cm->current_frame.frame_type != KEY_FRAME)
+        sf->rt_sf.var_part_based_on_sse = 2;
+    }
+    if (speed >= 7) {
+      sf->rt_sf.var_part_based_on_sse = 0;
+      sf->lpf_sf.cdef_pick_method = CDEF_PICK_FROM_Q;
+    }
     if (speed >= 8) {
       sf->rt_sf.use_nonrd_filter_search = 0;
       sf->rt_sf.tx_size_level_based_on_qstep = 1;
@@ -1961,6 +1974,7 @@ static AOM_INLINE void init_rt_sf(REAL_TIME_SPEED_FEATURES *rt_sf) {
   rt_sf->sad_based_adp_altref_lag = 0;
   rt_sf->partition_direct_merging = 0;
   rt_sf->var_part_based_on_qidx = 0;
+  rt_sf->var_part_based_on_sse = 0;
   rt_sf->sad_based_comp_prune = 0;
   rt_sf->tx_size_level_based_on_qstep = 0;
 }
