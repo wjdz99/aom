@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27389456_d69368ca",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-12T19:29:48Z",
+      "side": 1,
+      "message": "Note the default of dv_cost_upd_freq is COST_UPD_OFF.",
+      "revId": "b0f49b8e3a2a316afe8a9ae09ce528b80071ff59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
