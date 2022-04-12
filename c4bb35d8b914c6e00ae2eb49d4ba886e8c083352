@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2ecd30fe_8175bc99",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3238,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-12T05:00:46Z",
+      "side": 1,
+      "message": "\u003e you can probably just work on dest here since we\u0027re not passing void*; the same goes for top/left.\n\nthis likely keeps the diff down, so if you want to you can post a follow up instead of amending this one.",
+      "parentUuid": "ac599e9e_b43cdec8",
+      "revId": "c4bb35d8b914c6e00ae2eb49d4ba886e8c083352",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0eeb287e_03b6088f",
         "filename": "aom_dsp/arm/intrapred_neon.c",
         "patchSetId": 2
