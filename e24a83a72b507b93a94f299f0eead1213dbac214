@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82d379d4_8205ca52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-12T22:57:25Z",
+      "side": 1,
+      "message": "Your CL may be caught in the middle of jenkins update...\n\nI\u0027ll re-trigger",
+      "revId": "e24a83a72b507b93a94f299f0eead1213dbac214",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
