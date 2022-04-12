@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f6b6ffc_d7d8b5fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9101
+      },
+      "writtenOn": "2022-04-12T08:31:53Z",
+      "side": 1,
+      "message": "Hi Yunqing,\nWe have created a patch to revert TPL frame buffer optimization with appropriate fix. The issue was caused by an incorrect update of ‘ybf-\u003emonochrome’ flag. In encoder/decoder, the flag is set for monochrome streams, whereas in the encoder we used the flag to avoid the memory allocation of chroma planes based on use_y_only_rate_distortion speed feature. Hence, in this patch we have corrected the logic by adding a new flag ‘alloc_y_plane_only\u0027.\n\nThe memory savings for this patch is the same as reported in the earlier patch.\nPlease review.\nThank you.",
+      "revId": "d251e7fd909da881d4933ae6d49272961c38bcb3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
