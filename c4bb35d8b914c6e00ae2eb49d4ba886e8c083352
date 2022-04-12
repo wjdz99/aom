@@ -36,6 +36,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9e43c12_b13df22a",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3238,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-04-12T15:25:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ecd30fe_8175bc99",
+      "revId": "c4bb35d8b914c6e00ae2eb49d4ba886e8c083352",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0eeb287e_03b6088f",
@@ -49,6 +67,24 @@
       "writtenOn": "2022-04-12T04:59:46Z",
       "side": 1,
       "message": "anything we can do about this TODO before duplicating it?",
+      "revId": "c4bb35d8b914c6e00ae2eb49d4ba886e8c083352",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86233c59_eeb014e8",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3310,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-04-12T15:25:57Z",
+      "side": 1,
+      "message": "I did a quick change and it passes the unit tests. For now, I\u0027ll leave as is and add the change in a future commit. Easier to narrow down in case there is a problem.",
+      "parentUuid": "0eeb287e_03b6088f",
       "revId": "c4bb35d8b914c6e00ae2eb49d4ba886e8c083352",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
