@@ -69,6 +69,24 @@
       "parentUuid": "535c39cf_aa27e45a",
       "revId": "25f13862a08bdf8b9ea9a6d20dcb5895ac81b1b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "966f55cd_a92142b5",
+        "filename": "test/test.cmake",
+        "patchSetId": 11
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T12:18:37Z",
+      "side": 1,
+      "message": "It turns out that doesn\u0027t work after all. Without the check for MSVC OR WIN32, most of the Windows builds on in libaom_compile fail with this error:\n\n  .../gtest/internal/gtest-port.h:1477:3: error: ‘AutoHandle’ does not name a type; did you mean ‘LongToHandle’?\n\nhttps://build.aomedia.org/jenkins/job/libaom__compile/52175/\n\nSo I\u0027m putting the check back again (but this time without the extra space).\nThis time for sure, Rocky.",
+      "parentUuid": "52257e9b_4fc23912",
+      "revId": "25f13862a08bdf8b9ea9a6d20dcb5895ac81b1b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
