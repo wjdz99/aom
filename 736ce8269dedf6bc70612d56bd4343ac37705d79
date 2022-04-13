@@ -16,6 +16,98 @@
       "message": "Hi Yunqing,\n\nThis patch improves var-based partition logic using newly-tuned qindex thresholds at sb-level based on SSE stats. Introduced new sf var_part_based_on_sse to enable this only for RT speed 5 and 6 rtc_derf set. Please find the detailed borg results below:\n                Instruction Count      BD-Rate Loss(%)        \n cpu    Test-set    Reduction(%)   avg.psnr   ovr.psnr    ssim\n  5     rtc_derf      2.309        0.2206     0.2348    0.2168\n  6     rtc_derf      4.432        0.3192     0.3751    0.3016\n\nIn the commit message, BD rate impact column: \n[+] sign is for BD-Rate drop \n[-] sign is for BD-Rate improvement \nThe instruction count reduction specified has been measured using command: $ perf stat -e instructions:u ./aomenc …\n\nDetails of the worst case drop contents are below:\n cpu   Test-set  Max bd-rate drop(%)      Clip-name\n  5    rtc_derf      0.92            capture_nexus_320_240\n  6    rtc_derf      1.19            capture_nexus_320_240\n  \nPlease review the CL.\nThanks!",
       "revId": "736ce8269dedf6bc70612d56bd4343ac37705d79",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68198b2e_3042e196",
+        "filename": "av1/encoder/block.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-13T17:02:28Z",
+      "side": 1,
+      "message": "Maybe use a name that could give a better idea (e.g. rd/non-rd)? Or use an array of 2?",
+      "range": {
+        "startLine": 770,
+        "startChar": 24,
+        "endLine": 770,
+        "endChar": 28
+      },
+      "revId": "736ce8269dedf6bc70612d56bd4343ac37705d79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fc4a6e9_259d93ad",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1228,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-13T17:02:28Z",
+      "side": 1,
+      "message": "If you want to disable this for SVC case, please do so at the end of this function. See this section:\nif (cpi-\u003eppi-\u003euse_svc) { ... }\n\nThis might make it more clear.\nAlso, for key frame checking, may use: frame_is_intra_only(\u0026cpi-\u003ecommon) if this is what you want.",
+      "range": {
+        "startLine": 1228,
+        "startChar": 10,
+        "endLine": 1228,
+        "endChar": 46
+      },
+      "revId": "736ce8269dedf6bc70612d56bd4343ac37705d79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba766dea_2e95ab72",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-13T17:02:28Z",
+      "side": 1,
+      "message": "Could we consolidate var_part_based_on_qidx and var_part_based_on_sse together instead of adding a new feature? Looks like they both adjust qindex_low_thr and qindex_high_thr.",
+      "range": {
+        "startLine": 488,
+        "startChar": 0,
+        "endLine": 501,
+        "endChar": 5
+      },
+      "revId": "736ce8269dedf6bc70612d56bd4343ac37705d79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3682f0a2_7e94a0d7",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1170,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-13T17:02:28Z",
+      "side": 1,
+      "message": "To add a TODO, do:\n// TODO(Neeraj): ...",
+      "range": {
+        "startLine": 1170,
+        "startChar": 2,
+        "endLine": 1170,
+        "endChar": 36
+      },
+      "revId": "736ce8269dedf6bc70612d56bd4343ac37705d79",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
