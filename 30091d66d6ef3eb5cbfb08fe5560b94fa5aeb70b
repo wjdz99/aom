@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5be970d4_a9eaae89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-13T01:43:40Z",
+      "side": 1,
+      "message": "Please review patchset 4. Thanks!",
+      "revId": "30091d66d6ef3eb5cbfb08fe5560b94fa5aeb70b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
