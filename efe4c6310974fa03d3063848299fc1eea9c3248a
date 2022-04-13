@@ -50,6 +50,23 @@
       "message": "Nit: I suggest we pass priv-\u003ecfg.g_usage and priv-\u003ecfg.rc_end_usage as parameters to av1_initialize_enc(). I think the code will be more readable.",
       "revId": "efe4c6310974fa03d3063848299fc1eea9c3248a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1e82de8_87831689",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-13T20:37:52Z",
+      "side": 1,
+      "message": "Optional: An alternative approach is to move the av1_rc_init_minq_luts() and av1_init_wedge_masks() calls to the functions that use these two lookup tables. If the number of such functions is small, this could be easier to understand.",
+      "revId": "efe4c6310974fa03d3063848299fc1eea9c3248a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
