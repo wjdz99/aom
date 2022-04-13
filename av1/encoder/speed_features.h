@@ -1466,6 +1466,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
 
   // Early terminate inter mode search based on sse in non-rd path.
   INTER_SEARCH_EARLY_TERM_IDX sse_early_term_inter_search;
+
+  // Reduce the mv resolution for zero mv if the variance is low.
+  bool reduce_zeromv_mvres;
 } REAL_TIME_SPEED_FEATURES;
 
 /*!\endcond */
