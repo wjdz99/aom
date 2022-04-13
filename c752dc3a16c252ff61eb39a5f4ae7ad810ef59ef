@@ -68,6 +68,23 @@
       "parentUuid": "39174073_7838a141",
       "revId": "c752dc3a16c252ff61eb39a5f4ae7ad810ef59ef",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "554d1a79_9dc7f2e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9823
+      },
+      "writtenOn": "2022-04-13T19:40:14Z",
+      "side": 1,
+      "message": "Looks like the loss is just an artifact from the RD curve.",
+      "revId": "c752dc3a16c252ff61eb39a5f4ae7ad810ef59ef",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
