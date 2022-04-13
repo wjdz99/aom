@@ -1450,6 +1450,9 @@ typedef struct REAL_TIME_SPEED_FEATURES {
   // Qindex based variance partition threshold index.
   int var_part_based_on_qidx;
 
+  // SSE based qindex thresholds for partitioning
+  int var_part_based_on_sse;
+
   // Enable GF refresh based on Q value.
   int gf_refresh_based_on_qp;
 
