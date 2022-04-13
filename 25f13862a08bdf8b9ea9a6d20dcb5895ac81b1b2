@@ -16,6 +16,23 @@
       "message": "Mark: I can build your CL successfully with Visual Studio 2017 and 2019.",
       "revId": "25f13862a08bdf8b9ea9a6d20dcb5895ac81b1b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "39521b07_83481aa2",
+        "filename": "test/test.cmake",
+        "patchSetId": 11
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-13T01:34:26Z",
+      "side": 1,
+      "message": "Mark: I removed this line and line 389 and still built this CL successfully with Visual Studio 2017 and 2019. If you want to remove these two lines, I suggest we do that in a follow-up CL.",
+      "revId": "25f13862a08bdf8b9ea9a6d20dcb5895ac81b1b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
