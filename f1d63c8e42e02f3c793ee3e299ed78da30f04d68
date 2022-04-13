@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a02f16af_4d12b89e",
+        "filename": "test/screen_content_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-13T19:27:28Z",
+      "side": 1,
+      "message": "Thread sanitizer tests are conditioned on having the word \u0027Thread\u0027 in the name of the test somewhere. Yunqing it might be good to audit the tests if MT has been used at all.",
+      "revId": "f1d63c8e42e02f3c793ee3e299ed78da30f04d68",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
