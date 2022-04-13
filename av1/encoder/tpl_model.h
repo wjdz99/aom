@@ -380,14 +380,14 @@ void av1_read_rd_command(const char *filepath, RD_COMMAND *rd_command);
 /*!\brief Allocate buffers used by tpl model
  *
  * \param[in]    Top-level encode/decode structure
+ * \param[in]    Pointer to common structure
  * \param[in]    lag_in_frames  number of lookahead frames
  *
  * \param[out]   tpl_data  tpl data structure
  */
 
-void av1_setup_tpl_buffers(struct AV1_PRIMARY *const ppi,
-                           CommonModeInfoParams *const mi_params, int width,
-                           int height, int byte_alignment, int lag_in_frames);
+void av1_setup_tpl_buffers(struct AV1_PRIMARY *const ppi, AV1_COMMON *const cm,
+                           int lag_in_frames);
 
 /*!\brief Implements temporal dependency modelling for a GOP (GF/ARF
  * group) and selects between 16 and 32 frame GOP structure.
