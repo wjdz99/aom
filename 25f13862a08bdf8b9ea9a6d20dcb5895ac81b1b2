@@ -51,6 +51,24 @@
       "parentUuid": "39521b07_83481aa2",
       "revId": "25f13862a08bdf8b9ea9a6d20dcb5895ac81b1b2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52257e9b_4fc23912",
+        "filename": "test/test.cmake",
+        "patchSetId": 11
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T10:58:27Z",
+      "side": 1,
+      "message": "On second thought, patch set 12 failed the style check because of an extra space before the parenthesis on line 384. 🙄\n\nGiven that:\n- you\u0027ve already tested without the check for MSVC OR WIN32, and\n- I need to upload a new patch set anyway to fix the style violation (which will require a new Code-Review +2)\nI\u0027m just going to remove lines 383 and 389 now.",
+      "parentUuid": "535c39cf_aa27e45a",
+      "revId": "25f13862a08bdf8b9ea9a6d20dcb5895ac81b1b2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
