@@ -34,6 +34,24 @@
       "parentUuid": "6ac772aa_61790a73",
       "revId": "ef6df6bae0307e2742f4ff0d081db770cca41aaa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e68fd785_ac9574c9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-13T21:55:40Z",
+      "side": 1,
+      "message": "I looked into this. I believe this is arguably a bug in how gtest handles MinGW (which provides a pthread library). We can avoid this issue by making sure that GTEST_HAS_PTHREAD is set to 0 (either by us or by gtest itself) on Windows.",
+      "parentUuid": "30038876_c8b4f4cf",
+      "revId": "ef6df6bae0307e2742f4ff0d081db770cca41aaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
