@@ -892,7 +892,8 @@ static AOM_INLINE void mode_estimation(AV1_COMP *cpi,
   ref_frame_ptr[0] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][0]]
-          : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx] : NULL;
+      : best_rf_idx >= 0 ? tpl_data->ref_frame[best_rf_idx]
+                         : NULL;
   ref_frame_ptr[1] =
       best_mode == NEW_NEWMV
           ? tpl_data->ref_frame[comp_ref_frames[best_cmp_rf_idx][1]]
@@ -1256,7 +1257,8 @@ static AOM_INLINE void init_mc_flow_dispenser(AV1_COMP *cpi, int frame_idx,
   const FRAME_UPDATE_TYPE update_type =
       gf_group->update_type[cpi->gf_frame_index];
   tpl_frame->base_rdmult = av1_compute_rd_mult_based_on_qindex(
-                               bd_info.bit_depth, update_type, pframe_qindex) /
+                               bd_info.bit_depth, update_type,
+                               /*is_screen_content=*/0, pframe_qindex) /
                            6;
 
   av1_init_tpl_txfm_stats(tpl_txfm_stats);

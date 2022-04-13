@@ -194,15 +194,16 @@ struct macroblock;
 
 /*!\brief Compute rdmult based on q index and frame update type
  *
- * \param[in]       bit_depth       bit depth
- * \param[in]       update_type     frame update type
- * \param[in]       qindex          q index
+ * \param[in]       bit_depth            bit depth
+ * \param[in]       update_type          frame update type
+ * \param[in]       is_screen_content    screen content video type
+ * \param[in]       qindex               q index
  *
  * \return rdmult
  */
 int av1_compute_rd_mult_based_on_qindex(aom_bit_depth_t bit_depth,
                                         FRAME_UPDATE_TYPE update_type,
-                                        int qindex);
+                                        int is_screen_content, int qindex);
 
 int av1_compute_rd_mult(const struct AV1_COMP *cpi, int qindex);
 

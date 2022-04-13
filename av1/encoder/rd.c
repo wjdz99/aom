@@ -388,20 +388,31 @@ static double def_kf_rd_multiplier(int qindex) {
   return 3.3 + (0.0015 * (double)qindex);
 }
 
+// Returns the default rd multiplier for a frame for a given qindex
+// for screen content type.
+static double def_rd_multiplier_sc(int qindex) {
+  return 3.57 - 0.0005 * (double)qindex;
+}
+
 int av1_compute_rd_mult_based_on_qindex(aom_bit_depth_t bit_depth,
                                         FRAME_UPDATE_TYPE update_type,
-                                        int qindex) {
+                                        int is_screen_content, int qindex) {
   const int q = av1_dc_quant_QTX(qindex, 0, bit_depth);
   int64_t rdmult = q * q;
-  if (update_type == KF_UPDATE) {
-    double def_rd_q_mult = def_kf_rd_multiplier(q);
-    rdmult = (int64_t)((double)rdmult * def_rd_q_mult);
-  } else if ((update_type == GF_UPDATE) || (update_type == ARF_UPDATE)) {
-    double def_rd_q_mult = def_arf_rd_multiplier(q);
+  if (is_screen_content) {
+    double def_rd_q_mult = def_rd_multiplier_sc(q);
     rdmult = (int64_t)((double)rdmult * def_rd_q_mult);
   } else {
-    double def_rd_q_mult = def_inter_rd_multiplier(q);
-    rdmult = (int64_t)((double)rdmult * def_rd_q_mult);
+    if (update_type == KF_UPDATE) {
+      double def_rd_q_mult = def_kf_rd_multiplier(q);
+      rdmult = (int64_t)((double)rdmult * def_rd_q_mult);
+    } else if ((update_type == GF_UPDATE) || (update_type == ARF_UPDATE)) {
+      double def_rd_q_mult = def_arf_rd_multiplier(q);
+      rdmult = (int64_t)((double)rdmult * def_rd_q_mult);
+    } else {
+      double def_rd_q_mult = def_inter_rd_multiplier(q);
+      rdmult = (int64_t)((double)rdmult * def_rd_q_mult);
+    }
   }
 
   switch (bit_depth) {
@@ -419,8 +430,9 @@ int av1_compute_rd_mult(const AV1_COMP *cpi, int qindex) {
   const aom_bit_depth_t bit_depth = cpi->common.seq_params->bit_depth;
   const FRAME_UPDATE_TYPE update_type =
       cpi->ppi->gf_group.update_type[cpi->gf_frame_index];
-  int64_t rdmult =
-      av1_compute_rd_mult_based_on_qindex(bit_depth, update_type, qindex);
+  const int is_screen_content = cpi->is_screen_content_type;
+  int64_t rdmult = av1_compute_rd_mult_based_on_qindex(
+      bit_depth, update_type, is_screen_content, qindex);
   if (is_stat_consumption_stage(cpi) && !cpi->oxcf.q_cfg.use_fixed_qp_offsets &&
       (cpi->common.current_frame.frame_type != KEY_FRAME)) {
     const GF_GROUP *const gf_group = &cpi->ppi->gf_group;
