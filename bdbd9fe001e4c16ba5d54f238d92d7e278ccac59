@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e6e846f_2f7ff58c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T13:52:39Z",
+      "side": 1,
+      "message": "This is a partial review, mostly focusing on the API. I still plan to carefully review the implementation, but wanted to send these comments off right away.",
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a1a571d6_ad591ac8",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T13:52:39Z",
+      "side": 1,
+      "message": "Maybe add a comment that this is used before division to ensure that the divisor isn\u0027t zero or dangerously close to zero.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 47
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "755f5cef_9a71e4c8",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T13:52:39Z",
+      "side": 1,
+      "message": "Typo: modify, not moddify.",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a226853c_31075a68",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T13:52:39Z",
+      "side": 1,
+      "message": "This is a breaking API change which will require a change to third_party/webm_hw_bigwave/software/src/common/encratecontrol_qmode.cc before it can be brought back into google3. This will require:\n- A CL to https://webm.googlesource.com including (a) the change to encratecontrol_qmode and (b) this CL and any of its dependencies, cherry picked from aom, followed by\n- A google3 CL which includes (a) changes from webm and (b) this CL and any of its dependencies, cherry picked from aom\n\nPlease let me know when you\u0027re about to submit this, so that I can do those things ASAP afterward. We should probably also let whoever is on rotation for updating google3 know that they shouldn\u0027t try to do the update in the interval while those changes are pending (I believe it\u0027s currently chengchen@).\n\nIt\u0027s also going to require a change to RateControlQModeTest.TestMock (http://cs/aom/test/ratectrl_qmode_test.cc?l\u003d395), but that\u0027s easier because you can just do it in this CL.\n\nI think a good lesson going forward is that we should prefer structs over typedefs in the API, because it\u0027s easier to make non-breaking changes by adding fields.",
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6f2f4f71_5f9d3cd6",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T13:52:39Z",
+      "side": 1,
+      "message": "Most of the fields in FIRSTPASS_STATS are already assumed to be normalized to 16x16 MB\u0027s. Rather than allowing this to be variable, perhaps the API should just require  this to be 16? That would reduce the risk of overlooking places where it\u0027s assumed either implicitly or explicitly.",
+      "range": {
+        "startLine": 99,
+        "startChar": 6,
+        "endLine": 99,
+        "endChar": 21
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b273e295_7c4e5274",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T13:52:39Z",
+      "side": 1,
+      "message": "How about calling this num_mbs_16x16, for consistency with normalize_firstpass_stats, and to make it extra clear what it means?",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 102,
+        "endChar": 22
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3c17f8e_5dae6b88",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-13T13:52:39Z",
+      "side": 1,
+      "message": "Please also rename the argument in MockRateControlQMode (in test/mock_ratectrl_qmode.h).",
+      "range": {
+        "startLine": 131,
+        "startChar": 27,
+        "endLine": 131,
+        "endChar": 41
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
