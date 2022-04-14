@@ -106,6 +106,24 @@
       "parentUuid": "20efb65d_ecd3dd39",
       "revId": "ef6df6bae0307e2742f4ff0d081db770cca41aaa",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7502566_1f9adcba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-14T14:08:40Z",
+      "side": 1,
+      "message": "This seems to be the issue: https://github.com/google/googletest/issues/3427",
+      "parentUuid": "0d85c77d_f9e0868c",
+      "revId": "ef6df6bae0307e2742f4ff0d081db770cca41aaa",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
