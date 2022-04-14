@@ -770,6 +770,7 @@ if(ENABLE_TESTS)
 endif()
 
 if(HAVE_PTHREAD_H AND CONFIG_MULTITHREAD)
+  # Defines CMAKE_USE_PTHREADS_INIT and CMAKE_THREAD_LIBS_INIT.
   find_package(Threads)
   target_link_libraries(aom ${AOM_LIB_LINK_TYPE} Threads::Threads)
   if(BUILD_SHARED_LIBS)

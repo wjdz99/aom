@@ -378,9 +378,11 @@ if(ENABLE_TESTS)
     PUBLIC "${AOM_ROOT}/third_party/googletest/src/googletest/include"
     PRIVATE "${AOM_ROOT}/third_party/googletest/src/googletest")
 
-  # The definition of GTEST_HAS_PTHREAD must be public, since it's checked by
-  # interface headers, not just by the implementation.
-  if(NOT (MSVC OR WIN32))
+  # gtest does not support pthreads on MinGW, even if available. Instead, gtest
+  # uses Windows threading primitives.
+  if(NOT MINGW)
+    # The definition of GTEST_HAS_PTHREAD must be public, since it's checked by
+    # interface headers, not just by the implementation.
     if(CONFIG_MULTITHREAD AND CMAKE_USE_PTHREADS_INIT)
       target_compile_definitions(aom_gtest PUBLIC GTEST_HAS_PTHREAD=1)
     else()
