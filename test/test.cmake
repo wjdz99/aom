@@ -380,12 +380,8 @@ if(ENABLE_TESTS)
 
   # The definition of GTEST_HAS_PTHREAD must be public, since it's checked by
   # interface headers, not just by the implementation.
-  if(NOT (MSVC OR WIN32))
-    if(CONFIG_MULTITHREAD AND CMAKE_USE_PTHREADS_INIT)
-      target_compile_definitions(aom_gtest PUBLIC GTEST_HAS_PTHREAD=1)
-    else()
-      target_compile_definitions(aom_gtest PUBLIC GTEST_HAS_PTHREAD=0)
-    endif()
+  if(NOT CONFIG_MULTITHREAD)
+    target_compile_definitions(aom_gtest PUBLIC GTEST_HAS_PTHREAD=0)
   endif()
 
   add_library(
