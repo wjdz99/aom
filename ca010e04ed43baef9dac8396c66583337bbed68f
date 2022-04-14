@@ -70,6 +70,24 @@
       "parentUuid": "19d14ae0_40cbac03",
       "revId": "ca010e04ed43baef9dac8396c66583337bbed68f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b155297_b2d70453",
+        "filename": "third_party/googletest/src/googletest/include/gtest/internal/gtest-internal.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1294,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-14T19:58:52Z",
+      "side": 1,
+      "message": "Wan-Teh, yes that\u0027s what I meant. I didn\u0027t mean to cause confusion, I wasn\u0027t suggesting a change be made here. I just found the comment and structure suspicious.",
+      "parentUuid": "9191b6a8_8d5834fe",
+      "revId": "ca010e04ed43baef9dac8396c66583337bbed68f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
