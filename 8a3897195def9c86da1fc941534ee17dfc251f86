@@ -37,6 +37,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "733d07de_d7d3bfba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-14T01:43:03Z",
+      "side": 1,
+      "message": "Note this patchset should fail as it\u0027s rebased before the monochrome fix.",
+      "revId": "8a3897195def9c86da1fc941534ee17dfc251f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b93f303f_c8ebfcb8",
         "filename": "test/aomdec.sh",
         "patchSetId": 2
@@ -48,6 +65,24 @@
       "writtenOn": "2022-04-13T23:41:23Z",
       "side": 1,
       "message": "I also lost a diff here during some cleanup. Bad local review...",
+      "revId": "8a3897195def9c86da1fc941534ee17dfc251f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a0181de_97115134",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-14T01:43:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b93f303f_c8ebfcb8",
       "revId": "8a3897195def9c86da1fc941534ee17dfc251f86",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -89,6 +124,30 @@
       "side": 1,
       "message": "Good catch!",
       "parentUuid": "5ba7c643_6617f914",
+      "range": {
+        "startLine": 170,
+        "startChar": 31,
+        "endLine": 170,
+        "endChar": 48
+      },
+      "revId": "8a3897195def9c86da1fc941534ee17dfc251f86",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9aecd4b8_6902067a",
+        "filename": "test/aomdec.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-14T01:43:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "864bbbb6_14f86a14",
       "range": {
         "startLine": 170,
         "startChar": 31,
