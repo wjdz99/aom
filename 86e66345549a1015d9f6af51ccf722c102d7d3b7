@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "644cdcbc_4225663a",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T19:22:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6677d4d_bc746113",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 179,
+        "endChar": 15
+      },
+      "revId": "86e66345549a1015d9f6af51ccf722c102d7d3b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fca6e3af_130c1df3",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c879dfb_e152cbfe",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 3
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T19:22:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fca6e3af_130c1df3",
+      "range": {
+        "startLine": 227,
+        "startChar": 0,
+        "endLine": 229,
+        "endChar": 15
+      },
+      "revId": "86e66345549a1015d9f6af51ccf722c102d7d3b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "329b9918_72ac29c4",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-04-15T18:19:27Z",
       "side": 1,
       "message": "unit_block_size",
+      "range": {
+        "startLine": 105,
+        "startChar": 51,
+        "endLine": 105,
+        "endChar": 60
+      },
+      "revId": "86e66345549a1015d9f6af51ccf722c102d7d3b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "308374d8_f8823e75",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T19:22:12Z",
+      "side": 1,
+      "message": "See the comment above.",
+      "parentUuid": "329b9918_72ac29c4",
       "range": {
         "startLine": 105,
         "startChar": 51,
