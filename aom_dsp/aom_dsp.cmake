@@ -304,16 +304,16 @@ if(CONFIG_AV1_ENCODER)
     list(APPEND AOM_DSP_ENCODER_SOURCES "${AOM_ROOT}/aom_dsp/butteraugli.c"
                 "${AOM_ROOT}/aom_dsp/butteraugli.h")
   endif()
+endif()
 
-  if(CONFIG_REALTIME_ONLY)
-    list(REMOVE_ITEM AOM_DSP_ENCODER_INTRIN_AVX2
-                     "${AOM_ROOT}/aom_dsp/x86/obmc_sad_avx2.c"
-                     "${AOM_ROOT}/aom_dsp/x86/obmc_variance_avx2.c")
+if(CONFIG_REALTIME_ONLY)
+  list(REMOVE_ITEM AOM_DSP_ENCODER_INTRIN_AVX2
+                  "${AOM_ROOT}/aom_dsp/x86/obmc_sad_avx2.c"
+                  "${AOM_ROOT}/aom_dsp/x86/obmc_variance_avx2.c")
 
-    list(REMOVE_ITEM AOM_DSP_ENCODER_INTRIN_SSE4_1
-                     "${AOM_ROOT}/aom_dsp/x86/obmc_sad_sse4.c"
-                     "${AOM_ROOT}/aom_dsp/x86/obmc_variance_sse4.c")
-  endif()
+  list(REMOVE_ITEM AOM_DSP_ENCODER_INTRIN_SSE4_1
+                  "${AOM_ROOT}/aom_dsp/x86/obmc_sad_sse4.c"
+                  "${AOM_ROOT}/aom_dsp/x86/obmc_variance_sse4.c")
 endif()
 
 # Creates aom_dsp build targets. Must not be called until after libaom target
