@@ -385,7 +385,6 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   specialize qw/av1_fwd_txfm2d_64x32 sse4_1 neon/;
   add_proto qw/void av1_fwd_txfm2d_16x4/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
   specialize qw/av1_fwd_txfm2d_16x4 sse4_1 neon/;
-
   if (aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
     add_proto qw/void av1_fwd_txfm2d_4x16/, "const int16_t *input, int32_t *output, int stride, TX_TYPE tx_type, int bd";
     specialize qw/av1_fwd_txfm2d_4x16 sse4_1 neon/;
@@ -401,21 +400,20 @@ if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
   #
   # Motion search
   #
-  if (aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
-    add_proto qw/void av1_apply_temporal_filter/, "const struct yv12_buffer_config *ref_frame, const struct macroblockd *mbd, const BLOCK_SIZE block_size, const int mb_row, const int mb_col, const int num_planes, const double *noise_levels, const MV *subblock_mvs, const int *subblock_mses, const int q_factor, const int filter_strength, const uint8_t *pred, uint32_t *accum, uint16_t *count";
-    specialize qw/av1_apply_temporal_filter sse2 avx2/;
-    if (aom_config("CONFIG_AV1_HIGHBITDEPTH") eq "yes") {
+  add_proto qw/void av1_apply_temporal_filter/, "const struct yv12_buffer_config *ref_frame, const struct macroblockd *mbd, const BLOCK_SIZE block_size, const int mb_row, const int mb_col, const int num_planes, const double *noise_levels, const MV *subblock_mvs, const int *subblock_mses, const int q_factor, const int filter_strength, const uint8_t *pred, uint32_t *accum, uint16_t *count";
+  specialize qw/av1_apply_temporal_filter sse2 avx2/;
+  if (aom_config("CONFIG_AV1_HIGHBITDEPTH") eq "yes") {
     add_proto qw/void av1_highbd_apply_temporal_filter/, "const struct yv12_buffer_config *ref_frame, const struct macroblockd *mbd, const BLOCK_SIZE block_size, const int mb_row, const int mb_col, const int num_planes, const double *noise_levels, const MV *subblock_mvs, const int *subblock_mses, const int q_factor, const int filter_strength, const uint8_t *pred, uint32_t *accum, uint16_t *count";
     specialize qw/av1_highbd_apply_temporal_filter sse2 avx2/;
   }
-  }
+
   add_proto qw/void av1_quantize_b/, "const tran_low_t *coeff_ptr, intptr_t n_coeffs, const int16_t *zbin_ptr, const int16_t *round_ptr, const int16_t *quant_ptr, const int16_t *quant_shift_ptr, tran_low_t *qcoeff_ptr, tran_low_t *dqcoeff_ptr, const int16_t *dequant_ptr, uint16_t *eob_ptr, const int16_t *scan, const int16_t *iscan, const qm_val_t * qm_ptr, const qm_val_t * iqm_ptr, int log_scale";
 
-add_proto qw/void av1_calc_indices_dim1/, "const int *data, const int *centroids, uint8_t *indices, int n, int k";
+  add_proto qw/void av1_calc_indices_dim1/, "const int *data, const int *centroids, uint8_t *indices, int n, int k";
   specialize qw/av1_calc_indices_dim1 sse2 avx2/;
 
-# TODO(any): Disable av1_calc_indices_dim2 sse2 version due to c/SIMD mismatch. Re-enable it after mismatch is fixed.
-add_proto qw/void av1_calc_indices_dim2/, "const int *data, const int *centroids, uint8_t *indices, int n, int k";
+  # TODO(any): Disable av1_calc_indices_dim2 sse2 version due to c/SIMD mismatch. Re-enable it after mismatch is fixed.
+  add_proto qw/void av1_calc_indices_dim2/, "const int *data, const int *centroids, uint8_t *indices, int n, int k";
   specialize qw/av1_calc_indices_dim2 avx2/;
 
   # ENCODEMB INVOKE
@@ -468,7 +466,6 @@ add_proto qw/void av1_calc_indices_dim2/, "const int *data, const int *centroids
       specialize qw/av1_compute_stats_highbd sse4_1 avx2/;
     }
   }
-
   add_proto qw/void av1_get_horver_correlation_full/, " const int16_t *diff, int stride, int w, int h, float *hcorr, float *vcorr";
   specialize qw/av1_get_horver_correlation_full sse4_1 avx2 neon/;
 
@@ -492,7 +489,6 @@ add_proto qw/void av1_calc_indices_dim2/, "const int *data, const int *centroids
     add_proto qw/void av1_cnn_deconvolve/, " const float **input, int in_width, int in_height, int in_stride, const CNN_LAYER_CONFIG *layer_config, float **output, int out_stride";
     add_proto qw/void av1_cnn_batchnorm/, "float **image, int channels, int width, int height, int stride, const float *gamma, const float *beta, const float *mean, const float *std";
   }
-
   # Temporal Denoiser
   if (aom_config("CONFIG_AV1_TEMPORAL_DENOISING") eq "yes") {
     add_proto qw/int av1_denoiser_filter/, "const uint8_t *sig, int sig_stride, const uint8_t *mc_avg, int mc_avg_stride, uint8_t *avg, int avg_stride, int increase_denoising, BLOCK_SIZE bs, int motion_magnitude";
@@ -543,34 +539,29 @@ if ($opts{config} !~ /libs-x86-win32-vs.*/) {
 }
 
 # WARPED_MOTION / GLOBAL_MOTION functions
-if (aom_config("CONFIG_AV1_HIGHBITDEPTH") eq "yes" && aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
+if (aom_config("CONFIG_AV1_HIGHBITDEPTH") eq "yes") {
   add_proto qw/void av1_highbd_warp_affine/, "const int32_t *mat, const uint16_t *ref, int width, int height, int stride, uint16_t *pred, int p_col, int p_row, int p_width, int p_height, int p_stride, int subsampling_x, int subsampling_y, int bd, ConvolveParams *conv_params, int16_t alpha, int16_t beta, int16_t gamma, int16_t delta";
   specialize qw/av1_highbd_warp_affine sse4_1 avx2/;
 }
 
-if (aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
-  add_proto qw/void av1_warp_affine/, "const int32_t *mat, const uint8_t *ref, int width, int height, int stride, uint8_t *pred, int p_col, int p_row, int p_width, int p_height, int p_stride, int subsampling_x, int subsampling_y, ConvolveParams *conv_params, int16_t alpha, int16_t beta, int16_t gamma, int16_t delta";
-  specialize qw/av1_warp_affine sse4_1 avx2 neon/;
 
-  add_proto qw/int64_t av1_calc_frame_error/, "const uint8_t *const ref, int stride, const uint8_t *const dst, int p_width, int p_height, int p_stride";
-  specialize qw/av1_calc_frame_error sse2 avx2/;
-}
+add_proto qw/void av1_warp_affine/, "const int32_t *mat, const uint8_t *ref, int width, int height, int stride, uint8_t *pred, int p_col, int p_row, int p_width, int p_height, int p_stride, int subsampling_x, int subsampling_y, ConvolveParams *conv_params, int16_t alpha, int16_t beta, int16_t gamma, int16_t delta";
+specialize qw/av1_warp_affine sse4_1 avx2 neon/;
 
-if (aom_config("CONFIG_AV1_ENCODER") eq "yes") {
-  add_proto qw/double av1_compute_cross_correlation/, "unsigned char *im1, int stride1, int x1, int y1, unsigned char *im2, int stride2, int x2, int y2";
-  specialize qw/av1_compute_cross_correlation sse4_1 avx2/;
-}
+add_proto qw/int64_t av1_calc_frame_error/, "const uint8_t *const ref, int stride, const uint8_t *const dst, int p_width, int p_height, int p_stride";
+specialize qw/av1_calc_frame_error sse2 avx2/;
+
+add_proto qw/double av1_compute_cross_correlation/, "unsigned char *im1, int stride1, int x1, int y1, unsigned char *im2, int stride2, int x2, int y2";
+specialize qw/av1_compute_cross_correlation sse4_1 avx2/;
 
 # LOOP_RESTORATION functions
-if (aom_config("CONFIG_REALTIME_ONLY") ne "yes") {
-  add_proto qw/void av1_apply_selfguided_restoration/, "const uint8_t *dat, int width, int height, int stride, int eps, const int *xqd, uint8_t *dst, int dst_stride, int32_t *tmpbuf, int bit_depth, int highbd";
-  specialize qw/av1_apply_selfguided_restoration sse4_1 avx2 neon/;
+add_proto qw/void av1_apply_selfguided_restoration/, "const uint8_t *dat, int width, int height, int stride, int eps, const int *xqd, uint8_t *dst, int dst_stride, int32_t *tmpbuf, int bit_depth, int highbd";
+specialize qw/av1_apply_selfguided_restoration sse4_1 avx2 neon/;
 
-  add_proto qw/int av1_selfguided_restoration/, "const uint8_t *dgd8, int width, int height,
-                                  int dgd_stride, int32_t *flt0, int32_t *flt1, int flt_stride,
-                                  int sgr_params_idx, int bit_depth, int highbd";
-  specialize qw/av1_selfguided_restoration sse4_1 avx2 neon/;
-}
+add_proto qw/int av1_selfguided_restoration/, "const uint8_t *dgd8, int width, int height,
+                                int dgd_stride, int32_t *flt0, int32_t *flt1, int flt_stride,
+                                int sgr_params_idx, int bit_depth, int highbd";
+specialize qw/av1_selfguided_restoration sse4_1 avx2 neon/;
 
 # CONVOLVE_ROUND/COMPOUND_ROUND functions
 
