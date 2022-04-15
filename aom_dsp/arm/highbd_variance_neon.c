@@ -161,11 +161,9 @@ VAR_FN(8, 4, 4, 5)
 VAR_FN(4, 8, 4, 5)
 VAR_FN(4, 4, 4, 4)
 
-#if !CONFIG_REALTIME_ONLY
 VAR_FN(64, 16, 16, 10)
 VAR_FN(16, 64, 16, 10)
 VAR_FN(8, 32, 8, 8)
 VAR_FN(32, 8, 8, 8)
-#endif  // !CONFIG_REALTIME_ONLY
 
 #undef VAR_FN
