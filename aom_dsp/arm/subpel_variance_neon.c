@@ -346,8 +346,6 @@ unsigned int aom_sub_pixel_variance128x128_neon(const uint8_t *a, int a_stride,
   return aom_variance128x128(temp1, 128, b, b_stride, sse);
 }
 
-// Realtime mode doesn't use 4x rectangular blocks.
-#if !CONFIG_REALTIME_ONLY
 unsigned int aom_sub_pixel_variance4x16_neon(const uint8_t *a, int a_stride,
                                              int xoffset, int yoffset,
                                              const uint8_t *b, int b_stride,
@@ -437,4 +435,3 @@ unsigned int aom_sub_pixel_variance32x8_neon(const uint8_t *a, int a_stride,
 
   return aom_variance32x8(temp1, 32, b, b_stride, sse);
 }
-#endif  // !CONFIG_REALTIME_ONLY
