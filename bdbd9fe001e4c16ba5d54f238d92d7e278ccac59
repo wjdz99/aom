@@ -81,6 +81,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b05d8850_08fdd05d",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "755f5cef_9a71e4c8",
+      "range": {
+        "startLine": 24,
+        "startChar": 17,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dadcd588_47b5e60c",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1a571d6_ad591ac8",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 47
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3c545253_ff18177e",
@@ -104,6 +152,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7affc4a9_834a548b",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c545253_ff18177e",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 191,
+        "endChar": 50
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9642a4f2_f59ada31",
@@ -117,6 +189,30 @@
       "writtenOn": "2022-04-13T20:15:06Z",
       "side": 1,
       "message": "Given that you\u0027ve already rearranged this code a lot from the original test_candidate_kf, you could go one step farther and move lines 213-253 into a helper function. The only args it would need are this_stats, last_stats, and next_stats as args (similar to detect_slide_transition).\n\nThen you wouldn\u0027t need test_this_candidate, and could just replace lines 199-257 with:\n  if (this_stats.pcnt_inter \u003c kVeryLowInterThreshold ||\n      detect_slide_transition(this_stats, last_stats, next_stats) ||\n      should_test_candidate(this_stats, last_stats, next_stats)) {",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 253,
+        "endChar": 68
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98d3fff9_9608bd9b",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9642a4f2_f59ada31",
       "range": {
         "startLine": 213,
         "startChar": 0,
@@ -162,6 +258,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "97eea056_ac8c553b",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "Good idea.\nDone!",
+      "parentUuid": "8c8d7fdc_825b2501",
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6f2f4f71_5f9d3cd6",
@@ -175,6 +289,30 @@
       "writtenOn": "2022-04-13T13:52:39Z",
       "side": 1,
       "message": "Most of the fields in FIRSTPASS_STATS are already assumed to be normalized to 16x16 MB\u0027s. Rather than allowing this to be variable, perhaps the API should just require  this to be 16? That would reduce the risk of overlooking places where it\u0027s assumed either implicitly or explicitly.",
+      "range": {
+        "startLine": 99,
+        "startChar": 6,
+        "endLine": 99,
+        "endChar": 21
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62d474b5_4b97bfd4",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "I think there is a high probability that we might use unit block size that is bigger than 16x16. For example, when the video has 4k resolution, it doesn\u0027t make sense to use 16x16 block in my opinion.",
+      "parentUuid": "6f2f4f71_5f9d3cd6",
       "range": {
         "startLine": 99,
         "startChar": 6,
@@ -208,6 +346,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e65374b_ce555041",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "See the comment above.",
+      "parentUuid": "b273e295_7c4e5274",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 102,
+        "endChar": 22
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e3c17f8e_5dae6b88",
@@ -221,6 +383,30 @@
       "writtenOn": "2022-04-13T13:52:39Z",
       "side": 1,
       "message": "Please also rename the argument in MockRateControlQMode (in test/mock_ratectrl_qmode.h).",
+      "range": {
+        "startLine": 131,
+        "startChar": 27,
+        "endLine": 131,
+        "endChar": 41
+      },
+      "revId": "bdbd9fe001e4c16ba5d54f238d92d7e278ccac59",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fd37831c_43723947",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-15T18:01:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3c17f8e_5dae6b88",
       "range": {
         "startLine": 131,
         "startChar": 27,
