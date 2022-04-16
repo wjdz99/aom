@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00276f2f_d3441569",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-16T02:14:30Z",
+      "side": 1,
+      "message": "I don\u0027t know if this is case-sensitive (Bug: vs BUG\u003d) I guess we can try one rather than looking for the code for the watcher. We know from other cls that http://b/ won\u0027t work. Normally this would be Bug: b/... or BUG\u003db/...",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 4
+      },
+      "revId": "5c8f129786b951d8ec3f1048378f8585066a6e03",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
