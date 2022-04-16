@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9109b9f2_a3bd7a2c",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-16T12:09:59Z",
+      "side": 1,
+      "message": "Thanks for fixing this, Angie. Sorry it didn\u0027t occur to me that the test would break too.\n\nBut instead of adding more temporary kludges to this interface, I\u0027d prefer to just fix the test to treat FirstpassInfo as a struct rather than a vector. I\u0027ll put together a CL for that and send it to you...",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 0
+      },
+      "revId": "85cb180e1ce4f8ca955379781349e361c26c2c80",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
