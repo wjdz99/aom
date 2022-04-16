@@ -99,6 +99,9 @@ struct FirstpassInfo {
   // TODO(b/221916304): Remove when no longer needed downstream.
   FirstpassInfo() = default;
   FirstpassInfo(const std::vector<FIRSTPASS_STATS> stats) : stats_list(stats) {}
+  FirstpassInfo(int stats_count)
+      : stats_list(std::vector<FIRSTPASS_STATS>(stats_count)) {}
+  size_t size() const { return stats_list.size(); }
   operator std::vector<FIRSTPASS_STATS>() { return stats_list; }
   int num_mbs_16x16;  // Count of 16x16 unit blocks in each frame.
                       // FIRSTPASS_STATS's unit block size is 16x16
