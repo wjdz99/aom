@@ -70,6 +70,30 @@
       },
       "revId": "76114317c540b183a660a47dee66b60e7832bfb0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70228859_ed99b318",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-16T01:16:38Z",
+      "side": 1,
+      "message": "It appears that my CR+2 does override the CR-1 from the style warning.",
+      "parentUuid": "05c1251d_6bbc0118",
+      "range": {
+        "startLine": 101,
+        "startChar": 2,
+        "endLine": 101,
+        "endChar": 10
+      },
+      "revId": "76114317c540b183a660a47dee66b60e7832bfb0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
