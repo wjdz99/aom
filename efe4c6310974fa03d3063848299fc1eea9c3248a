@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a7e1e64_5dce8f21",
+        "filename": "av1/av1_cx_iface.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 2546,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-18T15:41:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ccbec201_76bf8865",
+      "revId": "efe4c6310974fa03d3063848299fc1eea9c3248a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1e82de8_87831689",
@@ -65,6 +83,24 @@
       "writtenOn": "2022-04-13T20:37:52Z",
       "side": 1,
       "message": "Optional: An alternative approach is to move the av1_rc_init_minq_luts() and av1_init_wedge_masks() calls to the functions that use these two lookup tables. If the number of such functions is small, this could be easier to understand.",
+      "revId": "efe4c6310974fa03d3063848299fc1eea9c3248a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3def6875_7451dc7a",
+        "filename": "av1/encoder/encoder.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-18T15:41:47Z",
+      "side": 1,
+      "message": "These look-up table initializations required specific handling for different encoder configurations and are being accessed from many functions. Hence, we felt it would be cleaner to keep these initializations inside av1_initialize_enc() itself.",
+      "parentUuid": "d1e82de8_87831689",
       "revId": "efe4c6310974fa03d3063848299fc1eea9c3248a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
