@@ -16,6 +16,69 @@
       "message": "Thanks Yunqing! We worked on your comments. Please review the latest CL.",
       "revId": "a2fe63a9bc49d4b37d855986af7d49d271680ffd",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7f508cd6_dbcc0964",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-18T17:39:25Z",
+      "side": 1,
+      "message": "Thanks for further modification. Overall looks good.",
+      "revId": "a2fe63a9bc49d4b37d855986af7d49d271680ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf044829_c6a3ac78",
+        "filename": "av1/encoder/encodeframe.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-18T17:39:25Z",
+      "side": 1,
+      "message": "Possible TODO item for future: If calling of this function is needed in both rd \u0026 nonrd case, maybe consolidate that and move this part to encode_sb_row()?",
+      "range": {
+        "startLine": 645,
+        "startChar": 6,
+        "endLine": 645,
+        "endChar": 27
+      },
+      "revId": "a2fe63a9bc49d4b37d855986af7d49d271680ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1428b999_79b159d7",
+        "filename": "av1/encoder/speed_features.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 1505,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-18T17:39:25Z",
+      "side": 1,
+      "message": "Possible to have increasing values of var_part_based_on_qidx along with speed increasing? Namely, 1 for speed 5, 2 for speed 6, ...\nAlso, please add a comment in speed_features.h to state the meaning of each value. This can be done in a separate CL.",
+      "range": {
+        "startLine": 1505,
+        "startChar": 77,
+        "endLine": 1505,
+        "endChar": 78
+      },
+      "revId": "a2fe63a9bc49d4b37d855986af7d49d271680ffd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
