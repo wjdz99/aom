@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43b5351e_7c954597",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30162
+      },
+      "writtenOn": "2022-04-19T07:52:41Z",
+      "side": 1,
+      "message": "\u003e Patch Set 2: Code-Review+1\n\u003e \n\u003e Style check passed.\n\u003e \n\u003e By voting Code-Review+1 the following files are now code-owner approved by \u003cGERRIT_ACCOUNT_5155\u003e:\n\u003e * av1/encoder/nonrd_opt.h\n\u003e * av1/encoder/nonrd_pickmode.c\n\u003e * av1/encoder/partition_search.c\n\u003e * av1/encoder/ratectrl.c\n\u003e * av1/ratectrl_qmode.cc\n\u003e \n\n",
+      "revId": "fbff8a3a9a863c92999d5cc2f861864a97fda583",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
