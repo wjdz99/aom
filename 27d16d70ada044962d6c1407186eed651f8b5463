@@ -1,0 +1,349 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f11fe15_60da3487",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "(optional) Instead of defining a new enum for this, you could use the enum defined here: \n  https://aomedia.googlesource.com/aom/+/refs/heads/main/av1/common/enums.h#521\n\nsince av1/common/enums.h is already transitively included here.\n\nThere are a couple downsides to using that enum:\n- It\u0027s not a named type, so it\u0027s not type-safe\n- It includes other values that would never be used in this application\n\nSo I\u0027m ambivalent. If you prefer to keep the new enum, that\u0027s fine with me too.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 0
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58c3ac36_23f9744a",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "I think either GetExistingRefFrameCount or just GetRefFrameCount would be clearer.",
+      "range": {
+        "startLine": 48,
+        "startChar": 21,
+        "endLine": 48,
+        "endChar": 42
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f86ec3f_1846997a",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "(optional) You could use a switch statement here instead of if/else if/else if.",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 51
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a46ed6f5_e4078bad",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "This could be an unordered_set, which would make the code accessing it simpler.",
+      "range": {
+        "startLine": 89,
+        "startChar": 33,
+        "endLine": 89,
+        "endChar": 44
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf70698c_1b5e5205",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "Prefer predecrement. go/cstyle#Preincrement_and_Predecrement",
+      "range": {
+        "startLine": 113,
+        "startChar": 56,
+        "endLine": 113,
+        "endChar": 58
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a484b127_50b15614",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "existing_ref_frame_count would be better, or perhaps available_ref_frame_count.",
+      "range": {
+        "startLine": 129,
+        "startChar": 12,
+        "endLine": 129,
+        "endChar": 33
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5638055_252c1f48",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "This will just be zero at this point.",
+      "range": {
+        "startLine": 130,
+        "startChar": 24,
+        "endLine": 130,
+        "endChar": 63
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa0e6a9d_1532240a",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "Caching this value in a variable is overly complicated. I assume you\u0027re just doing this to avoid having to cast twice here, but you\u0027re casting twice elsewhere instead.\n\nMaybe it would be better to just have exist_ref_frame_count and max_ref_frames_ be unsigned, and then you could compare with ref_frame_list.size() here without any casts at all.",
+      "range": {
+        "startLine": 133,
+        "startChar": 9,
+        "endLine": 133,
+        "endChar": 24
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "103a126f_f040063a",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be \u0026\u0026 ?",
+      "range": {
+        "startLine": 133,
+        "startChar": 43,
+        "endLine": 133,
+        "endChar": 45
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97f68674_db6d3601",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "Instead of comparing ref_frame_count with exist_ref_frame_count, you could rename exist_ref_frame_count to available_ref_frame_count (or just available_ref_frames) and have it count down, and then exit if it hits zero.",
+      "range": {
+        "startLine": 134,
+        "startChar": 9,
+        "endLine": 134,
+        "endChar": 48
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78efb94a_a2779c08",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "auto doesn\u0027t really make the code any clearer here.",
+      "range": {
+        "startLine": 135,
+        "startChar": 10,
+        "endLine": 135,
+        "endChar": 14
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48196183_dc994f70",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "Also here. Just use int.",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 8
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "530c9e98_9c2210de",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "ReferenceName\n\n\"Use type deduction only if it makes the code clearer to readers who aren\u0027t familiar with the project, or if it makes the code safer. Do not use it merely to avoid the inconvenience of writing an explicit type.\"\ngo/cstyle#Type_deduction",
+      "range": {
+        "startLine": 139,
+        "startChar": 12,
+        "endLine": 139,
+        "endChar": 16
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2d990490_6e755252",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "Shouldn\u0027t there be a separate priority index for each RefUpdateType? You should be able to use the priority 0 candidates from all 3 types.\n\nPerhaps there\u0027s a simpler way to do this; I\u0027m not sure. Sharing names between the Last and Backward lists does complicate it somewhat.",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 21
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "534baa5b_e3e7ec49",
+        "filename": "av1/reference_manager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T18:33:16Z",
+      "side": 1,
+      "message": "Do all of these need to be public? Anything that doesn\u0027t need to be part of the public API (or public for testing) should be private.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
