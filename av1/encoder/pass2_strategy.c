@@ -3690,6 +3690,19 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (rc->frames_to_fwd_kf <= 0)
     rc->frames_to_fwd_kf = oxcf->kf_cfg.fwd_kf_dist;
 
+  printf(
+      "firstpass_statas %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f "
+      "%f %f %f %f %f %f %" PRId64 " %f %f\n",
+      (int)round(start_pos->frame), start_pos->weight, start_pos->intra_error,
+      start_pos->frame_avg_wavelet_energy, start_pos->coded_error,
+      start_pos->sr_coded_error, start_pos->pcnt_inter, start_pos->pcnt_motion,
+      start_pos->pcnt_second_ref, start_pos->pcnt_neutral,
+      start_pos->intra_skip_pct, start_pos->inactive_zone_rows,
+      start_pos->inactive_zone_cols, start_pos->MVr, start_pos->mvr_abs,
+      start_pos->MVc, start_pos->mvc_abs, start_pos->MVrv, start_pos->MVcv,
+      start_pos->mv_in_out_count, start_pos->new_mv_count, start_pos->duration,
+      start_pos->count, start_pos->raw_error_stdev, start_pos->is_flash,
+      start_pos->noise_var, start_pos->cor_coeff);
   // Define a new GF/ARF group. (Should always enter here for key frames).
   if (cpi->gf_frame_index == gf_group->size) {
     av1_tf_info_reset(&cpi->ppi->tf_info);
@@ -3833,6 +3846,12 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
         }
       }
     }
+
+    printf("gf_length ");
+    for (int i = 0; i < MAX_NUM_GF_INTERVALS - 1; i++) {
+      printf("%d ", p_rc->gf_intervals[i]);
+    }
+    printf("%d\n", p_rc->gf_intervals[MAX_NUM_GF_INTERVALS - 1]);
 
     define_gf_group(cpi, frame_params, 0);
 
