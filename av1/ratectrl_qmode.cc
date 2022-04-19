@@ -77,8 +77,8 @@ void construct_gop_multi_layer(GopStruct *gop_struct,
     gop_frame =
         gop_frame_basic(global_coding_idx_offset, global_order_idx_offset,
                         coding_idx, order_mid, 0, 1, 0, 0, depth);
-    ref_frame_manager->UpdateFrame(&gop_frame, RefUpdateType::kForward,
-                                   EncodeRefMode::kRegular);
+    ref_frame_manager->UpdateRefFrameTable(&gop_frame, RefUpdateType::kForward,
+                                           EncodeRefMode::kRegular);
     gop_struct->gop_frame_list.push_back(gop_frame);
     construct_gop_multi_layer(
         gop_struct, ref_frame_manager, max_depth, depth + 1, order_start,
@@ -87,8 +87,8 @@ void construct_gop_multi_layer(GopStruct *gop_struct,
     gop_frame =
         gop_frame_basic(global_coding_idx_offset, global_order_idx_offset,
                         coding_idx, order_mid, 0, 0, 0, 1, max_depth);
-    ref_frame_manager->UpdateFrame(&gop_frame, RefUpdateType::kNone,
-                                   EncodeRefMode::kShowExisting);
+    ref_frame_manager->UpdateRefFrameTable(&gop_frame, RefUpdateType::kNone,
+                                           EncodeRefMode::kShowExisting);
     gop_struct->gop_frame_list.push_back(gop_frame);
     construct_gop_multi_layer(
         gop_struct, ref_frame_manager, max_depth, depth + 1, order_mid + 1,
@@ -100,8 +100,8 @@ void construct_gop_multi_layer(GopStruct *gop_struct,
       gop_frame =
           gop_frame_basic(global_coding_idx_offset, global_order_idx_offset,
                           coding_idx, i, 0, 0, 0, 1, max_depth);
-      ref_frame_manager->UpdateFrame(&gop_frame, RefUpdateType::kLast,
-                                     EncodeRefMode::kRegular);
+      ref_frame_manager->UpdateRefFrameTable(&gop_frame, RefUpdateType::kLast,
+                                             EncodeRefMode::kRegular);
       gop_struct->gop_frame_list.push_back(gop_frame);
     }
   }
@@ -126,8 +126,8 @@ GopStruct construct_gop(RefFrameManager *ref_frame_manager,
     gop_frame =
         gop_frame_basic(global_coding_idx_offset, global_order_idx_offset,
                         coding_idx, order_start, 1, 0, 1, 1, key_frame_depth);
-    ref_frame_manager->UpdateFrame(&gop_frame, RefUpdateType::kBackward,
-                                   EncodeRefMode::kRegular);
+    ref_frame_manager->UpdateRefFrameTable(&gop_frame, RefUpdateType::kBackward,
+                                           EncodeRefMode::kRegular);
     gop_struct.gop_frame_list.push_back(gop_frame);
     order_start++;
   }
@@ -136,8 +136,8 @@ GopStruct construct_gop(RefFrameManager *ref_frame_manager,
   coding_idx = static_cast<int>(gop_struct.gop_frame_list.size());
   gop_frame = gop_frame_basic(global_coding_idx_offset, global_order_idx_offset,
                               coding_idx, order_arf, 0, 1, 1, 0, arf_depth);
-  ref_frame_manager->UpdateFrame(&gop_frame, RefUpdateType::kForward,
-                                 EncodeRefMode::kRegular);
+  ref_frame_manager->UpdateRefFrameTable(&gop_frame, RefUpdateType::kForward,
+                                         EncodeRefMode::kRegular);
   gop_struct.gop_frame_list.push_back(gop_frame);
   construct_gop_multi_layer(&gop_struct, ref_frame_manager,
                             ref_frame_manager->ForwardMaxSize(), arf_depth + 1,
@@ -148,8 +148,8 @@ GopStruct construct_gop(RefFrameManager *ref_frame_manager,
   gop_frame = gop_frame_basic(global_coding_idx_offset, global_order_idx_offset,
                               coding_idx, order_arf, 0, 0, 0, 1,
                               ref_frame_manager->ForwardMaxSize());
-  ref_frame_manager->UpdateFrame(&gop_frame, RefUpdateType::kNone,
-                                 EncodeRefMode::kOverlay);
+  ref_frame_manager->UpdateRefFrameTable(&gop_frame, RefUpdateType::kNone,
+                                         EncodeRefMode::kOverlay);
   gop_struct.gop_frame_list.push_back(gop_frame);
   return gop_struct;
 }
