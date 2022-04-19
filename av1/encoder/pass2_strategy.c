@@ -18,6 +18,7 @@
 /*! @} - end defgroup gf_group_algo */
 
 #include <stdint.h>
+#include <stdio.h>
 
 #include "config/aom_config.h"
 #include "config/aom_scale_rtcd.h"
@@ -3629,6 +3630,11 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   const FIRSTPASS_STATS *const start_pos = cpi->twopass_frame.stats_in;
   int update_total_stats = 0;
 
+  FILE *firstpass_stat_file = fopen("firstpass_stats", "a");
+  FILE *gop_size_file = fopen("gop_size", "a");
+  assert(firstpass_stat_file != NULL);
+  assert(gop_size_file != NULL);
+
   if (is_stat_consumption_stage(cpi) && !cpi->twopass_frame.stats_in) return;
 
   assert(cpi->twopass_frame.stats_in != NULL);
@@ -3690,6 +3696,20 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
   if (rc->frames_to_fwd_kf <= 0)
     rc->frames_to_fwd_kf = oxcf->kf_cfg.fwd_kf_dist;
 
+  fprintf(
+      firstpass_stat_file,
+      "firstpass_stats %d %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f "
+      "%f %f %f %f %f %f %" PRId64 " %f %f\n",
+      (int)round(start_pos->frame), start_pos->weight, start_pos->intra_error,
+      start_pos->frame_avg_wavelet_energy, start_pos->coded_error,
+      start_pos->sr_coded_error, start_pos->pcnt_inter, start_pos->pcnt_motion,
+      start_pos->pcnt_second_ref, start_pos->pcnt_neutral,
+      start_pos->intra_skip_pct, start_pos->inactive_zone_rows,
+      start_pos->inactive_zone_cols, start_pos->MVr, start_pos->mvr_abs,
+      start_pos->MVc, start_pos->mvc_abs, start_pos->MVrv, start_pos->MVcv,
+      start_pos->mv_in_out_count, start_pos->new_mv_count, start_pos->duration,
+      start_pos->count, start_pos->raw_error_stdev, start_pos->is_flash,
+      start_pos->noise_var, start_pos->cor_coeff);
   // Define a new GF/ARF group. (Should always enter here for key frames).
   if (cpi->gf_frame_index == gf_group->size) {
     av1_tf_info_reset(&cpi->ppi->tf_info);
@@ -3789,6 +3809,14 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
       // TODO(jingning): Resolve the redundant calls here.
       if (rc->intervals_till_gf_calculate_due == 0 || 1) {
         calculate_gf_length(cpi, max_gop_length, MAX_NUM_GF_INTERVALS);
+
+        fprintf(gop_size_file, "gop_size %d ",
+                rc->intervals_till_gf_calculate_due);
+        for (int i = 0; i < MAX_NUM_GF_INTERVALS - 1; i++) {
+          fprintf(gop_size_file, "%d ", p_rc->gf_intervals[i]);
+        }
+        fprintf(gop_size_file, "%d\n",
+                p_rc->gf_intervals[MAX_NUM_GF_INTERVALS - 1]);
       }
 
       if (max_gop_length > 16 && oxcf->algo_cfg.enable_tpl_model &&
@@ -3881,6 +3909,8 @@ void av1_get_second_pass_params(AV1_COMP *cpi,
 
   frame_params->frame_type = gf_group->frame_type[cpi->gf_frame_index];
   setup_target_rate(cpi);
+  fclose(firstpass_stat_file);
+  fclose(gop_size_file);
 }
 
 void av1_init_second_pass(AV1_COMP *cpi) {
