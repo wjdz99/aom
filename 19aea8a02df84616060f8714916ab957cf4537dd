@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1af796d5_8389348d",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T12:03:44Z",
+      "side": 1,
+      "message": "(optional) You could assign to {} here to ensure that all fields are initialized. This would make sense if you take my other suggestion (below) to compute the global_* fields later.",
+      "range": {
+        "startLine": 43,
+        "startChar": 11,
+        "endLine": 43,
+        "endChar": 21
+      },
+      "revId": "19aea8a02df84616060f8714916ab957cf4537dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76f713f9_33265cab",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T12:03:44Z",
+      "side": 1,
+      "message": "Instead of having to pass those offsets around everywhere, it would clutter up the code less to just leave them unassigned, and then add a loop here to compute them:\n\n for (auto\u0026 gop_frame : gop_struct.gop_frame_list) {\n   gop_frame.global_coding_idx \u003d global_coding_idx_offset + coding_idx;\n   gop_frame.global_order_idx \u003d global_order_idx_offset + order_idx;\n }",
+      "range": {
+        "startLine": 154,
+        "startChar": 0,
+        "endLine": 154,
+        "endChar": 20
+      },
+      "revId": "19aea8a02df84616060f8714916ab957cf4537dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ac6dc88_74f1821b",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T12:03:44Z",
+      "side": 1,
+      "message": "This cast isn\u0027t needed; it\u0027s already an int.",
+      "range": {
+        "startLine": 654,
+        "startChar": 31,
+        "endLine": 654,
+        "endChar": 47
+      },
+      "revId": "19aea8a02df84616060f8714916ab957cf4537dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ef541a0_2c3ea00d",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T12:03:44Z",
+      "side": 1,
+      "message": "What\u0027s the reason for adding these here? Aren\u0027t they redundant with the values in gop_frame_list.front()?",
+      "range": {
+        "startLine": 88,
+        "startChar": 2,
+        "endLine": 89,
+        "endChar": 30
+      },
+      "revId": "19aea8a02df84616060f8714916ab957cf4537dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e110091_5aaf77a2",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-19T12:03:44Z",
+      "side": 1,
+      "message": "It might be clearer to use \"expected\" instead of \"ref\", given that \"ref\" has other meanings in this domain. This applies to all the ref_* variables in the tests here.",
+      "range": {
+        "startLine": 30,
+        "startChar": 6,
+        "endLine": 30,
+        "endChar": 9
+      },
+      "revId": "19aea8a02df84616060f8714916ab957cf4537dd",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
