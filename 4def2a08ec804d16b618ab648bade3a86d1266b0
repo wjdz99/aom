@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15d60f39_e71c98ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8893
+      },
+      "writtenOn": "2022-04-19T13:40:29Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn the current codebase, dual/quad loop filter optimizations are enabled for non-rd path of rt preset. In this patch, we have enabled these optimizations for rd path of rt and good presets whenever transform size search depth in inter blocks is limited to 1 (good preset speed \u003e\u003d 1 and rt speed 5, 6) as quad loop filtering assumes that all the transform blocks within a 16x8/8x16/16x16 prediction block are of the same size . Also, filtering of both chroma planes together is enabled when loop filter level is estimated based on quantizer (rt speed 5, 6).\n\nThe speed-up results are as follows :\n\nSpeed data for RT preset\n cpu   Instruction Count\n         Reduction(%)\n  5        1.710\n  6        2.206\n\nSpeed data for good preset\n cpu   Instruction Count\n         Reduction(%)\n  3        0.595\n  4        0.426\n  5        0.888\n  6        1.262\n  \n[-] sign indicates encode time/instruction count increase\n[+] sign indicates encode time/instruction count reduction\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nThe speed-up achieved in good speed 1, 2 is negligible (\u003c ~0.3%).\n\nPlease review the patch.\n\nThanks\n",
+      "revId": "4def2a08ec804d16b618ab648bade3a86d1266b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
