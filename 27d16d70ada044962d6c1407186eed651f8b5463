@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f4c4764_1e44a585",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Okay, let\u0027s keep it as it is here.",
+      "parentUuid": "5f11fe15_60da3487",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 0
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58c3ac36_23f9744a",
@@ -37,6 +61,54 @@
       "writtenOn": "2022-04-19T18:33:16Z",
       "side": 1,
       "message": "I think either GetExistingRefFrameCount or just GetRefFrameCount would be clearer.",
+      "range": {
+        "startLine": 48,
+        "startChar": 21,
+        "endLine": 48,
+        "endChar": 42
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa07b14f_242ac6d3",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58c3ac36_23f9744a",
+      "range": {
+        "startLine": 48,
+        "startChar": 21,
+        "endLine": 48,
+        "endChar": 42
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3adbd14_712f0c96",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58c3ac36_23f9744a",
       "range": {
         "startLine": 48,
         "startChar": 21,
@@ -70,6 +142,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4526a9e8_7f7c0851",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Since we need braces here, if/else is kind of okay in terms of readability?",
+      "parentUuid": "1f86ec3f_1846997a",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 51
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a46ed6f5_e4078bad",
@@ -83,6 +179,54 @@
       "writtenOn": "2022-04-19T18:33:16Z",
       "side": 1,
       "message": "This could be an unordered_set, which would make the code accessing it simpler.",
+      "range": {
+        "startLine": 89,
+        "startChar": 33,
+        "endLine": 89,
+        "endChar": 44
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6e9b54f_d731ddd6",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a46ed6f5_e4078bad",
+      "range": {
+        "startLine": 89,
+        "startChar": 33,
+        "endLine": 89,
+        "endChar": 44
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "383cec05_a351180d",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a46ed6f5_e4078bad",
       "range": {
         "startLine": 89,
         "startChar": 33,
@@ -116,6 +260,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6bb9998_c692419a",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf70698c_1b5e5205",
+      "range": {
+        "startLine": 113,
+        "startChar": 56,
+        "endLine": 113,
+        "endChar": 58
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a484b127_50b15614",
@@ -139,6 +307,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e76e739_a3935068",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a484b127_50b15614",
+      "range": {
+        "startLine": 129,
+        "startChar": 12,
+        "endLine": 129,
+        "endChar": 33
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a5638055_252c1f48",
@@ -152,6 +344,30 @@
       "writtenOn": "2022-04-19T18:33:16Z",
       "side": 1,
       "message": "This will just be zero at this point.",
+      "range": {
+        "startLine": 130,
+        "startChar": 24,
+        "endLine": 130,
+        "endChar": 63
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d930dd3_42e3a625",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5638055_252c1f48",
       "range": {
         "startLine": 130,
         "startChar": 24,
@@ -208,6 +424,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "83d47cfb_af1b060c",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "I don\u0027t want to change max_ref_frames_ to be unsigned.\nIt might be used in other place. Any interaction between int and unsigned will be a headache.",
+      "parentUuid": "aa0e6a9d_1532240a",
+      "range": {
+        "startLine": 133,
+        "startChar": 9,
+        "endLine": 133,
+        "endChar": 24
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f99379b_49016398",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Good catch. This is a bug causes unit test failure.",
+      "parentUuid": "103a126f_f040063a",
+      "range": {
+        "startLine": 133,
+        "startChar": 43,
+        "endLine": 133,
+        "endChar": 45
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "97f68674_db6d3601",
@@ -221,6 +485,30 @@
       "writtenOn": "2022-04-19T18:33:16Z",
       "side": 1,
       "message": "Instead of comparing ref_frame_count with exist_ref_frame_count, you could rename exist_ref_frame_count to available_ref_frame_count (or just available_ref_frames) and have it count down, and then exit if it hits zero.",
+      "range": {
+        "startLine": 134,
+        "startChar": 9,
+        "endLine": 134,
+        "endChar": 48
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ee2ad0d_e6a088f3",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "97f68674_db6d3601",
       "range": {
         "startLine": 134,
         "startChar": 9,
@@ -254,6 +542,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "559a8622_a70bcce2",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78efb94a_a2779c08",
+      "range": {
+        "startLine": 135,
+        "startChar": 10,
+        "endLine": 135,
+        "endChar": 14
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "48196183_dc994f70",
@@ -267,6 +579,30 @@
       "writtenOn": "2022-04-19T18:33:16Z",
       "side": 1,
       "message": "Also here. Just use int.",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 8
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c5852af_65a9278e",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48196183_dc994f70",
       "range": {
         "startLine": 136,
         "startChar": 4,
@@ -300,6 +636,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "29a626bd_a62295fe",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "530c9e98_9c2210de",
+      "range": {
+        "startLine": 139,
+        "startChar": 12,
+        "endLine": 139,
+        "endChar": 16
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2d990490_6e755252",
@@ -323,6 +683,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c41225b_6386d6ea",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "We do, by having\nint \u0026priority_idx \u003d priority_idx_list[round_robin_idx];\n\nLet me use ++priority_idx_list[round_robin_idx]; to make it more clear.",
+      "parentUuid": "2d990490_6e755252",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 21
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "534baa5b_e3e7ec49",
@@ -336,6 +720,30 @@
       "writtenOn": "2022-04-19T18:33:16Z",
       "side": 1,
       "message": "Do all of these need to be public? Anything that doesn\u0027t need to be part of the public API (or public for testing) should be private.",
+      "range": {
+        "startLine": 60,
+        "startChar": 0,
+        "endLine": 69,
+        "endChar": 0
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c629e5c7_6c1283ed",
+        "filename": "av1/reference_manager.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-19T23:42:50Z",
+      "side": 1,
+      "message": "This reference_manager is not exposed to ratectrl_qmode_interface.h at all.\nIt\u0027s only used in ratectrl_qmode.cc.\nSo maybe we can figure out public/private matter later.\nI also planed to write some unit tests for them.\nNot sure if I can do that for private function.",
+      "parentUuid": "534baa5b_e3e7ec49",
       "range": {
         "startLine": 60,
         "startChar": 0,
