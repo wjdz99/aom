@@ -1136,7 +1136,8 @@ static AOM_INLINE void tpl_model_update(TplParams *const tpl_data, int mi_row,
 static AOM_INLINE void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row,
                                        int mi_col, int stride,
                                        const TplDepStats *src_stats,
-                                       uint8_t block_mis_log2) {
+                                       uint8_t block_mis_log2,
+                                       int frame_display_index) {
   int index = av1_tpl_ptr_pos(mi_row, mi_col, stride, block_mis_log2);
   TplDepStats *tpl_ptr = &tpl_stats_ptr[index];
   *tpl_ptr = *src_stats;
@@ -1151,6 +1152,18 @@ static AOM_INLINE void tpl_model_store(TplDepStats *tpl_stats_ptr, int mi_row,
   tpl_ptr->cmp_recrf_dist[1] = AOMMAX(1, tpl_ptr->cmp_recrf_dist[1]);
   tpl_ptr->cmp_recrf_rate[0] = AOMMAX(1, tpl_ptr->cmp_recrf_rate[0]);
   tpl_ptr->cmp_recrf_rate[1] = AOMMAX(1, tpl_ptr->cmp_recrf_rate[1]);
+  printf("%d %d %d %ld %ld %d %d", frame_display_index, mi_row, mi_col,
+         tpl_ptr->intra_cost, tpl_ptr->inter_cost, tpl_ptr->ref_frame_index[0],
+         tpl_ptr->ref_frame_index[1]);
+  if (tpl_ptr->ref_frame_index[0] >= 0) {
+    printf(" %d %d", tpl_ptr->mv[tpl_ptr->ref_frame_index[0]].as_mv.row,
+           tpl_ptr->mv[tpl_ptr->ref_frame_index[0]].as_mv.col);
+  }
+  if (tpl_ptr->ref_frame_index[1] >= 0) {
+    printf(" %d %d", tpl_ptr->mv[tpl_ptr->ref_frame_index[1]].as_mv.row,
+           tpl_ptr->mv[tpl_ptr->ref_frame_index[1]].as_mv.col);
+  }
+  printf("\n");
 }
 
 // Reset the ref and source frame pointers of tpl_data.
@@ -1309,7 +1322,8 @@ void av1_mc_flow_dispenser_row(AV1_COMP *cpi, TplTxfmStats *tpl_txfm_stats,
 
     // Motion flow dependency dispenser.
     tpl_model_store(tpl_frame->tpl_stats_ptr, mi_row, mi_col, tpl_frame->stride,
-                    &tpl_stats, tpl_data->tpl_stats_block_mis_log2);
+                    &tpl_stats, tpl_data->tpl_stats_block_mis_log2,
+                    tpl_frame->frame_display_index);
     (*tpl_row_mt->sync_write_ptr)(&tpl_data->tpl_mt_sync, tplb_row,
                                   tplb_col_in_tile, tplb_cols_in_tile);
   }
@@ -1325,6 +1339,8 @@ static AOM_INLINE void mc_flow_dispenser(AV1_COMP *cpi) {
       convert_length_to_bsize(cpi->ppi->tpl_data.tpl_bsize_1d);
   const TX_SIZE tx_size = max_txsize_lookup[bsize];
   const int mi_height = mi_size_high[bsize];
+  TplParams *const tpl_data = &cpi->ppi->tpl_data;
+  TplDepFrame *tpl_frame = &tpl_data->tpl_frame[tpl_data->frame_idx];
   for (int mi_row = 0; mi_row < mi_params->mi_rows; mi_row += mi_height) {
     // Motion estimation row boundary
     av1_set_mv_row_limits(mi_params, &x->mv_limits, mi_row, mi_height,
@@ -1429,6 +1445,7 @@ static AOM_INLINE void init_gop_frames_for_tpl(
     // is the display index of the frame.
     tpl_frame->frame_display_index =
         lookahead_index + cm->current_frame.frame_number;
+
     assert(buf->display_idx ==
            cpi->frame_index_set.show_frame_count + lookahead_index);
 
