@@ -22,6 +22,29 @@
       },
       "revId": "875027dd386fbd8f204b82dcc7b76fed79c553cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f25e59b4_a96b45e8",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3804,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-20T23:40:41Z",
+      "side": 1,
+      "message": "You might want to compared your function partition_gop_intervals() against the output of the original function here calculate_gf_length().\n\nIn this function, the gop intervals are stored in p_rc-\u003egf_intervals[]\nThe gop count is stored in rc-\u003eintervals_till_gf_calculate_due\n\nFor some reason, this function will be called multiple times and doesn\u0027t know the next key frame location. (They simply pass in MAX_NUM_GF_INTERVALS)\n\nWe can just dump the output of the first call of this function.\n\nNote that, the sum of all gop intervals should be equal to 150 assuming \"--limit\u003d150\".",
+      "range": {
+        "startLine": 3804,
+        "startChar": 8,
+        "endLine": 3804,
+        "endChar": 71
+      },
+      "revId": "875027dd386fbd8f204b82dcc7b76fed79c553cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
