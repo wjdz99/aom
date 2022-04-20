@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5fbc24be_3084f3d5",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 15
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-20T01:20:02Z",
+      "side": 0,
+      "message": "I think this can be restored, since the files are only added under if(CONFIG_AV1_ENCODER)",
+      "revId": "a7684758485d8caa1f6b605df99901d7ebb8fd5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20d79404_d4e0c3f6",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-20T01:20:02Z",
+      "side": 0,
+      "message": "to keep the size of the diff down, you could revert this file",
+      "revId": "a7684758485d8caa1f6b605df99901d7ebb8fd5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
