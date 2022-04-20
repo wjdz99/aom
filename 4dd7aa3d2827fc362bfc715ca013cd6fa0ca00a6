@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6043b13d_cb96d34f",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T12:14:51Z",
+      "side": 1,
+      "message": "Why not just key_index? This is just the frame number of the key frame, right? I don\u0027t believe it has anything to do with the stats per se.",
+      "range": {
+        "startLine": 627,
+        "startChar": 8,
+        "endLine": 627,
+        "endChar": 21
+      },
+      "revId": "4dd7aa3d2827fc362bfc715ca013cd6fa0ca00a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4adf4e82_508a5170",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T12:14:51Z",
+      "side": 1,
+      "message": "(optional) An alternative to having this special-case would be to have get_key_frame_list add first_pass_info.stats_list.size() to the end as a sentinel of sorts. In other words, the first frame after the sequence is a key frame (even though it won\u0027t be encoded as such).\n\nThen you could loop up to key_frame_list.size() - 1, and assume that there\u0027s always a valid index at key_frame_list[ki + 1].\n\nIn general, one less conditional means one less code path to be tested (or to have errors in it).",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 630,
+        "endChar": 0
+      },
+      "revId": "4dd7aa3d2827fc362bfc715ca013cd6fa0ca00a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "281f4d6c_52a06b99",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T12:14:51Z",
+      "side": 1,
+      "message": "Since this is still hard-coded to zero, it would be clearer for now to get rid of the variable and just put \"/*frames_since_key\u003d*/0\" here.",
+      "range": {
+        "startLine": 645,
+        "startChar": 8,
+        "endLine": 645,
+        "endChar": 24
+      },
+      "revId": "4dd7aa3d2827fc362bfc715ca013cd6fa0ca00a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
