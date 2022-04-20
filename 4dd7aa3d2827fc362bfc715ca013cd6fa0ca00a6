@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79014efb_ab536bc9",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-20T22:39:00Z",
+      "side": 1,
+      "message": "I was try to differentiate key_stats_idx and ki.\nkey_stats_idx is the display order of the key frame.\nki is the index of key_frame_list.\n\nI will name it key_order_index then.",
+      "parentUuid": "6043b13d_cb96d34f",
+      "range": {
+        "startLine": 627,
+        "startChar": 8,
+        "endLine": 627,
+        "endChar": 21
+      },
+      "revId": "4dd7aa3d2827fc362bfc715ca013cd6fa0ca00a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4adf4e82_508a5170",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "146da80c_c2439905",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-20T22:39:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4adf4e82_508a5170",
+      "range": {
+        "startLine": 628,
+        "startChar": 0,
+        "endLine": 630,
+        "endChar": 0
+      },
+      "revId": "4dd7aa3d2827fc362bfc715ca013cd6fa0ca00a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "281f4d6c_52a06b99",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-04-20T12:14:51Z",
       "side": 1,
       "message": "Since this is still hard-coded to zero, it would be clearer for now to get rid of the variable and just put \"/*frames_since_key\u003d*/0\" here.",
+      "range": {
+        "startLine": 645,
+        "startChar": 8,
+        "endLine": 645,
+        "endChar": 24
+      },
+      "revId": "4dd7aa3d2827fc362bfc715ca013cd6fa0ca00a6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8d40ef88_d1ce7525",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 645,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-20T22:39:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "281f4d6c_52a06b99",
       "range": {
         "startLine": 645,
         "startChar": 8,
