@@ -52,6 +52,24 @@
       "parentUuid": "ab1dd0fe_eaec4ff2",
       "revId": "adf087b3a8e0dfd656b632adef331290c6977443",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc0e0f2a_795cf93b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-20T15:55:32Z",
+      "side": 1,
+      "message": "Thanks for getting the scaling factor. Do you know why the number (1.1x) is that low?",
+      "parentUuid": "b642a5c8_fe2da992",
+      "revId": "adf087b3a8e0dfd656b632adef331290c6977443",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
