@@ -166,6 +166,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0109f9f6_b76d0cb2",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T01:29:30Z",
+      "side": 1,
+      "message": "If/else is okay, but I think a switch is easier to read in a case like this where each condition is just one value of an enum, and you\u0027re exhaustively handling each value of the enum. With if/else there\u0027s more boilerplate, and you have to carefully read through each condition to make sure there\u0027s not something more complicated going on. With a switch, it\u0027s obvious exactly what\u0027s happening.",
+      "parentUuid": "4526a9e8_7f7c0851",
+      "range": {
+        "startLine": 63,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 51
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a46ed6f5_e4078bad",
@@ -697,6 +721,30 @@
       "side": 1,
       "message": "We do, by having\nint \u0026priority_idx \u003d priority_idx_list[round_robin_idx];\n\nLet me use ++priority_idx_list[round_robin_idx]; to make it more clear.",
       "parentUuid": "2d990490_6e755252",
+      "range": {
+        "startLine": 146,
+        "startChar": 0,
+        "endLine": 146,
+        "endChar": 21
+      },
+      "revId": "27d16d70ada044962d6c1407186eed651f8b5463",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7baa70ca_4efe7067",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T01:29:30Z",
+      "side": 1,
+      "message": "Oh, right. That was a bit subtle, because of your use of a reference. I like it better with it explicit.",
+      "parentUuid": "4c41225b_6386d6ea",
       "range": {
         "startLine": 146,
         "startChar": 0,

@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9881bcb_16565e8c",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T01:29:30Z",
+      "side": 1,
+      "message": "I don\u0027t understand why you added all the other names here. Shouldn\u0027t the forward references be limited to BWD, ALTREF, and ALTREF2?\n\nAnd likewise for the others below. Not all names are valid for each case.",
+      "range": {
+        "startLine": 92,
+        "startChar": 48,
+        "endLine": 94,
+        "endChar": 30
+      },
+      "revId": "ff562598a3a804a94ac81d6c7f101bec76b6a881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e640638c_1642f1db",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T01:29:30Z",
+      "side": 1,
+      "message": "This could also be a switch instead of if/else.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 0
+      },
+      "revId": "ff562598a3a804a94ac81d6c7f101bec76b6a881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc312fe6_888cf80b",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 6
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-20T01:29:30Z",
+      "side": 1,
+      "message": "This shouldn\u0027t be necessary, since all legal values of RefUpdateType are covered above.",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 18
+      },
+      "revId": "ff562598a3a804a94ac81d6c7f101bec76b6a881",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
