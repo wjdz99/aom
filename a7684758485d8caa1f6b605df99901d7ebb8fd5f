@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "375472e6_f1256ae7",
+        "filename": "aom_dsp/aom_dsp.cmake",
+        "patchSetId": 15
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-20T01:32:56Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "5fbc24be_3084f3d5",
+      "revId": "a7684758485d8caa1f6b605df99901d7ebb8fd5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "20d79404_d4e0c3f6",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-04-20T01:20:02Z",
       "side": 0,
       "message": "to keep the size of the diff down, you could revert this file",
+      "revId": "a7684758485d8caa1f6b605df99901d7ebb8fd5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc583afc_03a5c6b6",
+        "filename": "aom_dsp/x86/variance_avx2.c",
+        "patchSetId": 15
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-20T01:32:56Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "20d79404_d4e0c3f6",
       "revId": "a7684758485d8caa1f6b605df99901d7ebb8fd5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
