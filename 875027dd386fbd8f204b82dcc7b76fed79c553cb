@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fa374b0_c4a8c503",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3705,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-20T23:03:55Z",
+      "side": 1,
+      "message": "The av1_first_pass() is where we compute first pass stats.\nThe first pass stats are stored at cpi-\u003eppi-\u003etwopass.firstpass_info\n\nAt this point, firstpass_info should be ready.\nYou can write a for loop to get all the first pass stats like\n\nfor(int i \u003d 0; i \u003c firstpass_info-\u003estats_count; i++) {\n  // print the content of stats_buf[i]\n}\nexit(0);\n\nBtw, we can check whether stats_count match the --limit\u003d### we set in the command line.\n\n\n[optional hack]\nSince every field is double, we can convert the stats pointer into a double pointer and print them out.\n\ndouble* ptr \u003d (double*)stats_ptr;\nint size \u003d sizeof(FIRSTPASS_STATS) / sizeof(double);\nfor(int i \u003d 0; i \u003c size; ++i) {\n  printf(\"%f \", ptr[i]);\n}\n\nThis will be easier to read them back as well.",
+      "range": {
+        "startLine": 3693,
+        "startChar": 1,
+        "endLine": 3705,
+        "endChar": 50
+      },
+      "revId": "875027dd386fbd8f204b82dcc7b76fed79c553cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
