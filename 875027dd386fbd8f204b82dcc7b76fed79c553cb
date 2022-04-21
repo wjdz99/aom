@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "dea3c040_76a3857e",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3705,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-21T18:01:59Z",
+      "side": 1,
+      "message": "I think they use double so that they don\u0027t have to iterate through each naming.\nIf everything is double, you can just assume first pass stats is a double array and dump everything out.\n(But it\u0027s up to you to decide which way is better.)",
+      "parentUuid": "b07957d5_4fdaf6f0",
+      "range": {
+        "startLine": 3693,
+        "startChar": 1,
+        "endLine": 3705,
+        "endChar": 50
+      },
+      "revId": "875027dd386fbd8f204b82dcc7b76fed79c553cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f25e59b4_a96b45e8",
         "filename": "av1/encoder/pass2_strategy.c",
         "patchSetId": 2
@@ -90,6 +114,53 @@
         "startChar": 8,
         "endLine": 3804,
         "endChar": 71
+      },
+      "revId": "875027dd386fbd8f204b82dcc7b76fed79c553cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b00fc7aa_bd0463b1",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3804,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-21T18:01:59Z",
+      "side": 1,
+      "message": "Yep, they will be different.\nIn fact, there are several places that we add extra logics to change the gop size.\nSome of the logics can not be replicate by hardware.\nSince you function is a rewrite of this function, we should focus on whether your function and this function has the same output.\nI did some test and found out that the first call of this function will go though all the first pass stats out partition the chunk into several gop intervals.\nThis should be sufficient for our test.",
+      "parentUuid": "1da8ac96_779d75d5",
+      "range": {
+        "startLine": 3804,
+        "startChar": 8,
+        "endLine": 3804,
+        "endChar": 71
+      },
+      "revId": "875027dd386fbd8f204b82dcc7b76fed79c553cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f83bfe79_f6d73dbf",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 3836,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-21T18:01:59Z",
+      "side": 1,
+      "message": "This is the one place where we add extra logics to change the gop size.\nIf you read through this function, you will se we use an extra TPL stats computation to adjust the gop size.\nI don\u0027t think this is feasible for HW.",
+      "range": {
+        "startLine": 3836,
+        "startChar": 10,
+        "endLine": 3836,
+        "endChar": 63
       },
       "revId": "875027dd386fbd8f204b82dcc7b76fed79c553cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
