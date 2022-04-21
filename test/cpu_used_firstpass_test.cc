@@ -105,8 +105,8 @@ TEST_P(CpuUsedFirstpassTestLarge, FirstPassTest) { DoTest(); }
 
 AV1_INSTANTIATE_TEST_SUITE(CpuUsedFirstpassTestLarge,
                            ::testing::Values(2, 4, 6),
-                           ::testing::Values(2));  // cpu_used
+                           ::testing::Values(2, 4));  // cpu_used
 
 AV1_INSTANTIATE_TEST_SUITE(CpuUsedFirstpassTest, ::testing::Values(2, 4, 6),
-                           ::testing::Values(4, 6));  // cpu_used
+                           ::testing::Values(6));  // cpu_used
 }  // namespace
