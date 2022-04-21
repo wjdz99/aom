@@ -1621,7 +1621,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.var_part_split_threshold_shift = 8;
     sf->interp_sf.cb_pred_filter_search = 1;
     sf->rt_sf.var_part_based_on_qidx = 2;
-    sf->rt_sf.partition_direct_merging = 1;
+    sf->rt_sf.partition_direct_merging = 0;
   }
   if (speed >= 9) {
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_3;
