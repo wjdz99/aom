@@ -1027,7 +1027,7 @@ void av1_apply_active_map(AV1_COMP *cpi);
 #if !CONFIG_REALTIME_ONLY
 uint16_t av1_setup_interp_filter_search_mask(AV1_COMP *cpi);
 
-void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig);
+int av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig);
 #endif
 
 void av1_set_size_dependent_vars(AV1_COMP *cpi, int *q, int *bottom_index,

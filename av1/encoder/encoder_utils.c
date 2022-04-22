@@ -936,11 +936,17 @@ static void screen_content_tools_determination(
   if (pass != 1) return;
 
   const double psnr_diff = psnr[1].psnr[0] - psnr[0].psnr[0];
-  const int is_sc_encoding_much_better = psnr_diff > STRICT_PSNR_DIFF_THRESH;
+  const double frame_size_ratio =
+      projected_size_pass[1] / (double)projected_size_pass[0];
+  // Estimate the joint gain using this estimation:
+  // 0.1 db psnr diff translates to 2% frame size reduction.
+  const double joint_gain = psnr_diff * 20 + (1.0 - frame_size_ratio) * 100;
+  const int is_sc_encoding_much_better =
+      psnr_diff > STRICT_PSNR_DIFF_THRESH || joint_gain > 10;
   if (is_sc_encoding_much_better) {
     // Use screen content tools, if we get coding gain.
     features->allow_screen_content_tools = 1;
-    features->allow_intrabc = cpi->intrabc_used;
+    features->allow_intrabc = 1;
     cpi->use_screen_content_tools = 1;
     cpi->is_screen_content_type = 1;
   } else {
@@ -972,8 +978,7 @@ static void set_encoding_params_for_screen_content(AV1_COMP *cpi,
   // In the second pass, encode with screen content tools.
   // Use a high q, and a fixed block size for fast encoding.
   cm->features.allow_screen_content_tools = 1;
-  // TODO(chengchen): turn intrabc on could lead to data race issue.
-  // cm->allow_intrabc = 1;
+  cm->features.allow_intrabc = 1;
   cpi->use_screen_content_tools = 1;
   cpi->sf.part_sf.partition_search_type = FIXED_PARTITION;
   cpi->sf.part_sf.fixed_partition_size = BLOCK_32X32;
@@ -982,7 +987,11 @@ static void set_encoding_params_for_screen_content(AV1_COMP *cpi,
 // Determines whether to use screen content tools for the key frame group.
 // This function modifies "cm->features.allow_screen_content_tools",
 // "cm->features.allow_intrabc" and "cpi->use_screen_content_tools".
-void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
+int av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
+  // TODO(chengchen): turn intrabc on could lead to data race issue.
+  MultiThreadInfo *const mt_info = &cpi->mt_info;
+  if (cpi->oxcf.row_mt && mt_info->num_workers > 1) return AOM_CODEC_OK;
+
   AV1_COMMON *const cm = &cpi->common;
   const AV1EncoderConfig *const oxcf = &cpi->oxcf;
   const QuantizationCfg *const q_cfg = &oxcf->q_cfg;
@@ -1000,7 +1009,7 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
   if (cpi->sf.rt_sf.use_nonrd_pick_mode || oxcf->kf_cfg.fwd_kf_enabled ||
       cpi->superres_mode != AOM_SUPERRES_NONE || oxcf->mode == REALTIME ||
       use_screen_content_tools_orig_decision || !is_key_frame) {
-    return;
+    return AOM_CODEC_OK;
   }
 
   // TODO(chengchen): multiple encoding for the lossless mode is time consuming.
@@ -1008,7 +1017,7 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
   // for lossless coding.
   // Use a high q and a fixed partition to do quick encoding.
   const int q_for_screen_content_quick_run =
-      is_lossless_requested(&oxcf->rc_cfg) ? q_orig : AOMMAX(q_orig, 244);
+      is_lossless_requested(&oxcf->rc_cfg) ? q_orig : AOMMAX(q_orig, 180);
   const int partition_search_type_orig = cpi->sf.part_sf.partition_search_type;
   const BLOCK_SIZE fixed_partition_block_size_orig =
       cpi->sf.part_sf.fixed_partition_size;
@@ -1057,6 +1066,20 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
                                           0);
     // transform / motion compensation build reconstruction frame
     av1_encode_frame(cpi);
+
+    // dummy pack bitstream
+    av1_finalize_encoded_frame(cpi);
+    int largest_tile_id = 0;  // Output from bitstream: unused here
+    cpi->rc.coefficient_size = 0;
+    size_t size;
+    const int buffer_size = cm->width * cm->height;
+    uint8_t *dest = aom_calloc(buffer_size, sizeof(*dest));
+    if (av1_pack_bitstream(cpi, dest, &size, &largest_tile_id) !=
+        AOM_CODEC_OK) {
+      return AOM_CODEC_ERROR;
+    }
+    cpi->rc.projected_frame_size = (int)size << 3;
+
     // Screen content decision
     screen_content_tools_determination(
         cpi, allow_screen_content_tools_orig_decision,
@@ -1071,6 +1094,8 @@ void av1_determine_sc_tools_with_encoding(AV1_COMP *cpi, const int q_orig) {
   // Free token related info if screen content coding tools are not enabled.
   if (!cm->features.allow_screen_content_tools)
     free_token_info(&cpi->token_info);
+
+  return AOM_CODEC_OK;
 }
 #endif  // CONFIG_REALTIME_ONLY
 
