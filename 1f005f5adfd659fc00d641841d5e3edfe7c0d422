@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a23b9a7_6dce8ff6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-22T13:48:08Z",
+      "side": 1,
+      "message": "As mentioned in https://bugs.chromium.org/p/aomedia/issues/detail?id\u003d3274#c4 we can also define a hash function for ReferenceName\n\nI\u0027ll let you decide which way is easier to do.",
+      "revId": "1f005f5adfd659fc00d641841d5e3edfe7c0d422",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
