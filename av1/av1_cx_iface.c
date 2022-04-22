@@ -849,6 +849,35 @@ static aom_codec_err_t validate_config(aom_codec_alg_priv_t *ctx,
   return AOM_CODEC_OK;
 }
 
+#if !CONFIG_REALTIME_ONLY
+static bool validate_bitdepth(const unsigned char *src, int rows, int cols,
+                             int stride, int bit_depth) {
+  const uint16_t *src_ptr = (uint16_t *)src;
+  stride >>= 1;
+
+  const uint16_t mask16 = ((uint16_t)0xFFFF) << bit_depth;
+  const uint64_t mask64 = mask16 | ((uint64_t)mask16 << 16) | ((uint64_t)mask16 << 32) | ((uint64_t)mask16 << 48);
+
+  uint64_t accum64 = 0;
+  for (int row = 0; row< rows; row++) {
+    for (int col = 0; col < cols /4 * 4; col +=4) {
+      accum64 = accum64 | *(uint64_t *)(&src_ptr[row * stride + col]);
+    }
+  }
+  if (mask64 & accum64) {
+    return false;
+  }
+
+  uint16_t accum16 = 0;
+  for (int row = 0; row< rows; row++) {
+    for (int col = cols/4*4; col < cols; col++) {
+      accum16 = accum16 | src_ptr[row * stride + col];
+    }
+  }
+  return !(accum16 & mask16);
+}
+#endif  // !CONFIG_REALTIME_ONLY
+
 static aom_codec_err_t validate_img(aom_codec_alg_priv_t *ctx,
                                     const aom_image_t *img) {
   switch (img->fmt) {
@@ -893,6 +922,28 @@ static aom_codec_err_t validate_img(aom_codec_alg_priv_t *ctx,
     }
   }
 #endif
+
+#if !CONFIG_REALTIME_ONLY
+  printf("validate image bitdepth: %d\n", img->bit_depth);
+  const int bit_depth = img->bit_depth;
+  if (bit_depth > 8) {
+    bool bitdepth_valid = true;
+    bitdepth_valid &= validate_bitdepth(img->planes[AOM_PLANE_Y], img->h, img->w,
+                      img->stride[AOM_PLANE_Y], bit_depth);
+    if (!img->monochrome) {
+      const int uv_height =
+          (img->h + img->y_chroma_shift) >> img->y_chroma_shift;
+      const int uv_width = (img->w + img->x_chroma_shift) >> img->x_chroma_shift;
+      bitdepth_valid &= validate_bitdepth(img->planes[AOM_PLANE_U], uv_height, uv_width,
+                        img->stride[AOM_PLANE_U], bit_depth);
+      bitdepth_valid &= validate_bitdepth(img->planes[AOM_PLANE_V], uv_height, uv_width,
+                        img->stride[AOM_PLANE_V], bit_depth);
+    }
+    if (!bitdepth_valid) {
+      ERROR("The image's samples do not conform with the specified bitdepth.");
+    }
+  }
+#endif  // !CONFIG_REALTIME_ONLY
 
   return AOM_CODEC_OK;
 }

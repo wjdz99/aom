@@ -1210,5 +1210,6 @@ int y4m_input_fetch_frame(y4m_input *_y4m, FILE *_fin, aom_image_t *_img) {
   _img->planes[AOM_PLANE_Y] = _y4m->dst_buf;
   _img->planes[AOM_PLANE_U] = _y4m->dst_buf + pic_sz;
   _img->planes[AOM_PLANE_V] = _y4m->dst_buf + pic_sz + c_sz;
+  _img->bit_depth = _y4m->bit_depth;
   return 1;
 }
