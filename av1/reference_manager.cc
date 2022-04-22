@@ -10,7 +10,7 @@
  */
 
 #include <algorithm>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 #include "av1/reference_manager.h"
@@ -83,7 +83,7 @@ int RefFrameManager::GetRefFrameIdx(RefUpdateType ref_update_type,
 
 ReferenceName get_ref_name(
     RefUpdateType ref_update_type, int priority_idx,
-    const std::unordered_set<ReferenceName> &used_name_set) {
+    const std::set<ReferenceName> &used_name_set) {
   // TODO(angiebird): Find the better way to assign name lists.
   // Maybe sort the names based on how frequent each name is being used in the
   // past?
@@ -135,7 +135,7 @@ std::vector<ReferenceFrame> RefFrameManager::GetRefFrameList() const {
   std::vector<ReferenceFrame> ref_frame_list;
   int ref_frame_count = 0;
   int round_robin_idx = 0;
-  std::unordered_set<ReferenceName> used_name_set;
+  std::set<ReferenceName> used_name_set;
   while (ref_frame_count < max_ref_frames_ && available_ref_frames > 0) {
     const RefUpdateType ref_update_type = round_robin_list[round_robin_idx];
     int priority_idx = priority_idx_list[round_robin_idx];
