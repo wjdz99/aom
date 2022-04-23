@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "027f8479_f5ae5f1d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30017
+      },
+      "writtenOn": "2022-04-23T09:31:13Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThis patch enables the unit test for aom_get_sse_sum_8x8_quad_neon() optimization. With this we ensured bit-exact for both 32 bit and 64 bit ARM builds.\n\nPlease review the patch.\n\nThanks \u0026 Regards, \nArun\n",
+      "revId": "a8c1b90a80fc19f37370d758f3e73a7299c07dac",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
