@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Frank,\n\nAs discussed in the review comments of the CL (https://aomedia-review.googlesource.com/c/aom/+/155361/comments/2204e65d_1fddff49), we have simplified some operations by making use of the CEIL_POWER_OF_TWO macro at some places based on the applicability. \nIn this CL we have replaced the following operations with CEIL_POWER_OF_TWO(x,n):\n1. (x + (1\u003c\u003c n ) - 1) \u003e\u003e n\n2. ALIGN_POWER_OF_TWO(x,n) \u003e\u003e n\nWe have verified that these refactoring changes will not cause any behavioral changes. \n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nPlease review.\n\nRegards,\nMudassir.\n",
       "revId": "89776ecf9a24c5a04c896166b533b31e44344040",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6cf8dc2_8bbeaa88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-25T22:45:32Z",
+      "side": 1,
+      "message": "LGTM. Thanks!",
+      "revId": "89776ecf9a24c5a04c896166b533b31e44344040",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
