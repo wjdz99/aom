@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b458710d_bef22290",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 499,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-25T01:52:37Z",
+      "side": 1,
+      "message": "I don\u0027t think this variable makes the test any easier to understand. I\u0027d just check for (type \u003d\u003d RefUpdateType::kForward) in the conditional below.",
+      "range": {
+        "startLine": 499,
+        "startChar": 2,
+        "endLine": 499,
+        "endChar": 54
+      },
+      "revId": "19c316563b7db8e2b91ddbf9a0264de6faece516",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
