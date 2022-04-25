@@ -16,6 +16,144 @@
       "message": "Here is the latest golden files:\n\nfirst pass stats:\nhttps://x20web.corp.google.com/users/ji/jianj/exchange/firstpass_stats\n\ngop sizes:\nhttps://x20web.corp.google.com/users/ji/jianj/exchange/gop_size\n",
       "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6fe1c4d_a22a31ee",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3637,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-25T17:35:34Z",
+      "side": 1,
+      "message": "We can also move this part to if (need_gf_len) {}",
+      "range": {
+        "startLine": 3633,
+        "startChar": 0,
+        "endLine": 3637,
+        "endChar": 0
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f84f366e_52c9a842",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3712,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-25T17:35:34Z",
+      "side": 1,
+      "message": "You can print all first pass stats from FIRSTPASS_INFO\n\nFIRSTPASS_INFO info \u003d \u0026?cpi-\u003eppi-\u003etwopass.firstpass_info;\nfor(int i \u003d 0; i \u003c info.stats_count; ++i) {\n  FIRSTPASS_STATS* stats \u003d \u0026info.stats_buf[i];\n  // print stats here.\n}\n\nThis part can be move to if(need_gf_len){}\nAssuming we don\u0027t care about submitting this code.",
+      "range": {
+        "startLine": 3699,
+        "startChar": 0,
+        "endLine": 3712,
+        "endChar": 50
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0033f6c0_3a8c006b",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3812,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-25T17:35:34Z",
+      "side": 1,
+      "message": "You can dump FIRSTPASS_STATS here.",
+      "range": {
+        "startLine": 3812,
+        "startChar": 0,
+        "endLine": 3812,
+        "endChar": 0
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58045ec1_af703e8c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3815,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-25T17:35:34Z",
+      "side": 1,
+      "message": "We can use\nrc-\u003eintervals_till_gf_calculate_due\nhere",
+      "range": {
+        "startLine": 3815,
+        "startChar": 27,
+        "endLine": 3815,
+        "endChar": 52
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cde79bf_43dc56ba",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3819,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-25T17:35:34Z",
+      "side": 1,
+      "message": "Why do we need this?",
+      "range": {
+        "startLine": 3818,
+        "startChar": 0,
+        "endLine": 3819,
+        "endChar": 62
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3bdffeef_0f2fbc45",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3820,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-25T17:35:34Z",
+      "side": 1,
+      "message": "We can move\nfclose(firstpass_stat_file);\nfclose(gop_size_file);\nhere\n\nAnd add \"exit(0);\" in the end.\nWe got all the info we need after the first call of calculate_gf_length()\nNo need to wait for the encoder to finish.",
+      "range": {
+        "startLine": 3820,
+        "startChar": 6,
+        "endLine": 3820,
+        "endChar": 7
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
