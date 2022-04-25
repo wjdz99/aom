@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2d73910_06936e47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30017
+      },
+      "writtenOn": "2022-04-25T14:23:34Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn this CL, we have created a wrapper function to implement quad filtering of the lpf module for NEON. This patch also enables unit test support for the same.\n\nFor this patch, we ensured bit match output for both 32 bit and 64 bit ARM builds.\nPlease check the encoder speed up w.r.t C function,\n\n               gains%\nStill_bright   3.197\nFour_people    3.876\n\n\n\nPlease review the patch.\n\nThanks \u0026 Regards, \nArun\n",
+      "revId": "e7cf326de110162b86b94d05acb6536a38c99373",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
