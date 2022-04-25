@@ -41,6 +41,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "19f72636_9518a497",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3637,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-25T23:15:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c6fe1c4d_a22a31ee",
+      "range": {
+        "startLine": 3633,
+        "startChar": 0,
+        "endLine": 3637,
+        "endChar": 0
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f84f366e_52c9a842",
@@ -54,6 +78,30 @@
       "writtenOn": "2022-04-25T17:35:34Z",
       "side": 1,
       "message": "You can print all first pass stats from FIRSTPASS_INFO\n\nFIRSTPASS_INFO info \u003d \u0026?cpi-\u003eppi-\u003etwopass.firstpass_info;\nfor(int i \u003d 0; i \u003c info.stats_count; ++i) {\n  FIRSTPASS_STATS* stats \u003d \u0026info.stats_buf[i];\n  // print stats here.\n}\n\nThis part can be move to if(need_gf_len){}\nAssuming we don\u0027t care about submitting this code.",
+      "range": {
+        "startLine": 3699,
+        "startChar": 0,
+        "endLine": 3712,
+        "endChar": 50
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b4d6e870_8502df25",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3712,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-25T23:15:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f84f366e_52c9a842",
       "range": {
         "startLine": 3699,
         "startChar": 0,
@@ -87,6 +135,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a70b397c_3d89ca84",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3812,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-25T23:15:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0033f6c0_3a8c006b",
+      "range": {
+        "startLine": 3812,
+        "startChar": 0,
+        "endLine": 3812,
+        "endChar": 0
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "58045ec1_af703e8c",
@@ -100,6 +172,30 @@
       "writtenOn": "2022-04-25T17:35:34Z",
       "side": 1,
       "message": "We can use\nrc-\u003eintervals_till_gf_calculate_due\nhere",
+      "range": {
+        "startLine": 3815,
+        "startChar": 27,
+        "endLine": 3815,
+        "endChar": 52
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c32c8967_8307e76e",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3815,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-25T23:15:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58045ec1_af703e8c",
       "range": {
         "startLine": 3815,
         "startChar": 27,
@@ -133,6 +229,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fea8b5b5_e4a7957c",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3819,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-25T23:15:43Z",
+      "side": 1,
+      "message": "So we don\u0027t have a trailing whitespace at the end of each line.",
+      "parentUuid": "9cde79bf_43dc56ba",
+      "range": {
+        "startLine": 3818,
+        "startChar": 0,
+        "endLine": 3819,
+        "endChar": 62
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3bdffeef_0f2fbc45",
@@ -146,6 +266,30 @@
       "writtenOn": "2022-04-25T17:35:34Z",
       "side": 1,
       "message": "We can move\nfclose(firstpass_stat_file);\nfclose(gop_size_file);\nhere\n\nAnd add \"exit(0);\" in the end.\nWe got all the info we need after the first call of calculate_gf_length()\nNo need to wait for the encoder to finish.",
+      "range": {
+        "startLine": 3820,
+        "startChar": 6,
+        "endLine": 3820,
+        "endChar": 7
+      },
+      "revId": "b185628f8762c9e5364f909cc2201f8460c854bf",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "04c71234_8d579eb3",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 3820,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-25T23:15:43Z",
+      "side": 1,
+      "message": "we get all the info about first pass stats if exit here, but only 1 entry for gop size.\n\nI ran aomenc twice: once with exit(0) here for first_pass stats; and then another time just for gop sizes.",
+      "parentUuid": "3bdffeef_0f2fbc45",
       "range": {
         "startLine": 3820,
         "startChar": 6,
