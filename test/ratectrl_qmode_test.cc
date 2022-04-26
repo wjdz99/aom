@@ -11,7 +11,9 @@
 
 #include <array>
 #include <algorithm>
+#include <fstream>
 #include <memory>
+
 #include <vector>
 
 #include "av1/ratectrl_qmode.h"
@@ -578,6 +580,61 @@ TEST(RefFrameManagerTest, GetRefFrameList) {
     EXPECT_EQ(gop_frame.global_order_idx, expected_global_order_idx[i]);
     EXPECT_EQ(ref_frame.name, expected_names[i]);
   }
+}
+
+TEST(RateControlQModeTest, TestKeyframeDetection) {
+  const int kFrameNumber = 250;
+  std::ifstream firstpass_stats_file, keyframe_file;
+  FirstpassInfo firstpass_info;
+  firstpass_stats_file.open("firstpass_stats");
+  keyframe_file.open("keyframe_location");
+  std::string newline;
+  while (std::getline(firstpass_stats_file, newline)) {
+    std::istringstream iss(newline);
+    FIRSTPASS_STATS firstpass_stats_input;
+    iss >> firstpass_stats_input.frame >> firstpass_stats_input.weight >>
+        firstpass_stats_input.intra_error >>
+        firstpass_stats_input.frame_avg_wavelet_energy >>
+        firstpass_stats_input.coded_error >>
+        firstpass_stats_input.sr_coded_error >>
+        firstpass_stats_input.pcnt_inter >> firstpass_stats_input.pcnt_motion >>
+        firstpass_stats_input.pcnt_second_ref >>
+        firstpass_stats_input.pcnt_neutral >>
+        firstpass_stats_input.intra_skip_pct >>
+        firstpass_stats_input.inactive_zone_rows >>
+        firstpass_stats_input.inactive_zone_cols >> firstpass_stats_input.MVr >>
+        firstpass_stats_input.mvr_abs >> firstpass_stats_input.MVc >>
+        firstpass_stats_input.mvc_abs >> firstpass_stats_input.MVrv >>
+        firstpass_stats_input.MVcv >> firstpass_stats_input.mv_in_out_count >>
+        firstpass_stats_input.new_mv_count >> firstpass_stats_input.duration >>
+        firstpass_stats_input.count >> firstpass_stats_input.raw_error_stdev >>
+        firstpass_stats_input.is_flash >> firstpass_stats_input.noise_var >>
+        firstpass_stats_input.cor_coeff;
+    firstpass_info.stats_list.push_back(firstpass_stats_input);
+  }
+  std::vector<int> keyframe_list = get_key_frame_list(firstpass_info);
+  int keyframe_number = 0;
+  size_t ref_keyframe_number = 0;
+  size_t keyframe_index = 1;
+  while (std::getline(keyframe_file, newline)) {
+    ref_keyframe_number++;
+  }
+  // keyframe_list has a 0 at the beginning
+  EXPECT_EQ(ref_keyframe_number + 1, keyframe_list.size());
+  if (ref_keyframe_number == keyframe_list.size()) {
+    keyframe_file.clear();
+    keyframe_file.seekg(0);
+    while (std::getline(keyframe_file, newline)) {
+      std::istringstream iss(newline);
+      int keyframe_location;
+      iss >> keyframe_location;
+      keyframe_number += keyframe_location;
+      EXPECT_EQ(keyframe_list[keyframe_index], keyframe_number);
+      keyframe_index++;
+    }
+  }
+  keyframe_file.close();
+  firstpass_stats_file.close();
 }
 
 // MockRateControlQMode is provided for the use of clients of libaom, but it's
