@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f0379da_2672cbce",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 25857
+      },
+      "writtenOn": "2022-04-26T12:16:51Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nIn this CL we have improved the conditions used to call av1_init_wedge_masks() and av1_rc_init_minq_luts() functions. Also, the arguments of the function av1_initialize_enc() are renamed as suggested in review comments of the CL (https://aomedia-review.googlesource.com/c/aom/+/156482/5/av1/encoder/encoder.c).\n\nGlobal tables related to wedge masks are not required for allintra encode. Whereas min_q tables related to rate control are not required for ALLINTRA (with rc_end_usage as AOM_Q), but the same is required in GOOD/RT encode. Hence, we have improved the conditions used to call the respective initialization functions. \n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations. It was also verified that the output of AVIF encode is bit-exact w.r.t. parent version for a typical image dataset.\n\nPlease review.\n\nRegards,\nMudassir.\n",
+      "revId": "10b1a9312f7e2b3bc2439f80cf4f7f207d030d66",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
