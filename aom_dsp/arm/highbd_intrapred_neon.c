@@ -396,11 +396,11 @@ static INLINE void highbd_smooth_4xh_neon(uint16_t *dst, ptrdiff_t stride,
                                           const int height) {
   const uint16_t top_right = top_row[3];
   const uint16_t bottom_left = left_column[height - 1];
-  const uint16_t *const weights_y = sm_weight_arrays_u16 + height - 4;
+  const uint16_t *const weights_y = smooth_weights_u16 + height - 4;
 
   const uint16x4_t top_v = vld1_u16(top_row);
   const uint16x4_t bottom_left_v = vdup_n_u16(bottom_left);
-  const uint16x4_t weights_x_v = vld1_u16(sm_weight_arrays_u16);
+  const uint16x4_t weights_x_v = vld1_u16(smooth_weights_u16);
   const uint16x4_t scaled_weights_x = negate_s8(weights_x_v);
   const uint32x4_t weighted_tr = vmull_n_u16(scaled_weights_x, top_right);
 
@@ -453,13 +453,13 @@ static void highbd_smooth_8xh_neon(uint16_t *dst, ptrdiff_t stride,
                                    const int height) {
   const uint16_t top_right = top_row[7];
   const uint16_t bottom_left = left_column[height - 1];
-  const uint16_t *const weights_y = sm_weight_arrays_u16 + height - 4;
+  const uint16_t *const weights_y = smooth_weights_u16 + height - 4;
 
   const uint16x4x2_t top_vals = { { vld1_u16(top_row),
                                     vld1_u16(top_row + 4) } };
   const uint16x4_t bottom_left_v = vdup_n_u16(bottom_left);
-  const uint16x4x2_t weights_x = { { vld1_u16(sm_weight_arrays_u16 + 4),
-                                     vld1_u16(sm_weight_arrays_u16 + 8) } };
+  const uint16x4x2_t weights_x = { { vld1_u16(smooth_weights_u16 + 4),
+                                     vld1_u16(smooth_weights_u16 + 8) } };
   const uint32x4_t weighted_tr_low =
       vmull_n_u16(negate_s8(weights_x.val[0]), top_right);
   const uint32x4_t weighted_tr_high =
@@ -506,7 +506,7 @@ HIGHBD_SMOOTH_NXM(8, 32)
       const uint16_t *const left_column, const int height) {                   \
     const uint16_t top_right = top_row[(W)-1];                                 \
     const uint16_t bottom_left = left_column[height - 1];                      \
-    const uint16_t *const weights_y = sm_weight_arrays_u16 + height - 4;       \
+    const uint16_t *const weights_y = smooth_weights_u16 + height - 4;         \
                                                                                \
     /* Precompute weighted values that don't vary with |y|. */                 \
     uint32x4_t weighted_tr_low[(W) >> 3];                                      \
@@ -514,10 +514,10 @@ HIGHBD_SMOOTH_NXM(8, 32)
     for (int i = 0; i<(W)>> 3; ++i) {                                          \
       const int x = i << 3;                                                    \
       const uint16x4_t weights_x_low =                                         \
-          vld1_u16(sm_weight_arrays_u16 + (W)-4 + x);                          \
+          vld1_u16(smooth_weights_u16 + (W)-4 + x);                            \
       weighted_tr_low[i] = vmull_n_u16(negate_s8(weights_x_low), top_right);   \
       const uint16x4_t weights_x_high =                                        \
-          vld1_u16(sm_weight_arrays_u16 + (W) + x);                            \
+          vld1_u16(smooth_weights_u16 + (W) + x);                              \
       weighted_tr_high[i] = vmull_n_u16(negate_s8(weights_x_high), top_right); \
     }                                                                          \
                                                                                \
@@ -536,8 +536,8 @@ HIGHBD_SMOOTH_NXM(8, 32)
             vaddq_u32(weighted_bl, weighted_tr_high[i]);                       \
         /* Accumulate weighted edge values and store. */                       \
         const uint16x4x2_t weights_x = {                                       \
-          { vld1_u16(sm_weight_arrays_u16 + (W)-4 + x),                        \
-            vld1_u16(sm_weight_arrays_u16 + (W) + x) }                         \
+          { vld1_u16(smooth_weights_u16 + (W)-4 + x),                          \
+            vld1_u16(smooth_weights_u16 + (W) + x) }                           \
         };                                                                     \
         highbd_calculate_pred8(dst_x, weighted_corners_low,                    \
                                weighted_corners_high, top_vals, weights_x,     \
@@ -585,7 +585,7 @@ static void highbd_smooth_v_4xh_neon(uint16_t *dst, ptrdiff_t stride,
                                      const uint16_t *const left_column,
                                      const int height) {
   const uint16_t bottom_left = left_column[height - 1];
-  const uint16_t *const weights_y = sm_weight_arrays_u16 + height - 4;
+  const uint16_t *const weights_y = smooth_weights_u16 + height - 4;
 
   const uint16x4_t top_v = vld1_u16(top_row);
   const uint16x4_t bottom_left_v = vdup_n_u16(bottom_left);
@@ -606,7 +606,7 @@ static void highbd_smooth_v_8xh_neon(uint16_t *dst, const ptrdiff_t stride,
                                      const uint16_t *const left_column,
                                      const int height) {
   const uint16_t bottom_left = left_column[height - 1];
-  const uint16_t *const weights_y = sm_weight_arrays_u16 + height - 4;
+  const uint16_t *const weights_y = smooth_weights_u16 + height - 4;
 
   const uint16x4_t top_low = vld1_u16(top_row);
   const uint16x4_t top_high = vld1_u16(top_row + 4);
@@ -654,7 +654,7 @@ HIGHBD_SMOOTH_V_NXM(8, 32)
       uint16_t *dst, const ptrdiff_t stride, const uint16_t *const top_row,    \
       const uint16_t *const left_column, const int height) {                   \
     const uint16_t bottom_left = left_column[height - 1];                      \
-    const uint16_t *const weights_y = sm_weight_arrays_u16 + height - 4;       \
+    const uint16_t *const weights_y = smooth_weights_u16 + height - 4;         \
                                                                                \
     uint16x4x2_t top_vals[(W) >> 3];                                           \
     for (int i = 0; i<(W)>> 3; ++i) {                                          \
@@ -722,7 +722,7 @@ static INLINE void highbd_smooth_h_4xh_neon(uint16_t *dst, ptrdiff_t stride,
                                             const int height) {
   const uint16_t top_right = top_row[3];
 
-  const uint16x4_t weights_x = vld1_u16(sm_weight_arrays_u16);
+  const uint16x4_t weights_x = vld1_u16(smooth_weights_u16);
   const uint16x4_t scaled_weights_x = negate_s8(weights_x);
 
   const uint32x4_t weighted_tr = vmull_n_u16(scaled_weights_x, top_right);
@@ -740,8 +740,8 @@ static INLINE void highbd_smooth_h_8xh_neon(uint16_t *dst, ptrdiff_t stride,
                                             const int height) {
   const uint16_t top_right = top_row[7];
 
-  const uint16x4x2_t weights_x = { { vld1_u16(sm_weight_arrays_u16 + 4),
-                                     vld1_u16(sm_weight_arrays_u16 + 8) } };
+  const uint16x4x2_t weights_x = { { vld1_u16(smooth_weights_u16 + 4),
+                                     vld1_u16(smooth_weights_u16 + 8) } };
 
   const uint32x4_t weighted_tr_low =
       vmull_n_u16(negate_s8(weights_x.val[0]), top_right);
@@ -795,10 +795,10 @@ HIGHBD_SMOOTH_H_NXM(8, 32)
     uint32x4_t weighted_tr_high[(W) >> 3];                                \
     for (int i = 0; i<(W)>> 3; ++i) {                                     \
       const int x = i << 3;                                               \
-      weights_x_low[i] = vld1_u16(sm_weight_arrays_u16 + (W)-4 + x);      \
+      weights_x_low[i] = vld1_u16(smooth_weights_u16 + (W)-4 + x);        \
       weighted_tr_low[i] =                                                \
           vmull_n_u16(negate_s8(weights_x_low[i]), top_right);            \
-      weights_x_high[i] = vld1_u16(sm_weight_arrays_u16 + (W) + x);       \
+      weights_x_high[i] = vld1_u16(smooth_weights_u16 + (W) + x);         \
       weighted_tr_high[i] =                                               \
           vmull_n_u16(negate_s8(weights_x_high[i]), top_right);           \
     }                                                                     \
