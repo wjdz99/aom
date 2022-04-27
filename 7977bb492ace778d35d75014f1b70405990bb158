@@ -52,6 +52,24 @@
       "parentUuid": "27cfd5de_cba7fe1d",
       "revId": "7977bb492ace778d35d75014f1b70405990bb158",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0404a508_5722627e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-27T19:12:27Z",
+      "side": 1,
+      "message": "\u003e \u003e Good catch. I missed this in bringing over the enum value from libgav1.\n\u003e \n\u003e I didn\u0027t realize this came from an enum value in libgav1. Would you prefer to define this constant as an enum value? That also works in C. I defined it as a macro because that is more common in libaom.\n\u003e \n\nThis is ok. I actually started by bringing the enum over directly then when making a cleanup pass I realized the variable existed.\n\n\u003e \u003e But I see the ndk build is an issue. gcc was just being tolerant.\n\u003e \n\u003e Yes. I ran into this difference in what the compiler considered as a compile-time constant when I wrote NEON intrinsics code for libgav1.\n\nI think I\u0027ll look at moving the android compile to per-commit since it\u0027s relatively cheap.",
+      "parentUuid": "586b2c08_92504d90",
+      "revId": "7977bb492ace778d35d75014f1b70405990bb158",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
