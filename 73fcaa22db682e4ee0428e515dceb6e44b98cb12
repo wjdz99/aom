@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "059ca6c5_c7bf228b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5189
+      },
+      "writtenOn": "2022-04-27T01:10:01Z",
+      "side": 1,
+      "message": "Looks okay, but may be best to run a testset (lowres2, midres2) before and after the patch to verify the impact if any.",
+      "revId": "73fcaa22db682e4ee0428e515dceb6e44b98cb12",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
