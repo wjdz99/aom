@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0eb893de_14fe1863",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-27T13:40:44Z",
+      "side": 1,
+      "message": "You need to set firstpass_info.num_mbs_16x16, since the implementation of get_key_frame_list depends on it. It could just be hardcoded here to (352 / 16) * (288 / 16).",
+      "range": {
+        "startLine": 587,
+        "startChar": 16,
+        "endLine": 587,
+        "endChar": 30
+      },
+      "revId": "e3cb302a64d9b977a5014ce68ad1441ed496014e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aa9e84cc_c4cab6e7",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 588,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-27T13:40:44Z",
+      "side": 1,
+      "message": "Doesn\u0027t that also require instrumenting aomenc to dump out those files? Maybe that\u0027s worth mentioning to avoid confusion.",
+      "range": {
+        "startLine": 588,
+        "startChar": 28,
+        "endLine": 588,
+        "endChar": 67
+      },
+      "revId": "e3cb302a64d9b977a5014ce68ad1441ed496014e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b6437eda_b0a73475",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-27T13:40:44Z",
+      "side": 1,
+      "message": "\"keyframe_location\" is a confusing name for the file if it contains durations rather than locations. I\u0027d either change the file to have the keyframe locations, or call it \"kf_group_durations\" or something like that which better reflects its contents.",
+      "range": {
+        "startLine": 599,
+        "startChar": 5,
+        "endLine": 599,
+        "endChar": 71
+      },
+      "revId": "e3cb302a64d9b977a5014ce68ad1441ed496014e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74431dfc_046bb038",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-27T13:40:44Z",
+      "side": 1,
+      "message": "This could be factored out into a helper function which returns firstpass_info.",
+      "range": {
+        "startLine": 600,
+        "startChar": 0,
+        "endLine": 625,
+        "endChar": 0
+      },
+      "revId": "e3cb302a64d9b977a5014ce68ad1441ed496014e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a002973_c71cc2ae",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-27T13:40:44Z",
+      "side": 1,
+      "message": "This could be done more succinctly:\n\n  std::vector\u003cint\u003e key_frame_locations(1, 0);  // First frame is a key frame/\n  std::partial_sum(std::istream_iterator\u003cint\u003e(in), std::istream_iterator\u003cint\u003e(),\n                   std::back_inserter(key_frame_locations));\n  EXPECT_THAT(get_key_frame_list(firstpass_info), \n              ElementsAreArray(key_frame_locations));",
+      "range": {
+        "startLine": 625,
+        "startChar": 2,
+        "endLine": 647,
+        "endChar": 3
+      },
+      "revId": "e3cb302a64d9b977a5014ce68ad1441ed496014e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68a64316_83b43259",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 8
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-27T13:40:44Z",
+      "side": 1,
+      "message": "You may as well close the stats file as soon as you\u0027re done reading it.",
+      "range": {
+        "startLine": 649,
+        "startChar": 0,
+        "endLine": 649,
+        "endChar": 31
+      },
+      "revId": "e3cb302a64d9b977a5014ce68ad1441ed496014e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
