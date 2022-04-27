@@ -93,10 +93,11 @@ struct GopFrame {
                           // updated to. update_ref_idx == -1 when this frame
                           // will not serve as a reference frame
   std::vector<ReferenceFrame>
-      ref_frame_list;   // The size should be less or equal to max_ref_frames.
-  int layer_depth;      // Layer depth in the GOP structure
-  int primary_ref_idx;  // We will use the primary reference to update current
-                        // frame's initial probability model
+      ref_frame_list;  // The size should be less or equal to max_ref_frames.
+  int layer_depth;     // Layer depth in the GOP structure
+  int probability_model_primary_ref_idx;  // We will use the primary reference
+                                          // to update current frame's initial
+                                          // probability model
 };
 
 struct GopStruct {

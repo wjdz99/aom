@@ -72,6 +72,7 @@ class RefFrameManager {
   int MaxRefFrames() const { return max_ref_frames_; }
   int CurGlobalOrderIdx() const { return cur_global_order_idx_; }
   void UpdateRefFrameTable(GopFrame *gop_frame);
+  int GetProbabilityModelRefIdx(const GopFrame &gop_frame);
 
  private:
   // TODO(angiebird): // Make RefFrameTable comply with max_ref_frames_

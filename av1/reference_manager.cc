@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include "av1/reference_manager.h"
@@ -229,7 +230,71 @@ static RefUpdateType infer_ref_update_type(const GopFrame &gop_frame,
   return RefUpdateType::kLast;
 }
 
+// Find bits such that (1<<bits) > value
+static int get_bits(int value) {
+  int bits = 0;
+  while ((1 << bits) <= value) {
+    ++bits;
+  }
+  return bits;
+}
+
+// Compute two gop_frame's distance based on layer_depth difference,
+// frame types and order_idx. Two frames with shorter distance are
+// more likely to have similar probability model.
+int gop_frame_probability_model_distance(const GopFrame &frame_a,
+                                         const GopFrame &frame_b,
+                                         int max_order_dist) {
+  int dist = abs(frame_a.layer_depth - frame_b.layer_depth);
+
+  dist = (dist << 1) + (frame_a.is_key_frame != frame_b.is_key_frame);
+  dist = (dist << 1) + (frame_a.is_golden_frame != frame_b.is_golden_frame);
+  dist = (dist << 1) + (frame_a.is_arf_frame != frame_b.is_arf_frame);
+  dist = (dist << 1) + (frame_a.is_show_frame != frame_b.is_show_frame);
+  dist = (dist << 1) + (frame_a.encode_ref_mode != frame_b.encode_ref_mode);
+
+  int order_dist = abs(frame_a.order_idx - frame_b.order_idx);
+  int order_dist_bits = get_bits(max_order_dist);
+  dist = (dist << order_dist_bits) + order_dist;
+  return dist;
+}
+
+// Pick primary_ref_idx for probability model.
+int RefFrameManager::GetProbabilityModelRefIdx(const GopFrame &gop_frame) {
+  assert(gop_frame.is_valid);
+
+  int max_order_dist = 0;
+  for (const GopFrame &ref_frame : ref_frame_table_) {
+    if (ref_frame.is_valid) {
+      const int order_dist = abs(gop_frame.order_idx - ref_frame.order_idx);
+      max_order_dist = std::max(max_order_dist, order_dist);
+    }
+  }
+
+  std::vector<std::pair<int, int>> candidate_list;
+  for (int ref_idx = 0; ref_idx < static_cast<int>(ref_frame_table_.size());
+       ++ref_idx) {
+    const GopFrame &ref_frame = ref_frame_table_[ref_idx];
+    if (ref_frame.is_valid) {
+      assert(ref_frame.update_ref_idx == ref_idx);
+      int dist = gop_frame_probability_model_distance(gop_frame, ref_frame,
+                                                      max_order_dist);
+      std::pair<int, int> candidate = { dist, ref_idx };
+      candidate_list.push_back(candidate);
+    }
+  }
+
+  sort(candidate_list.begin(), candidate_list.end());
+
+  if (candidate_list.size() > 0) {
+    return candidate_list[0].second;  // ref_idx
+  }
+  return -1;
+}
+
 void RefFrameManager::UpdateRefFrameTable(GopFrame *gop_frame) {
+  gop_frame->probability_model_primary_ref_idx =
+      GetProbabilityModelRefIdx(*gop_frame);
   gop_frame->ref_frame_list = GetRefFrameList();
   gop_frame->colocated_ref_idx = ColocatedRefIdx(gop_frame->global_order_idx);
 
