@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dab987a6_d3c23d8e",
+        "filename": "av1/ratectrl_qmode_interface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-27T23:02:42Z",
+      "side": 1,
+      "message": "We change the type to primary_ref_frame.\nSo you will have index(ref_idx) and name.\nThe index \u003d\u003d -1, when no ref frame is available.\n\nI also change ref_frame_list to contain all the available reference frames sorted by priority. (Lower index means more likely to be good)\n\nTherefore, the primary_ref_frame is guarantee to exist in ref_frame_list.",
+      "parentUuid": "bde8be72_47b39365",
+      "range": {
+        "startLine": 98,
+        "startChar": 6,
+        "endLine": 98,
+        "endChar": 39
+      },
+      "revId": "fadc04f5adc3538ab2592a54ac7a405ad2889894",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "236e0402_e48fbf1e",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5ec716d_ec0fdbb5",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-27T23:02:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "236e0402_e48fbf1e",
+      "range": {
+        "startLine": 256,
+        "startChar": 0,
+        "endLine": 259,
+        "endChar": 0
+      },
+      "revId": "fadc04f5adc3538ab2592a54ac7a405ad2889894",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a47d9878_c680121d",
@@ -60,6 +108,30 @@
       "writtenOn": "2022-04-27T14:26:11Z",
       "side": 1,
       "message": "I believe the corresponding function in libaom is choose_primary_ref_frame.\nhttp://google3/third_party/libaom/git_root/av1/encoder/encode_strategy.c?rcl\u003d444426981\u0026l\u003d168\n\nWhy doesn\u0027t this do something similar to that function? (Or is it doing something similar and I just don\u0027t understand?)",
+      "range": {
+        "startLine": 262,
+        "startChar": 0,
+        "endLine": 262,
+        "endChar": 46
+      },
+      "revId": "fadc04f5adc3538ab2592a54ac7a405ad2889894",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77d3d6b1_eea82ba7",
+        "filename": "av1/reference_manager.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-04-27T23:02:42Z",
+      "side": 1,
+      "message": "Yep, we are doing something similar.",
+      "parentUuid": "a47d9878_c680121d",
       "range": {
         "startLine": 262,
         "startChar": 0,
