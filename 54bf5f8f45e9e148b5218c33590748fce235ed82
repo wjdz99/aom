@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9be6cad9_dc835e02",
+        "filename": "aom_dsp/arm/highbd_intrapred_neon.c",
+        "patchSetId": 3
+      },
+      "lineNbr": 855,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-27T01:57:03Z",
+      "side": 1,
+      "message": "James: This file has compilation errors on the new MacBook Pro:\n\n```\n$ ninja\n[191/316] Building C object CMakeFiles/ao...dir/aom_dsp/arm/highbd_intrapred_neon.c.o\nFAILED: CMakeFiles/aom_dsp_common_neon_intrinsics.dir/aom_dsp/arm/highbd_intrapred_neon.c.o \n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc  -I/Users/wtc/aom.1/aom -I/Users/wtc/aom.1/build -I/Users/wtc/aom.1/aom/apps -I/Users/wtc/aom.1/aom/common -I/Users/wtc/aom.1/aom/examples -I/Users/wtc/aom.1/aom/stats -I/Users/wtc/aom.1/aom/third_party/libyuv/include -I/Users/wtc/aom.1/aom/third_party/libwebm -O3 -DNDEBUG -std\u003dc99 -Wall -Wdisabled-optimization -Wextra -Wextra-semi -Wextra-semi-stmt -Wfloat-conversion -Wformat\u003d2 -Wimplicit-function-declaration -Wpointer-arith -Wshorten-64-to-32 -Wsign-compare -Wstring-conversion -Wtype-limits -Wuninitialized -Wunused -Wvla -Wshadow -Wundef -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE\u003d0 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS\u003d64 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk -MD -MT CMakeFiles/aom_dsp_common_neon_intrinsics.dir/aom_dsp/arm/highbd_intrapred_neon.c.o -MF CMakeFiles/aom_dsp_common_neon_intrinsics.dir/aom_dsp/arm/highbd_intrapred_neon.c.o.d -o CMakeFiles/aom_dsp_common_neon_intrinsics.dir/aom_dsp/arm/highbd_intrapred_neon.c.o -c /Users/wtc/aom.1/aom/aom_dsp/arm/highbd_intrapred_neon.c\n/Users/wtc/aom.1/aom/aom_dsp/arm/highbd_intrapred_neon.c:417:29: error: argument to \u0027__builtin_neon_vrshrn_n_v\u0027 must be a constant integer\n    const uint16x4_t pred \u003d vrshrn_n_u32(weighted_bl, sm_weight_log2_scale + 1);\n                            ^                         ~~~~~~~~~~~~~~~~~~~~~~~~\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include/arm_neon.h:23372:24: note: expanded from macro \u0027vrshrn_n_u32\u0027\n  __ret \u003d (uint16x4_t) __builtin_neon_vrshrn_n_v((int8x16_t)__s0, __p1, 17); \\\n                       ^                                          ~~~~\n/Users/wtc/aom.1/aom/aom_dsp/arm/highbd_intrapred_neon.c:437:7: error: argument to \u0027__builtin_neon_vrshrn_n_v\u0027 must be a constant integer\n      vrshrn_n_u32(weighted_edges_low, sm_weight_log2_scale + 1);\n      ^                                ~~~~~~~~~~~~~~~~~~~~~~~~\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include/arm_neon.h:23372:24: note: expanded from macro \u0027vrshrn_n_u32\u0027\n  __ret \u003d (uint16x4_t) __builtin_neon_vrshrn_n_v((int8x16_t)__s0, __p1, 17); \\\n                       ^                                          ~~~~\n/Users/wtc/aom.1/aom/aom_dsp/arm/highbd_intrapred_neon.c:446:7: error: argument to \u0027__builtin_neon_vrshrn_n_v\u0027 must be a constant integer\n      vrshrn_n_u32(weighted_edges_high, sm_weight_log2_scale + 1);\n      ^                                 ~~~~~~~~~~~~~~~~~~~~~~~~\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/13.1.6/include/arm_neon.h:23372:24: note: expanded from macro \u0027vrshrn_n_u32\u0027\n  __ret \u003d (uint16x4_t) __builtin_neon_vrshrn_n_v((int8x16_t)__s0, __p1, 17); \\\n                       ^                                          ~~~~\n[...snipped...]\n```",
+      "revId": "54bf5f8f45e9e148b5218c33590748fce235ed82",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
