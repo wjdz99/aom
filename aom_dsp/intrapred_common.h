@@ -18,7 +18,7 @@
 // 2^SMOOTH_WEIGHT_LOG2_SCALE.
 #define SMOOTH_WEIGHT_LOG2_SCALE 8
 
-static const uint8_t smooth_weights[] = {
+DECLARE_ALIGNED(8, static const uint8_t, smooth_weights[]) = {
   // bs = 4
   255, 149, 85, 64,
   // bs = 8
@@ -35,7 +35,7 @@ static const uint8_t smooth_weights[] = {
   13, 12, 10, 9, 8, 7, 6, 6, 5, 5, 4, 4, 4
 };
 
-static const uint16_t smooth_weights_u16[] = {
+DECLARE_ALIGNED(8, static const uint16_t, smooth_weights_u16[]) = {
   // block dimension = 4
   255, 149, 85, 64,
   // block dimension = 8
