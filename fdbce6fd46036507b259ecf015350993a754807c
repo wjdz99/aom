@@ -50,6 +50,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "39956d06_05171e4f",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-28T16:37:44Z",
+      "side": 1,
+      "message": "Firstpass stats could be used on multiple tests so it could be used repeatedly without reading the file without other unrelated data.\n\nThe place where it is spit out is C code. How can we change C code to do that? I assume you\u0027re talking about defining stream operator for the structure?",
+      "parentUuid": "bbd9358e_2dc5cc09",
+      "range": {
+        "startLine": 600,
+        "startChar": 2,
+        "endLine": 600,
+        "endChar": 15
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4f988103_ec0f7d5d",
         "filename": "test/ratectrl_qmode_test.cc",
         "patchSetId": 10
