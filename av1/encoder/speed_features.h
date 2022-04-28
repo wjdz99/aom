@@ -833,6 +833,12 @@ typedef struct INTER_MODE_SPEED_FEATURES {
   // 2 prune inter modes w.r.t BWDREF, ALTREF2 and ALTREF reference frames
   int alt_ref_search_fp;
 
+  // Prune compound reference frames
+  // 0 no pruning
+  // 1 prune compound references based on temporal distance and pred mv sad.
+  // 2 prune compound references based on temporal distance only.
+  int prune_comp_ref_frames;
+
   // Skip the current ref_mv in NEW_MV mode based on mv, rate cost, etc.
   // This speed feature equaling 0 means no skipping.
   // If the speed feature equals 1 or 2, skip the current ref_mv in NEW_MV mode
