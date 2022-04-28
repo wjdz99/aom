@@ -122,6 +122,53 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0f1012a6_3c255890",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-28T17:01:42Z",
+      "side": 1,
+      "message": "I just meant you could instrument the encode to just dump out lines like this:\n {0, 1.102674, 529.901388, ... },\n {1, 1.104176, 532.141287, ... },\n\nAnd then you could take that file and paste its contents into a something like this in the test:\n FirstpassInfo firstpass_info;\n firstpass_info.stats_list \u003d {\n   // paste it here\n };",
+      "parentUuid": "8d711d98_5da2f8a4",
+      "range": {
+        "startLine": 600,
+        "startChar": 2,
+        "endLine": 600,
+        "endChar": 15
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f6c3f54_0d1bb003",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-28T17:01:42Z",
+      "side": 1,
+      "message": "It would be good to initialize with \u003d {}\nso that you don\u0027t get random values in there in case any of the fields aren\u0027t read.\n\nAlthough really, that\u0027s another argument for putting the stats in the code and letting the compiler validate them.",
+      "range": {
+        "startLine": 605,
+        "startChar": 20,
+        "endLine": 605,
+        "endChar": 42
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4f988103_ec0f7d5d",
         "filename": "test/ratectrl_qmode_test.cc",
         "patchSetId": 10
