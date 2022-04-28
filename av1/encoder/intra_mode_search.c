@@ -18,6 +18,17 @@
 #include "av1/encoder/speed_features.h"
 #include "av1/encoder/tx_search.h"
 
+// This macro is set to 9 even though there are 7 delta angles, to facilitate
+// the rd threshold check to prune the -3/3 delta angles.
+#define SIZE_OF_ANGLE_DELTA_RD_COST_ARRAY (2 * MAX_ANGLE_DELTA + 3)
+
+// The order for evaluating delta angles while processing the luma directional
+// intra modes. Currently, this order of evaluation is applicable only when
+// sf prune_luma_odd_delta_angles_in_intra is enabled.
+static const int8_t luma_delta_angles_order[2 * MAX_ANGLE_DELTA] = {
+  -2, 2, -3, -1, 1, 3,
+};
+
 /*!\cond */
 static const PREDICTION_MODE intra_rd_search_mode_order[INTRA_MODES] = {
   DC_PRED,       H_PRED,        V_PRED,    SMOOTH_PRED, PAETH_PRED,
@@ -365,15 +376,23 @@ void av1_count_colors_highbd(const uint8_t *src8, int stride, int rows,
   }
 }
 
-void set_y_mode_and_delta_angle(const int mode_idx, MB_MODE_INFO *const mbmi) {
+void set_y_mode_and_delta_angle(const int mode_idx, MB_MODE_INFO *const mbmi,
+                                int reorder_delta_angle_proc) {
   if (mode_idx < INTRA_MODE_END) {
     mbmi->mode = intra_rd_search_mode_order[mode_idx];
     mbmi->angle_delta[PLANE_TYPE_Y] = 0;
   } else {
     mbmi->mode = (mode_idx - INTRA_MODE_END) / (MAX_ANGLE_DELTA * 2) + V_PRED;
-    int angle_delta = (mode_idx - INTRA_MODE_END) % (MAX_ANGLE_DELTA * 2);
-    mbmi->angle_delta[PLANE_TYPE_Y] =
-        (angle_delta < 3 ? (angle_delta - 3) : (angle_delta - 2));
+    int delta_angle_eval_idx =
+        (mode_idx - INTRA_MODE_END) % (MAX_ANGLE_DELTA * 2);
+    if (reorder_delta_angle_proc) {
+      mbmi->angle_delta[PLANE_TYPE_Y] =
+          luma_delta_angles_order[delta_angle_eval_idx];
+    } else {
+      mbmi->angle_delta[PLANE_TYPE_Y] =
+          (delta_angle_eval_idx < 3 ? (delta_angle_eval_idx - 3)
+                                    : (delta_angle_eval_idx - 2));
+    }
   }
 }
 
@@ -1312,6 +1331,43 @@ int av1_search_intra_uv_modes_in_interframe(
   return 1;
 }
 
+static AOM_INLINE void store_rd_cost_of_even_luma_delta_angle_modes(
+    const MB_MODE_INFO *const mbmi, int64_t *dir_modes_rd_cost, int64_t this_rd,
+    int prune_luma_odd_delta_angles_in_intra) {
+  const int luma_delta_angle = mbmi->angle_delta[PLANE_TYPE_Y];
+  if (!prune_luma_odd_delta_angles_in_intra ||
+      !av1_is_directional_mode(mbmi->mode) || (abs(luma_delta_angle) & 1))
+    return;
+
+  dir_modes_rd_cost[luma_delta_angle + MAX_ANGLE_DELTA + 1] = this_rd;
+}
+
+// Checks if odd delta angles can be pruned based on rdcosts of center and even
+// delta angles of the corresponding directional mode.
+static AOM_INLINE int prune_luma_odd_delta_angles_using_rd_cost(
+    const MB_MODE_INFO *const mbmi, const int64_t *const dir_modes_rd_cost,
+    int64_t best_rd, int prune_luma_odd_delta_angles_in_intra) {
+  const int luma_delta_angle = mbmi->angle_delta[PLANE_TYPE_Y];
+  if (!prune_luma_odd_delta_angles_in_intra ||
+      !av1_is_directional_mode(mbmi->mode) || !(abs(luma_delta_angle) & 1) ||
+      best_rd == INT64_MAX)
+    return 0;
+
+  const int64_t rd_thresh = best_rd + (best_rd >> 3);
+
+  // Neighbour rdcosts are considered for pruning of odd delta angles as
+  // mentioned below:
+  // For pruning of -1/1 delta angle, the rdcosts of neighboring angles
+  // (0,-2/0,2) are considered.
+  // For pruning of -3/3 delta angle, the rdcost of neighboring angle (-2/2)
+  // alone is considered.
+  if (dir_modes_rd_cost[luma_delta_angle + MAX_ANGLE_DELTA] > rd_thresh &&
+      dir_modes_rd_cost[luma_delta_angle + MAX_ANGLE_DELTA + 2] > rd_thresh)
+    return 1;
+
+  return 0;
+}
+
 // Finds the best non-intrabc mode on an intra frame.
 int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
                                    int *rate, int *rate_tokenonly,
@@ -1373,9 +1429,20 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
   for (int i = 0; i < TOP_INTRA_MODEL_COUNT; i++) {
     top_intra_model_rd[i] = INT64_MAX;
   }
+
+  // Initialize the rdcost corresponding to delta angles of directional modes.
+  int64_t dir_modes_rd_cost[DIRECTIONAL_MODES]
+                           [SIZE_OF_ANGLE_DELTA_RD_COST_ARRAY];
+  for (int i = 0; i < DIRECTIONAL_MODES; i++) {
+    for (int j = 0; j < SIZE_OF_ANGLE_DELTA_RD_COST_ARRAY; j++) {
+      dir_modes_rd_cost[i][j] = INT64_MAX;
+    }
+  }
+
   for (int mode_idx = INTRA_MODE_START; mode_idx < LUMA_MODE_COUNT;
        ++mode_idx) {
-    set_y_mode_and_delta_angle(mode_idx, mbmi);
+    set_y_mode_and_delta_angle(mode_idx, mbmi,
+                               intra_sf->prune_luma_odd_delta_angles_in_intra);
     RD_STATS this_rd_stats;
     int this_rate, this_rate_tokenonly, s;
     int is_diagonal_mode;
@@ -1422,6 +1489,11 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
           (1 << mbmi->mode)))
       continue;
 
+    if (prune_luma_odd_delta_angles_using_rd_cost(
+            mbmi, dir_modes_rd_cost[mbmi->mode - DIR_MODE_START], best_rd,
+            intra_sf->prune_luma_odd_delta_angles_in_intra))
+      continue;
+
     const TX_SIZE tx_size = AOMMIN(TX_32X32, max_txsize_lookup[bsize]);
     const int64_t this_model_rd =
         intra_model_rd(&cpi->common, x, 0, bsize, tx_size, /*use_hadamard=*/1);
@@ -1461,6 +1533,10 @@ int64_t av1_rd_pick_intra_sby_mode(const AV1_COMP *const cpi, MACROBLOCK *x,
     if ((cpi->oxcf.mode == ALLINTRA) && (this_rd != INT64_MAX)) {
       this_rd = (int64_t)(this_rd * intra_rd_variance_factor(cpi, x, bsize));
     }
+
+    store_rd_cost_of_even_luma_delta_angle_modes(
+        mbmi, dir_modes_rd_cost[mbmi->mode - DIR_MODE_START], this_rd,
+        intra_sf->prune_luma_odd_delta_angles_in_intra);
 
     // Collect mode stats for multiwinner mode processing
     const int txfm_search_done = 1;

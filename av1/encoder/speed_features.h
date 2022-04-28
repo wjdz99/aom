@@ -1120,6 +1120,10 @@ typedef struct INTRA_MODE_SPEED_FEATURES {
   // neighbor block and quantizer information.
   int adapt_top_model_rd_count_using_neighbors;
 
+  // Prune the evaluation of odd delta angles of directional luma intra modes by
+  // using the rdcosts of neighbouring delta angles.
+  int prune_luma_odd_delta_angles_in_intra;
+
   // Terminate early in chroma palette_size search.
   // 0: No early termination
   // 1: Terminate early for higher palette_size, if header rd cost of lower
