@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "818ffab5_27518d30",
+        "filename": "aom_dsp/arm/intrapred_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 2688,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-28T17:57:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b2360b36_9692ce7b",
+      "revId": "3e5cd6e27f07ca97b9f3e4bd1cfc8fe9e0e21e9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1dcdf854_05fa03ad",
@@ -48,6 +66,30 @@
       "writtenOn": "2022-04-27T23:34:42Z",
       "side": 1,
       "message": "This macro probably should be renamed SMOOTH_WEIGHT_LOG2_SCALE or SMOOTH_WEIGHTS_LOG2_SCALE to be consistent.",
+      "range": {
+        "startLine": 18,
+        "startChar": 5,
+        "endLine": 18,
+        "endChar": 25
+      },
+      "revId": "3e5cd6e27f07ca97b9f3e4bd1cfc8fe9e0e21e9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "00a93ac2_3551a0ba",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-28T17:57:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1dcdf854_05fa03ad",
       "range": {
         "startLine": 18,
         "startChar": 5,
@@ -110,6 +152,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9796cdc_264dcd02",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-28T17:57:06Z",
+      "side": 1,
+      "message": "\u003e The expression `((const uint32_t *)smooth_weights)[0]` (three occurrences) requires smooth_weights to be aligned on 32-bit boundaries. It would be good to guarantee that.\n\nIn practice most compilers are probably already using 8 or 16 for this (gcc is using load hints already), but we can do this to be safe. Another option would be to overread with vld1.u8 given the offset. I\u0027ll do this in a followup.",
+      "parentUuid": "df3fadf7_08d31a13",
+      "revId": "3e5cd6e27f07ca97b9f3e4bd1cfc8fe9e0e21e9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "44c4ac62_13e38e55",
@@ -123,6 +183,24 @@
       "writtenOn": "2022-04-27T23:34:42Z",
       "side": 1,
       "message": "I assume _mm_loadl_epi64() doesn\u0027t require its input to be aligned.",
+      "revId": "3e5cd6e27f07ca97b9f3e4bd1cfc8fe9e0e21e9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21aa1427_707ccc64",
+        "filename": "aom_dsp/x86/intrapred_ssse3.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-28T17:57:06Z",
+      "side": 1,
+      "message": "\u003e I assume _mm_loadl_epi64() doesn\u0027t require its input to be aligned.\n\nCorrect, this is just movq.",
+      "parentUuid": "44c4ac62_13e38e55",
       "revId": "3e5cd6e27f07ca97b9f3e4bd1cfc8fe9e0e21e9f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
