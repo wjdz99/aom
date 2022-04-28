@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77054b71_5c749b1f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-28T18:52:25Z",
+      "side": 1,
+      "message": "Note that this kind of load is also in aom_dsp/x86/intrapred_ssse3.c, not just aom_dsp/arm/highbd_intrapred_neon.c. But x86 processors can handle unaligned loads of uint32_t.",
+      "revId": "8b26862d8219e68f7afa34089ed42d5e5ea7448b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fe8d4ff_a25251bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-28T18:52:25Z",
+      "side": 1,
+      "message": "LGTM. I requested a comment in the source code.",
+      "revId": "8b26862d8219e68f7afa34089ed42d5e5ea7448b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa75b2a2_2bc2566b",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-28T18:52:25Z",
+      "side": 1,
+      "message": "Nit: It would be good to document why this array needs tobe aligned. You can copy the explanation from the commit message.\n\nFor the current code, 4-byte alignment is sufficient. UPDATE: I see you explained the purpose of 8-byte alignment in the commit message.",
+      "revId": "8b26862d8219e68f7afa34089ed42d5e5ea7448b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c065e559_745bfdcf",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-28T18:52:25Z",
+      "side": 1,
+      "message": "This array doesn\u0027t need to be aligned.\n\nUPDATE: I guess this is for the potential for an alignment hint in load_weight_w8?",
+      "revId": "8b26862d8219e68f7afa34089ed42d5e5ea7448b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
