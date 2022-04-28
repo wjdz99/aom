@@ -10,6 +10,8 @@
  */
 #ifndef AOM_AV1_DECODER_ACCOUNTING_H_
 #define AOM_AV1_DECODER_ACCOUNTING_H_
+
+#include <stdbool.h>
 #include <stdlib.h>
 #include "aom/aomdx.h"
 
@@ -68,7 +70,7 @@ struct Accounting {
   uint32_t last_tell_frac;
 };
 
-void aom_accounting_init(Accounting *accounting);
+bool aom_accounting_init(Accounting *accounting);
 void aom_accounting_reset(Accounting *accounting);
 void aom_accounting_clear(Accounting *accounting);
 void aom_accounting_set_context(Accounting *accounting, int16_t x, int16_t y);
