@@ -700,6 +700,9 @@ void av1_set_offsets(const AV1_COMP *const cpi, const TileInfo *const tile,
     }
     av1_init_plane_quantizers(cpi, x, mbmi->segment_id, 0);
   }
+  x->set_offset_hash.mi_row = mi_row;
+  x->set_offset_hash.mi_col = mi_col;
+  x->set_offset_hash.bsize = bsize;
 }
 
 /*!\brief Hybrid intra mode search.
@@ -2173,7 +2176,14 @@ static void pick_sb_modes_nonrd(AV1_COMP *const cpi, TileDataEnc *tile_data,
                                 MACROBLOCK *const x, int mi_row, int mi_col,
                                 RD_STATS *rd_cost, BLOCK_SIZE bsize,
                                 PICK_MODE_CONTEXT *ctx) {
-  av1_set_offsets(cpi, &tile_data->tile_info, x, mi_row, mi_col, bsize);
+  // For nonrd mode, av1_set_offsets is already called at the superblock level
+  // in encode_nonrd_sb when we determine the partitioning.
+  if (bsize != cpi->common.seq_params->sb_size ||
+      (x->set_offset_hash.mi_row != mi_row ||
+       x->set_offset_hash.mi_col != mi_col ||
+       x->set_offset_hash.bsize != bsize)) {
+    av1_set_offsets(cpi, &tile_data->tile_info, x, mi_row, mi_col, bsize);
+  }
   AV1_COMMON *const cm = &cpi->common;
   const int num_planes = av1_num_planes(cm);
   MACROBLOCKD *const xd = &x->e_mbd;
