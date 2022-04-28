@@ -75,8 +75,9 @@ TEST(TplModelTest, TransformCoeffEntropyTest2) {
 }
 
 TEST(TplModelTest, InitTplStats1) {
-  // We use "new" here to avoid -Wstack-usagea warning
+  // We use "new" here to avoid -Wstack-usage warning
   TplParams *tpl_data = new TplParams;
+  ASSERT_NE(tpl_data, nullptr);
   av1_zero(*tpl_data);
   tpl_data->ready = 1;
   EXPECT_EQ(sizeof(tpl_data->tpl_stats_buffer),
