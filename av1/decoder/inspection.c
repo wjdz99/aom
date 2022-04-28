@@ -20,6 +20,8 @@ static void ifd_init_mi_rc(insp_frame_data *fd, int mi_cols, int mi_rows) {
                                            fd->mi_cols);
 }
 
+// TODO(https://crbug.com/aomedia/3228): convert this to return an error on
+// allocation failure.
 void ifd_init(insp_frame_data *fd, int frame_width, int frame_height) {
   int mi_cols = ALIGN_POWER_OF_TWO(frame_width, 3) >> MI_SIZE_LOG2;
   int mi_rows = ALIGN_POWER_OF_TWO(frame_height, 3) >> MI_SIZE_LOG2;
