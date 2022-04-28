@@ -168,6 +168,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf577da0_6ac61cdd",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-28T20:16:13Z",
+      "side": 1,
+      "message": "I\u0027ll keep the first pass stats in the data file for now and keep it as it is at the moment.\n\nkf duration is hardcoded in the test now.",
+      "parentUuid": "dcb5b393_afaf969f",
+      "range": {
+        "startLine": 600,
+        "startChar": 2,
+        "endLine": 600,
+        "endChar": 15
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f6c3f54_0d1bb003",
@@ -191,6 +215,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e65121e_4f1819e1",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-28T20:16:13Z",
+      "side": 1,
+      "message": "As suggested by Angie I also think it\u0027s better to keep first pass stats in the data file.\n\nHowever the path forward should be abandoning golden files / hardcoded data. Instead a real encoding process should be run and used as groundtruth.",
+      "parentUuid": "4f6c3f54_0d1bb003",
+      "range": {
+        "startLine": 605,
+        "startChar": 20,
+        "endLine": 605,
+        "endChar": 42
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f988103_ec0f7d5d",
@@ -204,6 +252,30 @@
       "writtenOn": "2022-04-28T16:36:14Z",
       "side": 1,
       "message": "go/c-readability-advice#using-the-testing-namespace-with-expect-that",
+      "range": {
+        "startLine": 634,
+        "startChar": 14,
+        "endLine": 634,
+        "endChar": 21
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dc170b50_68ad4bdb",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-28T20:16:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f988103_ec0f7d5d",
       "range": {
         "startLine": 634,
         "startChar": 14,
