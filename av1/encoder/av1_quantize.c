@@ -753,7 +753,7 @@ void av1_init_plane_quantizers(const AV1_COMP *cpi, MACROBLOCK *x,
   }
 
   MACROBLOCKD *const xd = &x->e_mbd;
-  if ((segment_id != x->prev_segment_id) ||
+  if ((segment_id != x->prev_segment_id) &&
       av1_use_qmatrix(quant_params, xd, segment_id)) {
     av1_set_qmatrix(quant_params, segment_id, xd);
   }
