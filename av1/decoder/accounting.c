@@ -47,21 +47,27 @@ int aom_accounting_dictionary_lookup(Accounting *accounting, const char *str) {
   accounting->hash_dictionary[hash] = dictionary->num_strs;
   len = strlen(str);
   dictionary->strs[dictionary->num_strs] = malloc(len + 1);
+  if (!dictionary->strs[dictionary->num_strs]) {
+    dictionary->num_strs = 0;
+    return 0;
+  }
   snprintf(dictionary->strs[dictionary->num_strs], len + 1, "%s", str);
   dictionary->num_strs++;
   return dictionary->num_strs - 1;
 }
 
-void aom_accounting_init(Accounting *accounting) {
+bool aom_accounting_init(Accounting *accounting) {
   int i;
   accounting->num_syms_allocated = 1000;
   accounting->syms.syms =
       malloc(sizeof(AccountingSymbol) * accounting->num_syms_allocated);
+  if (!accounting->syms.syms) return false;
   accounting->syms.dictionary.num_strs = 0;
   assert(AOM_ACCOUNTING_HASH_SIZE > 2 * MAX_SYMBOL_TYPES);
   for (i = 0; i < AOM_ACCOUNTING_HASH_SIZE; i++)
     accounting->hash_dictionary[i] = -1;
   aom_accounting_reset(accounting);
+  return true;
 }
 
 void aom_accounting_reset(Accounting *accounting) {
