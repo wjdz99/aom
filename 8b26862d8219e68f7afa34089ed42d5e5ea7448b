@@ -54,6 +54,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "15df12f0_1c7517a2",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-28T20:54:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa75b2a2_2bc2566b",
+      "revId": "8b26862d8219e68f7afa34089ed42d5e5ea7448b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c065e559_745bfdcf",
         "filename": "aom_dsp/intrapred_common.h",
         "patchSetId": 1
@@ -65,6 +83,24 @@
       "writtenOn": "2022-04-28T18:52:25Z",
       "side": 1,
       "message": "This array doesn\u0027t need to be aligned.\n\nUPDATE: I guess this is for the potential for an alignment hint in load_weight_w8?",
+      "revId": "8b26862d8219e68f7afa34089ed42d5e5ea7448b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3c1bed9_c56069db",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-28T20:54:59Z",
+      "side": 1,
+      "message": "\u003e This array doesn\u0027t need to be aligned.\n\u003e \n\u003e UPDATE: I guess this is for the potential for an alignment hint in load_weight_w8?\n\nRight. It could go to 16 for the one case in x86 where we could do an aligned load, but it\u0027s unlikely to make much difference in practice.",
+      "parentUuid": "c065e559_745bfdcf",
       "revId": "8b26862d8219e68f7afa34089ed42d5e5ea7448b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
