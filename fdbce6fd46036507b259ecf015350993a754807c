@@ -22,6 +22,53 @@
       },
       "revId": "fdbce6fd46036507b259ecf015350993a754807c",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "222dc88d_8837ffb2",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-28T16:36:14Z",
+      "side": 1,
+      "message": "One other thing: the test currently passes if the files can\u0027t be found, because both vectors end up as [0]. If the test is going to read from data files, it should probably do some error checking to verify that the file was read correctly. Unfortunately doing that when reading from ifstream is a little tricky.\n\nOne possibility would be to keep the fp stats in a data file, but hardcode the durations (or even the key frame numbers) into the test, i.e., \nEXPECT_THAT(get_key_frame_list(firstpass_info),\n            ElementsAre(0, 30, 60, 90, 120, 150, 180, 210, 240));",
+      "parentUuid": "bbd9358e_2dc5cc09",
+      "range": {
+        "startLine": 600,
+        "startChar": 2,
+        "endLine": 600,
+        "endChar": 15
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f988103_ec0f7d5d",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 10
+      },
+      "lineNbr": 634,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-04-28T16:36:14Z",
+      "side": 1,
+      "message": "go/c-readability-advice#using-the-testing-namespace-with-expect-that",
+      "range": {
+        "startLine": 634,
+        "startChar": 14,
+        "endLine": 634,
+        "endChar": 21
+      },
+      "revId": "fdbce6fd46036507b259ecf015350993a754807c",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
