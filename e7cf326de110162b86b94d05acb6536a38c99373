@@ -39,6 +39,30 @@
       },
       "revId": "e7cf326de110162b86b94d05acb6536a38c99373",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9101d145_0e2d0928",
+        "filename": "aom_dsp/arm/loopfilter_neon.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 711,
+      "author": {
+        "id": 30017
+      },
+      "writtenOn": "2022-04-28T11:09:36Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nIn the parent version, the quad implementation of lpf does not have NEON optimization. Hence, without this patch, the quad filter call would use ‘C’ functions. Moreover, ARM-v8 architecture does not have support for 256 bit instructions (equivalent to AVX instruction set in x86).\n\nHence, we have submitted this patch to facilitate the quad implementation using existing dual NEON functions. However, we got ~1% speed up for speed 9, 10 each for SSE2 intrinsic implementation of quad lpf functions. We are expecting a similar speed up by rewriting the same function with NEON intrinsic.\n\nPlease let us know your opinion on the above.\n\nThanks \u0026 Regards, \nArun",
+      "parentUuid": "08dca6b1_a101e196",
+      "range": {
+        "startLine": 709,
+        "startChar": 2,
+        "endLine": 711,
+        "endChar": 31
+      },
+      "revId": "e7cf326de110162b86b94d05acb6536a38c99373",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
