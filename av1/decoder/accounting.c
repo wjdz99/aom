@@ -47,21 +47,29 @@ int aom_accounting_dictionary_lookup(Accounting *accounting, const char *str) {
   accounting->hash_dictionary[hash] = dictionary->num_strs;
   len = strlen(str);
   dictionary->strs[dictionary->num_strs] = malloc(len + 1);
+  if (!dictionary->strs[dictionary->num_strs]) {
+    return -1;
+  }
   snprintf(dictionary->strs[dictionary->num_strs], len + 1, "%s", str);
   dictionary->num_strs++;
   return dictionary->num_strs - 1;
 }
 
-void aom_accounting_init(Accounting *accounting) {
+bool aom_accounting_init(Accounting *accounting) {
   int i;
   accounting->num_syms_allocated = 1000;
   accounting->syms.syms =
       malloc(sizeof(AccountingSymbol) * accounting->num_syms_allocated);
+  if (!accounting->syms.syms) {
+    accounting->num_syms_allocated = 0;
+    return false;
+  }
   accounting->syms.dictionary.num_strs = 0;
   assert(AOM_ACCOUNTING_HASH_SIZE > 2 * MAX_SYMBOL_TYPES);
   for (i = 0; i < AOM_ACCOUNTING_HASH_SIZE; i++)
     accounting->hash_dictionary[i] = -1;
   aom_accounting_reset(accounting);
+  return true;
 }
 
 void aom_accounting_reset(Accounting *accounting) {
@@ -131,6 +139,7 @@ void aom_accounting_dump(Accounting *accounting) {
          accounting->syms.num_binary_syms);
   for (i = 0; i < accounting->syms.num_syms; i++) {
     sym = &accounting->syms.syms[i];
+    if (sym.id == -1) continue;
     printf("%s x: %d, y: %d bits: %f samples: %d\n",
            accounting->syms.dictionary.strs[sym->id], sym->context.x,
            sym->context.y, (float)sym->bits / 8.0, sym->samples);

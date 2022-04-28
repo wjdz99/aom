@@ -38,7 +38,7 @@ TEST(AV1, TestAccounting) {
   aom_reader_init(&br, bw_buffer, bw.pos);
 
   Accounting accounting;
-  aom_accounting_init(&accounting);
+  ASSERT_TRUE(aom_accounting_init(&accounting));
   br.accounting = &accounting;
   for (int i = 0; i < kSymbols; i++) {
     aom_read(&br, 32, "A");
