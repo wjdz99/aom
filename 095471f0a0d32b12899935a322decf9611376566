@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b19cdb66_e83673e9",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-28T15:26:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "66c5f81f_7d0ecf09",
+      "range": {
+        "startLine": 604,
+        "startChar": 0,
+        "endLine": 604,
+        "endChar": 42
+      },
+      "revId": "095471f0a0d32b12899935a322decf9611376566",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8d285b8_f6a6003a",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-04-27T18:21:29Z",
       "side": 1,
       "message": "It just occurred to me, it\u0027s not really necessary to call close. The ifstream dtor automatically closes the file.",
+      "range": {
+        "startLine": 630,
+        "startChar": 0,
+        "endLine": 630,
+        "endChar": 31
+      },
+      "revId": "095471f0a0d32b12899935a322decf9611376566",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4e2ae58_542debf4",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 9
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-04-28T15:26:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8d285b8_f6a6003a",
       "range": {
         "startLine": 630,
         "startChar": 0,
