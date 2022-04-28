@@ -170,6 +170,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "187a91bd_98d730da",
+        "filename": "aom_dsp/intrapred_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-28T18:27:32Z",
+      "side": 1,
+      "message": "\u003e \u003e The expression `((const uint32_t *)smooth_weights)[0]` (three occurrences) requires smooth_weights to be aligned on 32-bit boundaries. It would be good to guarantee that.\n\u003e \n\u003e In practice most compilers are probably already using 8 or 16 for this (gcc is using load hints already), but we can do this to be safe. Another option would be to overread with vld1.u8 given the offset. I\u0027ll do this in a followup.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/157421",
+      "parentUuid": "f9796cdc_264dcd02",
+      "revId": "3e5cd6e27f07ca97b9f3e4bd1cfc8fe9e0e21e9f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "44c4ac62_13e38e55",
