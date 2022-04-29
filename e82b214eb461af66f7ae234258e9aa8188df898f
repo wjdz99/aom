@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "01c42ec5_181c8cdc",
+        "filename": "av1/decoder/inspection.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-29T23:37:45Z",
+      "side": 1,
+      "message": "Why isn\u0027t the TODO comment here?",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "34e912f3_8ad91775",
@@ -14,6 +31,58 @@
       "writtenOn": "2022-04-29T21:57:15Z",
       "side": 1,
       "message": "this is one that\u0027s a little questionable given it\u0027s a separate configuration that exposes this function",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96abe41e_08929b2a",
+        "filename": "av1/decoder/inspection.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-29T23:37:45Z",
+      "side": 1,
+      "message": "I am inclined to suggest that we just call abort() on memory allocation error.",
+      "parentUuid": "34e912f3_8ad91775",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5b65796c_2b4b5196",
+        "filename": "examples/inspect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-29T23:37:45Z",
+      "side": 1,
+      "message": "I think we should dump an error message before returning. For example,\n\n    on_frame_decoded_dump(\"{Out of memory. Frame not dumped.},\\n\");\n    \nOr print an error message and call abort().",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78d19598_39e37d31",
+        "filename": "examples/inspect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-04-29T23:37:45Z",
+      "side": 1,
+      "message": "I think it is incorrect to pass MAX_BUFFER as the second argument to these snprintf calls.",
       "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
