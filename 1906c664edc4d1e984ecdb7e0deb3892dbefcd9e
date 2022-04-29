@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThe speed features \u0027prune_winner_mode_processing_using_src_var and \u0027disable_winner_mode_eval_for_txskip \u0027 were used to disable winner mode processing in ‘allintra’ and ‘good’ encoding modes respectively. We are currently working on extending the speed feature to other RT speeds. Hence, we unified the speed features by introducing \u0027prune_winner_mode_eval_level\u0027 sf and planned to extend the same to other RT speeds in the subsequent patches.\n\nThe current CL is a bit-exact change w.r.t. parent CL. Please review the patch and merge the same in case of no issues.\n\nThanks \u0026 Regards,\nVenkata.\n",
       "revId": "1906c664edc4d1e984ecdb7e0deb3892dbefcd9e",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9535a125_6a26eb0c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-04-29T18:44:30Z",
+      "side": 1,
+      "message": "This is good refactoring. Thanks!",
+      "parentUuid": "ad15b8cd_cac5fb60",
+      "revId": "1906c664edc4d1e984ecdb7e0deb3892dbefcd9e",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
