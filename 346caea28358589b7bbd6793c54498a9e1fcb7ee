@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cfecb0c_8f9717f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-04-29T10:16:46Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nWhile working on optimization of winner mode processing, we identified an issue in resetting mb rd hash. During the mode search, the mode evaluation type can change from one state to another (i.e., changes between MODE_EVAL, WINNER_MODE_EVAL and DEFAULT_EVAL). The transform configuration of each mode evaluation type is different which prohibits the usage of mb rd hash across the mode evaluation type. Currently, mb rd hash is reset at WINNER_MODE_EVAL state, but not reset while switching from MODE_EVAL to DEFAULT_EVAL or WINNER_MODE_EVAL to DEFAULT_EVAL. This can lead to suboptimal transform search performance due to incorrect usage of mb rd hash. To fix this behavior, this CL resets mb rd hash appropriately before switching the states.\n\nThis change is bit-exact for ‘ALLINTRA’ and  ‘RT’ encoding modes as ‘use_mb_rd_hash’ sf is not enabled. For ‘GOOD’ encoding mode, the following are the borg results of speeds 2, 3, 4,5 and 6. Bit-match is verified for speed 0 and 1 of ‘GOOD” encoding mode.\n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   2     |  LOWRES2   |       0.077       |  0.0104    0.0068    0.0175  |\n   2     |  MIDRES2   |      -0.062       | -0.0097   -0.0047   -0.0271  |\n   2     |   HDRES2   |      -0.001       | -0.0146   -0.0118    0.0026  |\n   2     |  Average   |       0.005       | -0.0047   -0.0032   -0.0024  |\n         |            |                   |                              |\n   3     |  LOWRES2   |       0.031       | -0.0024    0.0028   -0.0059  |\n   3     |  MIDRES2   |       0.026       |  0.0075    0.0098    0.0182  |\n   3     |   HDRES2   |       0.056       | -0.0010    0.0080   -0.0156  |\n   3     |  Average   |       0.038       |  0.0014    0.0069   -0.0011  |\n         |            |                   |                              |\n   4     |  LOWRES2   |       0.102       |  0.0130    0.0199    0.0026  |\n   4     |  MIDRES2   |       0.014       | -0.0133   -0.0232   -0.0215  |\n   4     |   HDRES2   |       0.044       |  0.0278    0.0363    0.0459  |\n   4     |  Average   |       0.053       |  0.0092    0.0110    0.0090  |\n         |            |                   |                              |\n   5     |  LOWRES2   |       0.058       |  0.0000    0.0000    0.0000  |\n   5     |  MIDRES2   |       0.042       | -0.0008   -0.0002   -0.0023  |\n   5     |   HDRES2   |       0.033       | -0.0002   -0.0005   -0.0016  |\n   5     |  Average   |       0.045       | -0.0003   -0.0003   -0.0013  |\n         |            |                   |                              |\n   6     |  LOWRES2   |       0.071       |  0.0000    0.0000    0.0000  |\n   6     |  MIDRES2   |       0.053       | -0.0002   -0.0003   -0.0001  |\n   6     |   HDRES2   |       0.041       | -0.0071   -0.0039    0.0011  |\n   6     |  Average   |       0.055       | -0.0024   -0.0014    0.0003  |\n   \nPlease review the patch and let us know your opinion on the same.\n\nThanks \u0026 Regards,\nVenkata.\n",
+      "revId": "346caea28358589b7bbd6793c54498a9e1fcb7ee",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
