@@ -52,6 +52,24 @@
       "parentUuid": "fd60667e_9e8fc638",
       "revId": "dbd7660f140c04c547de8e12f4a3a36876b653b7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a01d0226_ca0d4564",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-29T01:51:38Z",
+      "side": 1,
+      "message": "\u003e `*(uint32_t*)uint8_ptr` (in the form of `((const uint32_t *)smooth_weights)[0]`) is used in two places in aom_dsp/x86/intrapred_ssse3.c,\n\nMy mistake, I didn\u0027t look. In any case I don\u0027t think this surfaced because of the default alignment being used and now that we\u0027re forcing it things will be fine.",
+      "parentUuid": "a2f38a1a_36fbe520",
+      "revId": "dbd7660f140c04c547de8e12f4a3a36876b653b7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ],
   "submitRequirementResults": [
