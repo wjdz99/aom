@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d204ea15_5cc81417",
+        "filename": "av1/decoder/inspection.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-30T02:24:37Z",
+      "side": 1,
+      "message": "\u003e Why isn\u0027t the TODO comment here?\n\nI put it with ifd_init because it is the global function.",
+      "parentUuid": "01c42ec5_181c8cdc",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "34e912f3_8ad91775",
         "filename": "av1/decoder/inspection.c",
         "patchSetId": 1
@@ -53,6 +71,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa8a3214_de28ec3c",
+        "filename": "av1/decoder/inspection.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-30T02:24:37Z",
+      "side": 1,
+      "message": "\u003e I am inclined to suggest that we just call abort() on memory allocation error.\n\nI think that\u0027s sufficient for this example. It was just meant to be used by the analyzer which hasn\u0027t seen much maintenance: https://crbug.com/aomedia/3034",
+      "parentUuid": "96abe41e_08929b2a",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5b65796c_2b4b5196",
@@ -70,6 +106,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf982d45_96ec8b77",
+        "filename": "examples/inspect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-30T02:24:37Z",
+      "side": 1,
+      "message": "\u003e I think we should dump an error message before returning. For example,\n\u003e \n\u003e     on_frame_decoded_dump(\"{Out of memory. Frame not dumped.},\\n\");\n\u003e     \n\u003e Or print an error message and call abort().\n\nabort() is probably fine for this. Let\u0027s keep it simple and use that here and in ifd_init()",
+      "parentUuid": "5b65796c_2b4b5196",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "78d19598_39e37d31",
@@ -83,6 +137,24 @@
       "writtenOn": "2022-04-29T23:37:45Z",
       "side": 1,
       "message": "I think it is incorrect to pass MAX_BUFFER as the second argument to these snprintf calls.",
+      "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d704e7f_5693a80d",
+        "filename": "examples/inspect.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 715,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-04-30T02:24:37Z",
+      "side": 1,
+      "message": "\u003e I think it is incorrect to pass MAX_BUFFER as the second argument to these snprintf calls.\n\nI agree, there are all kinds of dangerous string writes outside of those calls too. We can fix these if only to make the example safer to copy and paste from, but this example isn\u0027t of great concern at the moment.",
+      "parentUuid": "78d19598_39e37d31",
       "revId": "e82b214eb461af66f7ae234258e9aa8188df898f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
