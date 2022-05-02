@@ -26,6 +26,30 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "aa59ac2d_2bbff092",
+        "filename": "aom_dsp/arm/highbd_quantize_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-05-02T14:12:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73730eef_1ec07ae4",
+      "range": {
+        "startLine": 25,
+        "startChar": 19,
+        "endLine": 25,
+        "endChar": 20
+      },
+      "revId": "5ea7482cf20625ce76de6ce9aa2dc3b52577dd05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "92aff0c3_b5c34fed",
         "filename": "aom_dsp/arm/highbd_quantize_neon.c",
         "patchSetId": 4
@@ -64,6 +88,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "66afd607_e17a59fb",
+        "filename": "aom_dsp/arm/highbd_quantize_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-05-02T14:12:15Z",
+      "side": 1,
+      "message": "No. In av1_quant(), this is passed in:\n\nconst int n_coeffs \u003d av1_get_max_eob(txfm_param-\u003etx_size);\n\nThe smallest size returned is 16.",
+      "parentUuid": "998bd3d2_c506af55",
+      "revId": "5ea7482cf20625ce76de6ce9aa2dc3b52577dd05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "d31a9508_2ef79a68",
@@ -77,6 +119,30 @@
       "writtenOn": "2022-04-30T01:43:32Z",
       "side": 1,
       "message": "these ()s could be removed too",
+      "range": {
+        "startLine": 143,
+        "startChar": 58,
+        "endLine": 143,
+        "endChar": 59
+      },
+      "revId": "5ea7482cf20625ce76de6ce9aa2dc3b52577dd05",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33e73494_a0a2b143",
+        "filename": "aom_dsp/arm/highbd_quantize_neon.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-05-02T14:12:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d31a9508_2ef79a68",
       "range": {
         "startLine": 143,
         "startChar": 58,
