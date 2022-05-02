@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa965a0f_4b45afd8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-02T22:24:03Z",
+      "side": 1,
+      "message": "The case change is ok, but I think some of the naming could be revisited. I\u0027ll let Angie take a look.",
+      "revId": "fbd5cfaef8e7a91b339fad62e76c89ea4d7f5e23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d052772_a48dd7e2",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-02T22:24:03Z",
+      "side": 1,
+      "message": "I wonder if this one should just be CreateTplFrameDepStats(...)",
+      "range": {
+        "startLine": 65,
+        "startChar": 39,
+        "endLine": 65,
+        "endChar": 44
+      },
+      "revId": "fbd5cfaef8e7a91b339fad62e76c89ea4d7f5e23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b392e97_bf8739b5",
+        "filename": "av1/ratectrl_qmode.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-02T22:24:03Z",
+      "side": 1,
+      "message": "I\u0027m assuming Wo is without, but it\u0027s not clear what isn\u0027t being propagated.",
+      "range": {
+        "startLine": 68,
+        "startChar": 39,
+        "endLine": 68,
+        "endChar": 52
+      },
+      "revId": "fbd5cfaef8e7a91b339fad62e76c89ea4d7f5e23",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
