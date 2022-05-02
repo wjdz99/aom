@@ -16,6 +16,24 @@
       "message": "Would you like to change NULL to nullptr in this CL?",
       "revId": "5f46fbb7645dd95a283035bdaacbc1e8c6f260b3",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16c96739_4816e5fe",
+        "filename": "test/avg_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-02T22:14:08Z",
+      "side": 1,
+      "message": "\u003e Would you like to change NULL to nullptr in this CL?\n\nThere are a few instances in this file. Maybe it\u0027s better to do that in a broader cleanup pass like the allocation checks in the next commit.",
+      "parentUuid": "24b2c1d3_de616578",
+      "revId": "5f46fbb7645dd95a283035bdaacbc1e8c6f260b3",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
