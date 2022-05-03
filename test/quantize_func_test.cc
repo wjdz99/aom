@@ -208,8 +208,11 @@ class QuantizeTestBase
   void FillCoeffRandom() {
     const int n_coeffs = coeff_num();
     FillCoeffZero();
-    int num = rnd_.Rand16() % n_coeffs;
-    for (int i = 0; i < num; ++i) {
+    const int num = rnd_.Rand16() % n_coeffs;
+    // Randomize the first non zero coeff position.
+    const int start = rnd_.Rand16() % n_coeffs;
+    const int end = std::min(start + num, n_coeffs);
+    for (int i = start; i < end; ++i) {
       coeff_[i] = GetRandomCoeff();
     }
   }
@@ -725,6 +728,15 @@ const QuantizeParam<QuantizeFunc> kQParamArrayNEON[] = {
   make_tuple(&aom_highbd_quantize_b_32x32_c, &aom_highbd_quantize_b_32x32_neon,
              static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_12),
   make_tuple(&aom_highbd_quantize_b_64x64_c, &aom_highbd_quantize_b_64x64_neon,
+             static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_12),
+  make_tuple(&aom_highbd_quantize_b_adaptive_c,
+             &aom_highbd_quantize_b_adaptive_neon,
+             static_cast<TX_SIZE>(TX_16X16), TYPE_B, AOM_BITS_12),
+  make_tuple(&aom_highbd_quantize_b_32x32_adaptive_c,
+             &aom_highbd_quantize_b_32x32_adaptive_neon,
+             static_cast<TX_SIZE>(TX_32X32), TYPE_B, AOM_BITS_12),
+  make_tuple(&aom_highbd_quantize_b_64x64_adaptive_c,
+             &aom_highbd_quantize_b_64x64_adaptive_neon,
              static_cast<TX_SIZE>(TX_64X64), TYPE_B, AOM_BITS_12),
 #endif
 };
