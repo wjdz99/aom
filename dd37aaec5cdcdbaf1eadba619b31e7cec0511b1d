@@ -16,6 +16,63 @@
       "message": "Hi Wan-Teh, Frank,\n\nIn this CL, the odd delta angles of directional luma intra modes are pruned using the RD costs of neighboring delta angles. If the RD cost of an odd delta angle is greater than 1.125 (rd_thresh) times that of the neighboring even delta angles then the evaluation for the same will be avoided. In order to facilitate this optimization, the order of evaluation of delta angles is changed when the speed feature prune_luma_odd_delta_angles_in_intra is enabled. Even though we require only the RD cost of even delta angles, we have kept the RD cost array common for all modes and for all delta angles to simplify the implementation (avoiding control code while storing rdcosts etc). This change is applicable for allintra speed \u003e\u003d6.\n\n\nWe validated the current patch for allintra video and still-image encode. Following are encode-time reduction results when AVIF encode was tested for a typical image dataset.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n                  Encode Time     BD-Rate Loss(%)      \n      cpu-used    Reduction(%)    psnr     ssim\n         6           2.849        0.2491   0.2657\n         7           2.471        0.1043   0.1236  \n         8           2.051        0.0669   0.0721\n\nFor AVIF still image encode with tune\u003dssim,\n                  Encode Time     BD-Rate Loss(%)      \n      cpu-used    Reduction(%)    psnr      ssim\n         6           2.866        0.1860    0.2019\n         7           2.507        0.0785    0.1054\n         8           2.223        0.0535    0.0736\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n              Instruction Count   BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  ovr.psnr   ssim\n         6          4.461         0.2204    0.2198     0.2567\n         7          3.699         0.1101    0.1096     0.1320\n         8          3.536         0.0861    0.0864     0.0995\n\n\nFor libaom AV1 video encode, bit match is verified (w.r.t parent commit) for encoding modes \u0027GOOD\u0027 and \u0027RT\u0027 for few videos with different video encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review the patch.\n\nThanks \u0026 Regards,\nMudassir\n",
       "revId": "dd37aaec5cdcdbaf1eadba619b31e7cec0511b1d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6da1e82e_ca95eb6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-03T23:55:02Z",
+      "side": 1,
+      "message": "Cheng, Chi Yo: Please review this CL. Thanks.\n\nMudassir: I haven\u0027t review the CL yet. I have two preliminary comments after skimming through it.",
+      "revId": "dd37aaec5cdcdbaf1eadba619b31e7cec0511b1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a25115c_a9b96c81",
+        "filename": "av1/encoder/intra_mode_search.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-03T23:55:02Z",
+      "side": 1,
+      "message": "Nit: We can return this conditional expression directly:\n\n```\n  return intra_modes_rd_cost[luma_delta_angle + MAX_ANGLE_DELTA] \u003e rd_thresh \u0026\u0026\n         intra_modes_rd_cost[luma_delta_angle + MAX_ANGLE_DELTA + 2] \u003e rd_thresh;\n```",
+      "range": {
+        "startLine": 1353,
+        "startChar": 0,
+        "endLine": 1357,
+        "endChar": 11
+      },
+      "revId": "dd37aaec5cdcdbaf1eadba619b31e7cec0511b1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1fe7af80_499e0d27",
+        "filename": "av1/encoder/intra_mode_search.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-03T23:55:02Z",
+      "side": 1,
+      "message": "Nit: I suggest not abbreviating \"processing\":\n\n    reorder_delta_angle_processing\n\nbecause \"proc\" is a common abbreviation of \"procedure\". Very long variable names often cause formatting difficulties, but in this case it is not an issue.\n\nAlso, we always pass the speed feature prune_luma_odd_delta_angles_in_intra as the value of this parameter. I am wondering why we don\u0027t name this parameter prune_luma_odd_delta_angles_in_intra. Is it because we should name this parameter according to its role in this function?",
+      "revId": "dd37aaec5cdcdbaf1eadba619b31e7cec0511b1d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
