@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f039aed_fd15a954",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 717,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-03T00:46:10Z",
+      "side": 1,
+      "message": "remove \"make\"?",
+      "range": {
+        "startLine": 717,
+        "startChar": 23,
+        "endLine": 717,
+        "endChar": 27
+      },
+      "revId": "ae8c84c8b06976cc4a7edc4405d35f38fa942b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "15b1d2ba_b997aa04",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 739,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-03T00:46:10Z",
+      "side": 1,
+      "message": "return value of this function is the same for this for loop right? since block_stats and unit_count stay the same?",
+      "range": {
+        "startLine": 739,
+        "startChar": 12,
+        "endLine": 739,
+        "endChar": 40
+      },
+      "revId": "ae8c84c8b06976cc4a7edc4405d35f38fa942b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d23b1034_7457cd05",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-03T00:46:10Z",
+      "side": 1,
+      "message": "you can define a lambda and still use std::accumulate()\n\n```\nauto getIntraCost \u003d [](double sum, TplUnitDepStats \u0026unit) {\n                      return sum + unit.intra_cost;\n}\n```\n\nAnd then you can do\n\n```\nsum \u003d std::accumulate(row.begin(), row.end(), sum, getIntraCost);\n```",
+      "range": {
+        "startLine": 776,
+        "startChar": 4,
+        "endLine": 778,
+        "endChar": 5
+      },
+      "revId": "ae8c84c8b06976cc4a7edc4405d35f38fa942b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3981ca7_0460dece",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-03T00:46:10Z",
+      "side": 1,
+      "message": "you can do \n\nif (ref_frame_count \u003c\u003d 0) continue;\n\nto reduce nesting.",
+      "range": {
+        "startLine": 829,
+        "startChar": 10,
+        "endLine": 829,
+        "endChar": 25
+      },
+      "revId": "ae8c84c8b06976cc4a7edc4405d35f38fa942b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b87162d_c3a64912",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-03T00:46:10Z",
+      "side": 1,
+      "message": "you can do\n\nif (ref_coding_idx_list[i] \u003d\u003d -1) continue;\n\nto reduce nesting",
+      "range": {
+        "startLine": 831,
+        "startChar": 10,
+        "endLine": 831,
+        "endChar": 42
+      },
+      "revId": "ae8c84c8b06976cc4a7edc4405d35f38fa942b3a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
