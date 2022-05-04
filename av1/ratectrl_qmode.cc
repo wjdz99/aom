@@ -422,6 +422,24 @@ static int FindRegionIndex(const std::vector<REGIONS> &regions, int frame_idx) {
   return -1;
 }
 
+// This function detects a flash through the high relative pcnt_second_ref
+// score in the frame following a flash frame. The offset passed in should
+// reflect this.
+static bool DetectFlash(const std::vector<FIRSTPASS_STATS> &stats_list,
+                        int index) {
+  int next_index = index + 1;
+  if (next_index >= static_cast<int>(stats_list.size())) return false;
+  const FIRSTPASS_STATS &next_frame = stats_list[next_index];
+
+  // What we are looking for here is a situation where there is a
+  // brief break in prediction (such as a flash) but subsequent frames
+  // are reasonably well predicted by an earlier (pre flash) frame.
+  // The recovery after a flash is indicated by a high pcnt_second_ref
+  // compared to pcnt_inter.
+  return next_frame.pcnt_second_ref > next_frame.pcnt_inter &&
+         next_frame.pcnt_second_ref >= 0.5;
+}
+
 #define MIN_SHRINK_LEN 6
 
 // This function takes in a suggesting gop interval from cur_start to cur_last,
@@ -582,6 +600,198 @@ int FindBetterGopCut(const std::vector<FIRSTPASS_STATS> &stats_list,
   return cur_last;
 }
 
+// Function to test for a condition where a complex transition is followed
+// by a static section. For example in slide shows where there is a fade
+// between slides. This is to help with more optimal kf and gf positioning.
+static bool DetectTransitionToStill(
+    const std::vector<FIRSTPASS_STATS> &stats_list, int next_stats_index,
+    int min_gop_show_frame_count, int frame_interval, int still_interval,
+    double loop_decay_rate, double last_decay_rate) {
+  // Break clause to detect very still sections after motion
+  // For example a static image after a fade or other transition
+  // instead of a clean scene cut.
+  if (frame_interval > min_gop_show_frame_count && loop_decay_rate >= 0.999 &&
+      last_decay_rate < 0.9) {
+    int stats_count = static_cast<int>(stats_list.size());
+    int stats_left = stats_count - next_stats_index;
+    if (stats_left >= still_interval) {
+      // Look ahead a few frames to see if static condition persists...
+      int j;
+      for (j = 0; j < still_interval; ++j) {
+        const FIRSTPASS_STATS &stats = stats_list[next_stats_index + j];
+        if (stats.pcnt_inter - stats.pcnt_motion < 0.999) break;
+      }
+      // Only if it does do we signal a transition to still.
+      return j == still_interval;
+    }
+  }
+  return false;
+}
+
+static int DetectGopCut(const std::vector<FIRSTPASS_STATS> &stats_list,
+                        int start_idx, int candidate_cut_idx, int next_key_idx,
+                        int flash_detected, int min_gop_show_frame_count,
+                        int max_gop_show_frame_count, int frame_width,
+                        int frame_height, const GF_GROUP_STATS &gf_stats) {
+  (void)max_gop_show_frame_count;
+  const int candidate_gop_size = candidate_cut_idx - start_idx;
+
+  if (!flash_detected) {
+    // Break clause to detect very still sections after motion. For example,
+    // a static image after a fade or other transition.
+    if (DetectTransitionToStill(stats_list, start_idx, min_gop_show_frame_count,
+                                candidate_gop_size, 5, gf_stats.loop_decay_rate,
+                                gf_stats.last_loop_decay_rate)) {
+      return 1;
+    }
+    const double arf_abs_zoom_thresh = 4.4;
+    // Motion breakout threshold for loop below depends on image size.
+    const double mv_ratio_accumulator_thresh =
+        (frame_height + frame_width) / 4.0;
+    // Some conditions to breakout after min interval.
+    if (candidate_gop_size >= min_gop_show_frame_count &&
+        // If possible don't break very close to a kf
+        (next_key_idx - candidate_cut_idx >= min_gop_show_frame_count) &&
+        (candidate_gop_size & 0x01) &&
+        (gf_stats.mv_ratio_accumulator > mv_ratio_accumulator_thresh ||
+         gf_stats.abs_mv_in_out_accumulator > arf_abs_zoom_thresh)) {
+      return 1;
+    }
+  }
+
+  // TODO(angiebird): Check if we need this part.
+  // If almost totally static, we will not use the the max GF length later,
+  // so we can continue for more frames.
+  // if ((candidate_gop_size >= active_max_gf_interval + 1) &&
+  //     !is_almost_static(gf_stats->zero_motion_accumulator,
+  //                       twopass->kf_zeromotion_pct, cpi->ppi->lap_enabled)) {
+  //   return 0;
+  // }
+  return 0;
+}
+
+/* This function considers how the quality of prediction may be deteriorating
+ * with distance. It comapres the coded error for the last frame and the
+ * second reference frame (usually two frames old) and also applies a factor
+ * based on the extent of INTRA coding.
+ *
+ * The decay factor is then used to reduce the contribution of frames further
+ * from the alt-ref or golden frame, to the bitframe boost calculation for that
+ * alt-ref or golden frame.
+ */
+static double GetSrDecayRate(const FIRSTPASS_STATS *frame) {
+  const double low_coded_err_per_mb = 0.01;
+  const double ncount_frame_ii_thresh = 5.0;
+  const double low_sr_diff_trhesh = 0.01;
+  const double intra_part = 0.005;
+  const double default_decay_limit = 0.75;
+  double sr_diff = (frame->sr_coded_error - frame->coded_error);
+  double sr_decay = 1.0;
+  double modified_pct_inter;
+  double modified_pcnt_intra;
+
+  modified_pct_inter = frame->pcnt_inter;
+  if ((frame->coded_error > low_coded_err_per_mb) &&
+      ((frame->intra_error / ModifyDivisor(frame->coded_error)) <
+       ncount_frame_ii_thresh)) {
+    modified_pct_inter = frame->pcnt_inter - frame->pcnt_neutral;
+  }
+  modified_pcnt_intra = 100 * (1.0 - modified_pct_inter);
+
+  if ((sr_diff > low_sr_diff_trhesh)) {
+    double sr_diff_part = ((sr_diff * 0.25) / frame->intra_error);
+    sr_decay = 1.0 - sr_diff_part - (intra_part * modified_pcnt_intra);
+  }
+  return std::max(sr_decay, default_decay_limit);
+}
+
+// This function gives an estimate of how badly we believe the prediction
+// quality is decaying from frame to frame.
+static double GetZeroMotionFactor(const FIRSTPASS_STATS *frame) {
+  const double zero_motion_pct = frame->pcnt_inter - frame->pcnt_motion;
+  double sr_decay = GetSrDecayRate(frame);
+  return std::min(sr_decay, zero_motion_pct);
+}
+
+static double GetPredictionDecayRate(const FIRSTPASS_STATS *frame_stats) {
+  const double default_zm_factor = 0.5;
+  const double sr_decay_rate = GetSrDecayRate(frame_stats);
+  double zero_motion_factor =
+      default_zm_factor * (frame_stats->pcnt_inter - frame_stats->pcnt_motion);
+
+  // Clamp value to range 0.0 to 1.0
+  // This should happen anyway if input values are sensibly clamped but checked
+  // here just in case.
+  if (zero_motion_factor > 1.0)
+    zero_motion_factor = 1.0;
+  else if (zero_motion_factor < 0.0)
+    zero_motion_factor = 0.0;
+
+  return std::max(zero_motion_factor, (sr_decay_rate + ((1.0 - sr_decay_rate) *
+                                                        zero_motion_factor)));
+}
+
+// Update the motion related elements to the GF arf boost calculation.
+static void AccumulateFrameMotionStats(const FIRSTPASS_STATS *stats,
+                                       GF_GROUP_STATS *gf_stats, double f_w,
+                                       double f_h) {
+  const double pct = stats->pcnt_motion;
+
+  // Accumulate Motion In/Out of frame stats.
+  gf_stats->this_frame_mv_in_out = stats->mv_in_out_count * pct;
+  gf_stats->mv_in_out_accumulator += gf_stats->this_frame_mv_in_out;
+  gf_stats->abs_mv_in_out_accumulator += fabs(gf_stats->this_frame_mv_in_out);
+
+  // Accumulate a measure of how uniform (or conversely how random) the motion
+  // field is (a ratio of abs(mv) / mv).
+  if (pct > 0.05) {
+    const double mvr_ratio =
+        fabs(stats->mvr_abs) / ModifyDivisor(fabs(stats->MVr));
+    const double mvc_ratio =
+        fabs(stats->mvc_abs) / ModifyDivisor(fabs(stats->MVc));
+
+    gf_stats->mv_ratio_accumulator +=
+        pct *
+        (mvr_ratio < stats->mvr_abs * f_h ? mvr_ratio : stats->mvr_abs * f_h);
+    gf_stats->mv_ratio_accumulator +=
+        pct *
+        (mvc_ratio < stats->mvc_abs * f_w ? mvc_ratio : stats->mvc_abs * f_w);
+  }
+}
+
+static void AccumulateNextFrameStats(const FIRSTPASS_STATS *stats,
+                                     const int flash_detected,
+                                     const int frames_since_key,
+                                     const int cur_idx,
+                                     GF_GROUP_STATS *gf_stats, int f_w,
+                                     int f_h) {
+  AccumulateFrameMotionStats(stats, gf_stats, f_w, f_h);
+  // sum up the metric values of current gf group
+  gf_stats->avg_sr_coded_error += stats->sr_coded_error;
+  gf_stats->avg_pcnt_second_ref += stats->pcnt_second_ref;
+  gf_stats->avg_new_mv_count += stats->new_mv_count;
+  gf_stats->avg_wavelet_energy += stats->frame_avg_wavelet_energy;
+  if (fabs(stats->raw_error_stdev) > 0.000001) {
+    gf_stats->non_zero_stdev_count++;
+    gf_stats->avg_raw_err_stdev += stats->raw_error_stdev;
+  }
+
+  // Accumulate the effect of prediction quality decay
+  if (!flash_detected) {
+    gf_stats->last_loop_decay_rate = gf_stats->loop_decay_rate;
+    gf_stats->loop_decay_rate = GetPredictionDecayRate(stats);
+
+    gf_stats->decay_accumulator =
+        gf_stats->decay_accumulator * gf_stats->loop_decay_rate;
+
+    // Monitor for static sections.
+    if ((frames_since_key + cur_idx - 1) > 1) {
+      gf_stats->zero_motion_accumulator = std::min(
+          gf_stats->zero_motion_accumulator, GetZeroMotionFactor(stats));
+    }
+  }
+}
+
 /*!\brief Determine the length of future GF groups.
  *
  * \ingroup gf_group_algo
@@ -624,6 +834,29 @@ static std::vector<int> PartitionGopIntervals(
     } else if (stats_in_loop_index >= num_stats) {
       // reaches last frame, break
       cut_here = 2;
+    } else {
+      // Test for the case where there is a brief flash but the prediction
+      // quality back to an earlier frame is then restored.
+      const int gop_start_idx = cur_start + order_index;
+      const int candidate_gop_cut_idx = i + order_index;
+      const int next_key_idx = frames_to_key + order_index;
+      const bool flash_detected =
+          DetectFlash(stats_list, candidate_gop_cut_idx);
+
+      // TODO(bohanli): remove redundant accumulations here, or unify
+      // this and the ones in define_gf_group
+      const FIRSTPASS_STATS *stats = &stats_list[candidate_gop_cut_idx];
+      AccumulateNextFrameStats(stats, flash_detected, frames_since_key, i,
+                               &gf_stats, rc_param.frame_width,
+                               rc_param.frame_height);
+
+      // TODO(angiebird): Can we simplify this part? Looks like we are going to
+      // change the gop cut index with FindBetterGopCut() anyway.
+      cut_here = DetectGopCut(
+          stats_list, gop_start_idx, candidate_gop_cut_idx, next_key_idx,
+          flash_detected, rc_param.min_gop_show_frame_count,
+          rc_param.max_gop_show_frame_count, rc_param.frame_width,
+          rc_param.frame_height, gf_stats);
     }
 
     if (!cut_here) {
