@@ -321,7 +321,7 @@ int av1_intrabc_hash_search(const struct AV1_COMP *cpi, const MACROBLOCKD *xd,
 
 int av1_obmc_full_pixel_search(const FULLPEL_MV start_mv,
                                const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
-                               const int step_param, FULLPEL_MV *best_mv);
+                               int step_param, FULLPEL_MV *best_mv);
 
 static INLINE int av1_is_fullmv_in_range(const FullMvLimits *mv_limits,
                                          FULLPEL_MV mv) {

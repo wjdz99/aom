@@ -771,7 +771,8 @@ typedef struct MV_SPEED_FEATURES {
 
   // Set the full pixel search level of obmc
   // 0: obmc_full_pixel_diamond
-  // 1: obmc_refining_search_sad (faster)
+  // 1: ??????????????????????????????????
+  // 2: obmc_refining_search_sad (faster)
   int obmc_full_pixel_search_level;
 
   // Accurate full pixel motion search based on TPL stats.

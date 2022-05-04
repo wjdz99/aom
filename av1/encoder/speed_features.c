@@ -956,6 +956,7 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.reuse_best_prediction_for_part_ab =
         !frame_is_intra_only(&cpi->common);
 
+    sf->mv_sf.obmc_full_pixel_search_level = 2;
     sf->mv_sf.simple_motion_subpel_force_stop = QUARTER_PEL;
     sf->mv_sf.subpel_iters_per_step = 1;
     sf->mv_sf.reduce_search_range = 1;
@@ -1370,7 +1371,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
   sf->part_sf.reuse_prev_rd_results_for_part_ab = 1;
   sf->part_sf.prune_ext_partition_types_search_level = 2;
   sf->part_sf.less_rectangular_check_level = 2;
-  sf->mv_sf.obmc_full_pixel_search_level = 1;
+  sf->mv_sf.obmc_full_pixel_search_level = 2;
   sf->intra_sf.dv_cost_upd_level = INTERNAL_COST_UPD_OFF;
   sf->tx_sf.model_based_prune_tx_search_level = 0;
   sf->lpf_sf.dual_sgr_penalty_level = 1;
