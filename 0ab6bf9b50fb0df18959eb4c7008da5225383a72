@@ -121,6 +121,24 @@
       "message": "We need to reset pbi-\u003eerror.setjmp to 0 here. Note that we set pbi-\u003eerror.setjmp to 1 at line 107.\n\nOur action here should be the same as lines 102-104, if setjmp() returns from a long jump.",
       "revId": "0ab6bf9b50fb0df18959eb4c7008da5225383a72",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aec3e409_3fb4706a",
+        "filename": "av1/decoder/decoder.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-04T23:49:33Z",
+      "side": 1,
+      "message": "\u003e We need to reset pbi-\u003eerror.setjmp to 0 here. Note that we set pbi-\u003eerror.setjmp to 1 at line 107.\n\u003e \n\u003e Our action here should be the same as lines 102-104, if setjmp() returns from a long jump.\n\nWe\u0027ve freed the decoder at this point and are returning NULL. I would hope the remove wouldn\u0027t itself longjmp, but for consistency I added this.",
+      "parentUuid": "67879b9d_83755c3c",
+      "revId": "0ab6bf9b50fb0df18959eb4c7008da5225383a72",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
