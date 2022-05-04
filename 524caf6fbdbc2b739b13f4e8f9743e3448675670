@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1846674_00915ef4",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-05-04T14:13:40Z",
+      "side": 1,
+      "message": "Prefer specifying a Buganizer issue over a username. go/todo-tott",
+      "range": {
+        "startLine": 654,
+        "startChar": 10,
+        "endLine": 654,
+        "endChar": 19
+      },
+      "revId": "524caf6fbdbc2b739b13f4e8f9743e3448675670",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f562da53_c021288a",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-05-04T14:13:40Z",
+      "side": 1,
+      "message": "Why not just export the version in pass2_strategy and call it?\n\nLikewise for get_zero_motion_factor, get_prediction_decay_rate, accumulate_frame_motion_stats, and accumulate_next_frame_stats.",
+      "range": {
+        "startLine": 674,
+        "startChar": 0,
+        "endLine": 674,
+        "endChar": 60
+      },
+      "revId": "524caf6fbdbc2b739b13f4e8f9743e3448675670",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91338d4b_9c298fd8",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-05-04T14:13:40Z",
+      "side": 1,
+      "message": "In pass2_strategy, this is using index cpi-\u003etwopass_frame.stats_in. If I understand correctly, that would be stats_in_loop_index here (based on the comparison online 826 above). Can we verify that the correct index is being used here (and on line 826)?",
+      "revId": "524caf6fbdbc2b739b13f4e8f9743e3448675670",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
