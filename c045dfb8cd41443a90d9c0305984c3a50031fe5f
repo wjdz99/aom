@@ -35,6 +35,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b4b23aa_4e41acf4",
+        "filename": "av1/decoder/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-04T23:43:46Z",
+      "side": 1,
+      "message": "\u003e Nit/optional: It looks nicer if we initialize these in the same order they are listed in the function parameter list.\n\u003e \n\u003e I guess the current order comes from dealloc_arrays().\n\nI agree, I picked this up from the assignment order below and did a simple replacement.",
+      "parentUuid": "e25db50d_a724dd22",
+      "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7367209a_a29f95cf",
@@ -48,6 +66,24 @@
       "writtenOn": "2022-05-04T23:03:18Z",
       "side": 1,
       "message": "The largest value of i should be row - 1, not row.\n\nI am curious why do you count down? Why not for (int i \u003d 0; i \u003c row, ++i)?",
+      "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2083956a_588f075c",
+        "filename": "av1/decoder/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-04T23:43:46Z",
+      "side": 1,
+      "message": "\u003e The largest value of i should be row - 1, not row.\n\u003e \n\nTrue, the [row] value is NULL so it won\u0027t matter.\n\n\u003e I am curious why do you count down? Why not for (int i \u003d 0; i \u003c row, ++i)?\n\nI probably meant to reuse row and just decrement that, but a new counter makes it clear enough.",
+      "parentUuid": "7367209a_a29f95cf",
       "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -69,6 +105,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f3eaea2_e6c3110b",
+        "filename": "av1/decoder/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-04T23:43:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a01efad0_688dd380",
+      "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "57c43961_09ee4a44",
@@ -82,6 +136,24 @@
       "writtenOn": "2022-05-04T23:03:18Z",
       "side": 1,
       "message": "Optional: Instead of handling these special cases, I think it is possible to make dealloc_arrays() more general and call dealloc_arrays() for these special cases.\n\ndealloc_arrays() will need to handle a null *pred_pos_luma or *pred_pos_chroma, and we will need to use aom_calloc instead of aom_malloc to allocate those two arrays here, so that they are initialized with null pointers.",
+      "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "270351e0_e12c6e5b",
+        "filename": "av1/decoder/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-04T23:43:46Z",
+      "side": 1,
+      "message": "\u003e Optional: Instead of handling these special cases, I think it is possible to make dealloc_arrays() more general and call dealloc_arrays() for these special cases.\n\u003e \n\u003e dealloc_arrays() will need to handle a null *pred_pos_luma or *pred_pos_chroma, and we will need to use aom_calloc instead of aom_malloc to allocate those two arrays here, so that they are initialized with null pointers.\n\ndealloc would need additional parameters to signal the number of luma/chroma too. I was trying to keep the change somewhat simple, that\u0027s the reason for the special case.",
+      "parentUuid": "57c43961_09ee4a44",
       "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
