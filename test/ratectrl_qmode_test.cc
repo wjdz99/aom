@@ -748,6 +748,14 @@ TEST(RateControlQModeTest, TestKeyframeDetection) {
               ElementsAre(0, 30, 60, 90, 120, 150, 180, 210, 240));
 }
 
+TEST(RateControlQModeTest, TestGopIntervals) {
+  FirstpassInfo firstpass_info;
+  ReadFirstpassInfo("firstpass_stats", &firstpass_info);
+  AV1RateControlQMode rc;
+  GopStructList gop_list = rc.DetermineGopInfo(firstpass_info);
+  
+}
+
 // MockRateControlQMode is provided for the use of clients of libaom, but it's
 // not expected that it will be used in any real libaom tests.
 // This simple "toy" test exists solely to verify the integration of gmock into
