@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d3282eb8_2486c371",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-05-04T13:25:21Z",
+      "side": 1,
+      "message": "Please add a comment for this function: go/cstyle#function_declarations",
+      "range": {
+        "startLine": 428,
+        "startChar": 0,
+        "endLine": 428,
+        "endChar": 68
+      },
+      "revId": "00d9fb12fdf07cffaf75a631474ab91f99e459bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d95bf8d1_4af3ceb0",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-05-04T13:25:21Z",
+      "side": 1,
+      "message": "This doesn\u0027t need to be declared here; you could just declare it below where you assign to it.",
+      "range": {
+        "startLine": 598,
+        "startChar": 21,
+        "endLine": 598,
+        "endChar": 29
+      },
+      "revId": "00d9fb12fdf07cffaf75a631474ab91f99e459bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "129e5d10_8d7d95f6",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 626,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-05-04T13:25:21Z",
+      "side": 1,
+      "message": "Rather than assigning to cur_last here and then reassigning below, why not just assign directly to ori_last, and then pass it to FindBetterGopCut?\n\nAlso, \"ori\" is not a standard abbreviation for \"original\". I\u0027d just call it \"original_last\".",
+      "range": {
+        "startLine": 625,
+        "startChar": 4,
+        "endLine": 626,
+        "endChar": 28
+      },
+      "revId": "00d9fb12fdf07cffaf75a631474ab91f99e459bc",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
