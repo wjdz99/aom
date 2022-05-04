@@ -68,6 +68,78 @@
       },
       "revId": "335cd9be7e06eae409cdfbfaecdfe7de7fe1525d",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "209a10da_9b766e60",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-04T18:33:33Z",
+      "side": 1,
+      "message": "I\u0027ll move the two related functions to unnamed namespace for now.",
+      "parentUuid": "92a9b164_21d87ccf",
+      "range": {
+        "startLine": 683,
+        "startChar": 5,
+        "endLine": 683,
+        "endChar": 22
+      },
+      "revId": "335cd9be7e06eae409cdfbfaecdfe7de7fe1525d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a85a5555_7a216f38",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-04T18:33:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67d9743f_d2682114",
+      "range": {
+        "startLine": 683,
+        "startChar": 23,
+        "endLine": 683,
+        "endChar": 34
+      },
+      "revId": "335cd9be7e06eae409cdfbfaecdfe7de7fe1525d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8d61bf0_cbfbc5b1",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5960
+      },
+      "writtenOn": "2022-05-04T18:33:33Z",
+      "side": 1,
+      "message": "It can\u0027t return anything since ASSERT_EQ is used here, which expects the function to be void.",
+      "parentUuid": "ab01db92_07be622b",
+      "range": {
+        "startLine": 683,
+        "startChar": 45,
+        "endLine": 683,
+        "endChar": 74
+      },
+      "revId": "335cd9be7e06eae409cdfbfaecdfe7de7fe1525d",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
