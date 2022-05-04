@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f808a236_98e4981a",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 654,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-05-04T22:40:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1846674_00915ef4",
+      "range": {
+        "startLine": 654,
+        "startChar": 10,
+        "endLine": 654,
+        "endChar": 19
+      },
+      "revId": "524caf6fbdbc2b739b13f4e8f9743e3448675670",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f562da53_c021288a",
@@ -47,6 +71,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d79368e7_08a6f3a9",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-05-04T22:40:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f562da53_c021288a",
+      "range": {
+        "startLine": 674,
+        "startChar": 0,
+        "endLine": 674,
+        "endChar": 60
+      },
+      "revId": "524caf6fbdbc2b739b13f4e8f9743e3448675670",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91338d4b_9c298fd8",
@@ -60,6 +108,24 @@
       "writtenOn": "2022-05-04T14:13:40Z",
       "side": 1,
       "message": "In pass2_strategy, this is using index cpi-\u003etwopass_frame.stats_in. If I understand correctly, that would be stats_in_loop_index here (based on the comparison online 826 above). Can we verify that the correct index is being used here (and on line 826)?",
+      "revId": "524caf6fbdbc2b739b13f4e8f9743e3448675670",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef7b5750_735d264f",
+        "filename": "av1/ratectrl_qmode.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-05-04T22:40:24Z",
+      "side": 1,
+      "message": "Yep, stats_in_loop_index is a bit confusing here.\nIf you check calculate_gf_length(), there are two places modify stats_in.\n1) input_stats(), where we do ++p_frame-\u003estats_in;\n2) cpi-\u003etwopass_frame.stats_in \u003d start_pos + cur_last;\n\nWe did set stats_in_loop_index at 2) properly, but we didn\u0027t increment stats_in_loop_index after input_stats() is called at 1)\n\nI think order_index + i should be equivalent to stats_in_loop_index. (They might be off by one)\n\nSo let\u0027s remove stats_in_loop_index and see if this work in the test.",
+      "parentUuid": "91338d4b_9c298fd8",
       "revId": "524caf6fbdbc2b739b13f4e8f9743e3448675670",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
