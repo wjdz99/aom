@@ -2142,16 +2142,13 @@ static int obmc_diamond_search_sad(
   const int32_t *wsrc = ms_buffers->wsrc;
   const int32_t *mask = ms_buffers->obmc_mask;
   const struct buf_2d *const ref_buf = ms_buffers->ref;
-  // search_step determines the length of the initial step and hence the number
-  // of iterations
-  // 0 = initial step (MAX_FIRST_STEP) pel : 1 = (MAX_FIRST_STEP/2) pel, 2 =
-  // (MAX_FIRST_STEP/4) pel... etc.
 
-  const int tot_steps = MAX_MVSEARCH_STEPS - 1 - search_step;
+  // search_step determines the length of the initial step and hence the number
+  // of iterations.
+  const int tot_steps = cfg->num_search_steps - search_step;
   const uint8_t *best_address, *init_ref;
   int best_sad = INT_MAX;
   int best_site = 0;
-  int step;
 
   clamp_fullmv(&start_mv, &ms_params->mv_limits);
   best_address = init_ref = get_buf_from_fullmv(ref_buf, &start_mv);
@@ -2162,7 +2159,7 @@ static int obmc_diamond_search_sad(
   best_sad = fn_ptr->osdf(best_address, ref_buf->stride, wsrc, mask) +
              mvsad_err_cost_(best_mv, mv_cost_params);
 
-  for (step = tot_steps; step >= 0; --step) {
+  for (int step = tot_steps - 1; step >= 0; --step) {
     const search_site *const site = cfg->site[step];
     best_site = 0;
     for (int idx = 1; idx <= cfg->searches_per_step[step]; ++idx) {

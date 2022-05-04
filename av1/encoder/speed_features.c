@@ -906,7 +906,7 @@ static void set_good_speed_features_framesize_independent(
     sf->part_sf.ml_predict_breakout_level = use_hbd ? 2 : 3;
 
     sf->mv_sf.exhaustive_searches_thresh <<= 1;
-    sf->mv_sf.obmc_full_pixel_search_level = 1;
+    sf->mv_sf.obmc_full_pixel_search_level = 0;   // 1;
     sf->mv_sf.use_accurate_subpel_search = USE_4_TAPS;
     sf->mv_sf.disable_extensive_joint_motion_search = 1;
 
