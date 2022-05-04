@@ -16,6 +16,23 @@
       "message": "Hi Yunqing,\n\nIn this patch we have added a speed feature to prune compound reference frames. In speed 6, all compound reference frames except the closest reference frames to the current frame in the past and future direction are pruned. In speed 5, in addition to the closest reference frames, reference frames with minimum pred_mv_sad across past and future reference frames are not pruned. The results are as follows:\n\n               Instruction Count        BD-Rate Loss(%)       \ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr    ssim  \n 5     LOWRES2      2.873         0.1788     0.1996    0.1184\n 5     MIDRES2      2.689         0.0957     0.0712    0.0444\n 5      HDRES2      2.589         0.0457     0.0184   -0.0505\n 5     Average      2.717         0.1067     0.0964    0.0374\n\n 6     LOWRES2      3.732         0.3776     0.3823    0.2478\n 6     MIDRES2      3.661         0.2905     0.2933    0.1547\n 6      HDRES2      3.442         0.2334     0.2463    0.1413\n 6     Average      3.611         0.3005     0.3073    0.1812\n\nIn the BD-Rate Loss column:\n[+] sign is for BD-Rate loss\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using command:\n$ perf stat -e instructions:u ./aomenc\n\nPlease review the patch.\n\nThanks",
       "revId": "2dd4b191ccbe92a61fcbe8dd8f877f86efaa7494",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43711fea_615d0748",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-05-04T18:48:48Z",
+      "side": 1,
+      "message": "The code and the result look good. Thanks!",
+      "revId": "2dd4b191ccbe92a61fcbe8dd8f877f86efaa7494",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
