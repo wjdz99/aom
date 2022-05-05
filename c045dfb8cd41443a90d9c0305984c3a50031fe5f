@@ -156,6 +156,24 @@
       "parentUuid": "57c43961_09ee4a44",
       "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "def5f1bf_004eb859",
+        "filename": "av1/decoder/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-05T17:15:51Z",
+      "side": 1,
+      "message": "I think something like this should work:\n```\n  bool failed;\n  ...\n  pred_pos_luma \u003d (int **)aom_malloc(sizeof(*pred_pos_luma) * num_pos_luma);\n  if (!pred_pos_luma) {\n    dealloc_arrays(params, pred_pos_luma_p, pred_pos_chroma_p, luma_grain_block,\n                   cb_grain_block, cr_grain_block, y_line_buf, cb_line_buf,\n                   cr_line_buf, y_col_buf, cb_col_buf, cr_col_buf);\n    return false;\n  }\n  failed \u003d false;\n  for (int row \u003d 0; row \u003c num_pos_luma; row++) {\n    pred_pos_luma[row] \u003d (int *)aom_malloc(sizeof(**pred_pos_luma) * 3);\n    if (!pred_pos_luma[row]) failed \u003d true;\n  }\n  if (failed) {\n    dealloc_arrays(params, pred_pos_luma_p, pred_pos_chroma_p, luma_grain_block,\n                   cb_grain_block, cr_grain_block, y_line_buf, cb_line_buf,\n                   cr_line_buf, y_col_buf, cb_col_buf, cr_col_buf);\n    return false;\n  }\n```\n \nAnd in dealloc_arrays(), we do:\n \n```\n  if (*pred_pos_luma) {\n    for (int row \u003d 0; row \u003c num_pos_luma; row++) {\n      aom_free((*pred_pos_luma)[row]);\n    }\n    aom_free(*pred_pos_luma);\n    *pred_pos_luma \u003d NULL;\n  }\n```",
+      "parentUuid": "270351e0_e12c6e5b",
+      "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
