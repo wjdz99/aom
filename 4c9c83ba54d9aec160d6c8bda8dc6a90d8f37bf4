@@ -105,6 +105,24 @@
       "parentUuid": "f42632f0_5b335020",
       "revId": "4c9c83ba54d9aec160d6c8bda8dc6a90d8f37bf4",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e7cba20e_620bce26",
+        "filename": "aom_dsp/grain_table.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-05T19:11:24Z",
+      "side": 1,
+      "message": "\u003e \u003e Optional: We should add a comment to explain why it is safe to ignore the return value of this aom_film_grain_table_lookup() call.\n\u003e \n\u003e That\u0027s unrelated to this change. I\u0027ll send a follow up.\n\nhttps://aomedia-review.googlesource.com/c/aom/+/157721\nI\u0027ll rebase it after this lands.",
+      "parentUuid": "a99767ca_d226f78a",
+      "revId": "4c9c83ba54d9aec160d6c8bda8dc6a90d8f37bf4",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
