@@ -174,6 +174,24 @@
       "parentUuid": "270351e0_e12c6e5b",
       "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "264f42be_a509e12c",
+        "filename": "av1/decoder/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-05T19:18:53Z",
+      "side": 1,
+      "message": "\u003e I think something like this should work:\n\u003e ```\n\u003e   bool failed;\n\u003e   ...\n\u003e   pred_pos_luma \u003d (int **)aom_malloc(sizeof(*pred_pos_luma) * num_pos_luma);\n\u003e   if (!pred_pos_luma) {\n\u003e     dealloc_arrays(params, pred_pos_luma_p, pred_pos_chroma_p, luma_grain_block,\n\u003e                    cb_grain_block, cr_grain_block, y_line_buf, cb_line_buf,\n\u003e                    cr_line_buf, y_col_buf, cb_col_buf, cr_col_buf);\n\u003e     return false;\n\u003e   }\n\u003e   failed \u003d false;\n\u003e   for (int row \u003d 0; row \u003c num_pos_luma; row++) {\n\u003e     pred_pos_luma[row] \u003d (int *)aom_malloc(sizeof(**pred_pos_luma) * 3);\n\u003e     if (!pred_pos_luma[row]) failed \u003d true;\n\u003e   }\n\u003e   if (failed) {\n\u003e     dealloc_arrays(params, pred_pos_luma_p, pred_pos_chroma_p, luma_grain_block,\n\u003e                    cb_grain_block, cr_grain_block, y_line_buf, cb_line_buf,\n\u003e                    cr_line_buf, y_col_buf, cb_col_buf, cr_col_buf);\n\u003e     return false;\n\u003e   }\n\u003e ```\n\u003e  \n\u003e And in dealloc_arrays(), we do:\n\u003e  \n\u003e ```\n\u003e   if (*pred_pos_luma) {\n\u003e     for (int row \u003d 0; row \u003c num_pos_luma; row++) {\n\u003e       aom_free((*pred_pos_luma)[row]);\n\u003e     }\n\u003e     aom_free(*pred_pos_luma);\n\u003e     *pred_pos_luma \u003d NULL;\n\u003e   }\n\u003e ```\n\nI didn\u0027t look closely enough, something like this and an added calloc could work.",
+      "parentUuid": "def5f1bf_004eb859",
+      "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
