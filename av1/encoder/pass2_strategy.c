@@ -4193,10 +4193,9 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
 #endif
   }
 
-#if CONFIG_FRAME_PARALLEL_ENCODE
   // Update the frame probabilities obtained from parallel encode frames
   FrameProbInfo *const frame_probs = &cpi->ppi->frame_probs;
-#if CONFIG_FPMT_TEST
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
   /* The variable temp_active_best_quality is introduced only for quality
    * simulation purpose, it retains the value previous to the parallel
    * encode frames. The variable is updated based on the update flag.
@@ -4237,7 +4236,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
         for (j = TX_TYPES - 1; j >= 0; j--) {
           const int new_prob =
               cpi->frame_new_probs[loop].tx_type_probs[update_type][i][j];
-#if CONFIG_FPMT_TEST
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
           int prob =
               (temp_frame_probs_simulation->tx_type_probs[update_type][i][j] +
                new_prob) >>
@@ -4265,7 +4264,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
       for (i = 0; i < BLOCK_SIZES_ALL; i++) {
         const int new_prob =
             cpi->frame_new_probs[loop].obmc_probs[update_type][i];
-#if CONFIG_FPMT_TEST
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
         temp_frame_probs_simulation->obmc_probs[update_type][i] =
             (temp_frame_probs_simulation->obmc_probs[update_type][i] +
              new_prob) >>
@@ -4283,7 +4282,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
       const FRAME_UPDATE_TYPE update_type =
           get_frame_update_type(&cpi->ppi->gf_group, cpi->gf_frame_index);
       const int new_prob = cpi->frame_new_probs[loop].warped_probs[update_type];
-#if CONFIG_FPMT_TEST
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
       temp_frame_probs_simulation->warped_probs[update_type] =
           (temp_frame_probs_simulation->warped_probs[update_type] + new_prob) >>
           1;
@@ -4305,7 +4304,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
         for (j = SWITCHABLE_FILTERS - 1; j >= 0; j--) {
           const int new_prob = cpi->frame_new_probs[loop]
                                    .switchable_interp_probs[update_type][i][j];
-#if CONFIG_FPMT_TEST
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
           int prob = (temp_frame_probs_simulation
                           ->switchable_interp_probs[update_type][i][j] +
                       new_prob) >>
@@ -4328,7 +4327,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
     }
   }
 
-#if CONFIG_FPMT_TEST
+#if CONFIG_FRAME_PARALLEL_ENCODE && CONFIG_FPMT_TEST
   // Copying temp_frame_probs_simulation to temp_frame_probs based on
   // the flag
   if (cpi->do_frame_data_update &&
@@ -4358,6 +4357,7 @@ void av1_twopass_postencode_update(AV1_COMP *cpi) {
     }
   }
 #endif
+#if CONFIG_FRAME_PARALLEL_ENCODE
   // Update framerate obtained from parallel encode frames
   if (cpi->common.show_frame &&
       cpi->ppi->gf_group.frame_parallel_level[cpi->gf_frame_index] > 0)
