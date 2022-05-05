@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab0ba875_7c73ad7f",
+        "filename": "aom_dsp/grain_table.c",
+        "patchSetId": 4
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-05T16:54:46Z",
+      "side": 1,
+      "message": "A problem with returning 0 (false) here is that out-of-memory error is indistinguishable from \"not found\". I don\u0027t have a good solution. We can return -1 to indicate out-of-memory error, but we will need to update test/film_grain_table_test.cc to not use EXPECT_FALSE and EXPECT_TRUE with aom_film_grain_table_lookup().",
+      "revId": "a71a408a2e582acd2e69595f9c3676079ae04e83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
