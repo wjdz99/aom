@@ -16,6 +16,23 @@
       "message": "Hi Wan-Teh, Frank,\n\nWhile analyzing the intra predictor functions, it was observed that the ‘have_top_right’ and ‘have_bottom_left’ parameters were getting evaluated in av1_predict_intra_block() for all intra modes irrespective of whether these parameters are needed or not for building the intra predictors. This CL evaluates these parameters conditionally only when the same are required by the mode being evaluated.\n\nThis CL saves the instruction overheads which are incurred on calling has_top_right() and has_bottom_left() by pre-computing the prediction angle and conditionally invoking these functions only when required. This is a bit-exact change.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n\n      Instruction Count\n       / Encode Time  \nspeed    Reduction(%) \n  0        0.788\n  1        0.957\n  2        1.002\n  3        0.895\n  4        0.996\n  5        1.045\n  6        1.811\n  7        2.826\n  8        2.300\n  9        1.948  \n\nFor AVIF still-image encode with tune\u003dssim,\n\n      Instruction Count\n       / Encode Time  \nspeed    Reduction(%) \n  0        0.773\n  1        0.938\n  2        0.989\n  3        0.884\n  4        0.969\n  5        1.024\n  6        2.079\n  7        3.029\n  8        2.580\n  9        2.152 \n\nIn the above data, instruction count reduction is quoted for speed \u003c\u003d 5 and encode-time reduction is quoted for speed \u003e\u003d 6.\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n\n          Instruction Count     \ncpu-used    Reduction(%)\n    3          1.030\n    6          1.223\n    9          0.819\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations.\n\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./avifenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "425d3c15238045d865c13d9991a2edf56959fe7b",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e31b3234_56c82db0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-05T02:47:15Z",
+      "side": 1,
+      "message": "Angie: Could you help review this CL? Thanks.",
+      "revId": "425d3c15238045d865c13d9991a2edf56959fe7b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
