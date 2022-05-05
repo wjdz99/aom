@@ -228,6 +228,24 @@
       "parentUuid": "fcf62c5b_6337e9c5",
       "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d003e92b_507ac1f9",
+        "filename": "av1/decoder/grain_synthesis.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-05T23:36:40Z",
+      "side": 1,
+      "message": "\u003e Yes, allocating those two arrays with calloc is another solution. In addition, we could use goto statements to share the error return path.\n\nRight, since it was a single call I kept it more direct in this pass.",
+      "parentUuid": "f7227c2c_81907f55",
+      "revId": "c045dfb8cd41443a90d9c0305984c3a50031fe5f",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
