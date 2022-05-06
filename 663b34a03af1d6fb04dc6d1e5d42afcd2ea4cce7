@@ -16,6 +16,24 @@
       "message": "Hi Yunqing,\n\nThis CL adds additional levels to the “prune_winner_mode_eval_level” speed feature and the same sf is enabled for RT speed 6. As per our study, the winner mode processing is effective in the following scenarios.\n\na. Block not turns out to be transform skip during MODE_EVAL stage\nb. Best mode identified during MODE_EVAL stage is NEWMV\nc. Block coded with high quantizers\nd. Block with high source variance\n  \nThe existing speed levels 1 and 2 are already making use of scenarios ‘a’, ‘c’ and ‘d’ for skipping the winner mode processing. The newly added speed levels skip the winner mode processing by combining a few of them conditionally.\n\n1. For rtc set- (level \u003d 3): Disabled for blocks which turn out to be transform skip from MODE_EVAL stage and mode is not NEWMV. Pruning aggressiveness is adjusted based on the quantizer as follows\n- At high quantizers: Be conservative by considering the cases where transform skip is resulted due to the nature of eob alone.\n- At low quantizers: Be aggressive by considering the cases where transform skip is resulted due to eob or RD-cost evaluation.\n2. For rtc_derf set- (level \u003d 2): Disabled  by considering the cases where transform skip is resulted due to eob from MODE_EVAL stage.\n\nWe also reordered the sf level values based on aggressiveness. We also ensured bit-match output for ‘GOOD’ encoding mode and RT speed 5. This sf is not applicable for speeds \u003e\u003d 7, as winner mode evaluation is not applicable in non-rd path. \n\n         |            | Instruction Count |        BD-Rate Loss(%)       |\ncpu-used | Resolution |    Reduction(%)   | avg.psnr  ovr.psnr   ssim    |\n-------- | ---------- | ----------------- | --------  --------  -------- |\n   6     |  LOWRES2   |       3.851       |  0.0619    0.0672    0.0759  |\n   6     |  MIDRES2   |       5.380       |  0.3388    0.4181    0.3467  |\n   6     |   HDRES2   |       5.263       |  0.3197    0.2777    0.3168  |\n   6     |  Average   |       4.604       |  0.2178    0.2309    0.2252  |\n\nPlease find the details regarding the maximum BD-Rate drop contents (which are above 1.0%):\n1. three_scene_cut_180p   - 1.7330% with speed up of 3.9%\n2. mmstionaryvga  \t  - 1.2169% with speed up of 6.5%\n3. kirlandvga \t \t  - 1.1766% with speed up of 7.5%\n\nPlease review the patch and merge the same in case of no issues. We are planning to extend the same to RT speed 5, once this CL gets merged.\n\nThanks \u0026 Regards,\nVenkata.\n",
       "revId": "663b34a03af1d6fb04dc6d1e5d42afcd2ea4cce7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f062ed7_fd2f7f80",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-05-06T17:09:31Z",
+      "side": 1,
+      "message": "Hi Venkata, \n\nThanks for the optimization. I have few questions regarding the CL. Looks like this work extended a good quality mode sf to rtc (speed \u003e\u003d 6). Should the test be run on the 2 rtc sets? Also, looks like the 3 clips listed above are giving BD-Rate drop (namely, performs better), right? We may need to list the worst performed clips here. Regarding the added sf levels (i.e. 2 and 3), which one is more aggressive? Better to make sure the levels are ranked from the least aggressive one to the most aggressive one.",
+      "parentUuid": "7c304fd7_4100c5a2",
+      "revId": "663b34a03af1d6fb04dc6d1e5d42afcd2ea4cce7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
