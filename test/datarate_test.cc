@@ -315,7 +315,7 @@ TEST_P(DatarateTestLarge, BasicRateTargetingCBR) {
 }
 
 // Check basic rate targeting for CBR, with 4 threads
-TEST_P(DatarateTestLarge, BasicRateTargetingMTCBR) {
+TEST_P(DatarateTestLarge, BasicRateTargetingMultiThreadCBR) {
   BasicRateTargetingMTCBRTest();
 }
 
@@ -414,7 +414,7 @@ TEST_P(DatarateTestRealtime, BasicRateTargetingCBR) {
 }
 
 // Check basic rate targeting for CBR, with 4 threads
-TEST_P(DatarateTestRealtime, BasicRateTargetingMTCBR) {
+TEST_P(DatarateTestRealtime, BasicRateTargetingMultiThreadCBR) {
   BasicRateTargetingMTCBRTest();
 }
 

@@ -1684,12 +1684,12 @@ TEST_P(DatarateTestSVC, BasicRateTargetingFixedModeSVC3TL3SLHD) {
 
 // Check basic rate targeting for CBR, for 3 spatial, 3 temporal layers,
 // for 2 threads, 2 tile_columns, row-mt enabled.
-TEST_P(DatarateTestSVC, BasicRateTargetingSVC3TL3SLHDMT2) {
+TEST_P(DatarateTestSVC, BasicRateTargetingSVC3TL3SLHDMultiThread2) {
   BasicRateTargetingSVC3TL3SLHDMT2Test();
 }
 // Check basic rate targeting for CBR, for 3 spatial, 3 temporal layers,
 // for 4 threads, 4 tile_columns, row-mt enabled.
-TEST_P(DatarateTestSVC, BasicRateTargetingSVC3TL3SLHDMT4) {
+TEST_P(DatarateTestSVC, BasicRateTargetingSVC3TL3SLHDMultiThread4) {
   BasicRateTargetingSVC3TL3SLHDMT4Test();
 }
 
