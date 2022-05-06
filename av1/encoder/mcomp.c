@@ -437,7 +437,7 @@ void av1_init_motion_compensation_nstep(search_site_config *cfg, int stride,
   int stage_index = 0;
   cfg->stride = stride;
   int radius = 1;
-  const int num_stages = (level > 0) ? 16 : 15;
+  const int num_stages = (level > 0) ? 17 : 16;
   for (stage_index = 0; stage_index < num_stages; ++stage_index) {
     int tan_radius = AOMMAX((int)(0.41 * radius), 1);
     int num_search_pts = 12;
@@ -469,8 +469,7 @@ void av1_init_motion_compensation_nstep(search_site_config *cfg, int stride,
     cfg->searches_per_step[stage_index] = num_search_pts;
     cfg->radius[stage_index] = radius;
     ++num_search_steps;
-    if (stage_index < 12)
-      radius = (int)AOMMAX((radius * 1.5 + 0.5), radius + 1);
+    radius = (int)AOMMAX((radius * 1.5 + 0.5), radius + 1);
   }
   cfg->num_search_steps = num_search_steps;
 }
@@ -1663,8 +1662,8 @@ int av1_refining_search_8p_c(const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
 
 int av1_full_pixel_search(const FULLPEL_MV start_mv,
                           const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
-                          const int step_param, int *cost_list,
-                          FULLPEL_MV *best_mv, FULLPEL_MV *second_best_mv) {
+                          int step_param, int *cost_list, FULLPEL_MV *best_mv,
+                          FULLPEL_MV *second_best_mv) {
   const BLOCK_SIZE bsize = ms_params->bsize;
   const SEARCH_METHODS search_method = ms_params->search_method;
 
@@ -1685,6 +1684,12 @@ int av1_full_pixel_search(const FULLPEL_MV start_mv,
     cost_list[4] = INT_MAX;
   }
 
+  // NSTEP search was adjusted to ensure sufficient search ranges. The step_
+  // param for other search methods needs to be reduced to accommodate the
+  // change.
+  if (search_method != NSTEP && search_method != NSTEP_8PT) {
+    if (step_param > 0) step_param -= 1;
+  }
   switch (search_method) {
     case FAST_BIGDIA:
       var = fast_bigdia_search(start_mv, ms_params, step_param, 0, cost_list,

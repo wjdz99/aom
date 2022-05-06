@@ -26,8 +26,9 @@ extern "C" {
 // allowed initial step
 #define MAX_MVSEARCH_STEPS 11
 // Max full pel mv specified in the unit of full pixel
-// Enable the use of motion vector in range [-1023, 1023].
-#define MAX_FULL_PEL_VAL ((1 << (MAX_MVSEARCH_STEPS - 1)) - 1)
+// Enable the use of motion vector in range [-2047, 2047].
+#define MAX_FULL_PEL_VAL ((1 << MV_CLASSES) - 1)
+
 // Maximum size of the first step in full pel units
 #define MAX_FIRST_STEP (1 << (MAX_MVSEARCH_STEPS - 1))
 
@@ -311,8 +312,8 @@ int av1_refining_search_8p_c(const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
 
 int av1_full_pixel_search(const FULLPEL_MV start_mv,
                           const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,
-                          const int step_param, int *cost_list,
-                          FULLPEL_MV *best_mv, FULLPEL_MV *second_best_mv);
+                          int step_param, int *cost_list, FULLPEL_MV *best_mv,
+                          FULLPEL_MV *second_best_mv);
 
 int av1_intrabc_hash_search(const struct AV1_COMP *cpi, const MACROBLOCKD *xd,
                             const FULLPEL_MOTION_SEARCH_PARAMS *ms_params,

@@ -1138,7 +1138,7 @@ static void set_good_speed_features_framesize_independent(
   }
 
   if (speed >= 5) {
-    sf->fp_sf.reduce_mv_step_param = 4;
+    sf->fp_sf.reduce_mv_step_param = 3;
 
     sf->part_sf.simple_motion_search_prune_agg =
         allow_screen_content_tools ? SIMPLE_AGG_LVL0 : SIMPLE_AGG_LVL3;
@@ -1662,7 +1662,7 @@ static AOM_INLINE void init_hl_sf(HIGH_LEVEL_SPEED_FEATURES *hl_sf) {
 }
 
 static AOM_INLINE void init_fp_sf(FIRST_PASS_SPEED_FEATURES *fp_sf) {
-  fp_sf->reduce_mv_step_param = 3;
+  fp_sf->reduce_mv_step_param = 2;
   fp_sf->skip_motion_search_threshold = 0;
   fp_sf->disable_recon = 0;
   fp_sf->skip_zeromv_motion_search = 0;
