@@ -18,6 +18,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c009c35_a6288525",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-06T18:25:33Z",
+      "side": 1,
+      "message": "\u003e James: The current filter for the nightly ThreadSanitizer test is \u0027--gtest_filter\u003d*Thread*Large*:*FrameParallel*. So FrameParallel tests will be matched without this change.\n\u003e \n\u003e Are you planning to simplify the test filter to -gtest_filter\u003d*Thread*Large*?\n\nI forgot I added that and",
+      "parentUuid": "ef65c43e_fdb65242",
+      "revId": "2f52f66441219aa724b9c264b0289f3e9c5e7157",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f23a20c0_9caea97f",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-05-06T17:31:33Z",
       "side": 1,
       "message": "Nit/optional: Should we also rename functions like this to match the new test names?",
+      "revId": "2f52f66441219aa724b9c264b0289f3e9c5e7157",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13477249_1195eded",
+        "filename": "test/datarate_test.cc",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-06T18:25:33Z",
+      "side": 1,
+      "message": "\u003e Nit/optional: Should we also rename functions like this to match the new test names?\n\nI started with that too, let\u0027s do it for consistency",
+      "parentUuid": "f23a20c0_9caea97f",
       "revId": "2f52f66441219aa724b9c264b0289f3e9c5e7157",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
