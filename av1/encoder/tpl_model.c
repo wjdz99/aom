@@ -282,6 +282,7 @@ static uint32_t motion_estimation(AV1_COMP *cpi, MACROBLOCK *x,
   av1_set_mv_search_method(&full_ms_params, search_site_cfg,
                            tpl_sf->search_method);
 
+  // Can increase step_param by 1 or 2.
   av1_full_pixel_search(start_mv, &full_ms_params, step_param,
                         cond_cost_list(cpi, cost_list), &best_mv->as_fullmv,
                         NULL);

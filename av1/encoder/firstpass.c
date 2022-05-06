@@ -253,7 +253,7 @@ static int get_search_range(const InitialDimensions *initial_dimensions) {
   int sr = 0;
   const int dim = AOMMIN(initial_dimensions->width, initial_dimensions->height);
 
-  while ((dim << sr) < MAX_FULL_PEL_VAL) ++sr;
+  while ((dim << sr) < MAX_FIRST_STEP) ++sr;
   return sr;
 }
 

@@ -111,8 +111,10 @@ static void tf_motion_search(AV1_COMP *cpi, MACROBLOCK *mb,
   const SEARCH_METHODS search_method = NSTEP;
   const search_site_config *search_site_cfg =
       cpi->mv_search_params.search_site_cfg[SS_CFG_LOOKAHEAD];
+
+  // Increasing step_param by 1 or 2 helps lower final bitrates.
   const int step_param = av1_init_search_range(
-      AOMMAX(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height));
+      AOMMAX(frame_to_filter->y_crop_width, frame_to_filter->y_crop_height)) + 2;
   const SUBPEL_SEARCH_TYPE subpel_search_type = USE_8_TAPS;
   const int force_integer_mv = cpi->common.features.cur_frame_force_integer_mv;
   const MV_COST_TYPE mv_cost_type =
