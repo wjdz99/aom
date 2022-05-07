@@ -85,6 +85,23 @@
       "parentUuid": "de1ee6aa_1ee0b7dd",
       "revId": "875cfece10a97ef3697a5a7faef213a967f9d18a",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7ec4a0b_4d0b1571",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30347
+      },
+      "writtenOn": "2022-05-07T17:46:29Z",
+      "side": 1,
+      "message": "Comment removed by: James Zern; Reason: spam",
+      "revId": "875cfece10a97ef3697a5a7faef213a967f9d18a",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
