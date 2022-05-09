@@ -22,6 +22,30 @@
       },
       "revId": "06a1d6933f5ef2b0c3b30e557c8d25494bf083c2",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62b7b232_00b1065f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-05-09T13:43:28Z",
+      "side": 1,
+      "message": "Whoopsiee.... forgot to round up ;-)\n\nFor the speedtest numbers below, the old function was hacked in to replace the \"C\" timing.\n\n[ RUN      ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/0\nc_time \u003d 1122511 \t simd_time \u003d 980258 \t Gain \u003d 1.145118 \nc_time \u003d 1122140 \t simd_time \u003d 980235 \t Gain \u003d 1.144766 \nc_time \u003d 1122056 \t simd_time \u003d 980323 \t Gain \u003d 1.144578 \nc_time \u003d 1121837 \t simd_time \u003d 980242 \t Gain \u003d 1.144449 \nc_time \u003d 1122011 \t simd_time \u003d 980234 \t Gain \u003d 1.144636 \nc_time \u003d 1121907 \t simd_time \u003d 980137 \t Gain \u003d 1.144643 \nc_time \u003d 1121773 \t simd_time \u003d 980109 \t Gain \u003d 1.144539 \nc_time \u003d 1121706 \t simd_time \u003d 980088 \t Gain \u003d 1.144495 \nc_time \u003d 1121810 \t simd_time \u003d 980101 \t Gain \u003d 1.144586 \nc_time \u003d 1122026 \t simd_time \u003d 980095 \t Gain \u003d 1.144814 \nc_time \u003d 1121610 \t simd_time \u003d 980187 \t Gain \u003d 1.144282 \nc_time \u003d 1122012 \t simd_time \u003d 980108 \t Gain \u003d 1.144784 \nc_time \u003d 1121556 \t simd_time \u003d 980114 \t Gain \u003d 1.144312 \nc_time \u003d 1121528 \t simd_time \u003d 980205 \t Gain \u003d 1.144177 \nc_time \u003d 1121878 \t simd_time \u003d 980091 \t Gain \u003d 1.144667 \nc_time \u003d 1122002 \t simd_time \u003d 980086 \t Gain \u003d 1.144800 \nc_time \u003d 1121548 \t simd_time \u003d 980190 \t Gain \u003d 1.144215 \n[       OK ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/0 (35735 ms)\n[ RUN      ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/1\nc_time \u003d 292775 \t simd_time \u003d 260330 \t Gain \u003d 1.124630 \nc_time \u003d 292793 \t simd_time \u003d 260346 \t Gain \u003d 1.124630 \nc_time \u003d 292695 \t simd_time \u003d 260339 \t Gain \u003d 1.124284 \nc_time \u003d 292794 \t simd_time \u003d 260161 \t Gain \u003d 1.125434 \nc_time \u003d 292670 \t simd_time \u003d 260316 \t Gain \u003d 1.124287 \nc_time \u003d 292780 \t simd_time \u003d 260313 \t Gain \u003d 1.124723 \nc_time \u003d 292731 \t simd_time \u003d 260336 \t Gain \u003d 1.124435 \nc_time \u003d 292727 \t simd_time \u003d 260319 \t Gain \u003d 1.124493 \nc_time \u003d 292736 \t simd_time \u003d 260335 \t Gain \u003d 1.124459 \nc_time \u003d 292859 \t simd_time \u003d 260330 \t Gain \u003d 1.124953 \nc_time \u003d 292799 \t simd_time \u003d 260344 \t Gain \u003d 1.124662 \nc_time \u003d 292740 \t simd_time \u003d 260306 \t Gain \u003d 1.124599 \nc_time \u003d 292798 \t simd_time \u003d 260335 \t Gain \u003d 1.124697 \nc_time \u003d 292703 \t simd_time \u003d 260327 \t Gain \u003d 1.124367 \nc_time \u003d 292753 \t simd_time \u003d 260337 \t Gain \u003d 1.124516 \nc_time \u003d 292747 \t simd_time \u003d 260327 \t Gain \u003d 1.124536 \nc_time \u003d 292746 \t simd_time \u003d 260331 \t Gain \u003d 1.124515 \n[       OK ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/1 (9402 ms)\n[ RUN      ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/2\nc_time \u003d 292799 \t simd_time \u003d 260352 \t Gain \u003d 1.124627 \nc_time \u003d 292783 \t simd_time \u003d 260323 \t Gain \u003d 1.124691 \nc_time \u003d 292757 \t simd_time \u003d 260433 \t Gain \u003d 1.124116 \nc_time \u003d 292752 \t simd_time \u003d 260333 \t Gain \u003d 1.124529 \nc_time \u003d 292771 \t simd_time \u003d 260331 \t Gain \u003d 1.124611 \n[       OK ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/2 (2765 ms)\n[ RUN      ] NEON/FullPrecisionQuantizeTest.DISABLED_Speed/3\nc_time \u003d 1122175 \t simd_time \u003d 980148 \t Gain \u003d 1.144904 \nc_time \u003d 1121596 \t simd_time \u003d 980109 \t Gain \u003d 1.144358 \nc_time \u003d 1122042 \t simd_time \u003d 980105 \t Gain \u003d 1.144818",
+      "parentUuid": "6d1a1012_97f36899",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 18
+      },
+      "revId": "06a1d6933f5ef2b0c3b30e557c8d25494bf083c2",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
