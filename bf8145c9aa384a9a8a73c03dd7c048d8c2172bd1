@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f6a660f_12298f51",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9611
+      },
+      "writtenOn": "2022-05-09T11:22:01Z",
+      "side": 1,
+      "message": "Hi Yunqing,\n\nThe performance numbers mentioned in the review message are actually for RTC test contents, but reported resolution-wise. Please find testset-wise results as below\n\n               Instruction Count        BD-Rate Loss(%)\ncpu Resolution   Reduction(%)    avg.psnr   ovr.psnr   ssim\n 6         rtc     5.318         0.3292     0.3479     0.3318\n 6    rtc_derf     3.851         0.0619     0.0672     0.0759\n 6     Average     4.604         0.2178     0.2309     0.2252\n \nAlso, as per your suggestion, we have added the list of contents with worst case quality drop to the commit message.\nThe speed feature levels are ordered as per aggressiveness of pruning (1 - less aggressive, 4 - more aggressive) and the same information is updated in the code.\n\nThanks \u0026 Regards,\nVenkata.",
+      "revId": "bf8145c9aa384a9a8a73c03dd7c048d8c2172bd1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
