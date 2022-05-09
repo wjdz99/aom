@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "042428c5_212a9cdf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-09T14:30:09Z",
+      "side": 1,
+      "message": "Hi Wan-Teh, Frank,\n\nThis CL introduces the speed feature vbp_prune_16x16_split_using_min_max_sub_blk_var in var based partitioning to choose between SPLIT or NONE partitioning based on the minimum and maximum of sub-block variances in a block. This sf is currently enabled only for bsize 16X16.\n\nThis CL achieves the speedup by avoiding the cases where SPLIT partition was evaluated previously for bsize 16X16. With this logic, only the cases which satisfy the min-max variance thresholding condition will be chosen for SPLIT partition evaluation and the rest will be forced to NONE partition. We are observing an encode-time reduction as a fraction of the SPLIT decisions in the parent version are converted to NONE decisions with this logic.\n\nWe are also observing a quality improvement with this change. We feel this could be attributed to the usage of sub-block variances which seems to result in better partition decisions.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n                  Encode Time     BD-Rate Loss(%)      \n       speed      Reduction(%)    psnr      ssim\n         9           8.436       -0.7805   -0.4677\n\nFor AVIF still image encode with tune\u003dssim,\n                  Encode Time     BD-Rate Loss(%)      \n       speed      Reduction(%)    psnr      ssim\n         9           8.863       -1.2751   -1.4181\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n               Instruction Count        BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  ovr.psnr   ssim\n         9          5.392         -1.4376   -0.8629   -1.4339\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
