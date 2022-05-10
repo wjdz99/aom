@@ -16,6 +16,189 @@
       "message": "Hi Wan-Teh, Frank,\n\nThis CL introduces the speed feature vbp_prune_16x16_split_using_min_max_sub_blk_var in var based partitioning to choose between SPLIT or NONE partitioning based on the minimum and maximum of sub-block variances in a block. This sf is currently enabled only for bsize 16X16.\n\nThis CL achieves the speedup by avoiding the cases where SPLIT partition was evaluated previously for bsize 16X16. With this logic, only the cases which satisfy the min-max variance thresholding condition will be chosen for SPLIT partition evaluation and the rest will be forced to NONE partition. We are observing an encode-time reduction as a fraction of the SPLIT decisions in the parent version are converted to NONE decisions with this logic.\n\nWe are also observing a quality improvement with this change. We feel this could be attributed to the usage of sub-block variances which seems to result in better partition decisions.\n\nFor AVIF still-image encode with tune\u003dpsnr,\n                  Encode Time     BD-Rate Loss(%)      \n       speed      Reduction(%)    psnr      ssim\n         9           8.436       -0.7805   -0.4677\n\nFor AVIF still image encode with tune\u003dssim,\n                  Encode Time     BD-Rate Loss(%)      \n       speed      Reduction(%)    psnr      ssim\n         9           8.863       -1.2751   -1.4181\n\nFollowing are the instruction count reduction results when libaom allintra frame encoding (50 frames) was tested for a borg setup. \n               Instruction Count        BD-Rate Loss(%)      \n     cpu-used    Reduction(%)     avg.psnr  ovr.psnr   ssim\n         9          5.392         -1.4376   -0.8629   -1.4339\n\nFor libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027 and \u0027RT\u0027 encoding modes for a few contents with different encoding configurations.\n\nIn the commit message, BD rate impact column:\n[+] sign is for BD-Rate drop\n[-] sign is for BD-Rate improvement\nThe instruction count reduction specified has been measured using the command:\n$ perf stat -e instructions:u ./aomenc …\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6c94206_7cd3734c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "This CL looks good. I suggest some small changes and have some questions.",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8ad2f4c_093069b6",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "Nit: The \"vbp\" in this field\u0027s name does not seem to be a common abbreviation. So please introduce this abbreviation in this sentence, e.g.,\n\n  // Avoid the partitioning of a 16x16 block in variance based partitioning (VBP) by",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "063d72d8_57a07a2a",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1508,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "Nit: No need to abbreviate \"speed feature\" in comments. (Two occurrences, in this line and in line 1510).",
+      "range": {
+        "startLine": 1508,
+        "startChar": 31,
+        "endLine": 1508,
+        "endChar": 33
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8300aaec_daf5cf74",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1512,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "Please use the \u0027bool\u0027 type (see line 1504 above for an example) because this field is used as a boolean.",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85846e68_72e29466",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "Nit: Rename this PART_EVAL_CHOOSE_NONE?",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51e67257_9e0edfa4",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "Nit/optional: This \"const\" can be omitted. It means the function does not modify vtemp. The function also does not modify threshold16, but we don\u0027t declare threadhold16 as const.",
+      "range": {
+        "startLine": 1114,
+        "startChar": 44,
+        "endLine": 1114,
+        "endChar": 49
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c6b6821_efc9a5e0",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "Nit: \"vtemp\" is not a descriptive parameter name.",
+      "range": {
+        "startLine": 1114,
+        "startChar": 50,
+        "endLine": 1114,
+        "endChar": 55
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c4fe68a_65e93c68",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1125,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "Nit: Why do we multiply threshold16 by 4 here? Is it because the for loop at line 1116 has 4 iterations? It would be good to add a comment.",
+      "range": {
+        "startLine": 1125,
+        "startChar": 41,
+        "endLine": 1125,
+        "endChar": 57
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8150f83_9c486556",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T23:14:27Z",
+      "side": 1,
+      "message": "I am curious why vbp_prune_16x16_split_using_min_max_sub_blk_var does not apply to these three force_split[] array elements.",
+      "range": {
+        "startLine": 1311,
+        "startChar": 0,
+        "endLine": 1313,
+        "endChar": 42
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
