@@ -16,6 +16,63 @@
       "message": "Hi Wan-Teh, Frank,\n\nIn var based partitioning code, the variable force_split is used to indicate whether to split a partition or to choose from none, rectangular and split partitions. This CL enumerates the possible states for this variable in order to facilitate the addition of new states.\n\nThis is a bit-exact change and is verified to have no impact on encode time or on the coding performance. For libaom AV1 video encode, bit-match is verified (w.r.t. parent commit) for \u0027GOOD\u0027, \u0027RT\u0027 and \u0027ALLINTRA\u0027 encoding modes for a few contents with different encoding configurations.\n\nPlease review.\n\nRegards,\nJayasanker.",
       "revId": "5f6461630da96e3831fb196b095468b26d4877cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3c83910_c95bfbea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T22:45:57Z",
+      "side": 1,
+      "message": "This CL looks good. My only suggestion is to name the two enum values to suggest they belong to the PART_EVAL_STATUS enum type.",
+      "revId": "5f6461630da96e3831fb196b095468b26d4877cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8463094b_de4db7cb",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T22:45:57Z",
+      "side": 1,
+      "message": "Nit: \"states\" implies the variable transitions between these states as in a finite-state machine. If a PART_EVAL_STATUS variable is typically assigned only one value, then it might be less confusing to refer to these as \"values\".\n\nIf you change this word, please make the same change to the commit message.",
+      "range": {
+        "startLine": 35,
+        "startChar": 12,
+        "endLine": 35,
+        "endChar": 18
+      },
+      "revId": "5f6461630da96e3831fb196b095468b26d4877cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba07643f_fb2b12f9",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-10T22:45:57Z",
+      "side": 1,
+      "message": "Nit: It would be better for these enum names to suggest they are values of the enum type PART_EVAL_STATUS. A common way is to use the enum type name as the prefix. For example, these enums can be named PART_EVAL_xxx.\n\nSo CHOOSE_SPLIT can be renamed PART_EVAL_CHOOSE_SPLIT. I am not sure how to rename EVAL_NONE_RECT_SPLIT.",
+      "revId": "5f6461630da96e3831fb196b095468b26d4877cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
