@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37954e81_8db565ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-10T00:40:42Z",
+      "side": 1,
+      "message": "Alternative suggestions welcome. The issue is due to line 561-601:\nhttps://cs.android.com/android/kernel/superproject/+/common-android-mainline:prebuilts/ndk-r23/build/cmake/android-legacy.toolchain.cmake\n\nI was wondering why I didn\u0027t see Wshorten-64-to-32 when trying to reproduce a warning that Wan-Teh noticed on macOS.",
+      "revId": "bff6ad3b1ea5652b248c621347ff8efb4ef8807b",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}
