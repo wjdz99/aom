@@ -24,6 +24,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d28a90fc_33a70884",
+        "filename": "av1/encoder/arm/neon/quantize_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-05-10T21:06:39Z",
+      "side": 1,
+      "message": "The disassembly is the same with either intrinsic.",
+      "parentUuid": "3a17236e_879b4dc8",
+      "range": {
+        "startLine": 157,
+        "startChar": 12,
+        "endLine": 157,
+        "endChar": 26
+      },
+      "revId": "720119452740ae46166e2da7368d5bedd173a419",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d839b024_e17a4da9",
@@ -37,6 +61,30 @@
       "writtenOn": "2022-05-10T20:22:48Z",
       "side": 1,
       "message": "!\u003d or is there an underflow (that\u0027s safe)?",
+      "range": {
+        "startLine": 172,
+        "startChar": 17,
+        "endLine": 172,
+        "endChar": 18
+      },
+      "revId": "720119452740ae46166e2da7368d5bedd173a419",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc4ade82_688014e0",
+        "filename": "av1/encoder/arm/neon/quantize_neon.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8471
+      },
+      "writtenOn": "2022-05-10T21:06:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d839b024_e17a4da9",
       "range": {
         "startLine": 172,
         "startChar": 17,
