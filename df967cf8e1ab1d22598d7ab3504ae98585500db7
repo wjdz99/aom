@@ -70,6 +70,30 @@
       },
       "revId": "df967cf8e1ab1d22598d7ab3504ae98585500db7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7cbfb0f5_975b0cc9",
+        "filename": "av1/encoder/pass2_strategy.c",
+        "patchSetId": 5
+      },
+      "lineNbr": 3834,
+      "author": {
+        "id": 5250
+      },
+      "writtenOn": "2022-05-11T03:46:14Z",
+      "side": 1,
+      "message": "Yep, this section is using TPL stats to modify gop length.\nYou can definitely comment this out.",
+      "parentUuid": "745122eb_509d41f6",
+      "range": {
+        "startLine": 3834,
+        "startChar": 0,
+        "endLine": 3834,
+        "endChar": 6
+      },
+      "revId": "df967cf8e1ab1d22598d7ab3504ae98585500db7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
