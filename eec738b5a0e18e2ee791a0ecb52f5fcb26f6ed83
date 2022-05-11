@@ -52,6 +52,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52c0a271_3f0fb27a",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8ad2f4c_093069b6",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "063d72d8_57a07a2a",
@@ -65,6 +83,30 @@
       "writtenOn": "2022-05-10T23:14:27Z",
       "side": 1,
       "message": "Nit: No need to abbreviate \"speed feature\" in comments. (Two occurrences, in this line and in line 1510).",
+      "range": {
+        "startLine": 1508,
+        "startChar": 31,
+        "endLine": 1508,
+        "endChar": 33
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ff2c640_80de639b",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1508,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "063d72d8_57a07a2a",
       "range": {
         "startLine": 1508,
         "startChar": 31,
@@ -92,6 +134,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0f16906_118ac9ad",
+        "filename": "av1/encoder/speed_features.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 1512,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8300aaec_daf5cf74",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85846e68_72e29466",
@@ -105,6 +165,24 @@
       "writtenOn": "2022-05-10T23:14:27Z",
       "side": 1,
       "message": "Nit: Rename this PART_EVAL_CHOOSE_NONE?",
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d549c15f_c4413a6e",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "Ack. Renamed this as PART_EVAL_ONLY_NONE.",
+      "parentUuid": "85846e68_72e29466",
       "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
@@ -155,6 +233,54 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d39c07a_977f6207",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "Done. Replaced \"vtemp\" by \"var_16x16_ptr\".",
+      "parentUuid": "0c6b6821_efc9a5e0",
+      "range": {
+        "startLine": 1114,
+        "startChar": 50,
+        "endLine": 1114,
+        "endChar": 55
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24bd6254_0d5d90f3",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51e67257_9e0edfa4",
+      "range": {
+        "startLine": 1114,
+        "startChar": 44,
+        "endLine": 1114,
+        "endChar": 49
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5c4fe68a_65e93c68",
@@ -178,6 +304,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be93233c_21966a24",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1125,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "Ack. The variable threshold16 is obtained from the structure VarBasedPartitionInfo whereas the shift parameter has been derived empirically. We have added this to the comment.",
+      "parentUuid": "5c4fe68a_65e93c68",
+      "range": {
+        "startLine": 1125,
+        "startChar": 41,
+        "endLine": 1125,
+        "endChar": 57
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8150f83_9c486556",
@@ -191,6 +341,30 @@
       "writtenOn": "2022-05-10T23:14:27Z",
       "side": 1,
       "message": "I am curious why vbp_prune_16x16_split_using_min_max_sub_blk_var does not apply to these three force_split[] array elements.",
+      "range": {
+        "startLine": 1311,
+        "startChar": 0,
+        "endLine": 1313,
+        "endChar": 42
+      },
+      "revId": "eec738b5a0e18e2ee791a0ecb52f5fcb26f6ed83",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c95ddc3_48e438c0",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 1313,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:41:40Z",
+      "side": 1,
+      "message": "As per our understanding, the highlighted array elements correspond to the force_split decision at 32X32, 64X64 and 128X128 block levels. Since the scope of this optimization is localized to 16X16 blocks, only the force_split decision for the corresponding \"split_index\" is modified.",
+      "parentUuid": "a8150f83_9c486556",
       "range": {
         "startLine": 1311,
         "startChar": 0,
