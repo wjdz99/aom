@@ -64,9 +64,8 @@ SIMD_INLINE c_v128 c_v128_from_32(uint32_t a, uint32_t b, uint32_t c,
 SIMD_INLINE c_v128 c_v128_load_unaligned(const void *p) {
   c_v128 t;
   uint8_t *pp = (uint8_t *)p;
-  uint8_t *q = (uint8_t *)&t;
   int c;
-  for (c = 0; c < 16; c++) q[c] = pp[c];
+  for (c = 0; c < 16; c++) t.u8[c] = pp[c];
   return t;
 }
 
