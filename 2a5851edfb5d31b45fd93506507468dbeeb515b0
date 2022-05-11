@@ -39,6 +39,30 @@
       },
       "revId": "2a5851edfb5d31b45fd93506507468dbeeb515b0",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75ba89df_aee0988a",
+        "filename": "aom_dsp/grain_table.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2022-05-11T00:17:29Z",
+      "side": 1,
+      "message": "\u003e May be a bit more precise:\n\u003e \n\u003e   Ignoring the return value here is safe since we\u0027re erasing from the beginning of subsequent entries.\n\u003e \n\u003e Since it is impossible to need to split more than one entry, which causes a malloc, and we would have already handled that case above.\n\nDone. thanks for the suggestion.",
+      "parentUuid": "cc8a9b87_d8b62186",
+      "range": {
+        "startLine": 263,
+        "startChar": 11,
+        "endLine": 263,
+        "endChar": 19
+      },
+      "revId": "2a5851edfb5d31b45fd93506507468dbeeb515b0",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
