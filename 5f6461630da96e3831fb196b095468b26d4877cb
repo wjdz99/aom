@@ -58,6 +58,30 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba2402be_4a477c2a",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:39:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8463094b_de4db7cb",
+      "range": {
+        "startLine": 35,
+        "startChar": 12,
+        "endLine": 35,
+        "endChar": 18
+      },
+      "revId": "5f6461630da96e3831fb196b095468b26d4877cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ba07643f_fb2b12f9",
@@ -71,6 +95,24 @@
       "writtenOn": "2022-05-10T22:45:57Z",
       "side": 1,
       "message": "Nit: It would be better for these enum names to suggest they are values of the enum type PART_EVAL_STATUS. A common way is to use the enum type name as the prefix. For example, these enums can be named PART_EVAL_xxx.\n\nSo CHOOSE_SPLIT can be renamed PART_EVAL_CHOOSE_SPLIT. I am not sure how to rename EVAL_NONE_RECT_SPLIT.",
+      "revId": "5f6461630da96e3831fb196b095468b26d4877cb",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c06d5639_f826c534",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 14993
+      },
+      "writtenOn": "2022-05-11T14:39:25Z",
+      "side": 1,
+      "message": "Ack. We felt it would be better to rename these as PART_EVAL_ALL and PART_EVAL_ONLY_SPLIT.",
+      "parentUuid": "ba07643f_fb2b12f9",
       "revId": "5f6461630da96e3831fb196b095468b26d4877cb",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
