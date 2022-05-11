@@ -82,14 +82,20 @@ struct lookahead_ctx *av1_lookahead_init(
       if (aom_realloc_frame_buffer(
               &ctx->buf[i].img, width, height, subsampling_x, subsampling_y,
               use_highbitdepth, border_in_pixels, byte_alignment, NULL, NULL,
-              NULL, enable_global_motion, 0))
+              NULL, enable_global_motion, 0)) {
         goto fail;
+      }
     }
   }
   return ctx;
 fail:
   av1_lookahead_destroy(ctx);
   return NULL;
+}
+
+int av1_lookahead_full(const struct lookahead_ctx *ctx) {
+  // TODO(angiebird): Why do we need +1 here?
+  return ctx->push_frame_count + 1 > ctx->max_sz;
 }
 
 int av1_lookahead_push(struct lookahead_ctx *ctx, const YV12_BUFFER_CONFIG *src,
