@@ -16,6 +16,29 @@
       "message": "With that section commented out as I said in [1]https://aomedia-review.googlesource.com/c/aom/+/156841\n\nThis test *almost* passes...\n\nThe ground truth with [1] is\n{21, 9, 30, 30, 30, 21, 9, 30, 12, 16, 2, 30, 10}\nThe rc library generates\n{21, 9, 30, 30, 30, 21, 9, 30, 12, 15, 3, 30}\n\n[1]https://aomedia-review.googlesource.com/c/aom/+/156841",
       "revId": "bd9b2537c35679cc76b18375248f9985d1322ec6",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4ec8b9d_de67a5ec",
+        "filename": "test/ratectrl_qmode_test.cc",
+        "patchSetId": 2
+      },
+      "lineNbr": 772,
+      "author": {
+        "id": 10298
+      },
+      "writtenOn": "2022-05-11T18:10:35Z",
+      "side": 1,
+      "message": "Instead of using std::transform, you could just do this:\n EXPECT_THAT(gop_list, Field(\u0026GopStruct::show_frame_count,\n               ElementsAre(21, 9, ...)));",
+      "range": {
+        "startLine": 772,
+        "startChar": 14,
+        "endLine": 772,
+        "endChar": 31
+      },
+      "revId": "bd9b2537c35679cc76b18375248f9985d1322ec6",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
