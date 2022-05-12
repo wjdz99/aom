@@ -16,6 +16,46 @@
       "message": "Please review.",
       "revId": "1a435f360e75a496bb3825c99951fbab6c47c7f1",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "faeaba25_fa77975c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-12T20:24:48Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "1a435f360e75a496bb3825c99951fbab6c47c7f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "829c8304_ff40bf17",
+        "filename": "av1/encoder/var_based_part.c",
+        "patchSetId": 2
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-12T20:24:48Z",
+      "side": 1,
+      "message": "Nit/optional: We usually omit \"_ptr\" in pointer variable/parameter names. I am just wondering if we can omit \"_ptr\" here.",
+      "range": {
+        "startLine": 1114,
+        "startChar": 13,
+        "endLine": 1114,
+        "endChar": 26
+      },
+      "revId": "1a435f360e75a496bb3825c99951fbab6c47c7f1",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
