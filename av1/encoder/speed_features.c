@@ -1281,7 +1281,7 @@ static void set_rt_speed_feature_framesize_dependent(const AV1_COMP *const cpi,
   }
   if (!is_480p_or_larger) {
     if (speed == 7) {
-      sf->rt_sf.nonrd_check_partition_merge_mode = 2;
+      // sf->rt_sf.nonrd_check_partition_merge_mode = 2;
     }
     if (speed >= 8) {
       sf->mv_sf.subpel_search_method = SUBPEL_TREE;
@@ -1590,7 +1590,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.use_nonrd_altref_frame =
         (cpi->svc.number_spatial_layers > 1) ? 0 : 1;
     sf->rt_sf.use_nonrd_pick_mode = 1;
-    sf->rt_sf.nonrd_check_partition_merge_mode = 3;
+    // sf->rt_sf.nonrd_check_partition_merge_mode = 3;
     sf->rt_sf.skip_intra_pred = 1;
     sf->rt_sf.source_metrics_sb_nonrd = 1;
     // For SVC: use better mv search on base temporal layers, and only
@@ -1617,6 +1617,7 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
 
     sf->winner_mode_sf.dc_blk_pred_level = 0;
     sf->rt_sf.var_part_based_on_qidx = 3;
+    sf->rt_sf.partition_direct_merging = 1;
   }
 
   if (speed >= 8) {
@@ -1626,11 +1627,10 @@ static void set_rt_speed_features_framesize_independent(AV1_COMP *cpi,
     sf->rt_sf.short_circuit_low_temp_var = 1;
     sf->rt_sf.use_nonrd_altref_frame = 0;
     sf->rt_sf.nonrd_prune_ref_frame_search = 2;
-    sf->rt_sf.nonrd_check_partition_merge_mode = 0;
+    // sf->rt_sf.nonrd_check_partition_merge_mode = 0;
     sf->rt_sf.var_part_split_threshold_shift = 8;
     sf->interp_sf.cb_pred_filter_search = 1;
     sf->rt_sf.var_part_based_on_qidx = 4;
-    sf->rt_sf.partition_direct_merging = 1;
   }
   if (speed >= 9) {
     sf->rt_sf.sse_early_term_inter_search = EARLY_TERM_IDX_3;
