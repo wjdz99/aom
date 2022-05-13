@@ -2524,6 +2524,13 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
   const int pl = (bsize >= BLOCK_8X8)
                      ? partition_plane_context(xd, mi_row, mi_col, bsize)
                      : 0;
+  const int partition_direct_merging =
+      !frame_is_intra_only(cm) && !tile_data->allow_update_cdf &&
+      cpi->sf.rt_sf.partition_direct_merging &&
+      mode_costs->partition_cost[pl][PARTITION_NONE] <
+          mode_costs->partition_cost[pl][partition] &&
+      (mi_row + bs <= mi_params->mi_rows) &&
+      (mi_col + bs <= mi_params->mi_cols);
 
   RD_STATS dummy_cost;
   av1_invalid_rd_stats(&dummy_cost);
@@ -2636,6 +2643,11 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         encode_b_nonrd(cpi, tile_data, td, tp, mi_row, mi_col + hbs, 0, subsize,
                        PARTITION_VERT, pc_tree->vertical[1], NULL);
       }
+
+      if (partition_direct_merging)
+        direct_partition_merging(cpi, td, tile_data, mib, mi_row, mi_col,
+                                 bsize);
+
       break;
     case PARTITION_HORZ:
       for (int i = 0; i < SUB_PARTITIONS_RECT; ++i) {
@@ -2657,6 +2669,11 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
         encode_b_nonrd(cpi, tile_data, td, tp, mi_row + hbs, mi_col, 0, subsize,
                        PARTITION_HORZ, pc_tree->horizontal[1], NULL);
       }
+
+      if (partition_direct_merging)
+        direct_partition_merging(cpi, td, tile_data, mib, mi_row, mi_col,
+                                 bsize);
+
       break;
     case PARTITION_SPLIT:
       for (int i = 0; i < SUB_PARTITIONS_SPLIT; ++i) {
@@ -2783,18 +2800,12 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
               mi_row + y_idx, mi_col + x_idx, subsize, pc_tree->split[i]);
         }
 
-        // TODO(yunqing): Add this to PARTITION_HORZ and PARTITION_VERT. Make
-        // this work with nonrd_check_partition_merge_mode feature.
+        // TODO(yunqing): Make this work with nonrd_check_partition_merge_mode
+        // feature.
         // Note: Palette, cfl are not supported.
-        if (!frame_is_intra_only(cm) && !tile_data->allow_update_cdf &&
-            cpi->sf.rt_sf.partition_direct_merging &&
-            mode_costs->partition_cost[pl][PARTITION_NONE] <
-                mode_costs->partition_cost[pl][PARTITION_SPLIT] &&
-            (mi_row + bs <= mi_params->mi_rows) &&
-            (mi_col + bs <= mi_params->mi_cols)) {
+        if (partition_direct_merging)
           direct_partition_merging(cpi, td, tile_data, mib, mi_row, mi_col,
                                    bsize);
-        }
       }
       break;
     case PARTITION_VERT_A:
