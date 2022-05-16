@@ -537,6 +537,15 @@ static void set_allintra_speed_features_framesize_independent(
     sf->rt_sf.hybrid_intra_pickmode = 0;
     sf->rt_sf.var_part_split_threshold_shift = 9;
   }
+
+  // As the speed feature prune_chroma_modes_using_luma_winner already
+  // constrains the number of chroma directional mode evaluations to a maximum
+  // of 1, the HOG computation and the associated pruning logic does not seem to
+  // help speed-up the chroma mode evaluations. Hence disable the speed feature
+  // chroma_intra_pruning_with_hog when prune_chroma_modes_using_luma_winner is
+  // enabled.
+  if (sf->intra_sf.prune_chroma_modes_using_luma_winner)
+    sf->intra_sf.chroma_intra_pruning_with_hog = 0;
 }
 
 static void set_good_speed_feature_framesize_dependent(
