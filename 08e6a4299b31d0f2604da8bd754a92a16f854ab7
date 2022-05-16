@@ -16,6 +16,24 @@
       "message": "Hi Yunqing, \n\nThis patch fixes the memory leak in CDEF multi-threading. The issue arises when the number of workers change. We have corrected the de-allocation of CDEF buffers to be based on number of allocated workers. Also, we have taken care of freeing of \u0027*cdef_worker\u0027 and \u0027free_cdef_row_sync()\u0027 when the number of workers change. \n\nPlease review.\n\nThanks",
       "revId": "08e6a4299b31d0f2604da8bd754a92a16f854ab7",
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b3195d4_a55bc510",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5185
+      },
+      "writtenOn": "2022-05-16T19:43:28Z",
+      "side": 1,
+      "message": "Thanks Deepa for fixing it! Looks good to me.",
+      "parentUuid": "a1e753b6_49633089",
+      "revId": "08e6a4299b31d0f2604da8bd754a92a16f854ab7",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     }
   ]
 }
