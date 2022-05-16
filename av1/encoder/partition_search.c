@@ -2790,8 +2790,8 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
             cpi->sf.rt_sf.partition_direct_merging &&
             mode_costs->partition_cost[pl][PARTITION_NONE] <
                 mode_costs->partition_cost[pl][PARTITION_SPLIT] &&
-            (mi_row + bs <= mi_params->mi_rows) &&
-            (mi_col + bs <= mi_params->mi_cols)) {
+            (mi_row + hbs < mi_params->mi_rows) &&
+            (mi_col + hbs < mi_params->mi_cols)) {
           direct_partition_merging(cpi, td, tile_data, mib, mi_row, mi_col,
                                    bsize);
         }
