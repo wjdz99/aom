@@ -1020,7 +1020,8 @@ aom_fixed_buf_t *aom_codec_get_global_headers(aom_codec_ctx_t *ctx);
  * called with img set to NULL and aom_codec_get_cx_data() returns no data.
  *
  * \param[in]    ctx       Pointer to this instance's context
- * \param[in]    img       Image data to encode, NULL to flush.
+ * \param[in]    img       Image data to encode, NULL to flush. Encoding sample
+ *                         values outside img->range is undefined behavior.
  * \param[in]    pts       Presentation time stamp, in timebase units. If img
  *                         is NULL, pts is ignored.
  * \param[in]    duration  Duration to show frame, in timebase units. If img
