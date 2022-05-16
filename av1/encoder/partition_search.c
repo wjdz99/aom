@@ -2299,10 +2299,15 @@ static void direct_partition_merging(AV1_COMP *cpi, ThreadData *td,
                            : PARTITION_NONE;
   BLOCK_SIZE subsize = get_partition_subsize(bsize, partition);
 
+  const int no_b1 = (mi_col + hbs == mi_params->mi_cols);
+  const int no_b2 = (mi_row + hbs == mi_params->mi_rows);
+  const int no_b3 = (mi_row + hbs == mi_params->mi_rows) ||
+                    (mi_col + hbs == mi_params->mi_cols);
+
   MB_MODE_INFO **b0 = mib;
-  MB_MODE_INFO **b1 = mib + hbs;
-  MB_MODE_INFO **b2 = mib + hbs * mi_params->mi_stride;
-  MB_MODE_INFO **b3 = mib + hbs * mi_params->mi_stride + hbs;
+  MB_MODE_INFO **b1 = no_b1 ? b0 : (mib + hbs);
+  MB_MODE_INFO **b2 = no_b2 ? b0 : (mib + hbs * mi_params->mi_stride);
+  MB_MODE_INFO **b3 = no_b3 ? b0 : (mib + hbs * mi_params->mi_stride + hbs);
 
   // Check if the following conditions are met. This can be updated
   // later with more support added.
@@ -2790,8 +2795,8 @@ void av1_nonrd_use_partition(AV1_COMP *cpi, ThreadData *td,
             cpi->sf.rt_sf.partition_direct_merging &&
             mode_costs->partition_cost[pl][PARTITION_NONE] <
                 mode_costs->partition_cost[pl][PARTITION_SPLIT] &&
-            (mi_row + bs <= mi_params->mi_rows) &&
-            (mi_col + bs <= mi_params->mi_cols)) {
+            (mi_row + hbs <= mi_params->mi_rows) &&
+            (mi_col + hbs <= mi_params->mi_cols)) {
           direct_partition_merging(cpi, td, tile_data, mib, mi_row, mi_col,
                                    bsize);
         }
