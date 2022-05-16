@@ -129,8 +129,12 @@ typedef enum aom_matrix_coefficients {
 
 /*!\brief List of supported color range */
 typedef enum aom_color_range {
-  AOM_CR_STUDIO_RANGE = 0, /**< Y [16..235], UV [16..240] */
-  AOM_CR_FULL_RANGE = 1    /**< YUV/RGB [0..255] */
+  AOM_CR_STUDIO_RANGE = 0, /**< Y  [16..235],  UV  [16..240]   (8-bit depth) */
+                           /**< Y  [64..943],  UV  [64..963]  (10-bit depth) */
+                           /**< Y [256..3775], UV [256..3855] (12-bit depth) */
+  AOM_CR_FULL_RANGE = 1    /**< YUV/RGB   [0..255]   (8-bit depth) */
+                           /**< YUV/RGB  [64..1023] (10-bit depth) */
+                           /**< YUV/RGB [256..4095] (12-bit depth) */
 } aom_color_range_t;       /**< alias for enum aom_color_range */
 
 /*!\brief List of chroma sample positions */
