@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9124f64a_3634e3c4",
+        "filename": "aom/aom_encoder.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-16T19:56:24Z",
+      "side": 1,
+      "message": "\"sample values outside img-\u003erange\" implies that img-\u003erange is a range of the form [min..max], but that is not the case.\n\nOne way to clarify this is:\n\n  Encoding sample values outside the range determined by img-\u003ebit_depth and img-\u003erange is undefined behavior.\n\nOr even:\n\n  Encoding sample values outside the range [0..(1\u003c\u003cimg-\u003ebit_depth)-1] is undefined behavior.\n\nbecause AV1 internally does not care whether the samples are full range or limited range and all the code in libaom must be prepared to handle full-range samples.",
+      "revId": "1347d087eb3659117a04cf72b50cdd1f352e0408",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    }
+  ]
+}

@@ -106,6 +106,24 @@
       "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "91901774_cdcd984f",
+        "filename": "aom/aom_image.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 9545
+      },
+      "writtenOn": "2022-05-16T19:56:24Z",
+      "side": 1,
+      "message": "\u003e Also I found it counter-intuitive to have FULL go till 1023 but LIMITED only to 940.\n\nCould you clarify why this is counter-intuitive? 940 is smaller than 1023. If the maximum of the full range is 1023, it seems reasonable to refer to a range that only goes up to 940 as limited.\n\n\u003e Is there any function to change the depth? I based my reasoning on this rather than changing the range.\n\nI am afraid that I don\u0027t understand this question. Could you clarify it?",
+      "parentUuid": "b94a7831_28976bd3",
+      "revId": "6d2f51fe183b9c5aa454653bc646cf211523a072",
+      "serverId": "e5514cf8-2d6e-3e29-adb4-24cd6dde4bf0"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "df5c8c77_543d606d",
